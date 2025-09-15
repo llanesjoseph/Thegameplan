@@ -1,0 +1,179 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions for role checking
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function getUserRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && getUserRole() in ['admin', 'superadmin'];
+    }
+
+    function isSuperAdmin() {
+      return isAuthenticated() && getUserRole() == 'superadmin';
+    }
+
+    function isCreator() {
+      return isAuthenticated() && getUserRole() in ['creator', 'admin', 'superadmin'];
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Users collection
+    match /users/{userId} {
+      allow read, write: if isOwner(userId) || isAdmin();
+      allow create: if isAuthenticated();
+    }
+
+    // Creator profiles
+    match /creator_profiles/{creatorId} {
+      allow read: if true;
+      allow write: if isOwner(creatorId) || isAdmin();
+      allow create: if isAuthenticated() && isOwner(creatorId);
+    }
+
+    // Creators index
+    match /creators_index/{creatorId} {
+      allow read: if true;
+      allow write: if isOwner(creatorId) || isAdmin();
+      allow create: if isAuthenticated() && isOwner(creatorId);
+    }
+
+    // Content
+    match /content/{contentId} {
+      allow read: if true;
+      allow write: if isOwner(resource.data.creatorUid) || isAdmin();
+      allow create: if true;
+    }
+
+    // Coaching requests
+    match /coaching_requests/{requestId} {
+      allow read: if isOwner(resource.data.userId) || isOwner(resource.data.targetCreatorUid) || isAdmin();
+      allow write: if isOwner(resource.data.userId) || isAdmin();
+      allow create: if isAuthenticated();
+    }
+
+    // Progress tracking
+    match /progress/{userId}/items/{itemId} {
+      allow read, write: if isOwner(userId) || isAdmin();
+      allow create: if isAuthenticated() && isOwner(userId);
+    }
+
+    // User requests/support tickets
+    match /requests/{requestId} {
+      allow read: if isOwner(resource.data.uid) || isOwner(resource.data.targetCreatorUid) || isAdmin();
+      allow write: if isOwner(resource.data.uid) || isAdmin();
+      allow create: if isAuthenticated();
+    }
+
+    // Analytics data
+    match /analytics/{document=**} {
+      allow read, write: if isAdmin();
+    }
+
+    // System settings
+    match /settings/{document=**} {
+      allow read: if isAdmin();
+      allow write: if isSuperAdmin();
+    }
+
+    // Subscriptions
+    match /subscriptions/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // Creator earnings
+    match /creator_earnings/{creatorId} {
+      allow read: if isOwner(creatorId) || isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // Notifications
+    match /notifications/{userId}/messages/{messageId} {
+      allow read: if isOwner(userId);
+      allow write: if isOwner(userId) || isAdmin();
+      allow create: if isAuthenticated();
+    }
+
+    // Reviews and ratings
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if isAuthenticated();
+      allow update, delete: if isOwner(resource.data.userId) || isAdmin();
+    }
+
+    // Chat/messaging
+    match /messages/{chatId}/messages/{messageId} {
+      allow read, write: if isAuthenticated() &&
+        (request.auth.uid in resource.data.participants || request.auth.uid in request.resource.data.participants);
+      allow create: if isAuthenticated();
+    }
+
+    // Events and workshops
+    match /events/{eventId} {
+      allow read: if resource.data.status == 'published' || isOwner(resource.data.creatorId) || isAdmin();
+      allow write: if isOwner(resource.data.creatorId) || isAdmin();
+      allow create: if isAuthenticated() && isCreator();
+    }
+
+    // Event registrations
+    match /event_registrations/{registrationId} {
+      allow read: if isOwner(resource.data.userId) || isOwner(resource.data.creatorId) || isAdmin();
+      allow write: if isOwner(resource.data.userId) || isAdmin();
+      allow create: if isAuthenticated();
+    }
+
+    // Default deny rule
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Profile pictures
+    match /profile-pictures/{userId}/{fileName} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Content uploads
+    match /content/{creatorId}/{fileName} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == creatorId;
+    }
+
+    // Coaching files
+    match /coaching-files/{userId}/{fileName} {
+      allow read: if request.auth != null &&
+        (request.auth.uid == userId ||
+         exists(/databases/(default)/documents/users/$(request.auth.uid)) &&
+         get(/databases/(default)/documents/users/$(request.auth.uid)).data.role in ['creator', 'admin', 'superadmin']);
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // General uploads
+    match /uploads/{userId}/{fileName} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Admin uploads
+    match /admin/{fileName} {
+      allow read: if true;
+      allow write: if request.auth != null &&
+        exists(/databases/(default)/documents/users/$(request.auth.uid)) &&
+        get(/databases/(default)/documents/users/$(request.auth.uid)).data.role in ['admin', 'superadmin'];
+    }
+  }
+}

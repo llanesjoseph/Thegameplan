@@ -1,0 +1,47 @@
+rules_version = '2';
+
+// =====================================================
+// DEVELOPMENT/TESTING RULES - OPEN ACCESS
+// =====================================================
+// WARNING: These rules allow open access for testing
+// DO NOT USE IN PRODUCTION!
+// =====================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // DEVELOPMENT: Allow all access to content
+    match /content/{contentId} {
+      allow read, write, create, update, delete: if true;
+    }
+    
+    // DEVELOPMENT: Allow all access to users  
+    match /users/{userId} {
+      allow read, write, create, update, delete: if true;
+    }
+    
+    // DEVELOPMENT: Allow all access to creator profiles
+    match /creator_profiles/{creatorId} {
+      allow read, write, create, update, delete: if true;
+    }
+    
+    // DEVELOPMENT: Allow all access to creators index
+    match /creators_index/{creatorId} {
+      allow read, write, create, update, delete: if true;
+    }
+    
+    // DEVELOPMENT: Allow all access to other collections
+    match /{document=**} {
+      allow read, write, create, update, delete: if true;
+    }
+  }
+}
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // DEVELOPMENT: Allow all storage access
+    match /{allPaths=**} {
+      allow read, write: if true;
+    }
+  }
+}
