@@ -9,8 +9,8 @@ const db = admin.firestore()
 // Configure CORS for your domain
 const corsOptions = {
   origin: [
-    'https://gameplan-787a2.web.app',
-    'https://gameplan-787a2.firebaseapp.com',
+    'https://your_project_id.web.app',
+    'https://your_project_id.firebaseapp.com',
     'https://your-custom-domain.com', // Replace with your actual domain
     /^https:\/\/.*\.firebaseapp\.com$/,
     /^https:\/\/.*\.web\.app$/

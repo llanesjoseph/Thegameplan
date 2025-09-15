@@ -7,7 +7,7 @@ const admin = require('firebase-admin');
 try {
   admin.initializeApp({
     credential: admin.credential.applicationDefault(),
-    projectId: 'gameplan-787a2'
+    projectId: 'your_firebase_project_id'
   });
   console.log('✅ Firebase Admin initialized');
 } catch (error) {

@@ -67,7 +67,8 @@
       "Bash(git gc:*)",
       "Read(//c/Users/bigpe/OneDrive/Desktop/Crucible/**)",
       "Bash(grep:*)",
-      "Bash(git init:*)"
+      "Bash(git init:*)",
+      "Bash(git grep:*)"
     ],
     "deny": [],
     "ask": []
