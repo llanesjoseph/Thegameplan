@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700;800&display=swap');
+@tailwind base;
 
 /* Tailwind base reset is handled by Next/Tailwind; keep minimal global styles */
 * { box-sizing: border-box; }
@@ -605,3 +606,101 @@ body {
 .group:hover .group-hover\:scale-\[1\.02\] {
   transform: scale(1.02);
 }
+
+/* Animated abstract background for the homepage */
+.nexus-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  background: radial-gradient(600px 600px at 15% 20%, rgba(140, 21, 21, 0.08), transparent 60%),
+              radial-gradient(500px 500px at 85% 25%, rgba(88, 28, 135, 0.08), transparent 60%),
+              radial-gradient(700px 700px at 40% 85%, rgba(14, 165, 233, 0.08), transparent 60%);
+  animation: bg-drift 30s ease-in-out infinite alternate;
+}
+
+@keyframes bg-drift {
+  0% { background-position: 0% 0%, 0% 0%, 0% 0%; }
+  50% { background-position: 10% 4%, -6% 6%, 4% -8%; }
+  100% { background-position: -8% -6%, 8% -10%, -6% 10%; }
+}
+
+.geometric-shapes { position: absolute; inset: 0; }
+
+.shape {
+  position: absolute;
+  opacity: 0.06;
+  filter: blur(1px);
+  background: var(--shape-color, #8C1515);
+  transform: translateZ(0);
+}
+
+.shape.circle { border-radius: 9999px; }
+.shape.triangle { clip-path: polygon(50% 0%, 0% 100%, 100% 100%); }
+.shape.hexagon { clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%); }
+
+/* Distribute shapes and animate them at different speeds */
+.geometric-shapes .shape:nth-child(1) { top: 10%; left: 8%; width: 220px; height: 220px; --shape-color: #8C1515; animation: float-a 22s ease-in-out infinite; }
+.geometric-shapes .shape:nth-child(2) { top: 18%; right: 10%; width: 180px; height: 160px; --shape-color: #581c87; animation: float-b 26s ease-in-out infinite; }
+.geometric-shapes .shape:nth-child(3) { bottom: 18%; left: 12%; width: 260px; height: 220px; --shape-color: #0ea5e9; animation: float-c 28s ease-in-out infinite; }
+.geometric-shapes .shape:nth-child(4) { top: 55%; right: 20%; width: 180px; height: 180px; --shape-color: #8C1515; animation: float-b 24s ease-in-out infinite reverse; }
+.geometric-shapes .shape:nth-child(5) { top: 30%; left: 45%; width: 160px; height: 140px; --shape-color: #581c87; animation: float-c 30s ease-in-out infinite reverse; }
+.geometric-shapes .shape:nth-child(6) { bottom: 8%; right: 8%; width: 220px; height: 200px; --shape-color: #0ea5e9; animation: float-a 32s ease-in-out infinite; }
+
+@keyframes float-a {
+  0% { transform: translateY(0) translateX(0) rotate(0deg); }
+  50% { transform: translateY(-20px) translateX(10px) rotate(8deg); }
+  100% { transform: translateY(0) translateX(0) rotate(0deg); }
+}
+
+@keyframes float-b {
+  0% { transform: translateY(0) translateX(0) rotate(0deg); }
+  50% { transform: translateY(14px) translateX(-12px) rotate(-6deg); }
+  100% { transform: translateY(0) translateX(0) rotate(0deg); }
+}
+
+@keyframes float-c {
+  0% { transform: translateY(0) translateX(0) rotate(0deg); }
+  50% { transform: translateY(-16px) translateX(-10px) rotate(5deg); }
+  100% { transform: translateY(0) translateX(0) rotate(0deg); }
+}
+
+/* Cardinal moving grid overlay (inspired by provided snippet) */
+.moving-grid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.25;
+  background-image:
+    repeating-linear-gradient(
+      to right,
+      rgba(140, 21, 21, 0.18) 0,
+      rgba(140, 21, 21, 0.18) 1px,
+      transparent 1px,
+      transparent 50px
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      rgba(140, 21, 21, 0.18) 0,
+      rgba(140, 21, 21, 0.18) 1px,
+      transparent 1px,
+      transparent 50px
+    );
+  background-size: 50px 50px;
+  animation: bg-scrolling-reverse 4s linear infinite;
+}
+
+@keyframes bg-scrolling-reverse {
+  0% { background-position: 0 0; }
+  100% { background-position: 50px 50px; }
+}
+
+@keyframes bg-scrolling {
+  0% { background-position: 50px 50px; }
+  100% { background-position: 0 0; }
+}
+
+/* Inject Tailwind component and utility layers after custom CSS so
+   generated utilities take precedence over any similarly named classes. */
+@tailwind components;
+@tailwind utilities;

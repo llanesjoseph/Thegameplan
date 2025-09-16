@@ -18,6 +18,10 @@ const eslintConfig = [
       "out/**",
       "build/**",
       "next-env.d.ts",
+      "test-*.js",
+      "temp-*.js",
+      "jest-*.js",
+      "webpack-*.js",
     ],
     rules: {
       "no-console": ["warn", { allow: ["warn", "error", "info", "debug"] }],

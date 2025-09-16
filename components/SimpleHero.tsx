@@ -8,7 +8,7 @@ import ClarityCard from './ui/NexusCard'
 
 const SimpleHero = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-clarity-background pt-16">
+    <div className="min-h-screen flex items-center justify-center pt-16">
       <div className="clarity-container">
         <div className="max-w-4xl mx-auto text-center">
           

@@ -31,7 +31,7 @@ export async function initializeUserDocument(user: FirebaseUser | null, defaultR
       const userData = userDoc.data() as UserProfile
       await setDoc(userDocRef, {
         ...userData,
-        lastLoginAt: serverTimestamp()
+        lastLoginAt: Timestamp.now()
       }, { merge: true })
       
       console.log('Existing user document updated:', user.uid)
@@ -43,8 +43,8 @@ export async function initializeUserDocument(user: FirebaseUser | null, defaultR
         email: user.email || '',
         displayName: user.displayName || user.email?.split('@')[0] || 'Anonymous User',
         role: defaultRole,
-        createdAt: serverTimestamp(),
-        lastLoginAt: serverTimestamp()
+        createdAt: Timestamp.now(),
+        lastLoginAt: Timestamp.now()
       }
       
       await setDoc(userDocRef, newUserData)

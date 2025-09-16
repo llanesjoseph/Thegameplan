@@ -144,11 +144,11 @@ export async function createAISession(
       userId,
       userEmail,
       sessionId,
-      startTime: serverTimestamp(),
+      startTime: Timestamp.now(),
       totalQuestions: 0,
       userSubscriptionLevel,
       disclaimerAccepted,
-      consentTimestamp: serverTimestamp(),
+      consentTimestamp: Timestamp.now(),
       termsVersion,
       privacyPolicyVersion
     }
@@ -216,7 +216,7 @@ export async function logAIInteraction(
       userId,
       userEmail,
       sessionId,
-      timestamp: serverTimestamp(),
+      timestamp: Timestamp.now(),
       
       // Request data
       question,
@@ -282,7 +282,7 @@ async function updateSessionQuestionCount(sessionId: string): Promise<void> {
       const currentCount = doc.data().totalQuestions || 0
       await updateDoc(doc.ref, { 
         totalQuestions: currentCount + 1,
-        lastActivity: serverTimestamp()
+        lastActivity: Timestamp.now()
       })
     }
   } catch (error) {
@@ -298,7 +298,7 @@ async function flagForReview(logEntry: AILogEntry): Promise<void> {
       userId: logEntry.userId,
       userEmail: logEntry.userEmail,
       sessionId: logEntry.sessionId,
-      flaggedAt: serverTimestamp(),
+      flaggedAt: Timestamp.now(),
       contentFlags: logEntry.contentFlags,
       riskLevel: logEntry.riskLevel,
       reason: 'Automated content analysis',

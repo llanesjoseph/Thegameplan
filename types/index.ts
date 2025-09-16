@@ -1,6 +1,6 @@
 // Comprehensive TypeScript definitions for Game Plan application
 
-import { User } from 'firebase/auth'
+// import { User } from 'firebase/auth' // Commented out as it's exported at the end
 import { Timestamp } from 'firebase/firestore'
 
 // Firebase User Extensions
@@ -70,6 +70,7 @@ export interface ContentItem {
 export interface CoachingRequest {
   id: string
   userId: string
+  userEmail: string
   targetCreatorUid?: string
   sport: string
   requestType: 'video_review' | 'technique_help' | 'training_plan' | 'general'

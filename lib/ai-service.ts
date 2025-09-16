@@ -108,23 +108,6 @@ export const bjjCoachingContext: CoachingContext = {
   ]
 }
 
-// Multi-sport registry for scalable support
-export const sportContextRegistry: Record<string, CoachingContext> = {
-  soccer: soccerCoachingContext,
-  football: soccerCoachingContext, // placeholder until a specific football context exists
-  bjj: bjjCoachingContext,
-  'brazilian jiu-jitsu': bjjCoachingContext,
-  grappling: bjjCoachingContext,
-  content: contentCreationContext,
-  platform: platformAssistantContext,
-}
-
-export function getCoachingContextBySport(sport?: string): CoachingContext {
-  if (!sport) return soccerCoachingContext
-  const key = sport.toLowerCase().trim()
-  return sportContextRegistry[key] || soccerCoachingContext
-}
-
 // Content Creation Assistant Context
 export const contentCreationContext: CoachingContext = {
   sport: 'Content Creation',
@@ -177,6 +160,23 @@ export const platformAssistantContext: CoachingContext = {
     'User-friendly approach',
     'Comprehensive and thorough'
   ]
+}
+
+// Multi-sport registry for scalable support
+export const sportContextRegistry: Record<string, CoachingContext> = {
+  soccer: soccerCoachingContext,
+  football: soccerCoachingContext, // placeholder until a specific football context exists
+  bjj: bjjCoachingContext,
+  'brazilian jiu-jitsu': bjjCoachingContext,
+  grappling: bjjCoachingContext,
+  content: contentCreationContext,
+  platform: platformAssistantContext,
+}
+
+export function getCoachingContextBySport(sport?: string): CoachingContext {
+  if (!sport) return soccerCoachingContext
+  const key = sport.toLowerCase().trim()
+  return sportContextRegistry[key] || soccerCoachingContext
 }
 
 export const generateCoachingPrompt = (question: string, context: CoachingContext): string => {

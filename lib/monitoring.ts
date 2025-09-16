@@ -1,4 +1,27 @@
 // Enterprise-grade monitoring and observability system
+
+// Browser API type definitions
+interface LayoutShift extends PerformanceEntry {
+  value: number
+  hadRecentInput: boolean
+  sources: LayoutShiftAttribution[]
+}
+
+interface LayoutShiftAttribution {
+  node?: Node
+  previousRect: DOMRectReadOnly
+  currentRect: DOMRectReadOnly
+}
+
+interface PerformanceEventTiming extends PerformanceEntry {
+  target?: EventTarget
+  element?: Element
+  interactionId?: number
+  cancelable?: boolean
+  processingStart: number
+  processingEnd: number
+}
+
 export interface PerformanceMetric {
   name: string
   value: number
@@ -125,7 +148,7 @@ export class PerformanceMonitor {
     const originalFetch = window.fetch
     window.fetch = async (...args) => {
       const startTime = performance.now()
-      const url = typeof args[0] === 'string' ? args[0] : args[0].url
+      const url = typeof args[0] === 'string' ? args[0] : (args[0] as Request).url
       
       try {
         const response = await originalFetch(...args)

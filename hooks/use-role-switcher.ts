@@ -198,9 +198,6 @@ export function useEnhancedRole() {
   return {
     role: effectiveRole,
     loading,
-    originalRole: roleSwitcher.originalRole,
-    isTestingMode: roleSwitcher.isTestingMode,
-    canSwitchRoles: roleSwitcher.canSwitchRoles,
     ...roleSwitcher
   }
 }

@@ -89,18 +89,20 @@ export default function CoachingPage() {
         const data = doc.data()
         requestsData.push({
           id: doc.id,
-          type: data.type || 'one_on_one',
-          status: data.status || 'new',
-          title: data.title || '',
-          description: data.description || '',
-          sport: data.sport || '',
-          skillLevel: data.skillLevel || '',
-          preferredTime: data.preferredTime || '',
+          userId: data.userId || user.uid,
+          userEmail: data.userEmail || user.email || '',
           targetCreatorUid: data.targetCreatorUid,
-          targetCreatorName: data.targetCreatorName,
-          fileUrl: data.fileUrl,
+          sport: data.sport || '',
+          requestType: data.requestType || data.type || 'general',
+          status: data.status || 'pending',
+          priority: data.priority || 'medium',
+          description: data.description || '',
+          fileUrls: data.fileUrl ? [data.fileUrl] : (data.fileUrls || []),
           createdAt: data.createdAt?.toDate() || new Date(),
-          scheduledAt: data.scheduledAt?.toDate()
+          updatedAt: data.updatedAt?.toDate() || new Date(),
+          dueDate: data.scheduledAt?.toDate(),
+          response: data.response,
+          responseAt: data.responseAt?.toDate()
         })
       })
       
