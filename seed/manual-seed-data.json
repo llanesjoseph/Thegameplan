@@ -1,0 +1,108 @@
+{
+  "creatorPublic": {
+    "jasmine-aikey": {
+      "name": "Jasmine Aikey",
+      "firstName": "Jasmine",
+      "sport": "soccer",
+      "tagline": "Elite Performance Training - The Intersection of Intellect and Intensity",
+      "heroImageUrl": "https://images.unsplash.com/photo-1574629810360-7efbbe195018?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+      "headshotUrl": "https://images.unsplash.com/photo-1494790108755-2616b612b77c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80",
+      "badges": ["National Player of the Year", "Stanford Cardinal", "U-20 World Cup"],
+      "lessonCount": 15,
+      "specialties": ["tactical", "mental", "leadership", "technical"],
+      "experience": "college",
+      "verified": true,
+      "featured": true
+    }
+  },
+  "creator_profiles": {
+    "jasmine-aikey": {
+      "uid": "jasmine-aikey-uid",
+      "email": "jasmine.aikey@stanford.edu",
+      "role": "creator",
+      "status": "active",
+      "name": "Jasmine Aikey",
+      "firstName": "Jasmine",
+      "sport": "soccer",
+      "tagline": "Elite Performance Training - The Intersection of Intellect and Intensity",
+      "verified": true,
+      "featured": true,
+      "stripeAccountId": "acct_1234567890",
+      "earningsTotal": 15000,
+      "earningsThisMonth": 2500,
+      "earningsPending": 500
+    }
+  },
+  "content": {
+    "lesson-1": {
+      "id": "lesson-1",
+      "title": "Tactical Awareness and Positioning",
+      "description": "Learn to read the game and position yourself for maximum impact",
+      "creatorId": "jasmine-aikey",
+      "creatorName": "Jasmine Aikey",
+      "sport": "soccer",
+      "category": "tactical",
+      "level": "intermediate",
+      "duration": 720,
+      "videoUrl": "https://example.com/lesson-1.mp4",
+      "thumbnailUrl": "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=400",
+      "price": 19.99,
+      "tags": ["positioning", "tactics", "awareness"],
+      "status": "published"
+    },
+    "lesson-2": {
+      "id": "lesson-2",
+      "title": "Mental Resilience in High-Pressure Situations",
+      "description": "Develop the mental fortitude to perform under pressure",
+      "creatorId": "jasmine-aikey",
+      "creatorName": "Jasmine Aikey",
+      "sport": "soccer",
+      "category": "mental",
+      "level": "advanced",
+      "duration": 900,
+      "videoUrl": "https://example.com/lesson-2.mp4",
+      "thumbnailUrl": "https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=400",
+      "price": 24.99,
+      "tags": ["mental", "pressure", "resilience"],
+      "status": "published"
+    },
+    "lesson-3": {
+      "id": "lesson-3",
+      "title": "First Touch and Ball Control Drills",
+      "description": "Master your first touch with these proven drills",
+      "creatorId": "jasmine-aikey",
+      "creatorName": "Jasmine Aikey",
+      "sport": "soccer",
+      "category": "technical",
+      "level": "beginner",
+      "duration": 600,
+      "videoUrl": "https://example.com/lesson-3.mp4",
+      "thumbnailUrl": "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400",
+      "price": 14.99,
+      "tags": ["technical", "ball-control", "drills"],
+      "status": "published"
+    }
+  },
+  "users": {
+    "user-1": {
+      "uid": "user-1",
+      "email": "athlete1@example.com",
+      "displayName": "Alex Johnson",
+      "role": "athlete",
+      "sport": "soccer",
+      "level": "intermediate",
+      "subscriptionPlan": "premium",
+      "subscriptionStatus": "active"
+    },
+    "user-2": {
+      "uid": "user-2",
+      "email": "coach1@example.com",
+      "displayName": "Sarah Martinez",
+      "role": "coach",
+      "sport": "soccer",
+      "level": "expert",
+      "subscriptionPlan": "pro",
+      "subscriptionStatus": "active"
+    }
+  }
+}
