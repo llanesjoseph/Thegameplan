@@ -62,17 +62,17 @@ export default function Dashboard() {
 
   // User is not authenticated (guest)
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="text-center max-w-md mx-auto px-6">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+    <div className="min-h-screen flex items-start sm:items-center justify-center bg-gray-50 pt-24 pb-12">
+      <div className="text-center w-full max-w-lg mx-auto px-4 sm:px-6">
+        <div className="bg-white/95 backdrop-blur rounded-2xl shadow-card-md border border-gray-200 p-6 sm:p-8">
           <div className="mb-8">
-            <div className="w-20 h-20 mx-auto mb-6 bg-cardinal rounded-full flex items-center justify-center">
-              <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
+            <div className="w-16 h-16 mx-auto mb-4 bg-cardinal rounded-full flex items-center justify-center">
+              <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">Welcome to Game Plan</h1>
-            <p className="text-lg text-gray-600 mb-2">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">Welcome to Game Plan</h1>
+            <p className="text-sm sm:text-base text-gray-600 mb-2">
               Sign in to access your personalized dashboard and start your training journey with elite athletes.
             </p>
             <div className="mb-6 p-3 bg-cardinal/10 border border-cardinal/20 rounded-lg">
@@ -82,7 +82,7 @@ export default function Dashboard() {
             </div>
           </div>
           
-          <div className="space-y-4 mb-6">
+          <div className="space-y-4 mb-4">
             <AuthProvider variant="compact" returnUserPrompt={true} />
             
             <div className="relative">

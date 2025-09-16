@@ -32,43 +32,53 @@ export default function GoogleSignInButton({
   }
 
   const handleGoogleSignIn = async () => {
+    console.log('🔥 BUTTON CLICKED - Google sign-in triggered!')
     setIsLoading(true)
     setError(null)
 
+    console.log('🚀 Starting Google sign-in process...')
+
     try {
+      // Check if auth is initialized
+      if (!auth) {
+        throw new Error('Firebase auth not initialized')
+      }
+
+      console.log('🔧 Creating Google Auth Provider...')
       const provider = new GoogleAuthProvider()
-      
+
       // Request additional scopes if needed
       provider.addScope('profile')
       provider.addScope('email')
-      
+
       // Configure custom parameters
       provider.setCustomParameters({
         prompt: 'select_account'
       })
 
-      // Try popup first, fallback to redirect if popup fails
+      console.log('🎯 Attempting popup sign-in...')
+
+      // Try popup first, fallback to redirect if popup fails (for blockers, extensions, or strict browsers)
       try {
         const result = await signInWithPopup(auth, provider)
         const user = result.user
 
-        console.log('Successfully signed in:', user.displayName)
-        
+        console.log('✅ Successfully signed in:', {
+          displayName: user.displayName,
+          email: user.email,
+          uid: user.uid
+        })
+
+        // Small delay to ensure Firebase auth state is updated
+        await new Promise(resolve => setTimeout(resolve, 500))
+
         // Redirect to onboarding for new users to complete their profile
         router.push('/onboarding')
       } catch (popupError: unknown) {
-        console.log('Popup failed, trying redirect method:', popupError)
-        // If popup fails, try redirect method
-        const errorCode = popupError && typeof popupError === 'object' && 'code' in popupError ? (popupError as any).code : null
-        if (errorCode === 'auth/popup-blocked' || errorCode === 'auth/popup-closed-by-user') {
-          console.log('Using redirect method instead')
-          await signInWithRedirect(auth, provider)
-          // Note: redirect will reload the page, so we don't need to handle the result here
-          return
-        } else {
-          // Re-throw other errors to be handled by outer catch
-          throw popupError
-        }
+        console.log('⚠️ Popup sign-in failed, attempting redirect fallback...', popupError)
+        // Always attempt redirect as a robust fallback since some environments misclassify popup errors
+        await signInWithRedirect(auth, provider)
+        return
       }
       
     } catch (error: unknown) {
@@ -103,10 +113,11 @@ export default function GoogleSignInButton({
       <button
         onClick={handleGoogleSignIn}
         disabled={isLoading}
+        type="button"
         className={`
           w-full flex items-center justify-center gap-3 rounded-lg font-medium
           transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed
-          hover:scale-[1.02] active:scale-[0.98]
+          hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-cardinal focus:ring-offset-2
           ${sizeClasses[size]} ${variantClasses[variant]} ${className}
         `}
       >
