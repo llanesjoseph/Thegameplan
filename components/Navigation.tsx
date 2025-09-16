@@ -60,8 +60,8 @@ const Navigation = () => {
                   <Image
                     src="https://res.cloudinary.com/dr0jtjwlh/image/upload/v1758004832/0cfb867d-daad-453a-bce5-7f861c04e1c1_i0k0z8.png"
                     alt="Game Plan"
-                    width={40}
-                    height={40}
+                    width={48}
+                    height={48}
                     className="rounded-lg"
                   />
                 </div>
