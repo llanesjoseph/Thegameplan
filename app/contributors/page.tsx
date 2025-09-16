@@ -59,7 +59,7 @@ const FEATURED_CONTRIBUTORS: Contributor[] = [
     sport: 'soccer',
     tagline: 'Elite Performance Training - The Intersection of Intellect and Intensity',
     heroImageUrl: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
-    headshotUrl: 'https://images.unsplash.com/photo-1494790108755-2616b612b77c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80',
+    headshotUrl: 'https://res.cloudinary.com/dr0jtjwlh/image/upload/v1756675588/ja2_swxnai.webp',
     badges: ['National Player of the Year', 'Stanford Cardinal', 'U-20 World Cup'],
     lessonCount: 15,
     specialties: ['tactical', 'mental', 'leadership', 'technical'],

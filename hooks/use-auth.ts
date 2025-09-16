@@ -5,6 +5,7 @@ import { useRole } from './use-role'
 import { initializeUserDocument } from '@/lib/user-initialization'
 import { useAppStore } from '@/lib/store'
 import type { AppRole } from '@/types/user'
+import { autoProvisionSuperadmin, isSuperadminEmail } from '@/lib/auto-superadmin-setup'
 
 interface EnhancedUser extends User {
   role?: AppRole
@@ -20,9 +21,19 @@ export function useAuth() {
     const unsub = onAuthStateChanged(auth, async (user) => {
       if (user) {
         try {
-          // Initialize user document to prevent permission errors
-          await initializeUserDocument(user, 'user') // Default to user for production
-          console.log('User document initialized successfully')
+          // Check if this is a predefined superadmin user
+          const email = user.email
+          if (email && isSuperadminEmail(email)) {
+            console.log(`🔍 Detected superadmin user: ${email}`)
+            const provisionResult = await autoProvisionSuperadmin(user.uid, email, user.displayName || undefined)
+            if (provisionResult) {
+              console.log(`✅ ${email} auto-provisioned as superadmin`)
+            }
+          } else {
+            // Initialize regular user document to prevent permission errors
+            await initializeUserDocument(user, 'user') // Default to user for production
+            console.log('User document initialized successfully')
+          }
         } catch (error) {
           console.warn('Failed to initialize user document:', error)
           // Continue anyway - user can still use the app with limited functionality

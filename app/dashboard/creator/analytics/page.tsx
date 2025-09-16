@@ -117,7 +117,7 @@ export default function CreatorAnalytics() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 mx-auto"></div>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-cardinal mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading...</p>
         </div>
       </div>
@@ -141,7 +141,7 @@ export default function CreatorAnalytics() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 mx-auto"></div>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-cardinal mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading your analytics...</p>
         </div>
       </div>
@@ -168,7 +168,7 @@ export default function CreatorAnalytics() {
                 onClick={() => setTimeRange(range)}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   timeRange === range
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-cardinal text-white'
                     : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
                 }`}
               >
@@ -183,8 +183,8 @@ export default function CreatorAnalytics() {
         {/* Key Metrics */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div className="bg-white rounded-xl border border-gray-200 p-6 text-center">
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-              <Users className="w-6 h-6 text-blue-600" />
+            <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+              <Users className="w-6 h-6 text-cardinal" />
             </div>
             <div className="text-3xl font-bold text-gray-900 mb-2">
               {audienceStats.totalFollowers.toLocaleString()}
@@ -203,7 +203,7 @@ export default function CreatorAnalytics() {
               {audienceStats.activeViewers.toLocaleString()}
             </div>
             <div className="text-sm text-gray-600">Active Viewers</div>
-            <div className="text-xs text-blue-600 mt-1">Last 30 days</div>
+            <div className="text-xs text-cardinal mt-1">Last 30 days</div>
           </div>
 
           <div className="bg-white rounded-xl border border-gray-200 p-6 text-center">
@@ -304,14 +304,14 @@ export default function CreatorAnalytics() {
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600">Retention</span>
-                  <span className="font-medium text-blue-600">{audienceStats.topEngagement > 0 ? `${Math.floor(audienceStats.topEngagement * 0.85)}%` : '0%'}</span>
+                  <span className="font-medium text-cardinal">{audienceStats.topEngagement > 0 ? `${Math.floor(audienceStats.topEngagement * 0.85)}%` : '0%'}</span>
                 </div>
               </div>
             </div>
 
             <div className="bg-white rounded-xl border border-gray-200 p-6">
               <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <Target className="w-5 h-5 text-blue-600" />
+                <Target className="w-5 h-5 text-cardinal" />
                 Content Strategy
               </h3>
               <div className="space-y-4">
@@ -338,12 +338,12 @@ export default function CreatorAnalytics() {
         <div>
           <h2 className="text-2xl font-semibold text-gray-900 mb-6">Recommendations</h2>
           <div className="grid md:grid-cols-3 gap-6">
-            <div className="bg-white rounded-xl border border-gray-200 border-l-4 border-l-blue-500 p-6">
+            <div className="bg-white rounded-xl border border-gray-200 border-l-4 border-l-cardinal p-6">
               <h3 className="font-semibold text-gray-900 mb-2">Content Timing</h3>
               <p className="text-gray-600 text-sm mb-4">
                 {audienceStats.totalFollowers > 0 ? 'Analyze your audience data to find optimal posting times.' : 'Start creating content to gather audience insights.'}
               </p>
-              <div className="text-xs text-blue-600">Publish during these times for maximum engagement</div>
+              <div className="text-xs text-cardinal">Publish during these times for maximum engagement</div>
             </div>
             
             <div className="bg-white rounded-xl border border-gray-200 border-l-4 border-l-green-500 p-6">

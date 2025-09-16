@@ -9,6 +9,7 @@ import { auth, db, storage } from '@/lib/firebase.client'
 import { useEnhancedRole } from "@/hooks/use-role-switcher"
 import { useAuth } from "@/hooks/use-auth"
 import { useRouter } from 'next/navigation'
+import CreatorAccessGate from '@/components/CreatorAccessGate'
 import { collection, addDoc, query, where, getCountFromServer, serverTimestamp, getDoc, doc, getDocs, orderBy, deleteDoc } from 'firebase/firestore'
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { 
@@ -427,7 +428,7 @@ Enhanced with detailed explanations, visual demonstrations, and progressive skil
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cardinal mx-auto"></div>
           <p className="mt-2 text-gray-600">Loading...</p>
         </div>
       </div>
@@ -435,8 +436,9 @@ Enhanced with detailed explanations, visual demonstrations, and progressive skil
   }
 
   return (
-    <main className="min-h-screen bg-gray-50">
-      <div className="max-w-6xl mx-auto px-4 py-6">
+    <CreatorAccessGate>
+      <main className="min-h-screen bg-gray-50">
+        <div className="max-w-6xl mx-auto px-4 py-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
@@ -453,7 +455,7 @@ Enhanced with detailed explanations, visual demonstrations, and progressive skil
           <div className="flex gap-4">
             <div className="bg-white border border-gray-200 rounded-lg px-4 py-2">
               <div className="flex items-center gap-2">
-                <Video className="w-4 h-4 text-blue-600" />
+                <Video className="w-4 h-4 text-cardinal" />
                 <span className="font-semibold text-gray-900">{lessonCount}</span>
                 <span className="text-gray-600 text-sm">Lessons</span>
               </div>
@@ -491,7 +493,7 @@ Enhanced with detailed explanations, visual demonstrations, and progressive skil
             }}
             className={`px-4 py-2 rounded-md font-medium transition-colors flex items-center gap-2 cursor-pointer ${
               activeTab === 'create'
-                ? 'bg-blue-600 text-white'
+                ? 'bg-cardinal text-white'
                 : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
             }`}
           >
@@ -507,7 +509,7 @@ Enhanced with detailed explanations, visual demonstrations, and progressive skil
             }}
             className={`px-4 py-2 rounded-md font-medium transition-colors flex items-center gap-2 cursor-pointer ${
               activeTab === 'manage'
-                ? 'bg-blue-600 text-white'
+                ? 'bg-cardinal text-white'
                 : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
             }`}
           >
@@ -533,7 +535,7 @@ Enhanced with detailed explanations, visual demonstrations, and progressive skil
                   onClick={() => setShowAIFeatures(!showAIFeatures)}
                   className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
                     showAIFeatures
-                      ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg'
+                      ? 'bg-gradient-to-r from-purple-600 to-cardinal text-white shadow-lg'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
@@ -546,7 +548,7 @@ Enhanced with detailed explanations, visual demonstrations, and progressive skil
 
             {/* AI Features Panel */}
             {showAIFeatures && (
-              <div className="mb-6 p-4 bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg">
+              <div className="mb-6 p-4 bg-gradient-to-r from-purple-50 to-red-50 border border-purple-200 rounded-lg">
                 <div className="flex items-center gap-2 mb-4">
                   <Sparkles className="w-5 h-5 text-purple-600" />
                   <h3 className="font-semibold text-purple-900">AI Content Assistant</h3>
@@ -598,7 +600,7 @@ Enhanced with detailed explanations, visual demonstrations, and progressive skil
                       type="button"
                       onClick={enhanceDescription}
                       disabled={enhancingContent || !watch('description')}
-                      className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2 text-sm font-medium"
+                      className="px-3 py-2 bg-cardinal text-white rounded-lg hover:bg-cardinal-dark disabled:opacity-50 flex items-center gap-2 text-sm font-medium"
                     >
                       {enhancingContent ? (
                         <RefreshCw className="w-4 h-4 animate-spin" />
@@ -650,7 +652,7 @@ Enhanced with detailed explanations, visual demonstrations, and progressive skil
                   </label>
                   <input
                     {...register('title')}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cardinal focus:border-transparent"
                     placeholder="Enter lesson title..."
                   />
                   {errors.title && (
@@ -664,7 +666,7 @@ Enhanced with detailed explanations, visual demonstrations, and progressive skil
                   </label>
                   <select
                     {...register('level')}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cardinal focus:border-transparent"
                   >
                     <option value="All Levels">All Levels</option>
                     <option value="Beginner">Beginner</option>
@@ -681,7 +683,7 @@ Enhanced with detailed explanations, visual demonstrations, and progressive skil
                 <textarea
                   {...register('description')}
                   rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cardinal focus:border-transparent"
                   placeholder="Describe what students will learn..."
                 />
                 {errors.description && (
@@ -695,7 +697,7 @@ Enhanced with detailed explanations, visual demonstrations, and progressive skil
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Video File
                   </label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-cardinal transition-colors">
                     <Video className="w-8 h-8 text-gray-400 mx-auto mb-2" />
                     <input
                       type="file"
@@ -705,7 +707,7 @@ Enhanced with detailed explanations, visual demonstrations, and progressive skil
                       id="video-upload"
                     />
                     <label htmlFor="video-upload" className="cursor-pointer">
-                      <span className="text-blue-600 font-medium">Choose video file</span>
+                      <span className="text-cardinal font-medium">Choose video file</span>
                       <p className="text-gray-500 text-sm mt-1">MP4, MOV up to 500MB</p>
                     </label>
                   </div>
@@ -718,7 +720,7 @@ Enhanced with detailed explanations, visual demonstrations, and progressive skil
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Thumbnail Image
                   </label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-cardinal transition-colors">
                     <Image className="w-8 h-8 text-gray-400 mx-auto mb-2" />
                     <input
                       type="file"
@@ -728,7 +730,7 @@ Enhanced with detailed explanations, visual demonstrations, and progressive skil
                       id="thumb-upload"
                     />
                     <label htmlFor="thumb-upload" className="cursor-pointer">
-                      <span className="text-blue-600 font-medium">Choose thumbnail</span>
+                      <span className="text-cardinal font-medium">Choose thumbnail</span>
                       <p className="text-gray-500 text-sm mt-1">PNG, JPG up to 5MB</p>
                     </label>
                   </div>
@@ -743,7 +745,7 @@ Enhanced with detailed explanations, visual demonstrations, and progressive skil
                 <button
                   type="submit"
                   disabled={creating}
-                  className="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  className="px-6 py-2 bg-cardinal text-white rounded-lg font-medium hover:bg-cardinal-dark disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
                   {creating ? (
                     <>
@@ -771,7 +773,7 @@ Enhanced with detailed explanations, visual demonstrations, and progressive skil
 
             {loadingLessons ? (
               <div className="text-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cardinal mx-auto"></div>
                 <p className="mt-2 text-gray-600">Loading lessons...</p>
               </div>
             ) : publishedLessons.length === 0 ? (
@@ -781,7 +783,7 @@ Enhanced with detailed explanations, visual demonstrations, and progressive skil
                 <p className="text-gray-600 mb-4">Create your first lesson to get started</p>
                 <button
                   onClick={() => setActiveTab('create')}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700"
+                  className="px-4 py-2 bg-cardinal text-white rounded-lg font-medium hover:bg-cardinal-dark"
                 >
                   Create Lesson
                 </button>
@@ -800,7 +802,7 @@ Enhanced with detailed explanations, visual demonstrations, and progressive skil
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-100 to-purple-100">
+                          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-red-100 to-purple-100">
                             <Video className="w-8 h-8 text-gray-400" />
                           </div>
                         )}
@@ -854,7 +856,7 @@ Enhanced with detailed explanations, visual demonstrations, and progressive skil
                           <div className="flex items-center gap-2 ml-4">
                             <Link
                               href={`/lesson/${lesson.id}`}
-                              className="p-2 text-gray-400 hover:text-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
+                              className="p-2 text-gray-400 hover:text-cardinal rounded-lg hover:bg-red-50 transition-colors"
                               title="View lesson"
                             >
                               <ExternalLink className="w-4 h-4" />
@@ -930,7 +932,8 @@ Enhanced with detailed explanations, visual demonstrations, and progressive skil
             )}
           </div>
         )}
-      </div>
-    </main>
+        </div>
+      </main>
+    </CreatorAccessGate>
   )
 }

@@ -20,7 +20,7 @@ async function seed() {
     sport: "soccer",
     tagline: "Elite Performance Training - The Intersection of Intellect and Intensity",
     heroImageUrl: "https://images.unsplash.com/photo-1574629810360-7efbbe195018?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-    headshotUrl: "https://images.unsplash.com/photo-1494790108755-2616b612b77c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80",
+    headshotUrl: "https://res.cloudinary.com/dr0jtjwlh/image/upload/v1756675588/ja2_swxnai.webp",
     badges: ["National Player of the Year", "Stanford Cardinal", "U-20 World Cup"],
     lessonCount: 15,
     specialties: ["tactical", "mental", "leadership", "technical"],
@@ -113,7 +113,7 @@ async function seed() {
     console.log(`✅ Seeded: content/${lesson.id}`)
   }
 
-  // 4. Sample Users
+  // 4. Sample Users & Superadmins
   const sampleUsers = [
     {
       uid: "user-1",
@@ -140,12 +140,193 @@ async function seed() {
       subscriptionPlan: "pro",
       subscriptionStatus: "active",
       subscriptionExpiresAt: serverTimestamp()
+    },
+    // Superadmin Users
+    {
+      uid: "joseph-superadmin",
+      email: "joseph@crucibleanalytics.dev",
+      displayName: "Joseph Admin",
+      firstName: "Joseph",
+      lastName: "Admin",
+      role: "superadmin",
+      creatorStatus: "approved",
+      permissions: {
+        canCreateContent: true,
+        canManageContent: true,
+        canAccessAnalytics: true,
+        canReceivePayments: true,
+        canSwitchRoles: true,
+        canManageUsers: true
+      },
+      joinedAt: serverTimestamp(),
+      lastActive: serverTimestamp(),
+      lastUpdatedAt: serverTimestamp()
+    },
+    {
+      uid: "lona-superadmin",
+      email: "LonaLorraine.Vincent@gmail.com",
+      displayName: "Lona Vincent",
+      firstName: "Lona",
+      lastName: "Vincent",
+      role: "superadmin",
+      creatorStatus: "approved",
+      permissions: {
+        canCreateContent: true,
+        canManageContent: true,
+        canAccessAnalytics: true,
+        canReceivePayments: true,
+        canSwitchRoles: true,
+        canManageUsers: true
+      },
+      joinedAt: serverTimestamp(),
+      lastActive: serverTimestamp(),
+      lastUpdatedAt: serverTimestamp()
+    },
+    {
+      uid: "merline-superadmin",
+      email: "merlinesaintil@gmail.com",
+      displayName: "Merline Saintil",
+      firstName: "Merline",
+      lastName: "Saintil",
+      role: "superadmin",
+      creatorStatus: "approved",
+      permissions: {
+        canCreateContent: true,
+        canManageContent: true,
+        canAccessAnalytics: true,
+        canReceivePayments: true,
+        canSwitchRoles: true,
+        canManageUsers: true
+      },
+      joinedAt: serverTimestamp(),
+      lastActive: serverTimestamp(),
+      lastUpdatedAt: serverTimestamp()
     }
   ]
 
   for (const user of sampleUsers) {
     await setDoc(doc(db, "users", user.uid), user)
     console.log(`✅ Seeded: users/${user.uid}`)
+  }
+
+  // 4b. Superadmin Profiles
+  const superadminProfiles = [
+    {
+      uid: "joseph-superadmin",
+      firstName: "Joseph",
+      lastName: "Admin",
+      email: "joseph@crucibleanalytics.dev",
+      bio: "Platform Administrator and Content Creator",
+      expertise: ["platform-management", "content-strategy", "user-experience", "analytics"],
+      sports: ["general-athletics"],
+      role: "superadmin",
+      isPublic: true,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    },
+    {
+      uid: "lona-superadmin",
+      firstName: "Lona",
+      lastName: "Vincent",
+      email: "LonaLorraine.Vincent@gmail.com",
+      bio: "Platform Administrator and Content Strategist",
+      expertise: ["content-strategy", "user-management", "platform-operations", "community-building"],
+      sports: ["general-athletics"],
+      role: "superadmin",
+      isPublic: true,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    },
+    {
+      uid: "merline-superadmin",
+      firstName: "Merline",
+      lastName: "Saintil",
+      email: "merlinesaintil@gmail.com",
+      bio: "Platform Administrator and Operations Manager",
+      expertise: ["operations-management", "user-experience", "content-moderation", "quality-assurance"],
+      sports: ["general-athletics"],
+      role: "superadmin",
+      isPublic: true,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    }
+  ]
+
+  for (const profile of superadminProfiles) {
+    await setDoc(doc(db, "profiles", profile.uid), profile)
+    console.log(`✅ Seeded: profiles/${profile.uid}`)
+  }
+
+  // 4c. Superadmin Contributor Applications
+  const superadminApplications = [
+    {
+      firstName: "Joseph",
+      lastName: "Admin",
+      email: "joseph@crucibleanalytics.dev",
+      primarySport: "other",
+      experience: "admin",
+      experienceDetails: "Platform administrator specializing in platform-management, content-strategy, user-experience, analytics.",
+      specialties: ["platform-management", "content-strategy", "user-experience", "analytics"],
+      contentTypes: ["platform-tutorials", "best-practices", "system-guides", "analytics-insights"],
+      targetAudience: ["creators", "coaches", "administrators", "all-users"],
+      contentDescription: "Educational content focused on platform usage, content creation best practices, and system optimization.",
+      achievements: ["Platform Development", "Content Strategy", "User Experience Design"],
+      certifications: ["Firebase Certified", "Web Development"],
+      status: "approved",
+      userId: "joseph-superadmin",
+      userEmail: "joseph@crucibleanalytics.dev",
+      submittedAt: serverTimestamp(),
+      reviewedAt: serverTimestamp(),
+      reviewerNotes: "Auto-approved as platform administrator",
+      reviewerId: "joseph-superadmin"
+    },
+    {
+      firstName: "Lona",
+      lastName: "Vincent",
+      email: "LonaLorraine.Vincent@gmail.com",
+      primarySport: "other",
+      experience: "admin",
+      experienceDetails: "Platform administrator specializing in content-strategy, user-management, platform-operations, community-building.",
+      specialties: ["content-strategy", "user-management", "platform-operations", "community-building"],
+      contentTypes: ["platform-tutorials", "best-practices", "system-guides", "analytics-insights"],
+      targetAudience: ["creators", "coaches", "administrators", "all-users"],
+      contentDescription: "Strategic content focused on user engagement, community building, and platform optimization.",
+      achievements: ["Content Strategy", "User Management", "Community Building"],
+      certifications: ["Digital Marketing", "Community Management"],
+      status: "approved",
+      userId: "lona-superadmin",
+      userEmail: "LonaLorraine.Vincent@gmail.com",
+      submittedAt: serverTimestamp(),
+      reviewedAt: serverTimestamp(),
+      reviewerNotes: "Auto-approved as platform administrator",
+      reviewerId: "lona-superadmin"
+    },
+    {
+      firstName: "Merline",
+      lastName: "Saintil",
+      email: "merlinesaintil@gmail.com",
+      primarySport: "other",
+      experience: "admin",
+      experienceDetails: "Platform administrator specializing in operations-management, user-experience, content-moderation, quality-assurance.",
+      specialties: ["operations-management", "user-experience", "content-moderation", "quality-assurance"],
+      contentTypes: ["platform-tutorials", "best-practices", "system-guides", "analytics-insights"],
+      targetAudience: ["creators", "coaches", "administrators", "all-users"],
+      contentDescription: "Operational content focused on platform efficiency, user experience, and quality standards.",
+      achievements: ["Operations Management", "UX Optimization", "Quality Assurance"],
+      certifications: ["Operations Management", "UX Design"],
+      status: "approved",
+      userId: "merline-superadmin",
+      userEmail: "merlinesaintil@gmail.com",
+      submittedAt: serverTimestamp(),
+      reviewedAt: serverTimestamp(),
+      reviewerNotes: "Auto-approved as platform administrator",
+      reviewerId: "merline-superadmin"
+    }
+  ]
+
+  for (const application of superadminApplications) {
+    await addDoc(collection(db, "contributorApplications"), application)
+    console.log("✅ Seeded: contributorApplications (superadmin)")
   }
 
   // 5. Coaching Requests

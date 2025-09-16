@@ -1,116 +1,241 @@
 rules_version = '2';
 
-// Firestore Security Rules for Game Plan
+// Game Plan Platform - Production Security Rules
+// Comprehensive role-based access control with medical safety and audit logging
+
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Helper functions
+    // ===== HELPER FUNCTIONS =====
+    
+    // Check if user is authenticated
     function isAuthenticated() {
       return request.auth != null;
     }
     
+    // Check if user is the owner of the resource
     function isOwner(userId) {
-      return request.auth != null && request.auth.uid == userId;
+      return isAuthenticated() && request.auth.uid == userId;
     }
     
-    function hasRole(role) {
-      return request.auth != null && 
-             request.auth.token.role == role;
-    }
-    
-    function isCreatorOrAdmin() {
-      return request.auth != null && 
-             (request.auth.token.role == 'creator' || 
-              request.auth.token.role == 'admin' || 
-              request.auth.token.role == 'superadmin');
-    }
-    
+    // Check if user has admin privileges
     function isAdmin() {
-      return request.auth != null && 
-             (request.auth.token.role == 'admin' || 
-              request.auth.token.role == 'superadmin');
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'superadmin'];
     }
     
-    // Users collection - users can read/write their own data
+    // Check if user is superadmin
+    function isSuperAdmin() {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'superadmin';
+    }
+    
+    // Check if user is a creator
+    function isCreator() {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'creator';
+    }
+    
+    // Check if user has creator role or higher
+    function isCreatorOrHigher() {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['creator', 'admin', 'superadmin'];
+    }
+    
+    // Validate user data structure
+    function isValidUserData() {
+      return request.resource.data.keys().hasAll(['email', 'role']) &&
+             request.resource.data.email is string &&
+             request.resource.data.role in ['user', 'creator', 'admin', 'superadmin'] &&
+             request.resource.data.email.matches('.*@.*\\..*');
+    }
+    
+    // Validate content data structure
+    function isValidContentData() {
+      return request.resource.data.keys().hasAll(['title', 'creatorUid', 'sport', 'status']) &&
+             request.resource.data.title is string &&
+             request.resource.data.creatorUid is string &&
+             request.resource.data.sport is string &&
+             request.resource.data.status in ['draft', 'published', 'archived'] &&
+             request.resource.data.title.size() <= 200 &&
+             request.resource.data.title.size() >= 1;
+    }
+    
+    // ===== CORE COLLECTIONS =====
+    
+    // Users collection - Core user data
     match /users/{userId} {
-      allow read, write: if isOwner(userId);
-      allow read: if isAdmin(); // Admins can read all user data
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isAuthenticated() && 
+                       request.auth.uid == userId && 
+                       isValidUserData();
+      allow update: if (isOwner(userId) || isAdmin()) &&
+                       (request.auth.uid != userId || 
+                        resource.data.role == request.resource.data.role) &&
+                       isValidUserData();
+      allow delete: if isSuperAdmin();
     }
     
-    // Public user profiles - readable by all, writable by owner
+    // Profiles collection - Extended user profiles
     match /profiles/{userId} {
+      allow read: if isOwner(userId) || 
+                     isAdmin() || 
+                     (resource.data.isPublic == true);
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isOwner(userId) || isAdmin();
+    }
+    
+    // Content collection - Lessons, courses, educational content
+    match /content/{contentId} {
+      allow read: if isAuthenticated() && 
+                     (resource.data.status == 'published' || 
+                      isOwner(resource.data.creatorUid) || 
+                      isAdmin());
+      allow create: if isCreatorOrHigher() && 
+                       isValidContentData() &&
+                       request.resource.data.creatorUid == request.auth.uid;
+      allow update: if (isOwner(resource.data.creatorUid) || isAdmin()) &&
+                       isValidContentData() &&
+                       resource.data.creatorUid == request.resource.data.creatorUid;
+      allow delete: if isOwner(resource.data.creatorUid) || isAdmin();
+    }
+    
+    // Creator public profiles - Public creator discovery
+    match /creatorPublic/{creatorSlug} {
       allow read: if true;
-      allow write: if isOwner(userId);
       allow write: if isAdmin();
     }
     
-    // Contributors/Creators - readable by all, writable by creator/admin
-    match /contributors/{contributorId} {
-      allow read: if true;
-      allow write: if isOwner(contributorId) || isAdmin();
+    // Creator private profiles - Creator business data
+    match /creator_profiles/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow write: if isAdmin();
     }
     
-    // Gear collection - readable by all, writable by creators/admins
-    match /gear/{gearId} {
-      allow read: if true;
-      allow write: if isCreatorOrAdmin();
-      allow create: if isCreatorOrAdmin() && 
-                       request.auth.uid == request.resource.data.createdBy;
+    // Coaching requests - User-to-creator interactions
+    match /coaching_requests/{requestId} {
+      allow read: if isOwner(resource.data.userId) || 
+                     isOwner(resource.data.creatorId) || 
+                     isAdmin();
+      allow create: if isAuthenticated() &&
+                       request.resource.data.userId == request.auth.uid &&
+                       request.resource.data.keys().hasAll(['userId', 'creatorId', 'message']) &&
+                       request.resource.data.message is string &&
+                       request.resource.data.message.size() <= 2000;
+      allow update: if isOwner(resource.data.creatorId) || isAdmin();
     }
     
-    // Lessons - readable by authenticated users, writable by creators/admins
-    match /lessons/{lessonId} {
-      allow read: if isAuthenticated();
-      allow write: if isCreatorOrAdmin();
-      allow create: if isCreatorOrAdmin() && 
-                       request.auth.uid == request.resource.data.instructor;
-    }
-    
-    // User progress tracking
-    match /progress/{userId} {
-      allow read, write: if isOwner(userId);
-      allow read: if isAdmin();
-    }
-    
-    // User preferences and settings
-    match /preferences/{userId} {
-      allow read, write: if isOwner(userId);
-    }
-    
-    // Creator requests and applications
-    match /creator-requests/{requestId} {
-      allow read: if isAdmin() || isOwner(resource.data.userId);
-      allow create: if isAuthenticated() && 
-                       request.auth.uid == request.resource.data.userId;
+    // Contributor applications - Creator application process
+    match /contributorApplications/{applicationId} {
+      allow read: if isOwner(resource.data.userId) || isAdmin();
+      allow create: if isAuthenticated() &&
+                       request.resource.data.userId == request.auth.uid &&
+                       request.resource.data.keys().hasAll(['firstName', 'lastName', 'email', 'primarySport']) &&
+                       request.resource.data.email == request.auth.token.email;
       allow update: if isAdmin();
     }
     
-    // Analytics data - admin only
-    match /analytics/{document=**} {
+    // Events - Scheduled coaching sessions
+    match /events/{eventId} {
+      allow read: if isOwner(resource.data.creatorUid) || 
+                     isAdmin() ||
+                     (resource.data.participants != null && 
+                      request.auth.uid in resource.data.participants);
+      allow create: if isCreatorOrHigher() &&
+                       request.resource.data.creatorUid == request.auth.uid;
+      allow update: if isOwner(resource.data.creatorUid) || isAdmin();
+      allow delete: if isOwner(resource.data.creatorUid) || isAdmin();
+    }
+    
+    // Notifications - User notification system (subcollections)
+    match /notifications/{userId}/messages/{messageId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isAdmin();
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isOwner(userId) || isAdmin();
+    }
+    
+    // AI interaction logs - AI coaching session logs (admin only)
+    match /ai_interaction_logs/{logId} {
       allow read, write: if isAdmin();
     }
     
-    // System configuration - admin only
-    match /config/{document=**} {
+    // AI sessions - AI session management (admin only)
+    match /ai_sessions/{sessionId} {
+      allow read, write: if isAdmin();
+    }
+    
+    // AI content flags - Content moderation flags (admin only)
+    match /ai_content_flags/{flagId} {
+      allow read, write: if isAdmin();
+    }
+    
+    // Disclaimer acceptances - Legal compliance tracking
+    match /disclaimer_acceptances/{userId} {
+      allow read, write: if isOwner(userId) || isAdmin();
+    }
+    
+    // Gear - Equipment and gear management
+    match /gear/{gearId} {
       allow read: if isAuthenticated();
-      allow write: if isAdmin();
+      allow write: if isCreatorOrHigher();
     }
     
-    // AI coaching sessions - user can access their own
-    match /coaching-sessions/{sessionId} {
-      allow read, write: if isAuthenticated() && 
-                            request.auth.uid == resource.data.userId;
-      allow create: if isAuthenticated() && 
-                       request.auth.uid == request.resource.data.userId;
+    // Progress - User learning progress (subcollections)
+    match /progress/{userId}/items/{itemId} {
+      allow read, write: if isOwner(userId) || isAdmin();
     }
     
-    // Subscriptions and payments
-    match /subscriptions/{userId} {
-      allow read, write: if isOwner(userId);
-      allow read: if isAdmin();
+    // Availability - Creator availability schedules
+    match /availability/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner(userId) || isAdmin();
     }
     
-    // Default deny all other documents
+    // Sessions - Coaching session management
+    match /sessions/{sessionId} {
+      allow read: if isOwner(resource.data.userUid) || 
+                     isOwner(resource.data.creatorUid) || 
+                     isAdmin();
+      allow write: if isCreatorOrHigher();
+    }
+    
+    // Requests - General user requests
+    match /requests/{requestId} {
+      allow read: if isOwner(resource.data.uid) || isAdmin();
+      allow create: if isAuthenticated() &&
+                       request.resource.data.uid == request.auth.uid;
+      allow update: if isAdmin();
+    }
+    
+    // Admin settings - Platform configuration (superadmin only)
+    match /admin/{document} {
+      allow read, write: if isSuperAdmin();
+    }
+    
+    // Analytics collections - Performance metrics (admin only)
+    match /creatorAnalytics/{creatorId} {
+      allow read, write: if isAdmin();
+    }
+    
+    match /lessonAnalytics/{lessonId} {
+      allow read, write: if isAdmin();
+    }
+    
+    match /userAnalytics/{userId} {
+      allow read, write: if isAdmin();
+    }
+    
+    match /systemAnalytics/{date} {
+      allow read, write: if isAdmin();
+    }
+    
+    // ===== DEFAULT DENY =====
     match /{document=**} {
       allow read, write: if false;
     }

@@ -52,6 +52,19 @@ export interface CoachingContext {
   coachCredentials: string[]
   expertise: string[]
   personalityTraits: string[]
+  voiceCharacteristics: {
+    tone: string
+    pace: string
+    emphasis: string[]
+    catchphrases: string[]
+    speakingStyle: string
+  }
+  responseStyle: {
+    greeting: string
+    encouragement: string[]
+    signatureClosing: string
+    personalStoryIntros: string[]
+  }
 }
 
 export const soccerCoachingContext: CoachingContext = {
@@ -59,7 +72,7 @@ export const soccerCoachingContext: CoachingContext = {
   coachName: 'Jasmine Aikey',
   coachCredentials: [
     'College Cup Champion',
-    'Pac-12 Midfielder of the Year', 
+    'Pac-12 Midfielder of the Year',
     'All-America First Team',
     'Academic All-American',
     'Team Captain at Stanford University'
@@ -78,7 +91,35 @@ export const soccerCoachingContext: CoachingContext = {
     'Emphasizes fundamentals and consistency',
     'Draws from personal championship experience',
     'Focuses on both mental and physical aspects'
-  ]
+  ],
+  voiceCharacteristics: {
+    tone: 'Warm, confident, and encouraging with subtle intensity',
+    pace: 'Measured and thoughtful, with emphasis on key points',
+    emphasis: ['technique', 'consistency', 'championship mindset', 'trust your preparation'],
+    catchphrases: [
+      'Trust your preparation',
+      'Champions are made in practice, revealed in games',
+      'See it, feel it, play it',
+      'Consistency beats perfection'
+    ],
+    speakingStyle: 'Direct but nurturing, uses personal anecdotes from championship experience'
+  },
+  responseStyle: {
+    greeting: 'Great question!',
+    encouragement: [
+      'You\'ve got this!',
+      'Trust your instincts',
+      'Keep working - improvement is coming',
+      'That\'s exactly the right mindset'
+    ],
+    signatureClosing: 'Keep pushing yourself - I believe in your potential!',
+    personalStoryIntros: [
+      'From my championship experience at Stanford...',
+      'When I was playing at the highest level...',
+      'During our College Cup run...',
+      'As team captain, I learned that...'
+    ]
+  }
 }
 
 export const bjjCoachingContext: CoachingContext = {
@@ -105,7 +146,35 @@ export const bjjCoachingContext: CoachingContext = {
     'Draws from competition experience',
     'Focuses on systematic development',
     'Patient and detail-oriented'
-  ]
+  ],
+  voiceCharacteristics: {
+    tone: 'Calm, methodical, and deeply analytical',
+    pace: 'Deliberate and precise, pausing for emphasis',
+    emphasis: ['technique over strength', 'systematic development', 'conceptual understanding'],
+    catchphrases: [
+      'Technique over strength',
+      'Position before submission',
+      'Train your mind like your body',
+      'Small daily improvements'
+    ],
+    speakingStyle: 'Analytical and systematic, breaks down complex concepts into simple parts'
+  },
+  responseStyle: {
+    greeting: 'Excellent question!',
+    encouragement: [
+      'Keep developing systematically',
+      'Trust the process',
+      'That\'s the right approach',
+      'You\'re thinking like a champion'
+    ],
+    signatureClosing: 'Remember - it\'s not about being the strongest, it\'s about being the most technical!',
+    personalStoryIntros: [
+      'In my world championship match...',
+      'From my competition experience...',
+      'As a world champion, I learned...',
+      'During my championship run...'
+    ]
+  }
 }
 
 // Content Creation Assistant Context
@@ -132,10 +201,23 @@ export const contentCreationContext: CoachingContext = {
     'Focuses on audience engagement',
     'Emphasizes educational value',
     'Supportive and encouraging'
-  ]
+  ],
+  voiceCharacteristics: {
+    tone: 'Energetic and creative',
+    pace: 'Dynamic with creative flair',
+    emphasis: ['engagement', 'storytelling', 'educational value'],
+    catchphrases: ['Let\'s create something amazing', 'Story first, technique second'],
+    speakingStyle: 'Creative and inspiring with focus on audience connection'
+  },
+  responseStyle: {
+    greeting: 'What a fantastic creative challenge!',
+    encouragement: ['Your creativity is showing!', 'That\'s a brilliant approach'],
+    signatureClosing: 'Now go create something amazing!',
+    personalStoryIntros: ['In my content creation experience...']
+  }
 }
 
-// Platform Assistant Context  
+// Platform Assistant Context
 export const platformAssistantContext: CoachingContext = {
   sport: 'Platform Navigation',
   coachName: 'Platform Assistant',
@@ -159,10 +241,30 @@ export const platformAssistantContext: CoachingContext = {
     'Problem-solving focused',
     'User-friendly approach',
     'Comprehensive and thorough'
-  ]
+  ],
+  voiceCharacteristics: {
+    tone: 'Helpful and professional',
+    pace: 'Clear and measured',
+    emphasis: ['step-by-step', 'user-friendly', 'efficient'],
+    catchphrases: ['Let me walk you through this', 'Here\'s the best way to...'],
+    speakingStyle: 'Clear instructions with friendly guidance'
+  },
+  responseStyle: {
+    greeting: 'Happy to help with that!',
+    encouragement: ['You\'re getting the hang of it!', 'Perfect, you\'ve got it!'],
+    signatureClosing: 'Feel free to reach out if you need any other help!',
+    personalStoryIntros: ['From helping other users...', 'A common question I get...']
+  }
 }
 
-// Multi-sport registry for scalable support
+// Creator-specific context registry (primary mapping)
+export const creatorContextRegistry: Record<string, CoachingContext> = {
+  'jasmine-aikey': soccerCoachingContext,
+  'joseph-llanes': bjjCoachingContext,
+  // Add more creators as they're added to the platform
+}
+
+// Multi-sport registry for scalable support (fallback mapping)
 export const sportContextRegistry: Record<string, CoachingContext> = {
   soccer: soccerCoachingContext,
   football: soccerCoachingContext, // placeholder until a specific football context exists
@@ -173,29 +275,68 @@ export const sportContextRegistry: Record<string, CoachingContext> = {
   platform: platformAssistantContext,
 }
 
+// Get context by creator ID (primary method)
+export function getCoachingContextByCreator(creatorId?: string): CoachingContext {
+  if (!creatorId) return soccerCoachingContext
+  const key = creatorId.toLowerCase().trim()
+  return creatorContextRegistry[key] || soccerCoachingContext
+}
+
+// Get context by sport (fallback method)
 export function getCoachingContextBySport(sport?: string): CoachingContext {
   if (!sport) return soccerCoachingContext
   const key = sport.toLowerCase().trim()
   return sportContextRegistry[key] || soccerCoachingContext
 }
 
+// Smart context resolver - tries creator first, then sport
+export function getCoachingContext(creatorId?: string, sport?: string): CoachingContext {
+  // Priority 1: Try to get context by creator ID
+  if (creatorId) {
+    const creatorContext = creatorContextRegistry[creatorId.toLowerCase().trim()]
+    if (creatorContext) {
+      return creatorContext
+    }
+  }
+
+  // Priority 2: Fall back to sport-based context
+  if (sport) {
+    return getCoachingContextBySport(sport)
+  }
+
+  // Default: Return Jasmine's context
+  return soccerCoachingContext
+}
+
 export const generateCoachingPrompt = (question: string, context: CoachingContext): string => {
-  return `You are ${context.coachName}, an elite ${context.sport.toLowerCase()} coach and former player with the following credentials: ${context.coachCredentials.join(', ')}.
+  // Random elements for variety but keep them minimal
+  const randomCatchphrase = context.voiceCharacteristics.catchphrases[Math.floor(Math.random() * context.voiceCharacteristics.catchphrases.length)]
 
-Your expertise includes: ${context.expertise.join(', ')}.
+  return `You are ${context.coachName}. Answer this question directly and practically.
 
-Your coaching style is: ${context.personalityTraits.join(', ')}.
+**QUESTION:** "${question}"
 
-A player has asked you this question: "${question}"
+**YOUR APPROACH:**
+- Voice: ${context.voiceCharacteristics.tone}
+- Focus: Get straight to actionable advice
+- Minimize biographical references - they already know who you are
+- Include your catchphrase "${randomCatchphrase}" naturally if relevant
 
-Respond as ${context.coachName} would, drawing from your championship experience and expertise. Provide specific, actionable advice that includes:
-1. Technical details and proper form/technique
-2. Practice drills or exercises they can do
-3. Mental/tactical aspects to consider
-4. Personal anecdotes from your playing career when relevant
-5. Progressive steps to improve
+**RESPONSE STRUCTURE:**
+1. **Direct Answer**: Address their question immediately
+2. **Technical Points**: Key technique details (use **bold** for emphasis)
+3. **Practice Drills**: 2-3 specific exercises they can do now
+4. **Quick Tip**: One mindset or tactical insight
+5. **Next Step**: What to focus on next
 
-Keep your response conversational, encouraging, and authentically in your voice as a championship-winning midfielder. Aim for 150-250 words with clear, actionable advice.`
+**FORMATTING:**
+- Use **bold** for key concepts
+- Use bullet points (-) for drill lists
+- Use numbered lists (1.) for sequences
+- Keep it concise and actionable
+- Paragraph breaks between sections
+
+Write 150-250 words maximum. Be direct, practical, and authentic to ${context.coachName}'s voice without excessive credentials or introductory padding.`
 }
 
 // Vertex AI Response (Enterprise-grade) - Browser compatible via API route
@@ -304,7 +445,7 @@ export const getOpenAIResponse = async (question: string, context: CoachingConte
 export const getAIResponse = getGeminiAIResponse
 
 // Smart AI-like coaching responses (when APIs are unavailable)
-const getIntelligentFallbackResponse = (question: string, context: CoachingContext): string => {
+export const getIntelligentFallbackResponse = (question: string, context: CoachingContext): string => {
   const lowerQuestion = question.toLowerCase()
   
   // BJJ-specific responses for Joseph Llanes
@@ -414,35 +555,35 @@ What specific aspect of your BJJ game would you like to work on? I'm here to hel
   // Soccer-specific responses for Jasmine (existing code)
   // Passing and accuracy responses
   if (lowerQuestion.includes('passing') || lowerQuestion.includes('accuracy')) {
-    return `Great question about passing accuracy! From my experience as a championship midfielder at Stanford, I can tell you that precision comes from practice and proper technique.
+    return `Passing accuracy comes down to fundamentals and consistent practice.
 
-**Key Focus Areas:**
-• **Plant foot positioning** - Your non-kicking foot should be 6-8 inches beside the ball, pointed toward your target
-• **Inside foot technique** - Use the inside of your foot for short passes, keeping your ankle locked and follow through low
-• **Vision training** - Practice looking up before receiving the ball, scan the field constantly
+**Key technique points:**
+• **Plant foot positioning** - 6-8 inches beside the ball, pointed toward target
+• **Inside foot contact** - Ankle locked, low follow through
+• **Vision training** - Look up before receiving, scan constantly
 
-**Drill I recommend:** Set up cones 15 yards apart. Practice 50 passes daily, focusing on hitting the cone consistently. Start stationary, then add movement.
+**Practice drill:** Set up cones 15 yards apart. Hit 50 passes daily focusing on cone accuracy. Start stationary, add movement.
 
-**Mental aspect:** Trust your first instinct. Hesitation kills accuracy. When I won the Pac-12 Midfielder award, my coach always said "see it, feel it, play it."
+**Mental game:** Trust your first instinct. Hesitation kills accuracy. See it, feel it, play it.
 
-Remember, even at the professional level, we only hit about 85% of our passes. Consistency beats perfection every time!`
+Even pros only hit 85% of passes. Consistency beats perfection!`
   }
   
   // Shooting and finishing
   if (lowerQuestion.includes('shooting') || lowerQuestion.includes('finish') || lowerQuestion.includes('goal')) {
-    return `Excellent question about finishing! As someone who scored crucial goals in the College Cup championship, I know the mental game is just as important as technique.
+    return `Finishing is technique plus mindset. Both matter equally.
 
-**Technical fundamentals:**
-• **First touch** - Control the ball into space, away from defenders
-• **Body positioning** - Open your body to the goal, stay balanced
-• **Shot selection** - Pick your spot before you shoot, don't just blast it
+**Technical basics:**
+• **First touch** - Control into space, away from defenders
+• **Body positioning** - Open to goal, stay balanced
+• **Shot selection** - Pick your spot, don't just blast it
 
 **Practice routine:**
-Set up shooting scenarios from different angles. Practice 20 shots daily from each: inside the box left, center, and right. Focus on placement over power.
+Set up scenarios from different angles. 20 shots daily from box left, center, right. Placement over power.
 
-**Championship mindset:** In pressure moments, I always visualized the ball hitting the back of the net before I even received the pass. Confidence is everything in finishing.
+**Mental game:** Visualize the ball in the net before you even receive the pass. Confidence is everything.
 
-The key breakthrough for me came when I stopped trying to place every shot perfectly and focused on good technique with conviction. Trust your preparation!`
+**Key insight:** Stop trying to place every shot perfectly. Focus on good technique with conviction. Trust your preparation!`
   }
   
   // Dribbling and 1v1 situations
@@ -489,23 +630,23 @@ Your fitness will be tested more than any other position. Embrace it - that's yo
   }
   
   // Default comprehensive response
-  return `That's a fantastic question! As a championship-winning midfielder who earned All-America First Team honors, I've learned that improvement comes from understanding both the technical and mental aspects of the game.
+  return `Great question! Let me give you a focused approach to improvement.
 
-**My coaching approach:**
-• **Start with fundamentals** - Master the basics before advancing
-• **Practice with purpose** - Every touch should have intention
-• **Mental preparation** - Visualize success before you step on the field
+**Key fundamentals:**
+- **Master the basics first** - Build from solid foundations
+- **Practice with purpose** - Every touch should have intention
+- **Mental preparation** - Visualize before you play
 
-**Key training principles:**
-1. **Consistency over perfection** - 100 decent repetitions beat 10 perfect ones
-2. **Game-like pressure** - Add time constraints and decision-making to drills
-3. **Video analysis** - Study your games and professional players in similar situations
+**Training approach:**
+1. **Consistency over perfection** - 100 decent reps beat 10 perfect ones
+2. **Game-like pressure** - Add time constraints to drills
+3. **Video study** - Watch yourself and pros in similar situations
 
-**Championship mindset:** During our College Cup run, we focused on process over outcome. Trust your preparation, stay confident in pressure moments, and remember that every challenge is an opportunity to grow.
+**Mindset:** Focus on process over outcome. Trust your preparation and stay confident in pressure moments.
 
-**Next steps:** Break down your question into specific skills you want to improve, then create a structured practice plan. I always tell players: "Champions are made in practice, revealed in games."
+**Next step:** Break this down into specific skills and create a structured practice plan. Champions are made in practice, revealed in games.
 
-What specific aspect of this would you like me to elaborate on? I'm here to help you reach your potential!`
+What specific aspect would you like me to dive deeper into?`
 }
 
 // Alternative AI providers (for redundancy)

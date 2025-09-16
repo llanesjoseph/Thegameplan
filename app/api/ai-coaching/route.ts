@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { soccerCoachingContext, getCoachingContextBySport } from '@/lib/ai-service'
+import { soccerCoachingContext, getCoachingContext } from '@/lib/ai-service'
 import { generateWithRedundancy } from '@/lib/llm-service'
 import { analyzeMedicalSafety, getSafeTrainingResponse } from '@/lib/medical-safety'
 import { createAISession, logAIInteraction, CURRENT_TERMS_VERSION } from '@/lib/ai-logging'
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
   try {
     // Parse request body
     const body = await request.json()
-    const { question, userId, userEmail, sessionId, sport } = body
+    const { question, userId, userEmail, sessionId, sport, creatorId, creatorName } = body
 
     if (!question || typeof question !== 'string') {
       return NextResponse.json(
@@ -129,11 +129,12 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Resolve sport context
-    const context = getCoachingContextBySport(sport)
+    // Resolve creator context dynamically - tries creator ID first, then sport
+    const context = getCoachingContext(creatorId, sport)
+    console.log(`🎯 Using coaching context for: ${context.coachName} (${context.sport})`)
 
-    // Simple in-memory cache (per-process). Replace with Redis for production.
-    const cacheKey = `${context.sport}|${question}`
+    // Creator-specific cache (per-process). Replace with Redis for production.
+    const cacheKey = `${context.coachName}|${creatorId}|${question}`
     const nowTs = Date.now()
     const ttlMs = 24 * 60 * 60 * 1000
     ;(globalThis as any).__aiCache = (globalThis as any).__aiCache || new Map<string, { expires: number; value: string }>()
@@ -159,9 +160,10 @@ export async function POST(request: NextRequest) {
         latencyMs = result.latencyMs
         cache.set(cacheKey, { expires: nowTs + ttlMs, value: responseText })
       } catch (e) {
-        console.warn('Both primary and fallback providers failed. Using safe fallback text.', e)
-        // Minimal deterministic fallback: echo safe baseline from SKM only
-        responseText = `Here is a concise, safe guidance based on core ${context.sport} fundamentals: focus on proper technique, progressive drills, and recovery. Avoid pushing through pain. Ask a specific follow-up for drills, tactics, or progression.`
+        console.warn('Both primary and fallback providers failed. Using intelligent fallback.', e)
+        // Import the fallback function
+        const { getIntelligentFallbackResponse } = await import('@/lib/ai-service')
+        responseText = getIntelligentFallbackResponse(question, context)
         provider = 'fallback'
         modelUsed = 'none'
         latencyMs = 0
@@ -204,11 +206,21 @@ export async function POST(request: NextRequest) {
       model: modelUsed,
       latencyMs,
       sessionId: currentSessionId,
+      creatorContext: {
+        name: context.coachName,
+        sport: context.sport,
+        voiceCharacteristics: context.voiceCharacteristics, // For future voice synthesis
+      },
       safetyAnalysis: {
         riskLevel: safetyAnalysis.riskLevel,
         isSafe: safetyAnalysis.isSafe
       },
-      rateLimitRemaining: rateLimit.remaining
+      rateLimitRemaining: rateLimit.remaining,
+      // Voice response placeholder (not yet implemented)
+      voiceResponse: {
+        available: false,
+        message: 'Voice responses coming soon!'
+      }
     })
 
   } catch (error) {

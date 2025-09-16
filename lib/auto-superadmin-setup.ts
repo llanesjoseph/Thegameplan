@@ -1,0 +1,134 @@
+import { db } from './firebase.client'
+import { doc, setDoc, collection, addDoc, serverTimestamp, getDoc } from 'firebase/firestore'
+
+// Predefined superadmin users
+const SUPERADMIN_USERS = {
+  'joseph@crucibleanalytics.dev': {
+    firstName: 'Joseph',
+    lastName: 'Admin',
+    bio: 'Platform Administrator and Content Creator',
+    expertise: ['platform-management', 'content-strategy', 'user-experience', 'analytics'],
+    contentDescription: 'Educational content focused on platform usage, content creation best practices, and system optimization.',
+    achievements: ['Platform Development', 'Content Strategy', 'User Experience Design'],
+    certifications: ['Firebase Certified', 'Web Development']
+  },
+  'LonaLorraine.Vincent@gmail.com': {
+    firstName: 'Lona',
+    lastName: 'Vincent',
+    bio: 'Platform Administrator and Content Strategist',
+    expertise: ['content-strategy', 'user-management', 'platform-operations', 'community-building'],
+    contentDescription: 'Strategic content focused on user engagement, community building, and platform optimization.',
+    achievements: ['Content Strategy', 'User Management', 'Community Building'],
+    certifications: ['Digital Marketing', 'Community Management']
+  },
+  'merlinesaintil@gmail.com': {
+    firstName: 'Merline',
+    lastName: 'Saintil',
+    bio: 'Platform Administrator and Operations Manager',
+    expertise: ['operations-management', 'user-experience', 'content-moderation', 'quality-assurance'],
+    contentDescription: 'Operational content focused on platform efficiency, user experience, and quality standards.',
+    achievements: ['Operations Management', 'UX Optimization', 'Quality Assurance'],
+    certifications: ['Operations Management', 'UX Design']
+  }
+}
+
+export async function autoProvisionSuperadmin(uid: string, email: string, displayName?: string) {
+  try {
+    // Check if this email is in our superadmin list
+    const superadminData = SUPERADMIN_USERS[email as keyof typeof SUPERADMIN_USERS]
+    if (!superadminData) {
+      console.log(`User ${email} is not in superadmin list`)
+      return false
+    }
+
+    console.log(`🚀 Auto-provisioning superadmin: ${email}`)
+
+    // Check if user is already set up
+    const userDoc = await getDoc(doc(db, 'users', uid))
+    if (userDoc.exists() && userDoc.data().role === 'superadmin') {
+      console.log(`✅ ${email} is already a superadmin`)
+      return true
+    }
+
+    // Step 1: Set superadmin role in users collection
+    await setDoc(doc(db, 'users', uid), {
+      role: 'superadmin',
+      email: email,
+      displayName: displayName || `${superadminData.firstName} ${superadminData.lastName}`,
+      firstName: superadminData.firstName,
+      lastName: superadminData.lastName,
+      lastUpdatedAt: serverTimestamp(),
+      creatorStatus: 'approved',
+      permissions: {
+        canCreateContent: true,
+        canManageContent: true,
+        canAccessAnalytics: true,
+        canReceivePayments: true,
+        canSwitchRoles: true,
+        canManageUsers: true
+      },
+      joinedAt: serverTimestamp(),
+      lastActive: serverTimestamp(),
+      autoProvisioned: true,
+      provisionedAt: serverTimestamp()
+    }, { merge: true })
+
+    console.log(`  ✅ Superadmin role set for ${superadminData.firstName}`)
+
+    // Step 2: Create/update profile
+    await setDoc(doc(db, 'profiles', uid), {
+      uid: uid,
+      firstName: superadminData.firstName,
+      lastName: superadminData.lastName,
+      email: email,
+      bio: superadminData.bio,
+      expertise: superadminData.expertise,
+      sports: ['general-athletics'],
+      role: 'superadmin',
+      isPublic: true,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+      autoProvisioned: true
+    }, { merge: true })
+
+    console.log(`  ✅ Profile created for ${superadminData.firstName}`)
+
+    // Step 3: Create pre-approved contributor application
+    await addDoc(collection(db, 'contributorApplications'), {
+      firstName: superadminData.firstName,
+      lastName: superadminData.lastName,
+      email: email,
+      primarySport: 'other',
+      experience: 'admin',
+      experienceDetails: `Platform administrator specializing in ${superadminData.expertise.join(', ')}.`,
+      specialties: superadminData.expertise,
+      contentTypes: ['platform-tutorials', 'best-practices', 'system-guides', 'analytics-insights'],
+      targetAudience: ['creators', 'coaches', 'administrators', 'all-users'],
+      contentDescription: superadminData.contentDescription,
+      achievements: superadminData.achievements,
+      certifications: superadminData.certifications,
+      status: 'approved',
+      userId: uid,
+      userEmail: email,
+      submittedAt: serverTimestamp(),
+      reviewedAt: serverTimestamp(),
+      reviewerNotes: 'Auto-approved as platform administrator',
+      reviewerId: 'system',
+      autoProvisioned: true
+    })
+
+    console.log(`  ✅ Contributor application created for ${superadminData.firstName}`)
+
+    console.log(`🎉 SUCCESS! ${superadminData.firstName} ${superadminData.lastName} is now a superadmin with complete access!`)
+
+    return true
+
+  } catch (error) {
+    console.error('❌ Error auto-provisioning superadmin:', error)
+    return false
+  }
+}
+
+export function isSuperadminEmail(email: string): boolean {
+  return email in SUPERADMIN_USERS
+}

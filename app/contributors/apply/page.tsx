@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation'
 import { db, storage } from '@/lib/firebase.client'
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
+import { useAuth } from '@/hooks/use-auth'
+import { applyForCreatorRole } from '@/lib/role-management'
 
 type ApplicationStep = 'basic' | 'credentials' | 'content' | 'media' | 'review'
 
@@ -41,13 +43,65 @@ type ContributorApplication = {
   reviewerNotes?: string
 }
 
-const SPORTS = ['soccer','basketball','football','baseball','tennis','volleyball','hockey','lacrosse','rugby','cricket','golf','swimming','track','cross-country','wrestling','boxing','mma','other']
+const SPORTS = ['soccer','basketball','football','baseball','tennis','volleyball','hockey','lacrosse','rugby','cricket','golf','swimming','track','cross-country','wrestling','boxing','mma','jujitsu','other']
 const EXPERIENCES = ['college','pro','olympic','coach','analyst','other']
-const SPECIALTIES = ['technical','tactical','mental','physical','recovery','leadership','goalkeeping','defense','midfield','attack','conditioning','nutrition','strategy','game-analysis','injury-prevention','mental-toughness']
-const CONTENT_TYPES = ['video-lessons','written-content','live-sessions','analysis','drills','mindset-coaching','tactical-breakdowns','recovery-tips']
-const TARGET_AUDIENCES = ['youth','high-school','college','amateur','professional','coaches','parents','all-levels']
+
+// Sport-specific specialties
+const SPORT_SPECIALTIES = {
+  soccer: ['technical-skills', 'tactical-awareness', 'goalkeeping', 'defense', 'midfield', 'attack', 'set-pieces', 'crossing', 'finishing', 'passing', 'dribbling', 'first-touch', 'shooting', 'positioning', 'mental-toughness', 'penalty-kicks', 'free-kicks', 'corner-kicks', 'throw-ins', 'offside-trap', 'pressing', 'counter-attacking', 'possession-play', 'wing-play', 'central-play', 'defensive-shape', 'attacking-shape', 'transitions', 'game-management', 'leadership', 'communication', 'fitness-conditioning', 'injury-prevention', 'youth-development', 'formations', '1v1-defending', '1v1-attacking', 'aerial-duels', 'ball-striking', 'volleys', 'headers', 'weak-foot-development'],
+  basketball: ['shooting', 'ball-handling', 'defense', 'rebounding', 'passing', 'post-play', 'pick-and-roll', 'fast-break', 'zone-defense', 'man-to-man', 'free-throws', 'three-point-shooting', 'court-vision', 'leadership', 'footwork', 'screening', 'cutting', 'transition-offense', 'transition-defense', 'half-court-offense', 'press-break', 'inbounds-plays', 'shot-blocking', 'steal-techniques', 'help-defense', 'closeouts', 'boxing-out', 'offensive-rebounding', 'defensive-rebounding', 'point-guard-skills', 'shooting-guard-skills', 'small-forward-skills', 'power-forward-skills', 'center-skills', 'clutch-performance', 'game-management', 'conditioning', 'agility-training', 'vertical-jump', 'lateral-quickness', 'mental-toughness', 'team-chemistry', 'communication'],
+  football: ['quarterback-play', 'offensive-line', 'defensive-line', 'linebacker', 'secondary', 'special-teams', 'route-running', 'pass-coverage', 'run-blocking', 'pass-rushing', 'kicking', 'punting', 'return-game', 'red-zone', 'running-back-skills', 'wide-receiver-skills', 'tight-end-skills', 'center-skills', 'guard-skills', 'tackle-skills', 'defensive-end-skills', 'defensive-tackle-skills', 'outside-linebacker', 'inside-linebacker', 'cornerback-skills', 'safety-skills', 'blitz-packages', 'coverage-schemes', 'run-defense', 'pass-rush-techniques', 'blocking-schemes', 'play-action', 'screen-passes', 'goal-line-offense', 'goal-line-defense', 'two-minute-offense', 'clock-management', 'audibles', 'hot-routes', 'formation-recognition', 'film-study', 'leadership', 'communication', 'conditioning', 'strength-training', 'injury-prevention', 'mental-toughness'],
+  baseball: ['hitting', 'pitching', 'fielding', 'base-running', 'catching', 'infield-defense', 'outfield-defense', 'bunting', 'situational-hitting', 'relief-pitching', 'starting-pitching', 'mental-approach', 'game-calling', 'batting-stance', 'swing-mechanics', 'plate-discipline', 'two-strike-hitting', 'clutch-hitting', 'power-hitting', 'contact-hitting', 'switch-hitting', 'fastball-command', 'breaking-balls', 'changeup', 'pitch-sequencing', 'pickoff-moves', 'fielding-position', 'double-plays', 'cutoffs-relays', 'bunt-defense', 'stealing-bases', 'reading-pitchers', 'sliding-techniques', 'first-base-skills', 'second-base-skills', 'shortstop-skills', 'third-base-skills', 'catcher-framing', 'catcher-blocking', 'throwing-runners-out', 'pitch-calling', 'mound-visits', 'bullpen-management', 'lineup-construction', 'in-game-strategy', 'situational-awareness', 'pressure-situations', 'playoff-mentality'],
+  tennis: ['forehand', 'backhand', 'serve', 'volley', 'return', 'movement', 'singles-strategy', 'doubles-strategy', 'mental-toughness', 'fitness', 'court-positioning', 'shot-selection', 'match-tactics', 'topspin', 'slice', 'drop-shots', 'lobs', 'passing-shots', 'approach-shots', 'overhead-smash', 'kick-serve', 'flat-serve', 'slice-serve', 'return-of-serve', 'net-play', 'baseline-play', 'all-court-game', 'clay-court-tactics', 'grass-court-tactics', 'hard-court-tactics', 'indoor-tennis', 'wind-conditions', 'pressure-points', 'tiebreak-strategy', 'set-strategy', 'match-strategy', 'recovery-between-points', 'footwork-patterns', 'split-step', 'first-step-quickness', 'lateral-movement', 'forward-backward-movement', 'balance-recovery', 'racquet-preparation', 'follow-through', 'grip-variations', 'string-tension', 'equipment-selection', 'injury-prevention', 'match-preparation', 'tournament-scheduling'],
+  volleyball: ['serving', 'passing', 'setting', 'attacking', 'blocking', 'digging', 'libero-play', 'middle-blocking', 'outside-hitting', 'opposite-hitting', 'team-defense', 'rotation', 'communication', 'jump-serve', 'float-serve', 'topspin-serve', 'serve-receive', 'platform-passing', 'overhead-passing', 'quick-sets', 'back-sets', 'shoot-sets', 'dump-sets', 'approach-footwork', 'spiking-technique', 'tool-use', 'cross-court-hitting', 'line-hitting', 'roll-shots', 'tip-attacks', 'block-timing', 'block-positioning', 'soft-blocking', 'swing-blocking', 'dig-positioning', 'emergency-digs', 'pancake-digs', 'libero-positioning', 'substitution-patterns', 'front-row-defense', 'back-row-defense', 'transition-offense', 'out-of-system-play', 'timeout-strategy', 'match-momentum', 'pressure-serving', 'clutch-performance', 'team-chemistry', 'leadership-skills', 'court-awareness', 'anticipation-skills'],
+  wrestling: ['takedowns', 'escapes', 'reversals', 'pins', 'top-position', 'bottom-position', 'neutral-position', 'conditioning', 'weight-cutting', 'mental-preparation', 'technique-drilling', 'match-strategy', 'single-leg-takedowns', 'double-leg-takedowns', 'high-crotch', 'duck-under', 'arm-drag', 'throw-by', 'sprawling', 'crossface', 'half-nelson', 'cradle', 'tilt', 'leg-rides', 'arm-bar-series', 'wrist-control', 'underhooks', 'overhooks', 'tie-ups', 'hand-fighting', 'level-changes', 'penetration-steps', 'finishing-takedowns', 'scrambling', 'funk-wrestling', 'chain-wrestling', 'mat-wrestling', 'neutral-stance', 'motion-offense', 'pressure-wrestling', 'defensive-wrestling', 'match-management', 'overtime-strategy', 'tournament-preparation', 'dual-meet-strategy', 'injury-prevention', 'flexibility-training', 'strength-training', 'cutting-weight-safely', 'mental-toughness', 'visualization', 'competition-nerves'],
+  boxing: ['jab', 'cross', 'hook', 'uppercut', 'footwork', 'defense', 'head-movement', 'body-work', 'combinations', 'ring-generalship', 'conditioning', 'sparring', 'mental-preparation', 'weight-management', 'straight-left', 'straight-right', 'lead-hook', 'rear-hook', 'lead-uppercut', 'rear-uppercut', 'overhand-right', 'check-hook', 'pivot-punching', 'counter-punching', 'slip-and-counter', 'bob-and-weave', 'parrying', 'blocking', 'shoulder-roll', 'philly-shell', 'high-guard', 'long-guard', 'infighting', 'clinch-work', 'dirty-boxing', 'body-punching', 'liver-shots', 'solar-plexus', 'rhythm-boxing', 'timing', 'distance-management', 'ring-cutting', 'lateral-movement', 'forward-pressure', 'backward-movement', 'feinting', 'setup-punches', 'power-generation', 'hand-speed', 'punch-accuracy', 'punch-selection', 'round-strategy', 'fight-planning', 'opponent-analysis', 'amateur-boxing', 'professional-boxing'],
+  mma: ['striking', 'grappling', 'wrestling', 'jiu-jitsu', 'muay-thai', 'boxing', 'takedown-defense', 'ground-and-pound', 'submissions', 'cage-work', 'cardio', 'weight-cutting', 'fight-IQ', 'mental-preparation', 'kickboxing', 'karate', 'taekwondo', 'dirty-boxing', 'clinch-striking', 'elbow-strikes', 'knee-strikes', 'leg-kicks', 'body-kicks', 'head-kicks', 'spinning-techniques', 'superman-punch', 'flying-knee', 'sprawl-and-brawl', 'lay-and-pray', 'submission-grappling', 'ground-control', 'guard-work', 'mount-attacks', 'side-control-attacks', 'back-control-attacks', 'scrambles', 'wall-work', 'cage-wrestling', 'dirty-boxing-clinch', 'thai-clinch', 'underhooks-clinch', 'collar-tie', 'takedown-setups', 'takedown-defense-sprawl', 'stuffing-takedowns', 'counter-wrestling', 'getting-back-up', 'wall-walking', 'fight-preparation', 'camp-planning', 'sparring-strategy', 'injury-management', 'recovery-protocols', 'nutrition-planning', 'mental-game', 'visualization-techniques', 'pressure-management'],
+  jujitsu: ['guard-play', 'passing-guard', 'submissions', 'escapes', 'takedowns', 'sweeps', 'mount-position', 'side-control', 'back-control', 'half-guard', 'closed-guard', 'open-guard', 'spider-guard', 'de-la-riva', 'x-guard', 'butterfly-guard', 'triangle-chokes', 'armbars', 'kimuras', 'omoplatas', 'heel-hooks', 'knee-bars', 'chokes', 'guillotines', 'rear-naked-chokes', 'gi-techniques', 'no-gi-techniques', 'berimbolo', 'leg-locks', 'pressure-passing', 'flow-rolling', 'competition-strategy', 'self-defense', 'mental-game'],
+  swimming: ['freestyle', 'backstroke', 'breaststroke', 'butterfly', 'starts', 'turns', 'breathing', 'stroke-technique', 'race-strategy', 'training-sets', 'dryland-training', 'nutrition', 'recovery', 'catch-technique', 'pull-phase', 'push-phase', 'body-position', 'streamlining', 'kick-technique', 'two-beat-kick', 'six-beat-kick', 'dolphin-kick', 'underwater-swimming', 'flip-turns', 'open-turns', 'dive-starts', 'relay-starts', 'backstroke-start', 'distance-per-stroke', 'stroke-rate', 'bilateral-breathing', 'hypoxic-training', 'pace-work', 'sprint-training', 'distance-training', 'im-training', 'taper-training', 'altitude-training', 'pool-training', 'open-water-swimming', 'sighting-technique', 'drafting', 'race-tactics', 'mental-preparation', 'visualization', 'goal-setting', 'competition-nerves', 'time-management', 'stroke-counting', 'negative-split', 'even-split', 'positive-split'],
+  golf: ['driving', 'iron-play', 'short-game', 'putting', 'course-management', 'mental-game', 'swing-mechanics', 'club-selection', 'weather-play', 'pressure-situations', 'practice-routines', 'fitness', 'setup-fundamentals', 'grip-technique', 'stance-alignment', 'posture', 'ball-position', 'takeaway', 'backswing', 'downswing', 'impact-position', 'follow-through', 'tempo-rhythm', 'swing-plane', 'weight-transfer', 'hip-rotation', 'shoulder-turn', 'wrist-action', 'release-point', 'chipping', 'pitching', 'bunker-play', 'flop-shots', 'bump-and-run', 'putting-stroke', 'reading-greens', 'distance-control', 'lag-putting', 'short-putting', 'pre-shot-routine', 'course-strategy', 'risk-management', 'pin-hunting', 'playing-percentages', 'wind-play', 'rain-conditions', 'altitude-adjustments', 'uphill-downhill', 'sidehill-lies', 'rough-play', 'tree-trouble', 'water-hazards', 'sand-saves', 'scrambling', 'tournament-preparation', 'practice-planning', 'equipment-fitting', 'club-maintenance'],
+  track: ['sprints', 'distance', 'hurdles', 'jumps', 'throws', 'starts', 'pacing', 'form', 'strength-training', 'mental-preparation', 'race-tactics', 'recovery', 'nutrition', '100m-technique', '200m-technique', '400m-technique', '800m-technique', '1500m-technique', '5000m-technique', '10000m-technique', 'marathon-technique', 'hurdle-technique', 'steeplechase', 'high-jump', 'pole-vault', 'long-jump', 'triple-jump', 'shot-put', 'discus', 'hammer-throw', 'javelin', 'decathlon', 'heptathlon', 'block-starts', 'acceleration-phase', 'drive-phase', 'maximum-velocity', 'speed-endurance', 'lactate-threshold', 'vo2-max', 'aerobic-base', 'anaerobic-power', 'running-economy', 'biomechanics', 'cadence', 'stride-length', 'ground-contact-time', 'vertical-oscillation', 'arm-swing', 'breathing-technique', 'race-strategy', 'kick-timing', 'negative-splits', 'even-pacing', 'surge-tactics', 'drafting', 'positioning', 'track-positioning', 'lane-discipline', 'relay-handoffs', 'baton-passing'],
+  other: []
+}
+
+// Sport-specific content types
+const SPORT_CONTENT_TYPES = {
+  soccer: ['skill-tutorials', 'tactical-analysis', 'match-breakdowns', 'training-drills', 'goalkeeper-training', 'fitness-routines', 'mental-preparation', 'youth-development'],
+  basketball: ['shooting-form', 'game-film-study', 'skill-development', 'team-concepts', 'individual-workouts', 'strength-training', 'mental-toughness', 'coaching-tips'],
+  football: ['position-specific-training', 'scheme-breakdowns', 'technique-videos', 'conditioning-programs', 'film-study', 'recruiting-advice', 'injury-prevention', 'leadership-development'],
+  baseball: ['hitting-mechanics', 'pitching-development', 'fielding-fundamentals', 'game-situations', 'mental-approach', 'strength-training', 'injury-prevention', 'parent-education'],
+  tennis: ['stroke-technique', 'match-strategy', 'fitness-training', 'mental-game', 'practice-drills', 'equipment-advice', 'tournament-preparation', 'junior-development'],
+  volleyball: ['skill-training', 'team-systems', 'position-play', 'conditioning', 'mental-training', 'coaching-education', 'recruiting-guidance', 'injury-prevention'],
+  wrestling: ['technique-instruction', 'conditioning-programs', 'mental-preparation', 'weight-management', 'competition-strategy', 'strength-training', 'injury-prevention', 'coaching-development'],
+  boxing: ['technique-training', 'pad-work', 'conditioning', 'mental-preparation', 'sparring-tips', 'nutrition-guidance', 'injury-prevention', 'amateur-development'],
+  mma: ['technique-breakdowns', 'training-methods', 'fight-analysis', 'conditioning-programs', 'mental-preparation', 'nutrition-guidance', 'injury-prevention', 'career-guidance'],
+  jujitsu: ['technique-tutorials', 'position-breakdowns', 'submission-chains', 'guard-passing-systems', 'escape-sequences', 'competition-preparation', 'rolling-sessions', 'drilling-routines', 'conceptual-lessons', 'flow-training', 'self-defense-applications', 'gi-vs-no-gi-differences', 'beginner-fundamentals', 'advanced-concepts', 'mental-game-development', 'injury-prevention', 'strength-conditioning', 'flexibility-mobility'],
+  swimming: ['stroke-technique', 'training-sets', 'race-strategy', 'dryland-exercises', 'mental-preparation', 'nutrition-advice', 'injury-prevention', 'parent-guidance'],
+  golf: ['swing-instruction', 'short-game-tips', 'course-strategy', 'mental-game', 'equipment-fitting', 'practice-routines', 'junior-development', 'fitness-training'],
+  track: ['event-specific-training', 'technique-analysis', 'workout-design', 'mental-preparation', 'nutrition-guidance', 'injury-prevention', 'competition-strategy', 'coaching-education'],
+  other: []
+}
+
+// Sport-specific target audiences
+const SPORT_TARGET_AUDIENCES = {
+  soccer: ['youth-players', 'high-school-players', 'college-players', 'adult-recreational', 'coaches', 'parents', 'goalkeepers', 'referees'],
+  basketball: ['youth-players', 'high-school-players', 'college-players', 'adult-recreational', 'coaches', 'parents', 'officials', 'trainers'],
+  football: ['youth-players', 'high-school-players', 'college-players', 'coaches', 'parents', 'officials', 'strength-coaches', 'athletic-directors'],
+  baseball: ['little-league', 'high-school-players', 'college-players', 'adult-recreational', 'coaches', 'parents', 'umpires', 'travel-teams'],
+  tennis: ['junior-players', 'high-school-players', 'college-players', 'adult-recreational', 'coaches', 'parents', 'tournament-players', 'teaching-pros'],
+  volleyball: ['youth-players', 'high-school-players', 'college-players', 'adult-recreational', 'coaches', 'parents', 'club-players', 'officials'],
+  wrestling: ['youth-wrestlers', 'high-school-wrestlers', 'college-wrestlers', 'coaches', 'parents', 'officials', 'strength-coaches', 'club-programs'],
+  boxing: ['amateur-boxers', 'youth-boxers', 'adult-beginners', 'competitive-boxers', 'trainers', 'coaches', 'fitness-enthusiasts', 'parents'],
+  mma: ['amateur-fighters', 'professional-fighters', 'beginners', 'coaches', 'trainers', 'fitness-enthusiasts', 'martial-artists', 'combat-sports-fans'],
+  jujitsu: ['white-belts', 'blue-belts', 'purple-belts', 'brown-belts', 'black-belts', 'beginners', 'intermediate-practitioners', 'advanced-practitioners', 'competitors', 'hobbyists', 'instructors', 'gym-owners', 'parents-of-kids', 'women-practitioners', 'masters-athletes', 'self-defense-students', 'gi-players', 'no-gi-players', 'mma-crossovers'],
+  swimming: ['age-group-swimmers', 'high-school-swimmers', 'college-swimmers', 'masters-swimmers', 'coaches', 'parents', 'fitness-swimmers', 'triathletes'],
+  golf: ['junior-golfers', 'high-school-golfers', 'college-golfers', 'amateur-golfers', 'recreational-golfers', 'teaching-professionals', 'parents', 'golf-coaches'],
+  track: ['youth-athletes', 'high-school-athletes', 'college-athletes', 'masters-athletes', 'coaches', 'parents', 'officials', 'distance-runners'],
+  other: []
+}
 
 export default function ContributorApplicationPage() {
+  const { user } = useAuth()
   const router = useRouter()
   const [currentStep, setCurrentStep] = useState<ApplicationStep>('basic')
   const [loading, setLoading] = useState(false)
@@ -64,6 +118,28 @@ export default function ContributorApplicationPage() {
   })
 
   const updateField = (k: keyof ContributorApplication, v: any) => setApplication(prev => ({ ...prev, [k]: v }))
+
+  // Helper functions to get sport-specific options
+  const getSportSpecialties = (sport: string) => {
+    return SPORT_SPECIALTIES[sport as keyof typeof SPORT_SPECIALTIES] || []
+  }
+
+  const getSportContentTypes = (sport: string) => {
+    return SPORT_CONTENT_TYPES[sport as keyof typeof SPORT_CONTENT_TYPES] || []
+  }
+
+  const getSportTargetAudiences = (sport: string) => {
+    return SPORT_TARGET_AUDIENCES[sport as keyof typeof SPORT_TARGET_AUDIENCES] || []
+  }
+
+  // Reset related fields when sport changes
+  const handleSportChange = (sport: string) => {
+    updateField('primarySport', sport)
+    // Clear existing selections since they may not be valid for the new sport
+    updateField('specialties', [])
+    updateField('contentTypes', [])
+    updateField('targetAudience', [])
+  }
 
   const validateStep = (step: ApplicationStep) => {
     switch (step) {
@@ -94,14 +170,32 @@ export default function ContributorApplicationPage() {
 
   const submitApplication = async () => {
     if (!validateStep('review')) { alert('Please complete required fields.'); return }
+    if (!user?.uid) { alert('Please sign in to submit your application.'); return }
+    
     setLoading(true)
     try {
-      const ref = await addDoc(collection(db, 'contributorApplications'), { ...application, submittedAt: serverTimestamp(), status: 'pending' })
-      alert(`Application submitted! Ref: ${ref.id}`)
-      router.push('/contributors')
-    } catch {
-      alert('Failed to submit. Try again later.')
-    } finally { setLoading(false) }
+      // Submit application to Firestore
+      const applicationData = {
+        ...application,
+        userId: user.uid,
+        userEmail: user.email,
+        submittedAt: serverTimestamp(),
+        status: 'pending'
+      }
+      
+      const ref = await addDoc(collection(db, 'contributorApplications'), applicationData)
+      
+      // Update user role to indicate pending creator application
+      await applyForCreatorRole(user.uid, { id: ref.id, ...applicationData })
+      
+      alert(`Application submitted successfully! Reference: ${ref.id}`)
+      router.push('/dashboard/creator')
+    } catch (error) {
+      console.error('Error submitting application:', error)
+      alert('Failed to submit application. Please try again.')
+    } finally { 
+      setLoading(false) 
+    }
   }
 
   const stepPct = () => { const steps: ApplicationStep[] = ['basic','credentials','content','media','review']; const i = steps.indexOf(currentStep); return ((i+1)/steps.length)*100 }
@@ -140,7 +234,7 @@ export default function ContributorApplicationPage() {
         {currentStep === 'credentials' && (
           <div className="space-y-6">
             <div className="grid sm:grid-cols-2 gap-6">
-              <div><label className="block text-sm mb-2 text-gray-800">Primary Sport *</label><select value={application.primarySport} onChange={e=>updateField('primarySport',e.target.value)} className="w-full bg-white p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cardinal"><option value="">Select</option>{SPORTS.map(s=><option key={s} value={s}>{s}</option>)}</select></div>
+              <div><label className="block text-sm mb-2 text-gray-800">Primary Sport *</label><select value={application.primarySport} onChange={e=>handleSportChange(e.target.value)} className="w-full bg-white p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cardinal"><option value="">Select</option>{SPORTS.map(s=><option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}</select></div>
               <div><label className="block text-sm mb-2 text-gray-800">Experience Level *</label><select value={application.experience} onChange={e=>updateField('experience',e.target.value as any)} className="w-full bg-white p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cardinal">{EXPERIENCES.map(x=><option key={x} value={x}>{x}</option>)}</select></div>
               <div className="sm:col-span-2"><label className="block text-sm mb-2 text-gray-800">Experience Details *</label><textarea value={application.experienceDetails} onChange={e=>updateField('experienceDetails',e.target.value)} rows={4} className="w-full bg-white p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cardinal" /></div>
               <div><label className="block text-sm mb-2 text-gray-800">Years Active</label><input type="number" value={application.yearsActive} onChange={e=>updateField('yearsActive',parseInt(e.target.value)||0)} className="w-full bg-white p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cardinal" /></div>
@@ -162,30 +256,107 @@ export default function ContributorApplicationPage() {
 
         {currentStep === 'content' && (
           <div className="space-y-6">
-            <div>
-              <label className="block text-sm mb-2">Areas of Expertise *</label>
-              <div className="grid sm:grid-cols-3 gap-3">
-                {SPECIALTIES.map(s => (
-                  <label key={s} className="flex items-center gap-2"><input type="checkbox" checked={application.specialties.includes(s)} onChange={(e)=>updateField('specialties', e.target.checked ? [...application.specialties,s] : application.specialties.filter(x=>x!==s))} className="text-cardinal focus:ring-cardinal" /><span className="text-sm capitalize">{s.replace('-', ' ')}</span></label>
-                ))}
+            {application.primarySport ? (
+              <>
+                <div>
+                  <label className="block text-sm mb-2">Areas of Expertise for {application.primarySport.charAt(0).toUpperCase() + application.primarySport.slice(1)} *</label>
+                  {getSportSpecialties(application.primarySport).length > 0 ? (
+                    <div className="grid sm:grid-cols-3 gap-3">
+                      {getSportSpecialties(application.primarySport).map(s => (
+                        <label key={s} className="flex items-center gap-2">
+                          <input 
+                            type="checkbox" 
+                            checked={application.specialties.includes(s)} 
+                            onChange={(e)=>updateField('specialties', e.target.checked ? [...application.specialties,s] : application.specialties.filter(x=>x!==s))} 
+                            className="text-cardinal focus:ring-cardinal" 
+                          />
+                          <span className="text-sm capitalize">{s.replace(/-/g, ' ')}</span>
+                        </label>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                      <p className="text-yellow-800 text-sm">Please add your own specialties for {application.primarySport}:</p>
+                      <input 
+                        type="text" 
+                        placeholder="Enter your specialties separated by commas"
+                        className="mt-2 w-full bg-white p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cardinal"
+                        onBlur={(e) => {
+                          const customSpecialties = e.target.value.split(',').map(s => s.trim()).filter(s => s)
+                          updateField('specialties', customSpecialties)
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm mb-2">Content Types for {application.primarySport.charAt(0).toUpperCase() + application.primarySport.slice(1)} *</label>
+                  {getSportContentTypes(application.primarySport).length > 0 ? (
+                    <div className="grid sm:grid-cols-2 gap-3">
+                      {getSportContentTypes(application.primarySport).map(t => (
+                        <label key={t} className="flex items-center gap-2">
+                          <input 
+                            type="checkbox" 
+                            checked={application.contentTypes.includes(t)} 
+                            onChange={(e)=>updateField('contentTypes', e.target.checked ? [...application.contentTypes,t] : application.contentTypes.filter(x=>x!==t))} 
+                            className="text-cardinal focus:ring-cardinal" 
+                          />
+                          <span className="text-sm capitalize">{t.replace(/-/g, ' ')}</span>
+                        </label>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                      <p className="text-yellow-800 text-sm">Please add your content types for {application.primarySport}:</p>
+                      <input 
+                        type="text" 
+                        placeholder="Enter content types separated by commas"
+                        className="mt-2 w-full bg-white p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cardinal"
+                        onBlur={(e) => {
+                          const customContentTypes = e.target.value.split(',').map(s => s.trim()).filter(s => s)
+                          updateField('contentTypes', customContentTypes)
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm mb-2">Target Audience for {application.primarySport.charAt(0).toUpperCase() + application.primarySport.slice(1)} *</label>
+                  {getSportTargetAudiences(application.primarySport).length > 0 ? (
+                    <div className="grid sm:grid-cols-2 gap-3">
+                      {getSportTargetAudiences(application.primarySport).map(a => (
+                        <label key={a} className="flex items-center gap-2">
+                          <input 
+                            type="checkbox" 
+                            checked={application.targetAudience.includes(a)} 
+                            onChange={(e)=>updateField('targetAudience', e.target.checked ? [...application.targetAudience,a] : application.targetAudience.filter(x=>x!==a))} 
+                            className="text-cardinal focus:ring-cardinal" 
+                          />
+                          <span className="text-sm capitalize">{a.replace(/-/g, ' ')}</span>
+                        </label>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                      <p className="text-yellow-800 text-sm">Please add your target audiences for {application.primarySport}:</p>
+                      <input 
+                        type="text" 
+                        placeholder="Enter target audiences separated by commas"
+                        className="mt-2 w-full bg-white p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cardinal"
+                        onBlur={(e) => {
+                          const customAudiences = e.target.value.split(',').map(s => s.trim()).filter(s => s)
+                          updateField('targetAudience', customAudiences)
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              <div className="p-6 bg-gray-50 border border-gray-200 rounded-lg text-center">
+                <p className="text-gray-600">Please select a primary sport in the previous step to see relevant content options.</p>
               </div>
-            </div>
-            <div>
-              <label className="block text-sm mb-2">Content Types *</label>
-              <div className="grid sm:grid-cols-2 gap-3">
-                {CONTENT_TYPES.map(t => (
-                  <label key={t} className="flex items-center gap-2"><input type="checkbox" checked={application.contentTypes.includes(t)} onChange={(e)=>updateField('contentTypes', e.target.checked ? [...application.contentTypes,t] : application.contentTypes.filter(x=>x!==t))} className="text-cardinal focus:ring-cardinal" /><span className="text-sm capitalize">{t.replace('-', ' ')}</span></label>
-                ))}
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm mb-2">Target Audience *</label>
-              <div className="grid sm:grid-cols-2 gap-3">
-                {TARGET_AUDIENCES.map(a => (
-                  <label key={a} className="flex items-center gap-2"><input type="checkbox" checked={application.targetAudience.includes(a)} onChange={(e)=>updateField('targetAudience', e.target.checked ? [...application.targetAudience,a] : application.targetAudience.filter(x=>x!==a))} className="text-cardinal focus:ring-cardinal" /><span className="text-sm capitalize">{a.replace('-', ' ')}</span></label>
-                ))}
-              </div>
-            </div>
+            )}
             <div>
               <label className="block text-sm mb-2">Content Description *</label>
               <textarea value={application.contentDescription} onChange={e=>updateField('contentDescription',e.target.value)} rows={4} className="w-full bg-white p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cardinal" />

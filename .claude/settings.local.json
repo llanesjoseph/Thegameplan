@@ -15,7 +15,12 @@
       "Bash(git pull:*)",
       "Bash(git fetch:*)",
       "Bash(npm run lint)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(tasklist)",
+      "Bash(findstr:*)",
+      "Bash(netstat:*)",
+      "Bash(taskkill:*)",
+      "Bash(firebase deploy:*)"
     ],
     "deny": [],
     "ask": []

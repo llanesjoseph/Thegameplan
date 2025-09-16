@@ -5,14 +5,14 @@ import { usePathname } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import { useEnhancedRole } from '@/hooks/use-role-switcher'
 import { useState } from 'react'
-import { 
-  LayoutDashboard, 
-  Video, 
-  MessageCircle, 
-  Calendar, 
-  BarChart3, 
-  Users, 
-  Settings, 
+import {
+  LayoutDashboard,
+  Video,
+  MessageCircle,
+  Calendar,
+  BarChart3,
+  Users,
+  Settings,
   BookOpen,
   TrendingUp,
   User,
@@ -20,7 +20,8 @@ import {
   Award,
   Menu,
   X,
-  ShoppingBag
+  ShoppingBag,
+  MessageSquare
 } from 'lucide-react'
 
 const navigationItems = {
@@ -29,6 +30,7 @@ const navigationItems = {
     { title: 'Progress', icon: TrendingUp, href: '/dashboard/progress', color: 'text-green-600' },
     { title: 'Request Coaching', icon: MessageCircle, href: '/dashboard/coaching', color: 'text-purple-600' },
     { title: 'Schedule', icon: Calendar, href: '/dashboard/schedule', color: 'text-orange-600' },
+    { title: 'Support Requests', icon: MessageSquare, href: '/dashboard/requests', color: 'text-indigo-600' },
     { title: 'Curated Gear', icon: ShoppingBag, href: '/gear', color: 'text-emerald-600' },
     { title: 'Profile', icon: User, href: '/dashboard/profile', color: 'text-gray-600' },
   ],
@@ -46,17 +48,27 @@ const navigationItems = {
     { title: 'Users', icon: Users, href: '/dashboard/admin/users', color: 'text-green-600' },
     { title: 'Content', icon: Video, href: '/dashboard/admin/content', color: 'text-red-600' },
     { title: 'Analytics', icon: BarChart3, href: '/dashboard/admin/analytics', color: 'text-purple-600' },
+    { title: 'Support Requests', icon: MessageSquare, href: '/dashboard/admin/requests', color: 'text-indigo-600' },
     { title: 'Curated Gear', icon: ShoppingBag, href: '/gear', color: 'text-emerald-600' },
     { title: 'Settings', icon: Settings, href: '/dashboard/admin/settings', color: 'text-gray-600' },
   ],
   superadmin: [
     { title: 'Overview', icon: LayoutDashboard, href: '/dashboard/overview', color: 'text-blue-600' },
-    { title: 'Roles', icon: Crown, href: '/dashboard/superadmin', color: 'text-red-600' },
+    { title: 'Role Management', icon: Crown, href: '/dashboard/superadmin', color: 'text-red-600' },
     { title: 'System Analytics', icon: BarChart3, href: '/dashboard/superadmin/analytics', color: 'text-purple-600' },
-    { title: 'Users', icon: Users, href: '/dashboard/admin/users', color: 'text-green-600' },
-    { title: 'Content', icon: Video, href: '/dashboard/admin/content', color: 'text-orange-600' },
+    { title: '━━━ Admin Features ━━━', icon: null, href: '', color: 'text-gray-400', disabled: true },
+    { title: 'All Users', icon: Users, href: '/dashboard/admin/users', color: 'text-green-600' },
+    { title: 'Creator Applications', icon: Award, href: '/dashboard/admin/creator-applications', color: 'text-indigo-600' },
+    { title: 'Content Management', icon: Video, href: '/dashboard/admin/content', color: 'text-orange-600' },
+    { title: 'Admin Analytics', icon: TrendingUp, href: '/dashboard/admin/analytics', color: 'text-pink-600' },
+    { title: 'Support Requests', icon: MessageSquare, href: '/dashboard/admin/requests', color: 'text-indigo-600' },
+    { title: '━━━ Creator Features ━━━', icon: null, href: '', color: 'text-gray-400', disabled: true },
+    { title: 'Creator Studio', icon: Video, href: '/dashboard/creator', color: 'text-red-600' },
+    { title: 'Creator Requests', icon: MessageCircle, href: '/dashboard/creator/requests', color: 'text-green-600' },
+    { title: 'Creator Analytics', icon: BarChart3, href: '/dashboard/creator/analytics', color: 'text-purple-600' },
+    { title: '━━━ General ━━━', icon: null, href: '', color: 'text-gray-400', disabled: true },
     { title: 'Curated Gear', icon: ShoppingBag, href: '/gear', color: 'text-emerald-600' },
-    { title: 'Settings', icon: Settings, href: '/dashboard/admin/settings', color: 'text-gray-600' },
+    { title: 'System Settings', icon: Settings, href: '/dashboard/admin/settings', color: 'text-gray-600' },
   ]
 }
 
@@ -132,9 +144,20 @@ export function DashboardSidebar() {
 
         {/* Navigation */}
         <nav className="p-4 space-y-1">
-          {items.map((item) => {
+          {items.map((item, index) => {
+            // Handle separator items
+            if ((item as any).disabled) {
+              return (
+                <div key={`separator-${index}`} className="px-4 py-2">
+                  <div className="text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    {item.title.replace(/━/g, '')}
+                  </div>
+                </div>
+              )
+            }
+
             const isActive = pathname === item.href || (item.href !== '/dashboard/overview' && pathname.startsWith(item.href))
-            
+
             return (
               <Link
                 key={item.href}
@@ -146,7 +169,7 @@ export function DashboardSidebar() {
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                 }`}
               >
-                <item.icon className={`w-5 h-5 ${isActive ? item.color : 'text-gray-400 group-hover:text-gray-600'}`} />
+                {item.icon && <item.icon className={`w-5 h-5 ${isActive ? item.color : 'text-gray-400 group-hover:text-gray-600'}`} />}
                 <span className="font-medium text-sm">
                   {item.title}
                 </span>

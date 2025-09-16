@@ -198,7 +198,7 @@ export default function CreatorSchedule() {
 
   const getEventTypeColor = (type: Event['type']) => {
     switch (type) {
-      case 'coaching': return 'bg-blue-500'
+      case 'coaching': return 'bg-cardinal'
       case 'lesson': return 'bg-green-500'
       case 'meeting': return 'bg-purple-500'
       case 'personal': return 'bg-gray-500'
@@ -254,7 +254,7 @@ export default function CreatorSchedule() {
             </button>
             <button
               onClick={() => setShowEventForm(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-cardinal text-white rounded-lg hover:bg-cardinal-dark transition-colors"
             >
               <Plus className="w-4 h-4" />
               Add Event
@@ -303,9 +303,9 @@ export default function CreatorSchedule() {
                     !day.isCurrentMonth
                       ? 'text-gray-300 hover:bg-gray-50'
                       : day.isToday
-                      ? 'bg-blue-100 text-blue-900 font-bold'
+                      ? 'bg-red-100 text-red-900 font-bold'
                       : selectedDate.toDateString() === day.date.toDateString()
-                      ? 'bg-blue-600 text-white'
+                      ? 'bg-cardinal text-white'
                       : 'hover:bg-gray-100 text-gray-900'
                   }`}
                 >
@@ -352,7 +352,7 @@ export default function CreatorSchedule() {
                       setFormData(prev => ({ ...prev, date: selectedDate.toISOString().split('T')[0] }))
                       setShowEventForm(true)
                     }}
-                    className="mt-2 text-blue-600 hover:text-blue-700 text-sm"
+                    className="mt-2 text-cardinal hover:text-cardinal-dark text-sm"
                   >
                     Add your first event
                   </button>
@@ -443,7 +443,7 @@ export default function CreatorSchedule() {
                     type="text"
                     value={formData.title}
                     onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cardinal focus:border-transparent"
                     placeholder="Event title"
                   />
                 </div>
@@ -453,7 +453,7 @@ export default function CreatorSchedule() {
                   <textarea
                     value={formData.description}
                     onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cardinal focus:border-transparent"
                     rows={3}
                     placeholder="Event description"
                   />
@@ -466,7 +466,7 @@ export default function CreatorSchedule() {
                       type="date"
                       value={formData.date}
                       onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cardinal focus:border-transparent"
                     />
                   </div>
                   <div>
@@ -474,7 +474,7 @@ export default function CreatorSchedule() {
                     <select
                       value={formData.type}
                       onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value as Event['type'] }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cardinal focus:border-transparent"
                     >
                       <option value="coaching">Coaching</option>
                       <option value="lesson">Lesson</option>
@@ -491,7 +491,7 @@ export default function CreatorSchedule() {
                       type="time"
                       value={formData.startTime}
                       onChange={(e) => setFormData(prev => ({ ...prev, startTime: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cardinal focus:border-transparent"
                     />
                   </div>
                   <div>
@@ -500,7 +500,7 @@ export default function CreatorSchedule() {
                       type="time"
                       value={formData.endTime}
                       onChange={(e) => setFormData(prev => ({ ...prev, endTime: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cardinal focus:border-transparent"
                     />
                   </div>
                 </div>
@@ -511,7 +511,7 @@ export default function CreatorSchedule() {
                     type="text"
                     value={formData.location}
                     onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cardinal focus:border-transparent"
                     placeholder="Meeting location or video link"
                   />
                 </div>
@@ -539,7 +539,7 @@ export default function CreatorSchedule() {
                 </button>
                 <button
                   onClick={saveEvent}
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="flex-1 px-4 py-2 bg-cardinal text-white rounded-lg hover:bg-cardinal-dark transition-colors"
                 >
                   {editingEvent ? 'Update' : 'Create'} Event
                 </button>

@@ -16,20 +16,67 @@ export default function SuperAdminDashboard() {
 
   return (
     <main className="min-h-screen bg-gray-50">
-      <div className="max-w-6xl mx-auto px-6 py-10">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-          <h1 className="text-3xl font-bold text-gray-900">Superadmin</h1>
-          <p className="text-gray-600 mt-2">Full platform controls.</p>
+      <div className="max-w-7xl mx-auto px-6 py-10">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Superadmin Dashboard</h1>
+          <p className="text-gray-600 mt-2">Complete platform administration and control center.</p>
+        </div>
 
-          <section className="mt-8 bg-gray-50 rounded-lg p-6 border border-gray-200">
-            <h3 className="font-semibold text-gray-900">Assign role</h3>
+        <div className="grid lg:grid-cols-2 gap-8">
+          {/* User Role Management */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center mb-4">
+              <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center mr-3">
+                <span className="text-red-600 font-semibold">👑</span>
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">User Role Management</h3>
+                <p className="text-sm text-gray-600">Assign and modify user permissions</p>
+              </div>
+            </div>
             <RoleForm />
-          </section>
+          </div>
 
-          <section className="mt-8 bg-gray-50 rounded-lg p-6 border border-gray-200">
-            <h3 className="font-semibold text-gray-900">Manage creator admins</h3>
+          {/* Creator Admin Management */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center mb-4">
+              <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
+                <span className="text-purple-600 font-semibold">🎯</span>
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">Creator Admin Access</h3>
+                <p className="text-sm text-gray-600">Grant/revoke admin access to creators</p>
+              </div>
+            </div>
             <CreatorAdminForm />
-          </section>
+          </div>
+
+          {/* Quick Access Links */}
+          <div className="lg:col-span-2 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h3 className="font-semibold text-gray-900 mb-4">Quick Access</h3>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <a href="/dashboard/admin/users" className="group p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors">
+                <div className="text-blue-600 mb-2">👥</div>
+                <div className="font-medium text-gray-900 group-hover:text-blue-700">All Users</div>
+                <div className="text-sm text-gray-600">Manage user accounts</div>
+              </a>
+              <a href="/dashboard/admin/creator-applications" className="group p-4 border border-gray-200 rounded-lg hover:border-green-300 hover:bg-green-50 transition-colors">
+                <div className="text-green-600 mb-2">📝</div>
+                <div className="font-medium text-gray-900 group-hover:text-green-700">Applications</div>
+                <div className="text-sm text-gray-600">Review creator requests</div>
+              </a>
+              <a href="/dashboard/admin/content" className="group p-4 border border-gray-200 rounded-lg hover:border-orange-300 hover:bg-orange-50 transition-colors">
+                <div className="text-orange-600 mb-2">🎬</div>
+                <div className="font-medium text-gray-900 group-hover:text-orange-700">Content</div>
+                <div className="text-sm text-gray-600">Manage all content</div>
+              </a>
+              <a href="/dashboard/admin/analytics" className="group p-4 border border-gray-200 rounded-lg hover:border-purple-300 hover:bg-purple-50 transition-colors">
+                <div className="text-purple-600 mb-2">📊</div>
+                <div className="font-medium text-gray-900 group-hover:text-purple-700">Analytics</div>
+                <div className="text-sm text-gray-600">Platform insights</div>
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </main>
