@@ -44,14 +44,11 @@ const ClarityInput: React.FC<ClarityInputProps> = ({
 }) => {
   const inputId = id || name || label?.toLowerCase().replace(/\s+/g, '-')
   
-  const containerClasses = cn(
-    'clarity-input-container',
-    className
-  )
+  const containerClasses = cn('space-y-2', className)
   
   const inputClasses = cn(
-    'clarity-input',
-    error && 'error',
+    'w-full px-4 py-3 rounded-lg bg-white border border-gray-300 focus:ring-2 focus:ring-cardinal focus:border-cardinal transition-colors',
+    error && 'border-red-300 focus:ring-red-500 focus:border-red-500',
     icon && iconPosition === 'left' && 'pl-12',
     icon && iconPosition === 'right' && 'pr-12',
     disabled && 'opacity-60 cursor-not-allowed',
@@ -59,7 +56,7 @@ const ClarityInput: React.FC<ClarityInputProps> = ({
   )
   
   const iconClasses = cn(
-    'absolute top-1/2 transform -translate-y-1/2 text-clarity-text-secondary',
+    'absolute top-1/2 transform -translate-y-1/2 text-gray-600',
     'pointer-events-none',
     iconPosition === 'left' ? 'left-4' : 'right-4'
   )
@@ -67,12 +64,9 @@ const ClarityInput: React.FC<ClarityInputProps> = ({
   return (
     <div className={containerClasses}>
       {label && (
-        <label 
-          htmlFor={inputId}
-          className="clarity-label"
-        >
+        <label htmlFor={inputId} className="block text-sm font-semibold text-gray-800">
           {label}
-          {required && <span className="text-clarity-error ml-1">*</span>}
+          {required && <span className="text-red-600 ml-1">*</span>}
         </label>
       )}
       
@@ -105,20 +99,13 @@ const ClarityInput: React.FC<ClarityInputProps> = ({
       </div>
       
       {error && (
-        <div 
-          id={`${inputId}-error`}
-          className="clarity-input-error"
-          role="alert"
-        >
+        <div id={`${inputId}-error`} className="text-sm text-red-600" role="alert">
           {error}
         </div>
       )}
       
       {helpText && !error && (
-        <div 
-          id={`${inputId}-help`}
-          className="text-caption text-clarity-text-secondary mt-1"
-        >
+        <div id={`${inputId}-help`} className="text-sm text-gray-600 mt-1">
           {helpText}
         </div>
       )}

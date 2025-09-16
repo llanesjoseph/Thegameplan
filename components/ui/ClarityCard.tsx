@@ -19,9 +19,9 @@ export function ClarityCard({
   const baseStyles = 'rounded-lg transition-all duration-200'
   
   const variants = {
-    default: 'bg-clarity-surface border border-clarity-border',
-    elevated: 'bg-clarity-surface shadow-lg border border-clarity-border',
-    outline: 'bg-transparent border border-clarity-border'
+    default: 'bg-white border border-gray-200 shadow-card',
+    elevated: 'bg-white shadow-card-md border border-gray-200',
+    outline: 'bg-transparent border border-gray-200'
   }
   
   const paddings = {

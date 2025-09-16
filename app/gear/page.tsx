@@ -261,11 +261,11 @@ export default function Gear() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-clarity-background flex items-center justify-center">
-        <div className="clarity-container">
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-clarity-accent mx-auto"></div>
-            <p className="mt-4 text-clarity-text-secondary">Loading your personalized gear...</p>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cardinal mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading your personalized gear...</p>
           </div>
         </div>
       </div>
@@ -273,19 +273,19 @@ export default function Gear() {
   }
 
   return (
-    <main className="min-h-screen bg-clarity-background">
-      <div className="clarity-container py-8">
+    <main className="min-h-screen bg-white">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-clarity-accent rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-cardinal rounded-lg flex items-center justify-center">
               <ShoppingBag className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-h1 font-bold text-clarity-text-primary">
+              <h1 className="text-3xl font-bold text-gray-800">
                 {user ? 'Your Recommended Gear' : 'Training Equipment & Gear'}
               </h1>
-              <p className="text-body text-clarity-text-secondary mt-1">
+              <p className="text-base text-gray-600 mt-1">
                 {user 
                   ? `Curated recommendations based on your training profile • ${userPreferences.sports.join(', ').toUpperCase()}` 
                   : 'Professional equipment recommendations from expert coaches'
@@ -295,12 +295,12 @@ export default function Gear() {
           </div>
           
           {user && (
-            <div className="clarity-glass-card p-4">
-              <div className="flex items-center gap-2 text-clarity-accent mb-2">
+            <div className="bg-white border border-gray-200 rounded-lg shadow-card p-4">
+              <div className="flex items-center gap-2 text-cardinal mb-2">
                 <User className="w-4 h-4" />
                 <span className="font-medium">Personalized for you</span>
               </div>
-              <p className="text-caption text-clarity-text-secondary">
+              <p className="text-sm text-gray-600">
                 Showing gear recommendations based on your sports: {userPreferences.sports.join(', ')} • 
                 Skill level: {userPreferences.level}
               </p>
@@ -309,27 +309,27 @@ export default function Gear() {
         </div>
 
         {/* Filters */}
-        <div className="mb-8 clarity-glass-card p-6">
+        <div className="mb-8 bg-white border border-gray-200 rounded-lg p-6 shadow-card">
           <div className="flex flex-col lg:flex-row gap-4">
             {/* Search */}
             <div className="relative flex-1">
-              <Search className="w-5 h-5 text-clarity-text-secondary absolute left-3 top-1/2 -translate-y-1/2" />
+              <Search className="w-5 h-5 text-gray-600 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 placeholder="Search gear..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="clarity-input pl-10"
+                className="w-full bg-white border border-gray-300 rounded-lg pl-10 pr-4 py-3 text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-cardinal focus:border-cardinal"
               />
             </div>
             
             {/* Sport Filter */}
             <div className="flex items-center gap-2">
-              <Filter className="w-4 h-4 text-clarity-text-secondary" />
+              <Filter className="w-4 h-4 text-gray-600" />
               <select
                 value={selectedSport}
                 onChange={(e) => setSelectedSport(e.target.value)}
-                className="clarity-input"
+                className="bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-800 focus:ring-2 focus:ring-cardinal focus:border-cardinal"
               >
                 {sports.map(sport => (
                   <option key={sport} value={sport}>
@@ -343,7 +343,7 @@ export default function Gear() {
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="clarity-input"
+              className="bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-800 focus:ring-2 focus:ring-cardinal focus:border-cardinal"
             >
               {categories.map(category => (
                 <option key={category} value={category}>
@@ -357,11 +357,11 @@ export default function Gear() {
         {/* Results */}
         <div className="mb-6">
           <div className="flex items-center justify-between">
-            <p className="text-body text-clarity-text-secondary">
+            <p className="text-base text-gray-600">
               Showing {filteredItems.length} {filteredItems.length === 1 ? 'item' : 'items'}
               {selectedSport !== 'all' && ` for ${selectedSport}`}
             </p>
-            <div className="flex items-center gap-2 text-caption text-clarity-text-secondary">
+            <div className="flex items-center gap-2 text-sm text-gray-600">
               <TrendingUp className="w-4 h-4" />
               <span>Sorted by relevance</span>
             </div>
@@ -371,50 +371,50 @@ export default function Gear() {
         {/* Gear Grid */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredItems.map((item) => (
-            <div key={item.id} className="clarity-glass-card p-4 hover:shadow-clarity-lg hover:scale-105 transition-all duration-200 flex flex-col h-full">
+            <div key={item.id} className="bg-white border border-gray-200 rounded-lg p-4 shadow-card hover:shadow-card-md hover:scale-[1.02] transition duration-200 flex flex-col h-full">
               {/* Product Image Placeholder */}
-              <div className="aspect-square rounded-lg bg-clarity-surface border border-clarity-text-secondary/20 mb-4 flex items-center justify-center">
-                <ShoppingBag className="w-12 h-12 text-clarity-text-secondary" />
+              <div className="aspect-square rounded-lg bg-gray-50 border border-gray-200 mb-4 flex items-center justify-center">
+                <ShoppingBag className="w-12 h-12 text-gray-600" />
               </div>
               
               {/* Product Info */}
               <div className="space-y-3 flex-1 flex flex-col">
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-caption font-medium text-clarity-accent bg-clarity-accent/10 px-2 py-1 rounded-full">
+                    <span className="text-xs font-medium text-cardinal bg-cardinal/10 px-2 py-1 rounded-full">
                       {item.category}
                     </span>
-                    <span className="text-caption font-medium text-clarity-text-secondary bg-clarity-surface px-2 py-1 rounded-full">
+                    <span className="text-xs font-medium text-gray-600 bg-white px-2 py-1 rounded-full border border-gray-200">
                       {item.sport.toUpperCase()}
                     </span>
                   </div>
-                  <h3 className="font-semibold text-clarity-text-primary leading-tight text-caption">{item.name}</h3>
-                  <p className="text-caption text-clarity-text-secondary mt-1 line-clamp-2 leading-relaxed">{item.description}</p>
+                  <h3 className="font-semibold text-gray-800 leading-tight text-sm">{item.name}</h3>
+                  <p className="text-sm text-gray-600 mt-1 line-clamp-2 leading-relaxed">{item.description}</p>
                 </div>
 
                 {/* Rating and Price */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1">
-                    <Star className="w-4 h-4 text-clarity-warning fill-current" />
-                    <span className="text-caption font-medium text-clarity-text-primary">{item.rating}</span>
+                    <Star className="w-4 h-4 text-yellow-500 fill-current" />
+                    <span className="text-sm font-medium text-gray-800">{item.rating}</span>
                   </div>
-                  <span className="font-bold text-clarity-text-primary">{item.price}</span>
+                  <span className="font-bold text-gray-800">{item.price}</span>
                 </div>
 
                 {/* Recommended By */}
-                <div className="flex items-center gap-2 pt-2 border-t border-clarity-text-secondary/20">
-                  <Award className="w-4 h-4 text-clarity-accent" />
-                  <span className="text-caption text-clarity-text-secondary">Recommended by {item.recommendedBy}</span>
+                <div className="flex items-center gap-2 pt-2 border-t border-gray-200">
+                  <Award className="w-4 h-4 text-cardinal" />
+                  <span className="text-sm text-gray-600">Recommended by {item.recommendedBy}</span>
                 </div>
 
                 {/* CTA */}
                 <div className="flex gap-2 pt-2 mt-auto">
-                  <button className="flex-1 clarity-btn-primary text-caption py-2 px-4 flex items-center justify-center gap-2">
+                  <button className="flex-1 bg-cardinal text-white rounded-lg py-2 px-4 flex items-center justify-center gap-2 hover:bg-cardinal-dark">
                     <ExternalLink className="w-4 h-4" />
                     View Product
                   </button>
-                  <button className="p-2 border border-clarity-text-secondary/30 hover:border-clarity-error/50 hover:bg-clarity-error/5 rounded-lg transition-colors">
-                    <Heart className="w-4 h-4 text-clarity-text-secondary hover:text-clarity-error" />
+                  <button className="p-2 border border-gray-300 hover:border-red-400 hover:bg-red-50 rounded-lg transition-colors">
+                    <Heart className="w-4 h-4 text-gray-600 hover:text-red-600" />
                   </button>
                 </div>
               </div>
@@ -424,16 +424,16 @@ export default function Gear() {
 
         {filteredItems.length === 0 && (
           <div className="text-center py-12">
-            <Target className="w-16 h-16 text-clarity-text-secondary mx-auto mb-4" />
-            <h3 className="text-h3 font-semibold text-clarity-text-primary mb-2">No gear found</h3>
-            <p className="text-body text-clarity-text-secondary mb-4">Try adjusting your filters or search terms.</p>
+            <Target className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+            <h3 className="text-2xl font-semibold text-gray-800 mb-2">No gear found</h3>
+            <p className="text-base text-gray-600 mb-4">Try adjusting your filters or search terms.</p>
             <button 
               onClick={() => {
                 setSelectedSport('all')
                 setSelectedCategory('all') 
                 setSearchTerm('')
               }}
-              className="clarity-btn-primary"
+              className="px-6 py-3 bg-cardinal text-white rounded-lg hover:bg-cardinal-dark"
             >
               Clear Filters
             </button>
@@ -441,8 +441,8 @@ export default function Gear() {
         )}
 
         {/* Disclaimer */}
-        <div className="mt-12 clarity-glass-card p-6">
-          <p className="text-caption text-clarity-text-secondary text-center">
+        <div className="mt-12 bg-white border border-gray-200 rounded-lg p-6 shadow-card">
+          <p className="text-sm text-gray-600 text-center">
             <strong>Affiliate Disclosure:</strong> Some links may be affiliate links. We may earn a commission from purchases made through these links at no additional cost to you. All recommendations are based on genuine product evaluation by our expert coaches.
           </p>
         </div>

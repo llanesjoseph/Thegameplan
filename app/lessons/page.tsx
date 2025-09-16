@@ -114,11 +114,11 @@ function LessonsContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-purple-900">
-        <div className="max-w-7xl mx-auto px-6 py-12">
+      <div className="min-h-screen bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center py-20">
-            <div className="w-16 h-16 border-4 border-purple-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-white text-lg">Loading lessons...</p>
+            <div className="w-16 h-16 border-4 border-cardinal border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600 text-lg">Loading lessons...</p>
           </div>
         </div>
       </div>
@@ -127,17 +127,17 @@ function LessonsContent() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-purple-900">
-        <div className="max-w-7xl mx-auto px-6 py-12">
+      <div className="min-h-screen bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center py-20">
-            <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <div className="text-red-400 text-2xl">!</div>
+            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="text-red-600 text-2xl">!</div>
             </div>
-            <h1 className="text-white text-2xl font-bold mb-2">Error Loading Lessons</h1>
-            <p className="text-slate-300 mb-6">{error}</p>
+            <h1 className="text-gray-800 text-2xl font-bold mb-2">Error Loading Lessons</h1>
+            <p className="text-gray-600 mb-6">{error}</p>
             <button 
               onClick={fetchPublishedLessons}
-              className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors"
+              className="px-6 py-3 bg-cardinal hover:bg-cardinal-dark text-white rounded-lg font-medium transition-colors"
             >
               Try Again
             </button>
@@ -148,20 +148,20 @@ function LessonsContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-purple-900">
-      <div className="max-w-7xl mx-auto px-6 py-12">
+    <div className="min-h-screen bg-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
         <div className="text-center mb-12">
           {coachFilter && (
-            <Link href="/lessons" className="inline-flex items-center gap-2 text-purple-400 hover:text-purple-300 mb-4 transition-colors">
+            <Link href="/lessons" className="inline-flex items-center gap-2 text-cardinal hover:text-cardinal-dark mb-4 transition-colors">
               <ArrowLeft className="w-4 h-4" />
               Back to All Lessons
             </Link>
           )}
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text text-transparent mb-4">
+          <h1 className="text-4xl font-bold text-gray-800 mb-4">
             {coachFilter ? `${coachName}'s Lessons` : 'Browse Lessons'}
           </h1>
-          <p className="text-slate-300 text-lg max-w-2xl mx-auto">
+          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
             {coachFilter 
               ? `Discover educational content created by ${coachName}`
               : 'Discover educational content created by our community of instructors'
@@ -170,17 +170,17 @@ function LessonsContent() {
         </div>
 
         {/* Filters */}
-        <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-600/30 rounded-2xl p-6 mb-8">
+        <div className="bg-white border border-gray-200 rounded-lg p-6 mb-8 shadow-card">
           <div className="flex flex-col md:flex-row gap-4">
             {/* Search */}
             <div className="flex-1 relative">
-              <Search className="w-5 h-5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Search className="w-5 h-5 text-gray-600 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 placeholder="Search lessons..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-slate-700/50 border border-slate-600/50 rounded-xl pl-10 pr-4 py-3 text-white placeholder-slate-400 focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-400/20 transition-all"
+                className="w-full bg-white border border-gray-300 rounded-lg pl-10 pr-4 py-3 text-gray-800 placeholder-gray-500 focus:border-cardinal focus:outline-none focus:ring-2 focus:ring-cardinal/20 transition"
               />
             </div>
             
@@ -189,7 +189,7 @@ function LessonsContent() {
               <select
                 value={levelFilter}
                 onChange={(e) => setLevelFilter(e.target.value)}
-                className="w-full bg-slate-700/50 border border-slate-600/50 rounded-xl px-4 py-3 text-white focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-400/20 transition-all"
+                className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-800 focus:border-cardinal focus:outline-none focus:ring-2 focus:ring-cardinal/20 transition"
               >
                 <option value="All">All Levels</option>
                 <option value="Beginner">Beginner</option>
@@ -202,13 +202,13 @@ function LessonsContent() {
 
         {/* Results */}
         {filteredLessons.length === 0 ? (
-          <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-600/30 rounded-2xl p-8">
+          <div className="bg-white border border-gray-200 rounded-lg p-8 text-center shadow-card">
             <div className="text-center py-12">
-              <FileVideo className="w-16 h-16 text-slate-400 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-white mb-2">
+              <FileVideo className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">
                 {lessons.length === 0 ? 'No lessons published yet' : 'No lessons match your search'}
               </h3>
-              <p className="text-slate-300">
+              <p className="text-gray-600">
                 {lessons.length === 0 
                   ? 'Be the first to create and publish content!'
                   : 'Try adjusting your search terms or filters'
@@ -222,30 +222,30 @@ function LessonsContent() {
               <Link
                 key={lesson.id}
                 href={`/lesson/${lesson.id}`}
-                className="group bg-slate-800/50 backdrop-blur-sm border border-slate-600/30 rounded-2xl p-6 hover:bg-slate-700/50 hover:border-purple-400/30 transition-all duration-300 hover:scale-105"
+                className="group bg-white border border-gray-200 rounded-lg p-6 shadow-card hover:shadow-card-md transition duration-300 hover:scale-[1.02]"
               >
                 {/* Lesson Preview */}
-                <div className="aspect-video bg-slate-900 rounded-xl mb-4 flex items-center justify-center border border-slate-600/30 relative overflow-hidden">
+                <div className="aspect-video bg-gray-100 rounded-lg mb-4 flex items-center justify-center border border-gray-200 relative overflow-hidden">
                   {lesson.videoUrl || lesson.thumbnail ? (
-                    <div className="w-full h-full bg-slate-800 rounded-xl flex items-center justify-center">
-                      <Play className="w-12 h-12 text-purple-400 group-hover:text-purple-300 transition-colors" />
+                    <div className="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center">
+                      <Play className="w-12 h-12 text-cardinal group-hover:text-cardinal-dark transition-colors" />
                     </div>
                   ) : (
                     <div className="flex flex-col items-center">
-                      <FileVideo className="w-12 h-12 text-slate-500 mb-2" />
-                      <span className="text-slate-500 text-sm">Text Content</span>
+                      <FileVideo className="w-12 h-12 text-gray-500 mb-2" />
+                      <span className="text-gray-500 text-sm">Text Content</span>
                     </div>
                   )}
                   
                   {/* Media Indicator */}
                   <div className="absolute top-3 right-3">
                     {lesson.hasMedia ? (
-                      <div className="bg-green-500/20 text-green-400 px-2 py-1 rounded text-xs">
+                      <div className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">
                         <Video className="w-3 h-3 inline mr-1" />
                         Video
                       </div>
                     ) : (
-                      <div className="bg-slate-600/20 text-slate-400 px-2 py-1 rounded text-xs">
+                      <div className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">
                         <FileVideo className="w-3 h-3 inline mr-1" />
                         Text
                       </div>
@@ -256,24 +256,24 @@ function LessonsContent() {
                 {/* Lesson Info */}
                 <div>
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="px-2 py-1 bg-purple-500/20 text-purple-400 rounded text-xs font-medium">
+                    <div className="px-2 py-1 bg-cardinal/10 text-cardinal rounded text-xs font-medium">
                       {lesson.level}
                     </div>
-                    <div className="text-slate-400 text-xs flex items-center gap-1">
+                    <div className="text-gray-600 text-xs flex items-center gap-1">
                       <Eye className="w-3 h-3" />
                       {lesson.views || 0}
                     </div>
                   </div>
                   
-                  <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-purple-200 transition-colors line-clamp-2">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-2 group-hover:text-cardinal transition-colors line-clamp-2">
                     {lesson.title}
                   </h3>
                   
-                  <p className="text-slate-300 text-sm mb-3 line-clamp-3">
+                  <p className="text-gray-600 text-sm mb-3 line-clamp-3">
                     {lesson.description}
                   </p>
                   
-                  <div className="flex items-center justify-between text-xs text-slate-400">
+                  <div className="flex items-center justify-between text-xs text-gray-600">
                     <div className="flex items-center gap-1">
                       <Clock className="w-3 h-3" />
                       {lesson.createdAt?.toDate ? 
@@ -283,7 +283,7 @@ function LessonsContent() {
                         'Recently'
                       }
                     </div>
-                    <div className="text-purple-400 group-hover:text-purple-300 transition-colors">
+                    <div className="text-cardinal group-hover:text-cardinal-dark transition-colors">
                       View Lesson →
                     </div>
                   </div>
@@ -319,11 +319,11 @@ function LessonsContent() {
 export default function LessonsPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 p-6">
+      <div className="min-h-screen bg-white p-6">
         <div className="max-w-6xl mx-auto">
           <div className="text-center py-12">
-            <div className="w-8 h-8 border-2 border-purple-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-slate-300">Loading lessons...</p>
+            <div className="w-8 h-8 border-2 border-cardinal border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading lessons...</p>
           </div>
         </div>
       </div>
