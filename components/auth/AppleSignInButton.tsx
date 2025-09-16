@@ -115,7 +115,7 @@ export default function AppleSignInButton({
       </ClarityButton>
 
       {error && (
-        <div className="mt-3 p-3 rounded-lg bg-clarity-error/10 border border-clarity-error/20 text-clarity-error text-sm">
+        <div className="mt-3 p-3 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm">
           {error}
         </div>
       )}

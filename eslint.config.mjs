@@ -19,6 +19,10 @@ const eslintConfig = [
       "build/**",
       "next-env.d.ts",
     ],
+    rules: {
+      "no-console": ["warn", { allow: ["warn", "error", "info", "debug"] }],
+      "@typescript-eslint/no-explicit-any": "warn",
+    },
   },
 ];
 

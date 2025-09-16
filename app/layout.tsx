@@ -14,10 +14,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="bg-clarity-background text-clarity-text-primary">
+      <body className="bg-white text-gray-800">
         <AbstractBackground />
         <Navigation />
-        <main className="relative z-10">
+        <main className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           {children}
         </main>
         <RoleSwitcherDemo />

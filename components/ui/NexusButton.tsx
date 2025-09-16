@@ -24,17 +24,17 @@ const ClarityButton: React.FC<ClarityButtonProps> = ({
   icon,
   loading = false
 }) => {
-  const baseClasses = 'clarity-btn focus-visible'
+  const baseClasses = 'rounded-lg font-semibold inline-flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-cardinal disabled:opacity-50'
   
   const variantClasses = {
-    primary: 'clarity-btn-primary',
-    secondary: 'clarity-btn-secondary',
-    ghost: 'bg-transparent text-clarity-text-secondary hover:text-clarity-accent hover:bg-clarity-accent/5 border-transparent'
+    primary: 'bg-cardinal text-white hover:bg-cardinal-dark',
+    secondary: 'bg-gray-100 text-gray-800 border border-gray-300 hover:bg-gray-200',
+    ghost: 'bg-transparent text-gray-600 hover:text-gray-800 hover:bg-gray-100'
   }
   
   const sizeClasses = {
     sm: 'px-4 py-2 text-sm gap-2',
-    md: 'px-6 py-3 text-button gap-2',
+    md: 'px-6 py-3 text-base gap-2',
     lg: 'px-8 py-4 text-lg gap-3'
   }
   

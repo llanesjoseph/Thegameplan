@@ -5,10 +5,11 @@ const config: Config = {
     extend: {
       colors: {
         // Stanford Cardinal Design System
-        primary: '#8C1515', // Stanford Cardinal Red
-        'text-dark': '#333333', // Primary text color
-        'text-medium': '#555555', // Secondary text color
-        'background-light': '#f8f9fa', // Light gray backgrounds
+        cardinal: '#8C1515',
+        'cardinal-dark': '#7A1212',
+        'text-dark': '#1F2937',
+        'text-medium': '#4B5563',
+        'background-light': '#F9FAFB',
 
         // Legacy colors for backward compatibility
         clarity: {
@@ -37,19 +38,19 @@ const config: Config = {
         }
       },
       fontFamily: {
-        // Clarity OS Typography - Single font family (Inter)
-        sans: ['Inter', 'ui-sans-serif', 'system-ui'],
-        heading: ['Inter', 'ui-sans-serif', 'system-ui'],
-        body: ['Inter', 'ui-sans-serif', 'system-ui']
+        // Stanford theme uses Source Sans 3
+        sans: ['"Source Sans 3"', 'ui-sans-serif', 'system-ui'],
+        heading: ['"Source Sans 3"', 'ui-sans-serif', 'system-ui'],
+        body: ['"Source Sans 3"', 'ui-sans-serif', 'system-ui']
       },
       fontSize: {
         // Stanford Cardinal Design System Typography
-        'main-headline': ['5rem', { lineHeight: '1', fontWeight: '800', letterSpacing: '-0.025em' }], // text-5xl font-extrabold tracking-tighter
-        'main-headline-lg': ['7rem', { lineHeight: '1', fontWeight: '800', letterSpacing: '-0.025em' }], // md:text-7xl
-        'section-headline': ['3rem', { lineHeight: '1.1', fontWeight: '700', letterSpacing: '-0.025em' }], // text-3xl font-bold tracking-tight
-        'section-headline-lg': ['4rem', { lineHeight: '1.1', fontWeight: '700', letterSpacing: '-0.025em' }], // md:text-4xl
+        'main-headline': ['3.75rem', { lineHeight: '1', fontWeight: '700', letterSpacing: '-0.02em' }], // text-5xl
+        'main-headline-lg': ['4.5rem', { lineHeight: '1', fontWeight: '700', letterSpacing: '-0.02em' }], // md:text-6xl
+        'section-headline': ['2.25rem', { lineHeight: '1.1', fontWeight: '700', letterSpacing: '-0.02em' }], // text-4xl
+        'section-headline-lg': ['3rem', { lineHeight: '1.1', fontWeight: '700', letterSpacing: '-0.02em' }], // md:text-5xl
         'card-title': ['1.25rem', { lineHeight: '1.75rem', fontWeight: '700' }], // text-xl font-bold
-        'paragraph': ['1.125rem', { lineHeight: '1.75rem', fontWeight: '400' }], // text-lg
+        'paragraph': ['1.125rem', { lineHeight: '1.625', fontWeight: '400' }], // leading-relaxed
         'accent-text': ['1rem', { lineHeight: '1.5rem', fontWeight: '600', letterSpacing: '0.1em', textTransform: 'uppercase' }], // text-base font-semibold tracking-wider uppercase
 
         // Legacy sizes for backward compatibility
@@ -61,34 +62,11 @@ const config: Config = {
         'caption': ['14px', { lineHeight: '20px', fontWeight: '400' }],
         'button': ['16px', { lineHeight: 'normal', fontWeight: '600' }]
       },
-      spacing: {
-        // Clarity OS 8-Point Grid System
-        '0': '0px',
-        '1': '8px',
-        '2': '16px',
-        '3': '24px',
-        '4': '32px',
-        '5': '40px',
-        '6': '48px',
-        '7': '56px',
-        '8': '64px',
-        '9': '72px',
-        '10': '80px',
-        '12': '96px',
-        '16': '128px',
-        '20': '160px',
-        '24': '192px',
-        '32': '256px'
-      },
+      // Default Tailwind spacing already maps to 4px units; use docs guidance
       borderRadius: {
-        // Clarity OS Corner Radius (consistent 8px for modern feel)
-        'none': '0',
-        'sm': '4px',
-        'DEFAULT': '8px',
-        'md': '8px',
-        'lg': '12px',
-        'xl': '16px',
-        'full': '9999px'
+        DEFAULT: '8px',
+        md: '8px',
+        lg: '8px',
       },
       animation: {
         // Clarity OS Micro-interactions
@@ -157,14 +135,8 @@ const config: Config = {
         '3xl': '32px'
       },
       boxShadow: {
-        // Clarity OS Shadow System
-        'clarity-sm': '0 2px 4px rgba(0, 0, 0, 0.06)',
-        'clarity-md': '0 4px 12px rgba(0, 0, 0, 0.08)',
-        'clarity-lg': '0 8px 24px rgba(0, 0, 0, 0.12)',
-        'clarity-xl': '0 16px 48px rgba(0, 0, 0, 0.16)',
-        'clarity-glass': '0 8px 32px rgba(0, 0, 0, 0.12)',
-        'clarity-button': '0 4px 12px rgba(0, 123, 255, 0.24)',
-        'clarity-button-hover': '0 8px 24px rgba(0, 123, 255, 0.32)'
+        'card': '0 1px 2px rgba(0,0,0,0.05)',
+        'card-md': '0 4px 6px rgba(0,0,0,0.08)'
       }
     }
   },

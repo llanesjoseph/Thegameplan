@@ -107,55 +107,55 @@ export default function ContributorApplicationPage() {
   const stepPct = () => { const steps: ApplicationStep[] = ['basic','credentials','content','media','review']; const i = steps.indexOf(currentStep); return ((i+1)/steps.length)*100 }
 
   return (
-    <main className="max-w-4xl mx-auto px-6 py-10">
+    <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <div className="text-center mb-10">
-        <h1 className="text-3xl sm:text-4xl font-bold text-clarity-text-primary mb-3">Become a Contributor</h1>
-        <p className="text-clarity-text-secondary">Share your expertise with the next generation of athletes.</p>
+        <h1 className="text-3xl sm:text-4xl font-bold text-gray-800 mb-3">Become a Contributor</h1>
+        <p className="text-gray-600">Share your expertise with the next generation of athletes.</p>
       </div>
 
       <div className="mb-8">
-        <div className="flex justify-between items-center mb-2 text-clarity-text-secondary text-sm"><span>Application Progress</span><span>{Math.round(stepPct())}%</span></div>
-        <div className="w-full bg-clarity-background rounded-full h-2"><div className="bg-clarity-accent h-2 rounded-full transition-all" style={{ width: `${stepPct()}%` }} /></div>
+        <div className="flex justify-between items-center mb-2 text-gray-600 text-sm"><span>Application Progress</span><span>{Math.round(stepPct())}%</span></div>
+        <div className="w-full bg-gray-100 rounded-full h-2"><div className="bg-cardinal h-2 rounded-full transition-all" style={{ width: `${stepPct()}%` }} /></div>
       </div>
 
       <div className="flex justify-center gap-2 mb-8">
         {['basic','credentials','content','media','review'].map((s, i) => (
-          <button key={s} onClick={() => setCurrentStep(s as ApplicationStep)} className={`w-8 h-8 rounded-full text-sm ${currentStep===s?'bg-clarity-accent text-white':'bg-clarity-background text-clarity-text-secondary border border-clarity-text-secondary/20'}`}>{i+1}</button>
+          <button key={s} onClick={() => setCurrentStep(s as ApplicationStep)} className={`w-8 h-8 rounded-full text-sm ${currentStep===s?'bg-cardinal text-white':'bg-white text-gray-600 border border-gray-300'}`}>{i+1}</button>
         ))}
       </div>
 
-      <div className="bg-clarity-surface rounded-2xl p-8 border border-clarity-text-secondary/10">
+      <div className="bg-white rounded-lg p-8 border border-gray-200 shadow-card">
         {currentStep === 'basic' && (
           <div className="grid sm:grid-cols-2 gap-6">
-            <div><label className="block text-sm mb-2">First Name *</label><input value={application.firstName} onChange={e=>updateField('firstName',e.target.value)} className="w-full bg-clarity-background p-3 rounded-xl border border-clarity-text-secondary/20" /></div>
-            <div><label className="block text-sm mb-2">Last Name *</label><input value={application.lastName} onChange={e=>updateField('lastName',e.target.value)} className="w-full bg-clarity-background p-3 rounded-xl border border-clarity-text-secondary/20" /></div>
-            <div><label className="block text-sm mb-2">Email *</label><input type="email" value={application.email} onChange={e=>updateField('email',e.target.value)} className="w-full bg-clarity-background p-3 rounded-xl border border-clarity-text-secondary/20" /></div>
-            <div><label className="block text-sm mb-2">Phone</label><input value={application.phone} onChange={e=>updateField('phone',e.target.value)} className="w-full bg-clarity-background p-3 rounded-xl border border-clarity-text-secondary/20" /></div>
-            <div><label className="block text-sm mb-2">Date of Birth *</label><input type="date" value={application.dateOfBirth} onChange={e=>updateField('dateOfBirth',e.target.value)} className="w-full bg-clarity-background p-3 rounded-xl border border-clarity-text-secondary/20" /></div>
-            <div><label className="block text-sm mb-2">Location *</label><input value={application.location} onChange={e=>updateField('location',e.target.value)} className="w-full bg-clarity-background p-3 rounded-xl border border-clarity-text-secondary/20" /></div>
-            <div className="sm:col-span-2"><label className="block text-sm mb-2">Timezone *</label><input value={application.timezone} onChange={e=>updateField('timezone',e.target.value)} placeholder="e.g., UTC-5" className="w-full bg-clarity-background p-3 rounded-xl border border-clarity-text-secondary/20" /></div>
+            <div><label className="block text-sm mb-2 text-gray-800">First Name *</label><input value={application.firstName} onChange={e=>updateField('firstName',e.target.value)} className="w-full bg-white p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cardinal" /></div>
+            <div><label className="block text-sm mb-2 text-gray-800">Last Name *</label><input value={application.lastName} onChange={e=>updateField('lastName',e.target.value)} className="w-full bg-white p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cardinal" /></div>
+            <div><label className="block text-sm mb-2 text-gray-800">Email *</label><input type="email" value={application.email} onChange={e=>updateField('email',e.target.value)} className="w-full bg-white p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cardinal" /></div>
+            <div><label className="block text-sm mb-2 text-gray-800">Phone</label><input value={application.phone} onChange={e=>updateField('phone',e.target.value)} className="w-full bg-white p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cardinal" /></div>
+            <div><label className="block text-sm mb-2 text-gray-800">Date of Birth *</label><input type="date" value={application.dateOfBirth} onChange={e=>updateField('dateOfBirth',e.target.value)} className="w-full bg-white p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cardinal" /></div>
+            <div><label className="block text-sm mb-2 text-gray-800">Location *</label><input value={application.location} onChange={e=>updateField('location',e.target.value)} className="w-full bg-white p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cardinal" /></div>
+            <div className="sm:col-span-2"><label className="block text-sm mb-2 text-gray-800">Timezone *</label><input value={application.timezone} onChange={e=>updateField('timezone',e.target.value)} placeholder="e.g., UTC-5" className="w-full bg-white p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cardinal" /></div>
           </div>
         )}
 
         {currentStep === 'credentials' && (
           <div className="space-y-6">
             <div className="grid sm:grid-cols-2 gap-6">
-              <div><label className="block text-sm mb-2">Primary Sport *</label><select value={application.primarySport} onChange={e=>updateField('primarySport',e.target.value)} className="w-full bg-clarity-background p-3 rounded-xl border border-clarity-text-secondary/20"><option value="">Select</option>{SPORTS.map(s=><option key={s} value={s}>{s}</option>)}</select></div>
-              <div><label className="block text-sm mb-2">Experience Level *</label><select value={application.experience} onChange={e=>updateField('experience',e.target.value as any)} className="w-full bg-clarity-background p-3 rounded-xl border border-clarity-text-secondary/20">{EXPERIENCES.map(x=><option key={x} value={x}>{x}</option>)}</select></div>
-              <div className="sm:col-span-2"><label className="block text-sm mb-2">Experience Details *</label><textarea value={application.experienceDetails} onChange={e=>updateField('experienceDetails',e.target.value)} rows={4} className="w-full bg-clarity-background p-3 rounded-xl border border-clarity-text-secondary/20" /></div>
-              <div><label className="block text-sm mb-2">Years Active</label><input type="number" value={application.yearsActive} onChange={e=>updateField('yearsActive',parseInt(e.target.value)||0)} className="w-full bg-clarity-background p-3 rounded-xl border border-clarity-text-secondary/20" /></div>
-              <div><label className="block text-sm mb-2">Education</label><input value={application.education} onChange={e=>updateField('education',e.target.value)} className="w-full bg-clarity-background p-3 rounded-xl border border-clarity-text-secondary/20" /></div>
-              <div className="sm:col-span-2"><label className="block text-sm mb-2">Current Role</label><input value={application.currentRole} onChange={e=>updateField('currentRole',e.target.value)} className="w-full bg-clarity-background p-3 rounded-xl border border-clarity-text-secondary/20" /></div>
+              <div><label className="block text-sm mb-2 text-gray-800">Primary Sport *</label><select value={application.primarySport} onChange={e=>updateField('primarySport',e.target.value)} className="w-full bg-white p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cardinal"><option value="">Select</option>{SPORTS.map(s=><option key={s} value={s}>{s}</option>)}</select></div>
+              <div><label className="block text-sm mb-2 text-gray-800">Experience Level *</label><select value={application.experience} onChange={e=>updateField('experience',e.target.value as any)} className="w-full bg-white p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cardinal">{EXPERIENCES.map(x=><option key={x} value={x}>{x}</option>)}</select></div>
+              <div className="sm:col-span-2"><label className="block text-sm mb-2 text-gray-800">Experience Details *</label><textarea value={application.experienceDetails} onChange={e=>updateField('experienceDetails',e.target.value)} rows={4} className="w-full bg-white p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cardinal" /></div>
+              <div><label className="block text-sm mb-2 text-gray-800">Years Active</label><input type="number" value={application.yearsActive} onChange={e=>updateField('yearsActive',parseInt(e.target.value)||0)} className="w-full bg-white p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cardinal" /></div>
+              <div><label className="block text-sm mb-2 text-gray-800">Education</label><input value={application.education} onChange={e=>updateField('education',e.target.value)} className="w-full bg-white p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cardinal" /></div>
+              <div className="sm:col-span-2"><label className="block text-sm mb-2 text-gray-800">Current Role</label><input value={application.currentRole} onChange={e=>updateField('currentRole',e.target.value)} className="w-full bg-white p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cardinal" /></div>
             </div>
             <div>
               <label className="block text-sm mb-2">Key Achievements *</label>
-              {application.achievements.map((a,i)=>(<div key={i} className="flex gap-2 mb-2"><input value={a} onChange={e=>{const v=[...application.achievements];v[i]=e.target.value;updateField('achievements',v)}} className="flex-1 bg-clarity-background p-3 rounded-xl border border-clarity-text-secondary/20" /><button type="button" onClick={()=>updateField('achievements',application.achievements.filter((_,x)=>x!==i))} className="px-3 py-2 rounded-xl border border-red-500/30 text-red-400">Remove</button></div>))}
-              <button type="button" onClick={()=>updateField('achievements',[...application.achievements,''])} className="text-sm text-clarity-accent">+ Add Achievement</button>
+              {application.achievements.map((a,i)=>(<div key={i} className="flex gap-2 mb-2"><input value={a} onChange={e=>{const v=[...application.achievements];v[i]=e.target.value;updateField('achievements',v)}} className="flex-1 bg-white p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cardinal" /><button type="button" onClick={()=>updateField('achievements',application.achievements.filter((_,x)=>x!==i))} className="px-3 py-2 rounded-lg border border-red-500/30 text-red-600">Remove</button></div>))}
+              <button type="button" onClick={()=>updateField('achievements',[...application.achievements,''])} className="text-sm text-cardinal">+ Add Achievement</button>
             </div>
             <div>
               <label className="block text-sm mb-2">Certifications</label>
-              {application.certifications.map((c,i)=>(<div key={i} className="flex gap-2 mb-2"><input value={c} onChange={e=>{const v=[...application.certifications];v[i]=e.target.value;updateField('certifications',v)}} className="flex-1 bg-clarity-background p-3 rounded-xl border border-clarity-text-secondary/20" /><button type="button" onClick={()=>updateField('certifications',application.certifications.filter((_,x)=>x!==i))} className="px-3 py-2 rounded-xl border border-red-500/30 text-red-400">Remove</button></div>))}
-              <button type="button" onClick={()=>updateField('certifications',[...application.certifications,''])} className="text-sm text-clarity-accent">+ Add Certification</button>
+              {application.certifications.map((c,i)=>(<div key={i} className="flex gap-2 mb-2"><input value={c} onChange={e=>{const v=[...application.certifications];v[i]=e.target.value;updateField('certifications',v)}} className="flex-1 bg-white p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cardinal" /><button type="button" onClick={()=>updateField('certifications',application.certifications.filter((_,x)=>x!==i))} className="px-3 py-2 rounded-lg border border-red-500/30 text-red-600">Remove</button></div>))}
+              <button type="button" onClick={()=>updateField('certifications',[...application.certifications,''])} className="text-sm text-cardinal">+ Add Certification</button>
             </div>
           </div>
         )}
@@ -166,7 +166,7 @@ export default function ContributorApplicationPage() {
               <label className="block text-sm mb-2">Areas of Expertise *</label>
               <div className="grid sm:grid-cols-3 gap-3">
                 {SPECIALTIES.map(s => (
-                  <label key={s} className="flex items-center gap-2"><input type="checkbox" checked={application.specialties.includes(s)} onChange={(e)=>updateField('specialties', e.target.checked ? [...application.specialties,s] : application.specialties.filter(x=>x!==s))} /><span className="text-sm capitalize">{s.replace('-', ' ')}</span></label>
+                  <label key={s} className="flex items-center gap-2"><input type="checkbox" checked={application.specialties.includes(s)} onChange={(e)=>updateField('specialties', e.target.checked ? [...application.specialties,s] : application.specialties.filter(x=>x!==s))} className="text-cardinal focus:ring-cardinal" /><span className="text-sm capitalize">{s.replace('-', ' ')}</span></label>
                 ))}
               </div>
             </div>
@@ -174,7 +174,7 @@ export default function ContributorApplicationPage() {
               <label className="block text-sm mb-2">Content Types *</label>
               <div className="grid sm:grid-cols-2 gap-3">
                 {CONTENT_TYPES.map(t => (
-                  <label key={t} className="flex items-center gap-2"><input type="checkbox" checked={application.contentTypes.includes(t)} onChange={(e)=>updateField('contentTypes', e.target.checked ? [...application.contentTypes,t] : application.contentTypes.filter(x=>x!==t))} /><span className="text-sm capitalize">{t.replace('-', ' ')}</span></label>
+                  <label key={t} className="flex items-center gap-2"><input type="checkbox" checked={application.contentTypes.includes(t)} onChange={(e)=>updateField('contentTypes', e.target.checked ? [...application.contentTypes,t] : application.contentTypes.filter(x=>x!==t))} className="text-cardinal focus:ring-cardinal" /><span className="text-sm capitalize">{t.replace('-', ' ')}</span></label>
                 ))}
               </div>
             </div>
@@ -182,13 +182,13 @@ export default function ContributorApplicationPage() {
               <label className="block text-sm mb-2">Target Audience *</label>
               <div className="grid sm:grid-cols-2 gap-3">
                 {TARGET_AUDIENCES.map(a => (
-                  <label key={a} className="flex items-center gap-2"><input type="checkbox" checked={application.targetAudience.includes(a)} onChange={(e)=>updateField('targetAudience', e.target.checked ? [...application.targetAudience,a] : application.targetAudience.filter(x=>x!==a))} /><span className="text-sm capitalize">{a.replace('-', ' ')}</span></label>
+                  <label key={a} className="flex items-center gap-2"><input type="checkbox" checked={application.targetAudience.includes(a)} onChange={(e)=>updateField('targetAudience', e.target.checked ? [...application.targetAudience,a] : application.targetAudience.filter(x=>x!==a))} className="text-cardinal focus:ring-cardinal" /><span className="text-sm capitalize">{a.replace('-', ' ')}</span></label>
                 ))}
               </div>
             </div>
             <div>
               <label className="block text-sm mb-2">Content Description *</label>
-              <textarea value={application.contentDescription} onChange={e=>updateField('contentDescription',e.target.value)} rows={4} className="w-full bg-clarity-background p-3 rounded-xl border border-clarity-text-secondary/20" />
+              <textarea value={application.contentDescription} onChange={e=>updateField('contentDescription',e.target.value)} rows={4} className="w-full bg-white p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cardinal" />
             </div>
           </div>
         )}
@@ -197,7 +197,7 @@ export default function ContributorApplicationPage() {
           <div className="grid sm:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm mb-2">Headshot</label>
-              <div className="border-2 border-dashed border-clarity-text-secondary/30 rounded-xl p-6 text-center">
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                 {application.headshotUrl ? (
                   <div className="space-y-3">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -207,15 +207,15 @@ export default function ContributorApplicationPage() {
                 ) : (
                   <div>
                     <input ref={fileInputRef} type="file" accept="image/*" onChange={(e)=> e.target.files?.[0] && handleFileUpload(e.target.files[0],'headshot')} className="hidden" />
-                    <button onClick={()=>fileInputRef.current?.click()} className="text-clarity-accent">Upload Headshot</button>
-                    <p className="text-xs text-clarity-text-secondary mt-2">Square format recommended</p>
+                    <button onClick={()=>fileInputRef.current?.click()} className="text-cardinal">Upload Headshot</button>
+                    <p className="text-xs text-gray-600 mt-2">Square format recommended</p>
                   </div>
                 )}
               </div>
             </div>
             <div>
               <label className="block text-sm mb-2">Action Image</label>
-              <div className="border-2 border-dashed border-clarity-text-secondary/30 rounded-xl p-6 text-center">
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                 {application.actionImageUrl ? (
                   <div className="space-y-3">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -225,8 +225,8 @@ export default function ContributorApplicationPage() {
                 ) : (
                   <div>
                     <input type="file" accept="image/*" onChange={(e)=> e.target.files?.[0] && handleFileUpload(e.target.files[0],'action')} className="hidden" />
-                    <button onClick={()=>fileInputRef.current?.click()} className="text-clarity-accent">Upload Action Image</button>
-                    <p className="text-xs text-clarity-text-secondary mt-2">You in action or performing your sport</p>
+                    <button onClick={()=>fileInputRef.current?.click()} className="text-cardinal">Upload Action Image</button>
+                    <p className="text-xs text-gray-600 mt-2">You in action or performing your sport</p>
                   </div>
                 )}
               </div>
@@ -235,30 +235,30 @@ export default function ContributorApplicationPage() {
         )}
 
         {currentStep === 'review' && (
-          <div className="space-y-6 text-clarity-text-secondary">
+          <div className="space-y-6 text-gray-600">
             <div className="grid sm:grid-cols-2 gap-4">
-              <div className="bg-clarity-background rounded-xl p-4 border border-clarity-text-secondary/20">
-                <h3 className="font-medium mb-2 text-clarity-text-primary">Personal</h3>
+              <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <h3 className="font-medium mb-2 text-gray-800">Personal</h3>
                 <p>Name: {application.firstName} {application.lastName}</p>
                 <p>Email: {application.email}</p>
                 <p>Location: {application.location}</p>
                 <p>Timezone: {application.timezone}</p>
               </div>
-              <div className="bg-clarity-background rounded-xl p-4 border border-clarity-text-secondary/20">
-                <h3 className="font-medium mb-2 text-clarity-text-primary">Sport</h3>
+              <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <h3 className="font-medium mb-2 text-gray-800">Sport</h3>
                 <p>Primary Sport: {application.primarySport}</p>
                 <p>Experience: {application.experience}</p>
                 <p>Years Active: {application.yearsActive}</p>
               </div>
             </div>
-            <div className="bg-clarity-background rounded-xl p-4 border border-clarity-text-secondary/20">
-              <h3 className="font-medium mb-2 text-clarity-text-primary">Specialties & Content</h3>
+            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+              <h3 className="font-medium mb-2 text-gray-800">Specialties & Content</h3>
               <p>Specialties: {application.specialties.join(', ') || '—'}</p>
               <p>Content Types: {application.contentTypes.join(', ') || '—'}</p>
               <p>Audience: {application.targetAudience.join(', ') || '—'}</p>
             </div>
-            <div className="bg-clarity-background rounded-xl p-4 border border-clarity-text-secondary/20">
-              <h3 className="font-medium mb-2 text-clarity-text-primary">Additional</h3>
+            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+              <h3 className="font-medium mb-2 text-gray-800">Additional</h3>
               <p>Motivation: {application.motivation || '—'}</p>
               <p>Availability: {application.availability || '—'}</p>
             </div>
@@ -267,18 +267,18 @@ export default function ContributorApplicationPage() {
       </div>
 
       <div className="flex justify-between mt-8">
-        <button onClick={prevStep} disabled={currentStep==='basic'} className="px-4 py-2 rounded-lg border border-clarity-text-secondary/20">Previous</button>
+        <button onClick={prevStep} disabled={currentStep==='basic'} className="px-4 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100 disabled:opacity-50">Previous</button>
         <div className="flex gap-3">
           {currentStep !== 'review' ? (
-            <button onClick={nextStep} disabled={!validateStep(currentStep)} className="px-4 py-2 rounded-lg bg-clarity-accent text-white">Next Step</button>
+            <button onClick={nextStep} disabled={!validateStep(currentStep)} className="px-4 py-2 rounded-lg bg-cardinal text-white hover:bg-cardinal-dark disabled:opacity-50">Next Step</button>
           ) : (
-            <button onClick={submitApplication} disabled={loading || !validateStep('review')} className="px-4 py-2 rounded-lg bg-clarity-accent text-white">{loading ? 'Submitting…' : 'Submit Application'}</button>
+            <button onClick={submitApplication} disabled={loading || !validateStep('review')} className="px-4 py-2 rounded-lg bg-cardinal text-white hover:bg-cardinal-dark disabled:opacity-50">{loading ? 'Submitting…' : 'Submit Application'}</button>
           )}
         </div>
       </div>
 
       {uploadProgress > 0 && (
-        <div className="fixed bottom-4 right-4 bg-black/80 rounded-xl p-4 border border-white/20 text-white text-sm">Uploading… {uploadProgress}%</div>
+        <div className="fixed bottom-4 right-4 bg-black/80 rounded-lg p-4 border border-white/20 text-white text-sm">Uploading… {uploadProgress}%</div>
       )}
     </main>
   )

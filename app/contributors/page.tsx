@@ -5,6 +5,7 @@ import { db } from '@/lib/firebase.client'
 import { collection, getDocs, query, where, orderBy, limit, startAfter, type QueryDocumentSnapshot, type DocumentData } from 'firebase/firestore'
 import Link from 'next/link'
 import Image from 'next/image'
+import { Search, Filter, Star, CheckCircle, Users, Trophy } from 'lucide-react'
 
 type Contributor = {
   id: string
@@ -165,139 +166,259 @@ export default function ContributorsPage() {
   }, [filteredContributors, filters.specialty])
 
   return (
-    <main className="max-w-7xl mx-auto px-6 py-10">
-      <div className="text-center mb-10">
-        <h1 className="text-3xl sm:text-4xl font-bold text-clarity-text-primary mb-3">Contributors</h1>
-        <p className="text-clarity-text-secondary">Learn from elite contributors and coaches across sports.</p>
+    <main className="min-h-screen pt-24 pb-20">
+      {/* Hero Section */}
+      <div className="relative overflow-hidden bg-white">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-cardinal/10 text-cardinal text-sm font-semibold rounded-full mb-6">
+              <Trophy className="w-4 h-4" />
+              Elite Performance Network
+            </div>
+            <h1 className="font-bold text-5xl lg:text-6xl text-gray-800 mb-6 tracking-tight">
+              Meet Our
+              <span className="text-cardinal block">Contributors</span>
+            </h1>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+              Learn from world-class athletes, coaches, and sports performance experts who are shaping the future of competitive sports.
+            </p>
+          </div>
+        </div>
       </div>
 
-      <div className="bg-clarity-surface border border-clarity-text-secondary/10 rounded-2xl p-6 mb-8">
-        <div className="grid lg:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-sm font-medium mb-2 text-clarity-text-secondary">Search</label>
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search by name, sport, specialty..."
-                value={filters.search}
-                onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-                className="w-full bg-clarity-background p-3 rounded-xl border border-clarity-text-secondary/20 pr-10 outline-none focus:ring-2 focus:ring-clarity-accent/30"
-              />
+      {/* Search and Filters Section */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-10">
+        <div className="bg-white border border-gray-200 rounded-lg p-8 shadow-card-md">
+          <div className="grid lg:grid-cols-3 gap-6 items-end">
+            <div className="lg:col-span-2">
+              <label className="block text-sm font-semibold mb-3 text-gray-800">Find Contributors</label>
+              <div className="relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-600" />
+                <input
+                  type="text"
+                  placeholder="Search by name, sport, specialty, or achievement..."
+                  value={filters.search}
+                  onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+                  className="w-full bg-white pl-12 pr-4 py-4 rounded-lg border border-gray-300 text-gray-800 placeholder-gray-500 outline-none focus:ring-2 focus:ring-cardinal transition"
+                />
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={applyFilters}
+                className="flex-1 px-6 py-4 rounded-lg bg-cardinal text-white font-semibold hover:bg-cardinal-dark transition"
+              >
+                Apply Filters
+              </button>
+              <button
+                onClick={clearFilters}
+                className="px-6 py-4 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100 transition"
+              >
+                Clear
+              </button>
             </div>
           </div>
-          <div className="flex gap-3 items-end">
-            <button onClick={applyFilters} className="px-4 py-2 rounded-lg bg-clarity-accent text-white">Apply Filters</button>
-            <button onClick={clearFilters} className="px-4 py-2 rounded-lg border border-clarity-text-secondary/20 text-clarity-text-secondary">Clear All</button>
-          </div>
-        </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
-          <div>
-            <label className="block text-sm font-medium mb-2 text-clarity-text-secondary">Sport</label>
-            <select
-              value={filters.sport}
-              onChange={(e) => setFilters(prev => ({ ...prev, sport: e.target.value }))}
-              className="w-full bg-clarity-background p-3 rounded-xl border border-clarity-text-secondary/20"
-            >
-              <option value="">All Sports</option>
-              {SPORTS.map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-2 text-clarity-text-secondary">Experience</label>
-            <select
-              value={filters.experience}
-              onChange={(e) => setFilters(prev => ({ ...prev, experience: e.target.value }))}
-              className="w-full bg-clarity-background p-3 rounded-xl border border-clarity-text-secondary/20"
-            >
-              <option value="">All Levels</option>
-              {EXPERIENCES.map(exp => <option key={exp} value={exp}>{exp.charAt(0).toUpperCase() + exp.slice(1)}</option>)}
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-2 text-clarity-text-secondary">Specialty</label>
-            <select
-              value={filters.specialty}
-              onChange={(e) => setFilters(prev => ({ ...prev, specialty: e.target.value }))}
-              className="w-full bg-clarity-background p-3 rounded-xl border border-clarity-text-secondary/20"
-            >
-              <option value="">All Specialties</option>
-              {SPECIALTIES.map(sp => <option key={sp} value={sp}>{sp.replace('-', ' ')}</option>)}
-            </select>
-          </div>
-          <div className="space-y-3 pt-7">
-            <label className="flex items-center gap-2 text-clarity-text-secondary">
-              <input type="checkbox" checked={filters.verified} onChange={(e) => setFilters(prev => ({ ...prev, verified: e.target.checked }))} />
-              <span className="text-sm">Verified only</span>
-            </label>
-            <label className="flex items-center gap-2 text-clarity-text-secondary">
-              <input type="checkbox" checked={filters.featured} onChange={(e) => setFilters(prev => ({ ...prev, featured: e.target.checked }))} />
-              <span className="text-sm">Featured only</span>
-            </label>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-8 pt-6 border-t border-gray-200">
+            <div>
+              <label className="block text-sm font-semibold mb-3 text-gray-800">Sport</label>
+              <select
+                value={filters.sport}
+                onChange={(e) => setFilters(prev => ({ ...prev, sport: e.target.value }))}
+                className="w-full bg-white p-4 rounded-lg border border-gray-300 text-gray-800 outline-none focus:ring-2 focus:ring-cardinal transition"
+              >
+                <option value="">All Sports</option>
+                {SPORTS.map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-semibold mb-3 text-gray-800">Experience Level</label>
+              <select
+                value={filters.experience}
+                onChange={(e) => setFilters(prev => ({ ...prev, experience: e.target.value }))}
+                className="w-full bg-white p-4 rounded-lg border border-gray-300 text-gray-800 outline-none focus:ring-2 focus:ring-cardinal transition"
+              >
+                <option value="">All Levels</option>
+                {EXPERIENCES.map(exp => <option key={exp} value={exp}>{exp.charAt(0).toUpperCase() + exp.slice(1)}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-semibold mb-3 text-gray-800">Specialty</label>
+              <select
+                value={filters.specialty}
+                onChange={(e) => setFilters(prev => ({ ...prev, specialty: e.target.value }))}
+                className="w-full bg-white p-4 rounded-lg border border-gray-300 text-gray-800 outline-none focus:ring-2 focus:ring-cardinal transition"
+              >
+                <option value="">All Specialties</option>
+                {SPECIALTIES.map(sp => <option key={sp} value={sp}>{sp.replace('-', ' ')}</option>)}
+              </select>
+            </div>
+            <div className="space-y-4">
+              <label className="block text-sm font-semibold text-gray-800 mb-3">Filters</label>
+              <label className="flex items-center gap-3 text-gray-600 hover:text-gray-800 transition-colors cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={filters.verified}
+                  onChange={(e) => setFilters(prev => ({ ...prev, verified: e.target.checked }))}
+                  className="w-5 h-5 rounded border-gray-300 text-cardinal focus:ring-cardinal"
+                />
+                <CheckCircle className="w-4 h-4" />
+                <span className="text-sm font-medium">Verified only</span>
+              </label>
+              <label className="flex items-center gap-3 text-gray-600 hover:text-gray-800 transition-colors cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={filters.featured}
+                  onChange={(e) => setFilters(prev => ({ ...prev, featured: e.target.checked }))}
+                  className="w-5 h-5 rounded border-gray-300 text-cardinal focus:ring-cardinal"
+                />
+                <Star className="w-4 h-4" />
+                <span className="text-sm font-medium">Featured only</span>
+              </label>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="flex justify-between items-center mb-6 text-clarity-text-secondary">
-        <p>Showing {specialtyFiltered.length} of {totalCount} contributors</p>
-        <Link href="/contributors/apply" className="px-4 py-2 rounded-lg bg-clarity-accent text-white">Become a Contributor</Link>
+      {/* Results Header */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 text-gray-600">
+              <Users className="w-5 h-5" />
+              <span className="text-lg font-medium">
+                {specialtyFiltered.length} {specialtyFiltered.length === 1 ? 'contributor' : 'contributors'}
+                {totalCount > 0 && ` of ${totalCount} total`}
+              </span>
+            </div>
+          </div>
+          <Link
+            href="/contributors/apply"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-cardinal text-white font-semibold rounded-lg hover:bg-cardinal-dark transition"
+          >
+            <Star className="w-4 h-4" />
+            Become a Contributor
+          </Link>
+        </div>
       </div>
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {specialtyFiltered.map((c) => (
-          <Link key={c.id} href={`/contributors/${c.id}`} className="group block">
-            <article className="bg-clarity-surface border border-clarity-text-secondary/10 rounded-2xl p-4 hover:border-clarity-accent/30 transition-all">
-              <div className="relative mb-4">
-                <div className="aspect-square rounded-xl overflow-hidden bg-clarity-background">
-                  <Image src={c.headshotUrl || c.heroImageUrl || '/logo-gp.svg'} alt={c.name} width={300} height={300} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-                </div>
-                {c.verified && (
-                  <div className="absolute top-2 right-2 bg-clarity-accent text-white px-2 py-1 rounded-full text-xs">Verified</div>
-                )}
-                {c.featured && (
-                  <div className="absolute top-2 left-2 bg-clarity-accent/20 text-clarity-accent px-2 py-1 rounded-full text-xs border border-clarity-accent/30">Featured</div>
-                )}
-              </div>
-              <div>
-                <h3 className="font-semibold text-clarity-text-primary mb-1 group-hover:text-clarity-accent transition-colors">{c.name}</h3>
-                <p className="text-sm text-clarity-text-secondary mb-2 capitalize">{c.sport}</p>
-                {c.tagline && (
-                  <p className="text-sm text-clarity-text-secondary/90 line-clamp-2 mb-3">{c.tagline}</p>
-                )}
-                {c.specialties && c.specialties.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mb-3">
-                    {c.specialties.slice(0, 3).map((s, i) => (
-                      <span key={i} className="text-xs px-2 py-1 bg-clarity-background rounded-full border border-clarity-text-secondary/20">{s}</span>
-                    ))}
-                    {c.specialties.length > 3 && (
-                      <span className="text-xs px-2 py-1 bg-clarity-background rounded-full border border-clarity-text-secondary/20">+{c.specialties.length - 3}</span>
+      {/* Contributors Grid */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          {specialtyFiltered.map((c) => (
+            <Link key={c.id} href={`/contributors/${c.id}`} className="group block">
+              <article className="bg-white border border-gray-200 rounded-lg p-6 hover:border-cardinal/30 shadow-card hover:shadow-card-md transition group-hover:scale-[1.02]">
+                <div className="relative mb-6">
+                  <div className="aspect-square rounded-lg overflow-hidden bg-gray-50">
+                    <Image
+                      src={c.headshotUrl || c.heroImageUrl || '/logo-gp.svg'}
+                      alt={c.name}
+                      width={300}
+                      height={300}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    />
+                  </div>
+                  <div className="absolute top-3 right-3 flex flex-col gap-2">
+                    {c.verified && (
+                      <div className="bg-cardinal text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 shadow-card">
+                        <CheckCircle className="w-3 h-3" />
+                        Verified
+                      </div>
+                    )}
+                    {c.featured && (
+                      <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 shadow-clarity-md">
+                        <Star className="w-3 h-3" />
+                        Featured
+                      </div>
                     )}
                   </div>
-                )}
-                <div className="flex justify-between items-center text-xs text-clarity-text-secondary">
-                  <span>{c.lessonCount || 0} lessons</span>
-                  <span>{c.badges?.length || 0} achievements</span>
                 </div>
-              </div>
-            </article>
-          </Link>
-        ))}
+
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-cardinal transition-colors">
+                      {c.name}
+                    </h3>
+                    <p className="text-cardinal font-semibold text-sm uppercase tracking-wider">{c.sport}</p>
+                  </div>
+
+                  {c.tagline && (
+                    <p className="text-gray-600 leading-relaxed text-sm line-clamp-3">
+                      {c.tagline}
+                    </p>
+                  )}
+
+                  {c.specialties && c.specialties.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {c.specialties.slice(0, 3).map((s, i) => (
+                        <span
+                          key={i}
+                          className="text-xs px-3 py-1 bg-cardinal/10 text-cardinal rounded-full border border-cardinal/20 font-medium"
+                        >
+                          {s}
+                        </span>
+                      ))}
+                      {c.specialties.length > 3 && (
+                        <span className="text-xs px-3 py-1 bg-gray-100 text-gray-600 rounded-full font-medium">
+                          +{c.specialties.length - 3} more
+                        </span>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="flex justify-between items-center pt-4 border-t border-gray-200">
+                    <div className="flex items-center gap-1 text-gray-600">
+                      <Trophy className="w-4 h-4" />
+                      <span className="text-sm font-medium">{c.lessonCount || 0} lessons</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-gray-600">
+                      <Star className="w-4 h-4" />
+                      <span className="text-sm font-medium">{c.badges?.length || 0} achievements</span>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            </Link>
+          ))}
+        </div>
       </div>
 
       {hasMore && (
-        <div className="text-center mt-12">
-          <button onClick={loadMore} disabled={loading} className="px-6 py-2 rounded-lg border border-clarity-text-secondary/20 text-clarity-text-secondary hover:border-clarity-accent/40">
-            {loading ? 'Loading…' : 'Load More Contributors'}
+        <div className="text-center mt-16">
+          <button
+            onClick={loadMore}
+            disabled={loading}
+            className="px-8 py-4 rounded-lg border-2 border-gray-300 text-gray-600 hover:border-cardinal hover:text-cardinal hover:bg-cardinal/5 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? (
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 border-2 border-gray-300 border-top:text-cardinal rounded-full animate-spin"></div>
+                Loading Contributors...
+              </div>
+            ) : (
+              'Load More Contributors'
+            )}
           </button>
         </div>
       )}
 
       {!loading && specialtyFiltered.length === 0 && (
-        <div className="text-center py-16 text-clarity-text-secondary">
-          <div className="text-5xl mb-3">🏃‍♀️</div>
-          <h3 className="text-xl font-semibold mb-2 text-clarity-text-primary">No contributors found</h3>
-          <p className="mb-6">Try adjusting your filters or search terms</p>
-          <button onClick={clearFilters} className="px-4 py-2 rounded-lg border border-clarity-text-secondary/20">Clear All Filters</button>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center py-20">
+            <div className="w-32 h-32 mx-auto mb-8 bg-cardinal/10 rounded-full flex items-center justify-center">
+              <Users className="w-16 h-16 text-cardinal/60" />
+            </div>
+            <h3 className="text-2xl font-bold mb-4 text-gray-800">No contributors found</h3>
+            <p className="text-gray-600 mb-8 max-w-md mx-auto leading-relaxed">
+              We couldn't find any contributors matching your search criteria. Try adjusting your filters or search terms.
+            </p>
+            <button
+              onClick={clearFilters}
+              className="px-6 py-3 rounded-lg bg-cardinal text-white font-semibold hover:bg-cardinal-dark transition"
+            >
+              Clear All Filters
+            </button>
+          </div>
         </div>
       )}
     </main>

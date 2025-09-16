@@ -12,10 +12,10 @@ import { useAuth } from '@/hooks/use-auth'
 const NavLink = ({ href, label }: { href: string; label: string }) => (
   <Link 
     href={href}
-    className="relative px-3 py-2 text-sm font-medium text-clarity-text-primary hover:text-clarity-accent transition-colors group rounded-lg hover:bg-clarity-accent/5"
+    className="relative px-3 py-2 text-sm font-medium text-gray-800 hover:text-cardinal transition-colors group rounded-lg hover:bg-cardinal/5"
   >
     {label}
-    <div className="absolute bottom-1 left-1/2 w-0 h-0.5 bg-clarity-accent transition-all duration-300 group-hover:w-6 group-hover:left-1/2 group-hover:-translate-x-1/2 rounded-full" />
+    <div className="absolute bottom-1 left-1/2 w-0 h-0.5 bg-cardinal transition-all duration-300 group-hover:w-6 group-hover:left-1/2 group-hover:-translate-x-1/2 rounded-full" />
   </Link>
 )
 
@@ -23,7 +23,7 @@ const NavLink = ({ href, label }: { href: string; label: string }) => (
 const MobileNavLink = ({ href, label, onClick }: { href: string; label: string; onClick: () => void }) => (
   <Link 
     href={href}
-    className="block px-4 py-3 text-base font-medium text-clarity-text-primary hover:text-clarity-accent hover:bg-clarity-accent/5 transition-colors rounded-lg"
+    className="block px-4 py-3 text-base font-medium text-gray-800 hover:text-cardinal hover:bg-cardinal/5 transition-colors rounded-lg"
     onClick={onClick}
   >
     {label}
@@ -47,8 +47,8 @@ const Navigation = () => {
     <>
       <nav className={`
         fixed top-0 left-0 right-0 z-50 transition-all duration-300
-        backdrop-blur-xl bg-clarity-surface/95 border-b border-clarity-text-secondary/10
-        ${scrolled ? 'shadow-clarity-lg bg-clarity-surface/98' : ''}
+        backdrop-blur-xl bg-white/95 border-b border-gray-200
+        ${scrolled ? 'shadow-card-md bg-white/98' : ''}
       `}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
@@ -65,7 +65,7 @@ const Navigation = () => {
                     className="rounded-lg"
                   />
                 </div>
-                <span className="text-xl font-bold text-clarity-text-primary tracking-tight">
+                <span className="text-xl font-bold text-gray-800 tracking-tight">
                   GAME PLAN
                 </span>
               </Link>
@@ -84,14 +84,14 @@ const Navigation = () => {
             <div className="flex items-center gap-3">
               {loading ? (
                 // Loading state
-                <div className="w-9 h-9 rounded-full bg-clarity-text-secondary/20 animate-pulse"></div>
+                <div className="w-9 h-9 rounded-full bg-gray-400/20 animate-pulse"></div>
               ) : user ? (
                 // Authenticated user - Show profile dropdown
                 <>
                   <UserIdentity />
                   {/* Mobile Menu Toggle */}
                   <button 
-                    className="md:hidden flex items-center justify-center w-9 h-9 text-clarity-text-secondary hover:text-clarity-accent hover:bg-clarity-accent/5 transition-colors rounded-lg ml-2"
+                    className="md:hidden flex items-center justify-center w-9 h-9 text-gray-600 hover:text-cardinal hover:bg-cardinal/5 transition-colors rounded-lg ml-2"
                     onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                     aria-label="Toggle navigation menu"
                   >
@@ -105,7 +105,7 @@ const Navigation = () => {
                     <ClarityButton 
                       variant="ghost" 
                       size="sm"
-                      className="hidden lg:flex text-clarity-text-secondary hover:text-clarity-text-primary"
+                      className="hidden lg:flex text-gray-600 hover:text-gray-800"
                     >
                       Sign In
                     </ClarityButton>
@@ -123,7 +123,7 @@ const Navigation = () => {
                   
                   {/* Mobile Menu Toggle */}
                   <button 
-                    className="md:hidden flex items-center justify-center w-9 h-9 text-clarity-text-secondary hover:text-clarity-accent hover:bg-clarity-accent/5 transition-colors rounded-lg ml-2"
+                    className="md:hidden flex items-center justify-center w-9 h-9 text-gray-600 hover:text-cardinal hover:bg-cardinal/5 transition-colors rounded-lg ml-2"
                     onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                     aria-label="Toggle navigation menu"
                   >
@@ -149,7 +149,7 @@ const Navigation = () => {
         
         {/* Menu Content */}
         <div className={`
-          absolute top-16 left-0 right-0 backdrop-blur-xl bg-clarity-surface/98 border-b border-clarity-text-secondary/10 shadow-clarity-xl
+          absolute top-16 left-0 right-0 backdrop-blur-xl bg-white/98 border-b border-gray-200 shadow-card-md
           transform transition-transform duration-300
           ${mobileMenuOpen ? 'translate-y-0' : '-translate-y-full'}
         `}>
@@ -163,7 +163,7 @@ const Navigation = () => {
             
             {/* Mobile CTA Section - Conditional */}
             {!user && (
-              <div className="pt-4 mt-4 border-t border-clarity-text-secondary/10 space-y-3">
+              <div className="pt-4 mt-4 border-t border-gray-200 space-y-3">
                 <Link href="/dashboard">
                   <ClarityButton 
                     variant="ghost" 

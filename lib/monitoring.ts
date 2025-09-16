@@ -210,6 +210,43 @@ export class PerformanceMonitor {
   }
 }
 
+// Structured application logger
+type LogLevel = 'debug' | 'info' | 'warn' | 'error'
+
+function ts(): string {
+  return new Date().toISOString()
+}
+
+function base(level: LogLevel, msg: string, details?: Record<string, unknown>) {
+  return {
+    ts: ts(),
+    level,
+    msg,
+    ...(details || {}),
+  }
+}
+
+export const logger = {
+  debug(message: string, details?: Record<string, unknown>) {
+    if (process.env.NODE_ENV !== 'production') {
+      console.debug(JSON.stringify(base('debug', message, details)))
+    }
+  },
+  info(message: string, details?: Record<string, unknown>) {
+    console.info(JSON.stringify(base('info', message, details)))
+  },
+  warn(message: string, details?: Record<string, unknown>) {
+    console.warn(JSON.stringify(base('warn', message, details)))
+  },
+  error(message: string, details?: Record<string, unknown>, err?: unknown) {
+    const payload = base('error', message, {
+      ...(details || {}),
+      error: err instanceof Error ? { name: err.name, message: err.message, stack: err.stack } : err,
+    })
+    console.error(JSON.stringify(payload))
+  },
+}
+
 // User behavior analytics
 export class UserBehaviorTracker {
   private static instance: UserBehaviorTracker

@@ -110,7 +110,7 @@ export default function EmailSignInButton({
     <div className="w-full space-y-4">
       <form onSubmit={handleEmailAuth} className="space-y-4">
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-clarity-text-primary mb-2">
+          <label htmlFor="email" className="block text-sm font-medium text-gray-800 mb-2">
             Email Address
           </label>
           <input
@@ -118,14 +118,14 @@ export default function EmailSignInButton({
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-3 rounded-lg bg-clarity-surface border border-clarity-text-secondary/20 focus:ring-2 focus:ring-clarity-accent focus:border-clarity-accent transition-colors"
+            className="w-full px-4 py-3 rounded-lg bg-white border border-gray-300 focus:ring-2 focus:ring-cardinal focus:border-cardinal transition-colors"
             placeholder="your.email@example.com"
             required
           />
         </div>
 
         <div>
-          <label htmlFor="password" className="block text-sm font-medium text-clarity-text-primary mb-2">
+          <label htmlFor="password" className="block text-sm font-medium text-gray-800 mb-2">
             Password
           </label>
           <div className="relative">
@@ -134,14 +134,14 @@ export default function EmailSignInButton({
               type={showPassword ? 'text' : 'password'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 pr-12 rounded-lg bg-clarity-surface border border-clarity-text-secondary/20 focus:ring-2 focus:ring-clarity-accent focus:border-clarity-accent transition-colors"
+              className="w-full px-4 py-3 pr-12 rounded-lg bg-white border border-gray-300 focus:ring-2 focus:ring-cardinal focus:border-cardinal transition-colors"
               placeholder="••••••••"
               required
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-clarity-text-secondary hover:text-clarity-text-primary"
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-600 hover:text-gray-800"
             >
               {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
             </button>
@@ -150,7 +150,7 @@ export default function EmailSignInButton({
 
         {isSignUp && (
           <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-clarity-text-primary mb-2">
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-800 mb-2">
               Confirm Password
             </label>
             <input
@@ -158,7 +158,7 @@ export default function EmailSignInButton({
               type={showPassword ? 'text' : 'password'}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg bg-clarity-surface border border-clarity-text-secondary/20 focus:ring-2 focus:ring-clarity-accent focus:border-clarity-accent transition-colors"
+              className="w-full px-4 py-3 rounded-lg bg-white border border-gray-300 focus:ring-2 focus:ring-cardinal focus:border-cardinal transition-colors"
               placeholder="••••••••"
               required
             />
@@ -166,7 +166,7 @@ export default function EmailSignInButton({
         )}
 
         {error && (
-          <div className="p-3 rounded-lg bg-clarity-error/10 border border-clarity-error/20 text-clarity-error text-sm">
+          <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm">
             {error}
           </div>
         )}
@@ -189,7 +189,7 @@ export default function EmailSignInButton({
               setPassword('')
               setConfirmPassword('')
             }}
-            className="w-full text-sm text-clarity-text-secondary hover:text-clarity-accent transition-colors"
+            className="w-full text-sm text-gray-600 hover:text-cardinal transition-colors"
           >
             {isSignUp 
               ? 'Already have an account? Sign in instead' 
@@ -200,7 +200,7 @@ export default function EmailSignInButton({
           <button
             type="button"
             onClick={() => setShowForm(false)}
-            className="w-full text-sm text-clarity-text-secondary hover:text-clarity-accent transition-colors"
+            className="w-full text-sm text-gray-600 hover:text-cardinal transition-colors"
           >
             ← Back to other options
           </button>

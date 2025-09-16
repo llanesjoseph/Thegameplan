@@ -28,7 +28,7 @@ export default function GoogleSignInButton({
 
   const variantClasses = {
     default: 'bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 shadow-sm',
-    outline: 'bg-transparent hover:bg-white/5 text-white border border-white/20'
+    outline: 'bg-transparent hover:bg-gray-50 text-gray-800 border border-gray-300'
   }
 
   const handleGoogleSignIn = async () => {
@@ -141,8 +141,8 @@ export default function GoogleSignInButton({
       </button>
       
       {error && (
-        <div className="mt-3 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
-          <p className="text-sm text-red-400">{error}</p>
+        <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-sm text-red-600">{error}</p>
         </div>
       )}
     </div>
