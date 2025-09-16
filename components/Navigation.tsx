@@ -58,10 +58,10 @@ const Navigation = () => {
               <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
                 <div className="relative">
                   <Image
-                    src="https://res.cloudinary.com/dr0jtjwlh/image/upload/v1756849213/GAME_PLAN_neon_green_BLACKBG_256_mv9snx.png"
+                    src="https://res.cloudinary.com/dr0jtjwlh/image/upload/v1758004832/0cfb867d-daad-453a-bce5-7f861c04e1c1_i0k0z8.png"
                     alt="Game Plan"
-                    width={32}
-                    height={32}
+                    width={40}
+                    height={40}
                     className="rounded-lg"
                   />
                 </div>
