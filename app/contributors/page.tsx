@@ -1,11 +1,12 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import { useAuth } from '@/hooks/use-auth'
 import { db } from '@/lib/firebase.client'
-import { collection, getDocs, query, where, orderBy, limit, startAfter, type QueryDocumentSnapshot, type DocumentData } from 'firebase/firestore'
+import { collection, getDocs, query, where, orderBy, limit, startAfter, doc, getDoc, type QueryDocumentSnapshot, type DocumentData } from 'firebase/firestore'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Search, Filter, Star, CheckCircle, Users, Trophy } from 'lucide-react'
+import { Search, Filter, Star, CheckCircle, Users, Trophy, User } from 'lucide-react'
 
 type Contributor = {
   id: string
@@ -69,11 +70,13 @@ const FEATURED_CONTRIBUTORS: Contributor[] = [
 ]
 
 export default function ContributorsPage() {
+  const { user } = useAuth()
   const [contributors, setContributors] = useState<Contributor[]>([])
   const [loading, setLoading] = useState(true)
   const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot<DocumentData> | null>(null)
   const [hasMore, setHasMore] = useState(true)
   const [totalCount, setTotalCount] = useState(0)
+  const [userPreferences, setUserPreferences] = useState<{ sports: string[]; level: string }>({ sports: [], level: 'all' })
 
   const [filters, setFilters] = useState<FilterState>({
     search: '',
@@ -124,9 +127,46 @@ export default function ContributorsPage() {
   }
 
   useEffect(() => {
-    loadContributors(true)
+    const loadUserPreferences = async () => {
+      if (!user?.uid) {
+        // For non-authenticated users, show all contributors
+        loadContributors(true)
+        return
+      }
+
+      try {
+        // Get user profile to determine sports preferences
+        const userDocRef = doc(db, 'users', user.uid)
+        const userDoc = await getDoc(userDocRef)
+        
+        let preferences = { sports: [], level: 'all' }
+        
+        if (userDoc.exists()) {
+          const userData = userDoc.data()
+          preferences = {
+            sports: userData.preferredSports || [],
+            level: userData.skillLevel || 'all'
+          }
+        }
+
+        setUserPreferences(preferences)
+        
+        // If user has sport preferences, pre-filter by their primary sport
+        if (preferences.sports.length > 0 && preferences.sports[0] !== 'all') {
+          setFilters(prev => ({ ...prev, sport: preferences.sports[0] }))
+        }
+        
+        loadContributors(true)
+        
+      } catch (error) {
+        console.warn('Failed to load user preferences:', error)
+        loadContributors(true)
+      }
+    }
+
+    loadUserPreferences()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [user?.uid])
 
   const applyFilters = () => {
     setLastDoc(null)
@@ -180,8 +220,23 @@ export default function ContributorsPage() {
               <span className="text-cardinal block">Contributors</span>
             </h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              Learn from world-class athletes, coaches, and sports performance experts who are shaping the future of competitive sports.
+              {user 
+                ? `Discover coaches and athletes in your sports: ${userPreferences.sports.length > 0 ? userPreferences.sports.join(', ').toUpperCase() : 'All Sports'}` 
+                : 'Learn from world-class athletes, coaches, and sports performance experts who are shaping the future of competitive sports.'
+              }
             </p>
+            
+            {user && userPreferences.sports.length > 0 && (
+              <div className="mt-6 bg-white/80 backdrop-blur border border-cardinal/20 rounded-lg p-4 max-w-2xl mx-auto">
+                <div className="flex items-center gap-2 text-cardinal mb-2">
+                  <User className="w-4 h-4" />
+                  <span className="font-medium">Personalized for you</span>
+                </div>
+                <p className="text-sm text-gray-600">
+                  Showing contributors based on your sports preferences. Change filters to explore other sports.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>

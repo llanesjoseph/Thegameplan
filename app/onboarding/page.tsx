@@ -108,15 +108,23 @@ export default function Onboarding() {
 
   if (!user) {
     return (
-      <main className="min-h-screen bg-white flex items-center justify-center">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full">
-          <div className="w-full max-w-md mx-auto">
-            <AuthProvider 
-              title="Complete Your Profile"
-              subtitle="Sign in to finish setting up your personalized training experience"
-              showBenefits={true}
-            />
+      <main className="fixed inset-0 bg-gradient-to-br from-gray-50 to-white flex items-center justify-center p-4 z-50 overflow-y-auto">
+        <div className="w-full max-w-lg mx-auto my-8">
+          <div className="text-center mb-6">
+            <div className="w-16 h-16 mx-auto mb-4 bg-cardinal rounded-full flex items-center justify-center shadow-lg">
+              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+            <h1 className="text-2xl font-bold text-gray-800 mb-2">Welcome to Game Plan</h1>
+            <p className="text-gray-600 text-sm mb-6">Access to dashboard requires an account.</p>
           </div>
+
+          <AuthProvider
+            title="Sign in to continue"
+            subtitle="Join thousands of athletes training with elite coaches"
+            showBenefits={true}
+          />
         </div>
       </main>
     )

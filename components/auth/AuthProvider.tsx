@@ -71,25 +71,20 @@ export default function AuthProvider({
   }
 
   return (
-    <div className={`max-w-md mx-auto ${className}`}>
-      <ClarityCard variant="glass" className="p-8">
+    <div className={`w-full max-w-md mx-auto ${className}`}>
+      <ClarityCard variant="elevated" className="p-6 shadow-xl border-0 bg-white backdrop-blur-sm">
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 mx-auto mb-4 bg-cardinal rounded-full flex items-center justify-center">
-            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-          </div>
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">
+        <div className="text-center mb-6">
+          <h2 className="text-xl font-bold text-gray-800 mb-2">
             {title}
-          </h1>
-          <p className="text-base text-gray-600">
+          </h2>
+          <p className="text-sm text-gray-600">
             {subtitle}
           </p>
         </div>
 
         {/* Auth Methods */}
-        <div className="space-y-4 mb-6">
+        <div className="space-y-3 mb-4">
           {selectedMethod === 'email' ? (
             <EmailSignInButton size="md" variant="default" />
           ) : (
@@ -97,7 +92,7 @@ export default function AuthProvider({
               <GoogleSignInButton size="md" variant="default" />
               <AppleSignInButton size="md" variant="default" />
               
-              <div className="relative my-6">
+              <div className="relative my-4">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-gray-200"></div>
                 </div>
@@ -116,7 +111,7 @@ export default function AuthProvider({
         {/* Benefits Section */}
         {showBenefits && (
           <>
-            <div className="relative my-6">
+            <div className="relative my-4">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-200"></div>
               </div>
@@ -127,17 +122,17 @@ export default function AuthProvider({
               </div>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               {benefits.map((benefit, index) => (
                 <div key={index} className="flex items-start space-x-3">
-                  <div className="flex-shrink-0 w-8 h-8 bg-cardinal/10 rounded-full flex items-center justify-center text-cardinal">
+                  <div className="flex-shrink-0 w-7 h-7 bg-cardinal/10 rounded-full flex items-center justify-center text-cardinal">
                     {benefit.icon}
                   </div>
                   <div>
                     <h3 className="text-sm font-semibold text-gray-800">
                       {benefit.title}
                     </h3>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-xs text-gray-600">
                       {benefit.description}
                     </p>
                   </div>
@@ -148,7 +143,7 @@ export default function AuthProvider({
         )}
 
         {/* Terms */}
-        <div className="mt-6 pt-6 border-t border-gray-200">
+        <div className="mt-4 pt-4 border-t border-gray-200">
           <p className="text-xs text-gray-600 text-center">
             By signing in, you agree to our{' '}
             <a href="/terms" className="text-cardinal hover:underline">

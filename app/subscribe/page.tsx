@@ -3,7 +3,7 @@ import { Sparkles, Target, Crown, Shield } from 'lucide-react'
 
 export default function Subscribe() {
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen bg-white pt-24">
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         {/* Background Pattern */}

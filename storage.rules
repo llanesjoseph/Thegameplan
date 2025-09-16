@@ -1,0 +1,92 @@
+rules_version = '2';
+
+// Firebase Storage Security Rules for Game Plan
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+    
+    function isCreator() {
+      return request.auth != null && 
+             ('role' in resource.metadata && resource.metadata.role == 'creator') ||
+             ('role' in request.auth.token && request.auth.token.role == 'creator');
+    }
+    
+    function isAdmin() {
+      return request.auth != null && 
+             ('role' in request.auth.token && 
+              (request.auth.token.role == 'admin' || request.auth.token.role == 'superadmin'));
+    }
+    
+    function isValidImageType() {
+      return request.resource.contentType.matches('image/.*');
+    }
+    
+    function isValidVideoType() {
+      return request.resource.contentType.matches('video/.*');
+    }
+    
+    function isValidFileSize(maxSizeInMB) {
+      return request.resource.size < maxSizeInMB * 1024 * 1024;
+    }
+    
+    // User profile images - users can upload their own profile pics
+    match /users/{userId}/profile/{allPaths=**} {
+      allow read: if true; // Public read for profile images
+      allow write: if isOwner(userId) && isValidImageType() && isValidFileSize(10);
+    }
+    
+    // Creator content - videos, images, gear photos
+    match /creators/{creatorId}/{allPaths=**} {
+      allow read: if true; // Public read for creator content
+      allow write: if (isOwner(creatorId) || isCreator() || isAdmin()) && 
+                      (isValidImageType() || isValidVideoType()) && 
+                      isValidFileSize(500); // 500MB limit for videos
+    }
+    
+    // Gear images - creators can upload gear images
+    match /gear/{gearId}/{allPaths=**} {
+      allow read: if true; // Public read for gear images
+      allow write: if (isCreator() || isAdmin()) && 
+                      isValidImageType() && 
+                      isValidFileSize(20); // 20MB limit for gear images
+    }
+    
+    // Lesson content - videos and supporting materials
+    match /lessons/{lessonId}/{allPaths=**} {
+      allow read: if isAuthenticated(); // Only authenticated users can access lessons
+      allow write: if (isCreator() || isAdmin()) && 
+                      (isValidImageType() || isValidVideoType()) && 
+                      isValidFileSize(1000); // 1GB limit for lesson videos
+    }
+    
+    // Public assets - logos, marketing materials
+    match /public/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    // Temporary uploads - for processing before moving to final location
+    match /temp/{userId}/{allPaths=**} {
+      allow read, write: if isOwner(userId) && isValidFileSize(1000);
+      allow delete: if isOwner(userId) || isAdmin();
+    }
+    
+    // Admin only content
+    match /admin/{allPaths=**} {
+      allow read, write: if isAdmin();
+    }
+    
+    // Default deny all other paths
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

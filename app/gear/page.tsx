@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { useEnhancedRole } from '@/hooks/use-role-switcher'
 import { db } from '@/lib/firebase.client'
-import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore'
+import { doc, getDoc, collection, query, where, getDocs, orderBy, limit } from 'firebase/firestore'
+import CreatorGearManager from '@/components/gear/CreatorGearManager'
 import Link from 'next/link'
 import { 
   ShoppingBag, 
@@ -44,6 +45,7 @@ export default function Gear() {
   const { user } = useAuth()
   const { role } = useEnhancedRole()
   const [gearItems, setGearItems] = useState<GearItem[]>([])
+  const [dbGearItems, setDbGearItems] = useState<GearItem[]>([])
   const [userPreferences, setUserPreferences] = useState<UserPreferences>({ sports: [], level: 'all' })
   const [selectedSport, setSelectedSport] = useState<string>('all')
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
@@ -178,11 +180,34 @@ export default function Gear() {
     }
   ]
 
+  const loadGearFromDatabase = async () => {
+    try {
+      const gearQuery = query(
+        collection(db, 'gear'),
+        where('status', '==', 'active'),
+        orderBy('createdAt', 'desc'),
+        limit(50)
+      )
+      const gearSnapshot = await getDocs(gearQuery)
+      const dbGear = gearSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as GearItem[]
+      
+      setDbGearItems(dbGear)
+      return dbGear
+    } catch (error) {
+      console.warn('Failed to load gear from database:', error)
+      return []
+    }
+  }
+
   useEffect(() => {
     const loadUserData = async () => {
       if (!user?.uid) {
-        // Load default gear for non-authenticated users
-        setGearItems(mockGearData)
+        // Load all gear for non-authenticated users (mock + database)
+        const dbGear = await loadGearFromDatabase()
+        setGearItems([...mockGearData, ...dbGear])
         setLoading(false)
         return
       }
@@ -218,8 +243,12 @@ export default function Gear() {
 
         setUserPreferences(preferences)
         
+        // Load database gear
+        const dbGear = await loadGearFromDatabase()
+        const allGear = [...mockGearData, ...dbGear]
+        
         // Filter gear based on user preferences
-        const filteredGear = mockGearData.filter(item => {
+        const filteredGear = allGear.filter(item => {
           if (preferences.sports.includes('all') || preferences.sports.length === 0) {
             return true
           }
@@ -228,7 +257,7 @@ export default function Gear() {
           )
         })
         
-        setGearItems(filteredGear.length > 0 ? filteredGear : mockGearData)
+        setGearItems(filteredGear.length > 0 ? filteredGear : allGear)
         
         // Set default sport filter to user's primary sport
         if (preferences.sports.length > 0 && preferences.sports[0] !== 'all') {
@@ -237,7 +266,8 @@ export default function Gear() {
         
       } catch (error) {
         console.warn('Failed to load user preferences:', error)
-        setGearItems(mockGearData)
+        const dbGear = await loadGearFromDatabase()
+        setGearItems([...mockGearData, ...dbGear])
       } finally {
         setLoading(false)
       }
@@ -261,7 +291,7 @@ export default function Gear() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center pt-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cardinal mx-auto"></div>
@@ -273,7 +303,7 @@ export default function Gear() {
   }
 
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen bg-white pt-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -292,6 +322,12 @@ export default function Gear() {
                 }
               </p>
             </div>
+            {/* Creator Actions */}
+            {(role === 'creator' || role === 'admin' || role === 'superadmin') && (
+              <div className="ml-auto">
+                <CreatorGearManager onItemAdded={() => window.location.reload()} />
+              </div>
+            )}
           </div>
           
           {user && (
@@ -372,9 +408,17 @@ export default function Gear() {
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredItems.map((item) => (
             <div key={item.id} className="bg-white border border-gray-200 rounded-lg p-4 shadow-card hover:shadow-card-md hover:scale-[1.02] transition duration-200 flex flex-col h-full">
-              {/* Product Image Placeholder */}
-              <div className="aspect-square rounded-lg bg-gray-50 border border-gray-200 mb-4 flex items-center justify-center">
-                <ShoppingBag className="w-12 h-12 text-gray-600" />
+              {/* Product Image */}
+              <div className="aspect-square rounded-lg bg-gray-50 border border-gray-200 mb-4 flex items-center justify-center overflow-hidden">
+                {item.image || (item as any).imageUrl ? (
+                  <img 
+                    src={item.image || (item as any).imageUrl} 
+                    alt={item.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <ShoppingBag className="w-12 h-12 text-gray-600" />
+                )}
               </div>
               
               {/* Product Info */}
@@ -409,10 +453,15 @@ export default function Gear() {
 
                 {/* CTA */}
                 <div className="flex gap-2 pt-2 mt-auto">
-                  <button className="flex-1 bg-cardinal text-white rounded-lg py-2 px-4 flex items-center justify-center gap-2 hover:bg-cardinal-dark">
+                  <a 
+                    href={item.link || (item as any).affiliateLink} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex-1 bg-cardinal text-white rounded-lg py-2 px-4 flex items-center justify-center gap-2 hover:bg-cardinal-dark transition-colors"
+                  >
                     <ExternalLink className="w-4 h-4" />
                     View Product
-                  </button>
+                  </a>
                   <button className="p-2 border border-gray-300 hover:border-red-400 hover:bg-red-50 rounded-lg transition-colors">
                     <Heart className="w-4 h-4 text-gray-600 hover:text-red-600" />
                   </button>
