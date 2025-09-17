@@ -114,13 +114,58 @@ interface Lesson {
 }
 
 const formatAIResponse = (content: string): string => {
-  // Format the AI response with proper line breaks and structure
-  return content
-    .replace(/\n\n/g, '</p><p>')
-    .replace(/\n/g, '<br>')
-    .replace(/^/, '<p>')
-    .replace(/$/, '</p>')
-    .replace(/<p><\/p>/g, '')
+  // Simple, clean AI response formatting
+  let formatted = content
+    // Remove any existing HTML tags to start clean
+    .replace(/<[^>]*>/g, '')
+
+    // Convert **bold** text to styled strong tags
+    .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-emerald-600">$1</strong>')
+
+    // Convert quoted text to emphasized styling
+    .replace(/"([^"]+)"/g, '<em class="italic text-slate-600">"$1"</em>')
+
+    // Split content by double line breaks to create paragraphs
+
+  const paragraphs = formatted.split(/\n\s*\n/).filter(p => p.trim())
+
+  return paragraphs.map(paragraph => {
+    // Handle bullet points within paragraphs
+    if (paragraph.includes('\n- ') || paragraph.includes('\n* ') || paragraph.includes('\n• ')) {
+      const lines = paragraph.split('\n')
+      const processedLines = lines.map(line => {
+        const trimmed = line.trim()
+        if (trimmed.match(/^[\-\*\•]\s+/)) {
+          return `<li class="ml-4 mb-1">${trimmed.substring(2)}</li>`
+        }
+        return trimmed ? `<p class="mb-2">${trimmed}</p>` : ''
+      }).filter(line => line)
+
+      // Group consecutive list items
+      let result = ''
+      let inList = false
+      for (const line of processedLines) {
+        if (line.startsWith('<li')) {
+          if (!inList) {
+            result += '<ul class="space-y-1 my-3 ml-2">'
+            inList = true
+          }
+          result += line
+        } else {
+          if (inList) {
+            result += '</ul>'
+            inList = false
+          }
+          result += line
+        }
+      }
+      if (inList) result += '</ul>'
+      return result
+    } else {
+      // Regular paragraph
+      return `<p class="mb-4 leading-relaxed">${paragraph}</p>`
+    }
+  }).join('')
 }
 
 interface CreatorPageClientProps {
@@ -537,7 +582,7 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
       {/* AI Coaching Section */}
       <section className="py-12 bg-white">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
               <div className="flex items-center justify-center gap-3 mb-4">
                 <div className="w-12 h-12 bg-clarity-accent/10 rounded-full flex items-center justify-center">
@@ -581,10 +626,10 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
             <div className="bg-gray-50 rounded-2xl p-6 md:p-8 shadow-sm border border-gray-100">
               {/* Messages */}
               {messages.length > 0 && (
-                <div className="space-y-6 mb-8 max-h-96 overflow-y-auto">
+                <div className="space-y-6 mb-8 max-h-[500px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                   {messages.map((msg) => (
                     <div key={msg.id} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                      <div className={`max-w-[80%] ${msg.sender === 'user' ? 'order-2' : 'order-1'}`}>
+                      <div className={`max-w-[85%] lg:max-w-[75%] ${msg.sender === 'user' ? 'order-2' : 'order-1'}`}>
                         {msg.sender === 'creator' && (
                           <div className="flex items-center gap-3 mb-2">
                             <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
@@ -600,13 +645,17 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
                           </div>
                         )}
                         {msg.sender === 'user' ? (
-                          <div className="bg-clarity-accent text-white rounded-2xl rounded-br-md p-4 shadow-sm">
-                            <p className="text-base leading-relaxed">{msg.content}</p>
+                          <div className="bg-clarity-accent text-white rounded-2xl rounded-br-md p-5 shadow-sm">
+                            <p className="text-base leading-relaxed" style={{ lineHeight: '1.6' }}>{msg.content}</p>
                           </div>
                         ) : (
                           <div className="bg-white text-clarity-text-primary border border-gray-100 shadow-sm rounded-2xl rounded-bl-md p-6">
                             <div
-                              className="prose prose-clarity max-w-none text-base leading-relaxed"
+                              className="ai-response-content text-gray-700"
+                              style={{
+                                lineHeight: '1.7',
+                                fontSize: '16px'
+                              }}
                               dangerouslySetInnerHTML={{
                                 __html: formatAIResponse(msg.content)
                               }}
@@ -618,12 +667,28 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
                   ))}
                   {isLoading && (
                     <div className="flex justify-start">
-                      <div className="bg-white text-clarity-text-primary border border-gray-100 shadow-sm rounded-2xl rounded-bl-md p-6">
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 bg-clarity-accent rounded-full animate-bounce"></div>
-                          <div className="w-2 h-2 bg-clarity-accent rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                          <div className="w-2 h-2 bg-clarity-accent rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
-                          <span className="text-sm text-gray-500 ml-2">Jasmine is thinking...</span>
+                      <div className="max-w-[85%] lg:max-w-[75%]">
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+                            <Image
+                              src={creator.headshotUrl}
+                              alt={creator.firstName}
+                              width={32}
+                              height={32}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <span className="text-sm font-medium text-clarity-text-primary">{creator.firstName}</span>
+                        </div>
+                        <div className="bg-white text-clarity-text-primary border border-gray-100 shadow-sm rounded-2xl rounded-bl-md p-6">
+                          <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-1">
+                              <div className="w-2 h-2 bg-clarity-accent rounded-full animate-bounce"></div>
+                              <div className="w-2 h-2 bg-clarity-accent rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                              <div className="w-2 h-2 bg-clarity-accent rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                            </div>
+                            <span className="text-sm text-gray-500">{creator.firstName} is thinking...</span>
+                          </div>
                         </div>
                       </div>
                     </div>

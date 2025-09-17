@@ -20,7 +20,8 @@
       "Bash(findstr:*)",
       "Bash(netstat:*)",
       "Bash(taskkill:*)",
-      "Bash(firebase deploy:*)"
+      "Bash(firebase deploy:*)",
+      "mcp__ide__getDiagnostics"
     ],
     "deny": [],
     "ask": []
