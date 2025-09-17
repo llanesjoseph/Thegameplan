@@ -202,17 +202,34 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
         setLessonsLoading(true)
 
         // For demo purposes, we'll simulate lessons without Firebase query
-        // In production, this would query the actual database
+        // In production, this would query the actual database:
+        // const lessonsQuery = query(
+        //   collection(db, 'lessons'),
+        //   where('creatorUid', '==', creator.id + '-uid'),
+        //   where('sport', '==', creator.sport),
+        //   where('status', '==', 'published'),
+        //   orderBy('createdAt', 'desc')
+        // )
         await new Promise(resolve => setTimeout(resolve, 500)) // Simulate loading
 
-        // Mock lessons data for demo
+        // Mock lessons data for demo - dynamically adapted to creator's sport
+        const sportTerms = {
+          soccer: { field: 'field', game: 'game', action: 'plays' },
+          basketball: { field: 'court', game: 'game', action: 'plays' },
+          football: { field: 'field', game: 'game', action: 'plays' },
+          tennis: { field: 'court', game: 'match', action: 'shots' },
+          baseball: { field: 'field', game: 'game', action: 'pitches' }
+        }
+
+        const terms = sportTerms[creator.sport as keyof typeof sportTerms] || sportTerms.soccer
+
         const mockLessons: Lesson[] = [
           {
             id: '1',
             title: 'Mental Toughness in High-Pressure Situations',
-            description: 'Learn how to maintain composure and confidence during crucial moments in your soccer career.',
-            creatorUid: 'jasmine-aikey-uid',
-            sport: 'soccer',
+            description: `Learn how to maintain composure and confidence during crucial moments in your ${creator.sport} career.`,
+            creatorUid: `${creator.id}-uid`,
+            sport: creator.sport,
             status: 'published',
             type: 'lesson',
             level: 'Intermediate',
@@ -222,9 +239,9 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
           {
             id: '2',
             title: 'Reading the Game: Tactical Intelligence',
-            description: 'Develop your ability to anticipate plays and make split-second decisions on the field.',
-            creatorUid: 'jasmine-aikey-uid',
-            sport: 'soccer',
+            description: `Develop your ability to anticipate ${terms.action} and make split-second decisions on the ${terms.field}.`,
+            creatorUid: `${creator.id}-uid`,
+            sport: creator.sport,
             status: 'published',
             type: 'lesson',
             level: 'Advanced',
@@ -235,8 +252,8 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
             id: '3',
             title: 'Building Unshakeable Confidence',
             description: 'Master the mental techniques that separate good players from great ones.',
-            creatorUid: 'jasmine-aikey-uid',
-            sport: 'soccer',
+            creatorUid: `${creator.id}-uid`,
+            sport: creator.sport,
             status: 'published',
             type: 'lesson',
             level: 'Beginner',
@@ -690,6 +707,45 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
                       </div>
                     </div>
                   )}
+                </div>
+              )}
+
+              {/* Pre-populated Questions */}
+              {user && messages.length === 0 && (
+                <div className="mb-6">
+                  <h3 className="text-sm font-medium text-gray-700 mb-3">Popular questions for {creator.firstName}:</h3>
+                  <div className="grid sm:grid-cols-2 gap-2">
+                    {(() => {
+                      const allQuestions = [
+                        `What's your top training tip for ${creator.sport}?`,
+                        `How do you handle pressure during competition?`,
+                        `What's the biggest mistake beginners make in ${creator.sport}?`,
+                        `How do you stay motivated during tough training sessions?`,
+                        `What's your pre-game routine?`,
+                        `How important is mental preparation?`,
+                        `What advice would you give to someone just starting ${creator.sport}?`,
+                        `How do you recover after a difficult loss?`,
+                        `What's the key to consistency in performance?`,
+                        `How do you balance training with rest?`,
+                        `What's your favorite drill for improving technique?`,
+                        `How do you deal with setbacks or injuries?`
+                      ]
+
+                      // Rotate questions based on time to create variety
+                      const timeBasedIndex = Math.floor(Date.now() / (1000 * 60 * 30)) % (allQuestions.length - 3)
+                      return allQuestions.slice(timeBasedIndex, timeBasedIndex + 4)
+                    })().map((question, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setMessage(question)}
+                        className="text-left p-3 text-sm bg-white border border-gray-200 rounded-lg hover:border-clarity-accent/30 hover:bg-clarity-accent/5 transition-all duration-200 group"
+                      >
+                        <span className="text-gray-700 group-hover:text-clarity-accent transition-colors">
+                          {question}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               )}
 
