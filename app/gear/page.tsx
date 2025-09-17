@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import { useEnhancedRole } from '@/hooks/use-role-switcher'
 import { db } from '@/lib/firebase.client'
@@ -41,13 +42,16 @@ interface UserPreferences {
   budget?: string
 }
 
-export default function Gear() {
+function GearContent() {
+  const searchParams = useSearchParams()
+  const creatorFilter = searchParams?.get('creator') || null
   const { user } = useAuth()
   const { role } = useEnhancedRole()
   const [gearItems, setGearItems] = useState<GearItem[]>([])
   const [dbGearItems, setDbGearItems] = useState<GearItem[]>([])
   const [userPreferences, setUserPreferences] = useState<UserPreferences>({ sports: [], level: 'all' })
   const [selectedSport, setSelectedSport] = useState<string>('all')
+  const [selectedCreator, setSelectedCreator] = useState<string>(creatorFilter || 'all')
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
@@ -276,18 +280,27 @@ export default function Gear() {
     loadUserData()
   }, [user?.uid])
 
+  // Set creator filter from URL parameter
+  useEffect(() => {
+    if (creatorFilter) {
+      setSelectedCreator(creatorFilter)
+    }
+  }, [creatorFilter])
+
   const filteredItems = gearItems.filter(item => {
     const matchesSport = selectedSport === 'all' || item.sport === selectedSport
     const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory
-    const matchesSearch = searchTerm === '' || 
+    const matchesCreator = selectedCreator === 'all' || item.recommendedBy.toLowerCase().includes(selectedCreator.toLowerCase())
+    const matchesSearch = searchTerm === '' ||
       item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.description.toLowerCase().includes(searchTerm.toLowerCase())
-    
-    return matchesSport && matchesCategory && matchesSearch
+
+    return matchesSport && matchesCategory && matchesCreator && matchesSearch
   })
 
   const sports = ['all', ...Array.from(new Set(gearItems.map(item => item.sport)))]
   const categories = ['all', ...Array.from(new Set(gearItems.map(item => item.category)))]
+  const creators = ['all', ...Array.from(new Set(gearItems.map(item => item.recommendedBy)))]
 
   if (loading) {
     return (
@@ -313,21 +326,35 @@ export default function Gear() {
             </div>
             <div>
               <h1 className="text-3xl font-bold text-gray-800">
-                {user ? 'Your Recommended Gear' : 'Training Equipment & Gear'}
+                {selectedCreator !== 'all'
+                  ? `${selectedCreator}'s Gear Recommendations`
+                  : user ? 'Your Recommended Gear' : 'Training Equipment & Gear'
+                }
               </h1>
               <p className="text-base text-gray-600 mt-1">
-                {user 
-                  ? `Curated recommendations based on your training profile • ${userPreferences.sports.join(', ').toUpperCase()}` 
-                  : 'Professional equipment recommendations from expert coaches'
+                {selectedCreator !== 'all'
+                  ? `Professional equipment recommendations from ${selectedCreator}`
+                  : user
+                    ? `Curated recommendations based on your training profile • ${userPreferences.sports.join(', ').toUpperCase()}`
+                    : 'Professional equipment recommendations from expert coaches'
                 }
               </p>
             </div>
-            {/* Creator Actions */}
-            {(role === 'creator' || role === 'admin' || role === 'superadmin') && (
-              <div className="ml-auto">
+            {/* Creator Actions and See All Button */}
+            <div className="ml-auto flex items-center gap-4">
+              {selectedCreator !== 'all' && (
+                <Link
+                  href="/gear"
+                  className="inline-flex items-center gap-2 bg-cardinal text-white px-6 py-3 rounded-lg font-medium hover:bg-cardinal-dark transition-colors"
+                >
+                  <ShoppingBag className="w-4 h-4" />
+                  See All Contributors Gear
+                </Link>
+              )}
+              {(role === 'creator' || role === 'admin' || role === 'superadmin') && (
                 <CreatorGearManager onItemAdded={() => window.location.reload()} />
-              </div>
-            )}
+              )}
+            </div>
           </div>
           
           {user && (
@@ -387,6 +414,19 @@ export default function Gear() {
                 </option>
               ))}
             </select>
+
+            {/* Creator Filter */}
+            <select
+              value={selectedCreator}
+              onChange={(e) => setSelectedCreator(e.target.value)}
+              className="bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-800 focus:ring-2 focus:ring-cardinal focus:border-cardinal"
+            >
+              {creators.map(creator => (
+                <option key={creator} value={creator}>
+                  {creator === 'all' ? 'All Contributors' : creator}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
@@ -396,6 +436,7 @@ export default function Gear() {
             <p className="text-base text-gray-600">
               Showing {filteredItems.length} {filteredItems.length === 1 ? 'item' : 'items'}
               {selectedSport !== 'all' && ` for ${selectedSport}`}
+              {selectedCreator !== 'all' && ` by ${selectedCreator}`}
             </p>
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <TrendingUp className="w-4 h-4" />
@@ -476,10 +517,11 @@ export default function Gear() {
             <Target className="w-16 h-16 text-gray-600 mx-auto mb-4" />
             <h3 className="text-2xl font-semibold text-gray-800 mb-2">No gear found</h3>
             <p className="text-base text-gray-600 mb-4">Try adjusting your filters or search terms.</p>
-            <button 
+            <button
               onClick={() => {
                 setSelectedSport('all')
-                setSelectedCategory('all') 
+                setSelectedCategory('all')
+                setSelectedCreator('all')
                 setSearchTerm('')
               }}
               className="px-6 py-3 bg-cardinal text-white rounded-lg hover:bg-cardinal-dark"
@@ -497,5 +539,20 @@ export default function Gear() {
         </div>
       </div>
     </main>
+  )
+}
+
+export default function Gear() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-white flex items-center justify-center pt-24">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-cardinal border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading gear...</p>
+        </div>
+      </div>
+    }>
+      <GearContent />
+    </Suspense>
   )
 }
