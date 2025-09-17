@@ -32,8 +32,18 @@ function checkRateLimit(identifier: string): { allowed: boolean; remaining: numb
 
 export async function POST(request: NextRequest) {
   try {
-    // Parse request body
-    const body = await request.json()
+    // Parse request body with better error handling
+    let body
+    try {
+      body = await request.json()
+    } catch (jsonError) {
+      console.error('JSON parsing error:', jsonError)
+      return NextResponse.json(
+        { success: false, error: 'Invalid JSON in request body' },
+        { status: 400 }
+      )
+    }
+    
     const { question, userId, userEmail, sessionId, sport, creatorId, creatorName } = body
 
     if (!question || typeof question !== 'string') {
