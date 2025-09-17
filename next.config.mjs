@@ -35,6 +35,8 @@ const nextConfig = {
 
   // Output configuration for Firebase Hosting
   output: 'export',
+  skipTrailingSlashRedirect: true,
+  skipMiddlewareUrlNormalize: true,
   trailingSlash: true,
   distDir: 'out',
 
