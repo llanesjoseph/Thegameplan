@@ -114,56 +114,53 @@ interface Lesson {
 }
 
 const formatAIResponse = (content: string): string => {
-  // Simple, clean AI response formatting
+  // Clean and format AI response content
   let formatted = content
-    // Remove any existing HTML tags to start clean
+    // Remove any HTML tags and problematic class strings
     .replace(/<[^>]*>/g, '')
+    .replace(/class="[^"]*"/g, '')
+    .replace(/font-semibold text-emerald-600/g, '')
+    .replace(/italic text-slate-600/g, '')
+    .replace(/ml-\d+ mb-\d+/g, '')
+    .replace(/space-y-\d+ my-\d+ ml-\d+/g, '')
+    .replace(/mb-\d+ leading-relaxed/g, '')
 
-    // Convert **bold** text to styled strong tags
-    .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-emerald-600">$1</strong>')
+    // Convert **bold** to simple bold formatting
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
 
-    // Convert quoted text to emphasized styling
-    .replace(/"([^"]+)"/g, '<em class="italic text-slate-600">"$1"</em>')
+    // Convert quotes to simple emphasis
+    .replace(/"([^"]+)"/g, '<em>"$1"</em>')
 
-    // Split content by double line breaks to create paragraphs
-
+  // Split into paragraphs
   const paragraphs = formatted.split(/\n\s*\n/).filter(p => p.trim())
 
   return paragraphs.map(paragraph => {
-    // Handle bullet points within paragraphs
+    // Handle bullet points
     if (paragraph.includes('\n- ') || paragraph.includes('\n* ') || paragraph.includes('\n• ')) {
       const lines = paragraph.split('\n')
-      const processedLines = lines.map(line => {
-        const trimmed = line.trim()
-        if (trimmed.match(/^[\-\*\•]\s+/)) {
-          return `<li class="ml-4 mb-1">${trimmed.substring(2)}</li>`
-        }
-        return trimmed ? `<p class="mb-2">${trimmed}</p>` : ''
-      }).filter(line => line)
-
-      // Group consecutive list items
       let result = ''
       let inList = false
-      for (const line of processedLines) {
-        if (line.startsWith('<li')) {
+
+      for (const line of lines) {
+        const trimmed = line.trim()
+        if (trimmed.match(/^[\-\*\•]\s+/)) {
           if (!inList) {
-            result += '<ul class="space-y-1 my-3 ml-2">'
+            result += '<ul>'
             inList = true
           }
-          result += line
-        } else {
+          result += `<li>${trimmed.substring(2)}</li>`
+        } else if (trimmed) {
           if (inList) {
             result += '</ul>'
             inList = false
           }
-          result += line
+          result += `<p>${trimmed}</p>`
         }
       }
       if (inList) result += '</ul>'
       return result
     } else {
-      // Regular paragraph
-      return `<p class="mb-4 leading-relaxed">${paragraph}</p>`
+      return `<p>${paragraph}</p>`
     }
   }).join('')
 }
@@ -651,7 +648,7 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
                         ) : (
                           <div className="bg-white text-clarity-text-primary border border-gray-100 shadow-sm rounded-2xl rounded-bl-md p-6">
                             <div
-                              className="ai-response-content text-gray-700"
+                              className="ai-response-content"
                               style={{
                                 lineHeight: '1.7',
                                 fontSize: '16px'

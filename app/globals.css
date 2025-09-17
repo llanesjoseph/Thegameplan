@@ -700,6 +700,41 @@ body {
   100% { background-position: 0 0; }
 }
 
+/* AI Response Formatting */
+.ai-response-content {
+  color: #4B5563;
+}
+
+.ai-response-content p {
+  margin-bottom: 1rem;
+  line-height: 1.7;
+}
+
+.ai-response-content strong {
+  font-weight: 600;
+  color: #059669;
+}
+
+.ai-response-content em {
+  font-style: italic;
+  color: #64748B;
+}
+
+.ai-response-content ul {
+  margin: 0.75rem 0;
+  padding-left: 1rem;
+}
+
+.ai-response-content li {
+  margin-bottom: 0.25rem;
+  list-style-type: disc;
+  margin-left: 1rem;
+}
+
+.ai-response-content p:last-child {
+  margin-bottom: 0;
+}
+
 /* Inject Tailwind component and utility layers after custom CSS so
    generated utilities take precedence over any similarly named classes. */
 @tailwind components;
