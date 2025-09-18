@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from './use-auth'
 
-export type UserRole = 'guest' | 'user' | 'creator' | 'admin' | 'superadmin'
+export type UserRole = 'guest' | 'user' | 'creator' | 'admin' | 'superadmin' | 'assistant_coach'
 
 interface RoleSwitcherState {
   originalRole: UserRole | null
@@ -60,8 +60,12 @@ export function useRoleSwitcher() {
 
     setRoleSwitcherState(newState)
 
-    // Store in sessionStorage for persistence across page refreshes
-    sessionStorage.setItem('roleTestingMode', JSON.stringify(newState))
+    // Store in localStorage for superadmin persistence across browser sessions
+    localStorage.setItem('superadmin_roleTestingMode', JSON.stringify({
+      ...newState,
+      timestamp: Date.now(),
+      userId: user?.uid // Tie to specific user for security
+    }))
     
     // Force UI re-render
     setForceUpdate(prev => prev + 1)
@@ -84,8 +88,8 @@ export function useRoleSwitcher() {
       isTestingMode: false
     }))
 
-    // Clear from sessionStorage
-    sessionStorage.removeItem('roleTestingMode')
+    // Clear from localStorage
+    localStorage.removeItem('superadmin_roleTestingMode')
     
     // Force UI re-render
     setForceUpdate(prev => prev + 1)
@@ -93,25 +97,42 @@ export function useRoleSwitcher() {
     console.log('✅ Role reset completed')
   }
 
-  // Load testing state from sessionStorage on mount
+  // Load testing state from localStorage on mount
   useEffect(() => {
     if (isSuperAdmin) {
-      const savedState = sessionStorage.getItem('roleTestingMode')
+      const savedState = localStorage.getItem('superadmin_roleTestingMode')
       if (savedState) {
         try {
           const parsed = JSON.parse(savedState)
-          setRoleSwitcherState({
-            originalRole: parsed.originalRole,
-            currentRole: parsed.currentRole,
-            isTestingMode: parsed.isTestingMode
-          })
+
+          // Security check: ensure this saved state belongs to current user
+          if (parsed.userId === user?.uid) {
+            // Optional: Check if state is not too old (e.g., 7 days)
+            const maxAge = 7 * 24 * 60 * 60 * 1000 // 7 days in milliseconds
+            const isExpired = parsed.timestamp && (Date.now() - parsed.timestamp > maxAge)
+
+            if (!isExpired) {
+              setRoleSwitcherState({
+                originalRole: parsed.originalRole,
+                currentRole: parsed.currentRole,
+                isTestingMode: parsed.isTestingMode
+              })
+              console.log('🔄 Restored superadmin role state:', parsed.currentRole)
+            } else {
+              console.log('⏰ Superadmin role state expired, clearing')
+              localStorage.removeItem('superadmin_roleTestingMode')
+            }
+          } else {
+            console.log('🚫 Superadmin role state belongs to different user, clearing')
+            localStorage.removeItem('superadmin_roleTestingMode')
+          }
         } catch (error) {
           console.error('Error parsing saved role testing state:', error)
-          sessionStorage.removeItem('roleTestingMode')
+          localStorage.removeItem('superadmin_roleTestingMode')
         }
       }
     }
-  }, [isSuperAdmin])
+  }, [isSuperAdmin, user?.uid])
 
   // Get the effective role (what the UI should use)
   const getEffectiveRole = (): UserRole => {
@@ -135,13 +156,18 @@ export function useRoleSwitcher() {
     },
     {
       value: 'user',
-      label: 'Regular User',
-      description: 'Standard user accessing content'
+      label: 'Athlete',
+      description: 'Training and content access'
     },
     {
       value: 'creator',
-      label: 'Content Creator',
-      description: 'Can create and manage content'
+      label: 'Coach',
+      description: 'Can create and manage training content'
+    },
+    {
+      value: 'assistant_coach',
+      label: 'Assistant Coach',
+      description: 'Helps coaches manage their content'
     },
     {
       value: 'admin',
@@ -151,7 +177,7 @@ export function useRoleSwitcher() {
     {
       value: 'superadmin',
       label: 'Super Admin',
-      description: 'Full system access'
+      description: 'Full system access with role switching'
     }
   ]
 

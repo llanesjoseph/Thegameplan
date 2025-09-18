@@ -73,6 +73,35 @@ const quickActions = {
       iconBg: 'bg-purple-100',
       iconColor: 'text-purple-600'
     }
+  ],
+  assistant_coach: [
+    {
+      title: 'Manage Content',
+      description: 'Help organize training materials',
+      icon: BookOpen,
+      href: '/dashboard/creator',
+      color: 'from-orange-500 to-orange-600',
+      iconBg: 'bg-orange-100',
+      iconColor: 'text-orange-600'
+    },
+    {
+      title: 'Support Athletes',
+      description: 'Assist with athlete requests',
+      icon: MessageCircle,
+      href: '/dashboard/creator/requests',
+      color: 'from-green-500 to-green-600',
+      iconBg: 'bg-green-100',
+      iconColor: 'text-green-600'
+    },
+    {
+      title: 'Review Progress',
+      description: 'Monitor coaching effectiveness',
+      icon: BarChart3,
+      href: '/dashboard/creator/analytics',
+      color: 'from-purple-500 to-purple-600',
+      iconBg: 'bg-purple-100',
+      iconColor: 'text-purple-600'
+    }
   ]
 }
 
@@ -116,7 +145,7 @@ export default function DashboardOverview() {
             Welcome back, {user.displayName || user.email?.split('@')[0]}! 👋
           </h1>
           <p className="text-gray-600 mt-1">
-            Here's your {role === 'creator' ? 'coaching' : 'athletic development'} overview
+            Here's your {role === 'creator' ? 'coaching' : role === 'assistant_coach' ? 'assistant coaching' : 'athletic development'} overview
           </p>
         </div>
       </div>
@@ -156,6 +185,8 @@ export default function DashboardOverview() {
               <p className="text-sm text-gray-500">
                 {role === 'creator'
                   ? 'Start coaching to see your activity here'
+                  : role === 'assistant_coach'
+                  ? 'Begin assisting with content to see your activity here'
                   : 'Begin training to track your progress here'
                 }
               </p>

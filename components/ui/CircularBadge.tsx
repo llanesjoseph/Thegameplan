@@ -4,7 +4,7 @@ import React from 'react'
 
 interface CircularBadgeProps {
   text?: string
-  userRole?: 'user' | 'creator' | 'admin' | 'guest'
+  userRole?: 'user' | 'creator' | 'admin' | 'superadmin' | 'assistant_coach' | 'guest'
   className?: string
 }
 
@@ -15,6 +15,8 @@ export default function CircularBadge({ text, userRole, className = '' }: Circul
       case 'creator': return 'Coach Portal'
       case 'user': return 'Athlete Zone'
       case 'admin': return 'Admin Hub'
+      case 'superadmin': return 'Super Admin'
+      case 'assistant_coach': return 'Assistant Coach'
       default: return 'Athletic Coach'
     }
   })()
