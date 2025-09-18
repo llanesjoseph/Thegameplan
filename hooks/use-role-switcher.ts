@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from './use-auth'
+import { doc, updateDoc, getDoc } from 'firebase/firestore'
+import { db } from '@/lib/firebase.client'
 
 export type UserRole = 'guest' | 'user' | 'creator' | 'admin' | 'superadmin' | 'assistant_coach'
 
@@ -44,94 +46,176 @@ export function useRoleSwitcher() {
   const isSuperAdmin = user?.role === 'superadmin'
 
   // Switch to a different role (only for super admins)
-  const switchToRole = (role: UserRole) => {
+  const switchToRole = async (role: UserRole) => {
     if (!isSuperAdmin) {
       console.warn('Role switching is only available for super admins')
       return
     }
 
+    if (!user?.uid) {
+      console.error('No user ID available for role switching')
+      return
+    }
+
     console.log('🔄 Switching to role:', role)
-    
+
     const newState = {
       originalRole: roleSwitcherState.originalRole || user?.role,
       currentRole: role,
       isTestingMode: true
     }
 
-    setRoleSwitcherState(newState)
+    try {
+      // Update the user document in Firestore with role testing information
+      const userDocRef = doc(db, 'users', user.uid)
 
-    // Store in localStorage for superadmin persistence across browser sessions
-    localStorage.setItem('superadmin_roleTestingMode', JSON.stringify({
-      ...newState,
-      timestamp: Date.now(),
-      userId: user?.uid // Tie to specific user for security
-    }))
-    
-    // Force UI re-render
-    setForceUpdate(prev => prev + 1)
-    
-    // Force a small delay to ensure state updates are processed
-    setTimeout(() => {
-      console.log('✅ Role switch completed:', newState)
-    }, 100)
+      await updateDoc(userDocRef, {
+        'superadmin_roleTest': {
+          originalRole: newState.originalRole,
+          currentRole: role,
+          isTestingMode: true,
+          timestamp: Date.now(),
+          lastUpdated: new Date().toISOString()
+        },
+        // Also update the main role field so it persists everywhere
+        role: role,
+        lastRoleUpdate: new Date().toISOString()
+      })
+
+      setRoleSwitcherState(newState)
+
+      // Force UI re-render
+      setForceUpdate(prev => prev + 1)
+
+      console.log('✅ Role switched to:', role, 'and saved to database')
+    } catch (error) {
+      console.error('❌ Failed to save role switch to database:', error)
+      // Fallback to localStorage if database fails
+      localStorage.setItem('superadmin_roleTestingMode', JSON.stringify({
+        ...newState,
+        timestamp: Date.now(),
+        userId: user?.uid
+      }))
+
+      setRoleSwitcherState(newState)
+      setForceUpdate(prev => prev + 1)
+
+      console.log('⚠️ Role switched locally (database failed):', role)
+    }
   }
 
   // Reset to original role
-  const resetToOriginalRole = () => {
+  const resetToOriginalRole = async () => {
     if (!isSuperAdmin) return
+
+    if (!user?.uid) {
+      console.error('No user ID available for role reset')
+      return
+    }
 
     console.log('🔄 Resetting to original role:', roleSwitcherState.originalRole)
 
-    setRoleSwitcherState(prev => ({
-      ...prev,
-      currentRole: prev.originalRole,
-      isTestingMode: false
-    }))
+    const originalRole = roleSwitcherState.originalRole || 'superadmin'
 
-    // Clear from localStorage
-    localStorage.removeItem('superadmin_roleTestingMode')
-    
-    // Force UI re-render
-    setForceUpdate(prev => prev + 1)
-    
-    console.log('✅ Role reset completed')
+    try {
+      // Update the user document in Firestore to reset role
+      const userDocRef = doc(db, 'users', user.uid)
+
+      await updateDoc(userDocRef, {
+        // Clear the role test data
+        'superadmin_roleTest': null,
+        // Restore original role
+        role: originalRole,
+        lastRoleUpdate: new Date().toISOString()
+      })
+
+      setRoleSwitcherState(prev => ({
+        ...prev,
+        currentRole: prev.originalRole,
+        isTestingMode: false
+      }))
+
+      // Clear from localStorage as backup
+      localStorage.removeItem('superadmin_roleTestingMode')
+
+      // Force UI re-render
+      setForceUpdate(prev => prev + 1)
+
+      console.log('✅ Role reset to:', originalRole, 'and saved to database')
+    } catch (error) {
+      console.error('❌ Failed to reset role in database:', error)
+      // Fallback to local state reset if database fails
+      setRoleSwitcherState(prev => ({
+        ...prev,
+        currentRole: prev.originalRole,
+        isTestingMode: false
+      }))
+
+      localStorage.removeItem('superadmin_roleTestingMode')
+      setForceUpdate(prev => prev + 1)
+
+      console.log('⚠️ Role reset locally (database failed)')
+    }
   }
 
-  // Load testing state from localStorage on mount
+  // Load testing state from database on mount
   useEffect(() => {
-    if (isSuperAdmin) {
-      const savedState = localStorage.getItem('superadmin_roleTestingMode')
-      if (savedState) {
+    const loadRoleStateFromDatabase = async () => {
+      if (isSuperAdmin && user?.uid) {
         try {
-          const parsed = JSON.parse(savedState)
+          const userDocRef = doc(db, 'users', user.uid)
+          const userDoc = await getDoc(userDocRef)
 
-          // Security check: ensure this saved state belongs to current user
-          if (parsed.userId === user?.uid) {
-            // Optional: Check if state is not too old (e.g., 7 days)
-            const maxAge = 7 * 24 * 60 * 60 * 1000 // 7 days in milliseconds
-            const isExpired = parsed.timestamp && (Date.now() - parsed.timestamp > maxAge)
+          if (userDoc.exists()) {
+            const userData = userDoc.data()
+            const roleTestData = userData?.superadmin_roleTest
 
-            if (!isExpired) {
-              setRoleSwitcherState({
-                originalRole: parsed.originalRole,
-                currentRole: parsed.currentRole,
-                isTestingMode: parsed.isTestingMode
-              })
-              console.log('🔄 Restored superadmin role state:', parsed.currentRole)
-            } else {
-              console.log('⏰ Superadmin role state expired, clearing')
-              localStorage.removeItem('superadmin_roleTestingMode')
+            if (roleTestData && roleTestData.isTestingMode) {
+              // Check if role test data is not too old (7 days)
+              const maxAge = 7 * 24 * 60 * 60 * 1000 // 7 days in milliseconds
+              const isExpired = roleTestData.timestamp && (Date.now() - roleTestData.timestamp > maxAge)
+
+              if (!isExpired) {
+                setRoleSwitcherState({
+                  originalRole: roleTestData.originalRole,
+                  currentRole: roleTestData.currentRole,
+                  isTestingMode: roleTestData.isTestingMode
+                })
+                console.log('🔄 Restored superadmin role state from database:', roleTestData.currentRole)
+              } else {
+                console.log('⏰ Superadmin role state expired, clearing from database')
+                // Clear expired data
+                await updateDoc(userDocRef, {
+                  'superadmin_roleTest': null,
+                  role: 'superadmin'
+                })
+              }
             }
-          } else {
-            console.log('🚫 Superadmin role state belongs to different user, clearing')
-            localStorage.removeItem('superadmin_roleTestingMode')
           }
         } catch (error) {
-          console.error('Error parsing saved role testing state:', error)
-          localStorage.removeItem('superadmin_roleTestingMode')
+          console.error('Error loading role state from database:', error)
+          // Fallback to localStorage if database fails
+          const savedState = localStorage.getItem('superadmin_roleTestingMode')
+          if (savedState) {
+            try {
+              const parsed = JSON.parse(savedState)
+              if (parsed.userId === user?.uid) {
+                setRoleSwitcherState({
+                  originalRole: parsed.originalRole,
+                  currentRole: parsed.currentRole,
+                  isTestingMode: parsed.isTestingMode
+                })
+                console.log('🔄 Restored superadmin role state from localStorage fallback')
+              }
+            } catch (fallbackError) {
+              console.error('Error parsing localStorage fallback:', fallbackError)
+            }
+          }
         }
       }
     }
+
+    loadRoleStateFromDatabase()
   }, [isSuperAdmin, user?.uid])
 
   // Get the effective role (what the UI should use)
