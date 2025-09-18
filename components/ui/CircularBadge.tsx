@@ -6,9 +6,10 @@ interface CircularBadgeProps {
   text?: string
   userRole?: 'user' | 'creator' | 'admin' | 'superadmin' | 'assistant_coach' | 'guest'
   className?: string
+  size?: 'small' | 'normal'
 }
 
-export default function CircularBadge({ text, userRole, className = '' }: CircularBadgeProps) {
+export default function CircularBadge({ text, userRole, className = '', size = 'normal' }: CircularBadgeProps) {
   // Determine text based on role if not explicitly provided
   const displayText = text || (() => {
     switch (userRole) {
@@ -42,12 +43,12 @@ export default function CircularBadge({ text, userRole, className = '' }: Circul
         .circular-badge-container {
           position: relative;
           margin: 0 auto;
-          width: 340px;
-          height: 170px;
+          width: ${size === 'small' ? '120px' : '340px'};
+          height: ${size === 'small' ? '60px' : '170px'};
         }
 
         .space-label {
-          width: 340px;
+          width: ${size === 'small' ? '170px' : '340px'};
           margin: 0 auto;
           position: absolute;
           left: 50%;
@@ -57,48 +58,48 @@ export default function CircularBadge({ text, userRole, className = '' }: Circul
 
         .top,
         .bottom {
-          height: 60px;
+          height: ${size === 'small' ? '30px' : '60px'};
           overflow: hidden;
           position: relative;
-          width: 170px;
+          width: ${size === 'small' ? '85px' : '170px'};
           margin: 0 auto;
         }
 
         .ring {
           border-radius: 100%;
           position: absolute;
-          width: 170px;
-          height: 170px;
+          width: ${size === 'small' ? '85px' : '170px'};
+          height: ${size === 'small' ? '85px' : '170px'};
           border: 3px solid #B91C1C;
-          border-width: 8px;
+          border-width: ${size === 'small' ? '4px' : '8px'};
         }
 
         .ring.ring-2 {
-          border-width: 4px;
-          width: 154px;
+          border-width: ${size === 'small' ? '2px' : '4px'};
+          width: ${size === 'small' ? '77px' : '154px'};
         }
 
         .ring.ring-2::after {
           content: '';
-          width: 18px;
+          width: ${size === 'small' ? '9px' : '18px'};
           position: absolute;
           border-top: 1px solid #B91C1C;
           left: 50%;
-          margin-left: -9px;
+          margin-left: ${size === 'small' ? '-4.5px' : '-9px'};
         }
 
         .ring.ring-2::before {
           content: '';
-          width: 32px;
+          width: ${size === 'small' ? '16px' : '32px'};
           position: absolute;
           border-top: 1px solid #B91C1C;
-          margin-left: -16px;
+          margin-left: ${size === 'small' ? '-8px' : '-16px'};
           left: 50%;
         }
 
         .ring.ring-3 {
-          border-width: 2px;
-          width: 139px;
+          border-width: ${size === 'small' ? '1px' : '2px'};
+          width: ${size === 'small' ? '69px' : '139px'};
         }
 
         .top .ring.ring-1 {
@@ -107,21 +108,21 @@ export default function CircularBadge({ text, userRole, className = '' }: Circul
         }
 
         .top .ring.ring-2 {
-          top: 10px;
-          left: 8px;
+          top: ${size === 'small' ? '5px' : '10px'};
+          left: ${size === 'small' ? '4px' : '8px'};
         }
 
         .top .ring.ring-2::after {
-          top: 17px;
+          top: ${size === 'small' ? '8px' : '17px'};
         }
 
         .top .ring.ring-2::before {
-          top: 22px;
+          top: ${size === 'small' ? '11px' : '22px'};
         }
 
         .top .ring.ring-3 {
-          top: 20px;
-          left: 16px;
+          top: ${size === 'small' ? '10px' : '20px'};
+          left: ${size === 'small' ? '8px' : '16px'};
         }
 
         .top .ring.ring-3::after {
@@ -167,17 +168,17 @@ export default function CircularBadge({ text, userRole, className = '' }: Circul
           text-align: center;
           text-transform: uppercase;
           font-family: 'Inter', sans-serif;
-          font-size: 24px;
+          font-size: ${size === 'small' ? '8px' : '24px'};
           font-weight: 900;
           color: #B91C1C;
-          height: 55px;
+          height: ${size === 'small' ? '28px' : '55px'};
           vertical-align: middle;
           display: table-cell;
-          width: 340px;
+          width: ${size === 'small' ? '170px' : '340px'};
           position: relative;
-          left: 7px;
-          letter-spacing: 4px;
-          line-height: 55px;
+          left: ${size === 'small' ? '3px' : '7px'};
+          letter-spacing: ${size === 'small' ? '1px' : '4px'};
+          line-height: ${size === 'small' ? '28px' : '55px'};
         }
 
         @media (max-width: 768px) {

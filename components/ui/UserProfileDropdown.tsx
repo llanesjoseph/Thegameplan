@@ -19,6 +19,7 @@ import {
   UserCheck,
   MoreHorizontal
 } from 'lucide-react'
+import CircularBadge from './CircularBadge'
 
 // Ultra-compact role switcher
 function CompactRoleSwitcher() {
@@ -155,23 +156,33 @@ export default function UserProfileDropdown() {
     ? user.displayName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
     : 'U'
 
+  const { role } = useEnhancedRole()
+
   return (
     <div className="relative" ref={dropdownRef}>
-      {/* Profile Button - Clean and Modern */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 p-1 rounded-lg hover:bg-clarity-accent/5 transition-colors focus:outline-none focus:ring-2 focus:ring-clarity-accent/50 focus:ring-offset-1"
-        aria-label="User menu"
-        aria-expanded={isOpen}
-      >
-        <div className="w-9 h-9 rounded-full bg-clarity-accent flex items-center justify-center text-white text-sm font-semibold shadow-clarity-sm">
-          {initials}
+      {/* Profile Button with Circular Badge */}
+      <div className="flex items-center gap-3">
+        {/* Dynamic Role Badge */}
+        <div className="hidden sm:block">
+          <CircularBadge userRole={role} size="small" />
         </div>
-        <span className="hidden lg:block text-sm font-medium text-clarity-text-primary max-w-24 truncate">
-          {user.displayName?.split(' ')[0] || 'User'}
-        </span>
-        <ChevronDown className={`w-4 h-4 transition-transform duration-200 text-clarity-text-secondary ${isOpen ? 'rotate-180' : ''} hidden lg:block`} />
-      </button>
+
+        {/* Profile Button - Clean and Modern */}
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="flex items-center gap-2 p-1 rounded-lg hover:bg-clarity-accent/5 transition-colors focus:outline-none focus:ring-2 focus:ring-clarity-accent/50 focus:ring-offset-1"
+          aria-label="User menu"
+          aria-expanded={isOpen}
+        >
+          <div className="w-9 h-9 rounded-full bg-clarity-accent flex items-center justify-center text-white text-sm font-semibold shadow-clarity-sm">
+            {initials}
+          </div>
+          <span className="hidden lg:block text-sm font-medium text-clarity-text-primary max-w-24 truncate">
+            {user.displayName?.split(' ')[0] || 'User'}
+          </span>
+          <ChevronDown className={`w-4 h-4 transition-transform duration-200 text-clarity-text-secondary ${isOpen ? 'rotate-180' : ''} hidden lg:block`} />
+        </button>
+      </div>
 
       {/* Dropdown Menu - Clarity OS Design */}
       {isOpen && (

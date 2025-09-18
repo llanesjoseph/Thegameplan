@@ -33,12 +33,14 @@ const nextConfig = {
   // Compression
   compress: true,
 
-  // Output configuration for Firebase Hosting
-  output: 'export',
-  skipTrailingSlashRedirect: true,
-  skipMiddlewareUrlNormalize: true,
-  trailingSlash: true,
-  distDir: 'out',
+  // Output configuration for Firebase Hosting (disabled in development)
+  ...(process.env.NODE_ENV === 'production' && {
+    output: 'export',
+    skipTrailingSlashRedirect: true,
+    skipMiddlewareUrlNormalize: true,
+    trailingSlash: true,
+    distDir: 'out',
+  }),
 
   // Disable type checking and linting during build for deployment
   eslint: {
