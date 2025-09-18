@@ -10,3 +10,6 @@ coverage
 out/
 .next/
 dist/
+
+# Local setup instructions (contains sensitive data)
+GITHUB_SECRETS_SETUP.txt

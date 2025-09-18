@@ -46,7 +46,7 @@ export default function AuthProvider({
 
   if (variant === 'compact') {
     return (
-      <div className={`space-y-4 ${className}`}>
+      <div className={`space-y-3 ${className}`}>
         {returnUserPrompt && (
           <div className="text-center mb-4">
             <p className="text-sm text-gray-600 mb-3">
@@ -57,7 +57,7 @@ export default function AuthProvider({
         <div className="space-y-3">
           <GoogleSignInButton size="md" variant="default" />
           <AppleSignInButton size="md" variant="default" />
-          <EmailSignInButton size="md" variant="outline" />
+          <EmailSignInButton size="md" variant="default" />
         </div>
         {returnUserPrompt && (
           <div className="text-center mt-4">
