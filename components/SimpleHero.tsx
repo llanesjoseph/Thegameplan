@@ -63,18 +63,7 @@ const SimpleHero = () => {
           {/* Simple Social Proof */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-8 text-center">
             <div className="flex flex-col">
-              <span className="text-2xl font-bold text-clarity-accent">50K+</span>
-              <span className="text-sm text-clarity-text-secondary">Active Athletes</span>
-            </div>
-            <div className="hidden sm:block w-px h-8 bg-clarity-text-secondary/20"></div>
-            <div className="flex flex-col">
-              <span className="text-2xl font-bold text-clarity-accent">95%</span>
-              <span className="text-sm text-clarity-text-secondary">Success Rate</span>
-            </div>
-            <div className="hidden sm:block w-px h-8 bg-clarity-text-secondary/20"></div>
-            <div className="flex flex-col">
-              <span className="text-2xl font-bold text-clarity-accent">4.9★</span>
-              <span className="text-sm text-clarity-text-secondary">User Rating</span>
+              <span className="text-sm text-clarity-text-secondary">Trusted by athletes worldwide</span>
             </div>
           </div>
 

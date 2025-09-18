@@ -70,18 +70,18 @@ export default function PricingPlans() {
         {plans.map((plan, index) => {
           const IconComponent = plan.icon
           return (
-            <div 
-              key={plan.name} 
-              className={`relative bg-slate-800/50 backdrop-blur-sm border rounded-2xl p-8 hover:scale-105 transition-all duration-300 ${
-                plan.popular 
-                  ? 'border-purple-400/50 shadow-2xl shadow-purple-500/25' 
-                  : 'border-slate-600/30 hover:border-slate-500/50'
+            <div
+              key={plan.name}
+              className={`relative bg-white border rounded-2xl p-8 hover:scale-105 transition-all duration-300 shadow-card-md ${
+                plan.popular
+                  ? 'border-cardinal/30 shadow-2xl shadow-cardinal/10 ring-2 ring-cardinal/20'
+                  : 'border-gray-200 hover:border-gray-300 hover:shadow-lg'
               }`}
             >
               {/* Popular Badge */}
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                  <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg">
+                  <div className="bg-cardinal text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg">
                     <div className="flex items-center gap-1">
                       <Zap className="w-3 h-3" />
                       MOST POPULAR
@@ -95,22 +95,22 @@ export default function PricingPlans() {
                 <div className={`w-16 h-16 bg-gradient-to-r ${plan.gradient} rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg`}>
                   <IconComponent className="w-8 h-8 text-white" />
                 </div>
-                
-                <h3 className="text-2xl font-bold text-white mb-2">{plan.name}</h3>
-                <p className="text-slate-400 text-sm mb-4">{plan.blurb}</p>
-                
+
+                <h3 className="text-2xl font-bold text-gray-800 mb-2">{plan.name}</h3>
+                <p className="text-gray-600 text-sm mb-4">{plan.blurb}</p>
+
                 {/* Price */}
                 <div className="mb-4">
                   <div className="flex items-baseline justify-center">
-                    <span className="text-4xl font-bold text-white">{plan.price}</span>
-                    {plan.period && <span className="text-slate-400 ml-1">{plan.period}</span>}
+                    <span className="text-4xl font-bold text-gray-800">{plan.price}</span>
+                    {plan.period && <span className="text-gray-600 ml-1">{plan.period}</span>}
                   </div>
                   {plan.price !== 'Free' && (
-                    <p className="text-xs text-slate-500 mt-1">Billed monthly, cancel anytime</p>
+                    <p className="text-xs text-gray-500 mt-1">Billed monthly, cancel anytime</p>
                   )}
                 </div>
 
-                <p className="text-slate-300 text-sm leading-relaxed">{plan.description}</p>
+                <p className="text-gray-600 text-sm leading-relaxed">{plan.description}</p>
               </div>
 
               {/* Features List */}
@@ -121,7 +121,7 @@ export default function PricingPlans() {
                       <div className={`w-5 h-5 rounded-full bg-gradient-to-r ${plan.gradient} flex items-center justify-center flex-shrink-0 mt-0.5`}>
                         <Check className="w-3 h-3 text-white" />
                       </div>
-                      <span className="text-slate-300 text-sm leading-relaxed">{feature}</span>
+                      <span className="text-gray-700 text-sm leading-relaxed">{feature}</span>
                     </li>
                   ))}
                 </ul>
@@ -129,15 +129,15 @@ export default function PricingPlans() {
 
               {/* CTA Button */}
               <div className="mt-auto">
-                <CheckoutButton 
-                  priceId={plan.priceId} 
+                <CheckoutButton
+                  priceId={plan.priceId}
                   tier={plan.name.toLowerCase()}
                   className={`w-full py-3 px-6 rounded-xl font-semibold transition-all duration-200 ${
                     plan.popular
-                      ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg shadow-purple-600/25 transform hover:scale-105'
+                      ? 'bg-cardinal hover:bg-cardinal-dark text-white shadow-lg shadow-cardinal/25 transform hover:scale-105'
                       : plan.price === 'Free'
-                        ? 'bg-slate-700 hover:bg-slate-600 text-white border border-slate-600'
-                        : 'bg-slate-700 hover:bg-slate-600 text-white'
+                        ? 'bg-gray-100 hover:bg-gray-200 text-gray-800 border border-gray-300'
+                        : 'bg-gray-800 hover:bg-gray-700 text-white'
                   }`}
                 />
               </div>
@@ -145,7 +145,7 @@ export default function PricingPlans() {
               {/* Bottom Badge for Free Plan */}
               {plan.price === 'Free' && (
                 <div className="text-center mt-4">
-                  <span className="inline-block px-3 py-1 text-xs font-medium text-green-400 bg-green-400/10 border border-green-400/20 rounded-full">
+                  <span className="inline-block px-3 py-1 text-xs font-medium text-green-600 bg-green-50 border border-green-200 rounded-full">
                     No Credit Card Required
                   </span>
                 </div>
@@ -157,9 +157,9 @@ export default function PricingPlans() {
 
       {/* Money Back Guarantee */}
       <div className="text-center mt-12">
-        <div className="inline-flex items-center gap-2 px-6 py-3 bg-slate-800/50 border border-slate-600/30 rounded-full">
-          <Shield className="w-4 h-4 text-green-400" />
-          <span className="text-sm font-medium text-slate-300">30-day money-back guarantee on all paid plans</span>
+        <div className="inline-flex items-center gap-2 px-6 py-3 bg-white border border-gray-200 rounded-full shadow-sm">
+          <Shield className="w-4 h-4 text-green-600" />
+          <span className="text-sm font-medium text-gray-700">30-day money-back guarantee on all paid plans</span>
         </div>
       </div>
     </div>
