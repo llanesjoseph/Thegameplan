@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useAuth } from './use-auth'
 import { doc, updateDoc, getDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase.client'
@@ -26,13 +26,14 @@ export function useRoleSwitcher() {
 
   // Initialize with user's actual role
   useEffect(() => {
-    console.log('🔐 User object in roleSwitcher:', {
-      user: user,
-      userRole: user?.role,
-      userEmail: user?.email,
-      userDisplayName: user?.displayName
-    })
-    
+    // Debug logging commented out to prevent re-render loops
+    // console.log('🔐 User object in roleSwitcher:', {
+    //   user: user,
+    //   userRole: user?.role,
+    //   userEmail: user?.email,
+    //   userDisplayName: user?.displayName
+    // })
+
     if (user?.role) {
       setRoleSwitcherState(prev => ({
         ...prev,
@@ -218,18 +219,13 @@ export function useRoleSwitcher() {
     loadRoleStateFromDatabase()
   }, [isSuperAdmin, user?.uid])
 
-  // Get the effective role (what the UI should use)
-  const getEffectiveRole = (): UserRole => {
+  // Get the effective role (what the UI should use) - memoized to prevent re-renders
+  const effectiveRole = useMemo((): UserRole => {
     if (!isSuperAdmin) {
-      const role = (user?.role as UserRole) || 'guest'
-      console.log('🔍 Non-superadmin effective role:', role)
-      return role
+      return (user?.role as UserRole) || 'guest'
     }
-
-    const effectiveRole = roleSwitcherState.currentRole || (user?.role as UserRole) || 'guest'
-    console.log('🔍 Superadmin effective role:', effectiveRole, '| Testing mode:', roleSwitcherState.isTestingMode)
-    return effectiveRole
-  }
+    return roleSwitcherState.currentRole || (user?.role as UserRole) || 'guest'
+  }, [isSuperAdmin, user?.role, roleSwitcherState.currentRole])
 
   // Get available roles for switching
   const getAvailableRoles = (): { value: UserRole; label: string; description: string }[] => [
@@ -271,7 +267,7 @@ export function useRoleSwitcher() {
     isTestingMode: roleSwitcherState.isTestingMode,
     originalRole: roleSwitcherState.originalRole,
     currentRole: roleSwitcherState.currentRole,
-    effectiveRole: getEffectiveRole(),
+    effectiveRole: effectiveRole,
     
     // Actions
     switchToRole,
@@ -296,14 +292,14 @@ export function useEnhancedRole() {
   
   const effectiveRole = roleSwitcher.effectiveRole
   
-  // Debug logging to help track role changes
-  console.log('🎯 useEnhancedRole:', {
-    effectiveRole,
-    isTestingMode: roleSwitcher.isTestingMode,
-    currentRole: roleSwitcher.currentRole,
-    originalRole: roleSwitcher.originalRole,
-    userRole: user?.role
-  })
+  // Debug logging to help track role changes (commented out to prevent re-render loops)
+  // console.log('🎯 useEnhancedRole:', {
+  //   effectiveRole,
+  //   isTestingMode: roleSwitcher.isTestingMode,
+  //   currentRole: roleSwitcher.currentRole,
+  //   originalRole: roleSwitcher.originalRole,
+  //   userRole: user?.role
+  // })
   
   return {
     role: effectiveRole,
