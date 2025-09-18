@@ -41,7 +41,7 @@ function LessonsContent() {
     try {
       setLoading(true)
       console.log('🔍 Fetching lessons from content collection...', coachFilter ? `filtered by coach: ${coachFilter}` : '')
-      
+
       // Build query - if coachFilter exists, filter by creatorUid
       let q
       if (coachFilter) {
@@ -56,10 +56,10 @@ function LessonsContent() {
           orderBy('createdAt', 'desc')
         )
       }
-      
+
       const querySnapshot = await getDocs(q)
       console.log('📊 Total documents found:', querySnapshot.docs.length)
-      
+
       const fetchedLessons = querySnapshot.docs
         .map(doc => {
           const data = doc.data()
@@ -73,10 +73,15 @@ function LessonsContent() {
           // Include lessons that are published OR don't have a status field (for backward compatibility)
           return !lesson.status || lesson.status === 'published'
         }) as LessonData[]
-      
+
       setLessons(fetchedLessons)
       console.log('📚 Fetched filtered lessons:', fetchedLessons.length)
-      
+
+      // If no lessons found, provide helpful message but don't set error
+      if (fetchedLessons.length === 0) {
+        console.log('ℹ️ No lessons found - this is normal for a new platform')
+      }
+
       // If filtering by coach, try to get the coach name
       if (coachFilter && fetchedLessons.length > 0) {
         try {
@@ -99,7 +104,13 @@ function LessonsContent() {
       }
     } catch (error) {
       console.error('Error fetching lessons:', error)
-      setError('Failed to load lessons. Please try again.')
+
+      // Check if it's a permissions error
+      if (error.message.includes('Missing or insufficient permissions')) {
+        setError('Please sign in to access training content.')
+      } else {
+        setError('Unable to load training content. Please try again later.')
+      }
     } finally {
       setLoading(false)
     }
@@ -133,14 +144,24 @@ function LessonsContent() {
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <div className="text-red-600 text-2xl">!</div>
             </div>
-            <h1 className="text-gray-800 text-2xl font-bold mb-2">Error Loading Training</h1>
+            <h1 className="text-gray-800 text-2xl font-bold mb-2">Unable to Load Training</h1>
             <p className="text-gray-600 mb-6">{error}</p>
-            <button 
-              onClick={fetchPublishedLessons}
-              className="px-6 py-3 bg-cardinal hover:bg-cardinal-dark text-white rounded-lg font-medium transition-colors"
-            >
-              Try Again
-            </button>
+            <div className="space-x-4">
+              <button
+                onClick={fetchPublishedLessons}
+                className="px-6 py-3 bg-cardinal hover:bg-cardinal-dark text-white rounded-lg font-medium transition-colors"
+              >
+                Try Again
+              </button>
+              {error.includes('sign in') && (
+                <Link
+                  href="/dashboard"
+                  className="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg font-medium transition-colors"
+                >
+                  Sign In
+                </Link>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -159,61 +180,148 @@ function LessonsContent() {
             </Link>
           )}
           <h1 className="text-4xl font-bold text-gray-800 mb-4">
-            {coachFilter ? `${coachName}'s Training` : 'Browse Training'}
+            {coachFilter ? `${coachName}'s Training` : lessons.length === 0 ? 'Training Platform' : 'Browse Training'}
           </h1>
           <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-            {coachFilter 
+            {coachFilter
               ? `Discover training content created by ${coachName}`
+              : lessons.length === 0
+              ? 'The future home of world-class athletic training content'
               : 'Discover training content created by our community of coaches'
             }
           </p>
         </div>
 
-        {/* Filters */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6 mb-8 shadow-card">
-          <div className="flex flex-col md:flex-row gap-4">
-            {/* Search */}
-            <div className="flex-1 relative">
-              <Search className="w-5 h-5 text-gray-600 absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                placeholder="Search lessons..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-white border border-gray-300 rounded-lg pl-10 pr-4 py-3 text-gray-800 placeholder-gray-500 focus:border-cardinal focus:outline-none focus:ring-2 focus:ring-cardinal/20 transition"
-              />
-            </div>
-            
-            {/* Level Filter */}
-            <div className="min-w-[200px]">
-              <select
-                value={levelFilter}
-                onChange={(e) => setLevelFilter(e.target.value)}
-                className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-800 focus:border-cardinal focus:outline-none focus:ring-2 focus:ring-cardinal/20 transition"
-              >
-                <option value="All">All Levels</option>
-                <option value="Beginner">Beginner</option>
-                <option value="Intermediate">Intermediate</option>
-                <option value="Advanced">Advanced</option>
-              </select>
+        {/* Filters - Only show when there are lessons */}
+        {lessons.length > 0 && (
+          <div className="bg-white border border-gray-200 rounded-lg p-6 mb-8 shadow-card">
+            <div className="flex flex-col md:flex-row gap-4">
+              {/* Search */}
+              <div className="flex-1 relative">
+                <Search className="w-5 h-5 text-gray-600 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="Search lessons..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full bg-white border border-gray-300 rounded-lg pl-10 pr-4 py-3 text-gray-800 placeholder-gray-500 focus:border-cardinal focus:outline-none focus:ring-2 focus:ring-cardinal/20 transition"
+                />
+              </div>
+
+              {/* Level Filter */}
+              <div className="min-w-[200px]">
+                <select
+                  value={levelFilter}
+                  onChange={(e) => setLevelFilter(e.target.value)}
+                  className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-800 focus:border-cardinal focus:outline-none focus:ring-2 focus:ring-cardinal/20 transition"
+                >
+                  <option value="All">All Levels</option>
+                  <option value="Beginner">Beginner</option>
+                  <option value="Intermediate">Intermediate</option>
+                  <option value="Advanced">Advanced</option>
+                </select>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Results */}
         {filteredLessons.length === 0 ? (
-          <div className="bg-white border border-gray-200 rounded-lg p-8 text-center shadow-card">
-            <div className="text-center py-12">
-              <FileVideo className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                {lessons.length === 0 ? 'No lessons published yet' : 'No lessons match your search'}
-              </h3>
-              <p className="text-gray-600">
-                {lessons.length === 0 
-                  ? 'Be the first to create and publish content!'
-                  : 'Try adjusting your search terms or filters'
-                }
-              </p>
+          <div className="space-y-8">
+            {/* Coming Soon Message */}
+            <div className="bg-gradient-to-r from-cardinal to-cardinal-dark rounded-lg p-8 text-center text-white">
+              <div className="max-w-2xl mx-auto">
+                <Video className="w-16 h-16 mx-auto mb-4 opacity-90" />
+                <h3 className="text-2xl font-bold mb-3">
+                  🚀 Training Content Coming Soon!
+                </h3>
+                <p className="text-lg mb-6 opacity-90">
+                  We're building an amazing platform with expert coaches. Be among the first to access world-class training content.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Link
+                    href="/contributors"
+                    className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-cardinal rounded-lg font-medium hover:bg-gray-100 transition-colors"
+                  >
+                    Become a Coach
+                  </Link>
+                  <Link
+                    href="/dashboard"
+                    className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white/20 text-white rounded-lg font-medium hover:bg-white/30 transition-colors"
+                  >
+                    Sign Up for Updates
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* Preview of What's Coming */}
+            <div>
+              <h4 className="text-xl font-semibold text-gray-800 mb-6 text-center">
+                Preview: What You Can Expect
+              </h4>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* Sample Preview Cards */}
+                {[
+                  {
+                    title: "Advanced Ball Control Techniques",
+                    coach: "Expert Soccer Coach",
+                    level: "Intermediate",
+                    sport: "Soccer",
+                    description: "Master the essential skills of ball control with proven drills and techniques."
+                  },
+                  {
+                    title: "Mental Resilience Training",
+                    coach: "Sports Psychology Expert",
+                    level: "All Levels",
+                    sport: "Mental",
+                    description: "Develop the mental fortitude to perform under pressure and overcome challenges."
+                  },
+                  {
+                    title: "Tactical Awareness Workshop",
+                    coach: "Professional Coach",
+                    level: "Advanced",
+                    sport: "Soccer",
+                    description: "Learn to read the game and position yourself for maximum impact on the field."
+                  }
+                ].map((preview, index) => (
+                  <div
+                    key={index}
+                    className="bg-white border border-gray-200 rounded-lg p-6 shadow-card opacity-75"
+                  >
+                    {/* Preview Badge */}
+                    <div className="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg mb-4 flex items-center justify-center border-2 border-dashed border-gray-300">
+                      <div className="text-center">
+                        <Play className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                        <span className="text-gray-500 text-sm font-medium">Coming Soon</span>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs font-medium">
+                          {preview.level}
+                        </div>
+                        <div className="px-2 py-1 bg-cardinal/10 text-cardinal rounded text-xs font-medium">
+                          {preview.sport}
+                        </div>
+                      </div>
+
+                      <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                        {preview.title}
+                      </h3>
+
+                      <p className="text-gray-600 text-sm mb-3">
+                        {preview.description}
+                      </p>
+
+                      <div className="text-xs text-gray-500">
+                        by {preview.coach}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         ) : (
