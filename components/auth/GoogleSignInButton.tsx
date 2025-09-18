@@ -37,6 +37,8 @@ export default function GoogleSignInButton({
     setError(null)
 
     console.log('🚀 Starting Google sign-in process...')
+    console.log('🔧 Firebase auth object:', auth)
+    console.log('🔧 Current user:', auth?.currentUser)
 
     try {
       // Check if auth is initialized
@@ -57,6 +59,11 @@ export default function GoogleSignInButton({
       })
 
       console.log('🎯 Attempting popup sign-in...')
+      console.log('🔧 Auth config:', {
+        apiKey: auth.app.options.apiKey ? 'Present' : 'Missing',
+        authDomain: auth.app.options.authDomain,
+        projectId: auth.app.options.projectId
+      })
 
       // Try popup first, fallback to redirect if popup fails (for blockers, extensions, or strict browsers)
       try {
@@ -76,6 +83,14 @@ export default function GoogleSignInButton({
         router.push('/onboarding')
       } catch (popupError: unknown) {
         console.log('⚠️ Popup sign-in failed, attempting redirect fallback...', popupError)
+        console.error('Popup error details:', popupError)
+
+        // Check if this is a configuration error before trying redirect
+        const errorCode = popupError && typeof popupError === 'object' && 'code' in popupError ? (popupError as any).code : null
+        if (errorCode === 'auth/invalid-api-key' || errorCode === 'auth/configuration-not-found') {
+          throw popupError // Don't try redirect for config errors
+        }
+
         // Always attempt redirect as a robust fallback since some environments misclassify popup errors
         await signInWithRedirect(auth, provider)
         return
