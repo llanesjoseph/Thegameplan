@@ -6,6 +6,7 @@ import { Target, Zap, TrendingUp } from 'lucide-react'
 import ClarityButton from './ui/NexusButton'
 import ClarityCard from './ui/NexusCard'
 import HeaderAuthButton from './auth/HeaderAuthButton'
+import CircularBadge from './ui/CircularBadge'
 
 const SimpleHero = () => {
   return (
@@ -15,10 +16,7 @@ const SimpleHero = () => {
           
           {/* Main Headline */}
           <div className="mb-6">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-clarity-accent/10 border border-clarity-accent/20 rounded-full text-clarity-accent text-sm font-semibold mb-6">
-              <Zap className="w-4 h-4" />
-              AI-Powered Sports Performance
-            </div>
+            <CircularBadge text="Athletic Coach" className="mb-8" />
             
             <h1 className="text-5xl lg:text-6xl font-bold text-clarity-text-primary mb-6 leading-tight">
               Your AI Coach for{' '}
