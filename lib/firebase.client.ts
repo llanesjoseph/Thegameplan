@@ -1,17 +1,37 @@
 import { initializeApp, getApps, getApp } from 'firebase/app'
-import { getAuth } from 'firebase/auth'
+import { getAuth, connectAuthEmulator } from 'firebase/auth'
 import { getFirestore, enableNetwork, disableNetwork } from 'firebase/firestore'
 import { getStorage } from 'firebase/storage'
-import { firebaseConfig, validateEnvironment } from './firebase-env'
 
-// Validate environment variables
-validateEnvironment()
+// Direct Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyDKgnOZaAZIBSR8e1OilhW-cp5TxY3ewxE",
+  authDomain: "gameplan-787a2.firebaseapp.com",
+  projectId: "gameplan-787a2",
+  storageBucket: "gameplan-787a2.firebasestorage.app",
+  messagingSenderId: "301349049756",
+  appId: "1:301349049756:web:c3091e3966de56117ae459",
+  measurementId: "G-Y7SV159J6E"
+}
+
+console.log('🔥 Initializing Firebase with config:', {
+  ...firebaseConfig,
+  apiKey: firebaseConfig.apiKey ? 'Present' : 'Missing'
+})
 
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp()
 
 export const auth = getAuth(app)
 export const db = getFirestore(app)
 export const storage = getStorage(app)
+
+console.log('🔥 Firebase services initialized:', {
+  auth: !!auth,
+  db: !!db,
+  storage: !!storage,
+  appName: app.name,
+  projectId: app.options.projectId
+})
 
 // Initialize Firestore connection and handle offline scenarios
 if (typeof window !== 'undefined') {

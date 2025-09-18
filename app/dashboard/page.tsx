@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { getRedirectResult } from 'firebase/auth'
 import { auth } from '@/lib/firebase.client'
 import { useAuth } from '@/hooks/use-auth'
-import AuthProvider from '@/components/auth/AuthProvider'
+import SimpleAuth from '@/components/auth/SimpleAuth'
 
 export default function Dashboard() {
   const { user, loading } = useAuth()
@@ -83,7 +83,7 @@ export default function Dashboard() {
           </div>
           
           <div className="space-y-4 mb-4">
-            <AuthProvider variant="compact" returnUserPrompt={true} />
+            <SimpleAuth />
 
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
@@ -98,7 +98,7 @@ export default function Dashboard() {
               onClick={() => router.push('/')}
               className="w-full px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-900 border border-gray-300 rounded-lg font-medium transition-colors"
             >
-              Browse as Guest
+              Continue as Guest
             </button>
           </div>
           
