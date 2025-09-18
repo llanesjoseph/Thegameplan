@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Target, Zap, TrendingUp } from 'lucide-react'
 import ClarityButton from './ui/NexusButton'
 import ClarityCard from './ui/NexusCard'
+import HeaderAuthButton from './auth/HeaderAuthButton'
 
 const SimpleHero = () => {
   return (
@@ -48,16 +49,12 @@ const SimpleHero = () => {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-            <Link href="/onboarding">
+            <Link href="/subscribe">
               <ClarityButton variant="primary" size="lg" className="px-8 py-4 text-lg">
-                Start Free Trial
+                Get Started
               </ClarityButton>
             </Link>
-            <Link href="/dashboard">
-              <ClarityButton variant="secondary" size="lg" className="px-8 py-4 text-lg">
-                Sign In
-              </ClarityButton>
-            </Link>
+            <HeaderAuthButton />
           </div>
 
           {/* Simple Social Proof */}
