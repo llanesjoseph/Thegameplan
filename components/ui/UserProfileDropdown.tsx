@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { signOut as firebaseSignOut } from 'firebase/auth'
 import { auth } from '@/lib/firebase.client'
-import { useEnhancedRole, UserRole } from '@/hooks/use-role-switcher'
+import { UserRole } from '@/hooks/use-role-switcher'
 import {
   Settings,
   CreditCard,
@@ -100,9 +100,12 @@ function CompactRoleSwitcher() {
 export default function UserProfileDropdown() {
   const [isOpen, setIsOpen] = useState(false)
   const { user, loading } = useAuth()
-  const { canSwitchRoles } = useEnhancedRole()
   const router = useRouter()
   const dropdownRef = useRef<HTMLDivElement>(null)
+
+  // Get role directly from user to avoid circular dependency with useEnhancedRole
+  const role = user?.role || 'guest'
+  const canSwitchRoles = user?.role === 'superadmin'
 
   const handleSignOut = async () => {
     try {
@@ -152,11 +155,9 @@ export default function UserProfileDropdown() {
     return null // Navigation component handles auth state
   }
 
-  const initials = user.displayName 
+  const initials = user.displayName
     ? user.displayName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
     : 'U'
-
-  const { role } = useEnhancedRole()
 
   return (
     <div className="relative" ref={dropdownRef}>

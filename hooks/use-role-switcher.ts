@@ -286,10 +286,10 @@ export function useRoleSwitcher() {
 export function useEnhancedRole() {
   const roleSwitcher = useRoleSwitcher()
   const { user } = useAuth()
-  
+
   // Add loading state to match original useRole signature
   const loading = !user
-  
+
   const effectiveRole = roleSwitcher.effectiveRole
   
   // Debug logging to help track role changes (commented out to prevent re-render loops)
