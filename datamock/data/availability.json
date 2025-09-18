@@ -1,0 +1,232 @@
+[
+  {
+    "uid": "uid_creator_soccer_1",
+    "slots": [
+      {
+        "day": "Mon",
+        "start": "09:00",
+        "end": "12:00",
+        "timezone": "America/Los_Angeles",
+        "isAvailable": true
+      },
+      {
+        "day": "Wed",
+        "start": "13:00",
+        "end": "16:00",
+        "timezone": "America/Los_Angeles",
+        "isAvailable": true
+      }
+    ],
+    "timezone": "America/Los_Angeles",
+    "advanceBookingDays": 14,
+    "sessionDuration": 60,
+    "updatedAt": "2025-09-16T19:21:33.401513+00:00"
+  },
+  {
+    "uid": "uid_creator_soccer_2",
+    "slots": [
+      {
+        "day": "Mon",
+        "start": "09:00",
+        "end": "12:00",
+        "timezone": "America/Los_Angeles",
+        "isAvailable": true
+      },
+      {
+        "day": "Wed",
+        "start": "13:00",
+        "end": "16:00",
+        "timezone": "America/Los_Angeles",
+        "isAvailable": true
+      }
+    ],
+    "timezone": "America/Los_Angeles",
+    "advanceBookingDays": 14,
+    "sessionDuration": 60,
+    "updatedAt": "2025-09-16T19:21:33.401513+00:00"
+  },
+  {
+    "uid": "uid_creator_soccer_3",
+    "slots": [
+      {
+        "day": "Mon",
+        "start": "09:00",
+        "end": "12:00",
+        "timezone": "America/Los_Angeles",
+        "isAvailable": true
+      },
+      {
+        "day": "Wed",
+        "start": "13:00",
+        "end": "16:00",
+        "timezone": "America/Los_Angeles",
+        "isAvailable": true
+      }
+    ],
+    "timezone": "America/Los_Angeles",
+    "advanceBookingDays": 14,
+    "sessionDuration": 60,
+    "updatedAt": "2025-09-16T19:21:33.401513+00:00"
+  },
+  {
+    "uid": "uid_creator_basketball_1",
+    "slots": [
+      {
+        "day": "Mon",
+        "start": "09:00",
+        "end": "12:00",
+        "timezone": "America/Los_Angeles",
+        "isAvailable": true
+      },
+      {
+        "day": "Wed",
+        "start": "13:00",
+        "end": "16:00",
+        "timezone": "America/Los_Angeles",
+        "isAvailable": true
+      }
+    ],
+    "timezone": "America/Los_Angeles",
+    "advanceBookingDays": 14,
+    "sessionDuration": 60,
+    "updatedAt": "2025-09-16T19:21:33.401513+00:00"
+  },
+  {
+    "uid": "uid_creator_basketball_2",
+    "slots": [
+      {
+        "day": "Mon",
+        "start": "09:00",
+        "end": "12:00",
+        "timezone": "America/Los_Angeles",
+        "isAvailable": true
+      },
+      {
+        "day": "Wed",
+        "start": "13:00",
+        "end": "16:00",
+        "timezone": "America/Los_Angeles",
+        "isAvailable": true
+      }
+    ],
+    "timezone": "America/Los_Angeles",
+    "advanceBookingDays": 14,
+    "sessionDuration": 60,
+    "updatedAt": "2025-09-16T19:21:33.401513+00:00"
+  },
+  {
+    "uid": "uid_creator_basketball_3",
+    "slots": [
+      {
+        "day": "Mon",
+        "start": "09:00",
+        "end": "12:00",
+        "timezone": "America/Los_Angeles",
+        "isAvailable": true
+      },
+      {
+        "day": "Wed",
+        "start": "13:00",
+        "end": "16:00",
+        "timezone": "America/Los_Angeles",
+        "isAvailable": true
+      }
+    ],
+    "timezone": "America/Los_Angeles",
+    "advanceBookingDays": 14,
+    "sessionDuration": 60,
+    "updatedAt": "2025-09-16T19:21:33.401513+00:00"
+  },
+  {
+    "uid": "uid_creator_baseball_1",
+    "slots": [
+      {
+        "day": "Mon",
+        "start": "09:00",
+        "end": "12:00",
+        "timezone": "America/Los_Angeles",
+        "isAvailable": true
+      },
+      {
+        "day": "Wed",
+        "start": "13:00",
+        "end": "16:00",
+        "timezone": "America/Los_Angeles",
+        "isAvailable": true
+      }
+    ],
+    "timezone": "America/Los_Angeles",
+    "advanceBookingDays": 14,
+    "sessionDuration": 60,
+    "updatedAt": "2025-09-16T19:21:33.401513+00:00"
+  },
+  {
+    "uid": "uid_creator_baseball_2",
+    "slots": [
+      {
+        "day": "Mon",
+        "start": "09:00",
+        "end": "12:00",
+        "timezone": "America/Los_Angeles",
+        "isAvailable": true
+      },
+      {
+        "day": "Wed",
+        "start": "13:00",
+        "end": "16:00",
+        "timezone": "America/Los_Angeles",
+        "isAvailable": true
+      }
+    ],
+    "timezone": "America/Los_Angeles",
+    "advanceBookingDays": 14,
+    "sessionDuration": 60,
+    "updatedAt": "2025-09-16T19:21:33.401513+00:00"
+  },
+  {
+    "uid": "uid_creator_baseball_3",
+    "slots": [
+      {
+        "day": "Mon",
+        "start": "09:00",
+        "end": "12:00",
+        "timezone": "America/Los_Angeles",
+        "isAvailable": true
+      },
+      {
+        "day": "Wed",
+        "start": "13:00",
+        "end": "16:00",
+        "timezone": "America/Los_Angeles",
+        "isAvailable": true
+      }
+    ],
+    "timezone": "America/Los_Angeles",
+    "advanceBookingDays": 14,
+    "sessionDuration": 60,
+    "updatedAt": "2025-09-16T19:21:33.401513+00:00"
+  },
+  {
+    "uid": "uid_creator_tennis_1",
+    "slots": [
+      {
+        "day": "Mon",
+        "start": "09:00",
+        "end": "12:00",
+        "timezone": "America/Los_Angeles",
+        "isAvailable": true
+      },
+      {
+        "day": "Wed",
+        "start": "13:00",
+        "end": "16:00",
+        "timezone": "America/Los_Angeles",
+        "isAvailable": true
+      }
+    ],
+    "timezone": "America/Los_Angeles",
+    "advanceBookingDays": 14,
+    "sessionDuration": 60,
+    "updatedAt": "2025-09-16T19:21:33.401513+00:00"
+  }
+]

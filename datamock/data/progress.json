@@ -1,0 +1,132 @@
+[
+  {
+    "userId": "uid_user_1",
+    "totalLessonsCompleted": 46,
+    "totalHoursSpent": 175,
+    "currentStreak": 4,
+    "longestStreak": 30,
+    "lastActivityAt": "2025-09-15T19:21:33.401513+00:00",
+    "sportsProgress": {
+      "swimming": {
+        "lessonsCompleted": 16,
+        "hoursSpent": 1,
+        "skillLevel": "beginner",
+        "achievements": [
+          "Milestone A"
+        ]
+      }
+    },
+    "goals": [
+      "Improve conditioning"
+    ],
+    "completedGoals": [
+      "Finish intro course"
+    ],
+    "createdAt": "2025-07-20T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-17T19:21:33.401513+00:00"
+  },
+  {
+    "userId": "uid_user_2",
+    "totalLessonsCompleted": 37,
+    "totalHoursSpent": 143,
+    "currentStreak": 9,
+    "longestStreak": 47,
+    "lastActivityAt": "2025-09-08T19:21:33.401513+00:00",
+    "sportsProgress": {
+      "soccer": {
+        "lessonsCompleted": 17,
+        "hoursSpent": 7,
+        "skillLevel": "expert",
+        "achievements": [
+          "Milestone A"
+        ]
+      }
+    },
+    "goals": [
+      "Improve conditioning"
+    ],
+    "completedGoals": [
+      "Finish intro course"
+    ],
+    "createdAt": "2025-07-20T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-17T19:21:33.401513+00:00"
+  },
+  {
+    "userId": "uid_user_3",
+    "totalLessonsCompleted": 3,
+    "totalHoursSpent": 25,
+    "currentStreak": 7,
+    "longestStreak": 8,
+    "lastActivityAt": "2025-09-18T19:21:33.401513+00:00",
+    "sportsProgress": {
+      "golf": {
+        "lessonsCompleted": 15,
+        "hoursSpent": 43,
+        "skillLevel": "expert",
+        "achievements": [
+          "Milestone A"
+        ]
+      }
+    },
+    "goals": [
+      "Improve conditioning"
+    ],
+    "completedGoals": [
+      "Finish intro course"
+    ],
+    "createdAt": "2025-07-20T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-17T19:21:33.401513+00:00"
+  },
+  {
+    "userId": "uid_user_4",
+    "totalLessonsCompleted": 23,
+    "totalHoursSpent": 109,
+    "currentStreak": 4,
+    "longestStreak": 34,
+    "lastActivityAt": "2025-09-18T19:21:33.401513+00:00",
+    "sportsProgress": {
+      "football": {
+        "lessonsCompleted": 2,
+        "hoursSpent": 1,
+        "skillLevel": "expert",
+        "achievements": [
+          "Milestone A"
+        ]
+      }
+    },
+    "goals": [
+      "Improve conditioning"
+    ],
+    "completedGoals": [
+      "Finish intro course"
+    ],
+    "createdAt": "2025-07-20T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-17T19:21:33.401513+00:00"
+  },
+  {
+    "userId": "uid_user_5",
+    "totalLessonsCompleted": 28,
+    "totalHoursSpent": 198,
+    "currentStreak": 7,
+    "longestStreak": 36,
+    "lastActivityAt": "2025-09-15T19:21:33.401513+00:00",
+    "sportsProgress": {
+      "swimming": {
+        "lessonsCompleted": 2,
+        "hoursSpent": 3,
+        "skillLevel": "advanced",
+        "achievements": [
+          "Milestone A"
+        ]
+      }
+    },
+    "goals": [
+      "Improve conditioning"
+    ],
+    "completedGoals": [
+      "Finish intro course"
+    ],
+    "createdAt": "2025-07-20T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-17T19:21:33.401513+00:00"
+  }
+]

@@ -1,0 +1,1849 @@
+[
+  {
+    "uid": "uid_creator_soccer_1",
+    "firstName": "Cameron",
+    "lastName": "Johnson",
+    "email": "cameron-johnson-soccer@example.com",
+    "bio": "Cameron Johnson is a Soccer coach focused on high-impact fundamentals and modern tactics.",
+    "expertise": [
+      "coaching",
+      "analysis"
+    ],
+    "sports": [
+      "soccer"
+    ],
+    "certifications": [
+      "US Coaching Cert"
+    ],
+    "goals": [
+      "develop athletes"
+    ],
+    "achievements": [
+      "Soccer regional champion"
+    ],
+    "isPublic": true,
+    "role": "creator",
+    "createdAt": "2024-09-18T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-08T19:21:33.401513+00:00",
+    "socialLinks": {
+      "instagram": "https://instagram.com/example",
+      "youtube": "https://youtube.com/@example"
+    },
+    "slug": "cameron-johnson-soccer",
+    "profileImageUrl": "https://picsum.photos/seed/cameron-johnson-soccer/400/400",
+    "actionImageUrl": "https://picsum.photos/seed/cameron-johnson-soccer-action/800/450",
+    "tagline": "Soccer made simple",
+    "verified": true,
+    "featured": true,
+    "stats": {
+      "totalStudents": 68,
+      "totalContent": 0,
+      "avgRating": 4.82,
+      "totalReviews": 47,
+      "earningsTotal": 63580,
+      "earningsThisMonth": 3226,
+      "earningsPending": 601
+    }
+  },
+  {
+    "uid": "uid_creator_soccer_2",
+    "firstName": "Taylor",
+    "lastName": "Davis",
+    "email": "taylor-davis-soccer@example.com",
+    "bio": "Taylor Davis is a Soccer coach focused on high-impact fundamentals and modern tactics.",
+    "expertise": [
+      "coaching",
+      "analysis"
+    ],
+    "sports": [
+      "soccer"
+    ],
+    "certifications": [
+      "US Coaching Cert"
+    ],
+    "goals": [
+      "develop athletes"
+    ],
+    "achievements": [
+      "Soccer regional champion"
+    ],
+    "isPublic": true,
+    "role": "creator",
+    "createdAt": "2024-09-18T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-08T19:21:33.401513+00:00",
+    "socialLinks": {
+      "instagram": "https://instagram.com/example",
+      "youtube": "https://youtube.com/@example"
+    },
+    "slug": "taylor-davis-soccer",
+    "profileImageUrl": "https://picsum.photos/seed/taylor-davis-soccer/400/400",
+    "actionImageUrl": "https://picsum.photos/seed/taylor-davis-soccer-action/800/450",
+    "tagline": "Soccer made simple",
+    "verified": true,
+    "featured": false,
+    "stats": {
+      "totalStudents": 125,
+      "totalContent": 0,
+      "avgRating": 4.68,
+      "totalReviews": 56,
+      "earningsTotal": 83615,
+      "earningsThisMonth": 929,
+      "earningsPending": 832
+    }
+  },
+  {
+    "uid": "uid_creator_soccer_3",
+    "firstName": "Taylor",
+    "lastName": "Johnson",
+    "email": "taylor-johnson-soccer@example.com",
+    "bio": "Taylor Johnson is a Soccer coach focused on high-impact fundamentals and modern tactics.",
+    "expertise": [
+      "coaching",
+      "analysis"
+    ],
+    "sports": [
+      "soccer"
+    ],
+    "certifications": [
+      "US Coaching Cert"
+    ],
+    "goals": [
+      "develop athletes"
+    ],
+    "achievements": [
+      "Soccer regional champion"
+    ],
+    "isPublic": true,
+    "role": "creator",
+    "createdAt": "2024-09-18T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-08T19:21:33.401513+00:00",
+    "socialLinks": {
+      "instagram": "https://instagram.com/example",
+      "youtube": "https://youtube.com/@example"
+    },
+    "slug": "taylor-johnson-soccer",
+    "profileImageUrl": "https://picsum.photos/seed/taylor-johnson-soccer/400/400",
+    "actionImageUrl": "https://picsum.photos/seed/taylor-johnson-soccer-action/800/450",
+    "tagline": "Soccer made simple",
+    "verified": true,
+    "featured": false,
+    "stats": {
+      "totalStudents": 72,
+      "totalContent": 0,
+      "avgRating": 4.42,
+      "totalReviews": 60,
+      "earningsTotal": 11677,
+      "earningsThisMonth": 2639,
+      "earningsPending": 948
+    }
+  },
+  {
+    "uid": "uid_creator_basketball_1",
+    "firstName": "Cameron",
+    "lastName": "Patel",
+    "email": "cameron-patel-basketball@example.com",
+    "bio": "Cameron Patel is a Basketball coach focused on high-impact fundamentals and modern tactics.",
+    "expertise": [
+      "coaching",
+      "analysis"
+    ],
+    "sports": [
+      "basketball"
+    ],
+    "certifications": [
+      "US Coaching Cert"
+    ],
+    "goals": [
+      "develop athletes"
+    ],
+    "achievements": [
+      "Basketball regional champion"
+    ],
+    "isPublic": true,
+    "role": "creator",
+    "createdAt": "2024-09-18T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-08T19:21:33.401513+00:00",
+    "socialLinks": {
+      "instagram": "https://instagram.com/example",
+      "youtube": "https://youtube.com/@example"
+    },
+    "slug": "cameron-patel-basketball",
+    "profileImageUrl": "https://picsum.photos/seed/cameron-patel-basketball/400/400",
+    "actionImageUrl": "https://picsum.photos/seed/cameron-patel-basketball-action/800/450",
+    "tagline": "Basketball made simple",
+    "verified": true,
+    "featured": true,
+    "stats": {
+      "totalStudents": 488,
+      "totalContent": 0,
+      "avgRating": 4.67,
+      "totalReviews": 86,
+      "earningsTotal": 77470,
+      "earningsThisMonth": 1174,
+      "earningsPending": 145
+    }
+  },
+  {
+    "uid": "uid_creator_basketball_2",
+    "firstName": "Parker",
+    "lastName": "Cruz",
+    "email": "parker-cruz-basketball@example.com",
+    "bio": "Parker Cruz is a Basketball coach focused on high-impact fundamentals and modern tactics.",
+    "expertise": [
+      "coaching",
+      "analysis"
+    ],
+    "sports": [
+      "basketball"
+    ],
+    "certifications": [
+      "US Coaching Cert"
+    ],
+    "goals": [
+      "develop athletes"
+    ],
+    "achievements": [
+      "Basketball regional champion"
+    ],
+    "isPublic": true,
+    "role": "creator",
+    "createdAt": "2024-09-18T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-08T19:21:33.401513+00:00",
+    "socialLinks": {
+      "instagram": "https://instagram.com/example",
+      "youtube": "https://youtube.com/@example"
+    },
+    "slug": "parker-cruz-basketball",
+    "profileImageUrl": "https://picsum.photos/seed/parker-cruz-basketball/400/400",
+    "actionImageUrl": "https://picsum.photos/seed/parker-cruz-basketball-action/800/450",
+    "tagline": "Basketball made simple",
+    "verified": true,
+    "featured": false,
+    "stats": {
+      "totalStudents": 265,
+      "totalContent": 0,
+      "avgRating": 4.46,
+      "totalReviews": 95,
+      "earningsTotal": 68233,
+      "earningsThisMonth": 3707,
+      "earningsPending": 15
+    }
+  },
+  {
+    "uid": "uid_creator_basketball_3",
+    "firstName": "Taylor",
+    "lastName": "Lee",
+    "email": "taylor-lee-basketball@example.com",
+    "bio": "Taylor Lee is a Basketball coach focused on high-impact fundamentals and modern tactics.",
+    "expertise": [
+      "coaching",
+      "analysis"
+    ],
+    "sports": [
+      "basketball"
+    ],
+    "certifications": [
+      "US Coaching Cert"
+    ],
+    "goals": [
+      "develop athletes"
+    ],
+    "achievements": [
+      "Basketball regional champion"
+    ],
+    "isPublic": true,
+    "role": "creator",
+    "createdAt": "2024-09-18T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-08T19:21:33.401513+00:00",
+    "socialLinks": {
+      "instagram": "https://instagram.com/example",
+      "youtube": "https://youtube.com/@example"
+    },
+    "slug": "taylor-lee-basketball",
+    "profileImageUrl": "https://picsum.photos/seed/taylor-lee-basketball/400/400",
+    "actionImageUrl": "https://picsum.photos/seed/taylor-lee-basketball-action/800/450",
+    "tagline": "Basketball made simple",
+    "verified": true,
+    "featured": false,
+    "stats": {
+      "totalStudents": 485,
+      "totalContent": 0,
+      "avgRating": 4.54,
+      "totalReviews": 62,
+      "earningsTotal": 67132,
+      "earningsThisMonth": 3463,
+      "earningsPending": 255
+    }
+  },
+  {
+    "uid": "uid_creator_baseball_1",
+    "firstName": "Sydney",
+    "lastName": "Cruz",
+    "email": "sydney-cruz-baseball@example.com",
+    "bio": "Sydney Cruz is a Baseball coach focused on high-impact fundamentals and modern tactics.",
+    "expertise": [
+      "coaching",
+      "analysis"
+    ],
+    "sports": [
+      "baseball"
+    ],
+    "certifications": [
+      "US Coaching Cert"
+    ],
+    "goals": [
+      "develop athletes"
+    ],
+    "achievements": [
+      "Baseball regional champion"
+    ],
+    "isPublic": true,
+    "role": "creator",
+    "createdAt": "2024-09-18T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-08T19:21:33.401513+00:00",
+    "socialLinks": {
+      "instagram": "https://instagram.com/example",
+      "youtube": "https://youtube.com/@example"
+    },
+    "slug": "sydney-cruz-baseball",
+    "profileImageUrl": "https://picsum.photos/seed/sydney-cruz-baseball/400/400",
+    "actionImageUrl": "https://picsum.photos/seed/sydney-cruz-baseball-action/800/450",
+    "tagline": "Baseball made simple",
+    "verified": true,
+    "featured": true,
+    "stats": {
+      "totalStudents": 155,
+      "totalContent": 0,
+      "avgRating": 4.64,
+      "totalReviews": 80,
+      "earningsTotal": 71348,
+      "earningsThisMonth": 506,
+      "earningsPending": 881
+    }
+  },
+  {
+    "uid": "uid_creator_baseball_2",
+    "firstName": "Morgan",
+    "lastName": "Cruz",
+    "email": "morgan-cruz-baseball@example.com",
+    "bio": "Morgan Cruz is a Baseball coach focused on high-impact fundamentals and modern tactics.",
+    "expertise": [
+      "coaching",
+      "analysis"
+    ],
+    "sports": [
+      "baseball"
+    ],
+    "certifications": [
+      "US Coaching Cert"
+    ],
+    "goals": [
+      "develop athletes"
+    ],
+    "achievements": [
+      "Baseball regional champion"
+    ],
+    "isPublic": true,
+    "role": "creator",
+    "createdAt": "2024-09-18T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-08T19:21:33.401513+00:00",
+    "socialLinks": {
+      "instagram": "https://instagram.com/example",
+      "youtube": "https://youtube.com/@example"
+    },
+    "slug": "morgan-cruz-baseball",
+    "profileImageUrl": "https://picsum.photos/seed/morgan-cruz-baseball/400/400",
+    "actionImageUrl": "https://picsum.photos/seed/morgan-cruz-baseball-action/800/450",
+    "tagline": "Baseball made simple",
+    "verified": true,
+    "featured": false,
+    "stats": {
+      "totalStudents": 442,
+      "totalContent": 0,
+      "avgRating": 4.71,
+      "totalReviews": 38,
+      "earningsTotal": 58952,
+      "earningsThisMonth": 2446,
+      "earningsPending": 716
+    }
+  },
+  {
+    "uid": "uid_creator_baseball_3",
+    "firstName": "Riley",
+    "lastName": "Smith",
+    "email": "riley-smith-baseball@example.com",
+    "bio": "Riley Smith is a Baseball coach focused on high-impact fundamentals and modern tactics.",
+    "expertise": [
+      "coaching",
+      "analysis"
+    ],
+    "sports": [
+      "baseball"
+    ],
+    "certifications": [
+      "US Coaching Cert"
+    ],
+    "goals": [
+      "develop athletes"
+    ],
+    "achievements": [
+      "Baseball regional champion"
+    ],
+    "isPublic": true,
+    "role": "creator",
+    "createdAt": "2024-09-18T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-08T19:21:33.401513+00:00",
+    "socialLinks": {
+      "instagram": "https://instagram.com/example",
+      "youtube": "https://youtube.com/@example"
+    },
+    "slug": "riley-smith-baseball",
+    "profileImageUrl": "https://picsum.photos/seed/riley-smith-baseball/400/400",
+    "actionImageUrl": "https://picsum.photos/seed/riley-smith-baseball-action/800/450",
+    "tagline": "Baseball made simple",
+    "verified": true,
+    "featured": false,
+    "stats": {
+      "totalStudents": 462,
+      "totalContent": 0,
+      "avgRating": 4.68,
+      "totalReviews": 97,
+      "earningsTotal": 66598,
+      "earningsThisMonth": 4934,
+      "earningsPending": 176
+    }
+  },
+  {
+    "uid": "uid_creator_tennis_1",
+    "firstName": "Parker",
+    "lastName": "Lee",
+    "email": "parker-lee-tennis@example.com",
+    "bio": "Parker Lee is a Tennis coach focused on high-impact fundamentals and modern tactics.",
+    "expertise": [
+      "coaching",
+      "analysis"
+    ],
+    "sports": [
+      "tennis"
+    ],
+    "certifications": [
+      "US Coaching Cert"
+    ],
+    "goals": [
+      "develop athletes"
+    ],
+    "achievements": [
+      "Tennis regional champion"
+    ],
+    "isPublic": true,
+    "role": "creator",
+    "createdAt": "2024-09-18T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-08T19:21:33.401513+00:00",
+    "socialLinks": {
+      "instagram": "https://instagram.com/example",
+      "youtube": "https://youtube.com/@example"
+    },
+    "slug": "parker-lee-tennis",
+    "profileImageUrl": "https://picsum.photos/seed/parker-lee-tennis/400/400",
+    "actionImageUrl": "https://picsum.photos/seed/parker-lee-tennis-action/800/450",
+    "tagline": "Tennis made simple",
+    "verified": true,
+    "featured": true,
+    "stats": {
+      "totalStudents": 234,
+      "totalContent": 0,
+      "avgRating": 4.5,
+      "totalReviews": 83,
+      "earningsTotal": 33766,
+      "earningsThisMonth": 2438,
+      "earningsPending": 154
+    }
+  },
+  {
+    "uid": "uid_creator_tennis_2",
+    "firstName": "Avery",
+    "lastName": "Brown",
+    "email": "avery-brown-tennis@example.com",
+    "bio": "Avery Brown is a Tennis coach focused on high-impact fundamentals and modern tactics.",
+    "expertise": [
+      "coaching",
+      "analysis"
+    ],
+    "sports": [
+      "tennis"
+    ],
+    "certifications": [
+      "US Coaching Cert"
+    ],
+    "goals": [
+      "develop athletes"
+    ],
+    "achievements": [
+      "Tennis regional champion"
+    ],
+    "isPublic": true,
+    "role": "creator",
+    "createdAt": "2024-09-18T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-08T19:21:33.401513+00:00",
+    "socialLinks": {
+      "instagram": "https://instagram.com/example",
+      "youtube": "https://youtube.com/@example"
+    },
+    "slug": "avery-brown-tennis",
+    "profileImageUrl": "https://picsum.photos/seed/avery-brown-tennis/400/400",
+    "actionImageUrl": "https://picsum.photos/seed/avery-brown-tennis-action/800/450",
+    "tagline": "Tennis made simple",
+    "verified": true,
+    "featured": false,
+    "stats": {
+      "totalStudents": 317,
+      "totalContent": 0,
+      "avgRating": 4.51,
+      "totalReviews": 41,
+      "earningsTotal": 13568,
+      "earningsThisMonth": 3110,
+      "earningsPending": 302
+    }
+  },
+  {
+    "uid": "uid_creator_tennis_3",
+    "firstName": "Avery",
+    "lastName": "Brown",
+    "email": "avery-brown-tennis@example.com",
+    "bio": "Avery Brown is a Tennis coach focused on high-impact fundamentals and modern tactics.",
+    "expertise": [
+      "coaching",
+      "analysis"
+    ],
+    "sports": [
+      "tennis"
+    ],
+    "certifications": [
+      "US Coaching Cert"
+    ],
+    "goals": [
+      "develop athletes"
+    ],
+    "achievements": [
+      "Tennis regional champion"
+    ],
+    "isPublic": true,
+    "role": "creator",
+    "createdAt": "2024-09-18T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-08T19:21:33.401513+00:00",
+    "socialLinks": {
+      "instagram": "https://instagram.com/example",
+      "youtube": "https://youtube.com/@example"
+    },
+    "slug": "avery-brown-tennis",
+    "profileImageUrl": "https://picsum.photos/seed/avery-brown-tennis/400/400",
+    "actionImageUrl": "https://picsum.photos/seed/avery-brown-tennis-action/800/450",
+    "tagline": "Tennis made simple",
+    "verified": true,
+    "featured": false,
+    "stats": {
+      "totalStudents": 174,
+      "totalContent": 0,
+      "avgRating": 4.21,
+      "totalReviews": 100,
+      "earningsTotal": 39302,
+      "earningsThisMonth": 1986,
+      "earningsPending": 980
+    }
+  },
+  {
+    "uid": "uid_creator_bjj_1",
+    "firstName": "Cameron",
+    "lastName": "Davis",
+    "email": "cameron-davis-bjj@example.com",
+    "bio": "Cameron Davis is a Brazilian Jiu-Jitsu coach focused on high-impact fundamentals and modern tactics.",
+    "expertise": [
+      "coaching",
+      "analysis"
+    ],
+    "sports": [
+      "bjj"
+    ],
+    "certifications": [
+      "US Coaching Cert"
+    ],
+    "goals": [
+      "develop athletes"
+    ],
+    "achievements": [
+      "Brazilian Jiu-Jitsu regional champion"
+    ],
+    "isPublic": true,
+    "role": "creator",
+    "createdAt": "2024-09-18T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-08T19:21:33.401513+00:00",
+    "socialLinks": {
+      "instagram": "https://instagram.com/example",
+      "youtube": "https://youtube.com/@example"
+    },
+    "slug": "cameron-davis-bjj",
+    "profileImageUrl": "https://picsum.photos/seed/cameron-davis-bjj/400/400",
+    "actionImageUrl": "https://picsum.photos/seed/cameron-davis-bjj-action/800/450",
+    "tagline": "Brazilian Jiu-Jitsu made simple",
+    "verified": true,
+    "featured": true,
+    "stats": {
+      "totalStudents": 470,
+      "totalContent": 0,
+      "avgRating": 4.79,
+      "totalReviews": 36,
+      "earningsTotal": 94552,
+      "earningsThisMonth": 1079,
+      "earningsPending": 96
+    }
+  },
+  {
+    "uid": "uid_creator_bjj_2",
+    "firstName": "Quinn",
+    "lastName": "Patel",
+    "email": "quinn-patel-bjj@example.com",
+    "bio": "Quinn Patel is a Brazilian Jiu-Jitsu coach focused on high-impact fundamentals and modern tactics.",
+    "expertise": [
+      "coaching",
+      "analysis"
+    ],
+    "sports": [
+      "bjj"
+    ],
+    "certifications": [
+      "US Coaching Cert"
+    ],
+    "goals": [
+      "develop athletes"
+    ],
+    "achievements": [
+      "Brazilian Jiu-Jitsu regional champion"
+    ],
+    "isPublic": true,
+    "role": "creator",
+    "createdAt": "2024-09-18T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-08T19:21:33.401513+00:00",
+    "socialLinks": {
+      "instagram": "https://instagram.com/example",
+      "youtube": "https://youtube.com/@example"
+    },
+    "slug": "quinn-patel-bjj",
+    "profileImageUrl": "https://picsum.photos/seed/quinn-patel-bjj/400/400",
+    "actionImageUrl": "https://picsum.photos/seed/quinn-patel-bjj-action/800/450",
+    "tagline": "Brazilian Jiu-Jitsu made simple",
+    "verified": true,
+    "featured": false,
+    "stats": {
+      "totalStudents": 497,
+      "totalContent": 0,
+      "avgRating": 4.22,
+      "totalReviews": 23,
+      "earningsTotal": 7700,
+      "earningsThisMonth": 4450,
+      "earningsPending": 546
+    }
+  },
+  {
+    "uid": "uid_creator_bjj_3",
+    "firstName": "Jordan",
+    "lastName": "Cruz",
+    "email": "jordan-cruz-bjj@example.com",
+    "bio": "Jordan Cruz is a Brazilian Jiu-Jitsu coach focused on high-impact fundamentals and modern tactics.",
+    "expertise": [
+      "coaching",
+      "analysis"
+    ],
+    "sports": [
+      "bjj"
+    ],
+    "certifications": [
+      "US Coaching Cert"
+    ],
+    "goals": [
+      "develop athletes"
+    ],
+    "achievements": [
+      "Brazilian Jiu-Jitsu regional champion"
+    ],
+    "isPublic": true,
+    "role": "creator",
+    "createdAt": "2024-09-18T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-08T19:21:33.401513+00:00",
+    "socialLinks": {
+      "instagram": "https://instagram.com/example",
+      "youtube": "https://youtube.com/@example"
+    },
+    "slug": "jordan-cruz-bjj",
+    "profileImageUrl": "https://picsum.photos/seed/jordan-cruz-bjj/400/400",
+    "actionImageUrl": "https://picsum.photos/seed/jordan-cruz-bjj-action/800/450",
+    "tagline": "Brazilian Jiu-Jitsu made simple",
+    "verified": true,
+    "featured": false,
+    "stats": {
+      "totalStudents": 321,
+      "totalContent": 0,
+      "avgRating": 4.39,
+      "totalReviews": 80,
+      "earningsTotal": 65635,
+      "earningsThisMonth": 3304,
+      "earningsPending": 699
+    }
+  },
+  {
+    "uid": "uid_creator_running_1",
+    "firstName": "Alex",
+    "lastName": "Cruz",
+    "email": "alex-cruz-running@example.com",
+    "bio": "Alex Cruz is a Running coach focused on high-impact fundamentals and modern tactics.",
+    "expertise": [
+      "coaching",
+      "analysis"
+    ],
+    "sports": [
+      "running"
+    ],
+    "certifications": [
+      "US Coaching Cert"
+    ],
+    "goals": [
+      "develop athletes"
+    ],
+    "achievements": [
+      "Running regional champion"
+    ],
+    "isPublic": true,
+    "role": "creator",
+    "createdAt": "2024-09-18T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-08T19:21:33.401513+00:00",
+    "socialLinks": {
+      "instagram": "https://instagram.com/example",
+      "youtube": "https://youtube.com/@example"
+    },
+    "slug": "alex-cruz-running",
+    "profileImageUrl": "https://picsum.photos/seed/alex-cruz-running/400/400",
+    "actionImageUrl": "https://picsum.photos/seed/alex-cruz-running-action/800/450",
+    "tagline": "Running made simple",
+    "verified": true,
+    "featured": true,
+    "stats": {
+      "totalStudents": 298,
+      "totalContent": 0,
+      "avgRating": 4.57,
+      "totalReviews": 38,
+      "earningsTotal": 61952,
+      "earningsThisMonth": 3165,
+      "earningsPending": 768
+    }
+  },
+  {
+    "uid": "uid_creator_running_2",
+    "firstName": "Sydney",
+    "lastName": "Smith",
+    "email": "sydney-smith-running@example.com",
+    "bio": "Sydney Smith is a Running coach focused on high-impact fundamentals and modern tactics.",
+    "expertise": [
+      "coaching",
+      "analysis"
+    ],
+    "sports": [
+      "running"
+    ],
+    "certifications": [
+      "US Coaching Cert"
+    ],
+    "goals": [
+      "develop athletes"
+    ],
+    "achievements": [
+      "Running regional champion"
+    ],
+    "isPublic": true,
+    "role": "creator",
+    "createdAt": "2024-09-18T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-08T19:21:33.401513+00:00",
+    "socialLinks": {
+      "instagram": "https://instagram.com/example",
+      "youtube": "https://youtube.com/@example"
+    },
+    "slug": "sydney-smith-running",
+    "profileImageUrl": "https://picsum.photos/seed/sydney-smith-running/400/400",
+    "actionImageUrl": "https://picsum.photos/seed/sydney-smith-running-action/800/450",
+    "tagline": "Running made simple",
+    "verified": true,
+    "featured": false,
+    "stats": {
+      "totalStudents": 114,
+      "totalContent": 0,
+      "avgRating": 4.5,
+      "totalReviews": 71,
+      "earningsTotal": 2391,
+      "earningsThisMonth": 3407,
+      "earningsPending": 571
+    }
+  },
+  {
+    "uid": "uid_creator_running_3",
+    "firstName": "Rowan",
+    "lastName": "Lopez",
+    "email": "rowan-lopez-running@example.com",
+    "bio": "Rowan Lopez is a Running coach focused on high-impact fundamentals and modern tactics.",
+    "expertise": [
+      "coaching",
+      "analysis"
+    ],
+    "sports": [
+      "running"
+    ],
+    "certifications": [
+      "US Coaching Cert"
+    ],
+    "goals": [
+      "develop athletes"
+    ],
+    "achievements": [
+      "Running regional champion"
+    ],
+    "isPublic": true,
+    "role": "creator",
+    "createdAt": "2024-09-18T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-08T19:21:33.401513+00:00",
+    "socialLinks": {
+      "instagram": "https://instagram.com/example",
+      "youtube": "https://youtube.com/@example"
+    },
+    "slug": "rowan-lopez-running",
+    "profileImageUrl": "https://picsum.photos/seed/rowan-lopez-running/400/400",
+    "actionImageUrl": "https://picsum.photos/seed/rowan-lopez-running-action/800/450",
+    "tagline": "Running made simple",
+    "verified": true,
+    "featured": false,
+    "stats": {
+      "totalStudents": 322,
+      "totalContent": 0,
+      "avgRating": 4.86,
+      "totalReviews": 97,
+      "earningsTotal": 88563,
+      "earningsThisMonth": 3705,
+      "earningsPending": 893
+    }
+  },
+  {
+    "uid": "uid_creator_volleyball_1",
+    "firstName": "Avery",
+    "lastName": "Smith",
+    "email": "avery-smith-volleyball@example.com",
+    "bio": "Avery Smith is a Volleyball coach focused on high-impact fundamentals and modern tactics.",
+    "expertise": [
+      "coaching",
+      "analysis"
+    ],
+    "sports": [
+      "volleyball"
+    ],
+    "certifications": [
+      "US Coaching Cert"
+    ],
+    "goals": [
+      "develop athletes"
+    ],
+    "achievements": [
+      "Volleyball regional champion"
+    ],
+    "isPublic": true,
+    "role": "creator",
+    "createdAt": "2024-09-18T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-08T19:21:33.401513+00:00",
+    "socialLinks": {
+      "instagram": "https://instagram.com/example",
+      "youtube": "https://youtube.com/@example"
+    },
+    "slug": "avery-smith-volleyball",
+    "profileImageUrl": "https://picsum.photos/seed/avery-smith-volleyball/400/400",
+    "actionImageUrl": "https://picsum.photos/seed/avery-smith-volleyball-action/800/450",
+    "tagline": "Volleyball made simple",
+    "verified": true,
+    "featured": true,
+    "stats": {
+      "totalStudents": 69,
+      "totalContent": 0,
+      "avgRating": 4.72,
+      "totalReviews": 7,
+      "earningsTotal": 61551,
+      "earningsThisMonth": 4367,
+      "earningsPending": 170
+    }
+  },
+  {
+    "uid": "uid_creator_volleyball_2",
+    "firstName": "Riley",
+    "lastName": "Smith",
+    "email": "riley-smith-volleyball@example.com",
+    "bio": "Riley Smith is a Volleyball coach focused on high-impact fundamentals and modern tactics.",
+    "expertise": [
+      "coaching",
+      "analysis"
+    ],
+    "sports": [
+      "volleyball"
+    ],
+    "certifications": [
+      "US Coaching Cert"
+    ],
+    "goals": [
+      "develop athletes"
+    ],
+    "achievements": [
+      "Volleyball regional champion"
+    ],
+    "isPublic": true,
+    "role": "creator",
+    "createdAt": "2024-09-18T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-08T19:21:33.401513+00:00",
+    "socialLinks": {
+      "instagram": "https://instagram.com/example",
+      "youtube": "https://youtube.com/@example"
+    },
+    "slug": "riley-smith-volleyball",
+    "profileImageUrl": "https://picsum.photos/seed/riley-smith-volleyball/400/400",
+    "actionImageUrl": "https://picsum.photos/seed/riley-smith-volleyball-action/800/450",
+    "tagline": "Volleyball made simple",
+    "verified": true,
+    "featured": false,
+    "stats": {
+      "totalStudents": 164,
+      "totalContent": 0,
+      "avgRating": 4.29,
+      "totalReviews": 43,
+      "earningsTotal": 71232,
+      "earningsThisMonth": 862,
+      "earningsPending": 623
+    }
+  },
+  {
+    "uid": "uid_creator_volleyball_3",
+    "firstName": "Morgan",
+    "lastName": "Lopez",
+    "email": "morgan-lopez-volleyball@example.com",
+    "bio": "Morgan Lopez is a Volleyball coach focused on high-impact fundamentals and modern tactics.",
+    "expertise": [
+      "coaching",
+      "analysis"
+    ],
+    "sports": [
+      "volleyball"
+    ],
+    "certifications": [
+      "US Coaching Cert"
+    ],
+    "goals": [
+      "develop athletes"
+    ],
+    "achievements": [
+      "Volleyball regional champion"
+    ],
+    "isPublic": true,
+    "role": "creator",
+    "createdAt": "2024-09-18T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-08T19:21:33.401513+00:00",
+    "socialLinks": {
+      "instagram": "https://instagram.com/example",
+      "youtube": "https://youtube.com/@example"
+    },
+    "slug": "morgan-lopez-volleyball",
+    "profileImageUrl": "https://picsum.photos/seed/morgan-lopez-volleyball/400/400",
+    "actionImageUrl": "https://picsum.photos/seed/morgan-lopez-volleyball-action/800/450",
+    "tagline": "Volleyball made simple",
+    "verified": true,
+    "featured": false,
+    "stats": {
+      "totalStudents": 263,
+      "totalContent": 0,
+      "avgRating": 4.76,
+      "totalReviews": 32,
+      "earningsTotal": 29018,
+      "earningsThisMonth": 4875,
+      "earningsPending": 737
+    }
+  },
+  {
+    "uid": "uid_creator_swimming_1",
+    "firstName": "Morgan",
+    "lastName": "Lee",
+    "email": "morgan-lee-swimming@example.com",
+    "bio": "Morgan Lee is a Swimming coach focused on high-impact fundamentals and modern tactics.",
+    "expertise": [
+      "coaching",
+      "analysis"
+    ],
+    "sports": [
+      "swimming"
+    ],
+    "certifications": [
+      "US Coaching Cert"
+    ],
+    "goals": [
+      "develop athletes"
+    ],
+    "achievements": [
+      "Swimming regional champion"
+    ],
+    "isPublic": true,
+    "role": "creator",
+    "createdAt": "2024-09-18T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-08T19:21:33.401513+00:00",
+    "socialLinks": {
+      "instagram": "https://instagram.com/example",
+      "youtube": "https://youtube.com/@example"
+    },
+    "slug": "morgan-lee-swimming",
+    "profileImageUrl": "https://picsum.photos/seed/morgan-lee-swimming/400/400",
+    "actionImageUrl": "https://picsum.photos/seed/morgan-lee-swimming-action/800/450",
+    "tagline": "Swimming made simple",
+    "verified": true,
+    "featured": true,
+    "stats": {
+      "totalStudents": 301,
+      "totalContent": 0,
+      "avgRating": 4.79,
+      "totalReviews": 42,
+      "earningsTotal": 18149,
+      "earningsThisMonth": 3008,
+      "earningsPending": 955
+    }
+  },
+  {
+    "uid": "uid_creator_swimming_2",
+    "firstName": "Casey",
+    "lastName": "Garcia",
+    "email": "casey-garcia-swimming@example.com",
+    "bio": "Casey Garcia is a Swimming coach focused on high-impact fundamentals and modern tactics.",
+    "expertise": [
+      "coaching",
+      "analysis"
+    ],
+    "sports": [
+      "swimming"
+    ],
+    "certifications": [
+      "US Coaching Cert"
+    ],
+    "goals": [
+      "develop athletes"
+    ],
+    "achievements": [
+      "Swimming regional champion"
+    ],
+    "isPublic": true,
+    "role": "creator",
+    "createdAt": "2024-09-18T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-08T19:21:33.401513+00:00",
+    "socialLinks": {
+      "instagram": "https://instagram.com/example",
+      "youtube": "https://youtube.com/@example"
+    },
+    "slug": "casey-garcia-swimming",
+    "profileImageUrl": "https://picsum.photos/seed/casey-garcia-swimming/400/400",
+    "actionImageUrl": "https://picsum.photos/seed/casey-garcia-swimming-action/800/450",
+    "tagline": "Swimming made simple",
+    "verified": true,
+    "featured": false,
+    "stats": {
+      "totalStudents": 205,
+      "totalContent": 0,
+      "avgRating": 4.34,
+      "totalReviews": 82,
+      "earningsTotal": 3596,
+      "earningsThisMonth": 383,
+      "earningsPending": 386
+    }
+  },
+  {
+    "uid": "uid_creator_swimming_3",
+    "firstName": "Rowan",
+    "lastName": "Brown",
+    "email": "rowan-brown-swimming@example.com",
+    "bio": "Rowan Brown is a Swimming coach focused on high-impact fundamentals and modern tactics.",
+    "expertise": [
+      "coaching",
+      "analysis"
+    ],
+    "sports": [
+      "swimming"
+    ],
+    "certifications": [
+      "US Coaching Cert"
+    ],
+    "goals": [
+      "develop athletes"
+    ],
+    "achievements": [
+      "Swimming regional champion"
+    ],
+    "isPublic": true,
+    "role": "creator",
+    "createdAt": "2024-09-18T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-08T19:21:33.401513+00:00",
+    "socialLinks": {
+      "instagram": "https://instagram.com/example",
+      "youtube": "https://youtube.com/@example"
+    },
+    "slug": "rowan-brown-swimming",
+    "profileImageUrl": "https://picsum.photos/seed/rowan-brown-swimming/400/400",
+    "actionImageUrl": "https://picsum.photos/seed/rowan-brown-swimming-action/800/450",
+    "tagline": "Swimming made simple",
+    "verified": true,
+    "featured": false,
+    "stats": {
+      "totalStudents": 167,
+      "totalContent": 0,
+      "avgRating": 4.83,
+      "totalReviews": 28,
+      "earningsTotal": 17517,
+      "earningsThisMonth": 807,
+      "earningsPending": 713
+    }
+  },
+  {
+    "uid": "uid_creator_football_1",
+    "firstName": "Morgan",
+    "lastName": "Lee",
+    "email": "morgan-lee-football@example.com",
+    "bio": "Morgan Lee is a American Football coach focused on high-impact fundamentals and modern tactics.",
+    "expertise": [
+      "coaching",
+      "analysis"
+    ],
+    "sports": [
+      "football"
+    ],
+    "certifications": [
+      "US Coaching Cert"
+    ],
+    "goals": [
+      "develop athletes"
+    ],
+    "achievements": [
+      "American Football regional champion"
+    ],
+    "isPublic": true,
+    "role": "creator",
+    "createdAt": "2024-09-18T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-08T19:21:33.401513+00:00",
+    "socialLinks": {
+      "instagram": "https://instagram.com/example",
+      "youtube": "https://youtube.com/@example"
+    },
+    "slug": "morgan-lee-football",
+    "profileImageUrl": "https://picsum.photos/seed/morgan-lee-football/400/400",
+    "actionImageUrl": "https://picsum.photos/seed/morgan-lee-football-action/800/450",
+    "tagline": "American Football made simple",
+    "verified": true,
+    "featured": true,
+    "stats": {
+      "totalStudents": 213,
+      "totalContent": 0,
+      "avgRating": 4.76,
+      "totalReviews": 69,
+      "earningsTotal": 25436,
+      "earningsThisMonth": 359,
+      "earningsPending": 641
+    }
+  },
+  {
+    "uid": "uid_creator_football_2",
+    "firstName": "Cameron",
+    "lastName": "Martinez",
+    "email": "cameron-martinez-football@example.com",
+    "bio": "Cameron Martinez is a American Football coach focused on high-impact fundamentals and modern tactics.",
+    "expertise": [
+      "coaching",
+      "analysis"
+    ],
+    "sports": [
+      "football"
+    ],
+    "certifications": [
+      "US Coaching Cert"
+    ],
+    "goals": [
+      "develop athletes"
+    ],
+    "achievements": [
+      "American Football regional champion"
+    ],
+    "isPublic": true,
+    "role": "creator",
+    "createdAt": "2024-09-18T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-08T19:21:33.401513+00:00",
+    "socialLinks": {
+      "instagram": "https://instagram.com/example",
+      "youtube": "https://youtube.com/@example"
+    },
+    "slug": "cameron-martinez-football",
+    "profileImageUrl": "https://picsum.photos/seed/cameron-martinez-football/400/400",
+    "actionImageUrl": "https://picsum.photos/seed/cameron-martinez-football-action/800/450",
+    "tagline": "American Football made simple",
+    "verified": true,
+    "featured": false,
+    "stats": {
+      "totalStudents": 260,
+      "totalContent": 0,
+      "avgRating": 4.33,
+      "totalReviews": 41,
+      "earningsTotal": 8828,
+      "earningsThisMonth": 3110,
+      "earningsPending": 518
+    }
+  },
+  {
+    "uid": "uid_creator_football_3",
+    "firstName": "Quinn",
+    "lastName": "Lee",
+    "email": "quinn-lee-football@example.com",
+    "bio": "Quinn Lee is a American Football coach focused on high-impact fundamentals and modern tactics.",
+    "expertise": [
+      "coaching",
+      "analysis"
+    ],
+    "sports": [
+      "football"
+    ],
+    "certifications": [
+      "US Coaching Cert"
+    ],
+    "goals": [
+      "develop athletes"
+    ],
+    "achievements": [
+      "American Football regional champion"
+    ],
+    "isPublic": true,
+    "role": "creator",
+    "createdAt": "2024-09-18T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-08T19:21:33.401513+00:00",
+    "socialLinks": {
+      "instagram": "https://instagram.com/example",
+      "youtube": "https://youtube.com/@example"
+    },
+    "slug": "quinn-lee-football",
+    "profileImageUrl": "https://picsum.photos/seed/quinn-lee-football/400/400",
+    "actionImageUrl": "https://picsum.photos/seed/quinn-lee-football-action/800/450",
+    "tagline": "American Football made simple",
+    "verified": true,
+    "featured": false,
+    "stats": {
+      "totalStudents": 342,
+      "totalContent": 0,
+      "avgRating": 4.23,
+      "totalReviews": 29,
+      "earningsTotal": 17116,
+      "earningsThisMonth": 966,
+      "earningsPending": 883
+    }
+  },
+  {
+    "uid": "uid_creator_golf_1",
+    "firstName": "Alex",
+    "lastName": "Lee",
+    "email": "alex-lee-golf@example.com",
+    "bio": "Alex Lee is a Golf coach focused on high-impact fundamentals and modern tactics.",
+    "expertise": [
+      "coaching",
+      "analysis"
+    ],
+    "sports": [
+      "golf"
+    ],
+    "certifications": [
+      "US Coaching Cert"
+    ],
+    "goals": [
+      "develop athletes"
+    ],
+    "achievements": [
+      "Golf regional champion"
+    ],
+    "isPublic": true,
+    "role": "creator",
+    "createdAt": "2024-09-18T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-08T19:21:33.401513+00:00",
+    "socialLinks": {
+      "instagram": "https://instagram.com/example",
+      "youtube": "https://youtube.com/@example"
+    },
+    "slug": "alex-lee-golf",
+    "profileImageUrl": "https://picsum.photos/seed/alex-lee-golf/400/400",
+    "actionImageUrl": "https://picsum.photos/seed/alex-lee-golf-action/800/450",
+    "tagline": "Golf made simple",
+    "verified": true,
+    "featured": true,
+    "stats": {
+      "totalStudents": 207,
+      "totalContent": 0,
+      "avgRating": 4.64,
+      "totalReviews": 32,
+      "earningsTotal": 15112,
+      "earningsThisMonth": 638,
+      "earningsPending": 903
+    }
+  },
+  {
+    "uid": "uid_creator_golf_2",
+    "firstName": "Taylor",
+    "lastName": "Johnson",
+    "email": "taylor-johnson-golf@example.com",
+    "bio": "Taylor Johnson is a Golf coach focused on high-impact fundamentals and modern tactics.",
+    "expertise": [
+      "coaching",
+      "analysis"
+    ],
+    "sports": [
+      "golf"
+    ],
+    "certifications": [
+      "US Coaching Cert"
+    ],
+    "goals": [
+      "develop athletes"
+    ],
+    "achievements": [
+      "Golf regional champion"
+    ],
+    "isPublic": true,
+    "role": "creator",
+    "createdAt": "2024-09-18T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-08T19:21:33.401513+00:00",
+    "socialLinks": {
+      "instagram": "https://instagram.com/example",
+      "youtube": "https://youtube.com/@example"
+    },
+    "slug": "taylor-johnson-golf",
+    "profileImageUrl": "https://picsum.photos/seed/taylor-johnson-golf/400/400",
+    "actionImageUrl": "https://picsum.photos/seed/taylor-johnson-golf-action/800/450",
+    "tagline": "Golf made simple",
+    "verified": true,
+    "featured": false,
+    "stats": {
+      "totalStudents": 102,
+      "totalContent": 0,
+      "avgRating": 4.36,
+      "totalReviews": 46,
+      "earningsTotal": 64901,
+      "earningsThisMonth": 569,
+      "earningsPending": 41
+    }
+  },
+  {
+    "uid": "uid_creator_golf_3",
+    "firstName": "Rowan",
+    "lastName": "Brown",
+    "email": "rowan-brown-golf@example.com",
+    "bio": "Rowan Brown is a Golf coach focused on high-impact fundamentals and modern tactics.",
+    "expertise": [
+      "coaching",
+      "analysis"
+    ],
+    "sports": [
+      "golf"
+    ],
+    "certifications": [
+      "US Coaching Cert"
+    ],
+    "goals": [
+      "develop athletes"
+    ],
+    "achievements": [
+      "Golf regional champion"
+    ],
+    "isPublic": true,
+    "role": "creator",
+    "createdAt": "2024-09-18T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-08T19:21:33.401513+00:00",
+    "socialLinks": {
+      "instagram": "https://instagram.com/example",
+      "youtube": "https://youtube.com/@example"
+    },
+    "slug": "rowan-brown-golf",
+    "profileImageUrl": "https://picsum.photos/seed/rowan-brown-golf/400/400",
+    "actionImageUrl": "https://picsum.photos/seed/rowan-brown-golf-action/800/450",
+    "tagline": "Golf made simple",
+    "verified": true,
+    "featured": false,
+    "stats": {
+      "totalStudents": 125,
+      "totalContent": 0,
+      "avgRating": 4.73,
+      "totalReviews": 83,
+      "earningsTotal": 69708,
+      "earningsThisMonth": 2468,
+      "earningsPending": 841
+    }
+  },
+  {
+    "uid": "uid_creator_boxing_1",
+    "firstName": "Cameron",
+    "lastName": "Johnson",
+    "email": "cameron-johnson-boxing@example.com",
+    "bio": "Cameron Johnson is a Boxing coach focused on high-impact fundamentals and modern tactics.",
+    "expertise": [
+      "coaching",
+      "analysis"
+    ],
+    "sports": [
+      "boxing"
+    ],
+    "certifications": [
+      "US Coaching Cert"
+    ],
+    "goals": [
+      "develop athletes"
+    ],
+    "achievements": [
+      "Boxing regional champion"
+    ],
+    "isPublic": true,
+    "role": "creator",
+    "createdAt": "2024-09-18T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-08T19:21:33.401513+00:00",
+    "socialLinks": {
+      "instagram": "https://instagram.com/example",
+      "youtube": "https://youtube.com/@example"
+    },
+    "slug": "cameron-johnson-boxing",
+    "profileImageUrl": "https://picsum.photos/seed/cameron-johnson-boxing/400/400",
+    "actionImageUrl": "https://picsum.photos/seed/cameron-johnson-boxing-action/800/450",
+    "tagline": "Boxing made simple",
+    "verified": true,
+    "featured": true,
+    "stats": {
+      "totalStudents": 360,
+      "totalContent": 0,
+      "avgRating": 4.38,
+      "totalReviews": 21,
+      "earningsTotal": 72323,
+      "earningsThisMonth": 4053,
+      "earningsPending": 322
+    }
+  },
+  {
+    "uid": "uid_creator_boxing_2",
+    "firstName": "Jordan",
+    "lastName": "Lopez",
+    "email": "jordan-lopez-boxing@example.com",
+    "bio": "Jordan Lopez is a Boxing coach focused on high-impact fundamentals and modern tactics.",
+    "expertise": [
+      "coaching",
+      "analysis"
+    ],
+    "sports": [
+      "boxing"
+    ],
+    "certifications": [
+      "US Coaching Cert"
+    ],
+    "goals": [
+      "develop athletes"
+    ],
+    "achievements": [
+      "Boxing regional champion"
+    ],
+    "isPublic": true,
+    "role": "creator",
+    "createdAt": "2024-09-18T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-08T19:21:33.401513+00:00",
+    "socialLinks": {
+      "instagram": "https://instagram.com/example",
+      "youtube": "https://youtube.com/@example"
+    },
+    "slug": "jordan-lopez-boxing",
+    "profileImageUrl": "https://picsum.photos/seed/jordan-lopez-boxing/400/400",
+    "actionImageUrl": "https://picsum.photos/seed/jordan-lopez-boxing-action/800/450",
+    "tagline": "Boxing made simple",
+    "verified": true,
+    "featured": false,
+    "stats": {
+      "totalStudents": 153,
+      "totalContent": 0,
+      "avgRating": 4.59,
+      "totalReviews": 89,
+      "earningsTotal": 55603,
+      "earningsThisMonth": 354,
+      "earningsPending": 156
+    }
+  },
+  {
+    "uid": "uid_creator_boxing_3",
+    "firstName": "Cameron",
+    "lastName": "Cruz",
+    "email": "cameron-cruz-boxing@example.com",
+    "bio": "Cameron Cruz is a Boxing coach focused on high-impact fundamentals and modern tactics.",
+    "expertise": [
+      "coaching",
+      "analysis"
+    ],
+    "sports": [
+      "boxing"
+    ],
+    "certifications": [
+      "US Coaching Cert"
+    ],
+    "goals": [
+      "develop athletes"
+    ],
+    "achievements": [
+      "Boxing regional champion"
+    ],
+    "isPublic": true,
+    "role": "creator",
+    "createdAt": "2024-09-18T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-08T19:21:33.401513+00:00",
+    "socialLinks": {
+      "instagram": "https://instagram.com/example",
+      "youtube": "https://youtube.com/@example"
+    },
+    "slug": "cameron-cruz-boxing",
+    "profileImageUrl": "https://picsum.photos/seed/cameron-cruz-boxing/400/400",
+    "actionImageUrl": "https://picsum.photos/seed/cameron-cruz-boxing-action/800/450",
+    "tagline": "Boxing made simple",
+    "verified": true,
+    "featured": false,
+    "stats": {
+      "totalStudents": 383,
+      "totalContent": 0,
+      "avgRating": 4.57,
+      "totalReviews": 5,
+      "earningsTotal": 93396,
+      "earningsThisMonth": 2281,
+      "earningsPending": 672
+    }
+  },
+  {
+    "uid": "uid_creator_track_1",
+    "firstName": "Quinn",
+    "lastName": "Smith",
+    "email": "quinn-smith-track@example.com",
+    "bio": "Quinn Smith is a Track & Field coach focused on high-impact fundamentals and modern tactics.",
+    "expertise": [
+      "coaching",
+      "analysis"
+    ],
+    "sports": [
+      "track"
+    ],
+    "certifications": [
+      "US Coaching Cert"
+    ],
+    "goals": [
+      "develop athletes"
+    ],
+    "achievements": [
+      "Track & Field regional champion"
+    ],
+    "isPublic": true,
+    "role": "creator",
+    "createdAt": "2024-09-18T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-08T19:21:33.401513+00:00",
+    "socialLinks": {
+      "instagram": "https://instagram.com/example",
+      "youtube": "https://youtube.com/@example"
+    },
+    "slug": "quinn-smith-track",
+    "profileImageUrl": "https://picsum.photos/seed/quinn-smith-track/400/400",
+    "actionImageUrl": "https://picsum.photos/seed/quinn-smith-track-action/800/450",
+    "tagline": "Track & Field made simple",
+    "verified": true,
+    "featured": true,
+    "stats": {
+      "totalStudents": 101,
+      "totalContent": 0,
+      "avgRating": 4.65,
+      "totalReviews": 25,
+      "earningsTotal": 99047,
+      "earningsThisMonth": 2718,
+      "earningsPending": 237
+    }
+  },
+  {
+    "uid": "uid_creator_track_2",
+    "firstName": "Jordan",
+    "lastName": "Davis",
+    "email": "jordan-davis-track@example.com",
+    "bio": "Jordan Davis is a Track & Field coach focused on high-impact fundamentals and modern tactics.",
+    "expertise": [
+      "coaching",
+      "analysis"
+    ],
+    "sports": [
+      "track"
+    ],
+    "certifications": [
+      "US Coaching Cert"
+    ],
+    "goals": [
+      "develop athletes"
+    ],
+    "achievements": [
+      "Track & Field regional champion"
+    ],
+    "isPublic": true,
+    "role": "creator",
+    "createdAt": "2024-09-18T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-08T19:21:33.401513+00:00",
+    "socialLinks": {
+      "instagram": "https://instagram.com/example",
+      "youtube": "https://youtube.com/@example"
+    },
+    "slug": "jordan-davis-track",
+    "profileImageUrl": "https://picsum.photos/seed/jordan-davis-track/400/400",
+    "actionImageUrl": "https://picsum.photos/seed/jordan-davis-track-action/800/450",
+    "tagline": "Track & Field made simple",
+    "verified": true,
+    "featured": false,
+    "stats": {
+      "totalStudents": 332,
+      "totalContent": 0,
+      "avgRating": 4.53,
+      "totalReviews": 57,
+      "earningsTotal": 2758,
+      "earningsThisMonth": 981,
+      "earningsPending": 803
+    }
+  },
+  {
+    "uid": "uid_creator_track_3",
+    "firstName": "Casey",
+    "lastName": "Smith",
+    "email": "casey-smith-track@example.com",
+    "bio": "Casey Smith is a Track & Field coach focused on high-impact fundamentals and modern tactics.",
+    "expertise": [
+      "coaching",
+      "analysis"
+    ],
+    "sports": [
+      "track"
+    ],
+    "certifications": [
+      "US Coaching Cert"
+    ],
+    "goals": [
+      "develop athletes"
+    ],
+    "achievements": [
+      "Track & Field regional champion"
+    ],
+    "isPublic": true,
+    "role": "creator",
+    "createdAt": "2024-09-18T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-08T19:21:33.401513+00:00",
+    "socialLinks": {
+      "instagram": "https://instagram.com/example",
+      "youtube": "https://youtube.com/@example"
+    },
+    "slug": "casey-smith-track",
+    "profileImageUrl": "https://picsum.photos/seed/casey-smith-track/400/400",
+    "actionImageUrl": "https://picsum.photos/seed/casey-smith-track-action/800/450",
+    "tagline": "Track & Field made simple",
+    "verified": true,
+    "featured": false,
+    "stats": {
+      "totalStudents": 295,
+      "totalContent": 0,
+      "avgRating": 4.78,
+      "totalReviews": 66,
+      "earningsTotal": 13728,
+      "earningsThisMonth": 3520,
+      "earningsPending": 560
+    }
+  },
+  {
+    "uid": "uid_joseph",
+    "firstName": "Joseph",
+    "lastName": "Llanes",
+    "email": "joseph@example.com",
+    "bio": "Enthusiastic athlete using Game Plan.",
+    "expertise": [],
+    "sports": [
+      "soccer"
+    ],
+    "certifications": [],
+    "goals": [],
+    "achievements": [],
+    "isPublic": false,
+    "role": "superadmin",
+    "createdAt": "2025-05-21T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-16T19:21:33.401513+00:00",
+    "slug": "joseph",
+    "profileImageUrl": "https://picsum.photos/seed/uid_joseph/200/200",
+    "verified": true,
+    "featured": false
+  },
+  {
+    "uid": "uid_lona",
+    "firstName": "Lona",
+    "lastName": "K.",
+    "email": "lona@example.com",
+    "bio": "Enthusiastic athlete using Game Plan.",
+    "expertise": [],
+    "sports": [
+      "soccer"
+    ],
+    "certifications": [],
+    "goals": [],
+    "achievements": [],
+    "isPublic": false,
+    "role": "superadmin",
+    "createdAt": "2025-05-21T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-16T19:21:33.401513+00:00",
+    "slug": "lona",
+    "profileImageUrl": "https://picsum.photos/seed/uid_lona/200/200",
+    "verified": true,
+    "featured": false
+  },
+  {
+    "uid": "uid_merline",
+    "firstName": "Merline",
+    "lastName": "Saintil",
+    "email": "merline@example.com",
+    "bio": "Enthusiastic athlete using Game Plan.",
+    "expertise": [],
+    "sports": [
+      "soccer"
+    ],
+    "certifications": [],
+    "goals": [],
+    "achievements": [],
+    "isPublic": false,
+    "role": "superadmin",
+    "createdAt": "2025-05-21T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-16T19:21:33.401513+00:00",
+    "slug": "merline",
+    "profileImageUrl": "https://picsum.photos/seed/uid_merline/200/200",
+    "verified": true,
+    "featured": false
+  },
+  {
+    "uid": "uid_user_1",
+    "firstName": "User1",
+    "lastName": "Tester",
+    "email": "user1@example.com",
+    "bio": "Enthusiastic athlete using Game Plan.",
+    "expertise": [],
+    "sports": [
+      "volleyball"
+    ],
+    "certifications": [],
+    "goals": [
+      "improve technique",
+      "build stamina"
+    ],
+    "achievements": [],
+    "isPublic": false,
+    "role": "user",
+    "createdAt": "2025-05-21T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-16T19:21:33.401513+00:00",
+    "slug": "user-1",
+    "profileImageUrl": "https://picsum.photos/seed/uid_user_1/200/200",
+    "verified": false,
+    "featured": false
+  },
+  {
+    "uid": "uid_user_2",
+    "firstName": "User2",
+    "lastName": "Tester",
+    "email": "user2@example.com",
+    "bio": "Enthusiastic athlete using Game Plan.",
+    "expertise": [],
+    "sports": [
+      "volleyball"
+    ],
+    "certifications": [],
+    "goals": [
+      "improve technique",
+      "build stamina"
+    ],
+    "achievements": [],
+    "isPublic": false,
+    "role": "user",
+    "createdAt": "2025-05-21T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-16T19:21:33.401513+00:00",
+    "slug": "user-2",
+    "profileImageUrl": "https://picsum.photos/seed/uid_user_2/200/200",
+    "verified": false,
+    "featured": false
+  },
+  {
+    "uid": "uid_user_3",
+    "firstName": "User3",
+    "lastName": "Tester",
+    "email": "user3@example.com",
+    "bio": "Enthusiastic athlete using Game Plan.",
+    "expertise": [],
+    "sports": [
+      "bjj"
+    ],
+    "certifications": [],
+    "goals": [
+      "improve technique",
+      "build stamina"
+    ],
+    "achievements": [],
+    "isPublic": false,
+    "role": "user",
+    "createdAt": "2025-05-21T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-16T19:21:33.401513+00:00",
+    "slug": "user-3",
+    "profileImageUrl": "https://picsum.photos/seed/uid_user_3/200/200",
+    "verified": false,
+    "featured": false
+  },
+  {
+    "uid": "uid_user_4",
+    "firstName": "User4",
+    "lastName": "Tester",
+    "email": "user4@example.com",
+    "bio": "Enthusiastic athlete using Game Plan.",
+    "expertise": [],
+    "sports": [
+      "golf"
+    ],
+    "certifications": [],
+    "goals": [
+      "improve technique",
+      "build stamina"
+    ],
+    "achievements": [],
+    "isPublic": false,
+    "role": "user",
+    "createdAt": "2025-05-21T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-16T19:21:33.401513+00:00",
+    "slug": "user-4",
+    "profileImageUrl": "https://picsum.photos/seed/uid_user_4/200/200",
+    "verified": false,
+    "featured": false
+  },
+  {
+    "uid": "uid_user_5",
+    "firstName": "User5",
+    "lastName": "Tester",
+    "email": "user5@example.com",
+    "bio": "Enthusiastic athlete using Game Plan.",
+    "expertise": [],
+    "sports": [
+      "basketball"
+    ],
+    "certifications": [],
+    "goals": [
+      "improve technique",
+      "build stamina"
+    ],
+    "achievements": [],
+    "isPublic": false,
+    "role": "user",
+    "createdAt": "2025-05-21T19:21:33.401513+00:00",
+    "updatedAt": "2025-09-16T19:21:33.401513+00:00",
+    "slug": "user-5",
+    "profileImageUrl": "https://picsum.photos/seed/uid_user_5/200/200",
+    "verified": false,
+    "featured": false
+  }
+]

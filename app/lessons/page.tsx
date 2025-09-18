@@ -6,6 +6,8 @@ import { collection, query, where, getDocs, orderBy } from 'firebase/firestore'
 import { db } from '@/lib/firebase.client'
 import Link from 'next/link'
 import { Play, Clock, Eye, Video, FileVideo, Search, ArrowLeft } from 'lucide-react'
+import { getMockLessons, MOCK_DATA_ENABLED } from '@/lib/mock-data'
+import MockDataPanel from '@/components/dev/MockDataPanel'
 
 interface LessonData {
   id: string
@@ -20,6 +22,7 @@ interface LessonData {
   createdAt: any
   status: string
   hasMedia?: boolean
+  _isMockData?: boolean
 }
 
 function LessonsContent() {
@@ -41,6 +44,29 @@ function LessonsContent() {
     try {
       setLoading(true)
       console.log('🔍 Fetching lessons from content collection...', coachFilter ? `filtered by coach: ${coachFilter}` : '')
+
+      // 🚧 MOCK: Try mock data first if enabled
+      if (MOCK_DATA_ENABLED) {
+        console.log('🚧 Attempting to load mock data...')
+        try {
+          const mockLessons = await getMockLessons(undefined, 50)
+          if (mockLessons.length > 0) {
+            let filteredMockLessons = mockLessons
+
+            // Apply coach filter if specified
+            if (coachFilter) {
+              filteredMockLessons = mockLessons.filter(lesson => lesson.creatorUid === coachFilter)
+            }
+
+            setLessons(filteredMockLessons)
+            console.log('🚧 Loaded mock lessons:', filteredMockLessons.length)
+            setLoading(false)
+            return
+          }
+        } catch (mockError) {
+          console.log('🚧 Mock data failed, falling back to real data:', mockError)
+        }
+      }
 
       // Build query - if coachFilter exists, filter by creatorUid
       let q
@@ -346,7 +372,7 @@ function LessonsContent() {
                   )}
                   
                   {/* Media Indicator */}
-                  <div className="absolute top-3 right-3">
+                  <div className="absolute top-3 right-3 flex flex-col gap-1">
                     {lesson.hasMedia ? (
                       <div className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">
                         <Video className="w-3 h-3 inline mr-1" />
@@ -356,6 +382,13 @@ function LessonsContent() {
                       <div className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">
                         <FileVideo className="w-3 h-3 inline mr-1" />
                         Text
+                      </div>
+                    )}
+
+                    {/* 🚧 MOCK: Mock data indicator */}
+                    {lesson._isMockData && (
+                      <div className="bg-amber-100 text-amber-700 px-2 py-1 rounded text-xs font-medium">
+                        🚧 MOCK
                       </div>
                     )}
                   </div>
@@ -419,6 +452,9 @@ function LessonsContent() {
             </div>
           </div>
         )}
+
+        {/* 🚧 DEV: Mock Data Panel - Only shows in development */}
+        <MockDataPanel />
       </div>
     </div>
   )

@@ -1,0 +1,36 @@
+// Basic secure-by-default example (adjust for your app)
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() { return request.auth != null; }
+    function isUser(uid) { return isSignedIn() && request.auth.uid == uid; }
+    function isAdmin() { return isSignedIn() && request.auth.token.role in ['admin','superadmin']; }
+
+    match /admin/{doc} {
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+    }
+
+    match /users/{uid} {
+      allow read: if isUser(uid) || isAdmin();
+      allow write: if isUser(uid) || isAdmin();
+    }
+
+    // Public creator directory
+    match /creatorPublic/{slug} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Content is public to read, restricted to write
+    match /content/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

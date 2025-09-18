@@ -13,12 +13,12 @@ export default function CircularBadge({ text, userRole, className = '', size = '
   // Determine text based on role if not explicitly provided
   const displayText = text || (() => {
     switch (userRole) {
-      case 'creator': return 'Coach Portal'
-      case 'user': return 'Athlete Zone'
-      case 'admin': return 'Admin Hub'
+      case 'creator': return 'Coach'
+      case 'user': return 'Athlete'
+      case 'admin': return 'Admin'
       case 'superadmin': return 'Super Admin'
-      case 'assistant_coach': return 'Assistant Coach'
-      default: return 'Athletic Coach'
+      case 'assistant_coach': return 'Assistant'
+      default: return 'Coach'
     }
   })()
   return (
@@ -43,12 +43,12 @@ export default function CircularBadge({ text, userRole, className = '', size = '
         .circular-badge-container {
           position: relative;
           margin: 0 auto;
-          width: ${size === 'small' ? '120px' : '340px'};
-          height: ${size === 'small' ? '60px' : '170px'};
+          width: ${size === 'small' ? '100px' : '340px'};
+          height: ${size === 'small' ? '50px' : '170px'};
         }
 
         .space-label {
-          width: ${size === 'small' ? '170px' : '340px'};
+          width: ${size === 'small' ? '100px' : '340px'};
           margin: 0 auto;
           position: absolute;
           left: 50%;
@@ -58,48 +58,48 @@ export default function CircularBadge({ text, userRole, className = '', size = '
 
         .top,
         .bottom {
-          height: ${size === 'small' ? '30px' : '60px'};
+          height: ${size === 'small' ? '25px' : '60px'};
           overflow: hidden;
           position: relative;
-          width: ${size === 'small' ? '85px' : '170px'};
+          width: ${size === 'small' ? '50px' : '170px'};
           margin: 0 auto;
         }
 
         .ring {
           border-radius: 100%;
           position: absolute;
-          width: ${size === 'small' ? '85px' : '170px'};
-          height: ${size === 'small' ? '85px' : '170px'};
+          width: ${size === 'small' ? '50px' : '170px'};
+          height: ${size === 'small' ? '50px' : '170px'};
           border: 3px solid #B91C1C;
-          border-width: ${size === 'small' ? '4px' : '8px'};
+          border-width: ${size === 'small' ? '2px' : '8px'};
         }
 
         .ring.ring-2 {
-          border-width: ${size === 'small' ? '2px' : '4px'};
-          width: ${size === 'small' ? '77px' : '154px'};
+          border-width: ${size === 'small' ? '1px' : '4px'};
+          width: ${size === 'small' ? '45px' : '154px'};
         }
 
         .ring.ring-2::after {
           content: '';
-          width: ${size === 'small' ? '9px' : '18px'};
+          width: ${size === 'small' ? '5px' : '18px'};
           position: absolute;
           border-top: 1px solid #B91C1C;
           left: 50%;
-          margin-left: ${size === 'small' ? '-4.5px' : '-9px'};
+          margin-left: ${size === 'small' ? '-2.5px' : '-9px'};
         }
 
         .ring.ring-2::before {
           content: '';
-          width: ${size === 'small' ? '16px' : '32px'};
+          width: ${size === 'small' ? '8px' : '32px'};
           position: absolute;
           border-top: 1px solid #B91C1C;
-          margin-left: ${size === 'small' ? '-8px' : '-16px'};
+          margin-left: ${size === 'small' ? '-4px' : '-16px'};
           left: 50%;
         }
 
         .ring.ring-3 {
           border-width: ${size === 'small' ? '1px' : '2px'};
-          width: ${size === 'small' ? '69px' : '139px'};
+          width: ${size === 'small' ? '40px' : '139px'};
         }
 
         .top .ring.ring-1 {
@@ -108,21 +108,21 @@ export default function CircularBadge({ text, userRole, className = '', size = '
         }
 
         .top .ring.ring-2 {
-          top: ${size === 'small' ? '5px' : '10px'};
-          left: ${size === 'small' ? '4px' : '8px'};
+          top: ${size === 'small' ? '2.5px' : '10px'};
+          left: ${size === 'small' ? '2.5px' : '8px'};
         }
 
         .top .ring.ring-2::after {
-          top: ${size === 'small' ? '8px' : '17px'};
+          top: ${size === 'small' ? '4px' : '17px'};
         }
 
         .top .ring.ring-2::before {
-          top: ${size === 'small' ? '11px' : '22px'};
+          top: ${size === 'small' ? '6px' : '22px'};
         }
 
         .top .ring.ring-3 {
-          top: ${size === 'small' ? '10px' : '20px'};
-          left: ${size === 'small' ? '8px' : '16px'};
+          top: ${size === 'small' ? '5px' : '20px'};
+          left: ${size === 'small' ? '5px' : '16px'};
         }
 
         .top .ring.ring-3::after {
@@ -168,17 +168,17 @@ export default function CircularBadge({ text, userRole, className = '', size = '
           text-align: center;
           text-transform: uppercase;
           font-family: 'Inter', sans-serif;
-          font-size: ${size === 'small' ? '8px' : '24px'};
+          font-size: ${size === 'small' ? '7px' : '24px'};
           font-weight: 900;
           color: #B91C1C;
-          height: ${size === 'small' ? '28px' : '55px'};
+          height: ${size === 'small' ? '24px' : '55px'};
           vertical-align: middle;
           display: table-cell;
-          width: ${size === 'small' ? '170px' : '340px'};
+          width: ${size === 'small' ? '100px' : '340px'};
           position: relative;
-          left: ${size === 'small' ? '3px' : '7px'};
-          letter-spacing: ${size === 'small' ? '1px' : '4px'};
-          line-height: ${size === 'small' ? '28px' : '55px'};
+          left: ${size === 'small' ? '0px' : '7px'};
+          letter-spacing: ${size === 'small' ? '0.5px' : '4px'};
+          line-height: ${size === 'small' ? '24px' : '55px'};
         }
 
         @media (max-width: 768px) {
