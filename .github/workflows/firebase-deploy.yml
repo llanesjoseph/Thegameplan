@@ -41,12 +41,13 @@ jobs:
       - name: Build Next.js app
         run: npm run build
 
-      - name: Deploy to Firebase Hosting
-        uses: FirebaseExtended/action-hosting-deploy@v0
+      - name: Install Firebase Functions dependencies
+        run: cd functions && npm ci
+
+      - name: Deploy to Firebase (All services)
+        uses: w9jds/firebase-action@master
         with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_GAMEPLAN_787A2 }}
-          channelId: live
-          projectId: gameplan-787a2
+          args: deploy --only hosting,functions,firestore:rules,storage
         env:
-          FIREBASE_CLI_EXPERIMENTS: webframeworks
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          PROJECT_ID: gameplan-787a2
