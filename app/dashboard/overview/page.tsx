@@ -148,41 +148,25 @@ export default function DashboardOverview() {
         <div>
           <h2 className="text-lg font-semibold text-gray-800 mb-4">Recent Activity</h2>
           <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-card">
-            <div className="space-y-4">
-              <div className="flex items-center gap-4 p-4 bg-green-50 rounded-lg border border-green-100">
-                <div className="p-2 bg-green-100 rounded-lg">
-                  <CheckCircle className="w-5 h-5 text-green-600" />
-                </div>
-                <div className="flex-1">
-                  <p className="font-medium text-gray-800">
-                    {role === 'creator' ? 'Published lesson: Advanced Techniques' : 'Completed: Basic Training'}
-                  </p>
-                  <p className="text-sm text-gray-600">2 hours ago</p>
-                </div>
+            <div className="text-center py-8">
+              <div className="p-4 bg-gray-50 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                <BarChart3 className="w-8 h-8 text-gray-400" />
               </div>
-              
-              <div className="flex items-center gap-4 p-4 bg-blue-50 rounded-lg border border-blue-100">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <MessageCircle className="w-5 h-5 text-blue-600" />
-                </div>
-                <div className="flex-1">
-                  <p className="font-medium text-gray-800">
-                    {role === 'creator' ? 'New coaching request received' : 'Coaching session scheduled'}
-                  </p>
-                  <p className="text-sm text-gray-600">5 hours ago</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-4 p-4 bg-purple-50 rounded-lg border border-purple-100">
-                <div className="p-2 bg-purple-100 rounded-lg">
-                  <PlayCircle className="w-5 h-5 text-purple-600" />
-                </div>
-                <div className="flex-1">
-                  <p className="font-medium text-gray-800">
-                    {role === 'creator' ? 'Video reached 100 views' : 'Started new lesson series'}
-                  </p>
-                  <p className="text-sm text-gray-600">1 day ago</p>
-                </div>
+              <p className="text-gray-600 mb-2">No recent activity yet</p>
+              <p className="text-sm text-gray-500">
+                {role === 'creator'
+                  ? 'Start creating content to see your activity here'
+                  : 'Begin learning to track your progress here'
+                }
+              </p>
+              <div className="mt-4">
+                <Link
+                  href={role === 'creator' ? '/dashboard/creator' : '/lessons'}
+                  className="inline-flex items-center gap-2 text-cardinal hover:text-cardinal-dark text-sm font-medium"
+                >
+                  {role === 'creator' ? 'Create Your First Lesson' : 'Browse Lessons'}
+                  <ArrowUpRight className="w-4 h-4" />
+                </Link>
               </div>
             </div>
           </div>

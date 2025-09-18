@@ -87,23 +87,19 @@ const CTA = () => {
           </div>
         </div>
         
-        {/* Bottom Stats */}
-        <div className="grid md:grid-cols-4 gap-6 mt-16 max-w-4xl mx-auto">
+        {/* Trust Indicators */}
+        <div className="grid md:grid-cols-3 gap-6 mt-16 max-w-3xl mx-auto">
           <div className="text-center">
-            <div className="text-3xl font-bold gradient-text mb-2">50,000+</div>
-            <div className="text-[var(--mid-gray)] font-medium">Active Users</div>
+            <div className="text-2xl font-bold gradient-text mb-2">AI-Powered</div>
+            <div className="text-[var(--mid-gray)] font-medium">Performance Analysis</div>
           </div>
           <div className="text-center">
-            <div className="text-3xl font-bold gradient-text mb-2">95%</div>
-            <div className="text-[var(--mid-gray)] font-medium">Satisfaction Rate</div>
+            <div className="text-2xl font-bold gradient-text mb-2">Expert</div>
+            <div className="text-[var(--mid-gray)] font-medium">Coaching Network</div>
           </div>
           <div className="text-center">
-            <div className="text-3xl font-bold gradient-text mb-2">24/7</div>
-            <div className="text-[var(--mid-gray)] font-medium">AI Support</div>
-          </div>
-          <div className="text-center">
-            <div className="text-3xl font-bold gradient-text mb-2">100M+</div>
-            <div className="text-[var(--mid-gray)] font-medium">Data Points</div>
+            <div className="text-2xl font-bold gradient-text mb-2">Personalized</div>
+            <div className="text-[var(--mid-gray)] font-medium">Training Paths</div>
           </div>
         </div>
       </div>
