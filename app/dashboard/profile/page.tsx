@@ -205,7 +205,7 @@ export default function ProfilePage() {
               <ArrowLeft className="w-5 h-5" />
             </Link>
             <h1 className="text-3xl font-bold text-slate-900">
-              {role === 'creator' ? 'Creator Profile' : 'My Profile'}
+              {role === 'creator' ? 'Coach Profile' : 'Athlete Profile'}
             </h1>
           </div>
           
@@ -309,7 +309,7 @@ export default function ProfilePage() {
                     onChange={(e) => setProfileData(prev => ({ ...prev, bio: e.target.value }))}
                     className="w-full border border-slate-300 rounded-lg p-3"
                     rows={3}
-                    placeholder="Tell us about your coaching background and expertise..."
+                    placeholder="Tell us about your athletic background and coaching expertise..."
                   />
                   <div className="grid grid-cols-2 gap-4">
                     <input
@@ -371,55 +371,106 @@ export default function ProfilePage() {
             <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-slate-900">
-                  {role === 'creator' ? 'Specialties' : 'Sports Interests'}
+                  {role === 'creator' ? 'Sports Specialties' : 'Sports Interests'}
                 </h3>
-                {isEditing && (
-                  <button 
-                    onClick={() => setProfileData(prev => ({ 
-                      ...prev, 
-                      specialties: [...prev.specialties, 'New Specialty'] 
-                    }))}
-                    className="text-purple-600 hover:text-purple-700 text-sm flex items-center gap-1"
-                  >
-                    <Upload className="w-4 h-4" />
-                    Add Specialty
-                  </button>
-                )}
               </div>
-              {isEditing ? (
-                <div className="space-y-2">
-                  {profileData.specialties.map((specialty, index) => (
-                    <div key={index} className="flex items-center gap-2">
-                      <input
-                        type="text"
-                        value={specialty}
-                        onChange={(e) => {
-                          const newSpecialties = [...profileData.specialties]
-                          newSpecialties[index] = e.target.value
-                          setProfileData(prev => ({ ...prev, specialties: newSpecialties }))
-                        }}
-                        className="flex-1 border border-slate-300 rounded p-2"
-                      />
+
+              {role === 'creator' ? (
+                // Creator specialties - allow custom text inputs
+                <>
+                  {isEditing && (
+                    <div className="mb-4">
                       <button
-                        onClick={() => {
-                          const newSpecialties = profileData.specialties.filter((_, i) => i !== index)
-                          setProfileData(prev => ({ ...prev, specialties: newSpecialties }))
-                        }}
-                        className="text-red-500 hover:text-red-700 text-sm"
+                        onClick={() => setProfileData(prev => ({
+                          ...prev,
+                          specialties: [...prev.specialties, 'New Specialty']
+                        }))}
+                        className="text-purple-600 hover:text-purple-700 text-sm flex items-center gap-1"
                       >
-                        Remove
+                        <Upload className="w-4 h-4" />
+                        Add Custom Specialty
                       </button>
                     </div>
-                  ))}
-                </div>
+                  )}
+                  {isEditing ? (
+                    <div className="space-y-2">
+                      {profileData.specialties.map((specialty, index) => (
+                        <div key={index} className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={specialty}
+                            onChange={(e) => {
+                              const newSpecialties = [...profileData.specialties]
+                              newSpecialties[index] = e.target.value
+                              setProfileData(prev => ({ ...prev, specialties: newSpecialties }))
+                            }}
+                            className="flex-1 border border-slate-300 rounded p-2"
+                          />
+                          <button
+                            onClick={() => {
+                              const newSpecialties = profileData.specialties.filter((_, i) => i !== index)
+                              setProfileData(prev => ({ ...prev, specialties: newSpecialties }))
+                            }}
+                            className="text-red-500 hover:text-red-700 text-sm"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
+                      {profileData.specialties.map((specialty, index) => (
+                        <span key={index} className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm">
+                          {specialty}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </>
               ) : (
-                <div className="flex flex-wrap gap-2">
-                  {profileData.specialties.map((specialty, index) => (
-                    <span key={index} className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm">
-                      {specialty}
-                    </span>
-                  ))}
-                </div>
+                // User sports interests - use checkbox selection
+                <>
+                  {isEditing ? (
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      {['Soccer', 'Basketball', 'Tennis', 'Baseball', 'Football'].map((sport) => (
+                        <label key={sport} className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={profileData.specialties.includes(sport)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setProfileData(prev => ({
+                                  ...prev,
+                                  specialties: [...prev.specialties, sport]
+                                }))
+                              } else {
+                                setProfileData(prev => ({
+                                  ...prev,
+                                  specialties: prev.specialties.filter(s => s !== sport)
+                                }))
+                              }
+                            }}
+                            className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                          />
+                          <span className="text-sm text-slate-700">{sport}</span>
+                        </label>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
+                      {profileData.specialties.length > 0 ? (
+                        profileData.specialties.map((sport, index) => (
+                          <span key={index} className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">
+                            {sport}
+                          </span>
+                        ))
+                      ) : (
+                        <p className="text-slate-500 text-sm">No sports selected yet</p>
+                      )}
+                    </div>
+                  )}
+                </>
               )}
             </div>
 

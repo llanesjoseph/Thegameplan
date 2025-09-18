@@ -17,58 +17,58 @@ import {
 
 const quickActions = {
   user: [
-    { 
-      title: 'Browse Lessons', 
-      description: 'Explore training content',
-      icon: BookOpen, 
-      href: '/lessons', 
+    {
+      title: 'Browse Training',
+      description: 'Explore athletic content',
+      icon: BookOpen,
+      href: '/lessons',
       color: 'from-blue-500 to-blue-600',
       iconBg: 'bg-blue-100',
       iconColor: 'text-blue-600'
     },
-    { 
-      title: 'Request Coaching', 
+    {
+      title: 'Request Coaching',
       description: 'Get personalized guidance',
-      icon: MessageCircle, 
-      href: '/dashboard/coaching', 
+      icon: MessageCircle,
+      href: '/dashboard/coaching',
       color: 'from-green-500 to-green-600',
       iconBg: 'bg-green-100',
       iconColor: 'text-green-600'
     },
-    { 
-      title: 'My Progress', 
-      description: 'Track your development',
-      icon: TrendingUp, 
-      href: '/dashboard/progress', 
+    {
+      title: 'My Progress',
+      description: 'Track your athletic development',
+      icon: TrendingUp,
+      href: '/dashboard/progress',
       color: 'from-purple-500 to-purple-600',
       iconBg: 'bg-purple-100',
       iconColor: 'text-purple-600'
     }
   ],
   creator: [
-    { 
-      title: 'Create Lesson', 
+    {
+      title: 'Create Training',
       description: 'Share your expertise',
-      icon: Video, 
-      href: '/dashboard/creator', 
+      icon: Video,
+      href: '/dashboard/creator',
       color: 'from-red-500 to-red-600',
       iconBg: 'bg-red-100',
       iconColor: 'text-red-600'
     },
-    { 
-      title: 'Coaching Requests', 
-      description: 'Help students improve',
-      icon: MessageCircle, 
-      href: '/dashboard/creator/requests', 
+    {
+      title: 'Athlete Requests',
+      description: 'Help athletes improve',
+      icon: MessageCircle,
+      href: '/dashboard/creator/requests',
       color: 'from-green-500 to-green-600',
       iconBg: 'bg-green-100',
       iconColor: 'text-green-600'
     },
-    { 
-      title: 'Analytics', 
-      description: 'View your impact',
-      icon: BarChart3, 
-      href: '/dashboard/creator/analytics', 
+    {
+      title: 'Analytics',
+      description: 'View your coaching impact',
+      icon: BarChart3,
+      href: '/dashboard/creator/analytics',
       color: 'from-purple-500 to-purple-600',
       iconBg: 'bg-purple-100',
       iconColor: 'text-purple-600'
@@ -116,7 +116,7 @@ export default function DashboardOverview() {
             Welcome back, {user.displayName || user.email?.split('@')[0]}! 👋
           </h1>
           <p className="text-gray-600 mt-1">
-            Here's your {role === 'creator' ? 'content' : 'learning'} overview
+            Here's your {role === 'creator' ? 'coaching' : 'athletic development'} overview
           </p>
         </div>
       </div>
@@ -155,8 +155,8 @@ export default function DashboardOverview() {
               <p className="text-gray-600 mb-2">No recent activity yet</p>
               <p className="text-sm text-gray-500">
                 {role === 'creator'
-                  ? 'Start creating content to see your activity here'
-                  : 'Begin learning to track your progress here'
+                  ? 'Start coaching to see your activity here'
+                  : 'Begin training to track your progress here'
                 }
               </p>
               <div className="mt-4">
@@ -164,7 +164,7 @@ export default function DashboardOverview() {
                   href={role === 'creator' ? '/dashboard/creator' : '/lessons'}
                   className="inline-flex items-center gap-2 text-cardinal hover:text-cardinal-dark text-sm font-medium"
                 >
-                  {role === 'creator' ? 'Create Your First Lesson' : 'Browse Lessons'}
+                  {role === 'creator' ? 'Start Coaching' : 'Browse Training'}
                   <ArrowUpRight className="w-4 h-4" />
                 </Link>
               </div>
@@ -178,19 +178,19 @@ export default function DashboardOverview() {
           <div className="space-y-4">
             <div className="bg-gradient-to-r from-cardinal to-cardinal-dark rounded-lg p-6 text-white">
               <h3 className="font-semibold mb-2">
-                {role === 'creator' ? 'Create Your Next Lesson' : 'Continue Learning'}
+                {role === 'creator' ? 'Coach Your Next Athlete' : 'Continue Training'}
               </h3>
               <p className="text-gray-100/80 text-sm mb-4">
-                {role === 'creator' 
-                  ? 'Share your expertise with new content' 
-                  : 'Keep building your skills with new lessons'
+                {role === 'creator'
+                  ? 'Share your expertise and help athletes grow'
+                  : 'Keep building your skills with new training'
                 }
               </p>
               <Link 
                 href={role === 'creator' ? '/dashboard/creator' : '/lessons'}
                 className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg text-sm font-medium hover:bg-white/30 transition-colors"
               >
-                {role === 'creator' ? 'Start Creating' : 'Browse Lessons'}
+                {role === 'creator' ? 'Start Coaching' : 'Browse Training'}
                 <ArrowUpRight className="w-4 h-4" />
               </Link>
             </div>
@@ -203,8 +203,8 @@ export default function DashboardOverview() {
                 <h3 className="font-semibold text-gray-800">Connect & Grow</h3>
               </div>
               <p className="text-gray-600 text-sm mb-4">
-                {role === 'creator' 
-                  ? 'View feedback from your students' 
+                {role === 'creator'
+                  ? 'View feedback from your athletes'
                   : 'Connect with expert coaches'
                 }
               </p>
