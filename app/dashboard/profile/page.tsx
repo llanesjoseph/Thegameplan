@@ -376,60 +376,100 @@ export default function ProfilePage() {
               </div>
 
               {role === 'creator' ? (
-                // Creator specialties - allow custom text inputs
+                // Coach specialties - allow custom text inputs plus sport selection
                 <>
-                  {isEditing && (
-                    <div className="mb-4">
-                      <button
-                        onClick={() => setProfileData(prev => ({
-                          ...prev,
-                          specialties: [...prev.specialties, 'New Specialty']
-                        }))}
-                        className="text-purple-600 hover:text-purple-700 text-sm flex items-center gap-1"
-                      >
-                        <Upload className="w-4 h-4" />
-                        Add Custom Specialty
-                      </button>
-                    </div>
-                  )}
-                  {isEditing ? (
-                    <div className="space-y-2">
-                      {profileData.specialties.map((specialty, index) => (
-                        <div key={index} className="flex items-center gap-2">
-                          <input
-                            type="text"
-                            value={specialty}
-                            onChange={(e) => {
-                              const newSpecialties = [...profileData.specialties]
-                              newSpecialties[index] = e.target.value
-                              setProfileData(prev => ({ ...prev, specialties: newSpecialties }))
-                            }}
-                            className="flex-1 border border-slate-300 rounded p-2"
-                          />
+                  <div className="space-y-4">
+                    {/* Sport Checkboxes for Coaches too */}
+                    {isEditing && (
+                      <div>
+                        <h4 className="text-sm font-medium text-slate-700 mb-3">Core Sports</h4>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
+                          {['Soccer', 'Basketball', 'Tennis', 'Baseball', 'Football'].map((sport) => (
+                            <label key={sport} className="flex items-center gap-2 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={profileData.specialties.includes(sport)}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setProfileData(prev => ({
+                                      ...prev,
+                                      specialties: [...prev.specialties, sport]
+                                    }))
+                                  } else {
+                                    setProfileData(prev => ({
+                                      ...prev,
+                                      specialties: prev.specialties.filter(s => s !== sport)
+                                    }))
+                                  }
+                                }}
+                                className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                              />
+                              <span className="text-sm text-slate-700">{sport}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Custom Specialties for Coaches */}
+                    {isEditing && (
+                      <div>
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="text-sm font-medium text-slate-700">Additional Specialties</h4>
                           <button
-                            onClick={() => {
-                              const newSpecialties = profileData.specialties.filter((_, i) => i !== index)
-                              setProfileData(prev => ({ ...prev, specialties: newSpecialties }))
-                            }}
-                            className="text-red-500 hover:text-red-700 text-sm"
+                            onClick={() => setProfileData(prev => ({
+                              ...prev,
+                              specialties: [...prev.specialties, 'New Specialty']
+                            }))}
+                            className="text-purple-600 hover:text-purple-700 text-sm flex items-center gap-1"
                           >
-                            Remove
+                            <Upload className="w-4 h-4" />
+                            Add Custom
                           </button>
                         </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="flex flex-wrap gap-2">
-                      {profileData.specialties.map((specialty, index) => (
-                        <span key={index} className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm">
-                          {specialty}
-                        </span>
-                      ))}
-                    </div>
-                  )}
+                        <div className="space-y-2">
+                          {profileData.specialties.filter(s => !['Soccer', 'Basketball', 'Tennis', 'Baseball', 'Football'].includes(s)).map((specialty, index) => (
+                            <div key={index} className="flex items-center gap-2">
+                              <input
+                                type="text"
+                                value={specialty}
+                                onChange={(e) => {
+                                  const newSpecialties = [...profileData.specialties]
+                                  const actualIndex = profileData.specialties.indexOf(specialty)
+                                  newSpecialties[actualIndex] = e.target.value
+                                  setProfileData(prev => ({ ...prev, specialties: newSpecialties }))
+                                }}
+                                className="flex-1 border border-slate-300 rounded p-2"
+                              />
+                              <button
+                                onClick={() => {
+                                  const newSpecialties = profileData.specialties.filter(s => s !== specialty)
+                                  setProfileData(prev => ({ ...prev, specialties: newSpecialties }))
+                                }}
+                                className="text-red-500 hover:text-red-700 text-sm"
+                              >
+                                Remove
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Display view for coaches */}
+                    {!isEditing && (
+                      <div className="flex flex-wrap gap-2">
+                        {profileData.specialties.map((specialty, index) => (
+                          <span key={index} className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm">
+                            {specialty}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </>
               ) : (
-                // User sports interests - use checkbox selection
+                // Athlete sports interests - use checkbox selection only
                 <>
                   {isEditing ? (
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">

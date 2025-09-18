@@ -133,7 +133,7 @@ function LessonsContent() {
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <div className="text-red-600 text-2xl">!</div>
             </div>
-            <h1 className="text-gray-800 text-2xl font-bold mb-2">Error Loading Lessons</h1>
+            <h1 className="text-gray-800 text-2xl font-bold mb-2">Error Loading Training</h1>
             <p className="text-gray-600 mb-6">{error}</p>
             <button 
               onClick={fetchPublishedLessons}
@@ -155,16 +155,16 @@ function LessonsContent() {
           {coachFilter && (
             <Link href="/lessons" className="inline-flex items-center gap-2 text-cardinal hover:text-cardinal-dark mb-4 transition-colors">
               <ArrowLeft className="w-4 h-4" />
-              Back to All Lessons
+              Back to All Training
             </Link>
           )}
           <h1 className="text-4xl font-bold text-gray-800 mb-4">
-            {coachFilter ? `${coachName}'s Lessons` : 'Browse Lessons'}
+            {coachFilter ? `${coachName}'s Training` : 'Browse Training'}
           </h1>
           <p className="text-gray-600 text-lg max-w-2xl mx-auto">
             {coachFilter 
-              ? `Discover educational content created by ${coachName}`
-              : 'Discover educational content created by our community of instructors'
+              ? `Discover training content created by ${coachName}`
+              : 'Discover training content created by our community of coaches'
             }
           </p>
         </div>

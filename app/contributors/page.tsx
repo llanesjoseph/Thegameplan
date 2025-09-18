@@ -233,7 +233,7 @@ export default function ContributorsPage() {
                   <span className="font-medium">Personalized for you</span>
                 </div>
                 <p className="text-sm text-gray-600">
-                  Showing contributors based on your sports preferences. Change filters to explore other sports.
+                  Showing coaches based on your sports preferences. Change filters to explore other sports.
                 </p>
               </div>
             )}
@@ -342,7 +342,7 @@ export default function ContributorsPage() {
             <div className="flex items-center gap-2 text-gray-600">
               <Users className="w-5 h-5" />
               <span className="text-lg font-medium">
-                {specialtyFiltered.length} {specialtyFiltered.length === 1 ? 'contributor' : 'contributors'}
+                {specialtyFiltered.length} {specialtyFiltered.length === 1 ? 'coach' : 'coaches'}
                 {totalCount > 0 && ` of ${totalCount} total`}
               </span>
             </div>
@@ -352,7 +352,7 @@ export default function ContributorsPage() {
             className="inline-flex items-center gap-2 px-6 py-3 bg-cardinal text-white font-semibold rounded-lg hover:bg-cardinal-dark transition"
           >
             <Star className="w-4 h-4" />
-            Become a Contributor
+            Become a Coach
           </Link>
         </div>
       </div>
@@ -463,9 +463,9 @@ export default function ContributorsPage() {
             <div className="w-32 h-32 mx-auto mb-8 bg-cardinal/10 rounded-full flex items-center justify-center">
               <Users className="w-16 h-16 text-cardinal/60" />
             </div>
-            <h3 className="text-2xl font-bold mb-4 text-gray-800">No contributors found</h3>
+            <h3 className="text-2xl font-bold mb-4 text-gray-800">No coaches found</h3>
             <p className="text-gray-600 mb-8 max-w-md mx-auto leading-relaxed">
-              We couldn't find any contributors matching your search criteria. Try adjusting your filters or search terms.
+              We couldn't find any coaches matching your search criteria. Try adjusting your filters or search terms.
             </p>
             <button
               onClick={clearFilters}

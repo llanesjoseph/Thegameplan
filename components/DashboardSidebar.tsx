@@ -183,10 +183,10 @@ export function DashboardSidebar() {
           <div className="bg-gray-50 rounded-xl p-3 border border-gray-100">
             <div className="flex justify-around text-xs">
               <Link href="/lessons" className="text-gray-600 hover:text-gray-900 transition-colors">
-                📚 Lessons
+                📚 Training
               </Link>
               <Link href="/contributors" className="text-gray-600 hover:text-gray-900 transition-colors">
-                👥 Contributors  
+                👥 Coaches  
               </Link>
               <Link href="/subscribe" className="text-gray-600 hover:text-gray-900 transition-colors">
                 ⭐ Subscribe

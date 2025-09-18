@@ -446,8 +446,8 @@ Enhanced with detailed explanations, visual demonstrations, and progressive skil
               <ArrowLeft className="w-5 h-5 text-gray-600" />
             </Link>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Lesson Studio</h1>
-              <p className="text-gray-600">Create and manage your educational content</p>
+              <h1 className="text-2xl font-bold text-gray-900">Training Studio</h1>
+              <p className="text-gray-600">Create and manage your training content</p>
             </div>
           </div>
           
@@ -470,7 +470,7 @@ Enhanced with detailed explanations, visual demonstrations, and progressive skil
               <CheckCircle className="w-5 h-5 text-green-600" />
               <div className="flex-1">
                 <p className="text-green-800 font-medium">Lesson published successfully!</p>
-                <p className="text-green-600 text-sm">Your content is now available to students.</p>
+                <p className="text-green-600 text-sm">Your content is now available to athletes.</p>
               </div>
               <button
                 onClick={() => setUploadSuccess(false)}
