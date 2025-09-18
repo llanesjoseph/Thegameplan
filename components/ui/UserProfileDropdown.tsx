@@ -163,7 +163,7 @@ export default function UserProfileDropdown() {
     <div className="relative" ref={dropdownRef}>
       {/* Profile Button with Circular Badge */}
       <div className="flex items-center gap-3">
-        {/* Dynamic Role Badge */}
+        {/* Dynamic Role Badge - Updated */}
         <div className="hidden sm:block">
           <CircularBadge userRole={role} size="small" />
         </div>

@@ -22,7 +22,8 @@
       "Bash(taskkill:*)",
       "Bash(firebase deploy:*)",
       "mcp__ide__getDiagnostics",
-      "Bash(firebase login:*)"
+      "Bash(firebase login:*)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []
