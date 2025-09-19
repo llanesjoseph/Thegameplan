@@ -44,10 +44,10 @@ jobs:
       - name: Install Firebase Functions dependencies
         run: cd functions && npm ci
 
-      - name: Deploy to Firebase (Skip functions for now)
+      - name: Deploy to Firebase (Including functions for AI coaching)
         uses: w9jds/firebase-action@master
         with:
-          args: deploy --only hosting,firestore:rules,storage
+          args: deploy --only hosting,firestore:rules,storage,functions
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
           PROJECT_ID: gameplan-787a2
