@@ -2,7 +2,7 @@
   "name": "gameplan-functions",
   "private": true,
   "engines": {
-    "node": "20"
+    "node": "18"
   },
   "main": "index.js",
   "license": "UNLICENSED",

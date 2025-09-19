@@ -33,8 +33,9 @@ const nextConfig = {
   // Compression
   compress: true,
 
-  // No static export - we need API routes for production
-  // distDir: 'out', // Commented out to enable API routes
+  // Enable static export for Firebase hosting (API routes handled by Functions)
+  output: 'export',
+  distDir: 'out'
 
   // Disable type checking and linting during build for deployment
   eslint: {
