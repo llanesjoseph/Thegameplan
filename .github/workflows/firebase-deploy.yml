@@ -40,12 +40,17 @@ jobs:
       - name: Install Firebase Functions dependencies
         run: cd functions && npm ci
 
+      - name: Setup Firebase Service Account
+        run: |
+          echo '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}' > $HOME/gcp-key.json
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcp-key.json" >> $GITHUB_ENV
+
       - name: Delete legacy functions
         uses: w9jds/firebase-action@master
         with:
           args: functions:delete ai_assist ai_weekly_briefing stripe_checkout stripe_portal stripe_webhook --region us-central1 --force
         env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ env.GOOGLE_APPLICATION_CREDENTIALS }}
           PROJECT_ID: gameplan-787a2
         continue-on-error: true
 
@@ -54,5 +59,5 @@ jobs:
         with:
           args: deploy --only hosting,firestore:rules,storage,functions
         env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ env.GOOGLE_APPLICATION_CREDENTIALS }}
           PROJECT_ID: gameplan-787a2
