@@ -47,18 +47,15 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: projects/301349049756/locations/global/workloadIdentityPools/-github-actions-pool/providers/github-providergithub-provider
+          project_id: gameplan-787a2
 
       - name: Delete legacy functions
         uses: w9jds/firebase-action@master
         with:
-          args: functions:delete ai_assist ai_weekly_briefing stripe_checkout stripe_portal stripe_webhook --region us-central1 --force
-        env:
-          PROJECT_ID: gameplan-787a2
+          args: functions:delete ai_assist ai_weekly_briefing stripe_checkout stripe_portal stripe_webhook --region us-central1 --force --project gameplan-787a2
         continue-on-error: true
 
       - name: Deploy to Firebase (Including functions for AI coaching)
         uses: w9jds/firebase-action@master
         with:
-          args: deploy --only hosting,firestore:rules,storage,functions
-        env:
-          PROJECT_ID: gameplan-787a2
+          args: deploy --only hosting,firestore:rules,storage,functions --project gameplan-787a2
