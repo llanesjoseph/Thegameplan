@@ -23,7 +23,9 @@
       "Bash(firebase deploy:*)",
       "mcp__ide__getDiagnostics",
       "Bash(firebase login:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(npm run export:*)",
+      "Bash(npx next:*)"
     ],
     "deny": [],
     "ask": []

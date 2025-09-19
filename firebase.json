@@ -2,8 +2,18 @@
   "hosting": [
     {
       "site": "cruciblegameplan",
-      "public": ".next",
+      "public": "out",
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+      "rewrites": [
+        {
+          "source": "/api/ai-coaching",
+          "function": "aiCoaching"
+        },
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ],
       "headers": [
         {
           "source": "/_next/static/**",
