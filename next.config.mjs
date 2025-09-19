@@ -35,7 +35,7 @@ const nextConfig = {
 
   // Enable static export for Firebase hosting (API routes handled by Functions)
   output: 'export',
-  distDir: 'out'
+  distDir: 'out',
 
   // Disable type checking and linting during build for deployment
   eslint: {
