@@ -25,7 +25,8 @@
       "Bash(firebase login:*)",
       "Bash(cat:*)",
       "Bash(npm run export:*)",
-      "Bash(npx next:*)"
+      "Bash(npx next:*)",
+      "Bash(npm install:*)"
     ],
     "deny": [],
     "ask": []

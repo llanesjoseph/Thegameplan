@@ -17,7 +17,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
@@ -39,6 +39,15 @@ jobs:
 
       - name: Install Firebase Functions dependencies
         run: cd functions && npm ci
+
+      - name: Delete legacy functions
+        uses: w9jds/firebase-action@master
+        with:
+          args: functions:delete ai_assist ai_weekly_briefing stripe_checkout stripe_portal stripe_webhook --region us-central1 --force
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          PROJECT_ID: gameplan-787a2
+        continue-on-error: true
 
       - name: Deploy to Firebase (Including functions for AI coaching)
         uses: w9jds/firebase-action@master
