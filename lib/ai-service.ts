@@ -23,9 +23,9 @@ const getOpenAIClient = () => {
   return new OpenAI({ apiKey })
 }
 
-// Vertex AI via API route (browser-compatible)
+// Vertex AI via Firebase Function (browser-compatible)
 const callVertexAIAPI = async (question: string): Promise<string> => {
-  const response = await fetch('/api/ai-coaching', {
+  const response = await fetch('https://us-central1-gameplan-787a2.cloudfunctions.net/aiCoaching', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

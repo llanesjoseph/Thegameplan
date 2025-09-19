@@ -2,7 +2,7 @@
   "hosting": [
     {
       "site": "cruciblegameplan",
-      "public": "out",
+      "public": ".next",
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
       "headers": [
         {

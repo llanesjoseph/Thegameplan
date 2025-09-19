@@ -33,14 +33,8 @@ const nextConfig = {
   // Compression
   compress: true,
 
-  // Output configuration for Firebase Hosting (disabled in development)
-  ...(process.env.NODE_ENV === 'production' && {
-    output: 'export',
-    skipTrailingSlashRedirect: true,
-    skipMiddlewareUrlNormalize: true,
-    trailingSlash: true,
-    distDir: 'out',
-  }),
+  // No static export - we need API routes for production
+  // distDir: 'out', // Commented out to enable API routes
 
   // Disable type checking and linting during build for deployment
   eslint: {
