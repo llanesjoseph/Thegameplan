@@ -6,10 +6,6 @@
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
       "rewrites": [
         {
-          "source": "/api/ai-coaching",
-          "function": "aiCoaching"
-        },
-        {
           "source": "**",
           "destination": "/index.html"
         }
