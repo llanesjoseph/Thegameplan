@@ -59,8 +59,7 @@ jobs:
           else
             echo "Token found, length: ${#FIREBASE_TOKEN}"
             echo "Using token for Firebase deployment..."
-            firebase functions:config:set functions.gen2=false --project gameplan-787a2 --token "$FIREBASE_TOKEN"
-            firebase deploy --project gameplan-787a2 --token "$FIREBASE_TOKEN" --only functions:aiCoaching,hosting
+            firebase deploy --project gameplan-787a2 --token "$FIREBASE_TOKEN" --only functions:aiCoaching,hosting --no-gen2
           fi
 
       - name: Deploy static files to Firebase Hosting using gsutil
