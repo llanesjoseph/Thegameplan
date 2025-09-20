@@ -59,9 +59,7 @@ jobs:
           else
             echo "Token found, length: ${#FIREBASE_TOKEN}"
             echo "Using token for Firebase deployment..."
-            echo "Deploying function first..."
-            firebase deploy --project gameplan-787a2 --token "$FIREBASE_TOKEN" --only functions:aiCoaching --force
-            echo "Function deployed, now deploying hosting..."
+            echo "Deploying hosting only - skipping functions for now..."
             firebase deploy --project gameplan-787a2 --token "$FIREBASE_TOKEN" --only hosting
           fi
 
