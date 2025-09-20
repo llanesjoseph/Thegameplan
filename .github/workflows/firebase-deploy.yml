@@ -46,29 +46,11 @@ jobs:
       - name: Install Firebase CLI
         run: npm install -g firebase-tools
 
-      - name: Setup Google Cloud CLI
-        uses: google-github-actions/setup-gcloud@v2
-        with:
-          project_id: gameplan-787a2
-
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
-        with:
-          workload_identity_provider: projects/301349049756/locations/global/workloadIdentityPools/-github-actions-pool/providers/github-providergithub-provider
-          service_account: gameplan-787a2@appspot.gserviceaccount.com
-          project_id: gameplan-787a2
-
-      - name: Deploy to Cloud Run
+      - name: Deploy with Firebase CLI using permanent token
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_GAMEPLAN_787A2 }}
         run: |
-          echo "Building and deploying to Cloud Run..."
-          gcloud run deploy aicoaching \
-            --source=. \
-            --region=us-central1 \
-            --allow-unauthenticated \
-            --port=8080 \
-            --project=gameplan-787a2
-
-      - name: Deploy to Firebase Hosting
-        run: |
-          echo "Deploying static files to Firebase Hosting..."
-          gsutil -m rsync -r -d ./out gs://cruciblegameplan.web.app
+          echo "Setting Firebase configuration to force 1st generation functions..."
+          npx firebase functions:config:set runtime.generation=1 --project gameplan-787a2 --token "$FIREBASE_TOKEN" || true
+          echo "Deploying functions and hosting with Firebase CLI..."
+          npx firebase deploy --only functions:aiCoaching,hosting --project gameplan-787a2 --token "$FIREBASE_TOKEN" --force
