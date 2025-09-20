@@ -7,7 +7,7 @@
       "rewrites": [
         {
           "source": "/api/ai-coaching",
-          "function": "aiCoaching"
+          "function": "aiCoachingV2"
         },
         {
           "source": "**",
