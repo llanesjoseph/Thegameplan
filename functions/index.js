@@ -66,7 +66,10 @@ exports.setUserRole = functions.https.onRequest(async (req, res) => {
 })
 
 // AI Coaching API Function
-exports.aiCoaching = functions.https.onRequest(async (req, res) => {
+exports.aiCoaching = functions.runWith({
+  timeoutSeconds: 60,
+  memory: '256MB'
+}).https.onRequest(async (req, res) => {
   // Handle CORS
   corsHandler(req, res, async () => {
     try {
