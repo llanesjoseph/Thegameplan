@@ -51,7 +51,7 @@ jobs:
           project_id: gameplan-787a2
 
       - name: Deploy Firebase Functions using gcloud
-        run: gcloud functions deploy aiCoaching --source=./functions --entry-point=aiCoaching --runtime=nodejs20 --trigger=http --allow-unauthenticated --region=us-central1 --project=gameplan-787a2
+        run: gcloud functions deploy aiCoaching --source=./functions --entry-point=aiCoaching --runtime=nodejs20 --trigger-http --allow-unauthenticated --region=us-central1 --project=gameplan-787a2
 
       - name: Deploy static files to Firebase Hosting using gsutil
         run: |
