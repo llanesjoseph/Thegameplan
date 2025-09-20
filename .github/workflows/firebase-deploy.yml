@@ -47,6 +47,7 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: projects/301349049756/locations/global/workloadIdentityPools/-github-actions-pool/providers/github-providergithub-provider
+          service_account: gameplan-787a2@appspot.gserviceaccount.com
           project_id: gameplan-787a2
 
       - name: Delete legacy functions
