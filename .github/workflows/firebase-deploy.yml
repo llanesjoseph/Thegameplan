@@ -56,18 +56,9 @@ jobs:
       - name: Install Firebase CLI
         run: npm install -g firebase-tools
 
-      - name: Authenticate Firebase CLI
-        run: |
-          gcloud config set project gameplan-787a2
-          gcloud auth application-default print-access-token
-
       - name: Delete legacy functions
-        run: firebase functions:delete ai_assist ai_weekly_briefing stripe_checkout stripe_portal stripe_webhook --region us-central1 --force --project gameplan-787a2
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ env.GOOGLE_APPLICATION_CREDENTIALS }}
+        run: firebase functions:delete ai_assist ai_weekly_briefing stripe_checkout stripe_portal stripe_webhook --region us-central1 --force --project gameplan-787a2 || true
         continue-on-error: true
 
       - name: Deploy to Firebase (Including functions for AI coaching)
-        run: firebase deploy --only hosting,firestore:rules,storage,functions --project gameplan-787a2
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ env.GOOGLE_APPLICATION_CREDENTIALS }}
+        run: GOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_APPLICATION_CREDENTIALS firebase deploy --only hosting,firestore:rules,storage,functions --project gameplan-787a2 --non-interactive
