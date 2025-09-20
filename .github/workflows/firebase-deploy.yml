@@ -58,17 +58,14 @@ jobs:
           service_account: gameplan-787a2@appspot.gserviceaccount.com
           project_id: gameplan-787a2
 
-      - name: Deploy Function using gcloud
+      - name: Deploy to Cloud Run
         run: |
-          echo "Deploying function using gcloud..."
-          gcloud functions deploy aiCoaching \
-            --gen2 \
-            --runtime=nodejs20 \
+          echo "Building and deploying to Cloud Run..."
+          gcloud run deploy aicoaching \
+            --source=. \
             --region=us-central1 \
-            --source=./functions \
-            --entry-point=aiCoaching \
-            --trigger-http \
             --allow-unauthenticated \
+            --port=8080 \
             --project=gameplan-787a2
 
       - name: Deploy to Firebase Hosting
