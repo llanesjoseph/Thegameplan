@@ -44,9 +44,7 @@ jobs:
         run: cd functions && npm ci
 
       - name: Deploy Firebase Functions and Hosting
-        run: |
-          export GOOGLE_APPLICATION_CREDENTIALS_JSON='${{ secrets.FIREBASE_SERVICE_ACCOUNT_GAMEPLAN_787A2 }}'
-          npx firebase deploy --project gameplan-787a2
+        run: npx firebase deploy --project gameplan-787a2 --token "${{ secrets.FIREBASE_SERVICE_ACCOUNT_GAMEPLAN_787A2 }}"
 
       - name: Deploy static files to Firebase Hosting using gsutil
         run: |
