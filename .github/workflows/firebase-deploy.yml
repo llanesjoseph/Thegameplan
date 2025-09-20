@@ -50,13 +50,15 @@ jobs:
           service_account: gameplan-787a2@appspot.gserviceaccount.com
           project_id: gameplan-787a2
 
+      - name: Setup Google Cloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+
       - name: Delete legacy functions
-        uses: w9jds/firebase-action@master
-        with:
-          args: functions:delete ai_assist ai_weekly_briefing stripe_checkout stripe_portal stripe_webhook --region us-central1 --force --project gameplan-787a2
+        run: firebase functions:delete ai_assist ai_weekly_briefing stripe_checkout stripe_portal stripe_webhook --region us-central1 --force --project gameplan-787a2
         continue-on-error: true
 
       - name: Deploy to Firebase (Including functions for AI coaching)
-        uses: w9jds/firebase-action@master
-        with:
-          args: deploy --only hosting,firestore:rules,storage,functions --project gameplan-787a2
+        run: firebase deploy --only hosting,firestore:rules,storage,functions --project gameplan-787a2
