@@ -43,15 +43,10 @@ jobs:
       - name: Install Firebase Functions dependencies
         run: cd functions && npm ci
 
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
-        with:
-          workload_identity_provider: projects/301349049756/locations/global/workloadIdentityPools/-github-actions-pool/providers/github-providergithub-provider
-          service_account: gameplan-787a2@appspot.gserviceaccount.com
-          project_id: gameplan-787a2
-
-      - name: Deploy Firebase Functions using gcloud
-        run: gcloud functions deploy aiCoachingV2 --source=./functions --entry-point=aiCoaching --runtime=nodejs20 --trigger-http --allow-unauthenticated --region=us-central1 --project=gameplan-787a2
+      - name: Deploy Firebase Functions and Hosting
+        run: |
+          export GOOGLE_APPLICATION_CREDENTIALS_JSON='${{ secrets.FIREBASE_SERVICE_ACCOUNT_GAMEPLAN_787A2 }}'
+          npx firebase deploy --project gameplan-787a2
 
       - name: Deploy static files to Firebase Hosting using gsutil
         run: |
