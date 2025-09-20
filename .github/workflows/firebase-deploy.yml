@@ -50,15 +50,10 @@ jobs:
           service_account: gameplan-787a2@appspot.gserviceaccount.com
           project_id: gameplan-787a2
 
-      - name: Setup Google Cloud CLI
-        uses: google-github-actions/setup-gcloud@v2
+      - name: Deploy Firebase Functions using gcloud
+        run: gcloud functions deploy aiCoaching --source=./functions --entry-point=aiCoaching --runtime=nodejs20 --trigger=http --allow-unauthenticated --region=us-central1 --project=gameplan-787a2
 
-      - name: Install Firebase CLI
-        run: npm install -g firebase-tools
-
-      - name: Delete legacy functions
-        run: firebase functions:delete ai_assist ai_weekly_briefing stripe_checkout stripe_portal stripe_webhook --region us-central1 --force --project gameplan-787a2 || true
-        continue-on-error: true
-
-      - name: Deploy to Firebase (Including functions for AI coaching)
-        run: GOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_APPLICATION_CREDENTIALS firebase deploy --only hosting,firestore:rules,storage,functions --project gameplan-787a2 --non-interactive
+      - name: Deploy static files to Firebase Hosting using gsutil
+        run: |
+          gsutil -m rsync -r -d ./out gs://gameplan-787a2.appspot.com
+          gsutil -m setmeta -h "Cache-Control:public, max-age=3600" gs://gameplan-787a2.appspot.com/**
