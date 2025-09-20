@@ -67,13 +67,11 @@ jobs:
             --region=us-central1 \
             --source=./functions \
             --entry-point=aiCoaching \
-            --trigger=http \
+            --trigger-http \
             --allow-unauthenticated \
             --project=gameplan-787a2
 
       - name: Deploy to Firebase Hosting
         run: |
           echo "Deploying static files to Firebase Hosting..."
-          gcloud alpha web-apps deploy ./out \
-            --project=gameplan-787a2 \
-            --hosting-site=cruciblegameplan
+          gsutil -m rsync -r -d ./out gs://cruciblegameplan.web.app
