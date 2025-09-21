@@ -137,6 +137,9 @@ export default function AdminUserManagement() {
 
   const updateUserRole = async (uid: string, newRole: string) => {
     try {
+      // Set flag to prevent role switcher flicker
+      localStorage.setItem('admin_role_change_in_progress', 'true')
+
       // Show loading state during update
       setUsers(users.map(u => u.uid === uid ? { ...u, role: '...' } : u))
 
@@ -173,13 +176,22 @@ export default function AdminUserManagement() {
         setUsers(users.map(u => u.uid === uid ? { ...u, role: newRole } : u))
         console.log(`✅ User ${uid} role updated to ${newRole}`)
 
+        // Clear the flag after successful update for other users
+        setTimeout(() => {
+          localStorage.removeItem('admin_role_change_in_progress')
+        }, 1000)
+
       } else {
         console.error('❌ Failed to update user role')
+        // Clear flag on failure
+        localStorage.removeItem('admin_role_change_in_progress')
         // Revert optimistic update on failure
         setUsers(users.map(u => u.uid === uid ? { ...u, role: users.find(ou => ou.uid === uid)?.role || 'user' } : u))
       }
     } catch (error) {
       console.error('❌ Error updating user role:', error)
+      // Clear flag on error
+      localStorage.removeItem('admin_role_change_in_progress')
       // Revert optimistic update on error
       setUsers(users.map(u => u.uid === uid ? { ...u, role: users.find(ou => ou.uid === uid)?.role || 'user' } : u))
     }

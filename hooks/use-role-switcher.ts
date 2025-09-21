@@ -30,6 +30,9 @@ export function useRoleSwitcher() {
   // Track if page is unloading to prevent flicker during transitions
   const [isPageUnloading, setIsPageUnloading] = useState(false)
 
+  // Global flag to disable role updates during admin changes
+  const [isAdminRoleChange, setIsAdminRoleChange] = useState(false)
+
   // Page unload detection to prevent flicker during transitions
   useEffect(() => {
     const handleBeforeUnload = () => setIsPageUnloading(true)
@@ -48,10 +51,36 @@ export function useRoleSwitcher() {
     }
   }, [])
 
+  // Check for admin role change flag in localStorage
+  useEffect(() => {
+    const checkAdminRoleChange = () => {
+      const adminChangeFlag = localStorage.getItem('admin_role_change_in_progress')
+      if (adminChangeFlag) {
+        setIsAdminRoleChange(true)
+        // Clear the flag after a short delay
+        setTimeout(() => {
+          localStorage.removeItem('admin_role_change_in_progress')
+          setIsAdminRoleChange(false)
+        }, 2000)
+      }
+    }
+
+    checkAdminRoleChange()
+
+    // Listen for storage changes from other tabs/windows
+    window.addEventListener('storage', checkAdminRoleChange)
+    return () => window.removeEventListener('storage', checkAdminRoleChange)
+  }, [])
+
   // Initialize with user's actual role
   useEffect(() => {
-    // Skip updates during role switching operations or page unloading
-    if (isUpdating || isPageUnloading) return
+    // Skip updates during role switching operations, page unloading, or admin changes
+    if (isUpdating || isPageUnloading || isAdminRoleChange) {
+      if (isAdminRoleChange) {
+        console.log('🚫 Blocking role switcher updates during admin role change')
+      }
+      return
+    }
 
     // Add debounce to prevent rapid updates that cause flicker
     const debounceTimeout = setTimeout(() => {
@@ -72,7 +101,7 @@ export function useRoleSwitcher() {
     }, 100) // Small debounce to prevent rapid updates
 
     return () => clearTimeout(debounceTimeout)
-  }, [user?.role, user?.email, isUpdating, isPageUnloading])
+  }, [user?.role, user?.email, isUpdating, isPageUnloading, isAdminRoleChange])
 
   // Check if current user is super admin
   const isSuperAdmin = user?.role === 'superadmin'
