@@ -289,7 +289,11 @@ export default function ProfilePage() {
                 {profileData.displayName?.charAt(0) || 'J'}
               </div>
               {isEditing && (
-                <button className="absolute -bottom-1 -right-1 w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center text-white hover:bg-purple-700 transition-colors">
+                <button
+                  type="button"
+                  onClick={() => alert('Avatar upload feature coming soon!')}
+                  className="absolute -bottom-1 -right-1 w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center text-white hover:bg-purple-700 transition-colors"
+                >
                   <Camera className="w-4 h-4" />
                 </button>
               )}
