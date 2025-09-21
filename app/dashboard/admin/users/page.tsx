@@ -126,12 +126,37 @@ export default function AdminUserManagement() {
         status: newStatus,
         updatedAt: new Date()
       })
-      
+
       // Update local state
       setUsers(users.map(u => u.uid === uid ? { ...u, status: newStatus } : u))
-      
+
     } catch (error) {
       console.error('Error updating user status:', error)
+    }
+  }
+
+  const updateUserRole = async (uid: string, newRole: string) => {
+    try {
+      const response = await fetch('/api/set-user-role', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          targetUserId: uid,
+          newRole: newRole
+        })
+      })
+
+      if (response.ok) {
+        // Update local state
+        setUsers(users.map(u => u.uid === uid ? { ...u, role: newRole } : u))
+        console.log(`User role updated to ${newRole}`)
+      } else {
+        console.error('Failed to update user role')
+      }
+    } catch (error) {
+      console.error('Error updating user role:', error)
     }
   }
 
@@ -372,27 +397,53 @@ export default function AdminUserManagement() {
               </div>
               
               <div className="mt-6 space-y-3">
-                <button
-                  onClick={() => updateUserStatus(selectedUser.uid, 'active')}
-                  disabled={selectedUser.status === 'active'}
-                  className="btn btn-sm btn-outline w-full disabled:opacity-50"
-                >
-                  <UserCheck className="w-4 h-4 mr-2" />
-                  Activate User
-                </button>
-                
-                <button
-                  onClick={() => updateUserStatus(selectedUser.uid, 'suspended')}
-                  disabled={selectedUser.status === 'suspended'}
-                  className="btn btn-sm btn-outline w-full disabled:opacity-50"
-                >
-                  <UserX className="w-4 h-4 mr-2" />
-                  Suspend User
-                </button>
-                
+                {/* Role Selector */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">Change Role</label>
+                  <select
+                    value={selectedUser.role}
+                    onChange={(e) => updateUserRole(selectedUser.uid, e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cardinal focus:border-cardinal bg-white text-gray-900"
+                  >
+                    <option value="user">User</option>
+                    <option value="creator">Creator</option>
+                    <option value="admin">Admin</option>
+                    {role === 'superadmin' && (
+                      <option value="superadmin">Super Admin</option>
+                    )}
+                  </select>
+                  <p className="text-xs text-gray-500">
+                    {role === 'superadmin'
+                      ? 'You can assign any role including Super Admin'
+                      : 'You can assign User, Creator, or Admin roles'
+                    }
+                  </p>
+                </div>
+
+                {/* Status Actions */}
+                <div className="border-t pt-3 space-y-2">
+                  <button
+                    onClick={() => updateUserStatus(selectedUser.uid, 'active')}
+                    disabled={selectedUser.status === 'active'}
+                    className="btn btn-sm btn-outline w-full disabled:opacity-50"
+                  >
+                    <UserCheck className="w-4 h-4 mr-2" />
+                    Activate User
+                  </button>
+
+                  <button
+                    onClick={() => updateUserStatus(selectedUser.uid, 'suspended')}
+                    disabled={selectedUser.status === 'suspended'}
+                    className="btn btn-sm btn-outline w-full disabled:opacity-50"
+                  >
+                    <UserX className="w-4 h-4 mr-2" />
+                    Suspend User
+                  </button>
+                </div>
+
                 <button
                   onClick={() => setSelectedUser(null)}
-                  className="btn btn-sm w-full"
+                  className="btn btn-sm w-full mt-4"
                 >
                   Close
                 </button>
