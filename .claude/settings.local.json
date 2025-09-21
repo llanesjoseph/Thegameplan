@@ -28,7 +28,15 @@
       "Bash(npx next:*)",
       "Bash(npm install:*)",
       "Bash(firebase projects:list:*)",
-      "Bash(npx firebase login:ci:*)"
+      "Bash(npx firebase login:ci:*)",
+      "Bash(npx firebase emulators:start:*)",
+      "Bash(gcloud auth:*)",
+      "Bash(powershell:*)",
+      "Bash(start GoogleCloudSDKInstaller.exe)",
+      "Bash(firebase logout:*)",
+      "Bash(firebase functions:delete:*)",
+      "WebFetch(domain:console.cloud.google.com)",
+      "Bash(gcloud services enable:*)"
     ],
     "deny": [],
     "ask": []

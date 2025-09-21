@@ -2,13 +2,12 @@
   "name": "gameplan-functions",
   "private": true,
   "engines": {
-    "node": "20"
+    "node": "18"
   },
   "main": "index.js",
-  "license": "UNLICENSED",
   "dependencies": {
+    "@google-cloud/functions-framework": "^4.0.0",
     "cors": "^2.8.5",
-    "firebase-admin": "^12.4.0",
-    "firebase-functions": "^3.24.1"
+    "firebase-functions": "^6.4.0"
   }
 }
