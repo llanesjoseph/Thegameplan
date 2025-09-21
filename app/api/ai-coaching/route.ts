@@ -144,7 +144,8 @@ export async function POST(request: NextRequest) {
     console.log(`🎯 Using coaching context for: ${context.coachName} (${context.sport})`)
 
     // Creator-specific cache (per-process). Replace with Redis for production.
-    const cacheKey = `${context.coachName}|${creatorId}|${question}`
+    // Added version to cache key to bust cache after improvements
+    const cacheKey = `v2_${context.coachName}|${creatorId}|${question}`
     const nowTs = Date.now()
     const ttlMs = 24 * 60 * 60 * 1000
     ;(globalThis as any).__aiCache = (globalThis as any).__aiCache || new Map<string, { expires: number; value: string }>()

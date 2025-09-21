@@ -331,10 +331,12 @@ export const generateCoachingPrompt = (question: string, context: CoachingContex
 5. **Pro Tip**: One advanced insight from your playing experience
 
 **SOCCER-SPECIFIC REQUIREMENTS:**
-- Use proper soccer terminology (e.g., "scanning", "check runs", "switch play", "press resistant")
+- Recognize common soccer vernacular: PK (penalty kick), FK (free kick), corners, crosses, etc.
+- Use proper soccer terminology (e.g., "scanning", "check runs", "switch play", "press resistant", "jockeying")
 - Reference field positions, timing, and spatial awareness
 - Include physical and mental aspects of the technique
 - Make it actionable for immediate practice
+- Address the EXACT skill mentioned, not generic advice
 
 **FORMATTING:**
 - Use **bold** for key soccer concepts
@@ -561,6 +563,37 @@ What specific aspect of your BJJ game would you like to work on? I'm here to hel
   
   // Soccer-specific responses for Jasmine (existing code)
 
+  // Penalty kicks and set pieces
+  if (lowerQuestion.includes('pk') || lowerQuestion.includes('penalty') ||
+      lowerQuestion.includes('penalties') || lowerQuestion.includes('spot kick') ||
+      (lowerQuestion.includes('under pressure') && lowerQuestion.includes('kick'))) {
+    return `Penalty kicks under pressure - this is where mental strength separates great players from good ones!
+
+**Technical fundamentals:**
+**Routine is everything** - Pick your spot, commit, and execute the same way every time. I had a 90% success rate at Stanford because I never changed my routine.
+
+**Key technique points:**
+• **Pick your corner early** - Decide before you step up, not during your run-up
+• **Consistent run-up** - Same number of steps, same pace every time
+• **Plant foot placement** - 6-8 inches beside ball, pointed at target corner
+• **Follow through** - Keep your head down, drive through the ball
+
+**Mental preparation:**
+1. **Visualization** - See the ball hitting the net before you even place it
+2. **Breathing control** - 3 deep breaths to calm nerves and focus
+3. **Ignore the keeper** - They're trying to get in your head, don't let them
+4. **Trust your preparation** - You've practiced this thousands of times
+
+**Pressure management:**
+During big matches, I'd remind myself: "The goal is 24 feet wide and 8 feet high. The keeper can only cover about 12 feet. The odds are in my favor if I execute properly."
+
+**Pro tip:** Watch the keeper during warm-ups. Do they dive early? Do they favor a side? Use this intel, but don't overthink it. Technique and confidence beat mind games every time.
+
+**Practice routine:** Take 10 penalties daily from the same spot you'll take them in games. Make it automatic so pressure can't affect your execution.
+
+**Trust your preparation** - you've got this!`
+  }
+
   // Reading passes and vision - improved keyword matching
   if (lowerQuestion.includes('reading') || lowerQuestion.includes('read') ||
       lowerQuestion.includes('anticipat') || lowerQuestion.includes('vision') ||
@@ -645,6 +678,102 @@ Set up scenarios from different angles. 20 shots daily from box left, center, ri
 Confidence comes from repetition. Master 2-3 moves perfectly rather than knowing 10 poorly.`
   }
   
+  // Set pieces and corners
+  if (lowerQuestion.includes('corner') || lowerQuestion.includes('free kick') ||
+      lowerQuestion.includes('set piece') || lowerQuestion.includes('dead ball') ||
+      lowerQuestion.includes('crosses') || lowerQuestion.includes('crossing')) {
+    return `Set pieces are game-changers! At Stanford, we scored 30% of our goals from set plays.
+
+**Corner kick execution:**
+**Delivery is key** - Pick your target area before you even approach the ball.
+
+**Technical points:**
+• **In-swinger vs out-swinger** - In-swingers toward goal are harder for keepers
+• **Target zones** - Near post, penalty spot, far post, or back post
+• **Ball height** - Above defender heads but below keeper reach (8-10 feet)
+• **Pace and spin** - Driven crosses with backspin dip faster
+
+**Free kick strategy:**
+1. **Wall formation** - Know where they'll set up and plan accordingly
+2. **Dummy runs** - Use decoy runners to confuse defenders
+3. **Timing** - Quick restart when defense isn't set
+4. **Placement over power** - Corner accuracy beats blasting it
+
+**Game application:**
+I always studied opposing keepers - do they come for crosses? Stay on their line? This intel shaped our delivery choice.
+
+**Practice drill:** Set up 5 cones in the box at different heights. Hit each target 3 times in sequence. Consistency beats power.
+
+**Pro tip:** The best crossers don't just hit areas - they hit specific teammates. Pick your target player, not just a zone.
+
+**Trust your preparation** - great deliveries create chaos in the box!`
+  }
+
+  // Defending and tackling
+  if (lowerQuestion.includes('defend') || lowerQuestion.includes('tackle') ||
+      lowerQuestion.includes('marking') || lowerQuestion.includes('pressure') ||
+      lowerQuestion.includes('1v1 defending') || lowerQuestion.includes('jockey')) {
+    return `Defending is an art! As a midfielder, I had to win balls back constantly.
+
+**Core defending principles:**
+**Patience beats diving in** - Force attackers into mistakes rather than committing early.
+
+**Key fundamentals:**
+• **Body positioning** - Stay on your toes, slightly sideways to react either direction
+• **Distance** - Arm's length away - close enough to pressure, far enough to react
+• **Jockeying** - Force them to their weaker foot or toward sideline
+• **Timing** - Wait for their heavy touch or moment they look down
+
+**Tackling technique:**
+1. **Standing tackle** - Use inside foot, stay balanced, win ball cleanly
+2. **Slide tackle** - Last resort only, must be certain you'll win it
+3. **Block tackle** - Strong foot through the ball when they're dribbling
+4. **Shoulder charge** - Legal if ball is within playing distance
+
+**Mental approach:**
+I always focused on the ball, not the player's body movement. Hips lie, but the ball doesn't.
+
+**Practice drill:** Cone dribbling with partner pressure. Defender tries to win ball without fouling. Builds timing and patience.
+
+**Pro tip:** Watch their plant foot and first touch. A heavy touch is your chance to step in. Good defenders anticipate rather than react.
+
+**Trust your preparation** - defending is about intelligence, not aggression!`
+  }
+
+  // First touch and ball control
+  if (lowerQuestion.includes('first touch') || lowerQuestion.includes('touch') ||
+      lowerQuestion.includes('control') || lowerQuestion.includes('receive') ||
+      lowerQuestion.includes('trapping') || lowerQuestion.includes('receiving')) {
+    return `First touch separates good players from great ones! This was fundamental to my midfield success.
+
+**Technical breakdown:**
+**Cushion, don't stop** - Your first touch should set up your second touch.
+
+**Key principles:**
+• **Surface selection** - Inside foot for accuracy, outside for quick direction changes
+• **Body positioning** - Open to the field, can see maximum options
+• **Soft contact** - Let the ball come to you, don't attack it aggressively
+• **Touch direction** - Away from pressure, into space you want to play
+
+**Receiving under pressure:**
+1. **Check shoulder** - Know where pressure is coming from before ball arrives
+2. **Create space** - Small movement to get separation from marker
+3. **Quick decisions** - Know your next move before you receive
+4. **Protect the ball** - Use your body to shield from defenders
+
+**Practice drills:**
+- **Wall passes** - First touch prep, second touch pass. 100 reps daily
+- **Cone control** - Receive and touch around cone in one motion
+- **Pressure training** - Partner applies pressure while you receive and turn
+
+**Game application:**
+In tight games, I'd receive on my back foot 80% of the time to see the whole field and keep more options open.
+
+**Pro tip:** Practice receiving with both feet equally. Defenders can't predict which way you'll go if you're comfortable on both sides.
+
+**Trust your preparation** - great first touches create time and space!`
+  }
+
   // Position-specific advice
   if (lowerQuestion.includes('midfield') || lowerQuestion.includes('center') || lowerQuestion.includes('position')) {
     return `Ah, midfield questions - my specialty! As a Pac-12 Midfielder of the Year and team captain, I lived and breathed the center of the field.
