@@ -17,8 +17,7 @@ import {
   Star,
   Shield,
   UserCheck,
-  MoreHorizontal,
-  LayoutDashboard
+  MoreHorizontal
 } from 'lucide-react'
 import CircularBadge from './CircularBadge'
 
@@ -169,16 +168,6 @@ export default function UserProfileDropdown() {
           <CircularBadge userRole={role} size="small" />
         </div>
 
-        {/* Super Admin Dashboard Link */}
-        {role === 'superadmin' && (
-          <Link
-            href="/dashboard/admin"
-            className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-sm hover:shadow-md transition-all duration-200 group"
-            title="Admin Dashboard"
-          >
-            <LayoutDashboard className="w-4 h-4 group-hover:scale-110 transition-transform" />
-          </Link>
-        )}
 
         {/* Profile Button - Clean and Modern */}
         <button
