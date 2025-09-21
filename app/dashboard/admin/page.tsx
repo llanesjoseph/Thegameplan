@@ -1,15 +1,14 @@
 'use client'
 import { useEffect } from 'react'
-import { useEnhancedRole } from "@/hooks/use-role-switcher"
+import { useUrlEnhancedRole } from "@/hooks/use-url-role-switcher"
 import { useRouter } from 'next/navigation'
 
 export default function AdminDashboard() {
-  const { role, loading } = useEnhancedRole()
+  const { role } = useUrlEnhancedRole()
   const router = useRouter()
   useEffect(() => {
-    if (loading) return
     if (role !== 'admin' && role !== 'superadmin') router.replace('/dashboard')
-  }, [role, loading, router])
+  }, [role, router])
 
   return (
     <main className="min-h-screen bg-gray-50">

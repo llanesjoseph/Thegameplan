@@ -54,7 +54,7 @@ const TAB_ROLES: TabRole[] = [
     borderColor: 'border-orange-500',
     bgColor: 'bg-orange-50',
     description: 'Administrative functions',
-    defaultPath: '/dashboard/admin'
+    defaultPath: '/dashboard/admin/analytics'
   },
   {
     id: 'superadmin',
