@@ -33,9 +33,9 @@ const nextConfig = {
   // Compression
   compress: true,
 
-  // Enable static export for Firebase hosting (API routes handled by Functions)
-  output: 'export',
-  distDir: 'out',
+  // Vercel deployment - API routes enabled as serverless functions
+  // output: 'export', // Disabled for Vercel - this prevents API routes from working
+  // distDir: 'out',   // Not needed for Vercel
 
   // Disable type checking and linting during build for deployment
   eslint: {
