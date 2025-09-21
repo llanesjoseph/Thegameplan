@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import { useUrlEnhancedRole } from '@/hooks/use-url-role-switcher'
 import {
@@ -21,6 +22,7 @@ interface TabRole {
   borderColor: string
   bgColor: string
   description: string
+  defaultPath: string
 }
 
 const TAB_ROLES: TabRole[] = [
@@ -31,7 +33,8 @@ const TAB_ROLES: TabRole[] = [
     color: 'text-blue-600',
     borderColor: 'border-blue-500',
     bgColor: 'bg-blue-50',
-    description: 'Standard user experience'
+    description: 'Standard user experience',
+    defaultPath: '/dashboard/overview'
   },
   {
     id: 'creator',
@@ -40,7 +43,8 @@ const TAB_ROLES: TabRole[] = [
     color: 'text-purple-600',
     borderColor: 'border-purple-500',
     bgColor: 'bg-purple-50',
-    description: 'Content creator tools'
+    description: 'Content creator tools',
+    defaultPath: '/dashboard/creator'
   },
   {
     id: 'admin',
@@ -49,7 +53,8 @@ const TAB_ROLES: TabRole[] = [
     color: 'text-orange-600',
     borderColor: 'border-orange-500',
     bgColor: 'bg-orange-50',
-    description: 'Administrative functions'
+    description: 'Administrative functions',
+    defaultPath: '/dashboard/admin'
   },
   {
     id: 'superadmin',
@@ -58,7 +63,8 @@ const TAB_ROLES: TabRole[] = [
     color: 'text-red-600',
     borderColor: 'border-red-500',
     bgColor: 'bg-red-50',
-    description: 'Full system access'
+    description: 'Full system access',
+    defaultPath: '/dashboard/superadmin'
   }
 ]
 
@@ -70,6 +76,7 @@ interface SuperAdminTabsProps {
 export default function SuperAdminTabs({ children, className = '' }: SuperAdminTabsProps) {
   const { user } = useAuth()
   const { role, switchToRole } = useUrlEnhancedRole()
+  const router = useRouter()
 
   // Only show for super admins
   if (user?.role !== 'superadmin') {
@@ -77,6 +84,15 @@ export default function SuperAdminTabs({ children, className = '' }: SuperAdminT
   }
 
   const activeTab = TAB_ROLES.find(tab => tab.id === role) || TAB_ROLES[0]
+
+  const handleRoleSwitch = (newRole: string) => {
+    const targetTab = TAB_ROLES.find(tab => tab.id === newRole)
+    if (targetTab) {
+      // Switch role and navigate to the appropriate page
+      switchToRole(newRole as any)
+      router.push(targetTab.defaultPath)
+    }
+  }
 
   return (
     <div className={`w-full ${className}`}>
@@ -107,7 +123,7 @@ export default function SuperAdminTabs({ children, className = '' }: SuperAdminT
               return (
                 <button
                   key={tab.id}
-                  onClick={() => switchToRole(tab.id as any)}
+                  onClick={() => handleRoleSwitch(tab.id)}
                   className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-all duration-200 ${
                     isActive
                       ? `${tab.borderColor} ${tab.color}`
