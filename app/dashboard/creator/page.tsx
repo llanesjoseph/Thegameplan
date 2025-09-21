@@ -68,6 +68,11 @@ export default function CreatorDashboard() {
   
   // AI Features State
   const [showAIFeatures, setShowAIFeatures] = useState(false)
+
+  // Debug activeTab changes
+  useEffect(() => {
+    console.log('Current activeTab:', activeTab, 'Should show form:', activeTab === 'create')
+  }, [activeTab])
   const [generatingIdeas, setGeneratingIdeas] = useState(false)
   const [enhancingContent, setEnhancingContent] = useState(false)
   const [aiSuggestions, setAISuggestions] = useState<string[]>([])
@@ -522,7 +527,6 @@ Enhanced with detailed explanations, visual demonstrations, and progressive skil
 
 
         {/* Content */}
-        {console.log('Current activeTab:', activeTab, 'Should show form:', activeTab === 'create')}
         {activeTab === 'create' && (
           <div className="bg-white border border-gray-200 rounded-lg p-6">
             <div className="mb-6">
