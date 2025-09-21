@@ -312,31 +312,38 @@ export const generateCoachingPrompt = (question: string, context: CoachingContex
   // Random elements for variety but keep them minimal
   const randomCatchphrase = context.voiceCharacteristics.catchphrases[Math.floor(Math.random() * context.voiceCharacteristics.catchphrases.length)]
 
-  return `You are ${context.coachName}. Answer this question directly and practically.
+  return `You are ${context.coachName}, an elite ${context.sport.toLowerCase()} coach. You must answer this question with specific, technical soccer advice.
 
 **QUESTION:** "${question}"
 
-**YOUR APPROACH:**
+**CRITICAL INSTRUCTIONS:**
+- FOCUS ONLY on the specific skill/technique asked about
+- Give concrete, actionable soccer advice
+- Include technical details specific to soccer
 - Voice: ${context.voiceCharacteristics.tone}
-- Focus: Get straight to actionable advice
-- Minimize biographical references - they already know who you are
-- Include your catchphrase "${randomCatchphrase}" naturally if relevant
+- Draw from your expertise: ${context.expertise.join(', ')}
 
-**RESPONSE STRUCTURE:**
-1. **Direct Answer**: Address their question immediately
-2. **Technical Points**: Key technique details (use **bold** for emphasis)
-3. **Practice Drills**: 2-3 specific exercises they can do now
-4. **Quick Tip**: One mindset or tactical insight
-5. **Next Step**: What to focus on next
+**REQUIRED RESPONSE STRUCTURE:**
+1. **Technical Breakdown**: Explain the specific soccer technique/skill being asked about
+2. **Key Fundamentals**: 3-4 core technical points (use **bold** for emphasis)
+3. **Practice Drills**: 2-3 specific soccer exercises they can do immediately
+4. **Game Application**: How to apply this in match situations
+5. **Pro Tip**: One advanced insight from your playing experience
+
+**SOCCER-SPECIFIC REQUIREMENTS:**
+- Use proper soccer terminology (e.g., "scanning", "check runs", "switch play", "press resistant")
+- Reference field positions, timing, and spatial awareness
+- Include physical and mental aspects of the technique
+- Make it actionable for immediate practice
 
 **FORMATTING:**
-- Use **bold** for key concepts
-- Use bullet points (-) for drill lists
+- Use **bold** for key soccer concepts
+- Use bullet points (-) for drill steps
 - Use numbered lists (1.) for sequences
-- Keep it concise and actionable
-- Paragraph breaks between sections
+- Keep paragraphs short and focused
+- Include your catchphrase "${randomCatchphrase}" naturally if it fits
 
-Write 150-250 words maximum. Be direct, practical, and authentic to ${context.coachName}'s voice without excessive credentials or introductory padding.`
+Write 200-300 words. Be direct, technical, and soccer-focused. Every sentence should relate to the specific question asked.`
 }
 
 // Vertex AI Response (Enterprise-grade) - Browser compatible via API route
@@ -553,6 +560,37 @@ What specific aspect of your BJJ game would you like to work on? I'm here to hel
   }
   
   // Soccer-specific responses for Jasmine (existing code)
+
+  // Reading passes and vision - improved keyword matching
+  if (lowerQuestion.includes('reading') || lowerQuestion.includes('read') ||
+      lowerQuestion.includes('anticipat') || lowerQuestion.includes('vision') ||
+      lowerQuestion.includes('scanning') || lowerQuestion.includes('see the field') ||
+      (lowerQuestion.includes('pass') && (lowerQuestion.includes('better') || lowerQuestion.includes('improve'))) ||
+      lowerQuestion.includes('awareness')) {
+    return `Excellent question about reading passes! This was fundamental to my midfield success at Stanford.
+
+**Technical breakdown:**
+**Scanning** is everything - You need to know what's around you before the ball comes. I'd scan 5-6 times during each possession cycle.
+
+**Key fundamentals:**
+• **Check your shoulders** - Quick glances left and right every 2-3 seconds
+• **Body positioning** - Receive on your back foot to see maximum field area
+• **Peripheral vision** - Train your eyes to catch movement without turning head
+• **Pattern recognition** - Learn common passing sequences and player tendencies
+
+**Practice drills:**
+1. **360° drill** - Receive pass, call out how many teammates you can see before controlling
+2. **Color cone drill** - Set up different colored cones, call out colors while receiving passes
+3. **Mirror passing** - Partner stands behind you calling out directions during passing practice
+
+**Game application:**
+During matches, I'd position myself to see both the ball carrier and potential targets. The key is anticipating where the pass is going 1-2 seconds before it's played.
+
+**Pro tip:** Watch the passer's hips and plant foot, not their eyes. Eyes lie, but body mechanics don't. The plant foot always points toward the target area.
+
+**Trust your preparation** - the more you practice scanning, the more automatic it becomes in pressure situations!`
+  }
+
   // Passing and accuracy responses
   if (lowerQuestion.includes('passing') || lowerQuestion.includes('accuracy')) {
     return `Passing accuracy comes down to fundamentals and consistent practice.
