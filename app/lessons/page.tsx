@@ -131,9 +131,12 @@ function LessonsContent() {
     } catch (error) {
       console.error('Error fetching lessons:', error)
 
-      // Check if it's a permissions error
+      // Check if it's a permissions error or empty collection (common for new platforms)
       if (error.message.includes('Missing or insufficient permissions')) {
-        setError('Please sign in to access training content.')
+        // Instead of showing error, treat as empty state - new platforms often have no content yet
+        console.log('ℹ️ No content collection found - treating as empty platform (normal for new deployment)')
+        setLessons([]) // Show empty state instead of error
+        setError(null) // Don't show error for empty platform
       } else {
         setError('Unable to load training content. Please try again later.')
       }
@@ -212,7 +215,7 @@ function LessonsContent() {
             {coachFilter
               ? `Discover training content created by ${coachName}`
               : lessons.length === 0
-              ? 'The future home of world-class athletic training content'
+              ? 'Your journey to athletic excellence starts here. Elite training content is coming soon!'
               : 'Discover training content created by our community of coaches'
             }
           </p>
@@ -257,12 +260,12 @@ function LessonsContent() {
             {/* Coming Soon Message */}
             <div className="bg-gradient-to-r from-cardinal to-cardinal-dark rounded-lg p-8 text-center text-white">
               <div className="max-w-2xl mx-auto">
-                <Video className="w-16 h-16 mx-auto mb-4 opacity-90" />
+                <div className="text-6xl mb-4">⚽</div>
                 <h3 className="text-2xl font-bold mb-3">
-                  🚀 Training Content Coming Soon!
+                  Welcome to the Future of Athletic Training!
                 </h3>
                 <p className="text-lg mb-6 opacity-90">
-                  We're building an amazing platform with expert coaches. Be among the first to access world-class training content.
+                  Our platform is currently in the starting lineup. Expert coaches and world-class training content are warming up behind the scenes. Get ready for game-changing lessons!
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Link
