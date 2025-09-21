@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { auth, db, storage } from '@/lib/firebase.client'
-import { useSimpleEnhancedRole } from "@/hooks/use-simple-role-switcher"
+import { useUrlEnhancedRole } from "@/hooks/use-url-role-switcher"
 import { useAuth } from "@/hooks/use-auth"
 import { useRouter } from 'next/navigation'
 import CreatorAccessGate from '@/components/CreatorAccessGate'
@@ -40,7 +40,7 @@ import {
 } from 'lucide-react'
 
 export default function CreatorDashboard() {
-  const { role, loading: loadingRole } = useSimpleEnhancedRole()
+  const { role, loading: loadingRole } = useUrlEnhancedRole()
   const { user: authUser, loading: authLoading } = useAuth()
   const router = useRouter()
   

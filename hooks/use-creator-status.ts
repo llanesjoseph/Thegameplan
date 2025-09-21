@@ -4,7 +4,7 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from './use-auth'
-import { useSimpleEnhancedRole } from './use-simple-role-switcher'
+import { useUrlEnhancedRole } from './use-url-role-switcher'
 import {
   getUserRole,
   getCreatorApplicationStatus,
@@ -97,7 +97,7 @@ export function useCreatorStatus() {
  */
 export function useCreatorDashboardAccess() {
   // Use the enhanced role system for consistency with UI components
-  const { role, loading: roleLoading } = useSimpleEnhancedRole()
+  const { role, loading: roleLoading } = useUrlEnhancedRole()
 
   const {
     hasPendingApplication,

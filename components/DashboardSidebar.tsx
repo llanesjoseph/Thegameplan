@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
-import { useSimpleEnhancedRole } from '@/hooks/use-simple-role-switcher'
+import { useUrlEnhancedRole } from '@/hooks/use-url-role-switcher'
 import { useState } from 'react'
 import {
   LayoutDashboard,
@@ -71,7 +71,7 @@ const navigationItems = {
 
 export function DashboardSidebar() {
   const { user } = useAuth()
-  const { role } = useSimpleEnhancedRole()
+  const { role } = useUrlEnhancedRole()
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
 

@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { signOut as firebaseSignOut } from 'firebase/auth'
 import { auth } from '@/lib/firebase.client'
-import { UserRole, useSimpleEnhancedRole } from '@/hooks/use-simple-role-switcher'
+import { UserRole, useUrlEnhancedRole } from '@/hooks/use-url-role-switcher'
 import {
   Settings,
   CreditCard,
@@ -30,7 +30,7 @@ function CompactRoleSwitcher() {
     switchToRole,
     resetToOriginalRole,
     getAvailableRoles
-  } = useSimpleEnhancedRole()
+  } = useUrlEnhancedRole()
 
   const availableRoles = getAvailableRoles()
 
