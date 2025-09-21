@@ -34,16 +34,14 @@ const nextConfig = {
   compress: true,
 
   // Vercel deployment - API routes enabled as serverless functions
-  // output: 'export', // Disabled for Vercel - this prevents API routes from working
-  // distDir: 'out',   // Not needed for Vercel
 
   // Disable type checking and linting during build for deployment
   eslint: {
-    ignoreDuringBuilds: true
+    ignoreDuringBuilds: true,
   },
   typescript: {
-    ignoreBuildErrors: true
-  }
+    ignoreBuildErrors: true,
+  },
 }
 
 export default nextConfig

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/hooks/use-auth'
-import { useEnhancedRole } from '@/hooks/use-role-switcher'
+import { useSimpleEnhancedRole } from '@/hooks/use-simple-role-switcher'
 import { AnalyticsService } from '@/lib/analytics'
 import { 
   BarChart3, 
@@ -48,7 +48,7 @@ export default function CreatorAnalytics() {
   const [timeRange, setTimeRange] = useState('30d')
   
   const { user } = useAuth()
-  const { role, loading: roleLoading } = useEnhancedRole()
+  const { role, loading: roleLoading } = useSimpleEnhancedRole()
 
   const loadAnalytics = useCallback(async () => {
     if (!user?.uid) return
