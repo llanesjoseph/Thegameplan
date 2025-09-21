@@ -137,6 +137,9 @@ export default function AdminUserManagement() {
 
   const updateUserRole = async (uid: string, newRole: string) => {
     try {
+      // Show loading state during update
+      setUsers(users.map(u => u.uid === uid ? { ...u, role: '...' } : u))
+
       const response = await fetch('/api/set-user-role', {
         method: 'POST',
         headers: {
@@ -149,14 +152,32 @@ export default function AdminUserManagement() {
       })
 
       if (response.ok) {
-        // Update local state
+        // Update local state immediately for better UX
         setUsers(users.map(u => u.uid === uid ? { ...u, role: newRole } : u))
-        console.log(`User role updated to ${newRole}`)
+
+        // If user is changing their own role, handle specially
+        if (uid === user?.uid) {
+          console.log('Self role change detected, reloading page to prevent state conflicts...')
+
+          // Close modal immediately
+          setSelectedUser(null)
+
+          // Show brief success message before reload
+          setTimeout(() => {
+            window.location.href = window.location.pathname // Force full page reload
+          }, 500) // Shorter delay for better UX
+        } else {
+          console.log(`User ${uid} role updated to ${newRole}`)
+        }
       } else {
         console.error('Failed to update user role')
+        // Revert optimistic update on failure
+        setUsers(users.map(u => u.uid === uid ? { ...u, role: users.find(ou => ou.uid === uid)?.role || 'user' } : u))
       }
     } catch (error) {
       console.error('Error updating user role:', error)
+      // Revert optimistic update on error
+      setUsers(users.map(u => u.uid === uid ? { ...u, role: users.find(ou => ou.uid === uid)?.role || 'user' } : u))
     }
   }
 
@@ -402,7 +423,14 @@ export default function AdminUserManagement() {
                   <label className="text-sm font-medium text-gray-700">Change Role</label>
                   <select
                     value={selectedUser.role}
-                    onChange={(e) => updateUserRole(selectedUser.uid, e.target.value)}
+                    onChange={(e) => {
+                      const newRole = e.target.value
+                      if (selectedUser.uid === user?.uid) {
+                        const confirmChange = confirm(`You are about to change your own role to "${newRole}". The page will reload after the change. Continue?`)
+                        if (!confirmChange) return
+                      }
+                      updateUserRole(selectedUser.uid, newRole)
+                    }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cardinal focus:border-cardinal bg-white text-gray-900"
                   >
                     <option value="user">User</option>

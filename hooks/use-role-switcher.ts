@@ -24,8 +24,14 @@ export function useRoleSwitcher() {
   // Force re-render counter to ensure UI updates
   const [forceUpdate, setForceUpdate] = useState(0)
 
+  // Loading state to prevent multiple rapid updates
+  const [isUpdating, setIsUpdating] = useState(false)
+
   // Initialize with user's actual role
   useEffect(() => {
+    // Skip updates during role switching operations
+    if (isUpdating) return
+
     // Debug logging commented out to prevent re-render loops
     // console.log('🔐 User object in roleSwitcher:', {
     //   user: user,
@@ -35,13 +41,19 @@ export function useRoleSwitcher() {
     // })
 
     if (user?.role) {
-      setRoleSwitcherState(prev => ({
-        ...prev,
-        originalRole: user.role as UserRole,
-        currentRole: prev.isTestingMode ? prev.currentRole : user.role as UserRole
-      }))
+      setRoleSwitcherState(prev => {
+        // Only update if role actually changed and we're not in testing mode
+        if (prev.originalRole !== user.role && !prev.isTestingMode) {
+          return {
+            ...prev,
+            originalRole: user.role as UserRole,
+            currentRole: user.role as UserRole
+          }
+        }
+        return prev
+      })
     }
-  }, [user?.role, user?.email])
+  }, [user?.role, user?.email, isUpdating])
 
   // Check if current user is super admin
   const isSuperAdmin = user?.role === 'superadmin'
@@ -58,10 +70,16 @@ export function useRoleSwitcher() {
       return
     }
 
+    if (isUpdating) {
+      console.log('⏳ Role switch already in progress, ignoring request')
+      return
+    }
+
+    setIsUpdating(true)
     console.log('🔄 Switching to role:', role)
 
-    const newState = {
-      originalRole: roleSwitcherState.originalRole || user?.role,
+    const newState: RoleSwitcherState = {
+      originalRole: (roleSwitcherState.originalRole || user?.role) as UserRole,
       currentRole: role,
       isTestingMode: true
     }
@@ -102,6 +120,8 @@ export function useRoleSwitcher() {
       setForceUpdate(prev => prev + 1)
 
       console.log('⚠️ Role switched locally (database failed):', role)
+    } finally {
+      setIsUpdating(false)
     }
   }
 
@@ -114,6 +134,12 @@ export function useRoleSwitcher() {
       return
     }
 
+    if (isUpdating) {
+      console.log('⏳ Role reset already in progress, ignoring request')
+      return
+    }
+
+    setIsUpdating(true)
     console.log('🔄 Resetting to original role:', roleSwitcherState.originalRole)
 
     const originalRole = roleSwitcherState.originalRole || 'superadmin'
@@ -156,6 +182,8 @@ export function useRoleSwitcher() {
       setForceUpdate(prev => prev + 1)
 
       console.log('⚠️ Role reset locally (database failed)')
+    } finally {
+      setIsUpdating(false)
     }
   }
 
@@ -276,7 +304,8 @@ export function useRoleSwitcher() {
     
     // Utility
     canSwitchRoles: isSuperAdmin,
-    
+    isUpdating: isUpdating,
+
     // Force update counter (causes re-renders when changed)
     _forceUpdate: forceUpdate
   }
