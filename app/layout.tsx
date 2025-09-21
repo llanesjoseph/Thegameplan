@@ -4,6 +4,8 @@ import { UserIdentity } from '@/components/user-identity'
 import RoleSwitcherDemo from '@/components/ui/RoleSwitcherDemo'
 import Navigation from '@/components/Navigation'
 import Link from 'next/link'
+import { Analytics } from '@vercel/analytics/react'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 
 export const metadata: Metadata = {
   title: 'Game Plan – The Work Before the Win',
@@ -53,6 +55,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <div className="mt-10 text-xs text-gray-500">© {new Date().getFullYear()} Game Plan. All rights reserved.</div>
           </div>
         </footer>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   )
