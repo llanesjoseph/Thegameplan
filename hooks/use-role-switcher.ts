@@ -297,11 +297,17 @@ export function useRoleSwitcher() {
 
   // Get the effective role (what the UI should use) - memoized to prevent re-renders
   const effectiveRole = useMemo((): UserRole => {
+    // During admin role changes, freeze the current role to prevent flicker
+    if (isAdminRoleChange && roleSwitcherState.currentRole) {
+      console.log('🔒 Freezing role during admin change:', roleSwitcherState.currentRole)
+      return roleSwitcherState.currentRole
+    }
+
     if (!isSuperAdmin) {
       return (user?.role as UserRole) || 'guest'
     }
     return roleSwitcherState.currentRole || (user?.role as UserRole) || 'guest'
-  }, [isSuperAdmin, user?.role, roleSwitcherState.currentRole])
+  }, [isSuperAdmin, user?.role, roleSwitcherState.currentRole, isAdminRoleChange])
 
   // Get available roles for switching
   const getAvailableRoles = (): { value: UserRole; label: string; description: string }[] => [

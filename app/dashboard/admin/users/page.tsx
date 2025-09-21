@@ -137,8 +137,7 @@ export default function AdminUserManagement() {
 
   const updateUserRole = async (uid: string, newRole: string) => {
     try {
-      // Set flag to prevent role switcher flicker
-      localStorage.setItem('admin_role_change_in_progress', 'true')
+      // Flag is already set in onChange handler
 
       // Show loading state during update
       setUsers(users.map(u => u.uid === uid ? { ...u, role: '...' } : u))
@@ -441,9 +440,17 @@ export default function AdminUserManagement() {
                     value={selectedUser.role}
                     onChange={(e) => {
                       const newRole = e.target.value
+
+                      // Set flag immediately to prevent any flicker
+                      localStorage.setItem('admin_role_change_in_progress', 'true')
+
                       if (selectedUser.uid === user?.uid) {
                         const confirmChange = confirm(`You are about to change your own role to "${newRole}". The page will reload after the change. Continue?`)
-                        if (!confirmChange) return
+                        if (!confirmChange) {
+                          // Clear flag if user cancels
+                          localStorage.removeItem('admin_role_change_in_progress')
+                          return
+                        }
                       }
                       updateUserRole(selectedUser.uid, newRole)
                     }}
