@@ -242,8 +242,8 @@ export default function UserProfileDropdown() {
               </Link>
             </div>
 
-            {/* Role Switcher (Only for Super Admins in Development) - Compact */}
-            {canSwitchRoles && process.env.NODE_ENV === 'development' && (
+            {/* Role Switcher - Disabled in favor of new tabbed interface */}
+            {canSwitchRoles && false && (
               <div className="px-3 py-2 border-t border-clarity-text-secondary/10 bg-clarity-error/5">
                 <div className="text-caption font-medium text-clarity-error mb-2 flex items-center gap-1">
                   <div className="w-1.5 h-1.5 bg-clarity-error rounded-full"></div>

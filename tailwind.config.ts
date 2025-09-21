@@ -51,7 +51,7 @@ const config: Config = {
         'section-headline-lg': ['3rem', { lineHeight: '1.1', fontWeight: '700', letterSpacing: '-0.02em' }], // md:text-5xl
         'card-title': ['1.25rem', { lineHeight: '1.75rem', fontWeight: '700' }], // text-xl font-bold
         'paragraph': ['1.125rem', { lineHeight: '1.625', fontWeight: '400' }], // leading-relaxed
-        'accent-text': ['1rem', { lineHeight: '1.5rem', fontWeight: '600', letterSpacing: '0.1em', textTransform: 'uppercase' }], // text-base font-semibold tracking-wider uppercase
+        'accent-text': ['1rem', { lineHeight: '1.5rem', fontWeight: '600', letterSpacing: '0.1em' }], // text-base font-semibold tracking-wider uppercase
 
         // Legacy sizes for backward compatibility
         'h1': ['32px', { lineHeight: '40px', fontWeight: '700' }],

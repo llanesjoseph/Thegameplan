@@ -31,7 +31,11 @@ export function DashboardBreadcrumb() {
   if (pathname === '/dashboard/overview') {
     return null
   }
-  
+
+  if (!pathname) {
+    return null
+  }
+
   const pathSegments = pathname.split('/').filter(Boolean)
   const breadcrumbs = []
   

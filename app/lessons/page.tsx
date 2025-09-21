@@ -97,7 +97,7 @@ function LessonsContent() {
         })
         .filter(lesson => {
           // Include lessons that are published OR don't have a status field (for backward compatibility)
-          return !lesson.status || lesson.status === 'published'
+          return !(lesson as any).status || (lesson as any).status === 'published'
         }) as LessonData[]
 
       setLessons(fetchedLessons)
@@ -132,7 +132,7 @@ function LessonsContent() {
       console.error('Error fetching lessons:', error)
 
       // Check if it's a permissions error or empty collection (common for new platforms)
-      if (error.message.includes('Missing or insufficient permissions')) {
+      if (error instanceof Error && error.message.includes('Missing or insufficient permissions')) {
         // Instead of showing error, treat as empty state - new platforms often have no content yet
         console.log('ℹ️ No content collection found - treating as empty platform (normal for new deployment)')
         setLessons([]) // Show empty state instead of error

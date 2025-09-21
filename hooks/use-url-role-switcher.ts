@@ -13,7 +13,7 @@ export function useUrlRoleSwitcher() {
   const searchParams = useSearchParams()
 
   // Get the view-as parameter from URL
-  const urlRole = searchParams.get('view-as') as UserRole
+  const urlRole = searchParams?.get('view-as') as UserRole
 
   // Get user's actual role
   const actualRole = (user?.role as UserRole) || 'guest'
@@ -45,7 +45,7 @@ export function useUrlRoleSwitcher() {
     }
 
     // Create new URL with view-as parameter
-    const newSearchParams = new URLSearchParams(searchParams.toString())
+    const newSearchParams = new URLSearchParams(searchParams?.toString() || '')
     if (role === actualRole) {
       // Remove view-as parameter if switching back to actual role
       newSearchParams.delete('view-as')
@@ -64,7 +64,7 @@ export function useUrlRoleSwitcher() {
   const resetToOriginalRole = () => {
     if (!isSuperAdmin) return
 
-    const newSearchParams = new URLSearchParams(searchParams.toString())
+    const newSearchParams = new URLSearchParams(searchParams?.toString() || '')
     newSearchParams.delete('view-as')
 
     const newUrl = pathname + (newSearchParams.toString() ? `?${newSearchParams.toString()}` : '')

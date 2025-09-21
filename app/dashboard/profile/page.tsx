@@ -27,21 +27,22 @@ export default function ProfilePage() {
   const { user } = useAuth()
   const { role, loading } = useEnhancedRole()
   const [isEditing, setIsEditing] = useState(false)
-  const [saveStatus, setSaveStatus] = useState(null) // 'saving', 'success', 'error'
+  const [saveStatus, setSaveStatus] = useState<string | null>(null) // 'saving', 'success', 'error'
   const [profileData, setProfileData] = useState({
     displayName: user?.displayName || '',
     bio: '',
     location: '',
     phone: '',
     email: user?.email || '',
-    specialties: [],
+    specialties: [] as string[],
     experience: '',
     availability: '',
-    languages: [],
+    languages: [] as string[],
     coachingPhilosophy: '',
-    achievements: [],
-    certifications: [],
-    gearRecommendations: [],
+    achievements: [] as string[],
+    certifications: [] as string[],
+    gearRecommendations: [] as Array<{name: string; category: string; link: string; description: string}>,
+    createdAt: new Date().toISOString(),
     socialLinks: {
       instagram: '',
       twitter: '',
@@ -73,7 +74,7 @@ export default function ProfilePage() {
             return
           }
         } catch (error) {
-          console.warn('Firestore access failed, using localStorage:', error.message)
+          console.warn('Firestore access failed, using localStorage:', error instanceof Error ? error.message : error)
         }
         
         // Fallback to localStorage
@@ -155,7 +156,7 @@ export default function ProfilePage() {
         
         console.log('Profile saved to Firestore successfully')
       } catch (firestoreError) {
-        console.warn('Firestore save failed, using localStorage:', firestoreError.message)
+        console.warn('Firestore save failed, using localStorage:', firestoreError instanceof Error ? firestoreError.message : firestoreError)
         
         // Fallback to localStorage
         const key = role === 'creator' ? `creator_profile_${user.uid}` : `user_profile_${user.uid}`

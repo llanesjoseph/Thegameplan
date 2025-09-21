@@ -78,23 +78,30 @@ export function DashboardSidebar() {
   const items = navigationItems[role as keyof typeof navigationItems] || navigationItems.user
 
   const getRoleBadge = () => {
+    // For super admins, show the current view they're testing
+    if (user?.role === 'superadmin') {
+      const viewLabel = role === 'superadmin' ? 'Super Admin' :
+                       role === 'admin' ? 'Admin View' :
+                       role === 'creator' ? 'Creator View' : 'User View'
+
+      return <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
+        <Crown className="w-3 h-3 mr-1" />
+        {viewLabel}
+      </div>
+    }
+
     switch (role) {
-      case 'creator': 
+      case 'creator':
         return <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
           <Award className="w-3 h-3 mr-1" />
           Creator
         </div>
-      case 'admin': 
+      case 'admin':
         return <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-700">
           <Settings className="w-3 h-3 mr-1" />
           Admin
         </div>
-      case 'superadmin': 
-        return <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
-          <Crown className="w-3 h-3 mr-1" />
-          Super Admin
-        </div>
-      default: 
+      default:
         return <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
           <User className="w-3 h-3 mr-1" />
           User
@@ -153,7 +160,7 @@ export function DashboardSidebar() {
               )
             }
 
-            const isActive = pathname === item.href || (item.href !== '/dashboard/overview' && pathname.startsWith(item.href))
+            const isActive = pathname === item.href || (item.href !== '/dashboard/overview' && pathname?.startsWith(item.href))
 
             return (
               <Link

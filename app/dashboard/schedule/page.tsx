@@ -93,8 +93,8 @@ export default function UserSchedule() {
     }
   }
 
-  const searchCreators = async (query: string) => {
-    if (!query.trim()) {
+  const searchCreators = async (searchTerm: string) => {
+    if (!searchTerm.trim()) {
       setSearchResults([])
       return
     }
@@ -111,10 +111,10 @@ export default function UserSchedule() {
       const snapshot = await getDocs(usersQuery)
       const results = snapshot.docs
         .map(doc => ({ id: doc.id, ...doc.data() }))
-        .filter((user: any) => 
-          user.email?.toLowerCase().includes(query.toLowerCase()) ||
-          user.displayName?.toLowerCase().includes(query.toLowerCase()) ||
-          user.id.includes(query)
+        .filter((user: any) =>
+          user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.displayName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.id.includes(searchTerm)
         )
       
       setSearchResults(results)

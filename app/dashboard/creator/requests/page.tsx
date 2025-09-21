@@ -364,7 +364,7 @@ export default function CreatorRequests() {
               <div className="text-gray-600 text-sm">Total Requests</div>
             </div>
             <div className="bg-white border border-gray-100 rounded-xl p-4">
-              <div className="text-2xl font-bold text-orange-600">{items.filter(r => r.status === 'new' || r.status === 'pending').length}</div>
+              <div className="text-2xl font-bold text-orange-600">{items.filter(r => r.status === 'new').length}</div>
               <div className="text-gray-600 text-sm">Awaiting Response</div>
             </div>
             <div className="bg-white border border-gray-100 rounded-xl p-4">
@@ -434,7 +434,7 @@ export default function CreatorRequests() {
                         <div className="flex items-center gap-3 text-sm text-gray-600 flex-wrap">
                           <div className="flex items-center gap-1">
                             <User className="w-3 h-3" />
-                            <span>{r.userName || r.userEmail || 'Anonymous'}</span>
+                            <span>{r.userEmail || 'Anonymous'}</span>
                           </div>
                           <span>•</span>
                           <span>{r.sport}</span>
@@ -459,7 +459,7 @@ export default function CreatorRequests() {
                         </div>
                       </div>
                       
-                      {(!r.targetCreatorUid && (r.status === 'new' || r.status === 'pending')) && (
+                      {(!r.targetCreatorUid && r.status === 'new') && (
                         <button 
                           className="px-4 py-2 bg-cardinal hover:bg-cardinal-dark text-white rounded-lg transition-colors text-sm font-medium" 
                           onClick={() => claim(r.id)}
@@ -607,7 +607,6 @@ export default function CreatorRequests() {
                             Contact Info
                           </h5>
                           <div className="space-y-2 text-sm text-gray-700">
-                            <div><span className="text-gray-600">Name:</span> {r.userName || 'Not provided'}</div>
                             <div><span className="text-gray-600">Email:</span> {r.userEmail || 'Not provided'}</div>
                           </div>
                         </div>

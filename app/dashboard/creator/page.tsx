@@ -103,7 +103,7 @@ export default function CreatorDashboard() {
         ...doc.data()
       }))
       // Sort locally by createdAt if available
-      lessons.sort((a, b) => {
+      lessons.sort((a: any, b: any) => {
         const aDate = a.createdAt?.toDate?.() || new Date(0)
         const bDate = b.createdAt?.toDate?.() || new Date(0)
         return bDate.getTime() - aDate.getTime()
@@ -912,7 +912,7 @@ Enhanced with detailed explanations, visual demonstrations, and progressive skil
                         {/* Tags (if any) */}
                         {lesson.tags && lesson.tags.length > 0 && (
                           <div className="flex gap-2 flex-wrap">
-                            {lesson.tags.slice(0, 3).map((tag, index) => (
+                            {lesson.tags.slice(0, 3).map((tag: string, index: number) => (
                               <span key={index} className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
                                 {tag}
                               </span>

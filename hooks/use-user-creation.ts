@@ -49,7 +49,7 @@ export function useUserCreation() {
       return true
 
     } catch (error) {
-      const appError = handleError(error, user.uid)
+      const appError = handleError(error, { userId: user.uid })
       setState(prev => ({ 
         ...prev, 
         loading: false, 
@@ -118,7 +118,7 @@ export function useUserCreation() {
       return true
 
     } catch (error) {
-      const appError = handleError(error, user.uid)
+      const appError = handleError(error, { userId: user.uid })
       setState(prev => ({ 
         ...prev, 
         loading: false, 

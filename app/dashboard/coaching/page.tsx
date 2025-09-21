@@ -92,17 +92,19 @@ export default function CoachingPage() {
           userId: data.userId || user.uid,
           userEmail: data.userEmail || user.email || '',
           targetCreatorUid: data.targetCreatorUid,
+          targetCreatorName: data.targetCreatorName,
           sport: data.sport || '',
-          requestType: data.requestType || data.type || 'general',
-          status: data.status || 'pending',
-          priority: data.priority || 'medium',
+          type: data.requestType || data.type || 'one_on_one',
+          status: data.status || 'new',
+          title: data.title || 'Coaching Request',
           description: data.description || '',
-          fileUrls: data.fileUrl ? [data.fileUrl] : (data.fileUrls || []),
+          skillLevel: data.skillLevel || 'beginner',
+          preferredTime: data.preferredTime || '',
+          urgency: data.urgency || data.priority,
+          fileUrl: data.fileUrl,
           createdAt: data.createdAt?.toDate() || new Date(),
-          updatedAt: data.updatedAt?.toDate() || new Date(),
-          dueDate: data.scheduledAt?.toDate(),
-          response: data.response,
-          responseAt: data.responseAt?.toDate()
+          updatedAt: data.updatedAt?.toDate(),
+          scheduledAt: data.scheduledAt?.toDate()
         })
       })
       
