@@ -4,14 +4,15 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from './use-auth'
-import { 
-  getUserRole, 
-  getCreatorApplicationStatus, 
-  canCreateContent, 
-  isCreator, 
+import { useEnhancedRole } from './use-role-switcher'
+import {
+  getUserRole,
+  getCreatorApplicationStatus,
+  canCreateContent,
+  isCreator,
   hasPendingCreatorApplication,
   UserRoleData,
-  CreatorApplicationStatus 
+  CreatorApplicationStatus
 } from '@/lib/role-management'
 
 export interface CreatorStatusData {
@@ -92,37 +93,41 @@ export function useCreatorStatus() {
 
 /**
  * Hook for creator dashboard access control
+ * Updated to use the enhanced role system for consistency with UI
  */
 export function useCreatorDashboardAccess() {
-  const { 
-    canCreate, 
-    isApprovedCreator, 
-    hasPendingApplication, 
-    loading, 
-    roleData 
+  // Use the enhanced role system for consistency with UI components
+  const { role, loading: roleLoading } = useEnhancedRole()
+
+  const {
+    hasPendingApplication,
+    loading: statusLoading,
+    roleData
   } = useCreatorStatus()
+
+  const loading = roleLoading || statusLoading
 
   const getAccessStatus = () => {
     if (loading) return 'loading'
-    
-    // If user has creator role, they're approved regardless of creatorStatus
-    if (roleData?.role === 'creator') return 'approved'
-    
-    // Check for pending applications only if not already a creator
+
+    // If user has creator or superadmin role (using enhanced role for consistency), they're approved
+    if (role === 'creator' || role === 'superadmin') return 'approved'
+
+    // Check for pending applications only if not already a creator/superadmin
     if (hasPendingApplication) return 'pending'
-    
-    // If no role data or guest role, they haven't applied
-    if (!roleData || roleData.role === 'guest') return 'not-applied'
-    
+
+    // If guest role, they haven't applied
+    if (role === 'guest') return 'not-applied'
+
     // If they have creatorStatus but it's rejected
-    if (roleData.creatorStatus === 'rejected') return 'rejected'
-    
+    if (roleData?.creatorStatus === 'rejected') return 'rejected'
+
     return 'not-applied'
   }
 
   const getAccessMessage = () => {
     const status = getAccessStatus()
-    
+
     switch (status) {
       case 'loading':
         return 'Checking your creator status...'
@@ -142,8 +147,8 @@ export function useCreatorDashboardAccess() {
   return {
     accessStatus: getAccessStatus(),
     accessMessage: getAccessMessage(),
-    canAccess: roleData?.role === 'creator', // Direct check for creator role
-    canApply: !hasPendingApplication && roleData?.role !== 'creator',
+    canAccess: role === 'creator' || role === 'superadmin', // Use enhanced role for consistency
+    canApply: !hasPendingApplication && role !== 'creator' && role !== 'superadmin',
     loading
   }
 }

@@ -105,9 +105,9 @@ export default function CreatorAnalytics() {
   }, [user?.uid])
 
   useEffect(() => {
-    if (user?.uid && role === 'creator') {
+    if (user?.uid && (role === 'creator' || role === 'superadmin')) {
       loadAnalytics()
-    } else if (!roleLoading && role && role !== 'creator') {
+    } else if (!roleLoading && role && role !== 'creator' && role !== 'superadmin') {
       setLoading(false)
     }
   }, [user?.uid, role, roleLoading, loadAnalytics])
@@ -124,8 +124,8 @@ export default function CreatorAnalytics() {
     )
   }
 
-  // Show access denied for non-creators
-  if (role !== 'creator') {
+  // Show access denied for non-creators (but allow superadmins)
+  if (role !== 'creator' && role !== 'superadmin') {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
