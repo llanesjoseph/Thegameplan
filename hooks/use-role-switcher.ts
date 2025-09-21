@@ -15,12 +15,40 @@ interface RoleSwitcherState {
 
 export function useRoleSwitcher() {
   const { user } = useAuth()
+
+  // Check for admin role change flag immediately
+  const adminRoleChangeFlag = typeof window !== 'undefined' ? localStorage.getItem('admin_role_change_in_progress') : null
+
+  // NUCLEAR OPTION: If admin role change is in progress, return minimal hook immediately
+  if (adminRoleChangeFlag) {
+    console.log('💥 NUCLEAR: Role switcher completely disabled due to admin role change')
+    const frozenRole = (user?.role as UserRole) || 'guest'
+    return {
+      // State - frozen values
+      isSuperAdmin: user?.role === 'superadmin',
+      isTestingMode: false,
+      originalRole: frozenRole,
+      currentRole: frozenRole,
+      effectiveRole: frozenRole,
+
+      // Actions - disabled
+      switchToRole: () => console.log('💥 NUCLEAR: switchToRole disabled during admin change'),
+      resetToOriginalRole: () => console.log('💥 NUCLEAR: resetToOriginalRole disabled during admin change'),
+      getAvailableRoles: () => [],
+
+      // Utility - frozen
+      canSwitchRoles: false,
+      isUpdating: true, // Show as updating to prevent further changes
+      _forceUpdate: 0
+    }
+  }
+
   const [roleSwitcherState, setRoleSwitcherState] = useState<RoleSwitcherState>({
     originalRole: null,
     currentRole: null,
     isTestingMode: false
   })
-  
+
   // Force re-render counter to ensure UI updates
   const [forceUpdate, setForceUpdate] = useState(0)
 
@@ -396,23 +424,39 @@ export function useRoleSwitcher() {
 
 // Enhanced hook that replaces the original useRole for super admins
 export function useEnhancedRole() {
-  const roleSwitcher = useRoleSwitcher()
   const { user } = useAuth()
+
+  // Check for admin role change flag immediately - nuclear option for enhanced role too
+  const adminRoleChangeFlag = typeof window !== 'undefined' ? localStorage.getItem('admin_role_change_in_progress') : null
+
+  if (adminRoleChangeFlag) {
+    console.log('💥 NUCLEAR: Enhanced role hook completely disabled due to admin role change')
+    const frozenRole = (user?.role as UserRole) || 'guest'
+    return {
+      role: frozenRole,
+      loading: !user,
+      // Frozen role switcher values
+      isSuperAdmin: user?.role === 'superadmin',
+      isTestingMode: false,
+      originalRole: frozenRole,
+      currentRole: frozenRole,
+      effectiveRole: frozenRole,
+      switchToRole: () => console.log('💥 NUCLEAR: switchToRole disabled during admin change'),
+      resetToOriginalRole: () => console.log('💥 NUCLEAR: resetToOriginalRole disabled during admin change'),
+      getAvailableRoles: () => [],
+      canSwitchRoles: false,
+      isUpdating: true,
+      _forceUpdate: 0
+    }
+  }
+
+  const roleSwitcher = useRoleSwitcher()
 
   // Add loading state to match original useRole signature
   const loading = !user
 
   const effectiveRole = roleSwitcher.effectiveRole
-  
-  // Debug logging to help track role changes (commented out to prevent re-render loops)
-  // console.log('🎯 useEnhancedRole:', {
-  //   effectiveRole,
-  //   isTestingMode: roleSwitcher.isTestingMode,
-  //   currentRole: roleSwitcher.currentRole,
-  //   originalRole: roleSwitcher.originalRole,
-  //   userRole: user?.role
-  // })
-  
+
   return {
     role: effectiveRole,
     loading,
