@@ -67,16 +67,22 @@ It sounds like you may have an injury or medical concern. This platform cannot p
 
 Once you've been cleared by a medical professional, I'd be happy to help with training guidance that's appropriate for your situation.`,
 
-  medium: `🏥 **HEALTH & SAFETY REMINDER** 🏥
+  medium: `🏃‍♂️ **SPORTS RECOVERY GUIDANCE** 🏃‍♂️
 
-I notice you mentioned something that might be injury or health-related. While I can provide general training advice, I cannot assess injuries or provide medical guidance.
+I understand you're asking about returning from an injury situation. I can help with mental preparation, training routines, and confidence building for athletes who have been medically cleared to return.
 
-**For any pain, injury, or health concerns:**
-- Consult with a healthcare provider
-- Get proper evaluation before continuing training
-- Follow medical advice for safe return to activity
+**Important reminders:**
+- Always follow your healthcare provider's clearance and guidance
+- Start with their recommended activity level
+- Listen to your body and don't rush the process
 
-Is there a non-medical training question I can help you with instead?`,
+**I can help with:**
+- Mental strategies for confident return to sport
+- Training routines for gradual skill rebuilding
+- Confidence and focus techniques
+- Prevention strategies for the future
+
+What specific aspect of your sports comeback would you like guidance on?`,
 
   low: `💡 **Training Safety Note** 💡
 
@@ -90,6 +96,15 @@ export function analyzeMedicalSafety(userInput: string): MedicalSafetyResult {
   const detectedConcerns: string[] = []
   let riskLevel: 'low' | 'medium' | 'high' | 'critical' = 'low'
 
+  // Check for sports recovery context that should be allowed
+  const sportsRecoveryContext = [
+    'coming back', 'returning', 'return to', 'recovery', 'mindset', 'routine',
+    'training after', 'getting back', 'confidence after', 'mental preparation',
+    'best practices', 'prevention', 'strengthening', 'conditioning'
+  ]
+
+  const hasSportsContext = sportsRecoveryContext.some(phrase => input.includes(phrase))
+
   // Check for emergency phrases first (highest priority)
   for (const phrase of MEDICAL_KEYWORDS.emergency_phrases) {
     if (input.includes(phrase)) {
@@ -98,11 +113,17 @@ export function analyzeMedicalSafety(userInput: string): MedicalSafetyResult {
     }
   }
 
-  // Check for injury keywords
+  // Check for injury keywords - but be smart about sports context
   for (const keyword of MEDICAL_KEYWORDS.injuries) {
     if (input.includes(keyword)) {
       detectedConcerns.push(`Injury keyword: "${keyword}"`)
-      if (riskLevel === 'low') riskLevel = 'high'
+
+      // If user is asking about returning/recovery from injury (sports context), be less restrictive
+      if (hasSportsContext && (keyword === 'injury' || keyword === 'injured')) {
+        if (riskLevel === 'low') riskLevel = 'medium' // Lower severity for sports context
+      } else {
+        if (riskLevel === 'low') riskLevel = 'high' // Higher severity for direct medical concerns
+      }
     }
   }
 
