@@ -1,0 +1,40 @@
+DEPLOY TO VERCEL TO BYPASS GOOGLE CLOUD RESTRICTIONS:
+
+Your app already has a sophisticated AI coaching API at /api/ai-coaching that includes:
+- Advanced safety checks for medical concerns
+- Rate limiting
+- Multiple AI providers (OpenAI, Gemini, fallback)
+- Session tracking and logging
+- CORS support
+
+DEPLOYMENT STEPS:
+
+1. Install Vercel CLI:
+   npm i -g vercel
+
+2. Login to Vercel:
+   vercel login
+
+3. Deploy your app:
+   vercel
+
+4. Follow prompts:
+   - Set up and deploy? [Y/n] Y
+   - Which scope? Select your account
+   - Link to existing project? [y/N] N
+   - What's your project's name? gameplan
+   - In which directory is your code located? ./
+   - Want to override settings? [y/N] N
+
+5. Your app will be deployed with:
+   - Static hosting for your website
+   - Serverless functions for your API routes
+   - No Google Cloud organization restrictions
+   - Custom domain support
+
+6. After deployment, test:
+   curl -X POST https://your-vercel-app.vercel.app/api/ai-coaching \
+   -H "Content-Type: application/json" \
+   -d '{"question":"How can I improve my confidence?"}'
+
+This approach completely bypasses Google Cloud and gives you full control over your AI coaching functionality!

@@ -1,0 +1,27 @@
+INSTRUCTIONS TO MAKE AI COACHING FUNCTION PUBLIC:
+
+1. Go to Google Cloud Console: https://console.cloud.google.com/functions/list?project=gameplan-787a2
+
+2. Click on the "aiCoaching" function
+
+3. Go to the "PERMISSIONS" tab
+
+4. Click "ADD PRINCIPAL"
+
+5. In the "New principals" field, type: allUsers
+
+6. In the "Select a role" dropdown, choose: Cloud Functions Invoker
+
+7. Click "SAVE"
+
+This will allow anyone to access your AI coaching function without authentication.
+
+Alternative: If that doesn't work due to organization policies, try:
+- In the "New principals" field, type: allAuthenticatedUsers
+- This allows any authenticated Google user to access it
+
+The function URL will be:
+https://us-central1-gameplan-787a2.cloudfunctions.net/aiCoaching
+
+And through your website:
+https://gp.crucibleanalytics.dev/api/ai-coaching

@@ -36,7 +36,11 @@
       "Bash(firebase logout:*)",
       "Bash(firebase functions:delete:*)",
       "WebFetch(domain:console.cloud.google.com)",
-      "Bash(gcloud services enable:*)"
+      "Bash(gcloud services enable:*)",
+      "Bash(gcloud functions get-iam-policy:*)",
+      "Bash(\"C:\\Program Files (x86)\\Google\\Cloud SDK\\google-cloud-sdk\\bin\\gcloud.cmd\" functions get-iam-policy aiCoaching --region=us-central1 --project=gameplan-787a2)",
+      "Bash(firebase functions:config:unset:*)",
+      "Bash(./redeploy-public.bat)"
     ],
     "deny": [],
     "ask": []
