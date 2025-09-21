@@ -270,13 +270,13 @@ export default function AdminUserManagement() {
             <div className="text-3xl font-bold text-blue-400 mb-2">
               {users.filter(u => u.status === 'active').length}
             </div>
-            <div className="text-sm text-brand-grey">Active Users</div>
+            <div className="text-sm text-brand-grey">Active Athletes</div>
           </div>
           <div className="card text-center">
             <div className="text-3xl font-bold text-purple-400 mb-2">
               {users.filter(u => u.role === 'creator').length}
             </div>
-            <div className="text-sm text-brand-grey">Creators</div>
+            <div className="text-sm text-brand-grey">Coaches</div>
           </div>
           <div className="card text-center">
             <div className="text-3xl font-bold text-green-400 mb-2">
@@ -326,8 +326,8 @@ export default function AdminUserManagement() {
                 className="input"
               >
                 <option value="all">All Roles</option>
-                <option value="user">Users</option>
-                <option value="creator">Creators</option>
+                <option value="user">Athletes</option>
+                <option value="creator">Coaches</option>
                 <option value="admin">Admins</option>
                 <option value="superadmin">Super Admins</option>
               </select>
@@ -489,8 +489,8 @@ export default function AdminUserManagement() {
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cardinal focus:border-cardinal bg-white text-gray-900"
                   >
-                    <option value="user">User</option>
-                    <option value="creator">Creator</option>
+                    <option value="user">Athlete</option>
+                    <option value="creator">Coach</option>
                     <option value="admin">Admin</option>
                     {role === 'superadmin' && (
                       <option value="superadmin">Super Admin</option>
@@ -499,7 +499,7 @@ export default function AdminUserManagement() {
                   <p className="text-xs text-gray-500">
                     {role === 'superadmin'
                       ? 'You can assign any role including Super Admin'
-                      : 'You can assign User, Creator, or Admin roles'
+                      : 'You can assign Athlete, Coach, or Admin roles'
                     }
                   </p>
                 </div>

@@ -107,8 +107,8 @@ function RoleForm() {
       <input className="rounded-xl border border-gray-300 bg-white p-3 text-gray-900" placeholder="Email (or leave blank and use UID)" value={email} onChange={e => setEmail(e.target.value)} />
       <input className="rounded-xl border border-gray-300 bg-white p-3 text-gray-900" placeholder="UID (optional if email provided)" value={uid} onChange={e => setUid(e.target.value)} />
       <select className="rounded-xl border border-gray-300 bg-white p-3 text-gray-900" value={role} onChange={e => setRole(e.target.value as 'user'|'creator'|'admin'|'superadmin')}>
-        <option value="user">user (athlete)</option>
-        <option value="creator">creator (contributor)</option>
+        <option value="user">athlete (user)</option>
+        <option value="creator">coach (creator)</option>
         <option value="admin">admin</option>
         <option value="superadmin">superadmin</option>
       </select>

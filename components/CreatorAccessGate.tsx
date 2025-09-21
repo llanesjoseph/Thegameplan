@@ -1,6 +1,6 @@
 /**
- * Creator Access Gate Component
- * Controls access to creator features based on role and application status
+ * Coach Access Gate Component
+ * Controls access to coach features based on role and application status
  */
 
 'use client'

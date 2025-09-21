@@ -1,5 +1,5 @@
 /**
- * Hook for managing creator status and application workflow
+ * Hook for managing coach status and application workflow
  */
 
 import { useState, useEffect } from 'react'

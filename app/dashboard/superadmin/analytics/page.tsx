@@ -291,7 +291,7 @@ export default function SuperadminAnalytics() {
             <div className="text-3xl font-bold text-blue-400 mb-2">
               {systemStats.totalUsers.toLocaleString()}
             </div>
-            <div className="text-sm text-brand-grey">Total Users</div>
+            <div className="text-sm text-brand-grey">Total Athletes</div>
             <div className="text-xs text-green-400 mt-1">
               +{systemStats.monthlyGrowth}% this month
             </div>
@@ -304,8 +304,8 @@ export default function SuperadminAnalytics() {
             <div className="text-3xl font-bold text-purple-400 mb-2">
               {systemStats.totalCreators.toLocaleString()}
             </div>
-            <div className="text-sm text-brand-grey">Active Creators</div>
-            <div className="text-xs text-purple-400 mt-1">Content creators</div>
+            <div className="text-sm text-brand-grey">Active Coaches</div>
+            <div className="text-xs text-purple-400 mt-1">Coaches</div>
           </div>
 
           <div className="card text-center">

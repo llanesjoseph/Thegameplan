@@ -1,5 +1,5 @@
 /**
- * Admin Panel for Managing Creator Applications
+ * Admin Panel for Managing Coach Applications
  * Integrated with Firebase Functions role management system
  */
 
@@ -168,8 +168,8 @@ export default function CreatorApplicationsPage() {
       <div className="max-w-7xl mx-auto px-4 py-6">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Creator Applications</h1>
-          <p className="text-gray-600">Review and manage creator applications</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Coach Applications</h1>
+          <p className="text-gray-600">Review and manage coach applications</p>
         </div>
 
         {/* Stats */}

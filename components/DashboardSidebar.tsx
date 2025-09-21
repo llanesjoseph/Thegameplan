@@ -56,13 +56,13 @@ const navigationItems = {
     { title: 'System Analytics', icon: BarChart3, href: '/dashboard/superadmin/analytics', color: 'text-purple-600' },
     { title: '━━━ Admin Features ━━━', icon: null, href: '', color: 'text-gray-400', disabled: true },
     { title: 'All Users', icon: Users, href: '/dashboard/admin/users', color: 'text-green-600' },
-    { title: 'Creator Applications', icon: Award, href: '/dashboard/admin/creator-applications', color: 'text-indigo-600' },
+    { title: 'Coach Applications', icon: Award, href: '/dashboard/admin/creator-applications', color: 'text-indigo-600' },
     { title: 'Content Management', icon: Video, href: '/dashboard/admin/content', color: 'text-orange-600' },
     { title: 'Admin Analytics', icon: TrendingUp, href: '/dashboard/admin/analytics', color: 'text-pink-600' },
-    { title: '━━━ Creator Features ━━━', icon: null, href: '', color: 'text-gray-400', disabled: true },
-    { title: 'Creator Studio', icon: Video, href: '/dashboard/creator', color: 'text-red-600' },
-    { title: 'Creator Requests', icon: MessageCircle, href: '/dashboard/creator/requests', color: 'text-green-600' },
-    { title: 'Creator Analytics', icon: BarChart3, href: '/dashboard/creator/analytics', color: 'text-purple-600' },
+    { title: '━━━ Coach Features ━━━', icon: null, href: '', color: 'text-gray-400', disabled: true },
+    { title: 'Coach Studio', icon: Video, href: '/dashboard/creator', color: 'text-red-600' },
+    { title: 'Coach Requests', icon: MessageCircle, href: '/dashboard/creator/requests', color: 'text-green-600' },
+    { title: 'Coach Analytics', icon: BarChart3, href: '/dashboard/creator/analytics', color: 'text-purple-600' },
     { title: '━━━ General ━━━', icon: null, href: '', color: 'text-gray-400', disabled: true },
     { title: 'Curated Gear', icon: ShoppingBag, href: '/gear', color: 'text-emerald-600' },
     { title: 'System Settings', icon: Settings, href: '/dashboard/admin/settings', color: 'text-gray-600' },
@@ -82,7 +82,7 @@ export function DashboardSidebar() {
     if (user?.role === 'superadmin') {
       const viewLabel = role === 'superadmin' ? 'Super Admin' :
                        role === 'admin' ? 'Admin View' :
-                       role === 'creator' ? 'Creator View' : 'User View'
+                       role === 'creator' ? 'Coach View' : 'Athlete View'
 
       return <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
         <Crown className="w-3 h-3 mr-1" />
@@ -94,7 +94,7 @@ export function DashboardSidebar() {
       case 'creator':
         return <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
           <Award className="w-3 h-3 mr-1" />
-          Creator
+          Coach
         </div>
       case 'admin':
         return <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-700">
@@ -104,7 +104,7 @@ export function DashboardSidebar() {
       default:
         return <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
           <User className="w-3 h-3 mr-1" />
-          User
+          Athlete
         </div>
     }
   }

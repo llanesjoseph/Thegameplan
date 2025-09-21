@@ -28,22 +28,22 @@ interface TabRole {
 const TAB_ROLES: TabRole[] = [
   {
     id: 'user',
-    label: 'User View',
+    label: 'Athlete View',
     icon: User,
     color: 'text-blue-600',
     borderColor: 'border-blue-500',
     bgColor: 'bg-blue-50',
-    description: 'Standard user experience',
+    description: 'Athlete training experience',
     defaultPath: '/dashboard/overview'
   },
   {
     id: 'creator',
-    label: 'Creator View',
+    label: 'Coach View',
     icon: Star,
     color: 'text-purple-600',
     borderColor: 'border-purple-500',
     bgColor: 'bg-purple-50',
-    description: 'Content creator tools',
+    description: 'Coach content creation tools',
     defaultPath: '/dashboard/creator'
   },
   {
