@@ -495,6 +495,7 @@ Enhanced with detailed explanations, visual demonstrations, and progressive skil
               e.preventDefault()
               e.stopPropagation()
               console.log('Setting activeTab to create')
+              alert('Button clicked! Setting activeTab to create')
               setActiveTab('create')
               console.log('activeTab should now be create')
             }}
@@ -525,6 +526,11 @@ Enhanced with detailed explanations, visual demonstrations, and progressive skil
           </button>
         </div>
 
+
+        {/* Debug Info */}
+        <div className="mb-4 p-3 bg-yellow-100 border border-yellow-400 rounded-lg">
+          <p className="text-sm">DEBUG: Current activeTab = "{activeTab}" | Should show form: {activeTab === 'create' ? 'YES' : 'NO'}</p>
+        </div>
 
         {/* Content */}
         {activeTab === 'create' && (
