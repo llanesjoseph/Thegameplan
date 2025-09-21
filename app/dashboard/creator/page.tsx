@@ -489,7 +489,9 @@ Enhanced with detailed explanations, visual demonstrations, and progressive skil
             onClick={(e) => {
               e.preventDefault()
               e.stopPropagation()
+              console.log('Setting activeTab to create')
               setActiveTab('create')
+              console.log('activeTab should now be create')
             }}
             className={`px-4 py-2 rounded-md font-medium transition-colors flex items-center gap-2 cursor-pointer ${
               activeTab === 'create'
@@ -520,6 +522,7 @@ Enhanced with detailed explanations, visual demonstrations, and progressive skil
 
 
         {/* Content */}
+        {console.log('Current activeTab:', activeTab, 'Should show form:', activeTab === 'create')}
         {activeTab === 'create' && (
           <div className="bg-white border border-gray-200 rounded-lg p-6">
             <div className="mb-6">
