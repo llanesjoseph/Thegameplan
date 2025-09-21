@@ -27,33 +27,52 @@ export function useRoleSwitcher() {
   // Loading state to prevent multiple rapid updates
   const [isUpdating, setIsUpdating] = useState(false)
 
+  // Track if page is unloading to prevent flicker during transitions
+  const [isPageUnloading, setIsPageUnloading] = useState(false)
+
+  // Page unload detection to prevent flicker during transitions
+  useEffect(() => {
+    const handleBeforeUnload = () => setIsPageUnloading(true)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        setIsPageUnloading(true)
+      }
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [])
+
   // Initialize with user's actual role
   useEffect(() => {
-    // Skip updates during role switching operations
-    if (isUpdating) return
+    // Skip updates during role switching operations or page unloading
+    if (isUpdating || isPageUnloading) return
 
-    // Debug logging commented out to prevent re-render loops
-    // console.log('🔐 User object in roleSwitcher:', {
-    //   user: user,
-    //   userRole: user?.role,
-    //   userEmail: user?.email,
-    //   userDisplayName: user?.displayName
-    // })
-
-    if (user?.role) {
-      setRoleSwitcherState(prev => {
-        // Only update if role actually changed and we're not in testing mode
-        if (prev.originalRole !== user.role && !prev.isTestingMode) {
-          return {
-            ...prev,
-            originalRole: user.role as UserRole,
-            currentRole: user.role as UserRole
+    // Add debounce to prevent rapid updates that cause flicker
+    const debounceTimeout = setTimeout(() => {
+      if (user?.role) {
+        setRoleSwitcherState(prev => {
+          // Only update if role actually changed and we're not in testing mode
+          if (prev.originalRole !== user.role && !prev.isTestingMode) {
+            console.log('🔄 Role switcher updating to:', user.role)
+            return {
+              ...prev,
+              originalRole: user.role as UserRole,
+              currentRole: user.role as UserRole
+            }
           }
-        }
-        return prev
-      })
-    }
-  }, [user?.role, user?.email, isUpdating])
+          return prev
+        })
+      }
+    }, 100) // Small debounce to prevent rapid updates
+
+    return () => clearTimeout(debounceTimeout)
+  }, [user?.role, user?.email, isUpdating, isPageUnloading])
 
   // Check if current user is super admin
   const isSuperAdmin = user?.role === 'superadmin'

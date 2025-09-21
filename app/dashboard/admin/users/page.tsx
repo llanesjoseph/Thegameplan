@@ -152,30 +152,34 @@ export default function AdminUserManagement() {
       })
 
       if (response.ok) {
-        // Update local state immediately for better UX
-        setUsers(users.map(u => u.uid === uid ? { ...u, role: newRole } : u))
+        console.log(`✅ User role updated successfully to ${newRole}`)
 
-        // If user is changing their own role, handle specially
+        // If user is changing their own role, handle specially to prevent flicker
         if (uid === user?.uid) {
-          console.log('Self role change detected, reloading page to prevent state conflicts...')
+          console.log('🔄 Self role change detected - preventing flicker with immediate redirect...')
 
           // Close modal immediately
           setSelectedUser(null)
 
-          // Show brief success message before reload
-          setTimeout(() => {
-            window.location.href = window.location.pathname // Force full page reload
-          }, 500) // Shorter delay for better UX
-        } else {
-          console.log(`User ${uid} role updated to ${newRole}`)
+          // Clear any cached role data and force immediate page navigation
+          localStorage.removeItem('superadmin_roleTestingMode')
+
+          // Use replace instead of reload to prevent back button issues
+          window.location.replace(window.location.pathname)
+          return // Exit early to prevent further updates
         }
+
+        // For other users, update local state normally
+        setUsers(users.map(u => u.uid === uid ? { ...u, role: newRole } : u))
+        console.log(`✅ User ${uid} role updated to ${newRole}`)
+
       } else {
-        console.error('Failed to update user role')
+        console.error('❌ Failed to update user role')
         // Revert optimistic update on failure
         setUsers(users.map(u => u.uid === uid ? { ...u, role: users.find(ou => ou.uid === uid)?.role || 'user' } : u))
       }
     } catch (error) {
-      console.error('Error updating user role:', error)
+      console.error('❌ Error updating user role:', error)
       // Revert optimistic update on error
       setUsers(users.map(u => u.uid === uid ? { ...u, role: users.find(ou => ou.uid === uid)?.role || 'user' } : u))
     }
