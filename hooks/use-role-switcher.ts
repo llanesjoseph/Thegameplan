@@ -55,10 +55,14 @@ export function useRoleSwitcher() {
   useEffect(() => {
     const checkAdminRoleChange = () => {
       const adminChangeFlag = localStorage.getItem('admin_role_change_in_progress')
+      console.log('🔍 Checking admin role change flag:', adminChangeFlag)
+
       if (adminChangeFlag) {
+        console.log('🚨 ADMIN ROLE CHANGE DETECTED - Blocking role switcher for 2 seconds')
         setIsAdminRoleChange(true)
         // Clear the flag after a short delay
         setTimeout(() => {
+          console.log('⏰ Admin role change timeout - Clearing flag and allowing updates')
           localStorage.removeItem('admin_role_change_in_progress')
           setIsAdminRoleChange(false)
         }, 2000)
@@ -74,10 +78,23 @@ export function useRoleSwitcher() {
 
   // Initialize with user's actual role
   useEffect(() => {
+    console.log('📊 Role switcher useEffect triggered:', {
+      userRole: user?.role,
+      userEmail: user?.email,
+      isUpdating,
+      isPageUnloading,
+      isAdminRoleChange,
+      currentState: roleSwitcherState
+    })
+
     // Skip updates during role switching operations, page unloading, or admin changes
     if (isUpdating || isPageUnloading || isAdminRoleChange) {
       if (isAdminRoleChange) {
-        console.log('🚫 Blocking role switcher updates during admin role change')
+        console.log('🚫 BLOCKING: Role switcher updates blocked due to admin role change')
+      } else if (isUpdating) {
+        console.log('🚫 BLOCKING: Role switcher updates blocked due to isUpdating')
+      } else if (isPageUnloading) {
+        console.log('🚫 BLOCKING: Role switcher updates blocked due to page unloading')
       }
       return
     }
@@ -85,22 +102,34 @@ export function useRoleSwitcher() {
     // Add debounce to prevent rapid updates that cause flicker
     const debounceTimeout = setTimeout(() => {
       if (user?.role) {
+        console.log('⏱️ Debounce timeout triggered, checking for role update...')
         setRoleSwitcherState(prev => {
           // Only update if role actually changed and we're not in testing mode
           if (prev.originalRole !== user.role && !prev.isTestingMode) {
-            console.log('🔄 Role switcher updating to:', user.role)
+            console.log('🔄 UPDATING: Role switcher updating from', prev.originalRole, 'to', user.role)
             return {
               ...prev,
               originalRole: user.role as UserRole,
               currentRole: user.role as UserRole
             }
+          } else {
+            console.log('⏭️ SKIPPING: No role update needed', {
+              prevOriginal: prev.originalRole,
+              userRole: user.role,
+              isTestingMode: prev.isTestingMode
+            })
           }
           return prev
         })
+      } else {
+        console.log('❌ No user role available for update')
       }
     }, 100) // Small debounce to prevent rapid updates
 
-    return () => clearTimeout(debounceTimeout)
+    return () => {
+      console.log('🧹 Cleaning up role switcher timeout')
+      clearTimeout(debounceTimeout)
+    }
   }, [user?.role, user?.email, isUpdating, isPageUnloading, isAdminRoleChange])
 
   // Check if current user is super admin

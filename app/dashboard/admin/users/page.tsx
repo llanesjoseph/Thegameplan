@@ -41,6 +41,7 @@ export default function AdminUserManagement() {
   const [statusFilter, setStatusFilter] = useState('all')
   const [roleFilter, setRoleFilter] = useState('all')
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
+  const [isRoleChangeInProgress, setIsRoleChangeInProgress] = useState(false)
   
   const { user } = useAuth()
   const { role } = useEnhancedRole()
@@ -136,12 +137,17 @@ export default function AdminUserManagement() {
   }
 
   const updateUserRole = async (uid: string, newRole: string) => {
+    console.log('🔧 ADMIN: updateUserRole called with:', { uid, newRole, isSelfChange: uid === user?.uid })
+
     try {
       // Flag is already set in onChange handler
+      console.log('💾 ADMIN: Checking localStorage flag:', localStorage.getItem('admin_role_change_in_progress'))
 
       // Show loading state during update
       setUsers(users.map(u => u.uid === uid ? { ...u, role: '...' } : u))
+      console.log('⏳ ADMIN: Set loading state for user', uid)
 
+      console.log('📡 ADMIN: Making API call to /api/set-user-role')
       const response = await fetch('/api/set-user-role', {
         method: 'POST',
         headers: {
@@ -153,12 +159,15 @@ export default function AdminUserManagement() {
         })
       })
 
+      console.log('📡 ADMIN: API response status:', response.status, response.ok)
+
       if (response.ok) {
-        console.log(`✅ User role updated successfully to ${newRole}`)
+        console.log(`✅ ADMIN: User role updated successfully to ${newRole}`)
 
         // If user is changing their own role, handle specially to prevent flicker
         if (uid === user?.uid) {
-          console.log('🔄 Self role change detected - preventing flicker with immediate redirect...')
+          console.log('🔄 ADMIN: Self role change confirmed - initiating immediate redirect to prevent flicker')
+          console.log('🧹 ADMIN: Clearing superadmin_roleTestingMode from localStorage')
 
           // Close modal immediately
           setSelectedUser(null)
@@ -166,6 +175,7 @@ export default function AdminUserManagement() {
           // Clear any cached role data and force immediate page navigation
           localStorage.removeItem('superadmin_roleTestingMode')
 
+          console.log('🚀 ADMIN: Triggering page replacement in 0ms')
           // Use replace instead of reload to prevent back button issues
           window.location.replace(window.location.pathname)
           return // Exit early to prevent further updates
@@ -173,24 +183,31 @@ export default function AdminUserManagement() {
 
         // For other users, update local state normally
         setUsers(users.map(u => u.uid === uid ? { ...u, role: newRole } : u))
-        console.log(`✅ User ${uid} role updated to ${newRole}`)
+        console.log(`✅ ADMIN: Updated local state for user ${uid} to ${newRole}`)
 
         // Clear the flag after successful update for other users
+        console.log('⏰ ADMIN: Setting timeout to clear admin_role_change_in_progress flag in 1000ms')
         setTimeout(() => {
           localStorage.removeItem('admin_role_change_in_progress')
+          setIsRoleChangeInProgress(false)
+          console.log('🧹 ADMIN: Cleared admin_role_change_in_progress flag after timeout')
         }, 1000)
 
       } else {
-        console.error('❌ Failed to update user role')
+        console.error('❌ ADMIN: Failed to update user role - response not ok')
         // Clear flag on failure
         localStorage.removeItem('admin_role_change_in_progress')
+        setIsRoleChangeInProgress(false)
+        console.log('🧹 ADMIN: Cleared flag due to failure')
         // Revert optimistic update on failure
         setUsers(users.map(u => u.uid === uid ? { ...u, role: users.find(ou => ou.uid === uid)?.role || 'user' } : u))
       }
     } catch (error) {
-      console.error('❌ Error updating user role:', error)
+      console.error('❌ ADMIN: Error updating user role:', error)
       // Clear flag on error
       localStorage.removeItem('admin_role_change_in_progress')
+      setIsRoleChangeInProgress(false)
+      console.log('🧹 ADMIN: Cleared flag due to error')
       // Revert optimistic update on error
       setUsers(users.map(u => u.uid === uid ? { ...u, role: users.find(ou => ou.uid === uid)?.role || 'user' } : u))
     }
@@ -440,18 +457,34 @@ export default function AdminUserManagement() {
                     value={selectedUser.role}
                     onChange={(e) => {
                       const newRole = e.target.value
+                      console.log('🎯 ADMIN: Role dropdown changed to:', newRole, 'for user:', selectedUser.uid)
+
+                      // Prevent multiple rapid changes
+                      if (isRoleChangeInProgress) {
+                        console.log('⚠️ ADMIN: Role change already in progress, ignoring')
+                        return
+                      }
+
+                      setIsRoleChangeInProgress(true)
 
                       // Set flag immediately to prevent any flicker
                       localStorage.setItem('admin_role_change_in_progress', 'true')
+                      console.log('🚨 ADMIN: Set admin_role_change_in_progress flag to prevent flicker')
 
                       if (selectedUser.uid === user?.uid) {
+                        console.log('⚠️ ADMIN: Self role change detected, showing confirmation')
                         const confirmChange = confirm(`You are about to change your own role to "${newRole}". The page will reload after the change. Continue?`)
                         if (!confirmChange) {
                           // Clear flag if user cancels
                           localStorage.removeItem('admin_role_change_in_progress')
+                          setIsRoleChangeInProgress(false)
+                          console.log('❌ ADMIN: User cancelled role change, cleared flag')
                           return
                         }
+                        console.log('✅ ADMIN: User confirmed self role change')
                       }
+
+                      console.log('🚀 ADMIN: Calling updateUserRole function')
                       updateUserRole(selectedUser.uid, newRole)
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cardinal focus:border-cardinal bg-white text-gray-900"
