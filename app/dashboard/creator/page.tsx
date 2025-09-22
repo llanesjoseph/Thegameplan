@@ -113,26 +113,72 @@ function analyzeLessonTitle(title: string, sport: string): {
     if (lowerTitle.includes('effective') || lowerTitle.includes('method')) techniques.push('Training Efficiency', 'Skill Transfer')
     if (lowerTitle.includes('speed drill')) techniques.push('Sprint Start Technique', 'Running Form')
   } else if (sport.toLowerCase() === 'soccer') {
-    // Soccer skill extraction (existing code)
-    if (lowerTitle.includes('passing')) keySkills.push('Passing Accuracy')
-    if (lowerTitle.includes('shooting')) keySkills.push('Shooting Technique')
-    if (lowerTitle.includes('dribbling')) keySkills.push('Ball Control')
-    if (lowerTitle.includes('defending')) keySkills.push('Defensive Positioning')
-    if (lowerTitle.includes('crossing')) keySkills.push('Wing Play')
-    if (lowerTitle.includes('heading')) keySkills.push('Aerial Ability')
-    if (lowerTitle.includes('goalkeeping')) keySkills.push('Goalkeeping')
-    if (lowerTitle.includes('set piece')) keySkills.push('Set Piece Execution')
+    // Soccer skill extraction - comprehensive
+    if (lowerTitle.includes('passing')) keySkills.push('Passing Accuracy and Weight', 'Short and Long Distribution')
+    if (lowerTitle.includes('shooting')) keySkills.push('Shooting Technique', 'Power and Placement Balance')
+    if (lowerTitle.includes('dribbling')) keySkills.push('Ball Control', '1v1 Attacking Skills')
+    if (lowerTitle.includes('defending')) keySkills.push('Defensive Positioning', 'Marking and Tackling')
+    if (lowerTitle.includes('crossing')) keySkills.push('Wing Play', 'Delivery Quality and Timing')
+    if (lowerTitle.includes('heading')) keySkills.push('Aerial Ability', 'Timing and Direction')
+    if (lowerTitle.includes('goalkeeping')) keySkills.push('Shot Stopping', 'Distribution and Command')
+    if (lowerTitle.includes('set piece')) keySkills.push('Set Piece Execution', 'Dead Ball Technique')
+    if (lowerTitle.includes('tactical')) keySkills.push('Tactical Awareness', 'Game Reading')
+    if (lowerTitle.includes('possession')) keySkills.push('Ball Retention', 'Pressure Resistance')
+    if (lowerTitle.includes('counter attack')) keySkills.push('Transition Speed', 'Clinical Finishing')
+
+    // Soccer drill-specific skills
+    if (lowerTitle.includes('drill') || lowerTitle.includes('practice')) {
+      keySkills.push('Technical Repetition', 'Match Simulation', 'Pressure Training', 'Small-Sided Games')
+    }
 
     // Extract specific techniques
-    if (lowerTitle.includes('first touch')) techniques.push('First Touch Control')
-    if (lowerTitle.includes('vision')) techniques.push('Field Vision')
-    if (lowerTitle.includes('positioning')) techniques.push('Tactical Positioning')
-    if (lowerTitle.includes('finishing')) techniques.push('Clinical Finishing')
+    if (lowerTitle.includes('first touch')) techniques.push('First Touch Control', 'Receiving Under Pressure')
+    if (lowerTitle.includes('vision')) techniques.push('Field Vision', 'Scanning Technique')
+    if (lowerTitle.includes('positioning')) techniques.push('Tactical Positioning', 'Space Creation')
+    if (lowerTitle.includes('finishing')) techniques.push('Clinical Finishing', 'Composure in Box')
+    if (lowerTitle.includes('free kick')) techniques.push('Dead Ball Striking', 'Wall Technique')
+    if (lowerTitle.includes('corner')) techniques.push('Corner Delivery', 'Near/Far Post Runs')
+  } else if (sport.toLowerCase() === 'bjj' || sport.toLowerCase() === 'brazilian jiu-jitsu') {
+    // BJJ skill extraction
+    if (lowerTitle.includes('guard')) keySkills.push('Guard Retention', 'Guard Passing', 'Sweep Timing')
+    if (lowerTitle.includes('submission')) keySkills.push('Submission Chains', 'Control Before Attack')
+    if (lowerTitle.includes('position')) keySkills.push('Positional Control', 'Transition Timing')
+    if (lowerTitle.includes('escape')) keySkills.push('Hip Movement', 'Frame Creation', 'Defensive Concepts')
+    if (lowerTitle.includes('takedown')) keySkills.push('Wrestling Fundamentals', 'Level Changes')
+    if (lowerTitle.includes('sparring') || lowerTitle.includes('rolling')) keySkills.push('Live Training', 'Pressure Testing')
+
+    // BJJ techniques
+    if (lowerTitle.includes('armbar')) techniques.push('Arm Isolation', 'Hip Positioning')
+    if (lowerTitle.includes('triangle')) techniques.push('Angle Creation', 'Leg Positioning')
+    if (lowerTitle.includes('choke')) techniques.push('Collar Control', 'Finishing Mechanics')
+    if (lowerTitle.includes('sweep')) techniques.push('Off-Balancing', 'Leverage Points')
+  } else if (sport.toLowerCase() === 'mma' || sport.toLowerCase() === 'mixed martial arts') {
+    // MMA skill extraction
+    if (lowerTitle.includes('striking')) keySkills.push('Stand-up Technique', 'Range Management')
+    if (lowerTitle.includes('grappling')) keySkills.push('Takedowns', 'Ground Control')
+    if (lowerTitle.includes('clinch')) keySkills.push('Dirty Boxing', 'Pummeling')
+    if (lowerTitle.includes('conditioning')) keySkills.push('Fight Conditioning', 'Cardio Under Pressure')
+    if (lowerTitle.includes('sparring')) keySkills.push('Live Training', 'Multiple Ranges')
+
+    // MMA techniques
+    if (lowerTitle.includes('jab')) techniques.push('Boxing Fundamentals', 'Distance Management')
+    if (lowerTitle.includes('kick')) techniques.push('Muay Thai Technique', 'Balance and Recovery')
+    if (lowerTitle.includes('takedown')) techniques.push('Wrestling Entries', 'Chain Wrestling')
   }
 
-  // Default skills if none detected
+  // Default skills if none detected - make sport-specific
   if (keySkills.length === 0) {
-    keySkills.push('Technical Development', 'Tactical Understanding')
+    if (sport.toLowerCase() === 'football' || sport.toLowerCase() === 'american football') {
+      keySkills.push('Fundamentals and Form', 'Team Coordination', 'Situational Awareness')
+    } else if (sport.toLowerCase() === 'soccer') {
+      keySkills.push('Ball Control and Technique', 'Field Vision and Decision Making', 'Team Tactical Understanding')
+    } else if (sport.toLowerCase() === 'bjj' || sport.toLowerCase() === 'brazilian jiu-jitsu') {
+      keySkills.push('Technical Precision', 'Positional Control', 'Systematic Problem Solving')
+    } else if (sport.toLowerCase() === 'mma' || sport.toLowerCase() === 'mixed martial arts') {
+      keySkills.push('Multi-Range Combat', 'Adaptability and Strategy', 'Pressure Performance')
+    } else {
+      keySkills.push('Technical Development', 'Tactical Understanding', 'Performance Optimization')
+    }
   }
 
   // Determine training type
@@ -173,11 +219,17 @@ ${titleAnalysis.keySkills.map(skill => `• ${skill}`).join('\n')}
 ${titleAnalysis.techniques.length > 0 ? '\n**Specific Techniques You\'ll Learn:**\n' + titleAnalysis.techniques.map(technique => `• ${technique}`).join('\n') : ''}
 
 ## Technical Breakdown
-**Core Mechanics:**
-• **Body Positioning**: Maintain proper stance with knees slightly bent, weight on balls of feet
-• **First Touch**: Receive ball with appropriate surface, control direction away from pressure
-• **Vision Training**: Scan field 5-6 times during each possession cycle
-• **Decision Making**: Process information quickly and execute with confidence
+${titleAnalysis.keySkills.includes('Technical Repetition') || titleAnalysis.primaryFocus === 'Effective Practice Methods' ?
+`**Soccer-Specific Training Methods:**
+• **Progressive Overload**: Increase difficulty while maintaining technical quality
+• **Small-Sided Games**: 3v3, 4v4 formats for realistic pressure situations
+• **Possession-Based Drills**: Maintain ball control under varying pressure levels
+• **Transition Training**: Switch between attack and defense quickly and efficiently` :
+`**Soccer Core Mechanics:**
+• **Body Shape**: Open stance to receive, scan field before ball arrives
+• **First Touch Control**: Cushion ball with inside foot, direct away from pressure
+• **Field Scanning**: Look over shoulder 3-4 times before receiving pass
+• **Ball Manipulation**: Use all surfaces of foot for close control and direction changes`}
 
 ## Key Fundamentals
 • **Technique Over Strength**: Master proper mechanics before adding power or speed
@@ -186,10 +238,16 @@ ${titleAnalysis.techniques.length > 0 ? '\n**Specific Techniques You\'ll Learn:*
 • **Mental Preparation**: Visualize successful execution before attempting
 
 ## Practice Drills
-1. **Foundation Drill**: Start with basic ball control, progress to movement patterns
-2. **Pressure Training**: Add defensive pressure while maintaining technical quality
-3. **Game Simulation**: Apply skills in realistic match scenarios with decision-making
-4. **Repetition Practice**: High-volume technical repetitions for muscle memory
+${titleAnalysis.keySkills.includes('Technical Repetition') || titleAnalysis.primaryFocus === 'Effective Practice Methods' ?
+`1. **Cone Weaving with Ball Control**: Develop close control and change of direction
+2. **1v1 Box Battles**: Small space attacking and defending for pressure training
+3. **Passing Triangle Circuits**: Quick passing with movement and communication
+4. **Shooting Gallery**: Varied finish types from different angles and distances
+5. **Small-Sided Possession**: 4v2 keep-away in 15x15 yard boxes` :
+`1. **Juggling Progression**: Start with hands, progress to feet-only ball control
+2. **Wall Pass Accuracy**: Use wall or rebounder for passing technique refinement
+3. **Cone Dribbling**: Develop close control through slalom and figure-8 patterns
+4. **Shooting Technique**: Focus on inside foot placement and follow-through`}
 
 ## Game Application
 **Match Situations:**
@@ -333,11 +391,17 @@ ${titleAnalysis.primaryFocus === 'Effective Practice Methods' ?
 This systematic Brazilian Jiu-Jitsu lesson on "${title}" emphasizes technical precision over strength. As an IBJJF World Champion approach, this training develops conceptual understanding alongside practical application.
 
 ## Technical Breakdown
-**Fundamental Principles:**
-• **Position Before Submission**: Secure dominant position before attacking
-• **Leverage Over Strength**: Use body mechanics and angles efficiently
-• **Base and Posture**: Maintain structural integrity throughout movements
-• **Hip Movement**: Master shrimping and bridging for all positions
+${titleAnalysis.keySkills.includes('Live Training') || titleAnalysis.primaryFocus === 'Effective Practice Methods' ?
+`**BJJ Training Methodology:**
+• **Positional Sparring**: Start from specific positions, work problem-solving
+• **Flow Rolling**: Light resistance to develop timing and transitions
+• **Technical Drilling**: High repetition with progressive resistance
+• **Situational Training**: Escape bad positions, maintain good positions` :
+`**BJJ Core Principles:**
+• **Position Before Submission**: Control hierarchy - mount, back, side control
+• **Leverage Over Strength**: Use hip movement and body mechanics efficiently
+• **Base and Posture**: Maintain structural integrity in all positions
+• **Systematic Approach**: Connect techniques in logical sequences and chains`}
 
 ## Key Fundamentals
 • **Systematic Development**: Build techniques on solid foundational principles
@@ -346,10 +410,16 @@ This systematic Brazilian Jiu-Jitsu lesson on "${title}" emphasizes technical pr
 • **Mental Chess**: Think 2-3 moves ahead during rolling
 
 ## Practice Drills
-1. **Movement Patterns**: Hip escapes, bridges, and transitions without partner
-2. **Position Control**: Static holds and pressure application with partner
-3. **Submission Chains**: Flow between related attacks with proper setups
-4. **Situational Rolling**: Start from specific positions and work problems
+${titleAnalysis.keySkills.includes('Live Training') || titleAnalysis.primaryFocus === 'Effective Practice Methods' ?
+`1. **Position-Specific Drilling**: Mount escapes, guard retention, side control recovery
+2. **Flow Rolling (30% resistance)**: Develop timing and transition recognition
+3. **Submission Hunting**: Start from dominant position, work to finish
+4. **Defensive Drilling**: Escape bad positions with proper hip movement
+5. **Positional Sparring**: 3-minute rounds from specific starting positions` :
+`1. **Solo Movement**: Hip escapes, bridges, technical stand-ups
+2. **Partner Drilling**: Static position work with progressive resistance
+3. **Submission Chains**: Connect related attacks with smooth transitions
+4. **Live Training**: Situational sparring from specific positions`}
 
 ## Game Application
 **Competition Strategy:**
@@ -398,11 +468,17 @@ This systematic Brazilian Jiu-Jitsu lesson on "${title}" emphasizes technical pr
 This comprehensive MMA lesson on "${title}" integrates multiple martial arts disciplines. Designed for serious competitors, this training develops skills across all ranges of combat while building fight IQ.
 
 ## Technical Breakdown
-**Multi-Range Combat:**
-• **Striking Range**: Boxing, kickboxing, and muay thai fundamentals
-• **Clinch Range**: Dirty boxing, takedowns, and control positions
-• **Ground Range**: Wrestling, BJJ, and ground control
-• **Transition Skills**: Moving smoothly between combat ranges
+${titleAnalysis.keySkills.includes('Live Training') || titleAnalysis.primaryFocus === 'Effective Practice Methods' ?
+`**MMA Training Integration:**
+• **Range-Specific Sparring**: Boxing, kickboxing, wrestling, grappling sessions
+• **MMA Sparring**: All ranges combined with proper protective gear
+• **Drilling Chains**: Strike to takedown, ground to stand transitions
+• **Conditioning Integration**: Build cardio through technical work` :
+`**MMA Multi-Range Combat:**
+• **Striking Range**: Jab, cross, hook, uppercut, kicks, knees, elbows
+• **Clinch Range**: Dirty boxing, pummeling, trips, throws
+• **Ground Range**: Top control, guard work, submission defense
+• **Transition Mastery**: Seamless movement between all combat ranges`}
 
 ## Key Fundamentals
 • **Adaptability**: Adjust strategy based on opponent's strengths and weaknesses
@@ -411,10 +487,16 @@ This comprehensive MMA lesson on "${title}" integrates multiple martial arts dis
 • **Game Planning**: Prepare specific strategies for different opponent types
 
 ## Practice Drills
-1. **Range Transitions**: Practice moving between striking, clinch, and ground
-2. **Situational Sparring**: Work specific scenarios with controlled intensity
-3. **Cardio Integration**: Train techniques while maintaining fight pace
-4. **Mental Preparation**: Visualization and pressure simulation
+${titleAnalysis.keySkills.includes('Live Training') || titleAnalysis.primaryFocus === 'Effective Practice Methods' ?
+`1. **Boxing/Kickboxing Rounds**: 3-minute rounds with specific technique focus
+2. **Wrestling Rounds**: Takedown attempts and sprawl defense practice
+3. **Grappling Rounds**: Ground position work and submission attempts
+4. **MMA Rounds**: All ranges combined with protective equipment
+5. **Cardio Circuits**: Pad work, heavy bag, and conditioning drills` :
+`1. **Shadow Boxing**: Work combinations and footwork without partner
+2. **Pad Work**: Focus mitt training for timing and accuracy
+3. **Heavy Bag Training**: Power development and technique refinement
+4. **Grappling Dummy Work**: Practice takedowns and ground techniques`}
 
 ## Game Application
 **Fight Strategy:**
