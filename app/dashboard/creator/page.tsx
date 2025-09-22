@@ -11,7 +11,7 @@ import { useAuth } from "@/hooks/use-auth"
 import { useRouter } from 'next/navigation'
 import CreatorAccessGate from '@/components/CreatorAccessGate'
 import { collection, addDoc, query, where, getCountFromServer, serverTimestamp, getDoc, doc, getDocs, orderBy, deleteDoc } from 'firebase/firestore'
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
+import { ref, uploadBytes, getDownloadURL, uploadBytesResumable } from 'firebase/storage'
 import { 
   Play, 
   Upload, 
@@ -613,6 +613,7 @@ export default function CreatorDashboard() {
   const [uploadSuccess, setUploadSuccess] = useState(false)
   const [publishedLessons, setPublishedLessons] = useState<any[]>([])
   const [loadingLessons, setLoadingLessons] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState<{video: number, thumbnail: number}>({video: 0, thumbnail: 0})
   
   // AI Features State
   const [showAIFeatures, setShowAIFeatures] = useState(false)
@@ -682,18 +683,52 @@ export default function CreatorDashboard() {
       let videoUrl = ''
       let thumbnailUrl = ''
 
-      // Upload video if provided
+      // Upload video if provided with progress tracking
       if (videoFile) {
-        const videoRef = ref(storage, `creators/${authUser.uid}/content/${Date.now()}_${videoFile.name}`)
-        await uploadBytes(videoRef, videoFile)
-        videoUrl = await getDownloadURL(videoRef)
+        const videoRef = ref(storage, `content/${authUser.uid}/${Date.now()}_${videoFile.name}`)
+        const uploadTask = uploadBytesResumable(videoRef, videoFile)
+
+        await new Promise((resolve, reject) => {
+          uploadTask.on('state_changed',
+            (snapshot) => {
+              const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+              setUploadProgress(prev => ({ ...prev, video: Math.round(progress) }))
+            },
+            (error) => {
+              console.error('Video upload error:', error)
+              reject(error)
+            },
+            async () => {
+              videoUrl = await getDownloadURL(uploadTask.snapshot.ref)
+              setUploadProgress(prev => ({ ...prev, video: 100 }))
+              resolve(videoUrl)
+            }
+          )
+        })
       }
 
-      // Upload thumbnail if provided
+      // Upload thumbnail if provided with progress tracking
       if (thumbFile) {
-        const thumbRef = ref(storage, `creators/${authUser.uid}/content/thumb_${Date.now()}_${thumbFile.name}`)
-        await uploadBytes(thumbRef, thumbFile)
-        thumbnailUrl = await getDownloadURL(thumbRef)
+        const thumbRef = ref(storage, `content/${authUser.uid}/thumb_${Date.now()}_${thumbFile.name}`)
+        const uploadTask = uploadBytesResumable(thumbRef, thumbFile)
+
+        await new Promise((resolve, reject) => {
+          uploadTask.on('state_changed',
+            (snapshot) => {
+              const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+              setUploadProgress(prev => ({ ...prev, thumbnail: Math.round(progress) }))
+            },
+            (error) => {
+              console.error('Thumbnail upload error:', error)
+              reject(error)
+            },
+            async () => {
+              thumbnailUrl = await getDownloadURL(uploadTask.snapshot.ref)
+              setUploadProgress(prev => ({ ...prev, thumbnail: 100 }))
+              resolve(thumbnailUrl)
+            }
+          )
+        })
       }
 
       // Create lesson document
@@ -719,6 +754,7 @@ export default function CreatorDashboard() {
       setVideoFile(null)
       setThumbFile(null)
       setDetailedWriteup('')
+      setUploadProgress({video: 0, thumbnail: 0})
       setUploadSuccess(true)
       setLessonCount(prev => prev + 1)
       
@@ -1645,7 +1681,18 @@ ${sportContext.equipmentEssentials.slice(0, 4).map(item => `- ${item}`).join('\n
                     <input
                       type="file"
                       accept="video/*"
-                      onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (file) {
+                          if (file.size > 500 * 1024 * 1024) { // 500MB limit
+                            alert('Video file must be less than 500MB')
+                            return
+                          }
+                          setVideoFile(file)
+                        } else {
+                          setVideoFile(null)
+                        }
+                      }}
                       className="hidden"
                       id="video-upload"
                     />
@@ -1668,7 +1715,18 @@ ${sportContext.equipmentEssentials.slice(0, 4).map(item => `- ${item}`).join('\n
                     <input
                       type="file"
                       accept="image/*"
-                      onChange={(e) => setThumbFile(e.target.files?.[0] || null)}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (file) {
+                          if (file.size > 5 * 1024 * 1024) { // 5MB limit
+                            alert('Thumbnail image must be less than 5MB')
+                            return
+                          }
+                          setThumbFile(file)
+                        } else {
+                          setThumbFile(null)
+                        }
+                      }}
                       className="hidden"
                       id="thumb-upload"
                     />
@@ -1683,6 +1741,41 @@ ${sportContext.equipmentEssentials.slice(0, 4).map(item => `- ${item}`).join('\n
                 </div>
               </div>
 
+              {/* Upload Progress */}
+              {creating && (videoFile || thumbFile) && (uploadProgress.video > 0 || uploadProgress.thumbnail > 0) && (
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <h4 className="font-medium text-gray-900 mb-3">Upload Progress</h4>
+                  {videoFile && (
+                    <div className="mb-3">
+                      <div className="flex justify-between text-sm text-gray-600 mb-1">
+                        <span>Video: {videoFile.name}</span>
+                        <span>{uploadProgress.video}%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div
+                          className="bg-cardinal h-2 rounded-full transition-all duration-500"
+                          style={{ width: `${uploadProgress.video}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  )}
+                  {thumbFile && (
+                    <div>
+                      <div className="flex justify-between text-sm text-gray-600 mb-1">
+                        <span>Thumbnail: {thumbFile.name}</span>
+                        <span>{uploadProgress.thumbnail}%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div
+                          className="bg-cardinal h-2 rounded-full transition-all duration-500"
+                          style={{ width: `${uploadProgress.thumbnail}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Submit Button */}
               <div className="flex justify-end pt-4">
                 <button
@@ -1693,7 +1786,9 @@ ${sportContext.equipmentEssentials.slice(0, 4).map(item => `- ${item}`).join('\n
                   {creating ? (
                     <>
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      Publishing...
+                      {(videoFile && uploadProgress.video < 100) || (thumbFile && uploadProgress.thumbnail < 100)
+                        ? 'Uploading files...'
+                        : 'Publishing...'}
                     </>
                   ) : (
                     <>
