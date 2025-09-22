@@ -682,7 +682,15 @@ export default function CreatorDashboard() {
 
   const onSubmit = async (data: FormValues) => {
     if (!authUser) return
-    
+
+    console.log('🚀 Starting lesson creation:', {
+      title: data.title,
+      hasVideo: !!videoFile,
+      videoSize: videoFile ? (videoFile.size / (1024 * 1024)).toFixed(1) + ' MB' : 'N/A',
+      hasThumbnail: !!thumbFile,
+      userUid: authUser.uid
+    })
+
     setCreating(true)
     try {
       let videoUrl = ''
@@ -690,6 +698,12 @@ export default function CreatorDashboard() {
 
       // Upload video if provided with progress tracking and pause/resume
       if (videoFile) {
+        console.log('📹 Starting video upload:', {
+          filename: videoFile.name,
+          size: videoFile.size,
+          path: `content/${authUser.uid}/${Date.now()}_${videoFile.name}`
+        })
+
         const videoRef = ref(storage, `content/${authUser.uid}/${Date.now()}_${videoFile.name}`)
         const uploadTask = uploadBytesResumable(videoRef, videoFile)
         setUploadTasks(prev => ({ ...prev, video: uploadTask }))
@@ -714,6 +728,7 @@ export default function CreatorDashboard() {
             },
             async () => {
               videoUrl = await getDownloadURL(uploadTask.snapshot.ref)
+              console.log('✅ Video upload completed:', videoUrl)
               setUploadProgress(prev => ({ ...prev, video: 100 }))
               setUploadTasks(prev => ({ ...prev, video: null }))
               resolve(videoUrl)
@@ -1774,9 +1789,19 @@ This can reduce file size by 50-80% without significant quality loss.`)
                       accept="video/*"
                       onChange={(e) => {
                         const file = e.target.files?.[0]
+                        console.log('Video file selected:', file?.name, 'Size:', file?.size ? (file.size / (1024 * 1024)).toFixed(1) + ' MB' : 'N/A')
+
                         if (file) {
                           const maxSize = 2 * 1024 * 1024 * 1024 // 2GB limit
                           const warningSize = 1 * 1024 * 1024 * 1024 // 1GB warning
+
+                          console.log('File size check:', {
+                            fileSize: file.size,
+                            maxSize,
+                            warningSize,
+                            exceedsMax: file.size > maxSize,
+                            exceedsWarning: file.size > warningSize
+                          })
 
                           if (file.size > maxSize) {
                             alert('Video file must be less than 2GB. For larger files, please compress the video first.')
@@ -1792,8 +1817,10 @@ This can reduce file size by 50-80% without significant quality loss.`)
                             if (!proceed) return
                           }
 
+                          console.log('Setting video file:', file.name)
                           setVideoFile(file)
                         } else {
+                          console.log('No file selected, clearing video file')
                           setVideoFile(null)
                         }
                       }}
@@ -1802,7 +1829,7 @@ This can reduce file size by 50-80% without significant quality loss.`)
                     />
                     <label htmlFor="video-upload" className="cursor-pointer">
                       <span className="text-cardinal font-medium">Choose video file</span>
-                      <p className="text-gray-500 text-sm mt-1">MP4, MOV up to 2GB (1GB+ may take longer)</p>
+                      <p className="text-gray-500 text-sm mt-1">MP4, MOV up to 2GB (1GB+ may take longer) v2.1</p>
                     </label>
                   </div>
                   {videoFile && (
@@ -1814,6 +1841,22 @@ This can reduce file size by 50-80% without significant quality loss.`)
                           ⚠️ Large file - upload will take longer
                         </p>
                       )}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          console.log('🧪 Test upload flow:', {
+                            videoFile: videoFile,
+                            fileName: videoFile?.name,
+                            fileSize: videoFile?.size,
+                            authUser: authUser?.uid,
+                            storageRef: storage
+                          })
+                          alert(`Upload Test:\n\nFile: ${videoFile.name}\nSize: ${(videoFile.size / (1024 * 1024)).toFixed(1)} MB\nAuth: ${authUser?.uid}\n\nCheck console for details.`)
+                        }}
+                        className="mt-1 px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
+                      >
+                        Test Upload Flow
+                      </button>
                     </div>
                   )}
                 </div>
