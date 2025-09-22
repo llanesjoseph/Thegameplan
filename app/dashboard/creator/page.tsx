@@ -794,32 +794,53 @@ export default function CreatorDashboard() {
   const enhanceDescription = async () => {
     const currentTitle = watch('title')
     const currentDescription = watch('description')
-    
-    if (!currentTitle && !currentDescription) return
-    
+
+    if (!currentTitle && !currentDescription) {
+      alert('Please enter a lesson title and description first')
+      return
+    }
+
+    if (!selectedSport) {
+      alert('Please select a sport first')
+      return
+    }
+
     setEnhancingContent(true)
     try {
-      // Simulate AI enhancement
-      await new Promise(resolve => setTimeout(resolve, 1500))
-      
+      // Use title analysis to create enhanced, relevant description
+      const titleAnalysis = analyzeLessonTitle(currentTitle, selectedSport)
+
+      // Enhanced fallback using title analysis and sport context
       let enhanced = currentDescription
+
       if (currentDescription.length < 100) {
         enhanced = `${currentDescription}
 
-This comprehensive lesson covers:
-• Step-by-step technique breakdown
-• Common mistakes and how to avoid them
-• Practice drills for skill development
-• Real-world applications and scenarios
-• Progressive training methods
+This comprehensive ${selectedSport} lesson on "${currentTitle}" covers ${titleAnalysis.primaryFocus} through ${titleAnalysis.trainingType}.
 
-Perfect for ${watch('level')?.toLowerCase() || 'all skill levels'}, this lesson combines theoretical understanding with practical application to ensure lasting improvement and technical mastery.`
+**Key Skills You'll Master:**
+${titleAnalysis.keySkills.slice(0, 4).map(skill => `• ${skill}`).join('\n')}
+
+${titleAnalysis.techniques.length > 0 ? `**Specific Techniques:**
+${titleAnalysis.techniques.slice(0, 3).map(technique => `• ${technique}`).join('\n')}
+
+` : ''}**What's Included:**
+• Step-by-step technique breakdown specifically for "${currentTitle}"
+• Common mistakes and corrections for ${titleAnalysis.keySkills[0] || 'these skills'}
+• Progressive practice drills designed for ${titleAnalysis.trainingType.toLowerCase()}
+• Real-world application scenarios for ${selectedSport} competition
+• Safety considerations and injury prevention
+
+Perfect for ${watch('level')?.toLowerCase() || 'all skill levels'}, this lesson combines expert coaching with practical application to ensure lasting improvement in ${titleAnalysis.primaryFocus.toLowerCase()}.`
       } else {
         enhanced = `${currentDescription}
 
-Enhanced with detailed explanations, visual demonstrations, and progressive skill-building exercises designed to maximize learning outcomes and ensure practical application of concepts covered.`
+**Enhanced with ${currentTitle} Focus:**
+${titleAnalysis.keySkills.slice(0, 3).map(skill => `• ${skill} development`).join('\n')}
+
+Includes detailed explanations, progressive skill-building exercises, and sport-specific applications designed for ${titleAnalysis.primaryFocus.toLowerCase()} in ${selectedSport}. This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes through systematic, expert-guided instruction.`
       }
-      
+
       reset({
         ...watch(),
         description: enhanced
