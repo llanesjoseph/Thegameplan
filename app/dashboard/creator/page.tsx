@@ -41,8 +41,104 @@ import {
   RotateCcw
 } from 'lucide-react'
 
-// Enhanced fallback content generator with sport-specific knowledge
+// Title analysis function (same as in content-generation-service)
+function analyzeLessonTitle(title: string, sport: string): {
+  primaryFocus: string
+  keySkills: string[]
+  trainingType: string
+  techniques: string[]
+} {
+  const lowerTitle = title.toLowerCase()
+
+  // Determine primary focus based on keywords
+  let primaryFocus = 'General Skill Development'
+  if (lowerTitle.includes('progressive') || lowerTitle.includes('development')) {
+    primaryFocus = 'Progressive Skill Building'
+  } else if (lowerTitle.includes('advanced') || lowerTitle.includes('elite')) {
+    primaryFocus = 'Advanced Technique Mastery'
+  } else if (lowerTitle.includes('fundamental') || lowerTitle.includes('basic')) {
+    primaryFocus = 'Fundamental Technique'
+  } else if (lowerTitle.includes('conditioning') || lowerTitle.includes('fitness')) {
+    primaryFocus = 'Physical Conditioning'
+  } else if (lowerTitle.includes('mental') || lowerTitle.includes('psychology')) {
+    primaryFocus = 'Mental Preparation'
+  }
+
+  // Extract key skills based on sport and title
+  const keySkills: string[] = []
+  const techniques: string[] = []
+
+  if (sport.toLowerCase() === 'football' || sport.toLowerCase() === 'american football') {
+    // American Football skill extraction
+    if (lowerTitle.includes('blocking')) keySkills.push('Blocking Technique')
+    if (lowerTitle.includes('tackling')) keySkills.push('Tackling Form')
+    if (lowerTitle.includes('route') || lowerTitle.includes('receiving')) keySkills.push('Route Running')
+    if (lowerTitle.includes('quarterback') || lowerTitle.includes('qb')) keySkills.push('Quarterback Mechanics')
+    if (lowerTitle.includes('coverage') || lowerTitle.includes('defense')) keySkills.push('Defensive Coverage')
+    if (lowerTitle.includes('rush') || lowerTitle.includes('running')) keySkills.push('Rush Technique')
+    if (lowerTitle.includes('line') || lowerTitle.includes('lineman')) keySkills.push('Line Play')
+    if (lowerTitle.includes('special teams')) keySkills.push('Special Teams')
+
+    // For "football Skill Development: Progressive Training" - add general football skills
+    if (lowerTitle.includes('skill development') || lowerTitle.includes('training')) {
+      keySkills.push('Fundamental Stance and Alignment', 'Leverage and Pad Level', 'Footwork Mechanics', 'Hand Placement Technique')
+    }
+
+    // Extract specific techniques
+    if (lowerTitle.includes('stance')) techniques.push('Proper Stance')
+    if (lowerTitle.includes('footwork')) techniques.push('Footwork Mechanics')
+    if (lowerTitle.includes('hand placement')) techniques.push('Hand Positioning')
+    if (lowerTitle.includes('leverage')) techniques.push('Leverage Technique')
+    if (lowerTitle.includes('pass protection')) techniques.push('Pass Protection')
+    if (lowerTitle.includes('run fit')) techniques.push('Run Fit Assignment')
+    if (lowerTitle.includes('progressive')) techniques.push('Progressive Skill Building', 'Systematic Development')
+  } else if (sport.toLowerCase() === 'soccer') {
+    // Soccer skill extraction (existing code)
+    if (lowerTitle.includes('passing')) keySkills.push('Passing Accuracy')
+    if (lowerTitle.includes('shooting')) keySkills.push('Shooting Technique')
+    if (lowerTitle.includes('dribbling')) keySkills.push('Ball Control')
+    if (lowerTitle.includes('defending')) keySkills.push('Defensive Positioning')
+    if (lowerTitle.includes('crossing')) keySkills.push('Wing Play')
+    if (lowerTitle.includes('heading')) keySkills.push('Aerial Ability')
+    if (lowerTitle.includes('goalkeeping')) keySkills.push('Goalkeeping')
+    if (lowerTitle.includes('set piece')) keySkills.push('Set Piece Execution')
+
+    // Extract specific techniques
+    if (lowerTitle.includes('first touch')) techniques.push('First Touch Control')
+    if (lowerTitle.includes('vision')) techniques.push('Field Vision')
+    if (lowerTitle.includes('positioning')) techniques.push('Tactical Positioning')
+    if (lowerTitle.includes('finishing')) techniques.push('Clinical Finishing')
+  }
+
+  // Default skills if none detected
+  if (keySkills.length === 0) {
+    keySkills.push('Technical Development', 'Tactical Understanding')
+  }
+
+  // Determine training type
+  let trainingType = 'Technical Training'
+  if (lowerTitle.includes('drill') || lowerTitle.includes('practice')) {
+    trainingType = 'Drill-Based Practice'
+  } else if (lowerTitle.includes('conditioning') || lowerTitle.includes('fitness')) {
+    trainingType = 'Physical Conditioning'
+  } else if (lowerTitle.includes('tactical') || lowerTitle.includes('strategy')) {
+    trainingType = 'Tactical Development'
+  } else if (lowerTitle.includes('game') || lowerTitle.includes('match')) {
+    trainingType = 'Game Application'
+  }
+
+  return {
+    primaryFocus,
+    keySkills,
+    trainingType,
+    techniques
+  }
+}
+
+// Enhanced fallback content generator with sport-specific knowledge and title analysis
 function generateSportSpecificFallback(title: string, sport: string): string {
+  // Use the same title analysis system as the main content generator
+  const titleAnalysis = analyzeLessonTitle(title, sport)
   const sportLowercase = sport.toLowerCase()
 
   // Soccer specific content
@@ -50,7 +146,11 @@ function generateSportSpecificFallback(title: string, sport: string): string {
     return `# ${title}
 
 ## Lesson Overview
-This comprehensive soccer lesson on "${title}" combines technical skill development with tactical understanding. Drawing from elite-level coaching experience, this session will elevate your game through systematic training and expert insights.
+This comprehensive soccer lesson specifically focuses on "${title}" and covers ${titleAnalysis.primaryFocus}. This ${titleAnalysis.trainingType} session will develop the key skills identified in this lesson: ${titleAnalysis.keySkills.join(', ')}.
+
+**What You'll Master in This Lesson:**
+${titleAnalysis.keySkills.map(skill => `• ${skill}`).join('\n')}
+${titleAnalysis.techniques.length > 0 ? '\n**Specific Techniques You\'ll Learn:**\n' + titleAnalysis.techniques.map(technique => `• ${technique}`).join('\n') : ''}
 
 ## Technical Breakdown
 **Core Mechanics:**
@@ -115,7 +215,11 @@ This comprehensive soccer lesson on "${title}" combines technical skill developm
     return `# ${title}
 
 ## Lesson Overview
-This comprehensive American Football lesson on "${title}" focuses on fundamental technique, strategic understanding, and mental preparation. Drawing from championship-level coaching experience, this training will develop the skills needed to excel at every level of the game.
+This comprehensive American Football lesson specifically focuses on "${title}" and covers ${titleAnalysis.primaryFocus}. This ${titleAnalysis.trainingType} session will develop the key skills identified in this lesson: ${titleAnalysis.keySkills.join(', ')}.
+
+**What You'll Master in This Lesson:**
+${titleAnalysis.keySkills.map(skill => `• ${skill}`).join('\n')}
+${titleAnalysis.techniques.length > 0 ? '\n**Specific Techniques You\'ll Learn:**\n' + titleAnalysis.techniques.map(technique => `• ${technique}`).join('\n') : ''}
 
 ## Technical Breakdown
 **Core Fundamentals:**
