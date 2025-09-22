@@ -15,6 +15,7 @@ import { ref, uploadBytes, getDownloadURL, uploadBytesResumable } from 'firebase
 import { uploadService } from '@/lib/upload-service'
 import UploadManager from '@/components/UploadManager'
 import VideoCompressionHelper from '@/components/VideoCompressionHelper'
+import InAppVideoCompressor from '@/components/InAppVideoCompressor'
 import { 
   Play, 
   Upload, 
@@ -625,6 +626,7 @@ export default function CreatorDashboard() {
   const [useEnterpriseUpload, setUseEnterpriseUpload] = useState(false)
   const [currentUploadId, setCurrentUploadId] = useState<string | null>(null)
   const [showCompressionHelper, setShowCompressionHelper] = useState(false)
+  const [showInAppCompressor, setShowInAppCompressor] = useState(false)
   
   // AI Features State
   const [showAIFeatures, setShowAIFeatures] = useState(false)
@@ -688,13 +690,15 @@ export default function CreatorDashboard() {
 
   // Debug compression helper state
   useEffect(() => {
-    console.log('🗜️ Compression helper state:', {
+    console.log('🗜️ Compression state:', {
       showCompressionHelper,
+      showInAppCompressor,
       hasVideoFile: !!videoFile,
       videoFileName: videoFile?.name,
-      shouldShow: showCompressionHelper && videoFile
+      shouldShowHelper: showCompressionHelper && videoFile,
+      shouldShowInApp: showInAppCompressor && videoFile
     })
-  }, [showCompressionHelper, videoFile])
+  }, [showCompressionHelper, showInAppCompressor, videoFile])
 
   const onSubmit = async (data: FormValues) => {
     if (!authUser) return
@@ -1942,20 +1946,35 @@ This can reduce file size by 50-80% without significant quality loss.`)
                           Test Upload Flow
                         </button>
                         {videoFile.size > 100 * 1024 * 1024 && (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              console.log('🗜️ Opening compression helper...', {
-                                fileSize: videoFile.size,
-                                fileName: videoFile.name,
-                                currentState: showCompressionHelper
-                              })
-                              setShowCompressionHelper(true)
-                            }}
-                            className="px-2 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600"
-                          >
-                            Compress Video
-                          </button>
+                          <div className="flex gap-1">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                console.log('🗜️ Opening in-app compressor...', {
+                                  fileSize: videoFile.size,
+                                  fileName: videoFile.name
+                                })
+                                setShowInAppCompressor(true)
+                              }}
+                              className="px-2 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600"
+                            >
+                              Compress Now
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                console.log('🗜️ Opening compression helper...', {
+                                  fileSize: videoFile.size,
+                                  fileName: videoFile.name,
+                                  currentState: showCompressionHelper
+                                })
+                                setShowCompressionHelper(true)
+                              }}
+                              className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
+                            >
+                              Tools Guide
+                            </button>
+                          </div>
                         )}
                       </div>
                     </div>
@@ -2315,6 +2334,23 @@ This can reduce file size by 50-80% without significant quality loss.`)
             }
           }}
         />
+
+        {/* In-App Video Compressor */}
+        {showInAppCompressor && videoFile && (
+          <InAppVideoCompressor
+            file={videoFile}
+            onCompressed={(compressedFile) => {
+              setVideoFile(compressedFile)
+              setShowInAppCompressor(false)
+              console.log('🗜️ Video compressed in-app:', {
+                original: videoFile.size,
+                compressed: compressedFile.size,
+                reduction: ((videoFile.size - compressedFile.size) / videoFile.size * 100).toFixed(1) + '%'
+              })
+            }}
+            onCancel={() => setShowInAppCompressor(false)}
+          />
+        )}
 
         {/* Video Compression Helper Modal */}
         {showCompressionHelper && videoFile && (
