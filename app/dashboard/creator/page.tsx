@@ -45,12 +45,12 @@ import {
 function generateSportSpecificFallback(title: string, sport: string): string {
   const sportLowercase = sport.toLowerCase()
 
-  // Football/Soccer specific content
-  if (sportLowercase === 'football' || sportLowercase === 'soccer') {
+  // Soccer specific content
+  if (sportLowercase === 'soccer' || sportLowercase === 'futbol' || sportLowercase === 'association football') {
     return `# ${title}
 
 ## Lesson Overview
-This comprehensive football lesson on "${title}" combines technical skill development with tactical understanding. Drawing from elite-level coaching experience, this session will elevate your game through systematic training and expert insights.
+This comprehensive soccer lesson on "${title}" combines technical skill development with tactical understanding. Drawing from elite-level coaching experience, this session will elevate your game through systematic training and expert insights.
 
 ## Technical Breakdown
 **Core Mechanics:**
@@ -108,6 +108,71 @@ This comprehensive football lesson on "${title}" combines technical skill develo
 **Remember**: Champions are made in practice, revealed in games. Trust your preparation and execute with confidence!
 
 *This lesson plan provides structured development for players serious about elevating their game to the next level.*`
+  }
+
+  // American Football specific content
+  if (sportLowercase === 'football' || sportLowercase === 'american football' || sportLowercase === 'gridiron') {
+    return `# ${title}
+
+## Lesson Overview
+This comprehensive American Football lesson on "${title}" focuses on fundamental technique, strategic understanding, and mental preparation. Drawing from championship-level coaching experience, this training will develop the skills needed to excel at every level of the game.
+
+## Technical Breakdown
+**Core Fundamentals:**
+• **Stance and Alignment**: Master proper pre-snap positioning for maximum effectiveness
+• **Leverage and Pad Level**: Win battles by getting lower than your opponent
+• **Footwork and Movement**: Develop precise steps for every position and situation
+• **Hand Placement**: Control opponents through proper hand positioning and technique
+
+## Key Fundamentals
+• **Preparation and Film Study**: Mental preparation creates competitive advantages
+• **Communication**: Clear signals and calls prevent breakdowns and big plays
+• **Execution Under Pressure**: Perform fundamentals automatically in high-pressure situations
+• **Team Chemistry**: Trust and accountability enable complex schemes to succeed
+
+## Practice Drills
+1. **Stance and Start Drill**: Perfect pre-snap positioning and first-step mechanics
+2. **Leverage and Pad Level**: Practice winning battles through proper body positioning
+3. **Communication Practice**: Work signals and calls under pressure situations
+4. **Situational Execution**: Apply skills in game-like scenarios with time constraints
+
+## Game Application
+**Match Situations:**
+• Recognize pre-snap keys and make appropriate adjustments
+• Execute assignments within team scheme and strategy
+• Communicate effectively with teammates during high-pressure moments
+• Adapt to opponent adjustments and changing game situations
+
+## Common Mistakes & Corrections
+• **Mistake**: Poor stance leading to slow starts → **Correction**: Focus on weight distribution and ready position
+• **Mistake**: Playing too high losing leverage → **Correction**: Emphasize pad level and getting low first
+• **Mistake**: Mental errors and missed assignments → **Correction**: Increase film study and communication practice
+• **Mistake**: Inadequate preparation for game situations → **Correction**: Practice situational drills regularly
+
+## Progression Tips
+• Master your stance and alignment before advancing to complex techniques
+• Study film extensively to understand schemes and opponent tendencies
+• Develop both physical skills and mental understanding of the game
+• Practice communication and leadership skills alongside technical development
+• Focus on consistency in fundamentals under all conditions
+
+## Safety Considerations
+• Always use properly fitted helmet and protective equipment
+• Learn and practice proper tackling technique with head up
+• Understand concussion protocols and report any symptoms immediately
+• Maintain proper hydration especially in hot weather conditions
+• Follow proper warm-up and conditioning protocols to prevent injury
+
+## Pro Insights
+**Championship-Level Secrets:**
+• Preparation and film study separate good players from great players
+• Physical and mental toughness are both developed through disciplined training
+• Master your assignment first, then help teammates with theirs
+• Communication and trust enable complex schemes to function effectively
+
+**Remember**: Perfect practice makes perfect. Train at game speed with game intensity, and your fundamentals will be automatic when it matters most!
+
+*This lesson emphasizes the systematic approach that builds championship-level football players and teams.*`
   }
 
   // BJJ specific content

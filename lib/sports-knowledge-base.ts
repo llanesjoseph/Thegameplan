@@ -24,9 +24,9 @@ export interface SportContext {
   expertTips: string[]
 }
 
-export const footballContext: SportContext = {
-  name: 'Football (Soccer)',
-  aliases: ['soccer', 'football', 'futbol', 'association football'],
+export const soccerContext: SportContext = {
+  name: 'Soccer',
+  aliases: ['soccer', 'futbol', 'association football', 'football (soccer)'],
   coachingPhilosophy: [
     'Technique over strength in all situations',
     'Intelligence and decision-making separate elite players',
@@ -178,6 +178,164 @@ export const footballContext: SportContext = {
     'Train your weak foot to 70% of strong foot ability minimum',
     'Penalties: pick your corner before approaching, never during run-up',
     'Reading the game: anticipate what will happen 2-3 seconds ahead'
+  ]
+}
+
+export const americanFootballContext: SportContext = {
+  name: 'American Football',
+  aliases: ['football', 'american football', 'gridiron', 'NFL'],
+  coachingPhilosophy: [
+    'Execution under pressure defines championship teams',
+    'Physical and mental toughness are equally important',
+    'Preparation and film study create competitive advantages',
+    'Team chemistry and trust enable complex schemes',
+    'Fundamentals must be automatic in high-pressure situations',
+    'Every position is critical to team success',
+    'Adaptability and adjustments win games'
+  ],
+  keyAreas: [
+    'Offensive Systems (run, pass, protection schemes)',
+    'Defensive Concepts (coverage, pass rush, run stopping)',
+    'Special Teams (kicking game, return coverage)',
+    'Position-Specific Techniques (blocking, tackling, route running)',
+    'Game Planning and Film Study',
+    'Physical Conditioning (strength, speed, agility)',
+    'Mental Preparation (reads, adjustments, communication)',
+    'Leadership and Team Chemistry'
+  ],
+  technicalAspects: [
+    'Blocking Techniques and Leverage',
+    'Tackling Form and Safety',
+    'Route Running and Timing',
+    'Quarterback Mechanics and Reads',
+    'Pass Coverage Principles',
+    'Run Fit and Gap Control',
+    'Special Teams Fundamentals',
+    'Footwork and Body Positioning'
+  ],
+  mentalAspects: [
+    'Pre-Snap Recognition and Reads',
+    'Pressure Management and Composure',
+    'Team Communication and Signals',
+    'Competitive Drive and Resilience',
+    'Focus and Concentration',
+    'Leadership and Accountability',
+    'Adaptability and Adjustments',
+    'Game Situation Awareness'
+  ],
+  physicalAspects: [
+    'Explosive Power and Strength',
+    'Speed and Acceleration',
+    'Agility and Change of Direction',
+    'Hand-Eye Coordination',
+    'Core Stability and Balance',
+    'Cardiovascular Endurance',
+    'Flexibility and Mobility',
+    'Injury Prevention and Recovery'
+  ],
+  commonTerminology: {
+    'Down and Distance': 'Current down (1-4) and yards needed for first down',
+    'Snap Count': 'Cadence used to start the play',
+    'Audible': 'Play change called at the line of scrimmage',
+    'Blitz': 'Extra pass rushers beyond base defense',
+    'Pick': 'Interception by the defense',
+    'Sack': 'Tackling quarterback behind line of scrimmage',
+    'Pocket': 'Protected area for quarterback to throw',
+    'Red Zone': 'Area between 20-yard line and goal line',
+    'Two-Minute Drill': 'Hurry-up offense to manage clock',
+    'Hard Count': 'Varying snap count to draw offsides',
+    'Hot Route': 'Quick pass option against blitz',
+    'Coverage': 'Defensive pass protection scheme',
+    'Gap': 'Space between offensive linemen',
+    'Pursuit': 'Defensive players running to the ball',
+    'Stunt': 'Coordinated pass rush move',
+    'Play Action': 'Fake handoff to setup pass'
+  },
+  skillProgression: {
+    beginner: [
+      'Basic stance and alignment',
+      'Fundamental blocking and tackling technique',
+      'Simple route running and catching',
+      'Basic defensive positioning',
+      'Understanding down and distance',
+      'Proper equipment fitting and safety',
+      'Basic rules and penalties'
+    ],
+    intermediate: [
+      'Position-specific techniques and responsibilities',
+      'Reading basic offensive and defensive schemes',
+      'Proper footwork and body mechanics',
+      'Communication and signals',
+      'Conditioning for game demands',
+      'Film study and preparation habits',
+      'Situational awareness and adjustments'
+    ],
+    advanced: [
+      'Complex scheme recognition and adjustments',
+      'Advanced technique refinement',
+      'Leadership and field communication',
+      'Game planning and strategy',
+      'Mental toughness and pressure performance',
+      'Coaching and teaching others',
+      'Position versatility and special packages'
+    ],
+    elite: [
+      'Professional-level technique mastery',
+      'Advanced scheme innovation and adaptation',
+      'Elite physical and mental preparation',
+      'Leadership and team culture development',
+      'Media and community responsibilities',
+      'Long-term career and health management',
+      'Mentoring and developing next generation'
+    ]
+  },
+  safetyConsiderations: [
+    'Proper helmet fitting and maintenance is critical',
+    'Learn and practice proper tackling technique (head up, wrap up)',
+    'Understand concussion protocols and symptoms',
+    'Maintain proper hydration in all weather conditions',
+    'Use all required protective equipment properly',
+    'Report injuries immediately to coaching and medical staff',
+    'Follow proper warm-up and conditioning protocols',
+    'Never lead with the head when blocking or tackling',
+    'Understand heat illness prevention and recognition',
+    'Practice safe weight room and conditioning habits'
+  ],
+  equipmentEssentials: [
+    'Properly fitted helmet with face mask',
+    'Shoulder pads appropriate for position',
+    'Hip pads and tailbone protection',
+    'Thigh and knee pads',
+    'Cleats appropriate for field conditions',
+    'Mouthguard (required in most leagues)',
+    'Practice jersey and pants',
+    'Gloves for skill positions',
+    'Rib protector (for certain positions)',
+    'Proper athletic supporter and cup'
+  ],
+  commonMistakes: [
+    'Poor tackling form leading to missed tackles and injuries',
+    'Lack of proper pre-snap reads and preparation',
+    'Inconsistent footwork and stance',
+    'Poor communication and missed assignments',
+    'Inadequate film study and preparation',
+    'Playing too high or with poor leverage',
+    'Not finishing plays through the whistle',
+    'Mental errors and penalties at crucial times',
+    'Inadequate conditioning for game demands',
+    'Not protecting the football in traffic'
+  ],
+  expertTips: [
+    'Master your stance and first step - everything builds from there',
+    'Study film like your career depends on it - because it does',
+    'Perfect practice makes perfect - train at game speed',
+    'Communication prevents blown assignments and big plays',
+    'Physical and mental toughness are developed, not born',
+    'Know your job and everyone else\'s job around you',
+    'Prepare for every situation before it happens in the game',
+    'Take care of your body - nutrition, sleep, and recovery matter',
+    'Leadership is about accountability and making others better',
+    'Consistency in fundamentals separates good from great players'
   ]
 }
 
@@ -494,8 +652,13 @@ export const mmaContext: SportContext = {
 
 // Main sports registry
 export const sportsKnowledgeBase: Record<string, SportContext> = {
-  'football': footballContext,
-  'soccer': footballContext,
+  'soccer': soccerContext,
+  'futbol': soccerContext,
+  'association-football': soccerContext,
+  'football': americanFootballContext,
+  'american-football': americanFootballContext,
+  'gridiron': americanFootballContext,
+  'nfl': americanFootballContext,
   'bjj': bjjContext,
   'brazilian-jiu-jitsu': bjjContext,
   'mma': mmaContext,
@@ -505,7 +668,7 @@ export const sportsKnowledgeBase: Record<string, SportContext> = {
 // Get sport context by name
 export function getSportContext(sportName: string): SportContext {
   const key = sportName.toLowerCase().trim().replace(/\s+/g, '-')
-  return sportsKnowledgeBase[key] || footballContext // Default to football
+  return sportsKnowledgeBase[key] || soccerContext // Default to soccer
 }
 
 // Check if sport is supported
