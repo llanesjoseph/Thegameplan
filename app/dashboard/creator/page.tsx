@@ -41,6 +41,246 @@ import {
   RotateCcw
 } from 'lucide-react'
 
+// Enhanced fallback content generator with sport-specific knowledge
+function generateSportSpecificFallback(title: string, sport: string): string {
+  const sportLowercase = sport.toLowerCase()
+
+  // Football/Soccer specific content
+  if (sportLowercase === 'football' || sportLowercase === 'soccer') {
+    return `# ${title}
+
+## Lesson Overview
+This comprehensive football lesson on "${title}" combines technical skill development with tactical understanding. Drawing from elite-level coaching experience, this session will elevate your game through systematic training and expert insights.
+
+## Technical Breakdown
+**Core Mechanics:**
+• **Body Positioning**: Maintain proper stance with knees slightly bent, weight on balls of feet
+• **First Touch**: Receive ball with appropriate surface, control direction away from pressure
+• **Vision Training**: Scan field 5-6 times during each possession cycle
+• **Decision Making**: Process information quickly and execute with confidence
+
+## Key Fundamentals
+• **Technique Over Strength**: Master proper mechanics before adding power or speed
+• **Consistency**: Develop muscle memory through deliberate, repetitive practice
+• **Game Intelligence**: Read situations 2-3 seconds ahead of play development
+• **Mental Preparation**: Visualize successful execution before attempting
+
+## Practice Drills
+1. **Foundation Drill**: Start with basic ball control, progress to movement patterns
+2. **Pressure Training**: Add defensive pressure while maintaining technical quality
+3. **Game Simulation**: Apply skills in realistic match scenarios with decision-making
+4. **Repetition Practice**: High-volume technical repetitions for muscle memory
+
+## Game Application
+**Match Situations:**
+• Recognize when to apply this technique during live play
+• Understand positioning and timing within team tactical structure
+• Adapt execution based on opponent pressure and field conditions
+• Communicate effectively with teammates during application
+
+## Common Mistakes & Corrections
+• **Mistake**: Looking down at ball instead of scanning field → **Correction**: Practice peripheral vision training
+• **Mistake**: Rushing execution under pressure → **Correction**: Develop composure through repeated pressure training
+• **Mistake**: Using only dominant foot → **Correction**: Dedicate specific time to weak foot development
+• **Mistake**: Poor body positioning → **Correction**: Focus on stance and balance fundamentals
+
+## Progression Tips
+• Master basics before advancing to complex variations
+• Train both feet equally to become unpredictable
+• Practice under game-speed conditions
+• Seek feedback from experienced coaches and players
+• Video analysis for technical refinement
+
+## Safety Considerations
+• Always warm up with dynamic stretching and ball work
+• Use proper shin guards during contact training
+• Stay hydrated throughout session
+• Progress intensity gradually to prevent injury
+• Train on appropriate surfaces for technique development
+
+## Pro Insights
+**Elite-Level Secrets:**
+• Your first touch determines the quality of your next move
+• Great players make decisions before receiving the ball
+• Consistency under pressure separates good from great
+• Mental preparation is as important as physical training
+
+**Remember**: Champions are made in practice, revealed in games. Trust your preparation and execute with confidence!
+
+*This lesson plan provides structured development for players serious about elevating their game to the next level.*`
+  }
+
+  // BJJ specific content
+  if (sportLowercase === 'bjj' || sportLowercase === 'brazilian jiu-jitsu') {
+    return `# ${title}
+
+## Lesson Overview
+This systematic Brazilian Jiu-Jitsu lesson on "${title}" emphasizes technical precision over strength. As an IBJJF World Champion approach, this training develops conceptual understanding alongside practical application.
+
+## Technical Breakdown
+**Fundamental Principles:**
+• **Position Before Submission**: Secure dominant position before attacking
+• **Leverage Over Strength**: Use body mechanics and angles efficiently
+• **Base and Posture**: Maintain structural integrity throughout movements
+• **Hip Movement**: Master shrimping and bridging for all positions
+
+## Key Fundamentals
+• **Systematic Development**: Build techniques on solid foundational principles
+• **Conceptual Understanding**: Learn the why behind each movement
+• **Technical Precision**: Perfect execution over forceful application
+• **Mental Chess**: Think 2-3 moves ahead during rolling
+
+## Practice Drills
+1. **Movement Patterns**: Hip escapes, bridges, and transitions without partner
+2. **Position Control**: Static holds and pressure application with partner
+3. **Submission Chains**: Flow between related attacks with proper setups
+4. **Situational Rolling**: Start from specific positions and work problems
+
+## Game Application
+**Competition Strategy:**
+• Identify optimal times to attempt techniques during live rolling
+• Develop backup options when primary attacks are defended
+• Control pace and create opportunities through patience
+• Use opponent's reactions to set up subsequent techniques
+
+## Common Mistakes & Corrections
+• **Mistake**: Using strength instead of technique → **Correction**: Focus on leverage and timing
+• **Mistake**: Rushing submissions → **Correction**: Secure position first, then attack
+• **Mistake**: Poor hip movement → **Correction**: Drill fundamental movement patterns daily
+• **Mistake**: Holding breath during rolling → **Correction**: Practice controlled breathing
+
+## Progression Tips
+• Master basic positions before learning advanced techniques
+• Develop systematic approach to each position
+• Train consistently rather than intensely
+• Study high-level competition footage
+• Keep training journal for technique notes
+
+## Safety Considerations
+• Tap early and often to prevent injury
+• Warm up thoroughly, especially neck and shoulders
+• Communicate with training partners about injuries
+• Learn proper breakfalling techniques
+• Progress gradually through skill levels
+
+## Pro Insights
+**Championship Mindset:**
+• Technique conquers strength in all situations
+• Small daily improvements compound over time
+• Position before submission - always secure control first
+• Train your mind like you train your body
+
+**Remember**: It's not about being the strongest, it's about being the most technical. Trust the process and develop systematically!
+
+*This lesson emphasizes the methodical approach that creates champions at the highest levels of competition.*`
+  }
+
+  // MMA specific content
+  if (sportLowercase === 'mma' || sportLowercase === 'mixed martial arts') {
+    return `# ${title}
+
+## Lesson Overview
+This comprehensive MMA lesson on "${title}" integrates multiple martial arts disciplines. Designed for serious competitors, this training develops skills across all ranges of combat while building fight IQ.
+
+## Technical Breakdown
+**Multi-Range Combat:**
+• **Striking Range**: Boxing, kickboxing, and muay thai fundamentals
+• **Clinch Range**: Dirty boxing, takedowns, and control positions
+• **Ground Range**: Wrestling, BJJ, and ground control
+• **Transition Skills**: Moving smoothly between combat ranges
+
+## Key Fundamentals
+• **Adaptability**: Adjust strategy based on opponent's strengths and weaknesses
+• **Systematic Training**: Develop all aspects while specializing in core strengths
+• **Mental Toughness**: Build confidence through pressure testing
+• **Game Planning**: Prepare specific strategies for different opponent types
+
+## Practice Drills
+1. **Range Transitions**: Practice moving between striking, clinch, and ground
+2. **Situational Sparring**: Work specific scenarios with controlled intensity
+3. **Cardio Integration**: Train techniques while maintaining fight pace
+4. **Mental Preparation**: Visualization and pressure simulation
+
+## Game Application
+**Fight Strategy:**
+• Identify optimal ranges for your skill set against specific opponents
+• Develop entries and exits for each combat range
+• Create and capitalize on opportunities during transitions
+• Maintain composure under pressure and adversity
+
+## Common Mistakes & Corrections
+• **Mistake**: Neglecting one aspect of MMA → **Correction**: Train all ranges consistently
+• **Mistake**: Poor cardio conditioning → **Correction**: Fight-specific conditioning protocols
+• **Mistake**: Emotional fighting → **Correction**: Develop mental discipline and strategy
+• **Mistake**: Inadequate defense → **Correction**: Emphasize defensive fundamentals
+
+## Progression Tips
+• Master fundamentals in each discipline before advanced techniques
+• Spar regularly with different skill levels and styles
+• Study fight footage to develop strategic thinking
+• Cross-train with specialists in each martial art
+• Compete regularly to test skills under pressure
+
+## Safety Considerations
+• Always use proper protective gear during sparring
+• Start with light contact and gradually increase intensity
+• Never train through head injuries or concussions
+• Hydrate properly and monitor weight cutting
+• Allow adequate recovery between intense sessions
+
+## Pro Insights
+**Elite Competition Secrets:**
+• Master your defensive fundamentals before focusing on offense
+• Develop multiple game plans for different opponent styles
+• Mental preparation is as important as physical training
+• Consistency in training beats sporadic intense sessions
+
+**Remember**: The best fighters are problem solvers. Stay calm under pressure and adapt to any situation!
+
+*This training approach develops complete mixed martial artists ready for high-level competition.*`
+  }
+
+  // Generic fallback for other sports
+  return `# ${title}
+
+## Lesson Overview
+This comprehensive lesson on "${title}" provides systematic skill development through expert coaching methodology. Designed for serious athletes, this training combines technical proficiency with tactical understanding.
+
+## Technical Breakdown
+**Core Principles:**
+• Master fundamental mechanics before advancing complexity
+• Develop consistent execution through deliberate practice
+• Understand when and how to apply skills in competition
+• Build mental resilience alongside physical capabilities
+
+## Key Fundamentals
+• **Technical Precision**: Focus on proper form and execution
+• **Progressive Development**: Build skills systematically over time
+• **Mental Preparation**: Develop confidence through preparation
+• **Competitive Application**: Practice skills under pressure
+
+## Practice Drills
+1. **Foundation Building**: Master basic movements and positions
+2. **Skill Integration**: Combine techniques into flowing sequences
+3. **Pressure Testing**: Apply skills under realistic conditions
+4. **Competition Simulation**: Practice in game-like scenarios
+
+## Safety Considerations
+• Always warm up properly before training
+• Use appropriate protective equipment
+• Progress intensity gradually
+• Listen to your body and rest when needed
+• Train with qualified supervision
+
+## Expert Tips
+• Consistency beats perfection in skill development
+• Mental preparation equals physical preparation
+• Learn from both success and failure
+• Trust your training when competing
+
+*This lesson provides structured development for athletes committed to excellence.*`
+}
+
 export default function CreatorDashboard() {
   const { role, loading: loadingRole } = useUrlEnhancedRole()
   const { user: authUser, loading: authLoading } = useAuth()
@@ -722,17 +962,54 @@ Enhanced with detailed explanations, visual demonstrations, and progressive skil
                         type="button"
                         onClick={async () => {
                           const currentTitle = watch('title')
+                          const currentSport = selectedSport
+
                           if (!currentTitle) {
                             alert('Please enter a lesson title first')
                             return
                           }
+
+                          if (!currentSport) {
+                            alert('Please select a sport first')
+                            return
+                          }
+
                           setGeneratingIdeas(true)
-                          // Simulate AI content generation
-                          setTimeout(() => {
-                            const sampleContent = `## Lesson Overview\n\nThis comprehensive lesson on "${currentTitle}" will cover:\n\n### Key Learning Objectives\n- Master fundamental techniques\n- Understand proper form and execution\n- Develop muscle memory through repetition\n- Apply concepts in practice scenarios\n\n### Prerequisites\n- Basic understanding of foundational movements\n- Appropriate fitness level for the skill level\n\n### What You'll Learn\n1. **Technique Breakdown** - Step-by-step instruction\n2. **Common Mistakes** - What to avoid and how to correct\n3. **Practice Drills** - Exercises to reinforce learning\n4. **Application** - When and how to use in real situations\n\n### Equipment Needed\n- Standard training equipment\n- Comfortable athletic wear\n- Water bottle for hydration\n\n*This detailed writeup provides coaches and athletes with a complete understanding of what to expect from this training session.*`
-                            setDetailedWriteup(sampleContent)
+
+                          try {
+                            // Use the robust content generation service
+                            const { generateLessonContent } = await import('@/lib/content-generation-service')
+
+                            const generatedContent = await generateLessonContent({
+                              title: currentTitle,
+                              sport: currentSport,
+                              creatorId: authUser?.email || 'default',
+                              skillLevel: 'intermediate', // Default for now, could be user-selectable
+                              focus: 'comprehensive',
+                              duration: 30,
+                              safetyLevel: 'high'
+                            })
+
+                            setDetailedWriteup(generatedContent.detailedWriteup)
+
+                            // Optional: Show success message with additional insights
+                            console.log('Generated content insights:', {
+                              keyTechniques: generatedContent.keyTechniques,
+                              safetyNotes: generatedContent.safetyNotes,
+                              expertInsights: generatedContent.expertInsights
+                            })
+
+                          } catch (error) {
+                            console.error('Content generation failed:', error)
+
+                            // Enhanced fallback with sport-specific content
+                            const fallbackContent = generateSportSpecificFallback(currentTitle, currentSport)
+                            setDetailedWriteup(fallbackContent)
+
+                            alert('AI generation temporarily unavailable. Generated comprehensive template based on sports expertise.')
+                          } finally {
                             setGeneratingIdeas(false)
-                          }, 2000)
+                          }
                         }}
                         disabled={generatingIdeas}
                         className="px-3 py-1 text-xs bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:opacity-50 flex items-center gap-1"
@@ -752,10 +1029,45 @@ Enhanced with detailed explanations, visual demonstrations, and progressive skil
 
                       <button
                         type="button"
-                        onClick={() => {
-                          if (detailedWriteup) {
-                            const enhanced = detailedWriteup + `\n\n### Safety Considerations\n- Always warm up before training\n- Use proper protective equipment\n- Train with qualified supervision\n- Listen to your body and rest when needed\n\n### Progression Tips\n- Start slow and focus on technique\n- Gradually increase intensity\n- Record your progress\n- Seek feedback from experienced practitioners`
-                            setDetailedWriteup(enhanced)
+                        onClick={async () => {
+                          if (detailedWriteup && selectedSport) {
+                            try {
+                              // Import and use sports knowledge base for sport-specific safety and tips
+                              const { getSportContext } = await import('@/lib/sports-knowledge-base')
+                              const sportContext = getSportContext(selectedSport)
+
+                              const safetyPoints = sportContext.safetyConsiderations.slice(0, 5)
+                                .map(point => `- ${point}`).join('\n')
+
+                              const expertTips = sportContext.expertTips.slice(0, 4)
+                                .map(tip => `- ${tip}`).join('\n')
+
+                              const commonMistakes = sportContext.commonMistakes.slice(0, 3)
+                                .map(mistake => `- ${mistake}`).join('\n')
+
+                              const enhanced = detailedWriteup + `\n\n### Safety Considerations
+${safetyPoints}
+
+### Expert Progression Tips
+${expertTips}
+
+### Common Mistakes to Avoid
+${commonMistakes}
+
+### Equipment Essentials
+${sportContext.equipmentEssentials.slice(0, 4).map(item => `- ${item}`).join('\n')}
+
+*These sport-specific guidelines are based on expert coaching knowledge and competition experience.*`
+
+                              setDetailedWriteup(enhanced)
+                            } catch (error) {
+                              console.error('Failed to load sport-specific content:', error)
+                              // Fallback to generic content
+                              const enhanced = detailedWriteup + `\n\n### Safety Considerations\n- Always warm up before training\n- Use proper protective equipment\n- Train with qualified supervision\n- Listen to your body and rest when needed\n\n### Progression Tips\n- Start slow and focus on technique\n- Gradually increase intensity\n- Record your progress\n- Seek feedback from experienced practitioners`
+                              setDetailedWriteup(enhanced)
+                            }
+                          } else if (!selectedSport) {
+                            alert('Please select a sport to get sport-specific safety tips')
                           }
                         }}
                         className="px-3 py-1 text-xs bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center gap-1"
