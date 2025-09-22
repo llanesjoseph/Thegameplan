@@ -174,6 +174,44 @@ function analyzeLessonTitle(title: string, sport: string): {
 }
 
 /**
+ * Generate sport-specific persona for enhanced content generation
+ */
+function getSportSpecificPersona(sport: string, skillLevel: string, titleAnalysis: any): string {
+  const basePersona = `You are an elite ${sport} coach with over 15 years of experience, specializing in a methodical and safety-first approach to instruction. Your persona is professional, knowledgeable, and highly detail-oriented.`
+
+  switch (sport.toLowerCase()) {
+    case 'bjj':
+    case 'brazilian jiu-jitsu':
+      return `${basePersona} You are an expert Brazilian Jiu-Jitsu coach with IBJJF competition experience and expertise in modern no-gi systems. When creating lesson plans, follow standard pedagogical principles for martial arts instruction, including warm-ups, technical breakdown, drilling, positional sparring, and cool-down. Always use correct BJJ terminology and emphasize safety protocols, especially for submissions. Your teaching methodology focuses on position before submission, systematic development, and building technique through repetition and live application.
+
+**SPECIALIZED EXPERTISE FOR THIS LESSON:**
+${titleAnalysis.techniques.length > 0 ? `Technique Focus: You have deep knowledge of ${titleAnalysis.techniques.join(', ')} and their applications` : ''}
+${titleAnalysis.keySkills.includes('Leg Entanglement') ? 'Leg Lock Specialist: You prioritize safety and systematic progression in leg entanglement systems' : ''}
+${skillLevel === 'advanced' ? 'Advanced Instruction: You provide competition-level details and tactical applications' : ''}
+${skillLevel === 'beginner' ? 'Beginner-Friendly: You emphasize fundamentals and safety above all else' : ''}
+
+**OUTPUT REQUIREMENTS:** You must provide well-structured, comprehensive, and technically accurate content that addresses the specific lesson topic with appropriate depth for the skill level.`
+
+    case 'mma':
+    case 'mixed martial arts':
+      return `${basePersona} You are an expert MMA coach with professional fighter development experience. Your approach combines striking, grappling, and conditioning in an integrated fighting system. You emphasize fight IQ, tactical application, and real combat scenarios. When creating lesson plans, include proper warm-up protocols, technical instruction, live drilling, sparring applications, and recovery. Always address safety and injury prevention.
+
+**OUTPUT REQUIREMENTS:** You must provide comprehensive technical breakdowns that integrate multiple martial arts disciplines with fight-specific applications.`
+
+    case 'soccer':
+    case 'football':
+      return `${basePersona} You are an expert soccer coach with professional and youth development experience. Your methodology focuses on technical skill development, tactical understanding, and team coordination. You emphasize proper biomechanics, decision-making under pressure, and game-realistic training scenarios.
+
+**OUTPUT REQUIREMENTS:** You must provide detailed technical instruction with tactical applications and team-oriented skill development.`
+
+    default:
+      return `${basePersona} You have extensive experience in ${sport} coaching at elite levels. Your methodology focuses on systematic skill development, proper technique, and performance optimization.
+
+**OUTPUT REQUIREMENTS:** You must provide comprehensive, sport-specific content with appropriate technical depth.`
+  }
+}
+
+/**
  * Build an enhanced prompt that leverages sports knowledge base
  */
 function buildEnhancedPrompt(
@@ -182,31 +220,66 @@ function buildEnhancedPrompt(
   coachingContext: CoachingContext
 ): string {
   const { title, sport, skillLevel = 'intermediate', focus = 'comprehensive' } = request
-
-  // Analyze the lesson title to extract key concepts
   const titleAnalysis = analyzeLessonTitle(title, sport)
 
-  return `You are ${coachingContext.coachName}, an elite ${sport} coach creating a comprehensive lesson titled "${title}".
+  // Enhanced system instruction based on sport type
+  const sportSpecificPersona = getSportSpecificPersona(sport, skillLevel, titleAnalysis)
 
-**LESSON TITLE ANALYSIS:**
-Primary Focus: ${titleAnalysis.primaryFocus}
+  return `${sportSpecificPersona}
+
+**CONTENT GENERATION REQUIREMENTS:**
+Generate a comprehensive, detailed lesson writeup for "${title}" that includes:
+
+1. **Lesson Overview Section** (200-300 words)
+   - Welcome message in coaching voice
+   - Specific explanation of what "${title}" entails
+   - Clear learning objectives for ${skillLevel} level
+   - Session roadmap and expectations
+
+2. **Technical Breakdown Section** (400-600 words)
+   - Fundamental principles specific to "${title}"
+   - Biomechanical analysis and movement patterns
+   - Key concepts and terminology
+   - ${skillLevel}-appropriate technical depth
+
+3. **Step-by-Step Instructions** (500-800 words)
+   - Detailed technique breakdown
+   - Progressive learning sequence
+   - Common variations and applications
+   - Troubleshooting and corrections
+
+4. **Training Methodology Section** (300-400 words)
+   - Structured practice progression
+   - Drill sequences and repetition protocols
+   - Live application methods
+   - Skill assessment criteria
+
+5. **Safety and Risk Management** (200-300 words)
+   - Sport-specific safety protocols
+   - Injury prevention strategies
+   - Emergency procedures if applicable
+   - Training intensity guidelines
+
+6. **Expert Insights Section** (300-400 words)
+   - Professional competition applications
+   - Advanced tactical considerations
+   - Mental approach and mindset
+   - Elite performance secrets
+
+**CRITICAL CONSTRAINTS:**
+- Title Focus: Every section must directly address "${title}" - no generic content
+- Skill Level: Content must be appropriate for ${skillLevel} practitioners
+- Sport: All content must be ${sport}-specific using correct terminology
+- Voice: Maintain ${coachingContext.coachName}'s coaching persona throughout
+- Length: Minimum 2000 words total across all sections
+- Structure: Use clear headings and bullet points for readability
+
+**LESSON CONTEXT:**
+Title Analysis: ${titleAnalysis.primaryFocus} (${titleAnalysis.trainingType})
 Key Skills: ${titleAnalysis.keySkills.join(', ')}
-Training Type: ${titleAnalysis.trainingType}
-Specific Techniques: ${titleAnalysis.techniques.join(', ')}
-
-**CRITICAL INSTRUCTION - LESSON MUST BE ABOUT:**
-"${title}" - Every section must directly relate to this specific topic. Do not write generic content.
-
-**LESSON REQUIREMENTS:**
-- Target Skill Level: ${skillLevel}
-- Primary Focus: ${focus}
-- Sport: ${sport}
-- Duration: ${request.duration || 30} minutes
-- MUST address the specific skills mentioned in the title
-
-**SPORT-SPECIFIC CONTEXT:**
-Coaching Philosophy: ${coachingContext.expertise.join(', ')}
-Key Technical Areas: ${sportContext.technicalAspects.slice(0, 5).join(', ')}
+Techniques: ${titleAnalysis.techniques.join(', ')}
+Duration: ${request.duration || 30} minutes
+Coaching Style: ${coachingContext.expertise.join(', ')}
 Mental Aspects: ${sportContext.mentalAspects.slice(0, 3).join(', ')}
 Physical Requirements: ${sportContext.physicalAspects.slice(0, 3).join(', ')}
 
