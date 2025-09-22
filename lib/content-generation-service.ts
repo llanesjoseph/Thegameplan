@@ -318,32 +318,472 @@ function extractListItems(text: string, keywords: string[]): string[] {
 }
 
 /**
- * Generate fallback content when AI fails
+ * Generate comprehensive sport-specific fallback content
  */
-function generateFallbackContent(
-  request: ContentGenerationRequest,
+function generateSportSpecificFallbackContent(
+  title: string,
+  sport: string,
+  titleAnalysis: any,
   sportContext: SportContext,
-  coachingContext: CoachingContext
-): GeneratedContent {
-  const { title, skillLevel = 'intermediate', sport } = request
+  coachingContext: CoachingContext,
+  skillLevel: string
+): string {
+  const sportLower = sport.toLowerCase()
 
-  // Use title analysis for better fallback content
-  const titleAnalysis = analyzeLessonTitle(title, sport)
+  if (sportLower === 'football' || sportLower === 'american football') {
+    return generateAmericanFootballContent(title, titleAnalysis, sportContext, coachingContext, skillLevel)
+  } else if (sportLower === 'soccer') {
+    return generateSoccerContent(title, titleAnalysis, sportContext, coachingContext, skillLevel)
+  } else if (sportLower === 'bjj' || sportLower === 'brazilian jiu-jitsu') {
+    return generateBJJContent(title, titleAnalysis, sportContext, coachingContext, skillLevel)
+  } else if (sportLower === 'mma' || sportLower === 'mixed martial arts') {
+    return generateMMAContent(title, titleAnalysis, sportContext, coachingContext, skillLevel)
+  } else {
+    return generateGenericContent(title, titleAnalysis, sportContext, coachingContext, skillLevel)
+  }
+}
 
-  const fallbackWriteup = `# ${title}
+/**
+ * Generate detailed American Football content
+ */
+function generateAmericanFootballContent(
+  title: string,
+  titleAnalysis: any,
+  sportContext: SportContext,
+  coachingContext: CoachingContext,
+  skillLevel: string
+): string {
+  const isDrillFocused = titleAnalysis.primaryFocus === 'Effective Practice Methods'
+
+  return `# ${title}
+
+## Lesson Overview
+Welcome to this comprehensive American Football lesson on "${title}". As ${coachingContext.coachName}, I'm bringing championship-level coaching experience to help you master ${titleAnalysis.primaryFocus.toLowerCase()}. This ${titleAnalysis.trainingType.toLowerCase()} session is specifically designed for ${skillLevel} players who are serious about elevating their game.
+
+**This lesson will develop:**
+${titleAnalysis.keySkills.map((skill: string) => `• **${skill}**: Essential for competitive football success`).join('\n')}
+
+## Technical Breakdown: Championship-Level Fundamentals
+
+${isDrillFocused ?
+`**Practice Organization & Methodology:**
+• **Structured Progression**: Build from individual skills to team concepts
+• **Game-Speed Training**: Practice at the intensity you'll play at
+• **Repetition with Purpose**: Every rep must have intention and focus
+• **Film Study Integration**: Connect practice work to game situations
+
+**Football-Specific Training Principles:**
+• **Stance and Start**: Every play begins with proper pre-snap positioning
+• **Leverage and Pad Level**: Win battles by getting lower than your opponent
+• **Assignment Football**: Master your job before helping teammates
+• **Situational Awareness**: Understand down, distance, field position impact` :
+`**Core Football Mechanics:**
+• **Stance and Alignment**: Base of all football skills - proper pre-snap positioning
+• **Leverage Fundamentals**: Winning the battle of pad level and body position
+• **Footwork Precision**: Every step must be purposeful and efficient
+• **Hand Placement**: Control and separation through proper technique
+
+**Position-Specific Excellence:**
+• **Offensive Line**: Pass protection schemes, run blocking concepts
+• **Skill Positions**: Route precision, ball security, YAC mentality
+• **Defense**: Gap responsibility, coverage concepts, pursuit angles
+• **Special Teams**: Phase assignments, coverage lanes, returner vision`}
+
+## Key Fundamentals for ${skillLevel.charAt(0).toUpperCase() + skillLevel.slice(1)} Players
+
+• **Preparation Equals Performance**: Film study and mental reps create muscle memory
+• **Physical and Mental Toughness**: Developed through consistent challenging practice
+• **Team-First Mentality**: Individual success serves team objectives
+• **Communication and Leadership**: Vocal players make teammates better
+• **Consistency Under Pressure**: Championship habits show in critical moments
+
+## Practice Drills: Game-Tested Methods
+
+${isDrillFocused ?
+`1. **Fundamentals Station Work**: Stance, start, and basic movements (8-10 reps each)
+2. **Progressive Skill Building**: Add complexity while maintaining technique quality
+3. **Situational Drilling**: Down and distance specific scenarios
+4. **Team Integration**: Combine individual skills into coordinated unit work
+5. **Competition Periods**: Create game-like pressure and intensity
+6. **Conditioning Through Football**: Build fitness through football-specific movements` :
+`1. **Stance and Start Drill**: Perfect your pre-snap positioning and first step
+2. **Leverage Battle**: Practice winning with proper pad level and body position
+3. **Assignment Execution**: Run plays with focus on individual responsibility
+4. **Pressure Situations**: Practice under game-like stress and time constraints`}
+
+## Game Application: Championship Mindset
+
+**Pre-Snap Excellence:**
+• Read defensive alignment and make appropriate adjustments
+• Communicate effectively with teammates using proper terminology
+• Understand situational football - down, distance, field position, time
+
+**During Play Execution:**
+• Execute assignment first, then help teammates if possible
+• Maintain technique under physical and mental pressure
+• Pursue every play with championship effort and intensity
+
+**Post-Play Analysis:**
+• Quickly evaluate success/failure and make necessary adjustments
+• Communicate observations with coaches and teammates
+• Prepare mentally for next play with renewed focus
+
+## Common Mistakes & Championship Corrections
+
+• **Mistake**: Poor stance leads to slow starts → **Correction**: Weight distribution and ready position practice
+• **Mistake**: Playing too high and losing leverage → **Correction**: Pad level emphasis in all drills
+• **Mistake**: Mental errors and missed assignments → **Correction**: Increased film study and communication
+• **Mistake**: Inconsistent effort and focus → **Correction**: Championship standard accountability
+
+## Progression Tips: Path to Excellence
+
+• **Master Your Fundamentals**: Perfect stance, start, and basic movements before advanced techniques
+• **Study the Game**: Film work separates good players from great players
+• **Physical Preparation**: Strength, speed, and conditioning built through purposeful training
+• **Mental Development**: Understand schemes, opponent tendencies, and situational football
+• **Leadership Growth**: Develop communication skills and accountability standards
+
+## Safety Considerations: Smart Football
+
+${sportContext.safetyConsiderations.slice(0, 4).map((safety: string) => `• ${safety}`).join('\n')}
+
+## Championship Insights: Elite-Level Secrets
+
+**From the Film Room:**
+${sportContext.expertTips.slice(0, 3).map((tip: string) => `• ${tip}`).join('\n')}
+
+**Remember**: ${coachingContext.voiceCharacteristics.catchphrases[0]}
+
+*This lesson represents the systematic approach that builds championship-level football players and teams. Every rep matters, every detail counts, and every player has a role in team success.*`
+}
+
+/**
+ * Generate detailed Soccer content
+ */
+function generateSoccerContent(
+  title: string,
+  titleAnalysis: any,
+  sportContext: SportContext,
+  coachingContext: CoachingContext,
+  skillLevel: string
+): string {
+  const isDrillFocused = titleAnalysis.primaryFocus === 'Effective Practice Methods'
+
+  return `# ${title}
+
+## Lesson Overview
+Welcome to this comprehensive soccer lesson on "${title}". As ${coachingContext.coachName}, I'll guide you through ${titleAnalysis.primaryFocus.toLowerCase()} using proven methodologies from elite-level soccer. This ${titleAnalysis.trainingType.toLowerCase()} session is designed for ${skillLevel} players committed to technical excellence.
+
+**This session will develop:**
+${titleAnalysis.keySkills.map((skill: string) => `• **${skill}**: Critical for modern soccer success`).join('\n')}
+
+## Technical Breakdown: Modern Soccer Excellence
+
+${isDrillFocused ?
+`**Soccer Training Methodology:**
+• **Progressive Overload**: Gradually increase difficulty while maintaining technical quality
+• **Game-Like Conditions**: Train in situations that mirror match scenarios
+• **Touch Frequency**: Maximum ball contact to accelerate learning
+• **Decision Making**: Integrate cognitive elements into all technical work
+
+**Essential Soccer Principles:**
+• **First Touch Excellence**: Your first touch determines the quality of your next action
+• **Vision and Scanning**: Look before you receive, scan constantly during possession
+• **Body Shape**: Position your body to see maximum field and protect possession
+• **Quick Decision Making**: Process information rapidly and execute with confidence` :
+`**Core Soccer Mechanics:**
+• **Ball Control Mastery**: Use all surfaces of foot for close control and direction
+• **Passing Precision**: Weight, accuracy, and timing of distribution
+• **Receiving Excellence**: First touch that creates time and space
+• **Movement Patterns**: Create space through intelligent runs and positioning
+
+**Tactical Understanding:**
+• **Space Recognition**: Identify where space exists and how to exploit it
+• **Pressing Triggers**: When to apply pressure and when to hold shape
+• **Transition Moments**: Quick switches between attack and defense
+• **Team Coordination**: Synchronize movements with teammates effectively`}
+
+## Key Fundamentals for ${skillLevel.charAt(0).toUpperCase() + skillLevel.slice(1)} Players
+
+• **Technique Over Power**: Perfect execution beats physical strength every time
+• **Intelligence Over Speed**: Smart players create time through positioning and awareness
+• **Consistency Over Flair**: Reliable performance wins matches and championships
+• **Team Understanding**: Individual brilliance serves collective success
+• **Mental Composure**: Maintain technical quality under physical and time pressure
+
+## Practice Drills: Proven Training Methods
+
+${isDrillFocused ?
+`1. **Technical Circuits**: High-repetition skill work with both feet (15-20 minutes)
+2. **Small-Sided Games**: 3v3, 4v4 situations for decision-making development
+3. **Possession Squares**: Keep-away games with numerical advantages/disadvantages
+4. **Finishing Sessions**: Varied shooting situations from different angles and distances
+5. **Set Piece Practice**: Corner kicks, free kicks, throw-ins with game-like pressure
+6. **Transition Training**: Quick switches from defense to attack and vice versa` :
+`1. **Ball Mastery**: Individual technical work with cones and close control
+2. **Passing Accuracy**: Short and long distribution with proper weight and timing
+3. **1v1 Situations**: Attacking and defending in tight spaces
+4. **Crossing and Finishing**: Service from wide areas and clinical completion`}
+
+## Game Application: Match Intelligence
+
+**Pre-Game Preparation:**
+• Analyze opponent strengths and weaknesses through video study
+• Understand your role within team tactical setup
+• Visualize successful execution of key skills in match situations
+
+**During Match Play:**
+• Scan field constantly to make informed decisions
+• Communicate with teammates using clear, concise instructions
+• Adapt technique based on pressure, weather, and match conditions
+
+**Mental Approach:**
+• Stay composed under pressure from opponents and crowd
+• Make quick decisions but execute with precision
+• Support teammates through encouragement and tactical adjustments
+
+## Common Mistakes & Elite Corrections
+
+• **Mistake**: Looking down at ball instead of scanning → **Correction**: Practice peripheral vision training
+• **Mistake**: Rushing technique under pressure → **Correction**: Pressure training with time constraints
+• **Mistake**: Only using dominant foot → **Correction**: Dedicate specific time to weak foot development
+• **Mistake**: Poor body positioning when receiving → **Correction**: Open body shape and awareness training
+
+## Progression Tips: Path to Elite Performance
+
+• **Master Both Feet**: Become equally comfortable with left and right foot
+• **Increase Training Intensity**: Practice at match speed with match pressure
+• **Study Elite Players**: Watch professional matches and analyze positioning
+• **Seek Quality Feedback**: Work with experienced coaches for technical refinement
+• **Mental Training**: Develop concentration and decision-making under pressure
+
+## Safety Considerations: Injury Prevention
+
+${sportContext.safetyConsiderations.slice(0, 4).map((safety: string) => `• ${safety}`).join('\n')}
+
+## Elite Insights: Professional Secrets
+
+**From Top-Level Soccer:**
+${sportContext.expertTips.slice(0, 3).map((tip: string) => `• ${tip}`).join('\n')}
+
+**Remember**: ${coachingContext.voiceCharacteristics.catchphrases[0]}
+
+*This lesson embodies the systematic approach used by elite soccer programs worldwide. Technical excellence combined with tactical intelligence creates complete players.*`
+}
+
+/**
+ * Generate detailed BJJ content
+ */
+function generateBJJContent(
+  title: string,
+  titleAnalysis: any,
+  sportContext: SportContext,
+  coachingContext: CoachingContext,
+  skillLevel: string
+): string {
+  return `# ${title}
+
+## Lesson Overview
+Welcome to this systematic Brazilian Jiu-Jitsu lesson on "${title}". As ${coachingContext.coachName}, I'll guide you through ${titleAnalysis.primaryFocus.toLowerCase()} using proven IBJJF competition methodologies. This ${titleAnalysis.trainingType.toLowerCase()} is designed for ${skillLevel} practitioners committed to technical excellence.
+
+**This session will develop:**
+${titleAnalysis.keySkills.map((skill: string) => `• **${skill}**: Essential for BJJ mastery`).join('\n')}
+
+## Technical Breakdown: The Science of BJJ
+
+**Fundamental Principles:**
+• **Position Before Submission**: Always secure dominant position before attacking
+• **Leverage Over Strength**: Use proper body mechanics and angles efficiently
+• **Base and Posture**: Maintain structural integrity in all positions
+• **Systematic Approach**: Connect techniques in logical chains and sequences
+
+**Core BJJ Concepts:**
+• **Hip Movement**: Master shrimping, bridging, and hip escapes for all situations
+• **Pressure and Weight Distribution**: Apply effective pressure while maintaining mobility
+• **Timing and Patience**: Recognize optimal moments for transitions and attacks
+• **Problem Solving**: Develop systematic solutions for defensive situations
+
+## Key Fundamentals for ${skillLevel.charAt(0).toUpperCase() + skillLevel.slice(1)} Practitioners
+
+• **Technical Precision**: Perfect execution beats strength and athleticism
+• **Conceptual Understanding**: Learn the why behind every movement
+• **Systematic Development**: Build skills on solid foundational principles
+• **Mental Chess**: Think multiple moves ahead during live training
+• **Consistent Training**: Small daily improvements compound over time
+
+## Practice Methodology: Proven Training Structure
+
+1. **Solo Movement**: Hip escapes, bridges, technical stand-ups (10 minutes)
+2. **Static Drilling**: Position work with progressive resistance (15 minutes)
+3. **Flow Rolling**: Light resistance to develop timing and transitions (10 minutes)
+4. **Positional Sparring**: Start from specific positions, work problems (15 minutes)
+5. **Submission Chains**: Connect related attacks with smooth transitions (10 minutes)
+6. **Live Training**: Full resistance rolling with specific goals (15 minutes)
+
+## Competition Application: Testing Under Pressure
+
+**Pre-Competition Preparation:**
+• Develop specific game plans for different opponent types
+• Practice competition rules and scoring scenarios
+• Build mental toughness through pressure training
+
+**During Live Training:**
+• Start exchanges from positions relevant to your game
+• Practice escaping bad positions with composure
+• Develop signature techniques that work under pressure
+
+**Mental Approach:**
+• Stay calm under pressure and stick to systematic approach
+• Use opponent's reactions to set up subsequent techniques
+• Maintain breathing control during intense exchanges
+
+## Common Mistakes & Technical Corrections
+
+• **Mistake**: Using strength instead of technique → **Correction**: Focus on leverage and proper angles
+• **Mistake**: Rushing submissions from poor positions → **Correction**: Secure position first, then attack
+• **Mistake**: Poor hip movement and escapes → **Correction**: Daily solo movement practice
+• **Mistake**: Holding breath during rolling → **Correction**: Conscious breathing practice
+
+## Progression Tips: Path to Black Belt Excellence
+
+• **Master Fundamental Positions**: Mount, guard, side control, back control
+• **Develop Systematic Game**: Connect techniques that work together
+• **Study High-Level Competition**: Analyze IBJJF world championship footage
+• **Train Consistently**: Regular training beats sporadic intense sessions
+• **Keep Training Journal**: Document techniques and insights for review
+
+## Safety Considerations: Injury Prevention
+
+${sportContext.safetyConsiderations.slice(0, 4).map((safety: string) => `• ${safety}`).join('\n')}
+
+## Black Belt Insights: Championship Secrets
+
+**From Elite Competition:**
+${sportContext.expertTips.slice(0, 3).map((tip: string) => `• ${tip}`).join('\n')}
+
+**Remember**: ${coachingContext.voiceCharacteristics.catchphrases[0]}
+
+*This lesson represents the methodical approach that develops world-class Brazilian Jiu-Jitsu practitioners. Technique conquers strength, patience creates opportunity.*`
+}
+
+/**
+ * Generate detailed MMA content
+ */
+function generateMMAContent(
+  title: string,
+  titleAnalysis: any,
+  sportContext: SportContext,
+  coachingContext: CoachingContext,
+  skillLevel: string
+): string {
+  return `# ${title}
+
+## Lesson Overview
+Welcome to this comprehensive MMA lesson on "${title}". As ${coachingContext.coachName}, I'll guide you through ${titleAnalysis.primaryFocus.toLowerCase()} using elite-level fight training methodologies. This ${titleAnalysis.trainingType.toLowerCase()} is designed for ${skillLevel} fighters preparing for serious competition.
+
+**This session will develop:**
+${titleAnalysis.keySkills.map((skill: string) => `• **${skill}**: Critical for MMA success`).join('\n')}
+
+## Technical Breakdown: Complete Mixed Martial Arts
+
+**Multi-Range Combat System:**
+• **Striking Range**: Boxing, kickboxing, and muay thai fundamentals
+• **Clinch Range**: Dirty boxing, pummeling, takedowns, and control
+• **Ground Range**: Wrestling control, BJJ submissions, ground and pound
+• **Transition Mastery**: Seamless movement between all combat ranges
+
+**Fight-Specific Skills:**
+• **Range Management**: Control distance and dictate where fights take place
+• **Cardio Under Pressure**: Maintain technique while under physical stress
+• **Adaptability**: Adjust strategy based on opponent reactions
+• **Mental Toughness**: Perform under adversity and pressure
+
+## Key Fundamentals for ${skillLevel.charAt(0).toUpperCase() + skillLevel.slice(1)} Fighters
+
+• **Well-Rounded Development**: Train all aspects while specializing in strengths
+• **Systematic Game Planning**: Prepare specific strategies for different opponents
+• **Physical and Mental Conditioning**: Build fight-specific fitness and toughness
+• **Defensive Fundamentals**: Master defense before focusing on offense
+• **Competition Experience**: Regular sparring and competition testing
+
+## Training Methodology: Professional Fight Preparation
+
+1. **Technical Development**: Skill work in individual martial arts (30 minutes)
+2. **Combination Training**: Chain techniques across different ranges (20 minutes)
+3. **Situational Sparring**: Specific scenarios with controlled intensity (20 minutes)
+4. **Conditioning Integration**: Build cardio through technical work (15 minutes)
+5. **Live Sparring**: Full-contact training with proper safety equipment (20 minutes)
+6. **Mental Preparation**: Visualization and pressure simulation (10 minutes)
+
+## Fight Application: Competition Strategy
+
+**Pre-Fight Preparation:**
+• Study opponent video to identify strengths and weaknesses
+• Develop specific game plans for different fight scenarios
+• Practice entries and exits for your preferred ranges
+
+**During Competition:**
+• Implement game plan while adapting to opponent adjustments
+• Manage energy expenditure across multiple rounds
+• Stay composed under pressure and adversity
+
+**Mental Approach:**
+• Maintain confidence in training and preparation
+• Make quick tactical adjustments based on what's working
+• Control emotions and fight with intelligence
+
+## Common Mistakes & Elite Corrections
+
+• **Mistake**: Neglecting one aspect of MMA → **Correction**: Balanced training in all ranges
+• **Mistake**: Poor cardio conditioning → **Correction**: Fight-specific conditioning protocols
+• **Mistake**: Emotional fighting instead of strategic → **Correction**: Mental discipline training
+• **Mistake**: Weak defensive fundamentals → **Correction**: Defense-first approach to training
+
+## Progression Tips: Path to Professional Level
+
+• **Master Individual Arts**: Develop solid base in boxing, wrestling, BJJ
+• **Integrate Skills**: Learn to transition smoothly between different ranges
+• **Regular Competition**: Test skills under pressure frequently
+• **Study Elite Fighters**: Analyze UFC and other high-level competition
+• **Professional Coaching**: Work with specialists in each martial art
+
+## Safety Considerations: Smart Training
+
+${sportContext.safetyConsiderations.slice(0, 4).map((safety: string) => `• ${safety}`).join('\n')}
+
+## Championship Insights: Elite Fight Secrets
+
+**From Professional Competition:**
+${sportContext.expertTips.slice(0, 3).map((tip: string) => `• ${tip}`).join('\n')}
+
+**Remember**: ${coachingContext.voiceCharacteristics.catchphrases[0]}
+
+*This lesson embodies the comprehensive approach used by elite MMA training camps. Complete fighters combine technical skill with strategic intelligence.*`
+}
+
+/**
+ * Generate generic content for other sports
+ */
+function generateGenericContent(
+  title: string,
+  titleAnalysis: any,
+  sportContext: SportContext,
+  coachingContext: CoachingContext,
+  skillLevel: string
+): string {
+  return `# ${title}
 
 ## Lesson Overview
 This ${skillLevel}-level lesson specifically focuses on ${titleAnalysis.primaryFocus} through "${title}". As ${coachingContext.coachName}, I've designed this ${titleAnalysis.trainingType} session to develop the core skills identified in this lesson: ${titleAnalysis.keySkills.join(', ')}.
 
 **What You'll Master:**
-${titleAnalysis.keySkills.map(skill => `• ${skill}`).join('\n')}
-${titleAnalysis.techniques.length > 0 ? '\n**Key Techniques:**\n' + titleAnalysis.techniques.map(technique => `• ${technique}`).join('\n') : ''}
+${titleAnalysis.keySkills.map((skill: string) => `• ${skill}`).join('\n')}
 
 ## Technical Breakdown
 The key to success in this area lies in understanding the fundamental mechanics and building consistent execution through deliberate practice.
 
 **Core Principles:**
-${sportContext.skillProgression[skillLevel].slice(0, 3).map(skill => `• **${skill}**: Focus on precise execution and consistent application`).join('\n')}
+${sportContext.skillProgression[skillLevel as keyof typeof sportContext.skillProgression].slice(0, 3).map((skill: string) => `• **${skill}**: Focus on precise execution and consistent application`).join('\n')}
 
 ## Key Fundamentals
 • **Technical Precision**: Master the basic movements before adding speed or complexity
@@ -362,6 +802,23 @@ ${sportContext.safetyConsiderations.slice(0, 3).map(safety => `• ${safety}`).j
 ${sportContext.expertTips.slice(0, 2).map(tip => `• ${tip}`).join('\n')}
 
 Remember: ${coachingContext.voiceCharacteristics.catchphrases[0]}`
+}
+
+/**
+ * Generate fallback content when AI fails
+ */
+function generateFallbackContent(
+  request: ContentGenerationRequest,
+  sportContext: SportContext,
+  coachingContext: CoachingContext
+): GeneratedContent {
+  const { title, skillLevel = 'intermediate', sport } = request
+
+  // Use title analysis for better fallback content
+  const titleAnalysis = analyzeLessonTitle(title, sport)
+
+  // Generate sport-specific fallback content
+  const fallbackWriteup = generateSportSpecificFallbackContent(title, sport, titleAnalysis, sportContext, coachingContext, skillLevel)
 
   return {
     detailedWriteup: fallbackWriteup,
