@@ -72,7 +72,7 @@ export function validateEnv(): Env {
       )
       
       if (!hasAIService) {
-        throw new Error('At least one AI service API key must be configured (Gemini, Vertex AI, or OpenAI)')
+        console.warn('⚠️ No AI service API keys configured. AI features will use fallback content generation.')
       }
       
       console.log('✅ Environment validation successful')

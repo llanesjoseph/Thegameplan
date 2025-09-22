@@ -102,19 +102,41 @@ async function callGemini(question: string, context: CoachingContext, model: str
 export async function generateWithRedundancy(question: string, context: CoachingContext): Promise<LLMResult> {
   const { openaiModel, geminiModel, timeoutMs, primary } = getModelsFromEnv()
 
-  const primaryFn = primary === 'gemini'
-    ? () => callGemini(question, context, geminiModel)
-    : () => callOpenAI(question, context, openaiModel)
+  // Check if any AI services are configured
+  const cfg = getAIServiceConfig()
+  const hasAnyAI = cfg.gemini.enabled || cfg.openai.enabled
 
-  const fallbackFn = primary === 'gemini'
+  if (!hasAnyAI) {
+    // Return a fallback response when no AI services are configured
+    console.warn('No AI services configured, using fallback content generation')
+    throw new Error('No AI services configured. Using fallback content generation.')
+  }
+
+  const primaryFn = primary === 'gemini' && cfg.gemini.enabled
+    ? () => callGemini(question, context, geminiModel)
+    : cfg.openai.enabled
     ? () => callOpenAI(question, context, openaiModel)
-    : () => callGemini(question, context, geminiModel)
+    : null
+
+  const fallbackFn = primary === 'gemini' && cfg.openai.enabled
+    ? () => callOpenAI(question, context, openaiModel)
+    : cfg.gemini.enabled
+    ? () => callGemini(question, context, geminiModel)
+    : null
+
+  if (!primaryFn) {
+    throw new Error(`Primary provider ${primary} not configured. Check environment variables.`)
+  }
 
   try {
     return await withTimeout(primaryFn(), timeoutMs, `${primary} call`)
   } catch (err) {
-    // eslint-disable-next-line no-console
     console.warn(`Primary provider ${primary} failed, attempting fallback`, err)
+
+    if (!fallbackFn) {
+      throw new Error(`Both primary (${primary}) and fallback providers failed or not configured`)
+    }
+
     return await withTimeout(fallbackFn(), timeoutMs, `fallback call`)
   }
 }

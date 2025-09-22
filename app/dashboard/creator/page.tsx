@@ -684,14 +684,14 @@ export default function CreatorDashboard() {
 
       // Upload video if provided
       if (videoFile) {
-        const videoRef = ref(storage, `content/${authUser.uid}/${Date.now()}_${videoFile.name}`)
+        const videoRef = ref(storage, `creators/${authUser.uid}/content/${Date.now()}_${videoFile.name}`)
         await uploadBytes(videoRef, videoFile)
         videoUrl = await getDownloadURL(videoRef)
       }
 
       // Upload thumbnail if provided
       if (thumbFile) {
-        const thumbRef = ref(storage, `content/${authUser.uid}/thumb_${Date.now()}_${thumbFile.name}`)
+        const thumbRef = ref(storage, `creators/${authUser.uid}/content/thumb_${Date.now()}_${thumbFile.name}`)
         await uploadBytes(thumbRef, thumbFile)
         thumbnailUrl = await getDownloadURL(thumbRef)
       }
