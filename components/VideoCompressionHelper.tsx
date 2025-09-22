@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useState } from 'react'
-import { Compress, ExternalLink, Download, Zap } from 'lucide-react'
+import { useState } from 'react'
+import { Archive, ExternalLink, Zap } from 'lucide-react'
 
 interface VideoCompressionHelperProps {
   file: File
@@ -9,7 +9,11 @@ interface VideoCompressionHelperProps {
   className?: string
 }
 
-export default function VideoCompressionHelper({ file, onCompressed, className = '' }: VideoCompressionHelperProps) {
+export default function VideoCompressionHelper({
+  file,
+  onCompressed,
+  className = ''
+}: VideoCompressionHelperProps) {
   const [isOpen, setIsOpen] = useState(false)
 
   const compressionTools = [
@@ -34,25 +38,10 @@ export default function VideoCompressionHelper({ file, onCompressed, className =
       url: 'https://www.videosmaller.com/',
       description: 'Simple online compressor',
       features: ['One-click compression', 'Fast processing', 'No registration']
-    },
-    {
-      name: 'VLC Media Player',
-      type: 'Desktop (Free)',
-      url: 'https://www.videolan.org/',
-      description: 'Media player with conversion',
-      features: ['You might have it', 'Built-in converter', 'Many formats']
     }
   ]
 
-  const optimalSettings = {
-    format: 'MP4 (H.264)',
-    resolution: '1080p (1920x1080)',
-    bitrate: '5-8 Mbps for HD content',
-    frameRate: '30 fps (or original)',
-    audioCodec: 'AAC, 128-192 kbps'
-  }
-
-  const estimatedSize = (file.size * 0.3) // Rough estimate: 70% reduction
+  const estimatedSize = (file.size * 0.3)
 
   if (!isOpen) {
     return (
@@ -60,7 +49,7 @@ export default function VideoCompressionHelper({ file, onCompressed, className =
         onClick={() => setIsOpen(true)}
         className={`inline-flex items-center gap-2 px-3 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors text-sm ${className}`}
       >
-        <Compress className="w-4 h-4" />
+        <Archive className="w-4 h-4" />
         Compress Video ({(file.size / (1024 * 1024)).toFixed(1)} MB)
       </button>
     )
@@ -96,11 +85,11 @@ export default function VideoCompressionHelper({ file, onCompressed, className =
               Recommended Settings
             </h3>
             <div className="bg-gray-50 rounded-lg p-4 grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-              <div><strong>Format:</strong> {optimalSettings.format}</div>
-              <div><strong>Resolution:</strong> {optimalSettings.resolution}</div>
-              <div><strong>Bitrate:</strong> {optimalSettings.bitrate}</div>
-              <div><strong>Frame Rate:</strong> {optimalSettings.frameRate}</div>
-              <div className="md:col-span-2"><strong>Audio:</strong> {optimalSettings.audioCodec}</div>
+              <div><strong>Format:</strong> MP4 (H.264)</div>
+              <div><strong>Resolution:</strong> 1080p (1920x1080)</div>
+              <div><strong>Bitrate:</strong> 5-8 Mbps for HD content</div>
+              <div><strong>Frame Rate:</strong> 30 fps (or original)</div>
+              <div className="md:col-span-2"><strong>Audio:</strong> AAC, 128-192 kbps</div>
             </div>
           </div>
 
@@ -173,29 +162,6 @@ export default function VideoCompressionHelper({ file, onCompressed, className =
               <div className="flex items-start gap-2">
                 <span className="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-medium">5</span>
                 <span>Upload the compressed file for faster, more reliable uploads</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Benefits */}
-          <div>
-            <h3 className="font-medium text-gray-900 mb-3">Benefits of Compression</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span>Faster upload times</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span>More reliable transfers</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span>Better streaming performance</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span>Reduced storage costs</span>
               </div>
             </div>
           </div>
