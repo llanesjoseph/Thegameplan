@@ -116,11 +116,41 @@ function analyzeLessonTitle(title: string, sport: string): {
     if (lowerTitle.includes('vision')) techniques.push('Field Vision')
     if (lowerTitle.includes('positioning')) techniques.push('Tactical Positioning')
     if (lowerTitle.includes('finishing')) techniques.push('Clinical Finishing')
+  } else if (sport.toLowerCase() === 'bjj' || sport.toLowerCase() === 'brazilian jiu-jitsu') {
+    // BJJ skill extraction
+    if (lowerTitle.includes('guard')) keySkills.push('Guard Retention', 'Guard Passing', 'Sweep Timing')
+    if (lowerTitle.includes('submission')) keySkills.push('Submission Chains', 'Control Before Attack')
+    if (lowerTitle.includes('position')) keySkills.push('Positional Control', 'Transition Timing')
+    if (lowerTitle.includes('escape')) keySkills.push('Hip Movement', 'Frame Creation', 'Defensive Concepts')
+    if (lowerTitle.includes('takedown')) keySkills.push('Wrestling Fundamentals', 'Level Changes')
+    if (lowerTitle.includes('sparring') || lowerTitle.includes('rolling')) keySkills.push('Live Training', 'Pressure Testing')
+
+    // BJJ techniques
+    if (lowerTitle.includes('armbar')) techniques.push('Arm Isolation', 'Hip Positioning')
+    if (lowerTitle.includes('triangle')) techniques.push('Angle Creation', 'Leg Positioning')
+    if (lowerTitle.includes('choke')) techniques.push('Collar Control', 'Finishing Mechanics')
+    if (lowerTitle.includes('sweep')) techniques.push('Off-Balancing', 'Leverage Points')
+    if (lowerTitle.includes('kimura')) {
+      keySkills.push('Shoulder Control', 'Grip Fighting')
+      techniques.push('Figure-Four Grip', 'Shoulder Isolation', 'Lock Mechanics')
+    }
+    if (lowerTitle.includes('leg lock') || lowerTitle.includes('leglock') || lowerTitle.includes('heel hook') || lowerTitle.includes('ankle lock') || lowerTitle.includes('knee bar')) {
+      keySkills.push('Leg Entanglement', 'Breaking Mechanics', 'Control Systems')
+      techniques.push('Entry Systems', 'Finishing Angles', 'Safety Protocols', 'Counter Defense')
+    }
   }
 
   // Default skills if none detected
   if (keySkills.length === 0) {
-    keySkills.push('Technical Development', 'Tactical Understanding')
+    if (sport.toLowerCase() === 'football' || sport.toLowerCase() === 'american football') {
+      keySkills.push('Fundamentals and Form', 'Team Coordination', 'Situational Awareness')
+    } else if (sport.toLowerCase() === 'soccer') {
+      keySkills.push('Ball Control and Technique', 'Field Vision and Decision Making', 'Team Tactical Understanding')
+    } else if (sport.toLowerCase() === 'bjj' || sport.toLowerCase() === 'brazilian jiu-jitsu') {
+      keySkills.push('Technical Precision', 'Positional Control', 'Systematic Problem Solving')
+    } else {
+      keySkills.push('Technical Development', 'Tactical Understanding')
+    }
   }
 
   // Determine training type
@@ -581,89 +611,142 @@ function generateBJJContent(
   coachingContext: CoachingContext,
   skillLevel: string
 ): string {
+  const isLegLockFocused = title.toLowerCase().includes('leg lock') || title.toLowerCase().includes('leglock') || title.toLowerCase().includes('heel hook') || title.toLowerCase().includes('ankle lock') || title.toLowerCase().includes('knee bar')
+  const isAdvancedLevel = skillLevel.toLowerCase() === 'advanced'
+
   return `# ${title}
 
-## Lesson Overview
-Welcome to this systematic Brazilian Jiu-Jitsu lesson on "${title}". As ${coachingContext.coachName}, I'll guide you through ${titleAnalysis.primaryFocus.toLowerCase()} using proven IBJJF competition methodologies. This ${titleAnalysis.trainingType.toLowerCase()} is designed for ${skillLevel} practitioners committed to technical excellence.
+## Lesson Overview: ${isLegLockFocused ? 'Advanced Leg Lock System' : 'Elite BJJ Development'}
+Welcome to this systematic Brazilian Jiu-Jitsu lesson on "${title}". As ${coachingContext.coachName}, I'll guide you through ${titleAnalysis.primaryFocus.toLowerCase()} using proven ${isLegLockFocused ? 'ADCC and no-gi competition' : 'IBJJF competition'} methodologies. This ${titleAnalysis.trainingType.toLowerCase()} is specifically designed for ${skillLevel} practitioners ${isLegLockFocused ? 'ready to explore the modern leg entanglement game' : 'committed to technical excellence'}.
 
 **This session will develop:**
-${titleAnalysis.keySkills.map((skill: string) => `• **${skill}**: Essential for BJJ mastery`).join('\n')}
+${titleAnalysis.keySkills.map((skill: string) => `• **${skill}**: ${isLegLockFocused ? 'Critical for safe and effective leg lock application' : 'Essential for BJJ mastery'}`).join('\n')}
 
-## Technical Breakdown: The Science of BJJ
+${titleAnalysis.techniques.length > 0 ? `\n**Specific Techniques You'll Master:**\n${titleAnalysis.techniques.map((technique: string) => `• **${technique}**: ${isLegLockFocused ? 'Essential for leg entanglement success' : 'Key component of this technique'}`).join('\n')}` : ''}
 
-**Fundamental Principles:**
+## Technical Breakdown: ${isLegLockFocused ? 'The Science of Leg Entanglements' : 'The Science of BJJ'}
+
+${isLegLockFocused ?
+`**Leg Lock Fundamental Principles:**
+• **Safety First**: Always prioritize safety - tap early and train smart with leg locks
+• **Control Before Breaking**: Establish full control of the leg before applying breaking pressure
+• **Systematic Entries**: Use proper entry systems rather than forcing leg attacks
+• **Understanding Breaking Mechanics**: Know exactly how each leg lock works biomechanically
+• **Respect the Danger**: Leg locks can cause serious injury - train with experienced partners only
+
+**Advanced Leg Lock Concepts:**
+• **Entry Systems**: Ashi garami, 50/50, saddle (4/11) positions and their applications
+• **Breaking Mechanics**: Understand joint rotation, pressure points, and anatomical limitations
+• **Control Hierarchy**: Establish positional control before attacking the submission
+• **Defense Recognition**: Know when opponents are properly defended and when to transition
+• **Injury Prevention**: Proper tapping protocols and training intensity management` :
+`**Fundamental BJJ Principles:**
 • **Position Before Submission**: Always secure dominant position before attacking
 • **Leverage Over Strength**: Use proper body mechanics and angles efficiently
 • **Base and Posture**: Maintain structural integrity in all positions
 • **Systematic Approach**: Connect techniques in logical chains and sequences
+• **Pressure and Control**: Apply intelligent pressure while maintaining mobility`}
 
-**Core BJJ Concepts:**
-• **Hip Movement**: Master shrimping, bridging, and hip escapes for all situations
-• **Pressure and Weight Distribution**: Apply effective pressure while maintaining mobility
-• **Timing and Patience**: Recognize optimal moments for transitions and attacks
-• **Problem Solving**: Develop systematic solutions for defensive situations
+**Core Concepts for ${skillLevel.charAt(0).toUpperCase() + skillLevel.slice(1)} Level:**
+${isLegLockFocused ?
+`• **Risk Assessment**: Understand when leg locks are high percentage vs when to abandon them
+• **Entry Timing**: Recognize optimal moments for leg entanglement attempts
+• **Positional Transitions**: Flow between different leg entanglement positions
+• **Finishing Sequences**: Complete leg locks with proper technique and control
+• **Counter-Defense**: Defend against leg attacks and counter with your own submissions` :
+`• **Technical Precision**: Perfect execution beats strength and athleticism
+• **Systematic Development**: Build skills methodically through proven progressions
+• **Tactical Application**: Apply techniques in live rolling with proper timing
+• **Problem Solving**: Adapt techniques to different body types and situations
+• **Flow State**: Connect techniques naturally without forced transitions`}
 
-## Key Fundamentals for ${skillLevel.charAt(0).toUpperCase() + skillLevel.slice(1)} Practitioners
+${!isAdvancedLevel && !isLegLockFocused ? `## Key Fundamentals
+• **Basic Positioning**: Master fundamental positions and transitions
+• **Grip Fighting**: Understand grip control and breaking opponent's grips
+• **Base and Balance**: Maintain stability while creating instability in opponents
+• **Breathing Control**: Stay calm and manage energy efficiently during training
+• **Tap Early, Tap Often**: Develop training mindset that prioritizes long-term progress` : ''}
 
-• **Technical Precision**: Perfect execution beats strength and athleticism
-• **Conceptual Understanding**: Learn the why behind every movement
-• **Systematic Development**: Build skills on solid foundational principles
-• **Mental Chess**: Think multiple moves ahead during live training
-• **Consistent Training**: Small daily improvements compound over time
+## Training Methodology: ${isLegLockFocused ? 'Progressive Leg Lock Development' : 'Systematic BJJ Training'}
 
-## Practice Methodology: Proven Training Structure
+${isLegLockFocused ?
+`**Phase 1: Foundation Building (${isAdvancedLevel ? 'Advanced Safety Protocols' : 'Safety First'})**
+• Master basic leg entanglement positions without submission attempts
+• Develop proprioception and awareness in leg entanglement situations
+• Practice entry sequences slowly with cooperative training partners
+• Study leg lock defense extensively before advancing to submissions
 
-1. **Solo Movement**: Hip escapes, bridges, technical stand-ups (10 minutes)
-2. **Static Drilling**: Position work with progressive resistance (15 minutes)
-3. **Flow Rolling**: Light resistance to develop timing and transitions (10 minutes)
-4. **Positional Sparring**: Start from specific positions, work problems (15 minutes)
-5. **Submission Chains**: Connect related attacks with smooth transitions (10 minutes)
-6. **Live Training**: Full resistance rolling with specific goals (15 minutes)
+**Phase 2: Controlled Application (${isAdvancedLevel ? 'Competition Timing' : 'Technical Development'})**
+• Apply leg locks with maximum control and minimal breaking pressure
+• Practice on training partners who understand leg lock tapping protocols
+• Focus on positional control rather than quick submission attempts
+• Develop finishing sequences with emphasis on partner safety
 
-## Competition Application: Testing Under Pressure
+**Phase 3: ${isAdvancedLevel ? 'Competition Integration' : 'Advanced Development'}**
+${isAdvancedLevel ?
+`• Integrate leg locks into live rolling with appropriate training partners
+• Develop competition-level entries and finishing sequences
+• Practice leg lock defense and counter-attacks extensively
+• Study high-level competition footage and modern leg lock systems` :
+`• Begin incorporating leg locks into live training situations
+• Develop comfort with leg entanglement positions and escapes
+• Practice finishing techniques with increased resistance
+• Build systematic approach to leg lock chains and combinations`}` :
+`**Progressive Training Approach:**
+1. **Technical Drilling**: Master individual techniques through repetition
+2. **Positional Sparring**: Practice specific positions and transitions
+3. **Flow Training**: Connect techniques in continuous sequences
+4. **Live Application**: Apply techniques in full resistance rolling
+5. **Competition Simulation**: Practice under pressure and time constraints`}
 
-**Pre-Competition Preparation:**
-• Develop specific game plans for different opponent types
-• Practice competition rules and scoring scenarios
-• Build mental toughness through pressure training
+## Safety Considerations: ${isLegLockFocused ? 'Critical Leg Lock Safety' : 'General BJJ Safety'}
 
-**During Live Training:**
-• Start exchanges from positions relevant to your game
-• Practice escaping bad positions with composure
-• Develop signature techniques that work under pressure
+${isLegLockFocused ?
+`**MANDATORY Safety Protocols:**
+• **Immediate Tapping**: Tap the moment you feel pressure or discomfort
+• **Verbal Communication**: Use verbal taps when hands are trapped
+• **Partner Selection**: Only practice with experienced, trustworthy training partners
+• **Instructor Supervision**: Always practice leg locks under qualified instruction
+• **Progressive Intensity**: Never apply leg locks at full intensity during training
+• **Medical Awareness**: Understand injury risks and seek medical attention for pain
 
-**Mental Approach:**
-• Stay calm under pressure and stick to systematic approach
-• Use opponent's reactions to set up subsequent techniques
-• Maintain breathing control during intense exchanges
+**Training Guidelines:**
+• Start all leg lock practice with cooperative drilling only
+• Never practice leg locks when tired or unfocused
+• Stop immediately if either partner feels unsafe
+• Focus on control and safety over speed or aggression
+• Regular breaks to prevent fatigue-related injuries` :
+`**General Training Safety:**
+${sportContext.safetyConsiderations.slice(0, 4).map(safety => `• ${safety}`).join('\n')}`}
 
-## Common Mistakes & Technical Corrections
+## Expert Insights: ${isLegLockFocused ? 'Modern Leg Lock Wisdom' : 'Competition-Tested Strategies'}
 
-• **Mistake**: Using strength instead of technique → **Correction**: Focus on leverage and proper angles
-• **Mistake**: Rushing submissions from poor positions → **Correction**: Secure position first, then attack
-• **Mistake**: Poor hip movement and escapes → **Correction**: Daily solo movement practice
-• **Mistake**: Holding breath during rolling → **Correction**: Conscious breathing practice
+${isLegLockFocused ?
+`**From Elite No-Gi Competitors:**
+• "Control first, submission second - leg locks require patience and precision" - Competition Wisdom
+• "The best leg lockers are also the best at defending leg locks" - ADCC Veterans
+• "Leg locks are not about strength - they're about understanding mechanics and timing" - Modern BJJ
+• "Safety in training leads to effectiveness in competition" - Professional Approach
 
-## Progression Tips: Path to Black Belt Excellence
+**Advanced Tactical Concepts:**
+• Use leg lock threats to create other submission opportunities
+• Develop systematic approach to leg entanglement transitions
+• Study opponent's defensive patterns and adapt entries accordingly
+• Master both breaking mechanics and positional control equally` :
+`**From World-Class Competitors:**
+${sportContext.expertTips.slice(0, 3).map(tip => `• ${tip}`).join('\n')}
 
-• **Master Fundamental Positions**: Mount, guard, side control, back control
-• **Develop Systematic Game**: Connect techniques that work together
-• **Study High-Level Competition**: Analyze IBJJF world championship footage
-• **Train Consistently**: Regular training beats sporadic intense sessions
-• **Keep Training Journal**: Document techniques and insights for review
-
-## Safety Considerations: Injury Prevention
-
-${sportContext.safetyConsiderations.slice(0, 4).map((safety: string) => `• ${safety}`).join('\n')}
-
-## Black Belt Insights: Championship Secrets
-
-**From Elite Competition:**
-${sportContext.expertTips.slice(0, 3).map((tip: string) => `• ${tip}`).join('\n')}
+**Competition-Tested Strategies:**
+• Focus on high-percentage techniques that work consistently
+• Develop strong defensive foundation before advancing offensive skills
+• Train with partners who challenge you appropriately for your level
+• Compete regularly to test techniques under pressure`}
 
 **Remember**: ${coachingContext.voiceCharacteristics.catchphrases[0]}
 
-*This lesson represents the methodical approach that develops world-class Brazilian Jiu-Jitsu practitioners. Technique conquers strength, patience creates opportunity.*`
+${isLegLockFocused ?
+`*This lesson embodies the modern approach to leg lock development used by elite no-gi competitors and ADCC medalists. Safe, systematic training leads to effective application.*` :
+`*This lesson reflects the proven methodologies used by IBJJF World Champions and elite BJJ competitors worldwide. Systematic development creates lasting mastery.*`}`
 }
 
 /**
