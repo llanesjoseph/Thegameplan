@@ -36,7 +36,9 @@ import {
   Wand2,
   RefreshCw,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  FileText,
+  RotateCcw
 } from 'lucide-react'
 
 export default function CreatorDashboard() {
@@ -68,6 +70,7 @@ export default function CreatorDashboard() {
   
   // AI Features State
   const [showAIFeatures, setShowAIFeatures] = useState(false)
+  const [detailedWriteup, setDetailedWriteup] = useState('')
 
   const [generatingIdeas, setGeneratingIdeas] = useState(false)
   const [enhancingContent, setEnhancingContent] = useState(false)
@@ -151,6 +154,7 @@ export default function CreatorDashboard() {
       const lessonData = {
         title: data.title,
         description: data.description,
+        detailedWriteup: detailedWriteup,
         level: data.level,
         creatorUid: authUser.uid,
         videoUrl,
@@ -168,6 +172,7 @@ export default function CreatorDashboard() {
       reset()
       setVideoFile(null)
       setThumbFile(null)
+      setDetailedWriteup('')
       setUploadSuccess(true)
       setLessonCount(prev => prev + 1)
       
@@ -690,6 +695,97 @@ Enhanced with detailed explanations, visual demonstrations, and progressive skil
                 {errors.description && (
                   <p className="mt-1 text-sm text-red-600">{errors.description.message}</p>
                 )}
+              </div>
+
+              {/* Detailed Writeup */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Detailed Writeup
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowAIFeatures(!showAIFeatures)}
+                    className="text-xs text-purple-600 hover:text-purple-800 flex items-center gap-1"
+                  >
+                    <Sparkles className="w-3 h-3" />
+                    AI Tools
+                    <ChevronDown className={`w-3 h-3 transition-transform ${showAIFeatures ? 'rotate-180' : ''}`} />
+                  </button>
+                </div>
+
+                {/* AI Tools Dropdown */}
+                {showAIFeatures && (
+                  <div className="mb-3 p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          const currentTitle = watch('title')
+                          if (!currentTitle) {
+                            alert('Please enter a lesson title first')
+                            return
+                          }
+                          setGeneratingIdeas(true)
+                          // Simulate AI content generation
+                          setTimeout(() => {
+                            const sampleContent = `## Lesson Overview\n\nThis comprehensive lesson on "${currentTitle}" will cover:\n\n### Key Learning Objectives\n- Master fundamental techniques\n- Understand proper form and execution\n- Develop muscle memory through repetition\n- Apply concepts in practice scenarios\n\n### Prerequisites\n- Basic understanding of foundational movements\n- Appropriate fitness level for the skill level\n\n### What You'll Learn\n1. **Technique Breakdown** - Step-by-step instruction\n2. **Common Mistakes** - What to avoid and how to correct\n3. **Practice Drills** - Exercises to reinforce learning\n4. **Application** - When and how to use in real situations\n\n### Equipment Needed\n- Standard training equipment\n- Comfortable athletic wear\n- Water bottle for hydration\n\n*This detailed writeup provides coaches and athletes with a complete understanding of what to expect from this training session.*`
+                            setDetailedWriteup(sampleContent)
+                            setGeneratingIdeas(false)
+                          }, 2000)
+                        }}
+                        disabled={generatingIdeas}
+                        className="px-3 py-1 text-xs bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:opacity-50 flex items-center gap-1"
+                      >
+                        {generatingIdeas ? (
+                          <>
+                            <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin"></div>
+                            Generating...
+                          </>
+                        ) : (
+                          <>
+                            <FileText className="w-3 h-3" />
+                            Generate Writeup
+                          </>
+                        )}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (detailedWriteup) {
+                            const enhanced = detailedWriteup + `\n\n### Safety Considerations\n- Always warm up before training\n- Use proper protective equipment\n- Train with qualified supervision\n- Listen to your body and rest when needed\n\n### Progression Tips\n- Start slow and focus on technique\n- Gradually increase intensity\n- Record your progress\n- Seek feedback from experienced practitioners`
+                            setDetailedWriteup(enhanced)
+                          }
+                        }}
+                        className="px-3 py-1 text-xs bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center gap-1"
+                      >
+                        <Plus className="w-3 h-3" />
+                        Add Safety & Tips
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setDetailedWriteup('')}
+                        className="px-3 py-1 text-xs bg-gray-500 text-white rounded-md hover:bg-gray-600 flex items-center gap-1"
+                      >
+                        <RotateCcw className="w-3 h-3" />
+                        Clear
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                <textarea
+                  value={detailedWriteup}
+                  onChange={(e) => setDetailedWriteup(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cardinal focus:border-transparent resize-vertical"
+                  rows={12}
+                  placeholder="Provide a comprehensive writeup including learning objectives, prerequisites, step-by-step instructions, common mistakes, practice drills, and safety considerations..."
+                />
+                <p className="mt-1 text-xs text-gray-500">
+                  This detailed content helps athletes understand exactly what they'll learn and coaches can use it for reference.
+                </p>
               </div>
 
               {/* File Uploads */}
