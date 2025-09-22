@@ -10,10 +10,13 @@ import { generateWithRedundancy } from './llm-service'
 export interface ContentGenerationRequest {
   title: string
   sport: string
+  technique?: string // Specific skill or technique being taught
   creatorId?: string
   skillLevel?: 'beginner' | 'intermediate' | 'advanced' | 'elite'
+  audienceLevel?: 'beginner' | 'intermediate' | 'advanced' | 'elite' // Alternative naming for clarity
   focus?: 'technical' | 'tactical' | 'physical' | 'mental' | 'comprehensive'
   duration?: number // in minutes
+  durationMinutes?: number // Alternative naming for template consistency
   safetyLevel?: 'high' | 'medium' | 'low'
 }
 
@@ -29,25 +32,190 @@ export interface GeneratedContent {
 }
 
 /**
+ * Template variables for dynamic prompt generation
+ */
+export interface PromptTemplateVariables {
+  sport: string
+  technique: string
+  audienceLevel: string
+  durationMinutes: number
+  title: string
+  focus: string
+  safetyLevel: string
+}
+
+/**
+ * Dynamic prompt template structure
+ */
+export interface DynamicPromptTemplate {
+  systemInstruction: string
+  userPrompt: string
+}
+
+/**
+ * Create template variables from content generation request
+ */
+function createTemplateVariables(request: ContentGenerationRequest): PromptTemplateVariables {
+  return {
+    sport: request.sport,
+    technique: request.technique || request.title,
+    audienceLevel: request.audienceLevel || request.skillLevel || 'intermediate',
+    durationMinutes: request.durationMinutes || request.duration || 60,
+    title: request.title,
+    focus: request.focus || 'comprehensive',
+    safetyLevel: request.safetyLevel || 'high'
+  }
+}
+
+/**
+ * Generate dynamic system instruction template
+ */
+function generateSystemInstructionTemplate(variables: PromptTemplateVariables): string {
+  const baseInstruction = `You are an expert ${variables.sport} coach with extensive experience, specializing in a methodical and safety-first approach to instruction. Your persona is professional, knowledgeable, and highly detail-oriented. You must provide well-structured, comprehensive, and technically accurate content. When creating lesson plans, follow standard pedagogical principles for athletic instruction, including warm-ups, technical breakdown, drilling, and skill application. Always use correct ${variables.sport} terminology.`
+
+  // Sport-specific enhancements
+  const sportSpecificAdditions = getSportSpecificInstructions(variables.sport, variables.audienceLevel)
+
+  // Safety level modifications
+  const safetyModifications = getSafetyLevelInstructions(variables.safetyLevel, variables.sport)
+
+  return `${baseInstruction}
+
+${sportSpecificAdditions}
+
+${safetyModifications}
+
+**SPECIALIZED EXPERTISE FOR THIS LESSON:**
+- Technique Focus: You have deep knowledge of ${variables.technique} and its applications in ${variables.sport}
+- Audience Level: Your instruction is tailored for ${variables.audienceLevel} practitioners
+- Session Duration: You design content appropriate for ${variables.durationMinutes}-minute sessions
+- Teaching Focus: Your approach emphasizes ${variables.focus} development`
+}
+
+/**
+ * Generate dynamic user prompt template
+ */
+function generateUserPromptTemplate(variables: PromptTemplateVariables): string {
+  return `Generate a detailed write-up and a separate ${variables.durationMinutes}-minute lesson plan for an ${variables.audienceLevel}-level ${variables.sport} seminar. The seminar topic is '${variables.technique} and Its Fundamentals.'
+
+The content should include:
+1. An introduction to the topic with context and importance in ${variables.sport}
+2. A breakdown of key technical and tactical principles
+3. At least two specific techniques with clear, step-by-step instructions
+4. Progressive drilling sequences appropriate for ${variables.audienceLevel} level
+5. Safety considerations and injury prevention protocols
+6. Common mistakes and troubleshooting guidance
+7. Expert insights and competition applications
+
+The lesson plan should include a detailed timeline for each section of the class, with specific time allocations and transition instructions.
+
+Format the response as two distinct documents:
+- Document 1: Comprehensive technical write-up (minimum 2000 words)
+- Document 2: Structured lesson plan with timeline and activities
+
+**CRITICAL REQUIREMENTS:**
+- Every section must directly relate to "${variables.title}" - no generic content
+- Content must be appropriate for ${variables.audienceLevel} skill level
+- Use correct ${variables.sport} terminology throughout
+- Emphasize ${variables.safetyLevel} safety protocols
+- Focus on ${variables.focus} development aspects`
+}
+
+/**
+ * Get sport-specific instruction enhancements
+ */
+function getSportSpecificInstructions(sport: string, audienceLevel: string): string {
+  switch (sport.toLowerCase()) {
+    case 'bjj':
+    case 'brazilian jiu-jitsu':
+      return `**BJJ COACHING SPECIALIZATION:**
+You have IBJJF competition experience and expertise in modern no-gi systems. You emphasize position before submission, systematic development, and building technique through repetition and live application. For ${audienceLevel} students, you ${audienceLevel === 'beginner' ? 'prioritize safety and fundamental movements' : audienceLevel === 'advanced' ? 'include competition-level details and tactical applications' : 'balance technical development with practical application'}.`
+
+    case 'mma':
+    case 'mixed martial arts':
+      return `**MMA COACHING SPECIALIZATION:**
+You have professional fighter development experience combining striking, grappling, and conditioning. You emphasize fight IQ, tactical application, and real combat scenarios. Your approach integrates multiple martial arts disciplines with fight-specific applications.`
+
+    case 'soccer':
+    case 'football':
+      return `**SOCCER COACHING SPECIALIZATION:**
+You have professional and youth development experience focusing on technical skill development, tactical understanding, and team coordination. You emphasize proper biomechanics, decision-making under pressure, and game-realistic training scenarios.`
+
+    case 'basketball':
+      return `**BASKETBALL COACHING SPECIALIZATION:**
+You have competitive coaching experience at multiple levels. You focus on fundamental mechanics, court awareness, and tactical application. Your training emphasizes proper form, progressive skill development, and game situation application.`
+
+    case 'rock climbing':
+    case 'climbing':
+      return `**CLIMBING COACHING SPECIALIZATION:**
+You have extensive outdoor and competitive climbing experience. You prioritize safety protocols, risk management, and progressive skill development. Your approach emphasizes technique over strength and mental preparation alongside physical training.`
+
+    default:
+      return `**${sport.toUpperCase()} COACHING SPECIALIZATION:**
+You have extensive competitive and instructional experience in ${sport}. Your methodology focuses on systematic skill development, proper technique, and performance optimization with sport-specific applications.`
+  }
+}
+
+/**
+ * Get safety level-specific instructions
+ */
+function getSafetyLevelInstructions(safetyLevel: string, sport: string): string {
+  switch (safetyLevel) {
+    case 'high':
+      return `**HIGH SAFETY PROTOCOL:**
+Safety is your absolute priority. Include comprehensive warm-up and cool-down procedures, detailed injury prevention strategies, progressive skill introduction, and emergency response protocols. Emphasize proper form over speed or intensity.`
+
+    case 'medium':
+      return `**STANDARD SAFETY PROTOCOL:**
+Maintain appropriate safety standards with proper warm-up procedures, injury prevention awareness, and progressive skill development. Balance safety with performance development.`
+
+    case 'low':
+      return `**PERFORMANCE-FOCUSED PROTOCOL:**
+While maintaining essential safety standards, your focus is on performance development and advanced skill application. Assume participants have appropriate experience and conditioning.`
+
+    default:
+      return `**STANDARD SAFETY PROTOCOL:**
+Maintain appropriate safety standards with proper warm-up procedures, injury prevention awareness, and progressive skill development.`
+  }
+}
+
+/**
+ * Generate dynamic prompt template based on request variables
+ */
+export function generateDynamicPromptTemplate(request: ContentGenerationRequest): DynamicPromptTemplate {
+  const variables = createTemplateVariables(request)
+
+  return {
+    systemInstruction: generateSystemInstructionTemplate(variables),
+    userPrompt: generateUserPromptTemplate(variables)
+  }
+}
+
+/**
  * Generate comprehensive lesson content using AI with sports-specific knowledge
  */
 export async function generateLessonContent(request: ContentGenerationRequest): Promise<GeneratedContent> {
   const sportContext = getSportContext(request.sport)
   const coachingContext = getCoachingContext(request.creatorId, request.sport)
 
-  // Build comprehensive prompt with sports knowledge
-  const prompt = buildEnhancedPrompt(request, sportContext, coachingContext)
-
   try {
-    // Use the robust AI service
-    const result = await generateWithRedundancy(prompt, coachingContext)
+    // Generate dynamic prompt template
+    const dynamicTemplate = generateDynamicPromptTemplate(request)
+
+    // Use the dynamic template for AI generation
+    const combinedPrompt = `${dynamicTemplate.systemInstruction}
+
+${dynamicTemplate.userPrompt}`
+
+    // Use the robust AI service with dynamic prompt
+    const result = await generateWithRedundancy(combinedPrompt, coachingContext)
 
     // Parse and structure the AI response
     const structuredContent = parseAIResponse(result.text, request, sportContext)
 
     return structuredContent
   } catch (error) {
-    console.error('Content generation failed:', error)
+    console.error('Dynamic content generation failed:', error)
     // Fallback to structured template
     return generateFallbackContent(request, sportContext, coachingContext)
   }
@@ -1001,6 +1169,60 @@ function generateFallbackContent(
 /**
  * Generate quick content ideas based on sport and level
  */
+/**
+ * Demonstrate dynamic template generation with example scenarios
+ */
+export function demonstrateDynamicTemplates(): void {
+  console.log('=== DYNAMIC TEMPLATE DEMONSTRATION ===\n')
+
+  // Scenario A: Rock Climbing
+  const rockClimbingRequest: ContentGenerationRequest = {
+    title: 'Lead Climbing',
+    sport: 'Rock Climbing',
+    technique: 'Lead Climbing',
+    audienceLevel: 'intermediate',
+    durationMinutes: 120,
+    focus: 'technical',
+    safetyLevel: 'high'
+  }
+
+  // Scenario B: Competitive Swimming
+  const swimmingRequest: ContentGenerationRequest = {
+    title: 'Freestyle Stroke',
+    sport: 'Competitive Swimming',
+    technique: 'Freestyle Stroke',
+    audienceLevel: 'advanced',
+    durationMinutes: 75,
+    focus: 'technical',
+    safetyLevel: 'medium'
+  }
+
+  // Scenario C: BJJ Leg Locks
+  const bjjRequest: ContentGenerationRequest = {
+    title: 'Leg Lock',
+    sport: 'BJJ',
+    technique: 'Leg Lock',
+    audienceLevel: 'advanced',
+    durationMinutes: 90,
+    focus: 'technical',
+    safetyLevel: 'high'
+  }
+
+  const scenarios = [
+    { name: 'Rock Climbing', request: rockClimbingRequest },
+    { name: 'Swimming', request: swimmingRequest },
+    { name: 'BJJ', request: bjjRequest }
+  ]
+
+  scenarios.forEach(scenario => {
+    console.log(`--- ${scenario.name.toUpperCase()} TEMPLATE ---`)
+    const template = generateDynamicPromptTemplate(scenario.request)
+    console.log('System Instruction:', template.systemInstruction.substring(0, 200) + '...')
+    console.log('User Prompt:', template.userPrompt.substring(0, 200) + '...')
+    console.log('\n')
+  })
+}
+
 export function generateContentIdeas(sport: string, count: number = 10): string[] {
   const sportContext = getSportContext(sport)
   const ideas: string[] = []
