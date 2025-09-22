@@ -1067,9 +1067,16 @@ Enhanced with detailed explanations, visual demonstrations, and progressive skil
                           } catch (error) {
                             console.error('Content generation failed:', error)
 
-                            // Enhanced fallback with sport-specific content
+                            // Enhanced fallback with sport-specific content based on title
                             const fallbackContent = generateSportSpecificFallback(currentTitle, currentSport)
                             setDetailedWriteup(fallbackContent)
+
+                            // Log what we analyzed from the title for debugging
+                            console.log('Fallback content generated for:', {
+                              title: currentTitle,
+                              sport: currentSport,
+                              contentLength: fallbackContent.length
+                            })
 
                             alert('AI generation temporarily unavailable. Generated comprehensive template based on sports expertise.')
                           } finally {

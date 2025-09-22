@@ -54,6 +54,96 @@ export async function generateLessonContent(request: ContentGenerationRequest): 
 }
 
 /**
+ * Analyze lesson title to extract key concepts and focus areas
+ */
+function analyzeLessonTitle(title: string, sport: string): {
+  primaryFocus: string
+  keySkills: string[]
+  trainingType: string
+  techniques: string[]
+} {
+  const lowerTitle = title.toLowerCase()
+
+  // Determine primary focus based on keywords
+  let primaryFocus = 'General Skill Development'
+  if (lowerTitle.includes('progressive') || lowerTitle.includes('development')) {
+    primaryFocus = 'Progressive Skill Building'
+  } else if (lowerTitle.includes('advanced') || lowerTitle.includes('elite')) {
+    primaryFocus = 'Advanced Technique Mastery'
+  } else if (lowerTitle.includes('fundamental') || lowerTitle.includes('basic')) {
+    primaryFocus = 'Fundamental Technique'
+  } else if (lowerTitle.includes('conditioning') || lowerTitle.includes('fitness')) {
+    primaryFocus = 'Physical Conditioning'
+  } else if (lowerTitle.includes('mental') || lowerTitle.includes('psychology')) {
+    primaryFocus = 'Mental Preparation'
+  }
+
+  // Extract key skills based on sport and title
+  const keySkills: string[] = []
+  const techniques: string[] = []
+
+  if (sport.toLowerCase() === 'football' || sport.toLowerCase() === 'american football') {
+    // American Football skill extraction
+    if (lowerTitle.includes('blocking')) keySkills.push('Blocking Technique')
+    if (lowerTitle.includes('tackling')) keySkills.push('Tackling Form')
+    if (lowerTitle.includes('route') || lowerTitle.includes('receiving')) keySkills.push('Route Running')
+    if (lowerTitle.includes('quarterback') || lowerTitle.includes('qb')) keySkills.push('Quarterback Mechanics')
+    if (lowerTitle.includes('coverage') || lowerTitle.includes('defense')) keySkills.push('Defensive Coverage')
+    if (lowerTitle.includes('rush') || lowerTitle.includes('running')) keySkills.push('Rush Technique')
+    if (lowerTitle.includes('line') || lowerTitle.includes('lineman')) keySkills.push('Line Play')
+    if (lowerTitle.includes('special teams')) keySkills.push('Special Teams')
+
+    // Extract specific techniques
+    if (lowerTitle.includes('stance')) techniques.push('Proper Stance')
+    if (lowerTitle.includes('footwork')) techniques.push('Footwork Mechanics')
+    if (lowerTitle.includes('hand placement')) techniques.push('Hand Positioning')
+    if (lowerTitle.includes('leverage')) techniques.push('Leverage Technique')
+    if (lowerTitle.includes('pass protection')) techniques.push('Pass Protection')
+    if (lowerTitle.includes('run fit')) techniques.push('Run Fit Assignment')
+  } else if (sport.toLowerCase() === 'soccer') {
+    // Soccer skill extraction
+    if (lowerTitle.includes('passing')) keySkills.push('Passing Accuracy')
+    if (lowerTitle.includes('shooting')) keySkills.push('Shooting Technique')
+    if (lowerTitle.includes('dribbling')) keySkills.push('Ball Control')
+    if (lowerTitle.includes('defending')) keySkills.push('Defensive Positioning')
+    if (lowerTitle.includes('crossing')) keySkills.push('Wing Play')
+    if (lowerTitle.includes('heading')) keySkills.push('Aerial Ability')
+    if (lowerTitle.includes('goalkeeping')) keySkills.push('Goalkeeping')
+    if (lowerTitle.includes('set piece')) keySkills.push('Set Piece Execution')
+
+    // Extract specific techniques
+    if (lowerTitle.includes('first touch')) techniques.push('First Touch Control')
+    if (lowerTitle.includes('vision')) techniques.push('Field Vision')
+    if (lowerTitle.includes('positioning')) techniques.push('Tactical Positioning')
+    if (lowerTitle.includes('finishing')) techniques.push('Clinical Finishing')
+  }
+
+  // Default skills if none detected
+  if (keySkills.length === 0) {
+    keySkills.push('Technical Development', 'Tactical Understanding')
+  }
+
+  // Determine training type
+  let trainingType = 'Technical Training'
+  if (lowerTitle.includes('drill') || lowerTitle.includes('practice')) {
+    trainingType = 'Drill-Based Practice'
+  } else if (lowerTitle.includes('conditioning') || lowerTitle.includes('fitness')) {
+    trainingType = 'Physical Conditioning'
+  } else if (lowerTitle.includes('tactical') || lowerTitle.includes('strategy')) {
+    trainingType = 'Tactical Development'
+  } else if (lowerTitle.includes('game') || lowerTitle.includes('match')) {
+    trainingType = 'Game Application'
+  }
+
+  return {
+    primaryFocus,
+    keySkills,
+    trainingType,
+    techniques
+  }
+}
+
+/**
  * Build an enhanced prompt that leverages sports knowledge base
  */
 function buildEnhancedPrompt(
@@ -63,13 +153,26 @@ function buildEnhancedPrompt(
 ): string {
   const { title, sport, skillLevel = 'intermediate', focus = 'comprehensive' } = request
 
+  // Analyze the lesson title to extract key concepts
+  const titleAnalysis = analyzeLessonTitle(title, sport)
+
   return `You are ${coachingContext.coachName}, an elite ${sport} coach creating a comprehensive lesson titled "${title}".
+
+**LESSON TITLE ANALYSIS:**
+Primary Focus: ${titleAnalysis.primaryFocus}
+Key Skills: ${titleAnalysis.keySkills.join(', ')}
+Training Type: ${titleAnalysis.trainingType}
+Specific Techniques: ${titleAnalysis.techniques.join(', ')}
+
+**CRITICAL INSTRUCTION - LESSON MUST BE ABOUT:**
+"${title}" - Every section must directly relate to this specific topic. Do not write generic content.
 
 **LESSON REQUIREMENTS:**
 - Target Skill Level: ${skillLevel}
 - Primary Focus: ${focus}
 - Sport: ${sport}
 - Duration: ${request.duration || 30} minutes
+- MUST address the specific skills mentioned in the title
 
 **SPORT-SPECIFIC CONTEXT:**
 Coaching Philosophy: ${coachingContext.expertise.join(', ')}
@@ -86,17 +189,19 @@ Safety Priorities: ${sportContext.safetyConsiderations.slice(0, 3).join(', ')}
 Common Mistakes to Address: ${sportContext.commonMistakes.slice(0, 3).join(', ')}
 
 **REQUIRED OUTPUT STRUCTURE:**
-Generate a comprehensive lesson writeup (800-1200 words) with the following sections:
+Generate a comprehensive lesson writeup (800-1200 words) specifically about "${title}". Every section must relate directly to this topic:
 
 ## Lesson Overview
-Brief introduction explaining what this lesson covers and why it's important for ${skillLevel} players.
+Explain specifically what "${title}" covers and why these particular skills are important for ${skillLevel} players. Reference the ${titleAnalysis.primaryFocus} and ${titleAnalysis.trainingType}.
 
-## Technical Breakdown
-Detailed explanation of the main technique/skill, including:
-- Proper body positioning and mechanics
-- Step-by-step execution
-- Key coaching points
-- Common variations
+## Technical Breakdown of ${title}
+Detailed explanation of the specific techniques mentioned in the title:
+${titleAnalysis.keySkills.length > 0 ? `Focus on: ${titleAnalysis.keySkills.join(', ')}` : ''}
+${titleAnalysis.techniques.length > 0 ? `Key techniques: ${titleAnalysis.techniques.join(', ')}` : ''}
+- Proper body positioning and mechanics for these specific skills
+- Step-by-step execution of the techniques in the title
+- Key coaching points for mastering these exact skills
+- Variations and progressions specific to this lesson
 
 ## Key Fundamentals
 3-4 core principles with specific details:
@@ -220,12 +325,19 @@ function generateFallbackContent(
   sportContext: SportContext,
   coachingContext: CoachingContext
 ): GeneratedContent {
-  const { title, skillLevel = 'intermediate' } = request
+  const { title, skillLevel = 'intermediate', sport } = request
+
+  // Use title analysis for better fallback content
+  const titleAnalysis = analyzeLessonTitle(title, sport)
 
   const fallbackWriteup = `# ${title}
 
 ## Lesson Overview
-This ${skillLevel}-level lesson focuses on mastering the fundamentals of ${title.toLowerCase()}. As ${coachingContext.coachName}, I've designed this session to build upon core principles while developing practical application skills.
+This ${skillLevel}-level lesson specifically focuses on ${titleAnalysis.primaryFocus} through "${title}". As ${coachingContext.coachName}, I've designed this ${titleAnalysis.trainingType} session to develop the core skills identified in this lesson: ${titleAnalysis.keySkills.join(', ')}.
+
+**What You'll Master:**
+${titleAnalysis.keySkills.map(skill => `• ${skill}`).join('\n')}
+${titleAnalysis.techniques.length > 0 ? '\n**Key Techniques:**\n' + titleAnalysis.techniques.map(technique => `• ${technique}`).join('\n') : ''}
 
 ## Technical Breakdown
 The key to success in this area lies in understanding the fundamental mechanics and building consistent execution through deliberate practice.
