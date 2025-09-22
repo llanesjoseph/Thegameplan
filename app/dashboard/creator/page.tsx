@@ -38,7 +38,10 @@ import {
   ChevronDown,
   ChevronUp,
   FileText,
-  RotateCcw
+  RotateCcw,
+  Pause,
+  PlayCircle,
+  X
 } from 'lucide-react'
 
 // Title analysis function (same as in content-generation-service)
@@ -614,6 +617,8 @@ export default function CreatorDashboard() {
   const [publishedLessons, setPublishedLessons] = useState<any[]>([])
   const [loadingLessons, setLoadingLessons] = useState(false)
   const [uploadProgress, setUploadProgress] = useState<{video: number, thumbnail: number}>({video: 0, thumbnail: 0})
+  const [uploadTasks, setUploadTasks] = useState<{video: any, thumbnail: any}>({video: null, thumbnail: null})
+  const [uploadPaused, setUploadPaused] = useState<{video: boolean, thumbnail: boolean}>({video: false, thumbnail: false})
   
   // AI Features State
   const [showAIFeatures, setShowAIFeatures] = useState(false)
@@ -683,24 +688,34 @@ export default function CreatorDashboard() {
       let videoUrl = ''
       let thumbnailUrl = ''
 
-      // Upload video if provided with progress tracking
+      // Upload video if provided with progress tracking and pause/resume
       if (videoFile) {
         const videoRef = ref(storage, `content/${authUser.uid}/${Date.now()}_${videoFile.name}`)
         const uploadTask = uploadBytesResumable(videoRef, videoFile)
+        setUploadTasks(prev => ({ ...prev, video: uploadTask }))
 
         await new Promise((resolve, reject) => {
           uploadTask.on('state_changed',
             (snapshot) => {
               const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
               setUploadProgress(prev => ({ ...prev, video: Math.round(progress) }))
+
+              // Log upload status for large files
+              if (videoFile.size > 100 * 1024 * 1024) { // Log for files > 100MB
+                const mbTransferred = (snapshot.bytesTransferred / (1024 * 1024)).toFixed(1)
+                const mbTotal = (snapshot.totalBytes / (1024 * 1024)).toFixed(1)
+                console.log(`Video upload: ${mbTransferred}MB / ${mbTotal}MB (${Math.round(progress)}%)`)
+              }
             },
             (error) => {
               console.error('Video upload error:', error)
+              setUploadTasks(prev => ({ ...prev, video: null }))
               reject(error)
             },
             async () => {
               videoUrl = await getDownloadURL(uploadTask.snapshot.ref)
               setUploadProgress(prev => ({ ...prev, video: 100 }))
+              setUploadTasks(prev => ({ ...prev, video: null }))
               resolve(videoUrl)
             }
           )
@@ -755,6 +770,8 @@ export default function CreatorDashboard() {
       setThumbFile(null)
       setDetailedWriteup('')
       setUploadProgress({video: 0, thumbnail: 0})
+      setUploadTasks({video: null, thumbnail: null})
+      setUploadPaused({video: false, thumbnail: false})
       setUploadSuccess(true)
       setLessonCount(prev => prev + 1)
       
@@ -767,13 +784,45 @@ export default function CreatorDashboard() {
 
   const deleteLesson = async (lessonId: string) => {
     if (!confirm('Are you sure you want to delete this lesson?')) return
-    
+
     try {
       await deleteDoc(doc(db, 'content', lessonId))
       setPublishedLessons(prev => prev.filter(lesson => lesson.id !== lessonId))
       setLessonCount(prev => prev - 1)
     } catch (error) {
       console.error('Error deleting lesson:', error)
+    }
+  }
+
+  const pauseUpload = (type: 'video' | 'thumbnail') => {
+    const task = uploadTasks[type]
+    if (task) {
+      task.pause()
+      setUploadPaused(prev => ({ ...prev, [type]: true }))
+    }
+  }
+
+  const resumeUpload = (type: 'video' | 'thumbnail') => {
+    const task = uploadTasks[type]
+    if (task) {
+      task.resume()
+      setUploadPaused(prev => ({ ...prev, [type]: false }))
+    }
+  }
+
+  const cancelUpload = (type: 'video' | 'thumbnail') => {
+    const task = uploadTasks[type]
+    if (task) {
+      task.cancel()
+      setUploadTasks(prev => ({ ...prev, [type]: null }))
+      setUploadProgress(prev => ({ ...prev, [type]: 0 }))
+      setUploadPaused(prev => ({ ...prev, [type]: false }))
+
+      if (type === 'video') {
+        setVideoFile(null)
+      } else {
+        setThumbFile(null)
+      }
     }
   }
 
@@ -1670,6 +1719,48 @@ ${sportContext.equipmentEssentials.slice(0, 4).map(item => `- ${item}`).join('\n
                 </p>
               </div>
 
+              {/* Upload Tips for Large Files */}
+              {(videoFile && videoFile.size > 500 * 1024 * 1024) && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <h4 className="font-medium text-blue-900 mb-2">Large File Upload Tips</h4>
+                  <ul className="text-sm text-blue-800 space-y-1">
+                    <li>• Keep this tab open during upload</li>
+                    <li>• Ensure stable internet connection</li>
+                    <li>• Use pause/resume if needed</li>
+                    <li>• Upload may take 10-30 minutes depending on file size</li>
+                    <li>• Consider compressing video to reduce upload time
+                      <button
+                        type="button"
+                        onClick={() => {
+                          alert(`Video Compression Options:
+
+1. Online Tools (Free):
+   • CloudConvert.com
+   • Online-Convert.com
+   • Compress.com
+
+2. Desktop Software:
+   • HandBrake (Free)
+   • VLC Media Player (Free)
+   • Adobe Media Encoder
+
+3. Recommended Settings:
+   • Format: MP4 (H.264)
+   • Resolution: 1080p max
+   • Bitrate: 5-10 Mbps
+   • Target: Under 500MB for faster uploads
+
+This can reduce file size by 50-80% without significant quality loss.`)
+                        }}
+                        className="ml-1 text-blue-600 underline text-xs"
+                      >
+                        (how?)
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              )}
+
               {/* File Uploads */}
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
@@ -1684,10 +1775,23 @@ ${sportContext.equipmentEssentials.slice(0, 4).map(item => `- ${item}`).join('\n
                       onChange={(e) => {
                         const file = e.target.files?.[0]
                         if (file) {
-                          if (file.size > 500 * 1024 * 1024) { // 500MB limit
-                            alert('Video file must be less than 500MB')
+                          const maxSize = 2 * 1024 * 1024 * 1024 // 2GB limit
+                          const warningSize = 1 * 1024 * 1024 * 1024 // 1GB warning
+
+                          if (file.size > maxSize) {
+                            alert('Video file must be less than 2GB. For larger files, please compress the video first.')
                             return
                           }
+
+                          if (file.size > warningSize) {
+                            const sizeInGB = (file.size / (1024 * 1024 * 1024)).toFixed(1)
+                            const proceed = confirm(
+                              `Large file detected (${sizeInGB}GB). This may take a while to upload. ` +
+                              'Consider compressing the video for faster upload. Continue anyway?'
+                            )
+                            if (!proceed) return
+                          }
+
                           setVideoFile(file)
                         } else {
                           setVideoFile(null)
@@ -1698,11 +1802,19 @@ ${sportContext.equipmentEssentials.slice(0, 4).map(item => `- ${item}`).join('\n
                     />
                     <label htmlFor="video-upload" className="cursor-pointer">
                       <span className="text-cardinal font-medium">Choose video file</span>
-                      <p className="text-gray-500 text-sm mt-1">MP4, MOV up to 500MB</p>
+                      <p className="text-gray-500 text-sm mt-1">MP4, MOV up to 2GB (1GB+ may take longer)</p>
                     </label>
                   </div>
                   {videoFile && (
-                    <p className="mt-2 text-sm text-gray-600">Selected: {videoFile.name}</p>
+                    <div className="mt-2 text-sm text-gray-600">
+                      <p>Selected: {videoFile.name}</p>
+                      <p>Size: {(videoFile.size / (1024 * 1024)).toFixed(1)} MB</p>
+                      {videoFile.size > 100 * 1024 * 1024 && (
+                        <p className="text-amber-600 font-medium">
+                          ⚠️ Large file - upload will take longer
+                        </p>
+                      )}
+                    </div>
                   )}
                 </div>
 
@@ -1745,32 +1857,107 @@ ${sportContext.equipmentEssentials.slice(0, 4).map(item => `- ${item}`).join('\n
               {creating && (videoFile || thumbFile) && (uploadProgress.video > 0 || uploadProgress.thumbnail > 0) && (
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                   <h4 className="font-medium text-gray-900 mb-3">Upload Progress</h4>
-                  {videoFile && (
+                  {videoFile && uploadProgress.video > 0 && (
                     <div className="mb-3">
-                      <div className="flex justify-between text-sm text-gray-600 mb-1">
+                      <div className="flex justify-between items-center text-sm text-gray-600 mb-2">
                         <span>Video: {videoFile.name}</span>
-                        <span>{uploadProgress.video}%</span>
+                        <div className="flex items-center gap-2">
+                          <span>{uploadProgress.video}%</span>
+                          {uploadTasks.video && (
+                            <div className="flex gap-1">
+                              {uploadPaused.video ? (
+                                <button
+                                  onClick={() => resumeUpload('video')}
+                                  className="p-1 hover:bg-gray-200 rounded"
+                                  title="Resume upload"
+                                >
+                                  <PlayCircle className="w-4 h-4 text-green-600" />
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={() => pauseUpload('video')}
+                                  className="p-1 hover:bg-gray-200 rounded"
+                                  title="Pause upload"
+                                >
+                                  <Pause className="w-4 h-4 text-yellow-600" />
+                                </button>
+                              )}
+                              <button
+                                onClick={() => cancelUpload('video')}
+                                className="p-1 hover:bg-gray-200 rounded"
+                                title="Cancel upload"
+                              >
+                                <X className="w-4 h-4 text-red-600" />
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
                         <div
-                          className="bg-cardinal h-2 rounded-full transition-all duration-500"
+                          className={`h-2 rounded-full transition-all duration-500 ${
+                            uploadPaused.video ? 'bg-yellow-500' : 'bg-cardinal'
+                          }`}
                           style={{ width: `${uploadProgress.video}%` }}
                         ></div>
                       </div>
+                      {uploadPaused.video && (
+                        <p className="text-xs text-yellow-600 mt-1">Upload paused</p>
+                      )}
+                      {videoFile.size > 100 * 1024 * 1024 && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          Large file detected - upload may take several minutes
+                        </p>
+                      )}
                     </div>
                   )}
-                  {thumbFile && (
+                  {thumbFile && uploadProgress.thumbnail > 0 && (
                     <div>
-                      <div className="flex justify-between text-sm text-gray-600 mb-1">
+                      <div className="flex justify-between items-center text-sm text-gray-600 mb-2">
                         <span>Thumbnail: {thumbFile.name}</span>
-                        <span>{uploadProgress.thumbnail}%</span>
+                        <div className="flex items-center gap-2">
+                          <span>{uploadProgress.thumbnail}%</span>
+                          {uploadTasks.thumbnail && (
+                            <div className="flex gap-1">
+                              {uploadPaused.thumbnail ? (
+                                <button
+                                  onClick={() => resumeUpload('thumbnail')}
+                                  className="p-1 hover:bg-gray-200 rounded"
+                                  title="Resume upload"
+                                >
+                                  <PlayCircle className="w-4 h-4 text-green-600" />
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={() => pauseUpload('thumbnail')}
+                                  className="p-1 hover:bg-gray-200 rounded"
+                                  title="Pause upload"
+                                >
+                                  <Pause className="w-4 h-4 text-yellow-600" />
+                                </button>
+                              )}
+                              <button
+                                onClick={() => cancelUpload('thumbnail')}
+                                className="p-1 hover:bg-gray-200 rounded"
+                                title="Cancel upload"
+                              >
+                                <X className="w-4 h-4 text-red-600" />
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
                         <div
-                          className="bg-cardinal h-2 rounded-full transition-all duration-500"
+                          className={`h-2 rounded-full transition-all duration-500 ${
+                            uploadPaused.thumbnail ? 'bg-yellow-500' : 'bg-cardinal'
+                          }`}
                           style={{ width: `${uploadProgress.thumbnail}%` }}
                         ></div>
                       </div>
+                      {uploadPaused.thumbnail && (
+                        <p className="text-xs text-yellow-600 mt-1">Upload paused</p>
+                      )}
                     </div>
                   )}
                 </div>
