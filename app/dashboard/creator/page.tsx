@@ -1839,9 +1839,10 @@ This can reduce file size by 50-80% without significant quality loss.`)
                         console.log('Video file selected:', file?.name, 'Size:', file?.size ? (file.size / (1024 * 1024)).toFixed(1) + ' MB' : 'N/A')
 
                         if (file) {
-                          const maxSize = 10 * 1024 * 1024 * 1024 // 10GB limit with enterprise upload
-                          const warningSize = 1 * 1024 * 1024 * 1024 // 1GB warning
-                          const enterpriseThreshold = 500 * 1024 * 1024 // 500MB threshold for enterprise upload
+                          // Enterprise upload limits - v4.0 update
+                          const maxSize = 10737418240 // 10GB limit with enterprise upload (explicit bytes)
+                          const warningSize = 1073741824 // 1GB warning (explicit bytes)
+                          const enterpriseThreshold = 524288000 // 500MB threshold for enterprise upload (explicit bytes)
 
                           console.log('File size check:', {
                             fileSize: file.size,
@@ -1891,7 +1892,7 @@ This can reduce file size by 50-80% without significant quality loss.`)
                     <label htmlFor="video-upload" className="cursor-pointer">
                       <span className="text-cardinal font-medium">Choose video file</span>
                       <p className="text-gray-500 text-sm mt-1">
-                        MP4, MOV up to 10GB • Auto-Enterprise Upload for 500MB+ files v3.0
+                        MP4, MOV up to 10GB • Auto-Enterprise Upload for 500MB+ files v4.0
                       </p>
                     </label>
                   </div>
