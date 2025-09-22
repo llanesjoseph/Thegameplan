@@ -16,6 +16,7 @@ import { uploadService } from '@/lib/upload-service'
 import UploadManager from '@/components/UploadManager'
 import VideoCompressionHelper from '@/components/VideoCompressionHelper'
 import InAppVideoCompressor from '@/components/InAppVideoCompressor'
+import GcsVideoUploader from '@/components/GcsVideoUploader'
 import { 
   Play, 
   Upload, 
@@ -627,6 +628,8 @@ export default function CreatorDashboard() {
   const [currentUploadId, setCurrentUploadId] = useState<string | null>(null)
   const [showCompressionHelper, setShowCompressionHelper] = useState(false)
   const [showInAppCompressor, setShowInAppCompressor] = useState(false)
+  const [useGcsUpload, setUseGcsUpload] = useState(false)
+  const [showGcsUploader, setShowGcsUploader] = useState(false)
   
   // AI Features State
   const [showAIFeatures, setShowAIFeatures] = useState(false)
@@ -1837,6 +1840,85 @@ This can reduce file size by 50-80% without significant quality loss.`)
                 </div>
               )}
 
+              {/* Upload Method Selection */}
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
+                <h4 className="font-medium text-gray-900 mb-3">Choose Upload Method</h4>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div
+                    className={`border-2 rounded-lg p-4 cursor-pointer transition-colors ${
+                      !useGcsUpload
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-gray-300 hover:border-gray-400'
+                    }`}
+                    onClick={() => setUseGcsUpload(false)}
+                  >
+                    <div className="flex items-center space-x-2 mb-2">
+                      <div className={`w-4 h-4 rounded-full border-2 ${
+                        !useGcsUpload ? 'border-blue-500 bg-blue-500' : 'border-gray-300'
+                      }`} />
+                      <h5 className="font-medium">Firebase Storage (Current)</h5>
+                    </div>
+                    <p className="text-sm text-gray-600">
+                      Standard upload with enterprise features for large files
+                    </p>
+                    <ul className="text-xs text-gray-500 mt-2 space-y-1">
+                      <li>• Up to 10GB files</li>
+                      <li>• Auto-retry and resume</li>
+                      <li>• Session persistence</li>
+                    </ul>
+                  </div>
+
+                  <div
+                    className={`border-2 rounded-lg p-4 cursor-pointer transition-colors ${
+                      useGcsUpload
+                        ? 'border-green-500 bg-green-50'
+                        : 'border-gray-300 hover:border-gray-400'
+                    }`}
+                    onClick={() => setUseGcsUpload(true)}
+                  >
+                    <div className="flex items-center space-x-2 mb-2">
+                      <div className={`w-4 h-4 rounded-full border-2 ${
+                        useGcsUpload ? 'border-green-500 bg-green-500' : 'border-gray-300'
+                      }`} />
+                      <h5 className="font-medium">Google Cloud Storage (New)</h5>
+                    </div>
+                    <p className="text-sm text-gray-600">
+                      Enterprise pipeline with automatic transcoding
+                    </p>
+                    <ul className="text-xs text-gray-500 mt-2 space-y-1">
+                      <li>• Direct GCS upload</li>
+                      <li>• Auto HLS transcoding</li>
+                      <li>• Global CDN delivery</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              {/* GCS Upload Interface */}
+              {useGcsUpload ? (
+                <div className="mb-6">
+                  <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-4 mb-4">
+                    <h4 className="font-medium text-green-900 mb-2">🚀 Enterprise Video Pipeline</h4>
+                    <p className="text-sm text-green-800">
+                      Upload directly to Google Cloud Storage with automatic transcoding to HLS and multiple qualities.
+                      Your videos will be delivered globally via Cloud CDN for optimal performance.
+                    </p>
+                  </div>
+
+                  <GcsVideoUploader
+                    onUploadComplete={(result) => {
+                      console.log('✅ GCS upload completed:', result)
+                      // Optionally set some state or redirect
+                    }}
+                    onUploadError={(error) => {
+                      console.error('❌ GCS upload failed:', error)
+                      alert(`Upload failed: ${error.message}`)
+                    }}
+                    className="mb-6"
+                  />
+                </div>
+              ) : (
+                <>
               {/* File Uploads */}
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
@@ -2015,6 +2097,8 @@ This can reduce file size by 50-80% without significant quality loss.`)
                   )}
                 </div>
               </div>
+                </>
+              )}
 
               {/* Upload Progress */}
               {creating && (videoFile || thumbFile) && (uploadProgress.video > 0 || uploadProgress.thumbnail > 0) && (
