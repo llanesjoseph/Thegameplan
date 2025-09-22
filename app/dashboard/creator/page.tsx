@@ -686,6 +686,16 @@ export default function CreatorDashboard() {
     }
   }, [activeTab, authUser?.uid])
 
+  // Debug compression helper state
+  useEffect(() => {
+    console.log('🗜️ Compression helper state:', {
+      showCompressionHelper,
+      hasVideoFile: !!videoFile,
+      videoFileName: videoFile?.name,
+      shouldShow: showCompressionHelper && videoFile
+    })
+  }, [showCompressionHelper, videoFile])
+
   const onSubmit = async (data: FormValues) => {
     if (!authUser) return
 
@@ -2322,13 +2332,7 @@ This can reduce file size by 50-80% without significant quality loss.`)
           />
         )}
 
-        {/* Debug compression helper state */}
-        {console.log('🗜️ Compression helper state:', {
-          showCompressionHelper,
-          hasVideoFile: !!videoFile,
-          videoFileName: videoFile?.name,
-          shouldShow: showCompressionHelper && videoFile
-        })}
+        {/* Debug compression helper state - moved to useEffect */}
       </main>
     </CreatorAccessGate>
   )
