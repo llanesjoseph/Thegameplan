@@ -81,14 +81,24 @@ service firebase.storage {
       allow delete: if isOwner(userId) || isAdmin();
     }
     
-    // Creator content - Videos, images, supporting materials
+    // Creator content - Videos, images, supporting materials (Original path)
     match /creators/{creatorId}/content/{allPaths=**} {
       allow read: if isAuthenticated(); // Authenticated users can access content
-      allow write: if (isOwner(creatorId) || isCreatorOrHigher()) && 
-                      (isValidImageType() || isValidVideoType() || isValidAudioType() || isValidDocumentType()) && 
-                      isValidFileSize(1000) && // 1GB limit for content
+      allow write: if (isOwner(creatorId) || isCreatorOrHigher()) &&
+                      (isValidImageType() || isValidVideoType() || isValidAudioType() || isValidDocumentType()) &&
+                      isValidFileSize(10000) && // 10GB limit for large videos
                       isValidFileName();
       allow delete: if isOwner(creatorId) || isAdmin();
+    }
+
+    // Content folder - Direct content uploads (matches current upload path)
+    match /content/{userId}/{allPaths=**} {
+      allow read: if isAuthenticated(); // Authenticated users can access content
+      allow write: if (isOwner(userId) || isCreatorOrHigher()) &&
+                      (isValidImageType() || isValidVideoType() || isValidAudioType() || isValidDocumentType()) &&
+                      isValidFileSize(10000) && // 10GB limit for enterprise uploads
+                      isValidFileName();
+      allow delete: if isOwner(userId) || isAdmin();
     }
     
     // Creator profile assets - Headshots, action shots, logos
@@ -104,9 +114,9 @@ service firebase.storage {
     // Lesson content - Educational videos and materials
     match /lessons/{lessonId}/{allPaths=**} {
       allow read: if isAuthenticated(); // Authenticated users can access lessons
-      allow write: if isCreatorOrHigher() && 
-                      (isValidImageType() || isValidVideoType() || isValidAudioType() || isValidDocumentType()) && 
-                      isValidFileSize(2000) && // 2GB limit for lesson content
+      allow write: if isCreatorOrHigher() &&
+                      (isValidImageType() || isValidVideoType() || isValidAudioType() || isValidDocumentType()) &&
+                      isValidFileSize(10000) && // 10GB limit for large lesson content
                       isValidFileName();
       allow delete: if isCreatorOrHigher();
     }
@@ -157,12 +167,12 @@ service firebase.storage {
     
     // Coaching session recordings - Private session recordings
     match /sessions/{sessionId}/{allPaths=**} {
-      allow read: if isAuthenticated() && 
-                     (request.auth.uid in resource.metadata.participants || 
+      allow read: if isAuthenticated() &&
+                     (request.auth.uid in resource.metadata.participants ||
                       request.auth.uid == resource.metadata.creatorId);
-      allow write: if isCreatorOrHigher() && 
-                      (isValidVideoType() || isValidAudioType()) && 
-                      isValidFileSize(5000) && // 5GB limit for session recordings
+      allow write: if isCreatorOrHigher() &&
+                      (isValidVideoType() || isValidAudioType()) &&
+                      isValidFileSize(10000) && // 10GB limit for session recordings
                       isValidFileName();
       allow delete: if isCreatorOrHigher();
     }
