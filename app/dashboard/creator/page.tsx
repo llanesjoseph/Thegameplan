@@ -740,12 +740,108 @@ export default function CreatorDashboard() {
   const generateLessonIdeas = async () => {
     setGeneratingIdeas(true)
     try {
-      // Simulate AI generation
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      
+      // Use our enhanced content generation service for professional lesson ideas
+      const { generateContentIdeas } = await import('@/lib/content-generation-service')
+
+      try {
+        // Try to get professional sport-specific ideas from our service
+        const enhancedIdeas = generateContentIdeas(selectedSport, 12)
+        if (enhancedIdeas && enhancedIdeas.length > 0) {
+          const shuffled = enhancedIdeas.sort(() => 0.5 - Math.random())
+          setAISuggestions(shuffled.slice(0, 8))
+          return
+        }
+      } catch (serviceError) {
+        console.log('Using comprehensive local ideas for:', selectedSport)
+      }
+
+      // Comprehensive sport-specific fallback ideas
       let allIdeas = []
-      
-      if (selectedSport === 'BJJ') {
+
+      if (selectedSport.toLowerCase() === 'football' || selectedSport.toLowerCase() === 'american football') {
+        allIdeas = [
+          // Fundamental Skills
+          'Football Fundamentals: Stance, Starts, and Basic Footwork',
+          'Blocking Techniques: Leverage, Pad Level, and Hand Placement',
+          'Tackling Form: Safety, Technique, and Power',
+          'Ball Security: Protecting the Football in All Situations',
+          'Communication: On-Field Leadership and Signal Calling',
+
+          // Position-Specific Training
+          'Quarterback Mechanics: Footwork, Throwing, and Decision Making',
+          'Receiver Route Running: Precision, Timing, and Separation',
+          'Offensive Line Play: Pass Protection and Run Blocking Schemes',
+          'Defensive Back Coverage: Man, Zone, and Press Techniques',
+          'Linebacker Skills: Reading Keys and Filling Gaps',
+          'Defensive Line Techniques: Rushing the Passer and Stopping the Run',
+          'Running Back Vision: Reading Blocks and Finding Holes',
+
+          // Team Concepts
+          'Special Teams Excellence: Coverage, Returns, and Kicking Game',
+          'Red Zone Efficiency: Scoring in Tight Spaces',
+          'Third Down Conversions: Situational Football Mastery',
+          'Two-Minute Drill: Clock Management and Execution',
+          'Goal Line Defense: Stopping Short-Yardage Situations',
+          'Screen Game: Timing, Execution, and Blocking',
+
+          // Advanced Strategy
+          'Film Study: Breaking Down Opponents and Self-Evaluation',
+          'Game Planning: Preparing for Different Opponent Styles',
+          'Audibles and Hot Routes: Adjusting at the Line',
+          'Blitz Recognition and Protection: Reading Defensive Pressure',
+          'Run Fits and Gap Responsibility: Defensive Assignment Football',
+          'Coverage Concepts: Zone, Man, and Combination Coverages',
+
+          // Training and Development
+          'Football Conditioning: Sport-Specific Strength and Cardio',
+          'Injury Prevention: Proper Tackling and Contact Techniques',
+          'Mental Toughness: Overcoming Adversity in Competition',
+          'Leadership Development: Being a Team Captain',
+          'Football IQ: Understanding the Chess Match',
+          'Practice Planning: Organizing Effective Team Sessions'
+        ]
+      } else if (selectedSport.toLowerCase() === 'soccer') {
+        allIdeas = [
+          // Technical Skills
+          'Soccer First Touch: Controlling the Ball Under Pressure',
+          'Passing Accuracy: Short, Medium, and Long Distribution',
+          'Shooting Technique: Power, Placement, and Finishing',
+          'Dribbling Skills: 1v1 Moves and Close Ball Control',
+          'Heading Technique: Attacking and Defensive Headers',
+          'Ball Control: Using All Surfaces of the Foot',
+
+          // Tactical Understanding
+          'Tactical Positioning: Understanding Space and Movement',
+          'Pressing and Counter-Pressing: Winning the Ball Back',
+          'Set Piece Mastery: Free Kicks, Corners, and Throw-ins',
+          'Small-Sided Games: 3v3, 4v4 Training for Decision Making',
+          'Transition Play: Defense to Attack and Attack to Defense',
+          'Formation Play: Understanding 4-3-3, 4-4-2, and Modern Systems',
+
+          // Position-Specific Training
+          'Goalkeeping Fundamentals: Shot Stopping and Distribution',
+          'Defender Skills: Marking, Tackling, and Positioning',
+          'Midfielder Play: Box-to-Box and Specialist Roles',
+          'Wing Play: Crossing, Cutting Inside, and Defensive Duties',
+          'Striker Movement: Finding Space and Clinical Finishing',
+          'Full-Back Play: Defending and Attacking Responsibilities',
+
+          // Physical and Mental
+          'Soccer Fitness: Endurance, Speed, and Agility Training',
+          'Injury Prevention: Proper Warm-up and Recovery Methods',
+          'Mental Game: Confidence, Focus, and Pressure Management',
+          'Match Preparation: Pre-Game Routines and Visualization',
+          'Team Chemistry: Communication and Understanding',
+
+          // Advanced Concepts
+          'Video Analysis: Learning from Professional Matches',
+          'Youth Development: Building Skills from Early Age',
+          'Nutrition for Soccer: Fueling Performance and Recovery',
+          'Leadership on the Pitch: Captain Qualities and Communication',
+          'Game Reading: Anticipation and Decision Making',
+          'Soccer Psychology: Mental Preparation for Competition'
+        ]
+      } else if (selectedSport.toLowerCase() === 'bjj' || selectedSport.toLowerCase() === 'brazilian jiu-jitsu') {
         allIdeas = [
           // Guard Fundamentals
           'BJJ Guard Fundamentals: Closed Guard Control and Attacks',
@@ -893,26 +989,62 @@ export default function CreatorDashboard() {
           'Wrestling History: Learning from the Legends'
         ]
       } else {
+        // Professional comprehensive ideas for any sport
         allIdeas = [
-          `${selectedSport} Fundamentals: Mastering Basic Techniques`,
-          `Advanced ${selectedSport} Strategies for Competitive Play`,
-          `${selectedSport} Conditioning and Fitness Training`,
-          `Mental Game in ${selectedSport}: Building Confidence`,
-          `${selectedSport} Equipment Guide and Maintenance`,
-          `Injury Prevention in ${selectedSport}`,
-          `${selectedSport} Rules and Regulations Explained`,
-          `Team Communication in ${selectedSport}`,
-          `${selectedSport} Skill Development: Progressive Training`,
-          `Game Analysis in ${selectedSport}: Reading the Flow`,
-          `Leadership in ${selectedSport}: Captain Qualities`,
-          `Youth Development in ${selectedSport}: Building Skills Early`,
-          `${selectedSport} Nutrition: Fueling Performance`,
-          `Recovery Methods for ${selectedSport} Athletes`,
-          `Competition Psychology in ${selectedSport}`,
-          `${selectedSport} Drills: Effective Practice Methods`
+          // Fundamental Skills
+          `${selectedSport} Fundamentals: Mastering Core Techniques`,
+          `Basic ${selectedSport} Skills: Building a Strong Foundation`,
+          `Advanced ${selectedSport} Techniques for Elite Performance`,
+          `${selectedSport} Form and Technique: Perfecting Execution`,
+          `Coordination and Timing in ${selectedSport}`,
+
+          // Strategic and Tactical
+          `${selectedSport} Strategy: Reading and Reacting to Competition`,
+          `Game Planning in ${selectedSport}: Preparation for Success`,
+          `Tactical Awareness: Understanding ${selectedSport} Situations`,
+          `Decision Making Under Pressure in ${selectedSport}`,
+          `Competition Analysis: Breaking Down ${selectedSport} Performance`,
+
+          // Physical Development
+          `${selectedSport} Conditioning: Sport-Specific Fitness Training`,
+          `Strength Training for ${selectedSport} Athletes`,
+          `Speed and Agility Development in ${selectedSport}`,
+          `Flexibility and Mobility for ${selectedSport} Performance`,
+          `Endurance Training: Building ${selectedSport} Stamina`,
+
+          // Mental Performance
+          `Mental Game in ${selectedSport}: Building Confidence and Focus`,
+          `Competition Psychology: Performing Under Pressure in ${selectedSport}`,
+          `Goal Setting and Motivation in ${selectedSport}`,
+          `Visualization Techniques for ${selectedSport} Success`,
+          `Overcoming Adversity in ${selectedSport}`,
+
+          // Training and Development
+          `${selectedSport} Drills: Effective Practice Methods`,
+          `Progressive Training: Skill Development in ${selectedSport}`,
+          `Practice Organization: Maximizing ${selectedSport} Training Time`,
+          `Skill Transfer: From Practice to Competition in ${selectedSport}`,
+          `Youth Development: Teaching ${selectedSport} to Young Athletes`,
+
+          // Support and Recovery
+          `Injury Prevention in ${selectedSport}: Smart Training Methods`,
+          `Recovery and Regeneration for ${selectedSport} Athletes`,
+          `Nutrition for ${selectedSport}: Fueling Peak Performance`,
+          `Equipment Selection and Maintenance in ${selectedSport}`,
+          `${selectedSport} Safety: Protocols and Best Practices`,
+
+          // Leadership and Team
+          `Leadership in ${selectedSport}: Captain Qualities and Communication`,
+          `Team Chemistry: Building Unity in ${selectedSport}`,
+          `Coaching ${selectedSport}: Teaching and Mentoring Athletes`,
+          `${selectedSport} Culture: Building Winning Traditions`,
+          `Communication Skills for ${selectedSport} Teams`
         ]
       }
       
+      // Add realistic delay for professional content generation
+      await new Promise(resolve => setTimeout(resolve, 1500))
+
       // Randomize and select 8 different suggestions from the larger pool
       const shuffled = allIdeas.sort(() => 0.5 - Math.random())
       setAISuggestions(shuffled.slice(0, 8))
