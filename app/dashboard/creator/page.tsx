@@ -207,6 +207,10 @@ function generateSportSpecificFallback(title: string, sport: string): string {
   const titleAnalysis = analyzeLessonTitle(title, sport)
   const sportLowercase = sport.toLowerCase()
 
+  // Default coach context for fallback
+  const coachingContext = { coachName: 'Coach Johnson', voiceCharacteristics: { catchphrases: ['Perfect practice makes perfect!'] } }
+  const skillLevel = 'intermediate'
+
   // Soccer specific content
   if (sportLowercase === 'soccer' || sportLowercase === 'futbol' || sportLowercase === 'association football') {
     return `# ${title}
@@ -1342,15 +1346,31 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
                           } catch (error) {
                             console.error('Content generation failed:', error)
 
-                            // Enhanced fallback with sport-specific content based on title
-                            const fallbackContent = generateSportSpecificFallback(currentTitle, currentSport)
-                            setDetailedWriteup(fallbackContent)
+                            // Use our enhanced content generation service for fallback
+                            const { generateLessonContent } = await import('@/lib/content-generation-service')
+
+                            try {
+                              // Try to use the enhanced fallback system from the service
+                              const fallbackContent = await generateLessonContent({
+                                title: currentTitle,
+                                sport: currentSport,
+                                creatorId: authUser?.email || 'default',
+                                skillLevel: 'intermediate',
+                                focus: 'comprehensive',
+                                duration: 30,
+                                safetyLevel: 'high'
+                              })
+                              setDetailedWriteup(fallbackContent.detailedWriteup)
+                            } catch (fallbackError) {
+                              // If service also fails, use local enhanced fallback
+                              const localFallback = generateSportSpecificFallback(currentTitle, currentSport)
+                              setDetailedWriteup(localFallback)
+                            }
 
                             // Log what we analyzed from the title for debugging
-                            console.log('Fallback content generated for:', {
+                            console.log('Enhanced content generated for:', {
                               title: currentTitle,
-                              sport: currentSport,
-                              contentLength: fallbackContent.length
+                              sport: currentSport
                             })
 
                             alert('AI generation temporarily unavailable. Generated comprehensive template based on sports expertise.')
