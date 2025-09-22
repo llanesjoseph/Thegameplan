@@ -52,7 +52,9 @@ function analyzeLessonTitle(title: string, sport: string): {
 
   // Determine primary focus based on keywords
   let primaryFocus = 'General Skill Development'
-  if (lowerTitle.includes('progressive') || lowerTitle.includes('development')) {
+  if (lowerTitle.includes('drill') || lowerTitle.includes('practice methods')) {
+    primaryFocus = 'Effective Practice Methods'
+  } else if (lowerTitle.includes('progressive') || lowerTitle.includes('development')) {
     primaryFocus = 'Progressive Skill Building'
   } else if (lowerTitle.includes('advanced') || lowerTitle.includes('elite')) {
     primaryFocus = 'Advanced Technique Mastery'
@@ -62,6 +64,10 @@ function analyzeLessonTitle(title: string, sport: string): {
     primaryFocus = 'Physical Conditioning'
   } else if (lowerTitle.includes('mental') || lowerTitle.includes('psychology')) {
     primaryFocus = 'Mental Preparation'
+  } else if (lowerTitle.includes('speed') || lowerTitle.includes('agility')) {
+    primaryFocus = 'Athletic Performance Development'
+  } else if (lowerTitle.includes('contact') || lowerTitle.includes('tackling')) {
+    primaryFocus = 'Contact Technique Mastery'
   }
 
   // Extract key skills based on sport and title
@@ -84,6 +90,17 @@ function analyzeLessonTitle(title: string, sport: string): {
       keySkills.push('Fundamental Stance and Alignment', 'Leverage and Pad Level', 'Footwork Mechanics', 'Hand Placement Technique')
     }
 
+    // For "football Drills: Effective Practice Methods" - add drill-specific skills
+    if (lowerTitle.includes('drill') || lowerTitle.includes('practice')) {
+      keySkills.push('Agility and Speed Development', 'Conditioning and Endurance', 'Position-Specific Techniques', 'Team Coordination')
+    }
+
+    // Add more specific football drill types
+    if (lowerTitle.includes('speed')) keySkills.push('Sprint Mechanics', 'Acceleration Training')
+    if (lowerTitle.includes('agility')) keySkills.push('Change of Direction', 'Footwork Patterns')
+    if (lowerTitle.includes('conditioning')) keySkills.push('Cardio Endurance', 'Strength Building')
+    if (lowerTitle.includes('contact')) keySkills.push('Tackling Fundamentals', 'Contact Safety')
+
     // Extract specific techniques
     if (lowerTitle.includes('stance')) techniques.push('Proper Stance')
     if (lowerTitle.includes('footwork')) techniques.push('Footwork Mechanics')
@@ -92,6 +109,9 @@ function analyzeLessonTitle(title: string, sport: string): {
     if (lowerTitle.includes('pass protection')) techniques.push('Pass Protection')
     if (lowerTitle.includes('run fit')) techniques.push('Run Fit Assignment')
     if (lowerTitle.includes('progressive')) techniques.push('Progressive Skill Building', 'Systematic Development')
+    if (lowerTitle.includes('drill')) techniques.push('Drill Progression', 'Practice Organization', 'Skill Repetition')
+    if (lowerTitle.includes('effective') || lowerTitle.includes('method')) techniques.push('Training Efficiency', 'Skill Transfer')
+    if (lowerTitle.includes('speed drill')) techniques.push('Sprint Start Technique', 'Running Form')
   } else if (sport.toLowerCase() === 'soccer') {
     // Soccer skill extraction (existing code)
     if (lowerTitle.includes('passing')) keySkills.push('Passing Accuracy')
@@ -222,11 +242,23 @@ ${titleAnalysis.keySkills.map(skill => `• ${skill}`).join('\n')}
 ${titleAnalysis.techniques.length > 0 ? '\n**Specific Techniques You\'ll Learn:**\n' + titleAnalysis.techniques.map(technique => `• ${technique}`).join('\n') : ''}
 
 ## Technical Breakdown
-**Core Fundamentals:**
+${titleAnalysis.primaryFocus === 'Effective Practice Methods' || titleAnalysis.keySkills.includes('Agility and Speed Development') ?
+`**Practice Methods & Drill Organization:**
+• **Drill Structure**: Systematic progression from basic skills to game application
+• **Practice Efficiency**: Maximize repetitions while maintaining quality execution
+• **Skill Transfer**: Design drills that directly translate to game performance
+• **Progressive Development**: Build complexity gradually with proper foundation
+
+**Drill-Specific Focus Areas:**
+• **Speed and Agility**: Develop explosive first-step quickness and directional changes
+• **Conditioning**: Build game-specific endurance and stamina through targeted drills
+• **Position Techniques**: Master role-specific movements and responsibilities
+• **Team Coordination**: Synchronize movements with teammates for maximum effectiveness` :
+`**Core Fundamentals:**
 • **Stance and Alignment**: Master proper pre-snap positioning for maximum effectiveness
 • **Leverage and Pad Level**: Win battles by getting lower than your opponent
 • **Footwork and Movement**: Develop precise steps for every position and situation
-• **Hand Placement**: Control opponents through proper hand positioning and technique
+• **Hand Placement**: Control opponents through proper hand positioning and technique`}
 
 ## Key Fundamentals
 • **Preparation and Film Study**: Mental preparation creates competitive advantages
@@ -235,17 +267,31 @@ ${titleAnalysis.techniques.length > 0 ? '\n**Specific Techniques You\'ll Learn:*
 • **Team Chemistry**: Trust and accountability enable complex schemes to succeed
 
 ## Practice Drills
-1. **Stance and Start Drill**: Perfect pre-snap positioning and first-step mechanics
+${titleAnalysis.primaryFocus === 'Effective Practice Methods' ?
+`1. **Foundational Movement Drills**: Master basic stance, starts, and footwork patterns
+2. **Progressive Skill Building**: Layer complexity while maintaining fundamental quality
+3. **Position-Specific Drills**: Target skills required for individual playing positions
+4. **Team Integration Drills**: Combine individual skills into coordinated team execution
+5. **Competition Simulation**: Practice under game-like pressure and time constraints
+6. **Conditioning Integration**: Build fitness through football-specific movement patterns` :
+`1. **Stance and Start Drill**: Perfect pre-snap positioning and first-step mechanics
 2. **Leverage and Pad Level**: Practice winning battles through proper body positioning
 3. **Communication Practice**: Work signals and calls under pressure situations
-4. **Situational Execution**: Apply skills in game-like scenarios with time constraints
+4. **Situational Execution**: Apply skills in game-like scenarios with time constraints`}
 
 ## Game Application
-**Match Situations:**
+${titleAnalysis.primaryFocus === 'Effective Practice Methods' ?
+`**Training-to-Competition Transfer:**
+• Structure drills to mirror actual game situations and pressures
+• Practice decision-making under time constraints and physical stress
+• Develop muscle memory through high-quality repetitions
+• Create competitive environments that simulate game intensity
+• Build confidence through systematic skill progression from simple to complex` :
+`**Match Situations:**
 • Recognize pre-snap keys and make appropriate adjustments
 • Execute assignments within team scheme and strategy
 • Communicate effectively with teammates during high-pressure moments
-• Adapt to opponent adjustments and changing game situations
+• Adapt to opponent adjustments and changing game situations`}
 
 ## Common Mistakes & Corrections
 • **Mistake**: Poor stance leading to slow starts → **Correction**: Focus on weight distribution and ready position
