@@ -14,7 +14,6 @@ export interface UploadOptions {
   onError?: (error: Error) => void
   onSuccess?: (downloadURL: string) => void
   maxRetries?: number
-  chunkSize?: number
 }
 
 export interface UploadState {
@@ -35,7 +34,6 @@ class EnterpriseUploadService {
   private uploads: Map<string, UploadState> = new Map()
   private tasks: Map<string, UploadTask> = new Map()
   private readonly MAX_RETRIES = 3
-  private readonly CHUNK_SIZE = 8 * 1024 * 1024 // 8MB chunks
   private readonly PERSISTENCE_KEY = 'gameplan_uploads'
 
   constructor() {
@@ -54,7 +52,7 @@ class EnterpriseUploadService {
       id: uploadId,
       filename: file.name,
       size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
-      duration: this.estimateUploadTime(file.size),
+      estimatedTime: this.estimateUploadTime(file.size),
       path
     })
 
@@ -96,10 +94,7 @@ class EnterpriseUploadService {
     return new Promise((resolve, reject) => {
       // Create Firebase upload task with resumable uploads
       const storageRef = ref(storage, path)
-      const uploadTask = uploadBytesResumable(storageRef, file, {
-        // Configure for large files
-        chunkSize: this.CHUNK_SIZE
-      })
+      const uploadTask = uploadBytesResumable(storageRef, file)
 
       this.tasks.set(uploadId, uploadTask)
       this.updateUploadState(uploadId, { state: 'running' })
