@@ -12,6 +12,9 @@ import { useRouter } from 'next/navigation'
 import CreatorAccessGate from '@/components/CreatorAccessGate'
 import { collection, addDoc, query, where, getCountFromServer, serverTimestamp, getDoc, doc, getDocs, orderBy, deleteDoc } from 'firebase/firestore'
 import { ref, uploadBytes, getDownloadURL, uploadBytesResumable } from 'firebase/storage'
+import { uploadService } from '@/lib/upload-service'
+import UploadManager from '@/components/UploadManager'
+import VideoCompressionHelper from '@/components/VideoCompressionHelper'
 import { 
   Play, 
   Upload, 
@@ -619,6 +622,9 @@ export default function CreatorDashboard() {
   const [uploadProgress, setUploadProgress] = useState<{video: number, thumbnail: number}>({video: 0, thumbnail: 0})
   const [uploadTasks, setUploadTasks] = useState<{video: any, thumbnail: any}>({video: null, thumbnail: null})
   const [uploadPaused, setUploadPaused] = useState<{video: boolean, thumbnail: boolean}>({video: false, thumbnail: false})
+  const [useEnterpriseUpload, setUseEnterpriseUpload] = useState(false)
+  const [currentUploadId, setCurrentUploadId] = useState<string | null>(null)
+  const [showCompressionHelper, setShowCompressionHelper] = useState(false)
   
   // AI Features State
   const [showAIFeatures, setShowAIFeatures] = useState(false)
@@ -696,45 +702,86 @@ export default function CreatorDashboard() {
       let videoUrl = ''
       let thumbnailUrl = ''
 
-      // Upload video if provided with progress tracking and pause/resume
+      // Upload video if provided - use enterprise upload for large files
       if (videoFile) {
+        const uploadPath = `content/${authUser.uid}/${Date.now()}_${videoFile.name}`
+
         console.log('📹 Starting video upload:', {
           filename: videoFile.name,
           size: videoFile.size,
-          path: `content/${authUser.uid}/${Date.now()}_${videoFile.name}`
+          path: uploadPath,
+          useEnterprise: useEnterpriseUpload
         })
 
-        const videoRef = ref(storage, `content/${authUser.uid}/${Date.now()}_${videoFile.name}`)
-        const uploadTask = uploadBytesResumable(videoRef, videoFile)
-        setUploadTasks(prev => ({ ...prev, video: uploadTask }))
-
-        await new Promise((resolve, reject) => {
-          uploadTask.on('state_changed',
-            (snapshot) => {
-              const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+        if (useEnterpriseUpload) {
+          // Use enterprise upload service for large files
+          const uploadId = await uploadService.startUpload({
+            file: videoFile,
+            path: uploadPath,
+            onProgress: (progress, bytesTransferred, totalBytes) => {
               setUploadProgress(prev => ({ ...prev, video: Math.round(progress) }))
+            },
+            onSuccess: (downloadURL) => {
+              videoUrl = downloadURL
+              console.log('✅ Enterprise video upload completed:', downloadURL)
+            },
+            maxRetries: 5
+          })
 
-              // Log upload status for large files
-              if (videoFile.size > 100 * 1024 * 1024) { // Log for files > 100MB
-                const mbTransferred = (snapshot.bytesTransferred / (1024 * 1024)).toFixed(1)
-                const mbTotal = (snapshot.totalBytes / (1024 * 1024)).toFixed(1)
-                console.log(`Video upload: ${mbTransferred}MB / ${mbTotal}MB (${Math.round(progress)}%)`)
+          setCurrentUploadId(uploadId)
+
+          // Wait for upload completion
+          const checkUpload = () => {
+            return new Promise<void>((resolve, reject) => {
+              const interval = setInterval(() => {
+                const uploadState = uploadService.getUploadState(uploadId)
+                if (uploadState?.state === 'completed' && uploadState.downloadURL) {
+                  videoUrl = uploadState.downloadURL
+                  clearInterval(interval)
+                  resolve()
+                } else if (uploadState?.state === 'error') {
+                  clearInterval(interval)
+                  reject(new Error(uploadState.error || 'Upload failed'))
+                }
+              }, 1000)
+            })
+          }
+
+          await checkUpload()
+        } else {
+          // Use standard upload for smaller files
+          const videoRef = ref(storage, uploadPath)
+          const uploadTask = uploadBytesResumable(videoRef, videoFile)
+          setUploadTasks(prev => ({ ...prev, video: uploadTask }))
+
+          await new Promise((resolve, reject) => {
+            uploadTask.on('state_changed',
+              (snapshot) => {
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+                setUploadProgress(prev => ({ ...prev, video: Math.round(progress) }))
+
+                // Log upload status for large files
+                if (videoFile.size > 100 * 1024 * 1024) {
+                  const mbTransferred = (snapshot.bytesTransferred / (1024 * 1024)).toFixed(1)
+                  const mbTotal = (snapshot.totalBytes / (1024 * 1024)).toFixed(1)
+                  console.log(`Video upload: ${mbTransferred}MB / ${mbTotal}MB (${Math.round(progress)}%)`)
+                }
+              },
+              (error) => {
+                console.error('Video upload error:', error)
+                setUploadTasks(prev => ({ ...prev, video: null }))
+                reject(error)
+              },
+              async () => {
+                videoUrl = await getDownloadURL(uploadTask.snapshot.ref)
+                console.log('✅ Standard video upload completed:', videoUrl)
+                setUploadProgress(prev => ({ ...prev, video: 100 }))
+                setUploadTasks(prev => ({ ...prev, video: null }))
+                resolve(videoUrl)
               }
-            },
-            (error) => {
-              console.error('Video upload error:', error)
-              setUploadTasks(prev => ({ ...prev, video: null }))
-              reject(error)
-            },
-            async () => {
-              videoUrl = await getDownloadURL(uploadTask.snapshot.ref)
-              console.log('✅ Video upload completed:', videoUrl)
-              setUploadProgress(prev => ({ ...prev, video: 100 }))
-              setUploadTasks(prev => ({ ...prev, video: null }))
-              resolve(videoUrl)
-            }
-          )
-        })
+            )
+          })
+        }
       }
 
       // Upload thumbnail if provided with progress tracking
@@ -1792,8 +1839,9 @@ This can reduce file size by 50-80% without significant quality loss.`)
                         console.log('Video file selected:', file?.name, 'Size:', file?.size ? (file.size / (1024 * 1024)).toFixed(1) + ' MB' : 'N/A')
 
                         if (file) {
-                          const maxSize = 2 * 1024 * 1024 * 1024 // 2GB limit
+                          const maxSize = 10 * 1024 * 1024 * 1024 // 10GB limit with enterprise upload
                           const warningSize = 1 * 1024 * 1024 * 1024 // 1GB warning
+                          const enterpriseThreshold = 500 * 1024 * 1024 // 500MB threshold for enterprise upload
 
                           console.log('File size check:', {
                             fileSize: file.size,
@@ -1804,14 +1852,27 @@ This can reduce file size by 50-80% without significant quality loss.`)
                           })
 
                           if (file.size > maxSize) {
-                            alert('Video file must be less than 2GB. For larger files, please compress the video first.')
+                            alert('Video file must be less than 10GB. For larger files, please compress the video first.')
                             return
+                          }
+
+                          // Enable enterprise upload for large files
+                          if (file.size > enterpriseThreshold) {
+                            setUseEnterpriseUpload(true)
+                            console.log('🚀 Enabling Enterprise Upload for large file')
+                          } else {
+                            setUseEnterpriseUpload(false)
                           }
 
                           if (file.size > warningSize) {
                             const sizeInGB = (file.size / (1024 * 1024 * 1024)).toFixed(1)
+                            const uploadType = file.size > enterpriseThreshold ? 'Enterprise Upload System' : 'Standard Upload'
                             const proceed = confirm(
-                              `Large file detected (${sizeInGB}GB). This may take a while to upload. ` +
+                              `Large file detected (${sizeInGB}GB).\n\n` +
+                              `Upload Type: ${uploadType}\n` +
+                              `Features: ${file.size > enterpriseThreshold ?
+                                'Background processing, auto-retry, session persistence' :
+                                'Basic upload with progress tracking'}\n\n` +
                               'Consider compressing the video for faster upload. Continue anyway?'
                             )
                             if (!proceed) return
@@ -1829,34 +1890,56 @@ This can reduce file size by 50-80% without significant quality loss.`)
                     />
                     <label htmlFor="video-upload" className="cursor-pointer">
                       <span className="text-cardinal font-medium">Choose video file</span>
-                      <p className="text-gray-500 text-sm mt-1">MP4, MOV up to 2GB (1GB+ may take longer) v2.1</p>
+                      <p className="text-gray-500 text-sm mt-1">
+                        MP4, MOV up to 10GB • Auto-Enterprise Upload for 500MB+ files v3.0
+                      </p>
                     </label>
                   </div>
                   {videoFile && (
                     <div className="mt-2 text-sm text-gray-600">
                       <p>Selected: {videoFile.name}</p>
                       <p>Size: {(videoFile.size / (1024 * 1024)).toFixed(1)} MB</p>
-                      {videoFile.size > 100 * 1024 * 1024 && (
+                      {useEnterpriseUpload && (
+                        <div className="bg-blue-50 border border-blue-200 rounded p-2 mt-2">
+                          <p className="text-blue-800 font-medium">🚀 Enterprise Upload Enabled</p>
+                          <p className="text-blue-600 text-xs">
+                            Features: Auto-retry, background processing, session persistence
+                          </p>
+                        </div>
+                      )}
+                      {videoFile.size > 100 * 1024 * 1024 && !useEnterpriseUpload && (
                         <p className="text-amber-600 font-medium">
                           ⚠️ Large file - upload will take longer
                         </p>
                       )}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          console.log('🧪 Test upload flow:', {
-                            videoFile: videoFile,
-                            fileName: videoFile?.name,
-                            fileSize: videoFile?.size,
-                            authUser: authUser?.uid,
-                            storageRef: storage
-                          })
-                          alert(`Upload Test:\n\nFile: ${videoFile.name}\nSize: ${(videoFile.size / (1024 * 1024)).toFixed(1)} MB\nAuth: ${authUser?.uid}\n\nCheck console for details.`)
-                        }}
-                        className="mt-1 px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
-                      >
-                        Test Upload Flow
-                      </button>
+                      <div className="flex gap-2 mt-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            console.log('🧪 Test upload flow:', {
+                              videoFile: videoFile,
+                              fileName: videoFile?.name,
+                              fileSize: videoFile?.size,
+                              authUser: authUser?.uid,
+                              storageRef: storage,
+                              useEnterprise: useEnterpriseUpload
+                            })
+                            alert(`Upload Test:\n\nFile: ${videoFile.name}\nSize: ${(videoFile.size / (1024 * 1024)).toFixed(1)} MB\nAuth: ${authUser?.uid}\nEnterprise: ${useEnterpriseUpload}\n\nCheck console for details.`)
+                          }}
+                          className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
+                        >
+                          Test Upload Flow
+                        </button>
+                        {videoFile.size > 100 * 1024 * 1024 && (
+                          <button
+                            type="button"
+                            onClick={() => setShowCompressionHelper(true)}
+                            className="px-2 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600"
+                          >
+                            Compress Video
+                          </button>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -2201,6 +2284,35 @@ This can reduce file size by 50-80% without significant quality loss.`)
           </div>
         )}
         </div>
+
+        {/* Enterprise Upload Manager - appears when uploads are active */}
+        <UploadManager
+          onUploadComplete={(uploadId, downloadURL) => {
+            console.log('Upload completed in manager:', { uploadId, downloadURL })
+            // Auto-fill the video URL if this is for the current lesson
+            if (uploadId === currentUploadId) {
+              setVideoFile(null) // Clear the file since it's been uploaded
+              // Note: In a real implementation, you'd want to store this URL
+              // and use it when creating the lesson
+            }
+          }}
+        />
+
+        {/* Video Compression Helper Modal */}
+        {showCompressionHelper && videoFile && (
+          <VideoCompressionHelper
+            file={videoFile}
+            onCompressed={(compressedFile) => {
+              setVideoFile(compressedFile)
+              setShowCompressionHelper(false)
+              console.log('Video compressed:', {
+                original: videoFile.size,
+                compressed: compressedFile.size,
+                reduction: ((videoFile.size - compressedFile.size) / videoFile.size * 100).toFixed(1) + '%'
+              })
+            }}
+          />
+        )}
       </main>
     </CreatorAccessGate>
   )
