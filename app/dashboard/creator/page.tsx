@@ -1892,7 +1892,7 @@ This can reduce file size by 50-80% without significant quality loss.`)
                     <label htmlFor="video-upload" className="cursor-pointer">
                       <span className="text-cardinal font-medium">Choose video file</span>
                       <p className="text-gray-500 text-sm mt-1">
-                        MP4, MOV up to 10GB • Auto-Enterprise Upload for 500MB+ files v4.0
+                        MP4, MOV up to 10GB • Auto-Enterprise Upload for 500MB+ files v4.1
                       </p>
                     </label>
                   </div>
@@ -1934,7 +1934,14 @@ This can reduce file size by 50-80% without significant quality loss.`)
                         {videoFile.size > 100 * 1024 * 1024 && (
                           <button
                             type="button"
-                            onClick={() => setShowCompressionHelper(true)}
+                            onClick={() => {
+                              console.log('🗜️ Opening compression helper...', {
+                                fileSize: videoFile.size,
+                                fileName: videoFile.name,
+                                currentState: showCompressionHelper
+                              })
+                              setShowCompressionHelper(true)
+                            }}
                             className="px-2 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600"
                           >
                             Compress Video
@@ -2314,6 +2321,14 @@ This can reduce file size by 50-80% without significant quality loss.`)
             }}
           />
         )}
+
+        {/* Debug compression helper state */}
+        {console.log('🗜️ Compression helper state:', {
+          showCompressionHelper,
+          hasVideoFile: !!videoFile,
+          videoFileName: videoFile?.name,
+          shouldShow: showCompressionHelper && videoFile
+        })}
       </main>
     </CreatorAccessGate>
   )
