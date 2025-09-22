@@ -816,29 +816,51 @@ export default function CreatorDashboard() {
       if (currentDescription.length < 100) {
         enhanced = `${currentDescription}
 
-This comprehensive ${selectedSport} lesson on "${currentTitle}" covers ${titleAnalysis.primaryFocus} through ${titleAnalysis.trainingType}.
+## Lesson Overview
+This comprehensive ${selectedSport} lesson on "${currentTitle}" focuses on ${titleAnalysis.primaryFocus} through ${titleAnalysis.trainingType}. Drawing from elite-level coaching experience, this session will develop the specific skills needed to excel in this area.
 
-**Key Skills You'll Master:**
-${titleAnalysis.keySkills.slice(0, 4).map(skill => `• ${skill}`).join('\n')}
+### Key Skills You'll Master:
+${titleAnalysis.keySkills.slice(0, 4).map(skill => `• **${skill}**: Focus on precise execution and consistent application`).join('\n')}
 
-${titleAnalysis.techniques.length > 0 ? `**Specific Techniques:**
-${titleAnalysis.techniques.slice(0, 3).map(technique => `• ${technique}`).join('\n')}
+${titleAnalysis.techniques.length > 0 ? `### Specific Techniques You'll Learn:
+${titleAnalysis.techniques.slice(0, 3).map(technique => `• **${technique}**: Master the fundamental mechanics and timing`).join('\n')}
 
-` : ''}**What's Included:**
-• Step-by-step technique breakdown specifically for "${currentTitle}"
-• Common mistakes and corrections for ${titleAnalysis.keySkills[0] || 'these skills'}
-• Progressive practice drills designed for ${titleAnalysis.trainingType.toLowerCase()}
-• Real-world application scenarios for ${selectedSport} competition
-• Safety considerations and injury prevention
+` : ''}### What's Included:
+• **Technical Breakdown**: Step-by-step instruction specifically for "${currentTitle}"
+• **Common Mistakes**: Identify and correct errors in ${titleAnalysis.keySkills[0] || 'these skills'}
+• **Practice Drills**: Progressive exercises designed for ${titleAnalysis.trainingType.toLowerCase()}
+• **Game Application**: Real-world scenarios for ${selectedSport} competition
+• **Safety & Tips**: Injury prevention and performance optimization
 
-Perfect for ${watch('level')?.toLowerCase() || 'all skill levels'}, this lesson combines expert coaching with practical application to ensure lasting improvement in ${titleAnalysis.primaryFocus.toLowerCase()}.`
+### Prerequisites:
+• Basic understanding of ${selectedSport} fundamentals
+• Appropriate fitness level for ${watch('level')?.toLowerCase() || 'your skill level'}
+• Required equipment and proper training environment
+
+Perfect for ${watch('level')?.toLowerCase() || 'all skill levels'}, this lesson combines theoretical understanding with practical application to ensure lasting improvement and technical mastery in ${titleAnalysis.primaryFocus.toLowerCase()}.
+
+*This detailed content helps athletes understand exactly what they'll learn and coaches can use it for reference.*`
       } else {
         enhanced = `${currentDescription}
 
-**Enhanced with ${currentTitle} Focus:**
-${titleAnalysis.keySkills.slice(0, 3).map(skill => `• ${skill} development`).join('\n')}
+## Enhanced Training Focus: ${currentTitle}
 
-Includes detailed explanations, progressive skill-building exercises, and sport-specific applications designed for ${titleAnalysis.primaryFocus.toLowerCase()} in ${selectedSport}. This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes through systematic, expert-guided instruction.`
+### Additional Key Skills Development:
+${titleAnalysis.keySkills.slice(0, 3).map(skill => `• **${skill}**: Advanced progression and refinement techniques`).join('\n')}
+
+${titleAnalysis.techniques.length > 0 ? `### Advanced Techniques:
+${titleAnalysis.techniques.slice(0, 2).map(technique => `• **${technique}**: Elite-level execution and application`).join('\n')}
+
+` : ''}### Enhanced Content Includes:
+• **Detailed Explanations**: In-depth analysis of technique mechanics
+• **Progressive Skill-Building**: Systematic exercises for continuous improvement
+• **Sport-Specific Applications**: Direct application to ${selectedSport} competition
+• **Performance Optimization**: Methods designed for ${titleAnalysis.primaryFocus.toLowerCase()}
+• **Expert Guidance**: Championship-level coaching insights and methodology
+
+This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes through systematic, expert-guided instruction tailored specifically for "${currentTitle}" mastery.
+
+*Enhanced with professional coaching methodology and proven training principles.*`
       }
 
       reset({

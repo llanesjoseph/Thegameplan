@@ -41,7 +41,12 @@
       "Bash(\"C:\\Program Files (x86)\\Google\\Cloud SDK\\google-cloud-sdk\\bin\\gcloud.cmd\" functions get-iam-policy aiCoaching --region=us-central1 --project=gameplan-787a2)",
       "Bash(firebase functions:config:unset:*)",
       "Bash(./redeploy-public.bat)",
-      "Bash(git rm:*)"
+      "Bash(git rm:*)",
+      "Bash(__NEW_LINE__ **Key Skills You'll Master:**\n• Technical Development\n• Tactical Understanding\n\n**What's Included:**)",
+      "Bash(• Step-by-step technique breakdown specifically for 'Team Communication in football')",
+      "Bash(• Common mistakes and corrections for Technical Development)",
+      "Bash(• Progressive practice drills designed for technical training)",
+      "Bash(• Real-world application scenarios for football competition\"\n\n### Smart Enhancement Logic:\n- **Title Analysis**: Extracts concepts from exact lesson title\n- **Sport-Specific Content**: Different enhancement for football vs soccer\n- **Skill Extraction**: Identifies relevant skills from title keywords\n- **Context Integration**: Uses sport + title + skills for relevant content\n\n### Validation & UX:\n- **Input Validation**: Requires both title and description before enhancement\n- **Sport Requirement**: Must select sport for context-aware enhancement\n- **Progressive Enhancement**: Works with both short and long descriptions\n\n🤖 Generated with [Claude Code](https://claude.ai/code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
     ],
     "deny": [],
     "ask": []
