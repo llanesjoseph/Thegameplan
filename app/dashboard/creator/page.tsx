@@ -1458,37 +1458,33 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
                           setGeneratingIdeas(true)
 
                           try {
-                            // Use the robust content generation service
-                            const { generateLessonContent } = await import('@/lib/content-generation-service')
+                            // Check if there's existing content to enhance
+                            if (detailedWriteup && detailedWriteup.trim().length > 0) {
+                              // ENHANCE existing content instead of replacing
+                              const { enhanceExistingContent } = await import('@/lib/content-generation-service')
 
-                            const generatedContent = await generateLessonContent({
-                              title: currentTitle,
-                              sport: currentSport,
-                              creatorId: authUser?.email || 'default',
-                              skillLevel: 'intermediate', // Default for now, could be user-selectable
-                              focus: 'comprehensive',
-                              duration: 30,
-                              safetyLevel: 'high'
-                            })
+                              const enhancedContent = enhanceExistingContent(
+                                detailedWriteup,
+                                currentTitle,
+                                currentSport,
+                                'intermediate' // Could be user-selectable in future
+                              )
 
-                            setDetailedWriteup(generatedContent.detailedWriteup)
+                              setDetailedWriteup(enhancedContent)
 
-                            // Optional: Show success message with additional insights
-                            console.log('Generated content insights:', {
-                              keyTechniques: generatedContent.keyTechniques,
-                              safetyNotes: generatedContent.safetyNotes,
-                              expertInsights: generatedContent.expertInsights
-                            })
+                              console.log('Enhanced existing content for:', {
+                                title: currentTitle,
+                                sport: currentSport,
+                                previousLength: detailedWriteup.length,
+                                newLength: enhancedContent.length
+                              })
 
-                          } catch (error) {
-                            console.error('Content generation failed:', error)
+                              alert('Content enhanced successfully! Added missing sections and improved details.')
+                            } else {
+                              // Generate new content if nothing exists
+                              const { generateLessonContent } = await import('@/lib/content-generation-service')
 
-                            // Use our enhanced content generation service for fallback
-                            const { generateLessonContent } = await import('@/lib/content-generation-service')
-
-                            try {
-                              // Try to use the enhanced fallback system from the service
-                              const fallbackContent = await generateLessonContent({
+                              const generatedContent = await generateLessonContent({
                                 title: currentTitle,
                                 sport: currentSport,
                                 creatorId: authUser?.email || 'default',
@@ -1497,20 +1493,45 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
                                 duration: 30,
                                 safetyLevel: 'high'
                               })
-                              setDetailedWriteup(fallbackContent.detailedWriteup)
-                            } catch (fallbackError) {
-                              // If service also fails, use local enhanced fallback
-                              const localFallback = generateSportSpecificFallback(currentTitle, currentSport)
-                              setDetailedWriteup(localFallback)
+
+                              setDetailedWriteup(generatedContent.detailedWriteup)
+
+                              console.log('Generated new content for:', {
+                                title: currentTitle,
+                                sport: currentSport
+                              })
+
+                              alert('New comprehensive lesson content generated!')
                             }
 
-                            // Log what we analyzed from the title for debugging
-                            console.log('Enhanced content generated for:', {
-                              title: currentTitle,
-                              sport: currentSport
-                            })
+                          } catch (error) {
+                            console.error('Content enhancement/generation failed:', error)
 
-                            alert('AI generation temporarily unavailable. Generated comprehensive template based on sports expertise.')
+                            // Fallback enhancement for existing content
+                            if (detailedWriteup && detailedWriteup.trim().length > 0) {
+                              try {
+                                const { enhanceExistingContent } = await import('@/lib/content-generation-service')
+                                const enhancedContent = enhanceExistingContent(
+                                  detailedWriteup,
+                                  currentTitle,
+                                  currentSport,
+                                  'intermediate'
+                                )
+                                setDetailedWriteup(enhancedContent)
+                                alert('Content enhanced with sport-specific details!')
+                              } catch (enhanceError) {
+                                alert('Enhancement failed. Please check your content and try again.')
+                              }
+                            } else {
+                              // Fallback generation for new content
+                              try {
+                                const localFallback = generateSportSpecificFallback(currentTitle, currentSport)
+                                setDetailedWriteup(localFallback)
+                                alert('Generated basic template. Use enhance function to improve further.')
+                              } catch (fallbackError) {
+                                alert('Content generation failed. Please try again.')
+                              }
+                            }
                           } finally {
                             setGeneratingIdeas(false)
                           }
@@ -1521,12 +1542,21 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
                         {generatingIdeas ? (
                           <>
                             <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin"></div>
-                            Generating...
+                            {detailedWriteup && detailedWriteup.trim().length > 0 ? 'Enhancing...' : 'Generating...'}
                           </>
                         ) : (
                           <>
-                            <FileText className="w-3 h-3" />
-                            Generate Writeup
+                            {detailedWriteup && detailedWriteup.trim().length > 0 ? (
+                              <>
+                                <Wand2 className="w-3 h-3" />
+                                Enhance Content
+                              </>
+                            ) : (
+                              <>
+                                <FileText className="w-3 h-3" />
+                                Generate Writeup
+                              </>
+                            )}
                           </>
                         )}
                       </button>

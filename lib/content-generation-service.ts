@@ -1308,6 +1308,108 @@ export function demonstrateDynamicTemplates(): void {
   })
 }
 
+/**
+ * Enhance existing content with additional details and structure
+ */
+export function enhanceExistingContent(
+  existingContent: string,
+  title: string,
+  sport: string,
+  skillLevel: string = 'intermediate'
+): string {
+  const sportContext = getSportContext(sport)
+  const titleAnalysis = analyzeLessonTitle(title, sport)
+
+  // Analyze what's already in the content
+  const hasKeySkills = existingContent.toLowerCase().includes('key skills') || existingContent.toLowerCase().includes('skills you\'ll master')
+  const hasTechnicalBreakdown = existingContent.toLowerCase().includes('technical breakdown') || existingContent.toLowerCase().includes('technical')
+  const hasSafety = existingContent.toLowerCase().includes('safety')
+  const hasExpertTips = existingContent.toLowerCase().includes('expert') || existingContent.toLowerCase().includes('tips')
+  const hasCommonMistakes = existingContent.toLowerCase().includes('common mistakes') || existingContent.toLowerCase().includes('mistakes')
+
+  let enhancedContent = existingContent
+
+  // Add missing key skills section
+  if (!hasKeySkills && titleAnalysis.keySkills.length > 0) {
+    enhancedContent += `\n\n## Key Skills You'll Master\n\n${titleAnalysis.keySkills.map(skill => `• **${skill}**: Essential for ${title.toLowerCase()} development`).join('\n')}`
+  }
+
+  // Add missing technical breakdown
+  if (!hasTechnicalBreakdown) {
+    enhancedContent += `\n\n## Technical Breakdown\n\n### Fundamental Principles\n\n• **Progressive Development**: Build skills systematically through structured practice\n• **Technical Precision**: Focus on proper form and execution\n• **Contextual Application**: Understand when and how to apply techniques\n• **Safety First**: Maintain proper protocols throughout training`
+  }
+
+  // Add missing specific techniques section
+  if (titleAnalysis.techniques.length > 0 && !existingContent.toLowerCase().includes('specific techniques')) {
+    enhancedContent += `\n\n## Specific Techniques You'll Master\n\n${titleAnalysis.techniques.map(technique => `• **${technique}**: Key component for ${title.toLowerCase()} success`).join('\n')}`
+  }
+
+  // Add missing safety section
+  if (!hasSafety) {
+    const safetyPoints = sportContext.safetyConsiderations.slice(0, 4)
+    enhancedContent += `\n\n## Safety Considerations\n\n${safetyPoints.map(safety => `• ${safety}`).join('\n')}`
+  }
+
+  // Add missing expert insights
+  if (!hasExpertTips) {
+    const expertTips = sportContext.expertTips.slice(0, 3)
+    enhancedContent += `\n\n## Expert Insights\n\n${expertTips.map(tip => `• ${tip}`).join('\n')}`
+  }
+
+  // Add missing common mistakes section
+  if (!hasCommonMistakes) {
+    const commonMistakes = sportContext.commonMistakes.slice(0, 3)
+    enhancedContent += `\n\n## Common Mistakes to Avoid\n\n${commonMistakes.map(mistake => `• ${mistake}`).join('\n')}`
+  }
+
+  // Add training progression if missing
+  if (!existingContent.toLowerCase().includes('progression') && !existingContent.toLowerCase().includes('training')) {
+    enhancedContent += `\n\n## Training Progression\n\n### ${skillLevel.charAt(0).toUpperCase() + skillLevel.slice(1)} Level Focus\n\n1. **Foundation Building**: Master basic movements and positions\n2. **Skill Development**: Build technical proficiency through repetition\n3. **Application Practice**: Apply skills in realistic scenarios\n4. **Performance Refinement**: Polish technique and timing`
+  }
+
+  return enhancedContent
+}
+
+/**
+ * Generate dynamic enhancement prompt for AI-powered content improvement
+ */
+export function generateEnhancementPrompt(
+  existingContent: string,
+  title: string,
+  sport: string,
+  skillLevel: string = 'intermediate'
+): string {
+  const titleAnalysis = analyzeLessonTitle(title, sport)
+
+  return `You are an expert ${sport} coach. Enhance and improve the following lesson content for "${title}" at the ${skillLevel} level.
+
+EXISTING CONTENT:
+${existingContent}
+
+ENHANCEMENT REQUIREMENTS:
+1. **Preserve all existing content** - Do not remove anything
+2. **Add detailed explanations** where content seems brief or unclear
+3. **Improve structure and formatting** with proper headers and bullet points
+4. **Add missing technical details** specific to "${title}"
+5. **Include progressive skill development** appropriate for ${skillLevel} level
+6. **Enhance safety information** relevant to ${sport}
+7. **Add practical application examples** and training scenarios
+
+FOCUS AREAS TO ENHANCE:
+- Key Skills: ${titleAnalysis.keySkills.join(', ')}
+- Specific Techniques: ${titleAnalysis.techniques.join(', ')}
+- Training Type: ${titleAnalysis.trainingType}
+
+FORMATTING REQUIREMENTS:
+- Use proper markdown headers (##, ###)
+- Add blank lines between sections
+- Use bullet points (•) for lists
+- Bold important terms with **text**
+- Keep professional, coaching tone
+
+Make the content more comprehensive, detailed, and actionable while maintaining everything that's already there.`
+}
+
 export function generateContentIdeas(sport: string, count: number = 10): string[] {
   const sportContext = getSportContext(sport)
   const ideas: string[] = []
