@@ -152,6 +152,10 @@ function analyzeLessonTitle(title: string, sport: string): {
     if (lowerTitle.includes('triangle')) techniques.push('Angle Creation', 'Leg Positioning')
     if (lowerTitle.includes('choke')) techniques.push('Collar Control', 'Finishing Mechanics')
     if (lowerTitle.includes('sweep')) techniques.push('Off-Balancing', 'Leverage Points')
+    if (lowerTitle.includes('kimura')) {
+      keySkills.push('Shoulder Control', 'Grip Fighting')
+      techniques.push('Figure-Four Grip', 'Shoulder Isolation', 'Lock Mechanics')
+    }
   } else if (sport.toLowerCase() === 'mma' || sport.toLowerCase() === 'mixed martial arts') {
     // MMA skill extraction
     if (lowerTitle.includes('striking')) keySkills.push('Stand-up Technique', 'Range Management')
@@ -206,6 +210,7 @@ function generateSportSpecificFallback(title: string, sport: string): string {
   // Use the same title analysis system as the main content generator
   const titleAnalysis = analyzeLessonTitle(title, sport)
   const sportLowercase = sport.toLowerCase()
+
 
   // Default coach context for fallback
   const coachingContext = { coachName: 'Coach Johnson', voiceCharacteristics: { catchphrases: ['Perfect practice makes perfect!'] } }
