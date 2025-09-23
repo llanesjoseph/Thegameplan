@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils'
 interface ClarityButtonProps {
   children: React.ReactNode
   className?: string
-  variant?: 'primary' | 'secondary' | 'ghost'
+  variant?: 'primary' | 'secondary' | 'ghost' | 'orange' | 'plum'
   size?: 'sm' | 'md' | 'lg'
   disabled?: boolean
   onClick?: () => void
@@ -24,12 +24,14 @@ const ClarityButton: React.FC<ClarityButtonProps> = ({
   icon,
   loading = false
 }) => {
-  const baseClasses = 'rounded-lg font-semibold inline-flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-cardinal disabled:opacity-50'
-  
+  const baseClasses = 'rounded-lg font-semibold inline-flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-sky-blue disabled:opacity-50'
+
   const variantClasses = {
-    primary: 'bg-cardinal text-white hover:bg-cardinal-dark',
-    secondary: 'bg-gray-100 text-gray-800 border border-gray-300 hover:bg-gray-200',
-    ghost: 'bg-transparent text-gray-600 hover:text-gray-800 hover:bg-gray-100'
+    primary: 'bg-sky-blue text-white hover:bg-primary-600',
+    secondary: 'bg-cream text-dark border border-sky-blue/30 hover:bg-sky-blue/10',
+    ghost: 'bg-transparent text-dark hover:text-sky-blue hover:bg-sky-blue/10',
+    orange: 'bg-orange text-white hover:bg-secondary-700',
+    plum: 'bg-deep-plum text-white hover:bg-deep-plum-dark'
   }
   
   const sizeClasses = {

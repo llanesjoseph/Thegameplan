@@ -1,19 +1,19 @@
-@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@700&display=swap');
 @tailwind base;
 
-/* Tailwind base reset is handled by Next/Tailwind; keep minimal global styles */
+/* Game Plan Global Styles */
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
 body {
-  font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   line-height: 1.625;
-  color: #1F2937; /* gray-800 */
-  background-color: #F9FAFB; /* gray-50 */
+  color: #624A41; /* Dark */
+  background-color: #E8E6D8; /* Cream background */
 }
 
-/* Basic button styles */
-.btn { display: inline-block; padding: 12px 24px; background-color: #8C1515; color: white; text-decoration: none; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; transition: background-color 0.2s ease; }
-.btn:hover { background-color: #7A1212; }
+/* Game Plan Button Styles with New Color Palette */
+.btn { display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, #91A6EB 0%, #892F1A 100%); color: white; text-decoration: none; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(145, 166, 235, 0.25); }
+.btn:hover { background: linear-gradient(135deg, #7b93e3 0%, #7a2717 100%); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(145, 166, 235, 0.35); }
 
 /* Container */
 .container {
@@ -336,49 +336,49 @@ body {
   padding-top: 4rem;
 }
 
-/* Colors */
+/* NEW Game Plan Color System */
 .clarity-background {
-  background-color: #f8f9fa;
+  background-color: #E8E6D8; /* Cream */
 }
 
 .clarity-surface {
-  background-color: #ffffff;
+  background-color: #FFFFFF; /* White surfaces */
 }
 
 .clarity-text-primary {
-  color: #333333;
+  color: #624A41; /* Dark */
 }
 
 .clarity-text-secondary {
-  color: #555555;
+  color: #5A2C59; /* Deep Plum (keeping) */
 }
 
 .clarity-accent {
-  color: #8C1515;
+  color: #91A6EB; /* Sky Blue */
 }
 
 .bg-clarity-background {
-  background-color: #f8f9fa;
+  background-color: #E8E6D8; /* Cream */
 }
 
 .bg-clarity-surface {
-  background-color: #ffffff;
+  background-color: #FFFFFF; /* White surfaces */
 }
 
 .bg-clarity-accent {
-  background-color: #8C1515;
+  background-color: #91A6EB; /* Sky Blue */
 }
 
 .text-clarity-text-primary {
-  color: #333333;
+  color: #624A41; /* Dark */
 }
 
 .text-clarity-text-secondary {
-  color: #555555;
+  color: #5A2C59; /* Deep Plum (keeping) */
 }
 
 .text-clarity-accent {
-  color: #8C1515;
+  color: #91A6EB; /* Sky Blue */
 }
 
 /* Enhanced utilities for professional design */
@@ -475,7 +475,7 @@ body {
 }
 
 .via-clarity-background {
-  --tw-gradient-stops: var(--tw-gradient-from), #F8F9FA, var(--tw-gradient-to, rgba(248, 249, 250, 0));
+  --tw-gradient-stops: var(--tw-gradient-from), #FFFFFF, var(--tw-gradient-to, rgba(255, 255, 255, 0));
 }
 
 .to-clarity-surface\/50 {
@@ -491,14 +491,14 @@ body {
   --tw-gradient-to: transparent;
 }
 
-/* Professional button styles */
+/* Game Plan professional button styles with NEW Color Palette */
 .btn-primary {
-  background: linear-gradient(135deg, #8C1515 0%, #b01e1e 100%);
+  background: linear-gradient(135deg, #91A6EB 0%, #892F1A 100%);
   color: white;
   padding: 12px 24px;
   border-radius: 16px;
   font-weight: 600;
-  box-shadow: 0 4px 12px rgba(140, 21, 21, 0.24);
+  box-shadow: 0 4px 12px rgba(145, 166, 235, 0.24);
   transition: all 0.3s ease;
   border: none;
   cursor: pointer;
@@ -506,24 +506,37 @@ body {
 
 .btn-primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 8px 24px rgba(140, 21, 21, 0.32);
-  background: linear-gradient(135deg, #9c1818 0%, #c02222 100%);
+  box-shadow: 0 8px 24px rgba(145, 166, 235, 0.32);
+  background: linear-gradient(135deg, #7b93e3 0%, #7a2717 100%);
 }
 
 .btn-secondary {
   background: transparent;
-  color: #8C1515;
+  color: #91A6EB;
   padding: 12px 24px;
   border-radius: 16px;
   font-weight: 600;
-  border: 2px solid rgba(140, 21, 21, 0.2);
+  border: 2px solid rgba(145, 166, 235, 0.2);
   transition: all 0.3s ease;
   cursor: pointer;
 }
 
 .btn-secondary:hover {
-  background: rgba(140, 21, 21, 0.05);
-  border-color: rgba(140, 21, 21, 0.4);
+  background: rgba(145, 166, 235, 0.05);
+  border-color: rgba(145, 166, 235, 0.4);
+  color: #7b93e3;
+}
+
+.btn-plum {
+  background: linear-gradient(135deg, #5A2C59 0%, #892F1A 100%);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 16px;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(90, 44, 89, 0.24);
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
 }
 
 /* Enhanced spacing utilities */
@@ -553,23 +566,23 @@ body {
 
 /* Professional input styles */
 .input-primary {
-  background: rgba(248, 249, 250, 0.5);
-  border: 1px solid rgba(85, 85, 85, 0.2);
+  background: rgba(90, 44, 89, 0.05); /* Light Deep Plum background */
+  border: 1px solid rgba(90, 44, 89, 0.3); /* Deep Plum border */
   border-radius: 16px;
   padding: 16px;
   outline: none;
   transition: all 0.3s ease;
-  color: #333333;
+  color: #333333; /* Charcoal text */
 }
 
 .input-primary:focus {
-  border-color: rgba(140, 21, 21, 0.3);
+  border-color: rgba(140, 21, 21, 0.3); /* Cardinal Red focus */
   box-shadow: 0 0 0 3px rgba(140, 21, 21, 0.1);
   background: white;
 }
 
 .input-primary::placeholder {
-  color: rgba(85, 85, 85, 0.6);
+  color: rgba(90, 44, 89, 0.6); /* Deep Plum placeholder */
 }
 
 /* Animation utilities */
@@ -607,7 +620,7 @@ body {
   transform: scale(1.02);
 }
 
-/* Animated abstract background for the homepage */
+/* Game Plan animated background */
 .nexus-bg {
   position: fixed;
   inset: 0;
@@ -615,8 +628,8 @@ body {
   pointer-events: none;
   overflow: hidden;
   background: radial-gradient(600px 600px at 15% 20%, rgba(140, 21, 21, 0.08), transparent 60%),
-              radial-gradient(500px 500px at 85% 25%, rgba(88, 28, 135, 0.08), transparent 60%),
-              radial-gradient(700px 700px at 40% 85%, rgba(14, 165, 233, 0.08), transparent 60%);
+              radial-gradient(500px 500px at 85% 25%, rgba(90, 44, 89, 0.08), transparent 60%),
+              radial-gradient(700px 700px at 40% 85%, rgba(32, 178, 170, 0.08), transparent 60%);
   animation: bg-drift 30s ease-in-out infinite alternate;
 }
 
@@ -640,13 +653,13 @@ body {
 .shape.triangle { clip-path: polygon(50% 0%, 0% 100%, 100% 100%); }
 .shape.hexagon { clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%); }
 
-/* Distribute shapes and animate them at different speeds */
+/* Game Plan shapes with color palette */
 .geometric-shapes .shape:nth-child(1) { top: 10%; left: 8%; width: 220px; height: 220px; --shape-color: #8C1515; animation: float-a 22s ease-in-out infinite; }
-.geometric-shapes .shape:nth-child(2) { top: 18%; right: 10%; width: 180px; height: 160px; --shape-color: #581c87; animation: float-b 26s ease-in-out infinite; }
-.geometric-shapes .shape:nth-child(3) { bottom: 18%; left: 12%; width: 260px; height: 220px; --shape-color: #0ea5e9; animation: float-c 28s ease-in-out infinite; }
-.geometric-shapes .shape:nth-child(4) { top: 55%; right: 20%; width: 180px; height: 180px; --shape-color: #8C1515; animation: float-b 24s ease-in-out infinite reverse; }
-.geometric-shapes .shape:nth-child(5) { top: 30%; left: 45%; width: 160px; height: 140px; --shape-color: #581c87; animation: float-c 30s ease-in-out infinite reverse; }
-.geometric-shapes .shape:nth-child(6) { bottom: 8%; right: 8%; width: 220px; height: 200px; --shape-color: #0ea5e9; animation: float-a 32s ease-in-out infinite; }
+.geometric-shapes .shape:nth-child(2) { top: 18%; right: 10%; width: 180px; height: 160px; --shape-color: #5A2C59; animation: float-b 26s ease-in-out infinite; }
+.geometric-shapes .shape:nth-child(3) { bottom: 18%; left: 12%; width: 260px; height: 220px; --shape-color: #20B2AA; animation: float-c 28s ease-in-out infinite; }
+.geometric-shapes .shape:nth-child(4) { top: 55%; right: 20%; width: 180px; height: 180px; --shape-color: #8D9440; animation: float-b 24s ease-in-out infinite reverse; }
+.geometric-shapes .shape:nth-child(5) { top: 30%; left: 45%; width: 160px; height: 140px; --shape-color: #5A2C59; animation: float-c 30s ease-in-out infinite reverse; }
+.geometric-shapes .shape:nth-child(6) { bottom: 8%; right: 8%; width: 220px; height: 200px; --shape-color: #20B2AA; animation: float-a 32s ease-in-out infinite; }
 
 @keyframes float-a {
   0% { transform: translateY(0) translateX(0) rotate(0deg); }
@@ -700,9 +713,37 @@ body {
   100% { background-position: 0 0; }
 }
 
-/* AI Response Formatting */
+/* Game Plan Container Utility */
+.clarity-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+@media (min-width: 640px) {
+  .clarity-container {
+    padding: 0 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .clarity-container {
+    padding: 0 2rem;
+  }
+}
+
+/* Game Plan Gradient Text Utility */
+.clarity-gradient-text {
+  background: linear-gradient(135deg, #8C1515 0%, #5A2C59 50%, #20B2AA 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Game Plan AI Response Formatting */
 .ai-response-content {
-  color: #4B5563;
+  color: #5A2C59; /* Deep Plum for content */
 }
 
 .ai-response-content p {
@@ -712,12 +753,12 @@ body {
 
 .ai-response-content strong {
   font-weight: 600;
-  color: #8C1515;
+  color: #8C1515; /* Cardinal Red for emphasis */
 }
 
 .ai-response-content em {
   font-style: italic;
-  color: #64748B;
+  color: #8D9440; /* Moss Green for italics */
 }
 
 .ai-response-content ul {

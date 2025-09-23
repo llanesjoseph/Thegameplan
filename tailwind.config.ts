@@ -4,44 +4,103 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Stanford Cardinal Design System
-        cardinal: '#8C1515',
-        'cardinal-dark': '#7A1212',
-        'text-dark': '#1F2937',
-        'text-medium': '#4B5563',
-        'background-light': '#F9FAFB',
+        // NEW Game Plan Color System
+        'cream': '#E8E6D8',
+        'sky-blue': '#91A6EB',
+        'orange': '#892F1A',
+        'green': '#BDAF62',
+        'dark': '#624A41',
 
-        // Legacy colors for backward compatibility
+        // Legacy colors (keeping plum)
+        'deep-plum': '#5A2C59',
+        'cardinal-red': '#8C1515',
+        'vibrant-teal': '#20B2AA',
+        'moss-green': '#8D9440',
+        'warm-cream': '#FFFDD0',
+        'charcoal': '#333333',
+        'light-gray': '#F5F5F5',
+
+        // Primary theme colors (Sky Blue based)
+        primary: {
+          50: '#f0f4ff',
+          100: '#e0e9ff',
+          200: '#c7d8ff',
+          300: '#a5c0ff',
+          400: '#91A6EB', // Sky Blue
+          500: '#7b93e3',
+          600: '#6882db',
+          700: '#5570c7',
+          800: '#475fa0',
+          900: '#3d507f',
+        },
+        secondary: {
+          50: '#fdf6f3',
+          100: '#fbeae4',
+          200: '#f6d0c4',
+          300: '#efac95',
+          400: '#e67e5e',
+          500: '#df5a37',
+          600: '#892F1A', // Orange
+          700: '#7a2717',
+          800: '#662115',
+          900: '#541e15',
+        },
+        accent: {
+          50: '#fcfdf9',
+          100: '#f7f9f0',
+          200: '#eef2de',
+          300: '#e0e7c4',
+          400: '#ced8a4',
+          500: '#BDAF62', // Green
+          600: '#a99954',
+          700: '#8f7e45',
+          800: '#76683b',
+          900: '#635633',
+        },
+        tertiary: {
+          50: '#f6f3f1',
+          100: '#ebe5e0',
+          200: '#d6c9be',
+          300: '#bfa595',
+          400: '#a48169',
+          500: '#8d6b50',
+          600: '#624A41', // Dark
+          700: '#533d35',
+          800: '#46342e',
+          900: '#3d2e28',
+        },
+
+        // Updated clarity system with new Game Plan colors + Plum accents
         clarity: {
-          background: '#F8F9FA',
+          background: '#E8E6D8', // Cream
           surface: '#FFFFFF',
           text: {
-            primary: '#333333',
-            secondary: '#555555'
+            primary: '#624A41', // Dark
+            secondary: '#5A2C59' // Deep Plum (keeping)
           },
-          accent: '#8C1515', // Updated to Stanford Cardinal
-          success: '#28A745',
+          accent: '#91A6EB', // Sky Blue as primary accent
+          secondary: '#892F1A', // Orange as secondary
+          success: '#BDAF62', // Green
           error: '#DC3545',
-          warning: '#FFC107'
+          warning: '#892F1A', // Orange
+          plum: '#5A2C59' // Keep plum as special accent
         },
-        'clarity-dark': {
-          background: '#121212',
-          surface: '#1E1E1E',
-          text: {
-            primary: '#E0E0E0',
-            secondary: '#ADB5BD'
-          },
-          accent: '#8C1515',
-          success: '#28A745',
-          error: '#DC3545',
-          warning: '#FFC107'
-        }
+
+        // Legacy compatibility with Deep Plum emphasis
+        cardinal: '#8C1515',
+        'cardinal-dark': '#7A1212',
+        'deep-plum-light': '#8a668d',
+        'deep-plum-dark': '#4a2349',
+        'text-dark': '#333333',
+        'text-medium': '#5A2C59',
+        'background-light': '#FFFFFF',
       },
       fontFamily: {
-        // Stanford theme uses Source Sans 3
-        sans: ['"Source Sans 3"', 'ui-sans-serif', 'system-ui'],
-        heading: ['"Source Sans 3"', 'ui-sans-serif', 'system-ui'],
-        body: ['"Source Sans 3"', 'ui-sans-serif', 'system-ui']
+        // Game Plan typography system
+        sans: ['Inter', 'ui-sans-serif', 'system-ui'],
+        heading: ['Poppins', 'ui-sans-serif', 'system-ui'],
+        body: ['Inter', 'ui-sans-serif', 'system-ui'],
+        poppins: ['Poppins', 'ui-sans-serif', 'system-ui']
       },
       fontSize: {
         // Stanford Cardinal Design System Typography

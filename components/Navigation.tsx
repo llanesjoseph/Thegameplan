@@ -26,8 +26,8 @@ const Navigation = () => {
     <>
       <nav className={`
         fixed top-0 left-0 right-0 z-50 transition-all duration-300
-        backdrop-blur-xl bg-white/95 border-b border-gray-200
-        ${scrolled ? 'shadow-card-md bg-white/98' : ''}
+        backdrop-blur-xl bg-cream/95 border-b border-sky-blue/20
+        ${scrolled ? 'shadow-card-md bg-cream/98' : ''}
       `}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
@@ -44,7 +44,7 @@ const Navigation = () => {
                     className="rounded-lg"
                   />
                 </div>
-                <span className="text-xl font-bold text-gray-800 tracking-tight">
+                <span className="text-xl font-bold tracking-tight text-deep-plum">
                   GAME PLAN
                 </span>
               </Link>
@@ -65,8 +65,17 @@ const Navigation = () => {
                 <>
                   <UserIdentity />
                   {/* Mobile Menu Toggle */}
-                  <button 
-                    className="md:hidden flex items-center justify-center w-9 h-9 text-gray-600 hover:text-cardinal hover:bg-cardinal/5 transition-colors rounded-lg ml-2"
+                  <button
+                    className="md:hidden flex items-center justify-center w-9 h-9 text-gray-600 transition-colors rounded-lg ml-2"
+                    style={{'--hover-text': '#5A2C59', '--hover-bg': 'rgba(90, 44, 89, 0.1)'} as any}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = '#5A2C59'
+                      e.currentTarget.style.backgroundColor = 'rgba(90, 44, 89, 0.1)'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = '#6B7280'
+                      e.currentTarget.style.backgroundColor = 'transparent'
+                    }}
                     onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                     aria-label="Toggle navigation menu"
                   >
@@ -80,7 +89,7 @@ const Navigation = () => {
                     <ClarityButton
                       variant="ghost"
                       size="sm"
-                      className="text-gray-600 hover:text-gray-800"
+                      className="text-dark hover:text-sky-blue"
                     >
                       Sign In
                     </ClarityButton>
@@ -88,7 +97,16 @@ const Navigation = () => {
 
                   {/* Mobile Menu Toggle */}
                   <button
-                    className="md:hidden flex items-center justify-center w-9 h-9 text-gray-600 hover:text-cardinal hover:bg-cardinal/5 transition-colors rounded-lg ml-2"
+                    className="md:hidden flex items-center justify-center w-9 h-9 text-gray-600 transition-colors rounded-lg ml-2"
+                    style={{'--hover-text': '#5A2C59', '--hover-bg': 'rgba(90, 44, 89, 0.1)'} as any}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = '#5A2C59'
+                      e.currentTarget.style.backgroundColor = 'rgba(90, 44, 89, 0.1)'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = '#6B7280'
+                      e.currentTarget.style.backgroundColor = 'transparent'
+                    }}
                     onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                     aria-label="Toggle navigation menu"
                   >
@@ -114,7 +132,7 @@ const Navigation = () => {
         
         {/* Menu Content */}
         <div className={`
-          absolute top-16 left-0 right-0 backdrop-blur-xl bg-white/98 border-b border-gray-200 shadow-card-md
+          absolute top-16 left-0 right-0 backdrop-blur-xl bg-cream/98 border-b border-sky-blue/20 shadow-card-md
           transform transition-transform duration-300
           ${mobileMenuOpen ? 'translate-y-0' : '-translate-y-full'}
         `}>
