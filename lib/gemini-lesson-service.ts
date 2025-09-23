@@ -22,9 +22,11 @@ export interface LessonSection {
 }
 
 export interface ContentBlock {
-  type: 'paragraph' | 'list_item' | 'heading' | 'exercise' | 'safety_note'
+  type: 'paragraph' | 'list_item' | 'heading' | 'exercise' | 'safety_note' | 'technique_step' | 'coaching_cue' | 'common_mistake'
   text: string
   level?: number // for headings (1-4)
+  duration?: string // for exercises and technique steps
+  difficulty?: 'beginner' | 'intermediate' | 'advanced'
 }
 
 export class GeminiLessonService {
