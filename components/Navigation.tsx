@@ -38,14 +38,14 @@ const Navigation = () => {
                 <div className="relative">
                   <Image
                     src="https://res.cloudinary.com/dr0jtjwlh/image/upload/v1758004832/0cfb867d-daad-453a-bce5-7f861c04e1c1_i0k0z8.png"
-                    alt="Game Plan"
+                    alt="PLAYBOOKD"
                     width={48}
                     height={48}
                     className="rounded-lg"
                   />
                 </div>
                 <span className="text-xl font-bold tracking-tight text-deep-plum">
-                  GAME PLAN
+                  PLAYBOOKD
                 </span>
               </Link>
             </div>

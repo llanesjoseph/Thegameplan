@@ -4,7 +4,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // NEW Game Plan Color System
+        // NEW PLAYBOOKD Color System
         'cream': '#E8E6D8',
         'sky-blue': '#91A6EB',
         'orange': '#892F1A',
@@ -70,7 +70,7 @@ const config: Config = {
           900: '#3d2e28',
         },
 
-        // Updated clarity system with new Game Plan colors + Plum accents
+        // Updated clarity system with new PLAYBOOKD colors + Plum accents
         clarity: {
           background: '#E8E6D8', // Cream
           surface: '#FFFFFF',
@@ -96,7 +96,7 @@ const config: Config = {
         'background-light': '#FFFFFF',
       },
       fontFamily: {
-        // Game Plan typography system
+        // PLAYBOOKD typography system
         sans: ['Inter', 'ui-sans-serif', 'system-ui'],
         heading: ['Poppins', 'ui-sans-serif', 'system-ui'],
         body: ['Inter', 'ui-sans-serif', 'system-ui'],

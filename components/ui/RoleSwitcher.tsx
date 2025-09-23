@@ -23,7 +23,6 @@ const roleIcons: Record<UserRole, React.ComponentType<{ className?: string }>> =
   user: User,
   creator: Star,
   assistant_coach: Shield,
-  admin: Settings,
   superadmin: Crown
 }
 
@@ -32,7 +31,6 @@ const roleColors: Record<UserRole, string> = {
   user: 'text-blue-400 bg-blue-400/10 border-blue-400/20',
   creator: 'text-purple-400 bg-purple-400/10 border-purple-400/20',
   assistant_coach: 'text-green-400 bg-green-400/10 border-green-400/20',
-  admin: 'text-orange-400 bg-orange-400/10 border-orange-400/20',
   superadmin: 'text-red-400 bg-red-400/10 border-red-400/20'
 }
 
@@ -48,7 +46,7 @@ export default function RoleSwitcher({ className = '' }: RoleSwitcherProps) {
     getAvailableRoles
   } = useEnhancedRole()
 
-  // Only render for super admins
+  // Only render for admins
   if (!canSwitchRoles) {
     return null
   }
@@ -115,8 +113,8 @@ export default function RoleSwitcher({ className = '' }: RoleSwitcherProps) {
             <div className="absolute top-full left-0 mt-2 w-80 bg-brand-dark border border-white/10 rounded-lg shadow-xl z-50 overflow-hidden">
               <div className="p-3 border-b border-white/10">
                 <div className="flex items-center gap-2 mb-2">
-                  <Shield className="w-4 h-4 text-red-400" />
-                  <span className="text-sm font-semibold text-red-400">Super Admin Tools</span>
+                  <Crown className="w-4 h-4 text-red-400" />
+                  <span className="text-sm font-semibold text-red-400">Admin Tools</span>
                 </div>
                 <p className="text-xs text-brand-grey">
                   Switch roles to test different user experiences
@@ -187,7 +185,7 @@ export default function RoleSwitcher({ className = '' }: RoleSwitcherProps) {
                     className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-yellow-400 hover:text-yellow-300 hover:bg-yellow-400/10 rounded-lg transition-colors"
                   >
                     <RotateCcw className="w-4 h-4" />
-                    Reset to Super Admin
+                    Reset to Admin
                   </button>
                 </div>
               )}

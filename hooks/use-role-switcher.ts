@@ -5,7 +5,7 @@ import { useAuth } from './use-auth'
 import { doc, updateDoc, getDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase.client'
 
-export type UserRole = 'guest' | 'user' | 'creator' | 'admin' | 'superadmin' | 'assistant_coach'
+export type UserRole = 'guest' | 'user' | 'creator' | 'assistant_coach' | 'superadmin'
 
 interface RoleSwitcherState {
   originalRole: UserRole | null
@@ -160,13 +160,13 @@ export function useRoleSwitcher() {
     }
   }, [user?.role, user?.email, isUpdating, isPageUnloading, isAdminRoleChange])
 
-  // Check if current user is super admin
-  const isSuperAdmin = user?.role === 'superadmin'
+  // Check if current user is superadmin
+  const isAdmin = user?.role === 'superadmin'
 
-  // Switch to a different role (only for super admins)
+  // Switch to a different role (only for admins)
   const switchToRole = async (role: UserRole) => {
-    if (!isSuperAdmin) {
-      console.warn('Role switching is only available for super admins')
+    if (!isAdmin) {
+      console.warn('Role switching is only available for admins')
       return
     }
 
@@ -194,7 +194,7 @@ export function useRoleSwitcher() {
       const userDocRef = doc(db, 'users', user.uid)
 
       await updateDoc(userDocRef, {
-        'superadmin_roleTest': {
+        'admin_roleTest': {
           originalRole: newState.originalRole,
           currentRole: role,
           isTestingMode: true,
@@ -215,7 +215,7 @@ export function useRoleSwitcher() {
     } catch (error) {
       console.error('❌ Failed to save role switch to database:', error)
       // Fallback to localStorage if database fails
-      localStorage.setItem('superadmin_roleTestingMode', JSON.stringify({
+      localStorage.setItem('admin_roleTestingMode', JSON.stringify({
         ...newState,
         timestamp: Date.now(),
         userId: user?.uid
@@ -232,7 +232,7 @@ export function useRoleSwitcher() {
 
   // Reset to original role
   const resetToOriginalRole = async () => {
-    if (!isSuperAdmin) return
+    if (!isAdmin) return
 
     if (!user?.uid) {
       console.error('No user ID available for role reset')
@@ -247,7 +247,7 @@ export function useRoleSwitcher() {
     setIsUpdating(true)
     console.log('🔄 Resetting to original role:', roleSwitcherState.originalRole)
 
-    const originalRole = roleSwitcherState.originalRole || 'superadmin'
+    const originalRole = roleSwitcherState.originalRole || 'admin'
 
     try {
       // Update the user document in Firestore to reset role
@@ -255,7 +255,7 @@ export function useRoleSwitcher() {
 
       await updateDoc(userDocRef, {
         // Clear the role test data
-        'superadmin_roleTest': null,
+        'admin_roleTest': null,
         // Restore original role
         role: originalRole,
         lastRoleUpdate: new Date().toISOString()
@@ -268,7 +268,7 @@ export function useRoleSwitcher() {
       }))
 
       // Clear from localStorage as backup
-      localStorage.removeItem('superadmin_roleTestingMode')
+      localStorage.removeItem('admin_roleTestingMode')
 
       // Force UI re-render
       setForceUpdate(prev => prev + 1)
@@ -283,7 +283,7 @@ export function useRoleSwitcher() {
         isTestingMode: false
       }))
 
-      localStorage.removeItem('superadmin_roleTestingMode')
+      localStorage.removeItem('admin_roleTestingMode')
       setForceUpdate(prev => prev + 1)
 
       console.log('⚠️ Role reset locally (database failed)')
@@ -295,14 +295,14 @@ export function useRoleSwitcher() {
   // Load testing state from database on mount
   useEffect(() => {
     const loadRoleStateFromDatabase = async () => {
-      if (isSuperAdmin && user?.uid) {
+      if (isAdmin && user?.uid) {
         try {
           const userDocRef = doc(db, 'users', user.uid)
           const userDoc = await getDoc(userDocRef)
 
           if (userDoc.exists()) {
             const userData = userDoc.data()
-            const roleTestData = userData?.superadmin_roleTest
+            const roleTestData = userData?.admin_roleTest
 
             if (roleTestData && roleTestData.isTestingMode) {
               // Check if role test data is not too old (7 days)
@@ -315,13 +315,13 @@ export function useRoleSwitcher() {
                   currentRole: roleTestData.currentRole,
                   isTestingMode: roleTestData.isTestingMode
                 })
-                console.log('🔄 Restored superadmin role state from database:', roleTestData.currentRole)
+                console.log('🔄 Restored admin role state from database:', roleTestData.currentRole)
               } else {
-                console.log('⏰ Superadmin role state expired, clearing from database')
+                console.log('⏰ Admin role state expired, clearing from database')
                 // Clear expired data
                 await updateDoc(userDocRef, {
-                  'superadmin_roleTest': null,
-                  role: 'superadmin'
+                  'admin_roleTest': null,
+                  role: 'admin'
                 })
               }
             }
@@ -329,7 +329,7 @@ export function useRoleSwitcher() {
         } catch (error) {
           console.error('Error loading role state from database:', error)
           // Fallback to localStorage if database fails
-          const savedState = localStorage.getItem('superadmin_roleTestingMode')
+          const savedState = localStorage.getItem('admin_roleTestingMode')
           if (savedState) {
             try {
               const parsed = JSON.parse(savedState)
@@ -339,7 +339,7 @@ export function useRoleSwitcher() {
                   currentRole: parsed.currentRole,
                   isTestingMode: parsed.isTestingMode
                 })
-                console.log('🔄 Restored superadmin role state from localStorage fallback')
+                console.log('🔄 Restored admin role state from localStorage fallback')
               }
             } catch (fallbackError) {
               console.error('Error parsing localStorage fallback:', fallbackError)
@@ -350,7 +350,7 @@ export function useRoleSwitcher() {
     }
 
     loadRoleStateFromDatabase()
-  }, [isSuperAdmin, user?.uid])
+  }, [isAdmin, user?.uid])
 
   // Get the effective role (what the UI should use) - memoized to prevent re-renders
   const effectiveRole = useMemo((): UserRole => {
@@ -360,11 +360,11 @@ export function useRoleSwitcher() {
       return roleSwitcherState.currentRole
     }
 
-    if (!isSuperAdmin) {
+    if (!isAdmin) {
       return (user?.role as UserRole) || 'guest'
     }
     return roleSwitcherState.currentRole || (user?.role as UserRole) || 'guest'
-  }, [isSuperAdmin, user?.role, roleSwitcherState.currentRole, isAdminRoleChange])
+  }, [isAdmin, user?.role, roleSwitcherState.currentRole, isAdminRoleChange])
 
   // Get available roles for switching
   const getAvailableRoles = (): { value: UserRole; label: string; description: string }[] => [
@@ -389,11 +389,6 @@ export function useRoleSwitcher() {
       description: 'Helps coaches manage their content'
     },
     {
-      value: 'admin',
-      label: 'Admin',
-      description: 'Platform administration access'
-    },
-    {
       value: 'superadmin',
       label: 'Super Admin',
       description: 'Full system access with role switching'
@@ -402,19 +397,19 @@ export function useRoleSwitcher() {
 
   return {
     // State
-    isSuperAdmin,
+    isAdmin,
     isTestingMode: roleSwitcherState.isTestingMode,
     originalRole: roleSwitcherState.originalRole,
     currentRole: roleSwitcherState.currentRole,
     effectiveRole: effectiveRole,
-    
+
     // Actions
     switchToRole,
     resetToOriginalRole,
     getAvailableRoles,
-    
+
     // Utility
-    canSwitchRoles: isSuperAdmin,
+    canSwitchRoles: isAdmin,
     isUpdating: isUpdating,
 
     // Force update counter (causes re-renders when changed)
@@ -422,7 +417,7 @@ export function useRoleSwitcher() {
   }
 }
 
-// Enhanced hook that replaces the original useRole for super admins
+// Enhanced hook that replaces the original useRole for admins
 export function useEnhancedRole() {
   const { user } = useAuth()
 
@@ -436,7 +431,7 @@ export function useEnhancedRole() {
       role: frozenRole,
       loading: !user,
       // Frozen role switcher values
-      isSuperAdmin: user?.role === 'superadmin',
+      isAdmin: user?.role === 'superadmin',
       isTestingMode: false,
       originalRole: frozenRole,
       currentRole: frozenRole,

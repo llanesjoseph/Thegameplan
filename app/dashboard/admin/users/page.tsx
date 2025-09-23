@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { useEnhancedRole } from '@/hooks/use-role-switcher'
 import { db } from '@/lib/firebase.client'
@@ -44,19 +44,9 @@ export default function AdminUserManagement() {
   const [isRoleChangeInProgress, setIsRoleChangeInProgress] = useState(false)
   
   const { user } = useAuth()
-  const { role } = useEnhancedRole()
+  const { role, loading: roleLoading } = useEnhancedRole()
 
-  useEffect(() => {
-    if (user && (role === 'admin' || role === 'superadmin')) {
-      loadUsers()
-    }
-  }, [user, role])
-
-  useEffect(() => {
-    filterUsers()
-  }, [users, searchTerm, statusFilter, roleFilter])
-
-  const loadUsers = async () => {
+  const loadUsers = useCallback(async () => {
     try {
       setLoading(true)
       
@@ -93,9 +83,9 @@ export default function AdminUserManagement() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
-  const filterUsers = () => {
+  const filterUsers = useCallback(() => {
     let filtered = users
 
     // Search filter
@@ -119,7 +109,17 @@ export default function AdminUserManagement() {
     }
 
     setFilteredUsers(filtered)
-  }
+  }, [users, searchTerm, statusFilter, roleFilter])
+
+  useEffect(() => {
+    if (user && (role === 'superadmin')) {
+      loadUsers()
+    }
+  }, [user, role, loadUsers])
+
+  useEffect(() => {
+    filterUsers()
+  }, [filterUsers])
 
   const updateUserStatus = async (uid: string, newStatus: string) => {
     try {
@@ -231,7 +231,18 @@ export default function AdminUserManagement() {
     }
   }
 
-  if (role !== 'admin' && role !== 'superadmin') {
+  if (roleLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading user permissions...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (role !== 'superadmin') {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">

@@ -1,0 +1,32 @@
+# Build outputs
+.next/**/*
+node_modules/
+out/
+build/
+dist/
+
+# JavaScript files (except config files)
+*.js
+!*.config.js
+!eslint.config.js
+!next.config.js
+!tailwind.config.js
+
+# Temporary and test files
+temp-*.js
+temp-*.ts
+test-*.js
+test-*.ts
+webpack-jest-worker-mock.js
+
+# Static files and chunks
+.next/static/**/*
+.next/server/**/*
+
+# Environment and config files
+.env*
+*.log
+
+# Firebase
+.firebase/
+firebase-debug.log*

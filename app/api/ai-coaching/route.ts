@@ -3,6 +3,7 @@ import { soccerCoachingContext, getCoachingContext } from '@/lib/ai-service'
 import { generateWithRedundancy } from '@/lib/llm-service'
 import { analyzeMedicalSafety, getSafeTrainingResponse } from '@/lib/medical-safety'
 import { createAISession, logAIInteraction, CURRENT_TERMS_VERSION } from '@/lib/ai-logging'
+import { PersonalizedCoachingEngine, SafetyCoachingSystem } from '@/lib/personalized-coaching'
 
 // Rate limiting (simple in-memory store - use Redis in production)
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>()
@@ -181,7 +182,19 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const finalResponse = safetyNotice + responseText
+    // Enhance response with personalization and safety
+    const personalizedResponse = PersonalizedCoachingEngine.enhanceResponseWithPersonalization(
+      question,
+      context,
+      responseText
+    )
+
+    const safetyEnhancedResponse = personalizedResponse + SafetyCoachingSystem.generateSafetyAddendum(
+      question,
+      context
+    )
+
+    const finalResponse = safetyNotice + safetyEnhancedResponse
 
     // Log the interaction with proper parameters
     if (userId && userEmail && currentSessionId) {
@@ -210,6 +223,10 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Generate personalization analysis for metadata
+    const personalizationAnalysis = PersonalizedCoachingEngine.analyzeQuestionForPersonalization(question, context)
+    const safetyAnalysisInternal = SafetyCoachingSystem.analyzeSafetyConcerns(question)
+
     return NextResponse.json({
       success: true,
       response: finalResponse,
@@ -222,11 +239,29 @@ export async function POST(request: NextRequest) {
         sport: context.sport,
         voiceCharacteristics: context.voiceCharacteristics, // For future voice synthesis
       },
+      personalization: {
+        inferredLevel: personalizationAnalysis.inferredLevel,
+        focusAreas: personalizationAnalysis.focusAreas,
+        questionType: personalizationAnalysis.questionType,
+        urgency: personalizationAnalysis.urgency
+      },
       safetyAnalysis: {
         riskLevel: safetyAnalysis.riskLevel,
-        isSafe: safetyAnalysis.isSafe
+        isSafe: safetyAnalysis.isSafe,
+        internalSafety: {
+          hasConcerns: safetyAnalysisInternal.hasConcerns,
+          riskLevel: safetyAnalysisInternal.riskLevel,
+          concerns: safetyAnalysisInternal.concerns
+        }
       },
       rateLimitRemaining: rateLimit.remaining,
+      // Enhanced features
+      features: {
+        personalizedTraining: true,
+        progressTracking: true,
+        safetyGuidance: true,
+        skillAssessment: true
+      },
       // Voice response placeholder (not yet implemented)
       voiceResponse: {
         available: false,

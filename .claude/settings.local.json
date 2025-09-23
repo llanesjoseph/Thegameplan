@@ -10,7 +10,20 @@
       "Bash(npx firebase deploy:*)",
       "Bash(npm run build:*)",
       "Bash(npm install:*)",
-      "Bash(npm run dev:*)"
+      "Bash(npm run dev:*)",
+      "Bash(tasklist)",
+      "Bash(findstr:*)",
+      "Bash(taskkill:*)",
+      "Bash(cmd /c:*)",
+      "Bash(npm audit:*)",
+      "Bash(npm outdated)",
+      "mcp__ide__getDiagnostics",
+      "Bash(npm run lint)",
+      "Bash(tasklist:*)",
+      "Bash(npm run lint:*)",
+      "Bash(find:*)",
+      "Read(//c/Users/bigpe/Downloads/**)",
+      "Bash(copy:*)"
     ],
     "deny": [],
     "ask": []

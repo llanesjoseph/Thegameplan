@@ -4,7 +4,7 @@ import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import { useAuth } from './use-auth'
 import { useMemo } from 'react'
 
-export type UserRole = 'guest' | 'user' | 'creator' | 'admin' | 'superadmin' | 'assistant_coach'
+export type UserRole = 'guest' | 'user' | 'creator' | 'assistant_coach' | 'superadmin'
 
 export function useUrlRoleSwitcher() {
   const { user } = useAuth()
@@ -17,30 +17,30 @@ export function useUrlRoleSwitcher() {
 
   // Get user's actual role
   const actualRole = (user?.role as UserRole) || 'guest'
-  const isSuperAdmin = actualRole === 'superadmin'
+  const isAdmin = actualRole === 'superadmin'
 
-  // Determine effective role: URL role (if superadmin) or actual role
+  // Determine effective role: URL role (if admin) or actual role
   const effectiveRole = useMemo((): UserRole => {
-    if (!isSuperAdmin) {
+    if (!isAdmin) {
       return actualRole
     }
 
-    // If superadmin and URL has valid role, use that
-    if (urlRole && ['guest', 'user', 'creator', 'admin', 'superadmin', 'assistant_coach'].includes(urlRole)) {
+    // If admin and URL has valid role, use that
+    if (urlRole && ['guest', 'user', 'creator', 'assistant_coach', 'superadmin'].includes(urlRole)) {
       return urlRole
     }
 
     // Default to actual role
     return actualRole
-  }, [isSuperAdmin, urlRole, actualRole])
+  }, [isAdmin, urlRole, actualRole])
 
   // Check if currently testing a role
-  const isTestingMode = isSuperAdmin && urlRole && urlRole !== actualRole
+  const isTestingMode = isAdmin && urlRole && urlRole !== actualRole
 
-  // Switch to a different role (only for super admins)
+  // Switch to a different role (only for admins)
   const switchToRole = (role: UserRole) => {
-    if (!isSuperAdmin) {
-      console.warn('Role switching is only available for super admins')
+    if (!isAdmin) {
+      console.warn('Role switching is only available for admins')
       return
     }
 
@@ -62,7 +62,7 @@ export function useUrlRoleSwitcher() {
 
   // Reset to original role
   const resetToOriginalRole = () => {
-    if (!isSuperAdmin) return
+    if (!isAdmin) return
 
     const newSearchParams = new URLSearchParams(searchParams?.toString() || '')
     newSearchParams.delete('view-as')
@@ -96,11 +96,6 @@ export function useUrlRoleSwitcher() {
       description: 'Helps coaches manage their content'
     },
     {
-      value: 'admin',
-      label: 'Admin',
-      description: 'Platform administration access'
-    },
-    {
       value: 'superadmin',
       label: 'Super Admin',
       description: 'Full system access with role switching'
@@ -109,7 +104,7 @@ export function useUrlRoleSwitcher() {
 
   return {
     // State
-    isSuperAdmin,
+    isAdmin,
     isTestingMode,
     originalRole: actualRole,
     currentRole: effectiveRole,
@@ -121,7 +116,7 @@ export function useUrlRoleSwitcher() {
     getAvailableRoles,
 
     // Utility
-    canSwitchRoles: isSuperAdmin,
+    canSwitchRoles: isAdmin,
     isUpdating: false, // No loading states with URL approach
     _forceUpdate: 0
   }

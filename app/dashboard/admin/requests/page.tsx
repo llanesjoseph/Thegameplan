@@ -76,7 +76,7 @@ export default function AdminRequestsPage() {
   const [filterPriority, setFilterPriority] = useState('all')
 
   useEffect(() => {
-    if (user && (role === 'admin' || role === 'superadmin')) {
+    if (user && (role === 'superadmin')) {
       fetchAllRequests()
     }
   }, [user, role])
@@ -158,7 +158,7 @@ export default function AdminRequestsPage() {
     }
   }
 
-  if (role !== 'admin' && role !== 'superadmin') {
+  if (role !== 'superadmin') {
     return (
       <div className="container mx-auto py-8">
         <div className="text-center">

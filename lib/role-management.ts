@@ -7,7 +7,7 @@ import { User } from 'firebase/auth'
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore'
 import { db } from './firebase.client'
 
-export type UserRole = 'guest' | 'user' | 'creator' | 'admin' | 'superadmin'
+export type UserRole = 'guest' | 'user' | 'creator' | 'assistant_coach' | 'admin'
 
 export interface UserRoleData {
   role: UserRole
@@ -23,7 +23,13 @@ export interface UserRoleData {
     canReceivePayments: boolean
     canSwitchRoles?: boolean
     canManageUsers?: boolean
+    canViewCoachingRequests?: boolean
+    canRespondToRequests?: boolean
+    canManageSchedule?: boolean
+    canOrganizeContent?: boolean
+    canManageAthletes?: boolean
   }
+  assignedCoachId?: string // for assistant coaches
 }
 
 export interface CreatorApplicationStatus {
@@ -111,35 +117,26 @@ export async function setUserRoleViaFunction(
  */
 export function canCreateContent(roleData: UserRoleData | null): boolean {
   if (!roleData) return false
-  
-  return roleData.role === 'creator' || 
-         roleData.role === 'admin' || 
-         roleData.role === 'superadmin' ||
+
+  return roleData.role === 'creator' ||
+         roleData.role === 'admin' ||
          roleData.permissions?.canCreateContent === true
 }
 
 /**
- * Check if user has admin privileges
+ * Check if user has admin privileges (full site management access)
  */
 export function isAdmin(roleData: UserRoleData | null): boolean {
   if (!roleData) return false
-  return roleData.role === 'admin' || roleData.role === 'superadmin'
+  return roleData.role === 'admin'
 }
 
 /**
- * Check if user is superadmin with complete access
- */
-export function isSuperAdmin(roleData: UserRoleData | null): boolean {
-  if (!roleData) return false
-  return roleData.role === 'superadmin'
-}
-
-/**
- * Check if user can switch roles (superadmin only)
+ * Check if user can switch roles (admin capability)
  */
 export function canSwitchRoles(roleData: UserRoleData | null): boolean {
   if (!roleData) return false
-  return roleData.role === 'superadmin' && roleData.permissions?.canSwitchRoles !== false
+  return roleData.role === 'admin' && roleData.permissions?.canSwitchRoles !== false
 }
 
 /**
@@ -149,6 +146,26 @@ export function isCreator(roleData: UserRoleData | null): boolean {
   if (!roleData) return false
   // If user has creator role, they are a creator regardless of creatorStatus
   return roleData.role === 'creator'
+}
+
+/**
+ * Check if user is an assistant coach
+ */
+export function isAssistantCoach(roleData: UserRoleData | null): boolean {
+  if (!roleData) return false
+  return roleData.role === 'assistant_coach'
+}
+
+/**
+ * Check if user can manage coaching requests (creator or assistant_coach)
+ */
+export function canManageCoachingRequests(roleData: UserRoleData | null): boolean {
+  if (!roleData) return false
+
+  return roleData.role === 'creator' ||
+         roleData.role === 'assistant_coach' ||
+         roleData.role === 'admin' ||
+         roleData.permissions?.canViewCoachingRequests === true
 }
 
 /**
@@ -170,7 +187,24 @@ function getDefaultPermissions(role: UserRole) {
         canCreateContent: true,
         canManageContent: true,
         canAccessAnalytics: true,
-        canReceivePayments: true
+        canReceivePayments: true,
+        canViewCoachingRequests: true,
+        canRespondToRequests: true,
+        canManageSchedule: true,
+        canOrganizeContent: true,
+        canManageAthletes: true
+      }
+    case 'assistant_coach':
+      return {
+        canCreateContent: false,
+        canManageContent: false,
+        canAccessAnalytics: true, // read-only
+        canReceivePayments: false,
+        canViewCoachingRequests: true,
+        canRespondToRequests: true, // with coach oversight
+        canManageSchedule: true,
+        canOrganizeContent: true,
+        canManageAthletes: true // limited scope
       }
     case 'admin':
       return {
@@ -178,31 +212,37 @@ function getDefaultPermissions(role: UserRole) {
         canManageContent: true,
         canAccessAnalytics: true,
         canReceivePayments: true,
-        canSwitchRoles: false,
-        canManageUsers: true
-      }
-    case 'superadmin':
-      return {
-        canCreateContent: true,
-        canManageContent: true,
-        canAccessAnalytics: true,
-        canReceivePayments: true,
         canSwitchRoles: true,
-        canManageUsers: true
+        canManageUsers: true,
+        canViewCoachingRequests: true,
+        canRespondToRequests: true,
+        canManageSchedule: true,
+        canOrganizeContent: true,
+        canManageAthletes: true
       }
     case 'user':
       return {
         canCreateContent: false,
         canManageContent: false,
         canAccessAnalytics: false,
-        canReceivePayments: false
+        canReceivePayments: false,
+        canViewCoachingRequests: false,
+        canRespondToRequests: false,
+        canManageSchedule: false,
+        canOrganizeContent: false,
+        canManageAthletes: false
       }
     default:
       return {
         canCreateContent: false,
         canManageContent: false,
         canAccessAnalytics: false,
-        canReceivePayments: false
+        canReceivePayments: false,
+        canViewCoachingRequests: false,
+        canRespondToRequests: false,
+        canManageSchedule: false,
+        canOrganizeContent: false,
+        canManageAthletes: false
       }
   }
 }

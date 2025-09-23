@@ -50,7 +50,7 @@ export default function AdminContentReview() {
   const { role } = useEnhancedRole()
 
   useEffect(() => {
-    if (user && (role === 'admin' || role === 'superadmin')) {
+    if (user && (role === 'superadmin')) {
       loadContent()
     }
   }, [user, role])
@@ -177,7 +177,7 @@ export default function AdminContentReview() {
     }
   }
 
-  if (role !== 'admin' && role !== 'superadmin') {
+  if (role !== 'superadmin') {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">

@@ -8,6 +8,8 @@ import { Storage } from '@google-cloud/storage'
 import { db } from '@/lib/firebase.client'
 import { doc, getDoc } from 'firebase/firestore'
 
+export const dynamic = 'force-dynamic'
+
 const storage = new Storage({
   projectId: process.env.NEXT_PUBLIC_GCP_PROJECT_ID
 })

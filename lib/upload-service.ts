@@ -37,8 +37,11 @@ class EnterpriseUploadService {
   private readonly PERSISTENCE_KEY = 'gameplan_uploads'
 
   constructor() {
-    this.loadPersistedUploads()
-    this.setupBeforeUnloadHandler()
+    // Only initialize browser-specific features on client side
+    if (typeof window !== 'undefined') {
+      this.loadPersistedUploads()
+      this.setupBeforeUnloadHandler()
+    }
   }
 
   /**
@@ -317,6 +320,10 @@ class EnterpriseUploadService {
    */
   private persistUploads(): void {
     try {
+      // Check if we're running in the browser
+      if (typeof window === 'undefined' || !window.localStorage) {
+        return
+      }
       const serializable = Array.from(this.uploads.entries()).map(([id, state]) => [
         id,
         {
@@ -340,6 +347,10 @@ class EnterpriseUploadService {
    */
   private loadPersistedUploads(): void {
     try {
+      // Check if we're running in the browser
+      if (typeof window === 'undefined' || !window.localStorage) {
+        return
+      }
       const stored = localStorage.getItem(this.PERSISTENCE_KEY)
       if (stored) {
         const parsed = JSON.parse(stored)

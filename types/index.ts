@@ -21,7 +21,7 @@ export interface AppUser extends FirebaseUser {
 }
 
 // User Roles and Permissions
-export type UserRole = 'guest' | 'user' | 'creator' | 'admin' | 'superadmin'
+export type UserRole = 'guest' | 'user' | 'creator' | 'assistant_coach' | 'superadmin'
 
 export type SubscriptionTier = 'free' | 'basic' | 'pro' | 'elite'
 

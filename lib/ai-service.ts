@@ -1,5 +1,8 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import OpenAI from 'openai'
+import { PersonalizedCoachingEngine, SafetyCoachingSystem } from './personalized-coaching'
+import { LessonCreationEngine, LessonStructure } from './lesson-creation-service'
+import { LessonFormatter } from './lesson-formatter'
 
 // Initialize the Gemini AI client
 const getGeminiClient = () => {
@@ -316,11 +319,76 @@ export function getCoachingContext(creatorId?: string, sport?: string): Coaching
   return soccerCoachingContext
 }
 
+// Enhanced question analysis for better coaching responses
+export const categorizeQuestion = (question: string): { category: string, focusAreas: string[] } => {
+  const q = question.toLowerCase()
+
+  // Technical skills
+  if (q.includes('technique') || q.includes('form') || q.includes('mechanics') || q.includes('fundamentals')) {
+    return { category: 'Technical Skills', focusAreas: ['Biomechanics', 'Form', 'Efficiency'] }
+  }
+
+  // Tactical/Strategic
+  if (q.includes('strategy') || q.includes('tactics') || q.includes('positioning') || q.includes('game plan')) {
+    return { category: 'Tactical Strategy', focusAreas: ['Decision Making', 'Positioning', 'Game Reading'] }
+  }
+
+  // Physical conditioning
+  if (q.includes('strength') || q.includes('fitness') || q.includes('conditioning') || q.includes('endurance')) {
+    return { category: 'Physical Development', focusAreas: ['Strength', 'Endurance', 'Speed', 'Agility'] }
+  }
+
+  // Mental performance
+  if (q.includes('mental') || q.includes('confidence') || q.includes('pressure') || q.includes('nerves')) {
+    return { category: 'Mental Performance', focusAreas: ['Confidence', 'Focus', 'Pressure Management'] }
+  }
+
+  // Recovery and injury prevention
+  if (q.includes('injury') || q.includes('recovery') || q.includes('pain') || q.includes('prevention')) {
+    return { category: 'Health & Recovery', focusAreas: ['Injury Prevention', 'Recovery', 'Mobility'] }
+  }
+
+  // Default to skill development
+  return { category: 'Skill Development', focusAreas: ['Technique', 'Practice', 'Improvement'] }
+}
+
+export const determineQuestionComplexity = (question: string): string => {
+  const q = question.toLowerCase()
+  const complexIndicators = ['advanced', 'competition', 'elite', 'professional', 'complex', 'sophisticated']
+  const beginnerIndicators = ['beginner', 'start', 'learn', 'basic', 'first time', 'new to']
+
+  if (complexIndicators.some(indicator => q.includes(indicator))) return 'Advanced'
+  if (beginnerIndicators.some(indicator => q.includes(indicator))) return 'Beginner'
+  return 'Intermediate'
+}
+
+export const inferLearnerLevel = (question: string): string => {
+  const q = question.toLowerCase()
+
+  if (q.includes('compete') || q.includes('tournament') || q.includes('scholarship')) return 'Competitive'
+  if (q.includes('team') || q.includes('club') || q.includes('coach')) return 'Organized'
+  if (q.includes('recreation') || q.includes('fun') || q.includes('hobby')) return 'Recreational'
+
+  return 'Developing' // Default
+}
+
 export const generateCoachingPrompt = (question: string, context: CoachingContext): string => {
   // Dynamic elements for authentic variety
   const randomCatchphrase = context.voiceCharacteristics.catchphrases[Math.floor(Math.random() * context.voiceCharacteristics.catchphrases.length)]
   const randomEncouragement = context.responseStyle.encouragement[Math.floor(Math.random() * context.responseStyle.encouragement.length)]
   const randomStoryIntro = context.responseStyle.personalStoryIntros[Math.floor(Math.random() * context.responseStyle.personalStoryIntros.length)]
+
+  // Enhanced skill categorization for deeper responses
+  const skillAnalysis = categorizeQuestion(question)
+  const complexityLevel = determineQuestionComplexity(question)
+  const learnerLevel = inferLearnerLevel(question)
+
+  // Detect if this is a lesson creation request
+  const lessonKeywords = [
+    'lesson', 'create lesson', 'build lesson', 'lesson plan', 'curriculum', 'teaching', 'instruction',
+    'how to teach', 'lesson structure', 'training plan', 'course', 'workshop', 'session plan'
+  ]
+  const isLessonCreation = lessonKeywords.some(keyword => question.toLowerCase().includes(keyword))
 
   // Detect if this is a sports-related question (any sport)
   const sportsKeywords = [
@@ -362,74 +430,169 @@ export const generateCoachingPrompt = (question: string, context: CoachingContex
   ]
   const isSportsQuestion = sportsKeywords.some(keyword => question.toLowerCase().includes(keyword))
 
-  if (isSportsQuestion) {
-    // Sports-specific coaching response - adapts to any sport
-    return `You are ${context.coachName}, ${context.coachCredentials.join(', ')}. You're a knowledgeable coach who can provide expert advice across multiple sports. While your specialty is ${context.sport.toLowerCase()}, you have extensive knowledge of athletic training and sports performance.
+  // Handle lesson creation requests with intelligent structure
+  if (isLessonCreation) {
+    return `You are ${context.coachName}, an expert lesson designer and curriculum developer with championship-level athletic experience. You're like an intelligent lesson creation AI that combines pedagogical expertise with real-world coaching knowledge.
 
-**QUESTION:** "${question}"
+**LESSON CREATION REQUEST:** "${question}"
 
 **WHO YOU ARE:**
-- ${context.coachName}: ${context.coachCredentials.slice(0, 3).join(', ')}
+You're a ${context.coachCredentials.join(', ')} who has become an expert at designing professional, comprehensive lesson plans. You understand both the athletic content AND how to structure learning experiences that work.
+
+**YOUR MISSION:**
+Create a detailed, professionally structured lesson plan that goes far beyond basic outlines. Think of yourself as designing a masterclass-level learning experience.
+
+**LESSON DESIGN PRINCIPLES:**
+- **Depth over breadth** - Go deep into the topic with rich detail
+- **Progressive structure** - Build skills systematically
+- **Multiple learning styles** - Visual, kinesthetic, auditory approaches
+- **Assessment integration** - Clear success criteria and progress markers
+- **Professional presentation** - Clean formatting and organization
+
+**RESPONSE STRUCTURE:**
+Create a comprehensive lesson plan with these sections:
+
+1. **Lesson Overview** - Title, objectives, duration, level
+2. **Learning Objectives** - Specific, measurable outcomes
+3. **Lesson Timeline** - Detailed breakdown with timings
+4. **Section Details** - For each major section include:
+   - Overview and purpose
+   - Key teaching points
+   - Specific exercises/drills
+   - Common mistakes to address
+   - Progression tips
+5. **Assessment Criteria** - How to measure success
+6. **Resources & Equipment** - What's needed
+7. **Follow-up Suggestions** - Next steps for continued learning
+
+**FORMATTING REQUIREMENTS:**
+- Use clear headers (##) and subheaders (###)
+- Include bullet points for lists
+- Add timing estimates for each section
+- Use tables where appropriate
+- Make it visually clean and professional
+- Include specific, actionable details
+
+**CONTENT DEPTH:**
+- Don't just list activities - explain WHY each element matters
+- Include specific coaching cues and corrections
+- Address different skill levels and modifications
+- Provide safety considerations
+- Add assessment rubrics
+
+**YOUR EXPERTISE:**
+Draw from your ${context.sport} background but adapt to whatever sport/activity they're asking about. Use your championship experience to add credibility and real-world insights.
+
+**TONE:**
+Be professional yet engaging. This should read like a high-quality curriculum document that someone would be excited to teach from.
+
+Create a comprehensive, professionally formatted lesson plan that exceeds expectations. Make it detailed enough that any qualified instructor could successfully teach from it.`
+  }
+
+  if (isSportsQuestion) {
+    // Enhanced sports-specific coaching response
+    return `You are ${context.coachName}, a brilliant and engaging coach who combines elite athletic experience with natural conversational intelligence. Think of yourself as the athletic equivalent of ChatGPT - knowledgeable, personable, and genuinely helpful.
+
+**THEIR QUESTION:** "${question}"
+
+**YOUR PERSONALITY & BACKGROUND:**
+- You're a ${context.coachCredentials.join(', ')} with deep expertise in ${context.sport.toLowerCase()}
+- But you're also incredibly smart and can discuss any sport intelligently
 - Your voice: ${context.voiceCharacteristics.tone}
-- Your specialty: ${context.sport.toLowerCase()} expertise
-- Your approach: Athletic performance and coaching across sports
+- Your approach: ${context.voiceCharacteristics.speakingStyle}
+- You naturally use phrases like: ${context.voiceCharacteristics.catchphrases.slice(0, 2).join(' and ')}
 
-**RESPONSE REQUIREMENTS:**
-1. **Personal engagement** - Start with "${context.responseStyle.greeting}" naturally
-2. **Expert knowledge** - Draw from your athletic and coaching background
-3. **Be encouraging** - Use "${randomEncouragement}" authentically
-4. **Technical excellence** - Address their exact question with specific sports advice
-5. **Personal insight** - Share relevant experience and end with "${randomCatchphrase}"
+**HOW TO RESPOND LIKE ChatGPT/CLAUDE:**
+You're having a genuine, intelligent conversation with someone who wants to improve. They came to you because you're both an elite athlete AND naturally brilliant at explaining things.
 
-**SPORTS COACHING FOCUS:**
-- Identify the specific sport they're asking about
-- Give 3-4 **bold** technical fundamentals for that sport
-- Provide 2-3 specific drills or exercises they can do immediately
-- Share coaching insights from your athletic background
-- Use proper sports terminology for their specific sport
-- If it's ${context.sport.toLowerCase()}, draw heavily from your personal experience
-- If it's another sport, apply your general athletic knowledge and coaching principles
+**BE CONVERSATIONAL & DYNAMIC:**
+- Start by connecting with what they're asking - show you understand
+- Explain things clearly without being condescending or robotic
+- Use "you" and "your" to make it personal and engaging
+- Ask rhetorical questions to get them thinking
+- Share insights that show you really get the sport
+- Give them actionable advice they can use immediately
+- Be encouraging but honest about what improvement requires
 
-**IMPORTANT:**
-- Adapt your advice to the specific sport they're asking about
-- Don't force ${context.sport.toLowerCase()} references unless relevant
-- Be knowledgeable about various sports while maintaining your personality
-- Focus on practical, actionable coaching advice
+**SHOW YOUR INTELLIGENCE:**
+- Break down complex concepts into parts anyone can understand
+- Explain the "why" behind techniques, not just the "how"
+- Connect different aspects (technique, tactics, mental game)
+- Anticipate what they might be confused about
+- Give context for when and why to use different approaches
+- Use analogies or comparisons that make sense
 
-Write 250-350 words. Sound like ${context.coachName} coaching an athlete in their specific sport.`
+**NATURAL CONVERSATION FLOW:**
+Instead of rigid sections, flow naturally between:
+1. **Acknowledge their question thoughtfully** - "That's a great question because..."
+2. **Share the key insight** - The most important thing they need to understand
+3. **Break it down practically** - How to actually do it or improve it
+4. **Give specific next steps** - What to practice and how to know they're improving
+5. **End with encouragement** - Confidence and motivation
+
+**EXAMPLES OF NATURAL LANGUAGE:**
+- Instead of "Technical fundamentals include:" → "Here's what I focus on when I'm working on this..."
+- Instead of "Safety considerations:" → "One thing to watch out for is..."
+- Instead of rigid bullet points → "Another key thing is..." "What really helped me was..." "You'll also want to..."
+
+**KEEP IT CONVERSATIONAL:**
+- Sound genuinely excited to help them get better
+- Be specific and actionable, never vague
+- Use your ${context.sport} expertise but adapt to whatever sport they're asking about
+- Length: 250-400 words - helpful but not overwhelming
+- Write like you're talking to a friend who genuinely wants your advice
+
+**REMEMBER:**
+- They asked YOU specifically because of your combination of athletic success and intelligence
+- Be natural, not formal or robotic
+- Show personality while being incredibly helpful
+- Make them feel like they're talking to both a champion athlete AND a brilliant teacher
+
+Respond as ${context.coachName} having a smart, natural conversation about their question.`
   } else {
-    // General conversational AI response
-    return `You are ${context.coachName}, a highly knowledgeable and personable AI assistant. While you're known for your soccer expertise as a ${context.coachCredentials.join(', ')}, you're also well-educated and can discuss a wide range of topics intelligently.
+    // Natural, intelligent conversation like ChatGPT
+    return `You are ${context.coachName}, an incredibly smart and personable person who just happens to be a champion athlete. You're like ChatGPT or Claude, but with the unique perspective of elite athletic experience.
 
-**QUESTION:** "${question}"
+**THEIR QUESTION:** "${question}"
 
-**YOUR PERSONALITY:**
-- Tone: ${context.voiceCharacteristics.tone}
-- Style: Intelligent, helpful, and conversational like ChatGPT or Claude
-- Background: You have your soccer expertise but also broad knowledge
+**WHO YOU ARE:**
+You're a ${context.coachCredentials.join(', ')} who's naturally brilliant and loves having intelligent conversations. Your athletic background gives you unique insights, but you're genuinely curious and knowledgeable about everything.
 
-**RESPONSE STYLE:**
-- **Be conversational and helpful** like a knowledgeable friend
-- **Provide detailed, informative answers** on any topic they ask about
-- **Show your intelligence** while maintaining your warm personality
-- **Give thorough explanations** with examples when helpful
-- **Be engaging and personable** but not overly casual
+**YOUR CONVERSATIONAL STYLE:**
+- **Tone:** ${context.voiceCharacteristics.tone}
+- **Approach:** Genuinely interested in helping and discussing ideas
+- **Intelligence:** You explain complex topics clearly and thoughtfully
+- **Personality:** Warm, engaging, and naturally encouraging
 
-**INSTRUCTIONS:**
-- Answer their question thoroughly and intelligently
-- Provide detailed information and context
-- Use clear explanations and examples
-- Be helpful and informative like a top AI assistant
-- Maintain your warm, encouraging personality
-- Don't force soccer references unless relevant
+**HOW TO RESPOND:**
+Think of this like chatting with a really smart friend who happens to be a champion athlete. They asked you something because they value your perspective and intelligence.
 
-**IMPORTANT:**
-- This is a general knowledge question, not soccer coaching
-- Answer like an intelligent, well-educated AI assistant
-- Be comprehensive and helpful
-- Show your personality but focus on being informative
+**BE NATURALLY CONVERSATIONAL:**
+- Start by engaging with their question thoughtfully
+- Share your genuine thoughts and insights
+- Use analogies or examples that make sense
+- Ask rhetorical questions that get them thinking
+- Be curious about the topic yourself
+- Give them a response that's both intelligent and personal
 
-Write a thorough, helpful response (200-400 words) that fully addresses their question with the intelligence and detail they'd expect from ChatGPT or Claude.`
+**SHOW YOUR INTELLIGENCE:**
+- Break down complex ideas into understandable parts
+- Connect concepts in ways they might not have considered
+- Share insights from your unique perspective
+- Explain the "why" behind things, not just the "what"
+- Be thorough but not overwhelming
+
+**KEEP IT NATURAL:**
+- Don't force athletic references unless they naturally fit
+- Sound like you're genuinely interested in the topic
+- Be helpful and informative like ChatGPT, but with your personality
+- Length: 200-350 words - enough to be helpful, not too much
+- Write like you're having a real conversation with someone you want to help
+
+**REMEMBER:**
+You're both an elite athlete AND naturally brilliant. That combination gives you a unique perspective that people find valuable. Be genuine, intelligent, and helpful.
+
+Respond as ${context.coachName} having a thoughtful, intelligent conversation about their question.`
   }
 }
 
@@ -535,30 +698,281 @@ export const getOpenAIResponse = async (question: string, context: CoachingConte
   }
 }
 
+// Helper functions for lesson creation
+function extractLessonTopic(question: string): string {
+  // Try to extract topic from common patterns
+  const patterns = [
+    /(?:lesson|plan|teach|create|build).*?(?:on|about|for)\s+([^?.,]+)/i,
+    /"([^"]+)"/,
+    /'([^']+)'/,
+    /\b([A-Z][^.?!]*(?:mechanics|techniques?|skills?|training|fundamentals?))\b/i
+  ]
+
+  for (const pattern of patterns) {
+    const match = question.match(pattern)
+    if (match && match[1]) {
+      return match[1].trim()
+    }
+  }
+
+  // Default fallback
+  return 'Advanced Training Session'
+}
+
+function generateManualLesson(topic: string, sport: string, context: CoachingContext): string {
+  return `# ${topic}
+
+## 📋 Lesson Overview
+
+**Sport:** ${sport}
+**Level:** Intermediate to Advanced
+**Duration:** 60 minutes
+**Instructor:** ${context.coachName}
+
+---
+
+## 🎯 Learning Objectives
+
+By the end of this lesson, participants will be able to:
+
+1. **Understand the fundamental principles** of ${topic.toLowerCase()}
+2. **Execute the core techniques** with proper form and timing
+3. **Apply skills in realistic scenarios** with appropriate pressure
+4. **Identify and correct common mistakes** in their execution
+
+---
+
+## ⏱️ Lesson Timeline
+
+| **Phase** | **Duration** | **Focus** |
+|-----------|--------------|-----------|
+| Introduction | 10 minutes | Objectives, safety, assessment |
+| Demonstration | 15 minutes | Technical breakdown and explanation |
+| Practice | 25 minutes | Guided practice and skill development |
+| Application | 8 minutes | Live scenarios and testing |
+| Review | 2 minutes | Assessment and next steps |
+
+---
+
+## 🎬 Introduction & Demonstration (25 minutes)
+
+### Overview
+Welcome to our session on ${topic}. Today we'll break down the essential elements that make this technique effective and help you develop mastery through systematic practice.
+
+### Key Teaching Points
+• **Foundation First** - Proper positioning and setup
+• **Timing and Rhythm** - Understanding when and how to execute
+• **Leverage and Mechanics** - Using body mechanics efficiently
+• **Safety Considerations** - Injury prevention throughout
+
+### Demonstration Sequence
+1. **Static Demonstration** (5 mins) - Show the complete technique slowly
+2. **Step-by-Step Breakdown** (7 mins) - Break into component parts
+3. **Common Variations** (3 mins) - Show different applications
+
+---
+
+## 🏃‍♂️ Structured Practice (25 minutes)
+
+### Exercise 1: Isolation Drill (10 minutes)
+**Purpose:** Build muscle memory for core movement patterns
+
+**Instructions:**
+1. Start with slow, controlled movements
+2. Focus on proper positioning and setup
+3. Gradually increase speed while maintaining form
+4. Practice both sides equally
+
+### Exercise 2: Partner Integration (15 minutes)
+**Purpose:** Apply technique with realistic resistance
+
+**Instructions:**
+1. Partner provides graduated resistance
+2. Focus on timing and reaction
+3. Switch roles every 3 minutes
+4. Communicate throughout the drill
+
+---
+
+## ⚡ Live Application (8 minutes)
+
+Apply ${topic} skills in realistic, competitive scenarios with appropriate pressure and decision-making.
+
+**Focus Points:**
+• Realistic scenario application
+• Decision-making under pressure
+• Integration with existing skills
+• Performance under fatigue
+
+---
+
+## 📊 Assessment & Review (2 minutes)
+
+### Progress Markers
+• Can execute technique with proper form 7/10 attempts
+• Demonstrates understanding of timing principles
+• Successfully applies technique under light pressure
+• Shows improvement from baseline assessment
+
+### Next Steps
+• Practice fundamentals for 15 minutes daily
+• Video record practice sessions for analysis
+• Focus on identified areas for improvement
+• Prepare for next progression level
+
+---
+
+## 🛠️ Resources & Equipment
+
+**Required Equipment:**
+• Appropriate training space
+• Safety equipment as needed
+• Water bottles and towels
+• Video recording device (optional)
+
+**Setup Requirements:**
+• Adequate space for all participants
+• Proper safety equipment available
+• Clear demonstration area
+• Good lighting for instruction
+
+---
+
+*This lesson plan emphasizes systematic skill development with safety as the top priority. Adjust intensity and complexity based on individual participant needs.*`
+}
+
 // Legacy function for backward compatibility
 export const getAIResponse = getGeminiAIResponse
 
-// Smart AI-like coaching responses (when APIs are unavailable)
+// Enhanced AI-like coaching responses with personalization (when APIs are unavailable)
 export const getIntelligentFallbackResponse = (question: string, context: CoachingContext): string => {
+  // Get base response
+  const baseResponse = getBaseFallbackResponse(question, context)
+
+  // Enhance with personalization
+  const enhancedResponse = PersonalizedCoachingEngine.enhanceResponseWithPersonalization(question, context, baseResponse)
+
+  // Add safety considerations
+  const finalResponse = enhancedResponse + SafetyCoachingSystem.generateSafetyAddendum(question, context)
+
+  return finalResponse
+}
+
+// Base fallback response logic (extracted for clarity)
+export const getBaseFallbackResponse = (question: string, context: CoachingContext): string => {
   const lowerQuestion = question.toLowerCase()
-  
+
+  // Detect lesson creation requests in fallback
+  const lessonKeywords = ['lesson', 'create lesson', 'build lesson', 'lesson plan', 'curriculum', 'teaching', 'instruction']
+  const isLessonCreation = lessonKeywords.some(keyword => lowerQuestion.includes(keyword))
+
+  // Handle lesson creation with structured output
+  if (isLessonCreation) {
+    // Try to extract the lesson topic
+    const topic = extractLessonTopic(question)
+    const sport = context.sport
+
+    try {
+      // Generate structured lesson using our lesson creation engine
+      const lessonStructure = LessonCreationEngine.generateLessonStructure(topic, sport, context)
+      return LessonFormatter.formatCompleteLesson(lessonStructure)
+    } catch (error) {
+      // Fallback to manual lesson creation
+      return generateManualLesson(topic, sport, context)
+    }
+  }
+
   // BJJ-specific responses for Joseph Llanes
   if (context.sport === 'Brazilian Jiu-Jitsu') {
-    // Guard retention and pressure responses
+    // Enhanced guard retention and pressure responses
     if (lowerQuestion.includes('guard') || lowerQuestion.includes('retention') || lowerQuestion.includes('pressure')) {
-      return `Excellent question about guard retention! As an IBJJF World Champion, this was fundamental to my game.
+      return `Excellent question about guard retention! As an IBJJF World Champion, this was absolutely fundamental to my success.
 
-**Core principles:**
-• **Frame management** - Use your frames to create distance and prevent pressure
-• **Hip movement** - Constant hip escape and repositioning is key
-• **Grip fighting** - Control their grips before they control yours
-• **Angle creation** - Never stay square, always work to angles
+## Technical Foundation
 
-**Training drill:** Practice the "shrimp escape" 100 times daily. Master this movement and you'll never be stuck under pressure.
+**Core Biomechanics:**
+• **Frame management** - Active frames create distance and structural integrity
+• **Hip mobility** - Hip escape and repositioning using shrimping mechanics
+• **Grip hierarchy** - Wrist control > sleeve control > collar control
+• **Angle creation** - 45-degree angles break their pressure vectors
+• **Base disruption** - Attack their base while maintaining yours
 
-**Competition mindset:** In my championship matches, I treated guard retention like a chess game - think 2-3 moves ahead. When they press, I'm already planning my escape route.
+## Progressive Training Pathway
 
-Remember, a good guard is proactive, not reactive. Stay calm under pressure and trust your technique!`
+**Beginner Focus (Weeks 1-4):**
+1. **Basic shrimp escape** - 50 reps daily, focus on hip mechanics
+2. **Frame positioning** - Practice forearm across throat/chest
+3. **Simple guard pulls** - Basic closed guard establishment
+4. **Defensive posture** - Elbows in, chin down, protect neck
+
+**Intermediate Development (Weeks 5-12):**
+1. **Dynamic hip movement** - Combining shrimps with guard re-establishment
+2. **Grip fighting sequences** - Break grip → establish new guard → attack
+3. **Multiple guard types** - Closed → Open → Half → Back to closed
+4. **Pressure response patterns** - Automatic reactions to different pressure types
+
+**Advanced Integration (3+ months):**
+1. **Transition chains** - Guard retention → sweep setup → submission threat
+2. **Pressure prediction** - Reading opponent's pressure before they apply it
+3. **Counter-pressure timing** - Using their pressure against them
+4. **Competition scenarios** - Guard retention under time pressure
+
+## Specific Training Drills
+
+**Daily Fundamentals (15 minutes):**
+1. **Shrimp ladder** - 20 shrimps down mat, walk back, repeat 3x
+2. **Frame holds** - Partner applies pressure, hold frames for 30 seconds
+3. **Hip switch drill** - Alternate hips every 3 seconds under light pressure
+4. **Guard reset drill** - Partner breaks guard, reset immediately
+
+**Weekly Advanced Training:**
+• **Pressure simulation** - 5-minute rounds of constant pressure
+• **Tired guard retention** - Practice when exhausted
+• **Multiple attacker drill** - Fresh partners every 2 minutes
+
+## Competition Psychology
+
+**Mental Framework:**
+During my world championship run, I visualized guard retention as controlling real estate. Every inch I gave up made their job easier, so I fought for every millimeter.
+
+**Pressure Response Protocol:**
+1. **Stay calm** - Panic leads to muscular tension and wasted energy
+2. **Breathe consistently** - Never hold your breath under pressure
+3. **Think sequence** - If this fails, I go here, if that fails, I go there
+4. **Trust timing** - Sometimes you must give ground to regain it
+
+## Common Mistakes & Corrections
+
+**Mistake 1:** Pushing hands against chest
+**Correction:** Frame with forearms, not hands
+
+**Mistake 2:** Flat on back with no angles
+**Correction:** Always stay on your side, create angles
+
+**Mistake 3:** Grip fighting without purpose
+**Correction:** Every grip should set up a specific technique
+
+**Mistake 4:** Reactive rather than proactive
+**Correction:** Anticipate pressure and move before it arrives
+
+## Safety Considerations
+
+• **Neck protection** - Never let head get isolated
+• **Breathing awareness** - Tap if breathing is compromised
+• **Progressive intensity** - Build pressure tolerance gradually
+• **Recovery positioning** - Practice safe turtle positions
+
+## Assessment Metrics
+
+**Track your progress:**
+- Can you retain guard for 2+ minutes against same-size opponent?
+- Do you automatically frame without thinking?
+- Can you transition between guard types fluidly?
+- Are you proactive rather than reactive?
+
+Remember: Guard retention isn't about strength - it's about systematic movement, proper structure, and mental calmness. Master these principles and you'll never be stuck under pressure again!
+
+Position before submission, technique over strength!`
     }
     
     // Submission chains
@@ -626,57 +1040,141 @@ Remember: it's not about being the strongest, it's about being the most technica
 Mental strength is like physical strength - it requires consistent training!`
     }
     
-    // Default BJJ response
-    return `Thanks for your question! As an IBJJF World Champion and 3rd degree black belt, I've learned that Brazilian Jiu-Jitsu success comes from systematic development.
+    // Default BJJ response - conversational and engaging
+    return `That's a great question! You know, one thing I learned during my journey to becoming an IBJJF World Champion is that Brazilian Jiu-Jitsu really isn't about being the strongest or most athletic person in the room. It's about being systematic and intelligent in how you approach every position.
 
-**My coaching philosophy:**
-• **Technical precision** - Perfect technique beats strength every time
-• **Conceptual understanding** - Learn the why, not just the how
-• **Systematic approach** - Build your game from solid foundations
-• **Competition testing** - Test your skills under pressure
+Here's what I mean by that - when I first started training, I thought I needed to muscle through everything. But my coach would always shut that down and say "technique over strength." And honestly? He was right. The techniques that got me to the world championship weren't the flashiest ones - they were the fundamentals that I'd practiced thousands of times until they became automatic.
 
-**Key development areas:**
-1. **Positional control** - Master the fundamentals first
-2. **Submission chains** - Learn to flow between attacks
-3. **Guard systems** - Develop both offensive and defensive guards
-4. **Mental preparation** - Train your mind like your body
+The way I think about BJJ development is like building a house. You need that solid foundation first - positional control, basic escapes, fundamental submissions. Once you have that foundation rock solid, then you can start adding the more complex stuff like advanced guard systems and submission chains.
 
-**Championship insight:** My world championship came from years of methodical development. Focus on small daily improvements rather than dramatic changes.
+What really changed my game was when I started focusing on conceptual understanding, not just memorizing techniques. Like, instead of just learning "do this move when they do that," I started understanding WHY certain things work. That's when everything clicked and I could start flowing between positions naturally.
 
-What specific aspect of your BJJ game would you like to work on? I'm here to help you develop systematically!`
+My biggest piece of advice? Be patient with the process. My world championship didn't happen overnight - it came from showing up consistently and focusing on small improvements every single day. Some days you'll feel like you're not getting better, but trust me, you are.
+
+What specific part of your BJJ journey are you working on right now? I'd love to help you think through whatever challenge you're facing.`
   }
   
   // Soccer-specific responses for Jasmine (existing code)
 
-  // Penalty kicks and set pieces
+  // Enhanced penalty kicks and pressure situations
   if (lowerQuestion.includes('pk') || lowerQuestion.includes('penalty') ||
       lowerQuestion.includes('penalties') || lowerQuestion.includes('spot kick') ||
       (lowerQuestion.includes('under pressure') && lowerQuestion.includes('kick'))) {
-    return `Penalty kicks under pressure - this is where mental strength separates great players from good ones!
+    return `Penalty kicks under pressure - this is where mental strength separates champions from good players! During my championship run at Stanford, I maintained a 90% penalty success rate because of systematic preparation.
 
-**Technical fundamentals:**
-**Routine is everything** - Pick your spot, commit, and execute the same way every time. I had a 90% success rate at Stanford because I never changed my routine.
+## Technical Foundation
 
-**Key technique points:**
-• **Pick your corner early** - Decide before you step up, not during your run-up
-• **Consistent run-up** - Same number of steps, same pace every time
-• **Plant foot placement** - 6-8 inches beside ball, pointed at target corner
-• **Follow through** - Keep your head down, drive through the ball
+**Core Biomechanics:**
+• **Plant foot positioning** - 6-8 inches beside ball, pointed at target corner
+• **Strike mechanics** - Inside foot contact, ankle locked, follow through low
+• **Body alignment** - Shoulders square to target, head steady through contact
+• **Ball placement** - Same spot on penalty mark every time
+• **Run-up consistency** - Identical steps, pace, and rhythm
 
-**Mental preparation:**
-1. **Visualization** - See the ball hitting the net before you even place it
-2. **Breathing control** - 3 deep breaths to calm nerves and focus
-3. **Ignore the keeper** - They're trying to get in your head, don't let them
-4. **Trust your preparation** - You've practiced this thousands of times
+## Progressive Training System
 
-**Pressure management:**
-During big matches, I'd remind myself: "The goal is 24 feet wide and 8 feet high. The keeper can only cover about 12 feet. The odds are in my favor if I execute properly."
+**Phase 1: Technical Mastery (Weeks 1-2)**
+1. **Static placement** - 20 shots daily, no keeper, focus on corner accuracy
+2. **Routine development** - Establish your pre-shot ritual
+3. **Muscle memory** - Same spot, same technique, same follow-through
+4. **Target zones** - Master all four corners plus low center
 
-**Pro tip:** Watch the keeper during warm-ups. Do they dive early? Do they favor a side? Use this intel, but don't overthink it. Technique and confidence beat mind games every time.
+**Phase 2: Pressure Introduction (Weeks 3-4)**
+1. **Keeper presence** - Practice with goalkeeper, ignore their movement
+2. **Crowd simulation** - Practice with distractions and noise
+3. **Fatigue training** - Take penalties after intense training sessions
+4. **Time pressure** - Practice with limited setup time
 
-**Practice routine:** Take 10 penalties daily from the same spot you'll take them in games. Make it automatic so pressure can't affect your execution.
+**Phase 3: Game Replication (Weeks 5+)**
+1. **Match conditions** - Practice in game gear, on game fields
+2. **Consequence training** - Penalties with real stakes (fitness punishment)
+3. **Pressure scenarios** - Championship situations, sudden death
+4. **Video review** - Study your technique under pressure
 
-**Trust your preparation** - you've got this!`
+## Mental Performance Protocol
+
+**Pre-Penalty Routine (60 seconds):**
+1. **Ball placement** (10 seconds) - Same spot, same orientation
+2. **Visualization** (20 seconds) - See ball hitting target corner
+3. **Breathing reset** (10 seconds) - 3 deep breaths, exhale slowly
+4. **Target lock** (10 seconds) - Look at your chosen corner
+5. **Execution mode** (10 seconds) - Trust your preparation
+
+**Pressure Management Strategies:**
+• **Probability thinking** - Goal is 24' × 8', keeper covers ~50%
+• **Process focus** - Think technique, not outcome
+• **Confidence anchoring** - Recall your successful penalties
+• **Distraction immunity** - Practice ignoring keeper antics
+
+## Competition Psychology
+
+**Championship Mindset:**
+During the College Cup, I used this mental framework: "This penalty is just another practice shot. I've made thousands. My technique is automatic. The pressure is a privilege - it means I'm in important moments."
+
+**Pressure Response System:**
+1. **Accept the moment** - Embrace rather than resist pressure
+2. **Slow everything down** - Pressure makes time feel fast
+3. **Trust your routine** - Never change what's worked
+4. **Commit fully** - Doubt kills penalties more than technique
+
+## Common Mistakes & Solutions
+
+**Mistake 1:** Changing your spot or technique under pressure
+**Solution:** Lock in your method and never deviate
+
+**Mistake 2:** Watching the goalkeeper during run-up
+**Solution:** Eyes on ball until contact, then follow through
+
+**Mistake 3:** Overthinking the keeper's tendencies
+**Solution:** Focus on your execution, not their reaction
+
+**Mistake 4:** Rushing your routine when nervous
+**Solution:** Take your full time, stick to your rhythm
+
+## Advanced Strategies
+
+**Goalkeeper Analysis:**
+• **Dive timing** - Do they go early or wait?
+• **Preferred side** - Statistical tendencies from video
+• **Distraction tactics** - How they try to get in your head
+• **Body language** - Reading their confidence level
+
+**Situational Adaptations:**
+• **Game state** - Leading vs. trailing penalties require different mindsets
+• **Time of game** - Early vs. late game pressure management
+• **Home vs. away** - Crowd factor considerations
+• **Weather conditions** - Wind, rain, field condition adjustments
+
+## Practice Protocols
+
+**Daily Training (15 minutes):**
+1. **Warm-up shots** - 5 penalties, focus on routine
+2. **Corner targeting** - 10 shots, 2-3 per corner
+3. **Pressure simulation** - 5 shots with distraction
+
+**Weekly Pressure Training:**
+• **Consequence penalties** - Miss = fitness punishment
+• **Crowd simulation** - Practice with teammates watching/yelling
+• **Fatigue testing** - Penalties after intense training
+• **Video analysis** - Review your successful penalties
+
+## Performance Metrics
+
+**Track your development:**
+- Accuracy rate in practice vs. games
+- Routine consistency timing
+- Pressure response (heart rate, breathing)
+- Corner distribution success rate
+
+**Championship standards:**
+- 85%+ success rate in training
+- Identical routine under all conditions
+- Calm physiological response to pressure
+- Quick recovery from misses
+
+Remember: Penalties aren't about luck or guessing - they're about preparation meeting opportunity. When you step up to that spot, you should feel like you've already scored 1000 times.
+
+Trust your preparation - champions are made in practice, revealed in pressure moments!`
   }
 
   // Reading passes and vision - improved keyword matching
@@ -709,20 +1207,21 @@ During matches, I'd position myself to see both the ball carrier and potential t
 **Trust your preparation** - the more you practice scanning, the more automatic it becomes in pressure situations!`
   }
 
-  // Passing and accuracy responses
+  // Enhanced conversational passing response
   if (lowerQuestion.includes('passing') || lowerQuestion.includes('accuracy')) {
-    return `Passing accuracy comes down to fundamentals and consistent practice.
+    return `Oh, passing accuracy - that's something I was obsessed with during my college career! You know what's funny? People think it's all about having a strong leg, but honestly, the most accurate passers I played with weren't necessarily the strongest.
 
-**Key technique points:**
-• **Plant foot positioning** - 6-8 inches beside the ball, pointed toward target
-• **Inside foot contact** - Ankle locked, low follow through
-• **Vision training** - Look up before receiving, scan constantly
+Here's what I learned: passing accuracy comes down to three things that you can control completely. First is your plant foot positioning - and I mean really dialing this in. You want that foot about 6-8 inches beside the ball, pointed exactly where you want the ball to go. It sounds simple, but when you're under pressure in a game, it's easy to get sloppy with this.
 
-**Practice drill:** Set up cones 15 yards apart. Hit 50 passes daily focusing on cone accuracy. Start stationary, add movement.
+The second thing is your follow-through. I used to hit balls way too hard when I was younger, thinking power meant accuracy. But my coach at Stanford taught me that a controlled, low follow-through with your ankle locked is what creates consistency. Think of it like threading a needle - you need precision, not force.
 
-**Mental game:** Trust your first instinct. Hesitation kills accuracy. See it, feel it, play it.
+And here's the big one that changed my game: vision training. You've got to be scanning constantly, getting your head up before the ball even comes to you. I used to practice this drill where I'd receive a pass and have to call out how many teammates I could see before I even touched the ball.
 
-Even pros only hit 85% of passes. Consistency beats perfection!`
+For practice, try this: set up cones about 15 yards apart and just focus on hitting those cones consistently. Start with 50 passes a day, all stationary. Once you're hitting 8 out of 10, add some movement. The key is building that muscle memory so it becomes automatic.
+
+Trust your first instinct too - hesitation is what kills accuracy more than anything. See it, feel it, play it.
+
+What level are you playing at? I'd love to give you some more specific advice based on where you're at in your development!`
   }
   
   // Shooting and finishing

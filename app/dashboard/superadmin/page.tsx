@@ -11,8 +11,32 @@ export default function SuperAdminDashboard() {
   const router = useRouter()
   useEffect(() => {
     if (loading) return
-    if (role !== 'superadmin') router.replace('/dashboard')
+    if (role !== 'superadmin') {
+      router.replace('/dashboard')
+    }
   }, [role, loading, router])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (role !== 'superadmin') {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Access Denied</h1>
+          <p className="text-gray-600">This page is only available to superadmins.</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <main className="min-h-screen bg-gray-50">

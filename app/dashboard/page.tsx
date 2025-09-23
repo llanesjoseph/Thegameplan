@@ -6,6 +6,7 @@ import { getRedirectResult } from 'firebase/auth'
 import { auth } from '@/lib/firebase.client'
 import { useAuth } from '@/hooks/use-auth'
 import SimpleAuth from '@/components/auth/SimpleAuth'
+import Navigation from '@/components/Navigation'
 
 export default function Dashboard() {
   const { user, loading } = useAuth()
@@ -29,40 +30,55 @@ export default function Dashboard() {
     handleRedirectResult()
   }, [router])
 
-  useEffect(() => {
-    if (!loading && user) {
-      // User is authenticated, redirect to dashboard overview
-      console.log('User is authenticated, redirecting to dashboard overview')
-      router.push('/dashboard/overview')
-    }
-  }, [user, loading, router])
+  // REMOVED AGGRESSIVE REDIRECT - This was causing admin panel flickering
+  // useEffect(() => {
+  //   if (!loading && user) {
+  //     // User is authenticated, redirect to dashboard overview
+  //     console.log('User is authenticated, redirecting to dashboard overview')
+  //     router.push('/dashboard/overview')
+  //   }
+  // }, [user, loading, router])
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <>
+        <Navigation />
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center bg-white rounded-xl shadow-sm border border-gray-200 p-8">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-cardinal mx-auto"></div>
           <p className="mt-4 text-gray-700">Loading your dashboard...</p>
         </div>
-      </div>
+        </div>
+      </>
     )
   }
 
-  // If user is authenticated, show loading while redirecting
+  // If user is authenticated, show overview directly (no redirect)
   if (user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <>
+        <Navigation />
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-cardinal mx-auto"></div>
-          <p className="mt-4 text-gray-700">Redirecting to dashboard...</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Welcome to PLAYBOOKD</h1>
+          <p className="text-gray-600 mb-6">You're successfully signed in!</p>
+          <button
+            onClick={() => router.push('/dashboard/overview')}
+            className="px-6 py-3 bg-cardinal text-white rounded-lg hover:bg-cardinal-dark transition-colors"
+          >
+            Go to Dashboard Overview
+          </button>
         </div>
-      </div>
+        </div>
+      </>
     )
   }
 
   // User is not authenticated (guest)
   return (
-    <div className="min-h-screen flex items-start sm:items-center justify-center bg-gray-50 pt-24 pb-12">
+    <>
+      <Navigation />
+      <div className="min-h-screen flex items-start sm:items-center justify-center bg-gray-50 pt-24 pb-12">
       <div className="text-center w-full max-w-lg mx-auto px-4 sm:px-6">
         <div className="bg-white/95 backdrop-blur rounded-2xl shadow-card-md border border-gray-200 p-6 sm:p-8">
           <div className="mb-8">
@@ -71,7 +87,7 @@ export default function Dashboard() {
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">Welcome to Game Plan</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">Welcome to PLAYBOOKD</h1>
             <p className="text-sm sm:text-base text-gray-600 mb-2">
               Sign in to access your personalized dashboard and start your training journey with elite athletes.
             </p>
@@ -107,11 +123,12 @@ export default function Dashboard() {
               onClick={() => router.push('/contributors')}
               className="text-cardinal hover:text-cardinal-dark text-sm font-medium"
             >
-              New to Game Plan? Explore our contributors
+              New to PLAYBOOKD? Explore our contributors
             </button>
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   )
 }

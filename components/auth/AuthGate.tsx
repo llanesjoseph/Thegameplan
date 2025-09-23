@@ -11,7 +11,7 @@ interface AuthGateProps {
   children: ReactNode
 }
 
-export default function AuthGate({ allowedRoles = ['user', 'creator', 'admin', 'superadmin'], children }: AuthGateProps) {
+export default function AuthGate({ allowedRoles = ['user', 'creator', 'superadmin'], children }: AuthGateProps) {
   const { user, loading } = useAuth()
   const role = (user as { role?: UserRole })?.role
   const router = useRouter()

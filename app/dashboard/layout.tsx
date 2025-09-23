@@ -12,7 +12,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       <SuperAdminTabs>
         <div className="min-h-screen bg-clarity-background">
           <DashboardSidebar />
-          <div className="lg:pl-64">
+          <div className="xl:pl-56">
             <div className="pt-16 lg:pt-6 px-6 pb-6">
               <DashboardBreadcrumb />
               <div className="clarity-container">

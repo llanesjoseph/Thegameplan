@@ -261,7 +261,10 @@ export default function ContributorsPage() {
             <div className="flex gap-3">
               <button
                 onClick={applyFilters}
-                className="flex-1 px-6 py-4 rounded-lg bg-cardinal text-white font-semibold hover:bg-cardinal-dark transition"
+                className="flex-1 px-6 py-4 rounded-lg text-white font-semibold transition"
+                style={{backgroundColor: '#20B2AA'}}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1a9b94'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#20B2AA'}
               >
                 Apply Filters
               </button>
@@ -349,7 +352,10 @@ export default function ContributorsPage() {
           </div>
           <Link
             href="/contributors/apply"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-cardinal text-white font-semibold rounded-lg hover:bg-cardinal-dark transition"
+            className="inline-flex items-center gap-2 px-6 py-3 text-white font-semibold rounded-lg transition"
+            style={{backgroundColor: '#8D9440'}}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#7a8239'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#8D9440'}
           >
             <Star className="w-4 h-4" />
             Become a Coach

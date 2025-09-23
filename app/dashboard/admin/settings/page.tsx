@@ -95,7 +95,7 @@ export default function AdminSettings() {
   const { role } = useEnhancedRole()
 
   useEffect(() => {
-    if (user && (role === 'admin' || role === 'superadmin')) {
+    if (user && (role === 'superadmin')) {
       loadSettings()
     }
   }, [user, role])
@@ -153,7 +153,7 @@ export default function AdminSettings() {
     }))
   }
 
-  if (role !== 'admin' && role !== 'superadmin') {
+  if (role !== 'superadmin') {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">

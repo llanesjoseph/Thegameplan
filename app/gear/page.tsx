@@ -321,7 +321,7 @@ function GearContent() {
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-cardinal rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{backgroundColor: '#8D9440'}}>
               <ShoppingBag className="w-5 h-5 text-white" />
             </div>
             <div>
@@ -345,13 +345,16 @@ function GearContent() {
               {selectedCreator !== 'all' && (
                 <Link
                   href="/gear"
-                  className="inline-flex items-center gap-2 bg-cardinal text-white px-6 py-3 rounded-lg font-medium hover:bg-cardinal-dark transition-colors"
+                  className="inline-flex items-center gap-2 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+                  style={{backgroundColor: '#20B2AA'}}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1a9b94'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#20B2AA'}
                 >
                   <ShoppingBag className="w-4 h-4" />
                   See All Contributors Gear
                 </Link>
               )}
-              {(role === 'creator' || role === 'admin' || role === 'superadmin') && (
+              {(role === 'creator' || role === 'superadmin') && (
                 <CreatorGearManager onItemAdded={() => window.location.reload()} />
               )}
             </div>
@@ -466,7 +469,7 @@ function GearContent() {
               <div className="space-y-3 flex-1 flex flex-col">
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs font-medium text-cardinal bg-cardinal/10 px-2 py-1 rounded-full">
+                    <span className="text-xs font-medium px-2 py-1 rounded-full" style={{color: '#5A2C59', backgroundColor: 'rgba(90, 44, 89, 0.1)'}}>
                       {item.category}
                     </span>
                     <span className="text-xs font-medium text-gray-600 bg-white px-2 py-1 rounded-full border border-gray-200">
@@ -498,13 +501,27 @@ function GearContent() {
                     href={item.link || (item as any).affiliateLink} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="flex-1 bg-cardinal text-white rounded-lg py-2 px-4 flex items-center justify-center gap-2 hover:bg-cardinal-dark transition-colors"
+                    className="flex-1 text-white rounded-lg py-2 px-4 flex items-center justify-center gap-2 transition-colors"
+                    style={{backgroundColor: '#20B2AA'}}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1a9b94'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#20B2AA'}
                   >
                     <ExternalLink className="w-4 h-4" />
                     View Product
                   </a>
-                  <button className="p-2 border border-gray-300 hover:border-red-400 hover:bg-red-50 rounded-lg transition-colors">
-                    <Heart className="w-4 h-4 text-gray-600 hover:text-red-600" />
+                  <button
+                    className="p-2 border rounded-lg transition-colors"
+                    style={{borderColor: '#8D9440'}}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = '#8D9440'
+                      e.currentTarget.style.backgroundColor = 'rgba(141, 148, 64, 0.1)'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = '#8D9440'
+                      e.currentTarget.style.backgroundColor = 'transparent'
+                    }}
+                  >
+                    <Heart className="w-4 h-4" style={{color: '#8D9440'}} />
                   </button>
                 </div>
               </div>
@@ -524,7 +541,10 @@ function GearContent() {
                 setSelectedCreator('all')
                 setSearchTerm('')
               }}
-              className="px-6 py-3 bg-cardinal text-white rounded-lg hover:bg-cardinal-dark"
+              className="px-6 py-3 text-white rounded-lg transition-colors"
+              style={{backgroundColor: '#8D9440'}}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#7a8239'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#8D9440'}
             >
               Clear Filters
             </button>

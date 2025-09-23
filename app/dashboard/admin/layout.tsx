@@ -5,7 +5,7 @@ import AuthGate from '@/components/auth/AuthGate'
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
-    <AuthGate allowedRoles={['admin', 'superadmin']}>
+    <AuthGate allowedRoles={['superadmin']}>
       {children}
     </AuthGate>
   )

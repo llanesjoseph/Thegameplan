@@ -12,7 +12,7 @@ import { useRouter } from 'next/navigation'
 import CreatorAccessGate from '@/components/CreatorAccessGate'
 import { collection, addDoc, query, where, getCountFromServer, serverTimestamp, getDoc, doc, getDocs, orderBy, deleteDoc } from 'firebase/firestore'
 import { ref, uploadBytes, getDownloadURL, uploadBytesResumable } from 'firebase/storage'
-import { uploadService } from '@/lib/upload-service'
+// import { uploadService } from '@/lib/upload-service' // TEMPORARILY DISABLED TO FIX SSR ISSUES
 import UploadManager from '@/components/UploadManager'
 import VideoCompressionHelper from '@/components/VideoCompressionHelper'
 import InAppVideoCompressor from '@/components/InAppVideoCompressor'
@@ -501,7 +501,7 @@ ${titleAnalysis.keySkills.includes('Live Training') || titleAnalysis.primaryFocu
 • **Adaptability**: Adjust strategy based on opponent's strengths and weaknesses
 • **Systematic Training**: Develop all aspects while specializing in core strengths
 • **Mental Toughness**: Build confidence through pressure testing
-• **Game Planning**: Prepare specific strategies for different opponent types
+• **Match Planning**: Prepare specific strategies for different opponent types
 
 ## Practice Drills
 ${titleAnalysis.keySkills.includes('Live Training') || titleAnalysis.primaryFocus === 'Effective Practice Methods' ?
@@ -731,40 +731,59 @@ export default function CreatorDashboard() {
         })
 
         if (useEnterpriseUpload) {
-          // Use enterprise upload service for large files
-          const uploadId = await uploadService.startUpload({
-            file: videoFile,
-            path: uploadPath,
-            onProgress: (progress, bytesTransferred, totalBytes) => {
-              setUploadProgress(prev => ({ ...prev, video: Math.round(progress) }))
-            },
-            onSuccess: (downloadURL) => {
-              videoUrl = downloadURL
-              console.log('✅ Enterprise video upload completed:', downloadURL)
-            },
-            maxRetries: 5
+          // TEMPORARILY DISABLED - Use basic Firebase upload instead to fix SSR issues
+          // const uploadId = await uploadService.startUpload({
+          //   file: videoFile,
+          //   path: uploadPath,
+          //   onProgress: (progress, bytesTransferred, totalBytes) => {
+          //     setUploadProgress(prev => ({ ...prev, video: Math.round(progress) }))
+          //   },
+          //   onSuccess: (downloadURL) => {
+          //     videoUrl = downloadURL
+          //     console.log('✅ Enterprise video upload completed:', downloadURL)
+          //   },
+          //   maxRetries: 5
+          // })
+
+          // setCurrentUploadId(uploadId)
+
+          // Use basic Firebase upload instead
+          console.log('📁 Using basic Firebase upload (enterprise temporarily disabled)')
+          const storageRef = ref(storage, uploadPath)
+          const uploadTask = uploadBytesResumable(storageRef, videoFile)
+
+          await new Promise<void>((resolve, reject) => {
+            uploadTask.on('state_changed',
+              (snapshot) => {
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+                setUploadProgress(prev => ({ ...prev, video: Math.round(progress) }))
+              },
+              (error) => reject(error),
+              async () => {
+                videoUrl = await getDownloadURL(uploadTask.snapshot.ref)
+                resolve()
+              }
+            )
           })
 
-          setCurrentUploadId(uploadId)
-
           // Wait for upload completion
-          const checkUpload = () => {
-            return new Promise<void>((resolve, reject) => {
-              const interval = setInterval(() => {
-                const uploadState = uploadService.getUploadState(uploadId)
-                if (uploadState?.state === 'completed' && uploadState.downloadURL) {
-                  videoUrl = uploadState.downloadURL
-                  clearInterval(interval)
-                  resolve()
-                } else if (uploadState?.state === 'error') {
-                  clearInterval(interval)
-                  reject(new Error(uploadState.error || 'Upload failed'))
-                }
-              }, 1000)
-            })
-          }
+          // const checkUpload = () => {
+          //   return new Promise<void>((resolve, reject) => {
+          //     const interval = setInterval(() => {
+          //       const uploadState = uploadService.getUploadState(uploadId)
+          //       if (uploadState?.state === 'completed' && uploadState.downloadURL) {
+          //         videoUrl = uploadState.downloadURL
+          //         clearInterval(interval)
+          //         resolve()
+          //       } else if (uploadState?.state === 'error') {
+          //         clearInterval(interval)
+          //         reject(new Error(uploadState.error || 'Upload failed'))
+          //       }
+          //     }, 1000)
+          //   })
+          // }
 
-          await checkUpload()
+          // await checkUpload() // Disabled - using direct Firebase upload above
         } else {
           // Use standard upload for smaller files
           const videoRef = ref(storage, uploadPath)
@@ -955,7 +974,7 @@ export default function CreatorDashboard() {
 
           // Advanced Strategy
           'Film Study: Breaking Down Opponents and Self-Evaluation',
-          'Game Planning: Preparing for Different Opponent Styles',
+          'Match Planning: Preparing for Different Opponent Styles',
           'Audibles and Hot Routes: Adjusting at the Line',
           'Blitz Recognition and Protection: Reading Defensive Pressure',
           'Run Fits and Gap Responsibility: Defensive Assignment Football',
@@ -1062,7 +1081,7 @@ export default function CreatorDashboard() {
           'Lapel Guards: Worm Guard and Squid Guard',
           
           // Competition and Mental
-          'Competition Strategy: Mental Preparation and Game Planning',
+          'Competition Strategy: Mental Preparation and Match Planning',
           'Rolling Intensity: Training Smart vs Training Hard',
           'Building Your A-Game: Developing Signature Moves',
           'Pressure vs Speed: Finding Your Style',
@@ -1085,7 +1104,7 @@ export default function CreatorDashboard() {
           'Stand-up Game: Striking to Grappling Transitions',
           'Mental Toughness: Preparing for Competition',
           'Weight Cutting: Safe and Effective Methods',
-          'Game Planning: Studying Opponents and Strategy',
+          'Match Planning: Studying Opponents and Strategy',
           'Clinch Work: Controlling and Striking in Close Range',
           'Dirty Boxing: Inside Fighting Techniques',
           'Leg Kick Defense: Checking and Countering',
@@ -1169,7 +1188,7 @@ export default function CreatorDashboard() {
 
           // Strategic and Tactical
           `${selectedSport} Strategy: Reading and Reacting to Competition`,
-          `Game Planning in ${selectedSport}: Preparation for Success`,
+          `Match Planning in ${selectedSport}: Preparation for Success`,
           `Tactical Awareness: Understanding ${selectedSport} Situations`,
           `Decision Making Under Pressure in ${selectedSport}`,
           `Competition Analysis: Breaking Down ${selectedSport} Performance`,
@@ -1382,11 +1401,23 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
               e.stopPropagation()
               setActiveTab('create')
             }}
-            className={`px-4 py-2 rounded-md font-medium transition-colors flex items-center gap-2 cursor-pointer ${
-              activeTab === 'create'
-                ? 'bg-cardinal text-white'
-                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-            }`}
+            className="px-4 py-2 rounded-md font-medium transition-colors flex items-center gap-2 cursor-pointer"
+            style={activeTab === 'create' ?
+              {backgroundColor: '#5A2C59', color: 'white'} :
+              {color: '#6B7280'}
+            }
+            onMouseEnter={(e) => {
+              if (activeTab !== 'create') {
+                e.currentTarget.style.color = '#5A2C59'
+                e.currentTarget.style.backgroundColor = 'rgba(90, 44, 89, 0.05)'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (activeTab !== 'create') {
+                e.currentTarget.style.color = '#6B7280'
+                e.currentTarget.style.backgroundColor = 'transparent'
+              }
+            }}
           >
             <Plus className="w-4 h-4" />
             Create Content
@@ -1398,11 +1429,23 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
               e.stopPropagation()
               setActiveTab('manage')
             }}
-            className={`px-4 py-2 rounded-md font-medium transition-colors flex items-center gap-2 cursor-pointer ${
-              activeTab === 'manage'
-                ? 'bg-cardinal text-white'
-                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-            }`}
+            className="px-4 py-2 rounded-md font-medium transition-colors flex items-center gap-2 cursor-pointer"
+            style={activeTab === 'manage' ?
+              {backgroundColor: '#5A2C59', color: 'white'} :
+              {color: '#6B7280'}
+            }
+            onMouseEnter={(e) => {
+              if (activeTab !== 'manage') {
+                e.currentTarget.style.color = '#5A2C59'
+                e.currentTarget.style.backgroundColor = 'rgba(90, 44, 89, 0.05)'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (activeTab !== 'manage') {
+                e.currentTarget.style.color = '#6B7280'
+                e.currentTarget.style.backgroundColor = 'transparent'
+              }
+            }}
           >
             <FileVideo className="w-4 h-4" />
             Manage Library
@@ -1622,79 +1665,119 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
                           setGeneratingIdeas(true)
 
                           try {
-                            // Check if there's existing content to enhance
-                            if (detailedWriteup && detailedWriteup.trim().length > 0) {
-                              // ENHANCE existing content instead of replacing
-                              const { enhanceExistingContent } = await import('@/lib/content-generation-service')
+                            // Use new Gemini API-based lesson generation
+                            console.log('🚀 Generating lesson with Gemini API:', {
+                              title: currentTitle,
+                              sport: currentSport
+                            })
 
-                              const enhancedContent = enhanceExistingContent(
-                                detailedWriteup,
-                                currentTitle,
-                                currentSport,
-                                'intermediate' // Could be user-selectable in future
-                              )
-
-                              setDetailedWriteup(enhancedContent)
-
-                              console.log('Enhanced existing content for:', {
-                                title: currentTitle,
+                            const response = await fetch('/api/generate-lesson', {
+                              method: 'POST',
+                              headers: {
+                                'Content-Type': 'application/json',
+                              },
+                              body: JSON.stringify({
+                                topic: currentTitle,
                                 sport: currentSport,
-                                previousLength: detailedWriteup.length,
-                                newLength: enhancedContent.length
+                                level: 'intermediate', // Could be made dynamic later
+                                duration: '45 minutes',
+                                detailedInstructions: detailedWriteup && detailedWriteup.trim().length > 0 ? detailedWriteup : undefined
                               })
+                            })
 
-                              alert('Content enhanced successfully! Added missing sections and improved details.')
-                            } else {
-                              // Generate new content if nothing exists
-                              const { generateLessonContent } = await import('@/lib/content-generation-service')
-
-                              const generatedContent = await generateLessonContent({
-                                title: currentTitle,
-                                sport: currentSport,
-                                creatorId: authUser?.email || 'default',
-                                skillLevel: 'intermediate',
-                                focus: 'comprehensive',
-                                duration: 30,
-                                safetyLevel: 'high'
-                              })
-
-                              setDetailedWriteup(generatedContent.detailedWriteup)
-
-                              console.log('Generated new content for:', {
-                                title: currentTitle,
-                                sport: currentSport
-                              })
-
-                              alert('New comprehensive lesson content generated!')
+                            if (!response.ok) {
+                              throw new Error(`API request failed: ${response.status}`)
                             }
 
-                          } catch (error) {
-                            console.error('Content enhancement/generation failed:', error)
+                            const result = await response.json()
 
-                            // Fallback enhancement for existing content
+                            if (!result.success) {
+                              throw new Error(result.error || 'Failed to generate lesson')
+                            }
+
+                            const { markdownContent, usedFallback, metadata } = result
+
                             if (detailedWriteup && detailedWriteup.trim().length > 0) {
-                              try {
-                                const { enhanceExistingContent } = await import('@/lib/content-generation-service')
-                                const enhancedContent = enhanceExistingContent(
-                                  detailedWriteup,
-                                  currentTitle,
-                                  currentSport,
-                                  'intermediate'
-                                )
-                                setDetailedWriteup(enhancedContent)
-                                alert('Content enhanced with sport-specific details!')
-                              } catch (enhanceError) {
-                                alert('Enhancement failed. Please check your content and try again.')
-                              }
+                              // Append new lesson to existing content
+                              setDetailedWriteup(detailedWriteup + '\n\n---\n\n' + markdownContent)
+                              alert(`Content enhanced with ${usedFallback ? 'structured' : 'AI-generated'} lesson plan! Check below for the comprehensive lesson.`)
                             } else {
-                              // Fallback generation for new content
-                              try {
-                                const localFallback = generateSportSpecificFallback(currentTitle, currentSport)
-                                setDetailedWriteup(localFallback)
-                                alert('Generated basic template. Use enhance function to improve further.')
-                              } catch (fallbackError) {
-                                alert('Content generation failed. Please try again.')
-                              }
+                              // Replace with new lesson
+                              setDetailedWriteup(markdownContent)
+                              alert(`${usedFallback ? 'Structured lesson template' : 'Professional AI lesson plan'} generated! Word count: ${metadata.wordCount} characters.`)
+                            }
+
+                            console.log('✅ Lesson generation successful:', {
+                              wordCount: metadata.wordCount,
+                              sections: metadata.sections,
+                              usedFallback
+                            })
+
+                          } catch (error) {
+                            console.error('Lesson generation failed:', error)
+
+                            // Show user-friendly error message
+                            const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+                            alert(`Lesson generation failed: ${errorMessage}. Please try again or enter content manually.`)
+
+                            // If no content exists, provide a basic template
+                            if (!detailedWriteup || detailedWriteup.trim().length === 0) {
+                              const basicTemplate = `# ${currentTitle || 'Training Session'}
+
+## Lesson Overview
+
+**Sport:** ${currentSport || 'Sport'}
+**Level:** Intermediate
+**Duration:** 45 minutes
+
+## Learning Objectives
+
+By the end of this lesson, participants will be able to:
+
+1. Understand the fundamental concepts
+2. Apply basic techniques with proper form
+3. Practice skills in controlled scenarios
+
+## Warm-Up & Introduction (8 minutes)
+
+### Overview
+Introduction to the lesson and physical preparation.
+
+• Dynamic warm-up exercises
+• Review safety guidelines
+• Introduce lesson objectives
+
+## Technical Instruction (18 minutes)
+
+### Core Principles
+Fundamental concepts and technique breakdown.
+
+• Proper positioning and body mechanics
+• Timing and rhythm of movement
+• Key points for effective execution
+
+## Practice & Drilling (15 minutes)
+
+### Structured Practice
+Progressive skill development with feedback.
+
+• Isolation drills for technique refinement
+• Partner practice with light resistance
+• Focus on form and consistency
+
+## Application & Cool-Down (4 minutes)
+
+### Live Application
+Apply skills in realistic scenarios.
+
+• Controlled application practice
+• Cool-down and stretching
+• Lesson review and Q&A
+
+*Please customize this template with specific techniques and drills for your lesson.*`
+
+                              setDetailedWriteup(basicTemplate)
+                              alert('Generated basic lesson template. Please customize with your specific content.')
                             }
                           } finally {
                             setGeneratingIdeas(false)

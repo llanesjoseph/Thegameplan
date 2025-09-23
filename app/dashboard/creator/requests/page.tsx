@@ -24,7 +24,7 @@ export default function CreatorRequests() {
     // Don't do anything while auth is still loading
     if (loading) return
     
-    if (user && (role === 'creator' || role === 'superadmin' || role === 'admin')) {
+    if (user && (role === 'creator' || role === 'superadmin')) {
       loadCreatorRequests()
     } else {
       setLoadingRequests(false)
