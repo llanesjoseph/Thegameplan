@@ -8,27 +8,6 @@ import ClarityButton from './ui/NexusButton'
 import { UserIdentity } from './user-identity'
 import { useAuth } from '@/hooks/use-auth'
 
-// Navigation Link Component
-const NavLink = ({ href, label }: { href: string; label: string }) => (
-  <Link 
-    href={href}
-    className="relative px-3 py-2 text-sm font-medium text-gray-800 hover:text-cardinal transition-colors group rounded-lg hover:bg-cardinal/5"
-  >
-    {label}
-    <div className="absolute bottom-1 left-1/2 w-0 h-0.5 bg-cardinal transition-all duration-300 group-hover:w-6 group-hover:left-1/2 group-hover:-translate-x-1/2 rounded-full" />
-  </Link>
-)
-
-// Mobile Navigation Link Component  
-const MobileNavLink = ({ href, label, onClick }: { href: string; label: string; onClick: () => void }) => (
-  <Link 
-    href={href}
-    className="block px-4 py-3 text-base font-medium text-gray-800 hover:text-cardinal hover:bg-cardinal/5 transition-colors rounded-lg"
-    onClick={onClick}
-  >
-    {label}
-  </Link>
-)
 
 const Navigation = () => {
   const [scrolled, setScrolled] = useState(false)
@@ -73,11 +52,7 @@ const Navigation = () => {
 
             {/* Center Navigation - Simplified */}
             <div className="hidden md:flex items-center space-x-1">
-              <NavLink href="/contributors" label="Contributors" />
-              <NavLink href="/gear" label="Gear" />
-              {/* Only show Subscribe for non-authenticated users */}
-              {!user && <NavLink href="/subscribe" label="Subscribe" />}
-              <NavLink href="/dashboard" label="Dashboard" />
+              {/* Navigation items removed for cleaner header */}
             </div>
 
             {/* Right Section - Adaptive based on auth state */}
@@ -154,19 +129,14 @@ const Navigation = () => {
           ${mobileMenuOpen ? 'translate-y-0' : '-translate-y-full'}
         `}>
           <div className="p-6 space-y-1">
-            {/* Mobile Navigation Links */}
-            <MobileNavLink href="/contributors" label="Contributors" onClick={() => setMobileMenuOpen(false)} />
-            <MobileNavLink href="/gear" label="Gear" onClick={() => setMobileMenuOpen(false)} />
-            {/* Only show Subscribe for non-authenticated users */}
-            {!user && <MobileNavLink href="/subscribe" label="Subscribe" onClick={() => setMobileMenuOpen(false)} />}
-            <MobileNavLink href="/dashboard" label="Dashboard" onClick={() => setMobileMenuOpen(false)} />
-            
+            {/* Mobile Navigation Links - Removed for cleaner header */}
+
             {/* Mobile CTA Section - Conditional */}
             {!user && (
-              <div className="pt-4 mt-4 border-t border-gray-200 space-y-3">
+              <div className="space-y-3">
                 <Link href="/dashboard">
-                  <ClarityButton 
-                    variant="ghost" 
+                  <ClarityButton
+                    variant="ghost"
                     className="w-full justify-center"
                     onClick={() => setMobileMenuOpen(false)}
                   >
@@ -174,8 +144,8 @@ const Navigation = () => {
                   </ClarityButton>
                 </Link>
                 <Link href="/onboarding">
-                  <ClarityButton 
-                    variant="primary" 
+                  <ClarityButton
+                    variant="primary"
                     className="w-full justify-center"
                     onClick={() => setMobileMenuOpen(false)}
                   >
