@@ -5,12 +5,14 @@ import AuthGate from '@/components/auth/AuthGate'
 import { DashboardSidebar } from '@/components/DashboardSidebar'
 import { DashboardBreadcrumb } from '@/components/DashboardBreadcrumb'
 import SuperAdminTabs from '@/components/ui/SuperAdminTabs'
+import ProfileCompletionBanner from '@/components/ui/ProfileCompletionBanner'
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
     <AuthGate>
       <SuperAdminTabs>
         <div className="min-h-screen bg-clarity-background">
+          <ProfileCompletionBanner />
           <DashboardSidebar />
           <div className="xl:pl-56">
             <div className="pt-16 lg:pt-6 px-6 pb-6">

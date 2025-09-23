@@ -27,7 +27,7 @@ export default function SimpleAuth() {
 
       const result = await signInWithPopup(auth, provider)
       const user = result.user
-      const isNewUser = result.additionalUserInfo?.isNewUser || false
+      const isNewUser = (result as any).additionalUserInfo?.isNewUser || false
 
       console.log('Google sign-in successful:', user.email, isNewUser ? '(New User)' : '(Returning User)')
 
@@ -45,9 +45,12 @@ export default function SimpleAuth() {
       if (tracked && isNewUser) {
         // Notify admins of new user
         await notifyAdminsOfNewUser({ ...trackingData, timestamp: new Date() })
+        // Redirect new users to onboarding
+        router.push('/onboarding')
+      } else {
+        // Existing users go to dashboard
+        router.push('/dashboard/overview')
       }
-
-      router.push('/dashboard/overview')
     } catch (error: any) {
       console.error('Google sign-in error:', error)
       setError(`Google sign-in failed: ${error.message}`)
@@ -88,9 +91,12 @@ export default function SimpleAuth() {
       if (tracked && isNewUser) {
         // Notify admins of new user
         await notifyAdminsOfNewUser({ ...trackingData, timestamp: new Date() })
+        // Redirect new users to onboarding
+        router.push('/onboarding')
+      } else {
+        // Existing users go to dashboard
+        router.push('/dashboard/overview')
       }
-
-      router.push('/dashboard/overview')
     } catch (error: any) {
       console.error('Email auth error:', error)
       setError(`Email authentication failed: ${error.message}`)

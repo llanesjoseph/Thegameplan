@@ -1,229 +1,450 @@
 'use client'
-import { db } from '@/lib/firebase.client'
-import { doc, setDoc } from 'firebase/firestore'
-import { getFunctions, httpsCallable } from 'firebase/functions'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useAuth } from '@/hooks/use-auth'
+
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import AuthProvider from '@/components/auth/AuthProvider'
+import { useAuth } from '@/hooks/use-auth'
+import { db } from '@/lib/firebase.client'
+import { doc, updateDoc, serverTimestamp } from 'firebase/firestore'
+import {
+  User,
+  Calendar,
+  Trophy,
+  Target,
+  ChevronRight,
+  ChevronLeft,
+  CheckCircle,
+  Sparkles
+} from 'lucide-react'
+import ClarityButton from '@/components/ui/NexusButton'
 
-const schema = z.object({
-  sports: z.array(z.string()).min(1, 'Select at least one sport'),
-  level: z.enum(['beginner', 'intermediate', 'advanced']),
-  goals: z.string().min(10, 'Tell us a bit more about your goals'),
-  experienceYears: z.number().min(0).max(50),
-  availabilityPerWeekHours: z.number().min(1).max(40),
-  preferredCoachStyle: z.enum(['technical', 'tactical', 'mindset', 'balanced'])
-})
-type FormValues = z.infer<typeof schema>
+interface OnboardingData {
+  firstName: string
+  lastName: string
+  displayName: string
+  primarySport: string
+  experienceLevel: 'beginner' | 'intermediate' | 'advanced' | 'elite'
+  yearsExperience: string
+  goals: string[]
+  interests: string[]
+  coachingInterest: boolean
+}
 
-export default function Onboarding() {
-  const { user, loading } = useAuth()
+const SPORTS_OPTIONS = [
+  'Brazilian Jiu-Jitsu (BJJ)',
+  'Soccer',
+  'Basketball',
+  'Tennis',
+  'Baseball',
+  'Football',
+  'Volleyball',
+  'Golf',
+  'Swimming',
+  'Mixed Martial Arts (MMA)',
+  'Boxing',
+  'Wrestling',
+  'Track & Field',
+  'Gymnastics',
+  'Hockey',
+  'Other'
+]
+
+const GOALS_OPTIONS = [
+  'Improve technique',
+  'Increase fitness',
+  'Compete professionally',
+  'Learn fundamentals',
+  'Become a coach',
+  'Stay active/recreational',
+  'Injury recovery',
+  'Mental training'
+]
+
+const INTERESTS_OPTIONS = [
+  'Video lessons',
+  'Live coaching',
+  'Training plans',
+  'Nutrition advice',
+  'Equipment reviews',
+  'Community discussions',
+  'Competition prep',
+  'Injury prevention'
+]
+
+export default function OnboardingPage() {
+  const { user } = useAuth()
   const router = useRouter()
-  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<FormValues>({
-    resolver: zodResolver(schema),
-    defaultValues: {
-      sports: ['soccer'],
-      level: 'intermediate',
-      goals: 'Improve decision speed and first-touch under pressure.',
-      experienceYears: 2,
-      availabilityPerWeekHours: 5,
-      preferredCoachStyle: 'balanced'
-    }
+  const [currentStep, setCurrentStep] = useState(1)
+  const [loading, setLoading] = useState(false)
+  const [data, setData] = useState<OnboardingData>({
+    firstName: '',
+    lastName: '',
+    displayName: '',
+    primarySport: '',
+    experienceLevel: 'beginner',
+    yearsExperience: '',
+    goals: [],
+    interests: [],
+    coachingInterest: false
   })
 
-  const onSubmit = async (values: FormValues) => {
+  useEffect(() => {
     if (!user) {
-      alert('Please sign in to continue')
+      router.push('/dashboard')
       return
     }
 
+    // Pre-fill some data if available
+    if (user.displayName) {
+      const nameParts = user.displayName.split(' ')
+      setData(prev => ({
+        ...prev,
+        displayName: user.displayName || '',
+        firstName: nameParts[0] || '',
+        lastName: nameParts.slice(1).join(' ') || ''
+      }))
+    }
+  }, [user, router])
+
+  const updateField = (field: keyof OnboardingData, value: any) => {
+    setData(prev => ({ ...prev, [field]: value }))
+  }
+
+  const toggleArrayField = (field: 'goals' | 'interests', value: string) => {
+    setData(prev => ({
+      ...prev,
+      [field]: prev[field].includes(value)
+        ? prev[field].filter(item => item !== value)
+        : [...prev[field], value]
+    }))
+  }
+
+  const handleComplete = async () => {
+    if (!user) return
+
+    setLoading(true)
     try {
-      const uid = user.uid
-      
-      // Create user profile with comprehensive error handling
-      await setDoc(doc(db, 'users', uid), {
-        sports: values.sports,
-        skillLevel: values.level,
-        goals: [values.goals],
-        experienceYears: values.experienceYears,
-        availabilityPerWeekHours: values.availabilityPerWeekHours,
-        preferredCoachStyle: values.preferredCoachStyle,
-        role: 'user', // Ensure role is assigned
-        email: user.email,
-        displayName: user.displayName || user.email?.split('@')[0] || 'Anonymous User',
+      // Update user profile in Firebase
+      await updateDoc(doc(db, 'users', user.uid), {
+        firstName: data.firstName,
+        lastName: data.lastName,
+        displayName: data.displayName || `${data.firstName} ${data.lastName}`,
+        primarySport: data.primarySport,
+        experienceLevel: data.experienceLevel,
+        yearsExperience: data.yearsExperience,
+        goals: data.goals,
+        interests: data.interests,
+        coachingInterest: data.coachingInterest,
         onboardingCompleted: true,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }, { merge: true })
+        onboardingCompletedAt: serverTimestamp(),
+        profileComplete: true,
+        lastUpdatedAt: serverTimestamp()
+      })
 
-      // Optional analytics logging - don't let this block the user flow
-      try {
-        const fn = httpsCallable(getFunctions(), 'log_event')
-        await fn({ type: 'onboarding_completed', payload: { sports: values.sports, level: values.level } })
-      } catch (analyticsError) {
-        console.warn('Analytics logging failed:', analyticsError)
-      }
+      // Create/update profile document
+      await updateDoc(doc(db, 'profiles', user.uid), {
+        firstName: data.firstName,
+        lastName: data.lastName,
+        displayName: data.displayName || `${data.firstName} ${data.lastName}`,
+        primarySport: data.primarySport,
+        experienceLevel: data.experienceLevel,
+        bio: `${data.experienceLevel} ${data.primarySport} athlete with ${data.yearsExperience} years of experience`,
+        sports: [data.primarySport],
+        goals: data.goals,
+        interests: data.interests,
+        isPublic: false, // Let them decide later
+        updatedAt: serverTimestamp()
+      })
 
-      console.log('User onboarding completed successfully')
-      alert('Profile saved successfully! Redirecting to dashboard...')
-      router.push('/dashboard')
-
+      console.log('✅ Onboarding completed successfully')
+      router.push('/dashboard?welcome=true')
     } catch (error) {
-      console.error('Error completing onboarding:', error)
-      
-      // User-friendly error handling
-      if (error && typeof error === 'object' && 'code' in error) {
-        const firebaseError = error as { code: string; message: string }
-        switch (firebaseError.code) {
-          case 'permission-denied':
-            alert('Permission denied. Please try signing in again.')
-            break
-          case 'unavailable':
-            alert('Service temporarily unavailable. Please try again in a moment.')
-            break
-          default:
-            alert('Error saving your profile. Please try again.')
-        }
-      } else {
-        alert('Error saving your profile. Please try again.')
-      }
+      console.error('❌ Error completing onboarding:', error)
+    } finally {
+      setLoading(false)
     }
   }
 
-  if (loading) {
-    return (
-      <main className="min-h-screen bg-white flex items-center justify-center">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full">
-          <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cardinal"></div>
-            <p className="ml-4 text-gray-600">Loading your profile...</p>
-          </div>
-        </div>
-      </main>
-    )
+  const canProceed = () => {
+    switch (currentStep) {
+      case 1:
+        return data.firstName && data.lastName
+      case 2:
+        return data.primarySport && data.experienceLevel && data.yearsExperience
+      case 3:
+        return data.goals.length > 0
+      default:
+        return true
+    }
   }
 
   if (!user) {
-    return (
-      <main className="fixed inset-0 bg-gradient-to-br from-gray-50 to-white flex items-center justify-center p-4 z-50 overflow-y-auto">
-        <div className="w-full max-w-lg mx-auto my-8">
-          <div className="text-center mb-6">
-            <div className="w-16 h-16 mx-auto mb-4 bg-cardinal rounded-full flex items-center justify-center shadow-lg">
-              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-            </div>
-            <h1 className="text-2xl font-bold text-gray-800 mb-2">Welcome to Game Plan</h1>
-            <p className="text-gray-600 text-sm mb-6">Access to dashboard requires an account.</p>
-          </div>
-
-          <AuthProvider
-            title="Sign in to continue"
-            subtitle="Join thousands of athletes training with elite coaches"
-            showBenefits={true}
-          />
-        </div>
-      </main>
-    )
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>
   }
 
   return (
-    <main className="min-h-screen bg-white">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
-        <div className="max-w-3xl mx-auto">
-          <div className="text-center mb-8">
-            <h1 className="font-bold text-5xl tracking-tight text-gray-800 mb-4">Build Your Blueprint</h1>
-            <p className="text-lg text-gray-600 leading-relaxed">
-              Tell us about your athletic journey to get personalized training recommendations
-            </p>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-cream to-sky-blue/10 flex items-center justify-center p-4">
+      <div className="w-full max-w-2xl bg-white rounded-2xl shadow-xl border border-sky-blue/20 overflow-hidden">
 
-          <div className="bg-white border border-gray-200 rounded-lg shadow-card p-8">
-            <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+        {/* Header */}
+        <div className="bg-gradient-to-r from-sky-blue to-green text-white p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <Sparkles className="w-8 h-8" />
+            <h1 className="text-2xl font-bold">Welcome to PLAYBOOKD!</h1>
+          </div>
+          <p className="text-sky-100">Let&apos;s set up your profile to personalize your experience</p>
+
+          {/* Progress Bar */}
+          <div className="mt-6">
+            <div className="flex justify-between text-sm text-sky-100 mb-2">
+              <span>Step {currentStep} of 4</span>
+              <span>{Math.round((currentStep / 4) * 100)}% Complete</span>
+            </div>
+            <div className="w-full bg-sky-blue/30 rounded-full h-2">
+              <div
+                className="bg-white rounded-full h-2 transition-all duration-300"
+                style={{ width: `${(currentStep / 4) * 100}%` }}
+              ></div>
+            </div>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="p-8">
+          {/* Step 1: Basic Information */}
+          {currentStep === 1 && (
+            <div className="space-y-6">
+              <div className="text-center mb-8">
+                <User className="w-16 h-16 text-sky-blue mx-auto mb-4" />
+                <h2 className="text-2xl font-bold text-dark mb-2">Tell us about yourself</h2>
+                <p className="text-gray-600">We&apos;ll use this to personalize your PLAYBOOKD experience</p>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    First Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={data.firstName}
+                    onChange={(e) => updateField('firstName', e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-blue focus:border-sky-blue"
+                    placeholder="Enter your first name"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Last Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={data.lastName}
+                    onChange={(e) => updateField('lastName', e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-blue focus:border-sky-blue"
+                    placeholder="Enter your last name"
+                  />
+                </div>
+              </div>
+
               <div>
-                <label className="block text-sm font-semibold text-gray-800">Sports you play</label>
-                <div className="mt-3 flex flex-wrap gap-3">
-                  {['soccer','basketball','baseball','football','tennis','volleyball','jiu-jitsu'].map(s => (
-                    <label key={s} className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:border-cardinal transition-colors cursor-pointer">
-                      <input 
-                        type="checkbox" 
-                        value={s} 
-                        className="text-cardinal focus:ring-cardinal"
-                        onChange={e => {
-                          const currentSports = watch('sports') || []
-                          const set = new Set(currentSports)
-                          if (e.target.checked) set.add(s); else set.delete(s)
-                          setValue('sports', Array.from(set), { shouldValidate: true })
-                        }} 
-                      />
-                      <span className="text-sm capitalize text-gray-800">{s}</span>
-                    </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Display Name
+                </label>
+                <input
+                  type="text"
+                  value={data.displayName}
+                  onChange={(e) => updateField('displayName', e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-blue focus:border-sky-blue"
+                  placeholder="How should we display your name? (Optional)"
+                />
+                <p className="text-sm text-gray-500 mt-1">Leave blank to use &quot;First Last&quot;</p>
+              </div>
+            </div>
+          )}
+
+          {/* Step 2: Sports Background */}
+          {currentStep === 2 && (
+            <div className="space-y-6">
+              <div className="text-center mb-8">
+                <Trophy className="w-16 h-16 text-sky-blue mx-auto mb-4" />
+                <h2 className="text-2xl font-bold text-dark mb-2">Your Sports Background</h2>
+                <p className="text-gray-600">Help us understand your athletic experience</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Primary Sport *
+                </label>
+                <select
+                  value={data.primarySport}
+                  onChange={(e) => updateField('primarySport', e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-blue focus:border-sky-blue"
+                >
+                  <option value="">Select your primary sport</option>
+                  {SPORTS_OPTIONS.map(sport => (
+                    <option key={sport} value={sport}>{sport}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Experience Level *
+                  </label>
+                  <select
+                    value={data.experienceLevel}
+                    onChange={(e) => updateField('experienceLevel', e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-blue focus:border-sky-blue"
+                  >
+                    <option value="beginner">Beginner</option>
+                    <option value="intermediate">Intermediate</option>
+                    <option value="advanced">Advanced</option>
+                    <option value="elite">Elite/Professional</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Years of Experience *
+                  </label>
+                  <select
+                    value={data.yearsExperience}
+                    onChange={(e) => updateField('yearsExperience', e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-blue focus:border-sky-blue"
+                  >
+                    <option value="">Select years</option>
+                    <option value="Less than 1 year">Less than 1 year</option>
+                    <option value="1-2 years">1-2 years</option>
+                    <option value="3-5 years">3-5 years</option>
+                    <option value="6-10 years">6-10 years</option>
+                    <option value="10+ years">10+ years</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Step 3: Goals */}
+          {currentStep === 3 && (
+            <div className="space-y-6">
+              <div className="text-center mb-8">
+                <Target className="w-16 h-16 text-sky-blue mx-auto mb-4" />
+                <h2 className="text-2xl font-bold text-dark mb-2">What are your goals?</h2>
+                <p className="text-gray-600">Select all that apply to help us recommend content</p>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-3">
+                {GOALS_OPTIONS.map(goal => (
+                  <button
+                    key={goal}
+                    onClick={() => toggleArrayField('goals', goal)}
+                    className={`p-4 text-left border-2 rounded-lg transition-all ${
+                      data.goals.includes(goal)
+                        ? 'border-sky-blue bg-sky-blue/10 text-sky-blue'
+                        : 'border-gray-200 hover:border-sky-blue/50'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium">{goal}</span>
+                      {data.goals.includes(goal) && (
+                        <CheckCircle className="w-5 h-5 text-sky-blue" />
+                      )}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Step 4: Interests & Coaching */}
+          {currentStep === 4 && (
+            <div className="space-y-6">
+              <div className="text-center mb-8">
+                <Calendar className="w-16 h-16 text-sky-blue mx-auto mb-4" />
+                <h2 className="text-2xl font-bold text-dark mb-2">What interests you most?</h2>
+                <p className="text-gray-600">Help us curate the perfect content for you</p>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-4">Content Interests</h3>
+                <div className="grid md:grid-cols-2 gap-3">
+                  {INTERESTS_OPTIONS.map(interest => (
+                    <button
+                      key={interest}
+                      onClick={() => toggleArrayField('interests', interest)}
+                      className={`p-3 text-left border-2 rounded-lg transition-all ${
+                        data.interests.includes(interest)
+                          ? 'border-sky-blue bg-sky-blue/10 text-sky-blue'
+                          : 'border-gray-200 hover:border-sky-blue/50'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span>{interest}</span>
+                        {data.interests.includes(interest) && (
+                          <CheckCircle className="w-4 h-4 text-sky-blue" />
+                        )}
+                      </div>
+                    </button>
                   ))}
                 </div>
-                {errors.sports && <div className="mt-2 text-sm text-red-600">{errors.sports.message as string}</div>}
               </div>
 
-              <div>
-                <label className="block text-sm font-semibold text-gray-800">Current level</label>
-                <select className="mt-2 w-full bg-white border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cardinal" {...register('level')}>
-                  <option value="beginner">Beginner</option>
-                  <option value="intermediate">Intermediate</option>
-                  <option value="advanced">Advanced</option>
-                </select>
-              </div>
-
-              <div className="grid sm:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-800">Years of experience</label>
-                  <input 
-                    type="number" 
-                    className="mt-2 w-full bg-white border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cardinal" 
-                    {...register('experienceYears', { valueAsNumber: true })} 
+              <div className="bg-gray-50 p-6 rounded-lg">
+                <h3 className="font-semibold text-gray-900 mb-3">Coaching Interest</h3>
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={data.coachingInterest}
+                    onChange={(e) => updateField('coachingInterest', e.target.checked)}
+                    className="w-5 h-5 text-sky-blue border-2 border-gray-300 rounded focus:ring-sky-blue"
                   />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-800">Hours available per week</label>
-                  <input 
-                    type="number" 
-                    className="mt-2 w-full bg-white border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cardinal" 
-                    {...register('availabilityPerWeekHours', { valueAsNumber: true })} 
-                  />
-                </div>
+                  <span>I&apos;m interested in creating coaching content and lessons</span>
+                </label>
+                <p className="text-sm text-gray-600 mt-2">
+                  Check this if you&apos;d like to become a content creator on PLAYBOOKD
+                </p>
               </div>
+            </div>
+          )}
 
-              <div>
-                <label className="block text-sm font-semibold text-gray-800">Preferred coaching style</label>
-                <select className="mt-2 w-full bg-white border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cardinal" {...register('preferredCoachStyle')}>
-                  <option value="technical">Technical (mechanics)</option>
-                  <option value="tactical">Tactical (game IQ)</option>
-                  <option value="mindset">Mindset (psychology)</option>
-                  <option value="balanced">Balanced</option>
-                </select>
-              </div>
+          {/* Navigation */}
+          <div className="flex justify-between mt-8 pt-6 border-t border-gray-200">
+            <ClarityButton
+              variant="ghost"
+              onClick={() => setCurrentStep(prev => Math.max(1, prev - 1))}
+              disabled={currentStep === 1}
+              className="flex items-center gap-2"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              Previous
+            </ClarityButton>
 
-              <div>
-                <label className="block text-sm font-semibold text-gray-800">Your goals</label>
-                <textarea 
-                  className="mt-2 w-full bg-white border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cardinal" 
-                  rows={4} 
-                  placeholder="Tell us about your specific goals and what you want to improve..."
-                  {...register('goals')} 
-                />
-                {errors.goals && <div className="mt-2 text-sm text-red-600">{errors.goals.message as string}</div>}
-              </div>
-
-              <div className="pt-4">
-                <button className="w-full px-6 py-3 rounded-lg bg-cardinal text-white font-semibold hover:bg-cardinal-dark" type="submit">
-                  Save and Continue
-                </button>
-              </div>
-            </form>
+            {currentStep < 4 ? (
+              <ClarityButton
+                variant="primary"
+                onClick={() => setCurrentStep(prev => prev + 1)}
+                disabled={!canProceed()}
+                className="flex items-center gap-2"
+              >
+                Next
+                <ChevronRight className="w-4 h-4" />
+              </ClarityButton>
+            ) : (
+              <ClarityButton
+                variant="primary"
+                onClick={handleComplete}
+                disabled={loading || data.goals.length === 0}
+                className="flex items-center gap-2"
+              >
+                {loading ? 'Saving...' : 'Complete Setup'}
+                <CheckCircle className="w-4 h-4" />
+              </ClarityButton>
+            )}
           </div>
         </div>
       </div>
-    </main>
+    </div>
   )
 }

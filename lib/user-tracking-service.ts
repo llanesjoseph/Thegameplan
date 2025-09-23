@@ -48,6 +48,9 @@ export async function trackNewUser(userData: Omit<NewUserData, 'timestamp'>): Pr
       isNewUser,
       accountStatus: 'active',
       role: isSuperadmin ? 'superadmin' : 'user',
+      onboardingCompleted: false,
+      profileComplete: false,
+      needsOnboarding: isNewUser,
       preferences: {
         sports: [],
         notifications: {
