@@ -14,13 +14,12 @@ const SimpleHero = () => {
           {/* Main Headline */}
           <div className="mb-6">
             <h1 className="text-5xl lg:text-6xl font-bold text-clarity-text-primary mb-6 leading-tight">
-              Your AI Coach for{' '}
-              <span className="clarity-gradient-text">Athletic Excellence</span>
+              Train with the Champions.{' '}
+              <span className="clarity-gradient-text">Not just like them.</span>
             </h1>
 
             <p className="text-xl text-clarity-text-secondary mb-8 max-w-3xl mx-auto leading-relaxed">
-              Get personalized training insights, adaptive learning paths, and intelligent coaching
-              that evolves with your performance. Join thousands of athletes achieving their goals.
+              Access the insights, strategies, and training programs of the elite. Stop guessing and start training with purpose. Our platform delivers exclusive content from the world's best, tailored to your level. Learn directly from the minds who have made it to the top.
             </p>
           </div>
 

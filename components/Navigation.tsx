@@ -74,30 +74,20 @@ const Navigation = () => {
                   </button>
                 </>
               ) : (
-                // Unauthenticated - Show sign in/up buttons
+                // Unauthenticated - Show only sign in button
                 <>
                   <Link href="/dashboard">
-                    <ClarityButton 
-                      variant="ghost" 
+                    <ClarityButton
+                      variant="ghost"
                       size="sm"
-                      className="hidden lg:flex text-gray-600 hover:text-gray-800"
+                      className="text-gray-600 hover:text-gray-800"
                     >
                       Sign In
                     </ClarityButton>
                   </Link>
-                  
-                  <Link href="/onboarding">
-                    <ClarityButton 
-                      variant="primary" 
-                      size="sm"
-                      className="px-4 py-2"
-                    >
-                      Get Started
-                    </ClarityButton>
-                  </Link>
-                  
+
                   {/* Mobile Menu Toggle */}
-                  <button 
+                  <button
                     className="md:hidden flex items-center justify-center w-9 h-9 text-gray-600 hover:text-cardinal hover:bg-cardinal/5 transition-colors rounded-lg ml-2"
                     onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                     aria-label="Toggle navigation menu"
@@ -141,15 +131,6 @@ const Navigation = () => {
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Sign In
-                  </ClarityButton>
-                </Link>
-                <Link href="/onboarding">
-                  <ClarityButton
-                    variant="primary"
-                    className="w-full justify-center"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Get Started
                   </ClarityButton>
                 </Link>
               </div>
