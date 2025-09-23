@@ -2,6 +2,7 @@
 import { useEffect } from 'react'
 import { useUrlEnhancedRole } from "@/hooks/use-url-role-switcher"
 import { useRouter } from 'next/navigation'
+import UserSignupTracker from '@/components/admin/UserSignupTracker'
 
 export default function AdminDashboard() {
   const { role } = useUrlEnhancedRole()
@@ -17,6 +18,11 @@ export default function AdminDashboard() {
           <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
           <p className="text-gray-600 mt-2">Manage creators, content, sponsors, and reviews.</p>
           
+          {/* User Signup Tracker */}
+          <div className="mt-8">
+            <UserSignupTracker />
+          </div>
+
           <div className="grid md:grid-cols-3 gap-6 mt-8">
             <a
               href="/dashboard/admin/users"
@@ -25,7 +31,7 @@ export default function AdminDashboard() {
               <h2 className="text-lg font-semibold text-gray-900 mb-2">User Management</h2>
               <p className="text-gray-600 text-sm">Manage user accounts and permissions</p>
             </a>
-            
+
             <a
               href="/dashboard/admin/content"
               className="p-6 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors"
@@ -33,7 +39,7 @@ export default function AdminDashboard() {
               <h2 className="text-lg font-semibold text-gray-900 mb-2">Content Review</h2>
               <p className="text-gray-600 text-sm">Review and moderate content</p>
             </a>
-            
+
             <a
               href="/dashboard/admin/analytics"
               className="p-6 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors"

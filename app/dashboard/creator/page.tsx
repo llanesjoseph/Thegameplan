@@ -11,6 +11,7 @@ import { useAuth } from "@/hooks/use-auth"
 import { useRouter } from 'next/navigation'
 import CreatorAccessGate from '@/components/CreatorAccessGate'
 import { collection, addDoc, query, where, getCountFromServer, serverTimestamp, getDoc, doc, getDocs, orderBy, deleteDoc } from 'firebase/firestore'
+import { saveLessonData } from '@/lib/user-tracking-service'
 import { ref, uploadBytes, getDownloadURL, uploadBytesResumable } from 'firebase/storage'
 // import { uploadService } from '@/lib/upload-service' // TEMPORARILY DISABLED TO FIX SSR ISSUES
 import UploadManager from '@/components/UploadManager'
@@ -860,7 +861,30 @@ export default function CreatorDashboard() {
         updatedAt: serverTimestamp()
       }
 
-      await addDoc(collection(db, 'content'), lessonData)
+      // Save to content collection (existing)
+      const contentRef = await addDoc(collection(db, 'content'), lessonData)
+      console.log('✅ Lesson saved to content collection:', contentRef.id)
+
+      // Also save using our tracking service for analytics and user stats
+      const trackingLessonData = {
+        userId: authUser.uid,
+        title: data.title,
+        sport: 'general', // You might want to add sport selection to the form
+        difficulty: data.level as 'beginner' | 'intermediate' | 'advanced',
+        content: {
+          description: data.description,
+          detailedWriteup: detailedWriteup,
+          videoUrl,
+          thumbnailUrl
+        },
+        isPublic: true,
+        tags: [] // You might want to add tags to the form
+      }
+
+      const lessonId = await saveLessonData(trackingLessonData)
+      if (lessonId) {
+        console.log('✅ Lesson tracked in analytics:', lessonId)
+      }
       
       // Reset form and show success
       reset()
