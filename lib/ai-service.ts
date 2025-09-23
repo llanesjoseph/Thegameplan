@@ -100,24 +100,32 @@ export const soccerCoachingContext: CoachingContext = {
       'Trust your preparation',
       'Champions are made in practice, revealed in games',
       'See it, feel it, play it',
-      'Consistency beats perfection'
+      'Consistency beats perfection',
+      'Your work ethic shows - keep building on that',
+      'I love that you\'re thinking tactically'
     ],
-    speakingStyle: 'Direct but nurturing, uses personal anecdotes from championship experience'
+    speakingStyle: 'Direct but nurturing, uses personal anecdotes from championship experience, speaks like a supportive teammate'
   },
   responseStyle: {
-    greeting: 'Great question!',
+    greeting: 'Love this question!',
     encouragement: [
-      'You\'ve got this!',
-      'Trust your instincts',
-      'Keep working - improvement is coming',
-      'That\'s exactly the right mindset'
+      'You\'ve got this - I can tell you\'re really committed',
+      'Trust your instincts, they\'re getting sharper',
+      'Keep working - improvement is coming and I can see it',
+      'That\'s exactly the right mindset for success',
+      'Your dedication shows - that\'s championship mentality',
+      'I believe in what you\'re building here'
     ],
     signatureClosing: 'Keep pushing yourself - I believe in your potential!',
     personalStoryIntros: [
       'From my championship experience at Stanford...',
       'When I was playing at the highest level...',
       'During our College Cup run...',
-      'As team captain, I learned that...'
+      'As team captain, I learned that...',
+      'In my biggest games, I found that...',
+      'Something I discovered in pressure moments...',
+      'My coach at Stanford taught me...',
+      'In my experience as a Pac-12 champion...'
     ]
   }
 }
@@ -309,43 +317,120 @@ export function getCoachingContext(creatorId?: string, sport?: string): Coaching
 }
 
 export const generateCoachingPrompt = (question: string, context: CoachingContext): string => {
-  // Random elements for variety but keep them minimal
+  // Dynamic elements for authentic variety
   const randomCatchphrase = context.voiceCharacteristics.catchphrases[Math.floor(Math.random() * context.voiceCharacteristics.catchphrases.length)]
+  const randomEncouragement = context.responseStyle.encouragement[Math.floor(Math.random() * context.responseStyle.encouragement.length)]
+  const randomStoryIntro = context.responseStyle.personalStoryIntros[Math.floor(Math.random() * context.responseStyle.personalStoryIntros.length)]
 
-  return `You are ${context.coachName}, an elite ${context.sport.toLowerCase()} coach. You must answer this question with specific, technical soccer advice.
+  // Detect if this is a sports-related question (any sport)
+  const sportsKeywords = [
+    // General sports terms
+    'training', 'practice', 'coach', 'technique', 'skill', 'game', 'match', 'team', 'player', 'athlete', 'workout', 'exercise', 'fitness', 'performance', 'competition', 'tournament', 'championship', 'season', 'drill', 'strategy', 'tactics', 'conditioning', 'strength', 'agility', 'speed', 'endurance',
+
+    // Soccer/Football
+    'soccer', 'football', 'ball', 'goal', 'kick', 'pass', 'dribble', 'shoot', 'penalty', 'corner', 'field', 'midfielder', 'striker', 'defender', 'goalkeeper', 'offside', 'header', 'tackle', 'cross', 'freekick',
+
+    // Basketball
+    'basketball', 'dunk', 'dribble', 'shoot', 'basket', 'hoop', 'court', 'layup', 'jumpshot', 'rebound', 'assist', 'block', 'steal', 'point guard', 'center', 'forward', 'three-pointer', 'foul', 'timeout',
+
+    // Tennis
+    'tennis', 'serve', 'volley', 'backhand', 'forehand', 'ace', 'deuce', 'love', 'set', 'match', 'racket', 'net', 'court', 'baseline', 'tiebreak', 'slice', 'smash', 'lob', 'drop shot',
+
+    // American Football
+    'quarterback', 'touchdown', 'field goal', 'snap', 'tackle', 'sack', 'interception', 'fumble', 'down', 'yard', 'endzone', 'blitz', 'pocket', 'handoff', 'punt', 'kickoff',
+
+    // Baseball
+    'baseball', 'bat', 'pitch', 'homer', 'homerun', 'strike', 'ball', 'inning', 'base', 'steal', 'bunt', 'slider', 'curveball', 'fastball', 'catcher', 'pitcher', 'shortstop', 'outfield',
+
+    // Swimming
+    'swimming', 'freestyle', 'backstroke', 'breaststroke', 'butterfly', 'dive', 'pool', 'lap', 'stroke', 'breath', 'flip turn', 'streamline', 'kick', 'pull',
+
+    // Track & Field
+    'running', 'sprint', 'marathon', 'hurdles', 'relay', 'jump', 'throw', 'javelin', 'discus', 'shot put', 'pole vault', 'high jump', 'long jump', 'track', 'field',
+
+    // Combat Sports
+    'boxing', 'mma', 'bjj', 'jiu-jitsu', 'jujitsu', 'wrestling', 'grappling', 'submission', 'guard', 'mount', 'takedown', 'sprawl', 'clinch', 'striking', 'ground game', 'standup',
+
+    // Golf
+    'golf', 'swing', 'putt', 'drive', 'iron', 'wedge', 'fairway', 'green', 'tee', 'hole', 'par', 'birdie', 'eagle', 'bogey', 'handicap', 'chip', 'pitch',
+
+    // Volleyball
+    'volleyball', 'spike', 'serve', 'set', 'bump', 'dig', 'block', 'net', 'court', 'rotation', 'libero', 'hitter', 'setter',
+
+    // Hockey
+    'hockey', 'puck', 'stick', 'goal', 'assist', 'check', 'penalty', 'power play', 'ice', 'rink', 'skate', 'goalie', 'defenseman', 'forward'
+  ]
+  const isSportsQuestion = sportsKeywords.some(keyword => question.toLowerCase().includes(keyword))
+
+  if (isSportsQuestion) {
+    // Sports-specific coaching response - adapts to any sport
+    return `You are ${context.coachName}, ${context.coachCredentials.join(', ')}. You're a knowledgeable coach who can provide expert advice across multiple sports. While your specialty is ${context.sport.toLowerCase()}, you have extensive knowledge of athletic training and sports performance.
 
 **QUESTION:** "${question}"
 
-**CRITICAL INSTRUCTIONS:**
-- FOCUS ONLY on the specific skill/technique asked about
-- Give concrete, actionable soccer advice
-- Include technical details specific to soccer
-- Voice: ${context.voiceCharacteristics.tone}
-- Draw from your expertise: ${context.expertise.join(', ')}
+**WHO YOU ARE:**
+- ${context.coachName}: ${context.coachCredentials.slice(0, 3).join(', ')}
+- Your voice: ${context.voiceCharacteristics.tone}
+- Your specialty: ${context.sport.toLowerCase()} expertise
+- Your approach: Athletic performance and coaching across sports
 
-**REQUIRED RESPONSE STRUCTURE:**
-1. **Technical Breakdown**: Explain the specific soccer technique/skill being asked about
-2. **Key Fundamentals**: 3-4 core technical points (use **bold** for emphasis)
-3. **Practice Drills**: 2-3 specific soccer exercises they can do immediately
-4. **Game Application**: How to apply this in match situations
-5. **Pro Tip**: One advanced insight from your playing experience
+**RESPONSE REQUIREMENTS:**
+1. **Personal engagement** - Start with "${context.responseStyle.greeting}" naturally
+2. **Expert knowledge** - Draw from your athletic and coaching background
+3. **Be encouraging** - Use "${randomEncouragement}" authentically
+4. **Technical excellence** - Address their exact question with specific sports advice
+5. **Personal insight** - Share relevant experience and end with "${randomCatchphrase}"
 
-**SOCCER-SPECIFIC REQUIREMENTS:**
-- Recognize common soccer vernacular: PK (penalty kick), FK (free kick), corners, crosses, etc.
-- Use proper soccer terminology (e.g., "scanning", "check runs", "switch play", "press resistant", "jockeying")
-- Reference field positions, timing, and spatial awareness
-- Include physical and mental aspects of the technique
-- Make it actionable for immediate practice
-- Address the EXACT skill mentioned, not generic advice
+**SPORTS COACHING FOCUS:**
+- Identify the specific sport they're asking about
+- Give 3-4 **bold** technical fundamentals for that sport
+- Provide 2-3 specific drills or exercises they can do immediately
+- Share coaching insights from your athletic background
+- Use proper sports terminology for their specific sport
+- If it's ${context.sport.toLowerCase()}, draw heavily from your personal experience
+- If it's another sport, apply your general athletic knowledge and coaching principles
 
-**FORMATTING:**
-- Use **bold** for key soccer concepts
-- Use bullet points (-) for drill steps
-- Use numbered lists (1.) for sequences
-- Keep paragraphs short and focused
-- Include your catchphrase "${randomCatchphrase}" naturally if it fits
+**IMPORTANT:**
+- Adapt your advice to the specific sport they're asking about
+- Don't force ${context.sport.toLowerCase()} references unless relevant
+- Be knowledgeable about various sports while maintaining your personality
+- Focus on practical, actionable coaching advice
 
-Write 200-300 words. Be direct, technical, and soccer-focused. Every sentence should relate to the specific question asked.`
+Write 250-350 words. Sound like ${context.coachName} coaching an athlete in their specific sport.`
+  } else {
+    // General conversational AI response
+    return `You are ${context.coachName}, a highly knowledgeable and personable AI assistant. While you're known for your soccer expertise as a ${context.coachCredentials.join(', ')}, you're also well-educated and can discuss a wide range of topics intelligently.
+
+**QUESTION:** "${question}"
+
+**YOUR PERSONALITY:**
+- Tone: ${context.voiceCharacteristics.tone}
+- Style: Intelligent, helpful, and conversational like ChatGPT or Claude
+- Background: You have your soccer expertise but also broad knowledge
+
+**RESPONSE STYLE:**
+- **Be conversational and helpful** like a knowledgeable friend
+- **Provide detailed, informative answers** on any topic they ask about
+- **Show your intelligence** while maintaining your warm personality
+- **Give thorough explanations** with examples when helpful
+- **Be engaging and personable** but not overly casual
+
+**INSTRUCTIONS:**
+- Answer their question thoroughly and intelligently
+- Provide detailed information and context
+- Use clear explanations and examples
+- Be helpful and informative like a top AI assistant
+- Maintain your warm, encouraging personality
+- Don't force soccer references unless relevant
+
+**IMPORTANT:**
+- This is a general knowledge question, not soccer coaching
+- Answer like an intelligent, well-educated AI assistant
+- Be comprehensive and helpful
+- Show your personality but focus on being informative
+
+Write a thorough, helpful response (200-400 words) that fully addresses their question with the intelligence and detail they'd expect from ChatGPT or Claude.`
+  }
 }
 
 // Vertex AI Response (Enterprise-grade) - Browser compatible via API route
@@ -796,24 +881,54 @@ Always maintain triangles with your teammates. Never be directly behind or in fr
 Your fitness will be tested more than any other position. Embrace it - that's your competitive advantage!`
   }
   
-  // Default comprehensive response
-  return `Great question! Let me give you a focused approach to improvement.
+  // Detect if this is a sports question for fallback too
+  const sportsKeywords = [
+    'training', 'practice', 'coach', 'technique', 'skill', 'game', 'match', 'team', 'player', 'athlete', 'workout', 'exercise', 'fitness', 'performance', 'competition', 'tournament', 'championship', 'season', 'drill', 'strategy', 'tactics', 'conditioning', 'strength', 'agility', 'speed', 'endurance',
+    'soccer', 'football', 'basketball', 'tennis', 'baseball', 'swimming', 'running', 'boxing', 'mma', 'bjj', 'wrestling', 'golf', 'volleyball', 'hockey', 'track', 'field'
+  ]
+  const isSportsQuestion = sportsKeywords.some(keyword => question.toLowerCase().includes(keyword))
 
-**Key fundamentals:**
+  if (isSportsQuestion) {
+    // Sports-focused fallback (any sport)
+    return `Great question! Let me give you a focused approach to improvement in your sport.
+
+**Key fundamentals for any sport:**
 - **Master the basics first** - Build from solid foundations
-- **Practice with purpose** - Every touch should have intention
-- **Mental preparation** - Visualize before you play
+- **Practice with purpose** - Every rep should have intention
+- **Mental preparation** - Visualize success before you compete
+- **Sport-specific technique** - Focus on the mechanics of your sport
 
 **Training approach:**
-1. **Consistency over perfection** - 100 decent reps beat 10 perfect ones
-2. **Game-like pressure** - Add time constraints to drills
-3. **Video study** - Watch yourself and pros in similar situations
+1. **Consistency over perfection** - Regular practice beats sporadic intensity
+2. **Progressive difficulty** - Start simple, add complexity gradually
+3. **Game-like conditions** - Practice under pressure when possible
+4. **Video analysis** - Study yourself and elite athletes in your sport
 
-**Mindset:** Focus on process over outcome. Trust your preparation and stay confident in pressure moments.
+**Athletic mindset:** Focus on process over outcome. Trust your preparation and stay confident in pressure moments.
 
-**Next step:** Break this down into specific skills and create a structured practice plan. Champions are made in practice, revealed in games.
+**Next step:** Break this down into specific skills for your sport and create a structured practice plan. Whether it's ${context.sport.toLowerCase()} or any other sport, champions are made in practice and revealed in competition.
 
-What specific aspect would you like me to dive deeper into?`
+What specific aspect of your sport would you like me to dive deeper into?`
+  } else {
+    // General knowledge fallback
+    return `That's a really interesting question! Let me share what I know about this topic.
+
+Based on my knowledge and experience, this is a complex subject that deserves a thoughtful response. While I'm primarily known for my soccer expertise, I've learned that many principles apply across different areas of life.
+
+**Key points to consider:**
+- Understanding the fundamentals is always important
+- There are usually multiple perspectives to consider
+- Context matters when applying any advice or information
+- Learning is an ongoing process
+
+**My approach:**
+I believe in giving you practical, actionable insights rather than just theory. Whether we're talking about soccer or any other topic, the key is to break complex concepts down into manageable pieces you can actually use.
+
+**What I'd recommend:**
+Take time to really understand the core concepts, then build from there. Look for patterns and connections to things you already know. And don't hesitate to ask follow-up questions - the best learning happens through conversation.
+
+I'd love to dive deeper into the specific aspects of this topic that interest you most. What particular angle would you like to explore further?`
+  }
 }
 
 // Alternative AI providers (for redundancy)
