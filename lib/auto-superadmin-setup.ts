@@ -1,7 +1,7 @@
 import { db } from './firebase.client'
 import { doc, setDoc, collection, addDoc, serverTimestamp, getDoc } from 'firebase/firestore'
 
-// Predefined superadmin users
+// Predefined superadmin users (all emails in lowercase for case-insensitive matching)
 const SUPERADMIN_USERS = {
   'joseph@crucibleanalytics.dev': {
     firstName: 'Joseph',
@@ -12,7 +12,7 @@ const SUPERADMIN_USERS = {
     achievements: ['Platform Development', 'Content Strategy', 'User Experience Design'],
     certifications: ['Firebase Certified', 'Web Development']
   },
-  'LonaLorraine.Vincent@gmail.com': {
+  'lonaloraine.vincent@gmail.com': {
     firstName: 'Lona',
     lastName: 'Vincent',
     bio: 'Platform Administrator and Content Strategist',
@@ -34,10 +34,15 @@ const SUPERADMIN_USERS = {
 
 export async function autoProvisionSuperadmin(uid: string, email: string, displayName?: string) {
   try {
-    // Check if this email is in our superadmin list
-    const superadminData = SUPERADMIN_USERS[email as keyof typeof SUPERADMIN_USERS]
+    // Normalize email to lowercase for case-insensitive comparison
+    const normalizedEmail = email.toLowerCase()
+    console.log(`🔍 Checking superadmin for email: ${email} (normalized: ${normalizedEmail})`)
+
+    // Check if this email is in our superadmin list (case-insensitive)
+    const superadminData = SUPERADMIN_USERS[normalizedEmail as keyof typeof SUPERADMIN_USERS]
     if (!superadminData) {
-      console.log(`User ${email} is not in superadmin list`)
+      console.log(`❌ User ${email} is not in superadmin list`)
+      console.log(`Available superadmin emails:`, Object.keys(SUPERADMIN_USERS))
       return false
     }
 
@@ -130,5 +135,6 @@ export async function autoProvisionSuperadmin(uid: string, email: string, displa
 }
 
 export function isSuperadminEmail(email: string): boolean {
-  return email in SUPERADMIN_USERS
+  const normalizedEmail = email.toLowerCase()
+  return normalizedEmail in SUPERADMIN_USERS
 }
