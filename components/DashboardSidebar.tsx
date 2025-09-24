@@ -32,7 +32,6 @@ const navigationItems = {
     { title: 'Request Coaching', icon: MessageCircle, href: '/dashboard/coaching', color: 'text-purple-600' },
     { title: 'Schedule', icon: Calendar, href: '/dashboard/schedule', color: 'text-orange-600' },
     { title: 'Curated Gear', icon: ShoppingBag, href: '/gear', color: 'text-emerald-600' },
-    { title: 'Profile', icon: User, href: '/dashboard/profile', color: 'text-gray-600' },
   ],
   creator: [
     { title: 'Overview', icon: LayoutDashboard, href: '/dashboard/creator/overview', color: 'text-blue-600' },
@@ -42,7 +41,6 @@ const navigationItems = {
     { title: 'Assistant Coaches', icon: UserCheck, href: '/dashboard/creator/assistants', color: 'text-indigo-600' },
     { title: 'Analytics', icon: BarChart3, href: '/dashboard/creator/analytics', color: 'text-purple-600' },
     { title: 'Curated Gear', icon: ShoppingBag, href: '/gear', color: 'text-emerald-600' },
-    { title: 'Profile', icon: User, href: '/dashboard/profile', color: 'text-gray-600' },
   ],
   assistant_coach: [
     { title: 'Overview', icon: LayoutDashboard, href: '/dashboard/overview', color: 'text-blue-600' },
@@ -52,7 +50,6 @@ const navigationItems = {
     { title: 'Athlete Management', icon: Users, href: '/dashboard/assistant/athletes', color: 'text-purple-600' },
     { title: 'Analytics', icon: BarChart3, href: '/dashboard/assistant/analytics', color: 'text-pink-600' },
     { title: 'Curated Gear', icon: ShoppingBag, href: '/gear', color: 'text-emerald-600' },
-    { title: 'Profile', icon: User, href: '/dashboard/profile', color: 'text-gray-600' },
   ],
   superadmin: [
     { title: 'Overview', icon: LayoutDashboard, href: '/dashboard/overview', color: 'text-blue-600' },

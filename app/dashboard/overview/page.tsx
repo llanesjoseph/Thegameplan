@@ -145,6 +145,12 @@ export default function UnifiedDashboard() {
       case 'Brazilian Jiu-Jitsu (BJJ)':
       case 'Mixed Martial Arts (MMA)':
         return MMAGlovesIcon
+      case 'Tennis':
+        return Target // Tennis racket representation
+      case 'Baseball':
+        return Trophy // Baseball representation
+      case 'Track & Field':
+        return TrendingUp // Running/performance representation
       default:
         return SoccerIcon
     }
@@ -208,10 +214,39 @@ export default function UnifiedDashboard() {
               {/* Sports Selection */}
               <div>
                 <label className="block text-sm font-medium mb-3" style={{ color: '#000000' }}>
-                  Sports
+                  Sports of Interest {!isEditing && `(${editForm.sports.length} selected)`}
                 </label>
-                <div className="flex gap-4">
-                  {['Soccer', 'Basketball', 'Football', 'Brazilian Jiu-Jitsu (BJJ)'].map((sport) => {
+                {!isEditing && editForm.sports.length > 0 && (
+                  <div className="mb-3">
+                    <div className="flex flex-wrap gap-2">
+                      {editForm.sports.map((sport) => {
+                        const SportIcon = getSportIcon(sport)
+                        return (
+                          <div key={sport} className="flex items-center gap-2 px-3 py-1 bg-sky-blue/20 rounded-full">
+                            <SportIcon className="w-4 h-4" style={{ color: '#91A6EB' }} />
+                            <span className="text-xs font-medium" style={{ color: '#000000' }}>
+                              {sport === 'Brazilian Jiu-Jitsu (BJJ)' ? 'BJJ' :
+                               sport === 'Mixed Martial Arts (MMA)' ? 'MMA' :
+                               sport === 'Track & Field' ? 'Track' : sport}
+                            </span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
+                {isEditing && (
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {[
+                    'Soccer',
+                    'Basketball',
+                    'Football',
+                    'Brazilian Jiu-Jitsu (BJJ)',
+                    'Mixed Martial Arts (MMA)',
+                    'Tennis',
+                    'Baseball',
+                    'Track & Field'
+                  ].map((sport) => {
                     const SportIcon = getSportIcon(sport)
                     const isSelected = editForm.sports.includes(sport)
 
@@ -225,20 +260,24 @@ export default function UnifiedDashboard() {
                             : [...editForm.sports, sport]
                           setEditForm({ ...editForm, sports: newSports })
                         }}
-                        className={`flex flex-col items-center gap-2 p-4 rounded-xl transition-all ${
+                        className={`flex flex-col items-center gap-2 p-3 rounded-xl transition-all ${
                           isSelected
-                            ? 'bg-gradient-to-br from-sky-blue/20 to-black/10 border-2 border-sky-blue'
-                            : 'bg-white/60 border-2 border-white/50'
-                        } ${isEditing ? 'hover:bg-white cursor-pointer' : 'cursor-default'}`}
+                            ? 'bg-gradient-to-br from-sky-blue/20 to-black/10 border-2 border-sky-blue shadow-md'
+                            : 'bg-white/60 border-2 border-white/50 hover:bg-white/80'
+                        } ${isEditing ? 'cursor-pointer transform hover:scale-105' : 'cursor-default'}`}
+                        disabled={!isEditing}
                       >
-                        <SportIcon className="w-8 h-8" style={{ color: isSelected ? '#91A6EB' : '#666' }} />
-                        <span className="text-xs font-medium" style={{ color: '#000000' }}>
-                          {sport === 'Brazilian Jiu-Jitsu (BJJ)' ? 'BJJ' : sport}
+                        <SportIcon className="w-6 h-6" style={{ color: isSelected ? '#91A6EB' : '#666' }} />
+                        <span className="text-xs font-medium text-center leading-tight" style={{ color: '#000000' }}>
+                          {sport === 'Brazilian Jiu-Jitsu (BJJ)' ? 'BJJ' :
+                           sport === 'Mixed Martial Arts (MMA)' ? 'MMA' :
+                           sport === 'Track & Field' ? 'Track' : sport}
                         </span>
                       </button>
                     )
                   })}
                 </div>
+                )}
               </div>
 
               {/* Progress Summary */}
