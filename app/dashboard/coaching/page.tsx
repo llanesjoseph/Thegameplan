@@ -6,13 +6,13 @@ import { useEnhancedRole } from '@/hooks/use-role-switcher'
 import { db, storage } from '@/lib/firebase.client'
 import { collection, addDoc, query, where, getDocs, orderBy, serverTimestamp } from 'firebase/firestore'
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
-import { 
-  MessageSquare, 
-  Video, 
-  FileText, 
-  Upload, 
-  Star, 
-  Calendar, 
+import {
+  MessageSquare,
+  Video,
+  FileText,
+  Upload,
+  Star,
+  Calendar,
   Clock,
   User,
   Target,
@@ -22,6 +22,9 @@ import {
   Filter,
   Search
 } from 'lucide-react'
+import { WhistleIcon } from '@/components/icons/WhistleIcon'
+import { TeachingIcon } from '@/components/icons/TeachingIcon'
+import { PlayIcon } from '@/components/icons/PlayIcon'
 import Link from 'next/link'
 
 import { CoachingRequest } from '@/lib/types'
@@ -341,7 +344,7 @@ export default function CoachingPage() {
                   }`}
                 >
                   <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-sky-blue to-deep-plum flex items-center justify-center">
-                    <Video className="w-6 h-6 text-white" />
+                    <WhistleIcon className="w-6 h-6 text-white" />
                   </div>
                   <h4 className="font-semibold mb-2" style={{ color: '#5A2C59' }}>1-on-1 Session</h4>
                   <p className="text-sm" style={{ color: '#5A2C59' }}>Live video coaching session</p>
@@ -356,7 +359,7 @@ export default function CoachingPage() {
                   }`}
                 >
                   <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-green to-deep-plum flex items-center justify-center">
-                    <FileText className="w-6 h-6 text-white" />
+                    <PlayIcon className="w-6 h-6 text-white" />
                   </div>
                   <h4 className="font-semibold mb-2" style={{ color: '#5A2C59' }}>File Review</h4>
                   <p className="text-sm" style={{ color: '#5A2C59' }}>Get feedback on your videos</p>
@@ -371,7 +374,7 @@ export default function CoachingPage() {
                   }`}
                 >
                   <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-orange to-deep-plum flex items-center justify-center">
-                    <User className="w-6 h-6 text-white" />
+                    <TeachingIcon className="w-6 h-6 text-white" />
                   </div>
                   <h4 className="font-semibold mb-2" style={{ color: '#5A2C59' }}>Group Session</h4>
                   <p className="text-sm" style={{ color: '#5A2C59' }}>Join a group coaching session</p>

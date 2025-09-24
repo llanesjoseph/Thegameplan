@@ -29,6 +29,9 @@ import {
   Clock,
   Eye
 } from 'lucide-react'
+import { WhistleIcon } from '@/components/icons/WhistleIcon'
+import { TeachingIcon } from '@/components/icons/TeachingIcon'
+import { MedalIcon } from '@/components/icons/MedalIcon'
 import { SoccerIcon } from '@/components/icons/SoccerIcon'
 import { BasketballIcon } from '@/components/icons/BasketballIcon'
 import { FootballIcon } from '@/components/icons/FootballIcon'
@@ -294,7 +297,7 @@ export default function CoachOverview() {
             <div key={index} className="bg-white rounded-lg shadow-lg overflow-hidden max-w-sm">
               <div className="p-6">
                 <div className="flex items-center gap-3 mb-3">
-                  <Trophy className="w-6 h-6" style={{ color: '#91A6EB' }} />
+                  <MedalIcon className="w-6 h-6" style={{ color: '#91A6EB' }} />
                   <h3 className="font-bold" style={{ color: '#5A2C59' }}>{specialty.title}</h3>
                 </div>
                 <p className="text-sm mb-4" style={{ color: '#5A2C59' }}>

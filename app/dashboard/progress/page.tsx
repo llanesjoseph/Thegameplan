@@ -18,6 +18,8 @@ import {
   Award,
   Zap
 } from 'lucide-react'
+import { MedalIcon } from '@/components/icons/MedalIcon'
+import { StopwatchIcon } from '@/components/icons/StopwatchIcon'
 import { SoccerIcon } from '@/components/icons/SoccerIcon'
 import { BasketballIcon } from '@/components/icons/BasketballIcon'
 import { FootballIcon } from '@/components/icons/FootballIcon'
@@ -100,7 +102,7 @@ export default function ProgressDashboard() {
 
           <div className="bg-white/80 rounded-xl p-6 text-center shadow-lg">
             <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-orange to-deep-plum flex items-center justify-center">
-              <Clock className="w-6 h-6 text-white" />
+              <StopwatchIcon className="w-6 h-6 text-white" />
             </div>
             <h3 className="text-2xl font-bold font-heading" style={{ color: '#5A2C59' }}>
               {progressStats.totalHours}
@@ -228,8 +230,8 @@ export default function ProgressDashboard() {
           {[
             { title: '7-Day Streak', icon: Zap, earned: true, color: '#FF6B35' },
             { title: 'First Lesson', icon: Star, earned: true, color: '#20B2AA' },
-            { title: '5 Sessions', icon: Trophy, earned: true, color: '#91A6EB' },
-            { title: '20 Hour Mark', icon: Clock, earned: false, color: '#E8E6D8' }
+            { title: '5 Sessions', icon: MedalIcon, earned: true, color: '#91A6EB' },
+            { title: '20 Hour Mark', icon: StopwatchIcon, earned: false, color: '#E8E6D8' }
           ].map((badge, index) => (
             <div key={index} className={`text-center ${badge.earned ? 'opacity-100' : 'opacity-40'}`}>
               <div
