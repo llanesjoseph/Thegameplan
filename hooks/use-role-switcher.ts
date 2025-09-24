@@ -104,61 +104,28 @@ export function useRoleSwitcher() {
     return () => window.removeEventListener('storage', checkAdminRoleChange)
   }, [])
 
-  // Initialize with user's actual role
+  // Initialize with user's actual role - FIXED to prevent infinite loops
   useEffect(() => {
-    console.log('📊 Role switcher useEffect triggered:', {
-      userRole: user?.role,
-      userEmail: user?.email,
-      isUpdating,
-      isPageUnloading,
-      isAdminRoleChange,
-      currentState: roleSwitcherState
-    })
-
-    // Skip updates during role switching operations, page unloading, or admin changes
-    if (isUpdating || isPageUnloading || isAdminRoleChange) {
-      if (isAdminRoleChange) {
-        console.log('🚫 BLOCKING: Role switcher updates blocked due to admin role change')
-      } else if (isUpdating) {
-        console.log('🚫 BLOCKING: Role switcher updates blocked due to isUpdating')
-      } else if (isPageUnloading) {
-        console.log('🚫 BLOCKING: Role switcher updates blocked due to page unloading')
-      }
+    // Skip if no user or if we already have a role set
+    if (!user?.role || roleSwitcherState.originalRole === user.role) {
       return
     }
 
-    // Add debounce to prevent rapid updates that cause flicker
-    const debounceTimeout = setTimeout(() => {
-      if (user?.role) {
-        console.log('⏱️ Debounce timeout triggered, checking for role update...')
-        setRoleSwitcherState(prev => {
-          // Only update if role actually changed and we're not in testing mode
-          if (prev.originalRole !== user.role && !prev.isTestingMode) {
-            console.log('🔄 UPDATING: Role switcher updating from', prev.originalRole, 'to', user.role)
-            return {
-              ...prev,
-              originalRole: user.role as UserRole,
-              currentRole: user.role as UserRole
-            }
-          } else {
-            console.log('⏭️ SKIPPING: No role update needed', {
-              prevOriginal: prev.originalRole,
-              userRole: user.role,
-              isTestingMode: prev.isTestingMode
-            })
-          }
-          return prev
-        })
-      } else {
-        console.log('❌ No user role available for update')
-      }
-    }, 100) // Small debounce to prevent rapid updates
-
-    return () => {
-      console.log('🧹 Cleaning up role switcher timeout')
-      clearTimeout(debounceTimeout)
+    // Skip updates during role switching operations, page unloading, or admin changes
+    if (isUpdating || isPageUnloading || isAdminRoleChange) {
+      return
     }
-  }, [user?.role, user?.email, isUpdating, isPageUnloading, isAdminRoleChange])
+
+    // Only update once when user role first becomes available
+    if (!roleSwitcherState.originalRole && !roleSwitcherState.isTestingMode) {
+      console.log('🔄 INITIALIZING: Setting initial role to', user.role)
+      setRoleSwitcherState({
+        originalRole: user.role as UserRole,
+        currentRole: user.role as UserRole,
+        isTestingMode: false
+      })
+    }
+  }, [user?.role, roleSwitcherState.originalRole, roleSwitcherState.isTestingMode, isUpdating, isPageUnloading, isAdminRoleChange])
 
   // Check if current user is superadmin
   const isAdmin = user?.role === 'superadmin'
