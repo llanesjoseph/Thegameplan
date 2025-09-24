@@ -76,7 +76,6 @@ export default function ProfilePage() {
     displayName: user?.displayName || '',
     bio: '',
     location: '',
-    phone: '',
     email: user?.email || '',
     specialties: [] as string[],
     experience: '',
@@ -377,20 +376,13 @@ export default function ProfilePage() {
                       placeholder="Experience (e.g., 12 years)"
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div>
                     <input
                       type="email"
                       value={profileData.email}
                       onChange={(e) => setProfileData(prev => ({ ...prev, email: e.target.value }))}
-                      className="border border-slate-300 rounded-lg p-2"
+                      className="w-full border border-slate-300 rounded-lg p-2"
                       placeholder="Email address"
-                    />
-                    <input
-                      type="tel"
-                      value={profileData.phone}
-                      onChange={(e) => setProfileData(prev => ({ ...prev, phone: e.target.value }))}
-                      className="border border-slate-300 rounded-lg p-2"
-                      placeholder="Phone number"
                     />
                   </div>
                 </div>
