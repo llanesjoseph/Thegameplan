@@ -6,11 +6,11 @@ import { doc, setDoc, getDoc } from 'firebase/firestore'
 import { useEnhancedRole } from "@/hooks/use-role-switcher"
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { 
-  User, 
-  Camera, 
-  Save, 
-  ArrowLeft, 
+import {
+  User,
+  Camera,
+  Save,
+  ArrowLeft,
   Upload,
   Video,
   Star,
@@ -20,7 +20,12 @@ import {
   Settings as SettingsIcon,
   ExternalLink,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Instagram,
+  Twitter,
+  Linkedin,
+  Youtube,
+  Globe
 } from 'lucide-react'
 
 export default function ProfilePage() {
@@ -795,117 +800,117 @@ export default function ProfilePage() {
               <h3 className="text-lg font-semibold text-slate-900 mb-4">Social Links</h3>
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-gradient-to-r from-pink-500 to-orange-500 rounded flex items-center justify-center text-white text-xs">
-                    IG
+                  <div className="w-8 h-8 bg-gradient-to-r from-pink-500 to-orange-500 rounded-lg flex items-center justify-center">
+                    <Instagram className="w-4 h-4 text-white" />
                   </div>
                   {isEditing ? (
                     <input
                       type="text"
                       value={profileData.socialLinks.instagram}
-                      onChange={(e) => setProfileData(prev => ({ 
-                        ...prev, 
+                      onChange={(e) => setProfileData(prev => ({
+                        ...prev,
                         socialLinks: { ...prev.socialLinks, instagram: e.target.value }
                       }))}
                       className="flex-1 border border-slate-300 rounded p-2 text-sm"
                       placeholder="@username or full URL"
                     />
                   ) : (
-                    <span className="text-slate-700">{profileData.socialLinks.instagram}</span>
+                    <span className="text-slate-700">{profileData.socialLinks.instagram || 'Not added yet'}</span>
                   )}
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-blue-500 rounded flex items-center justify-center text-white text-xs">
-                    TW
+                  <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                    <Twitter className="w-4 h-4 text-white" />
                   </div>
                   {isEditing ? (
                     <input
                       type="text"
                       value={profileData.socialLinks.twitter}
-                      onChange={(e) => setProfileData(prev => ({ 
-                        ...prev, 
+                      onChange={(e) => setProfileData(prev => ({
+                        ...prev,
                         socialLinks: { ...prev.socialLinks, twitter: e.target.value }
                       }))}
                       className="flex-1 border border-slate-300 rounded p-2 text-sm"
                       placeholder="@username or full URL"
                     />
                   ) : (
-                    <span className="text-slate-700">{profileData.socialLinks.twitter}</span>
+                    <span className="text-slate-700">{profileData.socialLinks.twitter || 'Not added yet'}</span>
                   )}
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-blue-700 rounded flex items-center justify-center text-white text-xs">
-                    LI
+                  <div className="w-8 h-8 bg-blue-700 rounded-lg flex items-center justify-center">
+                    <Linkedin className="w-4 h-4 text-white" />
                   </div>
                   {isEditing ? (
                     <input
                       type="text"
                       value={profileData.socialLinks.linkedin}
-                      onChange={(e) => setProfileData(prev => ({ 
-                        ...prev, 
+                      onChange={(e) => setProfileData(prev => ({
+                        ...prev,
                         socialLinks: { ...prev.socialLinks, linkedin: e.target.value }
                       }))}
                       className="flex-1 border border-slate-300 rounded p-2 text-sm"
                       placeholder="LinkedIn profile URL"
                     />
                   ) : (
-                    <span className="text-slate-700">{profileData.socialLinks.linkedin}</span>
+                    <span className="text-slate-700">{profileData.socialLinks.linkedin || 'Not added yet'}</span>
                   )}
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-red-600 rounded flex items-center justify-center text-white text-xs">
-                    YT
+                  <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center">
+                    <Youtube className="w-4 h-4 text-white" />
                   </div>
                   {isEditing ? (
                     <input
                       type="text"
                       value={profileData.socialLinks.youtube}
-                      onChange={(e) => setProfileData(prev => ({ 
-                        ...prev, 
+                      onChange={(e) => setProfileData(prev => ({
+                        ...prev,
                         socialLinks: { ...prev.socialLinks, youtube: e.target.value }
                       }))}
                       className="flex-1 border border-slate-300 rounded p-2 text-sm"
                       placeholder="YouTube channel URL"
                     />
                   ) : (
-                    <span className="text-slate-700">{profileData.socialLinks.youtube}</span>
+                    <span className="text-slate-700">{profileData.socialLinks.youtube || 'Not added yet'}</span>
                   )}
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-black rounded flex items-center justify-center text-white text-xs">
-                    TT
+                  <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
+                    <Video className="w-4 h-4 text-white" />
                   </div>
                   {isEditing ? (
                     <input
                       type="text"
                       value={profileData.socialLinks.tiktok}
-                      onChange={(e) => setProfileData(prev => ({ 
-                        ...prev, 
+                      onChange={(e) => setProfileData(prev => ({
+                        ...prev,
                         socialLinks: { ...prev.socialLinks, tiktok: e.target.value }
                       }))}
                       className="flex-1 border border-slate-300 rounded p-2 text-sm"
                       placeholder="@username or full URL"
                     />
                   ) : (
-                    <span className="text-slate-700">{profileData.socialLinks.tiktok}</span>
+                    <span className="text-slate-700">{profileData.socialLinks.tiktok || 'Not added yet'}</span>
                   )}
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-green-500 rounded flex items-center justify-center text-white text-xs">
-                    WEB
+                  <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
+                    <Globe className="w-4 h-4 text-white" />
                   </div>
                   {isEditing ? (
                     <input
                       type="text"
                       value={profileData.socialLinks.website}
-                      onChange={(e) => setProfileData(prev => ({ 
-                        ...prev, 
+                      onChange={(e) => setProfileData(prev => ({
+                        ...prev,
                         socialLinks: { ...prev.socialLinks, website: e.target.value }
                       }))}
                       className="flex-1 border border-slate-300 rounded p-2 text-sm"
                       placeholder="Website URL"
                     />
                   ) : (
-                    <span className="text-slate-700">{profileData.socialLinks.website}</span>
+                    <span className="text-slate-700">{profileData.socialLinks.website || 'Not added yet'}</span>
                   )}
                 </div>
               </div>
