@@ -235,16 +235,16 @@ export default function DashboardOverview() {
           <h2 className="text-lg font-semibold text-gray-800 mb-4">Recommended</h2>
           <div className="space-y-4">
             {/* Trending Now Section */}
-            <div className="bg-gradient-to-r from-orange-500 to-red-600 rounded-lg p-6 text-white relative overflow-hidden">
+            <div className="bg-gradient-to-r from-orange-600 via-red-500 to-red-700 rounded-lg p-6 text-white relative overflow-hidden shadow-lg">
               {/* Background decorative elements */}
               <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -translate-y-8 translate-x-8"></div>
               <div className="absolute bottom-0 left-0 w-16 h-16 bg-white/5 rounded-full translate-y-4 -translate-x-4"></div>
 
               <div className="relative z-10">
                 <div className="flex items-center gap-2 mb-3">
-                  <Flame className="w-5 h-5 text-yellow-300" />
+                  <Flame className="w-5 h-5 text-yellow-400 drop-shadow-sm" />
                   <h3 className="font-bold text-lg">Trending Now</h3>
-                  <div className="px-2 py-1 bg-white/20 rounded-full text-xs font-medium">LIVE</div>
+                  <div className="px-2 py-1 bg-white/30 backdrop-blur-sm rounded-full text-xs font-bold tracking-wide shadow-sm">LIVE</div>
                 </div>
 
                 {trendingLoading ? (
