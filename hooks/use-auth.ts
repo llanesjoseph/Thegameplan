@@ -18,6 +18,18 @@ export function useAuth() {
   const { role, loading: roleLoading } = useRole()
   const { setFirebaseUser } = useAppStore()
 
+  // Add timeout to prevent infinite loading
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (loading || roleLoading) {
+        console.warn('Auth loading timeout - forcing auth state to resolve')
+        setLoading(false)
+      }
+    }, 5000) // 5 second timeout
+
+    return () => clearTimeout(timeout)
+  }, [loading, roleLoading])
+
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (user) => {
       if (user) {

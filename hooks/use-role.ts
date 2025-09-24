@@ -11,16 +11,29 @@ export function useRole() {
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (user) => {
       try {
-        if (!user) { setRole('guest'); return }
+        if (!user) {
+          setRole('guest')
+          setLoading(false)
+          return
+        }
 
         // Single Source of Truth: users/{uid}.role
-        const userDoc = await getDoc(doc(db, 'users', user.uid))
-        if (userDoc.exists()) {
-          const data = userDoc.data() as { role?: AppRole }
-          setRole(data.role ?? 'user')
-        } else {
+        try {
+          const userDoc = await getDoc(doc(db, 'users', user.uid))
+          if (userDoc.exists()) {
+            const data = userDoc.data() as { role?: AppRole }
+            setRole(data.role ?? 'user')
+          } else {
+            setRole('user')
+          }
+        } catch (firestoreError) {
+          console.warn('Failed to fetch user role from Firestore:', firestoreError)
+          // Default to 'user' role if Firestore fails
           setRole('user')
         }
+      } catch (error) {
+        console.error('Error in useRole:', error)
+        setRole('user')
       } finally {
         setLoading(false)
       }
