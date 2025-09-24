@@ -25,7 +25,9 @@ import {
   Twitter,
   Linkedin,
   Youtube,
-  Globe
+  Globe,
+  MessageSquare,
+  Music
 } from 'lucide-react'
 
 export default function ProfilePage() {
@@ -54,7 +56,8 @@ export default function ProfilePage() {
       linkedin: '',
       youtube: '',
       website: '',
-      tiktok: ''
+      tiktok: '',
+      discord: ''
     },
     preferences: {
       profileVisibility: 'public',
@@ -877,7 +880,7 @@ export default function ProfilePage() {
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
-                    <Video className="w-4 h-4 text-white" />
+                    <Music className="w-4 h-4 text-white" />
                   </div>
                   {isEditing ? (
                     <input
@@ -892,6 +895,25 @@ export default function ProfilePage() {
                     />
                   ) : (
                     <span className="text-slate-700">{profileData.socialLinks.tiktok || 'Not added yet'}</span>
+                  )}
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
+                    <MessageSquare className="w-4 h-4 text-white" />
+                  </div>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={profileData.socialLinks.discord}
+                      onChange={(e) => setProfileData(prev => ({
+                        ...prev,
+                        socialLinks: { ...prev.socialLinks, discord: e.target.value }
+                      }))}
+                      className="flex-1 border border-slate-300 rounded p-2 text-sm"
+                      placeholder="Discord username or server invite"
+                    />
+                  ) : (
+                    <span className="text-slate-700">{profileData.socialLinks.discord || 'Not added yet'}</span>
                   )}
                 </div>
                 <div className="flex items-center gap-3">
