@@ -29,6 +29,8 @@ import {
   MessageSquare,
   Music
 } from 'lucide-react'
+import { DiscordIcon } from '@/components/icons/DiscordIcon'
+import { TikTokIcon } from '@/components/icons/TikTokIcon'
 
 export default function ProfilePage() {
   const { user } = useAuth()
@@ -880,7 +882,7 @@ export default function ProfilePage() {
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
-                    <Music className="w-4 h-4 text-white" />
+                    <TikTokIcon size={16} className="text-white" />
                   </div>
                   {isEditing ? (
                     <input
@@ -899,7 +901,7 @@ export default function ProfilePage() {
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
-                    <MessageSquare className="w-4 h-4 text-white" />
+                    <DiscordIcon size={16} className="text-white" />
                   </div>
                   {isEditing ? (
                     <input
