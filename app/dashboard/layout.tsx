@@ -1,6 +1,7 @@
 'use client'
 
 import { ReactNode } from 'react'
+import { usePathname } from 'next/navigation'
 import AuthGate from '@/components/auth/AuthGate'
 import { DashboardSidebar } from '@/components/DashboardSidebar'
 import { DashboardBreadcrumb } from '@/components/DashboardBreadcrumb'
@@ -8,6 +9,18 @@ import SuperAdminTabs from '@/components/ui/SuperAdminTabs'
 import { UserIdentity } from '@/components/user-identity'
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
+  const pathname = usePathname()
+
+  // The main /dashboard page handles its own authentication
+  // Only apply AuthGate to protected dashboard sub-routes
+  const isMainDashboard = pathname === '/dashboard'
+
+  if (isMainDashboard) {
+    // Main dashboard page handles its own auth
+    return <>{children}</>
+  }
+
+  // Protected dashboard sub-routes use AuthGate
   return (
     <AuthGate>
       <SuperAdminTabs>
