@@ -23,7 +23,9 @@
       "Bash(npm run lint:*)",
       "Bash(find:*)",
       "Read(//c/Users/bigpe/Downloads/**)",
-      "Bash(copy:*)"
+      "Bash(copy:*)",
+      "Bash(npx eslint:*)",
+      "Bash(powershell Copy-Item:*)"
     ],
     "deny": [],
     "ask": []

@@ -203,41 +203,9 @@ export default function DashboardOverview() {
       </div>
 
 
-      {/* Recent Activity & Recommendations */}
-      <div className="grid lg:grid-cols-2 gap-8">
-        {/* Recent Activity */}
-        <div>
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Recent Activity</h2>
-          <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-card">
-            <div className="text-center py-8">
-              <div className="p-4 bg-gray-50 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                <BarChart3 className="w-8 h-8 text-gray-400" />
-              </div>
-              <p className="text-gray-600 mb-2">No recent activity yet</p>
-              <p className="text-sm text-gray-500">
-                {role === 'creator'
-                  ? 'Start coaching to see your activity here'
-                  : role === 'assistant_coach'
-                  ? 'Begin assisting with content to see your activity here'
-                  : 'Begin training to track your progress here'
-                }
-              </p>
-              <div className="mt-4">
-                <Link
-                  href={role === 'creator' ? '/dashboard/creator' : '/lessons'}
-                  className="inline-flex items-center gap-2 text-cardinal hover:text-cardinal-dark text-sm font-medium"
-                >
-                  {role === 'creator' ? 'Start Coaching' : 'Browse Training'}
-                  <ArrowUpRight className="w-4 h-4" />
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Recommendations */}
-        <div>
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Recommended</h2>
+      {/* Trending Section - Full Width for Visibility Testing */}
+      <div className="mb-8">
+        <h2 className="text-lg font-semibold text-gray-800 mb-4">🔥 Trending Now</h2>
           <div className="space-y-4">
             {/* Trending Now Section */}
             <div className="bg-gradient-to-r from-orange-600 via-red-500 to-red-700 rounded-lg p-6 text-white relative overflow-hidden shadow-lg">
@@ -314,28 +282,64 @@ export default function DashboardOverview() {
                 </div>
               </div>
             </div>
-            
-            <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-card">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 bg-green-100 rounded-lg">
-                  <Users className="w-5 h-5 text-green-600" />
-                </div>
-                <h3 className="font-semibold text-gray-800">Connect & Grow</h3>
+          </div>
+      </div>
+
+      {/* Recent Activity Section */}
+      <div className="grid lg:grid-cols-2 gap-8">
+        {/* Recent Activity */}
+        <div>
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">Recent Activity</h2>
+          <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-card">
+            <div className="text-center py-8">
+              <div className="p-4 bg-gray-50 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                <BarChart3 className="w-8 h-8 text-gray-400" />
               </div>
-              <p className="text-gray-600 text-sm mb-4">
+              <p className="text-gray-600 mb-2">No recent activity yet</p>
+              <p className="text-sm text-gray-500">
                 {role === 'creator'
-                  ? 'View feedback from your athletes'
-                  : 'Connect with expert coaches'
+                  ? 'Start coaching to see your activity here'
+                  : role === 'assistant_coach'
+                  ? 'Begin assisting with content to see your activity here'
+                  : 'Begin training to track your progress here'
                 }
               </p>
-              <Link 
-                href={role === 'creator' ? '/dashboard/creator/requests' : '/contributors'}
-                className="text-sm font-medium text-cardinal hover:text-cardinal-dark flex items-center gap-1"
-              >
-                {role === 'creator' ? 'View Requests' : 'Find Coaches'}
-                <ArrowUpRight className="w-4 h-4" />
-              </Link>
+              <div className="mt-4">
+                <Link
+                  href={role === 'creator' ? '/dashboard/creator' : '/lessons'}
+                  className="inline-flex items-center gap-2 text-cardinal hover:text-cardinal-dark text-sm font-medium"
+                >
+                  {role === 'creator' ? 'Start Coaching' : 'Browse Training'}
+                  <ArrowUpRight className="w-4 h-4" />
+                </Link>
+              </div>
             </div>
+          </div>
+        </div>
+
+        {/* Other Recommendations */}
+        <div>
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">Connect & Grow</h2>
+          <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-card">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="p-2 bg-green-100 rounded-lg">
+                <Users className="w-5 h-5 text-green-600" />
+              </div>
+              <h3 className="font-semibold text-gray-800">Connect & Grow</h3>
+            </div>
+            <p className="text-gray-600 text-sm mb-4">
+              {role === 'creator'
+                ? 'View feedback from your athletes'
+                : 'Connect with expert coaches'
+              }
+            </p>
+            <Link
+              href={role === 'creator' ? '/dashboard/creator/requests' : '/contributors'}
+              className="text-sm font-medium text-cardinal hover:text-cardinal-dark flex items-center gap-1"
+            >
+              {role === 'creator' ? 'View Requests' : 'Find Coaches'}
+              <ArrowUpRight className="w-4 h-4" />
+            </Link>
           </div>
         </div>
       </div>
