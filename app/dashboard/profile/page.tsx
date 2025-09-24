@@ -94,11 +94,6 @@ export default function ProfilePage() {
       website: '',
       tiktok: '',
       discord: ''
-    },
-    preferences: {
-      profileVisibility: 'public',
-      allowDirectBooking: true,
-      showContactInfo: true
     }
   })
 
@@ -1029,80 +1024,6 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            {/* Profile Preferences */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-              <h3 className="text-lg font-semibold text-slate-900 mb-4">Profile Settings</h3>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="font-medium text-slate-900">Profile Visibility</div>
-                    <div className="text-sm text-slate-500">Who can see your profile</div>
-                  </div>
-                  {isEditing ? (
-                    <select
-                      value={profileData.preferences.profileVisibility}
-                      onChange={(e) => setProfileData(prev => ({ 
-                        ...prev, 
-                        preferences: { ...prev.preferences, profileVisibility: e.target.value }
-                      }))}
-                      className="border border-slate-300 rounded p-2"
-                    >
-                      <option value="public">Public</option>
-                      <option value="private">Private</option>
-                      <option value="members">Members Only</option>
-                    </select>
-                  ) : (
-                    <span className="capitalize text-slate-700">{profileData.preferences.profileVisibility}</span>
-                  )}
-                </div>
-                
-                {/* Creator-only settings */}
-                {role === 'creator' && (
-                  <div className="flex items-center justify-between">
-                  <div>
-                    <div className="font-medium text-slate-900">Direct Booking</div>
-                    <div className="text-sm text-slate-500">Allow students to book sessions directly</div>
-                  </div>
-                  {isEditing ? (
-                    <input
-                      type="checkbox"
-                      checked={profileData.preferences.allowDirectBooking}
-                      onChange={(e) => setProfileData(prev => ({ 
-                        ...prev, 
-                        preferences: { ...prev.preferences, allowDirectBooking: e.target.checked }
-                      }))}
-                      className="w-4 h-4"
-                    />
-                  ) : (
-                    <span className="text-slate-700">{profileData.preferences.allowDirectBooking ? 'Enabled' : 'Disabled'}</span>
-                  )}
-                  </div>
-                )}
-                
-                {role === 'creator' && (
-                  <div className="flex items-center justify-between">
-                  <div>
-                    <div className="font-medium text-slate-900">Show Contact Info</div>
-                    <div className="text-sm text-slate-500">Display email and phone to students</div>
-                  </div>
-                  {isEditing ? (
-                    <input
-                      type="checkbox"
-                      checked={profileData.preferences.showContactInfo}
-                      onChange={(e) => setProfileData(prev => ({ 
-                        ...prev, 
-                        preferences: { ...prev.preferences, showContactInfo: e.target.checked }
-                      }))}
-                      className="w-4 h-4"
-                    />
-                  ) : (
-                    <span className="text-slate-700">{profileData.preferences.showContactInfo ? 'Visible' : 'Hidden'}</span>
-                  )}
-                  </div>
-                )}
-                
-              </div>
-            </div>
           </div>
         </div>
       </div>
