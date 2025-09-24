@@ -2,17 +2,23 @@
 
 import { useAuth } from '@/hooks/use-auth'
 import { useEnhancedRole } from "@/hooks/use-role-switcher"
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { 
-  Video, 
-  MessageCircle, 
+import { getTrendingLesson, TrendingLesson } from '@/lib/trending-service'
+import {
+  Video,
+  MessageCircle,
   BarChart3,
   TrendingUp,
   BookOpen,
   Users,
   PlayCircle,
   ArrowUpRight,
-  CheckCircle
+  CheckCircle,
+  Eye,
+  Heart,
+  Clock,
+  Flame
 } from 'lucide-react'
 
 const quickActions = {
@@ -108,6 +114,27 @@ const quickActions = {
 export default function DashboardOverview() {
   const { user } = useAuth()
   const { role, loading } = useEnhancedRole()
+  const [trendingLesson, setTrendingLesson] = useState<TrendingLesson | null>(null)
+  const [trendingLoading, setTrendingLoading] = useState(true)
+
+  // Fetch trending content
+  useEffect(() => {
+    const fetchTrending = async () => {
+      setTrendingLoading(true)
+      try {
+        const trending = await getTrendingLesson()
+        setTrendingLesson(trending)
+      } catch (error) {
+        console.error('Error fetching trending lesson:', error)
+      } finally {
+        setTrendingLoading(false)
+      }
+    }
+
+    if (user) {
+      fetchTrending()
+    }
+  }, [user])
 
   if (loading) {
     return (
@@ -207,23 +234,88 @@ export default function DashboardOverview() {
         <div>
           <h2 className="text-lg font-semibold text-gray-800 mb-4">Recommended</h2>
           <div className="space-y-4">
-            <div className="bg-gradient-to-r from-cardinal to-cardinal-dark rounded-lg p-6 text-white">
-              <h3 className="font-semibold mb-2">
-                {role === 'creator' ? 'Coach Your Next Athlete' : 'Continue Training'}
-              </h3>
-              <p className="text-gray-100/80 text-sm mb-4">
-                {role === 'creator'
-                  ? 'Share your expertise and help athletes grow'
-                  : 'Keep building your skills with new training'
-                }
-              </p>
-              <Link 
-                href={role === 'creator' ? '/dashboard/creator' : '/lessons'}
-                className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg text-sm font-medium hover:bg-white/30 transition-colors"
-              >
-                {role === 'creator' ? 'Start Coaching' : 'Browse Training'}
-                <ArrowUpRight className="w-4 h-4" />
-              </Link>
+            {/* Trending Now Section */}
+            <div className="bg-gradient-to-r from-orange-500 to-red-600 rounded-lg p-6 text-white relative overflow-hidden">
+              {/* Background decorative elements */}
+              <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -translate-y-8 translate-x-8"></div>
+              <div className="absolute bottom-0 left-0 w-16 h-16 bg-white/5 rounded-full translate-y-4 -translate-x-4"></div>
+
+              <div className="relative z-10">
+                <div className="flex items-center gap-2 mb-3">
+                  <Flame className="w-5 h-5 text-yellow-300" />
+                  <h3 className="font-bold text-lg">Trending Now</h3>
+                  <div className="px-2 py-1 bg-white/20 rounded-full text-xs font-medium">LIVE</div>
+                </div>
+
+                {trendingLoading ? (
+                  <div className="space-y-3">
+                    <div className="h-4 bg-white/20 rounded animate-pulse"></div>
+                    <div className="h-3 bg-white/15 rounded w-3/4 animate-pulse"></div>
+                  </div>
+                ) : trendingLesson ? (
+                  <div className="space-y-3">
+                    <h4 className="font-semibold text-lg leading-tight">
+                      {trendingLesson.title}
+                    </h4>
+                    <div className="flex items-center gap-4 text-sm text-white/90">
+                      <div className="flex items-center gap-1">
+                        <Eye className="w-4 h-4" />
+                        <span>{trendingLesson.views.toLocaleString()}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Heart className="w-4 h-4" />
+                        <span>{trendingLesson.likes}</span>
+                      </div>
+                      <div className="px-2 py-1 bg-white/20 rounded text-xs font-medium">
+                        {trendingLesson.sport}
+                      </div>
+                    </div>
+                    <p className="text-white/80 text-sm">
+                      Most interactive lesson across all sports - join {trendingLesson.views} others!
+                    </p>
+                  </div>
+                ) : (
+                  // Fallback content when no data is available
+                  <div className="space-y-3">
+                    <h4 className="font-semibold text-lg leading-tight">
+                      Building Our Community
+                    </h4>
+                    <div className="flex items-center gap-4 text-sm text-white/90">
+                      <div className="flex items-center gap-1">
+                        <Users className="w-4 h-4" />
+                        <span>Growing Daily</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <BookOpen className="w-4 h-4" />
+                        <span>Multi-Sport</span>
+                      </div>
+                      <div className="px-2 py-1 bg-white/20 rounded text-xs font-medium animate-pulse">
+                        LAUNCHING
+                      </div>
+                    </div>
+                    <p className="text-white/80 text-sm">
+                      Be among the first to experience our cross-sport training platform. Help us discover what's trending!
+                    </p>
+                  </div>
+                )}
+
+                <div className="mt-4 flex gap-3">
+                  <Link
+                    href={trendingLesson ? `/lesson/${trendingLesson.id}` : '/lessons'}
+                    className="inline-flex items-center gap-2 bg-white/25 backdrop-blur-sm px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-white/35 transition-colors flex-1 justify-center"
+                  >
+                    <PlayCircle className="w-4 h-4" />
+                    {trendingLesson ? 'Watch Now' : 'Explore Training'}
+                  </Link>
+                  <Link
+                    href={trendingLesson ? '/lessons?filter=trending' : '/dashboard/creator'}
+                    className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-white/25 transition-colors"
+                  >
+                    {trendingLesson ? <TrendingUp className="w-4 h-4" /> : <Video className="w-4 h-4" />}
+                    {trendingLesson ? 'More' : 'Create'}
+                  </Link>
+                </div>
+              </div>
             </div>
             
             <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-card">
