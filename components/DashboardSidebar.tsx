@@ -35,7 +35,7 @@ const navigationItems = {
     { title: 'Profile', icon: User, href: '/dashboard/profile', color: 'text-gray-600' },
   ],
   creator: [
-    { title: 'Overview', icon: LayoutDashboard, href: '/dashboard/overview', color: 'text-blue-600' },
+    { title: 'Overview', icon: LayoutDashboard, href: '/dashboard/creator/overview', color: 'text-blue-600' },
     { title: 'Lesson Studio', icon: Video, href: '/dashboard/creator', color: 'text-red-600' },
     { title: 'Coaching Requests', icon: MessageCircle, href: '/dashboard/creator/requests', color: 'text-green-600' },
     { title: 'My Schedule', icon: Calendar, href: '/dashboard/creator/schedule', color: 'text-orange-600' },

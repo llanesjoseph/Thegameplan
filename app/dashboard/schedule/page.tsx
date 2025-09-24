@@ -143,46 +143,44 @@ export default function UserSchedule() {
   ]
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
       <div className="relative overflow-hidden">
-        <div className="absolute inset-0 opacity-20">
-          <div 
-            className="absolute inset-0 bg-repeat"
-            style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='7' cy='7' r='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-            }}
-          />
-        </div>
-        
         <div className="relative max-w-4xl mx-auto px-6 py-12">
           {/* Header */}
           <div className="text-center mb-12">
-            <div className="w-16 h-16 bg-purple-600/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
-              <Calendar className="w-8 h-8 text-purple-400" />
+            <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 bg-gradient-to-br from-sky-blue to-deep-plum">
+              <Calendar className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">Set Your Schedule</h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Let creators know when you're available for coaching sessions
+            <h1 className="text-4xl font-bold font-heading uppercase tracking-wide mb-4" style={{ color: '#5A2C59' }}>
+              Set Your Schedule
+            </h1>
+            <p className="text-xl max-w-2xl mx-auto" style={{ color: '#5A2C59' }}>
+              Let coaches know when you're available for training sessions
             </p>
           </div>
 
           {/* Single Column Layout */}
           <div className="max-w-3xl mx-auto space-y-8">
             {/* Availability Section */}
-            <div className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
+            <div className="bg-white/90 backdrop-blur-sm border border-white/50 rounded-2xl p-8 shadow-lg">
               <div className="flex items-center gap-3 mb-6">
-                <Clock className="w-6 h-6 text-blue-400" />
-                <h2 className="text-2xl font-semibold text-gray-900">Your Availability</h2>
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-sky-blue to-deep-plum flex items-center justify-center">
+                  <Clock className="w-6 h-6 text-white" />
+                </div>
+                <h2 className="text-2xl font-semibold font-heading" style={{ color: '#5A2C59' }}>
+                  Your Availability
+                </h2>
               </div>
               
               <div className="space-y-3 mb-8">
                 {slots.map((slot, i) => (
-                  <div key={i} className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                  <div key={i} className="bg-white/60 rounded-xl p-4 border border-white/30 shadow-sm">
                     <div className="flex items-center gap-3">
                       <div className="flex-1 max-w-[200px]">
-                        <select 
-                          className="w-full bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 focus:ring-2 focus:ring-purple-400 focus:border-transparent font-medium"
-                          value={slot.day} 
+                        <select
+                          className="w-full bg-white/80 border border-white/50 rounded-lg px-4 py-2.5 font-medium focus:ring-2 focus:ring-sky-blue focus:border-transparent"
+                          style={{ color: '#5A2C59' }}
+                          value={slot.day}
                           onChange={e => updateSlot(i, { day: e.target.value })}
                         >
                           {dayOptions.map(day => (
@@ -194,18 +192,20 @@ export default function UserSchedule() {
                       </div>
                       
                       <div className="flex items-center gap-2 flex-1">
-                        <input 
-                          type="time" 
-                          className="bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 focus:ring-2 focus:ring-purple-400 focus:border-transparent font-medium"
-                          value={slot.start} 
-                          onChange={e => updateSlot(i, { start: e.target.value })} 
+                        <input
+                          type="time"
+                          className="bg-white/80 border border-white/50 rounded-lg px-4 py-2.5 font-medium focus:ring-2 focus:ring-sky-blue focus:border-transparent"
+                          style={{ color: '#5A2C59' }}
+                          value={slot.start}
+                          onChange={e => updateSlot(i, { start: e.target.value })}
                         />
-                        <span className="text-gray-500 font-medium">to</span>
-                        <input 
-                          type="time" 
-                          className="bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 focus:ring-2 focus:ring-purple-400 focus:border-transparent font-medium"
-                          value={slot.end} 
-                          onChange={e => updateSlot(i, { end: e.target.value })} 
+                        <span className="font-medium" style={{ color: '#5A2C59' }}>to</span>
+                        <input
+                          type="time"
+                          className="bg-white/80 border border-white/50 rounded-lg px-4 py-2.5 font-medium focus:ring-2 focus:ring-sky-blue focus:border-transparent"
+                          style={{ color: '#5A2C59' }}
+                          value={slot.end}
+                          onChange={e => updateSlot(i, { end: e.target.value })}
                         />
                       </div>
                       
@@ -213,7 +213,8 @@ export default function UserSchedule() {
                         {slots.length > 1 && (
                           <button
                             onClick={() => removeSlot(i)}
-                            className="p-2.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors"
+                            className="p-2.5 hover:bg-red-500/10 rounded-lg transition-colors"
+                            style={{ color: '#FF6B35' }}
                             title="Remove time slot"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -226,18 +227,20 @@ export default function UserSchedule() {
               </div>
               
               <div className="flex justify-center gap-4">
-                <button 
+                <button
                   onClick={addSlot}
-                  className="flex items-center gap-2 px-6 py-3 bg-slate-600/50 hover:bg-slate-600/70 text-slate-300 rounded-xl font-medium transition-colors"
+                  className="flex items-center gap-2 px-6 py-3 text-white rounded-xl font-medium transition-all shadow-lg hover:shadow-xl"
+                  style={{ backgroundColor: '#91A6EB' }}
                 >
                   <Plus className="w-4 h-4" />
                   Add Time Slot
                 </button>
-                
-                <button 
+
+                <button
                   onClick={saveAvailability}
                   disabled={saving}
-                  className="flex items-center gap-2 px-8 py-3 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white rounded-xl font-medium transition-colors"
+                  className="flex items-center gap-2 px-8 py-3 disabled:opacity-50 text-white rounded-xl font-medium transition-all shadow-lg hover:shadow-xl"
+                  style={{ backgroundColor: '#20B2AA' }}
                 >
                   <Save className="w-4 h-4" />
                   {saving ? 'Saving...' : 'Save Availability'}
@@ -246,23 +249,28 @@ export default function UserSchedule() {
             </div>
 
             {/* Propose Session Section */}
-            <div className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
+            <div className="bg-white/90 backdrop-blur-sm border border-white/50 rounded-2xl p-8 shadow-lg">
               <div className="flex items-center gap-3 mb-6">
-                <Send className="w-6 h-6 text-green-400" />
-                <h2 className="text-2xl font-semibold text-white">Propose a Session</h2>
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green to-deep-plum flex items-center justify-center">
+                  <Send className="w-6 h-6 text-white" />
+                </div>
+                <h2 className="text-2xl font-semibold font-heading" style={{ color: '#5A2C59' }}>
+                  Propose a Session
+                </h2>
               </div>
               
               <div className="space-y-4 mb-6">
                 {/* Creator Search */}
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <Search className="w-5 h-5 text-slate-400" />
+                    <Search className="w-5 h-5" style={{ color: '#5A2C59' }} />
                   </div>
-                  <input 
+                  <input
                     type="text"
-                    className="w-full bg-slate-900/50 border border-slate-600/50 rounded-xl pl-12 pr-4 py-3.5 text-white placeholder-slate-400 focus:ring-2 focus:ring-green-400 focus:border-transparent font-medium"
-                    placeholder="Search creators by name, email, or ID..."
-                    value={searchQuery} 
+                    className="w-full bg-white/80 border border-white/50 rounded-xl pl-12 pr-4 py-3.5 font-medium focus:ring-2 focus:ring-sky-blue focus:border-transparent"
+                    placeholder="Search coaches by name, email, or ID..."
+                    style={{ color: '#5A2C59' }}
+                    value={searchQuery}
                     onChange={e => {
                       setSearchQuery(e.target.value)
                       searchCreators(e.target.value)
@@ -270,29 +278,29 @@ export default function UserSchedule() {
                   />
                   {searching && (
                     <div className="absolute inset-y-0 right-0 pr-4 flex items-center">
-                      <div className="w-4 h-4 border-2 border-green-400 border-t-transparent rounded-full animate-spin"></div>
+                      <div className="w-4 h-4 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: '#20B2AA', borderTopColor: 'transparent' }}></div>
                     </div>
                   )}
                 </div>
 
                 {/* Search Results */}
                 {searchResults.length > 0 && (
-                  <div className="bg-slate-700/30 rounded-xl border border-slate-600/30 max-h-48 overflow-y-auto">
+                  <div className="bg-white/80 rounded-xl border border-white/50 max-h-48 overflow-y-auto shadow-lg">
                     {searchResults.map((creator, index) => (
                       <button
                         key={creator.id}
                         onClick={() => selectCreator(creator)}
-                        className="w-full px-4 py-3 text-left hover:bg-slate-600/30 transition-colors border-b border-slate-600/20 last:border-b-0 first:rounded-t-xl last:rounded-b-xl"
+                        className="w-full px-4 py-3 text-left hover:bg-white/60 transition-colors border-b border-white/20 last:border-b-0 first:rounded-t-xl last:rounded-b-xl"
                       >
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center">
-                            <User className="w-4 h-4 text-green-400" />
+                          <div className="w-8 h-8 bg-gradient-to-br from-sky-blue to-deep-plum rounded-full flex items-center justify-center">
+                            <User className="w-4 h-4 text-white" />
                           </div>
                           <div className="flex-1">
-                            <div className="text-white font-medium">
+                            <div className="font-medium" style={{ color: '#5A2C59' }}>
                               {creator.displayName || creator.email || 'Unknown Creator'}
                             </div>
-                            <div className="text-xs text-slate-400">
+                            <div className="text-xs" style={{ color: '#5A2C59', opacity: 0.7 }}>
                               {creator.email && creator.displayName ? creator.email : creator.id}
                             </div>
                           </div>
@@ -303,33 +311,34 @@ export default function UserSchedule() {
                 )}
 
                 {searchQuery && !searching && searchResults.length === 0 && (
-                  <div className="text-center py-4 text-slate-400">
-                    <p>No creators found matching "{searchQuery}"</p>
+                  <div className="text-center py-4" style={{ color: '#5A2C59', opacity: 0.7 }}>
+                    <p>No coaches found matching "{searchQuery}"</p>
                     <p className="text-xs mt-1">Try entering their ID manually below</p>
                   </div>
                 )}
 
                 {/* Manual Creator ID Input */}
                 <div className="relative">
-                  <input 
+                  <input
                     type="text"
-                    className="w-full bg-slate-900/50 border border-slate-600/50 rounded-xl px-4 py-3.5 text-white placeholder-slate-400 focus:ring-2 focus:ring-green-400 focus:border-transparent font-medium"
-                    placeholder="Or enter creator ID directly..."
-                    value={creatorUid} 
-                    onChange={e => setCreatorUid(e.target.value)} 
+                    className="w-full bg-white/80 border border-white/50 rounded-xl px-4 py-3.5 font-medium focus:ring-2 focus:ring-sky-blue focus:border-transparent"
+                    placeholder="Or enter coach ID directly..."
+                    style={{ color: '#5A2C59' }}
+                    value={creatorUid}
+                    onChange={e => setCreatorUid(e.target.value)}
                   />
                 </div>
                 
                 {/* Selected Time Slot Preview */}
                 {slots.length > 0 && creatorUid && (
-                  <div className="bg-gradient-to-r from-green-500/10 to-blue-500/10 rounded-xl p-4 border border-green-400/20">
-                    <div className="flex items-center justify-center gap-6 text-white">
+                  <div className="bg-gradient-to-r from-sky-blue/10 to-deep-plum/10 rounded-xl p-4 border border-sky-blue/20 shadow-sm">
+                    <div className="flex items-center justify-center gap-6" style={{ color: '#5A2C59' }}>
                       <div className="flex items-center gap-2">
-                        <Calendar className="w-5 h-5 text-purple-400" />
+                        <Calendar className="w-5 h-5" style={{ color: '#91A6EB' }} />
                         <span className="font-semibold">{dayOptions.find(d => d.value === slots[0].day)?.label}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Clock className="w-5 h-5 text-blue-400" />
+                        <Clock className="w-5 h-5" style={{ color: '#20B2AA' }} />
                         <span className="font-semibold">{slots[0].start} - {slots[0].end}</span>
                       </div>
                     </div>
@@ -338,17 +347,18 @@ export default function UserSchedule() {
               </div>
               
               <div className="text-center">
-                <button 
+                <button
                   onClick={proposeSession}
                   disabled={!creatorUid || slots.length === 0 || proposing}
-                  className="px-12 py-4 bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-semibold transition-colors text-lg shadow-lg hover:shadow-xl"
+                  className="px-12 py-4 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-semibold transition-all text-lg shadow-lg hover:shadow-xl"
+                  style={{ backgroundColor: '#20B2AA' }}
                 >
                   {proposing ? 'Proposing Session...' : 'Propose Session'}
                 </button>
-                
+
                 {!creatorUid && (
-                  <p className="mt-3 text-sm text-slate-400">
-                    Search for a creator above to get started
+                  <p className="mt-3 text-sm" style={{ color: '#5A2C59', opacity: 0.7 }}>
+                    Search for a coach above to get started
                   </p>
                 )}
               </div>

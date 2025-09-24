@@ -96,10 +96,12 @@ const config: Config = {
         'background-light': '#FFFFFF',
       },
       fontFamily: {
-        // PLAYBOOKD typography system
-        sans: ['Inter', 'ui-sans-serif', 'system-ui'],
-        heading: ['Poppins', 'ui-sans-serif', 'system-ui'],
-        body: ['Inter', 'ui-sans-serif', 'system-ui'],
+        // PLAYBOOKD typography system - matching design document
+        sans: ['var(--font-inter)', 'Inter', 'ui-sans-serif', 'system-ui'],
+        heading: ['var(--font-oswald)', 'Oswald', 'Impact', 'Arial Black', 'sans-serif'], // Sports-style bold heading font
+        body: ['var(--font-inter)', 'Inter', 'ui-sans-serif', 'system-ui'],
+        'sports': ['var(--font-oswald)', 'Oswald', 'Impact', 'Arial Black', 'sans-serif'], // Main PLAYBOOKD brand font
+        'display': ['var(--font-oswald)', 'Oswald', 'Impact', 'Arial Black', 'sans-serif'], // For large titles and brand
         poppins: ['Poppins', 'ui-sans-serif', 'system-ui']
       },
       fontSize: {

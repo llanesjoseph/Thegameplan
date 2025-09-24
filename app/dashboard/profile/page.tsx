@@ -665,9 +665,14 @@ export default function ProfilePage() {
 
             {/* Certifications - Only for creators */}
             {role === 'creator' && (
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-slate-900">Certifications</h3>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-gradient-to-r from-orange to-deep-plum rounded-lg flex items-center justify-center">
+                    <Award className="w-4 h-4 text-white" />
+                  </div>
+                  <h3 className="text-lg font-semibold font-heading" style={{ color: '#5A2C59' }}>Certifications</h3>
+                </div>
                 {isEditing && (
                   <button 
                     onClick={() => setProfileData(prev => ({ 
@@ -761,26 +766,37 @@ export default function ProfilePage() {
 
             {/* Coaching Philosophy - Only for creators */}
             {role === 'creator' && (
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-              <h3 className="text-lg font-semibold text-slate-900 mb-4">Coaching Philosophy</h3>
+              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-8 h-8 bg-gradient-to-r from-deep-plum to-sky-blue rounded-lg flex items-center justify-center">
+                  <MessageSquare className="w-4 h-4 text-white" />
+                </div>
+                <h3 className="text-lg font-semibold font-heading" style={{ color: '#5A2C59' }}>Coaching Philosophy</h3>
+              </div>
               {isEditing ? (
                 <textarea
                   value={profileData.coachingPhilosophy}
                   onChange={(e) => setProfileData(prev => ({ ...prev, coachingPhilosophy: e.target.value }))}
-                  className="w-full border border-slate-300 rounded p-3"
+                  className="w-full border border-white/50 rounded p-3 bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-sky-blue"
+                  style={{ color: '#5A2C59' }}
                   rows={4}
                   placeholder="Describe your coaching philosophy and approach..."
                 />
               ) : (
-                <p className="text-slate-700">{profileData.coachingPhilosophy}</p>
+                <p style={{ color: '#5A2C59' }}>{profileData.coachingPhilosophy}</p>
               )}
               </div>
             )}
 
             {/* Achievements */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-slate-900">Achievements & Awards</h3>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-gradient-to-r from-orange to-deep-plum rounded-lg flex items-center justify-center">
+                    <Trophy className="w-4 h-4 text-white" />
+                  </div>
+                  <h3 className="text-lg font-semibold font-heading" style={{ color: '#5A2C59' }}>Achievements & Awards</h3>
+                </div>
                 {isEditing && (
                   <button 
                     onClick={() => setProfileData(prev => ({ 
@@ -935,8 +951,13 @@ export default function ProfilePage() {
             )}
 
             {/* Social Links */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-              <h3 className="text-lg font-semibold text-slate-900 mb-4">Social Links</h3>
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-8 h-8 bg-gradient-to-r from-sky-blue to-deep-plum rounded-lg flex items-center justify-center">
+                  <Globe className="w-4 h-4 text-white" />
+                </div>
+                <h3 className="text-lg font-semibold font-heading" style={{ color: '#5A2C59' }}>Social Links</h3>
+              </div>
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 bg-gradient-to-r from-pink-500 to-orange-500 rounded-lg flex items-center justify-center">
