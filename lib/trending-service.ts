@@ -64,8 +64,8 @@ export async function getTrendingLesson(): Promise<TrendingLesson | null> {
     })) as any[]
 
     if (lessons.length === 0) {
-      console.log('📭 No lessons found')
-      return null
+      console.log('📭 No lessons found, returning sample data')
+      return getSampleTrendingLesson()
     }
 
     // Calculate engagement scores and find the most trending

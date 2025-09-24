@@ -120,19 +120,24 @@ export default function DashboardOverview() {
   // Fetch trending content
   useEffect(() => {
     const fetchTrending = async () => {
+      console.log('🔍 Starting to fetch trending lesson...')
       setTrendingLoading(true)
       try {
         const trending = await getTrendingLesson()
+        console.log('📊 Trending lesson result:', trending)
         setTrendingLesson(trending)
       } catch (error) {
-        console.error('Error fetching trending lesson:', error)
+        console.error('❌ Error fetching trending lesson:', error)
       } finally {
         setTrendingLoading(false)
+        console.log('✅ Trending fetch completed')
       }
     }
 
     if (user) {
       fetchTrending()
+    } else {
+      console.log('👤 No user found, skipping trending fetch')
     }
   }, [user])
 
@@ -247,57 +252,49 @@ export default function DashboardOverview() {
                   <div className="px-2 py-1 bg-white/30 backdrop-blur-sm rounded-full text-xs font-bold tracking-wide shadow-sm">LIVE</div>
                 </div>
 
-                {trendingLoading ? (
-                  <div className="space-y-3">
-                    <div className="h-4 bg-white/20 rounded animate-pulse"></div>
-                    <div className="h-3 bg-white/15 rounded w-3/4 animate-pulse"></div>
+                {/* Always show trending content - simplified for debugging */}
+                <div className="space-y-3">
+                  <h4 className="font-semibold text-lg leading-tight">
+                    {trendingLesson ? trendingLesson.title : 'Building Our Community'}
+                  </h4>
+                  <div className="flex items-center gap-4 text-sm text-white/90">
+                    {trendingLesson ? (
+                      <>
+                        <div className="flex items-center gap-1">
+                          <Eye className="w-4 h-4" />
+                          <span>{trendingLesson.views.toLocaleString()}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Heart className="w-4 h-4" />
+                          <span>{trendingLesson.likes}</span>
+                        </div>
+                        <div className="px-2 py-1 bg-white/20 rounded text-xs font-medium">
+                          {trendingLesson.sport}
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="flex items-center gap-1">
+                          <Users className="w-4 h-4" />
+                          <span>Growing Daily</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <BookOpen className="w-4 h-4" />
+                          <span>Multi-Sport</span>
+                        </div>
+                        <div className="px-2 py-1 bg-white/20 rounded text-xs font-medium animate-pulse">
+                          LAUNCHING
+                        </div>
+                      </>
+                    )}
                   </div>
-                ) : trendingLesson ? (
-                  <div className="space-y-3">
-                    <h4 className="font-semibold text-lg leading-tight">
-                      {trendingLesson.title}
-                    </h4>
-                    <div className="flex items-center gap-4 text-sm text-white/90">
-                      <div className="flex items-center gap-1">
-                        <Eye className="w-4 h-4" />
-                        <span>{trendingLesson.views.toLocaleString()}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Heart className="w-4 h-4" />
-                        <span>{trendingLesson.likes}</span>
-                      </div>
-                      <div className="px-2 py-1 bg-white/20 rounded text-xs font-medium">
-                        {trendingLesson.sport}
-                      </div>
-                    </div>
-                    <p className="text-white/80 text-sm">
-                      Most interactive lesson across all sports - join {trendingLesson.views} others!
-                    </p>
-                  </div>
-                ) : (
-                  // Fallback content when no data is available
-                  <div className="space-y-3">
-                    <h4 className="font-semibold text-lg leading-tight">
-                      Building Our Community
-                    </h4>
-                    <div className="flex items-center gap-4 text-sm text-white/90">
-                      <div className="flex items-center gap-1">
-                        <Users className="w-4 h-4" />
-                        <span>Growing Daily</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <BookOpen className="w-4 h-4" />
-                        <span>Multi-Sport</span>
-                      </div>
-                      <div className="px-2 py-1 bg-white/20 rounded text-xs font-medium animate-pulse">
-                        LAUNCHING
-                      </div>
-                    </div>
-                    <p className="text-white/80 text-sm">
-                      Be among the first to experience our cross-sport training platform. Help us discover what's trending!
-                    </p>
-                  </div>
-                )}
+                  <p className="text-white/80 text-sm">
+                    {trendingLesson
+                      ? `Most interactive lesson across all sports - join ${trendingLesson.views} others!`
+                      : 'Be among the first to experience our cross-sport training platform. Help us discover what\'s trending!'
+                    }
+                  </p>
+                </div>
 
                 <div className="mt-4 flex gap-3">
                   <Link
