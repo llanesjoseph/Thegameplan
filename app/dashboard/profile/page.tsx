@@ -32,6 +32,41 @@ import {
 import { DiscordIcon } from '@/components/icons/DiscordIcon'
 import { TikTokIcon } from '@/components/icons/TikTokIcon'
 
+// Comprehensive sports list from the app
+const SPORTS_OPTIONS = [
+  'Brazilian Jiu-Jitsu (BJJ)',
+  'Mixed Martial Arts (MMA)',
+  'Soccer',
+  'American Football',
+  'Basketball',
+  'Tennis',
+  'Baseball',
+  'Volleyball',
+  'Golf',
+  'Swimming',
+  'Boxing',
+  'Wrestling',
+  'Track & Field',
+  'Gymnastics',
+  'Hockey',
+  'Cricket',
+  'Rugby',
+  'Softball',
+  'Badminton',
+  'Table Tennis',
+  'Martial Arts',
+  'CrossFit',
+  'Weightlifting',
+  'Running',
+  'Cycling',
+  'Rock Climbing',
+  'Skiing',
+  'Snowboarding',
+  'Surfing',
+  'Skateboarding',
+  'Other'
+].sort()
+
 export default function ProfilePage() {
   const { user } = useAuth()
   const { role, loading } = useEnhancedRole()
@@ -394,35 +429,60 @@ export default function ProfilePage() {
                 // Coach specialties - allow custom text inputs plus sport selection
                 <>
                   <div className="space-y-4">
-                    {/* Sport Checkboxes for Coaches too */}
+                    {/* Sports Dropdown for Coaches */}
                     {isEditing && (
-                      <div>
-                        <h4 className="text-sm font-medium text-slate-700 mb-3">Core Sports</h4>
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
-                          {['Soccer', 'Basketball', 'Tennis', 'Baseball', 'Football'].map((sport) => (
-                            <label key={sport} className="flex items-center gap-2 cursor-pointer">
-                              <input
-                                type="checkbox"
-                                checked={profileData.specialties.includes(sport)}
-                                onChange={(e) => {
-                                  if (e.target.checked) {
-                                    setProfileData(prev => ({
-                                      ...prev,
-                                      specialties: [...prev.specialties, sport]
-                                    }))
-                                  } else {
+                      <div className="mb-4">
+                        <h4 className="text-sm font-medium text-slate-700 mb-3">Sports Specialties</h4>
+                        <select
+                          onChange={(e) => {
+                            const selectedSport = e.target.value
+                            if (selectedSport && !profileData.specialties.includes(selectedSport)) {
+                              setProfileData(prev => ({
+                                ...prev,
+                                specialties: [...prev.specialties, selectedSport]
+                              }))
+                            }
+                            e.target.value = '' // Reset dropdown
+                          }}
+                          className="w-full border border-slate-300 rounded-lg p-2 text-sm mb-3"
+                          value=""
+                        >
+                          <option value="">Select a sport to add...</option>
+                          {SPORTS_OPTIONS.map((sport) => (
+                            <option
+                              key={sport}
+                              value={sport}
+                              disabled={profileData.specialties.includes(sport)}
+                            >
+                              {sport} {profileData.specialties.includes(sport) ? '(Already added)' : ''}
+                            </option>
+                          ))}
+                        </select>
+
+                        {profileData.specialties.length > 0 && (
+                          <div className="flex flex-wrap gap-2 mb-4">
+                            {profileData.specialties.map((sport, index) => (
+                              <span
+                                key={index}
+                                className="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm"
+                              >
+                                {sport}
+                                <button
+                                  type="button"
+                                  onClick={() => {
                                     setProfileData(prev => ({
                                       ...prev,
                                       specialties: prev.specialties.filter(s => s !== sport)
                                     }))
-                                  }
-                                }}
-                                className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
-                              />
-                              <span className="text-sm text-slate-700">{sport}</span>
-                            </label>
-                          ))}
-                        </div>
+                                  }}
+                                  className="ml-1 text-purple-500 hover:text-purple-700"
+                                >
+                                  ×
+                                </button>
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     )}
 
@@ -484,33 +544,70 @@ export default function ProfilePage() {
                   </div>
                 </>
               ) : (
-                // Athlete sports interests - use checkbox selection only
+                // Athlete sports interests - use dropdown selection
                 <>
                   {isEditing ? (
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                      {['Soccer', 'Basketball', 'Tennis', 'Baseball', 'Football'].map((sport) => (
-                        <label key={sport} className="flex items-center gap-2 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={profileData.specialties.includes(sport)}
-                            onChange={(e) => {
-                              if (e.target.checked) {
-                                setProfileData(prev => ({
-                                  ...prev,
-                                  specialties: [...prev.specialties, sport]
-                                }))
-                              } else {
-                                setProfileData(prev => ({
-                                  ...prev,
-                                  specialties: prev.specialties.filter(s => s !== sport)
-                                }))
-                              }
-                            }}
-                            className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
-                          />
-                          <span className="text-sm text-slate-700">{sport}</span>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                          Add Sport Interest
                         </label>
-                      ))}
+                        <select
+                          onChange={(e) => {
+                            const selectedSport = e.target.value
+                            if (selectedSport && !profileData.specialties.includes(selectedSport)) {
+                              setProfileData(prev => ({
+                                ...prev,
+                                specialties: [...prev.specialties, selectedSport]
+                              }))
+                            }
+                            e.target.value = '' // Reset dropdown
+                          }}
+                          className="w-full border border-slate-300 rounded-lg p-2 text-sm"
+                          value=""
+                        >
+                          <option value="">Select a sport to add...</option>
+                          {SPORTS_OPTIONS.map((sport) => (
+                            <option
+                              key={sport}
+                              value={sport}
+                              disabled={profileData.specialties.includes(sport)}
+                            >
+                              {sport} {profileData.specialties.includes(sport) ? '(Already added)' : ''}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {profileData.specialties.length > 0 && (
+                        <div>
+                          <label className="block text-sm font-medium text-slate-700 mb-2">
+                            Selected Sports
+                          </label>
+                          <div className="flex flex-wrap gap-2">
+                            {profileData.specialties.map((sport, index) => (
+                              <span
+                                key={index}
+                                className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm"
+                              >
+                                {sport}
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setProfileData(prev => ({
+                                      ...prev,
+                                      specialties: prev.specialties.filter(s => s !== sport)
+                                    }))
+                                  }}
+                                  className="ml-1 text-blue-500 hover:text-blue-700"
+                                >
+                                  ×
+                                </button>
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div className="flex flex-wrap gap-2">
