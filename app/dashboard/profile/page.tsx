@@ -17,6 +17,7 @@ import {
   MapPin,
   Calendar,
   Award,
+  Trophy,
   Settings as SettingsIcon,
   ExternalLink,
   CheckCircle,

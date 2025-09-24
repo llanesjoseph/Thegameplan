@@ -4,7 +4,7 @@ import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import { useAuth } from './use-auth'
 import { useMemo } from 'react'
 
-export type UserRole = 'guest' | 'user' | 'creator' | 'assistant_coach' | 'superadmin'
+export type UserRole = 'guest' | 'user' | 'creator' | 'assistant_coach' | 'admin' | 'superadmin'
 
 export function useUrlRoleSwitcher() {
   const { user } = useAuth()

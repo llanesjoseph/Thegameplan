@@ -38,6 +38,7 @@ function CompactRoleSwitcher() {
     user: { icon: UserCheck, label: 'Athlete' },
     creator: { icon: Star, label: 'Coach' },
     assistant_coach: { icon: Shield, label: 'Asst Coach' },
+    admin: { icon: Settings, label: 'Admin' },
     superadmin: { icon: Crown, label: 'Super Admin' }
   }
 

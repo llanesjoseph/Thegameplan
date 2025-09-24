@@ -5,7 +5,7 @@ import { useAuth } from './use-auth'
 import { doc, updateDoc, getDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase.client'
 
-export type UserRole = 'guest' | 'user' | 'creator' | 'assistant_coach' | 'superadmin'
+export type UserRole = 'guest' | 'user' | 'creator' | 'assistant_coach' | 'admin' | 'superadmin'
 
 interface RoleSwitcherState {
   originalRole: UserRole | null

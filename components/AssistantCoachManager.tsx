@@ -337,10 +337,10 @@ export default function AssistantCoachManager({
                       <div className="flex items-center gap-2 mb-1">
                         <h6 className="font-bold text-dark">{result.displayName}</h6>
                         {result.role === 'creator' && (
-                          <Crown className="w-4 h-4 text-orange" title="Coach" />
+                          <Crown className="w-4 h-4 text-orange" />
                         )}
                         {result.isAssistantCoach && (
-                          <Shield className="w-4 h-4 text-sky-blue" title="Assistant Coach" />
+                          <Shield className="w-4 h-4 text-sky-blue" />
                         )}
                       </div>
 
