@@ -72,7 +72,7 @@ export default function ProfileCompletionBanner() {
   }
 
   const handleCompleteProfile = () => {
-    router.push('/onboarding')
+    router.push('/dashboard/profile')
   }
 
   const getCompletionPercentage = () => {
