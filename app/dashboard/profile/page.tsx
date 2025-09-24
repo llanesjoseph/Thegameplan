@@ -73,10 +73,10 @@ export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false)
   const [saveStatus, setSaveStatus] = useState<string | null>(null) // 'saving', 'success', 'error'
   const [profileData, setProfileData] = useState({
-    displayName: user?.displayName || '',
+    displayName: '',
     bio: '',
     location: '',
-    email: user?.email || '',
+    email: '',
     specialties: [] as string[],
     experience: '',
     availability: '',
@@ -100,29 +100,54 @@ export default function ProfilePage() {
   // Load profile data from database on component mount
   useEffect(() => {
     const loadProfile = async () => {
-      if (user?.uid) {
+      if (user?.uid && role) {
+        // First, initialize with user's basic information
+        setProfileData(prev => ({
+          ...prev,
+          displayName: user.displayName || prev.displayName,
+          email: user.email || prev.email
+        }))
+
         try {
           // Use different collections based on role
           const collection = role === 'creator' ? 'creator_profiles' : 'users'
           const docRef = doc(db, collection, user.uid)
           const docSnap = await getDoc(docRef)
-          
+
           if (docSnap.exists()) {
             const savedProfile = docSnap.data()
-            setProfileData(prev => ({ ...prev, ...savedProfile }))
+            console.log('Loaded profile from Firestore:', savedProfile)
+            setProfileData(prev => ({
+              ...prev,
+              ...savedProfile,
+              // Ensure user's current email/displayName takes precedence
+              displayName: savedProfile.displayName || user.displayName || prev.displayName,
+              email: user.email || savedProfile.email || prev.email
+            }))
             return
+          } else {
+            console.log('No existing profile found in Firestore')
           }
         } catch (error) {
           console.warn('Firestore access failed, using localStorage:', error instanceof Error ? error.message : error)
         }
-        
+
         // Fallback to localStorage
         try {
           const key = role === 'creator' ? `creator_profile_${user.uid}` : `user_profile_${user.uid}`
           const savedProfile = localStorage.getItem(key)
           if (savedProfile) {
             const parsedProfile = JSON.parse(savedProfile)
-            setProfileData(prev => ({ ...prev, ...parsedProfile }))
+            console.log('Loaded profile from localStorage:', parsedProfile)
+            setProfileData(prev => ({
+              ...prev,
+              ...parsedProfile,
+              // Ensure user's current email/displayName takes precedence
+              displayName: parsedProfile.displayName || user.displayName || prev.displayName,
+              email: user.email || parsedProfile.email || prev.email
+            }))
+          } else {
+            console.log('No profile found in localStorage, using defaults')
           }
         } catch (error) {
           console.error('Error loading from localStorage:', error)
@@ -131,7 +156,7 @@ export default function ProfilePage() {
     }
 
     loadProfile()
-  }, [user?.uid, role])
+  }, [user?.uid, role, user?.displayName, user?.email])
 
   if (loading) {
     return (
@@ -193,7 +218,7 @@ export default function ProfilePage() {
           }, { merge: true })
         }
         
-        console.log('Profile saved to Firestore successfully')
+        console.log('Profile saved to Firestore successfully:', profileWithMetadata)
       } catch (firestoreError) {
         console.warn('Firestore save failed, using localStorage:', firestoreError instanceof Error ? firestoreError.message : firestoreError)
         
@@ -217,7 +242,7 @@ export default function ProfilePage() {
           localStorage.setItem('creators_index', JSON.stringify(creatorsIndex))
         }
         
-        console.log('Profile saved to localStorage successfully')
+        console.log('Profile saved to localStorage successfully:', profileWithMetadata)
       }
       
       setSaveStatus('success')
