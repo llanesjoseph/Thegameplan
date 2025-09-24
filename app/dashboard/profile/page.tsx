@@ -261,31 +261,34 @@ export default function ProfilePage() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      <div className="max-w-4xl mx-auto px-6 py-8">
+    <main className="min-h-screen bg-gradient-to-br from-cream via-cream to-sky-blue/10">
+      <div className="max-w-6xl mx-auto px-6 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
-            <Link href="/dashboard" className="p-2 hover:bg-white rounded-lg transition-colors">
-              <ArrowLeft className="w-5 h-5" />
+            <Link href="/dashboard" className="p-3 hover:bg-white/80 rounded-xl transition-colors shadow-sm backdrop-blur-sm border border-white/20">
+              <ArrowLeft className="w-5 h-5 text-dark" />
             </Link>
-            <h1 className="text-3xl font-bold text-slate-900">
-              {role === 'creator' ? 'Coach Profile' : 'Athlete Profile'}
-            </h1>
+            <div>
+              <h1 className="text-4xl font-bold text-dark font-heading">
+                {role === 'creator' ? 'Coach Profile' : 'Athlete Profile'}
+              </h1>
+              <p className="text-dark/60 font-medium">Manage your sports profile and showcase your expertise</p>
+            </div>
           </div>
           
           <div className="flex items-center gap-3">
             {/* Save Status Indicator */}
             {saveStatus && (
-              <div className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium ${
-                saveStatus === 'saving' ? 'bg-blue-100 text-blue-700' :
-                saveStatus === 'success' ? 'bg-green-100 text-green-700' :
-                'bg-red-100 text-red-700'
+              <div className={`flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium backdrop-blur-sm border shadow-sm ${
+                saveStatus === 'saving' ? 'bg-sky-blue/20 text-sky-blue border-sky-blue/30' :
+                saveStatus === 'success' ? 'bg-green/20 text-green border-green/30' :
+                'bg-orange/20 text-orange border-orange/30'
               }`}>
                 {saveStatus === 'saving' && (
                   <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-700"></div>
-                    Saving...
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-sky-blue"></div>
+                    Saving Profile...
                   </>
                 )}
                 {saveStatus === 'success' && (
@@ -310,7 +313,7 @@ export default function ProfilePage() {
                     setIsEditing(false)
                     setSaveStatus(null)
                   }}
-                  className="px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
+                  className="px-6 py-3 border-2 border-dark/20 bg-white/80 text-dark rounded-xl hover:bg-white transition-all font-medium backdrop-blur-sm shadow-sm"
                   disabled={saveStatus === 'saving'}
                 >
                   Cancel
@@ -318,7 +321,7 @@ export default function ProfilePage() {
                 <button
                   onClick={handleSave}
                   disabled={saveStatus === 'saving'}
-                  className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-6 py-3 bg-gradient-to-r from-deep-plum to-deep-plum/90 text-white rounded-xl hover:from-deep-plum/90 hover:to-deep-plum transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-lg"
                 >
                   {saveStatus === 'saving' ? (
                     <>
@@ -336,7 +339,7 @@ export default function ProfilePage() {
             ) : (
               <button
                 onClick={() => setIsEditing(true)}
-                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2"
+                className="px-6 py-3 bg-gradient-to-r from-sky-blue to-sky-blue/90 text-white rounded-xl hover:from-sky-blue/90 hover:to-sky-blue transition-all flex items-center gap-2 font-medium shadow-lg"
               >
                 <SettingsIcon className="w-4 h-4" />
                 Edit Profile
@@ -346,38 +349,38 @@ export default function ProfilePage() {
         </div>
 
         {/* Profile Header */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 mb-8">
-          <div className="flex items-start gap-6">
+        <div className="bg-gradient-to-r from-white via-white to-sky-blue/5 rounded-3xl shadow-lg border border-white/50 p-8 mb-8 backdrop-blur-sm">
+          <div className="flex items-start gap-8">
             <div className="relative">
-              <div className="w-24 h-24 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
-                {profileData.displayName?.charAt(0) || 'J'}
+              <div className="w-32 h-32 bg-gradient-to-br from-deep-plum to-sky-blue rounded-2xl flex items-center justify-center text-white text-4xl font-bold shadow-lg">
+                {profileData.displayName?.charAt(0) || user?.displayName?.charAt(0) || 'U'}
               </div>
               {isEditing && (
                 <button
                   type="button"
                   onClick={() => alert('Avatar upload feature coming soon!')}
-                  className="absolute -bottom-1 -right-1 w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center text-white hover:bg-purple-700 transition-colors"
+                  className="absolute -bottom-2 -right-2 w-10 h-10 bg-gradient-to-r from-orange to-orange/90 rounded-xl flex items-center justify-center text-white hover:scale-105 transition-all shadow-lg"
                 >
-                  <Camera className="w-4 h-4" />
+                  <Camera className="w-5 h-5" />
                 </button>
               )}
             </div>
             
             <div className="flex-1">
               {isEditing ? (
-                <div className="space-y-4">
+                <div className="space-y-6">
                   <input
                     type="text"
                     value={profileData.displayName}
                     onChange={(e) => setProfileData(prev => ({ ...prev, displayName: e.target.value }))}
-                    className="text-2xl font-bold w-full border border-slate-300 rounded-lg p-2"
+                    className="text-3xl font-bold w-full border-2 border-sky-blue/20 bg-white/80 rounded-xl p-4 text-dark placeholder-dark/50 focus:border-sky-blue focus:ring-4 focus:ring-sky-blue/20 transition-all backdrop-blur-sm"
                     placeholder="Your Name"
                   />
                   <textarea
                     value={profileData.bio}
                     onChange={(e) => setProfileData(prev => ({ ...prev, bio: e.target.value }))}
-                    className="w-full border border-slate-300 rounded-lg p-3"
-                    rows={3}
+                    className="w-full border-2 border-sky-blue/20 bg-white/80 rounded-xl p-4 text-dark placeholder-dark/50 focus:border-sky-blue focus:ring-4 focus:ring-sky-blue/20 transition-all backdrop-blur-sm resize-none"
+                    rows={4}
                     placeholder="Tell us about your athletic background and coaching expertise..."
                   />
                   <div className="grid grid-cols-2 gap-4">
@@ -385,14 +388,14 @@ export default function ProfilePage() {
                       type="text"
                       value={profileData.location}
                       onChange={(e) => setProfileData(prev => ({ ...prev, location: e.target.value }))}
-                      className="border border-slate-300 rounded-lg p-2"
+                      className="border-2 border-sky-blue/20 bg-white/80 rounded-xl p-3 text-dark placeholder-dark/50 focus:border-sky-blue focus:ring-4 focus:ring-sky-blue/20 transition-all backdrop-blur-sm"
                       placeholder="Location (e.g., Los Angeles, CA)"
                     />
                     <input
                       type="text"
                       value={profileData.experience}
                       onChange={(e) => setProfileData(prev => ({ ...prev, experience: e.target.value }))}
-                      className="border border-slate-300 rounded-lg p-2"
+                      className="border-2 border-sky-blue/20 bg-white/80 rounded-xl p-3 text-dark placeholder-dark/50 focus:border-sky-blue focus:ring-4 focus:ring-sky-blue/20 transition-all backdrop-blur-sm"
                       placeholder="Experience (e.g., 12 years)"
                     />
                   </div>
@@ -401,23 +404,23 @@ export default function ProfilePage() {
                       type="email"
                       value={profileData.email}
                       onChange={(e) => setProfileData(prev => ({ ...prev, email: e.target.value }))}
-                      className="w-full border border-slate-300 rounded-lg p-2"
+                      className="w-full border-2 border-sky-blue/20 bg-white/80 rounded-xl p-3 text-dark placeholder-dark/50 focus:border-sky-blue focus:ring-4 focus:ring-sky-blue/20 transition-all backdrop-blur-sm"
                       placeholder="Email address"
                     />
                   </div>
                 </div>
               ) : (
                 <div>
-                  <h2 className="text-2xl font-bold text-slate-900 mb-2">{profileData.displayName}</h2>
-                  <p className="text-slate-600 mb-4">{profileData.bio}</p>
-                  <div className="flex items-center gap-4 text-sm text-slate-500 flex-wrap">
-                    <div className="flex items-center gap-1">
-                      <MapPin className="w-4 h-4" />
-                      {profileData.location}
+                  <h2 className="text-4xl font-bold text-dark mb-3 font-heading">{profileData.displayName || user?.displayName || 'User Name'}</h2>
+                  <p className="text-dark/70 mb-6 text-lg leading-relaxed">{profileData.bio || 'No bio added yet'}</p>
+                  <div className="flex items-center gap-6 text-dark/60 flex-wrap">
+                    <div className="flex items-center gap-2 bg-sky-blue/10 px-4 py-2 rounded-xl">
+                      <MapPin className="w-4 h-4 text-sky-blue" />
+                      <span className="font-medium">{profileData.location || 'Location not set'}</span>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <Calendar className="w-4 h-4" />
-                      {profileData.experience} experience
+                    <div className="flex items-center gap-2 bg-green/10 px-4 py-2 rounded-xl">
+                      <Calendar className="w-4 h-4 text-green" />
+                      <span className="font-medium">{profileData.experience || 'Experience not set'} experience</span>
                     </div>
                   </div>
                 </div>
@@ -430,11 +433,16 @@ export default function ProfilePage() {
           {/* Left Column */}
           <div className="space-y-8">
             {/* Interests/Specialties - Sports for users, Specialties for creators */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-slate-900">
-                  {role === 'creator' ? 'Sports Specialties' : 'Sports Interests'}
-                </h3>
+            <div className="bg-gradient-to-br from-white to-sky-blue/5 rounded-2xl shadow-lg border border-white/50 p-8 backdrop-blur-sm">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-gradient-to-r from-sky-blue to-deep-plum rounded-lg flex items-center justify-center">
+                    <Star className="w-4 h-4 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-dark font-heading">
+                    {role === 'creator' ? 'Sports Specialties' : 'Sports Interests'}
+                  </h3>
+                </div>
               </div>
 
               {role === 'creator' ? (
