@@ -143,8 +143,8 @@ export function DashboardSidebar() {
         {/* Header */}
         <div className="p-4 border-b border-gray-100">
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{background: 'linear-gradient(to bottom right, #5A2C59, #8C1515)'}}>
-              <span className="text-white text-sm font-bold">GP</span>
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-to-br from-deep-plum to-sky-blue">
+              <span className="text-white text-sm font-bold font-heading tracking-wide">PBd</span>
             </div>
             <div>
               <h2 className="font-semibold text-sm" style={{color: '#5A2C59'}}>
