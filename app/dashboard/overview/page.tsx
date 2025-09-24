@@ -62,7 +62,12 @@ export default function UnifiedDashboard() {
   const [userProfile, setUserProfile] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [isEditing, setIsEditing] = useState(false)
-  const [editForm, setEditForm] = useState({
+  const [editForm, setEditForm] = useState<{
+    displayName: string
+    location: string
+    sports: string[]
+    bio: string
+  }>({
     displayName: '',
     location: '',
     sports: [],
