@@ -274,10 +274,10 @@ export default function CoachingPage() {
       <div className="max-w-6xl mx-auto px-6 py-8">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold font-heading uppercase tracking-wide mb-2" style={{ color: '#5A2C59' }}>
+          <h1 className="text-4xl font-bold font-heading uppercase tracking-wide mb-2" style={{ color: '#000000' }}>
             Request Coaching
           </h1>
-          <p className="text-lg" style={{ color: '#5A2C59' }}>
+          <p className="text-lg" style={{ color: '#000000' }}>
             Get personalized coaching to accelerate your athletic progress
           </p>
         </div>
@@ -291,7 +291,7 @@ export default function CoachingPage() {
                 ? 'text-white shadow-lg'
                 : 'hover:opacity-80'
             }`}
-            style={activeTab === 'request' ? { backgroundColor: '#5A2C59' } : { color: '#5A2C59' }}
+            style={activeTab === 'request' ? { backgroundColor: '#000000' } : { color: '#000000' }}
           >
             <MessageSquare className="w-5 h-5 inline mr-2" />
             New Request
@@ -303,7 +303,7 @@ export default function CoachingPage() {
                 ? 'text-white shadow-lg'
                 : 'hover:opacity-80'
             }`}
-            style={activeTab === 'browse' ? { backgroundColor: '#5A2C59' } : { color: '#5A2C59' }}
+            style={activeTab === 'browse' ? { backgroundColor: '#000000' } : { color: '#000000' }}
           >
             <Search className="w-5 h-5 inline mr-2" />
             Browse Coaches
@@ -315,7 +315,7 @@ export default function CoachingPage() {
                 ? 'text-white shadow-lg'
                 : 'hover:opacity-80'
             }`}
-            style={activeTab === 'history' ? { backgroundColor: '#5A2C59' } : { color: '#5A2C59' }}
+            style={activeTab === 'history' ? { backgroundColor: '#000000' } : { color: '#000000' }}
           >
             <FileText className="w-5 h-5 inline mr-2" />
             My Requests ({requests.length})
@@ -325,13 +325,13 @@ export default function CoachingPage() {
         {/* Tab Content */}
         {activeTab === 'request' && (
           <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-8">
-            <h2 className="text-2xl font-bold font-heading uppercase tracking-wide mb-6" style={{ color: '#5A2C59' }}>
+            <h2 className="text-2xl font-bold font-heading uppercase tracking-wide mb-6" style={{ color: '#000000' }}>
               Request Coaching Session
             </h2>
             
             {/* Coaching Type Selection */}
             <div className="mb-8">
-              <h3 className="text-lg font-semibold font-heading mb-4" style={{ color: '#5A2C59' }}>
+              <h3 className="text-lg font-semibold font-heading mb-4" style={{ color: '#000000' }}>
                 Choose Coaching Type
               </h3>
               <div className="grid md:grid-cols-3 gap-4">
@@ -339,45 +339,45 @@ export default function CoachingPage() {
                   onClick={() => setRequestType('one_on_one')}
                   className={`p-6 rounded-xl border-2 transition-all shadow-lg ${
                     requestType === 'one_on_one'
-                      ? 'border-sky-blue bg-gradient-to-br from-sky-blue/20 to-deep-plum/10'
+                      ? 'border-sky-blue bg-gradient-to-br from-sky-blue/20 to-black/10'
                       : 'bg-white/80 border-white/50 hover:shadow-xl'
                   }`}
                 >
-                  <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-sky-blue to-deep-plum flex items-center justify-center">
+                  <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-sky-blue to-black flex items-center justify-center">
                     <WhistleIcon className="w-6 h-6 text-white" />
                   </div>
-                  <h4 className="font-semibold mb-2" style={{ color: '#5A2C59' }}>1-on-1 Session</h4>
-                  <p className="text-sm" style={{ color: '#5A2C59' }}>Live video coaching session</p>
+                  <h4 className="font-semibold mb-2" style={{ color: '#000000' }}>1-on-1 Session</h4>
+                  <p className="text-sm" style={{ color: '#000000' }}>Live video coaching session</p>
                 </button>
 
                 <button
                   onClick={() => setRequestType('file_review')}
                   className={`p-6 rounded-xl border-2 transition-all shadow-lg ${
                     requestType === 'file_review'
-                      ? 'border-green bg-gradient-to-br from-green/20 to-deep-plum/10'
+                      ? 'border-green bg-gradient-to-br from-green/20 to-black/10'
                       : 'bg-white/80 border-white/50 hover:shadow-xl'
                   }`}
                 >
-                  <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-green to-deep-plum flex items-center justify-center">
+                  <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-green to-black flex items-center justify-center">
                     <PlayIcon className="w-6 h-6 text-white" />
                   </div>
-                  <h4 className="font-semibold mb-2" style={{ color: '#5A2C59' }}>File Review</h4>
-                  <p className="text-sm" style={{ color: '#5A2C59' }}>Get feedback on your videos</p>
+                  <h4 className="font-semibold mb-2" style={{ color: '#000000' }}>File Review</h4>
+                  <p className="text-sm" style={{ color: '#000000' }}>Get feedback on your videos</p>
                 </button>
 
                 <button
                   onClick={() => setRequestType('group_session')}
                   className={`p-6 rounded-xl border-2 transition-all shadow-lg ${
                     requestType === 'group_session'
-                      ? 'border-orange bg-gradient-to-br from-orange/20 to-deep-plum/10'
+                      ? 'border-orange bg-gradient-to-br from-orange/20 to-black/10'
                       : 'bg-white/80 border-white/50 hover:shadow-xl'
                   }`}
                 >
-                  <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-orange to-deep-plum flex items-center justify-center">
+                  <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-orange to-black flex items-center justify-center">
                     <TeachingIcon className="w-6 h-6 text-white" />
                   </div>
-                  <h4 className="font-semibold mb-2" style={{ color: '#5A2C59' }}>Group Session</h4>
-                  <p className="text-sm" style={{ color: '#5A2C59' }}>Join a group coaching session</p>
+                  <h4 className="font-semibold mb-2" style={{ color: '#000000' }}>Group Session</h4>
+                  <p className="text-sm" style={{ color: '#000000' }}>Join a group coaching session</p>
                 </button>
               </div>
             </div>
@@ -386,7 +386,7 @@ export default function CoachingPage() {
             <div className="space-y-6">
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium mb-2" style={{ color: '#5A2C59' }}>
+                  <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
                     Session Title *
                   </label>
                   <input
@@ -395,19 +395,19 @@ export default function CoachingPage() {
                     onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
                     className="w-full border border-white/50 rounded-lg p-3 bg-white/80 backdrop-blur-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-blue"
                     placeholder="e.g., Improve my shooting technique"
-                    style={{ color: '#5A2C59' }}
+                    style={{ color: '#000000' }}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2" style={{ color: '#5A2C59' }}>
+                  <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
                     Sport *
                   </label>
                   <select
                     value={formData.sport}
                     onChange={(e) => setFormData(prev => ({ ...prev, sport: e.target.value }))}
                     className="w-full border border-white/50 rounded-lg p-3 bg-white/80 backdrop-blur-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-blue"
-                    style={{ color: '#5A2C59' }}
+                    style={{ color: '#000000' }}
                   >
                     <option value="Soccer">Soccer</option>
                     <option value="Basketball">Basketball</option>
@@ -421,14 +421,14 @@ export default function CoachingPage() {
 
               <div className="grid md:grid-cols-3 gap-6">
                 <div>
-                  <label className="block text-sm font-medium mb-2" style={{ color: '#5A2C59' }}>
+                  <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
                     Skill Level *
                   </label>
                   <select
                     value={formData.skillLevel}
                     onChange={(e) => setFormData(prev => ({ ...prev, skillLevel: e.target.value }))}
                     className="w-full border border-white/50 rounded-lg p-3 bg-white/80 backdrop-blur-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-blue"
-                    style={{ color: '#5A2C59' }}
+                    style={{ color: '#000000' }}
                   >
                     <option value="Beginner">Beginner</option>
                     <option value="Intermediate">Intermediate</option>
@@ -437,14 +437,14 @@ export default function CoachingPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2" style={{ color: '#5A2C59' }}>
+                  <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
                     Preferred Time
                   </label>
                   <select
                     value={formData.preferredTime}
                     onChange={(e) => setFormData(prev => ({ ...prev, preferredTime: e.target.value }))}
                     className="w-full border border-white/50 rounded-lg p-3 bg-white/80 backdrop-blur-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-blue"
-                    style={{ color: '#5A2C59' }}
+                    style={{ color: '#000000' }}
                   >
                     <option value="Morning">Morning</option>
                     <option value="Afternoon">Afternoon</option>
@@ -455,14 +455,14 @@ export default function CoachingPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2" style={{ color: '#5A2C59' }}>
+                  <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
                     Priority Level
                   </label>
                   <select
                     value={formData.urgency}
                     onChange={(e) => setFormData(prev => ({ ...prev, urgency: e.target.value }))}
                     className="w-full border border-white/50 rounded-lg p-3 bg-white/80 backdrop-blur-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-blue"
-                    style={{ color: '#5A2C59' }}
+                    style={{ color: '#000000' }}
                   >
                     <option value="Normal">Normal</option>
                     <option value="High">High Priority</option>
@@ -472,7 +472,7 @@ export default function CoachingPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: '#5A2C59' }}>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
                   Detailed Description *
                 </label>
                 <textarea
@@ -481,7 +481,7 @@ export default function CoachingPage() {
                   className="w-full border border-white/50 rounded-lg p-3 bg-white/80 backdrop-blur-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-blue"
                   rows={4}
                   placeholder="Describe what you want to work on, your current challenges, and specific goals..."
-                  style={{ color: '#5A2C59' }}
+                  style={{ color: '#000000' }}
                 />
               </div>
 
@@ -543,14 +543,14 @@ export default function CoachingPage() {
               <div className="flex flex-col md:flex-row gap-4">
                 <div className="flex-1">
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5" style={{ color: '#5A2C59' }} />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5" style={{ color: '#000000' }} />
                     <input
                       type="text"
                       placeholder="Search coaches by name, specialty, or location..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       className="w-full pl-10 pr-4 py-3 border border-white/50 rounded-lg bg-white/80 backdrop-blur-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-blue"
-                      style={{ color: '#5A2C59' }}
+                      style={{ color: '#000000' }}
                     />
                   </div>
                 </div>
@@ -559,7 +559,7 @@ export default function CoachingPage() {
                     value={specialtyFilter}
                     onChange={(e) => setSpecialtyFilter(e.target.value)}
                     className="w-full md:w-48 border border-white/50 rounded-lg p-3 bg-white/80 backdrop-blur-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-blue"
-                    style={{ color: '#5A2C59' }}
+                    style={{ color: '#000000' }}
                   >
                     <option value="all">All Specialties</option>
                     <option value="youth">Youth Development</option>
@@ -576,11 +576,11 @@ export default function CoachingPage() {
               {filteredCreators.map((creator) => (
                 <div key={creator.uid} className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-sky-blue to-deep-plum rounded-full flex items-center justify-center text-white font-bold">
+                    <div className="w-12 h-12 bg-gradient-to-br from-sky-blue to-black rounded-full flex items-center justify-center text-white font-bold">
                       {creator.displayName.charAt(0)}
                     </div>
                     <div>
-                      <h3 className="font-semibold" style={{ color: '#5A2C59' }}>{creator.displayName}</h3>
+                      <h3 className="font-semibold" style={{ color: '#000000' }}>{creator.displayName}</h3>
                       <div className="flex items-center gap-1 text-sm text-slate-600">
                         <Star className="w-4 h-4 fill-current text-yellow-400" />
                         {creator.averageRating}/5.0
@@ -642,8 +642,8 @@ export default function CoachingPage() {
             {requests.length === 0 ? (
               <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-12 text-center">
                 <MessageSquare className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium mb-2" style={{ color: '#5A2C59' }}>No coaching requests yet</h3>
-                <p className="mb-6" style={{ color: '#5A2C59' }}>Get started by submitting your first coaching request</p>
+                <h3 className="text-lg font-medium mb-2" style={{ color: '#000000' }}>No coaching requests yet</h3>
+                <p className="mb-6" style={{ color: '#000000' }}>Get started by submitting your first coaching request</p>
                 <button
                   onClick={() => setActiveTab('request')}
                   className="px-6 py-3 text-white rounded-lg transition-all shadow-lg hover:shadow-xl"
@@ -658,7 +658,7 @@ export default function CoachingPage() {
                   <div key={request.id} className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
                     <div className="flex items-start justify-between mb-4">
                       <div>
-                        <h3 className="text-lg font-semibold mb-1" style={{ color: '#5A2C59' }}>{request.title}</h3>
+                        <h3 className="text-lg font-semibold mb-1" style={{ color: '#000000' }}>{request.title}</h3>
                         <div className="flex items-center gap-4 text-sm text-slate-600">
                           <span>{request.sport} • {request.skillLevel}</span>
                           <span>{request.type.replace('_', ' ')}</span>

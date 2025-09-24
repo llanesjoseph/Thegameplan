@@ -96,7 +96,7 @@ export function DashboardSidebar() {
 
     switch (role) {
       case 'creator':
-        return <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" style={{backgroundColor: 'rgba(90, 44, 89, 0.1)', color: '#5A2C59'}}>
+        return <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" style={{backgroundColor: 'rgba(0, 0, 0, 0.1)', color: '#000000'}}>
           <Award className="w-3 h-3 mr-1" />
           Coach
         </div>
@@ -143,11 +143,11 @@ export function DashboardSidebar() {
         {/* Header */}
         <div className="p-4 border-b border-gray-100">
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-to-br from-deep-plum to-sky-blue">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-to-br from-black to-sky-blue">
               <span className="text-white text-sm font-bold font-heading tracking-wide">PBd</span>
             </div>
             <div>
-              <h2 className="font-semibold text-sm" style={{color: '#5A2C59'}}>
+              <h2 className="font-semibold text-sm" style={{color: '#000000'}}>
                 {user?.displayName || 'Dashboard'}
               </h2>
             </div>
@@ -178,12 +178,12 @@ export function DashboardSidebar() {
                 onClick={() => setMobileOpen(false)}
                 className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group"
                 style={isActive ?
-                  {backgroundColor: 'rgba(90, 44, 89, 0.1)', color: '#5A2C59', boxShadow: '0 1px 2px rgba(0,0,0,0.05)'} :
+                  {backgroundColor: 'rgba(0, 0, 0, 0.1)', color: '#000000', boxShadow: '0 1px 2px rgba(0,0,0,0.05)'} :
                   {color: '#6B7280'}
                 }
                 onMouseEnter={(e) => {
                   if (!isActive) {
-                    e.currentTarget.style.color = '#5A2C59'
+                    e.currentTarget.style.color = '#000000'
                     e.currentTarget.style.backgroundColor = 'rgba(90, 44, 89, 0.05)'
                   }
                 }}
@@ -194,7 +194,7 @@ export function DashboardSidebar() {
                   }
                 }}
               >
-                {item.icon && <item.icon className="w-5 h-5" style={{color: isActive ? '#5A2C59' : '#9CA3AF'}} />}
+                {item.icon && <item.icon className="w-5 h-5" style={{color: isActive ? '#000000' : '#9CA3AF'}} />}
                 <span className="font-medium text-sm">
                   {item.title}
                 </span>

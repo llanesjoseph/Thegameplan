@@ -31,7 +31,7 @@ const ClarityButton: React.FC<ClarityButtonProps> = ({
     secondary: 'bg-cream text-dark border border-sky-blue/30 hover:bg-sky-blue/10',
     ghost: 'bg-transparent text-dark hover:text-sky-blue hover:bg-sky-blue/10',
     orange: 'bg-orange text-white hover:bg-secondary-700',
-    plum: 'bg-deep-plum text-white hover:bg-deep-plum-dark'
+    plum: 'bg-black text-white hover:bg-black-dark'
   }
   
   const sizeClasses = {

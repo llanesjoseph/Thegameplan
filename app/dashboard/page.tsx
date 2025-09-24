@@ -111,21 +111,6 @@ export default function Dashboard() {
           <div className="space-y-4 mb-4">
             <SimpleAuth />
 
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white text-gray-500">or</span>
-              </div>
-            </div>
-
-            <button
-              onClick={() => router.push('/')}
-              className="w-full px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-900 border border-gray-300 rounded-lg font-medium transition-colors"
-            >
-              Continue as Guest
-            </button>
           </div>
           
           <div className="text-center">

@@ -1427,12 +1427,12 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
             }}
             className="px-4 py-2 rounded-md font-medium transition-colors flex items-center gap-2 cursor-pointer"
             style={activeTab === 'create' ?
-              {backgroundColor: '#5A2C59', color: 'white'} :
+              {backgroundColor: '#000000', color: 'white'} :
               {color: '#6B7280'}
             }
             onMouseEnter={(e) => {
               if (activeTab !== 'create') {
-                e.currentTarget.style.color = '#5A2C59'
+                e.currentTarget.style.color = '#000000'
                 e.currentTarget.style.backgroundColor = 'rgba(90, 44, 89, 0.05)'
               }
             }}
@@ -1455,12 +1455,12 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
             }}
             className="px-4 py-2 rounded-md font-medium transition-colors flex items-center gap-2 cursor-pointer"
             style={activeTab === 'manage' ?
-              {backgroundColor: '#5A2C59', color: 'white'} :
+              {backgroundColor: '#000000', color: 'white'} :
               {color: '#6B7280'}
             }
             onMouseEnter={(e) => {
               if (activeTab !== 'manage') {
-                e.currentTarget.style.color = '#5A2C59'
+                e.currentTarget.style.color = '#000000'
                 e.currentTarget.style.backgroundColor = 'rgba(90, 44, 89, 0.05)'
               }
             }}

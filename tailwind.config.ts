@@ -11,8 +11,8 @@ const config: Config = {
         'green': '#BDAF62',
         'dark': '#624A41',
 
-        // Legacy colors (keeping plum)
-        'deep-plum': '#5A2C59',
+        // Legacy colors (plum replaced with black)
+        'black': '#000000',
         'cardinal-red': '#8C1515',
         'vibrant-teal': '#20B2AA',
         'moss-green': '#8D9440',
@@ -76,23 +76,23 @@ const config: Config = {
           surface: '#FFFFFF',
           text: {
             primary: '#624A41', // Dark
-            secondary: '#5A2C59' // Deep Plum (keeping)
+            secondary: '#000000' // Black (replaced deep plum)
           },
           accent: '#91A6EB', // Sky Blue as primary accent
           secondary: '#892F1A', // Orange as secondary
           success: '#BDAF62', // Green
           error: '#DC3545',
           warning: '#892F1A', // Orange
-          plum: '#5A2C59' // Keep plum as special accent
+          plum: '#000000' // Black (replaced plum)
         },
 
         // Legacy compatibility with Deep Plum emphasis
         cardinal: '#8C1515',
         'cardinal-dark': '#7A1212',
-        'deep-plum-light': '#8a668d',
-        'deep-plum-dark': '#4a2349',
+        'black-light': '#333333',
+        'black-dark': '#000000',
         'text-dark': '#333333',
-        'text-medium': '#5A2C59',
+        'text-medium': '#000000',
         'background-light': '#FFFFFF',
       },
       fontFamily: {

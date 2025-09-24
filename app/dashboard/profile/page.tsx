@@ -338,7 +338,7 @@ export default function ProfilePage() {
                 <button
                   onClick={handleSave}
                   disabled={saveStatus === 'saving'}
-                  className="px-6 py-3 bg-gradient-to-r from-deep-plum to-deep-plum/90 text-white rounded-xl hover:from-deep-plum/90 hover:to-deep-plum transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-lg"
+                  className="px-6 py-3 bg-gradient-to-r from-black to-black/90 text-white rounded-xl hover:from-black/90 hover:to-black transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-lg"
                 >
                   {saveStatus === 'saving' ? (
                     <>
@@ -369,7 +369,7 @@ export default function ProfilePage() {
         <div className="bg-gradient-to-r from-white via-white to-sky-blue/5 rounded-3xl shadow-lg border border-white/50 p-8 mb-8 backdrop-blur-sm">
           <div className="flex items-start gap-8">
             <div className="relative">
-              <div className="w-32 h-32 bg-gradient-to-br from-deep-plum to-sky-blue rounded-2xl flex items-center justify-center text-white text-4xl font-bold shadow-lg">
+              <div className="w-32 h-32 bg-gradient-to-br from-black to-sky-blue rounded-2xl flex items-center justify-center text-white text-4xl font-bold shadow-lg">
                 {profileData.displayName?.charAt(0) || user?.displayName?.charAt(0) || 'U'}
               </div>
               {isEditing && (
@@ -453,7 +453,7 @@ export default function ProfilePage() {
             <div className="bg-gradient-to-br from-white to-sky-blue/5 rounded-2xl shadow-lg border border-white/50 p-8 backdrop-blur-sm">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-gradient-to-r from-sky-blue to-deep-plum rounded-lg flex items-center justify-center">
+                  <div className="w-8 h-8 bg-gradient-to-r from-sky-blue to-black rounded-lg flex items-center justify-center">
                     <Star className="w-4 h-4 text-white" />
                   </div>
                   <h3 className="text-xl font-bold text-dark font-heading">
@@ -668,10 +668,10 @@ export default function ProfilePage() {
             <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-gradient-to-r from-orange to-deep-plum rounded-lg flex items-center justify-center">
+                  <div className="w-8 h-8 bg-gradient-to-r from-orange to-black rounded-lg flex items-center justify-center">
                     <Award className="w-4 h-4 text-white" />
                   </div>
-                  <h3 className="text-lg font-semibold font-heading" style={{ color: '#5A2C59' }}>Certifications</h3>
+                  <h3 className="text-lg font-semibold font-heading" style={{ color: '#000000' }}>Certifications</h3>
                 </div>
                 {isEditing && (
                   <button 
@@ -768,22 +768,22 @@ export default function ProfilePage() {
             {role === 'creator' && (
               <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 bg-gradient-to-r from-deep-plum to-sky-blue rounded-lg flex items-center justify-center">
+                <div className="w-8 h-8 bg-gradient-to-r from-black to-sky-blue rounded-lg flex items-center justify-center">
                   <MessageSquare className="w-4 h-4 text-white" />
                 </div>
-                <h3 className="text-lg font-semibold font-heading" style={{ color: '#5A2C59' }}>Coaching Philosophy</h3>
+                <h3 className="text-lg font-semibold font-heading" style={{ color: '#000000' }}>Coaching Philosophy</h3>
               </div>
               {isEditing ? (
                 <textarea
                   value={profileData.coachingPhilosophy}
                   onChange={(e) => setProfileData(prev => ({ ...prev, coachingPhilosophy: e.target.value }))}
                   className="w-full border border-white/50 rounded p-3 bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-sky-blue"
-                  style={{ color: '#5A2C59' }}
+                  style={{ color: '#000000' }}
                   rows={4}
                   placeholder="Describe your coaching philosophy and approach..."
                 />
               ) : (
-                <p style={{ color: '#5A2C59' }}>{profileData.coachingPhilosophy}</p>
+                <p style={{ color: '#000000' }}>{profileData.coachingPhilosophy}</p>
               )}
               </div>
             )}
@@ -792,10 +792,10 @@ export default function ProfilePage() {
             <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-gradient-to-r from-orange to-deep-plum rounded-lg flex items-center justify-center">
+                  <div className="w-8 h-8 bg-gradient-to-r from-orange to-black rounded-lg flex items-center justify-center">
                     <Trophy className="w-4 h-4 text-white" />
                   </div>
-                  <h3 className="text-lg font-semibold font-heading" style={{ color: '#5A2C59' }}>Achievements & Awards</h3>
+                  <h3 className="text-lg font-semibold font-heading" style={{ color: '#000000' }}>Achievements & Awards</h3>
                 </div>
                 {isEditing && (
                   <button 
@@ -953,10 +953,10 @@ export default function ProfilePage() {
             {/* Social Links */}
             <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 bg-gradient-to-r from-sky-blue to-deep-plum rounded-lg flex items-center justify-center">
+                <div className="w-8 h-8 bg-gradient-to-r from-sky-blue to-black rounded-lg flex items-center justify-center">
                   <Globe className="w-4 h-4 text-white" />
                 </div>
-                <h3 className="text-lg font-semibold font-heading" style={{ color: '#5A2C59' }}>Social Links</h3>
+                <h3 className="text-lg font-semibold font-heading" style={{ color: '#000000' }}>Social Links</h3>
               </div>
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
@@ -1099,9 +1099,9 @@ export default function ProfilePage() {
             {role === 'creator' && (
               <>
                 {/* Coaching Philosophy Section */}
-                <div className="bg-gradient-to-br from-white to-deep-plum/5 rounded-2xl shadow-lg border border-white/50 p-8">
+                <div className="bg-gradient-to-br from-white to-black/5 rounded-2xl shadow-lg border border-white/50 p-8">
                   <div className="flex items-center gap-3 mb-6">
-                    <div className="w-8 h-8 bg-gradient-to-r from-deep-plum to-sky-blue rounded-lg flex items-center justify-center">
+                    <div className="w-8 h-8 bg-gradient-to-r from-black to-sky-blue rounded-lg flex items-center justify-center">
                       <Trophy className="w-4 h-4 text-white" />
                     </div>
                     <h3 className="text-xl font-bold text-dark font-heading">Coaching Philosophy</h3>
@@ -1223,7 +1223,7 @@ export default function ProfilePage() {
                       <div className="text-sm text-dark/60">Students Helped</div>
                     </div>
                     <div className="text-center">
-                      <div className="text-3xl font-bold text-deep-plum mb-2">{profileData.averageRating.toFixed(1)}★</div>
+                      <div className="text-3xl font-bold text-black mb-2">{profileData.averageRating.toFixed(1)}★</div>
                       <div className="text-sm text-dark/60">Average Rating</div>
                     </div>
                     <div className="text-center">
@@ -1240,7 +1240,7 @@ export default function ProfilePage() {
                         {profileData.badges.map((badge, index) => (
                           <span
                             key={index}
-                            className="px-3 py-1 bg-gradient-to-r from-deep-plum/20 to-sky-blue/20 text-deep-plum rounded-full text-sm font-medium border border-deep-plum/30"
+                            className="px-3 py-1 bg-gradient-to-r from-black/20 to-sky-blue/20 text-black rounded-full text-sm font-medium border border-black/30"
                           >
                             {badge}
                           </span>

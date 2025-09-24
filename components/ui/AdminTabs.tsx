@@ -127,8 +127,8 @@ export default function AdminTabs({ children, className = '' }: AdminTabsProps) 
                   onClick={() => handleRoleSwitch(tab.id)}
                   className="flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-all duration-200"
                   style={{
-                    borderBottomColor: isActive ? '#5A2C59' : 'transparent',
-                    color: isActive ? '#5A2C59' : '#6B7280'
+                    borderBottomColor: isActive ? '#000000' : 'transparent',
+                    color: isActive ? '#000000' : '#6B7280'
                   }}
                   onMouseEnter={(e) => {
                     if (!isActive) {
@@ -143,7 +143,7 @@ export default function AdminTabs({ children, className = '' }: AdminTabsProps) 
                     }
                   }}
                 >
-                  <TabIcon className={`w-4 h-4 ${isActive ? 'text-[#5A2C59]' : 'text-[#9CA3AF]'}`} />
+                  <TabIcon className={`w-4 h-4 ${isActive ? 'text-[#000000]' : 'text-[#9CA3AF]'}`} />
                   {tab.label}
                   {isActive && (
                     <Eye className="w-3 h-3 text-[#8D9440]" />

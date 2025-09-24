@@ -187,7 +187,7 @@ export default function CoachApplicationsPage() {
           <p className="text-dark/70 mb-6">You don't have permission to access the admin panel.</p>
           <Link
             href="/dashboard"
-            className="block w-full bg-gradient-to-r from-sky-blue to-black text-white py-3 rounded-xl font-medium"
+            className="block w-full bg-gradient-to-r from-sky-blue to-deep-plum text-white py-3 rounded-xl font-medium"
           >
             Back to Dashboard
           </Link>
@@ -284,7 +284,7 @@ export default function CoachApplicationsPage() {
                 <div key={application.id} className="p-6 hover:bg-sky-blue/5 transition-colors">
                   <div className="flex items-center justify-between">
                     <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 bg-gradient-to-br from-black to-sky-blue rounded-xl flex items-center justify-center text-white font-bold text-lg">
+                      <div className="w-12 h-12 bg-gradient-to-br from-deep-plum to-sky-blue rounded-xl flex items-center justify-center text-white font-bold text-lg">
                         {application.displayName.charAt(0)}
                       </div>
 

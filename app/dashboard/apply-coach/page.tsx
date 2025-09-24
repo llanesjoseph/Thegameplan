@@ -148,7 +148,7 @@ export default function ApplyCoachPage() {
           <div className="space-y-3">
             <Link
               href="/dashboard/profile"
-              className="block w-full bg-gradient-to-r from-sky-blue to-deep-plum text-white py-3 rounded-xl font-medium"
+              className="block w-full bg-gradient-to-r from-sky-blue to-black text-white py-3 rounded-xl font-medium"
             >
               Manage Your Profile
             </Link>
@@ -200,7 +200,7 @@ export default function ApplyCoachPage() {
           </div>
           <Link
             href="/dashboard"
-            className="block w-full bg-gradient-to-r from-sky-blue to-deep-plum text-white py-3 rounded-xl font-medium"
+            className="block w-full bg-gradient-to-r from-sky-blue to-black text-white py-3 rounded-xl font-medium"
           >
             Back to Dashboard
           </Link>
@@ -222,7 +222,7 @@ export default function ApplyCoachPage() {
           </p>
           <Link
             href="/dashboard"
-            className="block w-full bg-gradient-to-r from-sky-blue to-deep-plum text-white py-3 rounded-xl font-medium"
+            className="block w-full bg-gradient-to-r from-sky-blue to-black text-white py-3 rounded-xl font-medium"
           >
             Back to Dashboard
           </Link>
@@ -252,14 +252,14 @@ export default function ApplyCoachPage() {
               <div key={step} className="flex items-center">
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all ${
                   currentStep >= step
-                    ? 'bg-gradient-to-r from-sky-blue to-deep-plum text-white'
+                    ? 'bg-gradient-to-r from-sky-blue to-black text-white'
                     : 'bg-dark/10 text-dark/40'
                 }`}>
                   {step}
                 </div>
                 {step < 4 && (
                   <div className={`w-16 h-1 mx-4 transition-all ${
-                    currentStep > step ? 'bg-gradient-to-r from-sky-blue to-deep-plum' : 'bg-dark/10'
+                    currentStep > step ? 'bg-gradient-to-r from-sky-blue to-black' : 'bg-dark/10'
                   }`} />
                 )}
               </div>
@@ -421,7 +421,7 @@ export default function ApplyCoachPage() {
                 {applicationData.philosophy.points.map((point, index) => (
                   <div key={index} className="mb-4 p-4 bg-white/60 rounded-xl border border-sky-blue/10">
                     <div className="flex items-center gap-3 mb-3">
-                      <div className="w-8 h-8 bg-gradient-to-r from-sky-blue to-deep-plum rounded-lg flex items-center justify-center text-white font-bold">
+                      <div className="w-8 h-8 bg-gradient-to-r from-sky-blue to-black rounded-lg flex items-center justify-center text-white font-bold">
                         {index + 1}
                       </div>
                       <input
@@ -472,7 +472,7 @@ export default function ApplyCoachPage() {
             {currentStep < 4 ? (
               <button
                 onClick={() => setCurrentStep(prev => prev + 1)}
-                className="px-6 py-3 bg-gradient-to-r from-sky-blue to-deep-plum text-white rounded-xl font-medium hover:opacity-90 transition-all"
+                className="px-6 py-3 bg-gradient-to-r from-sky-blue to-black text-white rounded-xl font-medium hover:opacity-90 transition-all"
               >
                 Next Step
               </button>

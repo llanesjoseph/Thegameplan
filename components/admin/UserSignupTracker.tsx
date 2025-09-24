@@ -161,7 +161,7 @@ export default function UserSignupTracker() {
                   >
                     <div className="flex items-center gap-4">
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                        signup.isSuperadmin ? 'bg-deep-plum text-white' : 'bg-sky-blue text-white'
+                        signup.isSuperadmin ? 'bg-black text-white' : 'bg-sky-blue text-white'
                       }`}>
                         <Users className="w-5 h-5" />
                       </div>
@@ -171,7 +171,7 @@ export default function UserSignupTracker() {
                             {signup.displayName || 'Anonymous'}
                           </h4>
                           {signup.isSuperadmin && (
-                            <span className="px-2 py-1 text-xs bg-deep-plum text-white rounded-full">
+                            <span className="px-2 py-1 text-xs bg-black text-white rounded-full">
                               Superadmin
                             </span>
                           )}

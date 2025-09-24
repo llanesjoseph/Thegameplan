@@ -81,60 +81,60 @@ export default function ProgressDashboard() {
     <div style={{ backgroundColor: '#E8E6D8' }} className="min-h-screen">
       {/* Header Section */}
       <div className="text-center py-12 px-6">
-        <h1 className="text-3xl font-bold mb-4 font-heading uppercase tracking-wide" style={{ color: '#5A2C59' }}>
+        <h1 className="text-3xl font-bold mb-4 font-heading uppercase tracking-wide" style={{ color: '#000000' }}>
           Your Athletic Progress
         </h1>
-        <p className="text-lg mb-8" style={{ color: '#5A2C59' }}>
+        <p className="text-lg mb-8" style={{ color: '#000000' }}>
           Track your training journey and celebrate your achievements
         </p>
 
         {/* Progress Stats Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
           <div className="bg-white/80 rounded-xl p-6 text-center shadow-lg">
-            <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-sky-blue to-deep-plum flex items-center justify-center">
+            <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-sky-blue to-black flex items-center justify-center">
               <CheckCircle className="w-6 h-6 text-white" />
             </div>
-            <h3 className="text-2xl font-bold font-heading" style={{ color: '#5A2C59' }}>
+            <h3 className="text-2xl font-bold font-heading" style={{ color: '#000000' }}>
               {progressStats.completedSessions}
             </h3>
-            <p className="text-sm" style={{ color: '#5A2C59' }}>Sessions Complete</p>
+            <p className="text-sm" style={{ color: '#000000' }}>Sessions Complete</p>
           </div>
 
           <div className="bg-white/80 rounded-xl p-6 text-center shadow-lg">
-            <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-orange to-deep-plum flex items-center justify-center">
+            <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-orange to-black flex items-center justify-center">
               <StopwatchIcon className="w-6 h-6 text-white" />
             </div>
-            <h3 className="text-2xl font-bold font-heading" style={{ color: '#5A2C59' }}>
+            <h3 className="text-2xl font-bold font-heading" style={{ color: '#000000' }}>
               {progressStats.totalHours}
             </h3>
-            <p className="text-sm" style={{ color: '#5A2C59' }}>Hours Trained</p>
+            <p className="text-sm" style={{ color: '#000000' }}>Hours Trained</p>
           </div>
 
           <div className="bg-white/80 rounded-xl p-6 text-center shadow-lg">
-            <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-green to-deep-plum flex items-center justify-center">
+            <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-green to-black flex items-center justify-center">
               <Zap className="w-6 h-6 text-white" />
             </div>
-            <h3 className="text-2xl font-bold font-heading" style={{ color: '#5A2C59' }}>
+            <h3 className="text-2xl font-bold font-heading" style={{ color: '#000000' }}>
               {progressStats.currentStreak}
             </h3>
-            <p className="text-sm" style={{ color: '#5A2C59' }}>Day Streak</p>
+            <p className="text-sm" style={{ color: '#000000' }}>Day Streak</p>
           </div>
 
           <div className="bg-white/80 rounded-xl p-6 text-center shadow-lg">
-            <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-deep-plum to-sky-blue flex items-center justify-center">
+            <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-black to-sky-blue flex items-center justify-center">
               <SportIcon className="w-6 h-6 text-white" />
             </div>
-            <h3 className="text-lg font-bold font-heading" style={{ color: '#5A2C59' }}>
+            <h3 className="text-lg font-bold font-heading" style={{ color: '#000000' }}>
               {progressStats.skillLevel}
             </h3>
-            <p className="text-sm" style={{ color: '#5A2C59' }}>Current Level</p>
+            <p className="text-sm" style={{ color: '#000000' }}>Current Level</p>
           </div>
         </div>
       </div>
 
       {/* Recent Activity Section */}
       <div className="py-12 px-6">
-        <h2 className="text-2xl font-bold text-center mb-8 font-heading uppercase tracking-wide" style={{ color: '#5A2C59' }}>
+        <h2 className="text-2xl font-bold text-center mb-8 font-heading uppercase tracking-wide" style={{ color: '#000000' }}>
           Recent Training Activity
         </h2>
 
@@ -142,17 +142,17 @@ export default function ProgressDashboard() {
           {recentActivities.map((activity) => (
             <div key={activity.id} className="bg-white rounded-lg p-6 shadow-lg flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-sky-blue to-deep-plum flex items-center justify-center">
+                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-sky-blue to-black flex items-center justify-center">
                   {activity.type === 'lesson' && <Target className="w-6 h-6 text-white" />}
                   {activity.type === 'session' && <Trophy className="w-6 h-6 text-white" />}
                   {activity.type === 'program' && <BarChart3 className="w-6 h-6 text-white" />}
                 </div>
 
                 <div>
-                  <h3 className="font-semibold text-lg" style={{ color: '#5A2C59' }}>
+                  <h3 className="font-semibold text-lg" style={{ color: '#000000' }}>
                     {activity.title}
                   </h3>
-                  <p className="text-sm" style={{ color: '#5A2C59' }}>
+                  <p className="text-sm" style={{ color: '#000000' }}>
                     {activity.date}
                   </p>
                 </div>
@@ -171,7 +171,7 @@ export default function ProgressDashboard() {
                   </div>
                 </div>
 
-                <ArrowRight className="w-5 h-5" style={{ color: '#5A2C59' }} />
+                <ArrowRight className="w-5 h-5" style={{ color: '#000000' }} />
               </div>
             </div>
           ))}
@@ -222,7 +222,7 @@ export default function ProgressDashboard() {
 
       {/* Achievement Badges Section */}
       <div className="py-12 px-6">
-        <h2 className="text-2xl font-bold text-center mb-8 font-heading uppercase tracking-wide" style={{ color: '#5A2C59' }}>
+        <h2 className="text-2xl font-bold text-center mb-8 font-heading uppercase tracking-wide" style={{ color: '#000000' }}>
           Recent Achievements
         </h2>
 
@@ -238,9 +238,9 @@ export default function ProgressDashboard() {
                 className="w-16 h-16 rounded-full mx-auto mb-2 flex items-center justify-center shadow-lg"
                 style={{ backgroundColor: badge.color }}
               >
-                <badge.icon className="w-8 h-8" style={{ color: badge.earned ? 'white' : '#5A2C59' }} />
+                <badge.icon className="w-8 h-8" style={{ color: badge.earned ? 'white' : '#000000' }} />
               </div>
-              <p className="text-sm font-semibold" style={{ color: '#5A2C59' }}>
+              <p className="text-sm font-semibold" style={{ color: '#000000' }}>
                 {badge.title}
               </p>
             </div>

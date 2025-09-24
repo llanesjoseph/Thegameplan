@@ -224,7 +224,7 @@ export default function AssistantCoachManager({
   return (
     <div className="bg-gradient-to-br from-white to-sky-blue/5 rounded-2xl shadow-lg border border-white/50 p-8">
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-8 h-8 bg-gradient-to-r from-sky-blue to-deep-plum rounded-lg flex items-center justify-center">
+        <div className="w-8 h-8 bg-gradient-to-r from-sky-blue to-black rounded-lg flex items-center justify-center">
           <Users className="w-4 h-4 text-white" />
         </div>
         <h3 className="text-xl font-bold text-dark font-heading">Assistant Coaches</h3>
@@ -305,7 +305,7 @@ export default function AssistantCoachManager({
           <button
             onClick={handleSearch}
             disabled={isSearching || !searchTerm.trim()}
-            className="px-6 py-3 bg-gradient-to-r from-sky-blue to-deep-plum text-white rounded-xl font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 transition-all flex items-center gap-2"
+            className="px-6 py-3 bg-gradient-to-r from-sky-blue to-black text-white rounded-xl font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 transition-all flex items-center gap-2"
           >
             {isSearching ? (
               <>
@@ -329,7 +329,7 @@ export default function AssistantCoachManager({
               <div key={result.id} className="bg-white/80 rounded-xl p-4 border border-sky-blue/10">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-deep-plum to-sky-blue rounded-lg flex items-center justify-center text-white font-bold">
+                    <div className="w-10 h-10 bg-gradient-to-br from-black to-sky-blue rounded-lg flex items-center justify-center text-white font-bold">
                       {result.displayName.charAt(0)}
                     </div>
 

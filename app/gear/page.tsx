@@ -469,7 +469,7 @@ function GearContent() {
               <div className="space-y-3 flex-1 flex flex-col">
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs font-medium px-2 py-1 rounded-full" style={{color: '#5A2C59', backgroundColor: 'rgba(90, 44, 89, 0.1)'}}>
+                    <span className="text-xs font-medium px-2 py-1 rounded-full" style={{color: '#000000', backgroundColor: 'rgba(0, 0, 0, 0.1)'}}>
                       {item.category}
                     </span>
                     <span className="text-xs font-medium text-gray-600 bg-white px-2 py-1 rounded-full border border-gray-200">

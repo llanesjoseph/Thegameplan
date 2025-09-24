@@ -15,7 +15,7 @@ export default function ApplyCoachButton() {
   }
 
   return (
-    <div className="bg-gradient-to-r from-deep-plum to-sky-blue rounded-2xl p-6 text-white shadow-lg">
+    <div className="bg-gradient-to-r from-black to-sky-blue rounded-2xl p-6 text-white shadow-lg">
       <div className="flex items-center gap-4">
         <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
           <Crown className="w-6 h-6" />

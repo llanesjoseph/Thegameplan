@@ -350,7 +350,7 @@ body {
 }
 
 .clarity-text-secondary {
-  color: #5A2C59; /* Deep Plum (keeping) */
+  color: #000000; /* Deep Plum (keeping) */
 }
 
 .clarity-accent {
@@ -374,7 +374,7 @@ body {
 }
 
 .text-clarity-text-secondary {
-  color: #5A2C59; /* Deep Plum (keeping) */
+  color: #000000; /* Deep Plum (keeping) */
 }
 
 .text-clarity-accent {
@@ -528,12 +528,12 @@ body {
 }
 
 .btn-plum {
-  background: linear-gradient(135deg, #5A2C59 0%, #892F1A 100%);
+  background: linear-gradient(135deg, #000000 0%, #892F1A 100%);
   color: white;
   padding: 12px 24px;
   border-radius: 16px;
   font-weight: 600;
-  box-shadow: 0 4px 12px rgba(90, 44, 89, 0.24);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.24);
   transition: all 0.3s ease;
   border: none;
   cursor: pointer;
@@ -566,8 +566,8 @@ body {
 
 /* Professional input styles */
 .input-primary {
-  background: rgba(90, 44, 89, 0.05); /* Light Deep Plum background */
-  border: 1px solid rgba(90, 44, 89, 0.3); /* Deep Plum border */
+  background: rgba(0, 0, 0, 0.05); /* Light Deep Plum background */
+  border: 1px solid rgba(0, 0, 0, 0.3); /* Deep Plum border */
   border-radius: 16px;
   padding: 16px;
   outline: none;
@@ -582,7 +582,7 @@ body {
 }
 
 .input-primary::placeholder {
-  color: rgba(90, 44, 89, 0.6); /* Deep Plum placeholder */
+  color: rgba(0, 0, 0, 0.6); /* Deep Plum placeholder */
 }
 
 /* Animation utilities */
@@ -628,7 +628,7 @@ body {
   pointer-events: none;
   overflow: hidden;
   background: radial-gradient(600px 600px at 15% 20%, rgba(140, 21, 21, 0.08), transparent 60%),
-              radial-gradient(500px 500px at 85% 25%, rgba(90, 44, 89, 0.08), transparent 60%),
+              radial-gradient(500px 500px at 85% 25%, rgba(0, 0, 0, 0.08), transparent 60%),
               radial-gradient(700px 700px at 40% 85%, rgba(32, 178, 170, 0.08), transparent 60%);
   animation: bg-drift 30s ease-in-out infinite alternate;
 }
@@ -655,10 +655,10 @@ body {
 
 /* Game Plan shapes with color palette */
 .geometric-shapes .shape:nth-child(1) { top: 10%; left: 8%; width: 220px; height: 220px; --shape-color: #8C1515; animation: float-a 22s ease-in-out infinite; }
-.geometric-shapes .shape:nth-child(2) { top: 18%; right: 10%; width: 180px; height: 160px; --shape-color: #5A2C59; animation: float-b 26s ease-in-out infinite; }
+.geometric-shapes .shape:nth-child(2) { top: 18%; right: 10%; width: 180px; height: 160px; --shape-color: #000000; animation: float-b 26s ease-in-out infinite; }
 .geometric-shapes .shape:nth-child(3) { bottom: 18%; left: 12%; width: 260px; height: 220px; --shape-color: #20B2AA; animation: float-c 28s ease-in-out infinite; }
 .geometric-shapes .shape:nth-child(4) { top: 55%; right: 20%; width: 180px; height: 180px; --shape-color: #8D9440; animation: float-b 24s ease-in-out infinite reverse; }
-.geometric-shapes .shape:nth-child(5) { top: 30%; left: 45%; width: 160px; height: 140px; --shape-color: #5A2C59; animation: float-c 30s ease-in-out infinite reverse; }
+.geometric-shapes .shape:nth-child(5) { top: 30%; left: 45%; width: 160px; height: 140px; --shape-color: #000000; animation: float-c 30s ease-in-out infinite reverse; }
 .geometric-shapes .shape:nth-child(6) { bottom: 8%; right: 8%; width: 220px; height: 200px; --shape-color: #20B2AA; animation: float-a 32s ease-in-out infinite; }
 
 @keyframes float-a {
@@ -734,7 +734,7 @@ body {
 
 /* Game Plan Gradient Text Utility */
 .clarity-gradient-text {
-  background: linear-gradient(135deg, #8C1515 0%, #5A2C59 50%, #20B2AA 100%);
+  background: linear-gradient(135deg, #8C1515 0%, #000000 50%, #20B2AA 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -743,7 +743,7 @@ body {
 
 /* Game Plan AI Response Formatting */
 .ai-response-content {
-  color: #5A2C59; /* Deep Plum for content */
+  color: #000000; /* Deep Plum for content */
 }
 
 .ai-response-content p {

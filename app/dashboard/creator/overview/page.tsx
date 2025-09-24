@@ -178,7 +178,7 @@ export default function CoachOverview() {
     return (
       <div className="flex items-center justify-center min-h-96">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-deep-plum mx-auto"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black mx-auto"></div>
           <p className="mt-2 text-dark/70">Loading your Coaching Dashboard...</p>
         </div>
       </div>
@@ -191,7 +191,7 @@ export default function CoachOverview() {
         <div className="text-center">
           <h1 className="text-xl font-semibold mb-2 text-dark">Sign In Required</h1>
           <p className="text-dark/70 mb-4">Please sign in to access your coaching dashboard.</p>
-          <Link href="/dashboard" className="bg-deep-plum text-white px-6 py-2 rounded-lg hover:opacity-90">
+          <Link href="/dashboard" className="bg-black text-white px-6 py-2 rounded-lg hover:opacity-90">
             Sign In
           </Link>
         </div>
@@ -216,10 +216,10 @@ export default function CoachOverview() {
     <div style={{ backgroundColor: '#E8E6D8' }} className="min-h-screen">
       {/* Header Section */}
       <div className="text-center py-12 px-6">
-        <h1 className="text-3xl font-bold mb-4 font-heading uppercase tracking-wide" style={{ color: '#5A2C59' }}>
+        <h1 className="text-3xl font-bold mb-4 font-heading uppercase tracking-wide" style={{ color: '#000000' }}>
           Welcome to Your Coaching Hub, {firstName}!
         </h1>
-        <p className="text-lg" style={{ color: '#5A2C59' }}>
+        <p className="text-lg" style={{ color: '#000000' }}>
           Your coaching dashboard will help you manage your athletes, track their progress,
           and deliver exceptional training experiences.
         </p>
@@ -228,21 +228,21 @@ export default function CoachOverview() {
         <div className="flex justify-center items-center gap-8 mt-8">
           <div className="text-center">
             <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-white/50 flex items-center justify-center">
-              <sportData.icon className="w-8 h-8" style={{ color: '#5A2C59' }} />
+              <sportData.icon className="w-8 h-8" style={{ color: '#000000' }} />
             </div>
-            <p className="font-semibold" style={{ color: '#5A2C59' }}>Sport</p>
-            <p className="text-sm" style={{ color: '#5A2C59' }}>{sportData.title}</p>
+            <p className="font-semibold" style={{ color: '#000000' }}>Sport</p>
+            <p className="text-sm" style={{ color: '#000000' }}>{sportData.title}</p>
           </div>
 
           <div className="text-center">
             <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-white/50 flex items-center justify-center">
               <Users className="w-8 h-8" style={{ color: '#91A6EB' }} />
             </div>
-            <p className="font-semibold" style={{ color: '#5A2C59' }}>Athletes</p>
-            <p className="text-sm" style={{ color: '#5A2C59' }}>{stats.athletes} Active</p>
+            <p className="font-semibold" style={{ color: '#000000' }}>Athletes</p>
+            <p className="text-sm" style={{ color: '#000000' }}>{stats.athletes} Active</p>
           </div>
 
-          <div style={{ color: '#5A2C59' }} className="text-left max-w-sm">
+          <div style={{ color: '#000000' }} className="text-left max-w-sm">
             <h3 className="font-semibold mb-2 font-heading">Your Coaching Summary</h3>
             <ul className="text-sm space-y-1">
               <li>• You have {stats.athletes} active athletes training with you</li>
@@ -288,7 +288,7 @@ export default function CoachOverview() {
 
       {/* Your Specialties Section */}
       <div className="py-12 px-6">
-        <h2 className="text-2xl font-bold text-center mb-8 font-heading uppercase tracking-wide" style={{ color: '#5A2C59' }}>
+        <h2 className="text-2xl font-bold text-center mb-8 font-heading uppercase tracking-wide" style={{ color: '#000000' }}>
           Your Coaching Specialties
         </h2>
 
@@ -298,9 +298,9 @@ export default function CoachOverview() {
               <div className="p-6">
                 <div className="flex items-center gap-3 mb-3">
                   <MedalIcon className="w-6 h-6" style={{ color: '#91A6EB' }} />
-                  <h3 className="font-bold" style={{ color: '#5A2C59' }}>{specialty.title}</h3>
+                  <h3 className="font-bold" style={{ color: '#000000' }}>{specialty.title}</h3>
                 </div>
-                <p className="text-sm mb-4" style={{ color: '#5A2C59' }}>
+                <p className="text-sm mb-4" style={{ color: '#000000' }}>
                   {specialty.description}
                 </p>
                 <div className="flex justify-between items-center text-xs" style={{ color: '#91A6EB' }}>
@@ -339,7 +339,7 @@ export default function CoachOverview() {
       {/* Coaching Tools Section */}
       <div className="py-12 px-6">
         <div className="flex justify-between items-center mb-8">
-          <h2 className="text-2xl font-bold font-heading uppercase tracking-wide" style={{ color: '#5A2C59' }}>
+          <h2 className="text-2xl font-bold font-heading uppercase tracking-wide" style={{ color: '#000000' }}>
             Your Coaching Tools
           </h2>
           <Link
@@ -371,10 +371,10 @@ export default function CoachOverview() {
                   />
                 </div>
                 <div className="p-4">
-                  <h3 className="font-semibold text-sm mb-2" style={{ color: '#5A2C59' }}>
+                  <h3 className="font-semibold text-sm mb-2" style={{ color: '#000000' }}>
                     {tool.name}
                   </h3>
-                  <p className="font-bold mb-3" style={{ color: '#5A2C59' }}>
+                  <p className="font-bold mb-3" style={{ color: '#000000' }}>
                     {tool.price}
                   </p>
                   <button
@@ -395,13 +395,13 @@ export default function CoachOverview() {
                 onClick={prevTools}
                 className="absolute left-0 top-1/2 transform -translate-y-1/2 p-2 rounded-full bg-white shadow-lg hover:shadow-xl transition-shadow"
               >
-                <ChevronLeft className="w-6 h-6" style={{ color: '#5A2C59' }} />
+                <ChevronLeft className="w-6 h-6" style={{ color: '#000000' }} />
               </button>
               <button
                 onClick={nextTools}
                 className="absolute right-0 top-1/2 transform -translate-y-1/2 p-2 rounded-full bg-white shadow-lg hover:shadow-xl transition-shadow"
               >
-                <ChevronRight className="w-6 h-6" style={{ color: '#5A2C59' }} />
+                <ChevronRight className="w-6 h-6" style={{ color: '#000000' }} />
               </button>
             </>
           )}
