@@ -31,6 +31,7 @@ import {
 } from 'lucide-react'
 import { DiscordIcon } from '@/components/icons/DiscordIcon'
 import { TikTokIcon } from '@/components/icons/TikTokIcon'
+import AssistantCoachManager from '@/components/AssistantCoachManager'
 
 // Comprehensive sports list from the app
 const SPORTS_OPTIONS = [
@@ -94,7 +95,22 @@ export default function ProfilePage() {
       website: '',
       tiktok: '',
       discord: ''
-    }
+    },
+    // Coach-specific fields
+    coachingCredentials: '',
+    tagline: '',
+    philosophy: {
+      title: '',
+      description: '',
+      points: [] as Array<{title: string; description: string}>
+    },
+    assistantCoaches: [] as string[],
+    lessonCount: 0,
+    studentsHelped: 0,
+    averageRating: 0,
+    verified: false,
+    featured: false,
+    badges: [] as string[]
   })
 
   // Load profile data from database on component mount
@@ -1057,6 +1073,162 @@ export default function ProfilePage() {
               </div>
             </div>
 
+            {/* Coach-Specific Sections */}
+            {role === 'creator' && (
+              <>
+                {/* Coaching Philosophy Section */}
+                <div className="bg-gradient-to-br from-white to-deep-plum/5 rounded-2xl shadow-lg border border-white/50 p-8">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-8 h-8 bg-gradient-to-r from-deep-plum to-sky-blue rounded-lg flex items-center justify-center">
+                      <Trophy className="w-4 h-4 text-white" />
+                    </div>
+                    <h3 className="text-xl font-bold text-dark font-heading">Coaching Philosophy</h3>
+                  </div>
+
+                  {isEditing ? (
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-dark mb-2">Philosophy Title</label>
+                        <input
+                          type="text"
+                          value={profileData.philosophy.title}
+                          onChange={(e) => setProfileData(prev => ({
+                            ...prev,
+                            philosophy: { ...prev.philosophy, title: e.target.value }
+                          }))}
+                          className="w-full border-2 border-sky-blue/20 bg-white/80 rounded-xl p-3 text-dark placeholder-dark/50 focus:border-sky-blue focus:ring-4 focus:ring-sky-blue/20 transition-all backdrop-blur-sm"
+                          placeholder="e.g., Excellence Through Mental Mastery"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-dark mb-2">Philosophy Description</label>
+                        <textarea
+                          value={profileData.philosophy.description}
+                          onChange={(e) => setProfileData(prev => ({
+                            ...prev,
+                            philosophy: { ...prev.philosophy, description: e.target.value }
+                          }))}
+                          className="w-full border-2 border-sky-blue/20 bg-white/80 rounded-xl p-4 text-dark placeholder-dark/50 focus:border-sky-blue focus:ring-4 focus:ring-sky-blue/20 transition-all backdrop-blur-sm resize-none"
+                          rows={4}
+                          placeholder="Describe your coaching philosophy and approach..."
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-dark mb-2">Coaching Tagline</label>
+                        <input
+                          type="text"
+                          value={profileData.tagline}
+                          onChange={(e) => setProfileData(prev => ({ ...prev, tagline: e.target.value }))}
+                          className="w-full border-2 border-sky-blue/20 bg-white/80 rounded-xl p-3 text-dark placeholder-dark/50 focus:border-sky-blue focus:ring-4 focus:ring-sky-blue/20 transition-all backdrop-blur-sm"
+                          placeholder="e.g., Elevating mental game through tactical intelligence"
+                          maxLength={120}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-dark mb-2">Credentials & Certifications</label>
+                        <textarea
+                          value={profileData.coachingCredentials}
+                          onChange={(e) => setProfileData(prev => ({ ...prev, coachingCredentials: e.target.value }))}
+                          className="w-full border-2 border-sky-blue/20 bg-white/80 rounded-xl p-3 text-dark placeholder-dark/50 focus:border-sky-blue focus:ring-4 focus:ring-sky-blue/20 transition-all backdrop-blur-sm resize-none"
+                          rows={3}
+                          placeholder="List your coaching credentials, certifications, and professional background..."
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {profileData.tagline && (
+                        <div className="bg-sky-blue/10 rounded-xl p-4 border border-sky-blue/20">
+                          <p className="text-lg font-medium text-dark italic">"{profileData.tagline}"</p>
+                        </div>
+                      )}
+
+                      {profileData.philosophy.title && (
+                        <div>
+                          <h4 className="text-xl font-bold text-dark mb-2">{profileData.philosophy.title}</h4>
+                          {profileData.philosophy.description && (
+                            <p className="text-dark/70 leading-relaxed">{profileData.philosophy.description}</p>
+                          )}
+                        </div>
+                      )}
+
+                      {profileData.coachingCredentials && (
+                        <div>
+                          <h5 className="font-semibold text-dark mb-2">Credentials & Certifications</h5>
+                          <p className="text-dark/70">{profileData.coachingCredentials}</p>
+                        </div>
+                      )}
+
+                      {!profileData.philosophy.title && !profileData.tagline && !profileData.coachingCredentials && (
+                        <p className="text-dark/50 text-center py-6">Click "Edit Profile" to add your coaching philosophy and credentials</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Assistant Coach Management */}
+                <AssistantCoachManager
+                  coachId={user?.uid || ''}
+                  currentAssistants={profileData.assistantCoaches}
+                  onUpdate={() => {
+                    // Reload profile data when assistants are updated
+                    if (user?.uid && role) {
+                      // Trigger a reload - you could implement a more sophisticated state update
+                      window.location.reload()
+                    }
+                  }}
+                />
+
+                {/* Coach Stats */}
+                <div className="bg-gradient-to-br from-white to-green/5 rounded-2xl shadow-lg border border-white/50 p-8">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-8 h-8 bg-gradient-to-r from-green to-green/80 rounded-lg flex items-center justify-center">
+                      <Star className="w-4 h-4 text-white" />
+                    </div>
+                    <h3 className="text-xl font-bold text-dark font-heading">Coaching Impact</h3>
+                  </div>
+
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-green mb-2">{profileData.lessonCount}</div>
+                      <div className="text-sm text-dark/60">Published Lessons</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-sky-blue mb-2">{profileData.studentsHelped}</div>
+                      <div className="text-sm text-dark/60">Students Helped</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-deep-plum mb-2">{profileData.averageRating.toFixed(1)}★</div>
+                      <div className="text-sm text-dark/60">Average Rating</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-orange mb-2">{profileData.assistantCoaches.length}</div>
+                      <div className="text-sm text-dark/60">Assistant Coaches</div>
+                    </div>
+                  </div>
+
+                  {/* Badges */}
+                  {profileData.badges.length > 0 && (
+                    <div className="mt-6 pt-6 border-t border-dark/10">
+                      <h4 className="font-semibold text-dark mb-3">Achievements & Badges</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {profileData.badges.map((badge, index) => (
+                          <span
+                            key={index}
+                            className="px-3 py-1 bg-gradient-to-r from-deep-plum/20 to-sky-blue/20 text-deep-plum rounded-full text-sm font-medium border border-deep-plum/30"
+                          >
+                            {badge}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
