@@ -162,7 +162,7 @@ export default function LandingPage() {
             {/* Left side - can be expanded with links */}
             <div className="flex items-center gap-6">
               <Link href="/contributors" className="text-dark hover:text-sky-blue font-medium">
-                Contributors
+                Coaches
               </Link>
               <Link href="/lessons" className="text-dark hover:text-sky-blue font-medium">
                 Lessons

@@ -237,7 +237,7 @@ export default function ContributorsPage() {
             </div>
             <h1 className="font-bold text-5xl lg:text-6xl text-gray-800 mb-6 tracking-tight">
               Meet Our
-              <span className="text-cardinal block">Contributors</span>
+              <span className="text-cardinal block">Coaches</span>
             </h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
               {user 
@@ -266,7 +266,7 @@ export default function ContributorsPage() {
         <div className="bg-white border border-gray-200 rounded-lg p-8 shadow-card-md">
           <div className="grid lg:grid-cols-3 gap-6 items-end">
             <div className="lg:col-span-2">
-              <label className="block text-sm font-semibold mb-3 text-gray-800">Find Contributors</label>
+              <label className="block text-sm font-semibold mb-3 text-gray-800">Find Coaches</label>
               <div className="relative">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-600" />
                 <input
@@ -510,7 +510,7 @@ export default function ContributorsPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-6">
             <Link href="/contributors" className="text-gray-600 hover:text-gray-900 font-medium">
-              Contributors
+              Coaches
             </Link>
             <Link href="/lessons" className="text-gray-600 hover:text-gray-900 font-medium">
               Lessons

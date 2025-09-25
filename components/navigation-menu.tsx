@@ -9,7 +9,7 @@ export function NavigationMenu() {
   return (
     <div className="flex items-center gap-8">
       <Link href="/contributors" className="nexus-nav-link">
-        Contributors
+        Coaches
       </Link>
       <Link href="/gear" className="nexus-nav-link">
         Gear  

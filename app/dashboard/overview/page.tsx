@@ -461,7 +461,7 @@ export default function UnifiedDashboard() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-6">
               <Link href="/contributors" className="text-gray-600 hover:text-gray-900 font-medium">
-                Contributors
+                Coaches
               </Link>
               <Link href="/lessons" className="text-gray-600 hover:text-gray-900 font-medium">
                 Lessons
