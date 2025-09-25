@@ -27,7 +27,8 @@
       "Bash(npx eslint:*)",
       "Bash(powershell Copy-Item:*)",
       "Bash(dir:*)",
-      "Read(//c/Users/bigpe/OneDrive/Desktop/Crucible/GAMEPLAN/Icons/**)"
+      "Read(//c/Users/bigpe/OneDrive/Desktop/Crucible/GAMEPLAN/Icons/**)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []

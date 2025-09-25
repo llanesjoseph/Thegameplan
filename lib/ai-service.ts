@@ -3,6 +3,7 @@ import OpenAI from 'openai'
 import { PersonalizedCoachingEngine, SafetyCoachingSystem } from './personalized-coaching'
 import { LessonCreationEngine, LessonStructure } from './lesson-creation-service'
 import { LessonFormatter } from './lesson-formatter'
+import { EnhancedLessonFormatter, LongFormLessonConfig } from './enhanced-lesson-formatter'
 
 // Initialize the Gemini AI client
 const getGeminiClient = () => {
@@ -390,6 +391,13 @@ export const generateCoachingPrompt = (question: string, context: CoachingContex
   ]
   const isLessonCreation = lessonKeywords.some(keyword => question.toLowerCase().includes(keyword))
 
+  // Detect if this is a request for long-form/enhanced lesson
+  const longFormKeywords = [
+    'long form', 'long-form', 'detailed', 'comprehensive', 'full text', 'enhanced', 'expand',
+    'in-depth', 'extensive', 'complete writeup', 'full writeup', 'thorough', 'elaborate'
+  ]
+  const isLongFormRequest = longFormKeywords.some(keyword => question.toLowerCase().includes(keyword))
+
   // Detect if this is a sports-related question (any sport)
   const sportsKeywords = [
     // General sports terms
@@ -432,61 +440,592 @@ export const generateCoachingPrompt = (question: string, context: CoachingContex
 
   // Handle lesson creation requests with intelligent structure
   if (isLessonCreation) {
-    return `You are ${context.coachName}, an expert lesson designer and curriculum developer with championship-level athletic experience. You're like an intelligent lesson creation AI that combines pedagogical expertise with real-world coaching knowledge.
+    // Check if this is a request for enhanced/long-form lesson
+    if (isLongFormRequest) {
+      return `You are ${context.coachName}, an elite curriculum developer and master instructor with championship-level experience. You're creating a comprehensive, long-form lesson plan that could serve as a professional training manual.
+
+**ENHANCED LESSON CREATION REQUEST:** "${question}"
+
+**WHO YOU ARE:**
+You're ${context.coachName}, a ${context.coachCredentials.join(', ')}, creating an extensive, detailed lesson plan. This is a masterclass-level curriculum document with the depth and thoroughness of professional coaching education materials.
+
+**YOUR MISSION:**
+Create an exceptionally detailed, long-form lesson plan that provides comprehensive coverage of the topic. This should be extensive enough to serve as both an instructor guide and a reference document. Think textbook chapter meets practical workshop manual.
+
+**ENHANCED FORMATTING REQUIREMENTS:**
+- Use clean, professional markdown formatting throughout
+- NEVER use symbols like ═══, ┌─, ▼▼▼, ┐, └─, or ASCII art
+- Use standard headers (# ## ### ####) and bullet points (•) only
+- Create extensive, detailed content with multiple subsections
+- Focus on comprehensive content depth and educational value
+- Include detailed explanations, rationales, and background information
+
+**COMPREHENSIVE RESPONSE STRUCTURE:**
+Create an extensive lesson plan with all of these detailed sections:
+
+# [Detailed Lesson Title with Specific Focus]
+
+## Executive Summary
+Brief overview of the lesson scope, target audience, and expected outcomes
+
+## Lesson Overview
+**Sport:** [Specific sport/activity]
+**Target Level:** [Detailed skill level description]
+**Duration:** [Total time with section breakdowns]
+**Primary Focus:** [Main learning objectives]
+**Secondary Benefits:** [Additional skills developed]
+**Prerequisites:** [Required prior knowledge/skills]
+
+## Comprehensive Learning Objectives
+**Primary Objectives:** (What students MUST achieve)
+1. [Detailed, measurable, specific objective with success criteria]
+2. [Detailed, measurable, specific objective with success criteria]
+3. [Detailed, measurable, specific objective with success criteria]
+
+**Secondary Objectives:** (Additional beneficial outcomes)
+- [Supporting skill development]
+- [Mental/tactical understanding]
+- [Physical conditioning benefits]
+
+**Assessment Standards:** How progress will be measured
+
+## Detailed Lesson Timeline
+| Phase | Duration | Primary Focus | Secondary Elements | Assessment Points |
+|-------|----------|---------------|-------------------|------------------|
+| Pre-lesson Setup | X minutes | Equipment/space preparation | Safety checks | Readiness verification |
+| Warm-up & Introduction | X minutes | Physical/mental preparation | Lesson objectives | Baseline assessment |
+| Technical Instruction | X minutes | Skill breakdown/demonstration | Conceptual understanding | Comprehension check |
+| Guided Practice | X minutes | Skill development | Error correction | Progress monitoring |
+| Progressive Application | X minutes | Skill application | Realistic scenarios | Performance assessment |
+| Advanced Integration | X minutes | Complex applications | Decision making | Mastery indicators |
+| Cool-down & Review | X minutes | Recovery & consolidation | Next steps planning | Final evaluation |
+
+## In-Depth Lesson Sections
+
+### [Section 1 Title] - Pre-Lesson Preparation (Duration)
+**Overview:** [Comprehensive explanation of purpose and importance]
+
+**Instructor Preparation Requirements:**
+• [Specific preparation steps with time requirements]
+• [Equipment setup procedures and safety checks]
+• [Mental preparation and lesson review protocols]
+• [Contingency planning for various scenarios]
+
+**Facility and Equipment Setup:**
+- **Required Equipment:** [Detailed list with specifications]
+- **Setup Configuration:** [Specific spatial arrangements]
+- **Safety Considerations:** [Comprehensive safety protocols]
+- **Alternative Setup Options:** [Backup plans for different situations]
+
+### [Section 2 Title] - Dynamic Warm-up & Introduction (Duration)
+**Comprehensive Overview:** [Detailed explanation of physiological and psychological preparation needs]
+
+**Phase 1: Physical Preparation (X minutes)**
+**Purpose:** Prepare body systems for specific movement demands
+**Key Teaching Points:**
+• [Detailed biomechanical explanation with scientific rationale]
+• [Specific muscle group activation with anatomical reasoning]
+• [Movement pattern preparation with skill transfer connections]
+• [Injury prevention strategies with risk factor analysis]
+
+**Progressive Warm-up Sequence:**
+1. **General Activation** (X minutes)
+   - [Specific exercises with rep counts and intensity guidelines]
+   - [Breathing patterns and mental focus techniques]
+   - [Group management and communication protocols]
+
+2. **Sport-Specific Preparation** (X minutes)
+   - [Movement patterns directly related to lesson skills]
+   - [Progressive intensity increases with monitoring points]
+   - [Technical preparation elements]
+
+3. **Skill-Specific Activation** (X minutes)
+   - [Movements that directly prepare for lesson content]
+   - [Neuromuscular activation patterns]
+   - [Coordination and timing preparation]
+
+**Phase 2: Cognitive Preparation (X minutes)**
+**Purpose:** Establish learning mindset and lesson framework
+
+**Lesson Introduction Protocol:**
+• **Attention and Engagement:** [Specific techniques to capture focus]
+• **Objective Communication:** [How to clearly convey learning goals]
+• **Relevance Connection:** [Linking to student goals and experiences]
+• **Success Visualization:** [Mental preparation techniques]
+
+**Baseline Assessment Methods:**
+- [Quick skill evaluation techniques]
+- [Learning style identification]
+- [Individual goal setting processes]
+- [Group dynamics assessment]
+
+### [Section 3 Title] - Comprehensive Technical Instruction (Duration)
+**In-Depth Overview:** [Extensive explanation of skill instruction methodology]
+
+**Instructional Methodology Framework:**
+**Multi-Modal Learning Approach:**
+• **Visual Learning:** [Detailed demonstration protocols]
+• **Auditory Learning:** [Verbal instruction techniques]
+• **Kinesthetic Learning:** [Hands-on guidance methods]
+• **Analytical Learning:** [Conceptual breakdown strategies]
+
+**Phase 1: Skill Demonstration & Analysis (X minutes)**
+
+**Complete Skill Demonstration:**
+- **Full Speed Execution:** [Performance at game/competition pace]
+- **Key Visual Elements:** [What students should observe]
+- **Multiple Angle Viewing:** [Different perspectives for complete understanding]
+- **Success Indicators:** [What correct execution looks like]
+
+**Detailed Technical Breakdown:**
+1. **Foundation Elements** (X minutes)
+   - **Body Positioning:** [Specific postural requirements with anatomical explanations]
+   - **Base and Balance:** [Stability principles with physics applications]
+   - **Core Engagement:** [Muscular activation patterns and timing]
+   - **Breathing Integration:** [Respiratory patterns during execution]
+
+2. **Execution Sequence** (X minutes)
+   - **Initiation Phase:** [How the movement begins with trigger mechanisms]
+   - **Development Phase:** [Progressive movement elements with timing]
+   - **Completion Phase:** [Finishing elements with follow-through requirements]
+   - **Recovery Phase:** [Return to ready position or transition preparation]
+
+3. **Common Variations and Applications** (X minutes)
+   - **Situational Adaptations:** [How technique changes based on circumstances]
+   - **Individual Modifications:** [Adjustments for different body types/abilities]
+   - **Advanced Progressions:** [Next-level skill developments]
+   - **Integration Possibilities:** [How this connects to other skills]
+
+**Phase 2: Conceptual Understanding Development (X minutes)**
+
+**Biomechanical Principles:**
+• **Force Application:** [Physics of effective technique execution]
+• **Leverage and Mechanical Advantage:** [How body mechanics create efficiency]
+• **Timing and Rhythm:** [Temporal aspects of skill execution]
+• **Energy Systems:** [Physiological demands and efficiency principles]
+
+**Strategic and Tactical Applications:**
+• **When to Apply:** [Situational decision-making factors]
+• **Risk vs. Reward Assessment:** [Cost-benefit analysis of technique use]
+• **Opponent/Environmental Considerations:** [External factors affecting execution]
+• **Integration with Game/Competition Strategy:** [How this fits broader tactical approach]
+
+**Phase 3: Error Analysis and Correction Systems (X minutes)**
+
+**Systematic Error Identification:**
+- **Visual Observation Protocols:** [What to look for during student practice]
+- **Common Error Patterns:** [Typical mistakes and their root causes]
+- **Individual vs. Systematic Issues:** [Personal vs. universal challenges]
+- **Progressive Error Correction:** [Hierarchy of corrections for maximum impact]
+
+**Correction Methodology:**
+1. **Positive Approach:** [How to frame corrections constructively]
+2. **Demonstration of Incorrect vs. Correct:** [Visual learning through comparison]
+3. **Guided Discovery:** [Helping students self-identify and correct]
+4. **Progressive Correction:** [Addressing multiple issues in proper sequence]
+
+### [Section 4 Title] - Systematic Skill Development (Duration)
+**Comprehensive Overview:** [Detailed explanation of progressive skill building methodology]
+
+**Learning Progression Philosophy:**
+Based on motor learning research and championship-level coaching experience, this section uses a systematic approach to skill development that moves from simple to complex, slow to fast, and cooperative to competitive.
+
+**Phase 1: Isolation Training (X minutes)**
+**Purpose:** Master individual skill components before integration
+
+**Exercise 1: [Specific Drill Name]**
+**Setup:** [Detailed equipment and space requirements]
+**Participant Organization:** [How to arrange students for optimal learning]
+**Instructions:** [Step-by-step execution with coaching cues]
+
+**Execution Protocol:**
+1. **Demonstration Phase** (X minutes)
+   - Instructor demonstrates while explaining key points
+   - Students observe from multiple angles
+   - Questions and clarifications addressed
+
+2. **Guided Practice Phase** (X minutes)
+   - Students attempt with instructor guidance
+   - Individual feedback and corrections provided
+   - Emphasis on technique over speed/power
+
+3. **Independent Practice Phase** (X minutes)
+   - Students practice with peer observation
+   - Self-correction and peer feedback encouraged
+   - Instructor provides group and individual coaching
+
+**Progression Levels:**
+• **Beginner Adaptation:** [Modifications for entry-level participants]
+• **Intermediate Challenge:** [Standard execution expectations]
+• **Advanced Extension:** [Additional complexity for experienced participants]
+
+**Success Criteria at Each Level:**
+- [Specific, measurable benchmarks for progress]
+- [Quality indicators vs. quantity measures]
+- [Individual vs. group progress markers]
+
+**Common Challenges and Solutions:**
+- **Challenge:** [Specific difficulty students typically encounter]
+  **Solution:** [Detailed remedy with alternative approaches]
+- **Challenge:** [Another common issue]
+  **Solution:** [Comprehensive solution strategy]
+
+**Phase 2: Integration Training (X minutes)**
+**Purpose:** Combine skill elements under progressive resistance
+
+**Exercise 2: [Specific Integration Drill Name]**
+**Advanced Setup Requirements:** [Complex equipment and spatial arrangements]
+**Safety Protocols:** [Enhanced safety measures for increased intensity]
+
+**Progressive Training Sequence:**
+1. **Cooperative Integration** (X minutes)
+   - **Purpose:** Combine elements with willing partner/environment
+   - **Execution:** [Detailed steps for cooperative practice]
+   - **Coaching Focus:** [What instructors should emphasize]
+   - **Success Indicators:** [How to recognize effective integration]
+
+2. **Light Resistance Training** (X minutes)
+   - **Purpose:** Introduce realistic opposition/challenges
+   - **Resistance Levels:** [Graduated challenge progressions]
+   - **Adaptation Coaching:** [How to help students adjust to pressure]
+   - **Performance Monitoring:** [What to observe and measure]
+
+3. **Dynamic Application Training** (X minutes)
+   - **Purpose:** Apply skills under realistic conditions
+   - **Scenario Development:** [How to create game-like situations]
+   - **Decision-Making Integration:** [Adding cognitive challenges]
+   - **Performance Assessment:** [Evaluation criteria for dynamic application]
+
+**Phase 3: Mastery Refinement (X minutes)**
+**Purpose:** Polish technique for consistent high-level performance
+
+**Advanced Training Methods:**
+• **Video Analysis Integration:** [Using technology for skill refinement]
+• **Pressure Testing:** [Systematic stress introduction]
+• **Fatigue Resistance:** [Maintaining quality under physical stress]
+• **Distraction Training:** [Skill execution despite environmental challenges]
+
+### [Section 5 Title] - Realistic Application & Assessment (Duration)
+**Comprehensive Overview:** [Detailed explanation of skill testing and evaluation under realistic conditions]
+
+**Assessment Philosophy:**
+Assessment should replicate the demands and pressures students will face in real application while providing clear feedback for continued improvement.
+
+**Phase 1: Structured Scenario Testing (X minutes)**
+**Purpose:** Evaluate skill application in controlled, realistic situations
+
+**Scenario Design Principles:**
+• **Authenticity:** [How scenarios reflect real-world demands]
+• **Progressive Challenge:** [Systematic difficulty increases]
+• **Individual Adaptation:** [Adjusting scenarios to participant level]
+• **Safety Integration:** [Maintaining safety while increasing realism]
+
+**Assessment Scenarios:**
+1. **Scenario A: [Specific Situation]**
+   - **Setup:** [Detailed environmental configuration]
+   - **Participant Roles:** [Clear role assignments and expectations]
+   - **Success Criteria:** [Specific, measurable performance standards]
+   - **Observation Points:** [What evaluators should focus on]
+   - **Feedback Protocols:** [How and when to provide input]
+
+2. **Scenario B: [Different Application Context]**
+   - [Full detail following same format as Scenario A]
+
+3. **Scenario C: [Advanced/Complex Application]**
+   - [Full detail following same format]
+
+**Phase 2: Open Application Testing (X minutes)**
+**Purpose:** Evaluate adaptability and creative application
+
+**Free-Form Assessment Design:**
+• **Minimal Constraints:** [Basic safety and fairness parameters only]
+• **Student Choice Integration:** [How students can influence scenarios]
+• **Adaptability Testing:** [Evaluating response to unexpected challenges]
+• **Innovation Encouragement:** [Rewarding creative, effective applications]
+
+**Assessment Criteria:**
+- **Technical Execution:** [Skill performance under pressure]
+- **Decision Making:** [Appropriate choice of when/how to apply skills]
+- **Adaptability:** [Response to changing conditions]
+- **Safety Awareness:** [Risk management throughout application]
+
+**Phase 3: Peer Learning and Assessment (X minutes)**
+**Purpose:** Develop evaluation skills and reinforce learning through teaching
+
+**Peer Assessment Protocol:**
+• **Training Peers as Evaluators:** [How to prepare students to assess others]
+• **Observation Skills Development:** [What to look for and how to see it]
+• **Constructive Feedback Training:** [How to provide helpful, positive input]
+• **Self-Assessment Integration:** [Using peer assessment to improve self-evaluation]
+
+### [Section 6 Title] - Comprehensive Review & Development Planning (Duration)
+**In-Depth Overview:** [Detailed approach to consolidating learning and planning continued development]
+
+**Learning Consolidation Process:**
+**Phase 1: Individual Progress Review (X minutes)**
+**Purpose:** Help each participant understand their personal development
+
+**Individual Assessment Conference:**
+- **Performance Review:** [Detailed feedback on lesson performance]
+- **Strength Identification:** [Specific areas of demonstrated competence]
+- **Improvement Areas:** [Targeted development needs with specific recommendations]
+- **Goal Setting:** [Collaborative establishment of next learning objectives]
+
+**Documentation and Tracking:**
+• **Progress Records:** [How to document and track individual development]
+• **Goal Documentation:** [Recording personal learning objectives]
+• **Next Session Preparation:** [What students should focus on before next lesson]
+
+**Phase 2: Group Learning Synthesis (X minutes)**
+**Purpose:** Consolidate group learning and build community understanding
+
+**Group Discussion Protocol:**
+• **Shared Learning Experiences:** [How to facilitate productive group reflection]
+• **Challenge Problem-Solving:** [Addressing common difficulties as a group]
+• **Success Story Sharing:** [Celebrating and learning from successes]
+• **Peer Support Network Development:** [Building ongoing learning partnerships]
+
+**Phase 3: Long-Term Development Planning (X minutes)**
+**Purpose:** Establish sustainable improvement pathways
+
+**Comprehensive Development Framework:**
+
+**Immediate Practice Recommendations (Next 1-2 weeks):**
+• **Daily Practice Elements:** [Specific skills to practice daily with time recommendations]
+• **Self-Assessment Methods:** [How students can monitor their own progress]
+• **Safety Considerations:** [Important safety reminders for independent practice]
+• **Progress Tracking:** [Simple methods to document improvement]
+
+**Short-Term Development Goals (Next 1-3 months):**
+• **Skill Progression Pathways:** [Next skills to develop and when to attempt them]
+• **Training Intensity Recommendations:** [How much, how often, how hard]
+• **Supplementary Training:** [Additional activities that support skill development]
+• **Assessment Milestones:** [How to know when ready for next level]
+
+**Long-Term Mastery Vision (3+ months):**
+• **Advanced Skill Integration:** [How current skills connect to advanced techniques]
+• **Specialization Options:** [Different directions development could take]
+• **Competition/Application Preparation:** [If students want to test skills in real contexts]
+• **Teaching Others:** [Using instruction of others to deepen personal understanding]
+
+## Comprehensive Equipment & Facility Requirements
+
+**Essential Equipment (Detailed Specifications):**
+• [Specific equipment with brand/model recommendations where relevant]
+• [Quantity requirements based on class size]
+• [Quality standards and safety certifications needed]
+• [Alternative options for different budget levels]
+
+**Facility Requirements (Detailed Specifications):**
+• **Space Dimensions:** [Minimum and optimal space requirements]
+• **Surface Requirements:** [Flooring, field, or surface specifications]
+• **Environmental Conditions:** [Lighting, temperature, ventilation needs]
+• **Safety Features:** [Emergency equipment and procedures]
+
+**Technology Integration Options:**
+• **Video Analysis Tools:** [Equipment for recording and analyzing performance]
+• **Audio Systems:** [Sound reinforcement for large groups]
+• **Digital Documentation:** [Apps or systems for tracking progress]
+
+## Safety and Risk Management
+
+**Comprehensive Safety Protocols:**
+• **Pre-Activity Safety Checks:** [Detailed inspection procedures]
+• **During-Activity Monitoring:** [Continuous safety oversight requirements]
+• **Emergency Procedures:** [Specific protocols for various emergency types]
+• **Injury Prevention Strategies:** [Proactive measures to minimize risk]
+
+**Risk Assessment and Management:**
+• **Risk Identification:** [Potential hazards and their likelihood/severity]
+• **Mitigation Strategies:** [How to reduce or eliminate identified risks]
+• **Participant Screening:** [Health and ability considerations]
+• **Insurance and Liability Considerations:** [Legal and financial protections]
+
+## Follow-Up and Continued Development
+
+**Immediate Next Steps (24-48 hours):**
+• **Reflection Activities:** [How students should process their learning experience]
+• **Initial Practice Sessions:** [First independent practice recommendations]
+• **Question and Clarification Process:** [How students can get additional help]
+
+**Ongoing Development Support:**
+• **Progress Check-in Schedule:** [When and how to assess continued development]
+• **Additional Resource Recommendations:** [Books, videos, websites, apps for continued learning]
+• **Practice Partner Connections:** [Facilitating ongoing training partnerships]
+• **Next Level Training Options:** [Advanced courses, workshops, or coaching opportunities]
+
+**Community and Network Building:**
+• **Student Alumni Network:** [Connecting current students with program graduates]
+• **Ongoing Training Groups:** [Regular practice sessions or meetups]
+• **Competition or Application Opportunities:** [Chances to test skills in real contexts]
+• **Instructor Development:** [Pathways for students to become instructors themselves]
+
+## Assessment Rubrics and Standards
+
+**Comprehensive Performance Evaluation Matrix:**
+
+### Technical Skill Assessment
+| Criteria | Beginning (1) | Developing (2) | Proficient (3) | Advanced (4) | Mastery (5) |
+|----------|---------------|----------------|----------------|--------------|-------------|
+| [Skill Component 1] | [Specific descriptors] | [Specific descriptors] | [Specific descriptors] | [Specific descriptors] | [Specific descriptors] |
+| [Skill Component 2] | [Specific descriptors] | [Specific descriptors] | [Specific descriptors] | [Specific descriptors] | [Specific descriptors] |
+| [Additional components...] |
+
+### Application and Decision-Making Assessment
+[Similar detailed rubric format for practical application skills]
+
+### Learning Process and Effort Assessment
+[Rubric for evaluating student engagement, effort, and learning process]
+
+**Assessment Administration:**
+• **Self-Assessment Tools:** [How students evaluate their own progress]
+• **Peer Assessment Integration:** [Students assessing each other's development]
+• **Instructor Assessment Methods:** [Formal evaluation procedures]
+• **Progress Documentation:** [Recording and tracking systems]
+
+## Instructor Development and Support
+
+**Instructor Preparation Requirements:**
+• **Technical Skill Mastery:** [Instructor must demonstrate advanced competency]
+• **Pedagogical Training:** [Teaching methodology and learning theory background]
+• **Safety Certification:** [Required safety training and certifications]
+• **Ongoing Professional Development:** [Continuing education requirements]
+
+**Lesson Delivery Support:**
+• **Pre-Lesson Preparation Checklist:** [Complete preparation verification system]
+• **During-Lesson Support Tools:** [Quick reference guides and troubleshooting resources]
+• **Post-Lesson Evaluation:** [Self-assessment and improvement planning for instructors]
+
+## Research and Evidence Base
+
+**Scientific Foundation:**
+• **Motor Learning Research:** [Key studies supporting the pedagogical approach]
+• **Biomechanical Analysis:** [Scientific basis for technical instruction]
+• **Safety Research:** [Evidence supporting safety protocols]
+• **Effectiveness Studies:** [Research demonstrating lesson plan effectiveness]
+
+**Continuous Improvement Process:**
+• **Data Collection Methods:** [How to gather information about lesson effectiveness]
+• **Analysis and Evaluation:** [Processing feedback for improvements]
+• **Update and Revision Protocols:** [How lesson plans evolve based on evidence]
+
+---
+
+**ENHANCED CONTENT DEPTH REQUIREMENTS:**
+- Provide comprehensive explanations for every technique, exercise, and concept
+- Include detailed scientific and pedagogical rationales
+- Address individual differences and adaptation needs throughout
+- Create multiple assessment methods and detailed rubrics
+- Establish clear connections between all lesson elements
+- Provide extensive follow-up and development pathways
+- Include comprehensive safety and risk management protocols
+- Support instructor development and preparation needs
+
+**YOUR EXPERTISE APPLICATION:**
+Draw extensively from your experience as ${context.coachName}, ${context.coachCredentials.join(', ')}, to create content that reflects championship-level expertise while being accessible to learners. This should be a masterpiece of instructional design that could serve as a model for professional coaching education.
+
+Create an exceptionally detailed, long-form lesson plan that provides comprehensive coverage worthy of professional coaching certification programs.`
+    } else {
+      // Standard lesson creation prompt (unchanged)
+      return `You are ${context.coachName}, an expert lesson designer and curriculum developer with championship-level athletic experience. You're like an intelligent lesson creation AI that combines pedagogical expertise with real-world coaching knowledge.
 
 **LESSON CREATION REQUEST:** "${question}"
 
 **WHO YOU ARE:**
-You're a ${context.coachCredentials.join(', ')} who has become an expert at designing professional, comprehensive lesson plans. You understand both the athletic content AND how to structure learning experiences that work.
+You're ${context.coachName}, a ${context.coachCredentials.join(', ')}, creating a comprehensive lesson plan. You're designing a professional curriculum-level training session with the depth and detail of a masterclass.
 
 **YOUR MISSION:**
-Create a detailed, professionally structured lesson plan that goes far beyond basic outlines. Think of yourself as designing a masterclass-level learning experience.
+Create a detailed, well-structured lesson plan that goes beyond basic outlines. Design a complete learning experience that any qualified instructor could successfully teach from.
 
-**LESSON DESIGN PRINCIPLES:**
-- **Depth over breadth** - Go deep into the topic with rich detail
-- **Progressive structure** - Build skills systematically
-- **Multiple learning styles** - Visual, kinesthetic, auditory approaches
-- **Assessment integration** - Clear success criteria and progress markers
-- **Professional presentation** - Clean formatting and organization
+**FORMATTING REQUIREMENTS:**
+- Use clean, professional markdown formatting
+- NEVER use symbols like ═══, ┌─, ▼▼▼, ┐, └─, or ASCII art
+- Use standard headers (# ## ###) and bullet points (•) only
+- Keep formatting simple, clean, and readable
+- Focus on content quality over visual decoration
 
 **RESPONSE STRUCTURE:**
 Create a comprehensive lesson plan with these sections:
 
-1. **Lesson Overview** - Title, objectives, duration, level
-2. **Learning Objectives** - Specific, measurable outcomes
-3. **Lesson Timeline** - Detailed breakdown with timings
-4. **Section Details** - For each major section include:
-   - Overview and purpose
-   - Key teaching points
-   - Specific exercises/drills
-   - Common mistakes to address
-   - Progression tips
-5. **Assessment Criteria** - How to measure success
-6. **Resources & Equipment** - What's needed
-7. **Follow-up Suggestions** - Next steps for continued learning
+# [Lesson Title]
 
-**FORMATTING REQUIREMENTS:**
-- Use clear headers (##) and subheaders (###)
-- Include bullet points for lists
-- Add timing estimates for each section
-- Use tables where appropriate
-- Make it visually clean and professional
-- Include specific, actionable details
+## Lesson Overview
+**Sport:** [Sport name]
+**Level:** [Beginner/Intermediate/Advanced]
+**Duration:** [Total time]
+**Focus:** [Main learning focus]
 
-**CONTENT DEPTH:**
-- Don't just list activities - explain WHY each element matters
+## Learning Objectives
+By the end of this lesson, participants will be able to:
+1. [Specific, measurable objective]
+2. [Specific, measurable objective]
+3. [Specific, measurable objective]
+
+## Lesson Timeline
+| Phase | Duration | Focus |
+|-------|----------|--------|
+| Warm-up | X minutes | Preparation and introduction |
+| Instruction | X minutes | Technical breakdown |
+| Practice | X minutes | Skill development |
+| Application | X minutes | Live scenarios |
+| Cool-down | X minutes | Review and assessment |
+
+## Detailed Lesson Sections
+
+### [Section Name] (Duration)
+**Overview:** [Clear explanation of purpose]
+
+**Key Teaching Points:**
+• [Specific coaching point with rationale]
+• [Specific coaching point with rationale]
+• [Specific coaching point with rationale]
+
+**Exercise/Drill:** [Exercise Name]
+**Setup:** [How to organize the drill]
+**Instructions:** [Step-by-step execution]
+**Progression:** [How to make it more challenging]
+**Safety Notes:** [Important safety considerations]
+
+**Common Mistakes:**
+• **Mistake:** [Common error] → **Correction:** [How to fix it]
+
+### [Next Section continues same format...]
+
+## Assessment & Success Criteria
+**Skills Assessment:**
+• [What to look for in technique]
+• [Performance indicators]
+
+**Progress Markers:**
+• [Beginning level indicators]
+• [Developing level indicators]
+• [Mastery level indicators]
+
+## Equipment & Setup
+**Required Equipment:**
+• [List of necessary equipment]
+
+**Setup Requirements:**
+• [Space and organization needs]
+
+## Next Steps & Follow-Up
+**For Continued Development:**
+• [Practice recommendations]
+• [Next skills to work on]
+• [Assessment methods]
+
+**CONTENT DEPTH REQUIREMENTS:**
+- Explain the WHY behind each technique and exercise
 - Include specific coaching cues and corrections
-- Address different skill levels and modifications
-- Provide safety considerations
-- Add assessment rubrics
+- Address safety throughout
+- Provide clear progression pathways
+- Add assessment criteria that are measurable
 
 **YOUR EXPERTISE:**
-Draw from your ${context.sport} background but adapt to whatever sport/activity they're asking about. Use your championship experience to add credibility and real-world insights.
+Draw from your experience as ${context.coachName} but adapt to the specific sport/activity requested. Use your championship background to add credibility and practical insights.
 
-**TONE:**
-Be professional yet engaging. This should read like a high-quality curriculum document that someone would be excited to teach from.
-
-Create a comprehensive, professionally formatted lesson plan that exceeds expectations. Make it detailed enough that any qualified instructor could successfully teach from it.`
+Create a comprehensive, professionally formatted lesson plan with NO decorative symbols or ASCII art - just clean, professional content that any qualified instructor could successfully teach from.`
+    }
   }
 
   if (isSportsQuestion) {
@@ -722,123 +1261,209 @@ function extractLessonTopic(question: string): string {
 function generateManualLesson(topic: string, sport: string, context: CoachingContext): string {
   return `# ${topic}
 
-## 📋 Lesson Overview
+## Lesson Overview
 
 **Sport:** ${sport}
 **Level:** Intermediate to Advanced
 **Duration:** 60 minutes
 **Instructor:** ${context.coachName}
+**Focus:** Technical mastery and practical application
 
----
-
-## 🎯 Learning Objectives
+## Learning Objectives
 
 By the end of this lesson, participants will be able to:
 
-1. **Understand the fundamental principles** of ${topic.toLowerCase()}
-2. **Execute the core techniques** with proper form and timing
-3. **Apply skills in realistic scenarios** with appropriate pressure
-4. **Identify and correct common mistakes** in their execution
+1. **Understand the fundamental principles** behind effective ${topic.toLowerCase()} execution
+2. **Execute core techniques** with proper form, timing, and mechanical efficiency
+3. **Apply skills in realistic training scenarios** with appropriate resistance and pressure
+4. **Identify and correct common technical mistakes** through self-assessment and peer feedback
+5. **Demonstrate measurable improvement** from baseline performance to lesson completion
 
----
+## Lesson Timeline
 
-## ⏱️ Lesson Timeline
+| Phase | Duration | Focus Area |
+|-------|----------|------------|
+| Warm-up & Introduction | 10 minutes | Physical preparation and lesson objectives |
+| Technical Demonstration | 15 minutes | Detailed breakdown and explanation |
+| Guided Practice | 25 minutes | Progressive skill development with feedback |
+| Live Application | 8 minutes | Realistic scenarios and pressure testing |
+| Assessment & Review | 2 minutes | Progress evaluation and next steps |
 
-| **Phase** | **Duration** | **Focus** |
-|-----------|--------------|-----------|
-| Introduction | 10 minutes | Objectives, safety, assessment |
-| Demonstration | 15 minutes | Technical breakdown and explanation |
-| Practice | 25 minutes | Guided practice and skill development |
-| Application | 8 minutes | Live scenarios and testing |
-| Review | 2 minutes | Assessment and next steps |
+## Detailed Lesson Sections
 
----
+### Warm-up & Introduction (10 minutes)
 
-## 🎬 Introduction & Demonstration (25 minutes)
+**Overview:** Prepare participants physically and mentally while establishing lesson objectives and safety protocols.
 
-### Overview
-Welcome to our session on ${topic}. Today we'll break down the essential elements that make this technique effective and help you develop mastery through systematic practice.
+**Key Teaching Points:**
+• **Physical Preparation** - Sport-specific movement patterns to activate relevant muscle groups
+• **Mental Preparation** - Clear understanding of lesson goals and expected outcomes
+• **Safety Protocols** - Establish communication signals and injury prevention guidelines
+• **Baseline Assessment** - Quick evaluation of current skill level for individualized instruction
 
-### Key Teaching Points
-• **Foundation First** - Proper positioning and setup
-• **Timing and Rhythm** - Understanding when and how to execute
-• **Leverage and Mechanics** - Using body mechanics efficiently
-• **Safety Considerations** - Injury prevention throughout
+**Activities:**
+1. **Dynamic Warm-up** (5 minutes) - Movement patterns specific to ${topic.toLowerCase()}
+2. **Skill Assessment** (3 minutes) - Brief demonstration of current ability level
+3. **Objective Setting** (2 minutes) - Individual goal setting for the session
 
-### Demonstration Sequence
-1. **Static Demonstration** (5 mins) - Show the complete technique slowly
-2. **Step-by-Step Breakdown** (7 mins) - Break into component parts
-3. **Common Variations** (3 mins) - Show different applications
+**Safety Considerations:**
+• Ensure all participants are properly warmed up before technical work
+• Establish clear communication protocols for stopping activities
+• Check for any injuries or limitations that may affect participation
 
----
+### Technical Demonstration & Instruction (15 minutes)
 
-## 🏃‍♂️ Structured Practice (25 minutes)
+**Overview:** Comprehensive breakdown of ${topic} with detailed technical analysis and multiple learning approaches.
 
-### Exercise 1: Isolation Drill (10 minutes)
-**Purpose:** Build muscle memory for core movement patterns
+**Key Teaching Points:**
+• **Biomechanical Principles** - Understanding the physics and body mechanics involved
+• **Timing and Sequencing** - When and how to initiate and execute movements
+• **Common Variations** - Different applications based on scenarios and opponent reactions
+• **Energy Efficiency** - Maximizing results while minimizing energy expenditure
 
+**Demonstration Sequence:**
+1. **Complete Technique Demo** (3 minutes) - Full speed demonstration with key points highlighted
+2. **Step-by-Step Breakdown** (8 minutes) - Detailed analysis of each component
+3. **Multiple Angles** (2 minutes) - Show technique from different perspectives
+4. **Q&A and Clarification** (2 minutes) - Address participant questions
+
+**Teaching Methodology:**
+• Visual demonstration with verbal explanation
+• Kinesthetic learning through guided movement
+• Multiple repetitions at different speeds
+• Individual attention to learning styles
+
+### Guided Practice & Skill Development (25 minutes)
+
+**Overview:** Progressive skill building with systematic increase in complexity and resistance.
+
+**Exercise 1: Isolation Training (10 minutes)**
+**Purpose:** Master individual components before integration
+
+**Setup:** Partners arranged with adequate space for movement
 **Instructions:**
-1. Start with slow, controlled movements
-2. Focus on proper positioning and setup
-3. Gradually increase speed while maintaining form
-4. Practice both sides equally
+1. Practice setup and positioning (3 minutes) - Focus on foundational elements
+2. Execute technique in isolation (4 minutes) - Slow, controlled repetitions
+3. Add timing element (3 minutes) - Introduction of rhythm and flow
 
-### Exercise 2: Partner Integration (15 minutes)
-**Purpose:** Apply technique with realistic resistance
+**Progression Levels:**
+• **Beginner:** Static position practice with cooperative partner
+• **Intermediate:** Moving execution with light resistance
+• **Advanced:** Dynamic application with realistic timing
 
+**Exercise 2: Integration Training (15 minutes)**
+**Purpose:** Combine elements under progressive pressure
+
+**Setup:** Rotation system allowing practice with multiple partners
 **Instructions:**
-1. Partner provides graduated resistance
-2. Focus on timing and reaction
-3. Switch roles every 3 minutes
-4. Communicate throughout the drill
+1. **Cooperative Practice** (5 minutes) - Full technique with willing partner
+2. **Light Resistance** (5 minutes) - Partner provides graduated opposition
+3. **Realistic Scenarios** (5 minutes) - Application under game-like conditions
+
+**Coaching Focus:**
+• Individual feedback and correction
+• Safety monitoring throughout
+• Adaptation to different body types and skill levels
+• Encouragement and positive reinforcement
+
+**Common Mistakes and Corrections:**
+• **Rushing the Setup** → Focus on patience and proper positioning
+• **Using Too Much Force** → Emphasize technique over strength
+• **Poor Timing** → Practice rhythm and recognition of opportunities
+• **Neglecting Safety** → Constant reminder of control and communication
+
+### Live Application & Testing (8 minutes)
+
+**Overview:** Realistic application of learned skills under pressure with performance assessment.
+
+**Key Teaching Points:**
+• **Decision Making** - Choosing appropriate timing and application
+• **Adaptability** - Modifying technique based on opponent reactions
+• **Performance Under Pressure** - Maintaining technique quality despite stress
+• **Integration** - Combining new skills with existing knowledge
+
+**Application Format:**
+1. **Structured Scenarios** (4 minutes) - Specific situations requiring ${topic} application
+2. **Open Practice** (3 minutes) - Free application with instructor observation
+3. **Peer Assessment** (1 minute) - Partner feedback on performance
+
+**Assessment Criteria:**
+• Technical accuracy compared to demonstrated model
+• Appropriate timing and decision making
+• Safety awareness and control
+• Improvement from baseline assessment
+
+### Assessment & Next Steps (2 minutes)
+
+**Overview:** Evaluate learning progress and establish continued development plan.
+
+**Progress Evaluation:**
+• **Technical Proficiency** - Can execute technique with 70%+ accuracy
+• **Understanding Demonstration** - Can explain key principles to another person
+• **Application Ability** - Successfully applies skill under light pressure
+• **Safety Awareness** - Demonstrates appropriate control and awareness
+
+**Individual Feedback:**
+• Specific technical points for continued improvement
+• Strengths demonstrated during the session
+• Areas requiring additional focus and practice
+• Recommended practice schedule and methods
+
+**Next Steps for Development:**
+• **Daily Practice** - 15-20 minutes of technique refinement
+• **Video Analysis** - Record practice sessions for self-assessment
+• **Progressive Training** - Gradually increase resistance and complexity
+• **Seek Feedback** - Regular assessment from qualified instructors
+
+## Equipment & Setup Requirements
+
+**Essential Equipment:**
+• Appropriate training attire for ${sport.toLowerCase()}
+• Adequate training space (minimum requirements based on class size)
+• First aid kit and emergency procedures
+• Water and towels for participant comfort
+• Video recording equipment (optional but recommended)
+
+**Facility Requirements:**
+• Safe, clean training environment
+• Proper lighting for demonstration and assessment
+• Space for both individual and partner work
+• Storage for personal belongings
+
+**Safety Equipment (if applicable):**
+• Protective gear specific to ${sport.toLowerCase()}
+• Communication devices for emergency situations
+• Clear sight lines for instructor supervision
+
+## Follow-up and Continued Development
+
+**Immediate Practice Goals:**
+• Master the basic technique mechanics through daily repetition
+• Gradually increase practice intensity and resistance
+• Video record practice sessions for objective self-assessment
+• Identify and work on individual weakness areas
+
+**Long-term Development Path:**
+• Integration with advanced techniques and combinations
+• Application in competitive or game-like scenarios
+• Teaching others to reinforce personal understanding
+• Continued education through workshops and advanced instruction
+
+**Assessment Methods:**
+• Self-evaluation using provided criteria checklist
+• Peer assessment and feedback sessions
+• Video analysis comparing to demonstrated model
+• Progress testing with qualified instructor
+
+**Resources for Continued Learning:**
+• Recommended training partners and practice groups
+• Additional instructional materials and resources
+• Next-level courses and workshops
+• Online communities and discussion groups
 
 ---
 
-## ⚡ Live Application (8 minutes)
-
-Apply ${topic} skills in realistic, competitive scenarios with appropriate pressure and decision-making.
-
-**Focus Points:**
-• Realistic scenario application
-• Decision-making under pressure
-• Integration with existing skills
-• Performance under fatigue
-
----
-
-## 📊 Assessment & Review (2 minutes)
-
-### Progress Markers
-• Can execute technique with proper form 7/10 attempts
-• Demonstrates understanding of timing principles
-• Successfully applies technique under light pressure
-• Shows improvement from baseline assessment
-
-### Next Steps
-• Practice fundamentals for 15 minutes daily
-• Video record practice sessions for analysis
-• Focus on identified areas for improvement
-• Prepare for next progression level
-
----
-
-## 🛠️ Resources & Equipment
-
-**Required Equipment:**
-• Appropriate training space
-• Safety equipment as needed
-• Water bottles and towels
-• Video recording device (optional)
-
-**Setup Requirements:**
-• Adequate space for all participants
-• Proper safety equipment available
-• Clear demonstration area
-• Good lighting for instruction
-
----
-
-*This lesson plan emphasizes systematic skill development with safety as the top priority. Adjust intensity and complexity based on individual participant needs.*`
+*This comprehensive lesson plan provides detailed structure for effective learning while maintaining safety as the highest priority. Instructors should adapt content and pace based on participant needs and capabilities.*`
 }
 
 // Legacy function for backward compatibility
@@ -866,19 +1491,52 @@ export const getBaseFallbackResponse = (question: string, context: CoachingConte
   const lessonKeywords = ['lesson', 'create lesson', 'build lesson', 'lesson plan', 'curriculum', 'teaching', 'instruction']
   const isLessonCreation = lessonKeywords.some(keyword => lowerQuestion.includes(keyword))
 
+  // Detect if this is a request for long-form/enhanced lesson
+  const longFormKeywords = [
+    'long form', 'long-form', 'detailed', 'comprehensive', 'full text', 'enhanced', 'expand',
+    'in-depth', 'extensive', 'complete writeup', 'full writeup', 'thorough', 'elaborate'
+  ]
+
   // Handle lesson creation with structured output
   if (isLessonCreation) {
     // Try to extract the lesson topic
     const topic = extractLessonTopic(question)
     const sport = context.sport
 
-    try {
-      // Generate structured lesson using our lesson creation engine
-      const lessonStructure = LessonCreationEngine.generateLessonStructure(topic, sport, context)
-      return LessonFormatter.formatCompleteLesson(lessonStructure)
-    } catch (error) {
-      // Fallback to manual lesson creation
-      return generateManualLesson(topic, sport, context)
+    // Check if this is a request for enhanced/long-form lesson
+    const isLongFormRequest = longFormKeywords.some(keyword => question.toLowerCase().includes(keyword))
+
+    if (isLongFormRequest) {
+      // Use enhanced lesson formatter for comprehensive content
+      try {
+        // Generate a lesson structure first
+        const lessonStructure = LessonCreationEngine.generateLessonStructure(topic, sport, context)
+
+        const config: LongFormLessonConfig = {
+          includeDetailedExplanations: true,
+          includeCoachingInsights: true,
+          includeAssessmentRubrics: true,
+          includeProgressionPathways: true,
+          includeResourceLists: true,
+          wordTarget: 'comprehensive'
+        }
+
+        return EnhancedLessonFormatter.formatLongFormLesson(lessonStructure, config)
+      } catch (error) {
+        console.error('Enhanced lesson formatter error:', error)
+        // Fallback to standard manual lesson
+        return generateManualLesson(topic, sport, context)
+      }
+    } else {
+      // Standard lesson creation
+      try {
+        // Generate structured lesson using our lesson creation engine
+        const lessonStructure = LessonCreationEngine.generateLessonStructure(topic, sport, context)
+        return LessonFormatter.formatCompleteLesson(lessonStructure)
+      } catch (error) {
+        // Fallback to manual lesson creation
+        return generateManualLesson(topic, sport, context)
+      }
     }
   }
 
