@@ -190,6 +190,20 @@ service cloud.firestore {
     match /progress/{userId}/items/{itemId} {
       allow read, write: if isOwner(userId) || isAdmin();
     }
+
+    // Saved responses - User saved AI coaching responses
+    match /savedResponses/{responseId} {
+      allow read, write: if isAuthenticated() &&
+                            resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated() &&
+                       request.resource.data.userId == request.auth.uid &&
+                       request.resource.data.keys().hasAll(['messageId', 'content', 'question', 'creatorId', 'userId']) &&
+                       request.resource.data.messageId is string &&
+                       request.resource.data.content is string &&
+                       request.resource.data.question is string &&
+                       request.resource.data.creatorId is string &&
+                       request.resource.data.userId is string;
+    }
     
     // Availability - Creator availability schedules
     match /availability/{userId} {

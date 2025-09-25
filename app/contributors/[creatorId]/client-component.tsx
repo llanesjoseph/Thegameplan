@@ -87,30 +87,49 @@ const formatAIResponse = (content: string): string => {
     .replace(/italic text-slate-600/g, '')
     .replace(/ml-\d+ mb-\d+/g, '')
 
+    // Remove duplicate sections (like repeated "Safety Notes" or headers)
+    .replace(/(###?\s*Safety Notes.*?)###?\s*Safety Notes.*?(?=###|$)/gs, '$1')
+    .replace(/(###?\s*\w+.*?)###?\s*\1/gs, '$1')
+
+    // Clean up malformed bullet points
+    .replace(/^\s*[•\-\*]\s*([•\-\*]\s*)/gm, '• ')
+    .replace(/^\s*([•\-\*])\s*([•\-\*])\s*/gm, '• ')
+
+  // Handle headers with proper styling
+  formatted = formatted
+    .replace(/^###?\s*(.+)$/gm, '<h4 class="font-semibold text-gray-900 mb-3 mt-4">$1</h4>')
+
     // Convert **bold** to proper HTML
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-gray-900">$1</strong>')
 
     // Convert *italic* to proper HTML
-    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/\*(.*?)\*/g, '<em class="italic text-gray-700">$1</em>')
 
-    // Convert numbered lists
-    .replace(/^(\d+)\.\s+(.+)$/gm, '<div class="mb-2"><strong>$1.</strong> $2</div>')
+    // Handle special callouts like "Pro tip:"
+    .replace(/^(Pro tip|Tip|Note):\s*(.+)$/gm, '<div class="bg-blue-50 border-l-4 border-blue-400 p-3 my-3 rounded-r"><div class="flex"><strong class="text-blue-800 mr-2">$1:</strong><span class="text-blue-700">$2</span></div></div>')
 
-    // Handle bullet points and various formats
-    .replace(/^[•\-\*]\s+(.+)$/gm, '<div class="ml-4 mb-1">• $1</div>')
+    // Handle "Trust your preparation" type callouts
+    .replace(/^(Trust your preparation|Remember|Important)[\s\-:]*(.+)$/gm, '<div class="bg-green-50 border-l-4 border-green-400 p-3 my-3 rounded-r"><div class="flex"><strong class="text-green-800 mr-2">$1:</strong><span class="text-green-700">$2</span></div></div>')
 
-    // Convert line breaks to proper spacing
-    .replace(/\n\s*\n/g, '</p><p class="mb-3">')
-    .replace(/\n/g, '<br>')
+    // Convert numbered lists with better spacing
+    .replace(/^(\d+)\.\s+(.+)$/gm, '<div class="mb-2 pl-2"><span class="font-medium text-gray-800 mr-2">$1.</span><span>$2</span></div>')
 
-  // Split into paragraphs and wrap properly
-  const paragraphs = formatted.split('</p><p class="mb-3">').filter(p => p.trim())
+    // Handle bullet points with consistent formatting and proper indentation
+    .replace(/^[•\-\*]\s+(.+)$/gm, '<div class="mb-2 pl-4 flex items-start"><span class="text-gray-600 mr-2 mt-0.5">•</span><span class="leading-relaxed">$1</span></div>')
 
-  if (paragraphs.length > 1) {
-    return '<p class="mb-3">' + paragraphs.join('</p><p class="mb-3">') + '</p>'
-  } else {
-    return '<div class="space-y-2">' + formatted + '</div>'
-  }
+  // Split content by double line breaks to create sections
+  const sections = formatted.split(/\n\s*\n/).filter(section => section.trim())
+
+  const processedSections = sections.map(section => {
+    section = section.trim()
+    // If section doesn't have HTML tags and isn't empty, wrap it in a paragraph
+    if (section && !section.includes('<div') && !section.includes('<h4') && !section.includes('<strong')) {
+      return `<p class="mb-3 leading-relaxed text-gray-800">${section}</p>`
+    }
+    return section
+  }).filter(Boolean)
+
+  return '<div class="space-y-1">' + processedSections.join('\n') + '</div>'
 }
 
 interface CreatorPageClientProps {
