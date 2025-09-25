@@ -28,7 +28,6 @@ import { BasketballIcon } from '@/components/icons/BasketballIcon'
 import { FootballIcon } from '@/components/icons/FootballIcon'
 import { MMAGlovesIcon } from '@/components/icons/MMAGlovesIcon'
 import ImageUploader from '@/components/ImageUploader'
-import Link from 'next/link'
 
 // Mock coaches data (you can replace with real data later)
 const mockCoaches = [
