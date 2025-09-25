@@ -49,7 +49,7 @@ const getCreatorData = (creatorId: string): Creator | null => {
         'https://images.unsplash.com/photo-1579952363873-27d3bfad9c0d?w=800&h=600&fit=crop',
         'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800&h=600&fit=crop'
       ],
-      highlightVideo: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+      highlightVideo: 'https://www.youtube.com/embed/ZA0DyEOeG6I?start=58',
       socialLinks: {
         facebook: 'https://facebook.com/jasmineaikey',
         twitter: 'https://twitter.com/jasmineaikey',
