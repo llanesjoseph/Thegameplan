@@ -30,7 +30,6 @@ const navigationItems = {
     { title: 'Overview', icon: LayoutDashboard, href: '/dashboard/overview', color: 'text-blue-600' },
     { title: 'Progress', icon: TrendingUp, href: '/dashboard/progress', color: 'text-green-600' },
     { title: 'Request Coaching', icon: MessageCircle, href: '/dashboard/coaching', color: 'text-purple-600' },
-    { title: 'Schedule', icon: Calendar, href: '/dashboard/schedule', color: 'text-orange-600' },
     { title: 'Curated Gear', icon: ShoppingBag, href: '/gear', color: 'text-emerald-600' },
   ],
   creator: [
