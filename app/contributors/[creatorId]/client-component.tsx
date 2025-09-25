@@ -204,7 +204,30 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
             isFavorited: responses.some(saved => saved.messageId === msg.id)
           })))
         } catch (error) {
-          console.error('Failed to load saved responses from Firestore:', error)
+          console.warn('Failed to load saved responses from Firestore, trying localStorage:', error)
+
+          // Fallback to localStorage
+          try {
+            const saved = localStorage.getItem(`savedResponses_${user.uid}_${creatorId}`)
+            if (saved) {
+              const responses: SavedResponse[] = JSON.parse(saved).map((response: any) => ({
+                ...response,
+                timestamp: new Date(response.timestamp),
+                savedAt: new Date(response.savedAt)
+              }))
+              setSavedResponses(responses)
+
+              // Mark messages as favorited if they exist in saved responses
+              setMessages(prev => prev.map(msg => ({
+                ...msg,
+                isFavorited: responses.some(saved => saved.messageId === msg.id)
+              })))
+
+              console.log('Loaded saved responses from localStorage')
+            }
+          } catch (localError) {
+            console.error('Failed to load from localStorage as well:', localError)
+          }
         }
       }
     }
@@ -240,27 +263,51 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
         userId: user.uid
       }
 
-      // Save to Firestore
-      const savedResponsesRef = collection(db, 'savedResponses')
-      const docRef = await addDoc(savedResponsesRef, savedResponseData)
+      // Try to save to Firestore first
+      try {
+        const savedResponsesRef = collection(db, 'savedResponses')
+        const docRef = await addDoc(savedResponsesRef, savedResponseData)
 
-      const savedResponse: SavedResponse = {
-        id: docRef.id,
-        docId: docRef.id,
-        ...savedResponseData
+        const savedResponse: SavedResponse = {
+          id: docRef.id,
+          docId: docRef.id,
+          ...savedResponseData
+        }
+
+        const updatedSaved = [...savedResponses, savedResponse]
+        setSavedResponses(updatedSaved)
+
+        // Mark message as favorited
+        setMessages(prev => prev.map(msg =>
+          msg.id === message.id ? { ...msg, isFavorited: true } : msg
+        ))
+
+        console.log('Response saved successfully to Firestore')
+      } catch (firestoreError) {
+        console.warn('Failed to save to Firestore, falling back to localStorage:', firestoreError)
+
+        // Fallback to localStorage
+        const savedResponse: SavedResponse = {
+          id: Date.now().toString(),
+          docId: undefined,
+          ...savedResponseData
+        }
+
+        const updatedSaved = [...savedResponses, savedResponse]
+        setSavedResponses(updatedSaved)
+
+        // Save to localStorage as backup
+        localStorage.setItem(`savedResponses_${user.uid}_${creatorId}`, JSON.stringify(updatedSaved))
+
+        // Mark message as favorited
+        setMessages(prev => prev.map(msg =>
+          msg.id === message.id ? { ...msg, isFavorited: true } : msg
+        ))
+
+        console.log('Response saved successfully to localStorage')
       }
-
-      const updatedSaved = [...savedResponses, savedResponse]
-      setSavedResponses(updatedSaved)
-
-      // Mark message as favorited
-      setMessages(prev => prev.map(msg =>
-        msg.id === message.id ? { ...msg, isFavorited: true } : msg
-      ))
-
-      console.log('Response saved successfully to Firestore')
     } catch (error) {
-      console.error('Failed to save response to Firestore:', error)
+      console.error('Failed to save response:', error)
     }
   }
 
@@ -271,21 +318,30 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
       // Find the saved response to delete
       const savedResponse = savedResponses.find(saved => saved.messageId === messageId)
 
+      // Try to delete from Firestore first
       if (savedResponse && savedResponse.docId) {
-        // Delete from Firestore
-        await deleteDoc(doc(db, 'savedResponses', savedResponse.docId))
-        console.log('Response removed successfully from Firestore')
+        try {
+          await deleteDoc(doc(db, 'savedResponses', savedResponse.docId))
+          console.log('Response removed successfully from Firestore')
+        } catch (firestoreError) {
+          console.warn('Failed to remove from Firestore:', firestoreError)
+        }
       }
 
       const updatedSaved = savedResponses.filter(saved => saved.messageId !== messageId)
       setSavedResponses(updatedSaved)
 
+      // Update localStorage as well (fallback or backup)
+      localStorage.setItem(`savedResponses_${user.uid}_${creatorId}`, JSON.stringify(updatedSaved))
+
       // Mark message as not favorited
       setMessages(prev => prev.map(msg =>
         msg.id === messageId ? { ...msg, isFavorited: false } : msg
       ))
+
+      console.log('Response removed successfully')
     } catch (error) {
-      console.error('Failed to remove response from Firestore:', error)
+      console.error('Failed to remove response:', error)
     }
   }
 
@@ -594,17 +650,17 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
                   />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Ask {creator.firstName}</h3>
-                  <p className="text-sm text-gray-500">{creator.sport} Coach</p>
+                  <h3 className="font-semibold text-gray-900 text-lg">Ask {creator.firstName}</h3>
+                  <p className="text-sm text-gray-600 font-medium">{creator.sport} Coach</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setShowSavedResponses(!showSavedResponses)}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     showSavedResponses
-                      ? 'bg-red-100 text-red-700'
-                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                      ? 'bg-red-100 text-red-700 hover:bg-red-200'
+                      : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
                   }`}
                 >
                   <Heart className={`w-4 h-4 ${showSavedResponses ? 'fill-current' : ''}`} />
@@ -653,7 +709,7 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <div className="font-medium text-sm text-gray-900 mb-2">
+                            <div className="font-semibold text-sm text-gray-900 mb-2">
                               {message.sender === 'creator' ? creator.firstName : 'You'}
                             </div>
                             <div className="text-gray-800 text-sm leading-relaxed">
@@ -669,10 +725,10 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
                               <div className="flex items-center gap-2 mt-3 pt-2 border-t border-gray-100">
                                 <button
                                   onClick={() => message.isFavorited ? removeFavorite(message.id) : saveResponse(message)}
-                                  className={`flex items-center gap-1 px-2 py-1 rounded text-xs transition-colors ${
+                                  className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
                                     message.isFavorited
-                                      ? 'text-red-600 bg-red-50 hover:bg-red-100'
-                                      : 'text-gray-500 hover:text-red-600 hover:bg-red-50'
+                                      ? 'text-red-700 bg-red-50 hover:bg-red-100 border border-red-200'
+                                      : 'text-gray-600 hover:text-red-600 hover:bg-red-50 border border-gray-200 hover:border-red-200'
                                   }`}
                                 >
                                   <Heart className={`w-3 h-3 ${message.isFavorited ? 'fill-current' : ''}`} />
@@ -700,7 +756,7 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
                             />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <div className="font-medium text-sm text-gray-900 mb-2">
+                            <div className="font-semibold text-sm text-gray-900 mb-2">
                               {creator.firstName}
                             </div>
                             <div className="flex space-x-1">
@@ -726,8 +782,8 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
                   ) : (
                     <>
                       <div className="p-4 bg-gray-50 border-b">
-                        <h4 className="font-medium text-gray-900">Saved Responses ({savedResponses.length})</h4>
-                        <p className="text-sm text-gray-500">Your favorited responses from {creator.firstName}</p>
+                        <h4 className="font-semibold text-gray-900 text-base">Saved Responses ({savedResponses.length})</h4>
+                        <p className="text-sm text-gray-600 font-medium">Your favorited responses from {creator.firstName}</p>
                       </div>
                       {savedResponses.map((response) => (
                         <div key={response.id} className="w-full py-4 px-6 border-b border-gray-100 bg-white">
@@ -744,8 +800,8 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center justify-between mb-2">
-                                  <div className="font-medium text-sm text-gray-900">{creator.firstName}</div>
-                                  <div className="text-xs text-gray-500">
+                                  <div className="font-semibold text-sm text-gray-900">{creator.firstName}</div>
+                                  <div className="text-xs text-gray-500 font-medium">
                                     {new Date(response.savedAt).toLocaleDateString()}
                                   </div>
                                 </div>
@@ -757,7 +813,7 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
                                 <div className="flex items-center gap-2 mt-3 pt-2 border-t border-gray-100">
                                   <button
                                     onClick={() => removeFavorite(response.id)}
-                                    className="flex items-center gap-1 px-2 py-1 rounded text-xs text-red-600 bg-red-50 hover:bg-red-100 transition-colors"
+                                    className="flex items-center gap-1 px-3 py-1.5 rounded-md text-xs font-medium text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors"
                                   >
                                     <Heart className="w-3 h-3 fill-current" />
                                     Remove
@@ -783,13 +839,13 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
                   onChange={(e) => setCurrentMessage(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
                   placeholder={`Ask ${creator.firstName} anything about ${creator.sport.toLowerCase()}...`}
-                  className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="flex-1 border border-gray-300 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                   disabled={isLoading}
                 />
                 <button
                   onClick={handleSendMessage}
                   disabled={!currentMessage.trim() || isLoading}
-                  className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-blue-500 text-white px-4 py-3 rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
                 >
                   <Send className="w-4 h-4" />
                 </button>
