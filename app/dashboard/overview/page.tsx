@@ -21,7 +21,8 @@ import {
   X,
   Facebook,
   Instagram,
-  Twitter
+  Twitter,
+  Plus
 } from 'lucide-react'
 import { SoccerIcon } from '@/components/icons/SoccerIcon'
 import { BasketballIcon } from '@/components/icons/BasketballIcon'
@@ -369,6 +370,95 @@ export default function UnifiedDashboard() {
                 Browse Coaches
               </button>
             </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Your Schedule Section */}
+      <div className="py-12 px-6 bg-gray-50">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-2xl font-bold font-heading mb-8 text-center" style={{ color: '#000000' }}>
+            Your Schedule & Availability
+          </h2>
+
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Upcoming Sessions */}
+            <div className="bg-white rounded-lg p-6 shadow-sm">
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2" style={{ color: '#000000' }}>
+                <Calendar className="w-5 h-5" />
+                Upcoming Sessions
+              </h3>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
+                  <div>
+                    <h4 className="font-medium text-blue-900">Soccer Training with Jasmine Aikey</h4>
+                    <p className="text-sm text-blue-700">Today, 3:00 PM - 4:00 PM</p>
+                  </div>
+                  <div className="text-blue-600">
+                    <Play className="w-5 h-5" />
+                  </div>
+                </div>
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                  <div>
+                    <h4 className="font-medium text-gray-900">Available Slot</h4>
+                    <p className="text-sm text-gray-700">Tomorrow, 5:00 PM - 6:00 PM</p>
+                  </div>
+                  <button className="text-green-600 hover:text-green-700">
+                    <Plus className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Schedule */}
+            <div className="bg-white rounded-lg p-6 shadow-sm">
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2" style={{ color: '#000000' }}>
+                <Calendar className="w-5 h-5" />
+                Set Your Availability
+              </h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
+                    Preferred Days
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => (
+                      <button
+                        key={day}
+                        className="px-3 py-1 text-sm border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-300"
+                      >
+                        {day}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
+                      Start Time
+                    </label>
+                    <input
+                      type="time"
+                      defaultValue="17:00"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
+                      End Time
+                    </label>
+                    <input
+                      type="time"
+                      defaultValue="18:00"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+                <button className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+                  Save Availability
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
