@@ -7,7 +7,7 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { useAuth } from '@/hooks/use-auth'
 import { applyForCreatorRole } from '@/lib/role-management'
 
-type ApplicationStep = 'basic' | 'credentials' | 'content' | 'media' | 'review'
+type ApplicationStep = 'basic' | 'credentials' | 'content' | 'media' | 'schedule' | 'review'
 
 type ContributorApplication = {
   firstName: string
@@ -37,6 +37,20 @@ type ContributorApplication = {
   motivation: string
   availability: string
   references: string[]
+  // Schedule & Availability
+  weeklySchedule: {
+    [day: string]: {
+      available: boolean
+      timeSlots: Array<{
+        startTime: string
+        endTime: string
+        sessionTypes: string[]
+      }>
+    }
+  }
+  preferredSessionLength: string[]
+  maxStudentsPerGroup: number
+  sessionTypes: string[]
   status: 'pending' | 'approved' | 'rejected'
   submittedAt: any
   reviewedAt?: any
@@ -45,6 +59,16 @@ type ContributorApplication = {
 
 const SPORTS = ['soccer','basketball','football','baseball','tennis','volleyball','hockey','lacrosse','rugby','cricket','golf','swimming','track','cross-country','wrestling','boxing','mma','jujitsu','other']
 const EXPERIENCES = ['college','pro','olympic','coach','analyst','other']
+
+// Schedule & Availability Options
+const DAYS_OF_WEEK = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
+const SESSION_TYPES = ['1-on-1 Coaching', 'Small Group (2-4)', 'Team Sessions (5+)', 'Video Analysis', 'Q&A Sessions', 'Masterclasses']
+const SESSION_LENGTHS = ['15 minutes', '30 minutes', '45 minutes', '60 minutes', '90 minutes', '2 hours']
+const TIME_SLOTS = [
+  '06:00', '06:30', '07:00', '07:30', '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
+  '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30',
+  '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00', '21:30', '22:00'
+]
 
 // Sport-specific specialties
 const SPORT_SPECIALTIES = {
@@ -114,7 +138,21 @@ export default function ContributorApplicationPage() {
     achievements: [''], certifications: [''], education: '', currentRole: '',
     specialties: [], contentTypes: [], targetAudience: [], contentDescription: '',
     headshotUrl: '', actionImageUrl: '', portfolioUrl: '', socialMedia: {},
-    motivation: '', availability: '', references: [''], status: 'pending', submittedAt: null
+    motivation: '', availability: '', references: [''],
+    // Schedule & Availability defaults
+    weeklySchedule: {
+      monday: { available: false, timeSlots: [] },
+      tuesday: { available: false, timeSlots: [] },
+      wednesday: { available: false, timeSlots: [] },
+      thursday: { available: false, timeSlots: [] },
+      friday: { available: false, timeSlots: [] },
+      saturday: { available: false, timeSlots: [] },
+      sunday: { available: false, timeSlots: [] }
+    },
+    preferredSessionLength: [],
+    maxStudentsPerGroup: 4,
+    sessionTypes: [],
+    status: 'pending', submittedAt: null
   })
 
   const updateField = (k: keyof ContributorApplication, v: any) => setApplication(prev => ({ ...prev, [k]: v }))
@@ -147,12 +185,13 @@ export default function ContributorApplicationPage() {
       case 'credentials': return !!(application.primarySport && application.experience && application.experienceDetails && application.achievements[0])
       case 'content': return !!(application.specialties.length && application.contentTypes.length && application.contentDescription)
       case 'media': return true
+      case 'schedule': return !!(application.sessionTypes.length && application.preferredSessionLength.length && Object.values(application.weeklySchedule).some(day => day.available))
       default: return true
     }
   }
 
-  const nextStep = () => { if (validateStep(currentStep)) { const steps: ApplicationStep[] = ['basic','credentials','content','media','review']; const i = steps.indexOf(currentStep); if (i < steps.length - 1) setCurrentStep(steps[i+1]) } }
-  const prevStep = () => { const steps: ApplicationStep[] = ['basic','credentials','content','media','review']; const i = steps.indexOf(currentStep); if (i > 0) setCurrentStep(steps[i-1]) }
+  const nextStep = () => { if (validateStep(currentStep)) { const steps: ApplicationStep[] = ['basic','credentials','content','media','schedule','review']; const i = steps.indexOf(currentStep); if (i < steps.length - 1) setCurrentStep(steps[i+1]) } }
+  const prevStep = () => { const steps: ApplicationStep[] = ['basic','credentials','content','media','schedule','review']; const i = steps.indexOf(currentStep); if (i > 0) setCurrentStep(steps[i-1]) }
 
   const handleFileUpload = async (file: File, type: 'headshot' | 'action') => {
     if (!file) return
@@ -198,7 +237,7 @@ export default function ContributorApplicationPage() {
     }
   }
 
-  const stepPct = () => { const steps: ApplicationStep[] = ['basic','credentials','content','media','review']; const i = steps.indexOf(currentStep); return ((i+1)/steps.length)*100 }
+  const stepPct = () => { const steps: ApplicationStep[] = ['basic','credentials','content','media','schedule','review']; const i = steps.indexOf(currentStep); return ((i+1)/steps.length)*100 }
 
   return (
     <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -213,7 +252,7 @@ export default function ContributorApplicationPage() {
       </div>
 
       <div className="flex justify-center gap-2 mb-8">
-        {['basic','credentials','content','media','review'].map((s, i) => (
+        {['basic','credentials','content','media','schedule','review'].map((s, i) => (
           <button key={s} onClick={() => setCurrentStep(s as ApplicationStep)} className={`w-8 h-8 rounded-full text-sm ${currentStep===s?'bg-cardinal text-white':'bg-white text-gray-600 border border-gray-300'}`}>{i+1}</button>
         ))}
       </div>
@@ -405,6 +444,156 @@ export default function ContributorApplicationPage() {
           </div>
         )}
 
+        {currentStep === 'schedule' && (
+          <div className="space-y-6">
+            <div className="text-center mb-8">
+              <div className="w-16 h-16 bg-cardinal/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-cardinal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-dark mb-2">Schedule & Availability</h2>
+              <p className="text-gray-600">Let students know when you're available for coaching sessions</p>
+            </div>
+
+            {/* Session Types */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-3">Session Types You Offer *</label>
+              <div className="grid md:grid-cols-2 gap-3">
+                {SESSION_TYPES.map(type => (
+                  <label key={type} className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:border-cardinal/50 transition-colors cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={application.sessionTypes.includes(type)}
+                      onChange={(e) => {
+                        const newTypes = e.target.checked
+                          ? [...application.sessionTypes, type]
+                          : application.sessionTypes.filter(t => t !== type)
+                        updateField('sessionTypes', newTypes)
+                      }}
+                      className="text-cardinal focus:ring-cardinal rounded"
+                    />
+                    <span className="text-sm font-medium">{type}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Preferred Session Lengths */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-3">Preferred Session Lengths *</label>
+              <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
+                {SESSION_LENGTHS.map(length => (
+                  <label key={length} className="flex items-center gap-2 p-2 border border-gray-200 rounded-lg hover:border-cardinal/50 transition-colors cursor-pointer text-center">
+                    <input
+                      type="checkbox"
+                      checked={application.preferredSessionLength.includes(length)}
+                      onChange={(e) => {
+                        const newLengths = e.target.checked
+                          ? [...application.preferredSessionLength, length]
+                          : application.preferredSessionLength.filter(l => l !== length)
+                        updateField('preferredSessionLength', newLengths)
+                      }}
+                      className="text-cardinal focus:ring-cardinal rounded"
+                    />
+                    <span className="text-xs font-medium">{length}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Max Students for Group Sessions */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Maximum Students per Group Session</label>
+              <select
+                value={application.maxStudentsPerGroup}
+                onChange={(e) => updateField('maxStudentsPerGroup', parseInt(e.target.value))}
+                className="w-full max-w-xs bg-white p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cardinal"
+              >
+                {[2, 3, 4, 5, 6, 8, 10, 12, 15, 20].map(num => (
+                  <option key={num} value={num}>{num} students</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Weekly Schedule */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-4">Weekly Availability *</label>
+              <p className="text-sm text-gray-600 mb-4">Select the days and times when you're available for coaching sessions (in your timezone: {application.timezone || 'Not set'})</p>
+
+              <div className="space-y-4">
+                {DAYS_OF_WEEK.map(day => (
+                  <div key={day} className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center gap-3 mb-3">
+                      <input
+                        type="checkbox"
+                        checked={application.weeklySchedule[day]?.available || false}
+                        onChange={(e) => {
+                          const newSchedule = { ...application.weeklySchedule }
+                          newSchedule[day] = {
+                            available: e.target.checked,
+                            timeSlots: e.target.checked ? [] : []
+                          }
+                          updateField('weeklySchedule', newSchedule)
+                        }}
+                        className="text-cardinal focus:ring-cardinal rounded"
+                      />
+                      <h4 className="font-medium text-gray-800 capitalize">{day}</h4>
+                    </div>
+
+                    {application.weeklySchedule[day]?.available && (
+                      <div className="ml-6">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                          {TIME_SLOTS.map(time => {
+                            const daySchedule = application.weeklySchedule[day]
+                            const isSelected = daySchedule?.timeSlots?.some(slot => slot.startTime === time)
+
+                            return (
+                              <button
+                                key={time}
+                                type="button"
+                                onClick={() => {
+                                  const newSchedule = { ...application.weeklySchedule }
+                                  const daySlots = newSchedule[day].timeSlots || []
+
+                                  if (isSelected) {
+                                    // Remove time slot
+                                    newSchedule[day].timeSlots = daySlots.filter(slot => slot.startTime !== time)
+                                  } else {
+                                    // Add time slot with 60-minute duration by default
+                                    const endTime = TIME_SLOTS[TIME_SLOTS.indexOf(time) + 2] || '23:00' // 1 hour later
+                                    newSchedule[day].timeSlots = [...daySlots, {
+                                      startTime: time,
+                                      endTime: endTime,
+                                      sessionTypes: [...application.sessionTypes] // Copy selected session types
+                                    }]
+                                  }
+
+                                  updateField('weeklySchedule', newSchedule)
+                                }}
+                                className={`p-2 text-xs rounded-lg border transition-colors ${
+                                  isSelected
+                                    ? 'bg-cardinal text-white border-cardinal'
+                                    : 'bg-gray-50 border-gray-200 hover:border-cardinal/50'
+                                }`}
+                              >
+                                {time}
+                              </button>
+                            )
+                          })}
+                        </div>
+                        <p className="text-xs text-gray-500 mt-2">
+                          Selected times: {application.weeklySchedule[day]?.timeSlots?.length || 0} slots
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
         {currentStep === 'review' && (
           <div className="space-y-6 text-gray-600">
             <div className="grid sm:grid-cols-2 gap-4">
@@ -427,6 +616,16 @@ export default function ContributorApplicationPage() {
               <p>Specialties: {application.specialties.join(', ') || '—'}</p>
               <p>Content Types: {application.contentTypes.join(', ') || '—'}</p>
               <p>Audience: {application.targetAudience.join(', ') || '—'}</p>
+            </div>
+            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+              <h3 className="font-medium mb-2 text-gray-800">Schedule & Availability</h3>
+              <p>Session Types: {application.sessionTypes.join(', ') || '—'}</p>
+              <p>Preferred Lengths: {application.preferredSessionLength.join(', ') || '—'}</p>
+              <p>Max Group Size: {application.maxStudentsPerGroup} students</p>
+              <p>Available Days: {Object.entries(application.weeklySchedule)
+                .filter(([_, day]) => day.available)
+                .map(([dayName, day]) => `${dayName.charAt(0).toUpperCase() + dayName.slice(1)} (${day.timeSlots.length} slots)`)
+                .join(', ') || '—'}</p>
             </div>
             <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
               <h3 className="font-medium mb-2 text-gray-800">Additional</h3>

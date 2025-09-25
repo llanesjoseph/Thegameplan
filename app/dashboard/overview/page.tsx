@@ -18,13 +18,17 @@ import {
   User,
   Edit2,
   Save,
-  X
+  X,
+  Facebook,
+  Instagram,
+  Twitter
 } from 'lucide-react'
 import { SoccerIcon } from '@/components/icons/SoccerIcon'
 import { BasketballIcon } from '@/components/icons/BasketballIcon'
 import { FootballIcon } from '@/components/icons/FootballIcon'
 import { MMAGlovesIcon } from '@/components/icons/MMAGlovesIcon'
 import ImageUploader from '@/components/ImageUploader'
+import Link from 'next/link'
 
 // Mock coaches data (you can replace with real data later)
 const mockCoaches = [
@@ -176,6 +180,25 @@ export default function UnifiedDashboard() {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
+      {/* Header */}
+      <header className="bg-white px-4 py-4 shadow-sm">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <Link href="/" className="text-2xl font-bold tracking-wider">
+            PLAYBOOKD
+          </Link>
+          <div className="flex items-center gap-4">
+            <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
+            <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+            <Link href="/contributors" className="text-black hover:text-blue-600 font-medium">
+              Browse Coaches
+            </Link>
+            <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+              <User className="w-4 h-4" />
+            </div>
+          </div>
+        </div>
+      </header>
+
       {/* Header Section */}
       <div className="text-center py-12 px-6">
         <h1 className="text-4xl font-bold mb-4 font-heading" style={{ color: '#000000' }}>
@@ -189,207 +212,118 @@ export default function UnifiedDashboard() {
 
       {/* Your Athlete Profile Section */}
       <div className="py-12 px-6">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl font-bold font-heading" style={{ color: '#000000' }}>
-              Your Athlete Profile
-            </h2>
-            <button
-              onClick={() => setIsEditing(!isEditing)}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/80 hover:bg-white transition-colors"
-              style={{ color: '#000000' }}
-            >
-              {isEditing ? (
-                <>
-                  <X className="w-4 h-4" />
-                  Cancel
-                </>
-              ) : (
-                <>
-                  <Edit2 className="w-4 h-4" />
-                  Edit Profile
-                </>
-              )}
-            </button>
-          </div>
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-2xl font-bold font-heading mb-8" style={{ color: '#000000' }}>
+            Your Athlete Profile
+          </h2>
 
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid md:grid-cols-3 gap-8">
             {/* Left Side - Sports and Progress */}
-            <div className="space-y-6">
-              {/* Sports Selection */}
+            <div className="md:col-span-2 space-y-6">
+              {/* Sports of Interest */}
               <div>
-                <label className="block text-sm font-medium mb-3" style={{ color: '#000000' }}>
-                  Sports of Interest {!isEditing && `(${editForm.sports.length} selected)`}
-                </label>
-                {!isEditing && editForm.sports.length > 0 && (
-                  <div className="mb-3">
-                    <div className="flex flex-wrap gap-2">
-                      {editForm.sports.map((sport) => {
-                        const SportIcon = getSportIcon(sport)
-                        return (
-                          <div key={sport} className="flex items-center gap-2 px-3 py-1 bg-sky-blue/20 rounded-full">
-                            <SportIcon className="w-4 h-4" style={{ color: '#91A6EB' }} />
-                            <span className="text-xs font-medium" style={{ color: '#000000' }}>
-                              {sport === 'Brazilian Jiu-Jitsu (BJJ)' ? 'BJJ' :
-                               sport === 'Mixed Martial Arts (MMA)' ? 'MMA' :
-                               sport === 'Track & Field' ? 'Track' : sport}
-                            </span>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </div>
-                )}
-                {isEditing && (
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {[
-                    'Soccer',
-                    'Basketball',
-                    'Football',
-                    'Brazilian Jiu-Jitsu (BJJ)',
-                    'Mixed Martial Arts (MMA)',
-                    'Tennis',
-                    'Baseball',
-                    'Track & Field'
-                  ].map((sport) => {
+                <h3 className="text-lg font-semibold mb-4" style={{ color: '#000000' }}>
+                  Sports of Interest
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {editForm.sports.map((sport) => {
                     const SportIcon = getSportIcon(sport)
-                    const isSelected = editForm.sports.includes(sport)
-
                     return (
-                      <button
-                        key={sport}
-                        onClick={() => {
-                          if (!isEditing) return
-                          const newSports = isSelected
-                            ? editForm.sports.filter(s => s !== sport)
-                            : [...editForm.sports, sport]
-                          setEditForm({ ...editForm, sports: newSports })
-                        }}
-                        className={`flex flex-col items-center gap-2 p-3 rounded-xl transition-all ${
-                          isSelected
-                            ? 'bg-gradient-to-br from-sky-blue/20 to-black/10 border-2 border-sky-blue shadow-md'
-                            : 'bg-white/60 border-2 border-white/50 hover:bg-white/80'
-                        } ${isEditing ? 'cursor-pointer transform hover:scale-105' : 'cursor-default'}`}
-                        disabled={!isEditing}
-                      >
-                        <SportIcon className="w-6 h-6" style={{ color: isSelected ? '#91A6EB' : '#666' }} />
-                        <span className="text-xs font-medium text-center leading-tight" style={{ color: '#000000' }}>
-                          {sport === 'Brazilian Jiu-Jitsu (BJJ)' ? 'BJJ' :
-                           sport === 'Mixed Martial Arts (MMA)' ? 'MMA' :
-                           sport === 'Track & Field' ? 'Track' : sport}
+                      <div key={sport} className="flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-full">
+                        <SportIcon className="w-4 h-4" />
+                        <span className="text-sm font-medium">
+                          {sport}
                         </span>
-                      </button>
+                      </div>
                     )
                   })}
                 </div>
-                )}
               </div>
 
               {/* Progress Summary */}
-              <div className="bg-white/80 rounded-xl p-6">
-                <h3 className="font-bold mb-4" style={{ color: '#000000' }}>
+              <div>
+                <h3 className="text-lg font-semibold mb-4" style={{ color: '#000000' }}>
                   Your Progress Summary
                 </h3>
                 <ul className="space-y-2 text-sm" style={{ color: '#000000' }}>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-600" />
-                    You completed {progressData.completedSessions} training sessions. Let's go!
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Target className="w-4 h-4 text-blue-600" />
-                    You have {progressData.newRecommendations} new training recommendations from Jasmine Aikey.
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-orange-600" />
-                    You have {progressData.upcomingSessions} upcoming live session.
-                  </li>
+                  <li>• You completed {progressData.completedSessions} training sessions. Let's go!</li>
+                  <li>• You have {progressData.newRecommendations} new training recommendations from Jasmine Aikey.</li>
                 </ul>
               </div>
             </div>
 
             {/* Right Side - Profile Details */}
-            <div className="space-y-6">
-              {/* Profile Photo and Basic Info */}
-              <div className="bg-white/80 rounded-xl p-6 text-center">
-                <div className="relative inline-block">
-                  {editForm.profileImageUrl ? (
-                    <div className="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden">
-                      <img
-                        src={editForm.profileImageUrl}
-                        alt={editForm.displayName || 'Profile'}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  ) : (
-                    <div className="w-32 h-32 mx-auto mb-4 rounded-full bg-gradient-to-br from-sky-blue to-black flex items-center justify-center text-white text-2xl font-bold">
-                      {(editForm.displayName || firstName).charAt(0)}
-                    </div>
-                  )}
-                  {isEditing && (
-                    <div className="absolute -bottom-2 -right-2">
-                      <ImageUploader
-                        onUploadComplete={(url) => {
-                          setEditForm(prev => ({ ...prev, profileImageUrl: url }))
-                        }}
-                        onUploadError={(error) => {
-                          console.error('Profile image upload failed:', error)
-                        }}
-                        currentImageUrl={editForm.profileImageUrl}
-                        uploadPath={`users/${user?.uid}/profile/avatar_${Date.now()}`}
-                      />
-                    </div>
-                  )}
-                </div>
-
-                {isEditing ? (
-                  <div className="space-y-4">
-                    <input
-                      type="text"
-                      value={editForm.displayName}
-                      onChange={(e) => setEditForm({ ...editForm, displayName: e.target.value })}
-                      className="w-full text-center text-xl font-bold border border-gray-300 rounded-lg p-2"
-                      style={{ color: '#000000' }}
-                      placeholder="Your Name"
+            <div className="flex flex-col items-center">
+              <div className="relative">
+                {editForm.profileImageUrl ? (
+                  <div className="w-32 h-32 mb-4 rounded-full overflow-hidden">
+                    <img
+                      src={editForm.profileImageUrl}
+                      alt={editForm.displayName || 'Profile'}
+                      className="w-full h-full object-cover"
                     />
-                    <input
-                      type="text"
-                      value={editForm.location}
-                      onChange={(e) => setEditForm({ ...editForm, location: e.target.value })}
-                      className="w-full text-center border border-gray-300 rounded-lg p-2"
-                      style={{ color: '#666' }}
-                      placeholder="Location"
-                    />
-                    <textarea
-                      value={editForm.bio}
-                      onChange={(e) => setEditForm({ ...editForm, bio: e.target.value })}
-                      className="w-full border border-gray-300 rounded-lg p-2 h-24 resize-none"
-                      style={{ color: '#000000' }}
-                      placeholder="Tell us about yourself..."
-                    />
-                    <button
-                      onClick={handleSaveProfile}
-                      className="w-full bg-black text-white py-2 px-4 rounded-lg hover:bg-black/90 transition-colors flex items-center justify-center gap-2"
-                    >
-                      <Save className="w-4 h-4" />
-                      Save Profile
-                    </button>
                   </div>
                 ) : (
-                  <div>
-                    <h3 className="text-xl font-bold mb-2" style={{ color: '#000000' }}>
-                      {editForm.displayName || firstName}
-                    </h3>
-                    <p style={{ color: '#666' }}>
-                      {editForm.location}
-                    </p>
-                    {editForm.bio && (
-                      <p className="mt-4 text-sm" style={{ color: '#000000' }}>
-                        {editForm.bio}
-                      </p>
-                    )}
+                  <div className="w-32 h-32 mb-4 rounded-full bg-gray-300 flex items-center justify-center text-white text-2xl font-bold">
+                    {(editForm.displayName || firstName).charAt(0)}
                   </div>
                 )}
+                {isEditing && (
+                  <button
+                    onClick={() => setIsEditing(!isEditing)}
+                    className="absolute -top-2 -right-2 w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                  </button>
+                )}
               </div>
+
+              <h3 className="text-xl font-bold mb-2" style={{ color: '#000000' }}>
+                {editForm.displayName || firstName}
+              </h3>
+              <p className="text-gray-600 text-sm mb-4">
+                {editForm.location}
+              </p>
+
+              {isEditing && (
+                <div className="w-full space-y-4">
+                  <input
+                    type="text"
+                    value={editForm.displayName}
+                    onChange={(e) => setEditForm({ ...editForm, displayName: e.target.value })}
+                    className="w-full text-center border border-gray-300 rounded-lg p-2"
+                    placeholder="Your Name"
+                  />
+                  <input
+                    type="text"
+                    value={editForm.location}
+                    onChange={(e) => setEditForm({ ...editForm, location: e.target.value })}
+                    className="w-full text-center border border-gray-300 rounded-lg p-2"
+                    placeholder="Location"
+                  />
+                  <button
+                    onClick={handleSaveProfile}
+                    className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors"
+                  >
+                    Save Profile
+                  </button>
+                  <button
+                    onClick={() => setIsEditing(false)}
+                    className="w-full bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
+
+              {!isEditing && (
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="mt-4 px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors text-sm"
+                >
+                  Edit Profile
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -422,16 +356,135 @@ export default function UnifiedDashboard() {
             ))}
           </div>
 
-          <Link href="/dashboard/coaching">
-            <button
-              style={{ backgroundColor: '#20B2AA' }}
-              className="px-8 py-3 rounded-full text-white font-semibold hover:opacity-90 transition-opacity"
-            >
-              Request Coaching
+          <div className="flex gap-4 justify-center">
+            <Link href="/dashboard/coaching">
+              <button className="px-6 py-2 bg-blue-100 text-blue-800 rounded-lg font-medium hover:bg-blue-200 transition-colors">
+                Request Coaching Session
+              </button>
+            </Link>
+            <button className="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
+              Ask A Question
             </button>
-          </Link>
+            <Link href="/contributors">
+              <button className="px-6 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors">
+                Browse Coaches
+              </button>
+            </Link>
+          </div>
         </div>
       </div>
+
+      {/* Personal Training Recommendations Section */}
+      <div className="py-12 px-6">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-2xl font-bold font-heading mb-8 text-center" style={{ color: '#000000' }}>
+            Your Personal Training Recommendations
+          </h2>
+
+          <div className="space-y-6">
+            <div className="flex items-center gap-4 p-4 bg-white rounded-lg shadow-sm">
+              <div className="w-16 h-16 bg-red-100 rounded-lg flex items-center justify-center">
+                <Play className="w-8 h-8 text-red-600" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-lg" style={{ color: '#000000' }}>
+                  Footwork and Passing in Soccer
+                </h3>
+              </div>
+              <div className="px-3 py-1 bg-gray-100 text-gray-600 rounded text-sm font-medium">
+                Ended
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4 p-4 bg-white rounded-lg shadow-sm">
+              <div className="w-16 h-16 bg-red-100 rounded-lg flex items-center justify-center">
+                <Play className="w-8 h-8 text-red-600" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-lg" style={{ color: '#000000' }}>
+                  Soccer Drills for Beginners
+                </h3>
+              </div>
+              <div className="px-3 py-1 bg-gray-100 text-gray-600 rounded text-sm font-medium">
+                Ended
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center mt-8">
+            <button className="px-6 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors">
+              Browse Training
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Recommended Gear Section */}
+      <div className="py-12 px-6 bg-gray-50">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-2xl font-bold font-heading" style={{ color: '#000000' }}>
+              Your Recommended Gear
+            </h2>
+            <button className="text-blue-600 hover:text-blue-700 font-medium">
+              Shop All →
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-white rounded-lg p-4 text-center">
+              <div className="w-full h-32 bg-gray-200 rounded-lg mb-4 flex items-center justify-center">
+                <span className="text-gray-500">Product Image</span>
+              </div>
+              <p className="text-sm text-gray-600">I'm a product</p>
+            </div>
+
+            <div className="bg-white rounded-lg p-4 text-center">
+              <div className="w-full h-32 bg-gray-200 rounded-lg mb-4 flex items-center justify-center">
+                <span className="text-gray-500">Product Image</span>
+              </div>
+              <p className="text-sm text-gray-600">I'm a product</p>
+            </div>
+
+            <div className="bg-white rounded-lg p-4 text-center">
+              <div className="w-full h-32 bg-gray-200 rounded-lg mb-4 flex items-center justify-center">
+                <span className="text-gray-500">Product Image</span>
+              </div>
+              <p className="text-sm text-gray-600">I'm a product</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <footer className="bg-white py-8 border-t">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-6">
+              <Link href="/contributors" className="text-gray-600 hover:text-gray-900 font-medium">
+                Contributors
+              </Link>
+              <Link href="/lessons" className="text-gray-600 hover:text-gray-900 font-medium">
+                Lessons
+              </Link>
+              <Link href="/gear" className="text-gray-600 hover:text-gray-900 font-medium">
+                Gear
+              </Link>
+            </div>
+            <div className="flex items-center gap-4">
+              <a href="#" className="text-gray-600 hover:text-gray-900">
+                <Facebook className="w-5 h-5" />
+              </a>
+              <a href="#" className="text-gray-600 hover:text-gray-900">
+                <Instagram className="w-5 h-5" />
+              </a>
+              <a href="#" className="text-gray-600 hover:text-gray-900">
+                <Twitter className="w-5 h-5" />
+              </a>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }
