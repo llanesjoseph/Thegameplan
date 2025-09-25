@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Play, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react'
+import { Play, Facebook, Twitter, Instagram, Linkedin, MessageCircle, Send, X, User } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 
 interface Creator {
@@ -80,14 +80,85 @@ interface CreatorPageClientProps {
   creatorId: string
 }
 
+interface Message {
+  id: string
+  content: string
+  sender: 'user' | 'creator'
+  timestamp: Date
+}
+
 export default function CreatorPageClient({ creatorId }: CreatorPageClientProps) {
   const { user } = useAuth()
   const [creator, setCreator] = useState<Creator | null>(null)
+  const [showAIChat, setShowAIChat] = useState(false)
+  const [messages, setMessages] = useState<Message[]>([])
+  const [currentMessage, setCurrentMessage] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     const creatorData = getCreatorData(creatorId)
     setCreator(creatorData)
   }, [creatorId])
+
+  const handleSendMessage = async () => {
+    if (!currentMessage.trim() || !user || !creator) return
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      content: currentMessage,
+      sender: 'user',
+      timestamp: new Date()
+    }
+
+    setMessages(prev => [...prev, userMessage])
+    setCurrentMessage('')
+    setIsLoading(true)
+
+    try {
+      const response = await fetch('/api/ai-coaching', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          question: currentMessage,
+          creatorId: creator.id,
+          userId: user.uid,
+          userEmail: user.email
+        }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        const creatorMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          content: data.response,
+          sender: 'creator',
+          timestamp: new Date()
+        }
+        setMessages(prev => [...prev, creatorMessage])
+      } else {
+        const errorMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          content: 'Sorry, I encountered an error. Please try again.',
+          sender: 'creator',
+          timestamp: new Date()
+        }
+        setMessages(prev => [...prev, errorMessage])
+      }
+    } catch (error) {
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content: 'Sorry, I\'m having trouble connecting right now. Please try again.',
+        sender: 'creator',
+        timestamp: new Date()
+      }
+      setMessages(prev => [...prev, errorMessage])
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   if (!creator) {
     return (
@@ -229,8 +300,12 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
               <p className="text-lg text-gray-700 mb-8 leading-relaxed">
                 {creator.description}
               </p>
-              <button className="bg-blue-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-600 transition">
-                Get Started
+              <button
+                onClick={() => setShowAIChat(true)}
+                className="bg-blue-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-600 transition flex items-center gap-2"
+              >
+                <MessageCircle className="w-5 h-5" />
+                Ask {creator.firstName}
               </button>
             </div>
 
@@ -312,6 +387,125 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
           </div>
         </div>
       </footer>
+
+      {/* AI Chat Modal */}
+      {showAIChat && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[80vh] flex flex-col">
+            {/* Header */}
+            <div className="flex items-center justify-between p-6 border-b">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full overflow-hidden">
+                  <Image
+                    src={creator.headshotUrl}
+                    alt={creator.firstName}
+                    width={40}
+                    height={40}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">Ask {creator.firstName}</h3>
+                  <p className="text-sm text-gray-500">{creator.sport} Coach</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowAIChat(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-4">
+              {messages.length === 0 && (
+                <div className="text-center py-8">
+                  <MessageCircle className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-500 mb-2">Start a conversation with {creator.firstName}</p>
+                  <p className="text-sm text-gray-400">Ask about techniques, training, or anything soccer-related!</p>
+                </div>
+              )}
+
+              {messages.map((message) => (
+                <div key={message.id} className={`flex gap-3 ${message.sender === 'user' ? 'justify-end' : ''}`}>
+                  {message.sender === 'creator' && (
+                    <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+                      <Image
+                        src={creator.headshotUrl}
+                        alt={creator.firstName}
+                        width={32}
+                        height={32}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                  <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                    message.sender === 'user'
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-gray-100 text-gray-900'
+                  }`}>
+                    <p className="text-sm">{message.content}</p>
+                  </div>
+                  {message.sender === 'user' && (
+                    <div className="w-8 h-8 rounded-full bg-blue-500 flex-shrink-0 flex items-center justify-center">
+                      <User className="w-4 h-4 text-white" />
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              {isLoading && (
+                <div className="flex gap-3">
+                  <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+                    <Image
+                      src={creator.headshotUrl}
+                      alt={creator.firstName}
+                      width={32}
+                      height={32}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="bg-gray-100 px-4 py-2 rounded-lg">
+                    <div className="flex space-x-1">
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Input */}
+            <div className="border-t p-6">
+              <div className="flex gap-3">
+                <input
+                  type="text"
+                  value={currentMessage}
+                  onChange={(e) => setCurrentMessage(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                  placeholder={`Ask ${creator.firstName} anything about ${creator.sport.toLowerCase()}...`}
+                  className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  disabled={isLoading}
+                />
+                <button
+                  onClick={handleSendMessage}
+                  disabled={!currentMessage.trim() || isLoading}
+                  className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Send className="w-4 h-4" />
+                </button>
+              </div>
+              {!user && (
+                <p className="text-xs text-gray-500 mt-2 text-center">
+                  <Link href="/dashboard" className="text-blue-500 hover:underline">Sign in</Link> to start asking questions
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
