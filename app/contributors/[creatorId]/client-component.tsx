@@ -76,6 +76,41 @@ const getCreatorData = (creatorId: string): Creator | null => {
   return creators[creatorId] || creators['jasmine-aikey'] // Default to Jasmine if creator not found
 }
 
+const formatAIResponse = (content: string): string => {
+  // Clean and format AI response content for better readability
+  let formatted = content
+    // Remove any problematic class strings and HTML artifacts
+    .replace(/class="[^"]*"/g, '')
+    .replace(/font-semibold text-emerald-600/g, '')
+    .replace(/italic text-slate-600/g, '')
+    .replace(/ml-\d+ mb-\d+/g, '')
+
+    // Convert **bold** to proper HTML
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+
+    // Convert *italic* to proper HTML
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+
+    // Convert numbered lists
+    .replace(/^(\d+)\.\s+(.+)$/gm, '<div class="mb-2"><strong>$1.</strong> $2</div>')
+
+    // Handle bullet points and various formats
+    .replace(/^[•\-\*]\s+(.+)$/gm, '<div class="ml-4 mb-1">• $1</div>')
+
+    // Convert line breaks to proper spacing
+    .replace(/\n\s*\n/g, '</p><p class="mb-3">')
+    .replace(/\n/g, '<br>')
+
+  // Split into paragraphs and wrap properly
+  const paragraphs = formatted.split('</p><p class="mb-3">').filter(p => p.trim())
+
+  if (paragraphs.length > 1) {
+    return '<p class="mb-3">' + paragraphs.join('</p><p class="mb-3">') + '</p>'
+  } else {
+    return '<div class="space-y-2">' + formatted + '</div>'
+  }
+}
+
 interface CreatorPageClientProps {
   creatorId: string
 }
@@ -391,7 +426,7 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
       {/* AI Chat Modal */}
       {showAIChat && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[80vh] flex flex-col">
+          <div className="bg-white rounded-xl max-w-4xl w-full max-h-[85vh] flex flex-col">
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b">
               <div className="flex items-center gap-3">
@@ -418,9 +453,9 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-4">
+            <div className="flex-1 overflow-y-auto p-0">
               {messages.length === 0 && (
-                <div className="text-center py-8">
+                <div className="text-center py-12 px-6">
                   <MessageCircle className="w-12 h-12 text-gray-300 mx-auto mb-4" />
                   <p className="text-gray-500 mb-2">Start a conversation with {creator.firstName}</p>
                   <p className="text-sm text-gray-400">Ask about techniques, training, or anything soccer-related!</p>
@@ -428,49 +463,68 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
               )}
 
               {messages.map((message) => (
-                <div key={message.id} className={`flex gap-3 ${message.sender === 'user' ? 'justify-end' : ''}`}>
-                  {message.sender === 'creator' && (
-                    <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
-                      <Image
-                        src={creator.headshotUrl}
-                        alt={creator.firstName}
-                        width={32}
-                        height={32}
-                        className="w-full h-full object-cover"
-                      />
+                <div key={message.id} className={`w-full py-4 px-6 border-b border-gray-100 ${
+                  message.sender === 'user' ? 'bg-gray-50' : 'bg-white'
+                }`}>
+                  <div className="max-w-4xl mx-auto">
+                    <div className="flex gap-4">
+                      <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+                        {message.sender === 'creator' ? (
+                          <Image
+                            src={creator.headshotUrl}
+                            alt={creator.firstName}
+                            width={32}
+                            height={32}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center">
+                            <User className="w-4 h-4 text-white" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-sm text-gray-900 mb-2">
+                          {message.sender === 'creator' ? creator.firstName : 'You'}
+                        </div>
+                        <div className="text-gray-800 text-sm leading-relaxed">
+                          {message.sender === 'creator' ? (
+                            <div dangerouslySetInnerHTML={{
+                              __html: formatAIResponse(message.content)
+                            }} />
+                          ) : (
+                            <div>{message.content}</div>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                  )}
-                  <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                    message.sender === 'user'
-                      ? 'bg-blue-500 text-white'
-                      : 'bg-gray-100 text-gray-900'
-                  }`}>
-                    <p className="text-sm">{message.content}</p>
                   </div>
-                  {message.sender === 'user' && (
-                    <div className="w-8 h-8 rounded-full bg-blue-500 flex-shrink-0 flex items-center justify-center">
-                      <User className="w-4 h-4 text-white" />
-                    </div>
-                  )}
                 </div>
               ))}
 
               {isLoading && (
-                <div className="flex gap-3">
-                  <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
-                    <Image
-                      src={creator.headshotUrl}
-                      alt={creator.firstName}
-                      width={32}
-                      height={32}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div className="bg-gray-100 px-4 py-2 rounded-lg">
-                    <div className="flex space-x-1">
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                <div className="w-full py-4 px-6 border-b border-gray-100 bg-white">
+                  <div className="max-w-4xl mx-auto">
+                    <div className="flex gap-4">
+                      <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+                        <Image
+                          src={creator.headshotUrl}
+                          alt={creator.firstName}
+                          width={32}
+                          height={32}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-sm text-gray-900 mb-2">
+                          {creator.firstName}
+                        </div>
+                        <div className="flex space-x-1">
+                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
