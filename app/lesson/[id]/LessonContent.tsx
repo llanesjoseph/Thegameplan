@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation'
 import { doc, getDoc, updateDoc, increment } from 'firebase/firestore'
 import { db } from '@/lib/firebase.client'
 import Link from 'next/link'
-import { ArrowLeft, Play, Clock, Eye, User, Calendar, ExternalLink, Share2 } from 'lucide-react'
+import { ArrowLeft, Play, Clock, Eye, User, Calendar, ExternalLink } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 
 interface LessonData {
@@ -104,27 +104,6 @@ export default function LessonContent() {
     }
   }
 
-  const shareLesson = async () => {
-    if (navigator.share && lesson) {
-      try {
-        await navigator.share({
-          title: lesson.title,
-          text: lesson.description,
-          url: window.location.href
-        })
-      } catch (error) {
-        console.log('Error sharing:', error)
-      }
-    } else {
-      // Fallback: copy to clipboard
-      try {
-        await navigator.clipboard.writeText(window.location.href)
-        alert('Link copied to clipboard!')
-      } catch (error) {
-        console.log('Error copying to clipboard:', error)
-      }
-    }
-  }
 
   if (loading) {
     return (
@@ -215,15 +194,6 @@ export default function LessonContent() {
           
           <p className="text-gray-600 text-lg leading-relaxed mb-6">{lesson.description}</p>
           
-          <div className="flex items-center gap-4">
-            <button
-              onClick={shareLesson}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
-            >
-              <Share2 className="w-4 h-4" />
-              Share
-            </button>
-          </div>
         </div>
 
         {/* Lesson Content */}

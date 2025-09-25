@@ -33,6 +33,7 @@ import {
 import { DiscordIcon } from '@/components/icons/DiscordIcon'
 import { TikTokIcon } from '@/components/icons/TikTokIcon'
 import AssistantCoachManager from '@/components/AssistantCoachManager'
+import ImageUploader from '@/components/ImageUploader'
 
 // Comprehensive sports list from the app
 const SPORTS_OPTIONS = [
@@ -79,6 +80,7 @@ export default function ProfilePage() {
     bio: '',
     location: '',
     email: '',
+    profileImageUrl: '',
     specialties: [] as string[],
     experience: '',
     availability: '',
@@ -369,17 +371,30 @@ export default function ProfilePage() {
         <div className="bg-gradient-to-r from-white via-white to-sky-blue/5 rounded-3xl shadow-lg border border-white/50 p-8 mb-8 backdrop-blur-sm">
           <div className="flex items-start gap-8">
             <div className="relative">
-              <div className="w-32 h-32 bg-gradient-to-br from-black to-sky-blue rounded-2xl flex items-center justify-center text-white text-4xl font-bold shadow-lg">
-                {profileData.displayName?.charAt(0) || user?.displayName?.charAt(0) || 'U'}
-              </div>
+              {profileData.profileImageUrl ? (
+                <div className="w-32 h-32 rounded-2xl overflow-hidden shadow-lg">
+                  <img
+                    src={profileData.profileImageUrl}
+                    alt={profileData.displayName || 'Profile'}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="w-32 h-32 bg-gradient-to-br from-black to-sky-blue rounded-2xl flex items-center justify-center text-white text-4xl font-bold shadow-lg">
+                  {profileData.displayName?.charAt(0) || user?.displayName?.charAt(0) || 'U'}
+                </div>
+              )}
               {isEditing && (
-                <button
-                  type="button"
-                  onClick={() => alert('Avatar upload feature coming soon!')}
-                  className="absolute -bottom-2 -right-2 w-10 h-10 bg-gradient-to-r from-orange to-orange/90 rounded-xl flex items-center justify-center text-white hover:scale-105 transition-all shadow-lg"
-                >
-                  <Camera className="w-5 h-5" />
-                </button>
+                <ImageUploader
+                  onUploadComplete={(url) => {
+                    setProfileData(prev => ({ ...prev, profileImageUrl: url }))
+                  }}
+                  onUploadError={(error) => {
+                    console.error('Profile image upload failed:', error)
+                  }}
+                  currentImageUrl={profileData.profileImageUrl}
+                  uploadPath={`users/${user?.uid}/profile/avatar_${Date.now()}`}
+                />
               )}
             </div>
             
@@ -950,7 +965,8 @@ export default function ProfilePage() {
               </div>
             )}
 
-            {/* Social Links */}
+            {/* Social Links - Only for creators/coaches */}
+            {role === 'creator' && (
             <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-8 h-8 bg-gradient-to-r from-sky-blue to-black rounded-lg flex items-center justify-center">
@@ -1094,6 +1110,7 @@ export default function ProfilePage() {
                 </div>
               </div>
             </div>
+            )}
 
             {/* Coach-Specific Sections */}
             {role === 'creator' && (

@@ -24,6 +24,7 @@ import { SoccerIcon } from '@/components/icons/SoccerIcon'
 import { BasketballIcon } from '@/components/icons/BasketballIcon'
 import { FootballIcon } from '@/components/icons/FootballIcon'
 import { MMAGlovesIcon } from '@/components/icons/MMAGlovesIcon'
+import ImageUploader from '@/components/ImageUploader'
 
 // Mock coaches data (you can replace with real data later)
 const mockCoaches = [
@@ -67,11 +68,13 @@ export default function UnifiedDashboard() {
     location: string
     sports: string[]
     bio: string
+    profileImageUrl: string
   }>({
     displayName: '',
     location: '',
     sports: [],
-    bio: ''
+    bio: '',
+    profileImageUrl: ''
   })
 
   // Progress summary data
@@ -94,7 +97,8 @@ export default function UnifiedDashboard() {
             displayName: userData.displayName || user.displayName || '',
             location: userData.location || 'New York, NY',
             sports: userData.sports || ['Soccer', 'Basketball'],
-            bio: userData.bio || ''
+            bio: userData.bio || '',
+            profileImageUrl: userData.profileImageUrl || ''
           })
         } else {
           // Initialize with default data
@@ -102,7 +106,8 @@ export default function UnifiedDashboard() {
             displayName: user.displayName || '',
             location: 'New York, NY',
             sports: ['Soccer', 'Basketball'],
-            bio: ''
+            bio: '',
+            profileImageUrl: ''
           }
           setUserProfile(defaultProfile)
           setEditForm(defaultProfile)
@@ -306,8 +311,34 @@ export default function UnifiedDashboard() {
             <div className="space-y-6">
               {/* Profile Photo and Basic Info */}
               <div className="bg-white/80 rounded-xl p-6 text-center">
-                <div className="w-32 h-32 mx-auto mb-4 rounded-full bg-gradient-to-br from-sky-blue to-black flex items-center justify-center text-white text-2xl font-bold">
-                  {(editForm.displayName || firstName).charAt(0)}
+                <div className="relative inline-block">
+                  {editForm.profileImageUrl ? (
+                    <div className="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden">
+                      <img
+                        src={editForm.profileImageUrl}
+                        alt={editForm.displayName || 'Profile'}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-32 h-32 mx-auto mb-4 rounded-full bg-gradient-to-br from-sky-blue to-black flex items-center justify-center text-white text-2xl font-bold">
+                      {(editForm.displayName || firstName).charAt(0)}
+                    </div>
+                  )}
+                  {isEditing && (
+                    <div className="absolute -bottom-2 -right-2">
+                      <ImageUploader
+                        onUploadComplete={(url) => {
+                          setEditForm(prev => ({ ...prev, profileImageUrl: url }))
+                        }}
+                        onUploadError={(error) => {
+                          console.error('Profile image upload failed:', error)
+                        }}
+                        currentImageUrl={editForm.profileImageUrl}
+                        uploadPath={`users/${user?.uid}/profile/avatar_${Date.now()}`}
+                      />
+                    </div>
+                  )}
                 </div>
 
                 {isEditing ? (
