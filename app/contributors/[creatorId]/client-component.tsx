@@ -3,8 +3,10 @@
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Play, Facebook, Twitter, Instagram, Linkedin, MessageCircle, Send, X, User } from 'lucide-react'
+import { Play, Facebook, Twitter, Instagram, Linkedin, MessageCircle, Send, X, User, Heart, Star, Bookmark } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
+import { db } from '@/lib/firebase.client'
+import { collection, doc, addDoc, deleteDoc, getDocs, query, where, orderBy } from 'firebase/firestore'
 
 interface Creator {
   id: string
@@ -120,6 +122,21 @@ interface Message {
   content: string
   sender: 'user' | 'creator'
   timestamp: Date
+  isFavorited?: boolean
+}
+
+interface SavedResponse {
+  id: string
+  docId?: string // Firestore document ID
+  messageId: string
+  content: string
+  question: string
+  creatorId: string
+  creatorName: string
+  sport: string
+  timestamp: Date
+  savedAt: Date
+  userId: string
 }
 
 export default function CreatorPageClient({ creatorId }: CreatorPageClientProps) {
@@ -129,11 +146,129 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
   const [messages, setMessages] = useState<Message[]>([])
   const [currentMessage, setCurrentMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [savedResponses, setSavedResponses] = useState<SavedResponse[]>([])
+  const [showSavedResponses, setShowSavedResponses] = useState(false)
 
   useEffect(() => {
     const creatorData = getCreatorData(creatorId)
     setCreator(creatorData)
-  }, [creatorId])
+
+    // Load saved responses from Firestore
+    const loadSavedResponses = async () => {
+      if (user) {
+        try {
+          const savedResponsesRef = collection(db, 'savedResponses')
+          const q = query(
+            savedResponsesRef,
+            where('userId', '==', user.uid),
+            where('creatorId', '==', creatorId),
+            orderBy('savedAt', 'desc')
+          )
+          const querySnapshot = await getDocs(q)
+
+          const responses: SavedResponse[] = []
+          querySnapshot.forEach((doc) => {
+            const data = doc.data()
+            responses.push({
+              ...data,
+              docId: doc.id,
+              timestamp: data.timestamp?.toDate() || new Date(),
+              savedAt: data.savedAt?.toDate() || new Date()
+            } as SavedResponse)
+          })
+
+          setSavedResponses(responses)
+
+          // Mark messages as favorited if they exist in saved responses
+          setMessages(prev => prev.map(msg => ({
+            ...msg,
+            isFavorited: responses.some(saved => saved.messageId === msg.id)
+          })))
+        } catch (error) {
+          console.error('Failed to load saved responses from Firestore:', error)
+        }
+      }
+    }
+
+    loadSavedResponses()
+  }, [creatorId, user])
+
+  const saveResponse = async (message: Message) => {
+    if (!user || !creator || message.sender !== 'creator') return
+
+    try {
+      // Find the user's question that preceded this response
+      const messageIndex = messages.findIndex(msg => msg.id === message.id)
+      let questionContent = "Question not found"
+
+      // Look backwards to find the previous user message
+      for (let i = messageIndex - 1; i >= 0; i--) {
+        if (messages[i].sender === 'user') {
+          questionContent = messages[i].content
+          break
+        }
+      }
+
+      const savedResponseData = {
+        messageId: message.id,
+        content: message.content,
+        question: questionContent,
+        creatorId: creator.id,
+        creatorName: creator.firstName,
+        sport: creator.sport,
+        timestamp: new Date(),
+        savedAt: new Date(),
+        userId: user.uid
+      }
+
+      // Save to Firestore
+      const savedResponsesRef = collection(db, 'savedResponses')
+      const docRef = await addDoc(savedResponsesRef, savedResponseData)
+
+      const savedResponse: SavedResponse = {
+        id: docRef.id,
+        docId: docRef.id,
+        ...savedResponseData
+      }
+
+      const updatedSaved = [...savedResponses, savedResponse]
+      setSavedResponses(updatedSaved)
+
+      // Mark message as favorited
+      setMessages(prev => prev.map(msg =>
+        msg.id === message.id ? { ...msg, isFavorited: true } : msg
+      ))
+
+      console.log('Response saved successfully to Firestore')
+    } catch (error) {
+      console.error('Failed to save response to Firestore:', error)
+    }
+  }
+
+  const removeFavorite = async (messageId: string) => {
+    if (!user) return
+
+    try {
+      // Find the saved response to delete
+      const savedResponse = savedResponses.find(saved => saved.messageId === messageId)
+
+      if (savedResponse && savedResponse.docId) {
+        // Delete from Firestore
+        await deleteDoc(doc(db, 'savedResponses', savedResponse.docId))
+        console.log('Response removed successfully from Firestore')
+      }
+
+      const updatedSaved = savedResponses.filter(saved => saved.messageId !== messageId)
+      setSavedResponses(updatedSaved)
+
+      // Mark message as not favorited
+      setMessages(prev => prev.map(msg =>
+        msg.id === messageId ? { ...msg, isFavorited: false } : msg
+      ))
+    } catch (error) {
+      console.error('Failed to remove response from Firestore:', error)
+    }
+  }
 
   const handleSendMessage = async () => {
     if (!currentMessage.trim() || !user || !creator) return
@@ -444,90 +579,179 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
                   <p className="text-sm text-gray-500">{creator.sport} Coach</p>
                 </div>
               </div>
-              <button
-                onClick={() => setShowAIChat(false)}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <X className="w-6 h-6" />
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setShowSavedResponses(!showSavedResponses)}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${
+                    showSavedResponses
+                      ? 'bg-red-100 text-red-700'
+                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  <Heart className={`w-4 h-4 ${showSavedResponses ? 'fill-current' : ''}`} />
+                  Saved ({savedResponses.length})
+                </button>
+                <button
+                  onClick={() => setShowAIChat(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
             </div>
 
-            {/* Messages */}
+            {/* Messages/Saved Responses */}
             <div className="flex-1 overflow-y-auto p-0">
-              {messages.length === 0 && (
-                <div className="text-center py-12 px-6">
-                  <MessageCircle className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-500 mb-2">Start a conversation with {creator.firstName}</p>
-                  <p className="text-sm text-gray-400">Ask about techniques, training, or anything soccer-related!</p>
-                </div>
-              )}
+              {!showSavedResponses ? (
+                <>
+                  {messages.length === 0 && (
+                    <div className="text-center py-12 px-6">
+                      <MessageCircle className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                      <p className="text-gray-500 mb-2">Start a conversation with {creator.firstName}</p>
+                      <p className="text-sm text-gray-400">Ask about techniques, training, or anything soccer-related!</p>
+                    </div>
+                  )}
 
-              {messages.map((message) => (
-                <div key={message.id} className={`w-full py-4 px-6 border-b border-gray-100 ${
-                  message.sender === 'user' ? 'bg-gray-50' : 'bg-white'
-                }`}>
-                  <div className="max-w-4xl mx-auto">
-                    <div className="flex gap-4">
-                      <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
-                        {message.sender === 'creator' ? (
-                          <Image
-                            src={creator.headshotUrl}
-                            alt={creator.firstName}
-                            width={32}
-                            height={32}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center">
-                            <User className="w-4 h-4 text-white" />
+                  {messages.map((message) => (
+                    <div key={message.id} className={`w-full py-4 px-6 border-b border-gray-100 ${
+                      message.sender === 'user' ? 'bg-gray-50' : 'bg-white'
+                    }`}>
+                      <div className="max-w-4xl mx-auto">
+                        <div className="flex gap-4">
+                          <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+                            {message.sender === 'creator' ? (
+                              <Image
+                                src={creator.headshotUrl}
+                                alt={creator.firstName}
+                                width={32}
+                                height={32}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center">
+                                <User className="w-4 h-4 text-white" />
+                              </div>
+                            )}
                           </div>
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="font-medium text-sm text-gray-900 mb-2">
-                          {message.sender === 'creator' ? creator.firstName : 'You'}
-                        </div>
-                        <div className="text-gray-800 text-sm leading-relaxed">
-                          {message.sender === 'creator' ? (
-                            <div dangerouslySetInnerHTML={{
-                              __html: formatAIResponse(message.content)
-                            }} />
-                          ) : (
-                            <div>{message.content}</div>
-                          )}
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-sm text-gray-900 mb-2">
+                              {message.sender === 'creator' ? creator.firstName : 'You'}
+                            </div>
+                            <div className="text-gray-800 text-sm leading-relaxed">
+                              {message.sender === 'creator' ? (
+                                <div dangerouslySetInnerHTML={{
+                                  __html: formatAIResponse(message.content)
+                                }} />
+                              ) : (
+                                <div>{message.content}</div>
+                              )}
+                            </div>
+                            {message.sender === 'creator' && (
+                              <div className="flex items-center gap-2 mt-3 pt-2 border-t border-gray-100">
+                                <button
+                                  onClick={() => message.isFavorited ? removeFavorite(message.id) : saveResponse(message)}
+                                  className={`flex items-center gap-1 px-2 py-1 rounded text-xs transition-colors ${
+                                    message.isFavorited
+                                      ? 'text-red-600 bg-red-50 hover:bg-red-100'
+                                      : 'text-gray-500 hover:text-red-600 hover:bg-red-50'
+                                  }`}
+                                >
+                                  <Heart className={`w-3 h-3 ${message.isFavorited ? 'fill-current' : ''}`} />
+                                  {message.isFavorited ? 'Saved' : 'Save'}
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              ))}
+                  ))}
 
-              {isLoading && (
-                <div className="w-full py-4 px-6 border-b border-gray-100 bg-white">
-                  <div className="max-w-4xl mx-auto">
-                    <div className="flex gap-4">
-                      <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
-                        <Image
-                          src={creator.headshotUrl}
-                          alt={creator.firstName}
-                          width={32}
-                          height={32}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="font-medium text-sm text-gray-900 mb-2">
-                          {creator.firstName}
-                        </div>
-                        <div className="flex space-x-1">
-                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                  {isLoading && (
+                    <div className="w-full py-4 px-6 border-b border-gray-100 bg-white">
+                      <div className="max-w-4xl mx-auto">
+                        <div className="flex gap-4">
+                          <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+                            <Image
+                              src={creator.headshotUrl}
+                              alt={creator.firstName}
+                              width={32}
+                              height={32}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-sm text-gray-900 mb-2">
+                              {creator.firstName}
+                            </div>
+                            <div className="flex space-x-1">
+                              <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                              <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                              <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </div>
+                  )}
+                </>
+              ) : (
+                <>
+                  {/* Saved Responses View */}
+                  {savedResponses.length === 0 ? (
+                    <div className="text-center py-12 px-6">
+                      <Heart className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                      <p className="text-gray-500 mb-2">No saved responses yet</p>
+                      <p className="text-sm text-gray-400">Save responses from your conversations to access them later!</p>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="p-4 bg-gray-50 border-b">
+                        <h4 className="font-medium text-gray-900">Saved Responses ({savedResponses.length})</h4>
+                        <p className="text-sm text-gray-500">Your favorited responses from {creator.firstName}</p>
+                      </div>
+                      {savedResponses.map((response) => (
+                        <div key={response.id} className="w-full py-4 px-6 border-b border-gray-100 bg-white">
+                          <div className="max-w-4xl mx-auto">
+                            <div className="flex gap-4">
+                              <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+                                <Image
+                                  src={creator.headshotUrl}
+                                  alt={creator.firstName}
+                                  width={32}
+                                  height={32}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between mb-2">
+                                  <div className="font-medium text-sm text-gray-900">{creator.firstName}</div>
+                                  <div className="text-xs text-gray-500">
+                                    {new Date(response.savedAt).toLocaleDateString()}
+                                  </div>
+                                </div>
+                                <div className="text-gray-800 text-sm leading-relaxed">
+                                  <div dangerouslySetInnerHTML={{
+                                    __html: formatAIResponse(response.content)
+                                  }} />
+                                </div>
+                                <div className="flex items-center gap-2 mt-3 pt-2 border-t border-gray-100">
+                                  <button
+                                    onClick={() => removeFavorite(response.id)}
+                                    className="flex items-center gap-1 px-2 py-1 rounded text-xs text-red-600 bg-red-50 hover:bg-red-100 transition-colors"
+                                  >
+                                    <Heart className="w-3 h-3 fill-current" />
+                                    Remove
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </>
+                  )}
+                </>
               )}
             </div>
 
