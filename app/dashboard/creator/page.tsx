@@ -1372,7 +1372,7 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
 
  return (
   <CreatorAccessGate>
-   <main className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
+   <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
     <AppHeader />
     <div className="max-w-6xl mx-auto px-4 py-6">
     {/* Header */}
@@ -2564,7 +2564,7 @@ This can reduce file size by 50-80% without significant quality loss.`)
 
     {/* Debug compression helper state - moved to useEffect */}
     </div>
-   </main>
+   </div>
   </CreatorAccessGate>
  )
 }
