@@ -4,6 +4,8 @@ import { generateWithRedundancy } from '@/lib/llm-service'
 import { analyzeMedicalSafety, getSafeTrainingResponse } from '@/lib/medical-safety'
 import { createAISession, logAIInteraction, CURRENT_TERMS_VERSION } from '@/lib/ai-logging'
 import { PersonalizedCoachingEngine, SafetyCoachingSystem } from '@/lib/personalized-coaching'
+import { requireAuth } from '@/lib/auth-utils'
+import { auditExternalAPI } from '@/lib/audit-logger'
 
 // Rate limiting (simple in-memory store - use Redis in production)
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>()
@@ -33,6 +35,15 @@ function checkRateLimit(identifier: string): { allowed: boolean; remaining: numb
 
 export async function POST(request: NextRequest) {
   try {
+    // Enhanced authentication
+    const authResult = await requireAuth(request, ['user', 'creator', 'coach', 'assistant', 'admin', 'superadmin'])
+
+    if (!authResult.success) {
+      return NextResponse.json({ error: authResult.error }, { status: authResult.status })
+    }
+
+    const authenticatedUserId = authResult.user.uid
+
     // Parse request body with better error handling
     let body
     try {
@@ -44,8 +55,16 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
-    
+
     const { question, userId, userEmail, sessionId, sport, creatorId, creatorName } = body
+
+    // Validate that user can only make requests for themselves (unless admin)
+    if (userId && userId !== authenticatedUserId && !['admin', 'superadmin'].includes(authResult.user.role || '')) {
+      return NextResponse.json({ error: 'Cannot make requests for other users' }, { status: 403 })
+    }
+
+    // Use authenticated user ID if not provided
+    const requestUserId = userId || authenticatedUserId
 
     if (!question || typeof question !== 'string') {
       return NextResponse.json(
@@ -164,15 +183,46 @@ export async function POST(request: NextRequest) {
       latencyMs = 0
     } else {
       console.log('🤖 Generating with redundancy...')
+      const apiCallStart = Date.now()
+
       try {
+        // Audit external API call start
+        await auditExternalAPI(
+          'ai_coaching',
+          'generateWithRedundancy',
+          'POST',
+          requestUserId
+        )
+
         const result = await generateWithRedundancy(question, context)
         responseText = result.text
         provider = result.provider
         modelUsed = result.model
         latencyMs = result.latencyMs
         cache.set(cacheKey, { expires: nowTs + ttlMs, value: responseText })
+
+        // Audit successful API call
+        await auditExternalAPI(
+          'ai_coaching',
+          `${provider}_success`,
+          'POST',
+          requestUserId,
+          200
+        )
+
       } catch (e) {
         console.warn('Both primary and fallback providers failed. Using intelligent fallback.', e)
+
+        // Audit API failure
+        await auditExternalAPI(
+          'ai_coaching',
+          'generateWithRedundancy_failure',
+          'POST',
+          requestUserId,
+          500,
+          (e as Error).message
+        )
+
         // Import the fallback function
         const { getIntelligentFallbackResponse } = await import('@/lib/ai-service')
         responseText = getIntelligentFallbackResponse(question, context)

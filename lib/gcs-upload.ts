@@ -1,7 +1,10 @@
 /**
  * Google Cloud Storage Upload Service
- * Enterprise-grade video upload with resumable uploads, progress tracking, and error recovery
+ * Enterprise-grade video upload with resumable uploads, progress tracking, error recovery, and enhanced security
  */
+
+import { secureStorage } from '@/lib/secure-storage'
+import { auditLog } from '@/lib/audit-logger'
 
 export interface GcsUploadOptions {
   file: File
@@ -38,7 +41,7 @@ export interface GcsUploadState {
 class GcsUploadService {
   private uploads: Map<string, GcsUploadState> = new Map()
   private readonly CHUNK_SIZE = 10 * 1024 * 1024 // 10MB chunks
-  private readonly PERSISTENCE_KEY = 'gcs_uploads'
+  private readonly PERSISTENCE_KEY = 'gcs_uploads_v2' // Versioned for security migration
   private readonly API_BASE = '/api/video'
 
   constructor() {
@@ -322,9 +325,9 @@ class GcsUploadService {
   }
 
   /**
-   * Persist uploads to localStorage
+   * Persist uploads to secure storage with encryption
    */
-  private persistUploads(): void {
+  private async persistUploads(): Promise<void> {
     try {
       if (typeof window !== 'undefined') {
         const serializable = Array.from(this.uploads.entries()).map(([id, state]) => [
@@ -336,31 +339,91 @@ class GcsUploadService {
               size: state.file.size,
               type: state.file.type,
               lastModified: state.file.lastModified
-            }
+            },
+            // Remove sensitive URLs from persistence
+            uploadUrl: undefined,
+            resumeUrl: undefined
           }
         ])
-        localStorage.setItem(this.PERSISTENCE_KEY, JSON.stringify(serializable))
+
+        // Use secure storage with TTL
+        await secureStorage.setItem(this.PERSISTENCE_KEY, serializable, {
+          ttl: 7 * 24 * 60 * 60 * 1000, // 7 days
+          audit: false // Don't audit routine persistence
+        })
+
+        // Audit upload state changes for security
+        await auditLog('gcs_upload_state_persisted', {
+          uploadCount: this.uploads.size,
+          timestamp: new Date().toISOString()
+        }, { severity: 'low', source: 'gcs_upload' })
       }
     } catch (error) {
-      console.warn('Failed to persist uploads:', error)
+      console.warn('Failed to persist uploads securely:', error)
+      await auditLog('gcs_upload_persist_failed', {
+        error: (error as Error).message,
+        uploadCount: this.uploads.size,
+        timestamp: new Date().toISOString()
+      }, { severity: 'medium' })
     }
   }
 
   /**
-   * Load persisted uploads from localStorage
+   * Load persisted uploads from secure storage
    */
-  private loadPersistedUploads(): void {
+  private async loadPersistedUploads(): Promise<void> {
     try {
       if (typeof window !== 'undefined') {
-        const stored = localStorage.getItem(this.PERSISTENCE_KEY)
-        if (stored) {
-          const parsed = JSON.parse(stored)
-          // Note: File objects cannot be fully restored, would need re-selection
-          console.log('📂 Found persisted uploads:', parsed.length)
+        // Try to load from secure storage first
+        const stored = await secureStorage.getItem(this.PERSISTENCE_KEY, { audit: false })
+
+        if (stored && Array.isArray(stored)) {
+          console.log('📂 Found persisted uploads in secure storage:', stored.length)
+
+          // Restore upload states (excluding File objects and sensitive URLs)
+          for (const [id, state] of stored) {
+            if (state && typeof state === 'object') {
+              this.uploads.set(id, {
+                ...state,
+                // File objects need to be re-selected by user
+                file: null as any,
+                // Sensitive URLs are not persisted
+                uploadUrl: undefined,
+                resumeUrl: undefined
+              })
+            }
+          }
+
+          await auditLog('gcs_upload_state_restored', {
+            uploadCount: stored.length,
+            timestamp: new Date().toISOString()
+          }, { severity: 'low', source: 'gcs_upload' })
+        } else {
+          // Fallback: check for legacy localStorage data and migrate
+          const legacyStored = localStorage.getItem('gcs_uploads')
+          if (legacyStored) {
+            console.log('🔄 Migrating legacy upload data to secure storage')
+            const parsed = JSON.parse(legacyStored)
+
+            // Migrate to secure storage
+            await this.persistUploads()
+
+            // Clear legacy data
+            localStorage.removeItem('gcs_uploads')
+
+            await auditLog('gcs_upload_legacy_migration', {
+              migratedCount: parsed.length,
+              timestamp: new Date().toISOString()
+            }, { severity: 'low', source: 'gcs_upload' })
+          }
         }
       }
     } catch (error) {
       console.warn('Failed to load persisted uploads:', error)
+      await auditLog('gcs_upload_load_failed', {
+        error: (error as Error).message,
+        timestamp: new Date().toISOString()
+      }, { severity: 'medium' })
     }
   }
 

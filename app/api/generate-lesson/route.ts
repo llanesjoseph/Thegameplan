@@ -1,8 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { GeminiLessonService } from '@/lib/gemini-lesson-service'
+import { requireAuth } from '@/lib/auth-utils'
+import { auditExternalAPI } from '@/lib/audit-logger'
 
 export async function POST(request: NextRequest) {
   try {
+    // Enhanced authentication - require creator level or higher
+    const authResult = await requireAuth(request, ['creator', 'coach', 'assistant', 'admin', 'superadmin'])
+
+    if (!authResult.success) {
+      return NextResponse.json({ error: authResult.error }, { status: authResult.status })
+    }
+
+    const requestUserId = authResult.user.uid
+
     // Parse request body
     let body
     try {
@@ -90,10 +101,42 @@ export async function POST(request: NextRequest) {
         default:
           // Fallback to original method for backward compatibility
           console.log('🔄 Using standard lesson generation method')
-          lessonPlan = await GeminiLessonService.generateLessonPlan(
-            topic, sport, level as any, duration, detailedInstructions
+
+          // Audit external API call start
+          await auditExternalAPI(
+            'gemini_lesson_generation',
+            'generateLessonPlan',
+            'POST',
+            requestUserId
           )
-          console.log('✅ Successfully generated standard lesson plan with Gemini API')
+
+          try {
+            lessonPlan = await GeminiLessonService.generateLessonPlan(
+              topic, sport, level as any, duration, detailedInstructions
+            )
+            console.log('✅ Successfully generated standard lesson plan with Gemini API')
+
+            // Audit successful API call
+            await auditExternalAPI(
+              'gemini_lesson_generation',
+              'generateLessonPlan_success',
+              'POST',
+              requestUserId,
+              200
+            )
+
+          } catch (geminiError) {
+            // Audit API failure
+            await auditExternalAPI(
+              'gemini_lesson_generation',
+              'generateLessonPlan_failure',
+              'POST',
+              requestUserId,
+              500,
+              (geminiError as Error).message
+            )
+            throw geminiError
+          }
       }
     } catch (error) {
       console.error('❌ Enhanced AI generation failed - comprehensive error analysis:', {
