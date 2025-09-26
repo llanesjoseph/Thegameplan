@@ -30,35 +30,35 @@ import { FootballIcon } from '@/components/icons/FootballIcon'
 import { MMAGlovesIcon } from '@/components/icons/MMAGlovesIcon'
 import ImageUploader from '@/components/ImageUploader'
 
-// Mock coaches data (you can replace with real data later)
-const mockCoaches = [
+// Mock athletes data (you can replace with real data later)
+const mockAthletes = [
   {
     id: 1,
-    name: 'Olivia Walker',
-    specialty: 'Professional Basketball Player',
+    name: 'Sarah Johnson',
+    specialty: 'Soccer - Intermediate',
     image: 'https://images.unsplash.com/photo-1494790108755-2616b332c1b3?w=150&h=150&fit=crop&crop=face',
-    rating: 4.9
+    progress: 'Improving'
   },
   {
     id: 2,
-    name: 'Dan Mitchell',
-    specialty: 'College Soccer Champion',
+    name: 'Mike Chen',
+    specialty: 'Basketball - Beginner',
     image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-    rating: 4.8
+    progress: 'Excellent'
   },
   {
     id: 3,
-    name: 'Noah Patterson',
-    specialty: 'College Basketball Champion',
+    name: 'Emma Davis',
+    specialty: 'Soccer - Advanced',
     image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
-    rating: 4.9
+    progress: 'Steady'
   },
   {
     id: 4,
-    name: 'Tess Anderson',
-    specialty: 'Professional Soccer Player',
+    name: 'Alex Rivera',
+    specialty: 'Basketball - Intermediate',
     image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
-    rating: 5.0
+    progress: 'Great'
   }
 ]
 
@@ -192,8 +192,8 @@ export default function UnifiedDashboard() {
             <Link href="/contributors" className="text-black hover:text-blue-600 font-medium">
               Browse Coaches
             </Link>
-            <div className="px-4 py-2 bg-red-500 text-white rounded-lg font-medium">
-              Athlete
+            <div className="px-4 py-2 bg-purple-600 text-white rounded-lg font-medium">
+              Coach
             </div>
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-medium">
@@ -211,34 +211,34 @@ export default function UnifiedDashboard() {
       {/* Header Section */}
       <div className="text-center py-12 px-6">
         <h1 className="text-4xl font-bold mb-4 font-heading" style={{ color: '#000000' }}>
-          Welcome to Your PlayBook, {firstName}!
+          Welcome to Your Coach Dashboard, {firstName}!
         </h1>
         <p className="text-lg max-w-3xl mx-auto" style={{ color: '#000000' }}>
-          Your PLAYBOOKD dashboard will help you keep track of your coaches, upcoming training
-          and events, and help you manage your progress, on an off the field.
+          Your PLAYBOOKD coach dashboard will help you manage your athletes, create training content,
+          schedule sessions, and track your coaching impact.
         </p>
       </div>
 
-      {/* Your Athlete Profile Section */}
+      {/* Your Coach Profile Section */}
       <div className="py-12 px-6">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-2xl font-bold font-heading mb-8" style={{ color: '#000000' }}>
-            Your Athlete Profile
+            Your Coach Profile
           </h2>
 
           <div className="grid md:grid-cols-3 gap-8">
             {/* Left Side - Sports and Progress */}
             <div className="md:col-span-2 space-y-6">
-              {/* Sports of Interest */}
+              {/* Coaching Specialties */}
               <div>
                 <h3 className="text-lg font-semibold mb-4" style={{ color: '#000000' }}>
-                  Sports of Interest
+                  Coaching Specialties
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {editForm.sports.map((sport) => {
                     const SportIcon = getSportIcon(sport)
                     return (
-                      <div key={sport} className="flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-full">
+                      <div key={sport} className="flex items-center gap-2 px-3 py-1 bg-purple-100 text-purple-800 rounded-full">
                         <SportIcon className="w-4 h-4" />
                         <span className="text-sm font-medium">
                           {sport}
@@ -249,14 +249,15 @@ export default function UnifiedDashboard() {
                 </div>
               </div>
 
-              {/* Progress Summary */}
+              {/* Coaching Impact */}
               <div>
                 <h3 className="text-lg font-semibold mb-4" style={{ color: '#000000' }}>
-                  Your Progress Summary
+                  Your Coaching Impact
                 </h3>
                 <ul className="space-y-2 text-sm" style={{ color: '#000000' }}>
-                  <li>• You completed {progressData.completedSessions} training sessions. Let's go!</li>
-                  <li>• You have {progressData.newRecommendations} new training recommendations from Jasmine Aikey.</li>
+                  <li>• You've coached {progressData.completedSessions} training sessions with athletes</li>
+                  <li>• You have {progressData.newRecommendations} new athlete requests pending review</li>
+                  <li>• Your coaching rating: ⭐ 4.9/5 from 15 reviews</li>
                 </ul>
               </div>
             </div>
@@ -338,45 +339,48 @@ export default function UnifiedDashboard() {
         </div>
       </div>
 
-      {/* Your Coaches Section */}
+      {/* Your Athletes Section */}
       <div className="py-12 px-6" style={{ backgroundColor: '#91A6EB' }}>
         <div className="max-w-6xl mx-auto text-center">
           <h2 className="text-2xl font-bold text-white mb-8 font-heading">
-            Your Coaches
+            Your Athletes
           </h2>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-            {mockCoaches.map((coach) => (
-              <div key={coach.id} className="text-center">
+            {mockAthletes.map((athlete) => (
+              <div key={athlete.id} className="text-center">
                 <div className="w-24 h-24 mx-auto mb-3 rounded-full overflow-hidden border-4 border-white/20">
                   <img
-                    src={coach.image}
-                    alt={coach.name}
+                    src={athlete.image}
+                    alt={athlete.name}
                     className="w-full h-full object-cover"
                   />
                 </div>
                 <h3 className="text-white font-semibold text-sm mb-1">
-                  {coach.name}
+                  {athlete.name}
                 </h3>
                 <p className="text-white/80 text-xs">
-                  {coach.specialty}
+                  {athlete.specialty}
+                </p>
+                <p className="text-green-300 text-xs mt-1">
+                  Progress: {athlete.progress}
                 </p>
               </div>
             ))}
           </div>
 
           <div className="flex gap-4 justify-center">
-            <Link href="/dashboard/coaching">
-              <button className="px-6 py-2 bg-blue-100 text-blue-800 rounded-lg font-medium hover:bg-blue-200 transition-colors">
-                Request Coaching Session
+            <Link href="/dashboard/creator">
+              <button className="px-6 py-2 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors">
+                Create Training Content
               </button>
             </Link>
             <button className="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
-              Ask A Question
+              Schedule Session
             </button>
-            <Link href="/contributors">
+            <Link href="/dashboard/coaching">
               <button className="px-6 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors">
-                Browse Coaches
+                Manage Athletes
               </button>
             </Link>
           </div>
