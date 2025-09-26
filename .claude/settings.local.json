@@ -30,7 +30,8 @@
       "Read(//c/Users/bigpe/OneDrive/Desktop/Crucible/GAMEPLAN/Icons/**)",
       "Bash(curl:*)",
       "Bash(firebase deploy:*)",
-      "Bash(firebase login:*)"
+      "Bash(firebase login:*)",
+      "Bash(npx tsx:*)"
     ],
     "deny": [],
     "ask": []

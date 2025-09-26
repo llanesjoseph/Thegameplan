@@ -147,61 +147,58 @@ export default function AdminUserManagement() {
       setUsers(users.map(u => u.uid === uid ? { ...u, role: '...' } : u))
       console.log('⏳ ADMIN: Set loading state for user', uid)
 
-      console.log('📡 ADMIN: Making API call to /api/set-user-role')
-      const response = await fetch('/api/set-user-role', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          targetUserId: uid,
-          newRole: newRole
+      // Try direct Firestore update first (simpler and more reliable)
+      console.log('📡 ADMIN: Updating role directly in Firestore')
+
+      await updateDoc(doc(db, 'users', uid), {
+        role: newRole,
+        updatedAt: new Date(),
+        ...(newRole === 'creator' && {
+          creatorStatus: 'approved',
+          permissions: {
+            canCreateContent: true,
+            canManageContent: true,
+            canAccessAnalytics: true,
+            canReceivePayments: true
+          }
         })
       })
 
-      console.log('📡 ADMIN: API response status:', response.status, response.ok)
+      console.log('✅ ADMIN: Direct Firestore update successful')
 
-      if (response.ok) {
-        console.log(`✅ ADMIN: User role updated successfully to ${newRole}`)
+      console.log(`✅ ADMIN: User role updated successfully to ${newRole}`)
 
-        // If user is changing their own role, handle specially to prevent flicker
-        if (uid === user?.uid) {
-          console.log('🔄 ADMIN: Self role change confirmed - initiating immediate redirect to prevent flicker')
-          console.log('🧹 ADMIN: Clearing superadmin_roleTestingMode from localStorage')
+      // If user is changing their own role, handle specially to prevent flicker
+      if (uid === user?.uid) {
+        console.log('🔄 ADMIN: Self role change confirmed - initiating immediate redirect to prevent flicker')
+        console.log('🧹 ADMIN: Clearing superadmin_roleTestingMode from localStorage')
 
-          // Close modal immediately
-          setSelectedUser(null)
+        // Close modal immediately
+        setSelectedUser(null)
 
-          // Clear any cached role data and force immediate page navigation
-          localStorage.removeItem('superadmin_roleTestingMode')
+        // Clear any cached role data and force immediate page navigation
+        localStorage.removeItem('superadmin_roleTestingMode')
 
-          console.log('🚀 ADMIN: Triggering page replacement in 0ms')
-          // Use replace instead of reload to prevent back button issues
-          window.location.replace(window.location.pathname)
-          return // Exit early to prevent further updates
-        }
+        console.log('🚀 ADMIN: Triggering page replacement in 0ms')
+        // Use replace instead of reload to prevent back button issues
+        window.location.replace(window.location.pathname)
+        return // Exit early to prevent further updates
+      }
 
-        // For other users, update local state normally
-        setUsers(users.map(u => u.uid === uid ? { ...u, role: newRole } : u))
-        console.log(`✅ ADMIN: Updated local state for user ${uid} to ${newRole}`)
+      // For other users, update local state normally
+      setUsers(users.map(u => u.uid === uid ? { ...u, role: newRole } : u))
+      console.log(`✅ ADMIN: Updated local state for user ${uid} to ${newRole}`)
 
-        // Clear the flag after successful update for other users
-        console.log('⏰ ADMIN: Setting timeout to clear admin_role_change_in_progress flag in 1000ms')
-        setTimeout(() => {
-          localStorage.removeItem('admin_role_change_in_progress')
-          setIsRoleChangeInProgress(false)
-          console.log('🧹 ADMIN: Cleared admin_role_change_in_progress flag after timeout')
-        }, 1000)
+      // Close the modal after successful update
+      setSelectedUser(null)
 
-      } else {
-        console.error('❌ ADMIN: Failed to update user role - response not ok')
-        // Clear flag on failure
+      // Clear the flag after successful update for other users
+      console.log('⏰ ADMIN: Setting timeout to clear admin_role_change_in_progress flag in 1000ms')
+      setTimeout(() => {
         localStorage.removeItem('admin_role_change_in_progress')
         setIsRoleChangeInProgress(false)
-        console.log('🧹 ADMIN: Cleared flag due to failure')
-        // Revert optimistic update on failure
-        setUsers(users.map(u => u.uid === uid ? { ...u, role: users.find(ou => ou.uid === uid)?.role || 'user' } : u))
-      }
+        console.log('🧹 ADMIN: Cleared admin_role_change_in_progress flag after timeout')
+      }, 1000)
     } catch (error) {
       console.error('❌ ADMIN: Error updating user role:', error)
       // Clear flag on error
@@ -513,6 +510,37 @@ export default function AdminUserManagement() {
                       : 'You can assign Athlete, Coach, or Admin roles'
                     }
                   </p>
+                </div>
+
+                {/* Quick Actions */}
+                <div className="border-t pt-3 space-y-2">
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => {
+                        if (confirm(`Make ${selectedUser.displayName || selectedUser.email} a coach?`)) {
+                          updateUserRole(selectedUser.uid, 'creator')
+                        }
+                      }}
+                      disabled={selectedUser.role === 'creator'}
+                      className="btn btn-sm bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50"
+                    >
+                      <Star className="w-4 h-4 mr-1" />
+                      Make Coach
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        if (confirm(`Make ${selectedUser.displayName || selectedUser.email} an athlete?`)) {
+                          updateUserRole(selectedUser.uid, 'user')
+                        }
+                      }}
+                      disabled={selectedUser.role === 'user'}
+                      className="btn btn-sm bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+                    >
+                      <Users className="w-4 h-4 mr-1" />
+                      Make Athlete
+                    </button>
+                  </div>
                 </div>
 
                 {/* Status Actions */}
