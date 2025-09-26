@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { db } from '@/lib/firebase'
-import { doc, getDoc, setDoc, collection, getDocs, query, orderBy, where } from 'firebase/firestore'
+import { doc, getDoc, setDoc, collection, getDocs, query, orderBy, where, writeBatch } from 'firebase/firestore'
 import { signOut } from 'firebase/auth'
 import { auth } from '@/lib/firebase.client'
 import {
@@ -111,6 +111,7 @@ export default function UnifiedDashboard() {
  })
  const [isScheduling, setIsScheduling] = useState(false)
  const [scheduledSessions, setScheduledSessions] = useState<any[]>([])
+ const [scheduleError, setScheduleError] = useState('')
 
  useEffect(() => {
   const loadUserData = async () => {
@@ -142,6 +143,7 @@ export default function UnifiedDashboard() {
     }
 
     // Load scheduled sessions
+    console.log('Loading sessions for user:', user.uid)
     await loadScheduledSessions()
    } catch (error) {
     console.error('Error loading user data:', error)
@@ -150,25 +152,91 @@ export default function UnifiedDashboard() {
    }
   }
 
-  loadUserData()
+  if (user?.uid) {
+   loadUserData()
+  }
+ }, [user])
+
+ // Additional effect to refresh sessions when page becomes visible
+ useEffect(() => {
+  const handleVisibilityChange = () => {
+   if (!document.hidden && user?.uid) {
+    console.log('Page became visible, refreshing sessions')
+    loadScheduledSessions()
+   }
+  }
+
+  document.addEventListener('visibilitychange', handleVisibilityChange)
+  return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
  }, [user])
 
  const loadScheduledSessions = async () => {
-  if (!user?.uid) return
+  if (!user?.uid) {
+   console.log('No user UID available for loading sessions')
+   return
+  }
+
+  console.log('Loading sessions for user:', user.uid)
 
   try {
+   // Try with ordering first
    const sessionsQuery = query(
     collection(db, 'users', user.uid, 'sessions'),
-    orderBy('date', 'asc')
+    where('active', '==', true),
+    orderBy('timestamp', 'desc')
    )
    const snapshot = await getDocs(sessionsQuery)
    const sessions = snapshot.docs.map(doc => ({
     id: doc.id,
-    ...doc.data()
+    ...doc.data(),
+    // Ensure date consistency
+    createdAt: doc.data().createdAt?.toDate ? doc.data().createdAt.toDate() : doc.data().createdAt,
+    updatedAt: doc.data().updatedAt?.toDate ? doc.data().updatedAt.toDate() : doc.data().updatedAt
    }))
+
+   console.log('Loaded sessions with order:', sessions)
    setScheduledSessions(sessions)
   } catch (error) {
-   console.error('Error loading scheduled sessions:', error)
+   console.error('Error loading scheduled sessions with order:', error)
+
+   // Fallback: Try without ordering
+   try {
+    const fallbackQuery = query(
+     collection(db, 'users', user.uid, 'sessions'),
+     where('active', '==', true)
+    )
+    const fallbackSnapshot = await getDocs(fallbackQuery)
+    const fallbackSessions = fallbackSnapshot.docs.map(doc => ({
+     id: doc.id,
+     ...doc.data(),
+     createdAt: doc.data().createdAt?.toDate ? doc.data().createdAt.toDate() : doc.data().createdAt,
+     updatedAt: doc.data().updatedAt?.toDate ? doc.data().updatedAt.toDate() : doc.data().updatedAt
+    }))
+
+    // Sort manually by timestamp
+    fallbackSessions.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
+
+    console.log('Loaded sessions (fallback):', fallbackSessions)
+    setScheduledSessions(fallbackSessions)
+   } catch (fallbackError) {
+    console.error('Error loading scheduled sessions (fallback):', fallbackError)
+
+    // Final fallback: Load all sessions without any filters
+    try {
+     const finalQuery = collection(db, 'users', user.uid, 'sessions')
+     const finalSnapshot = await getDocs(finalQuery)
+     const finalSessions = finalSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+     }))
+
+     console.log('Loaded sessions (final fallback):', finalSessions)
+     setScheduledSessions(finalSessions)
+    } catch (finalError) {
+     console.error('Error loading sessions (final fallback):', finalError)
+     setScheduledSessions([])
+    }
+   }
   }
  }
 
@@ -239,52 +307,80 @@ export default function UnifiedDashboard() {
  const handleBookSlot = () => {
   // Reset form when opening modal
   setScheduleForm({
-   athleteId: mockAthletes[0]?.id.toString() || '',
+   athleteId: '',
    date: '',
    startTime: '',
    endTime: '',
    sessionType: 'Individual Training'
   })
+  setScheduleError('')
   setShowScheduleModal(true)
  }
 
  const handleScheduleSession = async () => {
   if (!user?.uid) return
 
+  setScheduleError('')
+
   // Validate form
-  if (!scheduleForm.date || !scheduleForm.startTime || !scheduleForm.endTime) {
-   alert('Please fill in all required fields')
+  if (!scheduleForm.date || !scheduleForm.startTime || !scheduleForm.endTime || !scheduleForm.athleteId) {
+   setScheduleError('Please fill in all required fields')
+   return
+  }
+
+  // Validate time logic
+  if (scheduleForm.startTime >= scheduleForm.endTime) {
+   setScheduleError('End time must be after start time')
    return
   }
 
   setIsScheduling(true)
   try {
-   // Save session to Firestore
-   await setDoc(doc(db, 'sessions', `${user.uid}_${Date.now()}`), {
+   const sessionId = `session_${user.uid}_${Date.now()}`
+   const selectedAthlete = mockAthletes.find(a => a.id.toString() === scheduleForm.athleteId)
+
+   if (!selectedAthlete) {
+    throw new Error('Selected athlete not found')
+   }
+
+   // Create consistent session document with all required fields for persistence
+   const sessionData = {
+    id: sessionId,
     coachId: user.uid,
     coachName: user.displayName || 'Coach',
     athleteId: scheduleForm.athleteId,
-    athleteName: mockAthletes.find(a => a.id.toString() === scheduleForm.athleteId)?.name || 'Athlete',
+    athleteName: selectedAthlete.name,
+    title: `${scheduleForm.sessionType} with ${selectedAthlete.name}`,
+    description: `${scheduleForm.sessionType} session`,
     date: scheduleForm.date,
     startTime: scheduleForm.startTime,
     endTime: scheduleForm.endTime,
     sessionType: scheduleForm.sessionType,
     status: 'scheduled',
     createdAt: new Date(),
-    updatedAt: new Date()
-   })
+    updatedAt: new Date(),
+    // Additional fields for robust querying and persistence
+    timestamp: Date.now(),
+    active: true,
+    version: 1
+   }
 
-   // Also save to user's sessions subcollection for easier querying
-   await setDoc(doc(db, 'users', user.uid, 'sessions', `session_${Date.now()}`), {
-    athleteId: scheduleForm.athleteId,
-    athleteName: mockAthletes.find(a => a.id.toString() === scheduleForm.athleteId)?.name || 'Athlete',
-    date: scheduleForm.date,
-    startTime: scheduleForm.startTime,
-    endTime: scheduleForm.endTime,
-    sessionType: scheduleForm.sessionType,
-    status: 'scheduled',
-    createdAt: new Date()
-   })
+   // Use batch write for atomic operation - ensures both saves succeed or both fail
+   const batch = writeBatch(db)
+
+   // Save to global sessions collection
+   const globalSessionRef = doc(db, 'sessions', sessionId)
+   batch.set(globalSessionRef, sessionData)
+
+   // Save to user's sessions subcollection with same structure
+   const userSessionRef = doc(db, 'users', user.uid, 'sessions', sessionId)
+   batch.set(userSessionRef, sessionData)
+
+   // Commit the batch
+   await batch.commit()
+
+   console.log('Session saved successfully:', sessionData)
+   console.log('Session saved to path:', `users/${user.uid}/sessions/${sessionId}`)
 
    setShowScheduleModal(false)
    alert('Session scheduled successfully!')
@@ -302,7 +398,7 @@ export default function UnifiedDashboard() {
    await loadScheduledSessions()
   } catch (error) {
    console.error('Error scheduling session:', error)
-   alert('Failed to schedule session. Please try again.')
+   setScheduleError(`Failed to schedule session: ${error instanceof Error ? error.message : 'Unknown error'}`)
   } finally {
    setIsScheduling(false)
   }
@@ -572,14 +668,17 @@ export default function UnifiedDashboard() {
        </h3>
        <div className="space-y-4">
         {scheduledSessions.length > 0 ? (
-         scheduledSessions.slice(0, 3).map((session, index) => (
+         scheduledSessions.slice(0, 3).map((session) => (
           <div key={session.id} className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
            <div>
             <h4 className="font-medium text-blue-900">
-             {session.sessionType} with {session.athleteName}
+             {session.title || `${session.sessionType} with ${session.athleteName}`}
             </h4>
             <p className="text-sm text-blue-700">
-             {new Date(session.date).toLocaleDateString()} - {session.startTime} to {session.endTime}
+             {session.date ? new Date(session.date).toLocaleDateString() : 'Date TBD'} - {session.startTime || 'TBD'} to {session.endTime || 'TBD'}
+            </p>
+            <p className="text-xs text-blue-600">
+             Status: {session.status || 'scheduled'}
             </p>
            </div>
            <button
@@ -819,21 +918,32 @@ export default function UnifiedDashboard() {
       <div className="flex items-center justify-between mb-4">
        <h3 className="text-lg font-semibold">Schedule New Session</h3>
        <button
-        onClick={() => setShowScheduleModal(false)}
+        onClick={() => {
+         setShowScheduleModal(false)
+         setScheduleError('')
+        }}
         className="text-gray-400 hover:text-gray-600"
        >
         <X className="w-5 h-5" />
        </button>
       </div>
 
+      {scheduleError && (
+       <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-lg text-sm">
+        {scheduleError}
+       </div>
+      )}
+
       <div className="space-y-4">
        <div>
-        <label className="block text-sm font-medium mb-2">Select Athlete</label>
+        <label className="block text-sm font-medium mb-2">Select Athlete <span className="text-red-500">*</span></label>
         <select
          value={scheduleForm.athleteId}
          onChange={(e) => setScheduleForm({ ...scheduleForm, athleteId: e.target.value })}
          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+         required
         >
+         <option value="">Select an athlete</option>
          {mockAthletes.map((athlete) => (
           <option key={athlete.id} value={athlete.id}>
            {athlete.name}
@@ -893,7 +1003,10 @@ export default function UnifiedDashboard() {
 
       <div className="flex gap-3 mt-6">
        <button
-        onClick={() => setShowScheduleModal(false)}
+        onClick={() => {
+         setShowScheduleModal(false)
+         setScheduleError('')
+        }}
         className="flex-1 px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
        >
         Cancel
