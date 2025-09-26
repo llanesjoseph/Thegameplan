@@ -64,13 +64,13 @@ export default function AssistantCoachDashboard() {
 
  // Allow access for assistant coaches and superadmins (for role testing)
  const userRole = user?.role
- const hasAccess = role === 'assistant_coach' || userRole === 'superadmin'
+ const hasAccess = role === 'assistant' || userRole === 'superadmin'
 
  if (!hasAccess) {
   return (
    <div className="p-6">
     <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-     <p className="text-red-800">Access denied. This page is only accessible to assistant coaches.</p>
+     <p className="text-red-800">Access denied. This page is only accessible to assistants.</p>
     </div>
    </div>
   )
