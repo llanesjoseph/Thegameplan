@@ -3,6 +3,8 @@
 import { useAuth } from '@/hooks/use-auth'
 import { useEnhancedRole } from "@/hooks/use-role-switcher"
 import Link from 'next/link'
+import { useState } from 'react'
+import WelcomeTour from '@/components/dashboard/WelcomeTour'
 import { 
   Video, 
   MessageCircle, 
@@ -79,6 +81,7 @@ const quickActions = {
 export default function DashboardOverview() {
   const { user } = useAuth()
   const { role, loading } = useEnhancedRole()
+  const [showTour, setShowTour] = useState(false)
 
   if (loading) {
     return (
@@ -122,7 +125,7 @@ export default function DashboardOverview() {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6" data-tour="quick-actions">
         {actions.map((action) => (
           <Link key={action.title} href={action.href} className="group">
             <div className="bg-clarity-surface rounded-2xl p-6 border border-clarity-text-secondary/20 hover:shadow-lg hover:shadow-clarity-text-secondary/20 transition-all duration-300 hover:-translate-y-1">
@@ -145,7 +148,7 @@ export default function DashboardOverview() {
       {/* Recent Activity & Recommendations */}
       <div className="grid lg:grid-cols-2 gap-8">
         {/* Recent Activity */}
-        <div>
+        <div data-tour="recent-activity">
           <h2 className="text-lg font-semibold text-clarity-text-primary mb-4">Recent Activity</h2>
           <div className="bg-clarity-surface rounded-xl border border-clarity-text-secondary/20 p-6">
             <div className="space-y-4">
@@ -189,7 +192,7 @@ export default function DashboardOverview() {
         </div>
 
         {/* Recommendations */}
-        <div>
+        <div data-tour="recommendations">
           <h2 className="text-lg font-semibold text-clarity-text-primary mb-4">Recommended</h2>
           <div className="space-y-4">
             <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-6 text-white">
@@ -235,6 +238,9 @@ export default function DashboardOverview() {
           </div>
         </div>
       </div>
+
+      {/* Welcome Tour */}
+      <WelcomeTour onComplete={() => setShowTour(false)} />
     </div>
   )
 }

@@ -1,8 +1,148 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
+@import url('/fonts/fonts.css');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* PlayBookd Brand System Integration */
+@layer base {
+  html {
+    font-family: var(--font-primary);
+  }
+  
+  body {
+    font-family: var(--font-body);
+    color: var(--text-primary);
+    background-color: var(--bg-primary);
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-primary);
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  
+  .brand-logo {
+    font-family: var(--font-brand);
+    font-weight: normal;
+    letter-spacing: 0.05em;
+  }
+}
+
+@layer components {
+  /* PlayBookd Button System */
+  .btn-playbookd-primary {
+    @apply bg-playbookd-red hover:bg-opacity-90 text-white font-primary font-semibold px-6 py-3 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl;
+  }
+  
+  .btn-playbookd-secondary {
+    @apply bg-playbookd-deep-sea hover:bg-opacity-90 text-white font-primary font-semibold px-6 py-3 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl;
+  }
+  
+  .btn-playbookd-accent {
+    @apply bg-playbookd-cream hover:bg-opacity-90 text-playbookd-dark font-primary font-semibold px-6 py-3 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl;
+  }
+  
+  .btn-playbookd-success {
+    @apply bg-playbookd-green hover:bg-opacity-90 text-white font-primary font-semibold px-6 py-3 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl;
+  }
+  
+  .btn-playbookd-outline {
+    @apply border-2 border-playbookd-red text-playbookd-red hover:bg-playbookd-red hover:text-white font-primary font-semibold px-6 py-3 rounded-lg transition-all duration-200;
+  }
+  
+  /* PlayBookd Card System */
+  .card-playbookd {
+    @apply bg-white border border-gray-200 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-6;
+  }
+  
+  .card-playbookd-dark {
+    @apply bg-playbookd-dark text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-6;
+  }
+  
+  .card-playbookd-accent {
+    @apply bg-gradient-playbookd-accent text-playbookd-dark rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-6;
+  }
+  
+  /* PlayBookd Input System */
+  .input-playbookd {
+    @apply w-full px-4 py-3 border-2 border-gray-300 rounded-lg font-body focus:border-playbookd-sky-blue focus:ring-2 focus:ring-playbookd-sky-blue focus:ring-opacity-20 focus:outline-none transition-all duration-200;
+  }
+  
+  .input-playbookd-error {
+    @apply border-playbookd-red focus:border-playbookd-red focus:ring-playbookd-red;
+  }
+  
+  /* PlayBookd Navigation */
+  .nav-playbookd {
+    @apply bg-white border-b border-gray-200 shadow-sm;
+  }
+  
+  .nav-playbookd-dark {
+    @apply bg-playbookd-dark text-white;
+  }
+  
+  /* PlayBookd Typography */
+  .heading-playbookd-xl {
+    @apply font-primary text-4xl font-bold text-playbookd-dark leading-tight;
+  }
+  
+  .heading-playbookd-lg {
+    @apply font-primary text-3xl font-bold text-playbookd-dark leading-tight;
+  }
+  
+  .heading-playbookd-md {
+    @apply font-primary text-2xl font-semibold text-playbookd-dark leading-tight;
+  }
+  
+  .heading-playbookd-sm {
+    @apply font-primary text-xl font-semibold text-playbookd-dark leading-tight;
+  }
+  
+  .text-playbookd-body {
+    @apply font-body text-base text-gray-700 leading-relaxed;
+  }
+  
+  .text-playbookd-caption {
+    @apply font-body text-sm text-playbookd-dark leading-relaxed;
+  }
+  
+  /* PlayBookd Gradients */
+  .gradient-playbookd-hero {
+    background: linear-gradient(135deg, var(--playbookd-deep-sea) 0%, var(--playbookd-red) 50%, var(--playbookd-cream) 100%);
+  }
+  
+  .gradient-playbookd-card {
+    background: linear-gradient(135deg, var(--playbookd-sky-blue) 0%, var(--playbookd-green) 100%);
+  }
+  
+  /* PlayBookd Shadows */
+  .shadow-playbookd {
+    box-shadow: 0 10px 25px -5px rgba(160, 28, 33, 0.1), 0 4px 6px -2px rgba(160, 28, 33, 0.05);
+  }
+  
+  .shadow-playbookd-lg {
+    box-shadow: 0 20px 40px -10px rgba(160, 28, 33, 0.15), 0 8px 16px -4px rgba(160, 28, 33, 0.1);
+  }
+}
+
+/* Legacy compatibility - gradually replace these */
+:root {
+  --clarity-background: var(--bg-primary);
+  --clarity-surface: var(--bg-secondary);
+  --clarity-text-primary: var(--text-primary);
+  --clarity-text-secondary: var(--text-secondary);
+  --clarity-accent: var(--brand-primary);
+  --brand-grey: var(--text-muted);
+}
+
+/* Ensure smooth transitions */
+* {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
 
 /* CLARITY OS DESIGN SYSTEM - Professional Sports Performance Platform */
 

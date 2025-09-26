@@ -181,6 +181,252 @@ Respond as ${context.coachName} would, drawing from your championship experience
 Keep your response conversational, encouraging, and authentically in your voice as a championship-winning midfielder. Aim for 150-250 words with clear, actionable advice.`
 }
 
+// Dynamic Lesson Plan Template Generator
+export const generateLessonPlanPrompt = (sport: string, topic: string, level: string = 'Intermediate', duration: number = 45): string => {
+  const sportSpecific = getSportSpecificTerms(sport)
+  
+  return `You are an expert ${sport} coach and curriculum designer. Create a long-form, detailed lesson plan for a ${sport} class focused on "${topic}".
+
+The lesson plan must be structured into clear, professional sections with both time allocations and detailed explanations. Use formatting (boxes, headers, dividers, bullet points) for readability. Write in a professional but conversational tone, like a coach teaching athletes, not a dry outline.
+
+Required Structure:
+
+═══════════════════════════════════════════════════════════════
+📋 LESSON PLAN HEADER
+═══════════════════════════════════════════════════════════════
+Sport: ${sport}
+Level: ${level}
+Duration: ${duration} minutes
+Class Type: Technical Training
+Topic: ${topic}
+Date: [To be filled by instructor]
+Instructor: [To be filled by instructor]
+
+═══════════════════════════════════════════════════════════════
+🎯 LESSON OBJECTIVE
+═══════════════════════════════════════════════════════════════
+Write a comprehensive paragraph explaining:
+• The importance of this topic in ${sport}
+• Why this skill matters in competition or real application
+• What students will achieve by the end of this lesson
+• How this connects to overall ${sport} development
+
+═══════════════════════════════════════════════════════════════
+🔥 WARM-UP & INTRODUCTION (${Math.round(duration * 0.15)} minutes)
+═══════════════════════════════════════════════════════════════
+**Physical Preparation:**
+• [List 3-4 specific mobility exercises for ${sport}]
+• [Include dynamic drills relevant to today's topic]
+• [Add ${sportSpecific.warmupFocus} specific movements]
+
+**Mental Focus Cues:**
+• [Provide 2-3 mental preparation points]
+• [Connect warm-up to lesson objectives]
+
+**Introduction to Topic:**
+• Brief explanation of how warm-up connects to today's lesson
+• Set expectations and learning goals
+• Safety reminders specific to ${sport}
+
+═══════════════════════════════════════════════════════════════
+📚 TECHNICAL INSTRUCTION & DEMONSTRATION (${Math.round(duration * 0.25)} minutes)
+═══════════════════════════════════════════════════════════════
+**Core Principles:**
+• ${sportSpecific.principle1}
+• ${sportSpecific.principle2}
+• ${sportSpecific.principle3}
+• ${sportSpecific.principle4}
+
+**Step-by-Step Technique Breakdown:**
+1. **${sportSpecific.technique1}**
+   - Setup and positioning
+   - Key movement patterns
+   - Timing and execution
+   - Common applications
+
+2. **${sportSpecific.technique2}**
+   - Entry methods
+   - Control points
+   - Finishing details
+   - Troubleshooting
+
+3. **${sportSpecific.technique3}** (if applicable)
+   - Advanced variations
+   - Combination possibilities
+   - Competition applications
+
+**Teaching Cues for Instructors:**
+• [Provide 4-5 key coaching points]
+• [Include visual and verbal cues]
+• [Add correction methods for common mistakes]
+
+**Common Mistakes and Corrections:**
+• Mistake 1: [Description] → Correction: [Solution]
+• Mistake 2: [Description] → Correction: [Solution]
+• Mistake 3: [Description] → Correction: [Solution]
+
+═══════════════════════════════════════════════════════════════
+🏃 PROGRESSIVE PRACTICE & DRILLING (${Math.round(duration * 0.35)} minutes)
+═══════════════════════════════════════════════════════════════
+**Phase 1: Isolation Drills (${Math.round(duration * 0.12)} minutes)**
+• [Drill 1 with specific instructions and reps]
+• [Drill 2 with partner work if applicable]
+• Focus: Perfect technique without resistance
+
+**Phase 2: Progressive Resistance (${Math.round(duration * 0.12)} minutes)**
+• [Add controlled resistance or movement]
+• [Include timing and reaction elements]
+• Focus: Maintaining technique under pressure
+
+**Phase 3: Situational Practice (${Math.round(duration * 0.11)} minutes)**
+• [Create realistic ${sport} scenarios]
+• [Add decision-making elements]
+• Focus: Application in game-like conditions
+
+**Safety Notes:**
+• [List 3-4 specific safety considerations]
+• [Include injury prevention tips]
+• [Mention when to stop or modify]
+
+**Why Each Step Builds Skill:**
+• Isolation → Muscle memory and proper form
+• Progressive resistance → Confidence under pressure
+• Situational practice → Real-world application
+
+═══════════════════════════════════════════════════════════════
+⚡ LIVE APPLICATION & COOL-DOWN (${Math.round(duration * 0.20)} minutes)
+═══════════════════════════════════════════════════════════════
+**Controlled Application (${Math.round(duration * 0.15)} minutes):**
+• [Specific sparring/practice scenarios]
+• [Rules and limitations for safety]
+• [How to integrate today's techniques]
+• [Coaching points during live practice]
+
+**Competition Integration:**
+• How to set up these techniques in competition
+• When to use vs. when to avoid
+• Combination possibilities with other techniques
+
+**Cool-Down Routine (${Math.round(duration * 0.05)} minutes):**
+• [Specific stretches for muscles used]
+• [Breathing exercises for recovery]
+• [Mental relaxation techniques]
+
+═══════════════════════════════════════════════════════════════
+🧠 LESSON REVIEW & REFLECTION
+═══════════════════════════════════════════════════════════════
+**Key Takeaways:**
+• [Summarize 3-4 main learning points]
+• [Reinforce most important concepts]
+• [Connect to bigger picture of ${sport} development]
+
+**Coach Reflection Questions:**
+• "What did you notice about your [specific technique aspect]?"
+• "When do you think you'll use this in your training/competition?"
+• "What felt most challenging and why?"
+• "How does this connect to what we learned last week?"
+
+**Student Goal Setting:**
+• Suggest one concrete, specific goal for next training session
+• Provide homework or practice recommendations
+• Set expectations for skill development timeline
+
+═══════════════════════════════════════════════════════════════
+⚠️ CLOSING SAFETY & TRAINING REMINDER
+═══════════════════════════════════════════════════════════════
+**Safety Emphasis:**
+• Encourage smart, safe, consistent training
+• Remind about proper recovery and rest
+• Emphasize gradual progression over rushing
+
+**Training Philosophy:**
+• "Perfect practice makes perfect"
+• "Consistency beats intensity"
+• "Listen to your body and train intelligently"
+
+**Next Session Preview:**
+• Brief mention of what's coming next
+• How today's lesson will build into future training
+• Encourage questions and continued learning
+
+═══════════════════════════════════════════════════════════════
+
+Generate this complete lesson plan with all sections filled out in detail. Make it comprehensive, practical, and ready for an instructor to use immediately. Include specific techniques, drills, and coaching cues appropriate for ${sport} at the ${level} level.`
+}
+
+// Sport-specific terminology and focus areas
+const getSportSpecificTerms = (sport: string) => {
+  const sportLower = sport.toLowerCase()
+  
+  if (sportLower.includes('jiu-jitsu') || sportLower.includes('bjj')) {
+    return {
+      warmupFocus: 'joint mobility and hip movement',
+      principle1: 'Leverage over strength - use mechanical advantage',
+      principle2: 'Position before submission - control first, attack second',
+      principle3: 'Base and posture - maintain yours, break theirs',
+      principle4: 'Timing and pressure - when to apply force vs. when to flow',
+      technique1: 'Primary Technique Setup',
+      technique2: 'Control and Execution',
+      technique3: 'Transitions and Counters'
+    }
+  } else if (sportLower.includes('mma') || sportLower.includes('mixed martial arts')) {
+    return {
+      warmupFocus: 'full-body movement and striking preparation',
+      principle1: 'Distance management - controlling range and timing',
+      principle2: 'Transition fluidity - seamless movement between disciplines',
+      principle3: 'Defensive awareness - protect while attacking',
+      principle4: 'Energy conservation - efficient movement and technique',
+      technique1: 'Striking Setup and Entry',
+      technique2: 'Grappling Integration',
+      technique3: 'Defensive Transitions'
+    }
+  } else if (sportLower.includes('boxing')) {
+    return {
+      warmupFocus: 'shoulder mobility and footwork preparation',
+      principle1: 'Footwork foundation - balance and positioning',
+      principle2: 'Punch mechanics - power generation from ground up',
+      principle3: 'Defensive responsibility - protect yourself at all times',
+      principle4: 'Rhythm and timing - finding openings and creating opportunities',
+      technique1: 'Fundamental Punch Technique',
+      technique2: 'Combination Flow',
+      technique3: 'Defensive Integration'
+    }
+  } else if (sportLower.includes('wrestling')) {
+    return {
+      warmupFocus: 'hip flexibility and core activation',
+      principle1: 'Level changes - attacking and defending different heights',
+      principle2: 'Hand fighting - controlling ties and creating opportunities',
+      principle3: 'Pressure and angles - using body weight effectively',
+      principle4: 'Chain wrestling - flowing between attacks',
+      technique1: 'Setup and Entry',
+      technique2: 'Execution and Follow-through',
+      technique3: 'Scrambling and Recovery'
+    }
+  } else if (sportLower.includes('soccer') || sportLower.includes('football')) {
+    return {
+      warmupFocus: 'dynamic movement and ball touches',
+      principle1: 'First touch quality - controlling the ball effectively',
+      principle2: 'Vision and awareness - scanning before receiving',
+      principle3: 'Body positioning - opening up to the field',
+      principle4: 'Decision making - when to pass, dribble, or shoot',
+      technique1: 'Technical Execution',
+      technique2: 'Tactical Application',
+      technique3: 'Game Situation Integration'
+    }
+  } else {
+    return {
+      warmupFocus: 'sport-specific movement patterns',
+      principle1: 'Fundamental technique - proper form and execution',
+      principle2: 'Tactical awareness - understanding game situations',
+      principle3: 'Physical preparation - strength, speed, and conditioning',
+      principle4: 'Mental approach - focus, confidence, and decision-making',
+      technique1: 'Basic Technique',
+      technique2: 'Advanced Application',
+      technique3: 'Competitive Integration'
+    }
+  }
+}
+
 // Vertex AI Response (Enterprise-grade) - Browser compatible via API route
 export const getVertexAIResponse = async (question: string, context: CoachingContext = soccerCoachingContext): Promise<string> => {
   console.log('🔸 Starting Vertex AI request via API route...')

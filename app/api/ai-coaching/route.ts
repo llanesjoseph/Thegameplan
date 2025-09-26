@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getRobustAIResponse, soccerCoachingContext } from '@/lib/ai-service'
+import { soccerCoachingContext, getOpenAIResponse, getGeminiAIResponse, alternativeAIProviders, generateLessonPlanPrompt } from '@/lib/ai-service'
 import { analyzeMedicalSafety, getSafeTrainingResponse } from '@/lib/medical-safety'
 import { createAISession, logAIInteraction, CURRENT_TERMS_VERSION } from '@/lib/ai-logging'
 
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
   try {
     // Parse request body
     const body = await request.json()
-    const { question, userId, userEmail, sessionId } = body
+    const { question, userId, userEmail, sessionId, requestType, sport, topic, level, duration } = body
 
     if (!question || typeof question !== 'string') {
       return NextResponse.json(
@@ -128,11 +128,93 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Get AI response
-    console.log('🤖 Getting AI response from robust service...')
-    const aiResult = await getRobustAIResponse(question, soccerCoachingContext)
-    
-    const finalResponse = safetyNotice + aiResult.response
+    // Determine if this is a lesson plan request
+    const isLessonPlanRequest = requestType === 'lesson_plan' || 
+                               question.toLowerCase().includes('lesson plan') ||
+                               question.toLowerCase().includes('create lesson') ||
+                               (sport && topic)
+
+    // Get AI response (avoid recursive call to this API route)
+    console.log('🤖 Getting AI response (server-safe chain)...')
+    let provider: 'openai' | 'gemini' | 'fallback' = 'fallback'
+    let responseText: string
+    let finalPrompt: string
+
+    if (isLessonPlanRequest) {
+      // Generate lesson plan using the structured template
+      const lessonSport = sport || 'Brazilian Jiu-Jitsu'
+      const lessonTopic = topic || question.replace(/create lesson plan|lesson plan|for/gi, '').trim() || 'Fundamental Techniques'
+      const lessonLevel = level || 'Intermediate'
+      const lessonDuration = duration || 45
+      
+      finalPrompt = generateLessonPlanPrompt(lessonSport, lessonTopic, lessonLevel, lessonDuration)
+      console.log('📋 Generating lesson plan for:', { sport: lessonSport, topic: lessonTopic, level: lessonLevel, duration: lessonDuration })
+    } else {
+      // Regular coaching question
+      finalPrompt = question
+    }
+
+    try {
+      if (isLessonPlanRequest) {
+        // For lesson plans, use OpenAI with higher token limit
+        const client = require('openai')
+        const openai = new client.OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+        
+        const completion = await openai.chat.completions.create({
+          model: 'gpt-4-turbo-preview',
+          messages: [
+            {
+              role: 'system',
+              content: 'You are an expert martial arts and sports coach curriculum designer. Create detailed, professional lesson plans with proper formatting and structure.'
+            },
+            {
+              role: 'user',
+              content: finalPrompt
+            }
+          ],
+          max_tokens: 4000, // Higher limit for lesson plans
+          temperature: 0.7,
+          top_p: 0.9
+        })
+        
+        responseText = completion.choices[0]?.message?.content || 'Failed to generate lesson plan'
+        provider = 'openai'
+      } else {
+        // Regular coaching responses
+        responseText = await getOpenAIResponse(finalPrompt, soccerCoachingContext)
+        provider = 'openai'
+      }
+    } catch (e1) {
+      console.warn('OpenAI provider failed, trying Gemini...', e1)
+      try {
+        if (isLessonPlanRequest) {
+          // For lesson plans with Gemini, use higher token limit
+          const { GoogleGenerativeAI } = require('@google/generative-ai')
+          const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY)
+          const model = genAI.getGenerativeModel({ 
+            model: 'gemini-1.5-flash',
+            generationConfig: {
+              temperature: 0.7,
+              topP: 0.9,
+              maxOutputTokens: 4000,
+            }
+          })
+          
+          const result = await model.generateContent(finalPrompt)
+          const response = await result.response
+          responseText = response.text()
+        } else {
+          responseText = await getGeminiAIResponse(finalPrompt, soccerCoachingContext)
+        }
+        provider = 'gemini'
+      } catch (e2) {
+        console.warn('Gemini provider failed, falling back...', e2)
+        responseText = await alternativeAIProviders.fallback(finalPrompt, soccerCoachingContext)
+        provider = 'fallback'
+      }
+    }
+
+    const finalResponse = safetyNotice + responseText
 
     // Log the interaction with proper parameters
     if (userId && userEmail && currentSessionId) {
@@ -143,7 +225,7 @@ export async function POST(request: NextRequest) {
           currentSessionId,
           question,
           finalResponse,
-          aiResult.provider,
+          provider,
           'soccer',
           soccerCoachingContext.coachName,
           true, // disclaimerShown
@@ -158,8 +240,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       response: finalResponse,
-      provider: aiResult.provider,
+      provider,
       sessionId: currentSessionId,
+      isLessonPlan: isLessonPlanRequest,
+      lessonPlanData: isLessonPlanRequest ? {
+        sport: sport || 'Brazilian Jiu-Jitsu',
+        topic: topic || question.replace(/create lesson plan|lesson plan|for/gi, '').trim() || 'Fundamental Techniques',
+        level: level || 'Intermediate',
+        duration: duration || 45
+      } : null,
       safetyAnalysis: {
         riskLevel: safetyAnalysis.riskLevel,
         isSafe: safetyAnalysis.isSafe

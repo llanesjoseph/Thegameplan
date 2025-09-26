@@ -19,29 +19,29 @@ const SimpleHero = () => {
               AI-Powered Sports Performance
             </div>
             
-            <h1 className="text-5xl lg:text-6xl font-bold text-clarity-text-primary mb-6 leading-tight">
+            <h1 className="text-5xl lg:text-6xl font-primary font-bold text-playbookd-dark mb-6 leading-tight">
               Your AI Coach for{' '}
-              <span className="clarity-gradient-text">Athletic Excellence</span>
+              <span className="text-playbookd-red">Athletic Excellence</span>
             </h1>
             
-            <p className="text-xl text-clarity-text-secondary mb-8 max-w-3xl mx-auto leading-relaxed">
-              Get personalized training insights, adaptive learning paths, and intelligent coaching 
-              that evolves with your performance. Join thousands of athletes achieving their goals.
+            <p className="text-xl text-playbookd-dark/80 mb-8 max-w-3xl mx-auto leading-relaxed font-body">
+              PlayBookd blends the power of AI with the thrill of sports, creating unforgettable fan experiences and 
+              coaching next-generation athletes. Whether you're in the stands or on the field, this is the future of the game.
             </p>
           </div>
 
           {/* Key Features - Minimal */}
           <div className="flex flex-wrap justify-center gap-4 mb-12">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-clarity-surface border border-clarity-text-secondary/20 rounded-full text-clarity-text-primary text-sm">
-              <Target className="w-4 h-4 text-clarity-accent" />
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-playbookd-sky-blue/10 border border-playbookd-sky-blue/30 rounded-full text-playbookd-deep-sea text-sm font-primary">
+              <Target className="w-4 h-4 text-playbookd-sky-blue" />
               Personalized Training
             </div>
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-clarity-surface border border-clarity-text-secondary/20 rounded-full text-clarity-text-primary text-sm">
-              <TrendingUp className="w-4 h-4 text-clarity-accent" />
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-playbookd-green/10 border border-playbookd-green/30 rounded-full text-playbookd-deep-sea text-sm font-primary">
+              <TrendingUp className="w-4 h-4 text-playbookd-green" />
               Performance Analytics
             </div>
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-clarity-surface border border-clarity-text-secondary/20 rounded-full text-clarity-text-primary text-sm">
-              <Zap className="w-4 h-4 text-clarity-accent" />
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-playbookd-cream/20 border border-playbookd-cream/50 rounded-full text-playbookd-dark text-sm font-primary">
+              <Zap className="w-4 h-4 text-playbookd-dark" />
               AI-Driven Insights
             </div>
           </div>
@@ -49,32 +49,32 @@ const SimpleHero = () => {
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
             <Link href="/onboarding">
-              <ClarityButton variant="primary" size="lg" className="px-8 py-4 text-lg">
+              <button className="btn-playbookd-primary px-8 py-4 text-lg">
                 Start Free Trial
-              </ClarityButton>
+              </button>
             </Link>
             <Link href="/dashboard">
-              <ClarityButton variant="secondary" size="lg" className="px-8 py-4 text-lg">
+              <button className="btn-playbookd-outline px-8 py-4 text-lg">
                 Sign In
-              </ClarityButton>
+              </button>
             </Link>
           </div>
 
           {/* Simple Social Proof */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-8 text-center">
             <div className="flex flex-col">
-              <span className="text-2xl font-bold text-clarity-accent">50K+</span>
-              <span className="text-sm text-clarity-text-secondary">Active Athletes</span>
+              <span className="text-2xl font-bold text-playbookd-red font-primary">50K+</span>
+              <span className="text-sm text-playbookd-dark/70 font-body">Active Athletes</span>
             </div>
-            <div className="hidden sm:block w-px h-8 bg-clarity-text-secondary/20"></div>
+            <div className="hidden sm:block w-px h-8 bg-playbookd-dark/20"></div>
             <div className="flex flex-col">
-              <span className="text-2xl font-bold text-clarity-accent">95%</span>
-              <span className="text-sm text-clarity-text-secondary">Success Rate</span>
+              <span className="text-2xl font-bold text-playbookd-red font-primary">95%</span>
+              <span className="text-sm text-playbookd-dark/70 font-body">Success Rate</span>
             </div>
-            <div className="hidden sm:block w-px h-8 bg-clarity-text-secondary/20"></div>
+            <div className="hidden sm:block w-px h-8 bg-playbookd-dark/20"></div>
             <div className="flex flex-col">
-              <span className="text-2xl font-bold text-clarity-accent">4.9★</span>
-              <span className="text-sm text-clarity-text-secondary">User Rating</span>
+              <span className="text-2xl font-bold text-playbookd-red font-primary">4.9★</span>
+              <span className="text-sm text-playbookd-dark/70 font-body">User Rating</span>
             </div>
           </div>
 

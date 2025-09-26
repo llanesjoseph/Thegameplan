@@ -1,0 +1,97 @@
+@font-face {
+    font-family: 'League Spartan';
+    src: url('/fonts/LeagueSpartan-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Sports World';
+    src: url('/fonts/SportsWorld-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* PlayBookd Brand Typography System */
+:root {
+  /* Brand Fonts */
+  --font-brand: 'Sports World', cursive;
+  --font-primary: 'League Spartan', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-secondary: 'Lekton', 'Courier New', monospace;
+  --font-body: 'Arial Nova', Arial, sans-serif;
+  
+  /* PlayBookd Brand Colors */
+  --playbookd-cream: #EBE608;
+  --playbookd-sky-blue: #51A6EB;
+  --playbookd-red: #A01C21;
+  --playbookd-deep-sea: #13367A;
+  --playbookd-green: #1B714E;
+  --playbookd-dark: #755C4F;
+  
+  /* Semantic Color Mapping */
+  --brand-primary: var(--playbookd-red);
+  --brand-secondary: var(--playbookd-deep-sea);
+  --brand-accent: var(--playbookd-cream);
+  --brand-success: var(--playbookd-green);
+  --brand-info: var(--playbookd-sky-blue);
+  --brand-neutral: var(--playbookd-dark);
+  
+  /* Text Colors */
+  --text-primary: #1a1a1a;
+  --text-secondary: var(--playbookd-dark);
+  --text-muted: #6b7280;
+  --text-inverse: #ffffff;
+  
+  /* Background Colors */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-accent: var(--playbookd-cream);
+  --bg-dark: var(--playbookd-dark);
+}
+
+/* Typography Classes */
+.font-brand {
+  font-family: var(--font-brand);
+}
+
+.font-primary {
+  font-family: var(--font-primary);
+}
+
+.font-secondary {
+  font-family: var(--font-secondary);
+}
+
+.font-body {
+  font-family: var(--font-body);
+}
+
+/* Brand-specific utility classes */
+.text-playbookd-cream { color: var(--playbookd-cream); }
+.text-playbookd-sky-blue { color: var(--playbookd-sky-blue); }
+.text-playbookd-red { color: var(--playbookd-red); }
+.text-playbookd-deep-sea { color: var(--playbookd-deep-sea); }
+.text-playbookd-green { color: var(--playbookd-green); }
+.text-playbookd-dark { color: var(--playbookd-dark); }
+
+.bg-playbookd-cream { background-color: var(--playbookd-cream); }
+.bg-playbookd-sky-blue { background-color: var(--playbookd-sky-blue); }
+.bg-playbookd-red { background-color: var(--playbookd-red); }
+.bg-playbookd-deep-sea { background-color: var(--playbookd-deep-sea); }
+.bg-playbookd-green { background-color: var(--playbookd-green); }
+.bg-playbookd-dark { background-color: var(--playbookd-dark); }
+
+/* Gradient combinations */
+.bg-gradient-playbookd-primary {
+  background: linear-gradient(135deg, var(--playbookd-red) 0%, var(--playbookd-deep-sea) 100%);
+}
+
+.bg-gradient-playbookd-secondary {
+  background: linear-gradient(135deg, var(--playbookd-sky-blue) 0%, var(--playbookd-green) 100%);
+}
+
+.bg-gradient-playbookd-accent {
+  background: linear-gradient(135deg, var(--playbookd-cream) 0%, var(--playbookd-sky-blue) 100%);
+}

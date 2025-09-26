@@ -4,6 +4,14 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // PlayBookd Brand Colors (Primary)
+        'playbookd-cream': '#EBE608',
+        'playbookd-sky-blue': '#51A6EB',
+        'playbookd-red': '#A01C21',
+        'playbookd-deep-sea': '#13367A',
+        'playbookd-green': '#1B714E',
+        'playbookd-dark': '#755C4F',
+        
         // Clarity OS Light Theme Colors (60-30-10 rule)
         clarity: {
           // Background (60%) - Off-White
@@ -53,10 +61,15 @@ const config: Config = {
         }
       },
       fontFamily: {
+        // PlayBookd Brand Fonts
+        'brand': ['Sports World', 'cursive'],
+        'primary': ['League Spartan', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        'secondary': ['Lekton', 'Courier New', 'monospace'],
+        'body': ['Arial Nova', 'Arial', 'sans-serif'],
+        
         // Clarity OS Typography - Single font family (Inter)
         sans: ['Inter', 'ui-sans-serif', 'system-ui'],
-        heading: ['Inter', 'ui-sans-serif', 'system-ui'],
-        body: ['Inter', 'ui-sans-serif', 'system-ui']
+        heading: ['Inter', 'ui-sans-serif', 'system-ui']
       },
       fontSize: {
         // Clarity OS Typographic Scale

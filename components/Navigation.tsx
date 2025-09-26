@@ -53,20 +53,20 @@ const Navigation = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             
-            {/* Logo Section - Simplified */}
+            {/* Logo Section - PlayBookd Brand */}
             <div className="flex items-center flex-shrink-0">
               <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
                 <div className="relative">
                   <Image
                     src="https://res.cloudinary.com/dr0jtjwlh/image/upload/v1756849213/GAME_PLAN_neon_green_BLACKBG_256_mv9snx.png"
-                    alt="Game Plan"
+                    alt="PlayBookd"
                     width={32}
                     height={32}
                     className="rounded-lg"
                   />
                 </div>
-                <span className="text-xl font-bold text-clarity-text-primary tracking-tight">
-                  GAME PLAN
+                <span className="text-xl font-brand text-playbookd-red tracking-wide">
+                  PLAYBOOKD
                 </span>
               </Link>
             </div>

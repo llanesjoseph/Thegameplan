@@ -14,7 +14,11 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="bg-clarity-background text-clarity-text-primary">
+      <head>
+        <link rel="preload" href="/fonts/LeagueSpartan-Regular.ttf" as="font" type="font/ttf" crossOrigin="" />
+        <link rel="preload" href="/fonts/SportsWorld-Regular.ttf" as="font" type="font/ttf" crossOrigin="" />
+      </head>
+      <body className="bg-clarity-background text-clarity-text-primary font-body">
         <AbstractBackground />
         <Navigation />
         <main className="relative z-10">

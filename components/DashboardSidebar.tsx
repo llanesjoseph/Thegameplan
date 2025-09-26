@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import { useEnhancedRole } from '@/hooks/use-role-switcher'
 import { useState } from 'react'
+import EnhancedRoleSwitcher from '@/components/ui/EnhancedRoleSwitcher'
 import { 
   LayoutDashboard, 
   Video, 
@@ -114,7 +115,7 @@ export function DashboardSidebar() {
       {/* Sidebar */}
       <aside className={`fixed left-0 top-0 h-full bg-white border-r border-gray-200 transition-all duration-300 z-40 w-64 ${
         mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-      }`}>
+      }`} data-tour="sidebar">
         {/* Header */}
         <div className="p-6 border-b border-gray-100">
           <div className="flex items-center gap-3 mb-3">
@@ -127,7 +128,12 @@ export function DashboardSidebar() {
               </h2>
             </div>
           </div>
-          {getRoleBadge()}
+          
+          {/* Role Badge and Switcher */}
+          <div className="flex items-center justify-between">
+            {getRoleBadge()}
+            <EnhancedRoleSwitcher />
+          </div>
         </div>
 
         {/* Navigation */}
