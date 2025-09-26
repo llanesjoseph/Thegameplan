@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { db } from '@/lib/firebase'
-import { doc, getDoc, setDoc } from 'firebase/firestore'
+import { doc, getDoc, setDoc, collection, getDocs, query, orderBy, where } from 'firebase/firestore'
 import { signOut } from 'firebase/auth'
 import { auth } from '@/lib/firebase.client'
 import {
@@ -103,6 +103,17 @@ export default function UnifiedDashboard() {
  const [showScheduleModal, setShowScheduleModal] = useState(false)
  const [saving, setSaving] = useState(false)
 
+ // Schedule session form state
+ const [scheduleForm, setScheduleForm] = useState({
+  athleteId: '',
+  date: '',
+  startTime: '',
+  endTime: '',
+  sessionType: 'Individual Training'
+ })
+ const [isScheduling, setIsScheduling] = useState(false)
+ const [scheduledSessions, setScheduledSessions] = useState<any[]>([])
+
  useEffect(() => {
   const loadUserData = async () => {
    if (!user?.uid) return
@@ -131,6 +142,9 @@ export default function UnifiedDashboard() {
      setUserProfile(defaultProfile)
      setEditForm(defaultProfile)
     }
+
+    // Load scheduled sessions
+    await loadScheduledSessions()
    } catch (error) {
     console.error('Error loading user data:', error)
    } finally {
@@ -140,6 +154,25 @@ export default function UnifiedDashboard() {
 
   loadUserData()
  }, [user])
+
+ const loadScheduledSessions = async () => {
+  if (!user?.uid) return
+
+  try {
+   const sessionsQuery = query(
+    collection(db, 'users', user.uid, 'sessions'),
+    orderBy('date', 'asc')
+   )
+   const snapshot = await getDocs(sessionsQuery)
+   const sessions = snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+   }))
+   setScheduledSessions(sessions)
+  } catch (error) {
+   console.error('Error loading scheduled sessions:', error)
+  }
+ }
 
  // Close dropdown when clicking outside
  useEffect(() => {
@@ -226,7 +259,75 @@ export default function UnifiedDashboard() {
  }
 
  const handleBookSlot = () => {
+  // Reset form when opening modal
+  setScheduleForm({
+   athleteId: mockAthletes[0]?.id.toString() || '',
+   date: '',
+   startTime: '',
+   endTime: '',
+   sessionType: 'Individual Training'
+  })
   setShowScheduleModal(true)
+ }
+
+ const handleScheduleSession = async () => {
+  if (!user?.uid) return
+
+  // Validate form
+  if (!scheduleForm.date || !scheduleForm.startTime || !scheduleForm.endTime) {
+   alert('Please fill in all required fields')
+   return
+  }
+
+  setIsScheduling(true)
+  try {
+   // Save session to Firestore
+   await setDoc(doc(db, 'sessions', `${user.uid}_${Date.now()}`), {
+    coachId: user.uid,
+    coachName: user.displayName || 'Coach',
+    athleteId: scheduleForm.athleteId,
+    athleteName: mockAthletes.find(a => a.id.toString() === scheduleForm.athleteId)?.name || 'Athlete',
+    date: scheduleForm.date,
+    startTime: scheduleForm.startTime,
+    endTime: scheduleForm.endTime,
+    sessionType: scheduleForm.sessionType,
+    status: 'scheduled',
+    createdAt: new Date(),
+    updatedAt: new Date()
+   })
+
+   // Also save to user's sessions subcollection for easier querying
+   await setDoc(doc(db, 'users', user.uid, 'sessions', `session_${Date.now()}`), {
+    athleteId: scheduleForm.athleteId,
+    athleteName: mockAthletes.find(a => a.id.toString() === scheduleForm.athleteId)?.name || 'Athlete',
+    date: scheduleForm.date,
+    startTime: scheduleForm.startTime,
+    endTime: scheduleForm.endTime,
+    sessionType: scheduleForm.sessionType,
+    status: 'scheduled',
+    createdAt: new Date()
+   })
+
+   setShowScheduleModal(false)
+   alert('Session scheduled successfully!')
+
+   // Reset form
+   setScheduleForm({
+    athleteId: '',
+    date: '',
+    startTime: '',
+    endTime: '',
+    sessionType: 'Individual Training'
+   })
+
+   // Reload sessions to show the new one
+   await loadScheduledSessions()
+  } catch (error) {
+   console.error('Error scheduling session:', error)
+   alert('Failed to schedule session. Please try again.')
+  } finally {
+   setIsScheduling(false)
+  }
  }
 
  const getSportIcon = (sport: string) => {
@@ -551,22 +652,38 @@ export default function UnifiedDashboard() {
         Upcoming Sessions
        </h3>
        <div className="space-y-4">
-        <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
-         <div>
-          <h4 className="font-medium text-blue-900">Soccer Training with Jasmine Aikey</h4>
-          <p className="text-sm text-blue-700">Today, 3:00 PM - 4:00 PM</p>
+        {scheduledSessions.length > 0 ? (
+         scheduledSessions.slice(0, 3).map((session, index) => (
+          <div key={session.id} className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
+           <div>
+            <h4 className="font-medium text-blue-900">
+             {session.sessionType} with {session.athleteName}
+            </h4>
+            <p className="text-sm text-blue-700">
+             {new Date(session.date).toLocaleDateString()} - {session.startTime} to {session.endTime}
+            </p>
+           </div>
+           <button
+            onClick={() => handleSessionStart(session.id)}
+            className="text-blue-600 hover:text-blue-800 transition-colors"
+           >
+            <Play className="w-5 h-5" />
+           </button>
+          </div>
+         ))
+        ) : (
+         <div className="text-center py-8 text-gray-500">
+          <Calendar className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+          <p className="text-sm">No scheduled sessions yet</p>
+          <p className="text-xs mt-1">Click "Schedule Session" to book your first session</p>
          </div>
-         <button
-          onClick={() => handleSessionStart('session-1')}
-          className="text-blue-600 hover:text-blue-800 transition-colors"
-         >
-          <Play className="w-5 h-5" />
-         </button>
-        </div>
+        )}
+
+        {/* Always show the option to add new session */}
         <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
          <div>
-          <h4 className="font-medium text-gray-900">Available Slot</h4>
-          <p className="text-sm text-gray-700">Tomorrow, 5:00 PM - 6:00 PM</p>
+          <h4 className="font-medium text-gray-900">Schedule New Session</h4>
+          <p className="text-sm text-gray-700">Add a new training session</p>
          </div>
          <button
           onClick={handleBookSlot}
@@ -793,7 +910,11 @@ export default function UnifiedDashboard() {
       <div className="space-y-4">
        <div>
         <label className="block text-sm font-medium mb-2">Select Athlete</label>
-        <select className="w-full px-3 py-2 border border-gray-300 rounded-lg">
+        <select
+         value={scheduleForm.athleteId}
+         onChange={(e) => setScheduleForm({ ...scheduleForm, athleteId: e.target.value })}
+         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+        >
          {mockAthletes.map((athlete) => (
           <option key={athlete.id} value={athlete.id}>
            {athlete.name}
@@ -803,37 +924,50 @@ export default function UnifiedDashboard() {
        </div>
 
        <div>
-        <label className="block text-sm font-medium mb-2">Date</label>
+        <label className="block text-sm font-medium mb-2">Date <span className="text-red-500">*</span></label>
         <input
          type="date"
-         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+         value={scheduleForm.date}
+         onChange={(e) => setScheduleForm({ ...scheduleForm, date: e.target.value })}
+         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+         required
         />
        </div>
 
        <div className="grid grid-cols-2 gap-4">
         <div>
-         <label className="block text-sm font-medium mb-2">Start Time</label>
+         <label className="block text-sm font-medium mb-2">Start Time <span className="text-red-500">*</span></label>
          <input
           type="time"
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+          value={scheduleForm.startTime}
+          onChange={(e) => setScheduleForm({ ...scheduleForm, startTime: e.target.value })}
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+          required
          />
         </div>
         <div>
-         <label className="block text-sm font-medium mb-2">End Time</label>
+         <label className="block text-sm font-medium mb-2">End Time <span className="text-red-500">*</span></label>
          <input
           type="time"
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+          value={scheduleForm.endTime}
+          onChange={(e) => setScheduleForm({ ...scheduleForm, endTime: e.target.value })}
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+          required
          />
         </div>
        </div>
 
        <div>
         <label className="block text-sm font-medium mb-2">Session Type</label>
-        <select className="w-full px-3 py-2 border border-gray-300 rounded-lg">
-         <option>Individual Training</option>
-         <option>Group Session</option>
-         <option>Video Call</option>
-         <option>Assessment</option>
+        <select
+         value={scheduleForm.sessionType}
+         onChange={(e) => setScheduleForm({ ...scheduleForm, sessionType: e.target.value })}
+         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+        >
+         <option value="Individual Training">Individual Training</option>
+         <option value="Group Session">Group Session</option>
+         <option value="Video Call">Video Call</option>
+         <option value="Assessment">Assessment</option>
         </select>
        </div>
       </div>
@@ -846,14 +980,15 @@ export default function UnifiedDashboard() {
         Cancel
        </button>
        <button
-        onClick={() => {
-         // Add scheduling logic here
-         setShowScheduleModal(false)
-         alert('Session scheduled successfully!')
-        }}
-        className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        onClick={handleScheduleSession}
+        disabled={isScheduling}
+        className={`flex-1 px-4 py-2 text-white rounded-lg transition-colors ${
+         isScheduling
+          ? 'bg-gray-400 cursor-not-allowed'
+          : 'bg-blue-600 hover:bg-blue-700'
+        }`}
        >
-        Schedule Session
+        {isScheduling ? 'Scheduling...' : 'Schedule Session'}
        </button>
       </div>
      </div>
