@@ -1,28 +1,66 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useParams } from 'next/navigation'
-import PlayBookdLayout from '@/components/PlayBookdLayout'
-import PlayBookdSection from '@/components/PlayBookdSection'
-import PlayBookdCard from '@/components/PlayBookdCard'
+import React, { useState } from 'react'
+import PlayBookdLayout from './PlayBookdLayout'
+import PlayBookdSection from './PlayBookdSection'
+import PlayBookdCard from './PlayBookdCard'
 import { 
-  Star, 
+  Calendar, 
+  Users, 
+  Video, 
+  MessageSquare, 
+  Star,
+  Clock,
   Target,
-  ChevronRight,
+  TrendingUp,
+  BookOpen,
+  Play,
   Facebook,
   Twitter,
   Linkedin,
-  Instagram
+  Instagram,
+  ExternalLink,
+  ChevronRight
 } from 'lucide-react'
-import Link from 'next/link'
 
-export default function ContributorProfilePage() {
-  const params = useParams()
-  const uid = params.uid as string
-  
-  // For now, we'll use Jasmine Aikey as the default profile
-  // Later, this can be dynamic based on the uid
-  const coach = {
+interface CoachProfile {
+  name: string
+  title: string
+  bio: string
+  photoURL?: string
+  specialties: string[]
+  achievements: string[]
+  socialLinks: {
+    facebook?: string
+    twitter?: string
+    linkedin?: string
+    instagram?: string
+  }
+}
+
+interface Athlete {
+  id: string
+  name: string
+  sport: string
+  level: string
+  photoURL?: string
+}
+
+interface TrainingContent {
+  id: string
+  title: string
+  type: 'video' | 'drill' | 'plan'
+  status: 'published' | 'draft'
+}
+
+interface CoachDashboardProps {
+  coach?: CoachProfile
+  athletes?: Athlete[]
+  trainingContent?: TrainingContent[]
+}
+
+const CoachDashboard: React.FC<CoachDashboardProps> = ({
+  coach = {
     name: "JASMINE AIKEY",
     title: "Elite soccer player at Stanford University, PAC-12 Champion and Midfielder of the Year",
     bio: "Playing soccer with your feet is one thing, but playing soccer with your heart is another.",
@@ -39,12 +77,19 @@ export default function ContributorProfilePage() {
       linkedin: "#",
       instagram: "#"
     }
-  }
-
-  const trainingContent = [
-    { id: '1', title: 'Footwork and Passing in Soccer', status: 'Ended' },
-    { id: '2', title: 'Soccer Drills for Beginners', status: 'Ended' }
+  },
+  athletes = [
+    { id: '1', name: 'Sarah Johnson', sport: 'Soccer', level: 'Beginner', photoURL: '/api/placeholder/60/60' },
+    { id: '2', name: 'Mike Chen', sport: 'Soccer', level: 'Intermediate', photoURL: '/api/placeholder/60/60' },
+    { id: '3', name: 'Emma Davis', sport: 'Soccer', level: 'Advanced', photoURL: '/api/placeholder/60/60' }
+  ],
+  trainingContent = [
+    { id: '1', title: 'Footwork and Passing in Soccer', type: 'video', status: 'published' },
+    { id: '2', title: 'Soccer Drills for Beginners', type: 'drill', status: 'published' },
+    { id: '3', title: 'Advanced Ball Control', type: 'video', status: 'draft' }
   ]
+}) => {
+  const [activeTab, setActiveTab] = useState<'overview' | 'athletes' | 'content' | 'schedule'>('overview')
 
   return (
     <PlayBookdLayout>
@@ -216,7 +261,7 @@ export default function ContributorProfilePage() {
           <h2 className="text-3xl font-bold text-playbookd-dark mb-4">{coach.name.split(' ')[0]}'s Training Library</h2>
         </div>
         
-        <div className="space-y-6 max-w-2xl mx-auto">
+        <div className="space-y-6">
           {trainingContent.map((content) => (
             <div key={content.id} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
               <div className="w-12 h-12 bg-playbookd-red rounded-full flex items-center justify-center flex-shrink-0">
@@ -224,28 +269,15 @@ export default function ContributorProfilePage() {
               </div>
               <div className="flex-1">
                 <h3 className="font-semibold text-playbookd-dark">{content.title}</h3>
-                <p className="text-sm text-gray-600">{content.status}</p>
+                <p className="text-sm text-gray-600 capitalize">{content.status}</p>
               </div>
               <ChevronRight className="w-5 h-5 text-gray-400" />
             </div>
           ))}
         </div>
       </PlayBookdSection>
-
-      {/* Claim Profile Section - For when Jasmine wants to take over */}
-      <PlayBookdSection variant="white" className="py-8 border-t border-gray-200">
-        <div className="text-center">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-md mx-auto">
-            <h3 className="font-semibold text-playbookd-dark mb-2">Are you Jasmine Aikey?</h3>
-            <p className="text-sm text-gray-600 mb-4">
-              Claim this profile to manage your content and connect with athletes.
-            </p>
-            <Link href="/become-coach" className="btn-playbookd-primary">
-              Claim This Profile
-            </Link>
-          </div>
-        </div>
-      </PlayBookdSection>
     </PlayBookdLayout>
   )
 }
+
+export default CoachDashboard
