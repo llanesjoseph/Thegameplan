@@ -66,7 +66,7 @@ const mockAthletes = [
 ]
 
 export default function UnifiedDashboard() {
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const [userProfile, setUserProfile] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [isEditing, setIsEditing] = useState(false)
@@ -257,6 +257,18 @@ export default function UnifiedDashboard() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black mx-auto"></div>
           <p className="mt-2 text-black">Loading your dashboard...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Show loading state while auth is initializing
+  if (authLoading || !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#E8E6D8' }}>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sky-blue mx-auto mb-4"></div>
+          <p className="text-dark">Loading...</p>
         </div>
       </div>
     )
