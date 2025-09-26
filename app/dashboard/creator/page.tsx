@@ -1371,10 +1371,9 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
  }
 
  return (
-  <CreatorAccessGate>
-   <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
-    <AppHeader />
-    <div className="max-w-6xl mx-auto px-4 py-6">
+  <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
+   <AppHeader />
+   <div className="max-w-6xl mx-auto px-4 py-6">
     {/* Header */}
     <div className="flex items-center justify-between mb-6">
      <div className="flex items-center gap-4">
@@ -2563,8 +2562,7 @@ This can reduce file size by 50-80% without significant quality loss.`)
     )}
 
     {/* Debug compression helper state - moved to useEffect */}
-    </div>
    </div>
-  </CreatorAccessGate>
+  </div>
  )
 }
