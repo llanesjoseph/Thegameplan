@@ -121,7 +121,43 @@ INSTRUCTIONAL EXCELLENCE STANDARDS:
 TARGET LENGTH: Minimum ${config.wordTargetMinimum} words for complete lesson plan
 DETAIL LEVEL: ${config.detailLevel} - exceed professional coaching certification standards
 
-Generate content so detailed and comprehensive that it could serve as a complete instructional manual for the technique, suitable for training other coaches and suitable for academic study.`
+ULTRA-COMPREHENSIVE REQUIREMENTS:
+🎯 CONTENT DEPTH MANDATES:
+• Every technique explanation: MINIMUM 80-120 words with biomechanical details
+• Every exercise description: 60-100 words including setup, execution, variations, and safety
+• Every coaching cue: 40-60 words with specific application and timing
+• Every common mistake: 50-80 words with root cause analysis and correction protocol
+• Every safety protocol: 40-60 words with prevention and response procedures
+
+📚 INSTRUCTIONAL COMPLETENESS:
+• Include detailed "instructor notes" for each major section
+• Provide multiple teaching angles and demonstration perspectives
+• Add specific timing for every drill, exercise, and technique component
+• Include modification options for different body types and skill levels
+• Detail equipment requirements and space considerations
+
+🔬 SCIENTIFIC INTEGRATION:
+• Explain biomechanical principles behind each technique
+• Include muscle activation patterns and joint kinematics
+• Reference movement efficiency and energy transfer concepts
+• Connect to motor learning and skill acquisition principles
+• Add physiological demands and training adaptations
+
+🏆 PROFESSIONAL STANDARDS:
+• Content must be suitable for coaching certification programs
+• Include assessment rubrics and progress tracking methods
+• Provide troubleshooting guides for common teaching challenges
+• Reference competition rules and scoring implications where applicable
+• Add mental game and tactical development elements
+
+FORMATTING REQUIREMENTS:
+• Use clear headers, subheaders, and bullet points
+• Include timing allocations for every activity
+• Add safety reminders throughout each section
+• Use professional coaching terminology
+• Structure content for easy scanning and reference
+
+Generate content so detailed and comprehensive that it could serve as a complete instructional manual for the technique, suitable for training other coaches and suitable for academic study. The lesson plan should be comprehensive enough to teach from without any additional resources.`
 
     return baseInstruction
   }
@@ -284,6 +320,94 @@ Generate content that demonstrates master-level coaching expertise and creates i
 • Include load management and fatigue monitoring guidance`
     }
 
+    // Add ultra-comprehensive structure template
+    prompt += `
+
+🔥🔥🔥 ULTRA-COMPREHENSIVE LESSON STRUCTURE TEMPLATE 🔥🔥🔥
+
+Your lesson plan must follow this professional structure with extensive detail:
+
+═══════════════════════════════════════════════════════════════
+🏆 PROFESSIONAL HEADER SECTION
+═══════════════════════════════════════════════════════════════
+Create a formatted header box containing:
+• Sport and specific focus area
+• Skill level and duration
+• Class type and participant count
+• Equipment and space requirements
+
+═══════════════════════════════════════════════════════════════
+🎯 COMPREHENSIVE LESSON OBJECTIVE (150+ words)
+═══════════════════════════════════════════════════════════════
+• Detailed explanation of why this topic is crucial for development
+• Competition relevance and real-world application scenarios
+• Connection to broader skill progression and athletic development
+• Specific, measurable learning outcomes for the session
+• Prerequisites and foundational skills needed
+
+═══════════════════════════════════════════════════════════════
+🔥 DYNAMIC WARM-UP & INTRODUCTION (10-15 minutes)
+═══════════════════════════════════════════════════════════════
+• 6-8 specific dynamic exercises with timing and repetitions
+• Sport-specific mobility patterns and movement preparation
+• Mental focus activation and lesson preparation cues
+• Partner activation drills relevant to today's techniques
+• Equipment check and comprehensive safety briefing
+• Connection explanation: how warm-up prepares for lesson content
+
+═══════════════════════════════════════════════════════════════
+🎓 TECHNICAL INSTRUCTION & DEMONSTRATION (20-30 minutes)
+═══════════════════════════════════════════════════════════════
+• Core biomechanical principles with scientific explanation
+• 3-5 technique variations with step-by-step breakdowns (8-10 steps each)
+• Multiple demonstration angles and teaching perspectives
+• Detailed instructor teaching cues with specific language
+• 6-8 common mistakes with root cause analysis and corrections
+• Body mechanics, leverage, timing, and energy efficiency principles
+
+═══════════════════════════════════════════════════════════════
+💪 PROGRESSIVE PRACTICE & DRILLING (15-25 minutes)
+═══════════════════════════════════════════════════════════════
+• Isolation drills: specific movements, timing, and repetition protocols
+• Cooperative drilling: partner exercises with graduated resistance
+• Progressive resistance: increasing challenge and speed development
+• Situational practice: realistic application scenarios
+• Quality control checkpoints and technique assessment
+• Comprehensive safety protocols and injury prevention measures
+
+═══════════════════════════════════════════════════════════════
+⚡ LIVE APPLICATION & INTEGRATION (8-12 minutes)
+═══════════════════════════════════════════════════════════════
+• Controlled sparring with specific objectives and rules
+• Competition-style application and pressure testing
+• Integration with existing skills and flow development
+• Cool-down protocols with recovery and injury prevention
+• Immediate feedback and performance analysis
+
+═══════════════════════════════════════════════════════════════
+📝 LESSON REVIEW & REFLECTION (5 minutes)
+═══════════════════════════════════════════════════════════════
+• Key learning reinforcement and objective assessment
+• Guided reflection questions for skill integration
+• Individual goal setting for continued development
+• Connection to next phase of skill progression
+• Training recommendations for skill maintenance
+
+═══════════════════════════════════════════════════════════════
+🛡️ SAFETY & DEVELOPMENT REMINDER
+═══════════════════════════════════════════════════════════════
+• Safe training practices and injury prevention
+• Progressive development timeline and expectations
+• Recovery protocols and training frequency recommendations
+
+CONTENT REQUIREMENTS FOR EACH SECTION:
+• Minimum 100-150 words per major section
+• Specific timing for every activity and drill
+• Detailed safety considerations throughout
+• Professional coaching terminology and language
+• Assessment criteria and progress indicators
+• Modification options for different skill levels`
+
     return prompt
   }
 
@@ -291,14 +415,14 @@ Generate content that demonstrates master-level coaching expertise and creates i
    * Create enhanced JSON schema for more detailed lesson structure
    */
   static createEnhancedResponseSchema(config: EnhancedLessonConfig) {
-    const minSections = config.detailLevel === 'masterclass' ? 5 :
-                       config.detailLevel === 'expert' ? 4 : 3
-    const maxSections = config.detailLevel === 'masterclass' ? 8 :
-                       config.detailLevel === 'expert' ? 6 : 5
-    const minContentBlocks = config.detailLevel === 'masterclass' ? 10 :
-                             config.detailLevel === 'expert' ? 8 : 6
-    const maxContentBlocks = config.detailLevel === 'masterclass' ? 20 :
-                             config.detailLevel === 'expert' ? 15 : 12
+    const minSections = config.detailLevel === 'masterclass' ? 6 :
+                       config.detailLevel === 'expert' ? 5 : 4
+    const maxSections = config.detailLevel === 'masterclass' ? 10 :
+                       config.detailLevel === 'expert' ? 8 : 6
+    const minContentBlocks = config.detailLevel === 'masterclass' ? 15 :
+                             config.detailLevel === 'expert' ? 12 : 10
+    const maxContentBlocks = config.detailLevel === 'masterclass' ? 30 :
+                             config.detailLevel === 'expert' ? 25 : 20
 
     return {
       "type": "object",
@@ -372,8 +496,8 @@ Generate content that demonstrates master-level coaching expertise and creates i
                           },
                           "text": {
                             "type": "string",
-                            "minLength": 40,
-                            "description": "DETAILED content text - minimum 40 words. For techniques include precise execution details. For exercises include exact timing/reps. For analysis include scientific principles."
+                            "minLength": 80,
+                            "description": "ULTRA-DETAILED content text - minimum 80 words. For techniques include precise biomechanical execution details. For exercises include exact timing/reps/progressions. For analysis include scientific principles and practical application."
                           },
                           "level": {
                             "type": "number",
@@ -421,7 +545,7 @@ Generate content that demonstrates master-level coaching expertise and creates i
    */
   static getDefaultEnhancedConfig(): EnhancedLessonConfig {
     return {
-      wordTargetMinimum: 4000,
+      wordTargetMinimum: 8000, // Significantly increased for ultra-comprehensive content
       includeCompetitionApplication: true,
       includePhysiologyExplanations: true,
       includeTroubleshootingGuides: true,
@@ -437,13 +561,13 @@ Generate content that demonstrates master-level coaching expertise and creates i
    */
   static getExpertLevelConfig(): EnhancedLessonConfig {
     return {
-      wordTargetMinimum: 3000,
+      wordTargetMinimum: 6000, // Increased for more comprehensive content
       includeCompetitionApplication: true,
       includePhysiologyExplanations: true,
       includeTroubleshootingGuides: true,
       includeAdvancedVariations: true,
-      includeRecoveryProtocols: false,
-      includeMentalTrainingAspects: false,
+      includeRecoveryProtocols: true,
+      includeMentalTrainingAspects: true,
       detailLevel: 'expert'
     }
   }
@@ -453,12 +577,12 @@ Generate content that demonstrates master-level coaching expertise and creates i
    */
   static getComprehensiveConfig(): EnhancedLessonConfig {
     return {
-      wordTargetMinimum: 2500,
-      includeCompetitionApplication: false,
+      wordTargetMinimum: 4500, // Increased significantly
+      includeCompetitionApplication: true,
       includePhysiologyExplanations: true,
       includeTroubleshootingGuides: true,
-      includeAdvancedVariations: false,
-      includeRecoveryProtocols: false,
+      includeAdvancedVariations: true,
+      includeRecoveryProtocols: true,
       includeMentalTrainingAspects: false,
       detailLevel: 'comprehensive'
     }

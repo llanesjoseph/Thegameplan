@@ -72,10 +72,10 @@ export class GeminiLessonService {
       generationConfig: {
         responseMimeType: "application/json",
         responseSchema: responseSchema,
-        temperature: 0.8, // Slightly higher for more creative and detailed content
-        maxOutputTokens: 8000, // Increased for more comprehensive content
-        topP: 0.95,
-        topK: 40
+        temperature: 0.9, // Higher for more creative and comprehensive content
+        maxOutputTokens: 10000, // Maximum possible for ultra-comprehensive content
+        topP: 0.98, // Higher for more diverse content
+        topK: 64 // Higher for more vocabulary diversity
       }
     }
 
