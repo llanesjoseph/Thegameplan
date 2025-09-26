@@ -1935,24 +1935,23 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
     {/* Compression Helper Modal */}
     {showCompressionHelper && videoFile && (
      <VideoCompressionHelper
-      videoFile={videoFile}
+      file={videoFile}
       onCompressed={(compressedFile) => {
        setVideoFile(compressedFile)
        setShowCompressionHelper(false)
       }}
-      onClose={() => setShowCompressionHelper(false)}
      />
     )}
 
     {/* In-App Compressor Modal */}
     {showInAppCompressor && videoFile && (
      <InAppVideoCompressor
-      videoFile={videoFile}
+      file={videoFile}
       onCompressed={(compressedFile) => {
        setVideoFile(compressedFile)
        setShowInAppCompressor(false)
       }}
-      onClose={() => setShowInAppCompressor(false)}
+      onCancel={() => setShowInAppCompressor(false)}
      />
     )}
 
