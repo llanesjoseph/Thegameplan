@@ -1371,12 +1371,606 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
  }
 
  return (
-  <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
-   <AppHeader />
-   <div className="max-w-6xl mx-auto px-4 py-6">
-    <h1>Creator Dashboard</h1>
-    <p>Coming soon...</p>
+  <CreatorAccessGate>
+   <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
+    <AppHeader />
+    <div className="max-w-6xl mx-auto px-4 py-6">
+     <div className="mb-8">
+      <h1 className="text-3xl font-bold text-gray-900 mb-2">Creator Studio</h1>
+      <p className="text-gray-600">Create and manage your training content</p>
+     </div>
+
+     {/* Stats Cards */}
+     <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div className="bg-white rounded-lg p-6 shadow-sm">
+       <div className="flex items-center">
+        <div className="p-2 bg-blue-100 rounded-lg">
+         <Video className="h-6 w-6 text-blue-600" />
+        </div>
+        <div className="ml-4">
+         <p className="text-sm font-medium text-gray-600">Published Lessons</p>
+         <p className="text-2xl font-bold text-gray-900">{lessonCount}</p>
+        </div>
+       </div>
+      </div>
+
+      <div className="bg-white rounded-lg p-6 shadow-sm">
+       <div className="flex items-center">
+        <div className="p-2 bg-green-100 rounded-lg">
+         <Eye className="h-6 w-6 text-green-600" />
+        </div>
+        <div className="ml-4">
+         <p className="text-sm font-medium text-gray-600">Total Views</p>
+         <p className="text-2xl font-bold text-gray-900">0</p>
+        </div>
+       </div>
+      </div>
+
+      <div className="bg-white rounded-lg p-6 shadow-sm">
+       <div className="flex items-center">
+        <div className="p-2 bg-purple-100 rounded-lg">
+         <Users className="h-6 w-6 text-purple-600" />
+        </div>
+        <div className="ml-4">
+         <p className="text-sm font-medium text-gray-600">Subscribers</p>
+         <p className="text-2xl font-bold text-gray-900">0</p>
+        </div>
+       </div>
+      </div>
+
+      <div className="bg-white rounded-lg p-6 shadow-sm">
+       <div className="flex items-center">
+        <div className="p-2 bg-orange-100 rounded-lg">
+         <TrendingUp className="h-6 w-6 text-orange-600" />
+        </div>
+        <div className="ml-4">
+         <p className="text-sm font-medium text-gray-600">Engagement</p>
+         <p className="text-2xl font-bold text-gray-900">0%</p>
+        </div>
+       </div>
+      </div>
+     </div>
+
+     {/* Tab Navigation */}
+     <div className="flex space-x-1 mb-6 bg-gray-100 rounded-lg p-1">
+      <button
+       onClick={() => setActiveTab('create')}
+       className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+        activeTab === 'create'
+         ? 'bg-white text-gray-900 shadow-sm'
+         : 'text-gray-600 hover:text-gray-900'
+       }`}
+      >
+       <Plus className="h-4 w-4 inline mr-2" />
+       Create Content
+      </button>
+      <button
+       onClick={() => setActiveTab('manage')}
+       className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+        activeTab === 'manage'
+         ? 'bg-white text-gray-900 shadow-sm'
+         : 'text-gray-600 hover:text-gray-900'
+       }`}
+      >
+       <FileVideo className="h-4 w-4 inline mr-2" />
+       Manage Content
+      </button>
+     </div>
+
+     {uploadSuccess && (
+      <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
+       <div className="flex">
+        <CheckCircle className="h-5 w-5 text-green-400" />
+        <div className="ml-3">
+         <p className="text-sm font-medium text-green-800">
+          Success! Your lesson has been published.
+         </p>
+         <button
+          onClick={() => setUploadSuccess(false)}
+          className="mt-2 text-sm text-green-600 hover:text-green-500"
+         >
+          Dismiss
+         </button>
+        </div>
+       </div>
+      </div>
+     )}
+
+     {/* Content Area */}
+     {activeTab === 'create' ? (
+      <div className="bg-white rounded-lg shadow-sm">
+       <div className="p-6 border-b border-gray-200">
+        <div className="flex items-center justify-between">
+         <h2 className="text-lg font-semibold text-gray-900">Create New Lesson</h2>
+         <button
+          onClick={() => setShowAIFeatures(!showAIFeatures)}
+          className="flex items-center px-3 py-2 text-sm font-medium text-purple-600 hover:text-purple-700 hover:bg-purple-50 rounded-md transition-colors"
+         >
+          <Sparkles className="h-4 w-4 mr-2" />
+          AI Assistant
+         </button>
+        </div>
+       </div>
+
+       {/* AI Features Panel */}
+       {showAIFeatures && (
+        <div className="border-b border-gray-200 bg-gradient-to-r from-purple-50 to-blue-50 p-6">
+         <div className="max-w-4xl">
+          <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+           <Bot className="h-5 w-5 mr-2 text-purple-600" />
+           AI Content Assistant
+          </h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+           {/* Lesson Idea Generator */}
+           <div className="space-y-4">
+            <h4 className="font-medium text-gray-900 flex items-center">
+             <Lightbulb className="h-4 w-4 mr-2 text-yellow-500" />
+             Lesson Ideas Generator
+            </h4>
+
+            <div className="space-y-3">
+             <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+               Select Sport:
+              </label>
+              <select
+               value={selectedSport}
+               onChange={(e) => setSelectedSport(e.target.value)}
+               className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              >
+               <option value="BJJ">Brazilian Jiu-Jitsu</option>
+               <option value="MMA">Mixed Martial Arts</option>
+               <option value="boxing">Boxing</option>
+               <option value="wrestling">Wrestling</option>
+               <option value="soccer">Soccer</option>
+               <option value="football">American Football</option>
+               <option value="basketball">Basketball</option>
+               <option value="tennis">Tennis</option>
+               <option value="golf">Golf</option>
+               <option value="swimming">Swimming</option>
+               <option value="track">Track & Field</option>
+               <option value="volleyball">Volleyball</option>
+               <option value="baseball">Baseball</option>
+               <option value="hockey">Hockey</option>
+               <option value="gymnastics">Gymnastics</option>
+              </select>
+             </div>
+
+             <button
+              onClick={generateLessonIdeas}
+              disabled={generatingIdeas}
+              className="w-full flex items-center justify-center px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-md hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+             >
+              {generatingIdeas ? (
+               <>
+                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                Generating Ideas...
+               </>
+              ) : (
+               <>
+                <Wand2 className="h-4 w-4 mr-2" />
+                Generate Lesson Ideas
+               </>
+              )}
+             </button>
+            </div>
+
+            {/* AI Suggestions */}
+            {aiSuggestions.length > 0 && (
+             <div className="mt-4 space-y-2">
+              <h5 className="text-sm font-medium text-gray-700">AI Suggestions:</h5>
+              <div className="max-h-48 overflow-y-auto space-y-2">
+               {aiSuggestions.map((suggestion, index) => (
+                <button
+                 key={index}
+                 onClick={() => applySuggestion(suggestion)}
+                 className="w-full text-left p-3 text-sm bg-white border border-gray-200 rounded-md hover:border-purple-300 hover:bg-purple-50 transition-colors"
+                >
+                 {suggestion}
+                </button>
+               ))}
+              </div>
+              <button
+               onClick={() => setAISuggestions([])}
+               className="text-xs text-gray-500 hover:text-gray-700"
+              >
+               Clear suggestions
+              </button>
+             </div>
+            )}
+           </div>
+
+           {/* Content Enhancer */}
+           <div className="space-y-4">
+            <h4 className="font-medium text-gray-900 flex items-center">
+             <Sparkles className="h-4 w-4 mr-2 text-blue-500" />
+             Content Enhancer
+            </h4>
+            <p className="text-sm text-gray-600">
+             Add your lesson title and description, then click enhance to get detailed, professional content.
+            </p>
+            <button
+             onClick={enhanceDescription}
+             disabled={enhancingContent}
+             className="w-full flex items-center justify-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+             {enhancingContent ? (
+              <>
+               <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+               Enhancing Content...
+              </>
+             ) : (
+              <>
+               <Wand2 className="h-4 w-4 mr-2" />
+               Enhance Description
+              </>
+             )}
+            </button>
+           </div>
+          </div>
+         </div>
+        </div>
+       )}
+
+       <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
+        {/* Title Field */}
+        <div>
+         <label className="block text-sm font-medium text-gray-700 mb-2">
+          Lesson Title *
+         </label>
+         <input
+          type="text"
+          {...register('title')}
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder="Enter your lesson title..."
+         />
+         {errors.title && (
+          <p className="mt-1 text-sm text-red-600">{errors.title.message}</p>
+         )}
+        </div>
+
+        {/* Description Field */}
+        <div>
+         <label className="block text-sm font-medium text-gray-700 mb-2">
+          Description *
+         </label>
+         <textarea
+          {...register('description')}
+          rows={4}
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder="Describe what students will learn in this lesson..."
+         />
+         {errors.description && (
+          <p className="mt-1 text-sm text-red-600">{errors.description.message}</p>
+         )}
+        </div>
+
+        {/* Detailed Writeup Field */}
+        <div>
+         <label className="block text-sm font-medium text-gray-700 mb-2">
+          Detailed Lesson Content
+          <span className="text-gray-500 text-xs ml-2">(Optional - Enhanced content from AI)</span>
+         </label>
+         <textarea
+          value={detailedWriteup}
+          onChange={(e) => setDetailedWriteup(e.target.value)}
+          rows={12}
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
+          placeholder="Detailed lesson content will appear here when you use the AI Content Enhancer..."
+         />
+         <p className="mt-1 text-xs text-gray-500">
+          This field supports markdown formatting for rich content presentation.
+         </p>
+        </div>
+
+        {/* Level Field */}
+        <div>
+         <label className="block text-sm font-medium text-gray-700 mb-2">
+          Skill Level *
+         </label>
+         <select
+          {...register('level')}
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+         >
+          <option value="All Levels">All Levels</option>
+          <option value="Beginner">Beginner</option>
+          <option value="Intermediate">Intermediate</option>
+          <option value="Advanced">Advanced</option>
+         </select>
+        </div>
+
+        {/* Video Upload */}
+        <div>
+         <label className="block text-sm font-medium text-gray-700 mb-2">
+          Video File
+          <span className="text-gray-500 text-xs ml-2">(Optional)</span>
+         </label>
+
+         {/* Upload Options */}
+         <div className="mb-4 flex flex-wrap gap-2">
+          <button
+           type="button"
+           onClick={() => setUseEnterpriseUpload(!useEnterpriseUpload)}
+           className={`px-3 py-1 text-xs rounded-full transition-colors ${
+            useEnterpriseUpload
+             ? 'bg-blue-100 text-blue-700 border border-blue-300'
+             : 'bg-gray-100 text-gray-600 border border-gray-300'
+           }`}
+          >
+           {useEnterpriseUpload ? '✓' : ''} Enterprise Upload (Large Files)
+          </button>
+
+          <button
+           type="button"
+           onClick={() => setShowCompressionHelper(!showCompressionHelper)}
+           className="px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-600 border border-gray-300 hover:bg-gray-200 transition-colors"
+          >
+           🗜️ Compression Helper
+          </button>
+
+          <button
+           type="button"
+           onClick={() => setShowInAppCompressor(!showInAppCompressor)}
+           className="px-3 py-1 text-xs rounded-full bg-purple-100 text-purple-700 border border-purple-300 hover:bg-purple-200 transition-colors"
+          >
+           📹 In-App Compressor
+          </button>
+
+          <button
+           type="button"
+           onClick={() => setShowGcsUploader(!showGcsUploader)}
+           className="px-3 py-1 text-xs rounded-full bg-green-100 text-green-700 border border-green-300 hover:bg-green-200 transition-colors"
+          >
+           ☁️ Cloud Upload
+          </button>
+         </div>
+
+         <input
+          type="file"
+          accept="video/*"
+          onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+         />
+
+         {videoFile && (
+          <div className="mt-2 p-3 bg-gray-50 rounded border">
+           <p className="text-sm text-gray-600">
+            Selected: <span className="font-medium">{videoFile.name}</span>
+           </p>
+           <p className="text-xs text-gray-500">
+            Size: {(videoFile.size / (1024 * 1024)).toFixed(1)} MB
+            {videoFile.size > 100 * 1024 * 1024 && (
+             <span className="text-orange-600 ml-2">
+              (Large file - consider using Enterprise Upload)
+             </span>
+            )}
+           </p>
+
+           {/* Upload Progress */}
+           {uploadProgress.video > 0 && uploadProgress.video < 100 && (
+            <div className="mt-2">
+             <div className="flex items-center justify-between mb-1">
+              <span className="text-xs text-gray-600">Video Upload Progress</span>
+              <span className="text-xs text-gray-600">{uploadProgress.video}%</span>
+             </div>
+             <div className="w-full bg-gray-200 rounded-full h-2">
+              <div
+               className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+               style={{ width: `${uploadProgress.video}%` }}
+              />
+             </div>
+
+             {/* Upload Controls */}
+             {uploadTasks.video && (
+              <div className="flex gap-2 mt-2">
+               {uploadPaused.video ? (
+                <button
+                 type="button"
+                 onClick={() => resumeUpload('video')}
+                 className="text-xs text-green-600 hover:text-green-700 flex items-center"
+                >
+                 <PlayCircle className="h-3 w-3 mr-1" />
+                 Resume
+                </button>
+               ) : (
+                <button
+                 type="button"
+                 onClick={() => pauseUpload('video')}
+                 className="text-xs text-yellow-600 hover:text-yellow-700 flex items-center"
+                >
+                 <Pause className="h-3 w-3 mr-1" />
+                 Pause
+                </button>
+               )}
+               <button
+                type="button"
+                onClick={() => cancelUpload('video')}
+                className="text-xs text-red-600 hover:text-red-700 flex items-center"
+               >
+                <X className="h-3 w-3 mr-1" />
+                Cancel
+               </button>
+              </div>
+             )}
+            </div>
+           )}
+          </div>
+         )}
+        </div>
+
+        {/* Thumbnail Upload */}
+        <div>
+         <label className="block text-sm font-medium text-gray-700 mb-2">
+          Thumbnail Image
+          <span className="text-gray-500 text-xs ml-2">(Optional)</span>
+         </label>
+         <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => setThumbFile(e.target.files?.[0] || null)}
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+         />
+
+         {thumbFile && (
+          <div className="mt-2 p-3 bg-gray-50 rounded border">
+           <p className="text-sm text-gray-600">
+            Selected: <span className="font-medium">{thumbFile.name}</span>
+           </p>
+
+           {/* Thumbnail Upload Progress */}
+           {uploadProgress.thumbnail > 0 && uploadProgress.thumbnail < 100 && (
+            <div className="mt-2">
+             <div className="flex items-center justify-between mb-1">
+              <span className="text-xs text-gray-600">Thumbnail Upload Progress</span>
+              <span className="text-xs text-gray-600">{uploadProgress.thumbnail}%</span>
+             </div>
+             <div className="w-full bg-gray-200 rounded-full h-2">
+              <div
+               className="bg-green-600 h-2 rounded-full transition-all duration-300"
+               style={{ width: `${uploadProgress.thumbnail}%` }}
+              />
+             </div>
+            </div>
+           )}
+          </div>
+         )}
+        </div>
+
+        {/* Submit Button */}
+        <div className="flex justify-end">
+         <button
+          type="submit"
+          disabled={creating || (uploadProgress.video > 0 && uploadProgress.video < 100)}
+          className="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center"
+         >
+          {creating ? (
+           <>
+            <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+            Creating Lesson...
+           </>
+          ) : (
+           <>
+            <Upload className="h-4 w-4 mr-2" />
+            Publish Lesson
+           </>
+          )}
+         </button>
+        </div>
+       </form>
+      </div>
+     ) : (
+      // Manage Content Tab
+      <div className="bg-white rounded-lg shadow-sm">
+       <div className="p-6 border-b border-gray-200">
+        <h2 className="text-lg font-semibold text-gray-900">Manage Content</h2>
+        <p className="text-sm text-gray-600 mt-1">View and manage your published lessons</p>
+       </div>
+
+       <div className="p-6">
+        {loadingLessons ? (
+         <div className="text-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-2 text-gray-600">Loading lessons...</p>
+         </div>
+        ) : publishedLessons.length === 0 ? (
+         <div className="text-center py-8">
+          <FileVideo className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+          <p className="text-gray-500">No lessons published yet</p>
+          <p className="text-sm text-gray-400 mt-1">Create your first lesson to get started</p>
+         </div>
+        ) : (
+         <div className="space-y-4">
+          {publishedLessons.map((lesson) => (
+           <div key={lesson.id} className="border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors">
+            <div className="flex items-start justify-between">
+             <div className="flex-1">
+              <h3 className="font-medium text-gray-900">{lesson.title}</h3>
+              <p className="text-sm text-gray-600 mt-1 line-clamp-2">{lesson.description}</p>
+              <div className="flex items-center mt-3 space-x-4 text-xs text-gray-500">
+               <span className="flex items-center">
+                <Eye className="h-3 w-3 mr-1" />
+                {lesson.views || 0} views
+               </span>
+               <span className="flex items-center">
+                <Clock className="h-3 w-3 mr-1" />
+                {lesson.createdAt?.toDate ? lesson.createdAt.toDate().toLocaleDateString() : 'Unknown date'}
+               </span>
+               <span className={`px-2 py-1 rounded-full text-xs ${
+                lesson.level === 'Beginner' ? 'bg-green-100 text-green-700' :
+                lesson.level === 'Intermediate' ? 'bg-yellow-100 text-yellow-700' :
+                lesson.level === 'Advanced' ? 'bg-red-100 text-red-700' :
+                'bg-gray-100 text-gray-700'
+               }`}>
+                {lesson.level}
+               </span>
+              </div>
+             </div>
+             <div className="flex items-center space-x-2 ml-4">
+              <button
+               onClick={() => window.open(`/lessons/${lesson.id}`, '_blank')}
+               className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+               title="View lesson"
+              >
+               <ExternalLink className="h-4 w-4" />
+              </button>
+              <button
+               onClick={() => deleteLesson(lesson.id)}
+               className="p-2 text-gray-400 hover:text-red-600 transition-colors"
+               title="Delete lesson"
+              >
+               <Trash2 className="h-4 w-4" />
+              </button>
+             </div>
+            </div>
+           </div>
+          ))}
+         </div>
+        )}
+       </div>
+      </div>
+     )}
+    </div>
+
+    {/* Compression Helper Modal */}
+    {showCompressionHelper && videoFile && (
+     <VideoCompressionHelper
+      videoFile={videoFile}
+      onCompressed={(compressedFile) => {
+       setVideoFile(compressedFile)
+       setShowCompressionHelper(false)
+      }}
+      onClose={() => setShowCompressionHelper(false)}
+     />
+    )}
+
+    {/* In-App Compressor Modal */}
+    {showInAppCompressor && videoFile && (
+     <InAppVideoCompressor
+      videoFile={videoFile}
+      onCompressed={(compressedFile) => {
+       setVideoFile(compressedFile)
+       setShowInAppCompressor(false)
+      }}
+      onClose={() => setShowInAppCompressor(false)}
+     />
+    )}
+
+    {/* GCS Uploader Modal */}
+    {showGcsUploader && (
+     <GcsVideoUploader
+      onUploadComplete={(videoUrl) => {
+       // Handle the uploaded video URL
+       console.log('GCS Upload completed:', videoUrl)
+       setShowGcsUploader(false)
+      }}
+      onClose={() => setShowGcsUploader(false)}
+     />
+    )}
+
+    {/* Upload Manager */}
+    <UploadManager />
    </div>
-  </div>
+  </CreatorAccessGate>
  )
 }
