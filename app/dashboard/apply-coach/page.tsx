@@ -7,6 +7,7 @@ import { db } from '@/lib/firebase'
 import { doc, setDoc, getDoc } from 'firebase/firestore'
 import { ArrowLeft, Upload, Star, Trophy, Target, Users, CheckCircle, AlertTriangle } from 'lucide-react'
 import Link from 'next/link'
+import AppHeader from '@/components/ui/AppHeader'
 
 // Sports list from existing profile
 const SPORTS_OPTIONS = [
@@ -233,6 +234,7 @@ export default function ApplyCoachPage() {
 
  return (
   <main className="min-h-screen bg-gradient-to-br from-cream via-cream to-sky-blue/10">
+   <AppHeader />
    <div className="max-w-4xl mx-auto px-6 py-8">
     {/* Header */}
     <div className="flex items-center gap-4 mb-8">

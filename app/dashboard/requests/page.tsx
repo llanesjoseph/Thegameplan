@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { MessageSquare, Clock, CheckCircle2, AlertCircle, Send, Plus } from 'lucide-react'
+import AppHeader from '@/components/ui/AppHeader'
 
 interface UserRequest {
  id: string
@@ -150,13 +151,16 @@ export default function UserRequestsPage() {
 
  if (loading) {
   return (
-   <div className="container mx-auto py-8">
-    <div className="animate-pulse space-y-6">
-     <div className="h-8 bg-gray-200 rounded w-1/4"></div>
-     <div className="space-y-4">
-      {[...Array(3)].map((_, i) => (
-       <div key={i} className="h-32 bg-gray-200 rounded"></div>
-      ))}
+   <div>
+    <AppHeader />
+    <div className="container mx-auto py-8">
+     <div className="animate-pulse space-y-6">
+      <div className="h-8 bg-gray-200 rounded w-1/4"></div>
+      <div className="space-y-4">
+       {[...Array(3)].map((_, i) => (
+        <div key={i} className="h-32 bg-gray-200 rounded"></div>
+       ))}
+      </div>
      </div>
     </div>
    </div>
@@ -164,8 +168,10 @@ export default function UserRequestsPage() {
  }
 
  return (
-  <div className="container mx-auto py-8">
-   <div className="space-y-6">
+  <div>
+   <AppHeader />
+   <div className="container mx-auto py-8">
+    <div className="space-y-6">
     <div className="flex justify-between items-center">
      <div>
       <h1 className="text-3xl ">Support Requests</h1>
@@ -386,5 +392,6 @@ export default function UserRequestsPage() {
     </Tabs>
    </div>
   </div>
+ </div>
  )
 }

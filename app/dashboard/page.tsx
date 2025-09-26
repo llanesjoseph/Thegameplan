@@ -6,7 +6,7 @@ import { getRedirectResult } from 'firebase/auth'
 import { auth } from '@/lib/firebase.client'
 import { useAuth } from '@/hooks/use-auth'
 import SimpleAuth from '@/components/auth/SimpleAuth'
-import { UserIdentity } from '@/components/user-identity'
+import AppHeader from '@/components/ui/AppHeader'
 import ProfileCompletionBanner from '@/components/ui/ProfileCompletionBanner'
 
 export default function Dashboard() {
@@ -43,10 +43,7 @@ export default function Dashboard() {
  if (loading) {
   return (
    <div className="min-h-screen bg-gray-50">
-    {/* User controls at top */}
-    <div className="flex justify-end p-4">
-     <UserIdentity />
-    </div>
+    <AppHeader />
     <div className="flex items-center justify-center min-h-[80vh]">
      <div className="text-center bg-white rounded-xl shadow-sm border border-gray-200 p-8">
       <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-cardinal mx-auto"></div>
@@ -61,13 +58,8 @@ export default function Dashboard() {
  if (user) {
   return (
    <div className="min-h-screen bg-gray-50">
-    {/* User controls and profile completion banner at top */}
-    <div className="space-y-0">
-     <ProfileCompletionBanner />
-     <div className="flex justify-end p-4">
-      <UserIdentity />
-     </div>
-    </div>
+    <AppHeader />
+    <ProfileCompletionBanner />
 
     <div className="flex items-center justify-center min-h-[70vh]">
      <div className="text-center bg-white rounded-xl shadow-sm border border-gray-200 p-8">

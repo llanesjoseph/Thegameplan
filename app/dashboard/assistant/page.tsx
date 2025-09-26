@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { getAssistantCoachAssignments, AssistantCoachAssignment } from '@/lib/assistant-coach-service'
 import { MessageCircle, Calendar, Users, BarChart3, Clock, CheckCircle } from 'lucide-react'
 import Link from 'next/link'
+import AppHeader from '@/components/ui/AppHeader'
 
 interface DashboardStats {
  pendingRequests: number
@@ -91,7 +92,9 @@ export default function AssistantCoachDashboard() {
  }
 
  return (
-  <div className="p-6">
+  <div>
+   <AppHeader />
+   <div className="p-6">
    {/* Header */}
    <div className="mb-8">
     <h1 className="text-3xl text-gray-900 mb-2">Assistant Coach Dashboard</h1>
@@ -249,5 +252,6 @@ export default function AssistantCoachDashboard() {
     </div>
    </div>
   </div>
+ </div>
  )
 }

@@ -16,6 +16,7 @@ import {
  Plus,
  RefreshCw
 } from 'lucide-react'
+import AppHeader from '@/components/ui/AppHeader'
 
 interface LessonData {
  id: string
@@ -85,7 +86,9 @@ export default function SimpleCreatorDashboard() {
   : []
 
  return (
-  <div className="min-h-screen bg-gray-50 p-6">
+  <div className="min-h-screen bg-gray-50">
+   <AppHeader />
+   <div className="p-6">
    <div className="max-w-6xl mx-auto">
     
     {/* Header */}
@@ -319,5 +322,6 @@ export default function SimpleCreatorDashboard() {
     </div>
    </div>
   </div>
+ </div>
  )
 }

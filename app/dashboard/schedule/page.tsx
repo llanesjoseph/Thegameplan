@@ -4,6 +4,7 @@ import { db, auth } from '@/lib/firebase.client'
 import { doc, getDoc, setDoc, addDoc, collection, serverTimestamp, query, where, getDocs, limit } from 'firebase/firestore'
 import { onAuthStateChanged, signInAnonymously } from 'firebase/auth'
 import { Calendar, Clock, Plus, Save, Send, Trash2, Search, User } from 'lucide-react'
+import AppHeader from '@/components/ui/AppHeader'
 
 type Slot = { day: string, start: string, end: string }
 
@@ -144,6 +145,7 @@ export default function UserSchedule() {
 
  return (
   <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
+   <AppHeader />
    <div className="relative overflow-hidden">
     <div className="relative max-w-4xl mx-auto px-6 py-12">
      {/* Header */}

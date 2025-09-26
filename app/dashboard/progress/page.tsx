@@ -24,6 +24,7 @@ import { SoccerIcon } from '@/components/icons/SoccerIcon'
 import { BasketballIcon } from '@/components/icons/BasketballIcon'
 import { FootballIcon } from '@/components/icons/FootballIcon'
 import { MMAGlovesIcon } from '@/components/icons/MMAGlovesIcon'
+import AppHeader from '@/components/ui/AppHeader'
 
 export default function ProgressDashboard() {
  const { user } = useAuth()
@@ -79,6 +80,7 @@ export default function ProgressDashboard() {
 
  return (
   <div style={{ backgroundColor: '#E8E6D8' }} className="min-h-screen">
+   <AppHeader />
    {/* Header Section */}
    <div className="text-center py-12 px-6">
     <h1 className="text-3xl mb-4 font-heading uppercase tracking-wide" style={{ color: '#000000' }}>

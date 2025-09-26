@@ -34,6 +34,7 @@ import { DiscordIcon } from '@/components/icons/DiscordIcon'
 import { TikTokIcon } from '@/components/icons/TikTokIcon'
 import AssistantCoachManager from '@/components/AssistantCoachManager'
 import ImageUploader from '@/components/ImageUploader'
+import AppHeader from '@/components/ui/AppHeader'
 
 // Comprehensive sports list from the app
 const SPORTS_OPTIONS = [
@@ -281,8 +282,9 @@ export default function ProfilePage() {
 
  return (
   <main className="min-h-screen bg-gradient-to-br from-cream via-cream to-sky-blue/10">
+   <AppHeader />
    <div className="max-w-6xl mx-auto px-6 py-8">
-    {/* Header */}
+    {/* Page Header */}
     <div className="flex items-center justify-between mb-8">
      <div className="flex items-center gap-4">
       <Link href="/dashboard" className="p-3 hover:bg-white/80 rounded-xl transition-colors shadow-sm backdrop-blur-sm border border-white/20">

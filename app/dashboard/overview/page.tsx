@@ -32,6 +32,7 @@ import { BasketballIcon } from '@/components/icons/BasketballIcon'
 import { FootballIcon } from '@/components/icons/FootballIcon'
 import { MMAGlovesIcon } from '@/components/icons/MMAGlovesIcon'
 import ImageUploader from '@/components/ImageUploader'
+import AppHeader from '@/components/ui/AppHeader'
 
 // Mock athletes data (you can replace with real data later)
 const mockAthletes = [
@@ -91,9 +92,6 @@ export default function UnifiedDashboard() {
   upcomingSessions: 1
  })
 
- // Dropdown state
- const [isDropdownOpen, setIsDropdownOpen] = useState(false)
- const dropdownRef = useRef<HTMLDivElement>(null)
  const router = useRouter()
 
  // Availability state
@@ -174,17 +172,6 @@ export default function UnifiedDashboard() {
   }
  }
 
- // Close dropdown when clicking outside
- useEffect(() => {
-  const handleClickOutside = (event: MouseEvent) => {
-   if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-    setIsDropdownOpen(false)
-   }
-  }
-
-  document.addEventListener('mousedown', handleClickOutside)
-  return () => document.removeEventListener('mousedown', handleClickOutside)
- }, [])
 
  const handleSaveProfile = async () => {
   if (!user?.uid) return
@@ -203,15 +190,6 @@ export default function UnifiedDashboard() {
   }
  }
 
- // Handler functions
- const handleSignOut = async () => {
-  try {
-   await signOut(auth)
-   router.push('/')
-  } catch (error) {
-   console.error('Error signing out:', error)
-  }
- }
 
  const handleDayToggle = (day: string) => {
   setSelectedDays(prev =>
@@ -390,66 +368,7 @@ export default function UnifiedDashboard() {
     }
    `}</style>
 
-   {/* Header */}
-   <header className="bg-white px-4 py-4 shadow-sm">
-    <div className="max-w-7xl mx-auto flex items-center justify-between">
-     <button
-      onClick={() => router.push('/dashboard')}
-      className="text-2xl tracking-wider hover:opacity-80 transition-opacity"
-      style={{
-       fontFamily: 'Sports World, Impact, Arial Black, sans-serif',
-       color: '#624A41'
-      }}
-     >
-      PLAYBOOKD
-     </button>
-     <div className="flex items-center gap-4">
-      <Link href="/contributors" className="text-black hover:text-blue-600 font-medium">
-       Browse Coaches
-      </Link>
-      <div className="px-4 py-2 bg-purple-600 text-white rounded-lg font-medium">
-       Coach
-      </div>
-      <div className="relative" ref={dropdownRef}>
-       <button
-        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-        className="flex items-center gap-2 hover:bg-gray-50 rounded-lg p-1 transition-colors"
-       >
-        <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-medium">
-         J
-        </div>
-        <span className="font-medium text-black">Joseph</span>
-        <svg
-         className={`w-4 h-4 text-gray-500 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
-         fill="none"
-         stroke="currentColor"
-         viewBox="0 0 24 24"
-        >
-         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
-       </button>
-
-       {isDropdownOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
-         <Link href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-          View Profile
-         </Link>
-         <Link href="/settings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-          Settings
-         </Link>
-         <hr className="my-1" />
-         <button
-          onClick={handleSignOut}
-          className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50"
-         >
-          Sign Out
-         </button>
-        </div>
-       )}
-      </div>
-     </div>
-    </div>
-   </header>
+   <AppHeader />
 
    {/* Header Section */}
    <div className="text-center py-12 px-6">

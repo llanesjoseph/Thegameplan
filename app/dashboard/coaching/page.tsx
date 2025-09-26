@@ -26,6 +26,7 @@ import { WhistleIcon } from '@/components/icons/WhistleIcon'
 import { TeachingIcon } from '@/components/icons/TeachingIcon'
 import { PlayIcon } from '@/components/icons/PlayIcon'
 import Link from 'next/link'
+import AppHeader from '@/components/ui/AppHeader'
 
 import { CoachingRequest } from '@/lib/types'
 
@@ -271,6 +272,7 @@ export default function CoachingPage() {
 
  return (
   <main className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
+   <AppHeader />
    <div className="max-w-6xl mx-auto px-6 py-8">
     {/* Header */}
     <div className="text-center mb-8">

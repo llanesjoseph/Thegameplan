@@ -49,6 +49,7 @@ import {
  PlayCircle,
  X
 } from 'lucide-react'
+import AppHeader from '@/components/ui/AppHeader'
 
 // Title analysis function (same as in content-generation-service)
 function analyzeLessonTitle(title: string, sport: string): {
@@ -1372,6 +1373,7 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
  return (
   <CreatorAccessGate>
    <main className="min-h-screen bg-gray-50">
+    <AppHeader />
     <div className="max-w-6xl mx-auto px-4 py-6">
     {/* Header */}
     <div className="flex items-center justify-between mb-6">
