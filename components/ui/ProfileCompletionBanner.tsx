@@ -11,8 +11,13 @@ import ClarityButton from './NexusButton'
 interface UserProfile {
   firstName?: string
   lastName?: string
+  displayName?: string
   primarySport?: string
+  specialties?: string[]
   experienceLevel?: string
+  experience?: string
+  location?: string
+  bio?: string
   onboardingCompleted?: boolean
   profileComplete?: boolean
 }
@@ -39,11 +44,13 @@ export default function ProfileCompletionBanner() {
           setProfile(userData)
 
           // Check if profile is incomplete
-          const isIncomplete = !userData.onboardingCompleted ||
-                              !userData.profileComplete ||
-                              !userData.firstName ||
-                              !userData.lastName ||
-                              !userData.primarySport
+          const hasName = userData.firstName && userData.lastName || userData.displayName
+          const hasSports = userData.primarySport || (userData.specialties && userData.specialties.length > 0)
+          const hasExperience = userData.experienceLevel || userData.experience
+          const hasLocation = userData.location
+          const hasBio = userData.bio
+
+          const isIncomplete = !hasName || !hasSports || !hasExperience || !hasLocation || !hasBio
 
           // Only show banner if profile is incomplete and not dismissed
           const dismissKey = `profile-banner-dismissed-${user.uid}`
@@ -81,23 +88,53 @@ export default function ProfileCompletionBanner() {
     let completed = 0
     const totalFields = 5
 
-    if (profile.firstName) completed++
-    if (profile.lastName) completed++
-    if (profile.primarySport) completed++
-    if (profile.experienceLevel) completed++
-    if (profile.onboardingCompleted) completed++
+    // Check for name (firstName & lastName OR displayName)
+    if ((profile.firstName && profile.lastName) || profile.displayName) completed++
+
+    // Check for sports (primarySport OR specialties array)
+    if (profile.primarySport || (profile.specialties && profile.specialties.length > 0)) completed++
+
+    // Check for experience (experienceLevel OR experience)
+    if (profile.experienceLevel || profile.experience) completed++
+
+    // Check for location
+    if (profile.location) completed++
+
+    // Check for bio
+    if (profile.bio) completed++
 
     return Math.round((completed / totalFields) * 100)
   }
 
   const getMissingFields = () => {
-    if (!profile) return ['basic information', 'sports background', 'goals and interests']
+    if (!profile) return ['basic information', 'sports background', 'experience', 'location', 'bio']
 
     const missing = []
-    if (!profile.firstName || !profile.lastName) missing.push('name')
-    if (!profile.primarySport) missing.push('primary sport')
-    if (!profile.experienceLevel) missing.push('experience level')
-    if (!profile.onboardingCompleted) missing.push('goals and interests')
+
+    // Check for name
+    if (!((profile.firstName && profile.lastName) || profile.displayName)) {
+      missing.push('name')
+    }
+
+    // Check for sports
+    if (!(profile.primarySport || (profile.specialties && profile.specialties.length > 0))) {
+      missing.push('sports interests')
+    }
+
+    // Check for experience
+    if (!(profile.experienceLevel || profile.experience)) {
+      missing.push('experience level')
+    }
+
+    // Check for location
+    if (!profile.location) {
+      missing.push('location')
+    }
+
+    // Check for bio
+    if (!profile.bio) {
+      missing.push('bio')
+    }
 
     return missing
   }

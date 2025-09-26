@@ -28,7 +28,9 @@
       "Bash(powershell Copy-Item:*)",
       "Bash(dir:*)",
       "Read(//c/Users/bigpe/OneDrive/Desktop/Crucible/GAMEPLAN/Icons/**)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(firebase deploy:*)",
+      "Bash(firebase login:*)"
     ],
     "deny": [],
     "ask": []
