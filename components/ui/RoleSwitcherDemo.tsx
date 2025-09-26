@@ -66,7 +66,7 @@ export default function RoleSwitcherDemo() {
      
      {isTestingMode && (
       <div className="mt-3 p-2 bg-yellow-500/20 border border-yellow-500/30 rounded text-xs text-yellow-300">
-       {Note:} You&apos;re viewing as {effectiveRole}. 
+       Note: You&apos;re viewing as {effectiveRole}. 
        Use the profile dropdown to switch roles.
       </div>
      )}

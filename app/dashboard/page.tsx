@@ -76,3 +76,16 @@ export default function Dashboard() {
    </div>
   )
  }
+
+ // If user is not authenticated, show auth form
+ return (
+  <div className="min-h-screen bg-gray-50">
+   <AppHeader />
+   <div className="flex items-center justify-center min-h-[80vh]">
+    <div className="w-full max-w-md">
+     <SimpleAuth />
+    </div>
+   </div>
+  </div>
+ )
+}

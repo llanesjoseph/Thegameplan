@@ -14,7 +14,7 @@ export default function TermsOfService() {
 
      <div className="prose prose-lg max-w-none">
       <p className="text-gray-600 mb-8">
-       {Last Updated:} {new Date().toLocaleDateString()}
+       Last Updated: {new Date().toLocaleDateString()}
       </p>
 
       <section className="mb-8">
@@ -40,7 +40,7 @@ export default function TermsOfService() {
         <div className="flex">
          <div className="ml-3">
           <p className="text-sm text-yellow-700">
-           {Important:} Our AI coaching advice is for informational and educational purposes only.
+           Important: Our AI coaching advice is for informational and educational purposes only.
            It should not replace professional coaching, medical advice, or personal training guidance.
           </p>
          </div>
@@ -60,7 +60,7 @@ export default function TermsOfService() {
         <div className="flex">
          <div className="ml-3">
           <p className="text-sm text-red-700">
-           {Medical Disclaimer:} GamePlan does not provide medical advice, diagnosis, or treatment.
+           Medical Disclaimer: GamePlan does not provide medical advice, diagnosis, or treatment.
            For any injuries, health concerns, or medical conditions, consult with qualified healthcare professionals.
           </p>
          </div>
@@ -168,9 +168,9 @@ export default function TermsOfService() {
        </p>
        <div className="bg-gray-50 p-4 rounded-lg">
         <p className="text-gray-700">
-         {Email:} legal@gameplan.dev<br />
-         {Address:} [Your Business Address]<br />
-         {Phone:} [Your Contact Number]
+         Email: legal@gameplan.dev<br />
+         Address: [Your Business Address]<br />
+         Phone: [Your Contact Number]
         </p>
        </div>
       </section>

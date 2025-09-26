@@ -66,7 +66,7 @@ export default function RoleSwitcher({ className = '' }: RoleSwitcherProps) {
      <div className="flex items-center justify-center gap-3 text-sm">
       <TestTube className="w-4 h-4 text-yellow-400" />
       <span className="text-yellow-300 ">
-       Role Testing Mode: Viewing as <strong className="text-yellow-100">{effectiveRole}}
+       Role Testing Mode: Viewing as <strong className="text-yellow-100">{effectiveRole}</strong>
       </span>
       <button
        onClick={resetToOriginalRole}

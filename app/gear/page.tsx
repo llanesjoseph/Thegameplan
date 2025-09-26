@@ -554,7 +554,7 @@ function GearContent() {
     {/* Disclaimer */}
     <div className="mt-12 bg-white border border-gray-200 rounded-lg p-6 shadow-card">
      <p className="text-sm text-gray-600 text-center">
-      {Affiliate Disclosure:} Some links may be affiliate links. We may earn a commission from purchases made through these links at no additional cost to you. All recommendations are based on genuine product evaluation by our expert coaches.
+      Affiliate Disclosure: Some links may be affiliate links. We may earn a commission from purchases made through these links at no additional cost to you. All recommendations are based on genuine product evaluation by our expert coaches.
      </p>
     </div>
    </div>

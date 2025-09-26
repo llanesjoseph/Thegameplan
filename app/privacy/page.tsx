@@ -14,7 +14,7 @@ export default function PrivacyPolicy() {
 
      <div className="prose prose-lg max-w-none">
       <p className="text-gray-600 mb-8">
-       {Last Updated:} {new Date().toLocaleDateString()}
+       Last Updated: {new Date().toLocaleDateString()}
       </p>
 
       <section className="mb-8">
@@ -47,12 +47,12 @@ export default function PrivacyPolicy() {
       <section className="mb-8">
        <h2 className="text-2xl  text-gray-900 mb-4">2. How We Use Your Information</h2>
        <ul className="list-disc list-inside text-gray-700 space-y-2">
-        <li>{Provide AI Coaching:} Generate personalized coaching responses</li>
-        <li>{Improve Services:} Enhance AI models and platform features</li>
-        <li>{Safety & Security:} Monitor for harmful content and system abuse</li>
-        <li>{Communication:} Send important updates and support messages</li>
-        <li>{Analytics:} Understand usage patterns to improve user experience</li>
-        <li>{Legal Compliance:} Meet regulatory and legal requirements</li>
+        <li>Provide AI Coaching: Generate personalized coaching responses</li>
+        <li>Improve Services: Enhance AI models and platform features</li>
+        <li>Safety & Security: Monitor for harmful content and system abuse</li>
+        <li>Communication: Send important updates and support messages</li>
+        <li>Analytics: Understand usage patterns to improve user experience</li>
+        <li>Legal Compliance: Meet regulatory and legal requirements</li>
        </ul>
       </section>
 
@@ -62,7 +62,7 @@ export default function PrivacyPolicy() {
         <div className="flex">
          <div className="ml-3">
           <p className="text-sm text-blue-700">
-           {AI Training:} Your interactions help improve our AI coaching models.
+           AI Training: Your interactions help improve our AI coaching models.
            All data used for training is anonymized and aggregated.
           </p>
          </div>
@@ -80,11 +80,11 @@ export default function PrivacyPolicy() {
        <h2 className="text-2xl  text-gray-900 mb-4">4. Information Sharing</h2>
        <p className="text-gray-700 mb-4">We do not sell your personal information. We may share data:</p>
        <ul className="list-disc list-inside text-gray-700 space-y-2">
-        <li>{Service Providers:} Third-party services that help operate our platform</li>
-        <li>{AI Partners:} OpenAI, Google, and other AI service providers</li>
-        <li>{Legal Requirements:} When required by law or to protect rights and safety</li>
-        <li>{Business Transfers:} In case of merger, acquisition, or sale</li>
-        <li>{Aggregated Data:} Anonymized, non-identifiable statistics for research</li>
+        <li>Service Providers: Third-party services that help operate our platform</li>
+        <li>AI Partners: OpenAI, Google, and other AI service providers</li>
+        <li>Legal Requirements: When required by law or to protect rights and safety</li>
+        <li>Business Transfers: In case of merger, acquisition, or sale</li>
+        <li>Aggregated Data: Anonymized, non-identifiable statistics for research</li>
        </ul>
       </section>
 
@@ -104,23 +104,23 @@ export default function PrivacyPolicy() {
        <h2 className="text-2xl  text-gray-900 mb-4">6. Your Rights and Choices</h2>
        <p className="text-gray-700 mb-4">You have the right to:</p>
        <ul className="list-disc list-inside text-gray-700 space-y-2">
-        <li>{Access:} Request copies of your personal data</li>
-        <li>{Correction:} Update or correct inaccurate information</li>
-        <li>{Deletion:} Request deletion of your personal data</li>
-        <li>{Portability:} Export your data in a machine-readable format</li>
-        <li>{Opt-out:} Unsubscribe from marketing communications</li>
-        <li>{Restrict Processing:} Limit how we use your data</li>
+        <li>Access: Request copies of your personal data</li>
+        <li>Correction: Update or correct inaccurate information</li>
+        <li>Deletion: Request deletion of your personal data</li>
+        <li>Portability: Export your data in a machine-readable format</li>
+        <li>Opt-out: Unsubscribe from marketing communications</li>
+        <li>Restrict Processing: Limit how we use your data</li>
        </ul>
       </section>
 
       <section className="mb-8">
        <h2 className="text-2xl  text-gray-900 mb-4">7. Data Retention</h2>
        <ul className="list-disc list-inside text-gray-700 space-y-2">
-        <li>{Account Data:} Retained while your account is active</li>
-        <li>{AI Interactions:} Stored for up to 2 years for service improvement</li>
-        <li>{Analytics Data:} Aggregated data retained indefinitely</li>
-        <li>{Support Records:} Kept for 3 years for quality assurance</li>
-        <li>{Legal Requirements:} Some data may be retained longer if required by law</li>
+        <li>Account Data: Retained while your account is active</li>
+        <li>AI Interactions: Stored for up to 2 years for service improvement</li>
+        <li>Analytics Data: Aggregated data retained indefinitely</li>
+        <li>Support Records: Kept for 3 years for quality assurance</li>
+        <li>Legal Requirements: Some data may be retained longer if required by law</li>
        </ul>
       </section>
 
@@ -148,7 +148,7 @@ export default function PrivacyPolicy() {
       </section>
 
       <section className="mb-8">
-       <h2 className="text-2xl font-semibent text-gray-900 mb-4">10. International Data Transfers</h2>
+       <h2 className="text-2xl font-semibold text-gray-900 mb-4">10. International Data Transfers</h2>
        <p className="text-gray-700 mb-4">
         Your data may be processed in countries other than your own. We ensure adequate
         protection through standard contractual clauses and other legal mechanisms.
@@ -170,9 +170,9 @@ export default function PrivacyPolicy() {
        </p>
        <div className="bg-gray-50 p-4 rounded-lg">
         <p className="text-gray-700">
-         {Email:} privacy@gameplan.dev<br />
-         {Data Protection Officer:} dpo@gameplan.dev<br />
-         {Address:} [Your Business Address]
+         Email: privacy@gameplan.dev<br />
+         Data Protection Officer: dpo@gameplan.dev<br />
+         Address: [Your Business Address]
         </p>
        </div>
       </section>

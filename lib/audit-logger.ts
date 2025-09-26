@@ -142,7 +142,7 @@ export async function getRecentAuditLogs(
   severity?: 'low' | 'medium' | 'high' | 'critical'
 ): Promise<AuditLogEntry[]> {
   try {
-    const { getDocs, query, orderBy, limitTo, where } = await import('firebase/firestore')
+    const { getDocs, query, orderBy, limit: limitTo, where } = await import('firebase/firestore')
 
     let q = query(
       collection(db, 'auditLogs'),
@@ -155,7 +155,13 @@ export async function getRecentAuditLogs(
     }
 
     const snapshot = await getDocs(q)
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as AuditLogEntry))
+    return snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      timestamp: doc.data().timestamp || new Date(),
+      eventType: doc.data().eventType || 'unknown',
+      data: doc.data().data || {}
+    } as AuditLogEntry))
   } catch (error) {
     console.error('Failed to fetch audit logs:', error)
     return []

@@ -62,20 +62,21 @@ export async function hasRole(
     const roles = Array.isArray(requiredRoles) ? requiredRoles : [requiredRoles]
 
     // If userRole not provided, fetch from database
+    let resolvedUserRole: string = userRole || 'user'
     if (!userRole) {
       const { doc, getDoc } = await import('firebase/firestore')
       const { db } = await import('@/lib/firebase.client')
 
       const userDoc = await getDoc(doc(db, 'users', userId))
-      userRole = userDoc.data()?.role || 'user'
+      resolvedUserRole = userDoc.data()?.role || 'user'
     }
 
-    const hasAccess = roles.includes(userRole)
+    const hasAccess = roles.includes(resolvedUserRole)
 
     if (!hasAccess) {
       await auditLog('role_check_failed', {
         userId,
-        userRole,
+        userRole: resolvedUserRole,
         requiredRoles: roles,
         timestamp: new Date().toISOString()
       }, { userId, severity: 'medium' })

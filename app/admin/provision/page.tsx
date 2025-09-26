@@ -66,7 +66,7 @@ export default function ProvisionPage() {
      ))}
     </ul>
     <div className="mt-4 p-3 bg-blue-100 rounded border">
-     {How it works:} The system detects when these specific emails sign in and automatically:
+     How it works: The system detects when these specific emails sign in and automatically:
      <ul className="mt-2 list-disc list-inside text-sm">
       <li>Creates superadmin user record with all permissions</li>
       <li>Sets up complete user profile</li>
@@ -107,10 +107,10 @@ export default function ProvisionPage() {
    <div className="mt-8 bg-gray-50 border border-gray-200 rounded-lg p-6">
     <h2 className="text-xl  mb-4">📋 Current Status</h2>
     <div className="text-sm text-gray-600">
-     <p>{Your Email:} {user?.email}</p>
-     <p>{Your Role:} {role}</p>
-     <p>{Auto-Provisioning:} Active</p>
-     <p>{Last Updated:} {new Date().toLocaleString()}</p>
+     <p>Your Email: {user?.email}</p>
+     <p>Your Role: {role}</p>
+     <p>Auto-Provisioning: Active</p>
+     <p>Last Updated: {new Date().toLocaleString()}</p>
     </div>
    </div>
   </div>
