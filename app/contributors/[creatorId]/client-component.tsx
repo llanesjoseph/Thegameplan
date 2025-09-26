@@ -165,7 +165,7 @@ interface SavedResponse {
 
 export default function CreatorPageClient({ creatorId }: CreatorPageClientProps) {
  const { user } = useAuth()
- const role = useEnhancedRole()
+ const { role } = useEnhancedRole()
  const router = useRouter()
  const [creator, setCreator] = useState<Creator | null>(null)
  const [showAIChat, setShowAIChat] = useState(false)
