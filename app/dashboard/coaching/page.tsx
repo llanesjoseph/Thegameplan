@@ -21,7 +21,6 @@ import {
  FileText,
  BarChart3,
  PieChart,
- Progress,
  ChevronRight,
  Plus,
  Edit,
@@ -624,7 +623,7 @@ export default function AthleteManagementPage() {
           {Object.entries(selectedAthlete.performance).map(([key, value]) => (
            <div key={key} className="bg-gray-50 p-4 rounded-lg">
             <p className="text-sm text-gray-600 capitalize">{key}</p>
-            <p className="text-2xl font-bold">{value}%</p>
+            <p className="text-2xl font-bold">{value as number}%</p>
            </div>
           ))}
          </div>
