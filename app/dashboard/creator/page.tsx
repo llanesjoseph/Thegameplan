@@ -47,7 +47,8 @@ import {
  RotateCcw,
  Pause,
  PlayCircle,
- X
+ X,
+ BookOpen
 } from 'lucide-react'
 import AppHeader from '@/components/ui/AppHeader'
 
@@ -642,6 +643,23 @@ export default function CreatorDashboard() {
  const [aiSuggestions, setAISuggestions] = useState<string[]>([])
  const [selectedSport, setSelectedSport] = useState('BJJ')
 
+ // Enhanced Lesson Builder State
+ const [lessonBuilderMode, setLessonBuilderMode] = useState<'basic' | 'advanced'>('basic')
+ const [showLessonTemplates, setShowLessonTemplates] = useState(false)
+ const [showMarkdownGuide, setShowMarkdownGuide] = useState(false)
+
+ // Lesson Structure State
+ const [lessonSections, setLessonSections] = useState<Array<{
+   title: string
+   type: string
+   content: string
+   duration?: string
+   equipment?: string
+ }>>([])
+
+ const [learningObjectives, setLearningObjectives] = useState<string[]>([''])
+ const [prerequisites, setPrerequisites] = useState('')
+
  // Load lesson count
  useEffect(() => {
   const loadLessonCount = async () => {
@@ -704,6 +722,96 @@ export default function CreatorDashboard() {
    shouldShowInApp: showInAppCompressor && videoFile
   })
  }, [showCompressionHelper, showInAppCompressor, videoFile])
+
+ // Enhanced Lesson Builder Helper Functions
+ const addLessonSection = () => {
+  setLessonSections([...lessonSections, {
+   title: '',
+   type: 'introduction',
+   content: ''
+  }])
+ }
+
+ const updateLessonSection = (index: number, field: string, value: string) => {
+  const updated = [...lessonSections]
+  updated[index] = { ...updated[index], [field]: value }
+  setLessonSections(updated)
+ }
+
+ const removeLessonSection = (index: number) => {
+  setLessonSections(lessonSections.filter((_, i) => i !== index))
+ }
+
+ const addLearningObjective = () => {
+  setLearningObjectives([...learningObjectives, ''])
+ }
+
+ const updateLearningObjective = (index: number, value: string) => {
+  const updated = [...learningObjectives]
+  updated[index] = value
+  setLearningObjectives(updated)
+ }
+
+ const removeLearningObjective = (index: number) => {
+  setLearningObjectives(learningObjectives.filter((_, i) => i !== index))
+ }
+
+ const applyLessonTemplate = (templateType: string) => {
+  switch (templateType) {
+   case 'comprehensive':
+    setLessonSections([
+     { title: 'Introduction', type: 'introduction', content: 'Brief overview of what we\'ll cover in this lesson...' },
+     { title: 'Learning Objectives', type: 'theory', content: 'By the end of this lesson, students will be able to...' },
+     { title: 'Prerequisites', type: 'theory', content: 'Students should be familiar with...' },
+     { title: 'Main Theory', type: 'theory', content: 'Explain the key concepts and principles...' },
+     { title: 'Demonstration', type: 'demonstration', content: 'Show the techniques step by step...' },
+     { title: 'Guided Practice', type: 'practice', content: 'Students practice with instructor guidance...', duration: '20 minutes' },
+     { title: 'Independent Practice', type: 'practice', content: 'Students practice independently...', duration: '15 minutes' },
+     { title: 'Application', type: 'application', content: 'Apply skills in game-like situations...' },
+     { title: 'Review & Assessment', type: 'review', content: 'Review key points and assess understanding...' },
+     { title: 'Next Steps', type: 'homework', content: 'What students should practice before the next lesson...' }
+    ])
+    setLearningObjectives([
+     'Understand the key concepts and principles',
+     'Demonstrate proper technique execution',
+     'Apply skills in practice scenarios',
+     'Identify areas for continued improvement'
+    ])
+    break
+   case 'skill-focused':
+    setLessonSections([
+     { title: 'Skill Introduction', type: 'introduction', content: 'Introduction to the specific skill we\'re developing...' },
+     { title: 'Technique Breakdown', type: 'theory', content: 'Step-by-step breakdown of the technique...' },
+     { title: 'Demonstration', type: 'demonstration', content: 'Instructor demonstrates the skill...' },
+     { title: 'Drill 1: Basic Practice', type: 'practice', content: 'Basic repetition of the skill...', duration: '10 minutes' },
+     { title: 'Drill 2: Progressive Difficulty', type: 'practice', content: 'Increase complexity or pressure...', duration: '15 minutes' },
+     { title: 'Drill 3: Game Application', type: 'application', content: 'Use the skill in game-like situations...', duration: '10 minutes' },
+     { title: 'Cool Down & Review', type: 'review', content: 'Review performance and key teaching points...' }
+    ])
+    setLearningObjectives([
+     'Execute the specific skill with proper technique',
+     'Apply the skill under varying levels of pressure',
+     'Understand when and how to use the skill in games'
+    ])
+    break
+   case 'game-analysis':
+    setLessonSections([
+     { title: 'Video Introduction', type: 'introduction', content: 'Overview of what we\'ll analyze in the footage...' },
+     { title: 'Context & Setup', type: 'theory', content: 'Game situation and tactical context...' },
+     { title: 'Video Analysis', type: 'demonstration', content: 'Break down the video clip by clip...' },
+     { title: 'Key Learning Points', type: 'theory', content: 'Extract the main tactical or technical lessons...' },
+     { title: 'Discussion', type: 'application', content: 'Students discuss what they observed...', duration: '10 minutes' },
+     { title: 'Practice Application', type: 'practice', content: 'Practice the concepts from the video...', duration: '20 minutes' },
+     { title: 'Reflection', type: 'review', content: 'How can we apply these lessons to our own game?' }
+    ])
+    setLearningObjectives([
+     'Analyze game situations effectively',
+     'Identify key tactical and technical elements',
+     'Apply video insights to personal performance'
+    ])
+    break
+  }
+ }
 
  const onSubmit = async (data: FormValues) => {
   if (!authUser) return
@@ -1646,22 +1754,275 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
          )}
         </div>
 
-        {/* Detailed Writeup Field */}
-        <div>
-         <label className="block text-sm  text-gray-700 mb-2">
-          Detailed Lesson Content
-          <span className="text-gray-500 text-xs ml-2">(Optional - Enhanced content from AI)</span>
-         </label>
-         <textarea
-          value={detailedWriteup}
-          onChange={(e) => setDetailedWriteup(e.target.value)}
-          rows={12}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
-          placeholder="Detailed lesson content will appear here when you use the AI Content Enhancer..."
-         />
-         <p className="mt-1 text-xs text-gray-500">
-          This field supports markdown formatting for rich content presentation.
-         </p>
+        {/* Enhanced Lesson Builder Section */}
+        <div className="border border-gray-200 rounded-lg p-6 bg-gray-50">
+         <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+           <BookOpen className="h-5 w-5 mr-2 text-blue-600" />
+           Full-Length Lesson Builder
+          </h3>
+          <div className="flex gap-2">
+           <button
+            type="button"
+            onClick={() => setShowLessonTemplates(!showLessonTemplates)}
+            className="px-3 py-1 text-xs bg-blue-100 text-blue-700 border border-blue-300 rounded-full hover:bg-blue-200 transition-colors"
+           >
+            📋 Templates
+           </button>
+           <button
+            type="button"
+            onClick={() => setLessonBuilderMode(lessonBuilderMode === 'basic' ? 'advanced' : 'basic')}
+            className="px-3 py-1 text-xs bg-purple-100 text-purple-700 border border-purple-300 rounded-full hover:bg-purple-200 transition-colors"
+           >
+            {lessonBuilderMode === 'basic' ? '⚡ Advanced Mode' : '📝 Basic Mode'}
+           </button>
+          </div>
+         </div>
+
+         {/* Lesson Templates */}
+         {showLessonTemplates && (
+          <div className="mb-6 p-4 bg-white rounded-lg border border-gray-200">
+           <h4 className="font-medium text-gray-900 mb-3">Lesson Structure Templates</h4>
+           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <button
+             type="button"
+             onClick={() => applyLessonTemplate('comprehensive')}
+             className="p-3 text-left border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors"
+            >
+             <div className="font-medium text-sm text-gray-900">Comprehensive Training</div>
+             <div className="text-xs text-gray-600">Full lesson with theory, practice, and application</div>
+            </button>
+            <button
+             type="button"
+             onClick={() => applyLessonTemplate('skill-focused')}
+             className="p-3 text-left border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors"
+            >
+             <div className="font-medium text-sm text-gray-900">Skill-Focused</div>
+             <div className="text-xs text-gray-600">Targeted skill development with drills</div>
+            </button>
+            <button
+             type="button"
+             onClick={() => applyLessonTemplate('game-analysis')}
+             className="p-3 text-left border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors"
+            >
+             <div className="font-medium text-sm text-gray-900">Game Analysis</div>
+             <div className="text-xs text-gray-600">Video breakdown and tactical analysis</div>
+            </button>
+           </div>
+          </div>
+         )}
+
+         {/* Advanced Lesson Builder */}
+         {lessonBuilderMode === 'advanced' ? (
+          <div className="space-y-6">
+           {/* Lesson Sections */}
+           <div>
+            <label className="block text-sm font-medium text-gray-700 mb-3">
+             Lesson Structure & Content
+            </label>
+
+            {lessonSections.map((section, index) => (
+             <div key={index} className="mb-4 p-4 bg-white border border-gray-200 rounded-lg">
+              <div className="flex items-center justify-between mb-3">
+               <input
+                type="text"
+                value={section.title}
+                onChange={(e) => updateLessonSection(index, 'title', e.target.value)}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent font-medium"
+                placeholder="Section title..."
+               />
+               <div className="flex items-center gap-2 ml-3">
+                <select
+                 value={section.type}
+                 onChange={(e) => updateLessonSection(index, 'type', e.target.value)}
+                 className="px-2 py-1 text-xs border border-gray-300 rounded"
+                >
+                 <option value="introduction">Introduction</option>
+                 <option value="theory">Theory</option>
+                 <option value="demonstration">Demonstration</option>
+                 <option value="practice">Practice</option>
+                 <option value="application">Application</option>
+                 <option value="review">Review</option>
+                 <option value="homework">Homework</option>
+                </select>
+                <button
+                 type="button"
+                 onClick={() => removeLessonSection(index)}
+                 className="p-1 text-red-600 hover:text-red-800"
+                >
+                 <X className="h-4 w-4" />
+                </button>
+               </div>
+              </div>
+
+              <textarea
+               value={section.content}
+               onChange={(e) => updateLessonSection(index, 'content', e.target.value)}
+               rows={6}
+               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+               placeholder="Enter detailed content for this section. Supports markdown formatting..."
+              />
+
+              {section.type === 'practice' && (
+               <div className="mt-3 p-3 bg-blue-50 rounded-lg">
+                <label className="block text-xs font-medium text-blue-900 mb-2">Practice Details</label>
+                <div className="grid grid-cols-2 gap-3">
+                 <input
+                  type="text"
+                  value={section.duration || ''}
+                  onChange={(e) => updateLessonSection(index, 'duration', e.target.value)}
+                  className="px-2 py-1 text-xs border border-blue-300 rounded"
+                  placeholder="Duration (e.g., 15 minutes)"
+                 />
+                 <input
+                  type="text"
+                  value={section.equipment || ''}
+                  onChange={(e) => updateLessonSection(index, 'equipment', e.target.value)}
+                  className="px-2 py-1 text-xs border border-blue-300 rounded"
+                  placeholder="Equipment needed"
+                 />
+                </div>
+               </div>
+              )}
+             </div>
+            ))}
+
+            <button
+             type="button"
+             onClick={addLessonSection}
+             className="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-colors text-gray-600 hover:text-blue-600"
+            >
+             <Plus className="h-5 w-5 mx-auto mb-1" />
+             Add Section
+            </button>
+           </div>
+
+           {/* Learning Objectives */}
+           <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+             Learning Objectives
+            </label>
+            <div className="space-y-2">
+             {learningObjectives.map((objective, index) => (
+              <div key={index} className="flex items-center gap-2">
+               <input
+                type="text"
+                value={objective}
+                onChange={(e) => updateLearningObjective(index, e.target.value)}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                placeholder="What will students learn or be able to do?"
+               />
+               <button
+                type="button"
+                onClick={() => removeLearningObjective(index)}
+                className="p-2 text-red-600 hover:text-red-800"
+               >
+                <X className="h-4 w-4" />
+               </button>
+              </div>
+             ))}
+             <button
+              type="button"
+              onClick={addLearningObjective}
+              className="flex items-center gap-2 px-3 py-2 text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors"
+             >
+              <Plus className="h-4 w-4" />
+              Add Learning Objective
+             </button>
+            </div>
+           </div>
+
+           {/* Prerequisites */}
+           <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+             Prerequisites & Required Knowledge
+            </label>
+            <textarea
+             value={prerequisites}
+             onChange={(e) => setPrerequisites(e.target.value)}
+             rows={3}
+             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+             placeholder="What should students know before taking this lesson? List any required skills or previous lessons..."
+            />
+           </div>
+          </div>
+         ) : (
+          // Basic Mode - Enhanced textarea
+          <div>
+           <label className="block text-sm font-medium text-gray-700 mb-2">
+            Detailed Lesson Content
+            <span className="text-gray-500 text-xs ml-2">(Enhanced content from AI or manual entry)</span>
+           </label>
+           <div className="border border-gray-300 rounded-lg overflow-hidden">
+            <div className="bg-gray-100 px-3 py-2 border-b border-gray-300 flex items-center justify-between">
+             <div className="flex items-center gap-3 text-xs text-gray-600">
+              <span>📝 Rich Text Editor</span>
+              <span>|</span>
+              <span>Supports Markdown</span>
+             </div>
+             <button
+              type="button"
+              onClick={() => setShowMarkdownGuide(!showMarkdownGuide)}
+              className="text-xs text-blue-600 hover:text-blue-800"
+             >
+              Formatting Guide
+             </button>
+            </div>
+
+            {showMarkdownGuide && (
+             <div className="bg-blue-50 p-3 text-xs border-b border-gray-300">
+              <div className="grid grid-cols-2 gap-4">
+               <div>
+                <strong>Headers:</strong> # ## ###<br/>
+                <strong>Bold:</strong> **text**<br/>
+                <strong>Italic:</strong> *text*
+               </div>
+               <div>
+                <strong>Lists:</strong> - item<br/>
+                <strong>Links:</strong> [text](url)<br/>
+                <strong>Code:</strong> `code`
+               </div>
+              </div>
+             </div>
+            )}
+
+            <textarea
+             value={detailedWriteup}
+             onChange={(e) => setDetailedWriteup(e.target.value)}
+             rows={20}
+             className="w-full px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm resize-y"
+             placeholder="Create your comprehensive lesson content here...
+
+Example structure:
+# Lesson Introduction
+Brief overview of what we'll cover...
+
+## Learning Objectives
+- Students will be able to...
+- Students will understand...
+
+## Prerequisites
+What students should know before this lesson...
+
+## Main Content
+### Section 1: Theory
+Explain the concepts...
+
+### Section 2: Demonstration
+Show the techniques...
+
+### Section 3: Practice
+Guided practice activities...
+
+## Review & Next Steps
+Summary and what comes next..."
+            />
+           </div>
+           <p className="mt-2 text-xs text-gray-500">
+            💡 Pro tip: Use the AI Content Enhancer above to automatically generate comprehensive lesson content, then customize it here.
+           </p>
+          </div>
+         )}
         </div>
 
         {/* Level Field */}
