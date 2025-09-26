@@ -34,6 +34,27 @@ import { MMAGlovesIcon } from '@/components/icons/MMAGlovesIcon'
 import ImageUploader from '@/components/ImageUploader'
 import AppHeader from '@/components/ui/AppHeader'
 
+// Session interface for TypeScript
+interface SessionData {
+  id: string
+  coachId: string
+  coachName: string
+  athleteId: string
+  athleteName: string
+  title: string
+  description: string
+  date: string
+  startTime: string
+  endTime: string
+  sessionType: string
+  status: string
+  createdAt: Date | any
+  updatedAt: Date | any
+  timestamp?: number
+  active?: boolean
+  version?: number
+}
+
 // Mock athletes data (you can replace with real data later)
 const mockAthletes = [
  {
@@ -110,7 +131,7 @@ export default function UnifiedDashboard() {
   sessionType: 'Individual Training'
  })
  const [isScheduling, setIsScheduling] = useState(false)
- const [scheduledSessions, setScheduledSessions] = useState<any[]>([])
+ const [scheduledSessions, setScheduledSessions] = useState<SessionData[]>([])
  const [scheduleError, setScheduleError] = useState('')
 
  useEffect(() => {
@@ -192,7 +213,7 @@ export default function UnifiedDashboard() {
     // Ensure date consistency
     createdAt: doc.data().createdAt?.toDate ? doc.data().createdAt.toDate() : doc.data().createdAt,
     updatedAt: doc.data().updatedAt?.toDate ? doc.data().updatedAt.toDate() : doc.data().updatedAt
-   }))
+   })) as SessionData[]
 
    console.log('Loaded sessions with order:', sessions)
    setScheduledSessions(sessions)
@@ -211,7 +232,7 @@ export default function UnifiedDashboard() {
      ...doc.data(),
      createdAt: doc.data().createdAt?.toDate ? doc.data().createdAt.toDate() : doc.data().createdAt,
      updatedAt: doc.data().updatedAt?.toDate ? doc.data().updatedAt.toDate() : doc.data().updatedAt
-    }))
+    })) as SessionData[]
 
     // Sort manually by timestamp
     fallbackSessions.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
@@ -228,7 +249,7 @@ export default function UnifiedDashboard() {
      const finalSessions = finalSnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
-     }))
+     })) as SessionData[]
 
      console.log('Loaded sessions (final fallback):', finalSessions)
      setScheduledSessions(finalSessions)
