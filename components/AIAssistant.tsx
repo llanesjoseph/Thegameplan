@@ -16,7 +16,8 @@ import {
   orderBy,
   serverTimestamp,
   onSnapshot,
-  Timestamp
+  Timestamp,
+  deleteDoc
 } from 'firebase/firestore'
 
 interface Message {
@@ -323,7 +324,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
 
         // Note: In production, consider soft-delete instead of hard delete
         // for audit trail purposes
-        const deletePromises = snapshot.docs.map(doc => doc.ref.delete())
+        const deletePromises = snapshot.docs.map(docSnapshot => deleteDoc(docSnapshot.ref))
         await Promise.all(deletePromises)
 
         console.log('✅ Chat history cleared from Firestore')
