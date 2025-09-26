@@ -109,22 +109,22 @@ const config: Config = {
       },
       fontSize: {
         // Stanford Cardinal Design System Typography
-        'main-headline': ['3.75rem', { lineHeight: '1', fontWeight: '700', letterSpacing: '-0.02em' }], // text-5xl
-        'main-headline-lg': ['4.5rem', { lineHeight: '1', fontWeight: '700', letterSpacing: '-0.02em' }], // md:text-6xl
-        'section-headline': ['2.25rem', { lineHeight: '1.1', fontWeight: '700', letterSpacing: '-0.02em' }], // text-4xl
-        'section-headline-lg': ['3rem', { lineHeight: '1.1', fontWeight: '700', letterSpacing: '-0.02em' }], // md:text-5xl
-        'card-title': ['1.25rem', { lineHeight: '1.75rem', fontWeight: '700' }], // text-xl font-bold
+        'main-headline': ['3.75rem', { lineHeight: '1', fontWeight: '400', letterSpacing: '-0.02em' }], // text-5xl
+        'main-headline-lg': ['4.5rem', { lineHeight: '1', fontWeight: '400', letterSpacing: '-0.02em' }], // md:text-6xl
+        'section-headline': ['2.25rem', { lineHeight: '1.1', fontWeight: '400', letterSpacing: '-0.02em' }], // text-4xl
+        'section-headline-lg': ['3rem', { lineHeight: '1.1', fontWeight: '400', letterSpacing: '-0.02em' }], // md:text-5xl
+        'card-title': ['1.25rem', { lineHeight: '1.75rem', fontWeight: '400' }], // text-xl
         'paragraph': ['1.125rem', { lineHeight: '1.625', fontWeight: '400' }], // leading-relaxed
-        'accent-text': ['1rem', { lineHeight: '1.5rem', fontWeight: '600', letterSpacing: '0.1em' }], // text-base font-semibold tracking-wider uppercase
+        'accent-text': ['1rem', { lineHeight: '1.5rem', fontWeight: '400', letterSpacing: '0.1em' }], // text-base tracking-wider uppercase
 
         // Legacy sizes for backward compatibility
-        'h1': ['32px', { lineHeight: '40px', fontWeight: '700' }],
-        'h2': ['24px', { lineHeight: '32px', fontWeight: '700' }],
-        'h3': ['20px', { lineHeight: '28px', fontWeight: '600' }],
+        'h1': ['32px', { lineHeight: '40px', fontWeight: '400' }],
+        'h2': ['24px', { lineHeight: '32px', fontWeight: '400' }],
+        'h3': ['20px', { lineHeight: '28px', fontWeight: '400' }],
         'body-lg': ['18px', { lineHeight: '28px', fontWeight: '400' }],
         'body': ['16px', { lineHeight: '24px', fontWeight: '400' }],
         'caption': ['14px', { lineHeight: '20px', fontWeight: '400' }],
-        'button': ['16px', { lineHeight: 'normal', fontWeight: '600' }]
+        'button': ['16px', { lineHeight: 'normal', fontWeight: '400' }]
       },
       // Default Tailwind spacing already maps to 4px units; use docs guidance
       borderRadius: {

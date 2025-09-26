@@ -97,20 +97,20 @@ export const playbookdTypography = {
   fontSize: {
     // Brand Typography
     brand: {
-      hero: ['4.5rem', { lineHeight: '1', fontWeight: '700', letterSpacing: '0.02em' }], // 72px
-      large: ['3rem', { lineHeight: '1.1', fontWeight: '700', letterSpacing: '0.02em' }], // 48px
-      medium: ['2.25rem', { lineHeight: '1.1', fontWeight: '700', letterSpacing: '0.02em' }], // 36px
-      small: ['1.875rem', { lineHeight: '1.2', fontWeight: '700', letterSpacing: '0.02em' }] // 30px
+      hero: ['4.5rem', { lineHeight: '1', fontWeight: '400', letterSpacing: '0.02em' }], // 72px
+      large: ['3rem', { lineHeight: '1.1', fontWeight: '400', letterSpacing: '0.02em' }], // 48px
+      medium: ['2.25rem', { lineHeight: '1.1', fontWeight: '400', letterSpacing: '0.02em' }], // 36px
+      small: ['1.875rem', { lineHeight: '1.2', fontWeight: '400', letterSpacing: '0.02em' }] // 30px
     },
 
     // Content Typography
     heading: {
-      h1: ['2.25rem', { lineHeight: '2.5rem', fontWeight: '700' }], // 36px
-      h2: ['1.875rem', { lineHeight: '2.25rem', fontWeight: '700' }], // 30px
-      h3: ['1.5rem', { lineHeight: '2rem', fontWeight: '600' }], // 24px
-      h4: ['1.25rem', { lineHeight: '1.75rem', fontWeight: '600' }], // 20px
-      h5: ['1.125rem', { lineHeight: '1.75rem', fontWeight: '600' }], // 18px
-      h6: ['1rem', { lineHeight: '1.5rem', fontWeight: '600' }] // 16px
+      h1: ['2.25rem', { lineHeight: '2.5rem', fontWeight: '400' }], // 36px
+      h2: ['1.875rem', { lineHeight: '2.25rem', fontWeight: '400' }], // 30px
+      h3: ['1.5rem', { lineHeight: '2rem', fontWeight: '400' }], // 24px
+      h4: ['1.25rem', { lineHeight: '1.75rem', fontWeight: '400' }], // 20px
+      h5: ['1.125rem', { lineHeight: '1.75rem', fontWeight: '400' }], // 18px
+      h6: ['1rem', { lineHeight: '1.5rem', fontWeight: '400' }] // 16px
     },
 
     body: {
@@ -121,9 +121,9 @@ export const playbookdTypography = {
     },
 
     button: {
-      large: ['1.125rem', { lineHeight: 'normal', fontWeight: '600' }], // 18px
-      base: ['1rem', { lineHeight: 'normal', fontWeight: '600' }], // 16px
-      small: ['0.875rem', { lineHeight: 'normal', fontWeight: '600' }] // 14px
+      large: ['1.125rem', { lineHeight: 'normal', fontWeight: '400' }], // 18px
+      base: ['1rem', { lineHeight: 'normal', fontWeight: '400' }], // 16px
+      small: ['0.875rem', { lineHeight: 'normal', fontWeight: '400' }] // 14px
     }
   }
 }

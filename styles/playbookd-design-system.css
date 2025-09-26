@@ -161,7 +161,7 @@ body {
 .text-brand-hero {
   font-size: 4.5rem;
   line-height: 1;
-  font-weight: 700;
+  font-weight: 400;
   letter-spacing: 0.02em;
   font-family: var(--playbookd-font-brand);
 }
@@ -169,7 +169,7 @@ body {
 .text-brand-large {
   font-size: 3rem;
   line-height: 1.1;
-  font-weight: 700;
+  font-weight: 400;
   letter-spacing: 0.02em;
   font-family: var(--playbookd-font-brand);
 }
@@ -177,7 +177,7 @@ body {
 .text-brand-medium {
   font-size: 2.25rem;
   line-height: 1.1;
-  font-weight: 700;
+  font-weight: 400;
   letter-spacing: 0.02em;
   font-family: var(--playbookd-font-brand);
 }
@@ -185,7 +185,7 @@ body {
 .text-brand-small {
   font-size: 1.875rem;
   line-height: 1.2;
-  font-weight: 700;
+  font-weight: 400;
   letter-spacing: 0.02em;
   font-family: var(--playbookd-font-brand);
 }
@@ -281,7 +281,7 @@ body {
 /* Header Brand Style */
 .playbookd-header-brand {
   font-family: var(--playbookd-font-brand);
-  font-weight: 700;
+  font-weight: 400;
   font-size: 1.5rem;
   color: var(--playbookd-dark);
   text-decoration: none;
