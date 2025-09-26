@@ -2,12 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
-
-// This function is required for dynamic routes in Next.js App Router
-export async function generateStaticParams() {
-  // Return empty array to generate pages on-demand
-  return []
-}
 import { doc, getDoc, updateDoc, increment } from 'firebase/firestore'
 import { db } from '@/lib/firebase.client'
 import Link from 'next/link'

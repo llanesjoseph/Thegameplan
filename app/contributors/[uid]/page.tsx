@@ -24,12 +24,6 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 
-// This function is required for dynamic routes in Next.js App Router
-export async function generateStaticParams() {
-  // Return empty array to generate pages on-demand
-  return []
-}
-
 interface CoachProfile {
   uid: string
   displayName: string
