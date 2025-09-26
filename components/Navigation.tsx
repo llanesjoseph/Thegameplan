@@ -1,193 +1,30 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
-import { Menu, X } from 'lucide-react'
-import ClarityButton from './ui/NexusButton'
-import { UserIdentity } from './user-identity'
-import { useAuth } from '@/hooks/use-auth'
-
-// Navigation Link Component
-const NavLink = ({ href, label }: { href: string; label: string }) => (
-  <Link 
-    href={href}
-    className="relative px-3 py-2 text-sm font-medium text-clarity-text-primary hover:text-clarity-accent transition-colors group rounded-lg hover:bg-clarity-accent/5"
-  >
-    {label}
-    <div className="absolute bottom-1 left-1/2 w-0 h-0.5 bg-clarity-accent transition-all duration-300 group-hover:w-6 group-hover:left-1/2 group-hover:-translate-x-1/2 rounded-full" />
-  </Link>
-)
-
-// Mobile Navigation Link Component  
-const MobileNavLink = ({ href, label, onClick }: { href: string; label: string; onClick: () => void }) => (
-  <Link 
-    href={href}
-    className="block px-4 py-3 text-base font-medium text-clarity-text-primary hover:text-clarity-accent hover:bg-clarity-accent/5 transition-colors rounded-lg"
-    onClick={onClick}
-  >
-    {label}
-  </Link>
-)
 
 const Navigation = () => {
-  const [scrolled, setScrolled] = useState(false)
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const { user, loading } = useAuth()
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50)
-    }
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
-
   return (
-    <>
-      <nav className={`
-        fixed top-0 left-0 right-0 z-50 transition-all duration-300
-        backdrop-blur-xl bg-clarity-surface/95 border-b border-clarity-text-secondary/10
-        ${scrolled ? 'shadow-clarity-lg bg-clarity-surface/98' : ''}
-      `}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            
-            {/* Logo Section - PlayBookd Brand */}
-            <div className="flex items-center flex-shrink-0">
-              <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
-                <div className="relative">
-                  <Image
-                    src="https://res.cloudinary.com/dr0jtjwlh/image/upload/v1756849213/GAME_PLAN_neon_green_BLACKBG_256_mv9snx.png"
-                    alt="PlayBookd"
-                    width={32}
-                    height={32}
-                    className="rounded-lg"
-                  />
-                </div>
-                <span className="text-xl font-brand text-playbookd-red tracking-wide">
-                  PLAYBOOKD
-                </span>
-              </Link>
-            </div>
-
-            {/* Center Navigation - Simplified */}
-            <div className="hidden md:flex items-center space-x-1">
-              <NavLink href="/contributors" label="Contributors" />
-              <NavLink href="/gear" label="Gear" />
-              {/* Only show Subscribe for non-authenticated users */}
-              {!user && <NavLink href="/subscribe" label="Subscribe" />}
-              <NavLink href="/dashboard" label="Dashboard" />
-            </div>
-
-            {/* Right Section - Adaptive based on auth state */}
-            <div className="flex items-center gap-3">
-              {loading ? (
-                // Loading state
-                <div className="w-9 h-9 rounded-full bg-clarity-text-secondary/20 animate-pulse"></div>
-              ) : user ? (
-                // Authenticated user - Show profile dropdown
-                <>
-                  <UserIdentity />
-                  {/* Mobile Menu Toggle */}
-                  <button 
-                    className="md:hidden flex items-center justify-center w-9 h-9 text-clarity-text-secondary hover:text-clarity-accent hover:bg-clarity-accent/5 transition-colors rounded-lg ml-2"
-                    onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                    aria-label="Toggle navigation menu"
-                  >
-                    {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-                  </button>
-                </>
-              ) : (
-                // Unauthenticated - Show sign in/up buttons
-                <>
-                  <Link href="/dashboard">
-                    <ClarityButton 
-                      variant="ghost" 
-                      size="sm"
-                      className="hidden lg:flex text-clarity-text-secondary hover:text-clarity-text-primary"
-                    >
-                      Sign In
-                    </ClarityButton>
-                  </Link>
-                  
-                  <Link href="/onboarding">
-                    <ClarityButton 
-                      variant="primary" 
-                      size="sm"
-                      className="px-4 py-2"
-                    >
-                      Get Started
-                    </ClarityButton>
-                  </Link>
-                  
-                  {/* Mobile Menu Toggle */}
-                  <button 
-                    className="md:hidden flex items-center justify-center w-9 h-9 text-clarity-text-secondary hover:text-clarity-accent hover:bg-clarity-accent/5 transition-colors rounded-lg ml-2"
-                    onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                    aria-label="Toggle navigation menu"
-                  >
-                    {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-                  </button>
-                </>
-              )}
-            </div>
+    <nav className="bg-white fixed top-0 left-0 right-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          
+          {/* Logo */}
+          <div className="flex items-center">
+            <Link href="/" className="text-lg font-brand font-bold text-black tracking-wide">
+              PLAYBOOKD
+            </Link>
           </div>
-        </div>
-      </nav>
 
-      {/* Mobile Menu Overlay */}
-      <div className={`
-        md:hidden fixed inset-0 z-40 transition-all duration-300
-        ${mobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}
-      `}>
-        {/* Backdrop */}
-        <div 
-          className="absolute inset-0 bg-black/30 backdrop-blur-sm"
-          onClick={() => setMobileMenuOpen(false)}
-        />
-        
-        {/* Menu Content */}
-        <div className={`
-          absolute top-16 left-0 right-0 backdrop-blur-xl bg-clarity-surface/98 border-b border-clarity-text-secondary/10 shadow-clarity-xl
-          transform transition-transform duration-300
-          ${mobileMenuOpen ? 'translate-y-0' : '-translate-y-full'}
-        `}>
-          <div className="p-6 space-y-1">
-            {/* Mobile Navigation Links */}
-            <MobileNavLink href="/contributors" label="Contributors" onClick={() => setMobileMenuOpen(false)} />
-            <MobileNavLink href="/gear" label="Gear" onClick={() => setMobileMenuOpen(false)} />
-            {/* Only show Subscribe for non-authenticated users */}
-            {!user && <MobileNavLink href="/subscribe" label="Subscribe" onClick={() => setMobileMenuOpen(false)} />}
-            <MobileNavLink href="/dashboard" label="Dashboard" onClick={() => setMobileMenuOpen(false)} />
-            
-            {/* Mobile CTA Section - Conditional */}
-            {!user && (
-              <div className="pt-4 mt-4 border-t border-clarity-text-secondary/10 space-y-3">
-                <Link href="/dashboard">
-                  <ClarityButton 
-                    variant="ghost" 
-                    className="w-full justify-center"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Sign In
-                  </ClarityButton>
-                </Link>
-                <Link href="/onboarding">
-                  <ClarityButton 
-                    variant="primary" 
-                    className="w-full justify-center"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Get Started
-                  </ClarityButton>
-                </Link>
-              </div>
-            )}
+          {/* Right Side - Red Sign In button */}
+          <div className="flex items-center">
+            <Link href="/dashboard" className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-700 transition-colors">
+              Sign In
+            </Link>
           </div>
         </div>
       </div>
-    </>
+    </nav>
   )
 }
 

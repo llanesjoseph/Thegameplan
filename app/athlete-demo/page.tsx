@@ -1,7 +1,5 @@
-'use client'
-
 import AthleteDashboard from '@/components/AthleteDashboard'
 
-export default function DashboardOverview() {
+export default function AthleteDemoPage() {
   return <AthleteDashboard />
 }

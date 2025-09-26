@@ -33,8 +33,8 @@ const nextConfig = {
   // Compression
   compress: true,
 
-  // Output configuration for deployment
-  output: 'export',
+  // Output configuration for deployment - disabled for development
+  // output: 'export',
   trailingSlash: true,
   distDir: 'out',
 
