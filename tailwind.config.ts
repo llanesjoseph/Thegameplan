@@ -4,21 +4,21 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // NEW PLAYBOOKD Color System
+        // PLAYBOOKD Unified Color System
+        'playbookd': {
+          'cream': '#E8E6D8',
+          'sky-blue': '#91A6EB',
+          'orange': '#892F1A',
+          'green': '#BDAF62',
+          'dark': '#624A41',
+        },
+
+        // Direct color aliases for convenience
         'cream': '#E8E6D8',
         'sky-blue': '#91A6EB',
         'orange': '#892F1A',
         'green': '#BDAF62',
         'dark': '#624A41',
-
-        // Legacy colors (plum replaced with black)
-        'black': '#000000',
-        'cardinal-red': '#8C1515',
-        'vibrant-teal': '#20B2AA',
-        'moss-green': '#8D9440',
-        'warm-cream': '#FFFDD0',
-        'charcoal': '#333333',
-        'light-gray': '#F5F5F5',
 
         // Primary theme colors (Sky Blue based)
         primary: {
@@ -96,12 +96,15 @@ const config: Config = {
         'background-light': '#FFFFFF',
       },
       fontFamily: {
-        // PLAYBOOKD typography system - matching design document
-        sans: ['var(--font-inter)', 'Inter', 'ui-sans-serif', 'system-ui'],
-        heading: ['var(--font-oswald)', 'Oswald', 'Impact', 'Arial Black', 'sans-serif'], // Sports-style bold heading font
-        body: ['var(--font-inter)', 'Inter', 'ui-sans-serif', 'system-ui'],
-        'sports': ['var(--font-oswald)', 'Oswald', 'Impact', 'Arial Black', 'sans-serif'], // Main PLAYBOOKD brand font
-        'display': ['var(--font-oswald)', 'Oswald', 'Impact', 'Arial Black', 'sans-serif'], // For large titles and brand
+        // PLAYBOOKD Unified Typography System
+        'brand': ['Sports World', 'Impact', 'Arial Black', 'sans-serif'], // PLAYBOOKD brand font
+        'heading': ['Oswald', 'Impact', 'Arial Black', 'sans-serif'],     // Sports-style headings
+        'body': ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],    // Body text
+        'display': ['Sports World', 'Oswald', 'Impact', 'Arial Black', 'sans-serif'], // Large displays
+
+        // Legacy aliases
+        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        'sports': ['Sports World', 'Oswald', 'Impact', 'Arial Black', 'sans-serif'],
         poppins: ['Poppins', 'ui-sans-serif', 'system-ui']
       },
       fontSize: {

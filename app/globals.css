@@ -1,4 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@700&display=swap');
+/* Import PLAYBOOKD Design System */
+@import '../styles/playbookd-design-system.css';
+
 @tailwind base;
 
 /* PLAYBOOKD Global Styles */

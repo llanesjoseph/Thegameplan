@@ -1,10 +1,13 @@
 'use client'
 
 import { useAuth } from '@/hooks/use-auth'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { db } from '@/lib/firebase'
 import { doc, getDoc, setDoc } from 'firebase/firestore'
+import { signOut } from 'firebase/auth'
+import { auth } from '@/lib/firebase.client'
 import {
   Users,
   ArrowRight,
@@ -88,6 +91,18 @@ export default function UnifiedDashboard() {
     upcomingSessions: 1
   })
 
+  // Dropdown state
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+  const router = useRouter()
+
+  // Availability state
+  const [selectedDays, setSelectedDays] = useState<string[]>([])
+  const [startTime, setStartTime] = useState('17:00')
+  const [endTime, setEndTime] = useState('18:00')
+  const [showScheduleModal, setShowScheduleModal] = useState(false)
+  const [saving, setSaving] = useState(false)
+
   useEffect(() => {
     const loadUserData = async () => {
       if (!user?.uid) return
@@ -126,6 +141,18 @@ export default function UnifiedDashboard() {
     loadUserData()
   }, [user])
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
   const handleSaveProfile = async () => {
     if (!user?.uid) return
 
@@ -141,6 +168,65 @@ export default function UnifiedDashboard() {
     } catch (error) {
       console.error('Error saving profile:', error)
     }
+  }
+
+  // Handler functions
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth)
+      router.push('/')
+    } catch (error) {
+      console.error('Error signing out:', error)
+    }
+  }
+
+  const handleDayToggle = (day: string) => {
+    setSelectedDays(prev =>
+      prev.includes(day)
+        ? prev.filter(d => d !== day)
+        : [...prev, day]
+    )
+  }
+
+  const handleSaveAvailability = async () => {
+    if (!user?.uid) return
+    setSaving(true)
+    try {
+      await setDoc(doc(db, 'users', user.uid), {
+        availability: {
+          days: selectedDays,
+          startTime,
+          endTime,
+          updatedAt: new Date()
+        }
+      }, { merge: true })
+      alert('Availability saved successfully!')
+    } catch (error) {
+      console.error('Error saving availability:', error)
+      alert('Failed to save availability')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleAthleteClick = (athleteId: number) => {
+    router.push(`/dashboard/athletes/${athleteId}`)
+  }
+
+  const handleTrainingClick = (trainingId: string) => {
+    router.push(`/training/${trainingId}`)
+  }
+
+  const handleProductClick = (productId: string) => {
+    router.push(`/shop/product/${productId}`)
+  }
+
+  const handleSessionStart = (sessionId: string) => {
+    router.push(`/dashboard/sessions/${sessionId}`)
+  }
+
+  const handleBookSlot = () => {
+    setShowScheduleModal(true)
   }
 
   const getSportIcon = (sport: string) => {
@@ -180,10 +266,30 @@ export default function UnifiedDashboard() {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
+      {/* Add Sports World Font */}
+      <style jsx global>{`
+        @font-face {
+          font-family: 'Sports World';
+          src: url('/fonts/sports-world-regular.ttf') format('truetype');
+          font-weight: normal;
+          font-style: normal;
+          font-display: swap;
+        }
+      `}</style>
+
       {/* Header */}
       <header className="bg-white px-4 py-4 shadow-sm">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <h1 className="text-2xl font-bold tracking-wider">PLAYBOOKD</h1>
+          <button
+            onClick={() => router.push('/dashboard')}
+            className="text-2xl font-bold tracking-wider hover:opacity-80 transition-opacity"
+            style={{
+              fontFamily: 'Sports World, Impact, Arial Black, sans-serif',
+              color: '#624A41'
+            }}
+          >
+            PLAYBOOKD
+          </button>
           <div className="flex items-center gap-4">
             <Link href="/contributors" className="text-black hover:text-blue-600 font-medium">
               Browse Coaches
@@ -191,14 +297,42 @@ export default function UnifiedDashboard() {
             <div className="px-4 py-2 bg-purple-600 text-white rounded-lg font-medium">
               Coach
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-medium">
-                J
-              </div>
-              <span className="font-medium text-black">Joseph</span>
-              <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="flex items-center gap-2 hover:bg-gray-50 rounded-lg p-1 transition-colors"
+              >
+                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-medium">
+                  J
+                </div>
+                <span className="font-medium text-black">Joseph</span>
+                <svg
+                  className={`w-4 h-4 text-gray-500 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {isDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+                  <Link href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                    View Profile
+                  </Link>
+                  <Link href="/settings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                    Settings
+                  </Link>
+                  <hr className="my-1" />
+                  <button
+                    onClick={handleSignOut}
+                    className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50"
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -344,8 +478,12 @@ export default function UnifiedDashboard() {
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
             {mockAthletes.map((athlete) => (
-              <div key={athlete.id} className="text-center">
-                <div className="w-24 h-24 mx-auto mb-3 rounded-full overflow-hidden border-4 border-white/20">
+              <button
+                key={athlete.id}
+                onClick={() => handleAthleteClick(athlete.id)}
+                className="text-center hover:bg-white/10 rounded-lg p-3 transition-colors"
+              >
+                <div className="w-24 h-24 mx-auto mb-3 rounded-full overflow-hidden border-4 border-white/20 hover:border-white/40 transition-colors">
                   <img
                     src={athlete.image}
                     alt={athlete.name}
@@ -361,7 +499,7 @@ export default function UnifiedDashboard() {
                 <p className="text-green-300 text-xs mt-1">
                   Progress: {athlete.progress}
                 </p>
-              </div>
+              </button>
             ))}
           </div>
 
@@ -371,7 +509,10 @@ export default function UnifiedDashboard() {
                 Create Training Content
               </button>
             </Link>
-            <button className="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
+            <button
+              onClick={() => setShowScheduleModal(true)}
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+            >
               Schedule Session
             </button>
             <Link href="/dashboard/coaching">
@@ -403,16 +544,22 @@ export default function UnifiedDashboard() {
                     <h4 className="font-medium text-blue-900">Soccer Training with Jasmine Aikey</h4>
                     <p className="text-sm text-blue-700">Today, 3:00 PM - 4:00 PM</p>
                   </div>
-                  <div className="text-blue-600">
+                  <button
+                    onClick={() => handleSessionStart('session-1')}
+                    className="text-blue-600 hover:text-blue-800 transition-colors"
+                  >
                     <Play className="w-5 h-5" />
-                  </div>
+                  </button>
                 </div>
                 <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                   <div>
                     <h4 className="font-medium text-gray-900">Available Slot</h4>
                     <p className="text-sm text-gray-700">Tomorrow, 5:00 PM - 6:00 PM</p>
                   </div>
-                  <button className="text-green-600 hover:text-green-700">
+                  <button
+                    onClick={handleBookSlot}
+                    className="text-green-600 hover:text-green-700 transition-colors"
+                  >
                     <Plus className="w-5 h-5" />
                   </button>
                 </div>
@@ -434,7 +581,12 @@ export default function UnifiedDashboard() {
                     {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => (
                       <button
                         key={day}
-                        className="px-3 py-1 text-sm border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-300"
+                        onClick={() => handleDayToggle(day)}
+                        className={`px-3 py-1 text-sm border rounded-lg transition-colors ${
+                          selectedDays.includes(day)
+                            ? 'bg-blue-500 text-white border-blue-500'
+                            : 'border-gray-300 hover:bg-blue-50 hover:border-blue-300'
+                        }`}
                       >
                         {day}
                       </button>
@@ -448,7 +600,8 @@ export default function UnifiedDashboard() {
                     </label>
                     <input
                       type="time"
-                      defaultValue="17:00"
+                      value={startTime}
+                      onChange={(e) => setStartTime(e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
@@ -458,13 +611,22 @@ export default function UnifiedDashboard() {
                     </label>
                     <input
                       type="time"
-                      defaultValue="18:00"
+                      value={endTime}
+                      onChange={(e) => setEndTime(e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                 </div>
-                <button className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
-                  Save Availability
+                <button
+                  onClick={handleSaveAvailability}
+                  disabled={saving}
+                  className={`w-full py-2 px-4 rounded-lg transition-colors ${
+                    saving
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'bg-blue-600 hover:bg-blue-700'
+                  } text-white`}
+                >
+                  {saving ? 'Saving...' : 'Save Availability'}
                 </button>
               </div>
             </div>
@@ -480,11 +642,14 @@ export default function UnifiedDashboard() {
           </h2>
 
           <div className="space-y-6">
-            <div className="flex items-center gap-4 p-4 bg-white rounded-lg shadow-sm">
+            <button
+              onClick={() => handleTrainingClick('footwork-passing')}
+              className="flex items-center gap-4 p-4 bg-white rounded-lg shadow-sm hover:bg-gray-50 transition-colors w-full"
+            >
               <div className="w-16 h-16 bg-red-100 rounded-lg flex items-center justify-center">
                 <Play className="w-8 h-8 text-red-600" />
               </div>
-              <div className="flex-1">
+              <div className="flex-1 text-left">
                 <h3 className="font-semibold text-lg" style={{ color: '#000000' }}>
                   Footwork and Passing in Soccer
                 </h3>
@@ -492,13 +657,16 @@ export default function UnifiedDashboard() {
               <div className="px-3 py-1 bg-gray-100 text-gray-600 rounded text-sm font-medium">
                 Ended
               </div>
-            </div>
+            </button>
 
-            <div className="flex items-center gap-4 p-4 bg-white rounded-lg shadow-sm">
+            <button
+              onClick={() => handleTrainingClick('soccer-drills-beginners')}
+              className="flex items-center gap-4 p-4 bg-white rounded-lg shadow-sm hover:bg-gray-50 transition-colors w-full"
+            >
               <div className="w-16 h-16 bg-red-100 rounded-lg flex items-center justify-center">
                 <Play className="w-8 h-8 text-red-600" />
               </div>
-              <div className="flex-1">
+              <div className="flex-1 text-left">
                 <h3 className="font-semibold text-lg" style={{ color: '#000000' }}>
                   Soccer Drills for Beginners
                 </h3>
@@ -506,11 +674,14 @@ export default function UnifiedDashboard() {
               <div className="px-3 py-1 bg-gray-100 text-gray-600 rounded text-sm font-medium">
                 Ended
               </div>
-            </div>
+            </button>
           </div>
 
           <div className="text-center mt-8">
-            <button className="px-6 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors">
+            <button
+              onClick={() => router.push('/training')}
+              className="px-6 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors"
+            >
               Browse Training
             </button>
           </div>
@@ -530,26 +701,35 @@ export default function UnifiedDashboard() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white rounded-lg p-4 text-center">
+            <button
+              onClick={() => handleProductClick('product-1')}
+              className="bg-white rounded-lg p-4 text-center hover:shadow-md transition-shadow"
+            >
               <div className="w-full h-32 bg-gray-200 rounded-lg mb-4 flex items-center justify-center">
                 <span className="text-gray-500">Product Image</span>
               </div>
-              <p className="text-sm text-gray-600">I'm a product</p>
-            </div>
+              <p className="text-sm text-gray-600">Training Soccer Ball</p>
+            </button>
 
-            <div className="bg-white rounded-lg p-4 text-center">
+            <button
+              onClick={() => handleProductClick('product-2')}
+              className="bg-white rounded-lg p-4 text-center hover:shadow-md transition-shadow"
+            >
               <div className="w-full h-32 bg-gray-200 rounded-lg mb-4 flex items-center justify-center">
                 <span className="text-gray-500">Product Image</span>
               </div>
-              <p className="text-sm text-gray-600">I'm a product</p>
-            </div>
+              <p className="text-sm text-gray-600">Basketball Hoop</p>
+            </button>
 
-            <div className="bg-white rounded-lg p-4 text-center">
+            <button
+              onClick={() => handleProductClick('product-3')}
+              className="bg-white rounded-lg p-4 text-center hover:shadow-md transition-shadow"
+            >
               <div className="w-full h-32 bg-gray-200 rounded-lg mb-4 flex items-center justify-center">
                 <span className="text-gray-500">Product Image</span>
               </div>
-              <p className="text-sm text-gray-600">I'm a product</p>
-            </div>
+              <p className="text-sm text-gray-600">Athletic Shoes</p>
+            </button>
           </div>
         </div>
       </div>
@@ -583,6 +763,90 @@ export default function UnifiedDashboard() {
           </div>
         </div>
       </footer>
+
+      {/* Schedule Session Modal */}
+      {showScheduleModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Schedule New Session</h3>
+              <button
+                onClick={() => setShowScheduleModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Select Athlete</label>
+                <select className="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                  {mockAthletes.map((athlete) => (
+                    <option key={athlete.id} value={athlete.id}>
+                      {athlete.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Date</label>
+                <input
+                  type="date"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Start Time</label>
+                  <input
+                    type="time"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">End Time</label>
+                  <input
+                    type="time"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Session Type</label>
+                <select className="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                  <option>Individual Training</option>
+                  <option>Group Session</option>
+                  <option>Video Call</option>
+                  <option>Assessment</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setShowScheduleModal(false)}
+                className="flex-1 px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  // Add scheduling logic here
+                  setShowScheduleModal(false)
+                  alert('Session scheduled successfully!')
+                }}
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                Schedule Session
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

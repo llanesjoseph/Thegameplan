@@ -5,6 +5,19 @@ import { Send, Bot, User, Minimize2, Maximize2, X, Sparkles, Zap } from 'lucide-
 import { getRobustAIResponse } from '@/lib/ai-service'
 import { createAISession, checkUserLegalCompliance } from '@/lib/ai-logging'
 import AILegalDisclaimer from './AILegalDisclaimer'
+import { db } from '@/lib/firebase'
+import {
+  collection,
+  doc,
+  addDoc,
+  getDocs,
+  query,
+  where,
+  orderBy,
+  serverTimestamp,
+  onSnapshot,
+  Timestamp
+} from 'firebase/firestore'
 
 interface Message {
   id: string
@@ -47,6 +60,8 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
   const [showDisclaimer, setShowDisclaimer] = useState(false)
   const [hasAcceptedTerms, setHasAcceptedTerms] = useState(false)
   const [sessionId, setSessionId] = useState<string>('')
+  const [conversationId, setConversationId] = useState<string>('')
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -61,6 +76,92 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
       handleSendMessage(initialPrompt)
     }
   }, [initialPrompt, userId, userEmail, requireLegalConsent])
+
+  // Load chat history when component mounts
+  useEffect(() => {
+    if (userId && hasAcceptedTerms) {
+      loadChatHistory()
+    }
+  }, [userId, hasAcceptedTerms])
+
+  const generateConversationId = (userId: string, context: string, sport?: string): string => {
+    const contextHash = context.slice(0, 20).replace(/\s+/g, '-').toLowerCase()
+    const sportSuffix = sport ? `-${sport}` : ''
+    return `${userId}-${contextHash}${sportSuffix}`
+  }
+
+  const loadChatHistory = async () => {
+    if (!userId) return
+
+    setIsLoadingHistory(true)
+    try {
+      const convId = generateConversationId(userId, context, sport)
+      setConversationId(convId)
+
+      const messagesQuery = query(
+        collection(db, 'chatConversations', convId, 'messages'),
+        orderBy('timestamp', 'asc')
+      )
+
+      const snapshot = await getDocs(messagesQuery)
+      const historicalMessages: Message[] = []
+
+      snapshot.forEach((doc) => {
+        const data = doc.data()
+        historicalMessages.push({
+          id: doc.id,
+          type: data.type,
+          content: data.content,
+          timestamp: data.timestamp?.toDate() || new Date()
+        })
+      })
+
+      setMessages(historicalMessages)
+    } catch (error) {
+      console.error('Error loading chat history:', error)
+    } finally {
+      setIsLoadingHistory(false)
+    }
+  }
+
+  const saveMessageToFirestore = async (message: Message, conversationId: string) => {
+    try {
+      const messageData = {
+        type: message.type,
+        content: message.content,
+        timestamp: serverTimestamp(),
+        userId: userId,
+        sessionId: sessionId,
+        sport: sport || null,
+        context: context.slice(0, 100) // First 100 chars for context reference
+      }
+
+      await addDoc(
+        collection(db, 'chatConversations', conversationId, 'messages'),
+        messageData
+      )
+
+      // Also update conversation metadata
+      const conversationData = {
+        userId: userId,
+        lastActivity: serverTimestamp(),
+        messageCount: messages.length + 1,
+        sport: sport || null,
+        context: context.slice(0, 200),
+        title: title
+      }
+
+      await addDoc(collection(db, 'chatConversations'), {
+        ...conversationData,
+        conversationId: conversationId
+      }).catch(() => {
+        // Conversation might already exist, that's fine
+      })
+
+    } catch (error) {
+      console.error('Error saving message to Firestore:', error)
+    }
+  }
 
   const checkLegalCompliance = async () => {
     if (!userId) return
@@ -138,6 +239,11 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
     setInputValue('')
     setIsLoading(true)
 
+    // Save user message to Firestore
+    if (userId && conversationId) {
+      await saveMessageToFirestore(userMessage, conversationId)
+    }
+
     try {
       console.log('🤖 Sending message to AI:', messageToSend)
       
@@ -176,6 +282,12 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
       }
 
       setMessages(prev => [...prev, assistantMessage])
+
+      // Save assistant message to Firestore
+      if (userId && conversationId) {
+        await saveMessageToFirestore(assistantMessage, conversationId)
+      }
+
       console.log('✅ AI response received via provider:', data.provider, 'logged:', data.logged)
     } catch (error) {
       console.error('❌ AI Assistant Error:', error)
@@ -198,8 +310,27 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
     }
   }
 
-  const clearChat = () => {
+  const clearChat = async () => {
     setMessages([])
+
+    // Optionally clear from Firestore as well
+    if (userId && conversationId) {
+      try {
+        const messagesQuery = query(
+          collection(db, 'chatConversations', conversationId, 'messages')
+        )
+        const snapshot = await getDocs(messagesQuery)
+
+        // Note: In production, consider soft-delete instead of hard delete
+        // for audit trail purposes
+        const deletePromises = snapshot.docs.map(doc => doc.ref.delete())
+        await Promise.all(deletePromises)
+
+        console.log('✅ Chat history cleared from Firestore')
+      } catch (error) {
+        console.error('Error clearing chat history from Firestore:', error)
+      }
+    }
   }
 
   if (mode === 'floating' && isMinimized) {
@@ -207,7 +338,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
       <div className={`fixed bottom-4 right-4 z-50 ${className}`}>
         <button
           onClick={() => setIsMinimized(false)}
-          className="w-14 h-14 bg-gradient-to-r from-[var(--primary-blue)] to-[var(--accent-indigo)] rounded-full shadow-lg flex items-center justify-center text-white hover:shadow-xl transition-all duration-300 hover:scale-105"
+          className="w-14 h-14 bg-gradient-to-r from-sky-blue to-orange rounded-full shadow-lg flex items-center justify-center text-white hover:shadow-xl transition-all duration-300 hover:scale-105"
         >
           <Bot className="w-6 h-6" />
         </button>
@@ -216,27 +347,27 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
   }
 
   const containerClasses = {
-    inline: `bg-white rounded-xl shadow-lg border border-[var(--light-gray)] ${className}`,
-    floating: `fixed bottom-4 right-4 z-50 w-96 h-[500px] bg-white rounded-xl shadow-2xl border border-[var(--light-gray)] ${className}`,
+    inline: `bg-white rounded-xl shadow-lg border border-gray-200 ${className}`,
+    floating: `fixed bottom-4 right-4 z-50 w-96 h-[500px] bg-white rounded-xl shadow-2xl border border-gray-200 ${className}`,
     fullscreen: `fixed inset-0 z-50 bg-white ${className}`
   }
 
   return (
     <div className={containerClasses[mode]}>
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-[var(--light-gray)] bg-gradient-to-r from-[var(--primary-blue)]/5 to-[var(--accent-indigo)]/5">
+      <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gradient-to-r from-sky-blue/5 to-orange/5">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-gradient-to-r from-[var(--primary-blue)] to-[var(--accent-indigo)] rounded-full flex items-center justify-center">
+          <div className="w-8 h-8 bg-gradient-to-r from-sky-blue to-orange rounded-full flex items-center justify-center">
             <Sparkles className="w-4 h-4 text-white" />
           </div>
-          <h3 className="font-semibold text-[var(--deep-black)]">{title}</h3>
+          <h3 className="font-semibold text-dark">{title}</h3>
         </div>
         
         <div className="flex items-center gap-2">
           {messages.length > 0 && (
             <button
               onClick={clearChat}
-              className="p-1.5 text-[var(--mid-gray)] hover:text-[var(--deep-black)] transition-colors"
+              className="p-1.5 text-gray-500 hover:text-dark transition-colors"
               title="Clear chat"
             >
               <X className="w-4 h-4" />
@@ -246,7 +377,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
           {mode === 'floating' && (
             <button
               onClick={() => setIsMinimized(true)}
-              className="p-1.5 text-[var(--mid-gray)] hover:text-[var(--deep-black)] transition-colors"
+              className="p-1.5 text-gray-500 hover:text-dark transition-colors"
               title="Minimize"
             >
               <Minimize2 className="w-4 h-4" />
@@ -256,7 +387,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
           {onClose && (
             <button
               onClick={onClose}
-              className="p-1.5 text-[var(--mid-gray)] hover:text-[var(--deep-black)] transition-colors"
+              className="p-1.5 text-gray-500 hover:text-dark transition-colors"
               title="Close"
             >
               <X className="w-4 h-4" />
@@ -267,10 +398,22 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4" style={{ height: mode === 'inline' ? '400px' : 'calc(100% - 140px)' }}>
-        {messages.length === 0 && (
-          <div className="text-center text-[var(--mid-gray)] py-8">
-            <Bot className="w-12 h-12 mx-auto mb-3 text-[var(--light-gray)]" />
+        {isLoadingHistory && (
+          <div className="text-center text-gray-500 py-8">
+            <div className="flex items-center justify-center gap-2 mb-3">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[var(--primary-blue)]"></div>
+              <span className="text-sm">Loading chat history...</span>
+            </div>
+          </div>
+        )}
+
+        {!isLoadingHistory && messages.length === 0 && (
+          <div className="text-center text-gray-500 py-8">
+            <Bot className="w-12 h-12 mx-auto mb-3 text-gray-300" />
             <p className="text-sm">Start a conversation with your AI assistant</p>
+            {userId && (
+              <p className="text-xs mt-2 opacity-70">Your conversation history will be saved</p>
+            )}
           </div>
         )}
         
@@ -282,18 +425,18 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
             <div
               className={`max-w-[80%] p-3 rounded-lg ${
                 message.type === 'user'
-                  ? 'bg-gradient-to-r from-[var(--primary-blue)] to-[var(--accent-indigo)] text-white'
-                  : 'bg-[var(--light-gray)] text-[var(--deep-black)]'
+                  ? 'bg-gradient-to-r from-sky-blue to-orange text-white'
+                  : 'bg-gray-100 text-dark'
               }`}
             >
               <div className="flex items-start gap-2">
                 {message.type === 'assistant' && (
-                  <Bot className="w-4 h-4 mt-0.5 text-[var(--primary-blue)]" />
+                  <Bot className="w-4 h-4 mt-0.5 text-sky-blue" />
                 )}
                 <div className="flex-1">
                   <p className="whitespace-pre-wrap">{message.content}</p>
                   <p className={`text-xs mt-1 opacity-70 ${
-                    message.type === 'user' ? 'text-white' : 'text-[var(--mid-gray)]'
+                    message.type === 'user' ? 'text-white' : 'text-gray-500'
                   }`}>
                     {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </p>
@@ -344,7 +487,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
           <button
             onClick={() => handleSendMessage()}
             disabled={!inputValue.trim() || isLoading}
-            className="px-4 py-2 bg-gradient-to-r from-[var(--primary-blue)] to-[var(--accent-indigo)] text-white rounded-lg hover:opacity-90 disabled:opacity-50 transition-all duration-200 flex items-center gap-2"
+            className="px-4 py-2 bg-gradient-to-r from-sky-blue to-orange text-white rounded-lg hover:opacity-90 disabled:opacity-50 transition-all duration-200 flex items-center gap-2"
           >
             <Send className="w-4 h-4" />
           </button>
