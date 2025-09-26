@@ -7,7 +7,7 @@ import { User } from 'firebase/auth'
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore'
 import { db } from './firebase.client'
 
-export type UserRole = 'guest' | 'user' | 'creator' | 'assistant_coach' | 'admin'
+export type UserRole = 'guest' | 'user' | 'creator' | 'coach' | 'assistant' | 'admin' | 'superadmin'
 
 export interface UserRoleData {
   role: UserRole
@@ -153,17 +153,17 @@ export function isCreator(roleData: UserRoleData | null): boolean {
  */
 export function isAssistantCoach(roleData: UserRoleData | null): boolean {
   if (!roleData) return false
-  return roleData.role === 'assistant_coach'
+  return roleData.role === 'assistant'
 }
 
 /**
- * Check if user can manage coaching requests (creator or assistant_coach)
+ * Check if user can manage coaching requests (creator or assistant)
  */
 export function canManageCoachingRequests(roleData: UserRoleData | null): boolean {
   if (!roleData) return false
 
   return roleData.role === 'creator' ||
-         roleData.role === 'assistant_coach' ||
+         roleData.role === 'assistant' ||
          roleData.role === 'admin' ||
          roleData.permissions?.canViewCoachingRequests === true
 }
@@ -194,7 +194,7 @@ function getDefaultPermissions(role: UserRole) {
         canOrganizeContent: true,
         canManageAthletes: true
       }
-    case 'assistant_coach':
+    case 'assistant':
       return {
         canCreateContent: false,
         canManageContent: false,

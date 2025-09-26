@@ -41,7 +41,7 @@ const navigationItems = {
   { title: 'Analytics', icon: BarChart3, href: '/dashboard/creator/analytics', color: 'text-purple-600' },
   { title: 'Curated Gear', icon: ShoppingBag, href: '/gear', color: 'text-emerald-600' },
  ],
- assistant_coach: [
+ assistant: [
   { title: 'Overview', icon: LayoutDashboard, href: '/dashboard/overview', color: 'text-blue-600' },
   { title: 'Coaching Requests', icon: MessageCircle, href: '/dashboard/assistant/requests', color: 'text-green-600' },
   { title: 'Schedule Management', icon: Calendar, href: '/dashboard/assistant/schedule', color: 'text-orange-600' },
@@ -82,7 +82,7 @@ export function DashboardSidebar() {
   if (user?.role === 'superadmin') {
    const viewLabel = role === 'superadmin' ? 'Super Admin' :
             role === 'creator' ? 'Coach View' :
-            role === 'assistant_coach' ? 'Assistant View' : 'Athlete View'
+            role === 'assistant' ? 'Assistant View' : 'Athlete View'
 
    return <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" style={{backgroundColor: 'rgba(140, 21, 21, 0.1)', color: '#8C1515'}}>
     <Crown className="w-3 h-3 mr-1" />
@@ -96,7 +96,7 @@ export function DashboardSidebar() {
      <Award className="w-3 h-3 mr-1" />
      Coach
     </div>
-   case 'assistant_coach':
+   case 'assistant':
     return <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" style={{backgroundColor: 'rgba(99, 102, 241, 0.1)', color: '#6366F1'}}>
      <UserCheck className="w-3 h-3 mr-1" />
      Assistant Coach
