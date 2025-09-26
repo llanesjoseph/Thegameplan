@@ -33,7 +33,8 @@
       "Bash(firebase login:*)",
       "Bash(npx tsx:*)",
       "Bash(git clean:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(npx next lint:*)"
     ],
     "deny": [],
     "ask": []

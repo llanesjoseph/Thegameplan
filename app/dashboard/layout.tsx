@@ -15,9 +15,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
  // Only apply AuthGate to protected dashboard sub-routes
  const isMainDashboard = pathname === '/dashboard'
  const isOverviewPage = pathname === '/dashboard/overview'
+ const isCreatorPage = pathname === '/dashboard/creator'
 
- if (isMainDashboard || isOverviewPage) {
-  // Main dashboard and overview page handle their own auth and layout
+ if (isMainDashboard || isOverviewPage || isCreatorPage) {
+  // Main dashboard, overview page, and creator page handle their own auth and layout
   return <>{children}</>
  }
 
