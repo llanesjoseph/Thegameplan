@@ -3,236 +3,202 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { useEnhancedRole } from '@/hooks/use-role-switcher'
-import { db, storage } from '@/lib/firebase.client'
-import { collection, addDoc, query, where, getDocs, orderBy, serverTimestamp } from 'firebase/firestore'
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
+import { db } from '@/lib/firebase.client'
+import { collection, getDocs, query, where, orderBy, doc, getDoc } from 'firebase/firestore'
 import {
- MessageSquare,
- Video,
- FileText,
- Upload,
- Star,
+ Users,
+ Search,
+ Filter,
+ TrendingUp,
  Calendar,
  Clock,
- User,
  Target,
- CheckCircle,
- AlertCircle,
- ArrowRight,
- Filter,
- Search
+ Star,
+ Award,
+ Activity,
+ MessageCircle,
+ Video,
+ FileText,
+ BarChart3,
+ PieChart,
+ Progress,
+ ChevronRight,
+ Plus,
+ Edit,
+ Eye,
+ Settings
 } from 'lucide-react'
-import { WhistleIcon } from '@/components/icons/WhistleIcon'
-import { TeachingIcon } from '@/components/icons/TeachingIcon'
-import { PlayIcon } from '@/components/icons/PlayIcon'
 import Link from 'next/link'
 import AppHeader from '@/components/ui/AppHeader'
 
-import { CoachingRequest } from '@/lib/types'
+// Mock athletes data with comprehensive information
+const mockAthletes = [
+ {
+  id: 1,
+  name: 'Sarah Johnson',
+  sport: 'Soccer',
+  position: 'Midfielder',
+  level: 'Intermediate',
+  age: 16,
+  avatar: 'https://images.unsplash.com/photo-1494790108755-2616b332c1b3?w=150&h=150&fit=crop&crop=face',
+  joinDate: '2024-01-15',
+  lastSession: '2024-09-20',
+  totalSessions: 24,
+  progressScore: 85,
+  improvements: ['Ball Control', 'Passing Accuracy', 'Decision Making'],
+  currentGoals: ['Improve shooting accuracy', 'Master tactical awareness'],
+  upcomingSessions: 2,
+  performance: {
+   consistency: 88,
+   technique: 82,
+   fitness: 90,
+   mental: 85
+  },
+  recentActivities: [
+   { type: 'session', date: '2024-09-20', description: 'Individual Training - Ball Control' },
+   { type: 'goal', date: '2024-09-18', description: 'Achieved: 85% passing accuracy' },
+   { type: 'assessment', date: '2024-09-15', description: 'Monthly progress evaluation' }
+  ]
+ },
+ {
+  id: 2,
+  name: 'Mike Chen',
+  sport: 'Basketball',
+  position: 'Point Guard',
+  level: 'Beginner',
+  age: 14,
+  avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+  joinDate: '2024-02-20',
+  lastSession: '2024-09-19',
+  totalSessions: 18,
+  progressScore: 92,
+  improvements: ['Dribbling', 'Free Throws', 'Court Vision'],
+  currentGoals: ['Consistent free throw shooting', 'Master pick and roll'],
+  upcomingSessions: 1,
+  performance: {
+   consistency: 85,
+   technique: 88,
+   fitness: 87,
+   mental: 90
+  },
+  recentActivities: [
+   { type: 'session', date: '2024-09-19', description: 'Group Training - Fundamentals' },
+   { type: 'achievement', date: '2024-09-17', description: 'Scored personal best: 15 points' },
+   { type: 'session', date: '2024-09-14', description: 'Individual Training - Shooting' }
+  ]
+ },
+ {
+  id: 3,
+  name: 'Emma Davis',
+  sport: 'Soccer',
+  position: 'Forward',
+  level: 'Advanced',
+  age: 17,
+  avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+  joinDate: '2023-11-10',
+  lastSession: '2024-09-21',
+  totalSessions: 45,
+  progressScore: 78,
+  improvements: ['Finishing', 'Off-ball Movement', 'Leadership'],
+  currentGoals: ['Improve weak foot shooting', 'Develop playmaking skills'],
+  upcomingSessions: 3,
+  performance: {
+   consistency: 92,
+   technique: 89,
+   fitness: 85,
+   mental: 88
+  },
+  recentActivities: [
+   { type: 'session', date: '2024-09-21', description: 'Individual Training - Finishing' },
+   { type: 'goal', date: '2024-09-19', description: 'Completed: 50 successful crosses' },
+   { type: 'assessment', date: '2024-09-16', description: 'Tactical awareness evaluation' }
+  ]
+ },
+ {
+  id: 4,
+  name: 'Alex Rivera',
+  sport: 'Basketball',
+  position: 'Center',
+  level: 'Intermediate',
+  age: 15,
+  avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
+  joinDate: '2024-03-05',
+  lastSession: '2024-09-18',
+  totalSessions: 21,
+  progressScore: 88,
+  improvements: ['Post Moves', 'Rebounding', 'Defense'],
+  currentGoals: ['Master hook shot', 'Improve mobility'],
+  upcomingSessions: 1,
+  performance: {
+   consistency: 87,
+   technique: 86,
+   fitness: 82,
+   mental: 89
+  },
+  recentActivities: [
+   { type: 'session', date: '2024-09-18', description: 'Individual Training - Post Play' },
+   { type: 'achievement', date: '2024-09-16', description: 'Personal record: 12 rebounds' },
+   { type: 'session', date: '2024-09-13', description: 'Group Session - Defense' }
+  ]
+ }
+]
 
-interface Creator {
- uid: string
- displayName: string
- specialties: string[]
- averageRating: number
- location: string
- bio: string
+interface AthleteStats {
+ totalAthletes: number
+ activeSessions: number
+ avgProgressScore: number
+ upcomingSessionsTotal: number
 }
 
-export default function CoachingPage() {
+export default function AthleteManagementPage() {
  const { user } = useAuth()
  const { role, loading } = useEnhancedRole()
- const [activeTab, setActiveTab] = useState<'request' | 'browse' | 'history'>('request')
- const [requestType, setRequestType] = useState<'one_on_one' | 'file_review' | 'group_session'>('one_on_one')
- const [formData, setFormData] = useState({
-  title: '',
-  description: '',
-  sport: 'Soccer',
-  skillLevel: 'Intermediate',
-  preferredTime: 'Weekend',
-  targetCreatorUid: '',
-  urgency: 'Normal'
- })
- const [file, setFile] = useState<File | null>(null)
- const [submitting, setSubmitting] = useState(false)
- const [requests, setRequests] = useState<CoachingRequest[]>([])
- const [availableCreators, setAvailableCreators] = useState<Creator[]>([])
+ const [activeTab, setActiveTab] = useState<'overview' | 'athletes' | 'analytics'>('overview')
  const [searchTerm, setSearchTerm] = useState('')
- const [specialtyFilter, setSpecialtyFilter] = useState('all')
+ const [sportFilter, setSportFilter] = useState('all')
+ const [levelFilter, setLevelFilter] = useState('all')
+ const [selectedAthlete, setSelectedAthlete] = useState<any>(null)
+ const [showAthleteDetail, setShowAthleteDetail] = useState(false)
 
- useEffect(() => {
-  if (user && !loading) {
-   console.log('User authenticated, loading coaching data for:', user.uid)
-   loadUserRequests()
-   loadAvailableCreators()
-  } else if (!loading && !user) {
-   console.log('User not authenticated, skipping Firebase calls')
-  }
- }, [user, loading])
-
- const loadUserRequests = async () => {
-  if (!user?.uid) {
-   console.log('No user ID available, skipping requests load')
-   return
-  }
-  
-  try {
-   console.log('Loading coaching requests for user:', user.uid)
-   console.log('User auth state:', { uid: user.uid, email: user.email })
-   
-   const requestsQuery = query(
-    collection(db, 'coaching_requests'),
-    where('userId', '==', user.uid),
-    orderBy('createdAt', 'desc')
-   )
-   
-   const snapshot = await getDocs(requestsQuery)
-   const requestsData: CoachingRequest[] = []
-   
-   snapshot.forEach(doc => {
-    const data = doc.data()
-    requestsData.push({
-     id: doc.id,
-     userId: data.userId || user.uid,
-     userEmail: data.userEmail || user.email || '',
-     targetCreatorUid: data.targetCreatorUid,
-     targetCreatorName: data.targetCreatorName,
-     sport: data.sport || '',
-     type: data.requestType || data.type || 'one_on_one',
-     status: data.status || 'new',
-     title: data.title || 'Coaching Request',
-     description: data.description || '',
-     skillLevel: data.skillLevel || 'beginner',
-     preferredTime: data.preferredTime || '',
-     urgency: data.urgency || data.priority,
-     fileUrl: data.fileUrl,
-     createdAt: data.createdAt?.toDate() || new Date(),
-     updatedAt: data.updatedAt?.toDate(),
-     scheduledAt: data.scheduledAt?.toDate()
-    })
-   })
-   
-   console.log('Successfully loaded coaching requests:', requestsData.length)
-   setRequests(requestsData)
-  } catch (error: any) {
-   console.error('Error loading coaching requests:')
-   console.error('Error code:', error?.code)
-   console.error('Error message:', error?.message)
-   console.error('Full error:', error)
-   
-   if (error?.code === 'permission-denied') {
-    console.error('Permission denied - check Firestore rules for coaching_requests collection')
-   }
-  }
+ // Calculate stats
+ const stats: AthleteStats = {
+  totalAthletes: mockAthletes.length,
+  activeSessions: mockAthletes.reduce((sum, athlete) => sum + athlete.upcomingSessions, 0),
+  avgProgressScore: Math.round(mockAthletes.reduce((sum, athlete) => sum + athlete.progressScore, 0) / mockAthletes.length),
+  upcomingSessionsTotal: mockAthletes.reduce((sum, athlete) => sum + athlete.upcomingSessions, 0)
  }
 
- const loadAvailableCreators = async () => {
-  try {
-   console.log('Loading available creators...')
-   const creatorsQuery = query(collection(db, 'creators_index'))
-   const snapshot = await getDocs(creatorsQuery)
-   const creatorsData: Creator[] = []
-   
-   snapshot.forEach(doc => {
-    const data = doc.data()
-    creatorsData.push({
-     uid: doc.id,
-     displayName: data.displayName || 'Unknown Creator',
-     specialties: data.specialties || [],
-     averageRating: data.averageRating || 4.5,
-     location: data.location || 'Not specified',
-     bio: data.bio || ''
-    })
-   })
-   
-   console.log('Successfully loaded creators:', creatorsData.length)
-   setAvailableCreators(creatorsData)
-  } catch (error: any) {
-   console.error('Error loading creators:')
-   console.error('Error code:', error?.code)
-   console.error('Error message:', error?.message)
-   console.error('Full error:', error)
-   
-   if (error?.code === 'permission-denied') {
-    console.error('Permission denied - check Firestore rules for creators_index collection')
-   }
-  }
+ // Filter athletes
+ const filteredAthletes = mockAthletes.filter(athlete => {
+  const matchesSearch = searchTerm === '' ||
+   athlete.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+   athlete.sport.toLowerCase().includes(searchTerm.toLowerCase()) ||
+   athlete.position.toLowerCase().includes(searchTerm.toLowerCase())
+
+  const matchesSport = sportFilter === 'all' || athlete.sport.toLowerCase() === sportFilter.toLowerCase()
+  const matchesLevel = levelFilter === 'all' || athlete.level.toLowerCase() === levelFilter.toLowerCase()
+
+  return matchesSearch && matchesSport && matchesLevel
+ })
+
+ const handleAthleteClick = (athlete: any) => {
+  setSelectedAthlete(athlete)
+  setShowAthleteDetail(true)
  }
 
- const handleSubmit = async () => {
-  if (!user?.uid) return
-  
-  setSubmitting(true)
-  
-  try {
-   let fileUrl: string | undefined
-   
-   if (file && requestType === 'file_review') {
-    const fileRef = ref(storage, `coaching-files/${user.uid}/${Date.now()}-${file.name}`)
-    await uploadBytes(fileRef, file)
-    fileUrl = await getDownloadURL(fileRef)
-   }
-   
-   await addDoc(collection(db, 'coaching_requests'), {
-    userId: user.uid,
-    userEmail: user.email,
-    type: requestType,
-    title: formData.title,
-    description: formData.description,
-    sport: formData.sport,
-    skillLevel: formData.skillLevel,
-    preferredTime: formData.preferredTime,
-    targetCreatorUid: formData.targetCreatorUid || null,
-    urgency: formData.urgency,
-    fileUrl: fileUrl || null,
-    status: 'new',
-    createdAt: serverTimestamp()
-   })
-   
-   // Reset form
-   setFormData({
-    title: '',
-    description: '',
-    sport: 'Soccer',
-    skillLevel: 'Intermediate',
-    preferredTime: 'Weekend',
-    targetCreatorUid: '',
-    urgency: 'Normal'
-   })
-   setFile(null)
-   
-   // Reload requests
-   await loadUserRequests()
-   
-   // Switch to history tab
-   setActiveTab('history')
-   
-  } catch (error) {
-   console.error('Error submitting request:', error)
-  } finally {
-   setSubmitting(false)
-  }
+ const getProgressColor = (score: number) => {
+  if (score >= 90) return 'text-green-600 bg-green-100'
+  if (score >= 80) return 'text-blue-600 bg-blue-100'
+  if (score >= 70) return 'text-yellow-600 bg-yellow-100'
+  return 'text-red-600 bg-red-100'
  }
 
- const getStatusColor = (status: string) => {
-  switch (status) {
-   case 'new': return 'bg-blue-100 text-blue-700'
-   case 'accepted': return 'bg-green-100 text-green-700'
-   case 'scheduled': return 'bg-purple-100 text-purple-700'
-   case 'completed': return 'bg-gray-100 text-gray-700'
-   case 'cancelled': return 'bg-red-100 text-red-700'
+ const getLevelBadgeColor = (level: string) => {
+  switch (level.toLowerCase()) {
+   case 'beginner': return 'bg-green-100 text-green-700'
+   case 'intermediate': return 'bg-blue-100 text-blue-700'
+   case 'advanced': return 'bg-purple-100 text-purple-700'
    default: return 'bg-gray-100 text-gray-700'
-  }
- }
-
- const getStatusIcon = (status: string) => {
-  switch (status) {
-   case 'new': return <Clock className="w-4 h-4" />
-   case 'accepted': return <CheckCircle className="w-4 h-4" />
-   case 'scheduled': return <Calendar className="w-4 h-4" />
-   case 'completed': return <CheckCircle className="w-4 h-4" />
-   case 'cancelled': return <AlertCircle className="w-4 h-4" />
-   default: return <Clock className="w-4 h-4" />
   }
  }
 
@@ -241,7 +207,7 @@ export default function CoachingPage() {
    <div className="min-h-screen flex items-center justify-center">
     <div className="text-center">
      <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 mx-auto"></div>
-     <p className="mt-4 text-brand-grey">Loading coaching dashboard...</p>
+     <p className="mt-4 text-brand-grey">Loading athlete management...</p>
     </div>
    </div>
   )
@@ -252,468 +218,448 @@ export default function CoachingPage() {
    <div className="min-h-screen flex items-center justify-center">
     <div className="text-center">
      <h1 className="text-2xl mb-4">Sign In Required</h1>
-     <p className="text-brand-grey mb-6">Please sign in to access coaching features.</p>
+     <p className="text-brand-grey mb-6">Please sign in to access athlete management.</p>
     </div>
    </div>
   )
  }
 
- const filteredCreators = availableCreators.filter(creator => {
-  const matchesSearch = searchTerm === '' || 
-   creator.displayName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-   creator.specialties.some(s => s.toLowerCase().includes(searchTerm.toLowerCase())) ||
-   creator.location.toLowerCase().includes(searchTerm.toLowerCase())
-  
-  const matchesSpecialty = specialtyFilter === 'all' || 
-   creator.specialties.some(s => s.toLowerCase().includes(specialtyFilter.toLowerCase()))
-  
-  return matchesSearch && matchesSpecialty
- })
-
  return (
   <main className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
    <AppHeader />
-   <div className="max-w-6xl mx-auto px-6 py-8">
+   <div className="max-w-7xl mx-auto px-6 py-8">
     {/* Header */}
     <div className="text-center mb-8">
      <h1 className="text-4xl font-heading uppercase tracking-wide mb-2" style={{ color: '#000000' }}>
-      Request Coaching
+      Manage Athletes
      </h1>
      <p className="text-lg" style={{ color: '#000000' }}>
-      Get personalized coaching to accelerate your athletic progress
+      Track progress, schedule sessions, and develop your athletes' potential
      </p>
     </div>
 
     {/* Tab Navigation */}
     <div className="flex gap-1 mb-8 bg-white/80 rounded-xl p-1 shadow-lg border border-white/50">
      <button
-      onClick={() => setActiveTab('request')}
+      onClick={() => setActiveTab('overview')}
       className={`flex-1 px-6 py-3 rounded-lg font-medium transition-colors ${
-       activeTab === 'request'
+       activeTab === 'overview'
         ? 'text-white shadow-lg'
         : 'hover:opacity-80'
       }`}
-      style={activeTab === 'request' ? { backgroundColor: '#000000' } : { color: '#000000' }}
+      style={activeTab === 'overview' ? { backgroundColor: '#000000' } : { color: '#000000' }}
      >
-      <MessageSquare className="w-5 h-5 inline mr-2" />
-      New Request
+      <BarChart3 className="w-5 h-5 inline mr-2" />
+      Overview
      </button>
      <button
-      onClick={() => setActiveTab('browse')}
+      onClick={() => setActiveTab('athletes')}
       className={`flex-1 px-6 py-3 rounded-lg font-medium transition-colors ${
-       activeTab === 'browse'
+       activeTab === 'athletes'
         ? 'text-white shadow-lg'
         : 'hover:opacity-80'
       }`}
-      style={activeTab === 'browse' ? { backgroundColor: '#000000' } : { color: '#000000' }}
+      style={activeTab === 'athletes' ? { backgroundColor: '#000000' } : { color: '#000000' }}
      >
-      <Search className="w-5 h-5 inline mr-2" />
-      Browse Coaches
+      <Users className="w-5 h-5 inline mr-2" />
+      Athletes ({mockAthletes.length})
      </button>
      <button
-      onClick={() => setActiveTab('history')}
+      onClick={() => setActiveTab('analytics')}
       className={`flex-1 px-6 py-3 rounded-lg font-medium transition-colors ${
-       activeTab === 'history'
+       activeTab === 'analytics'
         ? 'text-white shadow-lg'
         : 'hover:opacity-80'
       }`}
-      style={activeTab === 'history' ? { backgroundColor: '#000000' } : { color: '#000000' }}
+      style={activeTab === 'analytics' ? { backgroundColor: '#000000' } : { color: '#000000' }}
      >
-      <FileText className="w-5 h-5 inline mr-2" />
-      My Requests ({requests.length})
+      <PieChart className="w-5 h-5 inline mr-2" />
+      Analytics
      </button>
     </div>
 
-    {/* Tab Content */}
-    {activeTab === 'request' && (
-     <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-8">
-      <h2 className="text-2xl font-heading uppercase tracking-wide mb-6" style={{ color: '#000000' }}>
-       Request Coaching Session
-      </h2>
-      
-      {/* Coaching Type Selection */}
-      <div className="mb-8">
-       <h3 className="text-lg font-semibold font-heading mb-4" style={{ color: '#000000' }}>
-        Choose Coaching Type
-       </h3>
-       <div className="grid md:grid-cols-3 gap-4">
-        <button
-         onClick={() => setRequestType('one_on_one')}
-         className={`p-6 rounded-xl border-2 transition-all shadow-lg ${
-          requestType === 'one_on_one'
-           ? 'border-sky-blue bg-gradient-to-br from-sky-blue/20 to-black/10'
-           : 'bg-white/80 border-white/50 hover:shadow-xl'
-         }`}
-        >
-         <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-sky-blue to-black flex items-center justify-center">
-          <WhistleIcon className="w-6 h-6 text-white" />
+    {/* Overview Tab */}
+    {activeTab === 'overview' && (
+     <div className="space-y-8">
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+       <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+        <div className="flex items-center justify-between">
+         <div>
+          <p className="text-sm font-medium text-gray-600">Total Athletes</p>
+          <p className="text-3xl font-bold text-gray-900">{stats.totalAthletes}</p>
          </div>
-         <h4 className="font-semibold mb-2" style={{ color: '#000000' }}>1-on-1 Session</h4>
-         <p className="text-sm" style={{ color: '#000000' }}>Live video coaching session</p>
-        </button>
+         <div className="p-3 bg-blue-100 rounded-full">
+          <Users className="w-6 h-6 text-blue-600" />
+         </div>
+        </div>
+       </div>
 
-        <button
-         onClick={() => setRequestType('file_review')}
-         className={`p-6 rounded-xl border-2 transition-all shadow-lg ${
-          requestType === 'file_review'
-           ? 'border-green bg-gradient-to-br from-green/20 to-black/10'
-           : 'bg-white/80 border-white/50 hover:shadow-xl'
-         }`}
-        >
-         <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-green to-black flex items-center justify-center">
-          <PlayIcon className="w-6 h-6 text-white" />
+       <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+        <div className="flex items-center justify-between">
+         <div>
+          <p className="text-sm font-medium text-gray-600">Active Sessions</p>
+          <p className="text-3xl font-bold text-gray-900">{stats.activeSessions}</p>
          </div>
-         <h4 className="font-semibold mb-2" style={{ color: '#000000' }}>File Review</h4>
-         <p className="text-sm" style={{ color: '#000000' }}>Get feedback on your videos</p>
-        </button>
+         <div className="p-3 bg-green-100 rounded-full">
+          <Calendar className="w-6 h-6 text-green-600" />
+         </div>
+        </div>
+       </div>
 
-        <button
-         onClick={() => setRequestType('group_session')}
-         className={`p-6 rounded-xl border-2 transition-all shadow-lg ${
-          requestType === 'group_session'
-           ? 'border-orange bg-gradient-to-br from-orange/20 to-black/10'
-           : 'bg-white/80 border-white/50 hover:shadow-xl'
-         }`}
-        >
-         <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-orange to-black flex items-center justify-center">
-          <TeachingIcon className="w-6 h-6 text-white" />
+       <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+        <div className="flex items-center justify-between">
+         <div>
+          <p className="text-sm font-medium text-gray-600">Avg Progress</p>
+          <p className="text-3xl font-bold text-gray-900">{stats.avgProgressScore}%</p>
          </div>
-         <h4 className="font-semibold mb-2" style={{ color: '#000000' }}>Group Session</h4>
-         <p className="text-sm" style={{ color: '#000000' }}>Join a group coaching session</p>
-        </button>
+         <div className="p-3 bg-purple-100 rounded-full">
+          <TrendingUp className="w-6 h-6 text-purple-600" />
+         </div>
+        </div>
+       </div>
+
+       <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+        <div className="flex items-center justify-between">
+         <div>
+          <p className="text-sm font-medium text-gray-600">Upcoming Sessions</p>
+          <p className="text-3xl font-bold text-gray-900">{stats.upcomingSessionsTotal}</p>
+         </div>
+         <div className="p-3 bg-orange-100 rounded-full">
+          <Clock className="w-6 h-6 text-orange-600" />
+         </div>
+        </div>
        </div>
       </div>
 
-      {/* Request Form */}
-      <div className="space-y-6">
-       <div className="grid md:grid-cols-2 gap-6">
-        <div>
-         <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
-          Session Title *
-         </label>
-         <input
-          type="text"
-          value={formData.title}
-          onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-          className="w-full border border-white/50 rounded-lg p-3 bg-white/80 backdrop-blur-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-blue"
-          placeholder="e.g., Improve my shooting technique"
-          style={{ color: '#000000' }}
-         />
-        </div>
-
-        <div>
-         <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
-          Sport *
-         </label>
-         <select
-          value={formData.sport}
-          onChange={(e) => setFormData(prev => ({ ...prev, sport: e.target.value }))}
-          className="w-full border border-white/50 rounded-lg p-3 bg-white/80 backdrop-blur-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-blue"
-          style={{ color: '#000000' }}
-         >
-          <option value="Soccer">Soccer</option>
-          <option value="Basketball">Basketball</option>
-          <option value="Football">Football</option>
-          <option value="Brazilian Jiu-Jitsu (BJJ)">Brazilian Jiu-Jitsu (BJJ)</option>
-          <option value="Mixed Martial Arts (MMA)">Mixed Martial Arts (MMA)</option>
-          <option value="Other">Other</option>
-         </select>
-        </div>
-       </div>
-
-       <div className="grid md:grid-cols-3 gap-6">
-        <div>
-         <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
-          Skill Level *
-         </label>
-         <select
-          value={formData.skillLevel}
-          onChange={(e) => setFormData(prev => ({ ...prev, skillLevel: e.target.value }))}
-          className="w-full border border-white/50 rounded-lg p-3 bg-white/80 backdrop-blur-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-blue"
-          style={{ color: '#000000' }}
-         >
-          <option value="Beginner">Beginner</option>
-          <option value="Intermediate">Intermediate</option>
-          <option value="Advanced">Advanced</option>
-         </select>
-        </div>
-
-        <div>
-         <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
-          Preferred Time
-         </label>
-         <select
-          value={formData.preferredTime}
-          onChange={(e) => setFormData(prev => ({ ...prev, preferredTime: e.target.value }))}
-          className="w-full border border-white/50 rounded-lg p-3 bg-white/80 backdrop-blur-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-blue"
-          style={{ color: '#000000' }}
-         >
-          <option value="Morning">Morning</option>
-          <option value="Afternoon">Afternoon</option>
-          <option value="Evening">Evening</option>
-          <option value="Weekend">Weekend</option>
-          <option value="Flexible">Flexible</option>
-         </select>
-        </div>
-
-        <div>
-         <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
-          Priority Level
-         </label>
-         <select
-          value={formData.urgency}
-          onChange={(e) => setFormData(prev => ({ ...prev, urgency: e.target.value }))}
-          className="w-full border border-white/50 rounded-lg p-3 bg-white/80 backdrop-blur-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-blue"
-          style={{ color: '#000000' }}
-         >
-          <option value="Normal">Normal</option>
-          <option value="High">High Priority</option>
-          <option value="Urgent">Urgent</option>
-         </select>
-        </div>
-       </div>
-
-       <div>
-        <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
-         Detailed Description *
-        </label>
-        <textarea
-         value={formData.description}
-         onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-         className="w-full border border-white/50 rounded-lg p-3 bg-white/80 backdrop-blur-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-blue"
-         rows={4}
-         placeholder="Describe what you want to work on, your current challenges, and specific goals..."
-         style={{ color: '#000000' }}
-        />
-       </div>
-
-       {requestType === 'file_review' && (
-        <div>
-         <label className="block text-sm font-medium text-slate-700 mb-2">
-          Upload File
-         </label>
-         <div className="border-2 border-dashed border-slate-300 rounded-lg p-6">
-          <input
-           type="file"
-           accept="video/*,image/*,.pdf"
-           onChange={(e) => setFile(e.target.files?.[0] || null)}
-           className="w-full"
-          />
-          <div className="text-sm text-slate-500 mt-2">
-           Upload videos, images, or documents for review (Max 50MB)
+      {/* Recent Activity & Top Performers */}
+      <div className="grid lg:grid-cols-2 gap-8">
+       {/* Recent Activity */}
+       <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+        <h3 className="text-lg font-semibold mb-4 flex items-center gap-2" style={{ color: '#000000' }}>
+         <Activity className="w-5 h-5" />
+         Recent Activity
+        </h3>
+        <div className="space-y-4">
+         {mockAthletes.slice(0, 5).map((athlete) => (
+          <div key={athlete.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+           <img src={athlete.avatar} alt={athlete.name} className="w-10 h-10 rounded-full" />
+           <div className="flex-1">
+            <p className="font-medium text-gray-900">{athlete.name}</p>
+            <p className="text-sm text-gray-600">{athlete.recentActivities[0]?.description}</p>
+           </div>
+           <span className="text-xs text-gray-500">{athlete.recentActivities[0]?.date}</span>
           </div>
-         </div>
-         {file && (
-          <div className="text-sm text-green-600 mt-2">
-           Selected: {file.name}
-          </div>
-         )}
+         ))}
         </div>
-       )}
+       </div>
 
-       <div className="flex items-center justify-between pt-6 border-t border-slate-200">
-        <div className="text-sm text-slate-500">
-         * Required fields
+       {/* Top Performers */}
+       <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+        <h3 className="text-lg font-semibold mb-4 flex items-center gap-2" style={{ color: '#000000' }}>
+         <Award className="w-5 h-5" />
+         Top Performers
+        </h3>
+        <div className="space-y-4">
+         {mockAthletes
+          .sort((a, b) => b.progressScore - a.progressScore)
+          .slice(0, 5)
+          .map((athlete, index) => (
+           <div key={athlete.id} className="flex items-center gap-3">
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold">
+             {index + 1}
+            </div>
+            <img src={athlete.avatar} alt={athlete.name} className="w-10 h-10 rounded-full" />
+            <div className="flex-1">
+             <p className="font-medium text-gray-900">{athlete.name}</p>
+             <p className="text-sm text-gray-600">{athlete.sport} • {athlete.level}</p>
+            </div>
+            <div className={`px-2 py-1 rounded-full text-xs font-medium ${getProgressColor(athlete.progressScore)}`}>
+             {athlete.progressScore}%
+            </div>
+           </div>
+          ))}
         </div>
-        <button
-         onClick={handleSubmit}
-         disabled={submitting || !formData.title || !formData.description}
-         className="px-8 py-3 text-white rounded-lg transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-         style={{ backgroundColor: '#20B2AA' }}
-        >
-         {submitting ? (
-          <>
-           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-           Submitting...
-          </>
-         ) : (
-          <>
-           Submit Request
-           <ArrowRight className="w-4 h-4" />
-          </>
-         )}
-        </button>
        </div>
       </div>
      </div>
     )}
 
-    {activeTab === 'browse' && (
+    {/* Athletes Tab */}
+    {activeTab === 'athletes' && (
      <div className="space-y-6">
-      {/* Filters */}
+      {/* Filters & Search */}
       <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
-       <div className="flex flex-col md:flex-row gap-4">
+       <div className="flex flex-col lg:flex-row gap-4">
         <div className="flex-1">
          <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5" style={{ color: '#000000' }} />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
           <input
            type="text"
-           placeholder="Search coaches by name, specialty, or location..."
+           placeholder="Search athletes by name, sport, or position..."
            value={searchTerm}
            onChange={(e) => setSearchTerm(e.target.value)}
-           className="w-full pl-10 pr-4 py-3 border border-white/50 rounded-lg bg-white/80 backdrop-blur-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-blue"
-           style={{ color: '#000000' }}
+           className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
          </div>
         </div>
-        <div>
+        <div className="flex gap-4">
          <select
-          value={specialtyFilter}
-          onChange={(e) => setSpecialtyFilter(e.target.value)}
-          className="w-full md:w-48 border border-white/50 rounded-lg p-3 bg-white/80 backdrop-blur-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-blue"
-          style={{ color: '#000000' }}
+          value={sportFilter}
+          onChange={(e) => setSportFilter(e.target.value)}
+          className="px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
          >
-          <option value="all">All Specialties</option>
-          <option value="youth">Youth Development</option>
-          <option value="tactical">Tactical Awareness</option>
-          <option value="shooting">Shooting Technique</option>
-          <option value="mental">Mental Game</option>
+          <option value="all">All Sports</option>
+          <option value="soccer">Soccer</option>
+          <option value="basketball">Basketball</option>
+          <option value="football">Football</option>
+         </select>
+         <select
+          value={levelFilter}
+          onChange={(e) => setLevelFilter(e.target.value)}
+          className="px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+         >
+          <option value="all">All Levels</option>
+          <option value="beginner">Beginner</option>
+          <option value="intermediate">Intermediate</option>
+          <option value="advanced">Advanced</option>
          </select>
         </div>
+        <Link href="/dashboard/overview">
+         <button className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
+          <Plus className="w-5 h-5" />
+          Schedule Session
+         </button>
+        </Link>
        </div>
       </div>
 
-      {/* Coaches Grid */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-       {filteredCreators.map((creator) => (
-        <div key={creator.uid} className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
-         <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 bg-gradient-to-br from-sky-blue to-black rounded-full flex items-center justify-center text-white ">
-           {creator.displayName.charAt(0)}
-          </div>
-          <div>
-           <h3 className="font-semibold" style={{ color: '#000000' }}>{creator.displayName}</h3>
-           <div className="flex items-center gap-1 text-sm text-slate-600">
-            <Star className="w-4 h-4 fill-current text-yellow-400" />
-            {creator.averageRating}/5.0
+      {/* Athletes Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+       {filteredAthletes.map((athlete) => (
+        <div key={athlete.id} className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 hover:shadow-xl transition-shadow">
+         <div className="flex items-start justify-between mb-4">
+          <div className="flex items-center gap-3">
+           <img src={athlete.avatar} alt={athlete.name} className="w-12 h-12 rounded-full border-2 border-gray-200" />
+           <div>
+            <h3 className="font-semibold text-gray-900">{athlete.name}</h3>
+            <p className="text-sm text-gray-600">{athlete.sport} • {athlete.position}</p>
            </div>
           </div>
-         </div>
-         
-         <div className="space-y-3 mb-4">
-          <div className="flex items-center gap-2 text-sm text-slate-600">
-           <Target className="w-4 h-4" />
-           {creator.location}
+          <div className={`px-2 py-1 rounded-full text-xs font-medium ${getLevelBadgeColor(athlete.level)}`}>
+           {athlete.level}
           </div>
          </div>
-         
+
+         <div className="space-y-3 mb-4">
+          <div className="flex justify-between items-center">
+           <span className="text-sm text-gray-600">Progress Score</span>
+           <div className={`px-2 py-1 rounded-full text-xs font-medium ${getProgressColor(athlete.progressScore)}`}>
+            {athlete.progressScore}%
+           </div>
+          </div>
+
+          <div className="flex justify-between items-center">
+           <span className="text-sm text-gray-600">Total Sessions</span>
+           <span className="text-sm font-medium text-gray-900">{athlete.totalSessions}</span>
+          </div>
+
+          <div className="flex justify-between items-center">
+           <span className="text-sm text-gray-600">Upcoming</span>
+           <span className="text-sm font-medium text-gray-900">{athlete.upcomingSessions} sessions</span>
+          </div>
+         </div>
+
          <div className="mb-4">
+          <p className="text-xs text-gray-600 mb-2">Recent Improvements</p>
           <div className="flex flex-wrap gap-1">
-           {creator.specialties.slice(0, 3).map((specialty, index) => (
-            <span
-             key={index}
-             className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs"
-            >
-             {specialty}
+           {athlete.improvements.slice(0, 2).map((improvement, index) => (
+            <span key={index} className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">
+             {improvement}
             </span>
            ))}
-           {creator.specialties.length > 3 && (
+           {athlete.improvements.length > 2 && (
             <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs">
-             +{creator.specialties.length - 3}
+             +{athlete.improvements.length - 2}
             </span>
            )}
           </div>
          </div>
-         
-         <button
-          onClick={() => {
-           setFormData(prev => ({ ...prev, targetCreatorUid: creator.uid }))
-           setActiveTab('request')
-          }}
-          className="w-full py-2 text-white rounded-lg transition-all shadow-lg hover:shadow-xl"
-          style={{ backgroundColor: '#20B2AA' }}
-         >
-          Request Coaching
-         </button>
+
+         <div className="flex gap-2">
+          <button
+           onClick={() => handleAthleteClick(athlete)}
+           className="flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium flex items-center justify-center gap-1"
+          >
+           <Eye className="w-4 h-4" />
+           View Details
+          </button>
+          <button className="px-3 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+           <Edit className="w-4 h-4" />
+          </button>
+         </div>
         </div>
        ))}
       </div>
 
-      {filteredCreators.length === 0 && (
+      {filteredAthletes.length === 0 && (
        <div className="text-center py-12">
-        <User className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-        <h3 className="text-lg font-medium text-slate-900 mb-2">No coaches found</h3>
-        <p className="text-slate-600">Try adjusting your search criteria</p>
+        <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+        <h3 className="text-lg font-medium text-gray-900 mb-2">No athletes found</h3>
+        <p className="text-gray-600">Try adjusting your search criteria</p>
        </div>
       )}
      </div>
     )}
 
-    {activeTab === 'history' && (
-     <div className="space-y-6">
-      {requests.length === 0 ? (
-       <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-12 text-center">
-        <MessageSquare className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-        <h3 className="text-lg font-medium mb-2" style={{ color: '#000000' }}>No coaching requests yet</h3>
-        <p className="mb-6" style={{ color: '#000000' }}>Get started by submitting your first coaching request</p>
-        <button
-         onClick={() => setActiveTab('request')}
-         className="px-6 py-3 text-white rounded-lg transition-all shadow-lg hover:shadow-xl"
-         style={{ backgroundColor: '#20B2AA' }}
-        >
-         Create Request
-        </button>
+    {/* Analytics Tab */}
+    {activeTab === 'analytics' && (
+     <div className="space-y-8">
+      <div className="grid lg:grid-cols-2 gap-8">
+       {/* Performance Distribution */}
+       <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+        <h3 className="text-lg font-semibold mb-4">Performance Distribution</h3>
+        <div className="space-y-4">
+         <div className="flex justify-between items-center">
+          <span className="text-sm">Advanced (90%+)</span>
+          <div className="flex items-center gap-2">
+           <div className="w-32 bg-gray-200 rounded-full h-2">
+            <div className="bg-green-500 h-2 rounded-full" style={{ width: '25%' }}></div>
+           </div>
+           <span className="text-sm font-medium">25%</span>
+          </div>
+         </div>
+         <div className="flex justify-between items-center">
+          <span className="text-sm">Intermediate (70-89%)</span>
+          <div className="flex items-center gap-2">
+           <div className="w-32 bg-gray-200 rounded-full h-2">
+            <div className="bg-blue-500 h-2 rounded-full" style={{ width: '50%' }}></div>
+           </div>
+           <span className="text-sm font-medium">50%</span>
+          </div>
+         </div>
+         <div className="flex justify-between items-center">
+          <span className="text-sm">Developing (50-69%)</span>
+          <div className="flex items-center gap-2">
+           <div className="w-32 bg-gray-200 rounded-full h-2">
+            <div className="bg-yellow-500 h-2 rounded-full" style={{ width: '25%' }}></div>
+           </div>
+           <span className="text-sm font-medium">25%</span>
+          </div>
+         </div>
+        </div>
        </div>
-      ) : (
-       <div className="space-y-4">
-        {requests.map((request) => (
-         <div key={request.id} className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
-          <div className="flex items-start justify-between mb-4">
-           <div>
-            <h3 className="text-lg font-semibold mb-1" style={{ color: '#000000' }}>{request.title}</h3>
-            <div className="flex items-center gap-4 text-sm text-slate-600">
-             <span>{request.sport} • {request.skillLevel}</span>
-             <span>{request.type.replace('_', ' ')}</span>
-             <span>{request.createdAt.toLocaleDateString()}</span>
-            </div>
+
+       {/* Sport Distribution */}
+       <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+        <h3 className="text-lg font-semibold mb-4">Athletes by Sport</h3>
+        <div className="space-y-4">
+         <div className="flex justify-between items-center">
+          <span className="text-sm">Soccer</span>
+          <div className="flex items-center gap-2">
+           <div className="w-32 bg-gray-200 rounded-full h-2">
+            <div className="bg-purple-500 h-2 rounded-full" style={{ width: '50%' }}></div>
            </div>
-           <div className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${getStatusColor(request.status)}`}>
-            {getStatusIcon(request.status)}
-            {request.status}
-           </div>
+           <span className="text-sm font-medium">50%</span>
           </div>
-          
-          <p className="text-slate-700 mb-4 line-clamp-2">{request.description}</p>
-          
-          <div className="flex items-center justify-between text-sm">
-           <div className="flex items-center gap-4 text-slate-600">
-            <span>Time: {request.preferredTime}</span>
-            {request.targetCreatorName && (
-             <span>Coach: {request.targetCreatorName}</span>
-            )}
+         </div>
+         <div className="flex justify-between items-center">
+          <span className="text-sm">Basketball</span>
+          <div className="flex items-center gap-2">
+           <div className="w-32 bg-gray-200 rounded-full h-2">
+            <div className="bg-orange-500 h-2 rounded-full" style={{ width: '50%' }}></div>
            </div>
-           
-           {request.scheduledAt && (
-            <div className="flex items-center gap-1 text-green-600">
-             <Calendar className="w-4 h-4" />
-             Scheduled: {request.scheduledAt.toLocaleDateString()}
-            </div>
-           )}
+           <span className="text-sm font-medium">50%</span>
           </div>
-          
-          {/* Action Buttons for Accepted/Completed Requests */}
-          {(request.status === 'accepted' || request.status === 'completed') && request.targetCreatorUid && (
-           <div className="mt-4 pt-4 border-t border-slate-200 flex gap-3">
-            <Link 
-             href={`/lessons?coach=${request.targetCreatorUid}`}
-             className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-center text-sm font-medium flex items-center justify-center gap-2"
-            >
-             <Video className="w-4 h-4" />
-             View Coach's Lessons
-            </Link>
-            <Link 
-             href={`/contributors/${request.targetCreatorUid}`}
-             className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm font-medium flex items-center justify-center gap-2"
-            >
-             <User className="w-4 h-4" />
-             View Profile
-            </Link>
-           </div>
-          )}
+         </div>
+        </div>
+       </div>
+      </div>
+
+      {/* Progress Trends */}
+      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+       <h3 className="text-lg font-semibold mb-4">Monthly Progress Trends</h3>
+       <div className="h-64 flex items-end gap-4 justify-center">
+        {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'].map((month, index) => (
+         <div key={month} className="flex flex-col items-center gap-2">
+          <div
+           className="bg-blue-500 rounded-t-lg min-h-8"
+           style={{ height: `${Math.random() * 200 + 50}px`, width: '40px' }}
+          ></div>
+          <span className="text-xs text-gray-600">{month}</span>
          </div>
         ))}
        </div>
-      )}
+      </div>
+     </div>
+    )}
+
+    {/* Athlete Detail Modal */}
+    {showAthleteDetail && selectedAthlete && (
+     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+       <div className="p-6 border-b">
+        <div className="flex items-center justify-between">
+         <div className="flex items-center gap-4">
+          <img src={selectedAthlete.avatar} alt={selectedAthlete.name} className="w-16 h-16 rounded-full" />
+          <div>
+           <h2 className="text-2xl font-bold">{selectedAthlete.name}</h2>
+           <p className="text-gray-600">{selectedAthlete.sport} • {selectedAthlete.position} • {selectedAthlete.level}</p>
+          </div>
+         </div>
+         <button
+          onClick={() => setShowAthleteDetail(false)}
+          className="p-2 hover:bg-gray-100 rounded-lg"
+         >
+          ✕
+         </button>
+        </div>
+       </div>
+
+       <div className="p-6 space-y-6">
+        {/* Performance Metrics */}
+        <div>
+         <h3 className="text-lg font-semibold mb-4">Performance Metrics</h3>
+         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {Object.entries(selectedAthlete.performance).map(([key, value]) => (
+           <div key={key} className="bg-gray-50 p-4 rounded-lg">
+            <p className="text-sm text-gray-600 capitalize">{key}</p>
+            <p className="text-2xl font-bold">{value}%</p>
+           </div>
+          ))}
+         </div>
+        </div>
+
+        {/* Current Goals */}
+        <div>
+         <h3 className="text-lg font-semibold mb-4">Current Goals</h3>
+         <div className="space-y-2">
+          {selectedAthlete.currentGoals.map((goal: string, index: number) => (
+           <div key={index} className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
+            <Target className="w-5 h-5 text-blue-600" />
+            <span>{goal}</span>
+           </div>
+          ))}
+         </div>
+        </div>
+
+        {/* Recent Activity */}
+        <div>
+         <h3 className="text-lg font-semibold mb-4">Recent Activity</h3>
+         <div className="space-y-3">
+          {selectedAthlete.recentActivities.map((activity: any, index: number) => (
+           <div key={index} className="flex items-center gap-3 p-3 border rounded-lg">
+            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+            <div className="flex-1">
+             <p className="font-medium">{activity.description}</p>
+             <p className="text-sm text-gray-600">{activity.date}</p>
+            </div>
+           </div>
+          ))}
+         </div>
+        </div>
+       </div>
+      </div>
      </div>
     )}
    </div>

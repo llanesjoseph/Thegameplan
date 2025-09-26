@@ -7,6 +7,7 @@ import { collection, getDocs, query, where, orderBy, limit, startAfter, doc, get
 import Link from 'next/link'
 import Image from 'next/image'
 import { Search, Filter, Star, CheckCircle, Users, Trophy, User, Facebook, Instagram, Twitter } from 'lucide-react'
+import AppHeader from '@/components/ui/AppHeader'
 
 type Contributor = {
  id: string
@@ -206,152 +207,138 @@ export default function ContributorsPage() {
  }, [filteredContributors, filters.specialty])
 
  return (
-  <div className="min-h-screen">
-   {/* Header */}
-   <header className="bg-white px-4 py-4 shadow-sm">
-    <div className="max-w-7xl mx-auto flex items-center justify-between">
-     <Link href="/" className="text-2xl tracking-wider">
-      PLAYBOOKD
-     </Link>
-     <div className="flex items-center gap-4">
-      <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
-      <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-      <Link href="/dashboard" className="text-black hover:text-blue-600 font-medium">
-       Dashboard
-      </Link>
-      <Link href="/dashboard" className="bg-red-600 text-white px-4 py-2 rounded text-sm font-medium">
-       SIGN IN
-      </Link>
-     </div>
-    </div>
-   </header>
+  <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
+   {/* Add Sports World Font */}
+   <style jsx global>{`
+    @font-face {
+     font-family: 'Sports World';
+     src: url('/fonts/sports-world-regular.ttf') format('truetype');
+     font-weight: normal;
+     font-style: normal;
+     font-display: swap;
+    }
+   `}</style>
+
+   <AppHeader />
 
    <main className="pb-20">
    {/* Hero Section */}
-   <div className="relative overflow-hidden bg-white">
-    <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-     <div className="text-center mb-16">
-      <div className="inline-flex items-center gap-2 px-4 py-2 bg-cardinal/10 text-cardinal text-sm font-semibold rounded-full mb-6">
-       <Trophy className="w-4 h-4" />
-       Elite Performance Network
+   <div className="text-center py-12 px-6">
+    <h1 className="text-4xl mb-4 font-heading" style={{ color: '#000000' }}>
+     Browse Our Elite Coaches
+    </h1>
+    <p className="text-lg max-w-3xl mx-auto" style={{ color: '#000000' }}>
+     {user
+      ? `Discover coaches and athletes in your sports: ${userPreferences.sports.length > 0 ? userPreferences.sports.join(', ').toUpperCase() : 'All Sports'}`
+      : 'Learn from world-class athletes, coaches, and sports performance experts who are shaping the future of competitive sports.'
+     }
+    </p>
+
+    {user && userPreferences.sports.length > 0 && (
+     <div className="mt-6 bg-white/80 backdrop-blur border border-gray-200 rounded-lg p-4 max-w-2xl mx-auto">
+      <div className="flex items-center gap-2 justify-center mb-2" style={{ color: '#000000' }}>
+       <User className="w-4 h-4" />
+       <span className="font-medium">Personalized for you</span>
       </div>
-      <h1 className=" text-5xl lg:text-6xl text-gray-800 mb-6 tracking-tight">
-       Meet Our
-       <span className="text-cardinal block">Coaches</span>
-      </h1>
-      <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-       {user 
-        ? `Discover coaches and athletes in your sports: ${userPreferences.sports.length > 0 ? userPreferences.sports.join(', ').toUpperCase() : 'All Sports'}` 
-        : 'Learn from world-class athletes, coaches, and sports performance experts who are shaping the future of competitive sports.'
-       }
+      <p className="text-sm" style={{ color: '#000000' }}>
+       Showing coaches based on your sports preferences. Change filters to explore other sports.
       </p>
-      
-      {user && userPreferences.sports.length > 0 && (
-       <div className="mt-6 bg-white/80 backdrop-blur border border-cardinal/20 rounded-lg p-4 max-w-2xl mx-auto">
-        <div className="flex items-center gap-2 text-cardinal mb-2">
-         <User className="w-4 h-4" />
-         <span className="font-medium">Personalized for you</span>
-        </div>
-        <p className="text-sm text-gray-600">
-         Showing coaches based on your sports preferences. Change filters to explore other sports.
-        </p>
-       </div>
-      )}
      </div>
-    </div>
+    )}
    </div>
 
    {/* Search and Filters Section */}
-   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-10">
-    <div className="bg-white border border-gray-200 rounded-lg p-8 shadow-card-md">
+   <div className="max-w-7xl mx-auto px-6 mb-8">
+    <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
      <div className="grid lg:grid-cols-3 gap-6 items-end">
       <div className="lg:col-span-2">
-       <label className="block text-sm font-semibold mb-3 text-gray-800">Find Coaches</label>
+       <label className="block text-sm font-semibold mb-3" style={{ color: '#000000' }}>Find Coaches</label>
        <div className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-600" />
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
         <input
          type="text"
          placeholder="Search by name, sport, specialty, or achievement..."
          value={filters.search}
          onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-         className="w-full bg-white pl-12 pr-4 py-4 rounded-lg border border-gray-300 text-gray-800 placeholder-gray-500 outline-none focus:ring-2 focus:ring-cardinal transition"
+         className="w-full bg-white pl-12 pr-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+         style={{ color: '#000000' }}
         />
        </div>
       </div>
       <div className="flex gap-3">
        <button
         onClick={applyFilters}
-        className="flex-1 px-6 py-4 rounded-lg text-white font-semibold transition"
-        style={{backgroundColor: '#20B2AA'}}
-        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1a9b94'}
-        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#20B2AA'}
+        className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
        >
         Apply Filters
        </button>
        <button
         onClick={clearFilters}
-        className="px-6 py-4 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100 transition"
+        className="px-6 py-3 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100 transition"
        >
         Clear
        </button>
       </div>
      </div>
 
-     <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-8 pt-6 border-t border-gray-200">
+     <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6 pt-6 border-t border-gray-200">
       <div>
-       <label className="block text-sm font-semibold mb-3 text-gray-800">Sport</label>
+       <label className="block text-sm font-semibold mb-3" style={{ color: '#000000' }}>Sport</label>
        <select
         value={filters.sport}
         onChange={(e) => setFilters(prev => ({ ...prev, sport: e.target.value }))}
-        className="w-full bg-white p-4 rounded-lg border border-gray-300 text-gray-800 outline-none focus:ring-2 focus:ring-cardinal transition"
+        className="w-full bg-white p-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        style={{ color: '#000000' }}
        >
         <option value="">All Sports</option>
         {SPORTS.map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
        </select>
       </div>
       <div>
-       <label className="block text-sm font-semibold mb-3 text-gray-800">Experience Level</label>
+       <label className="block text-sm font-semibold mb-3" style={{ color: '#000000' }}>Experience Level</label>
        <select
         value={filters.experience}
         onChange={(e) => setFilters(prev => ({ ...prev, experience: e.target.value }))}
-        className="w-full bg-white p-4 rounded-lg border border-gray-300 text-gray-800 outline-none focus:ring-2 focus:ring-cardinal transition"
+        className="w-full bg-white p-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        style={{ color: '#000000' }}
        >
         <option value="">All Levels</option>
         {EXPERIENCES.map(exp => <option key={exp} value={exp}>{exp.charAt(0).toUpperCase() + exp.slice(1)}</option>)}
        </select>
       </div>
       <div>
-       <label className="block text-sm font-semibold mb-3 text-gray-800">Specialty</label>
+       <label className="block text-sm font-semibold mb-3" style={{ color: '#000000' }}>Specialty</label>
        <select
         value={filters.specialty}
         onChange={(e) => setFilters(prev => ({ ...prev, specialty: e.target.value }))}
-        className="w-full bg-white p-4 rounded-lg border border-gray-300 text-gray-800 outline-none focus:ring-2 focus:ring-cardinal transition"
+        className="w-full bg-white p-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        style={{ color: '#000000' }}
        >
         <option value="">All Specialties</option>
         {SPECIALTIES.map(sp => <option key={sp} value={sp}>{sp.replace('-', ' ')}</option>)}
        </select>
       </div>
       <div className="space-y-4">
-       <label className="block text-sm font-semibold text-gray-800 mb-3">Filters</label>
-       <label className="flex items-center gap-3 text-gray-600 hover:text-gray-800 transition-colors cursor-pointer">
+       <label className="block text-sm font-semibold mb-3" style={{ color: '#000000' }}>Filters</label>
+       <label className="flex items-center gap-3 cursor-pointer hover:opacity-80">
         <input
          type="checkbox"
          checked={filters.verified}
          onChange={(e) => setFilters(prev => ({ ...prev, verified: e.target.checked }))}
-         className="w-5 h-5 rounded border-gray-300 text-cardinal focus:ring-cardinal"
+         className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
         />
-        <CheckCircle className="w-4 h-4" />
-        <span className="text-sm font-medium">Verified only</span>
+        <CheckCircle className="w-4 h-4 text-green-600" />
+        <span className="text-sm font-medium" style={{ color: '#000000' }}>Verified only</span>
        </label>
-       <label className="flex items-center gap-3 text-gray-600 hover:text-gray-800 transition-colors cursor-pointer">
+       <label className="flex items-center gap-3 cursor-pointer hover:opacity-80">
         <input
          type="checkbox"
          checked={filters.featured}
          onChange={(e) => setFilters(prev => ({ ...prev, featured: e.target.checked }))}
-         className="w-5 h-5 rounded border-gray-300 text-cardinal focus:ring-cardinal"
+         className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
         />
-        <Star className="w-4 h-4" />
-        <span className="text-sm font-medium">Featured only</span>
+        <Star className="w-4 h-4 text-yellow-500" />
+        <span className="text-sm font-medium" style={{ color: '#000000' }}>Featured only</span>
        </label>
       </div>
      </div>
@@ -359,23 +346,18 @@ export default function ContributorsPage() {
    </div>
 
    {/* Results Header */}
-   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">
-    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-     <div className="flex items-center gap-4">
-      <div className="flex items-center gap-2 text-gray-600">
-       <Users className="w-5 h-5" />
-       <span className="text-lg font-medium">
-        {specialtyFiltered.length} {specialtyFiltered.length === 1 ? 'coach' : 'coaches'}
-        {totalCount > 0 && ` of ${totalCount} total`}
-       </span>
-      </div>
+   <div className="max-w-7xl mx-auto px-6 mb-8">
+    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+     <div className="flex items-center gap-2" style={{ color: '#000000' }}>
+      <Users className="w-5 h-5" />
+      <span className="text-lg font-medium">
+       {specialtyFiltered.length} {specialtyFiltered.length === 1 ? 'coach' : 'coaches'}
+       {totalCount > 0 && ` of ${totalCount} total`}
+      </span>
      </div>
      <Link
       href="/contributors/apply"
-      className="inline-flex items-center gap-2 px-6 py-3 text-white font-semibold rounded-lg transition"
-      style={{backgroundColor: '#8D9440'}}
-      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#7a8239'}
-      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#8D9440'}
+      className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors"
      >
       <Star className="w-4 h-4" />
       Become a Coach
@@ -384,11 +366,11 @@ export default function ContributorsPage() {
    </div>
 
    {/* Contributors Grid */}
-   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+   <div className="max-w-7xl mx-auto px-6">
+    <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
      {specialtyFiltered.map((c) => (
       <Link key={c.id} href={`/contributors/${c.id}`} className="group block">
-       <article className="bg-white border border-gray-200 rounded-lg p-6 hover:border-cardinal/30 shadow-card hover:shadow-card-md transition group-hover:scale-[1.02]">
+       <article className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 hover:shadow-xl transition-all group-hover:scale-[1.02]">
         <div className="relative mb-6">
          <div className="aspect-square rounded-lg overflow-hidden bg-gray-50">
           <Image
@@ -401,13 +383,13 @@ export default function ContributorsPage() {
          </div>
          <div className="absolute top-3 right-3 flex flex-col gap-2">
           {c.verified && (
-           <div className="bg-cardinal text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 shadow-card">
+           <div className="bg-green-600 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
             <CheckCircle className="w-3 h-3" />
             Verified
            </div>
           )}
           {c.featured && (
-           <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 shadow-clarity-md">
+           <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
             <Star className="w-3 h-3" />
             Featured
            </div>
@@ -417,10 +399,10 @@ export default function ContributorsPage() {
 
         <div className="space-y-4">
          <div>
-          <h3 className="text-xl text-gray-800 mb-2 group-hover:text-cardinal transition-colors">
+          <h3 className="text-xl mb-2 group-hover:text-blue-600 transition-colors" style={{ color: '#000000' }}>
            {c.name}
           </h3>
-          <p className="text-cardinal font-semibold text-sm uppercase tracking-wider">{c.sport}</p>
+          <p className="text-blue-600 font-semibold text-sm uppercase tracking-wider">{c.sport}</p>
          </div>
 
          {c.tagline && (
@@ -434,7 +416,7 @@ export default function ContributorsPage() {
            {c.specialties.slice(0, 3).map((s, i) => (
             <span
              key={i}
-             className="text-xs px-3 py-1 bg-cardinal/10 text-cardinal rounded-full border border-cardinal/20 font-medium"
+             className="text-xs px-3 py-1 bg-blue-100 text-blue-700 rounded-full font-medium"
             >
              {s}
             </span>
@@ -484,18 +466,18 @@ export default function ContributorsPage() {
    )}
 
    {!loading && specialtyFiltered.length === 0 && (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="max-w-7xl mx-auto px-6">
      <div className="text-center py-20">
-      <div className="w-32 h-32 mx-auto mb-8 bg-cardinal/10 rounded-full flex items-center justify-center">
-       <Users className="w-16 h-16 text-cardinal/60" />
+      <div className="w-32 h-32 mx-auto mb-8 bg-blue-100 rounded-full flex items-center justify-center">
+       <Users className="w-16 h-16 text-blue-600" />
       </div>
-      <h3 className="text-2xl mb-4 text-gray-800">No coaches found</h3>
+      <h3 className="text-2xl mb-4" style={{ color: '#000000' }}>No coaches found</h3>
       <p className="text-gray-600 mb-8 max-w-md mx-auto leading-relaxed">
        We couldn't find any coaches matching your search criteria. Try adjusting your filters or search terms.
       </p>
       <button
        onClick={clearFilters}
-       className="px-6 py-3 rounded-lg bg-cardinal text-white font-semibold hover:bg-cardinal-dark transition"
+       className="px-6 py-3 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
       >
        Clear All Filters
       </button>
