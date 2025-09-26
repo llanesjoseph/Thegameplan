@@ -1963,7 +1963,6 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
        console.log('GCS Upload completed:', videoUrl)
        setShowGcsUploader(false)
       }}
-      onClose={() => setShowGcsUploader(false)}
      />
     )}
 
