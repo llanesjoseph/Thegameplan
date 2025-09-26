@@ -5,7 +5,7 @@ import { useAuth } from './use-auth'
 import { doc, updateDoc, getDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase.client'
 
-export type UserRole = 'guest' | 'user' | 'creator' | 'assistant_coach' | 'admin' | 'superadmin'
+export type UserRole = 'guest' | 'user' | 'creator' | 'coach' | 'assistant' | 'admin' | 'superadmin'
 
 interface RoleSwitcherState {
   originalRole: UserRole | null
@@ -347,13 +347,18 @@ export function useRoleSwitcher() {
     },
     {
       value: 'creator',
-      label: 'Coach',
+      label: 'Creator',
       description: 'Can create and manage training content'
     },
     {
-      value: 'assistant_coach',
-      label: 'Assistant Coach',
-      description: 'Helps coaches manage their content'
+      value: 'coach',
+      label: 'Coach',
+      description: 'Can coach athletes and manage training sessions'
+    },
+    {
+      value: 'assistant',
+      label: 'Assistant',
+      description: 'Assists coaches with training management'
     },
     {
       value: 'superadmin',
