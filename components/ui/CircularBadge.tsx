@@ -4,7 +4,7 @@ import React from 'react'
 
 interface CircularBadgeProps {
  text?: string
- userRole?: 'user' | 'creator' | 'admin' | 'superadmin' | 'assistant_coach' | 'guest'
+ userRole?: 'user' | 'creator' | 'coach' | 'admin' | 'superadmin' | 'assistant' | 'guest'
  className?: string
  size?: 'small' | 'normal'
 }
@@ -13,12 +13,13 @@ export default function CircularBadge({ text, userRole, className = '', size = '
  // Determine text based on role
  const displayText = text || (() => {
   switch (userRole) {
-   case 'creator': return 'Coach'
+   case 'creator': return 'Creator'
+   case 'coach': return 'Coach'
    case 'user': return 'Athlete'
    case 'admin': return 'Admin'
    case 'superadmin': return 'Super Admin'
-   case 'assistant_coach': return 'Assistant'
-   default: return 'Coach'
+   case 'assistant': return 'Assistant'
+   default: return 'Guest'
   }
  })()
 
@@ -27,13 +28,15 @@ export default function CircularBadge({ text, userRole, className = '', size = '
   switch (userRole) {
    case 'creator':
     return { bg: 'bg-blue-500', text: 'text-white', border: 'border-blue-600' }
+   case 'coach':
+    return { bg: 'bg-purple-600', text: 'text-white', border: 'border-purple-700' }
    case 'user':
     return { bg: 'bg-red-500', text: 'text-white', border: 'border-red-600' }
    case 'admin':
     return { bg: 'bg-purple-500', text: 'text-white', border: 'border-purple-600' }
    case 'superadmin':
     return { bg: 'bg-yellow-500', text: 'text-gray-900', border: 'border-yellow-600' }
-   case 'assistant_coach':
+   case 'assistant':
     return { bg: 'bg-teal-500', text: 'text-white', border: 'border-teal-600' }
    default:
     return { bg: 'bg-gray-500', text: 'text-white', border: 'border-gray-600' }

@@ -4,7 +4,7 @@ import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import { useAuth } from './use-auth'
 import { useMemo } from 'react'
 
-export type UserRole = 'guest' | 'user' | 'creator' | 'assistant_coach' | 'admin' | 'superadmin'
+export type UserRole = 'guest' | 'user' | 'creator' | 'coach' | 'assistant' | 'admin' | 'superadmin'
 
 export function useUrlRoleSwitcher() {
   const { user } = useAuth()
@@ -26,7 +26,7 @@ export function useUrlRoleSwitcher() {
     }
 
     // If admin and URL has valid role, use that
-    if (urlRole && ['guest', 'user', 'creator', 'assistant_coach', 'superadmin'].includes(urlRole)) {
+    if (urlRole && ['guest', 'user', 'creator', 'coach', 'assistant', 'admin', 'superadmin'].includes(urlRole)) {
       return urlRole
     }
 
@@ -87,13 +87,23 @@ export function useUrlRoleSwitcher() {
     },
     {
       value: 'creator',
-      label: 'Coach',
+      label: 'Creator',
       description: 'Can create and manage training content'
     },
     {
-      value: 'assistant_coach',
-      label: 'Assistant Coach',
-      description: 'Helps coaches manage their content'
+      value: 'coach',
+      label: 'Coach',
+      description: 'Professional coach with athlete management'
+    },
+    {
+      value: 'assistant',
+      label: 'Assistant',
+      description: 'Assists coaches with training management'
+    },
+    {
+      value: 'admin',
+      label: 'Admin',
+      description: 'System administration access'
     },
     {
       value: 'superadmin',

@@ -22,7 +22,8 @@ const roleIcons: Record<UserRole, React.ComponentType<{ className?: string }>> =
  guest: User,
  user: User,
  creator: Star,
- assistant_coach: Shield,
+ coach: Shield,
+ assistant: Shield,
  admin: Settings,
  superadmin: Crown
 }
@@ -31,7 +32,8 @@ const roleColors: Record<UserRole, string> = {
  guest: 'text-gray-400 bg-gray-400/10 border-gray-400/20',
  user: 'text-blue-400 bg-blue-400/10 border-blue-400/20',
  creator: 'text-purple-400 bg-purple-400/10 border-purple-400/20',
- assistant_coach: 'text-green-400 bg-green-400/10 border-green-400/20',
+ coach: 'text-purple-400 bg-purple-400/10 border-purple-400/20',
+ assistant: 'text-green-400 bg-green-400/10 border-green-400/20',
  admin: 'text-orange-400 bg-orange-400/10 border-orange-400/20',
  superadmin: 'text-red-400 bg-red-400/10 border-red-400/20'
 }

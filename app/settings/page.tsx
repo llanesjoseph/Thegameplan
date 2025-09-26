@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/use-auth'
-import { useRole } from '@/hooks/use-role'
+import { useEnhancedRole } from '@/hooks/use-role-switcher'
 import { db } from '@/lib/firebase'
 import { doc, getDoc, setDoc } from 'firebase/firestore'
 import AppHeader from '@/components/ui/AppHeader'
@@ -28,7 +28,7 @@ interface UserSettings {
 
 export default function SettingsPage() {
   const { user } = useAuth()
-  const { role } = useRole()
+  const { role } = useEnhancedRole()
   const [settings, setSettings] = useState<UserSettings>({
     notifications: {
       email: true,
