@@ -208,17 +208,6 @@ export default function ContributorsPage() {
 
  return (
   <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
-   {/* Add Sports World Font */}
-   <style jsx global>{`
-    @font-face {
-     font-family: 'Sports World';
-     src: url('/fonts/sports-world-regular.ttf') format('truetype');
-     font-weight: normal;
-     font-style: normal;
-     font-display: swap;
-    }
-   `}</style>
-
    <AppHeader />
 
    <main className="pb-20">

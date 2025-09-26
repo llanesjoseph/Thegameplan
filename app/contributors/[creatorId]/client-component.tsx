@@ -7,6 +7,7 @@ import { Play, Facebook, Twitter, Instagram, Linkedin, MessageCircle, Send, X, U
 import { useAuth } from '@/hooks/use-auth'
 import { db } from '@/lib/firebase.client'
 import { collection, doc, addDoc, deleteDoc, getDocs, query, where, orderBy } from 'firebase/firestore'
+import AppHeader from '@/components/ui/AppHeader'
 
 interface Creator {
  id: string
@@ -421,22 +422,8 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
  }
 
  return (
-  <div className="min-h-screen bg-white">
-   {/* Header */}
-   <header className="bg-white px-4 py-4">
-    <div className="max-w-7xl mx-auto flex items-center justify-between">
-     <div className="text-2xl tracking-wider">
-      PLAYBOOKD
-     </div>
-     <div className="flex items-center gap-4">
-      <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
-      <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-      <Link href="/dashboard" className="bg-red-600 text-white px-4 py-2 rounded text-sm font-medium">
-       SIGN IN
-      </Link>
-     </div>
-    </div>
-   </header>
+  <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
+   <AppHeader />
 
    {/* Hero Section */}
    <section className="bg-blue-900 text-white">

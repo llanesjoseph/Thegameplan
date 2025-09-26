@@ -80,27 +80,60 @@ export class GeminiLessonService {
     }
 
     try {
+      console.log('🔄 Making API request to Gemini with payload size:', JSON.stringify(payload).length, 'characters')
+      console.log('🔑 API Key present:', !!apiKey)
+      console.log('📊 Request config:', {
+        maxOutputTokens: payload.generationConfig.maxOutputTokens,
+        temperature: payload.generationConfig.temperature,
+        responseType: payload.generationConfig.responseMimeType
+      })
+
       const response = await fetch(`${this.API_URL}?key=${apiKey}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       })
 
+      console.log('📡 API Response status:', response.status, response.statusText)
+
       if (!response.ok) {
-        throw new Error(`Gemini API error: ${response.status} ${response.statusText}`)
+        const errorText = await response.text()
+        console.error('❌ Gemini API error response:', errorText)
+        throw new Error(`Gemini API error: ${response.status} ${response.statusText} - ${errorText}`)
       }
 
       const result = await response.json()
+      console.log('📋 API Response structure:', {
+        hasCandidates: !!result.candidates,
+        candidatesLength: result.candidates?.length || 0,
+        hasContent: !!(result.candidates?.[0]?.content),
+        hasTextParts: !!(result.candidates?.[0]?.content?.parts?.[0]?.text)
+      })
 
       if (!result.candidates || !result.candidates[0] || !result.candidates[0].content) {
-        throw new Error('Invalid response from Gemini API')
+        console.error('❌ Invalid API response structure:', result)
+        throw new Error('Invalid response from Gemini API - missing expected data structure')
       }
 
-      const lessonPlan = JSON.parse(result.candidates[0].content.parts[0].text)
-      return lessonPlan as LessonPlanStructure
+      const rawText = result.candidates[0].content.parts[0].text
+      console.log('📝 Raw response text length:', rawText.length)
+
+      try {
+        const lessonPlan = JSON.parse(rawText)
+        console.log('✅ Successfully parsed JSON response')
+        return lessonPlan as LessonPlanStructure
+      } catch (parseError) {
+        console.error('❌ JSON parsing failed:', parseError)
+        console.error('📄 Raw response text (first 500 chars):', rawText.substring(0, 500))
+        throw new Error(`Failed to parse API response as JSON: ${parseError}`)
+      }
 
     } catch (error) {
-      console.error('Error generating masterclass lesson with Gemini:', error)
+      console.error('❌ Complete error in generateMasterclassLesson:', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+        timestamp: new Date().toISOString()
+      })
       throw new Error(`Failed to generate masterclass lesson: ${error instanceof Error ? error.message : 'Unknown error'}`)
     }
   }
@@ -534,76 +567,138 @@ Generate content that demonstrates deep technical expertise and coaching experie
    * Fallback method for when API is unavailable
    */
   static generateFallbackLesson(topic: string, sport: string, level: string, duration: string, detailedInstructions?: string): LessonPlanStructure {
+    // Create a much more comprehensive fallback lesson
     return {
-      title: topic,
-      objective: `Develop fundamental skills and understanding of ${topic.toLowerCase()}`,
+      title: `${topic} - Professional ${sport} Training Session`,
+      objective: `Master the technical, tactical, and competitive applications of ${topic.toLowerCase()} through comprehensive instruction, progressive drilling, and live application. This session focuses on developing both fundamental mechanics and advanced competition-ready skills, with emphasis on biomechanical efficiency, timing development, and tactical integration. Students will progress from isolated movement patterns to full-speed competitive application while maintaining safety and technical precision throughout all training phases.`,
       duration: duration,
       sport: sport,
       level: level,
       parts: [
         {
-          partTitle: "Warm-Up & Introduction",
-          description: "Prepare students physically and mentally for the lesson",
+          partTitle: "Comprehensive Warm-Up & Technical Introduction",
+          description: "Systematically prepare athletes physically and mentally while introducing core technical concepts that will be developed throughout the session",
+          duration: "12 minutes",
+          sections: [
+            {
+              sectionTitle: "Dynamic Movement Preparation",
+              content: [
+                { type: "paragraph", text: `Welcome to today's comprehensive training session focused on ${topic}. This lesson integrates cutting-edge coaching methodology with time-tested techniques to develop both technical mastery and competitive application. Our approach emphasizes progressive skill development, biomechanical efficiency, and tactical awareness essential for elite performance.` },
+                { type: "exercise", text: "Joint mobility sequence - 2 minutes of shoulder circles, hip circles, spinal rotation, and ankle rolls to prepare major joints for training demands", duration: "2 minutes" },
+                { type: "exercise", text: "Dynamic warm-up progression - High knees, butt kicks, leg swings, arm circles, and torso twists to elevate heart rate and activate movement patterns", duration: "3 minutes" },
+                { type: "exercise", text: "Sport-specific movement patterns - Practice fundamental stances, footwork, and basic positions relevant to today's techniques", duration: "2 minutes" },
+                { type: "safety_note", text: "Monitor individual readiness and modify intensity based on any injuries or limitations. Ensure all participants complete full range of motion without pain or restriction." }
+              ]
+            },
+            {
+              sectionTitle: "Technical Framework Introduction",
+              content: [
+                { type: "paragraph", text: `Today's focus on ${topic} represents a crucial element in developing competitive advantage through superior technique and tactical timing. Understanding the biomechanical principles and strategic applications will elevate your performance significantly.` },
+                { type: "technique_step", text: "Core principle overview: Establish the fundamental body mechanics, leverage points, and timing concepts that make this technique effective against resistance", duration: "2 minutes" },
+                { type: "coaching_cue", text: "Key teaching point: Success in this technique depends on proper setup, precise timing, and maintaining leverage throughout the movement sequence" },
+                { type: "list_item", text: "Equipment check and partner assignments for optimal learning environment" },
+                { type: "list_item", text: "Safety protocols specific to today's training content and intensity levels" },
+                ...(detailedInstructions ? [{ type: "paragraph" as const, text: `**Master Instructor's Technical Analysis:**\n${detailedInstructions}\n\nThis detailed breakdown will serve as our foundation for developing championship-level proficiency in these techniques.` }] : [])
+              ]
+            }
+          ]
+        },
+        {
+          partTitle: "Master-Level Technical Instruction & Biomechanical Analysis",
+          description: "Comprehensive technical breakdown with detailed demonstration, biomechanical analysis, and systematic skill development progression",
+          duration: "25 minutes",
+          sections: [
+            {
+              sectionTitle: "Fundamental Biomechanical Principles",
+              content: [
+                { type: "paragraph", text: "Understanding the scientific foundation behind elite technique execution requires analysis of leverage systems, force vectors, and movement efficiency. These principles separate amateur execution from championship-level performance and form the foundation for all advanced applications." },
+                { type: "technique_step", text: "Body positioning and structural alignment: Analyze the kinetic chain from ground contact through force transfer, emphasizing optimal joint angles, muscle activation patterns, and center of gravity positioning for maximum mechanical advantage" },
+                { type: "technique_step", text: "Timing and rhythm integration: Develop understanding of temporal sequencing, acceleration patterns, and coordination between upper and lower body systems to create fluid, efficient movement that maximizes power output while minimizing energy expenditure" },
+                { type: "technique_step", text: "Leverage optimization and pressure application: Master the physics of force multiplication through proper fulcrum positioning, resistance point identification, and progressive loading patterns that create overwhelming mechanical advantage" }
+              ]
+            },
+            {
+              sectionTitle: "Step-by-Step Technical Breakdown",
+              content: [
+                { type: "technique_step", text: "Initial setup and positioning: Establish optimal base position with specific attention to foot placement, hip alignment, and hand positioning. Focus on creating a stable platform that allows for explosive movement initiation while maintaining defensive readiness", duration: "3 minutes" },
+                { type: "technique_step", text: "Entry sequence and timing recognition: Develop sensitivity to opponent movement patterns and learn to identify optimal entry windows. Practice reading defensive reactions and adjusting approach based on resistance levels and positional changes", duration: "4 minutes" },
+                { type: "technique_step", text: "Execution phase and force application: Master the precise movement sequence including grip adjustments, hip drive, and lever arm positioning. Emphasize smooth acceleration through the technique while maintaining structural integrity and technical precision", duration: "4 minutes" },
+                { type: "technique_step", text: "Follow-through and position consolidation: Complete the technique with proper finishing mechanics, immediate position control, and transition readiness. Focus on maintaining advantage and preparing for next-phase tactical options", duration: "3 minutes" },
+                { type: "coaching_cue", text: "Critical teaching point: Each phase must be mastered individually before combining into fluid execution - quality over speed in all development phases" }
+              ]
+            },
+            {
+              sectionTitle: "Common Technical Errors and Corrections",
+              content: [
+                { type: "common_mistake", text: "Premature technique initiation without proper setup leads to ineffective execution and vulnerability to counters. Root cause: rushing the process due to impatience or competitive pressure. Correction: emphasize setup quality and timing recognition through controlled drilling", duration: "2 minutes" },
+                { type: "common_mistake", text: "Loss of structural integrity during execution compromises power transfer and technique effectiveness. Root cause: inadequate strength foundation or poor body awareness. Correction: strength-specific conditioning and isolated movement pattern practice", duration: "2 minutes" },
+                { type: "common_mistake", text: "Incomplete follow-through resulting in positional disadvantage or technique failure. Root cause: focus on initiation rather than completion. Correction: emphasize finishing mechanics and position consolidation in all drilling", duration: "2 minutes" },
+                { type: "coaching_cue", text: "Error correction protocol: identify root cause, isolate problematic movement phase, drill corrective pattern, then reintegrate into full technique sequence" }
+              ]
+            }
+          ]
+        },
+        {
+          partTitle: "Progressive Mastery Development & Competition Preparation",
+          description: "Systematic skill development through graduated drilling progressions designed to build technical proficiency, tactical awareness, and competitive readiness",
+          duration: "20 minutes",
+          sections: [
+            {
+              sectionTitle: "Isolation and Movement Pattern Development",
+              content: [
+                { type: "paragraph", text: "Develop perfect technique through controlled, isolated practice that emphasizes quality movement patterns, proper mechanics, and muscle memory development. This foundation phase is critical for long-term technical excellence and injury prevention." },
+                { type: "exercise", text: "Solo movement drilling: Practice the complete technique sequence in slow motion, focusing on precise body positioning, smooth transitions, and proper breathing patterns. Execute 10-15 repetitions with perfect form, emphasizing control over speed", duration: "4 minutes", difficulty: "beginner" },
+                { type: "exercise", text: "Mirror drilling with partner: Work with cooperative partner to practice setup, entry, and execution phases while partner provides positional feedback and resistance markers. Focus on timing, spacing, and leverage development", duration: "4 minutes", difficulty: "intermediate" },
+                { type: "coaching_cue", text: "Quality checkpoint: Every repetition must meet technical standards before progressing to next phase - prioritize precision over quantity in all drilling" },
+                { type: "safety_note", text: "Monitor technique quality constantly and stop practice if form degrades due to fatigue. Maintain communication with partner throughout all drilling phases" }
+              ]
+            },
+            {
+              sectionTitle: "Progressive Resistance and Speed Development",
+              content: [
+                { type: "paragraph", text: "Systematically increase challenge levels to develop technique effectiveness under realistic training conditions while maintaining safety and technical standards. This phase bridges the gap between isolated practice and live application." },
+                { type: "exercise", text: "Graduated resistance drilling: Partner provides 25% resistance initially, progressing to 50% and 75% as technique quality permits. Focus on maintaining mechanical advantage and smooth execution under increasing pressure", duration: "5 minutes", difficulty: "intermediate" },
+                { type: "exercise", text: "Speed and timing development: Practice technique at varying speeds from slow-motion to full-speed execution, emphasizing consistent mechanics and timing recognition throughout all tempo variations", duration: "4 minutes", difficulty: "advanced" },
+                { type: "exercise", text: "Competition simulation: Execute techniques under time pressure and varying resistance levels to simulate competitive conditions, focusing on decision-making speed and technical precision under stress" },
+                { type: "coaching_cue", text: "Technical proficiency standards: Maintain 80% success rate at each resistance level before progressing. Focus on consistent mechanics rather than force or speed" },
+                { type: "safety_note", text: "Progressive loading protocol: increase resistance gradually and never exceed partner's comfort level. Stop immediately if technique breaks down due to excessive resistance" }
+              ]
+            },
+            {
+              sectionTitle: "Integration and Flow Development",
+              content: [
+                { type: "paragraph", text: "Connect today's techniques with existing skill sets and develop seamless transitions that enhance overall tactical effectiveness. This integration phase develops the ability to use techniques naturally within broader strategic frameworks." },
+                { type: "exercise", text: "Combination drilling: Practice linking today's technique with 2-3 follow-up options, developing smooth transitions and maintaining positional advantage throughout sequence combinations", duration: "3 minutes", difficulty: "advanced" },
+                { type: "coaching_cue", text: "Flow development key: Every technique should connect naturally to next tactical option - avoid isolated technique practice that doesn't integrate with broader game strategy" }
+              ]
+            }
+          ]
+        },
+        {
+          partTitle: "Competition Application & Recovery Integration",
+          description: "Test skills under realistic competitive pressure while implementing comprehensive recovery protocols for optimal adaptation and injury prevention",
           duration: "8 minutes",
           sections: [
             {
-              sectionTitle: "Overview",
+              sectionTitle: "Live Application and Performance Testing",
               content: [
-                { type: "paragraph", text: detailedInstructions
-                  ? `Welcome to today's lesson on ${topic}. This session will incorporate the detailed technique instructions provided.`
-                  : `Welcome to today's lesson on ${topic}. This session will focus on developing your understanding and practical application of key concepts.` },
-                { type: "list_item", text: "Dynamic warm-up exercises" },
-                { type: "list_item", text: "Introduction to lesson objectives" },
-                { type: "list_item", text: "Safety briefing and equipment check" },
-                ...(detailedInstructions ? [{ type: "paragraph" as const, text: `**Instructor's Detailed Technique Notes:**\n${detailedInstructions}` }] : [])
+                { type: "paragraph", text: "Apply newly developed skills in realistic competitive scenarios that test technical proficiency, tactical awareness, and decision-making under pressure. This phase validates learning objectives and identifies areas for continued development." },
+                { type: "exercise", text: "Controlled competition scenarios: Execute today's techniques in structured sparring with specific objectives and success criteria. Focus on timing recognition, technique selection, and successful execution under realistic resistance", duration: "4 minutes", difficulty: "advanced" },
+                { type: "coaching_cue", text: "Performance standards: Successful technique application in 60% of appropriate opportunities with maintenance of technical quality and safety protocols throughout all live training" },
+                { type: "coaching_cue", text: "Competition readiness indicator: ability to execute techniques naturally without conscious thought process - technique becomes instinctive response to tactical opportunity" },
+                { type: "safety_note", text: "Live application safety protocol: maintain communication, respect partner limits, and stop immediately if safety concerns arise. Focus on controlled intensity appropriate for skill development" }
               ]
-            }
-          ]
-        },
-        {
-          partTitle: "Technical Instruction & Demonstration",
-          description: "Detailed breakdown of techniques and concepts",
-          duration: "18 minutes",
-          sections: [
+            },
             {
-              sectionTitle: "Core Principles",
+              sectionTitle: "Recovery and Lesson Integration",
               content: [
-                { type: "paragraph", text: "Understanding the fundamental principles behind effective technique execution." },
-                { type: "list_item", text: "Proper body positioning and alignment" },
-                { type: "list_item", text: "Timing and rhythm of movement" },
-                { type: "list_item", text: "Key leverage points and pressure application" }
-              ]
-            }
-          ]
-        },
-        {
-          partTitle: "Progressive Practice & Drilling",
-          description: "Structured practice with progressive difficulty",
-          duration: "15 minutes",
-          sections: [
-            {
-              sectionTitle: "Practice Drills",
-              content: [
-                { type: "paragraph", text: "Step-by-step practice progression to build muscle memory and understanding." },
-                { type: "exercise", text: "Isolation drill - Practice core movement slowly with focus on form" },
-                { type: "exercise", text: "Progressive resistance - Add light resistance and increase speed" },
-                { type: "safety_note", text: "Stop immediately if any pain or discomfort occurs" }
-              ]
-            }
-          ]
-        },
-        {
-          partTitle: "Live Application & Cool-Down",
-          description: "Apply skills in realistic scenarios and wind down",
-          duration: "4 minutes",
-          sections: [
-            {
-              sectionTitle: "Application",
-              content: [
-                { type: "paragraph", text: "Put the skills into practice with controlled application and feedback." },
-                { type: "list_item", text: "Controlled sparring or application" },
-                { type: "list_item", text: "Cool-down stretching" },
-                { type: "list_item", text: "Lesson review and questions" }
+                { type: "paragraph", text: "Implement comprehensive recovery protocols while consolidating learning objectives and establishing development pathways for continued progress. This phase optimizes adaptation and prepares athletes for ongoing skill development." },
+                { type: "exercise", text: "Active recovery sequence: Systematic cool-down including gentle stretching, breathing exercises, and movement quality restoration to promote recovery and prevent post-training stiffness", duration: "2 minutes" },
+                { type: "paragraph", text: "Lesson review and goal setting: Identify key learning achievements, areas for improvement, and specific practice objectives for upcoming training sessions. Connect today's techniques to broader skill development progression and competitive preparation." },
+                { type: "coaching_cue", text: "Development pathway: Each session should build systematically toward long-term technical mastery and competitive readiness - establish clear connections between today's work and future development goals" },
+                { type: "list_item", text: "Individual feedback and personalized development recommendations" },
+                { type: "list_item", text: "Practice assignment for skill maintenance between sessions" },
+                { type: "list_item", text: "Preview of next session content and preparation requirements" }
               ]
             }
           ]

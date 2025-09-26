@@ -40,6 +40,36 @@ export default function AppHeader({ className = '' }: AppHeaderProps) {
     }
   }
 
+  const handleLogoClick = () => {
+    if (!user) {
+      router.push('/')
+      return
+    }
+
+    // Role-based navigation
+    switch (role) {
+      case 'superadmin':
+      case 'admin':
+        router.push('/dashboard/overview')
+        break
+      case 'coach':
+        router.push('/dashboard/coaching')
+        break
+      case 'creator':
+        router.push('/dashboard/overview')
+        break
+      case 'assistant':
+        router.push('/dashboard/coaching')
+        break
+      case 'user':
+        router.push('/dashboard')
+        break
+      default:
+        router.push('/dashboard')
+        break
+    }
+  }
+
   const getRoleDisplay = () => {
     switch (role) {
       case 'superadmin':
@@ -93,7 +123,7 @@ export default function AppHeader({ className = '' }: AppHeaderProps) {
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* PLAYBOOKD Logo */}
         <button
-          onClick={() => router.push('/dashboard')}
+          onClick={handleLogoClick}
           className="text-2xl tracking-wider hover:opacity-80 transition-opacity"
           style={{
             fontFamily: 'Sports World, Impact, Arial Black, sans-serif',
