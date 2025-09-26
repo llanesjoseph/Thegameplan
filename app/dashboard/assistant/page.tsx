@@ -104,18 +104,18 @@ export default function AssistantCoachDashboard() {
    {/* Assignments Overview */}
    {assignments.length > 0 && (
     <div className="mb-8">
-     <h2 className="text-xl font-semibold text-gray-900 mb-4">Your Coach Assignments</h2>
+     <h2 className="text-xl  text-gray-900 mb-4">Your Coach Assignments</h2>
      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {assignments.map((assignment) => (
        <div key={assignment.id} className="bg-white border border-gray-200 rounded-lg p-4">
         <div className="flex items-center gap-3 mb-3">
          <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
-          <span className="text-indigo-600 font-semibold text-sm">
+          <span className="text-indigo-600  text-sm">
            {assignment.coachName.charAt(0)}
           </span>
          </div>
          <div>
-          <h3 className="font-semibold text-gray-900">{assignment.coachName}</h3>
+          <h3 className=" text-gray-900">{assignment.coachName}</h3>
           <p className="text-sm text-gray-600">{assignment.coachEmail}</p>
          </div>
         </div>
@@ -138,7 +138,7 @@ export default function AssistantCoachDashboard() {
        </div>
        <span className="text-green-600 text-2xl ">{stats.pendingRequests}</span>
       </div>
-      <h3 className="font-semibold text-gray-900 mb-1">Pending Requests</h3>
+      <h3 className=" text-gray-900 mb-1">Pending Requests</h3>
       <p className="text-sm text-gray-600">Coaching requests awaiting response</p>
      </div>
     </Link>
@@ -151,7 +151,7 @@ export default function AssistantCoachDashboard() {
        </div>
        <span className="text-orange-600 text-2xl ">{stats.upcomingScheduled}</span>
       </div>
-      <h3 className="font-semibold text-gray-900 mb-1">Upcoming Sessions</h3>
+      <h3 className=" text-gray-900 mb-1">Upcoming Sessions</h3>
       <p className="text-sm text-gray-600">Scheduled coaching sessions</p>
      </div>
     </Link>
@@ -164,7 +164,7 @@ export default function AssistantCoachDashboard() {
        </div>
        <span className="text-purple-600 text-2xl ">{stats.managedAthletes}</span>
       </div>
-      <h3 className="font-semibold text-gray-900 mb-1">Managed Athletes</h3>
+      <h3 className=" text-gray-900 mb-1">Managed Athletes</h3>
       <p className="text-sm text-gray-600">Athletes under your support</p>
      </div>
     </Link>
@@ -177,7 +177,7 @@ export default function AssistantCoachDashboard() {
        </div>
        <span className="text-pink-600 text-2xl ">{stats.thisWeekActivity}</span>
       </div>
-      <h3 className="font-semibold text-gray-900 mb-1">This Week Activity</h3>
+      <h3 className=" text-gray-900 mb-1">This Week Activity</h3>
       <p className="text-sm text-gray-600">Actions completed this week</p>
      </div>
     </Link>
@@ -185,14 +185,14 @@ export default function AssistantCoachDashboard() {
 
    {/* Quick Actions */}
    <div className="bg-white border border-gray-200 rounded-lg p-6 mb-8">
-    <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
+    <h2 className="text-xl  text-gray-900 mb-4">Quick Actions</h2>
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
      <Link
       href="/dashboard/assistant/requests"
       className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
      >
       <MessageCircle className="w-5 h-5 text-green-600" />
-      <span className="font-medium text-gray-900">Review Requests</span>
+      <span className=" text-gray-900">Review Requests</span>
      </Link>
 
      <Link
@@ -200,7 +200,7 @@ export default function AssistantCoachDashboard() {
       className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
      >
       <Calendar className="w-5 h-5 text-orange-600" />
-      <span className="font-medium text-gray-900">Manage Schedule</span>
+      <span className=" text-gray-900">Manage Schedule</span>
      </Link>
 
      <Link
@@ -208,7 +208,7 @@ export default function AssistantCoachDashboard() {
       className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
      >
       <Users className="w-5 h-5 text-purple-600" />
-      <span className="font-medium text-gray-900">Check Athletes</span>
+      <span className=" text-gray-900">Check Athletes</span>
      </Link>
 
      <Link
@@ -216,20 +216,20 @@ export default function AssistantCoachDashboard() {
       className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
      >
       <Clock className="w-5 h-5 text-blue-600" />
-      <span className="font-medium text-gray-900">Organize Content</span>
+      <span className=" text-gray-900">Organize Content</span>
      </Link>
     </div>
    </div>
 
    {/* Recent Activity */}
    <div className="bg-white border border-gray-200 rounded-lg p-6">
-    <h2 className="text-xl font-semibold text-gray-900 mb-4">Recent Activity</h2>
+    <h2 className="text-xl  text-gray-900 mb-4">Recent Activity</h2>
     <div className="space-y-4">
      {/* Mock recent activity items */}
      <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
       <CheckCircle className="w-5 h-5 text-green-600" />
       <div className="flex-1">
-       <p className="font-medium text-gray-900">Responded to coaching request</p>
+       <p className=" text-gray-900">Responded to coaching request</p>
        <p className="text-sm text-gray-600">Helped athlete with technique review - 2 hours ago</p>
       </div>
      </div>
@@ -237,7 +237,7 @@ export default function AssistantCoachDashboard() {
      <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
       <Calendar className="w-5 h-5 text-orange-600" />
       <div className="flex-1">
-       <p className="font-medium text-gray-900">Scheduled training session</p>
+       <p className=" text-gray-900">Scheduled training session</p>
        <p className="text-sm text-gray-600">Set up 1:1 session for tomorrow - 4 hours ago</p>
       </div>
      </div>
@@ -245,7 +245,7 @@ export default function AssistantCoachDashboard() {
      <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
       <Users className="w-5 h-5 text-purple-600" />
       <div className="flex-1">
-       <p className="font-medium text-gray-900">Updated athlete progress</p>
+       <p className=" text-gray-900">Updated athlete progress</p>
        <p className="text-sm text-gray-600">Tracked improvement for 3 athletes - Yesterday</p>
       </div>
      </div>

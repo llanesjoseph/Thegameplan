@@ -219,7 +219,7 @@ export default function SuperadminAnalytics() {
        <button
         key={range}
         onClick={() => setTimeRange(range)}
-        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+        className={`px-4 py-2 rounded-lg text-sm  transition-colors ${
          timeRange === range
           ? 'bg-red-600 text-white'
           : 'bg-white/10 text-brand-grey hover:bg-white/20'
@@ -335,7 +335,7 @@ export default function SuperadminAnalytics() {
 
     {/* Revenue Metrics */}
     <div className="mb-12">
-     <h2 className="text-2xl font-semibold mb-6">Revenue Analytics</h2>
+     <h2 className="text-2xl  mb-6">Revenue Analytics</h2>
      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
       <div className="card text-center">
        <div className="text-3xl text-green-400 mb-2">
@@ -373,67 +373,67 @@ export default function SuperadminAnalytics() {
 
     {/* Performance Metrics */}
     <div className="mb-12">
-     <h2 className="text-2xl font-semibold mb-6">Performance Metrics</h2>
+     <h2 className="text-2xl  mb-6">Performance Metrics</h2>
      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div className="card">
-       <h3 className="font-semibold mb-4 flex items-center gap-2">
+       <h3 className=" mb-4 flex items-center gap-2">
         <Activity className="w-5 h-5 text-blue-400" />
         Response Time
        </h3>
        <div className="space-y-4">
         <div className="flex justify-between items-center">
          <span className="text-brand-grey">Average</span>
-         <span className="font-medium text-blue-400">{performanceMetrics.averageResponseTime}ms</span>
+         <span className=" text-blue-400">{performanceMetrics.averageResponseTime}ms</span>
         </div>
         <div className="flex justify-between items-center">
          <span className="text-brand-grey">95th Percentile</span>
-         <span className="font-medium text-blue-400">450ms</span>
+         <span className=" text-blue-400">450ms</span>
         </div>
         <div className="flex justify-between items-center">
          <span className="text-brand-grey">99th Percentile</span>
-         <span className="font-medium text-blue-400">850ms</span>
+         <span className=" text-blue-400">850ms</span>
         </div>
        </div>
       </div>
 
       <div className="card">
-       <h3 className="font-semibold mb-4 flex items-center gap-2">
+       <h3 className=" mb-4 flex items-center gap-2">
         <Target className="w-5 h-5 text-green-400" />
         System Performance
        </h3>
        <div className="space-y-4">
         <div className="flex justify-between items-center">
          <span className="text-brand-grey">Error Rate</span>
-         <span className="font-medium text-green-400">{performanceMetrics.errorRate}%</span>
+         <span className=" text-green-400">{performanceMetrics.errorRate}%</span>
         </div>
         <div className="flex justify-between items-center">
          <span className="text-brand-grey">Cache Hit Rate</span>
-         <span className="font-medium text-green-400">{performanceMetrics.cacheHitRate}%</span>
+         <span className=" text-green-400">{performanceMetrics.cacheHitRate}%</span>
         </div>
         <div className="flex justify-between items-center">
          <span className="text-brand-grey">Database Queries</span>
-         <span className="font-medium text-green-400">{performanceMetrics.databaseQueries.toLocaleString()}/min</span>
+         <span className=" text-green-400">{performanceMetrics.databaseQueries.toLocaleString()}/min</span>
         </div>
        </div>
       </div>
 
       <div className="card">
-       <h3 className="font-semibold mb-4 flex items-center gap-2">
+       <h3 className=" mb-4 flex items-center gap-2">
         <Zap className="w-5 h-5 text-purple-400" />
         Resource Usage
        </h3>
        <div className="space-y-4">
         <div className="flex justify-between items-center">
          <span className="text-brand-grey">Bandwidth</span>
-         <span className="font-medium text-purple-400">{performanceMetrics.bandwidthUsage}%</span>
+         <span className=" text-purple-400">{performanceMetrics.bandwidthUsage}%</span>
         </div>
         <div className="flex justify-between items-center">
          <span className="text-brand-grey">CPU Usage</span>
-         <span className="font-medium text-purple-400">67%</span>
+         <span className=" text-purple-400">67%</span>
         </div>
         <div className="flex justify-between items-center">
          <span className="text-brand-grey">Memory Usage</span>
-         <span className="font-medium text-purple-400">78%</span>
+         <span className=" text-purple-400">78%</span>
         </div>
        </div>
       </div>
@@ -442,54 +442,54 @@ export default function SuperadminAnalytics() {
 
     {/* System Insights */}
     <div>
-     <h2 className="text-2xl font-semibold mb-6">System Insights</h2>
+     <h2 className="text-2xl  mb-6">System Insights</h2>
      <div className="grid md:grid-cols-2 gap-6">
       <div className="card">
-       <h3 className="font-semibold mb-4 flex items-center gap-2">
+       <h3 className=" mb-4 flex items-center gap-2">
         <TrendingUp className="w-5 h-5 text-green-400" />
         Growth Trends
        </h3>
        <div className="space-y-4">
         <div className="flex justify-between items-center">
          <span className="text-brand-grey">User Growth</span>
-         <span className="font-medium text-green-400">+{systemStats.monthlyGrowth}%</span>
+         <span className=" text-green-400">+{systemStats.monthlyGrowth}%</span>
         </div>
         <div className="flex justify-between items-center">
          <span className="text-brand-grey">Content Growth</span>
-         <span className="font-medium text-blue-400">+25%</span>
+         <span className=" text-blue-400">+25%</span>
         </div>
         <div className="flex justify-between items-center">
          <span className="text-brand-grey">Revenue Growth</span>
-         <span className="font-medium text-purple-400">+18%</span>
+         <span className=" text-purple-400">+18%</span>
         </div>
         <div className="flex justify-between items-center">
          <span className="text-brand-grey">Creator Growth</span>
-         <span className="font-medium text-orange-400">+12%</span>
+         <span className=" text-orange-400">+12%</span>
         </div>
        </div>
       </div>
 
       <div className="card">
-       <h3 className="font-semibold mb-4 flex items-center gap-2">
+       <h3 className=" mb-4 flex items-center gap-2">
         <Crown className="w-5 h-5 text-red-400" />
         Platform Health
        </h3>
        <div className="space-y-4">
         <div className="flex justify-between items-center">
          <span className="text-brand-grey">System Status</span>
-         <span className="font-medium text-green-400">Healthy</span>
+         <span className=" text-green-400">Healthy</span>
         </div>
         <div className="flex justify-between items-center">
          <span className="text-brand-grey">Security Score</span>
-         <span className="font-medium text-blue-400">92/100</span>
+         <span className=" text-blue-400">92/100</span>
         </div>
         <div className="flex justify-between items-center">
          <span className="text-brand-grey">Performance Score</span>
-         <span className="font-medium text-purple-400">88/100</span>
+         <span className=" text-purple-400">88/100</span>
         </div>
         <div className="flex justify-between items-center">
          <span className="text-brand-grey">User Satisfaction</span>
-         <span className="font-medium text-orange-400">4.7/5.0</span>
+         <span className=" text-orange-400">4.7/5.0</span>
         </div>
        </div>
       </div>

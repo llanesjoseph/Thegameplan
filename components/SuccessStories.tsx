@@ -83,7 +83,7 @@ const SuccessStories = () => {
         
         <div className="relative mb-6">
          <Quote className="absolute -top-2 -left-2 w-8 h-8 text-[var(--primary-cyan)]/20" />
-         <blockquote className="text-xl text-[var(--deep-black)] font-medium leading-relaxed pl-6">
+         <blockquote className="text-xl text-[var(--deep-black)]  leading-relaxed pl-6">
           {stories[activeStory].quote}
          </blockquote>
         </div>
@@ -109,7 +109,7 @@ const SuccessStories = () => {
            ) : (
             <Zap className="w-4 h-4" />
            )}
-           <span className="font-semibold text-sm">{stories[activeStory].achievement}</span>
+           <span className=" text-sm">{stories[activeStory].achievement}</span>
           </div>
          </div>
          <div className="text-[var(--primary-cyan)] text-lg">
@@ -160,15 +160,15 @@ const SuccessStories = () => {
     <div className="grid md:grid-cols-3 gap-8 mt-16 max-w-3xl mx-auto">
      <div className="text-center">
       <div className="text-4xl gradient-text mb-2">10,000+</div>
-      <div className="text-[var(--mid-gray)] font-semibold">Success Stories</div>
+      <div className="text-[var(--mid-gray)] ">Success Stories</div>
      </div>
      <div className="text-center">
       <div className="text-4xl gradient-text mb-2">94%</div>
-      <div className="text-[var(--mid-gray)] font-semibold">Goal Achievement</div>
+      <div className="text-[var(--mid-gray)] ">Goal Achievement</div>
      </div>
      <div className="text-center">
       <div className="text-4xl gradient-text mb-2">2.8x</div>
-      <div className="text-[var(--mid-gray)] font-semibold">Faster Progress</div>
+      <div className="text-[var(--mid-gray)] ">Faster Progress</div>
      </div>
     </div>
    </div>

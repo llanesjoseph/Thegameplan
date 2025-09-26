@@ -84,7 +84,7 @@ export function DashboardSidebar() {
             role === 'creator' ? 'Coach View' :
             role === 'assistant' ? 'Assistant View' : 'Athlete View'
 
-   return <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" style={{backgroundColor: 'rgba(140, 21, 21, 0.1)', color: '#8C1515'}}>
+   return <div className="inline-flex items-center px-2 py-1 rounded-full text-xs " style={{backgroundColor: 'rgba(140, 21, 21, 0.1)', color: '#8C1515'}}>
     <Crown className="w-3 h-3 mr-1" />
     {viewLabel}
    </div>
@@ -92,22 +92,22 @@ export function DashboardSidebar() {
 
   switch (role) {
    case 'creator':
-    return <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" style={{backgroundColor: 'rgba(0, 0, 0, 0.1)', color: '#000000'}}>
+    return <div className="inline-flex items-center px-2 py-1 rounded-full text-xs " style={{backgroundColor: 'rgba(0, 0, 0, 0.1)', color: '#000000'}}>
      <Award className="w-3 h-3 mr-1" />
      Coach
     </div>
    case 'assistant':
-    return <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" style={{backgroundColor: 'rgba(99, 102, 241, 0.1)', color: '#6366F1'}}>
+    return <div className="inline-flex items-center px-2 py-1 rounded-full text-xs " style={{backgroundColor: 'rgba(99, 102, 241, 0.1)', color: '#6366F1'}}>
      <UserCheck className="w-3 h-3 mr-1" />
      Assistant Coach
     </div>
    case 'superadmin':
-    return <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" style={{backgroundColor: 'rgba(140, 21, 21, 0.1)', color: '#8C1515'}}>
+    return <div className="inline-flex items-center px-2 py-1 rounded-full text-xs " style={{backgroundColor: 'rgba(140, 21, 21, 0.1)', color: '#8C1515'}}>
      <Crown className="w-3 h-3 mr-1" />
      Super Admin
     </div>
    default:
-    return <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" style={{backgroundColor: 'rgba(32, 178, 170, 0.1)', color: '#20B2AA'}}>
+    return <div className="inline-flex items-center px-2 py-1 rounded-full text-xs " style={{backgroundColor: 'rgba(32, 178, 170, 0.1)', color: '#20B2AA'}}>
      <User className="w-3 h-3 mr-1" />
      Athlete
     </div>
@@ -143,7 +143,7 @@ export function DashboardSidebar() {
        <span className="text-white text-sm font-heading tracking-wide">PBd</span>
       </div>
       <div>
-       <h2 className="font-semibold text-sm" style={{color: '#000000'}}>
+       <h2 className=" text-sm" style={{color: '#000000'}}>
         {user?.displayName || 'Dashboard'}
        </h2>
       </div>
@@ -158,7 +158,7 @@ export function DashboardSidebar() {
       if ((item as any).disabled) {
        return (
         <div key={`separator-${index}`} className="px-4 py-2">
-         <div className="text-xs font-medium text-gray-400 uppercase tracking-wider">
+         <div className="text-xs  text-gray-400 uppercase tracking-wider">
           {item.title.replace(/━/g, '')}
          </div>
         </div>
@@ -191,7 +191,7 @@ export function DashboardSidebar() {
         }}
        >
         {item.icon && <item.icon className="w-5 h-5" style={{color: isActive ? '#000000' : '#9CA3AF'}} />}
-        <span className="font-medium text-sm">
+        <span className=" text-sm">
          {item.title}
         </span>
        </Link>

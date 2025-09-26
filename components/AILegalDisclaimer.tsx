@@ -28,7 +28,7 @@ export default function AILegalDisclaimer({
     <div className="flex items-start space-x-3">
      <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
      <div className="text-sm text-amber-800">
-      <p className="font-medium mb-1">AI Coaching Disclaimer</p>
+      <p className=" mb-1">AI Coaching Disclaimer</p>
       <p>This AI coaching advice is for educational purposes only and should not replace professional medical advice or certified coaching guidance.</p>
      </div>
     </div>
@@ -54,9 +54,9 @@ export default function AILegalDisclaimer({
       <div className="flex items-start space-x-3">
        <AlertTriangle className="h-6 w-6 text-red-600 mt-1 flex-shrink-0" />
        <div>
-        <h3 className="text-lg font-semibold text-red-900 mb-2">Important Medical & Safety Disclaimer</h3>
+        <h3 className="text-lg  text-red-900 mb-2">Important Medical & Safety Disclaimer</h3>
         <div className="text-sm text-red-800 space-y-2">
-         <p><strong>This AI coaching service is for educational and informational purposes only.</strong></p>
+         <p>{This AI coaching service is for educational and informational purposes only.}</p>
          <ul className="list-disc list-inside space-y-1 ml-4">
           <li>This service does not provide medical advice, diagnosis, or treatment</li>
           <li>Always consult qualified healthcare providers for medical concerns</li>
@@ -71,7 +71,7 @@ export default function AILegalDisclaimer({
 
      {/* Liability Section */}
      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
-      <h3 className="text-lg font-semibold text-gray-900 mb-3">Liability & Risk Acknowledgment</h3>
+      <h3 className="text-lg  text-gray-900 mb-3">Liability & Risk Acknowledgment</h3>
       <div className="text-sm text-gray-700 space-y-2">
        <p>By using this AI coaching service, you acknowledge and agree that:</p>
        <ul className="list-disc list-inside space-y-1 ml-4">
@@ -86,7 +86,7 @@ export default function AILegalDisclaimer({
 
      {/* Data Collection Notice */}
      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-      <h3 className="text-lg font-semibold text-blue-900 mb-3">Data Collection & Privacy</h3>
+      <h3 className="text-lg  text-blue-900 mb-3">Data Collection & Privacy</h3>
       <div className="text-sm text-blue-800 space-y-2">
        <p>For legal and safety purposes, we collect and store:</p>
        <ul className="list-disc list-inside space-y-1 ml-4">
@@ -95,13 +95,13 @@ export default function AILegalDisclaimer({
         <li>Safety flags and risk assessments</li>
         <li>Your consent and acceptance of these terms</li>
        </ul>
-       <p className="mt-2"><strong>Your data is used solely for safety, legal compliance, and service improvement.</strong></p>
+       <p className="mt-2">{Your data is used solely for safety, legal compliance, and service improvement.}</p>
       </div>
      </div>
 
      {/* Age & Capacity */}
      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-      <h3 className="text-lg font-semibold text-yellow-900 mb-3">Age & Legal Capacity</h3>
+      <h3 className="text-lg  text-yellow-900 mb-3">Age & Legal Capacity</h3>
       <div className="text-sm text-yellow-800 space-y-2">
        <p>By continuing, you confirm that you are:</p>
        <ul className="list-disc list-inside space-y-1 ml-4">
@@ -122,7 +122,7 @@ export default function AILegalDisclaimer({
         className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
        />
        <span className="text-sm text-gray-700">
-        I have read and understand the <strong>Terms of Service</strong> and acknowledge all disclaimers above
+        I have read and understand the {Terms of Service} and acknowledge all disclaimers above
        </span>
       </label>
 
@@ -134,7 +134,7 @@ export default function AILegalDisclaimer({
         className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
        />
        <span className="text-sm text-gray-700">
-        I have read and agree to the <strong>Privacy Policy</strong> and data collection practices
+        I have read and agree to the {Privacy Policy} and data collection practices
        </span>
       </label>
 
@@ -146,7 +146,7 @@ export default function AILegalDisclaimer({
         className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
        />
        <span className="text-sm text-gray-700">
-        I understand the <strong>risks and limitations</strong> of AI coaching advice and assume full responsibility
+        I understand the {risks and limitations} of AI coaching advice and assume full responsibility
        </span>
       </label>
      </div>
@@ -157,7 +157,7 @@ export default function AILegalDisclaimer({
        <div className="flex items-center space-x-2">
         <FileText className="h-4 w-4 text-gray-600" />
         <span className="text-sm text-gray-700">
-         Agreement will be recorded for: <strong>{userEmail}</strong>
+         Agreement will be recorded for: {{userEmail}}
         </span>
        </div>
       </div>

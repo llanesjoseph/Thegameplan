@@ -42,20 +42,20 @@ export default function TestAuth() {
 
     <div className="space-y-4">
      <div className="p-3 bg-blue-50 rounded border">
-      <p className="font-medium">Status:</p>
+      <p className="">Status:</p>
       <p className="text-sm">{status}</p>
      </div>
 
      {error && (
       <div className="p-3 bg-red-50 rounded border border-red-200">
-       <p className="font-medium text-red-700">Error:</p>
+       <p className=" text-red-700">Error:</p>
        <p className="text-sm text-red-600">{error}</p>
       </div>
      )}
 
      <button
       onClick={testGoogleAuth}
-      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors"
+      className="w-full bg-blue-600 hover:bg-blue-700 text-white  py-3 px-4 rounded-lg transition-colors"
      >
       Test Google Sign In
      </button>

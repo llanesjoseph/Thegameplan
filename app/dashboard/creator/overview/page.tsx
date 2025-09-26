@@ -189,7 +189,7 @@ export default function CoachOverview() {
   return (
    <div className="flex items-center justify-center min-h-96">
     <div className="text-center">
-     <h1 className="text-xl font-semibold mb-2 text-dark">Sign In Required</h1>
+     <h1 className="text-xl  mb-2 text-dark">Sign In Required</h1>
      <p className="text-dark/70 mb-4">Please sign in to access your coaching dashboard.</p>
      <Link href="/dashboard" className="bg-black text-white px-6 py-2 rounded-lg hover:opacity-90">
       Sign In
@@ -230,7 +230,7 @@ export default function CoachOverview() {
       <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-white/50 flex items-center justify-center">
        <sportData.icon className="w-8 h-8" style={{ color: '#000000' }} />
       </div>
-      <p className="font-semibold" style={{ color: '#000000' }}>Sport</p>
+      <p className="" style={{ color: '#000000' }}>Sport</p>
       <p className="text-sm" style={{ color: '#000000' }}>{sportData.title}</p>
      </div>
 
@@ -238,12 +238,12 @@ export default function CoachOverview() {
       <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-white/50 flex items-center justify-center">
        <Users className="w-8 h-8" style={{ color: '#91A6EB' }} />
       </div>
-      <p className="font-semibold" style={{ color: '#000000' }}>Athletes</p>
+      <p className="" style={{ color: '#000000' }}>Athletes</p>
       <p className="text-sm" style={{ color: '#000000' }}>{stats.athletes} Active</p>
      </div>
 
      <div style={{ color: '#000000' }} className="text-left max-w-sm">
-      <h3 className="font-semibold mb-2 font-heading">Your Coaching Summary</h3>
+      <h3 className=" mb-2 font-heading">Your Coaching Summary</h3>
       <ul className="text-sm space-y-1">
        <li>• You have {stats.athletes} active athletes training with you</li>
        <li>• {stats.lessons} lessons created and shared</li>
@@ -268,7 +268,7 @@ export default function CoachOverview() {
        <div className="w-24 h-24 rounded-full mb-3 mx-auto overflow-hidden border-4 border-white/30 bg-white/20 flex items-center justify-center">
         <User className="w-12 h-12 text-white/70" />
        </div>
-       <h3 className="font-semibold text-white text-sm">{athlete.name}</h3>
+       <h3 className=" text-white text-sm">{athlete.name}</h3>
        <p className="text-white/80 text-xs">{athlete.level} • {athlete.progress}</p>
       </div>
      ))}
@@ -278,7 +278,7 @@ export default function CoachOverview() {
      <Link href="/dashboard/creator/requests">
       <button
        style={{ backgroundColor: '#20B2AA' }}
-       className="px-8 py-3 rounded-full text-white font-semibold hover:opacity-90 transition-opacity"
+       className="px-8 py-3 rounded-full text-white  hover:opacity-90 transition-opacity"
       >
        View All Athletes
       </button>
@@ -315,7 +315,7 @@ export default function CoachOverview() {
         </div>
         <button
          style={{ backgroundColor: '#FF6B35' }}
-         className="w-full mt-4 py-2 rounded text-white text-sm font-semibold hover:opacity-90"
+         className="w-full mt-4 py-2 rounded text-white text-sm  hover:opacity-90"
         >
          View Details
         </button>
@@ -328,7 +328,7 @@ export default function CoachOverview() {
      <Link href="/dashboard/creator">
       <button
        style={{ backgroundColor: '#20B2AA' }}
-       className="px-8 py-3 rounded-full text-white font-semibold hover:opacity-90 transition-opacity"
+       className="px-8 py-3 rounded-full text-white  hover:opacity-90 transition-opacity"
       >
        Create New Content
       </button>
@@ -344,7 +344,7 @@ export default function CoachOverview() {
      </h2>
      <Link
       href="/gear"
-      className="text-sm font-semibold"
+      className="text-sm "
       style={{ color: '#FF6B35' }}
      >
       Shop All
@@ -371,7 +371,7 @@ export default function CoachOverview() {
          />
         </div>
         <div className="p-4">
-         <h3 className="font-semibold text-sm mb-2" style={{ color: '#000000' }}>
+         <h3 className=" text-sm mb-2" style={{ color: '#000000' }}>
           {tool.name}
          </h3>
          <p className=" mb-3" style={{ color: '#000000' }}>
@@ -379,7 +379,7 @@ export default function CoachOverview() {
          </p>
          <button
           style={{ backgroundColor: '#FF6B35' }}
-          className="w-full py-2 rounded text-white text-sm font-semibold hover:opacity-90"
+          className="w-full py-2 rounded text-white text-sm  hover:opacity-90"
          >
           Add to Cart
          </button>

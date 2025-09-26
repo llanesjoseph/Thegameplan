@@ -132,7 +132,7 @@ export default function PricingPlans() {
         <CheckoutButton
          priceId={plan.priceId}
          tier={plan.name.toLowerCase()}
-         className={`w-full py-3 px-6 rounded-xl font-semibold transition-all duration-200 ${
+         className={`w-full py-3 px-6 rounded-xl  transition-all duration-200 ${
           plan.popular
            ? 'bg-cardinal hover:bg-cardinal-dark text-white shadow-lg shadow-cardinal/25 transform hover:scale-105'
            : plan.price === 'Free'
@@ -145,7 +145,7 @@ export default function PricingPlans() {
        {/* Bottom Badge for Free Plan */}
        {plan.price === 'Free' && (
         <div className="text-center mt-4">
-         <span className="inline-block px-3 py-1 text-xs font-medium text-green-600 bg-green-50 border border-green-200 rounded-full">
+         <span className="inline-block px-3 py-1 text-xs  text-green-600 bg-green-50 border border-green-200 rounded-full">
           No Credit Card Required
          </span>
         </div>
@@ -159,7 +159,7 @@ export default function PricingPlans() {
    <div className="text-center mt-12">
     <div className="inline-flex items-center gap-2 px-6 py-3 bg-white border border-gray-200 rounded-full shadow-sm">
      <Shield className="w-4 h-4 text-green-600" />
-     <span className="text-sm font-medium text-gray-700">30-day money-back guarantee on all paid plans</span>
+     <span className="text-sm  text-gray-700">30-day money-back guarantee on all paid plans</span>
     </div>
    </div>
   </div>

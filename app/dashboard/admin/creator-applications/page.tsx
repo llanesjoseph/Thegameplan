@@ -177,7 +177,7 @@ export default function CreatorApplicationsPage() {
      <div className="bg-white rounded-lg p-6 border border-gray-200">
       <div className="flex items-center justify-between">
        <div>
-        <p className="text-sm font-medium text-gray-600">Total Applications</p>
+        <p className="text-sm  text-gray-600">Total Applications</p>
         <p className="text-2xl text-gray-900">{applications.length}</p>
        </div>
        <FileText className="w-8 h-8 text-gray-400" />
@@ -187,7 +187,7 @@ export default function CreatorApplicationsPage() {
      <div className="bg-white rounded-lg p-6 border border-gray-200">
       <div className="flex items-center justify-between">
        <div>
-        <p className="text-sm font-medium text-gray-600">Pending Review</p>
+        <p className="text-sm  text-gray-600">Pending Review</p>
         <p className="text-2xl text-yellow-600">
          {applications.filter(app => app.status === 'pending').length}
         </p>
@@ -199,7 +199,7 @@ export default function CreatorApplicationsPage() {
      <div className="bg-white rounded-lg p-6 border border-gray-200">
       <div className="flex items-center justify-between">
        <div>
-        <p className="text-sm font-medium text-gray-600">Approved</p>
+        <p className="text-sm  text-gray-600">Approved</p>
         <p className="text-2xl text-green-600">
          {applications.filter(app => app.status === 'approved').length}
         </p>
@@ -211,7 +211,7 @@ export default function CreatorApplicationsPage() {
      <div className="bg-white rounded-lg p-6 border border-gray-200">
       <div className="flex items-center justify-between">
        <div>
-        <p className="text-sm font-medium text-gray-600">Rejected</p>
+        <p className="text-sm  text-gray-600">Rejected</p>
         <p className="text-2xl text-red-600">
          {applications.filter(app => app.status === 'rejected').length}
         </p>
@@ -241,7 +241,7 @@ export default function CreatorApplicationsPage() {
         <button
          key={status}
          onClick={() => setFilter(status)}
-         className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+         className={`px-4 py-2 rounded-lg  transition-colors ${
           filter === status
            ? 'bg-cardinal text-white'
            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -284,7 +284,7 @@ export default function CreatorApplicationsPage() {
             )}
            </div>
            <div>
-            <h3 className="font-semibold text-gray-900">
+            <h3 className=" text-gray-900">
              {app.firstName} {app.lastName}
             </h3>
             <p className="text-sm text-gray-600">{app.email}</p>
@@ -296,7 +296,7 @@ export default function CreatorApplicationsPage() {
           </div>
           
           <div className="flex items-center gap-4">
-           <div className={`px-3 py-1 rounded-full text-sm font-medium ${
+           <div className={`px-3 py-1 rounded-full text-sm  ${
             app.status === 'pending' 
              ? 'bg-yellow-100 text-yellow-800'
              : app.status === 'approved'
@@ -342,19 +342,19 @@ export default function CreatorApplicationsPage() {
         {/* Basic Info */}
         <div className="grid md:grid-cols-2 gap-6">
          <div className="space-y-4">
-          <h3 className="font-semibold text-gray-900">Personal Information</h3>
+          <h3 className=" text-gray-900">Personal Information</h3>
           <div className="space-y-2">
-           <p><span className="font-medium">Name:</span> {selectedApp.firstName} {selectedApp.lastName}</p>
-           <p><span className="font-medium">Email:</span> {selectedApp.email}</p>
-           <p><span className="font-medium">Primary Sport:</span> {selectedApp.primarySport}</p>
-           <p><span className="font-medium">Experience:</span> {selectedApp.experience}</p>
+           <p><span className="">Name:</span> {selectedApp.firstName} {selectedApp.lastName}</p>
+           <p><span className="">Email:</span> {selectedApp.email}</p>
+           <p><span className="">Primary Sport:</span> {selectedApp.primarySport}</p>
+           <p><span className="">Experience:</span> {selectedApp.experience}</p>
           </div>
          </div>
 
          <div className="space-y-4">
-          <h3 className="font-semibold text-gray-900">Application Status</h3>
+          <h3 className=" text-gray-900">Application Status</h3>
           <div className="space-y-2">
-           <p><span className="font-medium">Status:</span> 
+           <p><span className="">Status:</span> 
             <span className={`ml-2 px-2 py-1 rounded text-sm ${
              selectedApp.status === 'pending' 
               ? 'bg-yellow-100 text-yellow-800'
@@ -365,9 +365,9 @@ export default function CreatorApplicationsPage() {
              {selectedApp.status}
             </span>
            </p>
-           <p><span className="font-medium">Submitted:</span> {selectedApp.submittedAt?.toDate?.()?.toLocaleDateString() || 'Unknown'}</p>
+           <p><span className="">Submitted:</span> {selectedApp.submittedAt?.toDate?.()?.toLocaleDateString() || 'Unknown'}</p>
            {selectedApp.reviewedAt && (
-            <p><span className="font-medium">Reviewed:</span> {selectedApp.reviewedAt.toDate?.()?.toLocaleDateString()}</p>
+            <p><span className="">Reviewed:</span> {selectedApp.reviewedAt.toDate?.()?.toLocaleDateString()}</p>
            )}
           </div>
          </div>
@@ -375,14 +375,14 @@ export default function CreatorApplicationsPage() {
 
         {/* Experience Details */}
         <div>
-         <h3 className="font-semibold text-gray-900 mb-2">Experience Details</h3>
+         <h3 className=" text-gray-900 mb-2">Experience Details</h3>
          <p className="text-gray-700 bg-gray-50 p-4 rounded-lg">{selectedApp.experienceDetails}</p>
         </div>
 
         {/* Achievements */}
         {selectedApp.achievements?.length > 0 && (
          <div>
-          <h3 className="font-semibold text-gray-900 mb-2">Achievements</h3>
+          <h3 className=" text-gray-900 mb-2">Achievements</h3>
           <ul className="list-disc list-inside space-y-1">
            {selectedApp.achievements.map((achievement, index) => (
             achievement && <li key={index} className="text-gray-700">{achievement}</li>
@@ -394,7 +394,7 @@ export default function CreatorApplicationsPage() {
         {/* Specialties & Content */}
         <div className="grid md:grid-cols-2 gap-6">
          <div>
-          <h3 className="font-semibold text-gray-900 mb-2">Specialties</h3>
+          <h3 className=" text-gray-900 mb-2">Specialties</h3>
           <div className="flex flex-wrap gap-2">
            {selectedApp.specialties?.map((specialty, index) => (
             <span key={index} className="px-2 py-1 bg-cardinal/10 text-cardinal rounded text-sm">
@@ -405,7 +405,7 @@ export default function CreatorApplicationsPage() {
          </div>
 
          <div>
-          <h3 className="font-semibold text-gray-900 mb-2">Content Types</h3>
+          <h3 className=" text-gray-900 mb-2">Content Types</h3>
           <div className="flex flex-wrap gap-2">
            {selectedApp.contentTypes?.map((type, index) => (
             <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm">
@@ -418,17 +418,17 @@ export default function CreatorApplicationsPage() {
 
         {/* Content Description */}
         <div>
-         <h3 className="font-semibold text-gray-900 mb-2">Content Description</h3>
+         <h3 className=" text-gray-900 mb-2">Content Description</h3>
          <p className="text-gray-700 bg-gray-50 p-4 rounded-lg">{selectedApp.contentDescription}</p>
         </div>
 
         {/* Review Section */}
         {selectedApp.status === 'pending' && (
          <div className="border-t border-gray-200 pt-6">
-          <h3 className="font-semibold text-gray-900 mb-4">Review Application</h3>
+          <h3 className=" text-gray-900 mb-4">Review Application</h3>
           
           <div className="mb-4">
-           <label className="block text-sm font-medium text-gray-700 mb-2">
+           <label className="block text-sm  text-gray-700 mb-2">
             Review Notes
            </label>
            <textarea
@@ -444,7 +444,7 @@ export default function CreatorApplicationsPage() {
            <button
             onClick={() => handleReview(selectedApp.id, 'approved')}
             disabled={submittingReview}
-            className="px-6 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:opacity-50 flex items-center gap-2"
+            className="px-6 py-2 bg-green-600 text-white rounded-lg  hover:bg-green-700 disabled:opacity-50 flex items-center gap-2"
            >
             {submittingReview ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
             Approve
@@ -453,7 +453,7 @@ export default function CreatorApplicationsPage() {
            <button
             onClick={() => handleReview(selectedApp.id, 'rejected')}
             disabled={submittingReview}
-            className="px-6 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 disabled:opacity-50 flex items-center gap-2"
+            className="px-6 py-2 bg-red-600 text-white rounded-lg  hover:bg-red-700 disabled:opacity-50 flex items-center gap-2"
            >
             {submittingReview ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
             Reject
@@ -465,7 +465,7 @@ export default function CreatorApplicationsPage() {
         {/* Previous Review Notes */}
         {selectedApp.reviewerNotes && (
          <div className="border-t border-gray-200 pt-6">
-          <h3 className="font-semibold text-gray-900 mb-2">Review Notes</h3>
+          <h3 className=" text-gray-900 mb-2">Review Notes</h3>
           <p className="text-gray-700 bg-gray-50 p-4 rounded-lg">{selectedApp.reviewerNotes}</p>
          </div>
         )}

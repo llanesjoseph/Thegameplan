@@ -65,8 +65,8 @@ export default function RoleSwitcher({ className = '' }: RoleSwitcherProps) {
     <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border-b border-yellow-500/30 px-4 py-2 backdrop-blur-sm">
      <div className="flex items-center justify-center gap-3 text-sm">
       <TestTube className="w-4 h-4 text-yellow-400" />
-      <span className="text-yellow-300 font-medium">
-       Role Testing Mode: Viewing as <strong className="text-yellow-100">{effectiveRole}</strong>
+      <span className="text-yellow-300 ">
+       Role Testing Mode: Viewing as <strong className="text-yellow-100">{effectiveRole}}
       </span>
       <button
        onClick={resetToOriginalRole}
@@ -98,7 +98,7 @@ export default function RoleSwitcher({ className = '' }: RoleSwitcherProps) {
         <Eye className="w-2 h-2 text-yellow-400 absolute -top-1 -right-1" />
        )}
       </div>
-      <span className="text-sm font-medium capitalize">
+      <span className="text-sm  capitalize">
        {isTestingMode ? `Testing: ${effectiveRole}` : effectiveRole}
       </span>
      </div>
@@ -118,7 +118,7 @@ export default function RoleSwitcher({ className = '' }: RoleSwitcherProps) {
        <div className="p-3 border-b border-white/10">
         <div className="flex items-center gap-2 mb-2">
          <Crown className="w-4 h-4 text-red-400" />
-         <span className="text-sm font-semibold text-red-400">Admin Tools</span>
+         <span className="text-sm  text-red-400">Admin Tools</span>
         </div>
         <p className="text-xs text-brand-grey">
          Switch roles to test different user experiences
@@ -153,7 +153,7 @@ export default function RoleSwitcher({ className = '' }: RoleSwitcherProps) {
             }`} />
             <div className="flex-1 min-w-0">
              <div className="flex items-center gap-2">
-              <span className={`font-medium ${
+              <span className={` ${
                isCurrentRole ? 'text-white' : 'text-brand-grey-light'
               }`}>
                {role.label}
@@ -186,7 +186,7 @@ export default function RoleSwitcher({ className = '' }: RoleSwitcherProps) {
            resetToOriginalRole()
            setIsOpen(false)
           }}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-yellow-400 hover:text-yellow-300 hover:bg-yellow-400/10 rounded-lg transition-colors"
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm  text-yellow-400 hover:text-yellow-300 hover:bg-yellow-400/10 rounded-lg transition-colors"
          >
           <RotateCcw className="w-4 h-4" />
           Reset to Admin

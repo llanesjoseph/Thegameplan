@@ -277,7 +277,7 @@ export default function CreatorRequests() {
     <div className="bg-white border border-gray-200 rounded-2xl p-12 shadow-sm">
      <div className="text-center">
       <div className="w-16 h-16 border-4 border-purple-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-      <p className="text-gray-900 font-medium">Loading...</p>
+      <p className="text-gray-900 ">Loading...</p>
       <p className="text-slate-400 text-sm mt-1">Checking your access permissions</p>
      </div>
     </div>
@@ -297,7 +297,7 @@ export default function CreatorRequests() {
       <p className="text-gray-600 mb-6">Please sign in to access creator coaching requests.</p>
       <Link 
        href="/dashboard" 
-       className="inline-block px-6 py-3 bg-gradient-to-r from-cardinal to-cardinal-dark hover:from-cardinal-dark hover:to-red-800 text-white rounded-lg font-medium transition-all duration-200 shadow-lg shadow-cardinal/20"
+       className="inline-block px-6 py-3 bg-gradient-to-r from-cardinal to-cardinal-dark hover:from-cardinal-dark hover:to-red-800 text-white rounded-lg  transition-all duration-200 shadow-lg shadow-cardinal/20"
       >
        Back to Dashboard
       </Link>
@@ -328,7 +328,7 @@ export default function CreatorRequests() {
       </div>
       <Link 
        href="/dashboard" 
-       className="inline-block px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-lg font-medium transition-all duration-200 shadow-lg shadow-purple-500/20"
+       className="inline-block px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-lg  transition-all duration-200 shadow-lg shadow-purple-500/20"
       >
        Back to Dashboard
       </Link>
@@ -386,7 +386,7 @@ export default function CreatorRequests() {
      <div className="bg-white border border-gray-100 rounded-2xl p-12">
       <div className="text-center">
        <div className="w-12 h-12 border-4 border-cardinal border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-       <p className="text-gray-900 font-medium">Loading coaching requests...</p>
+       <p className="text-gray-900 ">Loading coaching requests...</p>
        <p className="text-gray-600 text-sm mt-1">Fetching the latest requests from students</p>
       </div>
      </div>
@@ -396,7 +396,7 @@ export default function CreatorRequests() {
        <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
         <MessageSquare className="w-8 h-8 text-cardinal" />
        </div>
-       <h3 className="text-xl font-semibold text-gray-900 mb-2">No coaching requests yet</h3>
+       <h3 className="text-xl  text-gray-900 mb-2">No coaching requests yet</h3>
        <p className="text-gray-600 mb-6">New coaching requests from students will appear here</p>
        <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 max-w-md mx-auto">
         <p className="text-gray-600 text-sm">Students can request coaching through your lessons and profile pages. Keep creating great content to attract more requests!</p>
@@ -425,8 +425,8 @@ export default function CreatorRequests() {
            <MessageSquare className="w-5 h-5 text-red-400 flex-shrink-0" />
            <div className="min-w-0 flex-1">
             <div className="flex items-center gap-3 mb-1">
-             <h3 className="font-semibold text-gray-900 truncate">{r.title}</h3>
-             <span className={`px-2 py-1 rounded-lg text-xs font-medium ${colors.bg} ${colors.text} border ${colors.border}`}>
+             <h3 className=" text-gray-900 truncate">{r.title}</h3>
+             <span className={`px-2 py-1 rounded-lg text-xs  ${colors.bg} ${colors.text} border ${colors.border}`}>
               {r.status === 'completed' && <CheckCircle className="w-3 h-3 inline mr-1" />}
               {r.status}
              </span>
@@ -461,7 +461,7 @@ export default function CreatorRequests() {
            
            {(!r.targetCreatorUid && r.status === 'new') && (
             <button 
-             className="px-4 py-2 bg-cardinal hover:bg-cardinal-dark text-white rounded-lg transition-colors text-sm font-medium" 
+             className="px-4 py-2 bg-cardinal hover:bg-cardinal-dark text-white rounded-lg transition-colors text-sm " 
              onClick={() => claim(r.id)}
             >
              Accept
@@ -470,14 +470,14 @@ export default function CreatorRequests() {
            {r.targetCreatorUid === user?.uid && r.status === 'accepted' && (
             <>
              <button 
-              className="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg transition-colors text-sm font-medium flex items-center gap-1" 
+              className="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg transition-colors text-sm  flex items-center gap-1" 
               onClick={() => setSchedulingCard(schedulingCard === r.id ? null : r.id)}
              >
               <CalendarDays className="w-3 h-3" />
               Schedule
              </button>
              <button 
-              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-sm font-medium" 
+              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-sm " 
               onClick={() => complete(r.id)}
              >
               Complete
@@ -486,7 +486,7 @@ export default function CreatorRequests() {
            )}
            {r.targetCreatorUid === user?.uid && r.status === 'scheduled' && (
             <button 
-             className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-sm font-medium" 
+             className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-sm " 
              onClick={() => complete(r.id)}
             >
              Complete
@@ -508,12 +508,12 @@ export default function CreatorRequests() {
            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
             <div className="flex items-center gap-2 mb-4">
              <CalendarDays className="w-5 h-5 text-cardinal" />
-             <h4 className="text-gray-900 font-medium">Schedule Coaching Session</h4>
+             <h4 className="text-gray-900 ">Schedule Coaching Session</h4>
             </div>
             
             <div className="grid md:grid-cols-2 gap-4 mb-4">
              <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Date</label>
+              <label className="block text-sm  text-gray-700 mb-2">Date</label>
               <input
                type="date"
                value={selectedDate}
@@ -523,7 +523,7 @@ export default function CreatorRequests() {
               />
              </div>
              <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Time</label>
+              <label className="block text-sm  text-gray-700 mb-2">Time</label>
               <select
                value={selectedTime}
                onChange={(e) => setSelectedTime(e.target.value)}
@@ -547,7 +547,7 @@ export default function CreatorRequests() {
             </div>
             
             <div className="mb-4">
-             <label className="block text-sm font-medium text-gray-700 mb-2">Message (Optional)</label>
+             <label className="block text-sm  text-gray-700 mb-2">Message (Optional)</label>
              <textarea
               value={schedulingMessage}
               onChange={(e) => setSchedulingMessage(e.target.value)}
@@ -561,14 +561,14 @@ export default function CreatorRequests() {
              <button
               onClick={() => scheduleSession(r.id)}
               disabled={!selectedDate || !selectedTime}
-              className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-cardinal hover:from-cyan-700 hover:to-cardinal-dark disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-all duration-200 flex items-center gap-2"
+              className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-cardinal hover:from-cyan-700 hover:to-cardinal-dark disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg  transition-all duration-200 flex items-center gap-2"
              >
               <Send className="w-4 h-4" />
               Send Schedule
              </button>
              <button
               onClick={() => setSchedulingCard(null)}
-              className="px-4 py-2 text-gray-600 hover:text-gray-900 rounded-lg font-medium transition-colors"
+              className="px-4 py-2 text-gray-600 hover:text-gray-900 rounded-lg  transition-colors"
              >
               Cancel
              </button>
@@ -602,7 +602,7 @@ export default function CreatorRequests() {
            {/* Contact and session info */}
            <div className="grid md:grid-cols-2 gap-4">
             <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-             <h5 className="text-sm font-medium text-gray-900 mb-2 flex items-center gap-2">
+             <h5 className="text-sm  text-gray-900 mb-2 flex items-center gap-2">
               <User className="w-4 h-4 text-red-400" />
               Contact Info
              </h5>
@@ -612,7 +612,7 @@ export default function CreatorRequests() {
             </div>
             
             <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-             <h5 className="text-sm font-medium text-gray-900 mb-2 flex items-center gap-2">
+             <h5 className="text-sm  text-gray-900 mb-2 flex items-center gap-2">
               <Clock className="w-4 h-4 text-purple-400" />
               Session Details
              </h5>
@@ -623,9 +623,9 @@ export default function CreatorRequests() {
                <div className="bg-red-50 border border-red-200 rounded-lg p-2 mt-2">
                 <div className="flex items-center gap-1 mb-1">
                  <CalendarDays className="w-3 h-3 text-cardinal" />
-                 <span className="text-cardinal font-medium">Scheduled:</span>
+                 <span className="text-cardinal ">Scheduled:</span>
                 </div>
-                <div className="text-gray-900 font-medium">
+                <div className="text-gray-900 ">
                  {new Date((r as any).scheduledDate).toLocaleDateString()} at {(r as any).scheduledTime}
                 </div>
                 {(r as any).schedulingMessage && (

@@ -118,7 +118,7 @@ export default function UserSignupTracker() {
     <nav className="flex space-x-8 px-6" aria-label="Tabs">
      <button
       onClick={() => setActiveTab('signups')}
-      className={`py-4 px-1 border-b-2 font-medium text-sm ${
+      className={`py-4 px-1 border-b-2  text-sm ${
        activeTab === 'signups'
         ? 'border-sky-blue text-sky-blue'
         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -131,7 +131,7 @@ export default function UserSignupTracker() {
      </button>
      <button
       onClick={() => setActiveTab('notifications')}
-      className={`py-4 px-1 border-b-2 font-medium text-sm ${
+      className={`py-4 px-1 border-b-2  text-sm ${
        activeTab === 'notifications'
         ? 'border-sky-blue text-sky-blue'
         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -148,7 +148,7 @@ export default function UserSignupTracker() {
    <div className="p-6">
     {activeTab === 'signups' && (
      <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-gray-900">Recent User Signups</h3>
+      <h3 className="text-lg  text-gray-900">Recent User Signups</h3>
 
       {signups.length === 0 ? (
        <p className="text-gray-500">No signups yet.</p>
@@ -167,7 +167,7 @@ export default function UserSignupTracker() {
            </div>
            <div>
             <div className="flex items-center gap-2">
-             <h4 className="font-medium text-gray-900">
+             <h4 className=" text-gray-900">
               {signup.displayName || 'Anonymous'}
              </h4>
              {signup.isSuperadmin && (
@@ -185,7 +185,7 @@ export default function UserSignupTracker() {
             <Calendar className="w-4 h-4" />
             {formatTimestamp(signup.timestamp)}
            </div>
-           <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+           <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs  ${
             signup.signUpMethod === 'google'
              ? 'bg-blue-100 text-blue-800'
              : 'bg-green-100 text-green-800'
@@ -202,7 +202,7 @@ export default function UserSignupTracker() {
 
     {activeTab === 'notifications' && (
      <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-gray-900">Admin Notifications</h3>
+      <h3 className="text-lg  text-gray-900">Admin Notifications</h3>
 
       {notifications.length === 0 ? (
        <p className="text-gray-500">No notifications.</p>
@@ -220,7 +220,7 @@ export default function UserSignupTracker() {
           <div className="flex items-start justify-between">
            <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
-             <h4 className={`font-medium ${
+             <h4 className={` ${
               notification.read ? 'text-gray-700' : 'text-gray-900'
              }`}>
               {notification.title}

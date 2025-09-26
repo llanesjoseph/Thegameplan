@@ -232,7 +232,7 @@ export default function AssistantCoachManager({
 
    {/* Current Assistants */}
    <div className="mb-8">
-    <h4 className="text-lg font-semibold text-dark mb-4">Current Assistants ({assistants.length})</h4>
+    <h4 className="text-lg  text-dark mb-4">Current Assistants ({assistants.length})</h4>
 
     {assistants.length === 0 ? (
      <div className="text-center py-8 text-dark/60">
@@ -288,7 +288,7 @@ export default function AssistantCoachManager({
 
    {/* Add New Assistant */}
    <div>
-    <h4 className="text-lg font-semibold text-dark mb-4">Add New Assistant Coach</h4>
+    <h4 className="text-lg  text-dark mb-4">Add New Assistant Coach</h4>
 
     <div className="flex gap-3 mb-4">
      <div className="flex-1 relative">
@@ -305,7 +305,7 @@ export default function AssistantCoachManager({
      <button
       onClick={handleSearch}
       disabled={isSearching || !searchTerm.trim()}
-      className="px-6 py-3 bg-gradient-to-r from-sky-blue to-black text-white rounded-xl font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 transition-all flex items-center gap-2"
+      className="px-6 py-3 bg-gradient-to-r from-sky-blue to-black text-white rounded-xl  disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 transition-all flex items-center gap-2"
      >
       {isSearching ? (
        <>
@@ -324,7 +324,7 @@ export default function AssistantCoachManager({
     {/* Search Results */}
     {searchResults.length > 0 && (
      <div className="space-y-3">
-      <h5 className="font-semibold text-dark">Search Results</h5>
+      <h5 className=" text-dark">Search Results</h5>
       {searchResults.map((result) => (
        <div key={result.id} className="bg-white/80 rounded-xl p-4 border border-sky-blue/10">
         <div className="flex items-center justify-between">

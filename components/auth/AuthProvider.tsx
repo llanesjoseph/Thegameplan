@@ -129,7 +129,7 @@ export default function AuthProvider({
           {benefit.icon}
          </div>
          <div>
-          <h3 className="text-sm font-semibold text-gray-800">
+          <h3 className="text-sm  text-gray-800">
            {benefit.title}
           </h3>
           <p className="text-xs text-gray-600">

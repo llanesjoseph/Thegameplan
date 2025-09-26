@@ -266,7 +266,7 @@ export default function CreatorSchedule() {
      {/* Calendar Section */}
      <div className="bg-white rounded-xl border border-gray-200 p-6">
       <div className="flex items-center justify-between mb-6">
-       <h2 className="text-lg font-semibold text-gray-900">
+       <h2 className="text-lg  text-gray-900">
         {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
        </h2>
        <div className="flex gap-2">
@@ -288,7 +288,7 @@ export default function CreatorSchedule() {
       {/* Calendar Grid */}
       <div className="grid grid-cols-7 gap-1 mb-2">
        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-        <div key={day} className="p-2 text-center text-sm font-medium text-gray-500">
+        <div key={day} className="p-2 text-center text-sm  text-gray-500">
          {day}
         </div>
        ))}
@@ -333,7 +333,7 @@ export default function CreatorSchedule() {
      {/* Agenda Section */}
      <div className="bg-white rounded-xl border border-gray-200 p-6">
       <div className="flex items-center justify-between mb-6">
-       <h2 className="text-lg font-semibold text-gray-900">
+       <h2 className="text-lg  text-gray-900">
         Agenda - {selectedDate.toLocaleDateString('en-US', { 
          weekday: 'long', 
          month: 'long', 
@@ -370,8 +370,8 @@ export default function CreatorSchedule() {
                <div className={`p-1.5 rounded-lg ${getEventTypeColor(event.type)}`}>
                 <IconComponent className="w-4 h-4 text-white" />
                </div>
-               <h3 className="font-semibold text-gray-900">{event.title}</h3>
-               <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+               <h3 className=" text-gray-900">{event.title}</h3>
+               <span className={`px-2 py-1 rounded-full text-xs  ${
                 event.status === 'confirmed' ? 'bg-green-100 text-green-800' :
                 event.status === 'cancelled' ? 'bg-red-100 text-red-800' :
                 'bg-yellow-100 text-yellow-800'
@@ -432,13 +432,13 @@ export default function CreatorSchedule() {
     {showEventForm && (
      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl p-6 w-full max-w-md">
-       <h3 className="text-lg font-semibold text-gray-900 mb-4">
+       <h3 className="text-lg  text-gray-900 mb-4">
         {editingEvent ? 'Edit Event' : 'Add New Event'}
        </h3>
        
        <div className="space-y-4">
         <div>
-         <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+         <label className="block text-sm  text-gray-700 mb-1">Title</label>
          <input
           type="text"
           value={formData.title}
@@ -449,7 +449,7 @@ export default function CreatorSchedule() {
         </div>
 
         <div>
-         <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+         <label className="block text-sm  text-gray-700 mb-1">Description</label>
          <textarea
           value={formData.description}
           onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
@@ -461,7 +461,7 @@ export default function CreatorSchedule() {
 
         <div className="grid grid-cols-2 gap-4">
          <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+          <label className="block text-sm  text-gray-700 mb-1">Date</label>
           <input
            type="date"
            value={formData.date}
@@ -470,7 +470,7 @@ export default function CreatorSchedule() {
           />
          </div>
          <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+          <label className="block text-sm  text-gray-700 mb-1">Type</label>
           <select
            value={formData.type}
            onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value as Event['type'] }))}
@@ -486,7 +486,7 @@ export default function CreatorSchedule() {
 
         <div className="grid grid-cols-2 gap-4">
          <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Start Time</label>
+          <label className="block text-sm  text-gray-700 mb-1">Start Time</label>
           <input
            type="time"
            value={formData.startTime}
@@ -495,7 +495,7 @@ export default function CreatorSchedule() {
           />
          </div>
          <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">End Time</label>
+          <label className="block text-sm  text-gray-700 mb-1">End Time</label>
           <input
            type="time"
            value={formData.endTime}
@@ -506,7 +506,7 @@ export default function CreatorSchedule() {
         </div>
 
         <div>
-         <label className="block text-sm font-medium text-gray-700 mb-1">Location (optional)</label>
+         <label className="block text-sm  text-gray-700 mb-1">Location (optional)</label>
          <input
           type="text"
           value={formData.location}

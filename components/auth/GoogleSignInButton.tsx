@@ -130,7 +130,7 @@ export default function GoogleSignInButton({
     disabled={isLoading}
     type="button"
     className={`
-     w-full flex items-center justify-center gap-3 rounded-lg font-medium
+     w-full flex items-center justify-center gap-3 rounded-lg 
      transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed
      hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-cardinal focus:ring-offset-2
      ${sizeClasses[size]} ${variantClasses[variant]} ${className}

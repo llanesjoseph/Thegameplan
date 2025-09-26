@@ -290,7 +290,7 @@ export default function AdminContentReview() {
         
         {/* Status Badge */}
         <div className="absolute top-2 right-2">
-         <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(item.status)}`}>
+         <span className={`px-2 py-1 rounded-full text-xs  ${getStatusColor(item.status)}`}>
           {item.status}
          </span>
         </div>
@@ -298,7 +298,7 @@ export default function AdminContentReview() {
         {/* Flag Badge */}
         {item.flagged && (
          <div className="absolute top-2 left-2">
-          <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-500/20 text-red-400">
+          <span className="px-2 py-1 rounded-full text-xs  bg-red-500/20 text-red-400">
            <AlertTriangle className="w-3 h-3 inline mr-1" />
            Flagged
           </span>
@@ -308,7 +308,7 @@ export default function AdminContentReview() {
        
        {/* Content Info */}
        <div className="space-y-3">
-        <h3 className="font-semibold text-lg line-clamp-2">{item.title}</h3>
+        <h3 className=" text-lg line-clamp-2">{item.title}</h3>
         <p className="text-sm text-brand-grey line-clamp-2">{item.description}</p>
         
         <div className="flex items-center gap-4 text-sm text-brand-grey">
@@ -389,7 +389,7 @@ export default function AdminContentReview() {
      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="card max-w-4xl w-full max-h-[90vh] overflow-y-auto">
        <div className="flex items-center justify-between mb-6">
-        <h3 className="text-2xl font-semibold">Content Review</h3>
+        <h3 className="text-2xl ">Content Review</h3>
         <button
          onClick={() => setSelectedContent(null)}
          className="text-brand-grey hover:text-white"
@@ -401,7 +401,7 @@ export default function AdminContentReview() {
        <div className="grid md:grid-cols-2 gap-6">
         {/* Content Preview */}
         <div>
-         <h4 className="font-semibold mb-3">Content Preview</h4>
+         <h4 className=" mb-3">Content Preview</h4>
          <div className="aspect-video rounded-lg overflow-hidden bg-white/5 mb-4">
           {selectedContent.thumbnailUrl ? (
            <img
@@ -418,30 +418,30 @@ export default function AdminContentReview() {
          
          <div className="space-y-3">
           <div>
-           <label className="block text-sm font-medium mb-1">Title</label>
+           <label className="block text-sm  mb-1">Title</label>
            <div className="text-sm">{selectedContent.title}</div>
           </div>
           
           <div>
-           <label className="block text-sm font-medium mb-1">Description</label>
+           <label className="block text-sm  mb-1">Description</label>
            <div className="text-sm">{selectedContent.description}</div>
           </div>
           
           <div className="grid grid-cols-2 gap-4">
            <div>
-            <label className="block text-sm font-medium mb-1">Sport</label>
+            <label className="block text-sm  mb-1">Sport</label>
             <div className="text-sm">{selectedContent.sport}</div>
            </div>
            <div>
-            <label className="block text-sm font-medium mb-1">Level</label>
+            <label className="block text-sm  mb-1">Level</label>
             <div className="text-sm">{selectedContent.level}</div>
            </div>
            <div>
-            <label className="block text-sm font-medium mb-1">Duration</label>
+            <label className="block text-sm  mb-1">Duration</label>
             <div className="text-sm">{selectedContent.duration} minutes</div>
            </div>
            <div>
-            <label className="block text-sm font-medium mb-1">Created</label>
+            <label className="block text-sm  mb-1">Created</label>
             <div className="text-sm">{selectedContent.createdAt.toLocaleDateString()}</div>
            </div>
           </div>
@@ -450,11 +450,11 @@ export default function AdminContentReview() {
         
         {/* Review Actions */}
         <div>
-         <h4 className="font-semibold mb-3">Review Actions</h4>
+         <h4 className=" mb-3">Review Actions</h4>
          
          <div className="space-y-4">
           <div>
-           <label className="block text-sm font-medium mb-2">Review Note</label>
+           <label className="block text-sm  mb-2">Review Note</label>
            <textarea
             value={reviewNote}
             onChange={(e) => setReviewNote(e.target.value)}

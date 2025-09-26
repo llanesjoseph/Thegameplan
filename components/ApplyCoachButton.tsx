@@ -27,7 +27,7 @@ export default function ApplyCoachButton() {
      </p>
      <Link
       href="/dashboard/apply-coach"
-      className="inline-flex items-center gap-2 bg-white/20 hover:bg-white/30 px-4 py-2 rounded-xl font-medium transition-all backdrop-blur-sm border border-white/30"
+      className="inline-flex items-center gap-2 bg-white/20 hover:bg-white/30 px-4 py-2 rounded-xl  transition-all backdrop-blur-sm border border-white/30"
      >
       Apply Now
       <ArrowRight className="w-4 h-4" />

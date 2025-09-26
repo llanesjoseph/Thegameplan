@@ -187,7 +187,7 @@ export default function CoachApplicationsPage() {
      <p className="text-dark/70 mb-6">You don't have permission to access the admin panel.</p>
      <Link
       href="/dashboard"
-      className="block w-full bg-gradient-to-r from-sky-blue to-black text-white py-3 rounded-xl font-medium"
+      className="block w-full bg-gradient-to-r from-sky-blue to-black text-white py-3 rounded-xl "
      >
       Back to Dashboard
      </Link>
@@ -207,7 +207,7 @@ export default function CoachApplicationsPage() {
       </Link>
       <div>
        <h1 className="text-4xl text-dark font-heading">Coach Applications</h1>
-       <p className="text-dark/60 font-medium">Review and approve coaching applications</p>
+       <p className="text-dark/60 ">Review and approve coaching applications</p>
       </div>
      </div>
 
@@ -270,7 +270,7 @@ export default function CoachApplicationsPage() {
      ) : filteredApplications.length === 0 ? (
       <div className="p-12 text-center">
        <MessageSquare className="w-12 h-12 text-dark/30 mx-auto mb-4" />
-       <h3 className="text-lg font-semibold text-dark mb-2">No Applications Found</h3>
+       <h3 className="text-lg  text-dark mb-2">No Applications Found</h3>
        <p className="text-dark/60">
         {searchTerm || statusFilter !== 'all'
          ? 'No applications match your current filters.'
@@ -291,7 +291,7 @@ export default function CoachApplicationsPage() {
            <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
              <h3 className="text-lg text-dark">{application.displayName}</h3>
-             <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+             <div className={`px-3 py-1 rounded-full text-xs  ${
               application.status === 'pending' ? 'bg-orange/20 text-orange border border-orange/30' :
               application.status === 'under_review' ? 'bg-sky-blue/20 text-sky-blue border border-sky-blue/30' :
               application.status === 'approved' ? 'bg-green/20 text-green border border-green/30' :
@@ -367,15 +367,15 @@ export default function CoachApplicationsPage() {
           <h3 className="text-lg text-dark mb-4">Basic Information</h3>
           <div className="space-y-3">
            <div>
-            <label className="text-sm font-medium text-dark/60">Sport</label>
-            <p className="text-dark font-medium">{selectedApplication.applicationData.sport}</p>
+            <label className="text-sm  text-dark/60">Sport</label>
+            <p className="text-dark ">{selectedApplication.applicationData.sport}</p>
            </div>
            <div>
-            <label className="text-sm font-medium text-dark/60">Experience</label>
+            <label className="text-sm  text-dark/60">Experience</label>
             <p className="text-dark">{selectedApplication.applicationData.experience}</p>
            </div>
            <div>
-            <label className="text-sm font-medium text-dark/60">Tagline</label>
+            <label className="text-sm  text-dark/60">Tagline</label>
             <p className="text-dark">{selectedApplication.applicationData.tagline}</p>
            </div>
           </div>
@@ -430,7 +430,7 @@ export default function CoachApplicationsPage() {
           <div className="flex gap-4">
            <button
             onClick={() => handleReviewApplication(selectedApplication.id, 'approved', reviewNotes)}
-            className="flex-1 bg-gradient-to-r from-green to-green/90 text-white py-3 rounded-xl font-medium hover:opacity-90 transition-all flex items-center justify-center gap-2"
+            className="flex-1 bg-gradient-to-r from-green to-green/90 text-white py-3 rounded-xl  hover:opacity-90 transition-all flex items-center justify-center gap-2"
            >
             <CheckCircle className="w-5 h-5" />
             Approve Application
@@ -438,7 +438,7 @@ export default function CoachApplicationsPage() {
 
            <button
             onClick={() => handleReviewApplication(selectedApplication.id, 'rejected', reviewNotes)}
-            className="flex-1 bg-gradient-to-r from-orange to-orange/90 text-white py-3 rounded-xl font-medium hover:opacity-90 transition-all flex items-center justify-center gap-2"
+            className="flex-1 bg-gradient-to-r from-orange to-orange/90 text-white py-3 rounded-xl  hover:opacity-90 transition-all flex items-center justify-center gap-2"
            >
             <XCircle className="w-5 h-5" />
             Reject Application

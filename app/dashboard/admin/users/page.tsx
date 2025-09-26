@@ -349,14 +349,14 @@ export default function AdminUserManagement() {
       <table className="w-full">
        <thead className="bg-white/5">
         <tr>
-         <th className="text-left p-4 font-medium">User</th>
-         <th className="text-left p-4 font-medium">Role</th>
-         <th className="text-left p-4 font-medium">Status</th>
-         <th className="text-left p-4 font-medium">Sport/Level</th>
-         <th className="text-left p-4 font-medium">Location</th>
-         <th className="text-left p-4 font-medium">Joined</th>
-         <th className="text-left p-4 font-medium">Last Active</th>
-         <th className="text-center p-4 font-medium">Actions</th>
+         <th className="text-left p-4 ">User</th>
+         <th className="text-left p-4 ">Role</th>
+         <th className="text-left p-4 ">Status</th>
+         <th className="text-left p-4 ">Sport/Level</th>
+         <th className="text-left p-4 ">Location</th>
+         <th className="text-left p-4 ">Joined</th>
+         <th className="text-left p-4 ">Last Active</th>
+         <th className="text-center p-4 ">Actions</th>
         </tr>
        </thead>
        <tbody>
@@ -368,7 +368,7 @@ export default function AdminUserManagement() {
              {getRoleIcon(user.role)}
             </div>
             <div>
-             <div className="font-medium">
+             <div className="">
               {user.displayName || 'No Name'}
              </div>
              <div className="text-sm text-brand-grey">{user.email}</div>
@@ -384,7 +384,7 @@ export default function AdminUserManagement() {
           </td>
           
           <td className="p-4">
-           <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(user.status)}`}>
+           <span className={`px-2 py-1 rounded-full text-xs  ${getStatusColor(user.status)}`}>
             {user.status}
            </span>
           </td>
@@ -438,7 +438,7 @@ export default function AdminUserManagement() {
     {selectedUser && (
      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div className="card max-w-md w-full mx-4">
-       <h3 className="text-xl font-semibold mb-4">User Actions</h3>
+       <h3 className="text-xl  mb-4">User Actions</h3>
        
        <div className="space-y-4">
         <div className="flex items-center gap-3 p-3 rounded-lg bg-white/5">
@@ -460,7 +460,7 @@ export default function AdminUserManagement() {
        <div className="mt-6 space-y-3">
         {/* Role Selector */}
         <div className="space-y-2">
-         <label className="text-sm font-medium text-gray-700">Change Role</label>
+         <label className="text-sm  text-gray-700">Change Role</label>
          <select
           value={selectedUser.role}
           onChange={(e) => {

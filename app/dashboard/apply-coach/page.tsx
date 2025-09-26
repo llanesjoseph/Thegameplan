@@ -149,13 +149,13 @@ export default function ApplyCoachPage() {
      <div className="space-y-3">
       <Link
        href="/dashboard/profile"
-       className="block w-full bg-gradient-to-r from-sky-blue to-black text-white py-3 rounded-xl font-medium"
+       className="block w-full bg-gradient-to-r from-sky-blue to-black text-white py-3 rounded-xl "
       >
        Manage Your Profile
       </Link>
       <Link
        href="/dashboard"
-       className="block w-full border-2 border-dark/20 text-dark py-3 rounded-xl font-medium"
+       className="block w-full border-2 border-dark/20 text-dark py-3 rounded-xl "
       >
        Back to Dashboard
       </Link>
@@ -191,7 +191,7 @@ export default function ApplyCoachPage() {
      </p>
      <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 mb-6 text-left">
       <div className="text-sm text-dark/60 mb-2">Submitted on:</div>
-      <div className="font-medium text-dark">
+      <div className=" text-dark">
        {new Date(existingApplication.submittedAt).toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
@@ -201,7 +201,7 @@ export default function ApplyCoachPage() {
      </div>
      <Link
       href="/dashboard"
-      className="block w-full bg-gradient-to-r from-sky-blue to-black text-white py-3 rounded-xl font-medium"
+      className="block w-full bg-gradient-to-r from-sky-blue to-black text-white py-3 rounded-xl "
      >
       Back to Dashboard
      </Link>
@@ -223,7 +223,7 @@ export default function ApplyCoachPage() {
      </p>
      <Link
       href="/dashboard"
-      className="block w-full bg-gradient-to-r from-sky-blue to-black text-white py-3 rounded-xl font-medium"
+      className="block w-full bg-gradient-to-r from-sky-blue to-black text-white py-3 rounded-xl "
      >
       Back to Dashboard
      </Link>
@@ -243,7 +243,7 @@ export default function ApplyCoachPage() {
      </Link>
      <div>
       <h1 className="text-4xl text-dark font-heading">Apply to Become a Coach</h1>
-      <p className="text-dark/60 font-medium">Share your expertise and help athletes reach their potential</p>
+      <p className="text-dark/60 ">Share your expertise and help athletes reach their potential</p>
      </div>
     </div>
 
@@ -290,7 +290,7 @@ export default function ApplyCoachPage() {
      {currentStep === 1 && (
       <div className="space-y-6">
        <div>
-        <label className="block text-sm font-medium text-dark mb-2">Primary Sport *</label>
+        <label className="block text-sm  text-dark mb-2">Primary Sport *</label>
         <select
          value={applicationData.sport}
          onChange={(e) => setApplicationData(prev => ({ ...prev, sport: e.target.value }))}
@@ -305,7 +305,7 @@ export default function ApplyCoachPage() {
        </div>
 
        <div>
-        <label className="block text-sm font-medium text-dark mb-2">Coaching Tagline *</label>
+        <label className="block text-sm  text-dark mb-2">Coaching Tagline *</label>
         <input
          type="text"
          value={applicationData.tagline}
@@ -319,7 +319,7 @@ export default function ApplyCoachPage() {
        </div>
 
        <div>
-        <label className="block text-sm font-medium text-dark mb-2">Years of Experience *</label>
+        <label className="block text-sm  text-dark mb-2">Years of Experience *</label>
         <input
          type="text"
          value={applicationData.experience}
@@ -331,7 +331,7 @@ export default function ApplyCoachPage() {
        </div>
 
        <div>
-        <label className="block text-sm font-medium text-dark mb-2">Add Specialties</label>
+        <label className="block text-sm  text-dark mb-2">Add Specialties</label>
         <select
          onChange={(e) => {
           const specialty = e.target.value
@@ -388,7 +388,7 @@ export default function ApplyCoachPage() {
      {currentStep === 2 && (
       <div className="space-y-6">
        <div>
-        <label className="block text-sm font-medium text-dark mb-2">Philosophy Title *</label>
+        <label className="block text-sm  text-dark mb-2">Philosophy Title *</label>
         <input
          type="text"
          value={applicationData.philosophy.title}
@@ -403,7 +403,7 @@ export default function ApplyCoachPage() {
        </div>
 
        <div>
-        <label className="block text-sm font-medium text-dark mb-2">Philosophy Description *</label>
+        <label className="block text-sm  text-dark mb-2">Philosophy Description *</label>
         <textarea
          value={applicationData.philosophy.description}
          onChange={(e) => setApplicationData(prev => ({
@@ -419,7 +419,7 @@ export default function ApplyCoachPage() {
 
        {/* Philosophy Points */}
        <div>
-        <label className="block text-sm font-medium text-dark mb-4">Three Key Coaching Points</label>
+        <label className="block text-sm  text-dark mb-4">Three Key Coaching Points</label>
         {applicationData.philosophy.points.map((point, index) => (
          <div key={index} className="mb-4 p-4 bg-white/60 rounded-xl border border-sky-blue/10">
           <div className="flex items-center gap-3 mb-3">
@@ -466,7 +466,7 @@ export default function ApplyCoachPage() {
       <button
        onClick={() => setCurrentStep(prev => Math.max(1, prev - 1))}
        disabled={currentStep === 1}
-       className="px-6 py-3 border-2 border-dark/20 bg-white/80 text-dark rounded-xl font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white transition-all"
+       className="px-6 py-3 border-2 border-dark/20 bg-white/80 text-dark rounded-xl  disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white transition-all"
       >
        Previous
       </button>
@@ -474,7 +474,7 @@ export default function ApplyCoachPage() {
       {currentStep < 4 ? (
        <button
         onClick={() => setCurrentStep(prev => prev + 1)}
-        className="px-6 py-3 bg-gradient-to-r from-sky-blue to-black text-white rounded-xl font-medium hover:opacity-90 transition-all"
+        className="px-6 py-3 bg-gradient-to-r from-sky-blue to-black text-white rounded-xl  hover:opacity-90 transition-all"
        >
         Next Step
        </button>
@@ -482,7 +482,7 @@ export default function ApplyCoachPage() {
        <button
         onClick={handleSubmitApplication}
         disabled={isSubmitting}
-        className="px-8 py-3 bg-gradient-to-r from-green to-green/90 text-white rounded-xl font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 transition-all flex items-center gap-2"
+        className="px-8 py-3 bg-gradient-to-r from-green to-green/90 text-white rounded-xl  disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 transition-all flex items-center gap-2"
        >
         {isSubmitting ? (
          <>

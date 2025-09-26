@@ -14,11 +14,11 @@ export default function TermsOfService() {
 
      <div className="prose prose-lg max-w-none">
       <p className="text-gray-600 mb-8">
-       <strong>Last Updated:</strong> {new Date().toLocaleDateString()}
+       {Last Updated:} {new Date().toLocaleDateString()}
       </p>
 
       <section className="mb-8">
-       <h2 className="text-2xl font-semibold text-gray-900 mb-4">1. Acceptance of Terms</h2>
+       <h2 className="text-2xl  text-gray-900 mb-4">1. Acceptance of Terms</h2>
        <p className="text-gray-700 mb-4">
         By accessing or using GamePlan ("the Service"), you agree to be bound by these Terms of Service ("Terms").
         If you do not agree to these Terms, please do not use the Service.
@@ -26,7 +26,7 @@ export default function TermsOfService() {
       </section>
 
       <section className="mb-8">
-       <h2 className="text-2xl font-semibold text-gray-900 mb-4">2. Description of Service</h2>
+       <h2 className="text-2xl  text-gray-900 mb-4">2. Description of Service</h2>
        <p className="text-gray-700 mb-4">
         GamePlan is an AI-powered sports coaching platform that provides training advice, mental performance guidance,
         and strategic insights for athletes. The Service includes AI-generated coaching content, training materials,
@@ -35,12 +35,12 @@ export default function TermsOfService() {
       </section>
 
       <section className="mb-8">
-       <h2 className="text-2xl font-semibold text-gray-900 mb-4">3. AI-Generated Content Disclaimer</h2>
+       <h2 className="text-2xl  text-gray-900 mb-4">3. AI-Generated Content Disclaimer</h2>
        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
         <div className="flex">
          <div className="ml-3">
           <p className="text-sm text-yellow-700">
-           <strong>Important:</strong> Our AI coaching advice is for informational and educational purposes only.
+           {Important:} Our AI coaching advice is for informational and educational purposes only.
            It should not replace professional coaching, medical advice, or personal training guidance.
           </p>
          </div>
@@ -55,12 +55,12 @@ export default function TermsOfService() {
       </section>
 
       <section className="mb-8">
-       <h2 className="text-2xl font-semibold text-gray-900 mb-4">4. Medical and Safety Disclaimer</h2>
+       <h2 className="text-2xl  text-gray-900 mb-4">4. Medical and Safety Disclaimer</h2>
        <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-4">
         <div className="flex">
          <div className="ml-3">
           <p className="text-sm text-red-700">
-           <strong>Medical Disclaimer:</strong> GamePlan does not provide medical advice, diagnosis, or treatment.
+           {Medical Disclaimer:} GamePlan does not provide medical advice, diagnosis, or treatment.
            For any injuries, health concerns, or medical conditions, consult with qualified healthcare professionals.
           </p>
          </div>
@@ -75,7 +75,7 @@ export default function TermsOfService() {
       </section>
 
       <section className="mb-8">
-       <h2 className="text-2xl font-semibold text-gray-900 mb-4">5. User Responsibilities</h2>
+       <h2 className="text-2xl  text-gray-900 mb-4">5. User Responsibilities</h2>
        <p className="text-gray-700 mb-4">You agree to:</p>
        <ul className="list-disc list-inside text-gray-700 space-y-2">
         <li>Use the Service only for lawful purposes</li>
@@ -88,7 +88,7 @@ export default function TermsOfService() {
       </section>
 
       <section className="mb-8">
-       <h2 className="text-2xl font-semibold text-gray-900 mb-4">6. Privacy and Data</h2>
+       <h2 className="text-2xl  text-gray-900 mb-4">6. Privacy and Data</h2>
        <p className="text-gray-700 mb-4">
         Your privacy is important to us. Our data practices are governed by our Privacy Policy,
         which is incorporated into these Terms by reference.
@@ -102,7 +102,7 @@ export default function TermsOfService() {
       </section>
 
       <section className="mb-8">
-       <h2 className="text-2xl font-semibold text-gray-900 mb-4">7. Subscription and Payment</h2>
+       <h2 className="text-2xl  text-gray-900 mb-4">7. Subscription and Payment</h2>
        <p className="text-gray-700 mb-4">
         If you subscribe to premium features:
        </p>
@@ -115,7 +115,7 @@ export default function TermsOfService() {
       </section>
 
       <section className="mb-8">
-       <h2 className="text-2xl font-semibold text-gray-900 mb-4">8. Limitation of Liability</h2>
+       <h2 className="text-2xl  text-gray-900 mb-4">8. Limitation of Liability</h2>
        <p className="text-gray-700 mb-4">
         To the maximum extent permitted by law:
        </p>
@@ -128,7 +128,7 @@ export default function TermsOfService() {
       </section>
 
       <section className="mb-8">
-       <h2 className="text-2xl font-semibold text-gray-900 mb-4">9. Intellectual Property</h2>
+       <h2 className="text-2xl  text-gray-900 mb-4">9. Intellectual Property</h2>
        <p className="text-gray-700 mb-4">
         The Service and its content are protected by intellectual property laws:
        </p>
@@ -141,7 +141,7 @@ export default function TermsOfService() {
       </section>
 
       <section className="mb-8">
-       <h2 className="text-2xl font-semibold text-gray-900 mb-4">10. Termination</h2>
+       <h2 className="text-2xl  text-gray-900 mb-4">10. Termination</h2>
        <p className="text-gray-700 mb-4">
         We may suspend or terminate your access to the Service:
        </p>
@@ -154,7 +154,7 @@ export default function TermsOfService() {
       </section>
 
       <section className="mb-8">
-       <h2 className="text-2xl font-semibold text-gray-900 mb-4">11. Changes to Terms</h2>
+       <h2 className="text-2xl  text-gray-900 mb-4">11. Changes to Terms</h2>
        <p className="text-gray-700 mb-4">
         We may update these Terms from time to time. We will notify you of significant changes
         through the Service or by email. Continued use after changes constitutes acceptance of the new Terms.
@@ -162,21 +162,21 @@ export default function TermsOfService() {
       </section>
 
       <section className="mb-8">
-       <h2 className="text-2xl font-semibold text-gray-900 mb-4">12. Contact Information</h2>
+       <h2 className="text-2xl  text-gray-900 mb-4">12. Contact Information</h2>
        <p className="text-gray-700 mb-4">
         If you have questions about these Terms, please contact us at:
        </p>
        <div className="bg-gray-50 p-4 rounded-lg">
         <p className="text-gray-700">
-         <strong>Email:</strong> legal@gameplan.dev<br />
-         <strong>Address:</strong> [Your Business Address]<br />
-         <strong>Phone:</strong> [Your Contact Number]
+         {Email:} legal@gameplan.dev<br />
+         {Address:} [Your Business Address]<br />
+         {Phone:} [Your Contact Number]
         </p>
        </div>
       </section>
 
       <section className="mb-8">
-       <h2 className="text-2xl font-semibold text-gray-900 mb-4">13. Governing Law</h2>
+       <h2 className="text-2xl  text-gray-900 mb-4">13. Governing Law</h2>
        <p className="text-gray-700 mb-4">
         These Terms are governed by the laws of [Your Jurisdiction] without regard to conflict of law principles.
         Any disputes will be resolved in the courts of [Your Jurisdiction].

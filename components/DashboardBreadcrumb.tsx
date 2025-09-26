@@ -57,7 +57,7 @@ export function DashboardBreadcrumb() {
     <div key={crumb.path} className="flex items-center gap-2">
      {index > 0 && <ChevronRight className="w-4 h-4 text-gray-300" />}
      {crumb.isLast ? (
-      <span className="font-medium text-gray-900">{crumb.title}</span>
+      <span className=" text-gray-900">{crumb.title}</span>
      ) : (
       <Link 
        href={crumb.path} 

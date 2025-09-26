@@ -91,15 +91,15 @@ const CTA = () => {
     <div className="grid md:grid-cols-3 gap-6 mt-16 max-w-3xl mx-auto">
      <div className="text-center">
       <div className="text-2xl gradient-text mb-2">AI-Powered</div>
-      <div className="text-[var(--mid-gray)] font-medium">Performance Analysis</div>
+      <div className="text-[var(--mid-gray)] ">Performance Analysis</div>
      </div>
      <div className="text-center">
       <div className="text-2xl gradient-text mb-2">Expert</div>
-      <div className="text-[var(--mid-gray)] font-medium">Coaching Network</div>
+      <div className="text-[var(--mid-gray)] ">Coaching Network</div>
      </div>
      <div className="text-center">
       <div className="text-2xl gradient-text mb-2">Personalized</div>
-      <div className="text-[var(--mid-gray)] font-medium">Training Paths</div>
+      <div className="text-[var(--mid-gray)] ">Training Paths</div>
      </div>
     </div>
    </div>

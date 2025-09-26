@@ -208,7 +208,7 @@ export default function AdminAnalytics() {
        <button
         key={range}
         onClick={() => setTimeRange(range)}
-        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+        className={`px-4 py-2 rounded-lg text-sm  transition-colors ${
          timeRange === range
           ? 'bg-blue-600 text-white'
           : 'bg-white/10 text-brand-grey hover:bg-white/20'
@@ -311,36 +311,36 @@ export default function AdminAnalytics() {
 
     {/* Top Performing Content */}
     <div className="mb-12">
-     <h2 className="text-2xl font-semibold mb-6">Top Performing Content</h2>
+     <h2 className="text-2xl  mb-6">Top Performing Content</h2>
      <div className="card overflow-hidden">
       <div className="overflow-x-auto">
        <table className="w-full">
         <thead className="bg-white/5">
          <tr>
-          <th className="text-left p-4 font-medium">Content</th>
-          <th className="text-left p-4 font-medium">Creator</th>
-          <th className="text-center p-4 font-medium">Views</th>
-          <th className="text-center p-4 font-medium">Watch Time</th>
-          <th className="text-center p-4 font-medium">Completion</th>
+          <th className="text-left p-4 ">Content</th>
+          <th className="text-left p-4 ">Creator</th>
+          <th className="text-center p-4 ">Views</th>
+          <th className="text-center p-4 ">Watch Time</th>
+          <th className="text-center p-4 ">Completion</th>
          </tr>
         </thead>
         <tbody>
          {topContent.map((content, index) => (
           <tr key={content.id} className="border-t border-white/10">
            <td className="p-4">
-            <div className="font-medium">{content.title}</div>
+            <div className="">{content.title}</div>
            </td>
            <td className="p-4">
             <div className="text-sm">{content.creatorName}</div>
            </td>
            <td className="p-4 text-center">
-            <div className="font-medium">{content.views.toLocaleString()}</div>
+            <div className="">{content.views.toLocaleString()}</div>
            </td>
            <td className="p-4 text-center">
-            <div className="font-medium">{content.watchTime.toFixed(1)}h</div>
+            <div className="">{content.watchTime.toFixed(1)}h</div>
            </td>
            <td className="p-4 text-center">
-            <div className="font-medium">{content.completionRate}%</div>
+            <div className="">{content.completionRate}%</div>
            </td>
           </tr>
          ))}
@@ -352,7 +352,7 @@ export default function AdminAnalytics() {
 
     {/* Top Creators */}
     <div className="mb-12">
-     <h2 className="text-2xl font-semibold mb-6">Top Creators</h2>
+     <h2 className="text-2xl  mb-6">Top Creators</h2>
      <div className="grid md:grid-cols-3 gap-6">
       {topCreators.map((creator) => (
        <div key={creator.uid} className="card">
@@ -361,7 +361,7 @@ export default function AdminAnalytics() {
           <Star className="w-6 h-6 text-purple-600" />
          </div>
          <div>
-          <h3 className="font-semibold">{creator.name}</h3>
+          <h3 className="">{creator.name}</h3>
           <div className="text-sm text-brand-grey">{creator.followers} followers</div>
          </div>
         </div>
@@ -369,15 +369,15 @@ export default function AdminAnalytics() {
         <div className="space-y-3">
          <div className="flex justify-between items-center">
           <span className="text-sm text-brand-grey">Content</span>
-          <span className="font-medium">{creator.contentCount}</span>
+          <span className="">{creator.contentCount}</span>
          </div>
          <div className="flex justify-between items-center">
           <span className="text-sm text-brand-grey">Total Views</span>
-          <span className="font-medium">{creator.totalViews.toLocaleString()}</span>
+          <span className="">{creator.totalViews.toLocaleString()}</span>
          </div>
          <div className="flex justify-between items-center">
           <span className="text-sm text-brand-grey">Rating</span>
-          <span className="font-medium">{creator.averageRating}/5.0</span>
+          <span className="">{creator.averageRating}/5.0</span>
          </div>
         </div>
        </div>
@@ -387,46 +387,46 @@ export default function AdminAnalytics() {
 
     {/* Platform Insights */}
     <div>
-     <h2 className="text-2xl font-semibold mb-6">Platform Insights</h2>
+     <h2 className="text-2xl  mb-6">Platform Insights</h2>
      <div className="grid md:grid-cols-2 gap-6">
       <div className="card">
-       <h3 className="font-semibold mb-4 flex items-center gap-2">
+       <h3 className=" mb-4 flex items-center gap-2">
         <TrendingUp className="w-5 h-5 text-green-400" />
         Growth Trends
        </h3>
        <div className="space-y-4">
         <div className="flex justify-between items-center">
          <span className="text-brand-grey">User Growth</span>
-         <span className="font-medium text-green-400">+{systemStats.monthlyGrowth}%</span>
+         <span className=" text-green-400">+{systemStats.monthlyGrowth}%</span>
         </div>
         <div className="flex justify-between items-center">
          <span className="text-brand-grey">Content Growth</span>
-         <span className="font-medium text-blue-400">+25%</span>
+         <span className=" text-blue-400">+25%</span>
         </div>
         <div className="flex justify-between items-center">
          <span className="text-brand-grey">Engagement Rate</span>
-         <span className="font-medium text-purple-400">78%</span>
+         <span className=" text-purple-400">78%</span>
         </div>
        </div>
       </div>
 
       <div className="card">
-       <h3 className="font-semibold mb-4 flex items-center gap-2">
+       <h3 className=" mb-4 flex items-center gap-2">
         <Target className="w-5 h-5 text-blue-400" />
         Performance Metrics
        </h3>
        <div className="space-y-4">
         <div className="flex justify-between items-center">
          <span className="text-brand-grey">Avg Session Duration</span>
-         <span className="font-medium text-blue-400">{systemStats.averageWatchTime.toFixed(1)}h</span>
+         <span className=" text-blue-400">{systemStats.averageWatchTime.toFixed(1)}h</span>
         </div>
         <div className="flex justify-between items-center">
          <span className="text-brand-grey">Content Completion</span>
-         <span className="font-medium text-green-400">85%</span>
+         <span className=" text-green-400">85%</span>
         </div>
         <div className="flex justify-between items-center">
          <span className="text-brand-grey">User Retention</span>
-         <span className="font-medium text-purple-400">72%</span>
+         <span className=" text-purple-400">72%</span>
         </div>
        </div>
       </div>

@@ -56,7 +56,7 @@ export default function ProvisionPage() {
    <h1 className="text-3xl mb-8">Superadmin Auto-Provisioning</h1>
 
    <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
-    <h2 className="text-xl font-semibold text-blue-800 mb-4">🤖 Automatic Provisioning</h2>
+    <h2 className="text-xl  text-blue-800 mb-4">🤖 Automatic Provisioning</h2>
     <p className="text-blue-700 mb-4">
      When any of these users sign in, they will automatically be provisioned as superadmins:
     </p>
@@ -66,7 +66,7 @@ export default function ProvisionPage() {
      ))}
     </ul>
     <div className="mt-4 p-3 bg-blue-100 rounded border">
-     <strong>How it works:</strong> The system detects when these specific emails sign in and automatically:
+     {How it works:} The system detects when these specific emails sign in and automatically:
      <ul className="mt-2 list-disc list-inside text-sm">
       <li>Creates superadmin user record with all permissions</li>
       <li>Sets up complete user profile</li>
@@ -77,7 +77,7 @@ export default function ProvisionPage() {
    </div>
 
    <div className="bg-white border border-gray-200 rounded-lg p-6">
-    <h2 className="text-xl font-semibold mb-4">🔧 Manual Provisioning</h2>
+    <h2 className="text-xl  mb-4">🔧 Manual Provisioning</h2>
     <p className="text-gray-600 mb-4">
      If automatic provisioning fails, you can manually trigger it:
     </p>
@@ -105,12 +105,12 @@ export default function ProvisionPage() {
    </div>
 
    <div className="mt-8 bg-gray-50 border border-gray-200 rounded-lg p-6">
-    <h2 className="text-xl font-semibold mb-4">📋 Current Status</h2>
+    <h2 className="text-xl  mb-4">📋 Current Status</h2>
     <div className="text-sm text-gray-600">
-     <p><strong>Your Email:</strong> {user?.email}</p>
-     <p><strong>Your Role:</strong> {role}</p>
-     <p><strong>Auto-Provisioning:</strong> Active</p>
-     <p><strong>Last Updated:</strong> {new Date().toLocaleString()}</p>
+     <p>{Your Email:} {user?.email}</p>
+     <p>{Your Role:} {role}</p>
+     <p>{Auto-Provisioning:} Active</p>
+     <p>{Last Updated:} {new Date().toLocaleString()}</p>
     </div>
    </div>
   </div>

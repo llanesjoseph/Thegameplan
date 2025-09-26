@@ -241,7 +241,7 @@ export default function AthleteManagementPage() {
     <div className="flex gap-1 mb-8 bg-white/80 rounded-xl p-1 shadow-lg border border-white/50">
      <button
       onClick={() => setActiveTab('overview')}
-      className={`flex-1 px-6 py-3 rounded-lg font-medium transition-colors ${
+      className={`flex-1 px-6 py-3 rounded-lg  transition-colors ${
        activeTab === 'overview'
         ? 'text-white shadow-lg'
         : 'hover:opacity-80'
@@ -253,7 +253,7 @@ export default function AthleteManagementPage() {
      </button>
      <button
       onClick={() => setActiveTab('athletes')}
-      className={`flex-1 px-6 py-3 rounded-lg font-medium transition-colors ${
+      className={`flex-1 px-6 py-3 rounded-lg  transition-colors ${
        activeTab === 'athletes'
         ? 'text-white shadow-lg'
         : 'hover:opacity-80'
@@ -265,7 +265,7 @@ export default function AthleteManagementPage() {
      </button>
      <button
       onClick={() => setActiveTab('analytics')}
-      className={`flex-1 px-6 py-3 rounded-lg font-medium transition-colors ${
+      className={`flex-1 px-6 py-3 rounded-lg  transition-colors ${
        activeTab === 'analytics'
         ? 'text-white shadow-lg'
         : 'hover:opacity-80'
@@ -285,8 +285,8 @@ export default function AthleteManagementPage() {
        <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
         <div className="flex items-center justify-between">
          <div>
-          <p className="text-sm font-medium text-gray-600">Total Athletes</p>
-          <p className="text-3xl font-bold text-gray-900">{stats.totalAthletes}</p>
+          <p className="text-sm  text-gray-600">Total Athletes</p>
+          <p className="text-3xl  text-gray-900">{stats.totalAthletes}</p>
          </div>
          <div className="p-3 bg-blue-100 rounded-full">
           <Users className="w-6 h-6 text-blue-600" />
@@ -297,8 +297,8 @@ export default function AthleteManagementPage() {
        <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
         <div className="flex items-center justify-between">
          <div>
-          <p className="text-sm font-medium text-gray-600">Active Sessions</p>
-          <p className="text-3xl font-bold text-gray-900">{stats.activeSessions}</p>
+          <p className="text-sm  text-gray-600">Active Sessions</p>
+          <p className="text-3xl  text-gray-900">{stats.activeSessions}</p>
          </div>
          <div className="p-3 bg-green-100 rounded-full">
           <Calendar className="w-6 h-6 text-green-600" />
@@ -309,8 +309,8 @@ export default function AthleteManagementPage() {
        <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
         <div className="flex items-center justify-between">
          <div>
-          <p className="text-sm font-medium text-gray-600">Avg Progress</p>
-          <p className="text-3xl font-bold text-gray-900">{stats.avgProgressScore}%</p>
+          <p className="text-sm  text-gray-600">Avg Progress</p>
+          <p className="text-3xl  text-gray-900">{stats.avgProgressScore}%</p>
          </div>
          <div className="p-3 bg-purple-100 rounded-full">
           <TrendingUp className="w-6 h-6 text-purple-600" />
@@ -321,8 +321,8 @@ export default function AthleteManagementPage() {
        <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
         <div className="flex items-center justify-between">
          <div>
-          <p className="text-sm font-medium text-gray-600">Upcoming Sessions</p>
-          <p className="text-3xl font-bold text-gray-900">{stats.upcomingSessionsTotal}</p>
+          <p className="text-sm  text-gray-600">Upcoming Sessions</p>
+          <p className="text-3xl  text-gray-900">{stats.upcomingSessionsTotal}</p>
          </div>
          <div className="p-3 bg-orange-100 rounded-full">
           <Clock className="w-6 h-6 text-orange-600" />
@@ -335,7 +335,7 @@ export default function AthleteManagementPage() {
       <div className="grid lg:grid-cols-2 gap-8">
        {/* Recent Activity */}
        <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
-        <h3 className="text-lg font-semibold mb-4 flex items-center gap-2" style={{ color: '#000000' }}>
+        <h3 className="text-lg  mb-4 flex items-center gap-2" style={{ color: '#000000' }}>
          <Activity className="w-5 h-5" />
          Recent Activity
         </h3>
@@ -344,7 +344,7 @@ export default function AthleteManagementPage() {
           <div key={athlete.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
            <img src={athlete.avatar} alt={athlete.name} className="w-10 h-10 rounded-full" />
            <div className="flex-1">
-            <p className="font-medium text-gray-900">{athlete.name}</p>
+            <p className=" text-gray-900">{athlete.name}</p>
             <p className="text-sm text-gray-600">{athlete.recentActivities[0]?.description}</p>
            </div>
            <span className="text-xs text-gray-500">{athlete.recentActivities[0]?.date}</span>
@@ -355,7 +355,7 @@ export default function AthleteManagementPage() {
 
        {/* Top Performers */}
        <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
-        <h3 className="text-lg font-semibold mb-4 flex items-center gap-2" style={{ color: '#000000' }}>
+        <h3 className="text-lg  mb-4 flex items-center gap-2" style={{ color: '#000000' }}>
          <Award className="w-5 h-5" />
          Top Performers
         </h3>
@@ -365,15 +365,15 @@ export default function AthleteManagementPage() {
           .slice(0, 5)
           .map((athlete, index) => (
            <div key={athlete.id} className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold">
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white ">
              {index + 1}
             </div>
             <img src={athlete.avatar} alt={athlete.name} className="w-10 h-10 rounded-full" />
             <div className="flex-1">
-             <p className="font-medium text-gray-900">{athlete.name}</p>
+             <p className=" text-gray-900">{athlete.name}</p>
              <p className="text-sm text-gray-600">{athlete.sport} • {athlete.level}</p>
             </div>
-            <div className={`px-2 py-1 rounded-full text-xs font-medium ${getProgressColor(athlete.progressScore)}`}>
+            <div className={`px-2 py-1 rounded-full text-xs  ${getProgressColor(athlete.progressScore)}`}>
              {athlete.progressScore}%
             </div>
            </div>
@@ -441,11 +441,11 @@ export default function AthleteManagementPage() {
           <div className="flex items-center gap-3">
            <img src={athlete.avatar} alt={athlete.name} className="w-12 h-12 rounded-full border-2 border-gray-200" />
            <div>
-            <h3 className="font-semibold text-gray-900">{athlete.name}</h3>
+            <h3 className=" text-gray-900">{athlete.name}</h3>
             <p className="text-sm text-gray-600">{athlete.sport} • {athlete.position}</p>
            </div>
           </div>
-          <div className={`px-2 py-1 rounded-full text-xs font-medium ${getLevelBadgeColor(athlete.level)}`}>
+          <div className={`px-2 py-1 rounded-full text-xs  ${getLevelBadgeColor(athlete.level)}`}>
            {athlete.level}
           </div>
          </div>
@@ -453,19 +453,19 @@ export default function AthleteManagementPage() {
          <div className="space-y-3 mb-4">
           <div className="flex justify-between items-center">
            <span className="text-sm text-gray-600">Progress Score</span>
-           <div className={`px-2 py-1 rounded-full text-xs font-medium ${getProgressColor(athlete.progressScore)}`}>
+           <div className={`px-2 py-1 rounded-full text-xs  ${getProgressColor(athlete.progressScore)}`}>
             {athlete.progressScore}%
            </div>
           </div>
 
           <div className="flex justify-between items-center">
            <span className="text-sm text-gray-600">Total Sessions</span>
-           <span className="text-sm font-medium text-gray-900">{athlete.totalSessions}</span>
+           <span className="text-sm  text-gray-900">{athlete.totalSessions}</span>
           </div>
 
           <div className="flex justify-between items-center">
            <span className="text-sm text-gray-600">Upcoming</span>
-           <span className="text-sm font-medium text-gray-900">{athlete.upcomingSessions} sessions</span>
+           <span className="text-sm  text-gray-900">{athlete.upcomingSessions} sessions</span>
           </div>
          </div>
 
@@ -488,7 +488,7 @@ export default function AthleteManagementPage() {
          <div className="flex gap-2">
           <button
            onClick={() => handleAthleteClick(athlete)}
-           className="flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium flex items-center justify-center gap-1"
+           className="flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm  flex items-center justify-center gap-1"
           >
            <Eye className="w-4 h-4" />
            View Details
@@ -504,7 +504,7 @@ export default function AthleteManagementPage() {
       {filteredAthletes.length === 0 && (
        <div className="text-center py-12">
         <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-        <h3 className="text-lg font-medium text-gray-900 mb-2">No athletes found</h3>
+        <h3 className="text-lg  text-gray-900 mb-2">No athletes found</h3>
         <p className="text-gray-600">Try adjusting your search criteria</p>
        </div>
       )}
@@ -517,7 +517,7 @@ export default function AthleteManagementPage() {
       <div className="grid lg:grid-cols-2 gap-8">
        {/* Performance Distribution */}
        <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
-        <h3 className="text-lg font-semibold mb-4">Performance Distribution</h3>
+        <h3 className="text-lg  mb-4">Performance Distribution</h3>
         <div className="space-y-4">
          <div className="flex justify-between items-center">
           <span className="text-sm">Advanced (90%+)</span>
@@ -525,7 +525,7 @@ export default function AthleteManagementPage() {
            <div className="w-32 bg-gray-200 rounded-full h-2">
             <div className="bg-green-500 h-2 rounded-full" style={{ width: '25%' }}></div>
            </div>
-           <span className="text-sm font-medium">25%</span>
+           <span className="text-sm ">25%</span>
           </div>
          </div>
          <div className="flex justify-between items-center">
@@ -534,7 +534,7 @@ export default function AthleteManagementPage() {
            <div className="w-32 bg-gray-200 rounded-full h-2">
             <div className="bg-blue-500 h-2 rounded-full" style={{ width: '50%' }}></div>
            </div>
-           <span className="text-sm font-medium">50%</span>
+           <span className="text-sm ">50%</span>
           </div>
          </div>
          <div className="flex justify-between items-center">
@@ -543,7 +543,7 @@ export default function AthleteManagementPage() {
            <div className="w-32 bg-gray-200 rounded-full h-2">
             <div className="bg-yellow-500 h-2 rounded-full" style={{ width: '25%' }}></div>
            </div>
-           <span className="text-sm font-medium">25%</span>
+           <span className="text-sm ">25%</span>
           </div>
          </div>
         </div>
@@ -551,7 +551,7 @@ export default function AthleteManagementPage() {
 
        {/* Sport Distribution */}
        <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
-        <h3 className="text-lg font-semibold mb-4">Athletes by Sport</h3>
+        <h3 className="text-lg  mb-4">Athletes by Sport</h3>
         <div className="space-y-4">
          <div className="flex justify-between items-center">
           <span className="text-sm">Soccer</span>
@@ -559,7 +559,7 @@ export default function AthleteManagementPage() {
            <div className="w-32 bg-gray-200 rounded-full h-2">
             <div className="bg-purple-500 h-2 rounded-full" style={{ width: '50%' }}></div>
            </div>
-           <span className="text-sm font-medium">50%</span>
+           <span className="text-sm ">50%</span>
           </div>
          </div>
          <div className="flex justify-between items-center">
@@ -568,7 +568,7 @@ export default function AthleteManagementPage() {
            <div className="w-32 bg-gray-200 rounded-full h-2">
             <div className="bg-orange-500 h-2 rounded-full" style={{ width: '50%' }}></div>
            </div>
-           <span className="text-sm font-medium">50%</span>
+           <span className="text-sm ">50%</span>
           </div>
          </div>
         </div>
@@ -577,7 +577,7 @@ export default function AthleteManagementPage() {
 
       {/* Progress Trends */}
       <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
-       <h3 className="text-lg font-semibold mb-4">Monthly Progress Trends</h3>
+       <h3 className="text-lg  mb-4">Monthly Progress Trends</h3>
        <div className="h-64 flex items-end gap-4 justify-center">
         {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'].map((month, index) => (
          <div key={month} className="flex flex-col items-center gap-2">
@@ -602,7 +602,7 @@ export default function AthleteManagementPage() {
          <div className="flex items-center gap-4">
           <img src={selectedAthlete.avatar} alt={selectedAthlete.name} className="w-16 h-16 rounded-full" />
           <div>
-           <h2 className="text-2xl font-bold">{selectedAthlete.name}</h2>
+           <h2 className="text-2xl ">{selectedAthlete.name}</h2>
            <p className="text-gray-600">{selectedAthlete.sport} • {selectedAthlete.position} • {selectedAthlete.level}</p>
           </div>
          </div>
@@ -618,12 +618,12 @@ export default function AthleteManagementPage() {
        <div className="p-6 space-y-6">
         {/* Performance Metrics */}
         <div>
-         <h3 className="text-lg font-semibold mb-4">Performance Metrics</h3>
+         <h3 className="text-lg  mb-4">Performance Metrics</h3>
          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {Object.entries(selectedAthlete.performance).map(([key, value]) => (
            <div key={key} className="bg-gray-50 p-4 rounded-lg">
             <p className="text-sm text-gray-600 capitalize">{key}</p>
-            <p className="text-2xl font-bold">{value as number}%</p>
+            <p className="text-2xl ">{value as number}%</p>
            </div>
           ))}
          </div>
@@ -631,7 +631,7 @@ export default function AthleteManagementPage() {
 
         {/* Current Goals */}
         <div>
-         <h3 className="text-lg font-semibold mb-4">Current Goals</h3>
+         <h3 className="text-lg  mb-4">Current Goals</h3>
          <div className="space-y-2">
           {selectedAthlete.currentGoals.map((goal: string, index: number) => (
            <div key={index} className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
@@ -644,13 +644,13 @@ export default function AthleteManagementPage() {
 
         {/* Recent Activity */}
         <div>
-         <h3 className="text-lg font-semibold mb-4">Recent Activity</h3>
+         <h3 className="text-lg  mb-4">Recent Activity</h3>
          <div className="space-y-3">
           {selectedAthlete.recentActivities.map((activity: any, index: number) => (
            <div key={index} className="flex items-center gap-3 p-3 border rounded-lg">
             <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
             <div className="flex-1">
-             <p className="font-medium">{activity.description}</p>
+             <p className="">{activity.description}</p>
              <p className="text-sm text-gray-600">{activity.date}</p>
             </div>
            </div>

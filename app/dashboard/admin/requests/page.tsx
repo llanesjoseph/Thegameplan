@@ -232,7 +232,7 @@ export default function AdminRequestsPage() {
     <div className="flex gap-4 items-center">
      <div className="flex items-center gap-2">
       <Filter className="h-4 w-4" />
-      <span className="text-sm font-medium">Filters:</span>
+      <span className="text-sm ">Filters:</span>
      </div>
      <select
       value={filterType}
@@ -274,7 +274,7 @@ export default function AdminRequestsPage() {
        <Card>
         <CardContent className="py-12 text-center">
          <MessageSquare className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-         <h3 className="text-lg font-medium mb-2">No Requests</h3>
+         <h3 className="text-lg  mb-2">No Requests</h3>
          <p className="text-gray-600">No support requests match your current filters.</p>
         </CardContent>
        </Card>
@@ -312,20 +312,20 @@ export default function AdminRequestsPage() {
           <CardContent className="border-t">
            <div className="space-y-4">
             <div>
-             <h4 className="font-medium mb-2">Description</h4>
+             <h4 className=" mb-2">Description</h4>
              <p className="text-gray-600 text-sm bg-gray-50 p-3 rounded">{request.description}</p>
             </div>
 
             {request.adminResponse && (
              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h4 className="font-medium mb-2 text-blue-900">Previous Admin Response</h4>
+              <h4 className=" mb-2 text-blue-900">Previous Admin Response</h4>
               <p className="text-blue-800 text-sm">{request.adminResponse}</p>
              </div>
             )}
 
             <div className="space-y-4">
              <div>
-              <label className="block text-sm font-medium mb-2">Admin Response</label>
+              <label className="block text-sm  mb-2">Admin Response</label>
               <Textarea
                value={adminResponse}
                onChange={(e) => setAdminResponse(e.target.value)}
@@ -335,7 +335,7 @@ export default function AdminRequestsPage() {
              </div>
 
              <div>
-              <label className="block text-sm font-medium mb-2">Update Status</label>
+              <label className="block text-sm  mb-2">Update Status</label>
               <select
                value={newStatus}
                onChange={(e) => setNewStatus(e.target.value)}
@@ -418,20 +418,20 @@ export default function AdminRequestsPage() {
           <CardContent className="border-t">
            <div className="space-y-4">
             <div>
-             <h4 className="font-medium mb-2">Description</h4>
+             <h4 className=" mb-2">Description</h4>
              <p className="text-gray-600 text-sm bg-gray-50 p-3 rounded">{request.description}</p>
             </div>
 
             {request.adminResponse && (
              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h4 className="font-medium mb-2 text-blue-900">Previous Admin Response</h4>
+              <h4 className=" mb-2 text-blue-900">Previous Admin Response</h4>
               <p className="text-blue-800 text-sm">{request.adminResponse}</p>
              </div>
             )}
 
             <div className="space-y-4">
              <div>
-              <label className="block text-sm font-medium mb-2">Admin Response</label>
+              <label className="block text-sm  mb-2">Admin Response</label>
               <Textarea
                value={adminResponse}
                onChange={(e) => setAdminResponse(e.target.value)}
@@ -441,7 +441,7 @@ export default function AdminRequestsPage() {
              </div>
 
              <div>
-              <label className="block text-sm font-medium mb-2">Update Status</label>
+              <label className="block text-sm  mb-2">Update Status</label>
               <select
                value={newStatus}
                onChange={(e) => setNewStatus(e.target.value)}

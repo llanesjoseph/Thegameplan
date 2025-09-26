@@ -64,7 +64,7 @@ const ClarityInput: React.FC<ClarityInputProps> = ({
  return (
   <div className={containerClasses}>
    {label && (
-    <label htmlFor={inputId} className="block text-sm font-semibold text-gray-800">
+    <label htmlFor={inputId} className="block text-sm  text-gray-800">
      {label}
      {required && <span className="text-red-600 ml-1">*</span>}
     </label>

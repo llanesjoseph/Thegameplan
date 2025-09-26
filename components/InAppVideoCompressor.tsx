@@ -82,7 +82,7 @@ export default function InAppVideoCompressor({
     <div className="bg-white rounded-xl max-w-md w-full p-6">
      <div className="flex items-center gap-3 mb-4">
       <AlertCircle className="w-6 h-6 text-red-500" />
-      <h2 className="text-xl font-semibold">Compression Not Supported</h2>
+      <h2 className="text-xl ">Compression Not Supported</h2>
      </div>
      <p className="text-gray-600 mb-4">
       Your browser doesn't support video compression. Please use a modern browser like Chrome, Firefox, or Safari.
@@ -105,7 +105,7 @@ export default function InAppVideoCompressor({
     <div className="p-6 border-b border-gray-200">
      <div className="flex items-center justify-between">
       <div>
-       <h2 className="text-xl font-semibold text-gray-900">In-App Video Compression</h2>
+       <h2 className="text-xl  text-gray-900">In-App Video Compression</h2>
        <p className="text-gray-600 text-sm mt-1">
         Compress your video directly in the browser - no external tools needed!
        </p>
@@ -126,7 +126,7 @@ export default function InAppVideoCompressor({
        <Play className="w-6 h-6 text-blue-600" />
       </div>
       <div>
-       <h3 className="font-medium text-gray-900">{file.name}</h3>
+       <h3 className=" text-gray-900">{file.name}</h3>
        <p className="text-sm text-gray-600">
         {formatFileSize(file.size)} •
         Estimated compression time: {VideoCompressionService.estimateCompressionTime(file.size / (1024 * 1024))}
@@ -138,11 +138,11 @@ export default function InAppVideoCompressor({
     {/* Compression Options */}
     {state === 'idle' && (
      <div className="p-6 space-y-4">
-      <h3 className="font-medium text-gray-900">Compression Settings</h3>
+      <h3 className=" text-gray-900">Compression Settings</h3>
 
       {/* Presets */}
       <div>
-       <label className="block text-sm font-medium text-gray-700 mb-2">
+       <label className="block text-sm  text-gray-700 mb-2">
         Quality Preset
        </label>
        <div className="grid grid-cols-3 gap-2">
@@ -156,7 +156,7 @@ export default function InAppVideoCompressor({
             : 'border-gray-200 hover:border-gray-300'
           }`}
          >
-          <div className="font-medium capitalize">{key}</div>
+          <div className=" capitalize">{key}</div>
           <div className="text-xs text-gray-500 mt-1">
            {preset.maxHeight}p • {preset.frameRate}fps
           </div>
@@ -181,7 +181,7 @@ export default function InAppVideoCompressor({
        <div className="bg-gray-50 rounded-lg p-4 space-y-4">
         <div className="grid grid-cols-2 gap-4">
          <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm  text-gray-700 mb-1">
            Quality (0.1 - 1.0)
           </label>
           <input
@@ -199,7 +199,7 @@ export default function InAppVideoCompressor({
           <span className="text-xs text-gray-500">{customOptions.quality}</span>
          </div>
          <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm  text-gray-700 mb-1">
            Frame Rate
           </label>
           <select
@@ -218,7 +218,7 @@ export default function InAppVideoCompressor({
         </div>
         <div className="grid grid-cols-2 gap-4">
          <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm  text-gray-700 mb-1">
            Max Width (px)
           </label>
           <input
@@ -232,7 +232,7 @@ export default function InAppVideoCompressor({
           />
          </div>
          <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm  text-gray-700 mb-1">
            Max Height (px)
           </label>
           <input
@@ -258,7 +258,7 @@ export default function InAppVideoCompressor({
        <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
         <Zap className="w-8 h-8 text-blue-600 animate-pulse" />
        </div>
-       <h3 className="text-lg font-medium text-gray-900 mb-2">Compressing Video</h3>
+       <h3 className="text-lg  text-gray-900 mb-2">Compressing Video</h3>
        <p className="text-gray-600">
         This may take a few minutes depending on your video size and device performance.
        </p>
@@ -279,7 +279,7 @@ export default function InAppVideoCompressor({
        </div>
 
        <div className="bg-blue-50 rounded-lg p-4">
-        <h4 className="font-medium text-blue-900 mb-2">What's happening:</h4>
+        <h4 className=" text-blue-900 mb-2">What's happening:</h4>
         <ul className="text-sm text-blue-800 space-y-1">
          {progress < 20 && <li>• Analyzing video metadata...</li>}
          {progress >= 20 && progress < 30 && <li>• Setting up compression pipeline...</li>}
@@ -298,7 +298,7 @@ export default function InAppVideoCompressor({
        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
         <CheckCircle className="w-8 h-8 text-green-600" />
        </div>
-       <h3 className="text-lg font-medium text-gray-900 mb-2">Compression Complete!</h3>
+       <h3 className="text-lg  text-gray-900 mb-2">Compression Complete!</h3>
        <p className="text-gray-600">
         Your video has been successfully compressed.
        </p>
@@ -307,19 +307,19 @@ export default function InAppVideoCompressor({
       <div className="bg-gray-50 rounded-lg p-4 space-y-3 mb-6">
        <div className="flex justify-between">
         <span className="text-gray-600">Original Size:</span>
-        <span className="font-medium">{formatFileSize(result.originalSize)}</span>
+        <span className="">{formatFileSize(result.originalSize)}</span>
        </div>
        <div className="flex justify-between">
         <span className="text-gray-600">Compressed Size:</span>
-        <span className="font-medium text-green-600">{formatFileSize(result.compressedSize)}</span>
+        <span className=" text-green-600">{formatFileSize(result.compressedSize)}</span>
        </div>
        <div className="flex justify-between">
         <span className="text-gray-600">Size Reduction:</span>
-        <span className="font-medium text-green-600">{result.compressionRatio.toFixed(1)}%</span>
+        <span className=" text-green-600">{result.compressionRatio.toFixed(1)}%</span>
        </div>
        <div className="flex justify-between">
         <span className="text-gray-600">Time Taken:</span>
-        <span className="font-medium">{formatTime(result.timeTaken / 1000)}</span>
+        <span className="">{formatTime(result.timeTaken / 1000)}</span>
        </div>
       </div>
 
@@ -348,7 +348,7 @@ export default function InAppVideoCompressor({
        <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
         <AlertCircle className="w-8 h-8 text-red-600" />
        </div>
-       <h3 className="text-lg font-medium text-gray-900 mb-2">Compression Failed</h3>
+       <h3 className="text-lg  text-gray-900 mb-2">Compression Failed</h3>
        <p className="text-gray-600 mb-4">
         {error || 'An unknown error occurred during compression.'}
        </p>
@@ -380,7 +380,7 @@ export default function InAppVideoCompressor({
      <div className="p-6 border-t border-gray-200">
       <button
        onClick={startCompression}
-       className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium flex items-center justify-center gap-2"
+       className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700  flex items-center justify-center gap-2"
       >
        <Zap className="w-5 h-5" />
        Start Compression

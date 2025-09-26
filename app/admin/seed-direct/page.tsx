@@ -241,7 +241,7 @@ Make sure you're signed in as a superadmin and have proper permissions.`)
      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
       <div className="flex items-center">
        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-3"></div>
-       <span className="text-blue-800 font-medium">{progress}</span>
+       <span className="text-blue-800 ">{progress}</span>
       </div>
      </div>
     )}
@@ -264,7 +264,7 @@ Make sure you're signed in as a superadmin and have proper permissions.`)
     {/* Result */}
     {result && (
      <div className="bg-white border border-gray-200 rounded-lg p-6">
-      <h3 className="text-lg font-semibold mb-4">Result:</h3>
+      <h3 className="text-lg  mb-4">Result:</h3>
       <pre className="whitespace-pre-wrap text-sm bg-gray-50 p-4 rounded border">
        {result}
       </pre>

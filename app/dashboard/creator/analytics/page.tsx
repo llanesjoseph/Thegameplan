@@ -166,7 +166,7 @@ export default function CreatorAnalytics() {
        <button
         key={range}
         onClick={() => setTimeRange(range)}
-        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+        className={`px-4 py-2 rounded-lg text-sm  transition-colors ${
          timeRange === range
           ? 'bg-cardinal text-white'
           : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
@@ -231,12 +231,12 @@ export default function CreatorAnalytics() {
 
     {/* Content Performance */}
     <div className="mb-8">
-     <h2 className="text-2xl font-semibold text-gray-900 mb-6">Content Performance</h2>
+     <h2 className="text-2xl  text-gray-900 mb-6">Content Performance</h2>
      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
       {contentStats.length === 0 ? (
        <div className="p-12 text-center">
         <BarChart3 className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">No Content Yet</h3>
+        <h3 className="text-lg  text-gray-900 mb-2">No Content Yet</h3>
         <p className="text-gray-600">Create your first lesson to see analytics here.</p>
        </div>
       ) : (
@@ -244,31 +244,31 @@ export default function CreatorAnalytics() {
         <table className="w-full">
          <thead className="bg-gray-50">
           <tr>
-           <th className="text-left p-4 font-medium text-gray-900">Content</th>
-           <th className="text-center p-4 font-medium text-gray-900">Views</th>
-           <th className="text-center p-4 font-medium text-gray-900">View Duration</th>
-           <th className="text-center p-4 font-medium text-gray-900">Completion</th>
-           <th className="text-center p-4 font-medium text-gray-900">Engagement</th>
-           <th className="text-center p-4 font-medium text-gray-900">Created</th>
+           <th className="text-left p-4  text-gray-900">Content</th>
+           <th className="text-center p-4  text-gray-900">Views</th>
+           <th className="text-center p-4  text-gray-900">View Duration</th>
+           <th className="text-center p-4  text-gray-900">Completion</th>
+           <th className="text-center p-4  text-gray-900">Engagement</th>
+           <th className="text-center p-4  text-gray-900">Created</th>
           </tr>
          </thead>
          <tbody>
           {contentStats.map((content, index) => (
            <tr key={content.id} className="border-t border-gray-100">
             <td className="p-4">
-             <div className="font-medium text-gray-900">{content.title}</div>
+             <div className=" text-gray-900">{content.title}</div>
             </td>
             <td className="p-4 text-center">
-             <div className="font-medium text-gray-900">{content.views.toLocaleString()}</div>
+             <div className=" text-gray-900">{content.views.toLocaleString()}</div>
             </td>
             <td className="p-4 text-center">
-             <div className="font-medium text-gray-900">{content.viewDuration.toFixed(1)}m</div>
+             <div className=" text-gray-900">{content.viewDuration.toFixed(1)}m</div>
             </td>
             <td className="p-4 text-center">
-             <div className="font-medium text-gray-900">{content.completionRate.toFixed(1)}%</div>
+             <div className=" text-gray-900">{content.completionRate.toFixed(1)}%</div>
             </td>
             <td className="p-4 text-center">
-             <div className="font-medium text-gray-900">{content.engagement.toFixed(1)}%</div>
+             <div className=" text-gray-900">{content.engagement.toFixed(1)}%</div>
             </td>
             <td className="p-4 text-center">
              <div className="text-sm text-gray-600">
@@ -286,48 +286,48 @@ export default function CreatorAnalytics() {
 
     {/* Growth Insights */}
     <div className="mb-8">
-     <h2 className="text-2xl font-semibold text-gray-900 mb-6">Growth Insights</h2>
+     <h2 className="text-2xl  text-gray-900 mb-6">Growth Insights</h2>
      <div className="grid md:grid-cols-2 gap-6">
       <div className="bg-white rounded-xl border border-gray-200 p-6">
-       <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+       <h3 className=" text-gray-900 mb-4 flex items-center gap-2">
         <TrendingUp className="w-5 h-5 text-green-600" />
         Audience Growth
        </h3>
        <div className="space-y-4">
         <div className="flex justify-between items-center">
          <span className="text-gray-600">Monthly Growth</span>
-         <span className="font-medium text-green-600">+{audienceStats.monthlyGrowth}%</span>
+         <span className=" text-green-600">+{audienceStats.monthlyGrowth}%</span>
         </div>
         <div className="flex justify-between items-center">
          <span className="text-gray-600">Engagement Rate</span>
-         <span className="font-medium text-gray-900">{audienceStats.topEngagement}%</span>
+         <span className=" text-gray-900">{audienceStats.topEngagement}%</span>
         </div>
         <div className="flex justify-between items-center">
          <span className="text-gray-600">Retention</span>
-         <span className="font-medium text-cardinal">{audienceStats.topEngagement > 0 ? `${Math.floor(audienceStats.topEngagement * 0.85)}%` : '0%'}</span>
+         <span className=" text-cardinal">{audienceStats.topEngagement > 0 ? `${Math.floor(audienceStats.topEngagement * 0.85)}%` : '0%'}</span>
         </div>
        </div>
       </div>
 
       <div className="bg-white rounded-xl border border-gray-200 p-6">
-       <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+       <h3 className=" text-gray-900 mb-4 flex items-center gap-2">
         <Target className="w-5 h-5 text-cardinal" />
         Content Strategy
        </h3>
        <div className="space-y-4">
         <div className="flex justify-between items-center">
          <span className="text-gray-600">Best Performing</span>
-         <span className="font-medium text-gray-900">
+         <span className=" text-gray-900">
           {contentStats.length > 0 ? contentStats[0]?.title || 'None yet' : 'None yet'}
          </span>
         </div>
         <div className="flex justify-between items-center">
          <span className="text-gray-600">Optimal Length</span>
-         <span className="font-medium text-purple-600">{contentStats.length > 0 ? 'Based on data' : 'No data yet'}</span>
+         <span className=" text-purple-600">{contentStats.length > 0 ? 'Based on data' : 'No data yet'}</span>
         </div>
         <div className="flex justify-between items-center">
          <span className="text-gray-600">Publish Frequency</span>
-         <span className="font-medium text-green-600">{contentStats.length > 0 ? 'Based on data' : 'No data yet'}</span>
+         <span className=" text-green-600">{contentStats.length > 0 ? 'Based on data' : 'No data yet'}</span>
         </div>
        </div>
       </div>
@@ -336,10 +336,10 @@ export default function CreatorAnalytics() {
 
     {/* Recommendations */}
     <div>
-     <h2 className="text-2xl font-semibold text-gray-900 mb-6">Recommendations</h2>
+     <h2 className="text-2xl  text-gray-900 mb-6">Recommendations</h2>
      <div className="grid md:grid-cols-3 gap-6">
       <div className="bg-white rounded-xl border border-gray-200 border-l-4 border-l-cardinal p-6">
-       <h3 className="font-semibold text-gray-900 mb-2">Content Timing</h3>
+       <h3 className=" text-gray-900 mb-2">Content Timing</h3>
        <p className="text-gray-600 text-sm mb-4">
         {audienceStats.totalFollowers > 0 ? 'Analyze your audience data to find optimal posting times.' : 'Start creating content to gather audience insights.'}
        </p>
@@ -347,7 +347,7 @@ export default function CreatorAnalytics() {
       </div>
       
       <div className="bg-white rounded-xl border border-gray-200 border-l-4 border-l-green-500 p-6">
-       <h3 className="font-semibold text-gray-900 mb-2">Content Length</h3>
+       <h3 className=" text-gray-900 mb-2">Content Length</h3>
        <p className="text-gray-600 text-sm mb-4">
         {contentStats.length > 0 ? 'Analyze your content performance to optimize length.' : 'Create content to discover optimal lengths.'}
        </p>
@@ -355,7 +355,7 @@ export default function CreatorAnalytics() {
       </div>
       
       <div className="bg-white rounded-xl border border-gray-200 border-l-4 border-l-purple-500 p-6">
-       <h3 className="font-semibold text-gray-900 mb-2">Engagement Boost</h3>
+       <h3 className=" text-gray-900 mb-2">Engagement Boost</h3>
        <p className="text-gray-600 text-sm mb-4">
         {audienceStats.averageEngagement > 0 ? 'Add interactive elements to boost engagement.' : 'Start engaging with your audience to build analytics.'}
        </p>

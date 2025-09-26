@@ -162,7 +162,7 @@ export default function ImageUploader({
     <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 w-48 bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-lg border border-white/50">
      <div className="flex items-center gap-2 mb-2">
       <Upload className="w-4 h-4 text-orange" />
-      <span className="text-sm font-medium text-black">Uploading...</span>
+      <span className="text-sm  text-black">Uploading...</span>
       <span className="text-sm text-black/70">{uploadProgress}%</span>
      </div>
      <div className="w-full bg-gray-200 rounded-full h-2">
@@ -176,7 +176,7 @@ export default function ImageUploader({
 
    {/* Success indicator */}
    {success && (
-    <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 bg-green/20 text-green px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2 shadow-lg border border-green/30">
+    <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 bg-green/20 text-green px-3 py-2 rounded-lg text-sm  flex items-center gap-2 shadow-lg border border-green/30">
      <CheckCircle className="w-4 h-4" />
      Upload complete!
     </div>
@@ -188,7 +188,7 @@ export default function ImageUploader({
      <div className="flex items-start gap-2">
       <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
       <div className="flex-1">
-       <p className="font-medium">Upload failed</p>
+       <p className="">Upload failed</p>
        <p className="text-xs mt-1">{error}</p>
       </div>
       <button

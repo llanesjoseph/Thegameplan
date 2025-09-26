@@ -62,7 +62,7 @@ export default function VideoCompressionHelper({
     <div className="p-6 border-b border-gray-200">
      <div className="flex items-center justify-between">
       <div>
-       <h2 className="text-xl font-semibold text-gray-900">Video Compression Helper</h2>
+       <h2 className="text-xl text-gray-900">Video Compression Helper</h2>
        <p className="text-gray-600 text-sm mt-1">
         Reduce file size from {(file.size / (1024 * 1024)).toFixed(1)} MB to ~{(estimatedSize / (1024 * 1024)).toFixed(1)} MB
        </p>
@@ -80,22 +80,22 @@ export default function VideoCompressionHelper({
     <div className="p-6 space-y-6">
      {/* Optimal Settings */}
      <div>
-      <h3 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
+      <h3 className="text-gray-900 mb-3 flex items-center gap-2">
        <Zap className="w-4 h-4 text-yellow-500" />
        Recommended Settings
       </h3>
       <div className="bg-gray-50 rounded-lg p-4 grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-       <div><strong>Format:</strong> MP4 (H.264)</div>
-       <div><strong>Resolution:</strong> 1080p (1920x1080)</div>
-       <div><strong>Bitrate:</strong> 5-8 Mbps for HD content</div>
-       <div><strong>Frame Rate:</strong> 30 fps (or original)</div>
-       <div className="md:col-span-2"><strong>Audio:</strong> AAC, 128-192 kbps</div>
+       <div>Format: MP4 (H.264)</div>
+       <div>Resolution: 1080p (1920x1080)</div>
+       <div>Bitrate: 5-8 Mbps for HD content</div>
+       <div>Frame Rate: 30 fps (or original)</div>
+       <div className="md:col-span-2">Audio: AAC, 128-192 kbps</div>
       </div>
      </div>
 
      {/* Compression Tools */}
      <div>
-      <h3 className="font-medium text-gray-900 mb-3">Compression Tools</h3>
+      <h3 className="text-gray-900 mb-3">Compression Tools</h3>
       <div className="space-y-3">
        {compressionTools.map((tool, index) => (
         <div
@@ -105,7 +105,7 @@ export default function VideoCompressionHelper({
          <div className="flex items-start justify-between">
           <div className="flex-1">
            <div className="flex items-center gap-2 mb-1">
-            <h4 className="font-medium text-gray-900">{tool.name}</h4>
+            <h4 className="text-gray-900">{tool.name}</h4>
             <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
              {tool.type}
             </span>
@@ -141,26 +141,26 @@ export default function VideoCompressionHelper({
 
      {/* Quick Guide */}
      <div>
-      <h3 className="font-medium text-gray-900 mb-3">Quick Guide</h3>
+      <h3 className="text-gray-900 mb-3">Quick Guide</h3>
       <div className="bg-gray-50 rounded-lg p-4 space-y-2 text-sm">
        <div className="flex items-start gap-2">
-        <span className="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-medium">1</span>
+        <span className="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">1</span>
         <span>Choose a compression tool (HandBrake recommended for best results)</span>
        </div>
        <div className="flex items-start gap-2">
-        <span className="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-medium">2</span>
-        <span>Load your video file: <strong>{file.name}</strong></span>
+        <span className="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">2</span>
+        <span>Load your video file: {file.name}</span>
        </div>
        <div className="flex items-start gap-2">
-        <span className="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-medium">3</span>
+        <span className="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">3</span>
         <span>Apply the recommended settings above</span>
        </div>
        <div className="flex items-start gap-2">
-        <span className="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-medium">4</span>
+        <span className="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">4</span>
         <span>Start compression (this may take 5-30 minutes depending on file size)</span>
        </div>
        <div className="flex items-start gap-2">
-        <span className="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-medium">5</span>
+        <span className="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">5</span>
         <span>Upload the compressed file for faster, more reliable uploads</span>
        </div>
       </div>

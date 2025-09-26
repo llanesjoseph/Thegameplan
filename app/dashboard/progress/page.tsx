@@ -151,7 +151,7 @@ export default function ProgressDashboard() {
         </div>
 
         <div>
-         <h3 className="font-semibold text-lg" style={{ color: '#000000' }}>
+         <h3 className=" text-lg" style={{ color: '#000000' }}>
           {activity.title}
          </h3>
          <p className="text-sm" style={{ color: '#000000' }}>
@@ -204,7 +204,7 @@ export default function ProgressDashboard() {
        <Link href="/lessons">
         <button
          style={{ backgroundColor: '#20B2AA' }}
-         className="px-6 py-3 rounded-full text-white font-semibold hover:opacity-90 transition-opacity"
+         className="px-6 py-3 rounded-full text-white  hover:opacity-90 transition-opacity"
         >
          Continue Training
         </button>
@@ -212,7 +212,7 @@ export default function ProgressDashboard() {
 
        <Link href="/dashboard/coaching">
         <button
-         className="px-6 py-3 rounded-full text-white font-semibold border-2 border-white/50 hover:bg-white/10 transition-all"
+         className="px-6 py-3 rounded-full text-white  border-2 border-white/50 hover:bg-white/10 transition-all"
         >
          Get Coaching Help
         </button>
@@ -242,7 +242,7 @@ export default function ProgressDashboard() {
        >
         <badge.icon className="w-8 h-8" style={{ color: badge.earned ? 'white' : '#000000' }} />
        </div>
-       <p className="text-sm font-semibold" style={{ color: '#000000' }}>
+       <p className="text-sm " style={{ color: '#000000' }}>
         {badge.title}
        </p>
       </div>

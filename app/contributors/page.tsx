@@ -227,7 +227,7 @@ export default function ContributorsPage() {
      <div className="mt-6 bg-white/80 backdrop-blur border border-gray-200 rounded-lg p-4 max-w-2xl mx-auto">
       <div className="flex items-center gap-2 justify-center mb-2" style={{ color: '#000000' }}>
        <User className="w-4 h-4" />
-       <span className="font-medium">Personalized for you</span>
+       <span>Personalized for you</span>
       </div>
       <p className="text-sm" style={{ color: '#000000' }}>
        Showing coaches based on your sports preferences. Change filters to explore other sports.
@@ -241,7 +241,7 @@ export default function ContributorsPage() {
     <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
      <div className="grid lg:grid-cols-3 gap-6 items-end">
       <div className="lg:col-span-2">
-       <label className="block text-sm font-semibold mb-3" style={{ color: '#000000' }}>Find Coaches</label>
+       <label className="block text-sm mb-3" style={{ color: '#000000' }}>Find Coaches</label>
        <div className="relative">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
         <input
@@ -257,7 +257,7 @@ export default function ContributorsPage() {
       <div className="flex gap-3">
        <button
         onClick={applyFilters}
-        className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+        className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
        >
         Apply Filters
        </button>
@@ -272,7 +272,7 @@ export default function ContributorsPage() {
 
      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6 pt-6 border-t border-gray-200">
       <div>
-       <label className="block text-sm font-semibold mb-3" style={{ color: '#000000' }}>Sport</label>
+       <label className="block text-sm mb-3" style={{ color: '#000000' }}>Sport</label>
        <select
         value={filters.sport}
         onChange={(e) => setFilters(prev => ({ ...prev, sport: e.target.value }))}
@@ -284,7 +284,7 @@ export default function ContributorsPage() {
        </select>
       </div>
       <div>
-       <label className="block text-sm font-semibold mb-3" style={{ color: '#000000' }}>Experience Level</label>
+       <label className="block text-sm mb-3" style={{ color: '#000000' }}>Experience Level</label>
        <select
         value={filters.experience}
         onChange={(e) => setFilters(prev => ({ ...prev, experience: e.target.value }))}
@@ -296,7 +296,7 @@ export default function ContributorsPage() {
        </select>
       </div>
       <div>
-       <label className="block text-sm font-semibold mb-3" style={{ color: '#000000' }}>Specialty</label>
+       <label className="block text-sm mb-3" style={{ color: '#000000' }}>Specialty</label>
        <select
         value={filters.specialty}
         onChange={(e) => setFilters(prev => ({ ...prev, specialty: e.target.value }))}
@@ -308,7 +308,7 @@ export default function ContributorsPage() {
        </select>
       </div>
       <div className="space-y-4">
-       <label className="block text-sm font-semibold mb-3" style={{ color: '#000000' }}>Filters</label>
+       <label className="block text-sm mb-3" style={{ color: '#000000' }}>Filters</label>
        <label className="flex items-center gap-3 cursor-pointer hover:opacity-80">
         <input
          type="checkbox"
@@ -317,7 +317,7 @@ export default function ContributorsPage() {
          className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
         />
         <CheckCircle className="w-4 h-4 text-green-600" />
-        <span className="text-sm font-medium" style={{ color: '#000000' }}>Verified only</span>
+        <span className="text-sm" style={{ color: '#000000' }}>Verified only</span>
        </label>
        <label className="flex items-center gap-3 cursor-pointer hover:opacity-80">
         <input
@@ -327,7 +327,7 @@ export default function ContributorsPage() {
          className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
         />
         <Star className="w-4 h-4 text-yellow-500" />
-        <span className="text-sm font-medium" style={{ color: '#000000' }}>Featured only</span>
+        <span className="text-sm" style={{ color: '#000000' }}>Featured only</span>
        </label>
       </div>
      </div>
@@ -339,14 +339,14 @@ export default function ContributorsPage() {
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
      <div className="flex items-center gap-2" style={{ color: '#000000' }}>
       <Users className="w-5 h-5" />
-      <span className="text-lg font-medium">
+      <span className="text-lg">
        {specialtyFiltered.length} {specialtyFiltered.length === 1 ? 'coach' : 'coaches'}
        {totalCount > 0 && ` of ${totalCount} total`}
       </span>
      </div>
      <Link
       href="/contributors/apply"
-      className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors"
+      className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
      >
       <Star className="w-4 h-4" />
       Become a Coach
@@ -372,13 +372,13 @@ export default function ContributorsPage() {
          </div>
          <div className="absolute top-3 right-3 flex flex-col gap-2">
           {c.verified && (
-           <div className="bg-green-600 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
+           <div className="bg-green-600 text-white px-3 py-1 rounded-full text-xs flex items-center gap-1">
             <CheckCircle className="w-3 h-3" />
             Verified
            </div>
           )}
           {c.featured && (
-           <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
+           <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-xs flex items-center gap-1">
             <Star className="w-3 h-3" />
             Featured
            </div>
@@ -391,7 +391,7 @@ export default function ContributorsPage() {
           <h3 className="text-xl mb-2 group-hover:text-blue-600 transition-colors" style={{ color: '#000000' }}>
            {c.name}
           </h3>
-          <p className="text-blue-600 font-semibold text-sm uppercase tracking-wider">{c.sport}</p>
+          <p className="text-blue-600 text-sm uppercase tracking-wider">{c.sport}</p>
          </div>
 
          {c.tagline && (
@@ -405,13 +405,13 @@ export default function ContributorsPage() {
            {c.specialties.slice(0, 3).map((s, i) => (
             <span
              key={i}
-             className="text-xs px-3 py-1 bg-blue-100 text-blue-700 rounded-full font-medium"
+             className="text-xs px-3 py-1 bg-blue-100 text-blue-700 rounded-full"
             >
              {s}
             </span>
            ))}
            {c.specialties.length > 3 && (
-            <span className="text-xs px-3 py-1 bg-gray-100 text-gray-600 rounded-full font-medium">
+            <span className="text-xs px-3 py-1 bg-gray-100 text-gray-600 rounded-full">
              +{c.specialties.length - 3} more
             </span>
            )}
@@ -421,11 +421,11 @@ export default function ContributorsPage() {
          <div className="flex justify-between items-center pt-4 border-t border-gray-200">
           <div className="flex items-center gap-1 text-gray-600">
            <Trophy className="w-4 h-4" />
-           <span className="text-sm font-medium">{c.lessonCount || 0} lessons</span>
+           <span className="text-sm">{c.lessonCount || 0} lessons</span>
           </div>
           <div className="flex items-center gap-1 text-gray-600">
            <Star className="w-4 h-4" />
-           <span className="text-sm font-medium">{c.badges?.length || 0} achievements</span>
+           <span className="text-sm">{c.badges?.length || 0} achievements</span>
           </div>
          </div>
         </div>
@@ -440,7 +440,7 @@ export default function ContributorsPage() {
      <button
       onClick={loadMore}
       disabled={loading}
-      className="px-8 py-4 rounded-lg border-2 border-gray-300 text-gray-600 hover:border-cardinal hover:text-cardinal hover:bg-cardinal/5 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+      className="px-8 py-4 rounded-lg border-2 border-gray-300 text-gray-600 hover:border-cardinal hover:text-cardinal hover:bg-cardinal/5 transition disabled:opacity-50 disabled:cursor-not-allowed"
      >
       {loading ? (
        <div className="flex items-center gap-2">
@@ -466,7 +466,7 @@ export default function ContributorsPage() {
       </p>
       <button
        onClick={clearFilters}
-       className="px-6 py-3 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
+       className="px-6 py-3 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
       >
        Clear All Filters
       </button>
@@ -480,13 +480,13 @@ export default function ContributorsPage() {
    <div className="max-w-7xl mx-auto px-4">
     <div className="flex items-center justify-between">
      <div className="flex items-center gap-6">
-      <Link href="/contributors" className="text-gray-600 hover:text-gray-900 font-medium">
+      <Link href="/contributors" className="text-gray-600 hover:text-gray-900">
        Coaches
       </Link>
-      <Link href="/lessons" className="text-gray-600 hover:text-gray-900 font-medium">
+      <Link href="/lessons" className="text-gray-600 hover:text-gray-900">
        Lessons
       </Link>
-      <Link href="/gear" className="text-gray-600 hover:text-gray-900 font-medium">
+      <Link href="/gear" className="text-gray-600 hover:text-gray-900">
        Gear
       </Link>
      </div>

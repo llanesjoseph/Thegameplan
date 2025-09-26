@@ -136,13 +136,13 @@ export default function AppHeader({ className = '' }: AppHeaderProps) {
         {/* Right Side Navigation */}
         <div className="flex items-center gap-4">
           {/* Browse Coaches Link */}
-          <Link href="/contributors" className="text-black hover:text-blue-600 font-medium">
+          <Link href="/contributors" className="text-black hover:text-blue-600">
             Browse Coaches
           </Link>
 
           {/* Role Badge */}
           {user && (
-            <div className={`px-4 py-2 text-white rounded-lg font-medium ${getRoleDisplay().color}`}>
+            <div className={`px-4 py-2 text-white rounded-lg ${getRoleDisplay().color}`}>
               {getRoleDisplay().label}
             </div>
           )}
@@ -154,10 +154,10 @@ export default function AppHeader({ className = '' }: AppHeaderProps) {
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className="flex items-center gap-2 hover:bg-gray-50 rounded-lg p-1 transition-colors"
               >
-                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-medium">
+                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white">
                   {getUserInitials()}
                 </div>
-                <span className="font-medium text-black">{getUserName()}</span>
+                <span className="text-black">{getUserName()}</span>
                 <svg
                   className={`w-4 h-4 text-gray-500 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
                   fill="none"
@@ -195,7 +195,7 @@ export default function AppHeader({ className = '' }: AppHeaderProps) {
               )}
             </div>
           ) : (
-            <Link href="/auth" className="bg-red-600 text-white px-4 py-2 rounded text-sm font-medium">
+            <Link href="/auth" className="bg-red-600 text-white px-4 py-2 rounded text-sm">
               SIGN IN
             </Link>
           )}

@@ -47,7 +47,7 @@ export default function AuthGate({ allowedRoles = ['user', 'creator', 'superadmi
   return (
    <div className="min-h-screen flex items-center justify-center nexus-bg">
     <div className="nexus-card nexus-card-primary p-8 text-center">
-     <h2 className="text-2xl font-semibold mb-2">Insufficient permissions</h2>
+     <h2 className="text-2xl  mb-2">Insufficient permissions</h2>
      <p className="opacity-80">Your role does not allow access to this page.</p>
      <button
       className="mt-6 nexus-button"

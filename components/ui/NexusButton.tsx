@@ -24,7 +24,7 @@ const ClarityButton: React.FC<ClarityButtonProps> = ({
  icon,
  loading = false
 }) => {
- const baseClasses = 'rounded-lg font-semibold inline-flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-sky-blue disabled:opacity-50'
+ const baseClasses = 'rounded-lg  inline-flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-sky-blue disabled:opacity-50'
 
  const variantClasses = {
   primary: 'bg-sky-blue text-white hover:bg-primary-600',

@@ -361,7 +361,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
      <div className="w-8 h-8 bg-gradient-to-r from-sky-blue to-orange rounded-full flex items-center justify-center">
       <Sparkles className="w-4 h-4 text-white" />
      </div>
-     <h3 className="font-semibold text-dark">{title}</h3>
+     <h3 className=" text-dark">{title}</h3>
     </div>
     
     <div className="flex items-center gap-2">

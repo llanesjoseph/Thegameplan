@@ -88,7 +88,7 @@ const formatAIResponse = (content: string): string => {
  let formatted = content
   // Remove any problematic class strings and HTML artifacts
   .replace(/class="[^"]*"/g, '')
-  .replace(/font-semibold text-emerald-600/g, '')
+  .replace(/ text-emerald-600/g, '')
   .replace(/italic text-slate-600/g, '')
   .replace(/ml-\d+ mb-\d+/g, '')
 
@@ -102,22 +102,22 @@ const formatAIResponse = (content: string): string => {
 
  // Handle headers with proper styling
  formatted = formatted
-  .replace(/^###?\s*(.+)$/gm, '<h4 class="font-semibold text-gray-900 mb-3 mt-4">$1</h4>')
+  .replace(/^###?\s*(.+)$/gm, '<h4 class="text-gray-900 mb-3 mt-4">$1</h4>')
 
   // Convert **bold** to proper HTML
-  .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-gray-900">$1</strong>')
+  .replace(/\*\*(.*?)\*\*/g, '<strong class=" text-gray-900">$1}')
 
   // Convert *italic* to proper HTML
   .replace(/\*(.*?)\*/g, '<em class="italic text-gray-700">$1</em>')
 
   // Handle special callouts like "Pro tip:"
-  .replace(/^(Pro tip|Tip|Note):\s*(.+)$/gm, '<div class="bg-blue-50 border-l-4 border-blue-400 p-3 my-3 rounded-r"><div class="flex"><strong class="text-blue-800 mr-2">$1:</strong><span class="text-blue-700">$2</span></div></div>')
+  .replace(/^(Pro tip|Tip|Note):\s*(.+)$/gm, '<div class="bg-blue-50 border-l-4 border-blue-400 p-3 my-3 rounded-r"><div class="flex"><strong class="text-blue-800 mr-2">$1:}<span class="text-blue-700">$2</span></div></div>')
 
   // Handle "Trust your preparation" type callouts
-  .replace(/^(Trust your preparation|Remember|Important)[\s\-:]*(.+)$/gm, '<div class="bg-green-50 border-l-4 border-green-400 p-3 my-3 rounded-r"><div class="flex"><strong class="text-green-800 mr-2">$1:</strong><span class="text-green-700">$2</span></div></div>')
+  .replace(/^(Trust your preparation|Remember|Important)[\s\-:]*(.+)$/gm, '<div class="bg-green-50 border-l-4 border-green-400 p-3 my-3 rounded-r"><div class="flex"><strong class="text-green-800 mr-2">$1:}<span class="text-green-700">$2</span></div></div>')
 
   // Convert numbered lists with better spacing
-  .replace(/^(\d+)\.\s+(.+)$/gm, '<div class="mb-2 pl-2"><span class="font-medium text-gray-800 mr-2">$1.</span><span>$2</span></div>')
+  .replace(/^(\d+)\.\s+(.+)$/gm, '<div class="mb-2 pl-2"><span class=" text-gray-800 mr-2">$1.</span><span>$2</span></div>')
 
   // Handle bullet points with consistent formatting and proper indentation
   .replace(/^[•\-\*]\s+(.+)$/gm, '<div class="mb-2 pl-4 flex items-start"><span class="text-gray-600 mr-2 mt-0.5">•</span><span class="leading-relaxed">$1</span></div>')
@@ -457,7 +457,7 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
        className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors"
       >
        <ArrowLeft className="w-4 h-4" />
-       <span className="text-sm font-medium">Back to Dashboard</span>
+       <span className="text-sm ">Back to Dashboard</span>
       </button>
       <div className="text-gray-300">|</div>
       <button
@@ -465,7 +465,7 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
        className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors"
       >
        <Home className="w-4 h-4" />
-       <span className="text-sm font-medium">All Coaches</span>
+       <span className="text-sm ">All Coaches</span>
       </button>
      </div>
     </div>
@@ -524,7 +524,7 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
       <div className="w-full max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
        {/* Left Side - Quote */}
        <div className="text-white">
-        <blockquote className="text-2xl md:text-3xl font-medium leading-relaxed">
+        <blockquote className="text-2xl md:text-3xl  leading-relaxed">
          Playing soccer with your feet is one thing, but playing soccer with your heart is another.
         </blockquote>
 
@@ -566,7 +566,7 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
           />
          </div>
          <div className="absolute top-4 left-4">
-          <div className="bg-blue-900 text-white px-3 py-1 rounded text-sm font-medium">
+          <div className="bg-blue-900 text-white px-3 py-1 rounded text-sm ">
            HIGHLIGHTS
           </div>
          </div>
@@ -591,7 +591,7 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
        </p>
        <button
         onClick={() => setShowAIChat(true)}
-        className="bg-blue-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-600 transition flex items-center gap-2"
+        className="bg-blue-500 text-white px-6 py-3 rounded-lg  hover:bg-blue-600 transition flex items-center gap-2"
        >
         <MessageCircle className="w-5 h-5" />
         Ask {creator.firstName}
@@ -636,11 +636,11 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
 
         {/* Content */}
         <div className="flex-1">
-         <h3 className="text-lg font-semibold text-gray-900 mb-2">
+         <h3 className="text-lg  text-gray-900 mb-2">
           {item.title}
          </h3>
          <div className="flex items-center gap-4">
-          <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+          <span className={`px-3 py-1 rounded-full text-sm  ${
            item.status === 'Ended'
             ? 'bg-green-100 text-green-800'
             : item.status === 'In Progress'
@@ -694,14 +694,14 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
          />
         </div>
         <div>
-         <h3 className="font-semibold text-gray-900 text-lg">Ask {creator.firstName}</h3>
-         <p className="text-sm text-gray-600 font-medium">{creator.sport} Coach</p>
+         <h3 className=" text-gray-900 text-lg">Ask {creator.firstName}</h3>
+         <p className="text-sm text-gray-600 ">{creator.sport} Coach</p>
         </div>
        </div>
        <div className="flex items-center gap-2">
         <button
          onClick={() => setShowSavedResponses(!showSavedResponses)}
-         className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+         className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm  transition-colors ${
           showSavedResponses
            ? 'bg-red-100 text-red-700 hover:bg-red-200'
            : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
@@ -753,7 +753,7 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
               )}
              </div>
              <div className="flex-1 min-w-0">
-              <div className="font-semibold text-sm text-gray-900 mb-2">
+              <div className=" text-sm text-gray-900 mb-2">
                {message.sender === 'creator' ? creator.firstName : 'You'}
               </div>
               <div className="text-gray-800 text-sm leading-relaxed">
@@ -769,7 +769,7 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
                <div className="flex items-center gap-2 mt-3 pt-2 border-t border-gray-100">
                 <button
                  onClick={() => message.isFavorited ? removeFavorite(message.id) : saveResponse(message)}
-                 className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                 className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-xs  transition-colors ${
                   message.isFavorited
                    ? 'text-red-700 bg-red-50 hover:bg-red-100 border border-red-200'
                    : 'text-gray-600 hover:text-red-600 hover:bg-red-50 border border-gray-200 hover:border-red-200'
@@ -800,7 +800,7 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
               />
              </div>
              <div className="flex-1 min-w-0">
-              <div className="font-semibold text-sm text-gray-900 mb-2">
+              <div className=" text-sm text-gray-900 mb-2">
                {creator.firstName}
               </div>
               <div className="flex space-x-1">
@@ -826,8 +826,8 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
          ) : (
           <>
            <div className="p-4 bg-gray-50 border-b">
-            <h4 className="font-semibold text-gray-900 text-base">Saved Responses ({savedResponses.length})</h4>
-            <p className="text-sm text-gray-600 font-medium">Your favorited responses from {creator.firstName}</p>
+            <h4 className=" text-gray-900 text-base">Saved Responses ({savedResponses.length})</h4>
+            <p className="text-sm text-gray-600 ">Your favorited responses from {creator.firstName}</p>
            </div>
            {savedResponses.map((response) => (
             <div key={response.id} className="w-full py-4 px-6 border-b border-gray-100 bg-white">
@@ -844,8 +844,8 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
                </div>
                <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-2">
-                 <div className="font-semibold text-sm text-gray-900">{creator.firstName}</div>
-                 <div className="text-xs text-gray-500 font-medium">
+                 <div className=" text-sm text-gray-900">{creator.firstName}</div>
+                 <div className="text-xs text-gray-500 ">
                   {new Date(response.savedAt).toLocaleDateString()}
                  </div>
                 </div>
@@ -857,7 +857,7 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
                 <div className="flex items-center gap-2 mt-3 pt-2 border-t border-gray-100">
                  <button
                   onClick={() => removeFavorite(response.id)}
-                  className="flex items-center gap-1 px-3 py-1.5 rounded-md text-xs font-medium text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors"
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-md text-xs  text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors"
                  >
                   <Heart className="w-3 h-3 fill-current" />
                   Remove
@@ -889,7 +889,7 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
         <button
          onClick={handleSendMessage}
          disabled={!currentMessage.trim() || isLoading}
-         className="bg-blue-500 text-white px-4 py-3 rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+         className="bg-blue-500 text-white px-4 py-3 rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors "
         >
          <Send className="w-4 h-4" />
         </button>

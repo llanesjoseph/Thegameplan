@@ -128,7 +128,7 @@ export default function ContributorsClient() {
         />
        </div>
        <div className="min-w-0">
-        <h2 className="text-xl sm:text-2xl font-semibold text-clarity-text-primary">{featured.name}</h2>
+        <h2 className="text-xl sm:text-2xl  text-clarity-text-primary">{featured.name}</h2>
         {featured.sport && (<p className="text-sm text-clarity-text-secondary mt-1">{featured.sport}</p>)}
         {featured.tagline && (<p className="text-sm text-clarity-text-secondary/90 mt-2">{featured.tagline}</p>)}
         {featured.badges && featured.badges.length > 0 && (
@@ -157,7 +157,7 @@ export default function ContributorsClient() {
         <Image src={c.headshotUrl || c.avatarUrl || '/logo-gp.svg'} alt={`${c.name} avatar`} fill sizes="56px" className="rounded-full object-cover" />
        </div>
        <div className="min-w-0">
-        <h3 className="text-clarity-text-primary font-semibold truncate">{c.name}</h3>
+        <h3 className="text-clarity-text-primary  truncate">{c.name}</h3>
         {c.sport && (<p className="text-sm text-clarity-text-secondary truncate">{c.sport}</p>)}
         <div className="mt-2 text-sm">
          <Link href={`/contributors/${c.slug || (c.name || '').toLowerCase().replace(/\s+/g, '-')}`} className="text-clarity-accent hover:underline">View profile</Link>

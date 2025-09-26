@@ -123,7 +123,7 @@ export default function SimpleAuth() {
 
      <form onSubmit={handleEmailAuth} className="space-y-4">
       <div>
-       <label className="block text-sm font-medium text-gray-700 mb-2">
+       <label className="block text-sm  text-gray-700 mb-2">
         Email
        </label>
        <input
@@ -136,7 +136,7 @@ export default function SimpleAuth() {
       </div>
 
       <div>
-       <label className="block text-sm font-medium text-gray-700 mb-2">
+       <label className="block text-sm  text-gray-700 mb-2">
         Password
        </label>
        <input
@@ -158,7 +158,7 @@ export default function SimpleAuth() {
       <button
        type="submit"
        disabled={isLoading}
-       className="w-full bg-cardinal hover:bg-cardinal-dark text-white py-2 px-4 rounded-lg font-medium disabled:opacity-50"
+       className="w-full bg-cardinal hover:bg-cardinal-dark text-white py-2 px-4 rounded-lg  disabled:opacity-50"
       >
        {isLoading ? 'Processing...' : (isSignUp ? 'Create Account' : 'Sign In')}
       </button>
@@ -181,7 +181,7 @@ export default function SimpleAuth() {
    <button
     onClick={handleGoogleSignIn}
     disabled={isLoading}
-    className="w-full bg-gradient-to-r from-sky-blue to-green hover:from-sky-blue/90 hover:to-green/90 text-white border border-sky-blue/30 py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg font-medium transition-all disabled:opacity-50 flex items-center justify-center gap-2 sm:gap-3 shadow-lg hover:shadow-xl transform hover:scale-[1.02] text-sm sm:text-base"
+    className="w-full bg-gradient-to-r from-sky-blue to-green hover:from-sky-blue/90 hover:to-green/90 text-white border border-sky-blue/30 py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg  transition-all disabled:opacity-50 flex items-center justify-center gap-2 sm:gap-3 shadow-lg hover:shadow-xl transform hover:scale-[1.02] text-sm sm:text-base"
    >
     <svg className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" viewBox="0 0 24 24">
      <path fill="#FFFFFF" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -194,7 +194,7 @@ export default function SimpleAuth() {
 
    <button
     onClick={() => setShowEmailForm(true)}
-    className="w-full bg-gradient-to-r from-orange to-black hover:from-orange/90 hover:to-black/90 text-white border border-orange/30 py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg font-medium transition-all flex items-center justify-center gap-2 sm:gap-3 shadow-lg hover:shadow-xl transform hover:scale-[1.02] text-sm sm:text-base"
+    className="w-full bg-gradient-to-r from-orange to-black hover:from-orange/90 hover:to-black/90 text-white border border-orange/30 py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg  transition-all flex items-center justify-center gap-2 sm:gap-3 shadow-lg hover:shadow-xl transform hover:scale-[1.02] text-sm sm:text-base"
    >
     <svg className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />

@@ -72,7 +72,7 @@ const PathCard = ({ type, title, subtitle, description, features, cta, accentCol
    </div>
    
    <h3 className="text-2xl text-[var(--deep-black)] mb-2">{title}</h3>
-   <h4 className="text-lg font-semibold text-[var(--primary-cyan)] mb-4">{subtitle}</h4>
+   <h4 className="text-lg  text-[var(--primary-cyan)] mb-4">{subtitle}</h4>
    <p className="text-[var(--mid-gray)] mb-6 leading-relaxed">{description}</p>
    
    <div className="space-y-3 mb-8">
@@ -81,12 +81,12 @@ const PathCard = ({ type, title, subtitle, description, features, cta, accentCol
       <div className={`w-8 h-8 bg-gradient-to-br ${accentColor} rounded-lg flex items-center justify-center text-white`}>
        {feature.icon}
       </div>
-      <span className="text-[var(--dark-gray)] font-medium">{feature.text}</span>
+      <span className="text-[var(--dark-gray)] ">{feature.text}</span>
      </div>
     ))}
    </div>
    
-   <button className={`w-full py-4 px-6 bg-gradient-to-r ${accentColor} text-white font-semibold rounded-2xl transition-all duration-300 hover:transform hover:translateY(-2px) hover:shadow-lg`}>
+   <button className={`w-full py-4 px-6 bg-gradient-to-r ${accentColor} text-white  rounded-2xl transition-all duration-300 hover:transform hover:translateY(-2px) hover:shadow-lg`}>
     {cta}
    </button>
    

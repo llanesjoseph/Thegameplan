@@ -533,10 +533,10 @@ Make sure you're signed in as a superadmin and have proper permissions.`)
 
     {/* Schema Info */}
     <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
-     <h3 className="text-lg font-semibold text-blue-800 mb-4">📋 Complete Database Schema</h3>
+     <h3 className="text-lg  text-blue-800 mb-4">📋 Complete Database Schema</h3>
      <div className="grid md:grid-cols-3 gap-4 text-sm">
       <div>
-       <h4 className="font-semibold text-blue-700 mb-2">Core Collections (19):</h4>
+       <h4 className=" text-blue-700 mb-2">Core Collections (19):</h4>
        <ul className="text-blue-600 space-y-1">
         <li>• users</li>
         <li>• profiles</li>
@@ -548,7 +548,7 @@ Make sure you're signed in as a superadmin and have proper permissions.`)
        </ul>
       </div>
       <div>
-       <h4 className="font-semibold text-blue-700 mb-2">System Collections:</h4>
+       <h4 className=" text-blue-700 mb-2">System Collections:</h4>
        <ul className="text-blue-600 space-y-1">
         <li>• events</li>
         <li>• notifications</li>
@@ -559,7 +559,7 @@ Make sure you're signed in as a superadmin and have proper permissions.`)
        </ul>
       </div>
       <div>
-       <h4 className="font-semibold text-blue-700 mb-2">Analytics (4):</h4>
+       <h4 className=" text-blue-700 mb-2">Analytics (4):</h4>
        <ul className="text-blue-600 space-y-1">
         <li>• creatorAnalytics</li>
         <li>• lessonAnalytics</li>
@@ -575,7 +575,7 @@ Make sure you're signed in as a superadmin and have proper permissions.`)
      <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
       <div className="flex items-center">
        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-600 mr-3"></div>
-       <span className="text-green-800 font-medium">{progress}</span>
+       <span className="text-green-800 ">{progress}</span>
       </div>
       {collections.length > 0 && (
        <div className="mt-2 text-sm text-green-700">
@@ -603,7 +603,7 @@ Make sure you're signed in as a superadmin and have proper permissions.`)
     {/* Result */}
     {result && (
      <div className="bg-white border border-gray-200 rounded-lg p-6">
-      <h3 className="text-lg font-semibold mb-4">Result:</h3>
+      <h3 className="text-lg  mb-4">Result:</h3>
       <pre className="whitespace-pre-wrap text-sm bg-gray-50 p-4 rounded border">
        {result}
       </pre>

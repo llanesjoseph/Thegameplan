@@ -122,13 +122,13 @@ export default function SimpleCreatorDashboard() {
     <div className="grid md:grid-cols-3 gap-6 mb-8">
      <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
       <div className="text-3xl text-blue-600 mb-2">{lessons.length}</div>
-      <div className="text-gray-900 font-medium">Total Lessons</div>
+      <div className="text-gray-900 ">Total Lessons</div>
       <div className="text-gray-500 text-sm">In database</div>
      </div>
      
      <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
       <div className="text-3xl text-green-600 mb-2">{userLessons.length}</div>
-      <div className="text-gray-900 font-medium">Your Lessons</div>
+      <div className="text-gray-900 ">Your Lessons</div>
       <div className="text-gray-500 text-sm">{authUser?.uid ? 'Published by you' : 'Sign in to see yours'}</div>
      </div>
      
@@ -136,14 +136,14 @@ export default function SimpleCreatorDashboard() {
       <div className="text-3xl text-purple-600 mb-2">
        {lessons.reduce((total, lesson) => total + (lesson.views || 0), 0)}
       </div>
-      <div className="text-gray-900 font-medium">Total Views</div>
+      <div className="text-gray-900 ">Total Views</div>
       <div className="text-gray-500 text-sm">All lessons combined</div>
      </div>
     </div>
 
     {/* Debug Info */}
     <div className="bg-white border border-gray-200 rounded-xl p-4 mb-6 shadow-sm">
-     <h3 className="text-gray-900 font-medium mb-2">🔍 Debug Info</h3>
+     <h3 className="text-gray-900  mb-2">🔍 Debug Info</h3>
      <div className="text-sm space-y-1">
       <div className="text-gray-600">Auth User: {authUser?.uid || 'Not authenticated'}</div>
       <div className="text-gray-600">Email: {authUser?.email || 'No email'}</div>
@@ -170,7 +170,7 @@ export default function SimpleCreatorDashboard() {
      ) : lessons.length === 0 ? (
       <div className="text-center py-12">
        <FileVideo className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-       <h3 className="text-xl font-semibold text-gray-900 mb-2">No lessons found</h3>
+       <h3 className="text-xl  text-gray-900 mb-2">No lessons found</h3>
        <p className="text-gray-600 mb-6">Check your Firebase connection</p>
        <button
         onClick={fetchAllLessons}
@@ -197,22 +197,22 @@ export default function SimpleCreatorDashboard() {
            {/* Lesson Info */}
            <div className="flex-1 min-w-0 mr-4">
             <div className="flex items-center gap-3 mb-2">
-             <h3 className="text-lg font-semibold text-gray-900 truncate">
+             <h3 className="text-lg  text-gray-900 truncate">
               {lesson.title || 'Untitled'}
              </h3>
              
              <div className="flex items-center gap-2">
               {isYourLesson && (
-               <div className="px-2 py-1 bg-purple-500/20 text-purple-400 rounded text-xs font-medium">
+               <div className="px-2 py-1 bg-purple-500/20 text-purple-400 rounded text-xs ">
                 YOUR LESSON
                </div>
               )}
               
-              <div className="px-2 py-1 bg-blue-500/20 text-blue-400 rounded text-xs font-medium">
+              <div className="px-2 py-1 bg-blue-500/20 text-blue-400 rounded text-xs ">
                {lesson.level || 'No Level'}
               </div>
               
-              <div className={`px-2 py-1 rounded text-xs font-medium ${
+              <div className={`px-2 py-1 rounded text-xs  ${
                lesson.status === 'published' 
                 ? 'bg-green-500/20 text-green-400' 
                 : 'bg-yellow-500/20 text-yellow-400'
@@ -300,7 +300,7 @@ export default function SimpleCreatorDashboard() {
       href="/lessons"
       className="p-4 bg-white hover:bg-gray-50 border border-gray-200 rounded-xl transition-colors shadow-sm"
      >
-      <h3 className="text-gray-900 font-medium mb-2">Browse All Lessons</h3>
+      <h3 className="text-gray-900  mb-2">Browse All Lessons</h3>
       <p className="text-gray-500 text-sm">See public lesson catalog</p>
      </Link>
      
@@ -308,7 +308,7 @@ export default function SimpleCreatorDashboard() {
       href="/dashboard/creator"
       className="p-4 bg-white hover:bg-gray-50 border border-gray-200 rounded-xl transition-colors shadow-sm"
      >
-      <h3 className="text-gray-900 font-medium mb-2">Create New Lesson</h3>
+      <h3 className="text-gray-900  mb-2">Create New Lesson</h3>
       <p className="text-gray-500 text-sm">Full creation studio</p>
      </Link>
      
@@ -316,7 +316,7 @@ export default function SimpleCreatorDashboard() {
       onClick={() => window.location.reload()}
       className="p-4 bg-white hover:bg-gray-50 border border-gray-200 rounded-xl transition-colors shadow-sm text-left"
      >
-      <h3 className="text-gray-900 font-medium mb-2">Reload Page</h3>
+      <h3 className="text-gray-900  mb-2">Reload Page</h3>
       <p className="text-gray-500 text-sm">Refresh everything</p>
      </button>
     </div>

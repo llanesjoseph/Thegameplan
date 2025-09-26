@@ -196,7 +196,7 @@ export default function UserRequestsPage() {
       <CardContent className="space-y-4">
        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-         <label className="block text-sm font-medium mb-2">Request Type</label>
+         <label className="block text-sm  mb-2">Request Type</label>
          <select
           value={newRequest.type}
           onChange={(e) => setNewRequest({...newRequest, type: e.target.value})}
@@ -211,7 +211,7 @@ export default function UserRequestsPage() {
          </select>
         </div>
         <div>
-         <label className="block text-sm font-medium mb-2">Priority</label>
+         <label className="block text-sm  mb-2">Priority</label>
          <select
           value={newRequest.priority}
           onChange={(e) => setNewRequest({...newRequest, priority: e.target.value})}
@@ -228,7 +228,7 @@ export default function UserRequestsPage() {
        </div>
 
        <div>
-        <label className="block text-sm font-medium mb-2">Subject</label>
+        <label className="block text-sm  mb-2">Subject</label>
         <Input
          value={newRequest.subject}
          onChange={(e) => setNewRequest({...newRequest, subject: e.target.value})}
@@ -237,7 +237,7 @@ export default function UserRequestsPage() {
        </div>
 
        <div>
-        <label className="block text-sm font-medium mb-2">Description</label>
+        <label className="block text-sm  mb-2">Description</label>
         <Textarea
          value={newRequest.description}
          onChange={(e) => setNewRequest({...newRequest, description: e.target.value})}
@@ -280,7 +280,7 @@ export default function UserRequestsPage() {
        <Card>
         <CardContent className="py-12 text-center">
          <MessageSquare className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-         <h3 className="text-lg font-medium mb-2">No Requests Yet</h3>
+         <h3 className="text-lg  mb-2">No Requests Yet</h3>
          <p className="text-gray-600">Submit your first support request to get help with any issues.</p>
         </CardContent>
        </Card>
@@ -309,13 +309,13 @@ export default function UserRequestsPage() {
          <CardContent>
           <div className="space-y-4">
            <div>
-            <h4 className="font-medium mb-2">Description</h4>
+            <h4 className=" mb-2">Description</h4>
             <p className="text-gray-600 text-sm">{request.description}</p>
            </div>
 
            {request.adminResponse && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-             <h4 className="font-medium mb-2 text-blue-900">Admin Response</h4>
+             <h4 className=" mb-2 text-blue-900">Admin Response</h4>
              <p className="text-blue-800 text-sm">{request.adminResponse}</p>
              {request.resolvedAt && (
               <p className="text-xs text-blue-600 mt-2">
@@ -363,13 +363,13 @@ export default function UserRequestsPage() {
          <CardContent>
           <div className="space-y-4">
            <div>
-            <h4 className="font-medium mb-2">Description</h4>
+            <h4 className=" mb-2">Description</h4>
             <p className="text-gray-600 text-sm">{request.description}</p>
            </div>
 
            {request.adminResponse && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-             <h4 className="font-medium mb-2 text-blue-900">Admin Response</h4>
+             <h4 className=" mb-2 text-blue-900">Admin Response</h4>
              <p className="text-blue-800 text-sm">{request.adminResponse}</p>
              {request.resolvedAt && (
               <p className="text-xs text-blue-600 mt-2">

@@ -96,7 +96,7 @@ export default function EmailSignInButton({
   return (
    <button
     onClick={() => setShowForm(true)}
-    className={`w-full flex items-center justify-center gap-3 rounded-lg font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-cardinal focus:ring-offset-2 px-4 py-3 text-base ${
+    className={`w-full flex items-center justify-center gap-3 rounded-lg  transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-cardinal focus:ring-offset-2 px-4 py-3 text-base ${
      variant === 'outline'
       ? 'bg-transparent hover:bg-gray-50 text-gray-800 border border-gray-300'
       : 'bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 shadow-sm'
@@ -132,7 +132,7 @@ export default function EmailSignInButton({
       {/* Form */}
       <form onSubmit={handleEmailAuth} className="space-y-4">
        <div>
-        <label htmlFor="email" className="block text-sm font-medium text-gray-800 mb-2">
+        <label htmlFor="email" className="block text-sm  text-gray-800 mb-2">
          Email Address
         </label>
         <input
@@ -148,7 +148,7 @@ export default function EmailSignInButton({
        </div>
 
        <div>
-        <label htmlFor="password" className="block text-sm font-medium text-gray-800 mb-2">
+        <label htmlFor="password" className="block text-sm  text-gray-800 mb-2">
          Password
         </label>
         <div className="relative">
@@ -173,7 +173,7 @@ export default function EmailSignInButton({
 
        {isSignUp && (
         <div>
-         <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-800 mb-2">
+         <label htmlFor="confirmPassword" className="block text-sm  text-gray-800 mb-2">
           Confirm Password
          </label>
          <input
@@ -198,7 +198,7 @@ export default function EmailSignInButton({
         <button
          type="submit"
          disabled={isLoading}
-         className="w-full bg-cardinal hover:bg-cardinal-dark text-white font-medium py-3 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+         className="w-full bg-cardinal hover:bg-cardinal-dark text-white  py-3 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
          {isLoading ? (
           <div className="flex items-center justify-center gap-2">

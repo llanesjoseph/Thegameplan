@@ -210,7 +210,7 @@ export default function AdminSettings() {
     <form onSubmit={(e) => { e.preventDefault(); saveSettings(); }} className="space-y-8">
      {/* Content Moderation */}
      <div className="card">
-      <h2 className="text-2xl font-semibold mb-6 flex items-center gap-2">
+      <h2 className="text-2xl  mb-6 flex items-center gap-2">
        <Video className="w-6 h-6 text-blue-400" />
        Content Moderation
       </h2>
@@ -218,7 +218,7 @@ export default function AdminSettings() {
       <div className="grid md:grid-cols-2 gap-6">
        <div className="space-y-4">
         <div className="flex items-center justify-between">
-         <label className="text-sm font-medium">Auto-approve content</label>
+         <label className="text-sm ">Auto-approve content</label>
          <input
           type="checkbox"
           checked={settings.contentModeration.autoApprove}
@@ -228,7 +228,7 @@ export default function AdminSettings() {
         </div>
         
         <div className="flex items-center justify-between">
-         <label className="text-sm font-medium">Require admin review</label>
+         <label className="text-sm ">Require admin review</label>
          <input
           type="checkbox"
           checked={settings.contentModeration.requireReview}
@@ -240,7 +240,7 @@ export default function AdminSettings() {
        
        <div className="space-y-4">
         <div>
-         <label className="block text-sm font-medium mb-2">Max video length (minutes)</label>
+         <label className="block text-sm  mb-2">Max video length (minutes)</label>
          <input
           type="number"
           value={settings.contentModeration.maxVideoLength}
@@ -252,7 +252,7 @@ export default function AdminSettings() {
         </div>
         
         <div>
-         <label className="block text-sm font-medium mb-2">Max file size (MB)</label>
+         <label className="block text-sm  mb-2">Max file size (MB)</label>
          <input
           type="number"
           value={settings.contentModeration.maxFileSize}
@@ -268,7 +268,7 @@ export default function AdminSettings() {
 
      {/* User Management */}
      <div className="card">
-      <h2 className="text-2xl font-semibold mb-6 flex items-center gap-2">
+      <h2 className="text-2xl  mb-6 flex items-center gap-2">
        <Users className="w-6 h-6 text-green-400" />
        User Management
       </h2>
@@ -276,7 +276,7 @@ export default function AdminSettings() {
       <div className="grid md:grid-cols-2 gap-6">
        <div className="space-y-4">
         <div className="flex items-center justify-between">
-         <label className="text-sm font-medium">Allow new registrations</label>
+         <label className="text-sm ">Allow new registrations</label>
          <input
           type="checkbox"
           checked={settings.userManagement.allowRegistration}
@@ -286,7 +286,7 @@ export default function AdminSettings() {
         </div>
         
         <div className="flex items-center justify-between">
-         <label className="text-sm font-medium">Require email verification</label>
+         <label className="text-sm ">Require email verification</label>
          <input
           type="checkbox"
           checked={settings.userManagement.requireEmailVerification}
@@ -298,7 +298,7 @@ export default function AdminSettings() {
        
        <div className="space-y-4">
         <div>
-         <label className="block text-sm font-medium mb-2">Max login attempts</label>
+         <label className="block text-sm  mb-2">Max login attempts</label>
          <input
           type="number"
           value={settings.userManagement.maxLoginAttempts}
@@ -310,7 +310,7 @@ export default function AdminSettings() {
         </div>
         
         <div>
-         <label className="block text-sm font-medium mb-2">Session timeout (hours)</label>
+         <label className="block text-sm  mb-2">Session timeout (hours)</label>
          <input
           type="number"
           value={settings.userManagement.sessionTimeout}
@@ -326,7 +326,7 @@ export default function AdminSettings() {
 
      {/* Content Settings */}
      <div className="card">
-      <h2 className="text-2xl font-semibold mb-6 flex items-center gap-2">
+      <h2 className="text-2xl  mb-6 flex items-center gap-2">
        <Video className="w-6 h-6 text-purple-400" />
        Content Settings
       </h2>
@@ -334,7 +334,7 @@ export default function AdminSettings() {
       <div className="grid md:grid-cols-2 gap-6">
        <div className="space-y-4">
         <div className="flex items-center justify-between">
-         <label className="text-sm font-medium">Allow comments</label>
+         <label className="text-sm ">Allow comments</label>
          <input
           type="checkbox"
           checked={settings.contentSettings.allowComments}
@@ -344,7 +344,7 @@ export default function AdminSettings() {
         </div>
         
         <div className="flex items-center justify-between">
-         <label className="text-sm font-medium">Allow ratings</label>
+         <label className="text-sm ">Allow ratings</label>
          <input
           type="checkbox"
           checked={settings.contentSettings.allowRatings}
@@ -354,7 +354,7 @@ export default function AdminSettings() {
         </div>
         
         <div className="flex items-center justify-between">
-         <label className="text-sm font-medium">Require thumbnails</label>
+         <label className="text-sm ">Require thumbnails</label>
          <input
           type="checkbox"
           checked={settings.contentSettings.requireThumbnail}
@@ -366,7 +366,7 @@ export default function AdminSettings() {
        
        <div className="space-y-4">
         <div>
-         <label className="block text-sm font-medium mb-2">Max tags per content</label>
+         <label className="block text-sm  mb-2">Max tags per content</label>
          <input
           type="number"
           value={settings.contentSettings.maxTagsPerContent}
@@ -382,7 +382,7 @@ export default function AdminSettings() {
 
      {/* Notifications */}
      <div className="card">
-      <h2 className="text-2xl font-semibold mb-6 flex items-center gap-2">
+      <h2 className="text-2xl  mb-6 flex items-center gap-2">
        <Bell className="w-6 h-6 text-orange-400" />
        Notification Settings
       </h2>
@@ -390,7 +390,7 @@ export default function AdminSettings() {
       <div className="grid md:grid-cols-2 gap-6">
        <div className="space-y-4">
         <div className="flex items-center justify-between">
-         <label className="text-sm font-medium">Email notifications</label>
+         <label className="text-sm ">Email notifications</label>
          <input
           type="checkbox"
           checked={settings.notifications.emailNotifications}
@@ -400,7 +400,7 @@ export default function AdminSettings() {
         </div>
         
         <div className="flex items-center justify-between">
-         <label className="text-sm font-medium">Push notifications</label>
+         <label className="text-sm ">Push notifications</label>
          <input
           type="checkbox"
           checked={settings.notifications.pushNotifications}
@@ -412,7 +412,7 @@ export default function AdminSettings() {
        
        <div className="space-y-4">
         <div className="flex items-center justify-between">
-         <label className="text-sm font-medium">Marketing emails</label>
+         <label className="text-sm ">Marketing emails</label>
          <input
           type="checkbox"
           checked={settings.notifications.marketingEmails}
@@ -422,7 +422,7 @@ export default function AdminSettings() {
         </div>
         
         <div className="flex items-center justify-between">
-         <label className="text-sm font-medium">Weekly digest</label>
+         <label className="text-sm ">Weekly digest</label>
          <input
           type="checkbox"
           checked={settings.notifications.weeklyDigest}
@@ -436,7 +436,7 @@ export default function AdminSettings() {
 
      {/* Security */}
      <div className="card">
-      <h2 className="text-2xl font-semibold mb-6 flex items-center gap-2">
+      <h2 className="text-2xl  mb-6 flex items-center gap-2">
        <Shield className="w-6 h-6 text-red-400" />
        Security Settings
       </h2>
@@ -444,7 +444,7 @@ export default function AdminSettings() {
       <div className="grid md:grid-cols-2 gap-6">
        <div className="space-y-4">
         <div className="flex items-center justify-between">
-         <label className="text-sm font-medium">Two-factor authentication</label>
+         <label className="text-sm ">Two-factor authentication</label>
          <input
           type="checkbox"
           checked={settings.security.twoFactorAuth}
@@ -454,7 +454,7 @@ export default function AdminSettings() {
         </div>
         
         <div className="flex items-center justify-between">
-         <label className="text-sm font-medium">Require special characters</label>
+         <label className="text-sm ">Require special characters</label>
          <input
           type="checkbox"
           checked={settings.security.requireSpecialChars}
@@ -466,7 +466,7 @@ export default function AdminSettings() {
        
        <div className="space-y-4">
         <div>
-         <label className="block text-sm font-medium mb-2">Password min length</label>
+         <label className="block text-sm  mb-2">Password min length</label>
          <input
           type="number"
           value={settings.security.passwordMinLength}
@@ -478,7 +478,7 @@ export default function AdminSettings() {
         </div>
         
         <div>
-         <label className="block text-sm font-medium mb-2">Max failed logins</label>
+         <label className="block text-sm  mb-2">Max failed logins</label>
          <input
           type="number"
           value={settings.security.maxFailedLogins}

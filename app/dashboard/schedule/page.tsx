@@ -169,7 +169,7 @@ export default function UserSchedule() {
         <div className="w-12 h-12 rounded-full bg-gradient-to-br from-sky-blue to-black flex items-center justify-center">
          <Clock className="w-6 h-6 text-white" />
         </div>
-        <h2 className="text-2xl font-semibold font-heading" style={{ color: '#000000' }}>
+        <h2 className="text-2xl  font-heading" style={{ color: '#000000' }}>
          Your Availability
         </h2>
        </div>
@@ -180,7 +180,7 @@ export default function UserSchedule() {
           <div className="flex items-center gap-3">
            <div className="flex-1 max-w-[200px]">
             <select
-             className="w-full bg-white/80 border border-white/50 rounded-lg px-4 py-2.5 font-medium focus:ring-2 focus:ring-sky-blue focus:border-transparent"
+             className="w-full bg-white/80 border border-white/50 rounded-lg px-4 py-2.5  focus:ring-2 focus:ring-sky-blue focus:border-transparent"
              style={{ color: '#000000' }}
              value={slot.day}
              onChange={e => updateSlot(i, { day: e.target.value })}
@@ -196,15 +196,15 @@ export default function UserSchedule() {
            <div className="flex items-center gap-2 flex-1">
             <input
              type="time"
-             className="bg-white/80 border border-white/50 rounded-lg px-4 py-2.5 font-medium focus:ring-2 focus:ring-sky-blue focus:border-transparent"
+             className="bg-white/80 border border-white/50 rounded-lg px-4 py-2.5  focus:ring-2 focus:ring-sky-blue focus:border-transparent"
              style={{ color: '#000000' }}
              value={slot.start}
              onChange={e => updateSlot(i, { start: e.target.value })}
             />
-            <span className="font-medium" style={{ color: '#000000' }}>to</span>
+            <span className="" style={{ color: '#000000' }}>to</span>
             <input
              type="time"
-             className="bg-white/80 border border-white/50 rounded-lg px-4 py-2.5 font-medium focus:ring-2 focus:ring-sky-blue focus:border-transparent"
+             className="bg-white/80 border border-white/50 rounded-lg px-4 py-2.5  focus:ring-2 focus:ring-sky-blue focus:border-transparent"
              style={{ color: '#000000' }}
              value={slot.end}
              onChange={e => updateSlot(i, { end: e.target.value })}
@@ -231,7 +231,7 @@ export default function UserSchedule() {
        <div className="flex justify-center gap-4">
         <button
          onClick={addSlot}
-         className="flex items-center gap-2 px-6 py-3 text-white rounded-xl font-medium transition-all shadow-lg hover:shadow-xl"
+         className="flex items-center gap-2 px-6 py-3 text-white rounded-xl  transition-all shadow-lg hover:shadow-xl"
          style={{ backgroundColor: '#91A6EB' }}
         >
          <Plus className="w-4 h-4" />
@@ -241,7 +241,7 @@ export default function UserSchedule() {
         <button
          onClick={saveAvailability}
          disabled={saving}
-         className="flex items-center gap-2 px-8 py-3 disabled:opacity-50 text-white rounded-xl font-medium transition-all shadow-lg hover:shadow-xl"
+         className="flex items-center gap-2 px-8 py-3 disabled:opacity-50 text-white rounded-xl  transition-all shadow-lg hover:shadow-xl"
          style={{ backgroundColor: '#20B2AA' }}
         >
          <Save className="w-4 h-4" />
@@ -256,7 +256,7 @@ export default function UserSchedule() {
         <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green to-black flex items-center justify-center">
          <Send className="w-6 h-6 text-white" />
         </div>
-        <h2 className="text-2xl font-semibold font-heading" style={{ color: '#000000' }}>
+        <h2 className="text-2xl  font-heading" style={{ color: '#000000' }}>
          Propose a Session
         </h2>
        </div>
@@ -269,7 +269,7 @@ export default function UserSchedule() {
          </div>
          <input
           type="text"
-          className="w-full bg-white/80 border border-white/50 rounded-xl pl-12 pr-4 py-3.5 font-medium focus:ring-2 focus:ring-sky-blue focus:border-transparent"
+          className="w-full bg-white/80 border border-white/50 rounded-xl pl-12 pr-4 py-3.5  focus:ring-2 focus:ring-sky-blue focus:border-transparent"
           placeholder="Search coaches by name, email, or ID..."
           style={{ color: '#000000' }}
           value={searchQuery}
@@ -299,7 +299,7 @@ export default function UserSchedule() {
               <User className="w-4 h-4 text-white" />
              </div>
              <div className="flex-1">
-              <div className="font-medium" style={{ color: '#000000' }}>
+              <div className="" style={{ color: '#000000' }}>
                {creator.displayName || creator.email || 'Unknown Creator'}
               </div>
               <div className="text-xs" style={{ color: '#000000', opacity: 0.7 }}>
@@ -323,7 +323,7 @@ export default function UserSchedule() {
         <div className="relative">
          <input
           type="text"
-          className="w-full bg-white/80 border border-white/50 rounded-xl px-4 py-3.5 font-medium focus:ring-2 focus:ring-sky-blue focus:border-transparent"
+          className="w-full bg-white/80 border border-white/50 rounded-xl px-4 py-3.5  focus:ring-2 focus:ring-sky-blue focus:border-transparent"
           placeholder="Or enter coach ID directly..."
           style={{ color: '#000000' }}
           value={creatorUid}
@@ -337,11 +337,11 @@ export default function UserSchedule() {
           <div className="flex items-center justify-center gap-6" style={{ color: '#000000' }}>
            <div className="flex items-center gap-2">
             <Calendar className="w-5 h-5" style={{ color: '#91A6EB' }} />
-            <span className="font-semibold">{dayOptions.find(d => d.value === slots[0].day)?.label}</span>
+            <span className="">{dayOptions.find(d => d.value === slots[0].day)?.label}</span>
            </div>
            <div className="flex items-center gap-2">
             <Clock className="w-5 h-5" style={{ color: '#20B2AA' }} />
-            <span className="font-semibold">{slots[0].start} - {slots[0].end}</span>
+            <span className="">{slots[0].start} - {slots[0].end}</span>
            </div>
           </div>
          </div>
@@ -352,7 +352,7 @@ export default function UserSchedule() {
         <button
          onClick={proposeSession}
          disabled={!creatorUid || slots.length === 0 || proposing}
-         className="px-12 py-4 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-semibold transition-all text-lg shadow-lg hover:shadow-xl"
+         className="px-12 py-4 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl  transition-all text-lg shadow-lg hover:shadow-xl"
          style={{ backgroundColor: '#20B2AA' }}
         >
          {proposing ? 'Proposing Session...' : 'Propose Session'}

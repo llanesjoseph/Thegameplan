@@ -81,7 +81,7 @@ export default function UserAvatar({
     />
    ) : (
     <div 
-     className={`${sizeClasses[size]} rounded-full flex items-center justify-center font-medium border-2 border-white/20 ${colors.bg} ${colors.text}`}
+     className={`${sizeClasses[size]} rounded-full flex items-center justify-center  border-2 border-white/20 ${colors.bg} ${colors.text}`}
     >
      {initials}
     </div>

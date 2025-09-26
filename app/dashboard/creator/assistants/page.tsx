@@ -131,7 +131,7 @@ export default function AssistantCoachManagement() {
       </div>
       <span className="text-indigo-600 text-2xl ">{assistants.length}</span>
      </div>
-     <h3 className="font-semibold text-gray-900 mb-1">Active Assistants</h3>
+     <h3 className=" text-gray-900 mb-1">Active Assistants</h3>
      <p className="text-sm text-gray-600">Currently helping with your coaching</p>
     </div>
 
@@ -144,7 +144,7 @@ export default function AssistantCoachManagement() {
        {assistants.filter(a => a.permissions.canRespondToRequests).length}
       </span>
      </div>
-     <h3 className="font-semibold text-gray-900 mb-1">Can Respond</h3>
+     <h3 className=" text-gray-900 mb-1">Can Respond</h3>
      <p className="text-sm text-gray-600">Assistants with response permissions</p>
     </div>
 
@@ -157,7 +157,7 @@ export default function AssistantCoachManagement() {
        {assistants.filter(a => a.permissions.canManageSchedule).length}
       </span>
      </div>
-     <h3 className="font-semibold text-gray-900 mb-1">Schedule Managers</h3>
+     <h3 className=" text-gray-900 mb-1">Schedule Managers</h3>
      <p className="text-sm text-gray-600">Assistants managing your schedule</p>
     </div>
    </div>
@@ -165,7 +165,7 @@ export default function AssistantCoachManagement() {
    {/* Assistant Coaches List */}
    <div className="bg-white border border-gray-200 rounded-lg">
     <div className="p-6 border-b border-gray-200">
-     <h2 className="text-xl font-semibold text-gray-900">Your Assistant Coaches</h2>
+     <h2 className="text-xl  text-gray-900">Your Assistant Coaches</h2>
     </div>
 
     {loading ? (
@@ -185,7 +185,7 @@ export default function AssistantCoachManagement() {
     ) : assistants.length === 0 ? (
      <div className="p-12 text-center">
       <UserCheck className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">No Assistant Coaches Yet</h3>
+      <h3 className="text-lg  text-gray-900 mb-2">No Assistant Coaches Yet</h3>
       <p className="text-gray-600 mb-6">
        Invite assistant coaches to help you manage your coaching activities and engage with athletes.
       </p>
@@ -203,12 +203,12 @@ export default function AssistantCoachManagement() {
         <div className="flex items-center justify-between">
          <div className="flex items-center gap-4">
           <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center">
-           <span className="text-indigo-600 font-semibold">
+           <span className="text-indigo-600 ">
             {assistant.assistantCoachName.charAt(0)}
            </span>
           </div>
           <div>
-           <h3 className="font-semibold text-gray-900">{assistant.assistantCoachName}</h3>
+           <h3 className=" text-gray-900">{assistant.assistantCoachName}</h3>
            <p className="text-gray-600">{assistant.assistantCoachEmail}</p>
            <p className="text-sm text-gray-500">
             Assigned {new Date(assistant.assignedAt.toDate()).toLocaleDateString()}
@@ -220,19 +220,19 @@ export default function AssistantCoachManagement() {
           {/* Permission Badges */}
           <div className="flex gap-2">
            {assistant.permissions.canRespondToRequests && (
-            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs  bg-green-100 text-green-800">
              <Mail className="w-3 h-3 mr-1" />
              Can Respond
             </span>
            )}
            {assistant.permissions.canManageSchedule && (
-            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs  bg-orange-100 text-orange-800">
              <Calendar className="w-3 h-3 mr-1" />
              Schedule
             </span>
            )}
            {assistant.permissions.canManageAthletes && (
-            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs  bg-purple-100 text-purple-800">
              <UserCheck className="w-3 h-3 mr-1" />
              Athletes
             </span>
@@ -269,12 +269,12 @@ export default function AssistantCoachManagement() {
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
      <div className="bg-white rounded-lg max-w-md w-full mx-4">
       <div className="p-6 border-b border-gray-200">
-       <h3 className="text-lg font-semibold text-gray-900">Invite Assistant Coach</h3>
+       <h3 className="text-lg  text-gray-900">Invite Assistant Coach</h3>
       </div>
 
       <div className="p-6 space-y-4">
        <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm  text-gray-700 mb-2">
          Email Address *
         </label>
         <input
@@ -287,7 +287,7 @@ export default function AssistantCoachManagement() {
        </div>
 
        <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm  text-gray-700 mb-2">
          Personal Message (Optional)
         </label>
         <textarea
@@ -303,7 +303,7 @@ export default function AssistantCoachManagement() {
         <div className="flex items-start gap-3">
          <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5" />
          <div className="text-sm text-blue-800">
-          <p className="font-medium mb-1">What assistant coaches can do:</p>
+          <p className=" mb-1">What assistant coaches can do:</p>
           <ul className="list-disc list-inside space-y-1 text-xs">
            <li>View and respond to coaching requests</li>
            <li>Manage your schedule and bookings</li>

@@ -52,7 +52,7 @@ function CompactRoleSwitcher() {
      {React.createElement(roleConfig[effectiveRole].icon, { 
       className: "w-3 h-3 text-clarity-accent" 
      })}
-     <span className="font-medium text-clarity-text-primary">
+     <span className=" text-clarity-text-primary">
       {roleConfig[effectiveRole].label}
      </span>
      {isTestingMode && (
@@ -177,10 +177,10 @@ export default function UserProfileDropdown() {
      aria-label="User menu"
      aria-expanded={isOpen}
     >
-     <div className="w-9 h-9 rounded-full bg-clarity-accent flex items-center justify-center text-white text-sm font-semibold shadow-clarity-sm">
+     <div className="w-9 h-9 rounded-full bg-clarity-accent flex items-center justify-center text-white text-sm  shadow-clarity-sm">
       {initials}
      </div>
-     <span className="hidden lg:block text-sm font-medium text-clarity-text-primary max-w-24 truncate">
+     <span className="hidden lg:block text-sm  text-clarity-text-primary max-w-24 truncate">
       {user.displayName?.split(' ')[0] || 'User'}
      </span>
      <ChevronDown className={`w-4 h-4 transition-transform duration-200 text-clarity-text-secondary ${isOpen ? 'rotate-180' : ''} hidden lg:block`} />
@@ -235,7 +235,7 @@ export default function UserProfileDropdown() {
       {/* Role Switcher - Disabled in favor of new tabbed interface */}
       {canSwitchRoles && false && (
        <div className="px-3 py-2 border-t border-clarity-text-secondary/10 bg-clarity-error/5">
-        <div className="text-caption font-medium text-clarity-error mb-2 flex items-center gap-1">
+        <div className="text-caption  text-clarity-error mb-2 flex items-center gap-1">
          <div className="w-1.5 h-1.5 bg-clarity-error rounded-full"></div>
          Admin Tools
         </div>

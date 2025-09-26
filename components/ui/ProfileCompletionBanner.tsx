@@ -160,7 +160,7 @@ export default function ProfileCompletionBanner() {
       <div className="flex-1">
        <div className="flex items-center gap-2 mb-1">
         <AlertCircle className="w-4 h-4" />
-        <h3 className="font-semibold text-sm sm:text-base">
+        <h3 className=" text-sm sm:text-base">
          Complete Your PLAYBOOKD Profile
         </h3>
        </div>
@@ -189,7 +189,7 @@ export default function ProfileCompletionBanner() {
        variant="secondary"
        size="sm"
        onClick={handleCompleteProfile}
-       className="bg-white text-orange hover:bg-white/90 border-white font-medium text-xs sm:text-sm"
+       className="bg-white text-orange hover:bg-white/90 border-white  text-xs sm:text-sm"
       >
        <span className="hidden sm:inline">Complete Profile</span>
        <span className="sm:hidden">Complete</span>

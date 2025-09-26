@@ -19,7 +19,7 @@ export default function Subscribe() {
     <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
      <div className="text-center mb-16">
       {/* Badge */}
-      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cardinal/10 border border-cardinal/20 text-cardinal text-sm font-medium mb-6">
+      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cardinal/10 border border-cardinal/20 text-cardinal text-sm  mb-6">
        <Crown className="w-4 h-4" />
        Premium Training Platform
       </div>
@@ -50,7 +50,7 @@ export default function Subscribe() {
          <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-4">
           <Shield className="w-6 h-6 text-gray-700" />
          </div>
-         <h3 className="font-semibold text-gray-800 mb-2">Basic Plan</h3>
+         <h3 className=" text-gray-800 mb-2">Basic Plan</h3>
          <ul className="text-sm text-gray-600 space-y-1">
           <li>• Access to free lessons</li>
           <li>• Basic skill tutorials</li>
@@ -63,7 +63,7 @@ export default function Subscribe() {
          <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-4">
           <Target className="w-6 h-6 text-gray-700" />
          </div>
-         <h3 className="font-semibold text-gray-800 mb-2">Pro Plan</h3>
+         <h3 className=" text-gray-800 mb-2">Pro Plan</h3>
          <ul className="text-sm text-gray-600 space-y-1">
           <li>• Everything in Basic</li>
           <li>• Premium lesson library</li>
@@ -77,7 +77,7 @@ export default function Subscribe() {
          <div className="w-12 h-12 bg-cardinal/10 rounded-xl flex items-center justify-center mx-auto mb-4">
           <Sparkles className="w-6 h-6 text-cardinal" />
          </div>
-         <h3 className="font-semibold text-gray-800 mb-2">Elite Plan</h3>
+         <h3 className=" text-gray-800 mb-2">Elite Plan</h3>
          <ul className="text-sm text-gray-600 space-y-1">
           <li>• Everything in Pro</li>
           <li>• Live coaching sessions</li>
@@ -95,13 +95,13 @@ export default function Subscribe() {
      <div className="text-center mt-16">
       <p className="text-gray-600 mb-6">Trusted by athletes and coaches worldwide</p>
       <div className="flex items-center justify-center gap-8 opacity-80">
-       <div className="text-xs font-semibold text-gray-600 px-3 py-1 border border-gray-200 rounded">
+       <div className="text-xs  text-gray-600 px-3 py-1 border border-gray-200 rounded">
         30-DAY GUARANTEE
        </div>
-       <div className="text-xs font-semibold text-gray-600 px-3 py-1 border border-gray-200 rounded">
+       <div className="text-xs  text-gray-600 px-3 py-1 border border-gray-200 rounded">
         CANCEL ANYTIME
        </div>
-       <div className="text-xs font-semibold text-gray-600 px-3 py-1 border border-gray-200 rounded">
+       <div className="text-xs  text-gray-600 px-3 py-1 border border-gray-200 rounded">
         SECURE PAYMENTS
        </div>
       </div>

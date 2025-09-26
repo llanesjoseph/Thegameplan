@@ -20,7 +20,7 @@ export function ClarityButton({
  children, 
  ...props 
 }: ClarityButtonProps) {
- const baseStyles = 'inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed'
+ const baseStyles = 'inline-flex items-center justify-center rounded-lg  transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed'
  
  const variants = {
   primary: 'bg-clarity-primary text-white hover:bg-clarity-primary/90 focus:ring-clarity-primary/50',

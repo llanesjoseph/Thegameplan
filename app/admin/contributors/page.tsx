@@ -88,7 +88,7 @@ export default function AdminContributorsPage() {
 
    <div className="grid lg:grid-cols-2 gap-6">
     <div className="space-y-4">
-     <h2 className="text-xl font-semibold text-clarity-text-primary">Applications</h2>
+     <h2 className="text-xl  text-clarity-text-primary">Applications</h2>
      {loading ? (
       <div className="text-center py-8 text-clarity-text-secondary">Loading…</div>
      ) : applications.length === 0 ? (
@@ -101,7 +101,7 @@ export default function AdminContributorsPage() {
           {app.headshotUrl ? <Image src={app.headshotUrl} alt="" width={64} height={64} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-clarity-text-secondary">{app.firstName?.[0]}{app.lastName?.[0]}</div>}
          </div>
          <div className="flex-1">
-          <h3 className="font-semibold text-clarity-text-primary">{app.firstName} {app.lastName}</h3>
+          <h3 className=" text-clarity-text-primary">{app.firstName} {app.lastName}</h3>
           <p className="text-sm text-clarity-text-secondary capitalize">{app.primarySport} • {app.experience}</p>
          </div>
          <div className={`px-3 py-1 rounded-full text-xs border ${badgeClass(app.status)}`}>{app.status}</div>
@@ -112,7 +112,7 @@ export default function AdminContributorsPage() {
     </div>
 
     <div className="space-y-4">
-     <h2 className="text-xl font-semibold text-clarity-text-primary">Application Details</h2>
+     <h2 className="text-xl  text-clarity-text-primary">Application Details</h2>
      {selectedApp ? (
       <div className="bg-clarity-surface border border-clarity-text-secondary/10 rounded-2xl p-6 space-y-6">
        <div className="flex items-center gap-4">
@@ -120,7 +120,7 @@ export default function AdminContributorsPage() {
          {selectedApp.headshotUrl ? <Image src={selectedApp.headshotUrl} alt="" width={80} height={80} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-clarity-text-secondary text-xl">{selectedApp.firstName?.[0]}{selectedApp.lastName?.[0]}</div>}
         </div>
         <div>
-         <h3 className="text-xl font-semibold text-clarity-text-primary">{selectedApp.firstName} {selectedApp.lastName}</h3>
+         <h3 className="text-xl  text-clarity-text-primary">{selectedApp.firstName} {selectedApp.lastName}</h3>
          <p className="text-clarity-text-secondary">{selectedApp.email}</p>
          <div className={`inline-block px-3 py-1 rounded-full text-sm border mt-2 ${badgeClass(selectedApp.status)}`}>{selectedApp.status}</div>
         </div>

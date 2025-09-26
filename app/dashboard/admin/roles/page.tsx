@@ -96,7 +96,7 @@ export default function RoleManagement() {
   }
   const config = configs[role as keyof typeof configs] || configs.user
   return (
-   <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${config.bg} ${config.text}`}>
+   <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs  ${config.bg} ${config.text}`}>
     {getRoleIcon(role)}
     <span className="ml-1">{config.label}</span>
    </span>
@@ -191,10 +191,10 @@ export default function RoleManagement() {
       <table className="w-full">
        <thead style={{ backgroundColor: '#91A6EB' }}>
         <tr>
-         <th className="text-left py-4 px-6 text-white font-semibold">User</th>
-         <th className="text-left py-4 px-6 text-white font-semibold">Email</th>
-         <th className="text-left py-4 px-6 text-white font-semibold">Current Role</th>
-         <th className="text-left py-4 px-6 text-white font-semibold">Actions</th>
+         <th className="text-left py-4 px-6 text-white ">User</th>
+         <th className="text-left py-4 px-6 text-white ">Email</th>
+         <th className="text-left py-4 px-6 text-white ">Current Role</th>
+         <th className="text-left py-4 px-6 text-white ">Actions</th>
         </tr>
        </thead>
        <tbody>
@@ -207,11 +207,11 @@ export default function RoleManagement() {
          >
           <td className="py-4 px-6">
            <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-sky-blue to-black flex items-center justify-center text-white font-semibold">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-sky-blue to-black flex items-center justify-center text-white ">
              {(userData.displayName || userData.email || 'U').charAt(0).toUpperCase()}
             </div>
             <div>
-             <div className="font-medium" style={{ color: '#000000' }}>
+             <div className="" style={{ color: '#000000' }}>
               {userData.displayName || 'No name'}
              </div>
              <div className="text-sm text-gray-500">

@@ -294,14 +294,14 @@ export default function ProfilePage() {
        <h1 className="text-4xl text-dark font-heading">
         {role === 'creator' ? 'Coach Profile' : 'Athlete Profile'}
        </h1>
-       <p className="text-dark/60 font-medium">Manage your sports profile and showcase your expertise</p>
+       <p className="text-dark/60 ">Manage your sports profile and showcase your expertise</p>
       </div>
      </div>
      
      <div className="flex items-center gap-3">
       {/* Save Status Indicator */}
       {saveStatus && (
-       <div className={`flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium backdrop-blur-sm border shadow-sm ${
+       <div className={`flex items-center gap-2 px-4 py-3 rounded-xl text-sm  backdrop-blur-sm border shadow-sm ${
         saveStatus === 'saving' ? 'bg-sky-blue/20 text-sky-blue border-sky-blue/30' :
         saveStatus === 'success' ? 'bg-green/20 text-green border-green/30' :
         'bg-orange/20 text-orange border-orange/30'
@@ -334,7 +334,7 @@ export default function ProfilePage() {
           setIsEditing(false)
           setSaveStatus(null)
          }}
-         className="px-6 py-3 border-2 border-dark/20 bg-white/80 text-dark rounded-xl hover:bg-white transition-all font-medium backdrop-blur-sm shadow-sm"
+         className="px-6 py-3 border-2 border-dark/20 bg-white/80 text-dark rounded-xl hover:bg-white transition-all  backdrop-blur-sm shadow-sm"
          disabled={saveStatus === 'saving'}
         >
          Cancel
@@ -342,7 +342,7 @@ export default function ProfilePage() {
         <button
          onClick={handleSave}
          disabled={saveStatus === 'saving'}
-         className="px-6 py-3 bg-gradient-to-r from-black to-black/90 text-white rounded-xl hover:from-black/90 hover:to-black transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-lg"
+         className="px-6 py-3 bg-gradient-to-r from-black to-black/90 text-white rounded-xl hover:from-black/90 hover:to-black transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed  shadow-lg"
         >
          {saveStatus === 'saving' ? (
           <>
@@ -360,7 +360,7 @@ export default function ProfilePage() {
       ) : (
        <button
         onClick={() => setIsEditing(true)}
-        className="px-6 py-3 bg-gradient-to-r from-sky-blue to-sky-blue/90 text-white rounded-xl hover:from-sky-blue/90 hover:to-sky-blue transition-all flex items-center gap-2 font-medium shadow-lg"
+        className="px-6 py-3 bg-gradient-to-r from-sky-blue to-sky-blue/90 text-white rounded-xl hover:from-sky-blue/90 hover:to-sky-blue transition-all flex items-center gap-2  shadow-lg"
        >
         <SettingsIcon className="w-4 h-4" />
         Edit Profile
@@ -450,11 +450,11 @@ export default function ProfilePage() {
          <div className="flex items-center gap-6 text-dark/60 flex-wrap">
           <div className="flex items-center gap-2 bg-sky-blue/10 px-4 py-2 rounded-xl">
            <MapPin className="w-4 h-4 text-sky-blue" />
-           <span className="font-medium">{profileData.location || 'Location not set'}</span>
+           <span className="">{profileData.location || 'Location not set'}</span>
           </div>
           <div className="flex items-center gap-2 bg-green/10 px-4 py-2 rounded-xl">
            <Calendar className="w-4 h-4 text-green" />
-           <span className="font-medium">{profileData.experience || 'Experience not set'} experience</span>
+           <span className="">{profileData.experience || 'Experience not set'} experience</span>
           </div>
          </div>
         </div>
@@ -486,7 +486,7 @@ export default function ProfilePage() {
           {/* Sports Dropdown for Coaches */}
           {isEditing && (
            <div className="mb-4">
-            <h4 className="text-sm font-medium text-slate-700 mb-3">Sports Specialties</h4>
+            <h4 className="text-sm  text-slate-700 mb-3">Sports Specialties</h4>
             <select
              onChange={(e) => {
               const selectedSport = e.target.value
@@ -544,7 +544,7 @@ export default function ProfilePage() {
           {isEditing && (
            <div>
             <div className="flex items-center justify-between mb-3">
-             <h4 className="text-sm font-medium text-slate-700">Additional Specialties</h4>
+             <h4 className="text-sm  text-slate-700">Additional Specialties</h4>
              <button
               onClick={() => setProfileData(prev => ({
                ...prev,
@@ -603,7 +603,7 @@ export default function ProfilePage() {
          {isEditing ? (
           <div className="space-y-4">
            <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
+            <label className="block text-sm  text-slate-700 mb-2">
              Add Sport Interest
             </label>
             <select
@@ -635,7 +635,7 @@ export default function ProfilePage() {
 
            {profileData.specialties.length > 0 && (
             <div>
-             <label className="block text-sm font-medium text-slate-700 mb-2">
+             <label className="block text-sm  text-slate-700 mb-2">
               Selected Sports
              </label>
              <div className="flex flex-wrap gap-2">
@@ -688,7 +688,7 @@ export default function ProfilePage() {
          <div className="w-8 h-8 bg-gradient-to-r from-orange to-black rounded-lg flex items-center justify-center">
           <Award className="w-4 h-4 text-white" />
          </div>
-         <h3 className="text-lg font-semibold font-heading" style={{ color: '#000000' }}>Certifications</h3>
+         <h3 className="text-lg  font-heading" style={{ color: '#000000' }}>Certifications</h3>
         </div>
         {isEditing && (
          <button 
@@ -741,10 +741,10 @@ export default function ProfilePage() {
       {/* Coaching Details - Only for creators */}
       {role === 'creator' && (
        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-       <h3 className="text-lg font-semibold text-slate-900 mb-4">Coaching Details</h3>
+       <h3 className="text-lg  text-slate-900 mb-4">Coaching Details</h3>
        <div className="space-y-4">
         <div>
-         <label className="block text-sm font-medium text-slate-700 mb-2">Availability</label>
+         <label className="block text-sm  text-slate-700 mb-2">Availability</label>
          {isEditing ? (
           <input
            type="text"
@@ -758,7 +758,7 @@ export default function ProfilePage() {
          )}
         </div>
         <div>
-         <label className="block text-sm font-medium text-slate-700 mb-2">Languages</label>
+         <label className="block text-sm  text-slate-700 mb-2">Languages</label>
          {isEditing ? (
           <input
            type="text"
@@ -788,7 +788,7 @@ export default function ProfilePage() {
         <div className="w-8 h-8 bg-gradient-to-r from-black to-sky-blue rounded-lg flex items-center justify-center">
          <MessageSquare className="w-4 h-4 text-white" />
         </div>
-        <h3 className="text-lg font-semibold font-heading" style={{ color: '#000000' }}>Coaching Philosophy</h3>
+        <h3 className="text-lg  font-heading" style={{ color: '#000000' }}>Coaching Philosophy</h3>
        </div>
        {isEditing ? (
         <textarea
@@ -812,7 +812,7 @@ export default function ProfilePage() {
          <div className="w-8 h-8 bg-gradient-to-r from-orange to-black rounded-lg flex items-center justify-center">
           <Trophy className="w-4 h-4 text-white" />
          </div>
-         <h3 className="text-lg font-semibold font-heading" style={{ color: '#000000' }}>Achievements & Awards</h3>
+         <h3 className="text-lg  font-heading" style={{ color: '#000000' }}>Achievements & Awards</h3>
         </div>
         {isEditing && (
          <button 
@@ -872,7 +872,7 @@ export default function ProfilePage() {
       {role === 'creator' && (
        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
        <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-slate-900">Gear Recommendations</h3>
+        <h3 className="text-lg  text-slate-900">Gear Recommendations</h3>
         {isEditing && (
          <button 
           onClick={() => setProfileData(prev => ({ 
@@ -901,7 +901,7 @@ export default function ProfilePage() {
                setProfileData(prev => ({ ...prev, gearRecommendations: newGear }))
               }}
               placeholder="Gear name"
-              className="flex-1 border border-slate-300 rounded p-2 font-medium"
+              className="flex-1 border border-slate-300 rounded p-2 "
              />
              <button
               onClick={() => {
@@ -952,7 +952,7 @@ export default function ProfilePage() {
           ) : (
            <div className="flex items-center justify-between">
             <div className="flex-1">
-             <div className="font-medium text-slate-900">{gear.name}</div>
+             <div className=" text-slate-900">{gear.name}</div>
              <div className="text-sm text-slate-500">{gear.category}</div>
              {gear.description && (
               <div className="text-sm text-slate-600 mt-1">{gear.description}</div>
@@ -974,7 +974,7 @@ export default function ProfilePage() {
         <div className="w-8 h-8 bg-gradient-to-r from-sky-blue to-black rounded-lg flex items-center justify-center">
          <Globe className="w-4 h-4 text-white" />
         </div>
-        <h3 className="text-lg font-semibold font-heading" style={{ color: '#000000' }}>Social Links</h3>
+        <h3 className="text-lg  font-heading" style={{ color: '#000000' }}>Social Links</h3>
        </div>
        <div className="space-y-3">
         <div className="flex items-center gap-3">
@@ -1129,7 +1129,7 @@ export default function ProfilePage() {
          {isEditing ? (
           <div className="space-y-4">
            <div>
-            <label className="block text-sm font-medium text-dark mb-2">Philosophy Title</label>
+            <label className="block text-sm  text-dark mb-2">Philosophy Title</label>
             <input
              type="text"
              value={profileData.philosophy.title}
@@ -1143,7 +1143,7 @@ export default function ProfilePage() {
            </div>
 
            <div>
-            <label className="block text-sm font-medium text-dark mb-2">Philosophy Description</label>
+            <label className="block text-sm  text-dark mb-2">Philosophy Description</label>
             <textarea
              value={profileData.philosophy.description}
              onChange={(e) => setProfileData(prev => ({
@@ -1157,7 +1157,7 @@ export default function ProfilePage() {
            </div>
 
            <div>
-            <label className="block text-sm font-medium text-dark mb-2">Coaching Tagline</label>
+            <label className="block text-sm  text-dark mb-2">Coaching Tagline</label>
             <input
              type="text"
              value={profileData.tagline}
@@ -1169,7 +1169,7 @@ export default function ProfilePage() {
            </div>
 
            <div>
-            <label className="block text-sm font-medium text-dark mb-2">Credentials & Certifications</label>
+            <label className="block text-sm  text-dark mb-2">Credentials & Certifications</label>
             <textarea
              value={profileData.coachingCredentials}
              onChange={(e) => setProfileData(prev => ({ ...prev, coachingCredentials: e.target.value }))}
@@ -1183,7 +1183,7 @@ export default function ProfilePage() {
           <div className="space-y-4">
            {profileData.tagline && (
             <div className="bg-sky-blue/10 rounded-xl p-4 border border-sky-blue/20">
-             <p className="text-lg font-medium text-dark italic">"{profileData.tagline}"</p>
+             <p className="text-lg  text-dark italic">"{profileData.tagline}"</p>
             </div>
            )}
 
@@ -1198,7 +1198,7 @@ export default function ProfilePage() {
 
            {profileData.coachingCredentials && (
             <div>
-             <h5 className="font-semibold text-dark mb-2">Credentials & Certifications</h5>
+             <h5 className=" text-dark mb-2">Credentials & Certifications</h5>
              <p className="text-dark/70">{profileData.coachingCredentials}</p>
             </div>
            )}
@@ -1254,12 +1254,12 @@ export default function ProfilePage() {
          {/* Badges */}
          {profileData.badges.length > 0 && (
           <div className="mt-6 pt-6 border-t border-dark/10">
-           <h4 className="font-semibold text-dark mb-3">Achievements & Badges</h4>
+           <h4 className=" text-dark mb-3">Achievements & Badges</h4>
            <div className="flex flex-wrap gap-2">
             {profileData.badges.map((badge, index) => (
              <span
               key={index}
-              className="px-3 py-1 bg-gradient-to-r from-black/20 to-sky-blue/20 text-black rounded-full text-sm font-medium border border-black/30"
+              className="px-3 py-1 bg-gradient-to-r from-black/20 to-sky-blue/20 text-black rounded-full text-sm  border border-black/30"
              >
               {badge}
              </span>

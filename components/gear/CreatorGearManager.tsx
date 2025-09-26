@@ -162,7 +162,7 @@ export default function CreatorGearManager({ onItemAdded }: CreatorGearManagerPr
    <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
     {/* Header */}
     <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-     <h2 className="text-xl font-semibold text-gray-800">Add Gear Recommendation</h2>
+     <h2 className="text-xl  text-gray-800">Add Gear Recommendation</h2>
      <button
       onClick={() => setIsOpen(false)}
       className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -175,14 +175,14 @@ export default function CreatorGearManager({ onItemAdded }: CreatorGearManagerPr
     <form onSubmit={handleSubmit} className="p-6 space-y-6">
      {/* Image Upload */}
      <div className="space-y-2">
-      <label className="block text-sm font-medium text-gray-700">Product Image</label>
+      <label className="block text-sm  text-gray-700">Product Image</label>
       <div className="flex items-center gap-4">
        <div className="flex-1">
         <input
          type="file"
          accept="image/*"
          onChange={handleImageSelect}
-         className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-cardinal file:text-white hover:file:bg-cardinal-dark"
+         className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file: file:bg-cardinal file:text-white hover:file:bg-cardinal-dark"
         />
        </div>
        {imagePreview && (
@@ -196,7 +196,7 @@ export default function CreatorGearManager({ onItemAdded }: CreatorGearManagerPr
      {/* Basic Info */}
      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
-       <label className="block text-sm font-medium text-gray-700 mb-1">Product Name*</label>
+       <label className="block text-sm  text-gray-700 mb-1">Product Name*</label>
        <input
         type="text"
         required
@@ -207,7 +207,7 @@ export default function CreatorGearManager({ onItemAdded }: CreatorGearManagerPr
        />
       </div>
       <div>
-       <label className="block text-sm font-medium text-gray-700 mb-1">Price*</label>
+       <label className="block text-sm  text-gray-700 mb-1">Price*</label>
        <input
         type="text"
         required
@@ -221,7 +221,7 @@ export default function CreatorGearManager({ onItemAdded }: CreatorGearManagerPr
 
      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div>
-       <label className="block text-sm font-medium text-gray-700 mb-1">Category*</label>
+       <label className="block text-sm  text-gray-700 mb-1">Category*</label>
        <select
         required
         value={formData.category}
@@ -235,7 +235,7 @@ export default function CreatorGearManager({ onItemAdded }: CreatorGearManagerPr
        </select>
       </div>
       <div>
-       <label className="block text-sm font-medium text-gray-700 mb-1">Sport*</label>
+       <label className="block text-sm  text-gray-700 mb-1">Sport*</label>
        <select
         required
         value={formData.sport}
@@ -251,7 +251,7 @@ export default function CreatorGearManager({ onItemAdded }: CreatorGearManagerPr
        </select>
       </div>
       <div>
-       <label className="block text-sm font-medium text-gray-700 mb-1">Level</label>
+       <label className="block text-sm  text-gray-700 mb-1">Level</label>
        <select
         value={formData.level}
         onChange={(e) => setFormData(prev => ({ ...prev, level: e.target.value as any }))}
@@ -267,7 +267,7 @@ export default function CreatorGearManager({ onItemAdded }: CreatorGearManagerPr
 
      {/* Description */}
      <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">Description*</label>
+      <label className="block text-sm  text-gray-700 mb-1">Description*</label>
       <textarea
        required
        rows={3}
@@ -280,7 +280,7 @@ export default function CreatorGearManager({ onItemAdded }: CreatorGearManagerPr
 
      {/* Affiliate Link */}
      <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">Purchase Link*</label>
+      <label className="block text-sm  text-gray-700 mb-1">Purchase Link*</label>
       <input
        type="url"
        required
@@ -293,7 +293,7 @@ export default function CreatorGearManager({ onItemAdded }: CreatorGearManagerPr
 
      {/* Tags */}
      <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">Tags</label>
+      <label className="block text-sm  text-gray-700 mb-1">Tags</label>
       <input
        type="text"
        onKeyDown={handleTagInput}

@@ -1376,7 +1376,7 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
     <AppHeader />
     <div className="max-w-6xl mx-auto px-4 py-6">
      <div className="mb-8">
-      <h1 className="text-3xl font-bold text-gray-900 mb-2">Creator Studio</h1>
+      <h1 className="text-3xl  text-gray-900 mb-2">Creator Studio</h1>
       <p className="text-gray-600">Create and manage your training content</p>
      </div>
 
@@ -1388,8 +1388,8 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
          <Video className="h-6 w-6 text-blue-600" />
         </div>
         <div className="ml-4">
-         <p className="text-sm font-medium text-gray-600">Published Lessons</p>
-         <p className="text-2xl font-bold text-gray-900">{lessonCount}</p>
+         <p className="text-sm  text-gray-600">Published Lessons</p>
+         <p className="text-2xl  text-gray-900">{lessonCount}</p>
         </div>
        </div>
       </div>
@@ -1400,8 +1400,8 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
          <Eye className="h-6 w-6 text-green-600" />
         </div>
         <div className="ml-4">
-         <p className="text-sm font-medium text-gray-600">Total Views</p>
-         <p className="text-2xl font-bold text-gray-900">0</p>
+         <p className="text-sm  text-gray-600">Total Views</p>
+         <p className="text-2xl  text-gray-900">0</p>
         </div>
        </div>
       </div>
@@ -1412,8 +1412,8 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
          <Users className="h-6 w-6 text-purple-600" />
         </div>
         <div className="ml-4">
-         <p className="text-sm font-medium text-gray-600">Subscribers</p>
-         <p className="text-2xl font-bold text-gray-900">0</p>
+         <p className="text-sm  text-gray-600">Subscribers</p>
+         <p className="text-2xl  text-gray-900">0</p>
         </div>
        </div>
       </div>
@@ -1424,8 +1424,8 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
          <TrendingUp className="h-6 w-6 text-orange-600" />
         </div>
         <div className="ml-4">
-         <p className="text-sm font-medium text-gray-600">Engagement</p>
-         <p className="text-2xl font-bold text-gray-900">0%</p>
+         <p className="text-sm  text-gray-600">Engagement</p>
+         <p className="text-2xl  text-gray-900">0%</p>
         </div>
        </div>
       </div>
@@ -1435,7 +1435,7 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
      <div className="flex space-x-1 mb-6 bg-gray-100 rounded-lg p-1">
       <button
        onClick={() => setActiveTab('create')}
-       className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+       className={`flex-1 px-4 py-2 rounded-md text-sm  transition-colors ${
         activeTab === 'create'
          ? 'bg-white text-gray-900 shadow-sm'
          : 'text-gray-600 hover:text-gray-900'
@@ -1446,7 +1446,7 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
       </button>
       <button
        onClick={() => setActiveTab('manage')}
-       className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+       className={`flex-1 px-4 py-2 rounded-md text-sm  transition-colors ${
         activeTab === 'manage'
          ? 'bg-white text-gray-900 shadow-sm'
          : 'text-gray-600 hover:text-gray-900'
@@ -1462,7 +1462,7 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
        <div className="flex">
         <CheckCircle className="h-5 w-5 text-green-400" />
         <div className="ml-3">
-         <p className="text-sm font-medium text-green-800">
+         <p className="text-sm  text-green-800">
           Success! Your lesson has been published.
          </p>
          <button
@@ -1481,10 +1481,10 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
       <div className="bg-white rounded-lg shadow-sm">
        <div className="p-6 border-b border-gray-200">
         <div className="flex items-center justify-between">
-         <h2 className="text-lg font-semibold text-gray-900">Create New Lesson</h2>
+         <h2 className="text-lg  text-gray-900">Create New Lesson</h2>
          <button
           onClick={() => setShowAIFeatures(!showAIFeatures)}
-          className="flex items-center px-3 py-2 text-sm font-medium text-purple-600 hover:text-purple-700 hover:bg-purple-50 rounded-md transition-colors"
+          className="flex items-center px-3 py-2 text-sm  text-purple-600 hover:text-purple-700 hover:bg-purple-50 rounded-md transition-colors"
          >
           <Sparkles className="h-4 w-4 mr-2" />
           AI Assistant
@@ -1496,7 +1496,7 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
        {showAIFeatures && (
         <div className="border-b border-gray-200 bg-gradient-to-r from-purple-50 to-blue-50 p-6">
          <div className="max-w-4xl">
-          <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+          <h3 className="text-lg  text-gray-900 mb-4 flex items-center">
            <Bot className="h-5 w-5 mr-2 text-purple-600" />
            AI Content Assistant
           </h3>
@@ -1504,14 +1504,14 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
            {/* Lesson Idea Generator */}
            <div className="space-y-4">
-            <h4 className="font-medium text-gray-900 flex items-center">
+            <h4 className=" text-gray-900 flex items-center">
              <Lightbulb className="h-4 w-4 mr-2 text-yellow-500" />
              Lesson Ideas Generator
             </h4>
 
             <div className="space-y-3">
              <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm  text-gray-700 mb-1">
                Select Sport:
               </label>
               <select
@@ -1540,7 +1540,7 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
              <button
               onClick={generateLessonIdeas}
               disabled={generatingIdeas}
-              className="w-full flex items-center justify-center px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-md hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full flex items-center justify-center px-4 py-2 bg-purple-600 text-white text-sm  rounded-md hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
              >
               {generatingIdeas ? (
                <>
@@ -1559,7 +1559,7 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
             {/* AI Suggestions */}
             {aiSuggestions.length > 0 && (
              <div className="mt-4 space-y-2">
-              <h5 className="text-sm font-medium text-gray-700">AI Suggestions:</h5>
+              <h5 className="text-sm  text-gray-700">AI Suggestions:</h5>
               <div className="max-h-48 overflow-y-auto space-y-2">
                {aiSuggestions.map((suggestion, index) => (
                 <button
@@ -1583,7 +1583,7 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
 
            {/* Content Enhancer */}
            <div className="space-y-4">
-            <h4 className="font-medium text-gray-900 flex items-center">
+            <h4 className=" text-gray-900 flex items-center">
              <Sparkles className="h-4 w-4 mr-2 text-blue-500" />
              Content Enhancer
             </h4>
@@ -1593,7 +1593,7 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
             <button
              onClick={enhanceDescription}
              disabled={enhancingContent}
-             className="w-full flex items-center justify-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+             className="w-full flex items-center justify-center px-4 py-2 bg-blue-600 text-white text-sm  rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
              {enhancingContent ? (
               <>
@@ -1616,7 +1616,7 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
        <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
         {/* Title Field */}
         <div>
-         <label className="block text-sm font-medium text-gray-700 mb-2">
+         <label className="block text-sm  text-gray-700 mb-2">
           Lesson Title *
          </label>
          <input
@@ -1632,7 +1632,7 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
 
         {/* Description Field */}
         <div>
-         <label className="block text-sm font-medium text-gray-700 mb-2">
+         <label className="block text-sm  text-gray-700 mb-2">
           Description *
          </label>
          <textarea
@@ -1648,7 +1648,7 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
 
         {/* Detailed Writeup Field */}
         <div>
-         <label className="block text-sm font-medium text-gray-700 mb-2">
+         <label className="block text-sm  text-gray-700 mb-2">
           Detailed Lesson Content
           <span className="text-gray-500 text-xs ml-2">(Optional - Enhanced content from AI)</span>
          </label>
@@ -1666,7 +1666,7 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
 
         {/* Level Field */}
         <div>
-         <label className="block text-sm font-medium text-gray-700 mb-2">
+         <label className="block text-sm  text-gray-700 mb-2">
           Skill Level *
          </label>
          <select
@@ -1682,7 +1682,7 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
 
         {/* Video Upload */}
         <div>
-         <label className="block text-sm font-medium text-gray-700 mb-2">
+         <label className="block text-sm  text-gray-700 mb-2">
           Video File
           <span className="text-gray-500 text-xs ml-2">(Optional)</span>
          </label>
@@ -1736,7 +1736,7 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
          {videoFile && (
           <div className="mt-2 p-3 bg-gray-50 rounded border">
            <p className="text-sm text-gray-600">
-            Selected: <span className="font-medium">{videoFile.name}</span>
+            Selected: <span className="">{videoFile.name}</span>
            </p>
            <p className="text-xs text-gray-500">
             Size: {(videoFile.size / (1024 * 1024)).toFixed(1)} MB
@@ -1801,7 +1801,7 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
 
         {/* Thumbnail Upload */}
         <div>
-         <label className="block text-sm font-medium text-gray-700 mb-2">
+         <label className="block text-sm  text-gray-700 mb-2">
           Thumbnail Image
           <span className="text-gray-500 text-xs ml-2">(Optional)</span>
          </label>
@@ -1815,7 +1815,7 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
          {thumbFile && (
           <div className="mt-2 p-3 bg-gray-50 rounded border">
            <p className="text-sm text-gray-600">
-            Selected: <span className="font-medium">{thumbFile.name}</span>
+            Selected: <span className="">{thumbFile.name}</span>
            </p>
 
            {/* Thumbnail Upload Progress */}
@@ -1842,7 +1842,7 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
          <button
           type="submit"
           disabled={creating || (uploadProgress.video > 0 && uploadProgress.video < 100)}
-          className="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center"
+          className="px-6 py-2 bg-blue-600 text-white  rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center"
          >
           {creating ? (
            <>
@@ -1863,7 +1863,7 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
       // Manage Content Tab
       <div className="bg-white rounded-lg shadow-sm">
        <div className="p-6 border-b border-gray-200">
-        <h2 className="text-lg font-semibold text-gray-900">Manage Content</h2>
+        <h2 className="text-lg  text-gray-900">Manage Content</h2>
         <p className="text-sm text-gray-600 mt-1">View and manage your published lessons</p>
        </div>
 
@@ -1885,7 +1885,7 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
            <div key={lesson.id} className="border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors">
             <div className="flex items-start justify-between">
              <div className="flex-1">
-              <h3 className="font-medium text-gray-900">{lesson.title}</h3>
+              <h3 className=" text-gray-900">{lesson.title}</h3>
               <p className="text-sm text-gray-600 mt-1 line-clamp-2">{lesson.description}</p>
               <div className="flex items-center mt-3 space-x-4 text-xs text-gray-500">
                <span className="flex items-center">

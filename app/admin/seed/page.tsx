@@ -74,7 +74,7 @@ export default function SeedDatabasePage() {
        <span className="text-2xl">⚠️</span>
       </div>
       <div className="ml-3">
-       <h3 className="text-lg font-medium text-yellow-800">
+       <h3 className="text-lg  text-yellow-800">
         This will add sample data to your database
        </h3>
        <div className="mt-2 text-sm text-yellow-700">
@@ -104,7 +104,7 @@ export default function SeedDatabasePage() {
     {/* Result */}
     {result && (
      <div className="bg-white border border-gray-200 rounded-lg p-6">
-      <h3 className="text-lg font-semibold mb-4">Result:</h3>
+      <h3 className="text-lg  mb-4">Result:</h3>
       <pre className="whitespace-pre-wrap text-sm bg-gray-50 p-4 rounded border">
        {result}
       </pre>
@@ -114,7 +114,7 @@ export default function SeedDatabasePage() {
     {/* What Gets Created */}
     <div className="mt-12 grid md:grid-cols-2 gap-6">
      <div className="bg-white rounded-lg p-6 border border-gray-200">
-      <h3 className="text-lg font-semibold mb-4 text-blue-600">👥 Users & Profiles</h3>
+      <h3 className="text-lg  mb-4 text-blue-600">👥 Users & Profiles</h3>
       <ul className="text-sm space-y-2">
        <li>• Alex Johnson (Soccer Athlete)</li>
        <li>• Sarah Martinez (Basketball Athlete)</li>
@@ -124,7 +124,7 @@ export default function SeedDatabasePage() {
      </div>
 
      <div className="bg-white rounded-lg p-6 border border-gray-200">
-      <h3 className="text-lg font-semibold mb-4 text-green-600">🎬 Content & Interactions</h3>
+      <h3 className="text-lg  mb-4 text-green-600">🎬 Content & Interactions</h3>
       <ul className="text-sm space-y-2">
        <li>• Soccer: First Touch Fundamentals</li>
        <li>• Basketball: Elite Shooting Form</li>

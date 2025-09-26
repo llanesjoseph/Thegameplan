@@ -28,7 +28,7 @@ export default function AdminDashboard() {
        href="/dashboard/admin/users"
        className="p-6 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors"
       >
-       <h2 className="text-lg font-semibold text-gray-900 mb-2">User Management</h2>
+       <h2 className="text-lg  text-gray-900 mb-2">User Management</h2>
        <p className="text-gray-600 text-sm">Manage user accounts and permissions</p>
       </a>
 
@@ -36,7 +36,7 @@ export default function AdminDashboard() {
        href="/dashboard/admin/content"
        className="p-6 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors"
       >
-       <h2 className="text-lg font-semibold text-gray-900 mb-2">Content Review</h2>
+       <h2 className="text-lg  text-gray-900 mb-2">Content Review</h2>
        <p className="text-gray-600 text-sm">Review and moderate content</p>
       </a>
 
@@ -44,7 +44,7 @@ export default function AdminDashboard() {
        href="/dashboard/admin/analytics"
        className="p-6 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors"
       >
-       <h2 className="text-lg font-semibold text-gray-900 mb-2">Analytics</h2>
+       <h2 className="text-lg  text-gray-900 mb-2">Analytics</h2>
        <p className="text-gray-600 text-sm">View platform analytics and insights</p>
       </a>
      </div>

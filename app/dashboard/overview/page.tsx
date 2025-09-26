@@ -510,7 +510,7 @@ export default function UnifiedDashboard() {
       <div className="md:col-span-2 space-y-6">
        {/* Coaching Specialties */}
        <div>
-        <h3 className="text-lg font-semibold mb-4" style={{ color: '#000000' }}>
+        <h3 className="text-lg  mb-4" style={{ color: '#000000' }}>
          Coaching Specialties
         </h3>
         <div className="flex flex-wrap gap-2">
@@ -519,7 +519,7 @@ export default function UnifiedDashboard() {
           return (
            <div key={sport} className="flex items-center gap-2 px-3 py-1 bg-purple-100 text-purple-800 rounded-full">
             <SportIcon className="w-4 h-4" />
-            <span className="text-sm font-medium">
+            <span className="text-sm ">
              {sport}
             </span>
            </div>
@@ -530,7 +530,7 @@ export default function UnifiedDashboard() {
 
        {/* Coaching Impact */}
        <div>
-        <h3 className="text-lg font-semibold mb-4" style={{ color: '#000000' }}>
+        <h3 className="text-lg  mb-4" style={{ color: '#000000' }}>
          Your Coaching Impact
         </h3>
         <ul className="space-y-2 text-sm" style={{ color: '#000000' }}>
@@ -639,7 +639,7 @@ export default function UnifiedDashboard() {
           className="w-full h-full object-cover"
          />
         </div>
-        <h3 className="text-white font-semibold text-sm mb-1">
+        <h3 className="text-white  text-sm mb-1">
          {athlete.name}
         </h3>
         <p className="text-white/80 text-xs">
@@ -654,18 +654,18 @@ export default function UnifiedDashboard() {
 
      <div className="flex gap-4 justify-center">
       <Link href="/dashboard/creator">
-       <button className="px-6 py-2 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors">
+       <button className="px-6 py-2 bg-purple-600 text-white rounded-lg  hover:bg-purple-700 transition-colors">
         Create Training Content
        </button>
       </Link>
       <button
        onClick={() => setShowScheduleModal(true)}
-       className="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+       className="px-6 py-2 bg-blue-600 text-white rounded-lg  hover:bg-blue-700 transition-colors"
       >
        Schedule Session
       </button>
       <Link href="/dashboard/coaching">
-       <button className="px-6 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors">
+       <button className="px-6 py-2 bg-green-600 text-white rounded-lg  hover:bg-green-700 transition-colors">
         Manage Athletes
        </button>
       </Link>
@@ -683,7 +683,7 @@ export default function UnifiedDashboard() {
      <div className="grid md:grid-cols-2 gap-8">
       {/* Upcoming Sessions */}
       <div className="bg-white rounded-lg p-6 shadow-sm">
-       <h3 className="text-lg font-semibold mb-4 flex items-center gap-2" style={{ color: '#000000' }}>
+       <h3 className="text-lg  mb-4 flex items-center gap-2" style={{ color: '#000000' }}>
         <Calendar className="w-5 h-5" />
         Upcoming Sessions
        </h3>
@@ -692,7 +692,7 @@ export default function UnifiedDashboard() {
          scheduledSessions.slice(0, 3).map((session) => (
           <div key={session.id} className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
            <div>
-            <h4 className="font-medium text-blue-900">
+            <h4 className=" text-blue-900">
              {session.title || `${session.sessionType} with ${session.athleteName}`}
             </h4>
             <p className="text-sm text-blue-700">
@@ -721,7 +721,7 @@ export default function UnifiedDashboard() {
         {/* Always show the option to add new session */}
         <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
          <div>
-          <h4 className="font-medium text-gray-900">Schedule New Session</h4>
+          <h4 className=" text-gray-900">Schedule New Session</h4>
           <p className="text-sm text-gray-700">Add a new training session</p>
          </div>
          <button
@@ -736,13 +736,13 @@ export default function UnifiedDashboard() {
 
       {/* Quick Schedule */}
       <div className="bg-white rounded-lg p-6 shadow-sm">
-       <h3 className="text-lg font-semibold mb-4 flex items-center gap-2" style={{ color: '#000000' }}>
+       <h3 className="text-lg  mb-4 flex items-center gap-2" style={{ color: '#000000' }}>
         <Calendar className="w-5 h-5" />
         Set Your Availability
        </h3>
        <div className="space-y-4">
         <div>
-         <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
+         <label className="block text-sm  mb-2" style={{ color: '#000000' }}>
           Preferred Days
          </label>
          <div className="flex flex-wrap gap-2">
@@ -763,7 +763,7 @@ export default function UnifiedDashboard() {
         </div>
         <div className="grid grid-cols-2 gap-4">
          <div>
-          <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
+          <label className="block text-sm  mb-2" style={{ color: '#000000' }}>
            Start Time
           </label>
           <input
@@ -774,7 +774,7 @@ export default function UnifiedDashboard() {
           />
          </div>
          <div>
-          <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
+          <label className="block text-sm  mb-2" style={{ color: '#000000' }}>
            End Time
           </label>
           <input
@@ -818,11 +818,11 @@ export default function UnifiedDashboard() {
         <Play className="w-8 h-8 text-red-600" />
        </div>
        <div className="flex-1 text-left">
-        <h3 className="font-semibold text-lg" style={{ color: '#000000' }}>
+        <h3 className=" text-lg" style={{ color: '#000000' }}>
          Footwork and Passing in Soccer
         </h3>
        </div>
-       <div className="px-3 py-1 bg-gray-100 text-gray-600 rounded text-sm font-medium">
+       <div className="px-3 py-1 bg-gray-100 text-gray-600 rounded text-sm ">
         Ended
        </div>
       </button>
@@ -835,11 +835,11 @@ export default function UnifiedDashboard() {
         <Play className="w-8 h-8 text-red-600" />
        </div>
        <div className="flex-1 text-left">
-        <h3 className="font-semibold text-lg" style={{ color: '#000000' }}>
+        <h3 className=" text-lg" style={{ color: '#000000' }}>
          Soccer Drills for Beginners
         </h3>
        </div>
-       <div className="px-3 py-1 bg-gray-100 text-gray-600 rounded text-sm font-medium">
+       <div className="px-3 py-1 bg-gray-100 text-gray-600 rounded text-sm ">
         Ended
        </div>
       </button>
@@ -848,7 +848,7 @@ export default function UnifiedDashboard() {
      <div className="text-center mt-8">
       <button
        onClick={() => router.push('/training')}
-       className="px-6 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors"
+       className="px-6 py-2 bg-green-600 text-white rounded-lg  hover:bg-green-700 transition-colors"
       >
        Browse Training
       </button>
@@ -863,7 +863,7 @@ export default function UnifiedDashboard() {
       <h2 className="text-2xl font-heading" style={{ color: '#000000' }}>
        Your Recommended Gear
       </h2>
-      <button className="text-blue-600 hover:text-blue-700 font-medium">
+      <button className="text-blue-600 hover:text-blue-700 ">
        Shop All →
       </button>
      </div>
@@ -907,13 +907,13 @@ export default function UnifiedDashboard() {
     <div className="max-w-7xl mx-auto px-4">
      <div className="flex items-center justify-between">
       <div className="flex items-center gap-6">
-       <Link href="/contributors" className="text-gray-600 hover:text-gray-900 font-medium">
+       <Link href="/contributors" className="text-gray-600 hover:text-gray-900 ">
         Coaches
        </Link>
-       <Link href="/lessons" className="text-gray-600 hover:text-gray-900 font-medium">
+       <Link href="/lessons" className="text-gray-600 hover:text-gray-900 ">
         Lessons
        </Link>
-       <Link href="/gear" className="text-gray-600 hover:text-gray-900 font-medium">
+       <Link href="/gear" className="text-gray-600 hover:text-gray-900 ">
         Gear
        </Link>
       </div>
@@ -937,7 +937,7 @@ export default function UnifiedDashboard() {
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
      <div className="bg-white rounded-lg max-w-md w-full p-6">
       <div className="flex items-center justify-between mb-4">
-       <h3 className="text-lg font-semibold">Schedule New Session</h3>
+       <h3 className="text-lg ">Schedule New Session</h3>
        <button
         onClick={() => {
          setShowScheduleModal(false)
@@ -957,7 +957,7 @@ export default function UnifiedDashboard() {
 
       <div className="space-y-4">
        <div>
-        <label className="block text-sm font-medium mb-2">Select Athlete <span className="text-red-500">*</span></label>
+        <label className="block text-sm  mb-2">Select Athlete <span className="text-red-500">*</span></label>
         <select
          value={scheduleForm.athleteId}
          onChange={(e) => setScheduleForm({ ...scheduleForm, athleteId: e.target.value })}
@@ -974,7 +974,7 @@ export default function UnifiedDashboard() {
        </div>
 
        <div>
-        <label className="block text-sm font-medium mb-2">Date <span className="text-red-500">*</span></label>
+        <label className="block text-sm  mb-2">Date <span className="text-red-500">*</span></label>
         <input
          type="date"
          value={scheduleForm.date}
@@ -986,7 +986,7 @@ export default function UnifiedDashboard() {
 
        <div className="grid grid-cols-2 gap-4">
         <div>
-         <label className="block text-sm font-medium mb-2">Start Time <span className="text-red-500">*</span></label>
+         <label className="block text-sm  mb-2">Start Time <span className="text-red-500">*</span></label>
          <input
           type="time"
           value={scheduleForm.startTime}
@@ -996,7 +996,7 @@ export default function UnifiedDashboard() {
          />
         </div>
         <div>
-         <label className="block text-sm font-medium mb-2">End Time <span className="text-red-500">*</span></label>
+         <label className="block text-sm  mb-2">End Time <span className="text-red-500">*</span></label>
          <input
           type="time"
           value={scheduleForm.endTime}
@@ -1008,7 +1008,7 @@ export default function UnifiedDashboard() {
        </div>
 
        <div>
-        <label className="block text-sm font-medium mb-2">Session Type</label>
+        <label className="block text-sm  mb-2">Session Type</label>
         <select
          value={scheduleForm.sessionType}
          onChange={(e) => setScheduleForm({ ...scheduleForm, sessionType: e.target.value })}

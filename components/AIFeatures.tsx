@@ -253,7 +253,7 @@ const StatCard = ({ icon, number, label, color }: {
     </div>
    </div>
    <div className={`text-5xl font-black ${color} mb-2`}>{number}</div>
-   <div className="text-[var(--mid-gray)] text-lg font-semibold">{label}</div>
+   <div className="text-[var(--mid-gray)] text-lg ">{label}</div>
   </div>
  )
 }

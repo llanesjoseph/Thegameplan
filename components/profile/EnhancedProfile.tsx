@@ -70,7 +70,7 @@ export default function EnhancedProfile({ profile, isEditable = false, onSave }:
         <a href="#subscribe" className="btn btn-outline">Subscribe</a>
        </div>
        <div className="mt-8">
-        <h3 className="text-sm font-medium text-white/70 mb-3">Badges & Achievements</h3>
+        <h3 className="text-sm  text-white/70 mb-3">Badges & Achievements</h3>
         <div className="flex flex-wrap gap-3">
          {current.badges.map((b, i) => (
           <span key={i} className="text-sm text-white/80 border border-white/10 rounded-xl px-3 py-2">{b}</span>

@@ -47,7 +47,7 @@ export default function LandingPage() {
        <Link href="/dashboard">
         <ClarityButton
          size="sm"
-         className="bg-orange text-white hover:bg-orange/90 font-medium"
+         className="bg-orange text-white hover:bg-orange/90 "
         >
          Sign Up
         </ClarityButton>
@@ -161,13 +161,13 @@ export default function LandingPage() {
      <div className="flex items-center justify-between">
       {/* Left side - can be expanded with links */}
       <div className="flex items-center gap-6">
-       <Link href="/contributors" className="text-dark hover:text-sky-blue font-medium">
+       <Link href="/contributors" className="text-dark hover:text-sky-blue ">
         Coaches
        </Link>
-       <Link href="/lessons" className="text-dark hover:text-sky-blue font-medium">
+       <Link href="/lessons" className="text-dark hover:text-sky-blue ">
         Lessons
        </Link>
-       <Link href="/gear" className="text-dark hover:text-sky-blue font-medium">
+       <Link href="/gear" className="text-dark hover:text-sky-blue ">
         Gear
        </Link>
       </div>

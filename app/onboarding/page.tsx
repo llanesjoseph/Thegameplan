@@ -221,7 +221,7 @@ export default function OnboardingPage() {
 
        <div className="grid md:grid-cols-2 gap-6">
         <div>
-         <label className="block text-sm font-medium text-gray-700 mb-2">
+         <label className="block text-sm  text-gray-700 mb-2">
           First Name *
          </label>
          <input
@@ -234,7 +234,7 @@ export default function OnboardingPage() {
         </div>
 
         <div>
-         <label className="block text-sm font-medium text-gray-700 mb-2">
+         <label className="block text-sm  text-gray-700 mb-2">
           Last Name *
          </label>
          <input
@@ -248,7 +248,7 @@ export default function OnboardingPage() {
        </div>
 
        <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm  text-gray-700 mb-2">
          Display Name
         </label>
         <input
@@ -273,7 +273,7 @@ export default function OnboardingPage() {
        </div>
 
        <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm  text-gray-700 mb-2">
          Primary Sport *
         </label>
         <select
@@ -290,7 +290,7 @@ export default function OnboardingPage() {
 
        <div className="grid md:grid-cols-2 gap-6">
         <div>
-         <label className="block text-sm font-medium text-gray-700 mb-2">
+         <label className="block text-sm  text-gray-700 mb-2">
           Experience Level *
          </label>
          <select
@@ -306,7 +306,7 @@ export default function OnboardingPage() {
         </div>
 
         <div>
-         <label className="block text-sm font-medium text-gray-700 mb-2">
+         <label className="block text-sm  text-gray-700 mb-2">
           Years of Experience *
          </label>
          <select
@@ -347,7 +347,7 @@ export default function OnboardingPage() {
           }`}
          >
           <div className="flex items-center justify-between">
-           <span className="font-medium">{goal}</span>
+           <span className="">{goal}</span>
            {data.goals.includes(goal) && (
             <CheckCircle className="w-5 h-5 text-sky-blue" />
            )}
@@ -368,7 +368,7 @@ export default function OnboardingPage() {
        </div>
 
        <div>
-        <h3 className="font-semibold text-gray-900 mb-4">Content Interests</h3>
+        <h3 className=" text-gray-900 mb-4">Content Interests</h3>
         <div className="grid md:grid-cols-2 gap-3">
          {INTERESTS_OPTIONS.map(interest => (
           <button
@@ -392,7 +392,7 @@ export default function OnboardingPage() {
        </div>
 
        <div className="bg-gray-50 p-6 rounded-lg">
-        <h3 className="font-semibold text-gray-900 mb-3">Coaching Interest</h3>
+        <h3 className=" text-gray-900 mb-3">Coaching Interest</h3>
         <label className="flex items-center gap-3 cursor-pointer">
          <input
           type="checkbox"

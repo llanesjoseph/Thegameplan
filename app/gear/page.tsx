@@ -345,7 +345,7 @@ function GearContent() {
        {selectedCreator !== 'all' && (
         <Link
          href="/gear"
-         className="inline-flex items-center gap-2 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+         className="inline-flex items-center gap-2 text-white px-6 py-3 rounded-lg  transition-colors"
          style={{backgroundColor: '#20B2AA'}}
          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1a9b94'}
          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#20B2AA'}
@@ -364,7 +364,7 @@ function GearContent() {
       <div className="bg-white border border-gray-200 rounded-lg shadow-card p-4">
        <div className="flex items-center gap-2 text-cardinal mb-2">
         <User className="w-4 h-4" />
-        <span className="font-medium">Personalized for you</span>
+        <span className="">Personalized for you</span>
        </div>
        <p className="text-sm text-gray-600">
         Showing gear recommendations based on your sports: {userPreferences.sports.join(', ')} • 
@@ -469,14 +469,14 @@ function GearContent() {
        <div className="space-y-3 flex-1 flex flex-col">
         <div>
          <div className="flex items-center justify-between mb-1">
-          <span className="text-xs font-medium px-2 py-1 rounded-full" style={{color: '#000000', backgroundColor: 'rgba(0, 0, 0, 0.1)'}}>
+          <span className="text-xs  px-2 py-1 rounded-full" style={{color: '#000000', backgroundColor: 'rgba(0, 0, 0, 0.1)'}}>
            {item.category}
           </span>
-          <span className="text-xs font-medium text-gray-600 bg-white px-2 py-1 rounded-full border border-gray-200">
+          <span className="text-xs  text-gray-600 bg-white px-2 py-1 rounded-full border border-gray-200">
            {item.sport.toUpperCase()}
           </span>
          </div>
-         <h3 className="font-semibold text-gray-800 leading-tight text-sm">{item.name}</h3>
+         <h3 className=" text-gray-800 leading-tight text-sm">{item.name}</h3>
          <p className="text-sm text-gray-600 mt-1 line-clamp-2 leading-relaxed">{item.description}</p>
         </div>
 
@@ -484,7 +484,7 @@ function GearContent() {
         <div className="flex items-center justify-between">
          <div className="flex items-center gap-1">
           <Star className="w-4 h-4 text-yellow-500 fill-current" />
-          <span className="text-sm font-medium text-gray-800">{item.rating}</span>
+          <span className="text-sm  text-gray-800">{item.rating}</span>
          </div>
          <span className=" text-gray-800">{item.price}</span>
         </div>
@@ -532,7 +532,7 @@ function GearContent() {
     {filteredItems.length === 0 && (
      <div className="text-center py-12">
       <Target className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-      <h3 className="text-2xl font-semibold text-gray-800 mb-2">No gear found</h3>
+      <h3 className="text-2xl  text-gray-800 mb-2">No gear found</h3>
       <p className="text-base text-gray-600 mb-4">Try adjusting your filters or search terms.</p>
       <button
        onClick={() => {
@@ -554,7 +554,7 @@ function GearContent() {
     {/* Disclaimer */}
     <div className="mt-12 bg-white border border-gray-200 rounded-lg p-6 shadow-card">
      <p className="text-sm text-gray-600 text-center">
-      <strong>Affiliate Disclosure:</strong> Some links may be affiliate links. We may earn a commission from purchases made through these links at no additional cost to you. All recommendations are based on genuine product evaluation by our expert coaches.
+      {Affiliate Disclosure:} Some links may be affiliate links. We may earn a commission from purchases made through these links at no additional cost to you. All recommendations are based on genuine product evaluation by our expert coaches.
      </p>
     </div>
    </div>

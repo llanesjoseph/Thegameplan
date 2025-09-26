@@ -51,7 +51,7 @@ export default function CircularBadge({ text, userRole, className = '', size = '
    <div className={`
     inline-flex items-center gap-2 px-3 py-1.5 rounded-lg
     ${colors.bg} ${colors.text} border ${colors.border}
-    font-medium text-sm shadow-sm transition-all duration-200
+     text-sm shadow-sm transition-all duration-200
     hover:shadow-md hover:-translate-y-0.5
     ${isSmall ? 'px-2 py-1 text-xs' : ''}
    `}>
@@ -61,7 +61,7 @@ export default function CircularBadge({ text, userRole, className = '', size = '
     `}>
      {displayText.charAt(0)}
     </div>
-    <span className="font-medium">
+    <span className="">
      {displayText}
     </span>
    </div>

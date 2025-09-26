@@ -34,7 +34,11 @@
       "Bash(npx tsx:*)",
       "Bash(git clean:*)",
       "Bash(grep:*)",
-      "Bash(npx next lint:*)"
+      "Bash(npx next lint:*)",
+      "Bash(for file in components/DashboardSidebar.tsx app/dashboard/assistant/page.tsx components/ui/CircularBadge.tsx components/ui/UserProfileDropdown.tsx components/ui/RoleSwitcher.tsx app/dashboard/creator-simple/page.tsx app/dashboard/apply-coach/page.tsx)",
+      "Bash(do echo \"Processing $file\")",
+      "Bash(done)",
+      "Bash(xargs:*)"
     ],
     "deny": [],
     "ask": []

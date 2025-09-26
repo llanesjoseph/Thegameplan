@@ -178,14 +178,14 @@ function LessonsContent() {
       <div className="space-x-4">
        <button
         onClick={fetchPublishedLessons}
-        className="px-6 py-3 bg-cardinal hover:bg-cardinal-dark text-white rounded-lg font-medium transition-colors"
+        className="px-6 py-3 bg-cardinal hover:bg-cardinal-dark text-white rounded-lg  transition-colors"
        >
         Try Again
        </button>
        {error.includes('sign in') && (
         <Link
          href="/dashboard"
-         className="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg font-medium transition-colors"
+         className="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg  transition-colors"
         >
          Sign In
         </Link>
@@ -270,7 +270,7 @@ function LessonsContent() {
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
          <Link
           href="/contributors"
-          className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white rounded-lg font-medium transition-colors"
+          className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white rounded-lg  transition-colors"
           style={{color: '#8D9440'}}
           onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
           onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}
@@ -279,7 +279,7 @@ function LessonsContent() {
          </Link>
          <Link
           href="/dashboard"
-          className="inline-flex items-center justify-center gap-2 px-6 py-3 text-white rounded-lg font-medium transition-colors"
+          className="inline-flex items-center justify-center gap-2 px-6 py-3 text-white rounded-lg  transition-colors"
           style={{backgroundColor: 'rgba(32, 178, 170, 0.2)'}}
           onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(32, 178, 170, 0.3)'}
           onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(32, 178, 170, 0.2)'}
@@ -292,7 +292,7 @@ function LessonsContent() {
 
       {/* Preview of What's Coming */}
       <div>
-       <h4 className="text-xl font-semibold text-gray-800 mb-6 text-center">
+       <h4 className="text-xl  text-gray-800 mb-6 text-center">
         Preview: What You Can Expect
        </h4>
        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -328,21 +328,21 @@ function LessonsContent() {
           <div className="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg mb-4 flex items-center justify-center border-2 border-dashed border-gray-300">
            <div className="text-center">
             <Play className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-            <span className="text-gray-500 text-sm font-medium">Coming Soon</span>
+            <span className="text-gray-500 text-sm ">Coming Soon</span>
            </div>
           </div>
 
           <div>
            <div className="flex items-center gap-2 mb-2">
-            <div className="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs font-medium">
+            <div className="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs ">
              {preview.level}
             </div>
-            <div className="px-2 py-1 bg-cardinal/10 text-cardinal rounded text-xs font-medium">
+            <div className="px-2 py-1 bg-cardinal/10 text-cardinal rounded text-xs ">
              {preview.sport}
             </div>
            </div>
 
-           <h3 className="text-lg font-semibold text-gray-800 mb-2">
+           <h3 className="text-lg  text-gray-800 mb-2">
             {preview.title}
            </h3>
 
@@ -396,7 +396,7 @@ function LessonsContent() {
 
           {/* 🚧 MOCK: Mock data indicator */}
           {lesson._isMockData && (
-           <div className="bg-amber-100 text-amber-700 px-2 py-1 rounded text-xs font-medium">
+           <div className="bg-amber-100 text-amber-700 px-2 py-1 rounded text-xs ">
             🚧 MOCK
            </div>
           )}
@@ -406,7 +406,7 @@ function LessonsContent() {
         {/* Lesson Info */}
         <div>
          <div className="flex items-center gap-2 mb-2">
-          <div className="px-2 py-1 bg-cardinal/10 text-cardinal rounded text-xs font-medium">
+          <div className="px-2 py-1 bg-cardinal/10 text-cardinal rounded text-xs ">
            {lesson.level}
           </div>
           <div className="text-gray-600 text-xs flex items-center gap-1">
@@ -415,7 +415,7 @@ function LessonsContent() {
           </div>
          </div>
          
-         <h3 className="text-lg font-semibold text-gray-800 mb-2 group-hover:text-cardinal transition-colors line-clamp-2">
+         <h3 className="text-lg  text-gray-800 mb-2 group-hover:text-cardinal transition-colors line-clamp-2">
           {lesson.title}
          </h3>
          

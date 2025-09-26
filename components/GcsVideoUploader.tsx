@@ -244,7 +244,7 @@ export default function GcsVideoUploader({
      </div>
 
      <div>
-      <h3 className="text-lg font-medium text-gray-900">
+      <h3 className="text-lg  text-gray-900">
        Upload Video to Google Cloud
       </h3>
       <p className="text-gray-600 mt-1">
@@ -269,7 +269,7 @@ export default function GcsVideoUploader({
         <Play className="w-5 h-5 text-blue-600" />
        </div>
        <div>
-        <h4 className="font-medium text-gray-900">{selectedFile.name}</h4>
+        <h4 className=" text-gray-900">{selectedFile.name}</h4>
         <p className="text-sm text-gray-600">
          {formatFileSize(selectedFile.size)} • {estimateUploadTime(selectedFile.size)}
         </p>
@@ -290,7 +290,7 @@ export default function GcsVideoUploader({
    {/* Active Uploads */}
    {uploads.size > 0 && (
     <div className="space-y-4">
-     <h3 className="text-lg font-medium text-gray-900">Active Uploads</h3>
+     <h3 className="text-lg  text-gray-900">Active Uploads</h3>
 
      {Array.from(uploads.values()).map((upload) => (
       <div key={upload.videoId} className="bg-white border border-gray-200 rounded-lg p-4">
@@ -298,7 +298,7 @@ export default function GcsVideoUploader({
         <div className="flex items-center space-x-3">
          {getStateIcon(upload.state)}
          <div>
-          <h4 className="font-medium text-gray-900">{upload.file.name}</h4>
+          <h4 className=" text-gray-900">{upload.file.name}</h4>
           <p className="text-sm text-gray-600">{getStateText(upload.state)}</p>
          </div>
         </div>
@@ -368,7 +368,7 @@ export default function GcsVideoUploader({
 
    {/* Features Overview */}
    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-    <h4 className="font-medium text-blue-900 mb-2">🚀 Enterprise Video Pipeline</h4>
+    <h4 className=" text-blue-900 mb-2">🚀 Enterprise Video Pipeline</h4>
     <ul className="text-sm text-blue-800 space-y-1">
      <li>• Direct upload to Google Cloud Storage with resumable uploads</li>
      <li>• Automatic transcoding to HLS and multiple qualities (480p, 720p, 1080p)</li>

@@ -70,7 +70,7 @@ export default function HeaderAuthButton() {
   <>
    <button
     onClick={() => setShowModal(true)}
-    className="inline-flex items-center gap-2 px-6 py-3 bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 rounded-lg font-medium transition-all duration-200 hover:scale-105 shadow-sm"
+    className="inline-flex items-center gap-2 px-6 py-3 bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 rounded-lg  transition-all duration-200 hover:scale-105 shadow-sm"
    >
     <User className="w-4 h-4" />
     Sign In
@@ -97,7 +97,7 @@ export default function HeaderAuthButton() {
        <button
         onClick={handleGoogleSignIn}
         disabled={isLoading}
-        className="w-full bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 py-3 px-4 rounded-lg font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-3 mb-4"
+        className="w-full bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 py-3 px-4 rounded-lg  transition-colors disabled:opacity-50 flex items-center justify-center gap-3 mb-4"
        >
         <svg className="w-5 h-5" viewBox="0 0 24 24">
          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -121,7 +121,7 @@ export default function HeaderAuthButton() {
        {/* Email Form */}
        <form onSubmit={handleEmailAuth} className="space-y-4">
         <div>
-         <label className="block text-sm font-medium text-gray-700 mb-2">
+         <label className="block text-sm  text-gray-700 mb-2">
           Email Address
          </label>
          <input
@@ -135,7 +135,7 @@ export default function HeaderAuthButton() {
         </div>
 
         <div>
-         <label className="block text-sm font-medium text-gray-700 mb-2">
+         <label className="block text-sm  text-gray-700 mb-2">
           Password
          </label>
          <input
@@ -158,7 +158,7 @@ export default function HeaderAuthButton() {
         <button
          type="submit"
          disabled={isLoading}
-         className="w-full bg-cardinal hover:bg-cardinal-dark text-white py-3 px-4 rounded-lg font-medium disabled:opacity-50 transition-colors"
+         className="w-full bg-cardinal hover:bg-cardinal-dark text-white py-3 px-4 rounded-lg  disabled:opacity-50 transition-colors"
         >
          {isLoading ? 'Processing...' : (isSignUp ? 'Create Account' : 'Sign In')}
         </button>

@@ -458,7 +458,7 @@ export default function ContributorApplicationPage() {
 
       {/* Session Types */}
       <div>
-       <label className="block text-sm font-medium text-gray-700 mb-3">Session Types You Offer *</label>
+       <label className="block text-sm  text-gray-700 mb-3">Session Types You Offer *</label>
        <div className="grid md:grid-cols-2 gap-3">
         {SESSION_TYPES.map(type => (
          <label key={type} className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:border-cardinal/50 transition-colors cursor-pointer">
@@ -473,7 +473,7 @@ export default function ContributorApplicationPage() {
            }}
            className="text-cardinal focus:ring-cardinal rounded"
           />
-          <span className="text-sm font-medium">{type}</span>
+          <span className="text-sm ">{type}</span>
          </label>
         ))}
        </div>
@@ -481,7 +481,7 @@ export default function ContributorApplicationPage() {
 
       {/* Preferred Session Lengths */}
       <div>
-       <label className="block text-sm font-medium text-gray-700 mb-3">Preferred Session Lengths *</label>
+       <label className="block text-sm  text-gray-700 mb-3">Preferred Session Lengths *</label>
        <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
         {SESSION_LENGTHS.map(length => (
          <label key={length} className="flex items-center gap-2 p-2 border border-gray-200 rounded-lg hover:border-cardinal/50 transition-colors cursor-pointer text-center">
@@ -496,7 +496,7 @@ export default function ContributorApplicationPage() {
            }}
            className="text-cardinal focus:ring-cardinal rounded"
           />
-          <span className="text-xs font-medium">{length}</span>
+          <span className="text-xs ">{length}</span>
          </label>
         ))}
        </div>
@@ -504,7 +504,7 @@ export default function ContributorApplicationPage() {
 
       {/* Max Students for Group Sessions */}
       <div>
-       <label className="block text-sm font-medium text-gray-700 mb-2">Maximum Students per Group Session</label>
+       <label className="block text-sm  text-gray-700 mb-2">Maximum Students per Group Session</label>
        <select
         value={application.maxStudentsPerGroup}
         onChange={(e) => updateField('maxStudentsPerGroup', parseInt(e.target.value))}
@@ -518,7 +518,7 @@ export default function ContributorApplicationPage() {
 
       {/* Weekly Schedule */}
       <div>
-       <label className="block text-sm font-medium text-gray-700 mb-4">Weekly Availability *</label>
+       <label className="block text-sm  text-gray-700 mb-4">Weekly Availability *</label>
        <p className="text-sm text-gray-600 mb-4">Select the days and times when you're available for coaching sessions (in your timezone: {application.timezone || 'Not set'})</p>
 
        <div className="space-y-4">
@@ -538,7 +538,7 @@ export default function ContributorApplicationPage() {
             }}
             className="text-cardinal focus:ring-cardinal rounded"
            />
-           <h4 className="font-medium text-gray-800 capitalize">{day}</h4>
+           <h4 className=" text-gray-800 capitalize">{day}</h4>
           </div>
 
           {application.weeklySchedule[day]?.available && (
@@ -598,27 +598,27 @@ export default function ContributorApplicationPage() {
      <div className="space-y-6 text-gray-600">
       <div className="grid sm:grid-cols-2 gap-4">
        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-        <h3 className="font-medium mb-2 text-gray-800">Personal</h3>
+        <h3 className=" mb-2 text-gray-800">Personal</h3>
         <p>Name: {application.firstName} {application.lastName}</p>
         <p>Email: {application.email}</p>
         <p>Location: {application.location}</p>
         <p>Timezone: {application.timezone}</p>
        </div>
        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-        <h3 className="font-medium mb-2 text-gray-800">Sport</h3>
+        <h3 className=" mb-2 text-gray-800">Sport</h3>
         <p>Primary Sport: {application.primarySport}</p>
         <p>Experience: {application.experience}</p>
         <p>Years Active: {application.yearsActive}</p>
        </div>
       </div>
       <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-       <h3 className="font-medium mb-2 text-gray-800">Specialties & Content</h3>
+       <h3 className=" mb-2 text-gray-800">Specialties & Content</h3>
        <p>Specialties: {application.specialties.join(', ') || '—'}</p>
        <p>Content Types: {application.contentTypes.join(', ') || '—'}</p>
        <p>Audience: {application.targetAudience.join(', ') || '—'}</p>
       </div>
       <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-       <h3 className="font-medium mb-2 text-gray-800">Schedule & Availability</h3>
+       <h3 className=" mb-2 text-gray-800">Schedule & Availability</h3>
        <p>Session Types: {application.sessionTypes.join(', ') || '—'}</p>
        <p>Preferred Lengths: {application.preferredSessionLength.join(', ') || '—'}</p>
        <p>Max Group Size: {application.maxStudentsPerGroup} students</p>
@@ -628,7 +628,7 @@ export default function ContributorApplicationPage() {
         .join(', ') || '—'}</p>
       </div>
       <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-       <h3 className="font-medium mb-2 text-gray-800">Additional</h3>
+       <h3 className=" mb-2 text-gray-800">Additional</h3>
        <p>Motivation: {application.motivation || '—'}</p>
        <p>Availability: {application.availability || '—'}</p>
       </div>

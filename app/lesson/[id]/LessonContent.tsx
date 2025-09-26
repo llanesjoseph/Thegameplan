@@ -130,7 +130,7 @@ export default function LessonContent() {
       <p className="text-gray-600 mb-6">{error || 'This lesson could not be found.'}</p>
       <Link 
        href="/lessons"
-       className="inline-flex items-center gap-2 px-6 py-3 bg-cardinal hover:bg-cardinal-dark text-white rounded-lg font-medium transition-colors"
+       className="inline-flex items-center gap-2 px-6 py-3 bg-cardinal hover:bg-cardinal-dark text-white rounded-lg  transition-colors"
       >
        <ArrowLeft className="w-4 h-4" />
        Back to Lessons
@@ -158,7 +158,7 @@ export default function LessonContent() {
     {/* Lesson Header */}
     <div className="mb-8">
      <div className="flex items-center gap-2 mb-4">
-      <div className="px-3 py-1 bg-cardinal/10 text-cardinal rounded-full text-sm font-medium">
+      <div className="px-3 py-1 bg-cardinal/10 text-cardinal rounded-full text-sm ">
        {lesson.level}
       </div>
       <div className="flex items-center gap-1 text-gray-600 text-sm">
@@ -184,7 +184,7 @@ export default function LessonContent() {
         <User className="w-5 h-5 text-cardinal" />
        </div>
        <div>
-        <p className="font-medium text-gray-800">{creator.displayName || creator.name}</p>
+        <p className=" text-gray-800">{creator.displayName || creator.name}</p>
         {creator.bio && (
          <p className="text-sm text-gray-600">{creator.bio}</p>
         )}
@@ -219,7 +219,7 @@ export default function LessonContent() {
      
      {lesson.longDescription && (
       <div className="prose max-w-none">
-       <h3 className="text-xl font-semibold text-gray-800 mb-4">Lesson Details</h3>
+       <h3 className="text-xl  text-gray-800 mb-4">Lesson Details</h3>
        <div className="text-gray-700 leading-relaxed whitespace-pre-wrap">
         {lesson.longDescription}
        </div>
@@ -228,7 +228,7 @@ export default function LessonContent() {
      
      {lesson.content && (
       <div className="prose max-w-none mt-6">
-       <h3 className="text-xl font-semibold text-gray-800 mb-4">Content</h3>
+       <h3 className="text-xl  text-gray-800 mb-4">Content</h3>
        <div className="text-gray-700 leading-relaxed whitespace-pre-wrap">
         {lesson.content}
        </div>
@@ -237,7 +237,7 @@ export default function LessonContent() {
      
      {lesson.tags && lesson.tags.length > 0 && (
       <div className="mt-8 pt-6 border-t border-gray-200">
-       <h4 className="text-sm font-medium text-gray-800 mb-3">Tags</h4>
+       <h4 className="text-sm  text-gray-800 mb-3">Tags</h4>
        <div className="flex flex-wrap gap-2">
         {lesson.tags.map((tag, index) => (
          <span
@@ -256,14 +256,14 @@ export default function LessonContent() {
     <div className="mt-8 flex flex-col sm:flex-row gap-4">
      <Link
       href="/lessons"
-      className="flex-1 sm:flex-none px-6 py-3 bg-cardinal hover:bg-cardinal-dark text-white rounded-lg font-medium text-center transition-colors"
+      className="flex-1 sm:flex-none px-6 py-3 bg-cardinal hover:bg-cardinal-dark text-white rounded-lg  text-center transition-colors"
      >
       Browse More Lessons
      </Link>
      {creator && (
       <Link
        href={`/lessons?coach=${lesson.creatorUid}`}
-       className="flex-1 sm:flex-none px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium text-center transition-colors"
+       className="flex-1 sm:flex-none px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg  text-center transition-colors"
       >
        More from {creator.displayName || creator.name}
       </Link>
