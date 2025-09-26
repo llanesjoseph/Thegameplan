@@ -183,12 +183,8 @@ export default function UnifiedDashboard() {
       {/* Header */}
       <header className="bg-white px-4 py-4 shadow-sm">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <Link href="/" className="text-2xl font-bold tracking-wider">
-            PLAYBOOKD
-          </Link>
+          <h1 className="text-2xl font-bold tracking-wider">PLAYBOOKD</h1>
           <div className="flex items-center gap-4">
-            <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
-            <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
             <Link href="/contributors" className="text-black hover:text-blue-600 font-medium">
               Browse Coaches
             </Link>
