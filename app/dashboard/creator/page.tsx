@@ -1567,7 +1567,7 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
            ) : (
             <Wand2 className="w-4 h-4" />
            )}
-           {enhancingContent ? 'Enhancing...' : 'Enhance Description'}
+           {enhancingContent ? 'Generating Masterclass Content...' : '🏆 Generate Elite Lesson Plan'}
           </button>
          </div>
         </div>
@@ -1707,6 +1707,7 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
                 sport: currentSport,
                 level: 'intermediate', // Could be made dynamic later
                 duration: '45 minutes',
+                detailLevel: 'masterclass', // Use enhanced masterclass-level generation
                 detailedInstructions: detailedWriteup && detailedWriteup.trim().length > 0 ? detailedWriteup : undefined
                })
               })
@@ -1726,11 +1727,11 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
               if (detailedWriteup && detailedWriteup.trim().length > 0) {
                // Append new lesson to existing content
                setDetailedWriteup(detailedWriteup + '\n\n---\n\n' + markdownContent)
-               alert(`Content enhanced with ${usedFallback ? 'structured' : 'AI-generated'} lesson plan! Check below for the comprehensive lesson.`)
+               alert(`🏆 MASTERCLASS lesson plan generated! ${usedFallback ? 'Structured template' : 'Ultra-detailed AI-powered content'} added. Total: ${metadata.characterCount} characters across ${metadata.totalSections} sections.`)
               } else {
                // Replace with new lesson
                setDetailedWriteup(markdownContent)
-               alert(`${usedFallback ? 'Structured lesson template' : 'Professional AI lesson plan'} generated! Word count: ${metadata.wordCount} characters.`)
+               alert(`🚀 ELITE-LEVEL lesson plan created! ${usedFallback ? 'Professional template' : `${metadata.detailLevel?.toUpperCase()} AI-generated`} masterclass content: ${metadata.characterCount} characters, ${metadata.totalSections} detailed sections.`)
               }
 
               console.log('✅ Lesson generation successful:', {

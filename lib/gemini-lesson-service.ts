@@ -1,4 +1,5 @@
 // Robust Gemini API-based lesson generation with structured prompts and JSON schemas
+import { EnhancedAILessonPrompts, EnhancedLessonConfig } from './enhanced-ai-lesson-prompts'
 
 export interface LessonPlanStructure {
   title: string
@@ -31,6 +32,110 @@ export interface ContentBlock {
 
 export class GeminiLessonService {
   private static readonly API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent'
+
+  /**
+   * Generate ultra-detailed masterclass lesson using enhanced AI prompts
+   */
+  static async generateMasterclassLesson(
+    topic: string,
+    sport: string,
+    level: 'beginner' | 'intermediate' | 'advanced' = 'intermediate',
+    duration: string = '45 minutes',
+    detailedInstructions?: string,
+    config?: EnhancedLessonConfig
+  ): Promise<LessonPlanStructure> {
+    const enhancedConfig = config || EnhancedAILessonPrompts.getDefaultEnhancedConfig()
+
+    const apiKey = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY
+    if (!apiKey) {
+      throw new Error('GEMINI_API_KEY or NEXT_PUBLIC_GEMINI_API_KEY not found in environment variables')
+    }
+
+    const systemInstruction = EnhancedAILessonPrompts.createMasterCoachSystemInstruction(sport, level, enhancedConfig)
+    const userPrompt = EnhancedAILessonPrompts.createComprehensiveLessonPrompt(
+      topic, sport, level, duration, detailedInstructions || '', enhancedConfig
+    )
+    const responseSchema = EnhancedAILessonPrompts.createEnhancedResponseSchema(enhancedConfig)
+
+    const payload = {
+      contents: [
+        {
+          role: "user",
+          parts: [{ text: userPrompt }]
+        }
+      ],
+      systemInstruction: {
+        parts: [{
+          text: systemInstruction
+        }]
+      },
+      generationConfig: {
+        responseMimeType: "application/json",
+        responseSchema: responseSchema,
+        temperature: 0.8, // Slightly higher for more creative and detailed content
+        maxOutputTokens: 8000, // Increased for more comprehensive content
+        topP: 0.95,
+        topK: 40
+      }
+    }
+
+    try {
+      const response = await fetch(`${this.API_URL}?key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+
+      if (!response.ok) {
+        throw new Error(`Gemini API error: ${response.status} ${response.statusText}`)
+      }
+
+      const result = await response.json()
+
+      if (!result.candidates || !result.candidates[0] || !result.candidates[0].content) {
+        throw new Error('Invalid response from Gemini API')
+      }
+
+      const lessonPlan = JSON.parse(result.candidates[0].content.parts[0].text)
+      return lessonPlan as LessonPlanStructure
+
+    } catch (error) {
+      console.error('Error generating masterclass lesson with Gemini:', error)
+      throw new Error(`Failed to generate masterclass lesson: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    }
+  }
+
+  /**
+   * Generate expert-level lesson with comprehensive detail
+   */
+  static async generateExpertLesson(
+    topic: string,
+    sport: string,
+    level: 'beginner' | 'intermediate' | 'advanced' = 'intermediate',
+    duration: string = '45 minutes',
+    detailedInstructions?: string
+  ): Promise<LessonPlanStructure> {
+    return this.generateMasterclassLesson(
+      topic, sport, level, duration, detailedInstructions,
+      EnhancedAILessonPrompts.getExpertLevelConfig()
+    )
+  }
+
+  /**
+   * Generate comprehensive lesson with good detail
+   */
+  static async generateComprehensiveLesson(
+    topic: string,
+    sport: string,
+    level: 'beginner' | 'intermediate' | 'advanced' = 'intermediate',
+    duration: string = '45 minutes',
+    detailedInstructions?: string
+  ): Promise<LessonPlanStructure> {
+    return this.generateMasterclassLesson(
+      topic, sport, level, duration, detailedInstructions,
+      EnhancedAILessonPrompts.getComprehensiveConfig()
+    )
+  }
 
   /**
    * Generate comprehensive lesson plan using Gemini API with structured prompts

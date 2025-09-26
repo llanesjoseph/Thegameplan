@@ -15,7 +15,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { topic, sport, level = 'intermediate', duration = '45 minutes', detailedInstructions } = body
+    const {
+      topic,
+      sport,
+      level = 'intermediate',
+      duration = '45 minutes',
+      detailedInstructions,
+      detailLevel = 'masterclass' // New parameter for lesson detail level
+    } = body
 
     // Validate required fields
     if (!topic || typeof topic !== 'string') {
@@ -41,11 +48,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log('🚀 Generating lesson plan:', {
+    console.log('🚀 Generating enhanced lesson plan:', {
       topic,
       sport,
       level,
       duration,
+      detailLevel,
       hasDetailedInstructions: !!detailedInstructions
     })
 
@@ -53,11 +61,38 @@ export async function POST(request: NextRequest) {
     let usedFallback = false
 
     try {
-      // Try to generate with Gemini API
-      lessonPlan = await GeminiLessonService.generateLessonPlan(topic, sport, level as any, duration, detailedInstructions)
-      console.log('✅ Successfully generated lesson plan with Gemini API')
+      // Use enhanced lesson generation based on detail level
+      switch (detailLevel) {
+        case 'masterclass':
+          lessonPlan = await GeminiLessonService.generateMasterclassLesson(
+            topic, sport, level as any, duration, detailedInstructions
+          )
+          console.log('✅ Successfully generated masterclass lesson plan with enhanced AI')
+          break
+
+        case 'expert':
+          lessonPlan = await GeminiLessonService.generateExpertLesson(
+            topic, sport, level as any, duration, detailedInstructions
+          )
+          console.log('✅ Successfully generated expert-level lesson plan with enhanced AI')
+          break
+
+        case 'comprehensive':
+          lessonPlan = await GeminiLessonService.generateComprehensiveLesson(
+            topic, sport, level as any, duration, detailedInstructions
+          )
+          console.log('✅ Successfully generated comprehensive lesson plan with enhanced AI')
+          break
+
+        default:
+          // Fallback to original method for backward compatibility
+          lessonPlan = await GeminiLessonService.generateLessonPlan(
+            topic, sport, level as any, duration, detailedInstructions
+          )
+          console.log('✅ Successfully generated standard lesson plan with Gemini API')
+      }
     } catch (error) {
-      console.warn('⚠️ Gemini API failed, using fallback:', error)
+      console.warn('⚠️ Enhanced AI generation failed, using fallback:', error)
       // Use fallback if API fails
       lessonPlan = GeminiLessonService.generateFallbackLesson(topic, sport, level, duration, detailedInstructions)
       usedFallback = true
@@ -76,9 +111,13 @@ export async function POST(request: NextRequest) {
         sport,
         level,
         duration,
+        detailLevel,
         generatedAt: new Date().toISOString(),
         wordCount: markdownContent.length,
-        sections: lessonPlan.parts.length
+        characterCount: markdownContent.length,
+        sections: lessonPlan.parts.length,
+        totalSections: lessonPlan.parts.reduce((total, part) => total + part.sections.length, 0),
+        enhancedGeneration: !usedFallback
       }
     })
 
