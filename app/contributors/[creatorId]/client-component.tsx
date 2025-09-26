@@ -3,8 +3,10 @@
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Play, Facebook, Twitter, Instagram, Linkedin, MessageCircle, Send, X, User, Heart, Star, Bookmark } from 'lucide-react'
+import { Play, Facebook, Twitter, Instagram, Linkedin, MessageCircle, Send, X, User, Heart, Star, Bookmark, ArrowLeft, Home } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
+import { useEnhancedRole } from '@/hooks/use-role-switcher'
+import { useRouter } from 'next/navigation'
 import { db } from '@/lib/firebase.client'
 import { collection, doc, addDoc, deleteDoc, getDocs, query, where, orderBy } from 'firebase/firestore'
 import AppHeader from '@/components/ui/AppHeader'
@@ -163,6 +165,8 @@ interface SavedResponse {
 
 export default function CreatorPageClient({ creatorId }: CreatorPageClientProps) {
  const { user } = useAuth()
+ const role = useEnhancedRole()
+ const router = useRouter()
  const [creator, setCreator] = useState<Creator | null>(null)
  const [showAIChat, setShowAIChat] = useState(false)
  const [messages, setMessages] = useState<Message[]>([])
@@ -348,6 +352,25 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
   }
  }
 
+ const handleBackToDashboard = () => {
+  switch (role) {
+   case 'superadmin':
+   case 'admin':
+    router.push('/dashboard/overview')
+    break
+   case 'coach':
+    router.push('/dashboard/coaching')
+    break
+   case 'creator':
+    router.push('/dashboard/creator')
+    break
+   case 'user':
+   default:
+    router.push('/dashboard')
+    break
+  }
+ }
+
  const handleSendMessage = async () => {
   if (!currentMessage.trim() || !user || !creator) return
 
@@ -424,6 +447,29 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
  return (
   <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
    <AppHeader />
+
+   {/* Navigation Bar */}
+   {user && (
+    <div className="bg-white border-b border-gray-200 px-4 py-3">
+     <div className="max-w-7xl mx-auto flex items-center gap-4">
+      <button
+       onClick={handleBackToDashboard}
+       className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors"
+      >
+       <ArrowLeft className="w-4 h-4" />
+       <span className="text-sm font-medium">Back to Dashboard</span>
+      </button>
+      <div className="text-gray-300">|</div>
+      <button
+       onClick={() => router.push('/contributors')}
+       className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors"
+      >
+       <Home className="w-4 h-4" />
+       <span className="text-sm font-medium">All Coaches</span>
+      </button>
+     </div>
+    </div>
+   )}
 
    {/* Hero Section */}
    <section className="bg-blue-900 text-white">
