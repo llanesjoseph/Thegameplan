@@ -136,7 +136,7 @@ export default function AssistantCoachManager({
 
    // Update user's role and parent coach
    await updateDoc(doc(db, 'users', userId), {
-    role: 'assistant_coach',
+    role: 'assistant',
     parentCoach: coachId,
     isAssistantCoach: true,
     updatedAt: new Date().toISOString()
@@ -153,7 +153,7 @@ export default function AssistantCoachManager({
     specialties: userData.specialties || [],
     sport: userData.sport || '',
     experience: userData.experience || '',
-    role: 'assistant_coach',
+    role: 'assistant',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
    }

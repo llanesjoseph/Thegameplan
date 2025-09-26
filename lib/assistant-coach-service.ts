@@ -114,8 +114,8 @@ export async function acceptAssistantCoachInvitation(
       throw new Error('Invitation has expired')
     }
 
-    // Update user role to assistant_coach
-    await updateUserRoleLocal(userId, 'assistant_coach', {
+    // Update user role to assistant
+    await updateUserRoleLocal(userId, 'assistant', {
       assignedCoachId: invitation.coachId
     })
 
