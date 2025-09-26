@@ -192,8 +192,17 @@ export default function UnifiedDashboard() {
             <Link href="/contributors" className="text-black hover:text-blue-600 font-medium">
               Browse Coaches
             </Link>
-            <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-              <User className="w-4 h-4" />
+            <div className="px-4 py-2 bg-red-500 text-white rounded-lg font-medium">
+              Athlete
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-medium">
+                J
+              </div>
+              <span className="font-medium text-black">Joseph</span>
+              <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
             </div>
           </div>
         </div>
