@@ -45,13 +45,15 @@ const getCreatorData = (creatorId: string): Creator | null => {
    tagline: 'Elite soccer player at Stanford University.',
    credentials: 'PAC-12 Champion and Midfielder of the Year',
    description: 'I can answer questions about my athletic journey, techniques and mental preparation.',
-   heroImageUrl: 'https://res.cloudinary.com/dr0jtjwlh/image/upload/v1756675588/ja2_swxnai.webp',
-   headshotUrl: 'https://res.cloudinary.com/dr0jtjwlh/image/upload/v1756675588/ja2_swxnai.webp',
+   heroImageUrl: 'https://res.cloudinary.com/dr0jtjwlh/image/upload/v1758865685/2025_05_2_graduation_vqvz1b.jpg',
+   headshotUrl: 'https://res.cloudinary.com/dr0jtjwlh/image/upload/v1758865683/2023_11_1_i2bx0r.jpg',
    actionPhotos: [
-    'https://images.unsplash.com/photo-1579952363873-27d3bfad9c0d?w=800&h=600&fit=crop',
-    'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800&h=600&fit=crop'
+    'https://res.cloudinary.com/dr0jtjwlh/image/upload/v1758865677/2021_09_byctwr.jpg',
+    'https://res.cloudinary.com/dr0jtjwlh/image/upload/v1758865678/2022_08_2_zhtbzx.jpg',
+    'https://res.cloudinary.com/dr0jtjwlh/image/upload/v1758865678/2022_08_1_ysqlha.jpg',
+    'https://res.cloudinary.com/dr0jtjwlh/image/upload/v1758865680/2025_08_3_the_Rainbow_sbl5rl.jpg'
    ],
-   highlightVideo: 'https://www.youtube.com/embed/ZA0DyEOeG6I?start=58',
+   highlightVideo: 'https://res.cloudinary.com/dr0jtjwlh/video/upload/v1758865568/Jasmine_Journey_Reel_odyfoj.mp4',
    socialLinks: {
     facebook: 'https://facebook.com/jasmineaikey',
     twitter: 'https://twitter.com/jasmineaikey',
@@ -462,17 +464,26 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
 
     {/* Action Photos Section */}
     <div className="relative">
-     <div className="grid grid-cols-2 h-64 md:h-80">
-      {creator.actionPhotos.map((photo, index) => (
-       <div key={index} className="relative overflow-hidden">
-        <Image
-         src={photo}
-         alt={`${creator.firstName} action photo ${index + 1}`}
-         fill
-         className="object-cover"
-        />
-       </div>
-      ))}
+     <div className="grid grid-cols-2 h-96">
+      {/* Left side - Single larger image */}
+      <div className="relative overflow-hidden">
+       <Image
+        src={creator.actionPhotos[0]}
+        alt={`${creator.firstName} action photo 1`}
+        fill
+        className="object-cover"
+       />
+      </div>
+
+      {/* Right side - Single larger image */}
+      <div className="relative overflow-hidden">
+       <Image
+        src={creator.actionPhotos[1]}
+        alt={`${creator.firstName} action photo 2`}
+        fill
+        className="object-cover"
+       />
+      </div>
      </div>
 
      {/* Overlay Content */}
@@ -558,7 +569,7 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
       <div className="relative">
        <div className="aspect-[4/3] rounded-lg overflow-hidden bg-red-600">
         <Image
-         src={creator.actionPhotos[0]}
+         src={creator.actionPhotos[2]}
          alt={`${creator.firstName} in action`}
          fill
          className="object-cover"
