@@ -401,7 +401,7 @@ export const generateCoachingPrompt = (question: string, context: CoachingContex
   // Detect if this is a sports-related question (any sport)
   const sportsKeywords = [
     // General sports terms
-    'training', 'practice', 'coach', 'technique', 'skill', 'game', 'match', 'team', 'player', 'athlete', 'workout', 'exercise', 'fitness', 'performance', 'competition', 'tournament', 'championship', 'season', 'drill', 'strategy', 'tactics', 'conditioning', 'strength', 'agility', 'speed', 'endurance',
+    'training', 'practice', 'coach', 'technique', 'skill', 'game', 'match', 'team', 'player', 'athlete', 'workout', 'exercise', 'fitness', 'performance', 'competition', 'tournament', 'championship', 'season', 'drill', 'strategy', 'tactics', 'conditioning', 'strength', 'agility', 'speed', 'endurance', 'improve', 'better', 'help me', 'how to',
 
     // Soccer/Football
     'soccer', 'football', 'ball', 'goal', 'kick', 'pass', 'dribble', 'shoot', 'penalty', 'corner', 'field', 'midfielder', 'striker', 'defender', 'goalkeeper', 'offside', 'header', 'tackle', 'cross', 'freekick',
@@ -1030,7 +1030,7 @@ Create a comprehensive, professionally formatted lesson plan with NO decorative 
 
   if (isSportsQuestion) {
     // Enhanced sports-specific coaching response
-    return `You are ${context.coachName}, a brilliant and engaging coach who combines elite athletic experience with natural conversational intelligence. Think of yourself as the athletic equivalent of ChatGPT - knowledgeable, personable, and genuinely helpful.
+    return `You are ${context.coachName}, a brilliant and engaging coach who combines elite athletic experience with natural conversational intelligence. Think of yourself as the athletic equivalent of ChatGPT/Claude - knowledgeable, personable, and genuinely helpful.
 
 **THEIR QUESTION:** "${question}"
 
@@ -1041,53 +1041,60 @@ Create a comprehensive, professionally formatted lesson plan with NO decorative 
 - Your approach: ${context.voiceCharacteristics.speakingStyle}
 - You naturally use phrases like: ${context.voiceCharacteristics.catchphrases.slice(0, 2).join(' and ')}
 
-**HOW TO RESPOND LIKE ChatGPT/CLAUDE:**
-You're having a genuine, intelligent conversation with someone who wants to improve. They came to you because you're both an elite athlete AND naturally brilliant at explaining things.
+**CRITICAL: RESPOND LIKE ChatGPT/CLAUDE - INTELLIGENT & CONVERSATIONAL:**
+You're having a genuine, intelligent conversation with someone who wants to improve. They came to you because you're both an elite athlete AND naturally brilliant at explaining things. This should feel like talking to the smartest, most helpful coach they've ever met.
 
-**BE CONVERSATIONAL & DYNAMIC:**
-- Start by connecting with what they're asking - show you understand
+**BE GENUINELY CONVERSATIONAL & DYNAMIC:**
+- Start by connecting with what they're asking - show you understand why this matters
 - Explain things clearly without being condescending or robotic
 - Use "you" and "your" to make it personal and engaging
 - Ask rhetorical questions to get them thinking
-- Share insights that show you really get the sport
+- Share insights that show you really get the sport and the challenge they're facing
 - Give them actionable advice they can use immediately
 - Be encouraging but honest about what improvement requires
+- Sound excited to help them improve
 
-**SHOW YOUR INTELLIGENCE:**
+**SHOW YOUR INTELLIGENCE & EXPERTISE:**
 - Break down complex concepts into parts anyone can understand
 - Explain the "why" behind techniques, not just the "how"
-- Connect different aspects (technique, tactics, mental game)
-- Anticipate what they might be confused about
+- Connect different aspects (technique, tactics, mental game, training)
+- Anticipate what they might be confused about and address it
 - Give context for when and why to use different approaches
 - Use analogies or comparisons that make sense
+- Share specific examples from your experience when relevant
 
 **NATURAL CONVERSATION FLOW:**
 Instead of rigid sections, flow naturally between:
-1. **Acknowledge their question thoughtfully** - "That's a great question because..."
+1. **Acknowledge their question thoughtfully** - "Oh, that's such a great question because..." or "I love that you're asking about this..."
 2. **Share the key insight** - The most important thing they need to understand
-3. **Break it down practically** - How to actually do it or improve it
+3. **Break it down practically** - How to actually do it or improve it step by step
 4. **Give specific next steps** - What to practice and how to know they're improving
-5. **End with encouragement** - Confidence and motivation
+5. **End with encouragement** - Confidence and motivation that builds them up
 
-**EXAMPLES OF NATURAL LANGUAGE:**
-- Instead of "Technical fundamentals include:" → "Here's what I focus on when I'm working on this..."
-- Instead of "Safety considerations:" → "One thing to watch out for is..."
-- Instead of rigid bullet points → "Another key thing is..." "What really helped me was..." "You'll also want to..."
+**USE NATURAL, ENGAGING LANGUAGE:**
+- Instead of "Technical fundamentals include:" → "Here's what I focus on when I'm working on this..." or "The thing that really changed my game was..."
+- Instead of "Safety considerations:" → "One thing to watch out for is..." or "Just be careful that you don't..."
+- Instead of rigid bullet points → "Another key thing is..." "What really helped me was..." "You'll also want to..." "Something I see a lot is..."
+- Sound like you're genuinely excited to share knowledge that will help them
 
-**KEEP IT CONVERSATIONAL:**
+**KEEP IT CONVERSATIONAL & HELPFUL:**
 - Sound genuinely excited to help them get better
-- Be specific and actionable, never vague
+- Be specific and actionable, never vague or generic
 - Use your ${context.sport} expertise but adapt to whatever sport they're asking about
-- Length: 250-400 words - helpful but not overwhelming
+- Length: 300-500 words - comprehensive but not overwhelming
 - Write like you're talking to a friend who genuinely wants your advice
+- Include specific techniques, drills, or practice methods
+- Share personal insights or experiences when they add value
 
 **REMEMBER:**
 - They asked YOU specifically because of your combination of athletic success and intelligence
-- Be natural, not formal or robotic
-- Show personality while being incredibly helpful
+- Be natural and conversational, not formal or robotic
+- Show personality while being incredibly helpful and knowledgeable
 - Make them feel like they're talking to both a champion athlete AND a brilliant teacher
+- Give them something they can actually DO to improve
+- Sound confident and encouraging about their potential
 
-Respond as ${context.coachName} having a smart, natural conversation about their question.`
+Respond as ${context.coachName} having a smart, natural conversation about their question. Be the most helpful, intelligent, and encouraging coach they've ever talked to.`
   } else {
     // Natural, intelligent conversation like ChatGPT
     return `You are ${context.coachName}, an incredibly smart and personable person who just happens to be a champion athlete. You're like ChatGPT or Claude, but with the unique perspective of elite athletic experience.
@@ -1865,21 +1872,25 @@ During matches, I'd position myself to see both the ball carrier and potential t
 **Trust your preparation** - the more you practice scanning, the more automatic it becomes in pressure situations!`
   }
 
-  // Enhanced conversational passing response
-  if (lowerQuestion.includes('passing') || lowerQuestion.includes('accuracy')) {
-    return `Oh, passing accuracy - that's something I was obsessed with during my college career! You know what's funny? People think it's all about having a strong leg, but honestly, the most accurate passers I played with weren't necessarily the strongest.
+  // Enhanced conversational passing response - improved to detect more variations
+  if (lowerQuestion.includes('pass') || lowerQuestion.includes('accuracy') ||
+      lowerQuestion.includes('better pass') || lowerQuestion.includes('improve pass') ||
+      lowerQuestion.includes('help me pass') || lowerQuestion.includes('passing technique')) {
+    return `Oh wow, passing accuracy - this is something I was completely obsessed with during my championship years at Stanford! You know what's interesting? Most people think it's all about having a rocket leg, but honestly, the most accurate passers I played with, including some who went pro, weren't necessarily the strongest players on the field.
 
-Here's what I learned: passing accuracy comes down to three things that you can control completely. First is your plant foot positioning - and I mean really dialing this in. You want that foot about 6-8 inches beside the ball, pointed exactly where you want the ball to go. It sounds simple, but when you're under pressure in a game, it's easy to get sloppy with this.
+Here's what completely transformed my passing game, and I think this will help you too. It really comes down to three fundamental things that you can control every single time you touch the ball.
 
-The second thing is your follow-through. I used to hit balls way too hard when I was younger, thinking power meant accuracy. But my coach at Stanford taught me that a controlled, low follow-through with your ankle locked is what creates consistency. Think of it like threading a needle - you need precision, not force.
+First - and this is huge - your plant foot positioning. I'm talking about really dialing this in with precision. You want that foot about 6-8 inches beside the ball, pointed exactly where you want the ball to go. It sounds super basic, but when you're under pressure in a real game situation, it's so easy to get sloppy with this foundation. During my Pac-12 championship season, I spent 15 minutes every single practice just working on plant foot consistency.
 
-And here's the big one that changed my game: vision training. You've got to be scanning constantly, getting your head up before the ball even comes to you. I used to practice this drill where I'd receive a pass and have to call out how many teammates I could see before I even touched the ball.
+The second game-changer is your follow-through technique. I used to absolutely crush balls when I was younger, thinking power automatically meant accuracy. But my coach at Stanford completely changed my mindset - he taught me that a controlled, low follow-through with your ankle locked is what creates that consistency you see in elite players. Think of it like threading a needle - you need precision and finesse, not raw force.
 
-For practice, try this: set up cones about 15 yards apart and just focus on hitting those cones consistently. Start with 50 passes a day, all stationary. Once you're hitting 8 out of 10, add some movement. The key is building that muscle memory so it becomes automatic.
+And here's the thing that really elevated my game to the championship level: vision and field awareness. You've got to be scanning constantly, getting your head up and seeing your options before the ball even comes to you. I used to practice this drill where I'd receive a pass and have to call out how many teammates I could see before I even touched the ball. It sounds simple, but it trains your brain to process information faster.
 
-Trust your first instinct too - hesitation is what kills accuracy more than anything. See it, feel it, play it.
+For practice, here's something that really works: set up cones about 15-20 yards apart and just focus on hitting those targets consistently. Start with 50 passes a day, all stationary. Once you're hitting 8 out of 10 regularly, start adding movement and pressure. The key is building that muscle memory so it becomes completely automatic under pressure.
 
-What level are you playing at? I'd love to give you some more specific advice based on where you're at in your development!`
+One more thing - trust your first instinct. Hesitation kills more passes than technique errors. When you see the opportunity, commit to it fully. See it, feel it, play it.
+
+What level are you currently playing at? I'd love to give you some more specific drills and advice based on where you're at in your development!`
   }
   
   // Shooting and finishing

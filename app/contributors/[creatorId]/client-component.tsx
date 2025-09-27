@@ -443,6 +443,9 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
 
   try {
    // Get the auth token
+   if (!user || typeof user.getIdToken !== 'function') {
+    throw new Error('User not properly authenticated')
+   }
    const token = await user.getIdToken()
 
    const response = await fetch('/api/ai-coaching', {
