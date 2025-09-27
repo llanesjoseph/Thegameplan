@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import { useUrlEnhancedRole } from "@/hooks/use-url-role-switcher"
 import { useRouter } from 'next/navigation'
 import UserSignupTracker from '@/components/admin/UserSignupTracker'
+import CoachIngestionManager from '@/components/admin/CoachIngestionManager'
 
 export default function AdminDashboard() {
  const { role } = useUrlEnhancedRole()
@@ -21,6 +22,11 @@ export default function AdminDashboard() {
      {/* User Signup Tracker */}
      <div className="mt-8">
       <UserSignupTracker />
+     </div>
+
+     {/* Coach Ingestion Manager */}
+     <div className="mt-8">
+      <CoachIngestionManager />
      </div>
 
      <div className="grid md:grid-cols-3 gap-6 mt-8">
