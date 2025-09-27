@@ -187,8 +187,7 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
      const q = query(
       savedResponsesRef,
       where('userId', '==', user.uid),
-      where('creatorId', '==', creatorId),
-      orderBy('savedAt', 'desc')
+      where('creatorId', '==', creatorId)
      )
      const querySnapshot = await getDocs(q)
 
@@ -203,7 +202,9 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
       } as SavedResponse)
      })
 
-     setSavedResponses(responses)
+     // Sort by savedAt in descending order (newest first)
+     const sortedResponses = responses.sort((a, b) => b.savedAt.getTime() - a.savedAt.getTime())
+     setSavedResponses(sortedResponses)
 
      // Mark messages as favorited if they exist in saved responses
      setMessages(prev => prev.map(msg => ({
@@ -222,7 +223,9 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
         timestamp: new Date(response.timestamp),
         savedAt: new Date(response.savedAt)
        }))
-       setSavedResponses(responses)
+       // Sort by savedAt in descending order (newest first)
+       const sortedResponses = responses.sort((a, b) => b.savedAt.getTime() - a.savedAt.getTime())
+       setSavedResponses(sortedResponses)
 
        // Mark messages as favorited if they exist in saved responses
        setMessages(prev => prev.map(msg => ({
@@ -371,8 +374,60 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
   }
  }
 
+ // Local fallback response system
+ const getLocalFallbackResponse = (question: string, creator: Creator): string => {
+  const lowerQuestion = question.toLowerCase()
+  const sport = creator.sport.toLowerCase()
+  const firstName = creator.firstName
+
+  // Training and technique questions
+  if (lowerQuestion.includes('train') || lowerQuestion.includes('practice')) {
+   return `Great question about training! As a ${sport} player, I always focus on consistent practice and proper technique. For ${sport}, I recommend starting with fundamental movements and gradually building complexity. Remember to warm up properly and listen to your body. What specific area of training are you most interested in improving?`
+  }
+
+  // Technique-specific questions
+  if (lowerQuestion.includes('technique') || lowerQuestion.includes('skill')) {
+   return `Technique is everything in ${sport}! The key is repetition with proper form. I always tell athletes to focus on quality over quantity. Start slow, get the mechanics right, then gradually increase speed and intensity. What specific technique would you like to work on?`
+  }
+
+  // Mental preparation questions
+  if (lowerQuestion.includes('mental') || lowerQuestion.includes('mindset') || lowerQuestion.includes('confidence')) {
+   return `Mental preparation is just as important as physical training! I focus on visualization, positive self-talk, and staying present in the moment. Building confidence comes from preparation - the more you practice, the more confident you'll feel. What mental challenges are you facing in your ${sport} journey?`
+  }
+
+  // Injury or physical concerns
+  if (lowerQuestion.includes('injury') || lowerQuestion.includes('pain') || lowerQuestion.includes('hurt')) {
+   return `I understand your concern about injuries. As an athlete, safety is always my top priority. Please consult with a qualified healthcare professional or sports medicine doctor for any injury-related questions. They can provide proper medical advice that I cannot. In the meantime, focus on proper warm-up, cool-down, and listening to your body.`
+  }
+
+  // Motivation and goals
+  if (lowerQuestion.includes('motivation') || lowerQuestion.includes('goal') || lowerQuestion.includes('improve')) {
+   return `I love your motivation to improve! Setting clear, achievable goals is crucial for success in ${sport}. Break down your big goals into smaller, daily actions. Celebrate small wins along the way, and remember that progress takes time. What specific goals are you working toward in your ${sport} journey?`
+  }
+
+  // Equipment and gear questions
+  if (lowerQuestion.includes('equipment') || lowerQuestion.includes('gear') || lowerQuestion.includes('shoe')) {
+   return `Good equipment can definitely help your performance! For ${sport}, I recommend investing in quality basics first - proper footwear, comfortable clothing, and any sport-specific gear that fits well. The most important thing is that you feel comfortable and confident. What specific equipment are you considering?`
+  }
+
+  // General advice and catch-all
+  return `Thanks for your question! While I'd love to give you a detailed response, I'm having some technical difficulties right now. As a ${sport} athlete, I always encourage focusing on the fundamentals, staying consistent with training, and keeping a positive mindset. Feel free to try asking again, or check out my training library below for more insights! Remember, every champion started as a beginner - keep pushing forward! 🏆`
+ }
+
  const handleSendMessage = async () => {
-  if (!currentMessage.trim() || !user || !creator) return
+  if (!currentMessage.trim() || !creator) return
+
+  // Check if user is authenticated
+  if (!user) {
+   const authPromptMessage: Message = {
+    id: Date.now().toString(),
+    content: `Hi there! I'd love to answer your question, but you'll need to sign in first to start our conversation. Click the "Sign in" link below to get started, and then we can chat about anything ${creator.sport.toLowerCase()}-related! 😊`,
+    sender: 'creator',
+    timestamp: new Date()
+   }
+   setMessages(prev => [...prev, authPromptMessage])
+   return
+  }
 
   const userMessage: Message = {
    id: Date.now().toString(),
@@ -382,17 +437,22 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
   }
 
   setMessages(prev => [...prev, userMessage])
+  const originalMessage = currentMessage
   setCurrentMessage('')
   setIsLoading(true)
 
   try {
+   // Get the auth token
+   const token = await user.getIdToken()
+
    const response = await fetch('/api/ai-coaching', {
     method: 'POST',
     headers: {
      'Content-Type': 'application/json',
+     'Authorization': `Bearer ${token}`,
     },
     body: JSON.stringify({
-     question: currentMessage,
+     question: originalMessage,
      creatorId: creator.id,
      userId: user.uid,
      userEmail: user.email
@@ -401,7 +461,7 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
 
    const data = await response.json()
 
-   if (response.ok) {
+   if (response.ok && data.success) {
     const creatorMessage: Message = {
      id: (Date.now() + 1).toString(),
      content: data.response,
@@ -410,18 +470,23 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
     }
     setMessages(prev => [...prev, creatorMessage])
    } else {
+    // Enhanced error handling with specific fallback
+    const fallbackResponse = getLocalFallbackResponse(originalMessage, creator)
     const errorMessage: Message = {
      id: (Date.now() + 1).toString(),
-     content: 'Sorry, I encountered an error. Please try again.',
+     content: fallbackResponse,
      sender: 'creator',
      timestamp: new Date()
     }
     setMessages(prev => [...prev, errorMessage])
    }
   } catch (error) {
+   console.error('Chat error:', error)
+   // Enhanced fallback with creator-specific response
+   const fallbackResponse = getLocalFallbackResponse(originalMessage, creator)
    const errorMessage: Message = {
     id: (Date.now() + 1).toString(),
-    content: 'Sorry, I\'m having trouble connecting right now. Please try again.',
+    content: fallbackResponse,
     sender: 'creator',
     timestamp: new Date()
    }
