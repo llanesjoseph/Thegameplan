@@ -11,84 +11,157 @@ export interface MedicalSafetyResult {
 
 // Medical keywords and phrases that indicate potential medical issues
 const MEDICAL_KEYWORDS = {
-  injuries: [
-    'broke', 'broken', 'fracture', 'fractured', 'sprain', 'sprained',
-    'torn', 'tear', 'injury', 'injured', 'hurt', 'pain', 'painful',
-    'swollen', 'swelling', 'bruised', 'bruise', 'bleeding', 'blood',
-    'cut', 'wound', 'stitches', 'surgery', 'operation', 'hospital',
-    'emergency', 'urgent', 'severe', 'intense', 'unbearable',
-    'dislocated', 'dislocation', 'concussion', 'head injury'
+  // Critical emergency indicators
+  critical_emergencies: [
+    'can\'t breathe', 'cannot breathe', 'trouble breathing', 'difficulty breathing',
+    'chest pain', 'heart attack', 'stroke', 'seizure', 'unconscious',
+    'not breathing', 'stopped breathing', 'choking', 'allergic reaction',
+    'severe bleeding', 'heavy bleeding', 'losing blood', 'blood loss',
+    'head trauma', 'severe head', 'skull', 'brain injury', 'coma',
+    'overdose', 'poisoning', 'poisoned', 'toxic', 'collapsed',
+    'cardiac arrest', 'heart stopped', 'no pulse', 'unresponsive',
+    'convulsions', 'severe burns', 'electrocuted', 'drowning'
   ],
-  
-  symptoms: [
-    'dizzy', 'dizziness', 'nauseous', 'nausea', 'vomiting', 'fever',
-    'chest pain', 'shortness of breath', 'breathing', 'breathe',
-    'heart rate', 'pulse', 'faint', 'fainting', 'unconscious',
-    'numbness', 'tingling', 'weakness', 'paralysis', 'seizure',
-    'headache', 'migraine', 'vision', 'hearing', 'balance'
-  ],
-  
-  medical_conditions: [
-    'diabetes', 'heart condition', 'heart disease', 'asthma',
-    'epilepsy', 'medication', 'prescription', 'doctor', 'physician',
-    'medical', 'diagnosis', 'treatment', 'therapy', 'rehabilitation',
-    'physical therapy', 'chronic', 'condition', 'syndrome', 'disorder'
-  ],
-  
+
   emergency_phrases: [
-    'i think i broke', 'i broke my', 'i injured my', 'i hurt my',
-    'something is wrong', 'need medical', 'should i see a doctor',
-    'is this serious', 'am i okay', 'what should i do',
-    'emergency room', 'urgent care', 'call 911', 'ambulance'
+    'call 911', 'call an ambulance', 'need ambulance', 'emergency room',
+    'urgent care', 'hospital now', 'going to hospital', 'er visit',
+    'i think i broke', 'i broke my', 'something is seriously wrong',
+    'i need medical help', 'medical emergency', 'this is urgent',
+    'should i call 911', 'need help now', 'am i dying',
+    'is this life threatening', 'might be serious', 'very worried',
+    'scared something is wrong', 'think i need a doctor'
+  ],
+
+  severe_injuries: [
+    'broke', 'broken', 'fracture', 'fractured', 'dislocated', 'dislocation',
+    'torn ligament', 'torn muscle', 'torn acl', 'torn mcl', 'torn rotator',
+    'compound fracture', 'open fracture', 'bone sticking out',
+    'severe sprain', 'grade 3 sprain', 'complete tear',
+    'concussion', 'head injury', 'neck injury', 'spine injury',
+    'can\'t move', 'cannot move', 'paralyzed', 'numb everywhere',
+    'severe pain', 'excruciating', 'unbearable pain', 'worst pain',
+    'deformed', 'bone is crooked', 'looks wrong', 'unnatural angle'
+  ],
+
+  concerning_symptoms: [
+    'dizzy', 'dizziness', 'lightheaded', 'nauseous', 'nausea', 'vomiting',
+    'fever', 'high temperature', 'chills', 'sweating profusely',
+    'shortness of breath', 'breathless', 'winded', 'gasping',
+    'heart racing', 'heart pounding', 'irregular heartbeat',
+    'faint', 'fainting', 'passed out', 'blacked out',
+    'numbness', 'tingling', 'pins and needles', 'weakness',
+    'severe headache', 'migraine', 'blurred vision', 'double vision',
+    'hearing loss', 'ringing ears', 'balance problems', 'vertigo',
+    'confusion', 'disoriented', 'memory loss', 'slurred speech'
+  ],
+
+  injuries: [
+    'injury', 'injured', 'hurt', 'pain', 'painful', 'aching',
+    'swollen', 'swelling', 'bruised', 'bruise', 'bleeding', 'blood',
+    'cut', 'wound', 'gash', 'laceration', 'puncture',
+    'sprain', 'sprained', 'strain', 'strained', 'pulled muscle',
+    'twisted', 'rolled ankle', 'jammed finger', 'hyperextended'
+  ],
+
+  medical_conditions: [
+    'diabetes', 'diabetic', 'heart condition', 'heart disease', 'cardiac',
+    'asthma', 'asthmatic', 'epilepsy', 'epileptic', 'hypertension',
+    'blood pressure', 'medication', 'prescription', 'pills',
+    'doctor', 'physician', 'specialist', 'medical', 'diagnosis',
+    'treatment', 'therapy', 'rehabilitation', 'physical therapy',
+    'chronic', 'condition', 'syndrome', 'disorder', 'disease'
+  ],
+
+  medical_procedures: [
+    'surgery', 'operation', 'procedure', 'stitches', 'sutures',
+    'hospital', 'hospitalized', 'admitted', 'x-ray', 'mri', 'ct scan',
+    'ultrasound', 'blood test', 'biopsy', 'injection', 'iv'
   ]
 }
 
 // Safety responses for different risk levels
 const SAFETY_RESPONSES = {
-  critical: `🚨 **IMPORTANT MEDICAL NOTICE** 🚨
+  critical: `🚨 **MEDICAL EMERGENCY - SEEK IMMEDIATE HELP** 🚨
 
-I've detected that you may be describing a serious injury or medical condition. This platform is designed for sports training guidance only and cannot provide medical advice.
+**This sounds like a potential medical emergency. Please take immediate action:**
 
-**Please seek immediate medical attention:**
-- Call 911 for emergencies
-- Visit your nearest emergency room
-- Contact your doctor or urgent care
+🏥 **EMERGENCY SERVICES:**
+• **Call 911 immediately** if this is happening now
+• Go to the nearest Emergency Room
+• If unconscious/unresponsive, call 911 first
 
-Your health and safety are the top priority. Please get proper medical evaluation before returning to any physical activity.`,
+📞 **POISON CONTROL:** 1-800-222-1222 (if poisoning suspected)
 
-  high: `⚠️ **MEDICAL SAFETY NOTICE** ⚠️
+**I am an AI sports coach and cannot provide medical advice or emergency care. This platform is designed only for sports training guidance for healthy individuals.**
 
-It sounds like you may have an injury or medical concern. This platform cannot provide medical advice or injury assessment.
+**Your safety is the absolute priority. Please get immediate professional medical attention.**
 
-**Recommended actions:**
-- Consult with a healthcare professional
-- Get proper medical evaluation
-- Follow your doctor's guidance for return to activity
+---
 
-Once you've been cleared by a medical professional, I'd be happy to help with training guidance that's appropriate for your situation.`,
+*Once you've received proper medical care and been cleared by healthcare professionals, I'll be here to help with your safe return to training when appropriate.*`,
 
-  medium: `🏃‍♂️ **SPORTS RECOVERY GUIDANCE** 🏃‍♂️
+  high: `⚠️ **SERIOUS MEDICAL CONCERN - GET PROFESSIONAL HELP** ⚠️
 
-I understand you're asking about returning from an injury situation. I can help with mental preparation, training routines, and confidence building for athletes who have been medically cleared to return.
+**Based on what you've described, this needs medical attention from a qualified healthcare professional.**
 
-**Important reminders:**
-- Always follow your healthcare provider's clearance and guidance
-- Start with their recommended activity level
-- Listen to your body and don't rush the process
+🏥 **RECOMMENDED ACTIONS:**
+• **See a doctor or healthcare provider today**
+• Visit urgent care if your doctor isn't available
+• Do not ignore severe symptoms or injuries
+• Consider the emergency room if symptoms worsen
 
-**I can help with:**
-- Mental strategies for confident return to sport
-- Training routines for gradual skill rebuilding
-- Confidence and focus techniques
-- Prevention strategies for the future
+**IMPORTANT:** I'm an AI sports coach, not a medical professional. I cannot:
+- Diagnose injuries or medical conditions
+- Provide medical advice or treatment
+- Assess whether something is "serious" or not
 
-What specific aspect of your sports comeback would you like guidance on?`,
+**Please get proper medical evaluation before continuing any physical activity.**
 
-  low: `💡 **Training Safety Note** 💡
+---
 
-I want to make sure you're training safely! If you're experiencing any pain, discomfort, or have concerns about an injury, please consult with a healthcare professional first.
+*After you've been medically evaluated and cleared, I'd be happy to help with appropriate training guidance for your situation.*`,
 
-I'm here to help with training techniques, strategy, and performance improvement for healthy athletes. What specific training aspect can I assist you with?`
+  medium: `🏃‍♂️ **SPORTS RECOVERY & MEDICAL CLEARANCE REQUIRED** 🏃‍♂️
+
+I understand you're dealing with an injury or medical situation. As a sports coach, I want to help you return safely and confidently.
+
+**FIRST PRIORITY - MEDICAL CLEARANCE:**
+• Get evaluated by a healthcare professional
+• Follow their treatment and recovery plan
+• Obtain clearance before returning to training
+• Ask about any activity restrictions or modifications
+
+**ONCE MEDICALLY CLEARED, I CAN HELP WITH:**
+• Mental strategies for confident return to sport
+• Sport-specific conditioning and skill rebuilding
+• Injury prevention techniques and strengthening
+• Training modifications for gradual progression
+• Confidence and focus techniques for comeback
+
+**SAFETY REMINDER:** Always follow your healthcare provider's guidance. They know your specific situation and can provide medical advice that I cannot.
+
+What specific aspect of your sports recovery journey would you like guidance on once you're medically cleared?`,
+
+  low: `💡 **TRAINING SAFETY & INJURY PREVENTION** 💡
+
+I want to make sure you're training safely and getting the most out of your athletic development!
+
+**SAFETY FIRST APPROACH:**
+• Any pain, discomfort, or injury concerns should be evaluated by a healthcare professional
+• "Playing through pain" can lead to more serious injuries
+• When in doubt, get it checked out
+
+**I'M HERE TO HELP WITH:**
+• Proper training techniques and form
+• Injury prevention strategies
+• Safe progression in your sport
+• Performance improvement for healthy athletes
+• Mental preparation and confidence building
+
+**Remember:** I'm a sports coach, not a medical professional. For any health concerns, always consult with qualified healthcare providers.
+
+What specific aspect of your training would you like to work on today?`
 }
 
 export function analyzeMedicalSafety(userInput: string): MedicalSafetyResult {
@@ -96,54 +169,135 @@ export function analyzeMedicalSafety(userInput: string): MedicalSafetyResult {
   const detectedConcerns: string[] = []
   let riskLevel: 'low' | 'medium' | 'high' | 'critical' = 'low'
 
-  // Check for sports recovery context that should be allowed
+  // Check for sports recovery context that should be allowed with lower risk
   const sportsRecoveryContext = [
-    'coming back', 'returning', 'return to', 'recovery', 'mindset', 'routine',
+    'coming back', 'returning', 'return to', 'recovery', 'recovered', 'mindset', 'routine',
     'training after', 'getting back', 'confidence after', 'mental preparation',
-    'best practices', 'prevention', 'strengthening', 'conditioning'
+    'best practices', 'prevention', 'strengthening', 'conditioning',
+    'cleared by doctor', 'doctor cleared', 'medically cleared', 'physical therapy',
+    'rehab', 'rehabilitation', 'comeback', 'getting back into', 'back to training'
   ]
 
   const hasSportsContext = sportsRecoveryContext.some(phrase => input.includes(phrase))
 
-  // Check for emergency phrases first (highest priority)
-  for (const phrase of MEDICAL_KEYWORDS.emergency_phrases) {
-    if (input.includes(phrase)) {
-      detectedConcerns.push(`Emergency phrase: "${phrase}"`)
-      riskLevel = 'critical'
-    }
-  }
+  // Check for past tense vs present tense to distinguish current emergencies
+  const pastTenseIndicators = [
+    'had', 'was', 'were', 'did', 'used to', 'last week', 'last month', 'ago',
+    'previously', 'before', 'earlier', 'history of', 'past', 'old injury'
+  ]
+  const isPastTense = pastTenseIndicators.some(indicator => input.includes(indicator))
 
-  // Check for injury keywords - but be smart about sports context
-  for (const keyword of MEDICAL_KEYWORDS.injuries) {
-    if (input.includes(keyword)) {
-      detectedConcerns.push(`Injury keyword: "${keyword}"`)
-
-      // If user is asking about returning/recovery from injury (sports context), be less restrictive
-      if (hasSportsContext && (keyword === 'injury' || keyword === 'injured')) {
-        if (riskLevel === 'low') riskLevel = 'medium' // Lower severity for sports context
-      } else {
-        if (riskLevel === 'low') riskLevel = 'high' // Higher severity for direct medical concerns
+  // CRITICAL EMERGENCY DETECTION (immediate medical attention needed)
+  for (const emergency of MEDICAL_KEYWORDS.critical_emergencies) {
+    if (input.includes(emergency)) {
+      detectedConcerns.push(`CRITICAL EMERGENCY: "${emergency}"`)
+      if (!isPastTense) { // Only if it's happening now
+        riskLevel = 'critical'
+      } else if (riskLevel < 'high') {
+        riskLevel = 'high' // Past emergency still needs medical attention
       }
     }
   }
 
-  // Check for symptoms
-  for (const symptom of MEDICAL_KEYWORDS.symptoms) {
-    if (input.includes(symptom)) {
-      detectedConcerns.push(`Symptom: "${symptom}"`)
-      if (riskLevel === 'low') riskLevel = 'medium'
+  // EMERGENCY PHRASES (high priority)
+  for (const phrase of MEDICAL_KEYWORDS.emergency_phrases) {
+    if (input.includes(phrase)) {
+      detectedConcerns.push(`Emergency phrase: "${phrase}"`)
+      if (!isPastTense && !hasSportsContext) {
+        riskLevel = 'critical'
+      } else if (riskLevel < 'high') {
+        riskLevel = 'high'
+      }
     }
   }
 
-  // Check for medical conditions
+  // SEVERE INJURIES (high priority unless clearly in recovery context)
+  for (const injury of MEDICAL_KEYWORDS.severe_injuries) {
+    if (input.includes(injury)) {
+      detectedConcerns.push(`Severe injury: "${injury}"`)
+
+      if (hasSportsContext && isPastTense) {
+        // Discussing past injury in sports context - medium risk
+        if (riskLevel < 'medium') riskLevel = 'medium'
+      } else if (!isPastTense) {
+        // Current severe injury - high risk
+        if (riskLevel < 'high') riskLevel = 'high'
+      } else {
+        // Past severe injury without sports context - high risk
+        if (riskLevel < 'high') riskLevel = 'high'
+      }
+    }
+  }
+
+  // CONCERNING SYMPTOMS (medium to high priority)
+  for (const symptom of MEDICAL_KEYWORDS.concerning_symptoms) {
+    if (input.includes(symptom)) {
+      detectedConcerns.push(`Concerning symptom: "${symptom}"`)
+
+      if (!isPastTense && !hasSportsContext) {
+        // Current symptoms need medical attention
+        if (riskLevel < 'high') riskLevel = 'high'
+      } else if (riskLevel < 'medium') {
+        riskLevel = 'medium'
+      }
+    }
+  }
+
+  // GENERAL INJURIES (lower priority, context-dependent)
+  for (const injury of MEDICAL_KEYWORDS.injuries) {
+    if (input.includes(injury)) {
+      detectedConcerns.push(`Injury keyword: "${injury}"`)
+
+      if (hasSportsContext && (isPastTense || injury === 'injury' || injury === 'injured')) {
+        // Sports recovery context - medium risk
+        if (riskLevel < 'medium') riskLevel = 'medium'
+      } else if (!isPastTense) {
+        // Current injury - high risk
+        if (riskLevel < 'high') riskLevel = 'high'
+      } else {
+        // Past injury without context - medium risk
+        if (riskLevel < 'medium') riskLevel = 'medium'
+      }
+    }
+  }
+
+  // MEDICAL CONDITIONS (generally medium risk)
   for (const condition of MEDICAL_KEYWORDS.medical_conditions) {
     if (input.includes(condition)) {
       detectedConcerns.push(`Medical reference: "${condition}"`)
-      if (riskLevel === 'low') riskLevel = 'medium'
+      if (riskLevel < 'medium') riskLevel = 'medium'
     }
   }
 
-  // Determine if we should block the request
+  // MEDICAL PROCEDURES (generally medium risk unless emergency)
+  for (const procedure of MEDICAL_KEYWORDS.medical_procedures) {
+    if (input.includes(procedure)) {
+      detectedConcerns.push(`Medical procedure: "${procedure}"`)
+      if (riskLevel < 'medium') riskLevel = 'medium'
+    }
+  }
+
+  // INTELLIGENT CONTEXT ANALYSIS
+  // Lower risk if clearly discussing sports recovery with medical clearance
+  if (hasSportsContext && (input.includes('cleared') || input.includes('therapist') || input.includes('rehab'))) {
+    if (riskLevel === 'high' && !detectedConcerns.some(c => c.includes('CRITICAL EMERGENCY'))) {
+      riskLevel = 'medium' // Reduce to medium if in recovery context
+    }
+  }
+
+  // Higher risk for urgent language
+  const urgentLanguage = [
+    'help', 'urgent', 'emergency', 'serious', 'worried', 'scared', 'frightened',
+    'immediately', 'right now', 'asap', 'what should i do', 'am i okay'
+  ]
+  const hasUrgentLanguage = urgentLanguage.some(urgent => input.includes(urgent))
+
+  if (hasUrgentLanguage && !isPastTense && riskLevel >= 'medium') {
+    if (riskLevel === 'medium') riskLevel = 'high'
+    else if (riskLevel === 'high') riskLevel = 'critical'
+  }
+
+  // Determine if we should block the request (provide safety response instead of coaching)
   const shouldBlock = riskLevel === 'critical' || riskLevel === 'high'
   const isSafe = riskLevel === 'low'
 
