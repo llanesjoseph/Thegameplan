@@ -803,7 +803,7 @@ export default function UnifiedDashboard() {
    </div>
 
    {/* Coach Invitation Status Section */}
-   <div className="py-8 px-6">
+   <div id="coach-invitations" className="py-8 px-6">
     <div className="max-w-6xl mx-auto">
      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
       <div className="flex items-center gap-4 mb-4">
