@@ -802,6 +802,50 @@ export default function UnifiedDashboard() {
     </div>
    </div>
 
+   {/* Coach Invitation Status Section */}
+   <div className="py-8 px-6">
+    <div className="max-w-6xl mx-auto">
+     <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+      <div className="flex items-center gap-4 mb-4">
+       <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+        <CheckCircle className="w-6 h-6 text-blue-600" />
+       </div>
+       <div>
+        <h3 className="text-lg font-semibold text-blue-900">Coach Invitation Status</h3>
+        <p className="text-blue-700 text-sm">Your onboarding invitation was completed successfully</p>
+       </div>
+      </div>
+      <div className="grid md:grid-cols-2 gap-4 mt-4">
+       <div className="bg-white rounded-lg p-4">
+        <h4 className="font-medium text-gray-900 mb-2">Invitation Details</h4>
+        <div className="text-sm text-gray-600 space-y-1">
+         <div><strong>Status:</strong> <span className="text-green-600">Active Coach</span></div>
+         <div><strong>Organization:</strong> GamePlan Platform</div>
+         <div><strong>Sport:</strong> {userProfile?.sports?.[0] || 'Not specified'}</div>
+        </div>
+       </div>
+       <div className="bg-white rounded-lg p-4">
+        <h4 className="font-medium text-gray-900 mb-2">Quick Actions</h4>
+        <div className="space-y-2">
+         <button
+          onClick={() => window.open('/coach-onboard/test-' + Date.now(), '_blank')}
+          className="w-full text-left px-3 py-2 text-sm bg-gray-50 hover:bg-gray-100 rounded transition-colors"
+         >
+          🧪 Test Onboarding Flow
+         </button>
+         <button
+          onClick={() => window.open('/dashboard/coach/profile', '_self')}
+          className="w-full text-left px-3 py-2 text-sm bg-gray-50 hover:bg-gray-100 rounded transition-colors"
+         >
+          ✏️ Update Profile
+         </button>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+
    {/* Personal Training Recommendations Section */}
    <div className="py-12 px-6">
     <div className="max-w-6xl mx-auto">

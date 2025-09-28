@@ -60,7 +60,7 @@ const sports = [
 ]
 
 export default function CoachIngestionManager() {
-  const [activeTab, setActiveTab] = useState('create')
+  const [activeTab, setActiveTab] = useState('quick')
   const [creating, setCreating] = useState(false)
   const [loading, setLoading] = useState(false)
   const [ingestionLinks, setIngestionLinks] = useState<IngestionLink[]>([])
@@ -205,11 +205,100 @@ export default function CoachIngestionManager() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="quick">Quick Test</TabsTrigger>
           <TabsTrigger value="create">Create Link</TabsTrigger>
           <TabsTrigger value="results">Generated Link</TabsTrigger>
           <TabsTrigger value="manage">Manage Links</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="quick" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Quick Test Invitations</CardTitle>
+              <CardDescription>
+                Send test invitations quickly for testing purposes
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Button
+                  onClick={async () => {
+                    try {
+                      const response = await fetch('/api/send-test-email', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          email: 'test@example.com',
+                          name: 'Test Coach',
+                          type: 'regular',
+                          organizationName: 'GamePlan Demo',
+                          sport: 'Soccer'
+                        })
+                      })
+                      const result = await response.json()
+                      if (result.success) {
+                        alert(`Test invitation created! URL: ${result.data.invitationUrl}`)
+                      } else {
+                        alert('Error: ' + result.error)
+                      }
+                    } catch (error) {
+                      console.error('Test invitation error:', error)
+                      alert('Failed to create test invitation')
+                    }
+                  }}
+                  className="h-20 flex flex-col items-center justify-center"
+                >
+                  <Users className="w-6 h-6 mb-2" />
+                  Create Regular Test Invitation
+                </Button>
+
+                <Button
+                  onClick={async () => {
+                    try {
+                      const response = await fetch('/api/send-test-email', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          email: 'jasmine@example.com',
+                          name: 'Jasmine Aikey',
+                          type: 'jasmine',
+                          organizationName: 'GamePlan Platform',
+                          sport: 'Soccer'
+                        })
+                      })
+                      const result = await response.json()
+                      if (result.success) {
+                        alert(`Jasmine test invitation created! URL: ${result.data.invitationUrl}`)
+                      } else {
+                        alert('Error: ' + result.error)
+                      }
+                    } catch (error) {
+                      console.error('Jasmine test invitation error:', error)
+                      alert('Failed to create Jasmine test invitation')
+                    }
+                  }}
+                  variant="secondary"
+                  className="h-20 flex flex-col items-center justify-center"
+                >
+                  <CheckCircle className="w-6 h-6 mb-2" />
+                  Create Jasmine Special Invitation
+                </Button>
+              </div>
+
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <h4 className="font-medium text-blue-900 mb-2">Test URLs Available:</h4>
+                <div className="space-y-2 text-sm text-blue-800">
+                  <div><strong>Regular Test:</strong> /coach-onboard/test-{Date.now()}</div>
+                  <div><strong>Jasmine Special:</strong> /coach-onboard/jasmine-special-{Date.now()}</div>
+                  <div className="mt-2 text-blue-600">
+                    <strong>Note:</strong> These create mock invitation data for testing the onboarding flow.
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         <TabsContent value="create" className="space-y-6">
           <Card>
