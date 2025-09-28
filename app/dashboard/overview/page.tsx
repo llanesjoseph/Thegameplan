@@ -825,7 +825,55 @@ export default function UnifiedDashboard() {
         </div>
        </div>
        <div className="bg-white rounded-lg p-4">
-        <h4 className="font-medium text-gray-900 mb-2">Quick Actions</h4>
+        <h4 className="font-medium text-gray-900 mb-2">Invite Other Coaches</h4>
+        <div className="space-y-3">
+         <div>
+          <input
+           type="email"
+           placeholder="Coach Email Address"
+           className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+         </div>
+         <div>
+          <input
+           type="text"
+           placeholder="Coach Name"
+           className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+         </div>
+         <div>
+          <select className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+           <option value="">Select Sport</option>
+           <option value="Brazilian Jiu-Jitsu">Brazilian Jiu-Jitsu</option>
+           <option value="Mixed Martial Arts">Mixed Martial Arts</option>
+           <option value="Boxing">Boxing</option>
+           <option value="Wrestling">Wrestling</option>
+           <option value="Soccer">Soccer</option>
+           <option value="American Football">American Football</option>
+           <option value="Basketball">Basketball</option>
+           <option value="Tennis">Tennis</option>
+           <option value="Golf">Golf</option>
+           <option value="Swimming">Swimming</option>
+           <option value="Track & Field">Track & Field</option>
+           <option value="Volleyball">Volleyball</option>
+           <option value="Baseball">Baseball</option>
+           <option value="Hockey">Hockey</option>
+           <option value="Gymnastics">Gymnastics</option>
+          </select>
+         </div>
+         <button
+          onClick={() => alert('Coach invitation feature coming soon! This will send an email invitation to join the platform.')}
+          className="w-full px-3 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+         >
+          👥 Send Invitation
+         </button>
+        </div>
+       </div>
+      </div>
+
+      <div className="grid md:grid-cols-1 gap-4 mt-6">
+       <div className="bg-white rounded-lg p-4">
+        <h4 className="font-medium text-gray-900 mb-2">Additional Actions</h4>
         <div className="space-y-2">
          <button
           onClick={() => window.open('/coach-onboard/test-' + Date.now(), '_blank')}
