@@ -4,7 +4,8 @@
  */
 
 import { getSportContext, SportContext } from './sports-knowledge-base'
-import { getCoachingContext, CoachingContext } from './ai-service'
+// Dynamic import for ai-service to avoid Node.js modules in client bundle
+import type { CoachingContext } from './ai-service'
 import { generateWithRedundancy } from './llm-service'
 
 export interface ContentGenerationRequest {
@@ -255,6 +256,7 @@ export function generateDynamicPromptTemplate(request: ContentGenerationRequest)
  */
 export async function generateLessonContent(request: ContentGenerationRequest): Promise<GeneratedContent> {
   const sportContext = getSportContext(request.sport)
+  const { getCoachingContext } = await import('./ai-service')
   const coachingContext = getCoachingContext(request.creatorId, request.sport)
 
   try {
