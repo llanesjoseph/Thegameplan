@@ -52,6 +52,63 @@ import {
 } from 'lucide-react'
 import AppHeader from '@/components/ui/AppHeader'
 
+// Simple content ideas function (client-safe replacement)
+function getSimpleContentIdeas(sport: string): string[] {
+  const sportIdeas: Record<string, string[]> = {
+    basketball: [
+      'Perfect Your Free Throw Technique',
+      'Defensive Footwork Fundamentals',
+      'Shooting Form and Follow-Through',
+      'Dribbling Drills for Better Ball Control',
+      'Post-Up Moves and Positioning',
+      'Fast Break Execution',
+      'Rebounding Techniques and Positioning',
+      'Court Vision and Passing Skills'
+    ],
+    soccer: [
+      'First Touch and Ball Control',
+      'Shooting Accuracy Training',
+      'Defensive Positioning and Tackling',
+      'Passing Accuracy Under Pressure',
+      'Crossing and Finishing',
+      'Set Piece Strategies',
+      'Goalkeeper Distribution',
+      'Small-Sided Game Tactics'
+    ],
+    tennis: [
+      'Serve Technique and Power',
+      'Forehand Consistency',
+      'Backhand Development',
+      'Net Play and Volleys',
+      'Return of Serve',
+      'Court Positioning',
+      'Mental Toughness Training',
+      'Footwork and Movement'
+    ],
+    baseball: [
+      'Batting Stance and Swing',
+      'Pitching Mechanics',
+      'Fielding Ground Balls',
+      'Base Running Techniques',
+      'Catching and Throwing',
+      'Situational Hitting',
+      'Defensive Positioning',
+      'Mental Game Focus'
+    ]
+  }
+
+  return sportIdeas[sport.toLowerCase()] || [
+    'Fundamental Skills Development',
+    'Physical Conditioning',
+    'Mental Preparation',
+    'Team Strategy',
+    'Individual Technique',
+    'Game Situation Practice',
+    'Strength and Agility',
+    'Video Analysis'
+  ]
+}
+
 // Title analysis function (same as in content-generation-service)
 function analyzeLessonTitle(title: string, sport: string): {
  primaryFocus: string
@@ -1061,316 +1118,14 @@ export default function CreatorDashboard() {
  const generateLessonIdeas = async () => {
   setGeneratingIdeas(true)
   try {
-   // Use our enhanced content generation service for professional lesson ideas
-   const { generateContentIdeas } = await import('@/lib/content-generation-service')
-
-   try {
-    // Try to get professional sport-specific ideas from our service
-    const enhancedIdeas = generateContentIdeas(selectedSport, 12)
-    if (enhancedIdeas && enhancedIdeas.length > 0) {
-     const shuffled = enhancedIdeas.sort(() => 0.5 - Math.random())
-     setAISuggestions(shuffled.slice(0, 8))
-     return
-    }
-   } catch (serviceError) {
-    console.log('Using comprehensive local ideas for:', selectedSport)
-   }
-
-   // Comprehensive sport-specific fallback ideas
-   let allIdeas = []
-
-   if (selectedSport.toLowerCase() === 'football' || selectedSport.toLowerCase() === 'american football') {
-    allIdeas = [
-     // Fundamental Skills
-     'Football Fundamentals: Stance, Starts, and Basic Footwork',
-     'Blocking Techniques: Leverage, Pad Level, and Hand Placement',
-     'Tackling Form: Safety, Technique, and Power',
-     'Ball Security: Protecting the Football in All Situations',
-     'Communication: On-Field Leadership and Signal Calling',
-
-     // Position-Specific Training
-     'Quarterback Mechanics: Footwork, Throwing, and Decision Making',
-     'Receiver Route Running: Precision, Timing, and Separation',
-     'Offensive Line Play: Pass Protection and Run Blocking Schemes',
-     'Defensive Back Coverage: Man, Zone, and Press Techniques',
-     'Linebacker Skills: Reading Keys and Filling Gaps',
-     'Defensive Line Techniques: Rushing the Passer and Stopping the Run',
-     'Running Back Vision: Reading Blocks and Finding Holes',
-
-     // Team Concepts
-     'Special Teams Excellence: Coverage, Returns, and Kicking Game',
-     'Red Zone Efficiency: Scoring in Tight Spaces',
-     'Third Down Conversions: Situational Football Mastery',
-     'Two-Minute Drill: Clock Management and Execution',
-     'Goal Line Defense: Stopping Short-Yardage Situations',
-     'Screen Game: Timing, Execution, and Blocking',
-
-     // Advanced Strategy
-     'Film Study: Breaking Down Opponents and Self-Evaluation',
-     'Match Planning: Preparing for Different Opponent Styles',
-     'Audibles and Hot Routes: Adjusting at the Line',
-     'Blitz Recognition and Protection: Reading Defensive Pressure',
-     'Run Fits and Gap Responsibility: Defensive Assignment Football',
-     'Coverage Concepts: Zone, Man, and Combination Coverages',
-
-     // Training and Development
-     'Football Conditioning: Sport-Specific Strength and Cardio',
-     'Injury Prevention: Proper Tackling and Contact Techniques',
-     'Mental Toughness: Overcoming Adversity in Competition',
-     'Leadership Development: Being a Team Captain',
-     'Football IQ: Understanding the Chess Match',
-     'Practice Planning: Organizing Effective Team Sessions'
-    ]
-   } else if (selectedSport.toLowerCase() === 'soccer') {
-    allIdeas = [
-     // Technical Skills
-     'Soccer First Touch: Controlling the Ball Under Pressure',
-     'Passing Accuracy: Short, Medium, and Long Distribution',
-     'Shooting Technique: Power, Placement, and Finishing',
-     'Dribbling Skills: 1v1 Moves and Close Ball Control',
-     'Heading Technique: Attacking and Defensive Headers',
-     'Ball Control: Using All Surfaces of the Foot',
-
-     // Tactical Understanding
-     'Tactical Positioning: Understanding Space and Movement',
-     'Pressing and Counter-Pressing: Winning the Ball Back',
-     'Set Piece Mastery: Free Kicks, Corners, and Throw-ins',
-     'Small-Sided Games: 3v3, 4v4 Training for Decision Making',
-     'Transition Play: Defense to Attack and Attack to Defense',
-     'Formation Play: Understanding 4-3-3, 4-4-2, and Modern Systems',
-
-     // Position-Specific Training
-     'Goalkeeping Fundamentals: Shot Stopping and Distribution',
-     'Defender Skills: Marking, Tackling, and Positioning',
-     'Midfielder Play: Box-to-Box and Specialist Roles',
-     'Wing Play: Crossing, Cutting Inside, and Defensive Duties',
-     'Striker Movement: Finding Space and Clinical Finishing',
-     'Full-Back Play: Defending and Attacking Responsibilities',
-
-     // Physical and Mental
-     'Soccer Fitness: Endurance, Speed, and Agility Training',
-     'Injury Prevention: Proper Warm-up and Recovery Methods',
-     'Mental Game: Confidence, Focus, and Pressure Management',
-     'Match Preparation: Pre-Game Routines and Visualization',
-     'Team Chemistry: Communication and Understanding',
-
-     // Advanced Concepts
-     'Video Analysis: Learning from Professional Matches',
-     'Youth Development: Building Skills from Early Age',
-     'Nutrition for Soccer: Fueling Performance and Recovery',
-     'Leadership on the Pitch: Captain Qualities and Communication',
-     'Game Reading: Anticipation and Decision Making',
-     'Soccer Psychology: Mental Preparation for Competition'
-    ]
-   } else if (selectedSport.toLowerCase() === 'bjj' || selectedSport.toLowerCase() === 'brazilian jiu-jitsu') {
-    allIdeas = [
-     // Guard Fundamentals
-     'BJJ Guard Fundamentals: Closed Guard Control and Attacks',
-     'Open Guard Mastery: Spider Guard and De La Riva',
-     'Half Guard Essentials: Sweeps and Submissions',
-     'Butterfly Guard: Hooks and Elevation Techniques',
-     'X-Guard System: Entry and Sweep Mechanics',
-     'Rubber Guard: Flexibility and Control',
-     
-     // Submissions
-     'Advanced Triangle Chokes: Setup and Finishing Techniques',
-     'Kimura Lock System: From Setup to Submission',
-     'Armbar Mastery: Multiple Entry Points and Variations',
-     'Rear Naked Choke: Perfect Technique and Timing',
-     'Guillotine Choke Variations: High Elbow and Arm-in',
-     'Omoplata System: Shoulder Lock and Transitions',
-     'Heel Hooks: Entry, Control, and Finishing',
-     'Americana/Keylock: Pressure and Positioning',
-     'Ezekiel Choke: From Mount and Guard',
-     'Loop Choke: Gi-Based Strangulation',
-     
-     // Escapes and Defense
-     'Escaping Side Control: Hip Movement and Frame Techniques',
-     'Mount Escape Fundamentals: Bridge and Roll Mechanics',
-     'Back Escape: Hand Fighting and Hip Movement',
-     'Turtle Position Defense: Protecting and Recovering',
-     'Submission Defense: Posture and Hand Placement',
-     'Guard Retention: Keeping Guard Under Pressure',
-     
-     // Positions and Control
-     'Back Control Excellence: Securing and Finishing',
-     'Mount Attacks: Submissions and Transitions',
-     'Side Control Mastery: Pressure and Submissions',
-     'Knee on Belly: Control and Attack Options',
-     'North-South Position: Chokes and Transitions',
-     'Scarf Hold: Old School Control and Attacks',
-     
-     // Transitions and Flow
-     'Guard Passing Fundamentals: Pressure and Movement',
-     'Transition Chains: Flowing Between Positions',
-     'Takedown to Guard Pass: Standing to Ground',
-     'Scrambling: Chaos Management and Recovery',
-     'Berimbolo: Modern Guard Transition',
-     
-     // Gi vs No-Gi
-     'Gi vs No-Gi Differences: Adapting Your Game',
-     'Gi Grips: Collar and Sleeve Control',
-     'No-Gi Fundamentals: Underhooks and Overhooks',
-     'Lapel Guards: Worm Guard and Squid Guard',
-     
-     // Competition and Mental
-     'Competition Strategy: Mental Preparation and Match Planning',
-     'Rolling Intensity: Training Smart vs Training Hard',
-     'Building Your A-Game: Developing Signature Moves',
-     'Pressure vs Speed: Finding Your Style',
-     'Recovery and Injury Prevention for BJJ Athletes',
-     
-     // Advanced Concepts
-     'Leg Lock System: Modern Leg Attack Fundamentals',
-     'Wrestling for BJJ: Takedowns and Top Control',
-     'Judo Throws: Entries and Setups for BJJ',
-     'Flow Rolling: Developing Smooth Transitions',
-     'Countering Common Guard Passes',
-     'Creating Angles: Off-Balancing and Control'
-    ]
-   } else if (selectedSport === 'MMA') {
-    allIdeas = [
-     'MMA Takedown Defense: Sprawling and Counter-Attacks',
-     'Ground and Pound: Maintaining Position and Striking',
-     'Cage Wrestling: Using the Fence to Your Advantage',
-     'Submission Defense: Escaping Common Holds',
-     'Stand-up Game: Striking to Grappling Transitions',
-     'Mental Toughness: Preparing for Competition',
-     'Weight Cutting: Safe and Effective Methods',
-     'Match Planning: Studying Opponents and Strategy',
-     'Clinch Work: Controlling and Striking in Close Range',
-     'Dirty Boxing: Inside Fighting Techniques',
-     'Leg Kick Defense: Checking and Countering',
-     'Transition Training: Blending Disciplines Seamlessly',
-     'Recovery Methods: Between Rounds and Training',
-     'Cardio for MMA: Specific Energy System Development',
-     'Fight IQ: Reading Situations and Adapting',
-     'Pre-Fight Routine: Mental and Physical Preparation',
-     'Post-Fight Analysis: Learning from Performance',
-     'Sparring Safety: Training Hard While Staying Healthy',
-     'Nutrition for Fighters: Fueling Performance',
-     'Injury Prevention: Staying Healthy Long-term',
-     'Video Study: Breaking Down Opponents',
-     'Pressure Fighting: Moving Forward Effectively',
-     'Counter-Fighting: Timing and Distance Management',
-     'Championship Mindset: Developing Elite Mental Toughness'
-    ]
-   } else if (selectedSport === 'boxing') {
-    allIdeas = [
-     'Boxing Footwork: Angles and Distance Management',
-     'Power Punching: Generating Force and Accuracy',
-     'Defensive Boxing: Head Movement and Blocking',
-     'Combination Striking: Flowing Punch Sequences',
-     'Counter-Punching: Reading and Responding',
-     'Ring Generalship: Controlling Space and Pace',
-     'Conditioning: Boxing-Specific Fitness Training',
-     'Mental Game: Confidence and Focus in the Ring',
-     'Jab Mastery: The Most Important Punch in Boxing',
-     'Body Work: Targeting and Effectiveness',
-     'Slip and Counter: Defensive Offense Techniques',
-     'Infighting: Close-Range Boxing Skills',
-     'Southpaw vs Orthodox: Style Matchup Strategies',
-     'Ring Cutting: Trapping Your Opponent',
-     'Hand Speed Development: Training for Quickness',
-     'Punch Selection: Choosing the Right Tool',
-     'Rhythm and Timing: Finding Your Boxing Flow',
-     'Pressure Boxing: Walking Down Opponents',
-     'Boxing Psychology: Mental Warfare in the Ring',
-     'Amateur vs Pro Boxing: Key Differences',
-     'Sparring Etiquette: Training Partner Respect',
-     'Weight Management: Making Weight Safely',
-     'Equipment Selection: Gloves, Wraps, and Gear',
-     'Recovery and Injury Prevention: Longevity in Boxing'
-    ]
-   } else if (selectedSport === 'wrestling') {
-    allIdeas = [
-     'Wrestling Takedowns: Double Leg and Single Leg Mastery',
-     'Sprawl Defense: Stopping Takedown Attempts',
-     'Top Position Control: Rides and Breakdowns',
-     'Escapes from Bottom: Hip Heists and Stand-ups',
-     'Pinning Combinations: Securing the Fall',
-     'Conditioning: Wrestling-Specific Strength and Cardio',
-     'Mental Toughness: Grinding Through Adversity',
-     'Competition Preparation: Cutting Weight and Strategy',
-     'Chain Wrestling: Flowing Between Attacks',
-     'Neutral Position: Ties and Hand Fighting',
-     'Mat Wrestling: Ground Control and Positioning',
-     'Scrambling: Chaos Wrestling and Recovery',
-     'Cradles and Tilts: Securing Back Points',
-     'Funk Wrestling: Unorthodox Techniques',
-     'Greco-Roman Techniques: Upper Body Wrestling',
-     'Freestyle Wrestling: Leg Attacks and Defense',
-     'Folkstyle Wrestling: American Collegiate Style',
-     'Wrestling Psychology: Mental Edge on the Mat',
-     'Technique Drilling: Perfect Practice Methods',
-     'Strength Training: Wrestling-Specific Power',
-     'Flexibility: Mobility for Wrestling Performance',
-     'Tournament Strategy: Peaking at the Right Time',
-     'Coaching Wrestling: Teaching Techniques Effectively',
-     'Wrestling History: Learning from the Legends'
-    ]
-   } else {
-    // Professional comprehensive ideas for any sport
-    allIdeas = [
-     // Fundamental Skills
-     `${selectedSport} Fundamentals: Mastering Core Techniques`,
-     `Basic ${selectedSport} Skills: Building a Strong Foundation`,
-     `Advanced ${selectedSport} Techniques for Elite Performance`,
-     `${selectedSport} Form and Technique: Perfecting Execution`,
-     `Coordination and Timing in ${selectedSport}`,
-
-     // Strategic and Tactical
-     `${selectedSport} Strategy: Reading and Reacting to Competition`,
-     `Match Planning in ${selectedSport}: Preparation for Success`,
-     `Tactical Awareness: Understanding ${selectedSport} Situations`,
-     `Decision Making Under Pressure in ${selectedSport}`,
-     `Competition Analysis: Breaking Down ${selectedSport} Performance`,
-
-     // Physical Development
-     `${selectedSport} Conditioning: Sport-Specific Fitness Training`,
-     `Strength Training for ${selectedSport} Athletes`,
-     `Speed and Agility Development in ${selectedSport}`,
-     `Flexibility and Mobility for ${selectedSport} Performance`,
-     `Endurance Training: Building ${selectedSport} Stamina`,
-
-     // Mental Performance
-     `Mental Game in ${selectedSport}: Building Confidence and Focus`,
-     `Competition Psychology: Performing Under Pressure in ${selectedSport}`,
-     `Goal Setting and Motivation in ${selectedSport}`,
-     `Visualization Techniques for ${selectedSport} Success`,
-     `Overcoming Adversity in ${selectedSport}`,
-
-     // Training and Development
-     `${selectedSport} Drills: Effective Practice Methods`,
-     `Progressive Training: Skill Development in ${selectedSport}`,
-     `Practice Organization: Maximizing ${selectedSport} Training Time`,
-     `Skill Transfer: From Practice to Competition in ${selectedSport}`,
-     `Youth Development: Teaching ${selectedSport} to Young Athletes`,
-
-     // Support and Recovery
-     `Injury Prevention in ${selectedSport}: Smart Training Methods`,
-     `Recovery and Regeneration for ${selectedSport} Athletes`,
-     `Nutrition for ${selectedSport}: Fueling Peak Performance`,
-     `Equipment Selection and Maintenance in ${selectedSport}`,
-     `${selectedSport} Safety: Protocols and Best Practices`,
-
-     // Leadership and Team
-     `Leadership in ${selectedSport}: Captain Qualities and Communication`,
-     `Team Chemistry: Building Unity in ${selectedSport}`,
-     `Coaching ${selectedSport}: Teaching and Mentoring Athletes`,
-     `${selectedSport} Culture: Building Winning Traditions`,
-     `Communication Skills for ${selectedSport} Teams`
-    ]
-   }
-   
-   // Add realistic delay for professional content generation
-   await new Promise(resolve => setTimeout(resolve, 1500))
-
-   // Randomize and select 8 different suggestions from the larger pool
-   const shuffled = allIdeas.sort(() => 0.5 - Math.random())
+   // Use simple content ideas (removed server-side imports to fix build)
+   const simpleIdeas = getSimpleContentIdeas(selectedSport)
+   const shuffled = simpleIdeas.sort(() => 0.5 - Math.random())
    setAISuggestions(shuffled.slice(0, 8))
   } catch (error) {
    console.error('Error generating ideas:', error)
+   // Fallback to basic suggestions
+   setAISuggestions(['Fundamental Skills', 'Advanced Techniques', 'Training Drills', 'Game Strategy'])
   } finally {
    setGeneratingIdeas(false)
   }
