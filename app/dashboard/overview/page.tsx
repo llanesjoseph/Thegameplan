@@ -25,7 +25,10 @@ import {
  Facebook,
  Instagram,
  Twitter,
- Plus
+ Plus,
+ Send,
+ AlertCircle,
+ Loader2
 } from 'lucide-react'
 import { SoccerIcon } from '@/components/icons/SoccerIcon'
 import { BasketballIcon } from '@/components/icons/BasketballIcon'
@@ -106,12 +109,101 @@ export default function UnifiedDashboard() {
   profileImageUrl: ''
  })
 
+ // Coach invitation form state
+ const [invitationForm, setInvitationForm] = useState({
+  email: '',
+  name: '',
+  sport: '',
+  customMessage: ''
+ })
+ const [invitationLoading, setInvitationLoading] = useState(false)
+ const [invitationStatus, setInvitationStatus] = useState<{
+  type: 'success' | 'error' | null
+  message: string
+ }>({ type: null, message: '' })
+
  // Progress summary data
  const [progressData, setProgressData] = useState({
   completedSessions: 10,
   newRecommendations: 2,
   upcomingSessions: 1
  })
+
+ // Handle coach invitation submission
+ const handleCoachInvitation = async (e: React.FormEvent) => {
+  e.preventDefault()
+  setInvitationLoading(true)
+  setInvitationStatus({ type: null, message: '' })
+
+  try {
+   // Validate form
+   if (!invitationForm.email || !invitationForm.name || !invitationForm.sport) {
+    setInvitationStatus({
+     type: 'error',
+     message: 'Please fill in all required fields (email, name, and sport)'
+    })
+    return
+   }
+
+   // Validate email format
+   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+   if (!emailRegex.test(invitationForm.email)) {
+    setInvitationStatus({
+     type: 'error',
+     message: 'Please enter a valid email address'
+    })
+    return
+   }
+
+   // Send invitation
+   const response = await fetch('/api/coach-ingestion/generate-link', {
+    method: 'POST',
+    headers: {
+     'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+     organizationName: `${userProfile?.displayName || user?.displayName || 'GamePlan'} Coaching Network`,
+     sport: invitationForm.sport,
+     description: `Join as a ${invitationForm.sport} coach`,
+     customMessage: invitationForm.customMessage || `Hi ${invitationForm.name}, I'd like to invite you to join our coaching platform!`,
+     sendEmail: true,
+     recipientEmail: invitationForm.email,
+     recipientName: invitationForm.name,
+     expiresInDays: 30,
+     maxUses: 1,
+     autoApprove: false
+    })
+   })
+
+   const data = await response.json()
+
+   if (response.ok && data.success) {
+    setInvitationStatus({
+     type: 'success',
+     message: `Invitation sent successfully to ${invitationForm.name}! They will receive an email with onboarding instructions.`
+    })
+
+    // Reset form
+    setInvitationForm({
+     email: '',
+     name: '',
+     sport: '',
+     customMessage: ''
+    })
+   } else {
+    throw new Error(data.error || 'Failed to send invitation')
+   }
+
+  } catch (error) {
+   console.error('Error sending coach invitation:', error)
+   setInvitationStatus({
+    type: 'error',
+    message: error instanceof Error ? error.message : 'Failed to send invitation. Please try again.'
+   })
+  } finally {
+   setInvitationLoading(false)
+  }
+ }
 
  const router = useRouter()
 
@@ -826,24 +918,38 @@ export default function UnifiedDashboard() {
        </div>
        <div className="bg-white rounded-lg p-4">
         <h4 className="font-medium text-gray-900 mb-2">Invite Other Coaches</h4>
-        <div className="space-y-3">
+        <form onSubmit={handleCoachInvitation} className="space-y-3">
          <div>
           <input
            type="email"
-           placeholder="Coach Email Address"
+           placeholder="Coach Email Address *"
+           value={invitationForm.email}
+           onChange={(e) => setInvitationForm(prev => ({ ...prev, email: e.target.value }))}
            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+           required
+           disabled={invitationLoading}
           />
          </div>
          <div>
           <input
            type="text"
-           placeholder="Coach Name"
+           placeholder="Coach Name *"
+           value={invitationForm.name}
+           onChange={(e) => setInvitationForm(prev => ({ ...prev, name: e.target.value }))}
            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+           required
+           disabled={invitationLoading}
           />
          </div>
          <div>
-          <select className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-           <option value="">Select Sport</option>
+          <select
+           value={invitationForm.sport}
+           onChange={(e) => setInvitationForm(prev => ({ ...prev, sport: e.target.value }))}
+           className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+           required
+           disabled={invitationLoading}
+          >
+           <option value="">Select Sport *</option>
            <option value="Brazilian Jiu-Jitsu">Brazilian Jiu-Jitsu</option>
            <option value="Mixed Martial Arts">Mixed Martial Arts</option>
            <option value="Boxing">Boxing</option>
@@ -861,13 +967,53 @@ export default function UnifiedDashboard() {
            <option value="Gymnastics">Gymnastics</option>
           </select>
          </div>
+         <div>
+          <textarea
+           placeholder="Custom message (optional)"
+           value={invitationForm.customMessage}
+           onChange={(e) => setInvitationForm(prev => ({ ...prev, customMessage: e.target.value }))}
+           className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+           rows={2}
+           disabled={invitationLoading}
+          />
+         </div>
+
+         {/* Status Messages */}
+         {invitationStatus.type && (
+          <div className={`p-3 rounded-md text-sm ${
+           invitationStatus.type === 'success'
+            ? 'bg-green-50 text-green-800 border border-green-200'
+            : 'bg-red-50 text-red-800 border border-red-200'
+          }`}>
+           <div className="flex items-center gap-2">
+            {invitationStatus.type === 'success' ? (
+             <CheckCircle className="w-4 h-4" />
+            ) : (
+             <AlertCircle className="w-4 h-4" />
+            )}
+            {invitationStatus.message}
+           </div>
+          </div>
+         )}
+
          <button
-          onClick={() => alert('Coach invitation feature coming soon! This will send an email invitation to join the platform.')}
-          className="w-full px-3 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+          type="submit"
+          disabled={invitationLoading}
+          className="w-full px-3 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
          >
-          👥 Send Invitation
+          {invitationLoading ? (
+           <>
+            <Loader2 className="w-4 h-4 animate-spin" />
+            Sending...
+           </>
+          ) : (
+           <>
+            <Send className="w-4 h-4" />
+            Send Invitation
+           </>
+          )}
          </button>
-        </div>
+        </form>
        </div>
       </div>
 
