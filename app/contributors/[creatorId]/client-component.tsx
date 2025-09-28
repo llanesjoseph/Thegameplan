@@ -37,50 +37,57 @@ interface Creator {
  }>
 }
 
-// This should be fetched from the database in a real app
-const getCreatorData = (creatorId: string): Creator | null => {
- const creators: Record<string, Creator> = {
-  'jasmine-aikey': {
-   id: 'jasmine-aikey',
-   name: 'JASMINE AIKEY',
-   firstName: 'Jasmine',
-   sport: 'Soccer',
-   tagline: 'Elite soccer player at Stanford University.',
-   credentials: 'PAC-12 Champion and Midfielder of the Year',
-   description: 'I can answer questions about my athletic journey, techniques and mental preparation.',
-   heroImageUrl: 'https://res.cloudinary.com/dr0jtjwlh/image/upload/v1758865685/2025_05_2_graduation_vqvz1b.jpg',
-   headshotUrl: 'https://res.cloudinary.com/dr0jtjwlh/image/upload/v1758865683/2023_11_1_i2bx0r.jpg',
-   actionPhotos: [
-    'https://res.cloudinary.com/dr0jtjwlh/image/upload/v1758865678/2022_08_1_ysqlha.jpg',
-    'https://res.cloudinary.com/dr0jtjwlh/image/upload/v1758865678/2022_08_2_zhtbzx.jpg',
-    'https://res.cloudinary.com/dr0jtjwlh/image/upload/v1758865680/2025_08_3_the_Rainbow_sbl5rl.jpg',
-    'https://res.cloudinary.com/dr0jtjwlh/image/upload/v1758865677/2021_09_byctwr.jpg'
-   ],
-   highlightVideo: 'https://res.cloudinary.com/dr0jtjwlh/video/upload/v1758865568/Jasmine_Journey_Reel_odyfoj.mp4',
-   socialLinks: {
-    facebook: 'https://facebook.com/jasmineaikey',
-    twitter: 'https://twitter.com/jasmineaikey',
-    instagram: 'https://instagram.com/jasmineaikey',
-    linkedin: 'https://linkedin.com/in/jasmineaikey'
-   },
-   trainingLibrary: [
-    {
-     id: '1',
-     title: 'Footwork and Passing in Soccer',
-     status: 'Ended',
-     thumbnail: '/api/placeholder/120/80'
-    },
-    {
-     id: '2',
-     title: 'Soccer Drills for Beginners',
-     status: 'Ended',
-     thumbnail: '/api/placeholder/120/80'
+// Fetch creator data from API
+const getCreatorData = async (creatorId: string): Promise<Creator | null> => {
+  try {
+    const response = await fetch(`/api/contributors/${creatorId}`)
+    if (!response.ok) {
+      throw new Error('Failed to fetch creator data')
     }
-   ]
+    const data = await response.json()
+    return data.success ? data.data : null
+  } catch (error) {
+    console.error('Error fetching creator data:', error)
+    // Return default Jasmine data as fallback
+    return {
+      id: 'jasmine-aikey',
+      name: 'JASMINE AIKEY',
+      firstName: 'Jasmine',
+      sport: 'Soccer',
+      tagline: 'Elite soccer player at Stanford University.',
+      credentials: 'PAC-12 Champion and Midfielder of the Year',
+      description: 'I can answer questions about my athletic journey, techniques and mental preparation.',
+      heroImageUrl: 'https://res.cloudinary.com/dr0jtjwlh/image/upload/v1758865685/2025_05_2_graduation_vqvz1b.jpg',
+      headshotUrl: 'https://res.cloudinary.com/dr0jtjwlh/image/upload/v1758865683/2023_11_1_i2bx0r.jpg',
+      actionPhotos: [
+        'https://res.cloudinary.com/dr0jtjwlh/image/upload/v1758865678/2022_08_1_ysqlha.jpg',
+        'https://res.cloudinary.com/dr0jtjwlh/image/upload/v1758865678/2022_08_2_zhtbzx.jpg',
+        'https://res.cloudinary.com/dr0jtjwlh/image/upload/v1758865680/2025_08_3_the_Rainbow_sbl5rl.jpg',
+        'https://res.cloudinary.com/dr0jtjwlh/image/upload/v1758865677/2021_09_byctwr.jpg'
+      ],
+      highlightVideo: 'https://res.cloudinary.com/dr0jtjwlh/video/upload/v1758865568/Jasmine_Journey_Reel_odyfoj.mp4',
+      socialLinks: {
+        facebook: 'https://facebook.com/jasmineaikey',
+        twitter: 'https://twitter.com/jasmineaikey',
+        instagram: 'https://instagram.com/jasmineaikey',
+        linkedin: 'https://linkedin.com/in/jasmineaikey'
+      },
+      trainingLibrary: [
+        {
+          id: '1',
+          title: 'Footwork and Passing in Soccer',
+          status: 'Ended',
+          thumbnail: '/api/placeholder/120/80'
+        },
+        {
+          id: '2',
+          title: 'Soccer Drills for Beginners',
+          status: 'Ended',
+          thumbnail: '/api/placeholder/120/80'
+        }
+      ]
+    }
   }
- }
-
- return creators[creatorId] || creators['jasmine-aikey'] // Default to Jasmine if creator not found
 }
 
 const formatAIResponse = (content: string): string => {
@@ -168,6 +175,7 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
  const { role } = useEnhancedRole()
  const router = useRouter()
  const [creator, setCreator] = useState<Creator | null>(null)
+ const [creatorLoading, setCreatorLoading] = useState(true)
  const [showAIChat, setShowAIChat] = useState(false)
  const [messages, setMessages] = useState<Message[]>([])
  const [currentMessage, setCurrentMessage] = useState('')
@@ -176,8 +184,13 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
  const [showSavedResponses, setShowSavedResponses] = useState(false)
 
  useEffect(() => {
-  const creatorData = getCreatorData(creatorId)
-  setCreator(creatorData)
+  const loadCreatorData = async () => {
+   setCreatorLoading(true)
+   const creatorData = await getCreatorData(creatorId)
+   setCreator(creatorData)
+   setCreatorLoading(false)
+  }
+  loadCreatorData()
 
   // Load saved responses from Firestore
   const loadSavedResponses = async () => {
