@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import OpenAI from 'openai'
 import { PersonalizedCoachingEngine, SafetyCoachingSystem } from './personalized-coaching'

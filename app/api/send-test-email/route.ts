@@ -61,10 +61,10 @@ export async function POST(request: NextRequest) {
 
     // Store in memory for testing
     if (typeof globalThis !== 'undefined') {
-      if (!globalThis.testInvitations) {
-        globalThis.testInvitations = new Map()
+      if (!(globalThis as any).testInvitations) {
+        (globalThis as any).testInvitations = new Map()
       }
-      globalThis.testInvitations.set(testId, mockIngestionData)
+      (globalThis as any).testInvitations.set(testId, mockIngestionData)
     }
 
     console.log(`📧 Sending test email to: ${email}`)

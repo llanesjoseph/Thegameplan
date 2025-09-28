@@ -61,8 +61,8 @@ export default function AthleteOnboardingPage() {
       setIsLoading(true)
 
       // Check if it's in our global cache (for testing)
-      if (typeof window !== 'undefined' && globalThis.athleteInvitations) {
-        const invitation = globalThis.athleteInvitations.get(invitationId)
+      if (typeof window !== 'undefined' && (globalThis as any).athleteInvitations) {
+        const invitation = (globalThis as any).athleteInvitations.get(invitationId)
         if (invitation) {
           setInvitation(invitation)
           setFormData(prev => ({

@@ -13,8 +13,8 @@ export async function GET(request: NextRequest) {
     }
 
     // Check in-memory test invitations first
-    if (typeof globalThis !== 'undefined' && globalThis.testInvitations) {
-      const testInvitation = globalThis.testInvitations.get(id)
+    if (typeof globalThis !== 'undefined' && (globalThis as any).testInvitations) {
+      const testInvitation = (globalThis as any).testInvitations.get(id)
       if (testInvitation) {
         console.log(`✅ Found test invitation: ${id}`)
         return NextResponse.json({

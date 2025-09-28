@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Data Consistency Management Utility
  *

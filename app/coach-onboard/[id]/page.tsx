@@ -20,6 +20,11 @@ interface IngestionData {
   autoApprove: boolean
   expiresAt: string
   usesRemaining: number
+  metadata?: {
+    isTestInvitation?: boolean
+    isJasmineSpecial?: boolean
+    prePopulateData?: boolean
+  }
 }
 
 interface UserInfo {

@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge'
 import AppHeader from '@/components/ui/AppHeader'
 import {
   Users,
+  User,
   Plus,
   Mail,
   Trash2,

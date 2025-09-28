@@ -55,10 +55,10 @@ export async function POST(request: NextRequest) {
 
     // Store in temporary global cache for testing (in production this would go to database)
     if (typeof globalThis !== 'undefined') {
-      if (!globalThis.testInvitations) {
-        globalThis.testInvitations = new Map()
+      if (!(globalThis as any).testInvitations) {
+        (globalThis as any).testInvitations = new Map()
       }
-      globalThis.testInvitations.set(ingestionId, mockIngestionData)
+      (globalThis as any).testInvitations.set(ingestionId, mockIngestionData)
       console.log(`📝 Stored test invitation in memory: ${ingestionId}`)
     }
 
