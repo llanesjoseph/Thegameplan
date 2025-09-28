@@ -36,7 +36,7 @@ const navigationItems = {
   { title: 'Curated Gear', icon: ShoppingBag, href: '/gear', color: 'text-emerald-600' },
  ],
  creator: [
-  { title: '🏟️ Coach Locker Room', icon: LayoutDashboard, href: '/dashboard/creator', color: 'text-blue-600' },
+  { title: '🏟️ Coaches Locker Room', icon: LayoutDashboard, href: '/dashboard/creator', color: 'text-blue-600' },
   { title: 'Create Content', icon: Video, href: '/dashboard/creator?section=create', color: 'text-red-600' },
   { title: 'Manage Content', icon: FileVideo, href: '/dashboard/creator?section=manage', color: 'text-green-600' },
   { title: 'Coach Network', icon: UserPlus, href: '/dashboard/creator?section=invitations', color: 'text-violet-600' },
