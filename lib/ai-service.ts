@@ -4,7 +4,7 @@ import { PersonalizedCoachingEngine, SafetyCoachingSystem } from './personalized
 import { LessonCreationEngine, LessonStructure } from './lesson-creation-service'
 import { LessonFormatter } from './lesson-formatter'
 import { EnhancedLessonFormatter, LongFormLessonConfig } from './enhanced-lesson-formatter'
-import { getVoiceProfile, enhanceCoachingContextWithVoice } from './voice-capture-service'
+// Dynamic import for voice-capture-service to avoid Node.js modules in client bundle
 
 // Initialize the Gemini AI client
 const getGeminiClient = () => {
@@ -374,6 +374,7 @@ export async function getEnhancedCoachingContext(creatorId?: string, sport?: str
   // If we have a creator ID, try to enhance with voice profile
   if (creatorId) {
     try {
+      const { getVoiceProfile, enhanceCoachingContextWithVoice } = await import('./voice-capture-service')
       const voiceProfile = await getVoiceProfile(creatorId)
       if (voiceProfile && voiceProfile.completenessScore > 30) {
         console.log(`🎤 Enhancing context with voice profile (${voiceProfile.completenessScore}% complete)`)
