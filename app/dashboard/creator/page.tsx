@@ -18,10 +18,10 @@ import UploadManager from '@/components/UploadManager'
 import VideoCompressionHelper from '@/components/VideoCompressionHelper'
 import InAppVideoCompressor from '@/components/InAppVideoCompressor'
 import GcsVideoUploader from '@/components/GcsVideoUploader'
-import { 
- Play, 
- Upload, 
- Calendar, 
+import {
+ Play,
+ Upload,
+ Calendar,
  Eye,
  Users,
  TrendingUp,
@@ -48,7 +48,12 @@ import {
  Pause,
  PlayCircle,
  X,
- BookOpen
+ BookOpen,
+ UserPlus,
+ Send,
+ AlertCircle,
+ Loader2,
+ Mail
 } from 'lucide-react'
 import AppHeader from '@/components/ui/AppHeader'
 
@@ -660,7 +665,29 @@ export default function CreatorDashboard() {
  const { user: authUser, loading: authLoading } = useAuth()
  const router = useRouter()
  
- const [activeTab, setActiveTab] = useState<'create' | 'manage'>('create')
+ const [activeTab, setActiveTab] = useState<'create' | 'manage' | 'invitations'>('create')
+
+ // Handle URL parameters for tab switching
+ useEffect(() => {
+  const urlParams = new URLSearchParams(window.location.search)
+  const tabParam = urlParams.get('tab')
+  if (tabParam === 'invitations' || tabParam === 'manage' || tabParam === 'create') {
+   setActiveTab(tabParam)
+  }
+ }, [])
+
+ // Coach invitation form state
+ const [invitationForm, setInvitationForm] = useState({
+  email: '',
+  name: '',
+  sport: 'Soccer',
+  customMessage: ''
+ })
+ const [invitationLoading, setInvitationLoading] = useState(false)
+ const [invitationStatus, setInvitationStatus] = useState<{
+  type: 'success' | 'error' | null
+  message: string
+ }>({ type: null, message: '' })
  
  const schema = z.object({
   title: z.string().min(3),
@@ -681,6 +708,82 @@ export default function CreatorDashboard() {
  const [uploadSuccess, setUploadSuccess] = useState(false)
  const [publishedLessons, setPublishedLessons] = useState<any[]>([])
  const [loadingLessons, setLoadingLessons] = useState(false)
+
+ // Handle coach invitation submission
+ const handleCoachInvitation = async (e: React.FormEvent) => {
+  e.preventDefault()
+  setInvitationLoading(true)
+  setInvitationStatus({ type: null, message: '' })
+
+  try {
+   // Validate form
+   if (!invitationForm.email || !invitationForm.name || !invitationForm.sport) {
+    setInvitationStatus({
+     type: 'error',
+     message: 'Please fill in all required fields (email, name, and sport)'
+    })
+    return
+   }
+
+   // Validate email format
+   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+   if (!emailRegex.test(invitationForm.email)) {
+    setInvitationStatus({
+     type: 'error',
+     message: 'Please enter a valid email address'
+    })
+    return
+   }
+
+   // Send invitation
+   const response = await fetch('/api/coach-ingestion/generate-link', {
+    method: 'POST',
+    headers: {
+     'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+     organizationName: `${authUser?.displayName || 'GamePlan'} Coaching Network`,
+     sport: invitationForm.sport,
+     description: `Join as a ${invitationForm.sport} coach`,
+     customMessage: invitationForm.customMessage || `Hi ${invitationForm.name}, I'd like to invite you to join our coaching platform!`,
+     sendEmail: true,
+     recipientEmail: invitationForm.email,
+     recipientName: invitationForm.name,
+     expiresInDays: 30,
+     maxUses: 1,
+     autoApprove: false
+    })
+   })
+
+   const data = await response.json()
+
+   if (response.ok && data.success) {
+    setInvitationStatus({
+     type: 'success',
+     message: `Invitation sent successfully to ${invitationForm.name}! They will receive an email with onboarding instructions.`
+    })
+
+    // Reset form
+    setInvitationForm({
+     email: '',
+     name: '',
+     sport: 'Soccer',
+     customMessage: ''
+    })
+   } else {
+    throw new Error(data.error || 'Failed to send invitation')
+   }
+
+  } catch (error) {
+   console.error('Error sending coach invitation:', error)
+   setInvitationStatus({
+    type: 'error',
+    message: error instanceof Error ? error.message : 'Failed to send invitation. Please try again.'
+   })
+  } finally {
+   setInvitationLoading(false)
+  }
+ }
  const [uploadProgress, setUploadProgress] = useState<{video: number, thumbnail: number}>({video: 0, thumbnail: 0})
  const [uploadTasks, setUploadTasks] = useState<{video: any, thumbnail: any}>({video: null, thumbnail: null})
  const [uploadPaused, setUploadPaused] = useState<{video: boolean, thumbnail: boolean}>({video: false, thumbnail: false})
@@ -1317,6 +1420,17 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
       >
        <FileVideo className="h-4 w-4 inline mr-2" />
        Manage Content
+      </button>
+      <button
+       onClick={() => setActiveTab('invitations')}
+       className={`flex-1 px-4 py-2 rounded-md text-sm  transition-colors ${
+        activeTab === 'invitations'
+         ? 'bg-white text-gray-900 shadow-sm'
+         : 'text-gray-600 hover:text-gray-900'
+       }`}
+      >
+       <UserPlus className="h-4 w-4 inline mr-2" />
+       Coach Invitations
       </button>
      </div>
 
@@ -1975,7 +2089,7 @@ Summary and what comes next..."
         </div>
        </form>
       </div>
-     ) : (
+     ) : activeTab === 'manage' ? (
       // Manage Content Tab
       <div className="bg-white rounded-lg shadow-sm">
        <div className="p-6 border-b border-gray-200">
@@ -2043,6 +2157,193 @@ Summary and what comes next..."
           ))}
          </div>
         )}
+       </div>
+      </div>
+     ) : (
+      // Coach Invitations Tab
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+       {/* Invitation Form */}
+       <div className="bg-white rounded-lg shadow-sm">
+        <div className="p-6 border-b border-gray-200">
+         <h2 className="text-lg font-semibold text-gray-900">Invite Other Coaches</h2>
+         <p className="text-sm text-gray-600 mt-1">Send personalized invitations to join your coaching network</p>
+        </div>
+        <div className="p-6">
+         <form onSubmit={handleCoachInvitation} className="space-y-4">
+          <div>
+           <label className="block text-sm font-medium text-gray-700 mb-2">Coach Email Address *</label>
+           <input
+            type="email"
+            placeholder="coach@example.com"
+            value={invitationForm.email}
+            onChange={(e) => setInvitationForm(prev => ({ ...prev, email: e.target.value }))}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            required
+            disabled={invitationLoading}
+           />
+          </div>
+
+          <div>
+           <label className="block text-sm font-medium text-gray-700 mb-2">Coach Name *</label>
+           <input
+            type="text"
+            placeholder="John Smith"
+            value={invitationForm.name}
+            onChange={(e) => setInvitationForm(prev => ({ ...prev, name: e.target.value }))}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            required
+            disabled={invitationLoading}
+           />
+          </div>
+
+          <div>
+           <label className="block text-sm font-medium text-gray-700 mb-2">Sport *</label>
+           <select
+            value={invitationForm.sport}
+            onChange={(e) => setInvitationForm(prev => ({ ...prev, sport: e.target.value }))}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            required
+            disabled={invitationLoading}
+           >
+            <option value="Brazilian Jiu-Jitsu">Brazilian Jiu-Jitsu</option>
+            <option value="Mixed Martial Arts">Mixed Martial Arts</option>
+            <option value="Boxing">Boxing</option>
+            <option value="Wrestling">Wrestling</option>
+            <option value="Soccer">Soccer</option>
+            <option value="American Football">American Football</option>
+            <option value="Basketball">Basketball</option>
+            <option value="Tennis">Tennis</option>
+            <option value="Golf">Golf</option>
+            <option value="Swimming">Swimming</option>
+            <option value="Track & Field">Track & Field</option>
+            <option value="Volleyball">Volleyball</option>
+            <option value="Baseball">Baseball</option>
+            <option value="Hockey">Hockey</option>
+            <option value="Gymnastics">Gymnastics</option>
+           </select>
+          </div>
+
+          <div>
+           <label className="block text-sm font-medium text-gray-700 mb-2">Personal Message (Optional)</label>
+           <textarea
+            placeholder="Hi [Coach Name], I'd love to have you join our coaching platform..."
+            value={invitationForm.customMessage}
+            onChange={(e) => setInvitationForm(prev => ({ ...prev, customMessage: e.target.value }))}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            rows={3}
+            disabled={invitationLoading}
+           />
+          </div>
+
+          {/* Status Messages */}
+          {invitationStatus.type && (
+           <div className={`p-3 rounded-md text-sm ${
+            invitationStatus.type === 'success'
+             ? 'bg-green-50 text-green-800 border border-green-200'
+             : 'bg-red-50 text-red-800 border border-red-200'
+           }`}>
+            <div className="flex items-center gap-2">
+             {invitationStatus.type === 'success' ? (
+              <CheckCircle className="w-4 h-4" />
+             ) : (
+              <AlertCircle className="w-4 h-4" />
+             )}
+             {invitationStatus.message}
+            </div>
+           </div>
+          )}
+
+          <button
+           type="submit"
+           disabled={invitationLoading}
+           className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+          >
+           {invitationLoading ? (
+            <>
+             <Loader2 className="w-4 h-4 animate-spin" />
+             Sending Invitation...
+            </>
+           ) : (
+            <>
+             <Send className="w-4 h-4" />
+             Send Invitation
+            </>
+           )}
+          </button>
+         </form>
+        </div>
+       </div>
+
+       {/* Live Email Preview */}
+       <div className="bg-white rounded-lg shadow-sm">
+        <div className="p-6 border-b border-gray-200">
+         <h2 className="text-lg font-semibold text-gray-900">Email Preview</h2>
+         <p className="text-sm text-gray-600 mt-1">Live preview of the invitation email</p>
+        </div>
+        <div className="p-6">
+         <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+          {/* Email Header */}
+          <div className="border-b border-gray-300 pb-4 mb-4">
+           <div className="flex items-center gap-3 mb-2">
+            <Mail className="w-5 h-5 text-blue-600" />
+            <span className="text-sm font-medium text-gray-700">GamePlan Coach Invitation</span>
+           </div>
+           <div className="text-xs text-gray-500">
+            <p><strong>To:</strong> {invitationForm.email || 'coach@example.com'}</p>
+            <p><strong>From:</strong> {authUser?.displayName || 'Coach'} via GamePlan</p>
+            <p><strong>Subject:</strong> Join {authUser?.displayName || 'GamePlan'} Coaching Network</p>
+           </div>
+          </div>
+
+          {/* Email Body */}
+          <div className="space-y-4 text-sm">
+           <div>
+            <p className="font-medium text-gray-900">
+             Hi {invitationForm.name || '[Coach Name]'},
+            </p>
+           </div>
+
+           <div className="space-y-2">
+            <p className="text-gray-700">
+             {authUser?.displayName || 'A fellow coach'} has invited you to join the GamePlan coaching platform as a <strong>{invitationForm.sport || '[Sport]'}</strong> coach.
+            </p>
+
+            {invitationForm.customMessage && (
+             <div className="bg-blue-50 border-l-4 border-blue-400 p-3 rounded">
+              <p className="text-blue-800 italic">"{invitationForm.customMessage}"</p>
+             </div>
+            )}
+
+            <p className="text-gray-700">
+             GamePlan is the premier platform for coaches to create training content, manage athletes, and build their coaching brand.
+            </p>
+           </div>
+
+           <div className="bg-white border border-gray-300 rounded p-4">
+            <p className="font-medium text-gray-900 mb-2">What you'll get:</p>
+            <ul className="space-y-1 text-xs text-gray-600">
+             <li>• Create and publish training lessons</li>
+             <li>• Build your coaching profile and brand</li>
+             <li>• Connect with athletes and other coaches</li>
+             <li>• Access analytics and insights</li>
+             <li>• Grow your coaching business</li>
+            </ul>
+           </div>
+
+           <div className="text-center">
+            <div className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-medium">
+             Accept Invitation & Get Started
+            </div>
+            <p className="text-xs text-gray-500 mt-2">This invitation expires in 30 days</p>
+           </div>
+
+           <div className="text-xs text-gray-500 border-t border-gray-300 pt-3">
+            <p>This invitation was sent by {authUser?.displayName || 'a coach'} through GamePlan.</p>
+            <p>If you have any questions, you can reply to this email.</p>
+           </div>
+          </div>
+         </div>
+        </div>
        </div>
       </div>
      )}
