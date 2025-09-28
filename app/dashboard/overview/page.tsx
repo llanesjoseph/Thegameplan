@@ -747,7 +747,7 @@ export default function UnifiedDashboard() {
      <div className="flex gap-4 justify-center">
       <Link href="/dashboard/creator">
        <button className="px-6 py-2 bg-purple-600 text-white rounded-lg  hover:bg-purple-700 transition-colors">
-        Create Training Content
+        🏟️ Enter Locker Room
        </button>
       </Link>
       <button

@@ -213,10 +213,15 @@ service cloud.firestore {
     
     // Sessions - Coaching session management
     match /sessions/{sessionId} {
-      allow read: if isOwner(resource.data.userUid) || 
-                     isOwner(resource.data.creatorUid) || 
+      allow read: if isOwner(resource.data.userUid) ||
+                     isOwner(resource.data.creatorUid) ||
                      isAdmin();
       allow write: if isCreatorOrHigher();
+    }
+
+    // User sessions subcollection - User-specific session data
+    match /users/{userId}/sessions/{sessionId} {
+      allow read, write: if isOwner(userId) || isAdmin();
     }
     
     // Requests - General user requests
