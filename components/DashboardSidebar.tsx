@@ -8,6 +8,7 @@ import { useState } from 'react'
 import {
  LayoutDashboard,
  Video,
+ FileVideo,
  MessageCircle,
  Calendar,
  BarChart3,

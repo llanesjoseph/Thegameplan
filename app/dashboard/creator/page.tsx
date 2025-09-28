@@ -24,6 +24,7 @@ import {
  Calendar,
  Eye,
  Users,
+ User,
  TrendingUp,
  Video,
  Image,
