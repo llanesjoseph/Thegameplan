@@ -167,7 +167,7 @@ export async function POST(request: NextRequest) {
 
     // Log voice integration status
     if (context.voiceCharacteristics) {
-      console.log(`🎤 Voice-enhanced coaching active - completeness: ${context.completenessScore || 'unknown'}%`)
+      console.log(`🎤 Voice-enhanced coaching active with personalized characteristics`)
     }
 
     // Creator-specific cache (per-process). Replace with Redis for production.
