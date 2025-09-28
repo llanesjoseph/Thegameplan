@@ -53,7 +53,8 @@ import {
  Send,
  AlertCircle,
  Loader2,
- Mail
+ Mail,
+ LayoutDashboard
 } from 'lucide-react'
 import AppHeader from '@/components/ui/AppHeader'
 
@@ -665,14 +666,14 @@ export default function CreatorDashboard() {
  const { user: authUser, loading: authLoading } = useAuth()
  const router = useRouter()
  
- const [activeTab, setActiveTab] = useState<'create' | 'manage' | 'invitations'>('create')
+ const [activeSection, setActiveSection] = useState<'dashboard' | 'create' | 'manage' | 'invitations'>('dashboard')
 
- // Handle URL parameters for tab switching
+ // Handle URL parameters for section switching
  useEffect(() => {
   const urlParams = new URLSearchParams(window.location.search)
-  const tabParam = urlParams.get('tab')
-  if (tabParam === 'invitations' || tabParam === 'manage' || tabParam === 'create') {
-   setActiveTab(tabParam)
+  const sectionParam = urlParams.get('section') || urlParams.get('tab')
+  if (sectionParam && ['dashboard', 'create', 'manage', 'invitations'].includes(sectionParam)) {
+   setActiveSection(sectionParam as any)
   }
  }, [])
 
@@ -864,12 +865,12 @@ export default function CreatorDashboard() {
   }
  }
 
- // Load published lessons for manage tab
+ // Load published lessons for manage section
  useEffect(() => {
-  if (activeTab === 'manage' && authUser?.uid) {
+  if ((activeSection === 'manage' || activeSection === 'dashboard') && authUser?.uid) {
    loadPublishedLessons()
   }
- }, [activeTab, authUser?.uid])
+ }, [activeSection, authUser?.uid])
 
  // Debug compression helper state
  useEffect(() => {
@@ -1342,8 +1343,8 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
     <AppHeader />
     <div className="max-w-6xl mx-auto px-4 py-6">
      <div className="mb-8">
-      <h1 className="text-3xl  text-gray-900 mb-2">Creator Studio</h1>
-      <p className="text-gray-600">Create and manage your training content</p>
+      <h1 className="text-3xl font-bold text-gray-900 mb-2">🏟️ Coach Locker Room</h1>
+      <p className="text-gray-600">Your central hub for all coaching tools and activities</p>
      </div>
 
      {/* Stats Cards */}
@@ -1397,40 +1398,58 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
       </div>
      </div>
 
-     {/* Tab Navigation */}
-     <div className="flex space-x-1 mb-6 bg-gray-100 rounded-lg p-1">
+     {/* Quick Access Toolbar */}
+     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
       <button
-       onClick={() => setActiveTab('create')}
-       className={`flex-1 px-4 py-2 rounded-md text-sm  transition-colors ${
-        activeTab === 'create'
-         ? 'bg-white text-gray-900 shadow-sm'
-         : 'text-gray-600 hover:text-gray-900'
+       onClick={() => setActiveSection('create')}
+       className={`p-4 rounded-lg border-2 transition-all ${
+        activeSection === 'create'
+         ? 'border-blue-500 bg-blue-50 shadow-md'
+         : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'
        }`}
       >
-       <Plus className="h-4 w-4 inline mr-2" />
-       Create Content
+       <Plus className="h-6 w-6 text-blue-600 mx-auto mb-2" />
+       <div className="text-sm font-medium text-gray-900">Create Content</div>
+       <div className="text-xs text-gray-500">Lessons & Training</div>
       </button>
+
       <button
-       onClick={() => setActiveTab('manage')}
-       className={`flex-1 px-4 py-2 rounded-md text-sm  transition-colors ${
-        activeTab === 'manage'
-         ? 'bg-white text-gray-900 shadow-sm'
-         : 'text-gray-600 hover:text-gray-900'
+       onClick={() => setActiveSection('manage')}
+       className={`p-4 rounded-lg border-2 transition-all ${
+        activeSection === 'manage'
+         ? 'border-green-500 bg-green-50 shadow-md'
+         : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'
        }`}
       >
-       <FileVideo className="h-4 w-4 inline mr-2" />
-       Manage Content
+       <FileVideo className="h-6 w-6 text-green-600 mx-auto mb-2" />
+       <div className="text-sm font-medium text-gray-900">Manage Content</div>
+       <div className="text-xs text-gray-500">Published Lessons</div>
       </button>
+
       <button
-       onClick={() => setActiveTab('invitations')}
-       className={`flex-1 px-4 py-2 rounded-md text-sm  transition-colors ${
-        activeTab === 'invitations'
-         ? 'bg-white text-gray-900 shadow-sm'
-         : 'text-gray-600 hover:text-gray-900'
+       onClick={() => setActiveSection('invitations')}
+       className={`p-4 rounded-lg border-2 transition-all ${
+        activeSection === 'invitations'
+         ? 'border-purple-500 bg-purple-50 shadow-md'
+         : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'
        }`}
       >
-       <UserPlus className="h-4 w-4 inline mr-2" />
-       Coach Invitations
+       <UserPlus className="h-6 w-6 text-purple-600 mx-auto mb-2" />
+       <div className="text-sm font-medium text-gray-900">Coach Network</div>
+       <div className="text-xs text-gray-500">Invite Coaches</div>
+      </button>
+
+      <button
+       onClick={() => setActiveSection('dashboard')}
+       className={`p-4 rounded-lg border-2 transition-all ${
+        activeSection === 'dashboard'
+         ? 'border-orange-500 bg-orange-50 shadow-md'
+         : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'
+       }`}
+      >
+       <LayoutDashboard className="h-6 w-6 text-orange-600 mx-auto mb-2" />
+       <div className="text-sm font-medium text-gray-900">Dashboard</div>
+       <div className="text-xs text-gray-500">All Tools</div>
       </button>
      </div>
 
@@ -1454,7 +1473,184 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
      )}
 
      {/* Content Area */}
-     {activeTab === 'create' ? (
+     {activeSection === 'dashboard' ? (
+      // Comprehensive Coach Dashboard
+      <div className="space-y-8">
+       {/* Quick Actions Row */}
+       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Content Creation */}
+        <div className="bg-white rounded-lg shadow-sm p-6">
+         <div className="flex items-center gap-3 mb-4">
+          <Plus className="h-6 w-6 text-blue-600" />
+          <h3 className="text-lg font-semibold text-gray-900">Content Creation</h3>
+         </div>
+         <div className="space-y-3">
+          <button
+           onClick={() => setActiveSection('create')}
+           className="w-full text-left p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+          >
+           <div className="font-medium text-blue-900">Create New Lesson</div>
+           <div className="text-sm text-blue-700">Video lessons and training content</div>
+          </button>
+          <button
+           onClick={() => setActiveSection('manage')}
+           className="w-full text-left p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+           <div className="font-medium text-gray-900">Manage Content</div>
+           <div className="text-sm text-gray-600">Edit and organize published lessons</div>
+          </button>
+         </div>
+        </div>
+
+        {/* Athlete & Coach Management */}
+        <div className="bg-white rounded-lg shadow-sm p-6">
+         <div className="flex items-center gap-3 mb-4">
+          <Users className="h-6 w-6 text-green-600" />
+          <h3 className="text-lg font-semibold text-gray-900">Team Management</h3>
+         </div>
+         <div className="space-y-3">
+          <a
+           href="/dashboard/coach/athletes"
+           className="block w-full text-left p-3 bg-green-50 hover:bg-green-100 rounded-lg transition-colors"
+          >
+           <div className="font-medium text-green-900">Athlete Management</div>
+           <div className="text-sm text-green-700">Invite and track your athletes</div>
+          </a>
+          <button
+           onClick={() => setActiveSection('invitations')}
+           className="w-full text-left p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+           <div className="font-medium text-gray-900">Coach Network</div>
+           <div className="text-sm text-gray-600">Invite other coaches to join</div>
+          </button>
+         </div>
+        </div>
+
+        {/* Business Tools */}
+        <div className="bg-white rounded-lg shadow-sm p-6">
+         <div className="flex items-center gap-3 mb-4">
+          <TrendingUp className="h-6 w-6 text-purple-600" />
+          <h3 className="text-lg font-semibold text-gray-900">Business Tools</h3>
+         </div>
+         <div className="space-y-3">
+          <a
+           href="/dashboard/coach/social-media"
+           className="block w-full text-left p-3 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors"
+          >
+           <div className="font-medium text-purple-900">Social Media</div>
+           <div className="text-sm text-purple-700">Create posts with live preview</div>
+          </a>
+          <a
+           href="/dashboard/creator/analytics"
+           className="block w-full text-left p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+           <div className="font-medium text-gray-900">Analytics</div>
+           <div className="text-sm text-gray-600">Track performance and engagement</div>
+          </a>
+         </div>
+        </div>
+       </div>
+
+       {/* Recent Activity & Schedule */}
+       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Recent Lessons */}
+        <div className="bg-white rounded-lg shadow-sm p-6">
+         <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">Recent Lessons</h3>
+          <button
+           onClick={() => setActiveSection('manage')}
+           className="text-sm text-blue-600 hover:text-blue-700"
+          >
+           View All
+          </button>
+         </div>
+         <div className="space-y-3">
+          {publishedLessons.slice(0, 3).map((lesson) => (
+           <div key={lesson.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+            <FileVideo className="h-5 w-5 text-gray-400" />
+            <div className="flex-1 min-w-0">
+             <div className="font-medium text-gray-900 truncate">{lesson.title}</div>
+             <div className="text-sm text-gray-500">{lesson.views || 0} views</div>
+            </div>
+           </div>
+          ))}
+          {publishedLessons.length === 0 && (
+           <div className="text-center py-4 text-gray-500">
+            <FileVideo className="h-8 w-8 mx-auto mb-2 text-gray-300" />
+            <div className="text-sm">No lessons yet</div>
+            <button
+             onClick={() => setActiveSection('create')}
+             className="text-blue-600 hover:text-blue-700 text-sm mt-1"
+            >
+             Create your first lesson
+            </button>
+           </div>
+          )}
+         </div>
+        </div>
+
+        {/* Quick Stats */}
+        <div className="bg-white rounded-lg shadow-sm p-6">
+         <h3 className="text-lg font-semibold text-gray-900 mb-4">Performance Overview</h3>
+         <div className="grid grid-cols-2 gap-4">
+          <div className="text-center p-3 bg-blue-50 rounded-lg">
+           <div className="text-2xl font-bold text-blue-600">{lessonCount}</div>
+           <div className="text-sm text-blue-700">Published Lessons</div>
+          </div>
+          <div className="text-center p-3 bg-green-50 rounded-lg">
+           <div className="text-2xl font-bold text-green-600">0</div>
+           <div className="text-sm text-green-700">Total Views</div>
+          </div>
+          <div className="text-center p-3 bg-purple-50 rounded-lg">
+           <div className="text-2xl font-bold text-purple-600">0</div>
+           <div className="text-sm text-purple-700">Subscribers</div>
+          </div>
+          <div className="text-center p-3 bg-orange-50 rounded-lg">
+           <div className="text-2xl font-bold text-orange-600">0%</div>
+           <div className="text-sm text-orange-700">Engagement</div>
+          </div>
+         </div>
+        </div>
+       </div>
+
+       {/* Profile & Settings */}
+       <div className="bg-white rounded-lg shadow-sm p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Profile & Settings</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+         <a
+          href="/dashboard/coach/profile"
+          className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:border-gray-300 hover:shadow-sm transition-all"
+         >
+          <User className="h-6 w-6 text-gray-600" />
+          <div>
+           <div className="font-medium text-gray-900">Coach Profile</div>
+           <div className="text-sm text-gray-600">Update photos and LinkedIn</div>
+          </div>
+         </a>
+         <a
+          href="/dashboard/profile"
+          className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:border-gray-300 hover:shadow-sm transition-all"
+         >
+          <Edit3 className="h-6 w-6 text-gray-600" />
+          <div>
+           <div className="font-medium text-gray-900">Complete Profile</div>
+           <div className="text-sm text-gray-600">Bio, specialties, achievements</div>
+          </div>
+         </a>
+         <a
+          href="/dashboard/creator/schedule"
+          className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:border-gray-300 hover:shadow-sm transition-all"
+         >
+          <Calendar className="h-6 w-6 text-gray-600" />
+          <div>
+           <div className="font-medium text-gray-900">Schedule</div>
+           <div className="text-sm text-gray-600">Manage availability</div>
+          </div>
+         </a>
+        </div>
+       </div>
+      </div>
+     ) : activeSection === 'create' ? (
       <div className="bg-white rounded-lg shadow-sm">
        <div className="p-6 border-b border-gray-200">
         <div className="flex items-center justify-between">
@@ -2089,7 +2285,7 @@ Summary and what comes next..."
         </div>
        </form>
       </div>
-     ) : activeTab === 'manage' ? (
+     ) : activeSection === 'manage' ? (
       // Manage Content Tab
       <div className="bg-white rounded-lg shadow-sm">
        <div className="p-6 border-b border-gray-200">
