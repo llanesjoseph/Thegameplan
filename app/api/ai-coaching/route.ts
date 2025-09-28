@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
     const { question, userId, userEmail, sessionId, sport, creatorId, creatorName } = body
 
     // Validate that user can only make requests for themselves (unless admin) - skip if not authenticated
-    if (isAuthenticated && userId && userId !== authenticatedUserId && !['admin', 'superadmin'].includes(authResult.user?.role || '')) {
+    if (isAuthenticated && userId && userId !== authenticatedUserId && authResult.success && !['admin', 'superadmin'].includes(authResult.user.role || '')) {
       return NextResponse.json({ error: 'Cannot make requests for other users' }, { status: 403 })
     }
 
