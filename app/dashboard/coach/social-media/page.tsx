@@ -88,7 +88,10 @@ export default function SocialMediaGenerator() {
                     return (
                       <button
                         key={platform.id}
-                        onClick={() => setSelectedPlatform(platform.id as any)}
+                        onClick={() => {
+                          setSelectedPlatform(platform.id as any)
+                          setPostData(prev => ({ ...prev, platform: platform.id as any }))
+                        }}
                         className={`p-3 border-2 rounded-lg flex items-center space-x-2 transition-all ${
                           selectedPlatform === platform.id
                             ? 'border-blue-500 bg-blue-50'
@@ -195,31 +198,129 @@ export default function SocialMediaGenerator() {
             </CardHeader>
             <CardContent>
               <div className="flex justify-center">
-                <div className="max-w-sm bg-white border border-gray-200 rounded-lg shadow-lg">
-                  <div className="p-4">
-                    <div className="flex items-center mb-4">
-                      <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
-                        <span className="text-white font-bold text-sm">
-                          {postData.coachName.charAt(0).toUpperCase()}
-                        </span>
+                {selectedPlatform === 'instagram' && (
+                  <div className="max-w-sm bg-white border border-gray-200 rounded-lg shadow-lg">
+                    <div className="p-4">
+                      <div className="flex items-center mb-4">
+                        <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                          <span className="text-white font-bold text-sm">
+                            {postData.coachName ? postData.coachName.charAt(0).toUpperCase() : 'C'}
+                          </span>
+                        </div>
+                        <div className="ml-3">
+                          <p className="font-semibold text-gray-900">{postData.coachName || 'Coach'}</p>
+                          <p className="text-sm text-gray-600">{postData.sport} Coach</p>
+                        </div>
                       </div>
-                      <div className="ml-3">
-                        <p className="font-semibold text-gray-900">{postData.coachName}</p>
-                        <p className="text-sm text-gray-600">{postData.sport} Coach</p>
-                      </div>
+
+                      {postData.image && (
+                        <img src={postData.image} alt="Post" className="w-full h-64 object-cover rounded-lg mb-4" />
+                      )}
+
+                      {postData.message && (
+                        <p className="text-gray-800 mb-2">{postData.message}</p>
+                      )}
+
+                      {postData.hashtags && (
+                        <p className="text-blue-600 text-sm">{postData.hashtags}</p>
+                      )}
                     </div>
-
-                    {postData.image && (
-                      <img src={postData.image} alt="Post" className="w-full h-64 object-cover rounded-lg mb-4" />
-                    )}
-
-                    <p className="text-gray-800 mb-2">{postData.message}</p>
-
-                    {postData.hashtags && (
-                      <p className="text-blue-600 text-sm">{postData.hashtags}</p>
-                    )}
                   </div>
-                </div>
+                )}
+
+                {selectedPlatform === 'twitter' && (
+                  <div className="max-w-lg bg-white border border-gray-200 rounded-2xl shadow-lg">
+                    <div className="p-4">
+                      <div className="flex items-start mb-3">
+                        <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center mr-3">
+                          <span className="text-white font-bold">
+                            {postData.coachName ? postData.coachName.charAt(0).toUpperCase() : 'C'}
+                          </span>
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center mb-1">
+                            <p className="font-bold text-gray-900 mr-2">{postData.coachName || 'Coach'}</p>
+                            <p className="text-gray-500 text-sm">@{(postData.coachName || 'coach').toLowerCase().replace(/\s+/g, '')}</p>
+                          </div>
+                          <p className="text-gray-600 text-sm">{postData.sport} Coach</p>
+                        </div>
+                      </div>
+
+                      {postData.message && (
+                        <p className="text-gray-900 mb-3 text-sm leading-relaxed">{postData.message}</p>
+                      )}
+
+                      {postData.image && (
+                        <img src={postData.image} alt="Post" className="w-full h-64 object-cover rounded-2xl mb-3" />
+                      )}
+
+                      {postData.hashtags && (
+                        <p className="text-blue-500 text-sm">{postData.hashtags}</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {selectedPlatform === 'facebook' && (
+                  <div className="max-w-lg bg-white border border-gray-200 rounded-lg shadow-lg">
+                    <div className="p-4">
+                      <div className="flex items-center mb-4">
+                        <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                          <span className="text-white font-bold text-sm">
+                            {postData.coachName ? postData.coachName.charAt(0).toUpperCase() : 'C'}
+                          </span>
+                        </div>
+                        <div className="ml-3">
+                          <p className="font-semibold text-gray-900">{postData.coachName || 'Coach'}</p>
+                          <p className="text-sm text-gray-500">{postData.sport} Coach • Just now</p>
+                        </div>
+                      </div>
+
+                      {postData.message && (
+                        <p className="text-gray-800 mb-3">{postData.message}</p>
+                      )}
+
+                      {postData.image && (
+                        <img src={postData.image} alt="Post" className="w-full h-64 object-cover rounded-lg mb-3" />
+                      )}
+
+                      {postData.hashtags && (
+                        <p className="text-blue-600 text-sm">{postData.hashtags}</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {selectedPlatform === 'linkedin' && (
+                  <div className="max-w-lg bg-white border border-gray-200 rounded-lg shadow-lg">
+                    <div className="p-4">
+                      <div className="flex items-start mb-4">
+                        <div className="w-12 h-12 bg-blue-700 rounded-full flex items-center justify-center mr-3">
+                          <span className="text-white font-bold">
+                            {postData.coachName ? postData.coachName.charAt(0).toUpperCase() : 'C'}
+                          </span>
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-semibold text-gray-900">{postData.coachName || 'Coach'}</p>
+                          <p className="text-sm text-gray-600">{postData.sport} Coach</p>
+                          <p className="text-xs text-gray-500">1m • 🌐</p>
+                        </div>
+                      </div>
+
+                      {postData.message && (
+                        <p className="text-gray-800 mb-3 leading-relaxed">{postData.message}</p>
+                      )}
+
+                      {postData.image && (
+                        <img src={postData.image} alt="Post" className="w-full h-64 object-cover rounded-lg mb-3" />
+                      )}
+
+                      {postData.hashtags && (
+                        <p className="text-blue-700 text-sm">{postData.hashtags}</p>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>

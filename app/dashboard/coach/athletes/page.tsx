@@ -246,13 +246,21 @@ export default function CoachAthletesPage() {
                     onChange={(e) => setBulkForm(prev => ({ ...prev, sport: e.target.value }))}
                     className="w-full p-2 border border-gray-300 rounded-md"
                   >
+                    <option value="Brazilian Jiu-Jitsu">Brazilian Jiu-Jitsu</option>
+                    <option value="Mixed Martial Arts">Mixed Martial Arts</option>
+                    <option value="Boxing">Boxing</option>
+                    <option value="Wrestling">Wrestling</option>
                     <option value="Soccer">Soccer</option>
+                    <option value="American Football">American Football</option>
                     <option value="Basketball">Basketball</option>
-                    <option value="Football">Football</option>
                     <option value="Tennis">Tennis</option>
-                    <option value="Track & Field">Track & Field</option>
+                    <option value="Golf">Golf</option>
                     <option value="Swimming">Swimming</option>
-                    <option value="Other">Other</option>
+                    <option value="Track & Field">Track & Field</option>
+                    <option value="Volleyball">Volleyball</option>
+                    <option value="Baseball">Baseball</option>
+                    <option value="Hockey">Hockey</option>
+                    <option value="Gymnastics">Gymnastics</option>
                   </select>
                 </div>
 
