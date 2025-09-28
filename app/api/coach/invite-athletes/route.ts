@@ -74,10 +74,11 @@ export async function POST(request: NextRequest) {
 
         // Store in global cache for testing
         if (typeof globalThis !== 'undefined') {
-          if (!globalThis.athleteInvitations) {
-            globalThis.athleteInvitations = new Map()
+          const global = globalThis as any
+          if (!global.athleteInvitations) {
+            global.athleteInvitations = new Map()
           }
-          globalThis.athleteInvitations.set(invitationId, invitationData)
+          global.athleteInvitations.set(invitationId, invitationData)
         }
 
         // Send email invitation
