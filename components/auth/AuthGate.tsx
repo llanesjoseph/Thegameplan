@@ -51,7 +51,7 @@ export default function AuthGate({ allowedRoles = ['user', 'creator', 'superadmi
      <p className="opacity-80">Your role does not allow access to this page.</p>
      <button
       className="mt-6 nexus-button"
-      onClick={() => router.push('/dashboard/overview')}
+      onClick={() => router.push('/dashboard/creator')}
      >
       Go to dashboard
      </button>

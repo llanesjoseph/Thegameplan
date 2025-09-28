@@ -424,7 +424,7 @@ export default function AthleteManagementPage() {
           <option value="advanced">Advanced</option>
          </select>
         </div>
-        <Link href="/dashboard/overview">
+        <Link href="/dashboard/creator">
          <button className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
           <Plus className="w-5 h-5" />
           Schedule Session

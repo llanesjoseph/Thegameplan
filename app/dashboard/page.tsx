@@ -31,14 +31,13 @@ export default function Dashboard() {
   handleRedirectResult()
  }, [router])
 
- // REMOVED AGGRESSIVE REDIRECT - This was causing admin panel flickering
- // useEffect(() => {
- //  if (!loading && user) {
- //   // User is authenticated, redirect to dashboard overview
- //   console.log('User is authenticated, redirecting to dashboard overview')
- //   router.push('/dashboard/overview')
- //  }
- // }, [user, loading, router])
+ // Redirect authenticated users directly to Coaches Locker Room
+ useEffect(() => {
+  if (!loading && user) {
+   console.log('User is authenticated, redirecting to Coaches Locker Room')
+   router.push('/dashboard/creator')
+  }
+ }, [user, loading, router])
 
  if (loading) {
   return (
@@ -48,29 +47,6 @@ export default function Dashboard() {
      <div className="text-center bg-white rounded-xl shadow-sm border border-gray-200 p-8">
       <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-cardinal mx-auto"></div>
       <p className="mt-4 text-gray-700">Loading your dashboard...</p>
-     </div>
-    </div>
-   </div>
-  )
- }
-
- // If user is authenticated, show overview directly (no redirect)
- if (user) {
-  return (
-   <div className="min-h-screen bg-gray-50">
-    <AppHeader />
-    <ProfileCompletionBanner />
-
-    <div className="flex items-center justify-center min-h-[70vh]">
-     <div className="text-center bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-      <h1 className="text-2xl text-gray-900 mb-4">Welcome to PLAYBOOKD</h1>
-      <p className="text-gray-600 mb-6">You're successfully signed in!</p>
-      <button
-       onClick={() => router.push('/dashboard/overview')}
-       className="px-6 py-3 bg-cardinal text-white rounded-lg hover:bg-cardinal-dark transition-colors"
-      >
-       Go to Dashboard Overview
-      </button>
      </div>
     </div>
    </div>

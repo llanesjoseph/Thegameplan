@@ -50,13 +50,13 @@ export default function AppHeader({ className = '' }: AppHeaderProps) {
     switch (role) {
       case 'superadmin':
       case 'admin':
-        router.push('/dashboard/overview')
+        router.push('/dashboard/creator')
         break
       case 'coach':
         router.push('/dashboard/coaching')
         break
       case 'creator':
-        router.push('/dashboard/overview')
+        router.push('/dashboard/creator')
         break
       case 'assistant':
         router.push('/dashboard/coaching')

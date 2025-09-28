@@ -30,7 +30,7 @@ import {
 
 const navigationItems = {
  user: [
-  { title: 'Overview', icon: LayoutDashboard, href: '/dashboard/overview', color: 'text-blue-600' },
+  { title: 'Dashboard', icon: LayoutDashboard, href: '/dashboard/creator', color: 'text-blue-600' },
   { title: 'Progress', icon: TrendingUp, href: '/dashboard/progress', color: 'text-green-600' },
   { title: 'Request Coaching', icon: MessageCircle, href: '/dashboard/coaching', color: 'text-purple-600' },
   { title: 'Curated Gear', icon: ShoppingBag, href: '/gear', color: 'text-emerald-600' },
@@ -47,7 +47,7 @@ const navigationItems = {
   { title: 'Curated Gear', icon: ShoppingBag, href: '/gear', color: 'text-emerald-600' },
  ],
  assistant: [
-  { title: 'Overview', icon: LayoutDashboard, href: '/dashboard/overview', color: 'text-blue-600' },
+  { title: 'Dashboard', icon: LayoutDashboard, href: '/dashboard/creator', color: 'text-blue-600' },
   { title: 'Coaching Requests', icon: MessageCircle, href: '/dashboard/assistant/requests', color: 'text-green-600' },
   { title: 'Schedule Management', icon: Calendar, href: '/dashboard/assistant/schedule', color: 'text-orange-600' },
   { title: 'Content Organization', icon: Video, href: '/dashboard/assistant/content', color: 'text-red-600' },
@@ -56,7 +56,7 @@ const navigationItems = {
   { title: 'Curated Gear', icon: ShoppingBag, href: '/gear', color: 'text-emerald-600' },
  ],
  superadmin: [
-  { title: 'Overview', icon: LayoutDashboard, href: '/dashboard/overview', color: 'text-blue-600' },
+  { title: 'Dashboard', icon: LayoutDashboard, href: '/dashboard/creator', color: 'text-blue-600' },
   { title: 'Role Management', icon: Crown, href: '/dashboard/admin/roles', color: 'text-red-600' },
   { title: 'System Analytics', icon: BarChart3, href: '/dashboard/admin/analytics', color: 'text-purple-600' },
   { title: '━━━ User Management ━━━', icon: null, href: '', color: 'text-gray-400', disabled: true },
@@ -65,7 +65,7 @@ const navigationItems = {
   { title: '━━━ Content Management ━━━', icon: null, href: '', color: 'text-gray-400', disabled: true },
   { title: 'Content Management', icon: Video, href: '/dashboard/admin/content', color: 'text-orange-600' },
   { title: '━━━ Coach Tools ━━━', icon: null, href: '', color: 'text-gray-400', disabled: true },
-  { title: 'Coach Studio', icon: Video, href: '/dashboard/creator', color: 'text-red-600' },
+  { title: 'Coaches Locker Room', icon: Video, href: '/dashboard/creator', color: 'text-red-600' },
   { title: 'Coach Requests', icon: MessageCircle, href: '/dashboard/creator/requests', color: 'text-green-600' },
   { title: 'Assistant Coaches', icon: UserCheck, href: '/dashboard/creator/assistants', color: 'text-indigo-600' },
   { title: '━━━ General ━━━', icon: null, href: '', color: 'text-gray-400', disabled: true },
