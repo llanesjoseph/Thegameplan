@@ -11,7 +11,6 @@ import {
   Instagram,
   Twitter,
   Facebook,
-  LinkedIn,
   Download,
   Copy,
   Camera
@@ -44,7 +43,7 @@ export default function SocialMediaGenerator() {
     { id: 'instagram', name: 'Instagram', icon: Instagram, color: 'bg-gradient-to-r from-purple-500 to-pink-500' },
     { id: 'twitter', name: 'Twitter/X', icon: Twitter, color: 'bg-black' },
     { id: 'facebook', name: 'Facebook', icon: Facebook, color: 'bg-blue-600' },
-    { id: 'linkedin', name: 'LinkedIn', icon: LinkedIn, color: 'bg-blue-700' }
+    { id: 'linkedin', name: 'LinkedIn', icon: Facebook, color: 'bg-blue-700' }
   ]
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {

@@ -5,8 +5,6 @@
  * to enhance AI coaching responses with authentic coach personality and context.
  */
 
-import { adminDb as db } from '@/lib/firebase.admin'
-
 export interface VoiceCaptureData {
   collegeExperience: {
     university: string
@@ -223,6 +221,7 @@ export async function storeVoiceProfile(
   processedProfile: ProcessedVoiceProfile
 ): Promise<void> {
   try {
+    const { adminDb: db } = await import('@/lib/firebase.admin')
     await db.collection('coach_voice_profiles').doc(coachId).set({
       ...processedProfile,
       createdAt: new Date(),
@@ -241,6 +240,7 @@ export async function storeVoiceProfile(
  */
 export async function getVoiceProfile(coachId: string): Promise<ProcessedVoiceProfile | null> {
   try {
+    const { adminDb: db } = await import('@/lib/firebase.admin')
     const doc = await db.collection('coach_voice_profiles').doc(coachId).get()
     return doc.exists ? doc.data() as ProcessedVoiceProfile : null
   } catch (error) {
