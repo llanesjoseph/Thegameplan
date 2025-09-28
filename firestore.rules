@@ -232,13 +232,16 @@ service cloud.firestore {
       allow read, write: if isSuperAdmin();
     }
     
-    // Analytics collections - Performance metrics (admin only)
+    // Analytics collections - Performance metrics (creators can access their own)
     match /creatorAnalytics/{creatorId} {
-      allow read, write: if isAdmin();
+      allow read, write: if isOwner(creatorId) || isAdmin();
     }
     
     match /lessonAnalytics/{lessonId} {
-      allow read, write: if isAdmin();
+      allow read, write: if isAdmin() ||
+                            (isCreatorOrHigher() &&
+                             exists(/databases/$(database)/documents/content/$(lessonId)) &&
+                             get(/databases/$(database)/documents/content/$(lessonId)).data.creatorUid == request.auth.uid);
     }
     
     match /userAnalytics/{userId} {
