@@ -81,7 +81,7 @@ service firebase.storage {
       allow delete: if isOwner(userId) || isAdmin();
     }
     
-    // Creator content - Videos, images, supporting materials (Original path)
+    // Creator content - Videos, images, supporting materials (STANDARDIZED PATH)
     match /creators/{creatorId}/content/{allPaths=**} {
       allow read: if isAuthenticated(); // Authenticated users can access content
       allow write: if (isOwner(creatorId) || isCreatorOrHigher()) &&
@@ -91,14 +91,12 @@ service firebase.storage {
       allow delete: if isOwner(creatorId) || isAdmin();
     }
 
-    // Content folder - Direct content uploads (matches current upload path)
+    // DEPRECATED: Legacy content path - Will be migrated to /creators/{creatorId}/content/
+    // Remove this rule after migration is complete
     match /content/{userId}/{allPaths=**} {
       allow read: if isAuthenticated(); // Authenticated users can access content
-      allow write: if (isOwner(userId) || isCreatorOrHigher()) &&
-                      (isValidImageType() || isValidVideoType() || isValidAudioType() || isValidDocumentType()) &&
-                      isValidFileSize(10000) && // 10GB limit for enterprise uploads
-                      isValidFileName();
-      allow delete: if isOwner(userId) || isAdmin();
+      allow write: if false; // Disable new uploads to legacy path
+      allow delete: if isOwner(userId) || isAdmin(); // Allow cleanup of legacy files
     }
     
     // Creator profile assets - Headshots, action shots, logos

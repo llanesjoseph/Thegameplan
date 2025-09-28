@@ -8,7 +8,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
-import { Loader2, CheckCircle, AlertCircle, User, Award, Target, MessageSquare } from 'lucide-react'
+import { Loader2, CheckCircle, AlertCircle, User, Award, Target, MessageSquare, Mic } from 'lucide-react'
+import VoiceCaptureIntake from '@/components/coach/VoiceCaptureIntake'
 
 interface IngestionData {
   organizationName: string
@@ -40,6 +41,7 @@ interface CoachData {
   references: string[]
   sampleQuestions: string[]
   bio: string
+  voiceCaptureData?: any
 }
 
 export default function CoachOnboardPage() {
@@ -72,7 +74,8 @@ export default function CoachOnboardPage() {
     achievements: [],
     references: [],
     sampleQuestions: [],
-    bio: ''
+    bio: '',
+    voiceCaptureData: undefined
   })
 
   const [specialty, setSpecialty] = useState('')
@@ -86,8 +89,18 @@ export default function CoachOnboardPage() {
 
   const validateIngestionLink = async () => {
     try {
-      const response = await fetch(`/api/coach-ingestion/validate?id=${ingestionId}`)
-      const result = await response.json()
+      // Try mock validation first for test invitations
+      let response
+      let result
+
+      if (ingestionId.startsWith('test-') || ingestionId.startsWith('jasmine-special-')) {
+        response = await fetch(`/api/mock-coach-validation?id=${ingestionId}`)
+        result = await response.json()
+        console.log('🧪 Using mock validation for test invitation')
+      } else {
+        response = await fetch(`/api/coach-ingestion/validate?id=${ingestionId}`)
+        result = await response.json()
+      }
 
       if (!result.valid) {
         setError(result.error)
@@ -97,6 +110,48 @@ export default function CoachOnboardPage() {
 
       setIngestionData(result.data)
       setCoachData(prev => ({ ...prev, sport: result.data.sport }))
+
+      // Check if this is Jasmine's special onboarding and pre-populate data
+      if (result.data.metadata?.isJasmineSpecial && result.data.metadata?.prePopulateData) {
+        console.log('🎯 Detected Jasmine special onboarding - pre-populating data')
+
+        // Pre-populate user info
+        setUserInfo({
+          email: '',
+          displayName: 'Jasmine Aikey',
+          firstName: 'Jasmine',
+          lastName: 'Aikey',
+          phone: ''
+        })
+
+        // Pre-populate coach data
+        setCoachData(prev => ({
+          ...prev,
+          sport: 'Soccer',
+          experience: '4+ years collegiate soccer at Stanford University',
+          credentials: 'PAC-12 Champion and Midfielder of the Year, NCAA Division I Competitor',
+          tagline: 'Elite soccer player at Stanford University',
+          philosophy: 'I believe in developing the complete player - technically, tactically, physically, and mentally. Soccer is not just about individual skill, but about understanding the game, reading situations, and making smart decisions under pressure.',
+          specialties: [
+            'Midfield Play & Positioning',
+            'Ball Control & First Touch',
+            'Tactical Awareness',
+            'Mental Preparation'
+          ],
+          achievements: [
+            'PAC-12 Champion (Stanford University)',
+            'PAC-12 Midfielder of the Year',
+            'All-PAC-12 Conference Selection'
+          ],
+          sampleQuestions: [
+            'How do I improve my first touch under pressure?',
+            'What\'s the key to reading the game as a midfielder?',
+            'How do you handle the mental pressure of big games?'
+          ],
+          bio: 'Stanford University soccer player with expertise in midfield play, technical development, and mental preparation. I specialize in helping athletes develop their tactical awareness, ball control, and competitive mindset through proven training methodologies.'
+        }))
+      }
+
       setLoading(false)
     } catch (err) {
       setError('Failed to validate invitation link')
@@ -272,13 +327,26 @@ export default function CoachOnboardPage() {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Join as a Coach</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            {ingestionData?.metadata?.isJasmineSpecial ? 'Welcome to GamePlan, Jasmine!' : 'Join as a Coach'}
+          </h1>
           <p className="text-lg text-gray-600">
-            You've been invited to join <span className="font-semibold">{ingestionData?.organizationName}</span> as a {ingestionData?.sport} coach
+            {ingestionData?.metadata?.isJasmineSpecial
+              ? 'Complete your coach profile to start sharing your Stanford soccer expertise with athletes worldwide'
+              : `You've been invited to join ${ingestionData?.organizationName} as a ${ingestionData?.sport} coach`
+            }
           </p>
           {ingestionData?.customMessage && (
             <div className="mt-4 p-4 bg-blue-50 rounded-lg">
               <p className="text-blue-800">{ingestionData.customMessage}</p>
+            </div>
+          )}
+          {ingestionData?.metadata?.isJasmineSpecial && (
+            <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-lg">
+              <p className="text-gray-800">
+                🏆 <strong>Special Invitation:</strong> We've pre-filled much of your profile with your Stanford career achievements.
+                Review the information, make any updates, and complete the optional voice capture to create the most personalized AI coaching experience possible!
+              </p>
             </div>
           )}
         </div>
@@ -288,13 +356,22 @@ export default function CoachOnboardPage() {
             <div className={`flex items-center justify-center w-8 h-8 rounded-full ${currentStep >= 1 ? 'bg-blue-600 text-white' : 'bg-gray-300'}`}>
               <User className="h-4 w-4" />
             </div>
-            <div className={`h-1 w-16 ${currentStep >= 2 ? 'bg-blue-600' : 'bg-gray-300'}`} />
+            <div className={`h-1 w-12 ${currentStep >= 2 ? 'bg-blue-600' : 'bg-gray-300'}`} />
             <div className={`flex items-center justify-center w-8 h-8 rounded-full ${currentStep >= 2 ? 'bg-blue-600 text-white' : 'bg-gray-300'}`}>
               <Award className="h-4 w-4" />
             </div>
-            <div className={`h-1 w-16 ${currentStep >= 3 ? 'bg-blue-600' : 'bg-gray-300'}`} />
+            <div className={`h-1 w-12 ${currentStep >= 3 ? 'bg-blue-600' : 'bg-gray-300'}`} />
             <div className={`flex items-center justify-center w-8 h-8 rounded-full ${currentStep >= 3 ? 'bg-blue-600 text-white' : 'bg-gray-300'}`}>
               <Target className="h-4 w-4" />
+            </div>
+            <div className={`h-1 w-12 ${currentStep >= 4 ? 'bg-blue-600' : 'bg-gray-300'}`} />
+            <div className={`flex items-center justify-center w-8 h-8 rounded-full relative ${currentStep >= 4 ? 'bg-blue-600 text-white' : 'bg-gray-300'}`}>
+              <Mic className="h-4 w-4" />
+              {currentStep === 4 && (
+                <span className="absolute -top-1 -right-1 bg-yellow-400 text-yellow-900 text-xs px-1 rounded-full text-[10px] font-semibold">
+                  OPT
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -305,11 +382,13 @@ export default function CoachOnboardPage() {
               {currentStep === 1 && 'Personal Information'}
               {currentStep === 2 && 'Coaching Experience'}
               {currentStep === 3 && 'Profile Details'}
+              {currentStep === 4 && 'Voice & Personality Capture (Optional)'}
             </CardTitle>
             <CardDescription>
               {currentStep === 1 && 'Tell us about yourself'}
               {currentStep === 2 && 'Share your coaching background'}
               {currentStep === 3 && 'Complete your coach profile'}
+              {currentStep === 4 && 'Optional: Help us capture your authentic coaching voice for enhanced AI responses'}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -516,6 +595,70 @@ export default function CoachOnboardPage() {
               </div>
             )}
 
+            {currentStep === 4 && (
+              <div className="space-y-6">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <h3 className="font-semibold text-blue-900 mb-2">🎤 Enhanced AI Coaching (Optional)</h3>
+                  <p className="text-blue-800 text-sm mb-3">
+                    Complete this detailed intake to help our AI system capture your unique coaching voice and personality.
+                    This enables highly personalized AI responses that reflect your authentic coaching style.
+                  </p>
+                  <div className="flex gap-3">
+                    <Button
+                      onClick={() => setCurrentStep(5)}
+                      variant="outline"
+                      size="sm"
+                      className="text-blue-700 border-blue-300 hover:bg-blue-100"
+                    >
+                      Complete Voice Capture
+                    </Button>
+                    <Button
+                      onClick={handleSubmit}
+                      variant="outline"
+                      size="sm"
+                      disabled={submitting}
+                      className="text-gray-700"
+                    >
+                      {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      Skip & Submit Application
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {currentStep === 5 && (
+              <div>
+                {ingestionData?.metadata?.isJasmineSpecial && (
+                  <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <p className="text-green-800 text-sm">
+                      🎯 <strong>Pre-populated for Jasmine:</strong> We've pre-filled this section with your Stanford career details.
+                      Feel free to review, edit, or add more information to make your AI coaching even more personalized!
+                    </p>
+                  </div>
+                )}
+                <VoiceCaptureIntake
+                  onComplete={(data) => {
+                    setCoachData(prev => ({ ...prev, voiceCaptureData: data }))
+                  }}
+                  onProgress={(progress) => {
+                    // Handle progress updates if needed
+                    console.log('Voice capture progress:', progress)
+                  }}
+                  prePopulatedData={ingestionData?.metadata?.isJasmineSpecial ? async () => {
+                    try {
+                      const response = await fetch(`/api/jasmine-voice-data?ingestionId=${ingestionId}`)
+                      const result = await response.json()
+                      return result.success ? result.data.coachData.voiceCaptureData : null
+                    } catch (error) {
+                      console.error('Failed to load pre-populated voice data:', error)
+                      return null
+                    }
+                  } : undefined}
+                />
+              </div>
+            )}
+
             {error && (
               <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
                 <p className="text-red-800">{error}</p>
@@ -523,12 +666,17 @@ export default function CoachOnboardPage() {
             )}
 
             <div className="flex justify-between pt-4">
-              {currentStep > 1 && (
+              {currentStep > 1 && currentStep !== 4 && (
                 <Button variant="outline" onClick={() => setCurrentStep(prev => prev - 1)}>
                   Previous
                 </Button>
               )}
-              {currentStep < 3 ? (
+              {currentStep === 5 && (
+                <Button variant="outline" onClick={() => setCurrentStep(4)}>
+                  Back to Options
+                </Button>
+              )}
+              {currentStep < 4 ? (
                 <Button
                   onClick={() => setCurrentStep(prev => prev + 1)}
                   className="ml-auto"
@@ -536,7 +684,7 @@ export default function CoachOnboardPage() {
                 >
                   Next
                 </Button>
-              ) : (
+              ) : currentStep === 5 ? (
                 <Button
                   onClick={handleSubmit}
                   disabled={submitting}
@@ -545,7 +693,7 @@ export default function CoachOnboardPage() {
                   {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Submit Application
                 </Button>
-              )}
+              ) : null}
             </div>
           </CardContent>
         </Card>

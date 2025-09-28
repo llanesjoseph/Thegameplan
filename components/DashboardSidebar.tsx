@@ -22,7 +22,8 @@ import {
  X,
  ShoppingBag,
  MessageSquare,
- UserCheck
+ UserCheck,
+ Share2
 } from 'lucide-react'
 
 const navigationItems = {
@@ -39,6 +40,7 @@ const navigationItems = {
   { title: 'My Schedule', icon: Calendar, href: '/dashboard/creator/schedule', color: 'text-orange-600' },
   { title: 'Assistant Coaches', icon: UserCheck, href: '/dashboard/creator/assistants', color: 'text-indigo-600' },
   { title: 'Athlete Management', icon: Users, href: '/dashboard/coach/athletes', color: 'text-cyan-600' },
+  { title: 'Social Media', icon: Share2, href: '/dashboard/coach/social-media', color: 'text-pink-600' },
   { title: 'Analytics', icon: BarChart3, href: '/dashboard/creator/analytics', color: 'text-purple-600' },
   { title: 'Curated Gear', icon: ShoppingBag, href: '/gear', color: 'text-emerald-600' },
  ],

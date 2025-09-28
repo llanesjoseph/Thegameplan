@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { soccerCoachingContext, getCoachingContext } from '@/lib/ai-service'
+import { soccerCoachingContext, getCoachingContext, getEnhancedCoachingContext } from '@/lib/ai-service'
 import { generateWithRedundancy } from '@/lib/llm-service'
 import { analyzeMedicalSafety, getSafeTrainingResponse } from '@/lib/medical-safety'
 import { createAISession, logAIInteraction, CURRENT_TERMS_VERSION } from '@/lib/ai-logging'
@@ -35,14 +35,16 @@ function checkRateLimit(identifier: string): { allowed: boolean; remaining: numb
 
 export async function POST(request: NextRequest) {
   try {
-    // Enhanced authentication
+    // Enhanced authentication - but allow unauthenticated requests with fallback responses
     const authResult = await requireAuth(request, ['user', 'creator', 'coach', 'assistant', 'admin', 'superadmin'])
 
-    if (!authResult.success) {
-      return NextResponse.json({ error: authResult.error }, { status: authResult.status })
-    }
+    let authenticatedUserId = null
+    let isAuthenticated = false
 
-    const authenticatedUserId = authResult.user.uid
+    if (authResult.success) {
+      authenticatedUserId = authResult.user.uid
+      isAuthenticated = true
+    }
 
     // Parse request body with better error handling
     let body
@@ -58,13 +60,13 @@ export async function POST(request: NextRequest) {
 
     const { question, userId, userEmail, sessionId, sport, creatorId, creatorName } = body
 
-    // Validate that user can only make requests for themselves (unless admin)
-    if (userId && userId !== authenticatedUserId && !['admin', 'superadmin'].includes(authResult.user.role || '')) {
+    // Validate that user can only make requests for themselves (unless admin) - skip if not authenticated
+    if (isAuthenticated && userId && userId !== authenticatedUserId && !['admin', 'superadmin'].includes(authResult.user?.role || '')) {
       return NextResponse.json({ error: 'Cannot make requests for other users' }, { status: 403 })
     }
 
-    // Use authenticated user ID if not provided
-    const requestUserId = userId || authenticatedUserId
+    // Use authenticated user ID if not provided, or 'anonymous' for unauthenticated requests
+    const requestUserId = userId || authenticatedUserId || 'anonymous'
 
     if (!question || typeof question !== 'string') {
       return NextResponse.json(
@@ -159,9 +161,14 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Resolve creator context dynamically - tries creator ID first, then sport
-    const context = getCoachingContext(creatorId, sport)
-    console.log(`🎯 Using coaching context for: ${context.coachName} (${context.sport})`)
+    // Resolve creator context dynamically with voice profile integration
+    const context = await getEnhancedCoachingContext(creatorId, sport)
+    console.log(`🎯 Using enhanced coaching context for: ${context.coachName} (${context.sport})`)
+
+    // Log voice integration status
+    if (context.voiceCharacteristics) {
+      console.log(`🎤 Voice-enhanced coaching active - completeness: ${context.completenessScore || 'unknown'}%`)
+    }
 
     // Creator-specific cache (per-process). Replace with Redis for production.
     // Added version to cache key to bust cache after improvements
@@ -244,7 +251,13 @@ export async function POST(request: NextRequest) {
       context
     )
 
-    const finalResponse = safetyNotice + safetyEnhancedResponse
+    // Add authentication notice for unauthenticated users
+    let authNotice = ''
+    if (!isAuthenticated) {
+      authNotice = '\n\n---\n\n*💡 Sign in to unlock personalized coaching, progress tracking, and access to exclusive training content! Click the "Sign in" button to get started.*'
+    }
+
+    const finalResponse = safetyNotice + safetyEnhancedResponse + authNotice
 
     // Log the interaction with proper parameters
     if (userId && userEmail && currentSessionId) {

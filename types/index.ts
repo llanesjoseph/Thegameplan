@@ -3,7 +3,16 @@
 // import { User } from 'firebase/auth' // Commented out as it's exported at the end
 import { Timestamp } from 'firebase/firestore'
 
-// Firebase User Extensions
+// Import unified user types from dedicated user types file
+export type {
+  AppRole as UserRole,
+  UserProfile,
+  ExtendedUserProfile,
+  CreatorProfile,
+  PublicCreatorProfile
+} from './user'
+
+// Firebase User Extensions - Legacy compatibility
 export interface FirebaseUser {
   uid: string
   email: string | null
@@ -12,6 +21,7 @@ export interface FirebaseUser {
   emailVerified: boolean
 }
 
+// Legacy AppUser interface for backward compatibility
 export interface AppUser extends FirebaseUser {
   role: UserRole
   createdAt: Timestamp | Date
@@ -19,9 +29,6 @@ export interface AppUser extends FirebaseUser {
   subscriptionLevel?: SubscriptionTier
   onboardingCompleted?: boolean
 }
-
-// User Roles and Permissions
-export type UserRole = 'guest' | 'user' | 'creator' | 'coach' | 'assistant' | 'admin' | 'superadmin'
 
 export type SubscriptionTier = 'free' | 'basic' | 'pro' | 'elite'
 
@@ -85,36 +92,7 @@ export interface CoachingRequest {
   responseAt?: Timestamp | Date
 }
 
-// Creator Profile
-export interface CreatorProfile {
-  id: string
-  userId: string
-  displayName: string
-  slug: string
-  bio: string
-  sports: string[]
-  certifications: string[]
-  experience: string
-  specialties: string[]
-  profileImageUrl?: string
-  actionImageUrl?: string
-  socialLinks?: {
-    instagram?: string
-    youtube?: string
-    tiktok?: string
-    website?: string
-  }
-  stats?: {
-    totalStudents: number
-    totalContent: number
-    avgRating: number
-    totalReviews: number
-  }
-  isVerified: boolean
-  isActive: boolean
-  createdAt: Timestamp | Date
-  updatedAt: Timestamp | Date
-}
+// CreatorProfile is now imported from ./user types file - removed duplicate definition
 
 // Error Handling
 export interface AppErrorContext {

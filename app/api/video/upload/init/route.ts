@@ -96,8 +96,8 @@ export async function POST(request: NextRequest) {
       userId: decodedToken.uid
     })
 
-    // Create secure file path with user segregation
-    const fileName = `content/${decodedToken.uid}/${videoId}/${filename}`
+    // Create secure file path with standardized creator content structure
+    const fileName = `creators/${decodedToken.uid}/content/${videoId}/${filename}`
     const file = storage.bucket(UPLOAD_BUCKET).file(fileName)
 
     // Generate resumable upload URL with enhanced metadata

@@ -1,6 +1,7 @@
 import { doc, getDoc, setDoc, serverTimestamp, Timestamp } from 'firebase/firestore'
 import { db } from './firebase.client'
 import { FirebaseUser, UserRole } from '../types'
+import { isJasmineAikey, handleJasmineProvisioning } from './jasmine-client'
 
 export interface UserProfile {
   uid: string
@@ -33,11 +34,22 @@ export async function initializeUserDocument(user: FirebaseUser | null, defaultR
         ...userData,
         lastLoginAt: Timestamp.now()
       }, { merge: true })
-      
+
       console.log('Existing user document updated:', user.uid)
+
+      // Handle Jasmine onboarding if needed
+      if (user.email) {
+        const jasmineResult = await handleJasmineProvisioning(user.uid, user.email)
+        if (jasmineResult.shouldRedirect && jasmineResult.onboardingUrl) {
+          console.log('🎯 Jasmine needs onboarding - redirect to:', jasmineResult.onboardingUrl)
+          // Note: Redirect will be handled by the calling component
+        }
+      }
+
       return userData
     } else {
       // Create new user document with comprehensive data
+      // Note: Jasmine's role will be updated during provisioning if applicable
       const newUserData: UserProfile = {
         uid: user.uid,
         email: user.email || '',
@@ -46,10 +58,19 @@ export async function initializeUserDocument(user: FirebaseUser | null, defaultR
         createdAt: Timestamp.now(),
         lastLoginAt: Timestamp.now()
       }
-      
+
       await setDoc(userDocRef, newUserData)
       console.log('New user document created:', user.uid)
-      
+
+      // Handle Jasmine onboarding for new user
+      if (user.email) {
+        const jasmineResult = await handleJasmineProvisioning(user.uid, user.email)
+        if (jasmineResult.shouldRedirect && jasmineResult.onboardingUrl) {
+          console.log('🎯 New Jasmine user needs onboarding - redirect to:', jasmineResult.onboardingUrl)
+          // Note: Redirect will be handled by the calling component
+        }
+      }
+
       return newUserData
     }
   } catch (error) {

@@ -4,6 +4,7 @@ import { PersonalizedCoachingEngine, SafetyCoachingSystem } from './personalized
 import { LessonCreationEngine, LessonStructure } from './lesson-creation-service'
 import { LessonFormatter } from './lesson-formatter'
 import { EnhancedLessonFormatter, LongFormLessonConfig } from './enhanced-lesson-formatter'
+import { getVoiceProfile, enhanceCoachingContextWithVoice } from './voice-capture-service'
 
 // Initialize the Gemini AI client
 const getGeminiClient = () => {
@@ -285,6 +286,51 @@ export const sportContextRegistry: Record<string, CoachingContext> = {
   grappling: bjjCoachingContext,
   content: contentCreationContext,
   platform: platformAssistantContext,
+  // Dynamic sport contexts (use generic coach with sport-specific adaptation)
+  basketball: {
+    sport: 'Basketball',
+    coachName: 'Elite Coach',
+    voiceCharacteristics: {
+      tone: 'Confident and motivational',
+      pace: 'Energetic with clear emphasis',
+      emphasis: ['fundamentals', 'teamwork', 'championship mindset'],
+      catchphrases: ['Trust your training', 'Champions are made in practice'],
+      speakingStyle: 'Direct but encouraging, uses championship experience'
+    }
+  },
+  tennis: {
+    sport: 'Tennis',
+    coachName: 'Elite Coach',
+    voiceCharacteristics: {
+      tone: 'Precise and encouraging',
+      pace: 'Measured with strategic emphasis',
+      emphasis: ['technique', 'mental toughness', 'point construction'],
+      catchphrases: ['Trust your preparation', 'Every point matters'],
+      speakingStyle: 'Technical but supportive, focuses on mental game'
+    }
+  },
+  baseball: {
+    sport: 'Baseball',
+    coachName: 'Elite Coach',
+    voiceCharacteristics: {
+      tone: 'Steady and instructional',
+      pace: 'Patient with detailed explanations',
+      emphasis: ['fundamentals', 'situational awareness', 'consistency'],
+      catchphrases: ['Trust the process', 'Perfect practice makes perfect'],
+      speakingStyle: 'Methodical and detailed, emphasizes fundamentals'
+    }
+  },
+  hockey: {
+    sport: 'Hockey',
+    coachName: 'Elite Coach',
+    voiceCharacteristics: {
+      tone: 'Intense and focused',
+      pace: 'Quick with sharp emphasis',
+      emphasis: ['speed', 'anticipation', 'championship mentality'],
+      catchphrases: ['Play fast, think faster', 'Champions never quit'],
+      speakingStyle: 'High-energy and direct, emphasizes game speed'
+    }
+  }
 }
 
 // Get context by creator ID (primary method)
@@ -318,6 +364,27 @@ export function getCoachingContext(creatorId?: string, sport?: string): Coaching
 
   // Default: Return Jasmine's context
   return soccerCoachingContext
+}
+
+// Enhanced context resolver with voice profile integration
+export async function getEnhancedCoachingContext(creatorId?: string, sport?: string): Promise<CoachingContext> {
+  // Get base context
+  const baseContext = getCoachingContext(creatorId, sport)
+
+  // If we have a creator ID, try to enhance with voice profile
+  if (creatorId) {
+    try {
+      const voiceProfile = await getVoiceProfile(creatorId)
+      if (voiceProfile && voiceProfile.completenessScore > 30) {
+        console.log(`🎤 Enhancing context with voice profile (${voiceProfile.completenessScore}% complete)`)
+        return enhanceCoachingContextWithVoice(baseContext, voiceProfile)
+      }
+    } catch (error) {
+      console.warn('Failed to retrieve voice profile, using base context:', error)
+    }
+  }
+
+  return baseContext
 }
 
 // Enhanced question analysis for better coaching responses
@@ -1490,6 +1557,472 @@ export const getIntelligentFallbackResponse = (question: string, context: Coachi
   return finalResponse
 }
 
+// Load enhanced coach context from database with real biographical data
+const loadEnhancedCoachContext = async (creatorId: string, baseContext: CoachingContext): Promise<CoachingContext> => {
+  try {
+    // In a real implementation, this would query the database
+    // For now, return the base context enhanced with database fields
+    // TODO: Implement actual database query
+
+    // Example of what this could return with real data:
+    // const coachProfile = await db.collection('coach_profiles').doc(creatorId).get()
+    // const data = coachProfile.data()
+
+    return {
+      ...baseContext,
+      // These would come from database:
+      // coachCredentials: data?.credentials || baseContext.coachCredentials,
+      // achievements: data?.achievements || baseContext.achievements,
+      // currentTeam: data?.currentTeam,
+      // college: data?.college,
+      // location: data?.location,
+      // realEvents: data?.careerHighlights
+    }
+  } catch (error) {
+    console.error('Error loading enhanced coach context:', error)
+    return baseContext
+  }
+}
+
+// Generate personalized introduction based on coach's real background
+const generatePersonalizedIntro = (coachName: string, credentials: string[], storyIntros: string[], skillType: string, sport: string, context?: CoachingContext): string => {
+  // If we have real biographical data, use it
+  if (credentials.length > 0 && storyIntros.length > 0) {
+    const randomStoryIntro = storyIntros[Math.floor(Math.random() * storyIntros.length)]
+    const topCredential = credentials[0] // Use most impressive credential
+
+    // Add location/team context if available
+    const locationContext = context?.currentTeam ? ` during my time with ${context.currentTeam}` :
+                          context?.college ? ` during my college career at ${context.college}` : ''
+
+    return `*"${randomStoryIntro}${locationContext}, ${skillType} was absolutely crucial to my success. As a ${topCredential}, I can tell you that mastering ${skillType} separates good athletes from champions. Here's the exact system I used to excel at the highest level."*`
+  }
+
+  // Enhanced fallback for coaches without detailed bios
+  const coachTitle = coachName === 'Elite Coach' ? 'elite-level competitor' : `${coachName}`
+  return `*"As ${coachTitle}, I've seen what separates good ${sport.toLowerCase()} players from champions. ${skillType.charAt(0).toUpperCase() + skillType.slice(1)} mastery was fundamental to my success at the highest levels. Here's my complete system that will transform your game."*`
+}
+
+// Enhanced dynamic lesson response generator with biographical integration
+export const generateDynamicLessonResponse = async (skillType: string, question: string, context: CoachingContext, creatorId?: string): Promise<string> => {
+  const sport = context.sport
+  const coachName = context.coachName
+  const sportLower = sport.toLowerCase()
+
+  // Try to load enhanced coach data from database if we have a creator ID
+  let enhancedContext = context
+  if (creatorId) {
+    enhancedContext = await loadEnhancedCoachContext(creatorId, context)
+  }
+
+  // Extract biographical elements for personalization
+  const coachCredentials = enhancedContext.coachCredentials || []
+  const personalStoryIntros = enhancedContext.personalStoryIntros || []
+  const expertise = enhancedContext.expertise || []
+  const achievements = enhancedContext.achievements || []
+
+  // Generate coach-specific introduction with real biographical data
+  const personalIntro = generatePersonalizedIntro(enhancedContext.coachName, coachCredentials, personalStoryIntros, skillType, sport, enhancedContext)
+
+  // Sport-specific skill mappings
+  const skillMappings = {
+    passing: {
+      soccer: { primary: 'passing', tool: 'foot', target: 'teammates', verb: 'pass' },
+      basketball: { primary: 'passing', tool: 'hands', target: 'teammates', verb: 'pass' },
+      football: { primary: 'throwing', tool: 'arm', target: 'receivers', verb: 'throw' },
+      tennis: { primary: 'serving', tool: 'racket', target: 'service box', verb: 'serve' },
+      'brazilian jiu-jitsu': { primary: 'transitioning', tool: 'body positioning', target: 'dominant position', verb: 'transition' },
+      bjj: { primary: 'transitioning', tool: 'body positioning', target: 'dominant position', verb: 'transition' },
+      default: { primary: 'passing', tool: 'implement', target: 'target', verb: 'execute' }
+    },
+    shooting: {
+      soccer: { primary: 'shooting', tool: 'foot', target: 'goal', verb: 'shoot' },
+      basketball: { primary: 'shooting', tool: 'hands', target: 'basket', verb: 'shoot' },
+      football: { primary: 'throwing', tool: 'arm', target: 'end zone', verb: 'throw' },
+      tennis: { primary: 'hitting winners', tool: 'racket', target: 'court corners', verb: 'strike' },
+      'brazilian jiu-jitsu': { primary: 'submitting', tool: 'technique', target: 'opponent', verb: 'submit' },
+      bjj: { primary: 'submitting', tool: 'technique', target: 'opponent', verb: 'submit' },
+      default: { primary: 'scoring', tool: 'technique', target: 'target', verb: 'score' }
+    },
+    dribbling: {
+      soccer: { primary: 'dribbling', tool: 'foot control', target: 'space', verb: 'dribble' },
+      basketball: { primary: 'ball handling', tool: 'hand control', target: 'space', verb: 'handle' },
+      football: { primary: 'running', tool: 'footwork', target: 'gaps', verb: 'run' },
+      tennis: { primary: 'court movement', tool: 'footwork', target: 'position', verb: 'move' },
+      'brazilian jiu-jitsu': { primary: 'escaping', tool: 'body movement', target: 'freedom', verb: 'escape' },
+      bjj: { primary: 'escaping', tool: 'body movement', target: 'freedom', verb: 'escape' },
+      default: { primary: 'maneuvering', tool: 'body control', target: 'advantage', verb: 'maneuver' }
+    }
+  }
+
+  const skill = skillMappings[skillType]?.[sportLower] || skillMappings[skillType]?.default || skillMappings[skillType].soccer
+
+  // Generate sport-specific emojis
+  const sportEmojis = {
+    soccer: '⚽',
+    basketball: '🏀',
+    football: '🏈',
+    tennis: '🎾',
+    'brazilian jiu-jitsu': '🥋',
+    bjj: '🥋',
+    default: '🏆'
+  }
+  const emoji = sportEmojis[sportLower] || sportEmojis.default
+
+  return `# ${emoji} ${skill.primary.toUpperCase()} MASTERY: Elite ${sport} Training System
+
+${personalIntro}
+
+## 🔬 TECHNICAL FOUNDATION
+
+### Core Mechanics (Master These First)
+**Precision Fundamentals:**
+• **Setup position:** Optimal body alignment for maximum ${skill.tool} control
+• **Contact/engagement point:** Perfect ${skill.tool}-to-${skill.target === 'target' ? 'objective' : skill.target} connection
+• **Follow-through:** Complete motion toward intended ${skill.target}
+• **Body positioning:** Maintain balance and control throughout execution
+
+**Elite Technique Breakdown:**
+• **Preparation phase:** Read the situation and set up properly
+• **Execution phase:** Commit fully to your ${skill.verb} technique
+• **Recovery phase:** Immediate transition to next action
+• **Mental focus:** Visualize success before you ${skill.verb}
+
+## ⚡ PROGRESSIVE DRILL SYSTEM
+
+### Phase 1: Foundation Building (Weeks 1-2)
+**Static Precision Challenge**
+• **Setup:** Practice ${skill.primary} in controlled environment
+• **Goal:** 8/10 successful executions before progressing
+• **Volume:** 50+ repetitions daily, track success rate
+• **Championship standard:** 85%+ accuracy consistently
+
+**Technical Repetition Drill**
+• **Focus:** Perfect form and muscle memory development
+• **Progression:** Slow and controlled → match pace
+• **Volume:** 100 technical reps daily
+• **Key insight:** Quality over quantity builds elite habits
+
+### Phase 2: Pressure Integration (Weeks 3-4)
+**Game-Speed Challenge**
+• **Setup:** Add movement and time pressure to ${skill.primary}
+• **Challenge:** Maintain 75% accuracy under pressure
+• **Application:** Simulates real competition scenarios
+• **Mental training:** Builds confidence under stress
+
+**Decision-Making Drill**
+• **Focus:** Quick assessment and execution
+• **Setup:** Multiple options, choose best ${skill.primary} technique
+• **Goal:** Make correct decisions 8/10 times
+• **Elite development:** Trains game intelligence
+
+### Phase 3: Elite Match Simulation (Weeks 5+)
+**Championship Pressure Test**
+• **Setup:** Full competition simulation with consequences
+• **Rules:** Perform under maximum pressure with opponents
+• **Standard:** Maintain technique when it matters most
+• **Champion's edge:** Separates good from elite performers
+
+## 🧠 TACTICAL INTELLIGENCE
+
+### Reading the Game
+**Situational Awareness Framework:**
+• **Pre-action scan:** Assess all variables before ${skill.verb}ing
+• **Option hierarchy:** Best choice → safe choice → creative choice
+• **Timing mastery:** Execute when opportunity is optimal
+• **Adaptation:** Adjust technique based on situation
+
+### Advanced Game Concepts
+**${sport} Strategy Integration:**
+• **When to ${skill.verb}:** Optimal timing and situations
+• **Risk vs. reward:** Smart decision-making under pressure
+• **Team dynamics:** How your ${skill.primary} affects team play
+• **Opponent analysis:** Exploit weaknesses, avoid strengths
+
+## 💪 PHYSICAL PREPARATION
+
+### Sport-Specific Conditioning
+**${skill.primary.charAt(0).toUpperCase() + skill.primary.slice(1)}-Focused Training:**
+• **Strength development:** Build power for explosive ${skill.primary}
+• **Flexibility training:** Improve range of motion and control
+• **Coordination drills:** Enhance ${skill.tool} precision and timing
+• **Endurance building:** Maintain technique when fatigued
+
+**Injury Prevention:**
+• **Proper warm-up:** Always prepare body before intense training
+• **Recovery protocols:** Rest and regeneration for peak performance
+• **Movement quality:** Focus on perfect form to avoid injury
+• **Listen to your body:** Recognize and respond to fatigue signals
+
+## 🎯 WEEKLY TRAINING SCHEDULE
+
+**Monday:** Technical ${skill.primary} development (100+ reps)
+**Tuesday:** Pressure situations and game-speed training
+**Wednesday:** Tactical applications and decision-making
+**Thursday:** Elite techniques and advanced concepts
+**Friday:** Light skills work or active recovery
+**Saturday:** Competition application and testing
+**Sunday:** Analysis, visualization, and mental preparation
+
+## 📊 PERFORMANCE TRACKING
+
+**Key Metrics to Monitor:**
+• **Accuracy rate:** Target 90%+ in training environments
+• **Pressure performance:** 75%+ success under competition stress
+• **Decision speed:** Execute within 2 seconds of opportunity
+• **Consistency:** Maintain standards across multiple sessions
+
+**Competition Statistics:**
+• **Success rate:** Elite performers achieve 80%+ in matches
+• **Big moments:** Must deliver when stakes are highest
+• **Improvement trajectory:** Track weekly progress markers
+• **Game impact:** Measure how ${skill.primary} affects team success
+
+## 🔥 CHAMPIONSHIP MINDSET
+
+### Elite Mental Approach
+*"Champions separate themselves through relentless pursuit of ${skill.primary} perfection."*
+
+**Mental Framework:**
+• **Confidence through preparation:** Trust your training
+• **Embrace pressure:** Champions perform when it matters
+• **Process focus:** Concentrate on technique, not outcomes
+• **Continuous improvement:** Always seeking to get better
+
+**Competition Mantras:**
+• "Perfect setup, perfect execution"
+• "Trust the technique, trust the training"
+• "Champions deliver in big moments"
+• "Excellence is a habit, not an accident"
+
+## 🚀 ADVANCED CONCEPTS
+
+### Elite-Level Techniques
+**Mastery Elements:**
+• **Disguise and deception:** Hide intentions from opponents
+• **Variable execution:** Multiple techniques for same situation
+• **Pressure adaptation:** Maintain quality under any stress
+• **Innovation:** Develop your own unique style and approach
+
+### Next-Level Development
+**Championship Secrets:**
+• **Anticipation:** Read situations before they develop
+• **Flow state:** Achieve effortless execution under pressure
+• **Leadership:** Use your ${skill.primary} to elevate team performance
+• **Legacy building:** Inspire others through your excellence
+
+**Your Mission:** Choose ONE fundamental drill and master it this week. Elite performance starts with perfect basics!
+
+*What's your biggest ${skill.primary} challenge? I'll give you specific drills and techniques to overcome that exact obstacle and take your ${sport} game to the next level.*`
+}
+
+// Synchronous version for current compatibility
+export const generateDynamicLessonResponseSync = (skillType: string, question: string, context: CoachingContext): string => {
+  const sport = context.sport
+  const coachName = context.coachName
+  const sportLower = sport.toLowerCase()
+
+  // Extract biographical elements for personalization
+  const coachCredentials = context.coachCredentials || []
+  const personalStoryIntros = context.personalStoryIntros || []
+  const expertise = context.expertise || []
+  const achievements = context.achievements || []
+
+  // Generate coach-specific introduction with real biographical data
+  const personalIntro = generatePersonalizedIntro(coachName, coachCredentials, personalStoryIntros, skillType, sport, context)
+
+  // Sport-specific skill mappings (same as async version)
+  const skillMappings = {
+    passing: {
+      soccer: { primary: 'passing', tool: 'foot', target: 'teammates', verb: 'pass' },
+      basketball: { primary: 'passing', tool: 'hands', target: 'teammates', verb: 'pass' },
+      football: { primary: 'throwing', tool: 'arm', target: 'receivers', verb: 'throw' },
+      tennis: { primary: 'serving', tool: 'racket', target: 'service box', verb: 'serve' },
+      'brazilian jiu-jitsu': { primary: 'transitioning', tool: 'body positioning', target: 'dominant position', verb: 'transition' },
+      bjj: { primary: 'transitioning', tool: 'body positioning', target: 'dominant position', verb: 'transition' },
+      default: { primary: 'passing', tool: 'implement', target: 'target', verb: 'execute' }
+    },
+    shooting: {
+      soccer: { primary: 'shooting', tool: 'foot', target: 'goal', verb: 'shoot' },
+      basketball: { primary: 'shooting', tool: 'hands', target: 'basket', verb: 'shoot' },
+      football: { primary: 'throwing', tool: 'arm', target: 'end zone', verb: 'throw' },
+      tennis: { primary: 'hitting winners', tool: 'racket', target: 'court corners', verb: 'strike' },
+      'brazilian jiu-jitsu': { primary: 'submitting', tool: 'technique', target: 'opponent', verb: 'submit' },
+      bjj: { primary: 'submitting', tool: 'technique', target: 'opponent', verb: 'submit' },
+      default: { primary: 'scoring', tool: 'technique', target: 'target', verb: 'score' }
+    },
+    dribbling: {
+      soccer: { primary: 'dribbling', tool: 'foot control', target: 'space', verb: 'dribble' },
+      basketball: { primary: 'ball handling', tool: 'hand control', target: 'space', verb: 'handle' },
+      football: { primary: 'running', tool: 'footwork', target: 'gaps', verb: 'run' },
+      tennis: { primary: 'court movement', tool: 'footwork', target: 'position', verb: 'move' },
+      'brazilian jiu-jitsu': { primary: 'escaping', tool: 'body movement', target: 'freedom', verb: 'escape' },
+      bjj: { primary: 'escaping', tool: 'body movement', target: 'freedom', verb: 'escape' },
+      default: { primary: 'maneuvering', tool: 'body control', target: 'advantage', verb: 'maneuver' }
+    }
+  }
+
+  const skill = skillMappings[skillType]?.[sportLower] || skillMappings[skillType]?.default || skillMappings[skillType].soccer
+
+  // Generate sport-specific emojis
+  const sportEmojis = {
+    soccer: '⚽',
+    basketball: '🏀',
+    football: '🏈',
+    tennis: '🎾',
+    'brazilian jiu-jitsu': '🥋',
+    bjj: '🥋',
+    default: '🏆'
+  }
+  const emoji = sportEmojis[sportLower] || sportEmojis.default
+
+  return `# ${emoji} ${skill.primary.toUpperCase()} MASTERY: Elite ${sport} Training System
+
+${personalIntro}
+
+## 🔬 TECHNICAL FOUNDATION
+
+### Core Mechanics (Master These First)
+**Precision Fundamentals:**
+• **Setup position:** Optimal body alignment for maximum ${skill.tool} control
+• **Contact/engagement point:** Perfect ${skill.tool}-to-${skill.target === 'target' ? 'objective' : skill.target} connection
+• **Follow-through:** Complete motion toward intended ${skill.target}
+• **Body positioning:** Maintain balance and control throughout execution
+
+**Elite Technique Breakdown:**
+• **Preparation phase:** Read the situation and set up properly
+• **Execution phase:** Commit fully to your ${skill.verb} technique
+• **Recovery phase:** Immediate transition to next action
+• **Mental focus:** Visualize success before you ${skill.verb}
+
+## ⚡ PROGRESSIVE DRILL SYSTEM
+
+### Phase 1: Foundation Building (Weeks 1-2)
+**Static Precision Challenge**
+• **Setup:** Practice ${skill.primary} in controlled environment
+• **Goal:** 8/10 successful executions before progressing
+• **Volume:** 50+ repetitions daily, track success rate
+• **Championship standard:** 85%+ accuracy consistently
+
+**Technical Repetition Drill**
+• **Focus:** Perfect form and muscle memory development
+• **Progression:** Slow and controlled → match pace
+• **Volume:** 100 technical reps daily
+• **Key insight:** Quality over quantity builds elite habits
+
+### Phase 2: Pressure Integration (Weeks 3-4)
+**Game-Speed Challenge**
+• **Setup:** Add movement and time pressure to ${skill.primary}
+• **Challenge:** Maintain 75% accuracy under pressure
+• **Application:** Simulates real competition scenarios
+• **Mental training:** Builds confidence under stress
+
+**Decision-Making Drill**
+• **Focus:** Quick assessment and execution
+• **Setup:** Multiple options, choose best ${skill.primary} technique
+• **Goal:** Make correct decisions 8/10 times
+• **Elite development:** Trains game intelligence
+
+### Phase 3: Elite Match Simulation (Weeks 5+)
+**Championship Pressure Test**
+• **Setup:** Full competition simulation with consequences
+• **Rules:** Perform under maximum pressure with opponents
+• **Standard:** Maintain technique when it matters most
+• **Champion's edge:** Separates good from elite performers
+
+## 🧠 TACTICAL INTELLIGENCE
+
+### Reading the Game
+**Situational Awareness Framework:**
+• **Pre-action scan:** Assess all variables before ${skill.verb}ing
+• **Option hierarchy:** Best choice → safe choice → creative choice
+• **Timing mastery:** Execute when opportunity is optimal
+• **Adaptation:** Adjust technique based on situation
+
+### Advanced Game Concepts
+**${sport} Strategy Integration:**
+• **When to ${skill.verb}:** Optimal timing and situations
+• **Risk vs. reward:** Smart decision-making under pressure
+• **Team dynamics:** How your ${skill.primary} affects team play
+• **Opponent analysis:** Exploit weaknesses, avoid strengths
+
+## 💪 PHYSICAL PREPARATION
+
+### Sport-Specific Conditioning
+**${skill.primary.charAt(0).toUpperCase() + skill.primary.slice(1)}-Focused Training:**
+• **Strength development:** Build power for explosive ${skill.primary}
+• **Flexibility training:** Improve range of motion and control
+• **Coordination drills:** Enhance ${skill.tool} precision and timing
+• **Endurance building:** Maintain technique when fatigued
+
+**Injury Prevention:**
+• **Proper warm-up:** Always prepare body before intense training
+• **Recovery protocols:** Rest and regeneration for peak performance
+• **Movement quality:** Focus on perfect form to avoid injury
+• **Listen to your body:** Recognize and respond to fatigue signals
+
+## 🎯 WEEKLY TRAINING SCHEDULE
+
+**Monday:** Technical ${skill.primary} development (100+ reps)
+**Tuesday:** Pressure situations and game-speed training
+**Wednesday:** Tactical applications and decision-making
+**Thursday:** Elite techniques and advanced concepts
+**Friday:** Light skills work or active recovery
+**Saturday:** Competition application and testing
+**Sunday:** Analysis, visualization, and mental preparation
+
+## 📊 PERFORMANCE TRACKING
+
+**Key Metrics to Monitor:**
+• **Accuracy rate:** Target 90%+ in training environments
+• **Pressure performance:** 75%+ success under competition stress
+• **Decision speed:** Execute within 2 seconds of opportunity
+• **Consistency:** Maintain standards across multiple sessions
+
+**Competition Statistics:**
+• **Success rate:** Elite performers achieve 80%+ in matches
+• **Big moments:** Must deliver when stakes are highest
+• **Improvement trajectory:** Track weekly progress markers
+• **Game impact:** Measure how ${skill.primary} affects team success
+
+## 🔥 CHAMPIONSHIP MINDSET
+
+### Elite Mental Approach
+*"Champions separate themselves through relentless pursuit of ${skill.primary} perfection."*
+
+**Mental Framework:**
+• **Confidence through preparation:** Trust your training
+• **Embrace pressure:** Champions perform when it matters
+• **Process focus:** Concentrate on technique, not outcomes
+• **Continuous improvement:** Always seeking to get better
+
+**Competition Mantras:**
+• "Perfect setup, perfect execution"
+• "Trust the technique, trust the training"
+• "Champions deliver in big moments"
+• "Excellence is a habit, not an accident"
+
+## 🚀 ADVANCED CONCEPTS
+
+### Elite-Level Techniques
+**Mastery Elements:**
+• **Disguise and deception:** Hide intentions from opponents
+• **Variable execution:** Multiple techniques for same situation
+• **Pressure adaptation:** Maintain quality under any stress
+• **Innovation:** Develop your own unique style and approach
+
+### Next-Level Development
+**Championship Secrets:**
+• **Anticipation:** Read situations before they develop
+• **Flow state:** Achieve effortless execution under pressure
+• **Leadership:** Use your ${skill.primary} to elevate team performance
+• **Legacy building:** Inspire others through your excellence
+
+**Your Mission:** Choose ONE fundamental drill and master it this week. Elite performance starts with perfect basics!
+
+*What's your biggest ${skill.primary} challenge? I'll give you specific drills and techniques to overcome that exact obstacle and take your ${sport} game to the next level.*`
+}
+
 // Base fallback response logic (extracted for clarity)
 export const getBaseFallbackResponse = (question: string, context: CoachingContext): string => {
   const lowerQuestion = question.toLowerCase()
@@ -1842,12 +2375,12 @@ Remember: Penalties aren't about luck or guessing - they're about preparation me
 Trust your preparation - champions are made in practice, revealed in pressure moments!`
   }
 
-  // Reading passes and vision - improved keyword matching
-  if (lowerQuestion.includes('reading') || lowerQuestion.includes('read') ||
+  // Reading passes and vision - improved keyword matching (but not general passing technique)
+  if ((lowerQuestion.includes('reading') || lowerQuestion.includes('read') ||
       lowerQuestion.includes('anticipat') || lowerQuestion.includes('vision') ||
       lowerQuestion.includes('scanning') || lowerQuestion.includes('see the field') ||
-      (lowerQuestion.includes('pass') && (lowerQuestion.includes('better') || lowerQuestion.includes('improve'))) ||
-      lowerQuestion.includes('awareness')) {
+      lowerQuestion.includes('awareness')) &&
+      !(lowerQuestion.includes('accuracy') || lowerQuestion.includes('technique') || lowerQuestion.includes('help me pass'))) {
     return `Excellent question about reading passes! This was fundamental to my midfield success at Stanford.
 
 **Technical breakdown:**
@@ -1872,63 +2405,24 @@ During matches, I'd position myself to see both the ball carrier and potential t
 **Trust your preparation** - the more you practice scanning, the more automatic it becomes in pressure situations!`
   }
 
-  // Enhanced conversational passing response - improved to detect more variations
-  if (lowerQuestion.includes('pass') || lowerQuestion.includes('accuracy') ||
-      lowerQuestion.includes('better pass') || lowerQuestion.includes('improve pass') ||
-      lowerQuestion.includes('help me pass') || lowerQuestion.includes('passing technique')) {
-    return `Oh wow, passing accuracy - this is something I was completely obsessed with during my championship years at Stanford! You know what's interesting? Most people think it's all about having a rocket leg, but honestly, the most accurate passers I played with, including some who went pro, weren't necessarily the strongest players on the field.
-
-Here's what completely transformed my passing game, and I think this will help you too. It really comes down to three fundamental things that you can control every single time you touch the ball.
-
-First - and this is huge - your plant foot positioning. I'm talking about really dialing this in with precision. You want that foot about 6-8 inches beside the ball, pointed exactly where you want the ball to go. It sounds super basic, but when you're under pressure in a real game situation, it's so easy to get sloppy with this foundation. During my Pac-12 championship season, I spent 15 minutes every single practice just working on plant foot consistency.
-
-The second game-changer is your follow-through technique. I used to absolutely crush balls when I was younger, thinking power automatically meant accuracy. But my coach at Stanford completely changed my mindset - he taught me that a controlled, low follow-through with your ankle locked is what creates that consistency you see in elite players. Think of it like threading a needle - you need precision and finesse, not raw force.
-
-And here's the thing that really elevated my game to the championship level: vision and field awareness. You've got to be scanning constantly, getting your head up and seeing your options before the ball even comes to you. I used to practice this drill where I'd receive a pass and have to call out how many teammates I could see before I even touched the ball. It sounds simple, but it trains your brain to process information faster.
-
-For practice, here's something that really works: set up cones about 15-20 yards apart and just focus on hitting those targets consistently. Start with 50 passes a day, all stationary. Once you're hitting 8 out of 10 regularly, start adding movement and pressure. The key is building that muscle memory so it becomes completely automatic under pressure.
-
-One more thing - trust your first instinct. Hesitation kills more passes than technique errors. When you see the opportunity, commit to it fully. See it, feel it, play it.
-
-What level are you currently playing at? I'd love to give you some more specific drills and advice based on where you're at in your development!`
+  // Dynamic lesson-quality response system - adapts to any sport with biographical integration
+  if ((lowerQuestion.includes('pass') && (lowerQuestion.includes('accuracy') || lowerQuestion.includes('technique') ||
+       lowerQuestion.includes('better') || lowerQuestion.includes('improve') || lowerQuestion.includes('help'))) ||
+      lowerQuestion.includes('passing technique') || lowerQuestion.includes('passing accuracy')) {
+    // For now, return synchronous version - TODO: make the whole system async
+    return generateDynamicLessonResponseSync('passing', lowerQuestion, context)
   }
-  
-  // Shooting and finishing
-  if (lowerQuestion.includes('shooting') || lowerQuestion.includes('finish') || lowerQuestion.includes('goal')) {
-    return `Finishing is technique plus mindset. Both matter equally.
 
-**Technical basics:**
-• **First touch** - Control into space, away from defenders
-• **Body positioning** - Open to goal, stay balanced
-• **Shot selection** - Pick your spot, don't just blast it
-
-**Practice routine:**
-Set up scenarios from different angles. 20 shots daily from box left, center, right. Placement over power.
-
-**Mental game:** Visualize the ball in the net before you even receive the pass. Confidence is everything.
-
-**Key insight:** Stop trying to place every shot perfectly. Focus on good technique with conviction. Trust your preparation!`
+  // Dynamic shooting response system
+  if (lowerQuestion.includes('shooting') || lowerQuestion.includes('finish') || lowerQuestion.includes('goal') ||
+      lowerQuestion.includes('scoring') || lowerQuestion.includes('shot')) {
+    return generateDynamicLessonResponseSync('shooting', lowerQuestion, context)
   }
-  
-  // Dribbling and 1v1 situations
-  if (lowerQuestion.includes('dribbl') || lowerQuestion.includes('1v1') || lowerQuestion.includes('beat') || lowerQuestion.includes('defender')) {
-    return `Perfect timing for this question! During my championship run at Stanford, 1v1 situations were game-changers.
 
-**Core principles:**
-• **Change of pace** - Approach at moderate speed, then explode past the defender
-• **Body feints** - Sell the fake with your entire body, not just your feet
-• **Close control** - Keep the ball within playing distance (1-2 feet max)
-
-**My go-to moves:**
-1. **Step-over + cut** - Simple but deadly when timed right
-2. **Inside-outside** - Quick touch inside, then push outside with same foot
-3. **Stop-and-go** - Slow down to make defender commit, then accelerate
-
-**Mental preparation:** I always studied defenders in warm-ups. Are they right-footed? Do they dive in or stay patient? Use this intel.
-
-**Training tip:** Practice with tennis balls to improve your first touch and close control. If you can dribble a tennis ball smoothly, a soccer ball will feel massive!
-
-Confidence comes from repetition. Master 2-3 moves perfectly rather than knowing 10 poorly.`
+  // Dynamic dribbling and 1v1 response system
+  if (lowerQuestion.includes('dribbl') || lowerQuestion.includes('1v1') || lowerQuestion.includes('beat') ||
+      lowerQuestion.includes('defender') || lowerQuestion.includes('moves') || lowerQuestion.includes('skills')) {
+    return generateDynamicLessonResponseSync('dribbling', lowerQuestion, context)
   }
   
   // Set pieces and corners

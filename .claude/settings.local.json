@@ -38,7 +38,10 @@
       "Bash(for file in components/DashboardSidebar.tsx app/dashboard/assistant/page.tsx components/ui/CircularBadge.tsx components/ui/UserProfileDropdown.tsx components/ui/RoleSwitcher.tsx app/dashboard/creator-simple/page.tsx app/dashboard/apply-coach/page.tsx)",
       "Bash(do echo \"Processing $file\")",
       "Bash(done)",
-      "Bash(xargs:*)"
+      "Bash(xargs:*)",
+      "Bash(npm run deploy:*)",
+      "Bash(npm run:*)",
+      "Bash(del test-ai-api.js)"
     ],
     "deny": [],
     "ask": []

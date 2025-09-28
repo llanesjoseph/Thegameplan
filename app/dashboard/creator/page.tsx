@@ -831,7 +831,7 @@ export default function CreatorDashboard() {
 
    // Upload video if provided - use enterprise upload for large files
    if (videoFile) {
-    const uploadPath = `content/${authUser.uid}/${Date.now()}_${videoFile.name}`
+    const uploadPath = `creators/${authUser.uid}/content/${Date.now()}_${videoFile.name}`
 
     console.log('📹 Starting video upload:', {
      filename: videoFile.name,
@@ -932,7 +932,7 @@ export default function CreatorDashboard() {
 
    // Upload thumbnail if provided with progress tracking
    if (thumbFile) {
-    const thumbRef = ref(storage, `content/${authUser.uid}/thumb_${Date.now()}_${thumbFile.name}`)
+    const thumbRef = ref(storage, `creators/${authUser.uid}/content/thumb_${Date.now()}_${thumbFile.name}`)
     const uploadTask = uploadBytesResumable(thumbRef, thumbFile)
 
     await new Promise((resolve, reject) => {

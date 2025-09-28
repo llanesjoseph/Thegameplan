@@ -112,19 +112,19 @@ const formatAIResponse = (content: string): string => {
   .replace(/^###?\s*(.+)$/gm, '<h4 class="text-gray-900 mb-3 mt-4">$1</h4>')
 
   // Convert **bold** to proper HTML
-  .replace(/\*\*(.*?)\*\*/g, '<strong class=" text-gray-900">$1}')
+  .replace(/\*\*(.*?)\*\*/g, '<strong class="text-gray-900">$1</strong>')
 
   // Convert *italic* to proper HTML
   .replace(/\*(.*?)\*/g, '<em class="italic text-gray-700">$1</em>')
 
   // Handle special callouts like "Pro tip:"
-  .replace(/^(Pro tip|Tip|Note):\s*(.+)$/gm, '<div class="bg-blue-50 border-l-4 border-blue-400 p-3 my-3 rounded-r"><div class="flex"><strong class="text-blue-800 mr-2">$1:}<span class="text-blue-700">$2</span></div></div>')
+  .replace(/^(Pro tip|Tip|Note):\s*(.+)$/gm, '<div class="bg-blue-50 border-l-4 border-blue-400 p-3 my-3 rounded-r"><div class="flex"><strong class="text-blue-800 mr-2">$1:</strong><span class="text-blue-700">$2</span></div></div>')
 
   // Handle "Trust your preparation" type callouts
-  .replace(/^(Trust your preparation|Remember|Important)[\s\-:]*(.+)$/gm, '<div class="bg-green-50 border-l-4 border-green-400 p-3 my-3 rounded-r"><div class="flex"><strong class="text-green-800 mr-2">$1:}<span class="text-green-700">$2</span></div></div>')
+  .replace(/^(Trust your preparation|Remember|Important)[\s\-:]*(.+)$/gm, '<div class="bg-green-50 border-l-4 border-green-400 p-3 my-3 rounded-r"><div class="flex"><strong class="text-green-800 mr-2">$1:</strong><span class="text-green-700">$2</span></div></div>')
 
   // Convert numbered lists with better spacing
-  .replace(/^(\d+)\.\s+(.+)$/gm, '<div class="mb-2 pl-2"><span class=" text-gray-800 mr-2">$1.</span><span>$2</span></div>')
+  .replace(/^(\d+)\.\s+(.+)$/gm, '<div class="mb-2 pl-2"><span class="text-gray-800 mr-2">$1.</span><span>$2</span></div>')
 
   // Handle bullet points with consistent formatting and proper indentation
   .replace(/^[•\-\*]\s+(.+)$/gm, '<div class="mb-2 pl-4 flex items-start"><span class="text-gray-600 mr-2 mt-0.5">•</span><span class="leading-relaxed">$1</span></div>')
@@ -741,19 +741,27 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
    {/* Footer */}
    <footer className="bg-white py-8 border-t">
     <div className="max-w-7xl mx-auto px-4">
-     <div className="flex items-center justify-end gap-4">
-      <a href="#" className="text-gray-600 hover:text-gray-900">
-       <Linkedin className="w-5 h-5" />
-      </a>
-      <a href="#" className="text-gray-600 hover:text-gray-900">
-       <Facebook className="w-5 h-5" />
-      </a>
-      <a href="#" className="text-gray-600 hover:text-gray-900">
-       <Twitter className="w-5 h-5" />
-      </a>
-      <a href="#" className="text-gray-600 hover:text-gray-900">
-       <Instagram className="w-5 h-5" />
-      </a>
+     <div className="flex items-center justify-center gap-4">
+      {creator.socialLinks.linkedin && (
+       <a href={creator.socialLinks.linkedin} className="text-gray-600 hover:text-gray-900">
+        <Linkedin className="w-5 h-5" />
+       </a>
+      )}
+      {creator.socialLinks.facebook && (
+       <a href={creator.socialLinks.facebook} className="text-gray-600 hover:text-gray-900">
+        <Facebook className="w-5 h-5" />
+       </a>
+      )}
+      {creator.socialLinks.twitter && (
+       <a href={creator.socialLinks.twitter} className="text-gray-600 hover:text-gray-900">
+        <Twitter className="w-5 h-5" />
+       </a>
+      )}
+      {creator.socialLinks.instagram && (
+       <a href={creator.socialLinks.instagram} className="text-gray-600 hover:text-gray-900">
+        <Instagram className="w-5 h-5" />
+       </a>
+      )}
      </div>
     </div>
    </footer>

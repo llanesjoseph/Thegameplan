@@ -478,26 +478,26 @@ export default function ContributorsPage() {
   {/* Footer */}
   <footer className="bg-white py-8 border-t">
    <div className="max-w-7xl mx-auto px-4">
-    <div className="flex items-center justify-between">
+    <div className="flex flex-col md:flex-row items-center justify-between gap-4">
      <div className="flex items-center gap-6">
-      <Link href="/contributors" className="text-gray-600 hover:text-gray-900">
+      <Link href="/contributors" className="text-gray-600 hover:text-gray-900 transition-colors">
        Coaches
       </Link>
-      <Link href="/lessons" className="text-gray-600 hover:text-gray-900">
+      <Link href="/lessons" className="text-gray-600 hover:text-gray-900 transition-colors">
        Lessons
       </Link>
-      <Link href="/gear" className="text-gray-600 hover:text-gray-900">
+      <Link href="/gear" className="text-gray-600 hover:text-gray-900 transition-colors">
        Gear
       </Link>
      </div>
      <div className="flex items-center gap-4">
-      <a href="#" className="text-gray-600 hover:text-gray-900">
+      <a href="https://facebook.com/playbookd" className="text-gray-600 hover:text-gray-900 transition-colors">
        <Facebook className="w-5 h-5" />
       </a>
-      <a href="#" className="text-gray-600 hover:text-gray-900">
+      <a href="https://instagram.com/playbookd" className="text-gray-600 hover:text-gray-900 transition-colors">
        <Instagram className="w-5 h-5" />
       </a>
-      <a href="#" className="text-gray-600 hover:text-gray-900">
+      <a href="https://twitter.com/playbookd" className="text-gray-600 hover:text-gray-900 transition-colors">
        <Twitter className="w-5 h-5" />
       </a>
      </div>
