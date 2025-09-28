@@ -73,11 +73,23 @@ export default function CreatorSchedule() {
   try {
    const q = query(collection(db, 'events'), where('creatorUid', '==', userId))
    const snapshot = await getDocs(q)
-   const eventsData = snapshot.docs.map(doc => ({
-    id: doc.id,
-    ...doc.data(),
-    createdAt: doc.data().createdAt?.toDate() || new Date()
-   })) as Event[]
+   const eventsData = snapshot.docs.map(doc => {
+    const data = doc.data()
+    return {
+     id: doc.id,
+     title: data.title || '',
+     description: data.description || '',
+     date: data.date || '',
+     startTime: data.startTime || '',
+     endTime: data.endTime || '',
+     type: data.type || 'personal',
+     location: data.location || '',
+     attendees: data.attendees || [],
+     creatorUid: data.creatorUid || '',
+     status: data.status || 'scheduled',
+     createdAt: data.createdAt?.toDate() || new Date()
+    }
+   }) as Event[]
    setEvents(eventsData)
   } catch (error) {
    console.error('Failed to load events:', error)
@@ -97,10 +109,22 @@ export default function CreatorSchedule() {
 
    if (editingEvent?.id) {
     await updateDoc(doc(db, 'events', editingEvent.id), eventData)
-    setEvents(prev => prev.map(e => e.id === editingEvent.id ? { ...eventData, id: editingEvent.id } : e))
+    // Create a properly serialized event for state update
+    const updatedEvent = {
+     ...eventData,
+     id: editingEvent.id,
+     createdAt: new Date() // Ensure it's a proper Date object
+    }
+    setEvents(prev => prev.map(e => e.id === editingEvent.id ? updatedEvent : e))
    } else {
     const docRef = await addDoc(collection(db, 'events'), eventData)
-    setEvents(prev => [...prev, { ...eventData, id: docRef.id }])
+    // Create a properly serialized event for state update
+    const newEvent = {
+     ...eventData,
+     id: docRef.id,
+     createdAt: new Date() // Ensure it's a proper Date object
+    }
+    setEvents(prev => [...prev, newEvent])
    }
 
    setShowEventForm(false)
