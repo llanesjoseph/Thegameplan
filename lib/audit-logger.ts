@@ -30,7 +30,7 @@ export async function auditLog(
   try {
     const logEntry: AuditLogEntry = {
       eventType,
-      userId: options.userId,
+      ...(options.userId && { userId: options.userId }), // Only include userId if it's defined
       data: {
         ...data,
         ip: data.ip ? sanitizeIP(data.ip) : undefined, // Hash IP for privacy
