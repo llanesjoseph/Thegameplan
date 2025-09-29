@@ -11,12 +11,14 @@ import { collection, query, orderBy, onSnapshot, doc, updateDoc, serverTimestamp
 import { setUserRoleViaFunction, isAdmin } from '@/lib/role-management'
 import { useAuth } from '@/hooks/use-auth'
 import { useCreatorStatus } from '@/hooks/use-creator-status'
-import { 
- User, 
- Clock, 
- CheckCircle, 
- XCircle, 
- Eye, 
+import AppHeader from '@/components/ui/AppHeader'
+import Link from 'next/link'
+import {
+ User,
+ Clock,
+ CheckCircle,
+ XCircle,
+ Eye,
  MessageSquare,
  Calendar,
  Award,
@@ -25,7 +27,8 @@ import {
  ExternalLink,
  Filter,
  Search,
- Loader2
+ Loader2,
+ ArrowLeft
 } from 'lucide-react'
 
 interface CreatorApplication {
@@ -164,13 +167,22 @@ export default function CreatorApplicationsPage() {
  }
 
  return (
-  <main className="min-h-screen bg-gradient-to-br from-cream via-cream to-sky-blue/10">
-   <div className="max-w-6xl mx-auto px-6 py-8">
-    {/* Header */}
-    <div className="text-center mb-8">
-     <h1 className="text-4xl text-dark font-heading mb-3">Coach Applications</h1>
-     <p className="text-dark/60 text-lg">Review and manage coach applications</p>
-    </div>
+  <>
+   <AppHeader />
+   <main className="min-h-screen bg-gradient-to-br from-cream via-cream to-sky-blue/10">
+    <div className="max-w-6xl mx-auto px-6 py-8">
+     {/* Page Header */}
+     <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center gap-4">
+       <Link href="/dashboard" className="p-3 hover:bg-white/80 rounded-xl transition-colors shadow-sm backdrop-blur-sm border border-white/20">
+        <ArrowLeft className="w-5 h-5 text-dark" />
+       </Link>
+       <div>
+        <h1 className="text-4xl text-dark font-heading">Coach Applications</h1>
+        <p className="text-dark/60">Review and manage coach applications</p>
+       </div>
+      </div>
+     </div>
 
     {/* Stats */}
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
@@ -341,16 +353,16 @@ export default function CreatorApplicationsPage() {
 
     {/* Application Detail Modal */}
     {selectedApp && (
-     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-       <div className="p-6 border-b border-gray-200">
+     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className="bg-gradient-to-br from-white to-sky-blue/5 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-white/50 backdrop-blur-sm">
+       <div className="p-6 border-b border-sky-blue/20">
         <div className="flex items-center justify-between">
-         <h2 className="text-xl text-gray-900">
+         <h2 className="text-2xl text-dark font-heading">
           Application Review: {selectedApp.firstName} {selectedApp.lastName}
          </h2>
          <button
           onClick={() => setSelectedApp(null)}
-          className="text-gray-400 hover:text-gray-600"
+          className="p-2 text-dark/40 hover:text-dark rounded-xl hover:bg-white/50 transition-colors"
          >
           <XCircle className="w-6 h-6" />
          </button>
@@ -361,7 +373,7 @@ export default function CreatorApplicationsPage() {
         {/* Basic Info */}
         <div className="grid md:grid-cols-2 gap-6">
          <div className="space-y-4">
-          <h3 className=" text-gray-900">Personal Information</h3>
+          <h3 className="text-xl text-dark font-heading">Personal Information</h3>
           <div className="space-y-2">
            <p><span className="">Name:</span> {selectedApp.firstName} {selectedApp.lastName}</p>
            <p><span className="">Email:</span> {selectedApp.email}</p>
@@ -371,7 +383,7 @@ export default function CreatorApplicationsPage() {
          </div>
 
          <div className="space-y-4">
-          <h3 className=" text-gray-900">Application Status</h3>
+          <h3 className="text-xl text-dark font-heading">Application Status</h3>
           <div className="space-y-2">
            <p><span className="">Status:</span> 
             <span className={`ml-2 px-2 py-1 rounded text-sm ${
@@ -394,8 +406,8 @@ export default function CreatorApplicationsPage() {
 
         {/* Experience Details */}
         <div>
-         <h3 className=" text-gray-900 mb-2">Experience Details</h3>
-         <p className="text-gray-700 bg-gray-50 p-4 rounded-lg">{selectedApp.experienceDetails}</p>
+         <h3 className="text-xl text-dark font-heading mb-2">Experience Details</h3>
+         <p className="text-dark/70 bg-white/50 p-4 rounded-xl border border-sky-blue/20">{selectedApp.experienceDetails}</p>
         </div>
 
         {/* Achievements */}
@@ -463,7 +475,7 @@ export default function CreatorApplicationsPage() {
            <button
             onClick={() => handleReview(selectedApp.id, 'approved')}
             disabled={submittingReview}
-            className="px-6 py-2 bg-green-600 text-white rounded-lg  hover:bg-green-700 disabled:opacity-50 flex items-center gap-2"
+            className="px-6 py-3 bg-gradient-to-r from-green to-green/90 text-white rounded-xl font-medium hover:from-green/90 hover:to-green shadow-lg disabled:opacity-50 flex items-center gap-2 transition-all"
            >
             {submittingReview ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
             Approve
@@ -472,7 +484,7 @@ export default function CreatorApplicationsPage() {
            <button
             onClick={() => handleReview(selectedApp.id, 'rejected')}
             disabled={submittingReview}
-            className="px-6 py-2 bg-red-600 text-white rounded-lg  hover:bg-red-700 disabled:opacity-50 flex items-center gap-2"
+            className="px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl font-medium hover:from-red-600 hover:to-red-700 shadow-lg disabled:opacity-50 flex items-center gap-2 transition-all"
            >
             {submittingReview ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
             Reject
@@ -492,7 +504,8 @@ export default function CreatorApplicationsPage() {
       </div>
      </div>
     )}
-   </div>
-  </main>
+    </div>
+   </main>
+  </>
  )
 }
