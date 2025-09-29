@@ -42,7 +42,7 @@ export async function sendCoachInvitationEmail({
     })
 
     const { data, error } = await resend.emails.send({
-      from: 'PLAYBOOKD <onboarding@resend.dev>', // Temporary use of verified domain
+      from: 'PLAYBOOKD <noreply@crucibleanalytics.dev>', // Use verified domain
       to: [to],
       subject: `🏆 You're Invited to Join ${organizationName} - PLAYBOOKD`,
       html: htmlContent
