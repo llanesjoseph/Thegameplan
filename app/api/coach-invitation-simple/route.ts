@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { sendCoachInvitationEmail } from '@/lib/email-service'
 
 export async function POST(request: NextRequest) {
   try {
@@ -44,13 +45,33 @@ export async function POST(request: NextRequest) {
       invitationId
     })
 
-    // Simulate email sending
+    // Create invitation URL (you can customize this)
+    const invitationUrl = `https://playbookd.crucibleanalytics.dev/coach-signup?invitation=${invitationId}&sport=${encodeURIComponent(sport)}`
+
+    // Send actual email using existing email service
     console.log(`✉️ Sending invitation email to ${coachEmail}...`)
 
-    // In production, this would integrate with:
-    // - Email service (SendGrid, AWS SES, etc.)
-    // - Database to store invitation
-    // - Generate actual invitation link
+    try {
+      await sendCoachInvitationEmail({
+        to: coachEmail,
+        organizationName: 'PLAYBOOKD Coaching Network',
+        inviterName: 'PLAYBOOKD Team',
+        sport,
+        invitationUrl,
+        qrCodeUrl: '', // Optional QR code
+        customMessage: personalMessage,
+        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
+        recipientName: coachName,
+        templateType: 'simple'
+      })
+
+      console.log(`✅ Email sent successfully to ${coachEmail}`)
+
+    } catch (emailError) {
+      console.error('Failed to send email:', emailError)
+      // Don't fail the whole request if email fails - still return success
+      // In production, you might want to retry or queue the email
+    }
 
     return NextResponse.json({
       success: true,
