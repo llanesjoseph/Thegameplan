@@ -76,13 +76,13 @@ export async function sendApplicationStatusEmail({
   applicantName,
   organizationName,
   status,
-  loginUrl = 'https://gameplan.com/dashboard'
+  loginUrl = 'https://playbookd.com/dashboard'
 }: ApplicationStatusEmailProps) {
   try {
     const isApproved = status === 'approved'
 
     const { data, error } = await resend.emails.send({
-      from: 'GamePlan <joseph@crucibleanalytics.dev>',
+      from: 'PLAYBOOKD <joseph@crucibleanalytics.dev>',
       to: [to],
       subject: isApproved
         ? `🎉 Welcome to ${organizationName} - Coach Application Approved!`
@@ -163,7 +163,7 @@ export async function sendApplicationStatusEmail({
         <body>
           <div class="container">
             <div class="header">
-              <div class="logo">🏆 GamePlan</div>
+              <div class="logo">🏆 PLAYBOOKD</div>
               <h1>Application ${isApproved ? 'Approved!' : 'Update'}</h1>
             </div>
 
@@ -202,7 +202,7 @@ export async function sendApplicationStatusEmail({
             `}
 
             <div class="footer">
-              <p><strong>GamePlan</strong> - Empowering coaches and athletes everywhere</p>
+              <p><strong>PLAYBOOKD</strong> - For The Future of Sports</p>
               <p>If you have any questions, please contact the ${organizationName} team.</p>
             </div>
           </div>

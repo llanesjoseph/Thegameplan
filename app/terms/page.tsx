@@ -1,8 +1,8 @@
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
- title: 'Terms of Service | GamePlan',
- description: 'Terms of Service for GamePlan AI coaching platform'
+ title: 'Terms of Service | PLAYBOOKD',
+ description: 'Terms of Service for PLAYBOOKD AI coaching platform'
 }
 
 export default function TermsOfService() {
@@ -20,7 +20,7 @@ export default function TermsOfService() {
       <section className="mb-8">
        <h2 className="text-2xl  text-gray-900 mb-4">1. Acceptance of Terms</h2>
        <p className="text-gray-700 mb-4">
-        By accessing or using GamePlan ("the Service"), you agree to be bound by these Terms of Service ("Terms").
+        By accessing or using PLAYBOOKD ("the Service"), you agree to be bound by these Terms of Service ("Terms").
         If you do not agree to these Terms, please do not use the Service.
        </p>
       </section>
@@ -28,7 +28,7 @@ export default function TermsOfService() {
       <section className="mb-8">
        <h2 className="text-2xl  text-gray-900 mb-4">2. Description of Service</h2>
        <p className="text-gray-700 mb-4">
-        GamePlan is an AI-powered sports coaching platform that provides training advice, mental performance guidance,
+        PLAYBOOKD is an AI-powered sports coaching platform that provides training advice, mental performance guidance,
         and strategic insights for athletes. The Service includes AI-generated coaching content, training materials,
         and educational resources.
        </p>
@@ -60,7 +60,7 @@ export default function TermsOfService() {
         <div className="flex">
          <div className="ml-3">
           <p className="text-sm text-red-700">
-           Medical Disclaimer: GamePlan does not provide medical advice, diagnosis, or treatment.
+           Medical Disclaimer: PLAYBOOKD does not provide medical advice, diagnosis, or treatment.
            For any injuries, health concerns, or medical conditions, consult with qualified healthcare professionals.
           </p>
          </div>
@@ -120,7 +120,7 @@ export default function TermsOfService() {
         To the maximum extent permitted by law:
        </p>
        <ul className="list-disc list-inside text-gray-700 space-y-2">
-        <li>GamePlan is provided "as is" without warranties</li>
+        <li>PLAYBOOKD is provided "as is" without warranties</li>
         <li>We are not liable for any indirect, incidental, or consequential damages</li>
         <li>Our total liability is limited to the amount you paid for the Service</li>
         <li>We do not guarantee uninterrupted or error-free service</li>
@@ -133,7 +133,7 @@ export default function TermsOfService() {
         The Service and its content are protected by intellectual property laws:
        </p>
        <ul className="list-disc list-inside text-gray-700 space-y-2">
-        <li>GamePlan owns all rights to the platform and AI models</li>
+        <li>PLAYBOOKD owns all rights to the platform and AI models</li>
         <li>You may not copy, modify, or distribute our content without permission</li>
         <li>Creator content is owned by respective contributors</li>
         <li>You grant us rights to use your feedback for service improvement</li>
@@ -168,7 +168,7 @@ export default function TermsOfService() {
        </p>
        <div className="bg-gray-50 p-4 rounded-lg">
         <p className="text-gray-700">
-         Email: legal@gameplan.dev<br />
+         Email: legal@playbookd.com<br />
          Address: [Your Business Address]<br />
          Phone: [Your Contact Number]
         </p>

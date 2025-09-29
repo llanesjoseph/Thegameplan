@@ -6,7 +6,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const templateType = searchParams.get('type') as 'playbookd' | 'simple' || 'playbookd'
     const name = searchParams.get('name') || 'Coach Demo'
-    const organizationName = searchParams.get('org') || 'GamePlan Demo'
+    const organizationName = searchParams.get('org') || 'PLAYBOOKD Demo'
     const sport = searchParams.get('sport') || 'Soccer'
 
     // Generate preview data
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
 
     const htmlContent = getEmailTemplate(templateType, {
       organizationName,
-      inviterName: 'GamePlan Team',
+      inviterName: 'PLAYBOOKD Team',
       sport,
       invitationUrl,
       qrCodeUrl,

@@ -232,7 +232,7 @@ export default function CoachIngestionManager() {
                           email: 'test@example.com',
                           name: 'Test Coach',
                           type: 'regular',
-                          organizationName: 'GamePlan Demo',
+                          organizationName: 'PLAYBOOKD Demo',
                           sport: 'Soccer'
                         })
                       })
@@ -263,7 +263,7 @@ export default function CoachIngestionManager() {
                           email: 'jasmine@example.com',
                           name: 'Jasmine Aikey',
                           type: 'jasmine',
-                          organizationName: 'GamePlan Platform',
+                          organizationName: 'PLAYBOOKD Platform',
                           sport: 'Soccer'
                         })
                       })

@@ -320,7 +320,7 @@ export default function CoachOnboardPage() {
                 : 'Your coach application has been submitted successfully. You will receive an email when it has been reviewed.'}
             </p>
             <Button onClick={() => router.push('/')} className="w-full">
-              Continue to GamePlan
+              Continue to PLAYBOOKD
             </Button>
           </CardContent>
         </Card>
@@ -333,7 +333,7 @@ export default function CoachOnboardPage() {
       <div className="max-w-4xl mx-auto px-4">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            {ingestionData?.metadata?.isJasmineSpecial ? 'Welcome to GamePlan, Jasmine!' : 'Join as a Coach'}
+            {ingestionData?.metadata?.isJasmineSpecial ? 'Welcome to PLAYBOOKD, Jasmine!' : 'Join as a Coach'}
           </h1>
           <p className="text-lg text-gray-600">
             {ingestionData?.metadata?.isJasmineSpecial

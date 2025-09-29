@@ -28,9 +28,9 @@ export async function GET(request: NextRequest) {
     if (id.startsWith('jasmine-special-')) {
       const mockJasmineData = {
         id,
-        organizationName: 'GamePlan Platform',
-        inviterName: 'GamePlan Team',
-        inviterEmail: 'team@gameplan.ai',
+        organizationName: 'PLAYBOOKD Platform',
+        inviterName: 'PLAYBOOKD Team',
+        inviterEmail: 'team@playbookd.com',
         inviterUserId: 'system',
         sport: 'Soccer',
         description: 'Special onboarding for Jasmine Aikey - Stanford Soccer Star',
@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
         maxUses: 1,
         currentUses: 0,
         autoApprove: true,
-        customMessage: 'Welcome to GamePlan, Jasmine! We\'re excited to have you as one of our featured coaches. Please complete your profile to get started.',
+        customMessage: 'Welcome to PLAYBOOKD, Jasmine! We\'re excited to have you as one of our featured coaches. Please complete your profile to get started.',
         status: 'active',
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -59,12 +59,12 @@ export async function GET(request: NextRequest) {
     if (id.startsWith('test-')) {
       const mockTestData = {
         id,
-        organizationName: 'GamePlan Demo',
-        inviterName: 'GamePlan Team',
-        inviterEmail: 'team@gameplan.ai',
+        organizationName: 'PLAYBOOKD Demo',
+        inviterName: 'PLAYBOOKD Team',
+        inviterEmail: 'team@playbookd.com',
         inviterUserId: 'system',
         sport: 'Soccer',
-        description: 'Test coach invitation to experience the GamePlan onboarding flow',
+        description: 'Test coach invitation to experience the PLAYBOOKD onboarding flow',
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
         maxUses: 1,
         currentUses: 0,

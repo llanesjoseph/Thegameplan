@@ -1,8 +1,8 @@
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
- title: 'Privacy Policy | GamePlan',
- description: 'Privacy Policy for GamePlan AI coaching platform'
+ title: 'Privacy Policy | PLAYBOOKD',
+ description: 'Privacy Policy for PLAYBOOKD AI coaching platform'
 }
 
 export default function PrivacyPolicy() {
@@ -170,8 +170,8 @@ export default function PrivacyPolicy() {
        </p>
        <div className="bg-gray-50 p-4 rounded-lg">
         <p className="text-gray-700">
-         Email: privacy@gameplan.dev<br />
-         Data Protection Officer: dpo@gameplan.dev<br />
+         Email: privacy@playbookd.com<br />
+         Data Protection Officer: dpo@playbookd.com<br />
          Address: [Your Business Address]
         </p>
        </div>

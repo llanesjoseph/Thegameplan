@@ -744,7 +744,7 @@ export default function CreatorDashboard() {
      'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-     organizationName: `${authUser?.displayName || 'GamePlan'} Coaching Network`,
+     organizationName: `${authUser?.displayName || 'PLAYBOOKD'} Coaching Network`,
      sport: invitationForm.sport,
      description: `Join as a ${invitationForm.sport} coach`,
      customMessage: invitationForm.customMessage || `Hi ${invitationForm.name}, I'd like to invite you to join our coaching platform!`,
@@ -2483,12 +2483,12 @@ Summary and what comes next..."
           <div className="border-b border-gray-300 pb-4 mb-4">
            <div className="flex items-center gap-3 mb-2">
             <Mail className="w-5 h-5 text-blue-600" />
-            <span className="text-sm font-medium text-gray-700">GamePlan Coach Invitation</span>
+            <span className="text-sm font-medium text-gray-700">PLAYBOOKD Coach Invitation</span>
            </div>
            <div className="text-xs text-gray-500">
             <p><strong>To:</strong> {invitationForm.email || 'coach@example.com'}</p>
-            <p><strong>From:</strong> {authUser?.displayName || 'Coach'} via GamePlan</p>
-            <p><strong>Subject:</strong> Join {authUser?.displayName || 'GamePlan'} Coaching Network</p>
+            <p><strong>From:</strong> {authUser?.displayName || 'Coach'} via PLAYBOOKD</p>
+            <p><strong>Subject:</strong> Join {authUser?.displayName || 'PLAYBOOKD'} Coaching Network</p>
            </div>
           </div>
 
@@ -2502,7 +2502,7 @@ Summary and what comes next..."
 
            <div className="space-y-2">
             <p className="text-gray-700">
-             {authUser?.displayName || 'A fellow coach'} has invited you to join the GamePlan coaching platform as a <strong>{invitationForm.sport || '[Sport]'}</strong> coach.
+             {authUser?.displayName || 'A fellow coach'} has invited you to join the PLAYBOOKD coaching platform as a <strong>{invitationForm.sport || '[Sport]'}</strong> coach.
             </p>
 
             {invitationForm.customMessage && (

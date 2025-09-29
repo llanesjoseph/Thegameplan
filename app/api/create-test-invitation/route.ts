@@ -22,20 +22,20 @@ export async function POST(request: NextRequest) {
     // Create ingestion link document
     const ingestionLinkData = {
       id: ingestionId,
-      organizationName: type === 'jasmine' ? 'GamePlan Platform' : 'GamePlan Demo',
-      inviterName: 'GamePlan Team',
-      inviterEmail: 'team@gameplan.ai',
+      organizationName: type === 'jasmine' ? 'PLAYBOOKD Platform' : 'PLAYBOOKD Demo',
+      inviterName: 'PLAYBOOKD Team',
+      inviterEmail: 'team@playbookd.com',
       inviterUserId: 'system',
       sport: 'Soccer',
       description: type === 'jasmine'
         ? 'Special onboarding for Jasmine Aikey - Stanford Soccer Star'
-        : 'Test coach invitation to experience the GamePlan onboarding flow',
+        : 'Test coach invitation to experience the PLAYBOOKD onboarding flow',
       expiresAt,
       maxUses: 1,
       currentUses: 0,
       autoApprove: true,
       customMessage: type === 'jasmine'
-        ? 'Welcome to GamePlan, Jasmine! We\'re excited to have you as one of our featured coaches. Please complete your profile to get started.'
+        ? 'Welcome to PLAYBOOKD, Jasmine! We\'re excited to have you as one of our featured coaches. Please complete your profile to get started.'
         : 'This is a test invitation to see how the coach onboarding flow looks and feels. Complete it to experience the full process including the optional voice capture system!',
       status: 'active',
       createdAt: new Date(),
