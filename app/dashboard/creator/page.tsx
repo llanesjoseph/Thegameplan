@@ -998,20 +998,12 @@ export default function CreatorDashboard() {
   setIsGeneratingLesson(true)
 
   try {
-   // Get authentication token with error handling
-   const currentUser = auth.currentUser
-   if (!currentUser) {
-    throw new Error('User not authenticated. Please refresh the page and try again.')
-   }
+   console.log('🚀 Starting lesson generation with simple endpoint')
 
-   const token = await currentUser.getIdToken()
-   console.log('🔑 Auth token obtained successfully')
-
-   const response = await fetch('/api/generate-lesson', {
+   const response = await fetch('/api/generate-lesson-simple', {
     method: 'POST',
     headers: {
-     'Content-Type': 'application/json',
-     'Authorization': `Bearer ${token}`
+     'Content-Type': 'application/json'
     },
     body: JSON.stringify({
      topic: title,
