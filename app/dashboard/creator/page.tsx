@@ -1583,6 +1583,13 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
            <div className="font-medium text-green-900">Athlete Management</div>
            <div className="text-sm text-green-700">Invite and track your athletes</div>
           </Link>
+          <Link
+           href="/dashboard/admin/coach-intake"
+           className="block w-full text-left p-3 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors"
+          >
+           <div className="font-medium text-orange-900">Coach Intake Approval</div>
+           <div className="text-sm text-orange-700">Review and approve new coaches</div>
+          </Link>
           <button
            onClick={() => setActiveSection('invitations')}
            className="w-full text-left p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
