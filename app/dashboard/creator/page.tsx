@@ -998,16 +998,19 @@ export default function CreatorDashboard() {
   setIsGeneratingLesson(true)
 
   try {
-   const response = await fetch('/api/generate-lesson-content', {
+   const response = await fetch('/api/generate-lesson', {
     method: 'POST',
     headers: {
      'Content-Type': 'application/json',
+     'Authorization': `Bearer ${await user?.getIdToken()}`
     },
     body: JSON.stringify({
-     title,
-     description,
-     existingContent,
-     sport: selectedSport
+     topic: title,
+     sport: selectedSport,
+     level: 'intermediate',
+     duration: '45 minutes',
+     detailedInstructions: description,
+     detailLevel: 'masterclass'
     }),
    })
 
@@ -1015,10 +1018,10 @@ export default function CreatorDashboard() {
     throw new Error('Failed to generate lesson content')
    }
 
-   const { lessonContent } = await response.json()
+   const { markdownContent } = await response.json()
 
    // Populate the detailed lesson content textarea
-   setDetailedWriteup(lessonContent.content)
+   setDetailedWriteup(markdownContent)
 
    // Automatically switch to preview mode to show the beautiful formatting
    setPreviewMode(true)
