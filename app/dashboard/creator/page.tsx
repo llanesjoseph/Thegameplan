@@ -1510,13 +1510,13 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
           <h3 className="text-lg font-semibold text-gray-900">Team Management</h3>
          </div>
          <div className="space-y-3">
-          <a
+          <Link
            href="/dashboard/coach/athletes"
            className="block w-full text-left p-3 bg-green-50 hover:bg-green-100 rounded-lg transition-colors"
           >
            <div className="font-medium text-green-900">Athlete Management</div>
            <div className="text-sm text-green-700">Invite and track your athletes</div>
-          </a>
+          </Link>
           <button
            onClick={() => setActiveSection('invitations')}
            className="w-full text-left p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
@@ -1534,20 +1534,20 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
           <h3 className="text-lg font-semibold text-gray-900">Business Tools</h3>
          </div>
          <div className="space-y-3">
-          <a
+          <Link
            href="/dashboard/coach/social-media"
            className="block w-full text-left p-3 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors"
           >
            <div className="font-medium text-purple-900">Social Media</div>
            <div className="text-sm text-purple-700">Create posts with live preview</div>
-          </a>
-          <a
+          </Link>
+          <Link
            href="/dashboard/creator/analytics"
            className="block w-full text-left p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
           >
            <div className="font-medium text-gray-900">Analytics</div>
            <div className="text-sm text-gray-600">Track performance and engagement</div>
-          </a>
+          </Link>
          </div>
         </div>
        </div>
@@ -1618,7 +1618,7 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
        <div className="bg-white rounded-lg shadow-sm p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Profile & Settings</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-         <a
+         <Link
           href="/dashboard/coach/profile"
           className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:border-gray-300 hover:shadow-sm transition-all"
          >
@@ -1627,8 +1627,8 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
            <div className="font-medium text-gray-900">Coach Profile</div>
            <div className="text-sm text-gray-600">Update photos and LinkedIn</div>
           </div>
-         </a>
-         <a
+         </Link>
+         <Link
           href="/dashboard/profile"
           className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:border-gray-300 hover:shadow-sm transition-all"
          >
@@ -1637,8 +1637,8 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
            <div className="font-medium text-gray-900">Complete Profile</div>
            <div className="text-sm text-gray-600">Bio, specialties, achievements</div>
           </div>
-         </a>
-         <a
+         </Link>
+         <Link
           href="/dashboard/creator/schedule"
           className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:border-gray-300 hover:shadow-sm transition-all"
          >
@@ -1647,7 +1647,7 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
            <div className="font-medium text-gray-900">Schedule</div>
            <div className="text-sm text-gray-600">Manage availability</div>
           </div>
-         </a>
+         </Link>
         </div>
        </div>
       </div>
