@@ -2,6 +2,7 @@ import { doc, getDoc, setDoc, serverTimestamp, Timestamp } from 'firebase/firest
 import { db } from './firebase.client'
 import { FirebaseUser, UserRole } from '../types'
 import { isJasmineAikey, handleJasmineProvisioning } from './jasmine-client'
+import { isKnownCoach, getKnownCoachRole } from './coach-role-mapping'
 
 export interface UserProfile {
   uid: string
@@ -30,11 +31,33 @@ export async function initializeUserDocument(user: FirebaseUser | null, defaultR
     if (userDoc.exists()) {
       // Update last login time for existing user
       const userData = userDoc.data() as UserProfile
+
+      // Check if this is a known coach who needs role correction
+      let roleNeedsUpdate = false
+      let correctRole = userData.role
+
+      if (user.email && isKnownCoach(user.email)) {
+        const shouldBeRole = getKnownCoachRole(user.email)
+        if (shouldBeRole && userData.role !== shouldBeRole) {
+          correctRole = shouldBeRole
+          roleNeedsUpdate = true
+          console.log(`🚨 ROLE CORRECTION: ${user.email} should be ${shouldBeRole}, currently ${userData.role}`)
+        }
+      }
+
       await setDoc(userDocRef, {
         ...userData,
-        lastLoginAt: Timestamp.now()
+        role: correctRole, // Update role if needed
+        lastLoginAt: Timestamp.now(),
+        ...(roleNeedsUpdate && {
+          roleUpdatedAt: Timestamp.now(),
+          roleUpdateReason: 'Known coach auto-correction'
+        })
       }, { merge: true })
 
+      if (roleNeedsUpdate) {
+        console.log(`✅ ROLE CORRECTED: ${user.email} updated from ${userData.role} to ${correctRole}`)
+      }
       console.log('Existing user document updated:', user.uid)
 
       // Handle Jasmine onboarding if needed
@@ -46,7 +69,7 @@ export async function initializeUserDocument(user: FirebaseUser | null, defaultR
         }
       }
 
-      return userData
+      return { ...userData, role: correctRole }
     } else {
       // Create new user document with comprehensive data
       // Note: Jasmine's role will be updated during provisioning if applicable

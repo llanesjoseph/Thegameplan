@@ -6,6 +6,7 @@ import { initializeUserDocument } from '@/lib/user-initialization'
 import { useAppStore } from '@/lib/store'
 import type { AppRole } from '@/types/user'
 import { autoProvisionSuperadmin, isSuperadminEmail } from '@/lib/auto-superadmin-setup'
+import { isKnownCoach, getKnownCoachRole } from '@/lib/coach-role-mapping'
 
 interface EnhancedUser extends User {
   role?: AppRole
@@ -44,6 +45,12 @@ export function useAuth() {
               if (provisionResult) {
                 console.log(`✅ ${email} auto-provisioned as superadmin`)
               }
+            } else if (email && isKnownCoach(email)) {
+              // Check if this is a known coach who should have coach role
+              const correctRole = getKnownCoachRole(email)
+              console.log(`🏆 Detected known coach: ${email} - setting role to ${correctRole}`)
+              await initializeUserDocument(user, correctRole || 'coach')
+              console.log(`✅ Coach ${email} initialized with correct role: ${correctRole}`)
             } else {
               // Initialize regular user document to prevent permission errors
               await initializeUserDocument(user, 'user') // Default to user for production
