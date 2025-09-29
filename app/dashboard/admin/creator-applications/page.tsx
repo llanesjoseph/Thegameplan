@@ -88,15 +88,6 @@ export default function CreatorApplicationsPage() {
   return () => unsubscribe()
  }, [hasAccess, roleLoading])
 
- const filteredApplications = applications.filter(app => {
-  const matchesFilter = filter === 'all' || app.status === filter
-  const matchesSearch = searchTerm === '' || 
-   `${app.firstName} ${app.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
-   app.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-   app.primarySport.toLowerCase().includes(searchTerm.toLowerCase())
-  
-  return matchesFilter && matchesSearch
- })
 
  const handleReview = async (applicationId: string, decision: 'approved' | 'rejected') => {
   if (!selectedApp) return
@@ -166,183 +157,233 @@ export default function CreatorApplicationsPage() {
   )
  }
 
+ // Remove duplicates and sort applications
+ const uniqueApplications = applications.reduce((unique, app) => {
+  const existingIndex = unique.findIndex(existing => existing.email === app.email)
+  if (existingIndex >= 0) {
+   // Keep the most recent application
+   if (app.submittedAt?.seconds > unique[existingIndex].submittedAt?.seconds) {
+    unique[existingIndex] = app
+   }
+  } else {
+   unique.push(app)
+  }
+  return unique
+ }, [] as CreatorApplication[])
+
+ const filteredApplications = uniqueApplications.filter(app => {
+  const matchesFilter = filter === 'all' || app.status === filter
+  const matchesSearch = searchTerm === '' ||
+   `${app.firstName} ${app.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
+   app.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+   app.primarySport.toLowerCase().includes(searchTerm.toLowerCase())
+
+  return matchesFilter && matchesSearch
+ })
+
  return (
-  <>
+  <div className="min-h-screen bg-gradient-to-br from-cream via-cream to-sky-blue/10">
    <AppHeader />
-   <main className="min-h-screen bg-gradient-to-br from-cream via-cream to-sky-blue/10">
-    <div className="max-w-6xl mx-auto px-6 py-8">
-     {/* Page Header */}
-     <div className="flex items-center justify-between mb-8">
-      <div className="flex items-center gap-4">
-       <Link href="/dashboard" className="p-3 hover:bg-white/80 rounded-xl transition-colors shadow-sm backdrop-blur-sm border border-white/20">
-        <ArrowLeft className="w-5 h-5 text-dark" />
-       </Link>
-       <div>
-        <h1 className="text-4xl text-dark font-heading">Coach Applications</h1>
-        <p className="text-dark/60">Review and manage coach applications</p>
-       </div>
+
+   {/* Hero Section */}
+   <div className="relative overflow-hidden">
+    <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent z-10"></div>
+    <div className="relative z-20 max-w-6xl mx-auto px-6 py-16">
+     <div className="flex items-center gap-4 mb-6">
+      <Link href="/dashboard" className="p-3 hover:bg-white/20 rounded-xl transition-colors backdrop-blur-sm border border-white/20">
+       <ArrowLeft className="w-5 h-5 text-white" />
+      </Link>
+      <div>
+       <h1 className="text-5xl text-white font-heading mb-2">Coach Applications</h1>
+       <p className="text-white/80 text-xl">Review and manage coach applications</p>
       </div>
      </div>
 
-    {/* Stats */}
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-     <div className="bg-gradient-to-br from-white to-sky-blue/5 rounded-2xl shadow-lg border border-white/50 p-6 backdrop-blur-sm">
-      <div className="flex items-center justify-between">
-       <div>
-        <p className="text-sm text-dark/60 mb-1">Total Applications</p>
-        <p className="text-3xl text-dark font-heading">{applications.length}</p>
-       </div>
-       <div className="w-12 h-12 bg-gradient-to-r from-sky-blue to-black rounded-xl flex items-center justify-center">
-        <FileText className="w-6 h-6 text-white" />
-       </div>
+     {/* Quick Stats */}
+     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
+       <div className="text-3xl text-white font-bold">{uniqueApplications.length}</div>
+       <div className="text-white/80 text-sm">Total Applications</div>
       </div>
-     </div>
-
-     <div className="bg-gradient-to-br from-white to-orange/5 rounded-2xl shadow-lg border border-white/50 p-6 backdrop-blur-sm">
-      <div className="flex items-center justify-between">
-       <div>
-        <p className="text-sm text-dark/60 mb-1">Pending Review</p>
-        <p className="text-3xl text-orange font-heading">
-         {applications.filter(app => app.status === 'pending').length}
-        </p>
-       </div>
-       <div className="w-12 h-12 bg-gradient-to-r from-orange to-orange/80 rounded-xl flex items-center justify-center">
-        <Clock className="w-6 h-6 text-white" />
-       </div>
+      <div className="bg-orange/20 backdrop-blur-sm rounded-2xl p-4 border border-orange/30">
+       <div className="text-3xl text-white font-bold">{uniqueApplications.filter(app => app.status === 'pending').length}</div>
+       <div className="text-white/80 text-sm">Pending Review</div>
       </div>
-     </div>
-
-     <div className="bg-gradient-to-br from-white to-green/5 rounded-2xl shadow-lg border border-white/50 p-6 backdrop-blur-sm">
-      <div className="flex items-center justify-between">
-       <div>
-        <p className="text-sm text-dark/60 mb-1">Approved</p>
-        <p className="text-3xl text-green font-heading">
-         {applications.filter(app => app.status === 'approved').length}
-        </p>
-       </div>
-       <div className="w-12 h-12 bg-gradient-to-r from-green to-green/80 rounded-xl flex items-center justify-center">
-        <CheckCircle className="w-6 h-6 text-white" />
-       </div>
+      <div className="bg-green/20 backdrop-blur-sm rounded-2xl p-4 border border-green/30">
+       <div className="text-3xl text-white font-bold">{uniqueApplications.filter(app => app.status === 'approved').length}</div>
+       <div className="text-white/80 text-sm">Approved</div>
       </div>
-     </div>
-
-     <div className="bg-gradient-to-br from-white to-red-100/50 rounded-2xl shadow-lg border border-white/50 p-6 backdrop-blur-sm">
-      <div className="flex items-center justify-between">
-       <div>
-        <p className="text-sm text-dark/60 mb-1">Rejected</p>
-        <p className="text-3xl text-red-600 font-heading">
-         {applications.filter(app => app.status === 'rejected').length}
-        </p>
-       </div>
-       <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-red-600 rounded-xl flex items-center justify-center">
-        <XCircle className="w-6 h-6 text-white" />
-       </div>
+      <div className="bg-red-500/20 backdrop-blur-sm rounded-2xl p-4 border border-red-500/30">
+       <div className="text-3xl text-white font-bold">{uniqueApplications.filter(app => app.status === 'rejected').length}</div>
+       <div className="text-white/80 text-sm">Rejected</div>
       </div>
      </div>
     </div>
+    <div className="absolute inset-0 bg-gradient-to-r from-sky-blue to-black opacity-90"></div>
+   </div>
 
+   {/* Main Content */}
+   <div className="max-w-6xl mx-auto px-6 py-8">
     {/* Filters */}
-    <div className="bg-gradient-to-r from-white via-white to-sky-blue/5 rounded-2xl shadow-lg border border-white/50 p-6 mb-8 backdrop-blur-sm">
-     <div className="flex flex-col sm:flex-row gap-4">
+    <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border border-white/50 p-8 mb-8">
+     <div className="flex flex-col lg:flex-row gap-6">
       <div className="flex-1">
        <div className="relative">
-        <Search className="w-5 h-5 text-dark/40 absolute left-4 top-1/2 transform -translate-y-1/2" />
+        <Search className="w-6 h-6 text-dark/40 absolute left-4 top-1/2 transform -translate-y-1/2" />
         <input
          type="text"
-         placeholder="Search applications..."
+         placeholder="Search by name, email, or sport..."
          value={searchTerm}
          onChange={(e) => setSearchTerm(e.target.value)}
-         className="w-full pl-12 pr-4 py-3 border-2 border-sky-blue/20 bg-white/80 rounded-xl text-dark placeholder-dark/50 focus:border-sky-blue focus:ring-4 focus:ring-sky-blue/20 transition-all backdrop-blur-sm"
+         className="w-full pl-12 pr-6 py-4 border-2 border-sky-blue/20 bg-white rounded-2xl text-dark placeholder-dark/50 focus:border-sky-blue focus:ring-4 focus:ring-sky-blue/20 transition-all text-lg"
         />
        </div>
       </div>
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-3">
        {(['all', 'pending', 'approved', 'rejected'] as const).map((status) => (
         <button
          key={status}
          onClick={() => setFilter(status)}
-         className={`px-6 py-3 rounded-xl font-medium transition-all ${
+         className={`px-8 py-4 rounded-2xl font-semibold transition-all text-lg ${
           filter === status
-           ? 'bg-gradient-to-r from-sky-blue to-sky-blue/90 text-white shadow-lg'
-           : 'bg-white/80 text-dark hover:bg-white border border-sky-blue/20 hover:border-sky-blue/40'
+           ? 'bg-gradient-to-r from-sky-blue to-sky-blue/90 text-white shadow-xl scale-105'
+           : 'bg-white text-dark hover:bg-sky-blue/5 border-2 border-sky-blue/20 hover:border-sky-blue/40 hover:scale-105'
          }`}
         >
          {status.charAt(0).toUpperCase() + status.slice(1)}
+         {status !== 'all' && (
+          <span className="ml-2 px-2 py-1 bg-white/20 rounded-full text-xs">
+           {uniqueApplications.filter(app => app.status === status).length}
+          </span>
+         )}
         </button>
        ))}
       </div>
      </div>
     </div>
 
-    {/* Applications List */}
-    <div className="bg-gradient-to-br from-white to-sky-blue/5 rounded-2xl shadow-lg border border-white/50 backdrop-blur-sm overflow-hidden">
+    {/* Applications Grid */}
+    <div className="space-y-6">
      {loading ? (
-      <div className="p-12 text-center">
-       <Loader2 className="w-8 h-8 animate-spin text-sky-blue mx-auto mb-4" />
-       <p className="text-dark/60">Loading applications...</p>
+      <div className="text-center py-16">
+       <Loader2 className="w-12 h-12 animate-spin text-sky-blue mx-auto mb-6" />
+       <h3 className="text-2xl text-dark font-heading mb-2">Loading Applications</h3>
+       <p className="text-dark/60">Please wait while we fetch the coach applications...</p>
       </div>
      ) : filteredApplications.length === 0 ? (
-      <div className="p-12 text-center">
-       <FileText className="w-16 h-16 text-dark/20 mx-auto mb-4" />
-       <h3 className="text-xl text-dark font-heading mb-2">No applications found</h3>
-       <p className="text-dark/60">Try adjusting your search or filter criteria</p>
+      <div className="text-center py-16">
+       <div className="w-24 h-24 bg-gradient-to-r from-sky-blue/20 to-black/20 rounded-3xl flex items-center justify-center mx-auto mb-6">
+        <FileText className="w-12 h-12 text-dark/40" />
+       </div>
+       <h3 className="text-3xl text-dark font-heading mb-3">No Applications Found</h3>
+       <p className="text-dark/60 text-lg mb-6">Try adjusting your search or filter criteria</p>
+       <button
+        onClick={() => {
+         setSearchTerm('')
+         setFilter('all')
+        }}
+        className="px-6 py-3 bg-gradient-to-r from-sky-blue to-sky-blue/90 text-white rounded-2xl font-medium hover:shadow-lg transition-all"
+       >
+        Clear Filters
+       </button>
       </div>
      ) : (
-      <div className="space-y-1">
+      <div className="grid gap-6">
        {filteredApplications.map((app) => (
-        <div key={app.id} className="p-6 hover:bg-white/50 transition-all duration-200 border-b border-sky-blue/10 last:border-b-0">
-         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-6">
-           <div className="relative">
-            <div className="w-16 h-16 rounded-2xl overflow-hidden shadow-lg border-2 border-white">
-             {app.headshotUrl ? (
-              <img
-               src={app.headshotUrl}
-               alt={`${app.firstName} ${app.lastName}`}
-               className="w-full h-full object-cover"
-              />
-             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-sky-blue to-black flex items-center justify-center">
-               <User className="w-8 h-8 text-white" />
+        <div key={app.id} className="group bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border border-white/50 hover:shadow-2xl transition-all duration-300 overflow-hidden hover:scale-[1.02]">
+         <div className="p-8">
+          <div className="flex items-start justify-between">
+           <div className="flex items-start gap-6">
+            <div className="relative">
+             <div className="w-20 h-20 rounded-3xl overflow-hidden shadow-xl border-4 border-white">
+              {app.headshotUrl ? (
+               <img
+                src={app.headshotUrl}
+                alt={`${app.firstName} ${app.lastName}`}
+                className="w-full h-full object-cover"
+               />
+              ) : (
+               <div className="w-full h-full bg-gradient-to-br from-sky-blue via-sky-blue to-black flex items-center justify-center">
+                <User className="w-10 h-10 text-white" />
+               </div>
+              )}
+             </div>
+             <div className={`absolute -bottom-2 -right-2 w-8 h-8 rounded-full border-4 border-white flex items-center justify-center ${
+              app.status === 'pending' ? 'bg-orange' : app.status === 'approved' ? 'bg-green' : 'bg-red-500'
+             }`}>
+              {app.status === 'pending' ? (
+               <Clock className="w-4 h-4 text-white" />
+              ) : app.status === 'approved' ? (
+               <CheckCircle className="w-4 h-4 text-white" />
+              ) : (
+               <XCircle className="w-4 h-4 text-white" />
+              )}
+             </div>
+            </div>
+
+            <div className="flex-1">
+             <div className="flex items-start justify-between mb-3">
+              <div>
+               <h2 className="text-2xl text-dark font-heading mb-1">
+                {app.firstName} {app.lastName}
+               </h2>
+               <p className="text-dark/70 text-lg">{app.email}</p>
+              </div>
+             </div>
+
+             <div className="flex flex-wrap gap-4 mb-4">
+              <div className="flex items-center gap-2 bg-sky-blue/10 px-4 py-2 rounded-xl">
+               <Award className="w-5 h-5 text-sky-blue" />
+               <span className="text-dark font-medium">{app.primarySport}</span>
+              </div>
+              <div className="flex items-center gap-2 bg-green/10 px-4 py-2 rounded-xl">
+               <Calendar className="w-5 h-5 text-green" />
+               <span className="text-dark font-medium">{app.experience} experience</span>
+              </div>
+              <div className="flex items-center gap-2 bg-orange/10 px-4 py-2 rounded-xl">
+               <Clock className="w-5 h-5 text-orange" />
+               <span className="text-dark font-medium">
+                {app.submittedAt?.toDate?.()?.toLocaleDateString() || 'Recently submitted'}
+               </span>
+              </div>
+             </div>
+
+             {app.specialties && app.specialties.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+               {app.specialties.slice(0, 3).map((specialty, index) => (
+                <span key={index} className="px-3 py-1 bg-dark/10 text-dark/70 rounded-full text-sm">
+                 {specialty.replace('-', ' ')}
+                </span>
+               ))}
+               {app.specialties.length > 3 && (
+                <span className="px-3 py-1 bg-dark/5 text-dark/50 rounded-full text-sm">
+                 +{app.specialties.length - 3} more
+                </span>
+               )}
               </div>
              )}
             </div>
            </div>
-           <div>
-            <h3 className="text-xl text-dark font-heading mb-1">
-             {app.firstName} {app.lastName}
-            </h3>
-            <p className="text-dark/60 mb-2">{app.email}</p>
-            <div className="flex items-center gap-6">
-             <div className="flex items-center gap-2">
-              <Award className="w-4 h-4 text-sky-blue" />
-              <span className="text-sm text-dark/70">{app.primarySport}</span>
-             </div>
-             <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-green" />
-              <span className="text-sm text-dark/70">{app.experience}</span>
-             </div>
+
+           <div className="flex flex-col items-end gap-4">
+            <div className={`px-6 py-3 rounded-2xl font-semibold text-lg shadow-lg ${
+             app.status === 'pending'
+              ? 'bg-gradient-to-r from-orange to-orange/90 text-white'
+              : app.status === 'approved'
+              ? 'bg-gradient-to-r from-green to-green/90 text-white'
+              : 'bg-gradient-to-r from-red-500 to-red-600 text-white'
+            }`}>
+             {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
             </div>
-           </div>
-          </div>
 
-          <div className="flex items-center gap-4">
-           <div className={`px-4 py-2 rounded-xl text-sm font-medium shadow-sm ${
-            app.status === 'pending'
-             ? 'bg-gradient-to-r from-orange/20 to-orange/10 text-orange border border-orange/30'
-             : app.status === 'approved'
-             ? 'bg-gradient-to-r from-green/20 to-green/10 text-green border border-green/30'
-             : 'bg-gradient-to-r from-red-100 to-red-50 text-red-600 border border-red-200'
-           }`}>
-            {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
+            <button
+             onClick={() => setSelectedApp(app)}
+             className="px-6 py-3 bg-gradient-to-r from-sky-blue to-sky-blue/90 text-white rounded-2xl font-medium hover:shadow-xl transition-all flex items-center gap-2 group-hover:scale-105"
+            >
+             <Eye className="w-5 h-5" />
+             Review Application
+            </button>
            </div>
-
-           <button
-            onClick={() => setSelectedApp(app)}
-            className="p-3 text-dark/40 hover:text-sky-blue rounded-xl hover:bg-sky-blue/10 transition-all duration-200 border border-sky-blue/20 hover:border-sky-blue/40 bg-white/80"
-           >
-            <Eye className="w-5 h-5" />
-           </button>
           </div>
          </div>
         </div>
