@@ -998,11 +998,20 @@ export default function CreatorDashboard() {
   setIsGeneratingLesson(true)
 
   try {
+   // Get authentication token with error handling
+   const currentUser = auth.currentUser
+   if (!currentUser) {
+    throw new Error('User not authenticated. Please refresh the page and try again.')
+   }
+
+   const token = await currentUser.getIdToken()
+   console.log('🔑 Auth token obtained successfully')
+
    const response = await fetch('/api/generate-lesson', {
     method: 'POST',
     headers: {
      'Content-Type': 'application/json',
-     'Authorization': `Bearer ${await auth.currentUser?.getIdToken()}`
+     'Authorization': `Bearer ${token}`
     },
     body: JSON.stringify({
      topic: title,
@@ -1015,7 +1024,13 @@ export default function CreatorDashboard() {
    })
 
    if (!response.ok) {
-    throw new Error('Failed to generate lesson content')
+    const errorData = await response.text()
+    console.error('❌ API Error:', {
+     status: response.status,
+     statusText: response.statusText,
+     error: errorData
+    })
+    throw new Error(`Failed to generate lesson content (${response.status}): ${errorData}`)
    }
 
    const { markdownContent, lessonPlan } = await response.json()
