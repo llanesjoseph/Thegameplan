@@ -698,7 +698,7 @@ export default function CreatorDashboard() {
  })
  
  type FormValues = z.infer<typeof schema>
- const { register, handleSubmit, watch, reset, formState: { errors } } = useForm<FormValues>({
+ const { register, handleSubmit, watch, reset, setValue, formState: { errors } } = useForm<FormValues>({
   resolver: zodResolver(schema),
   defaultValues: { title: '', description: '', level: 'All Levels' }
  })
@@ -821,6 +821,7 @@ export default function CreatorDashboard() {
 
  const [learningObjectives, setLearningObjectives] = useState<string[]>([''])
  const [prerequisites, setPrerequisites] = useState('')
+ const [isGeneratingLesson, setIsGeneratingLesson] = useState(false)
 
  // Load lesson count
  useEffect(() => {
@@ -972,6 +973,63 @@ export default function CreatorDashboard() {
      'Apply video insights to personal performance'
     ])
     break
+  }
+ }
+
+ // AI Lesson Generation Function
+ const generateAILesson = async () => {
+  const title = watch('title')
+  const description = watch('description')
+  const existingContent = detailedWriteup.trim()
+
+  if (!title || !description) {
+   alert('Please enter a title and description first')
+   return
+  }
+
+  setIsGeneratingLesson(true)
+
+  try {
+   const response = await fetch('/api/generate-lesson-content', {
+    method: 'POST',
+    headers: {
+     'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+     title,
+     description,
+     existingContent,
+     sport: 'general'
+    }),
+   })
+
+   if (!response.ok) {
+    throw new Error('Failed to generate lesson content')
+   }
+
+   const { lessonContent } = await response.json()
+
+   // Populate the detailed lesson content textarea
+   setDetailedWriteup(lessonContent.content)
+
+   // Also populate structured lesson sections for advanced mode
+   if (lessonContent.sections) {
+    setLessonSections(lessonContent.sections)
+   }
+
+   if (lessonContent.learningObjectives) {
+    setLearningObjectives(lessonContent.learningObjectives)
+   }
+
+   if (lessonContent.prerequisites) {
+    setPrerequisites(lessonContent.prerequisites)
+   }
+
+  } catch (error) {
+   console.error('Error generating lesson:', error)
+   alert('Failed to generate lesson content. Please try again.')
+  } finally {
+   setIsGeneratingLesson(false)
   }
  }
 
@@ -1820,6 +1878,38 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
          )}
         </div>
 
+        {/* AI Lesson Generator */}
+        <div className="border border-blue-200 rounded-lg p-4 bg-blue-50">
+         <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center">
+           <Bot className="h-5 w-5 mr-2 text-blue-600" />
+           <h3 className="text-sm font-medium text-gray-900">AI Lesson Generator</h3>
+          </div>
+          <div className="text-xs text-gray-600">Generate comprehensive lesson content automatically</div>
+         </div>
+         <button
+          type="button"
+          onClick={() => generateAILesson()}
+          disabled={isGeneratingLesson || !watch('title') || !watch('description')}
+          className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+         >
+          {isGeneratingLesson ? (
+           <>
+            <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+            Generating Full Lesson...
+           </>
+          ) : (
+           <>
+            <Sparkles className="h-4 w-4" />
+            🤖 {detailedWriteup.trim() ? 'Expand & Polish Content' : 'Generate Full Lesson Content'}
+           </>
+          )}
+         </button>
+         {!watch('title') || !watch('description') ? (
+          <p className="text-xs text-gray-600 mt-2">Please enter a title and description first</p>
+         ) : null}
+        </div>
+
         {/* Enhanced Lesson Builder Section */}
         <div className="border border-gray-200 rounded-lg p-6 bg-gray-50">
          <div className="flex items-center justify-between mb-4">
@@ -2036,18 +2126,91 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
             </div>
 
             {showMarkdownGuide && (
-             <div className="bg-blue-50 p-3 text-xs border-b border-gray-300">
-              <div className="grid grid-cols-2 gap-4">
-               <div>
-                <strong>Headers:</strong> # ## ###<br/>
-                <strong>Bold:</strong> **text**<br/>
-                <strong>Italic:</strong> *text*
+             <div className="bg-blue-50 p-4 text-sm border-b border-gray-300">
+              <div className="mb-3">
+               <h4 className="font-semibold text-blue-900 mb-2">📝 What is Markdown?</h4>
+               <p className="text-blue-800 mb-3">
+                Markdown is a simple text formatting system that makes your lessons look professional and organized.
+                It's like using bold or italics in a word processor, but with special characters that create beautiful,
+                structured documents automatically.
+               </p>
+               <p className="text-blue-700 text-xs mb-3">
+                💡 <strong>Why use it?</strong> Your lessons will look like professionally published documents with proper headings,
+                formatting, and structure - perfect for sharing with students, parents, or other coaches!
+               </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+               <div className="bg-white p-3 rounded border">
+                <h5 className="font-semibold text-gray-900 mb-2">📋 Basic Formatting</h5>
+                <div className="space-y-1 text-xs">
+                 <div><code className="bg-gray-100 px-1 rounded"># Large Header</code> → <strong className="text-lg">Large Header</strong></div>
+                 <div><code className="bg-gray-100 px-1 rounded">## Medium Header</code> → <strong className="text-base">Medium Header</strong></div>
+                 <div><code className="bg-gray-100 px-1 rounded">### Small Header</code> → <strong className="text-sm">Small Header</strong></div>
+                 <div><code className="bg-gray-100 px-1 rounded">**bold text**</code> → <strong>bold text</strong></div>
+                 <div><code className="bg-gray-100 px-1 rounded">*italic text*</code> → <em>italic text</em></div>
+                </div>
                </div>
-               <div>
-                <strong>Lists:</strong> - item<br/>
-                <strong>Links:</strong> [text](url)<br/>
-                <strong>Code:</strong> `code`
+
+               <div className="bg-white p-3 rounded border">
+                <h5 className="font-semibold text-gray-900 mb-2">📝 Lists & Organization</h5>
+                <div className="space-y-1 text-xs">
+                 <div><code className="bg-gray-100 px-1 rounded">- Bullet point</code> → • Bullet point</div>
+                 <div><code className="bg-gray-100 px-1 rounded">1. Numbered item</code> → 1. Numbered item</div>
+                 <div><code className="bg-gray-100 px-1 rounded">---</code> → _____ (divider line)</div>
+                 <div><code className="bg-gray-100 px-1 rounded">`code text`</code> → <code className="bg-gray-100 px-1 rounded">code text</code></div>
+                 <div><code className="bg-gray-100 px-1 rounded">[link text](url)</code> → <span className="text-blue-600 underline">link text</span></div>
+                </div>
                </div>
+              </div>
+
+              <div className="mt-4 bg-white p-3 rounded border">
+               <h5 className="font-semibold text-gray-900 mb-2">🎯 Quick Example</h5>
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                <div>
+                 <p className="font-medium text-gray-700 mb-1">You type:</p>
+                 <pre className="bg-gray-100 p-2 rounded text-xs overflow-x-auto">
+{`# Shooting Technique
+## Learning Objectives
+- **Accuracy**: Hit 8/10 shots
+- *Consistency*: Proper form each time
+
+### Practice Drill
+1. Start close to goal
+2. Focus on technique
+3. Gradually increase distance
+
+---
+**Next lesson**: Advanced shooting`}
+                 </pre>
+                </div>
+                <div>
+                 <p className="font-medium text-gray-700 mb-1">Students see:</p>
+                 <div className="bg-gray-100 p-2 rounded">
+                  <h1 className="text-lg font-bold mb-2">Shooting Technique</h1>
+                  <h2 className="text-base font-semibold mb-2">Learning Objectives</h2>
+                  <ul className="list-disc ml-4 mb-2">
+                   <li><strong>Accuracy</strong>: Hit 8/10 shots</li>
+                   <li><em>Consistency</em>: Proper form each time</li>
+                  </ul>
+                  <h3 className="text-sm font-semibold mb-1">Practice Drill</h3>
+                  <ol className="list-decimal ml-4 mb-2">
+                   <li>Start close to goal</li>
+                   <li>Focus on technique</li>
+                   <li>Gradually increase distance</li>
+                  </ol>
+                  <hr className="my-2 border-gray-300"/>
+                  <p><strong>Next lesson</strong>: Advanced shooting</p>
+                 </div>
+                </div>
+               </div>
+              </div>
+
+              <div className="mt-3 p-2 bg-green-100 rounded text-xs">
+               <p className="text-green-800">
+                ✨ <strong>Pro Tip:</strong> The AI Content Generator above automatically creates lessons with perfect markdown formatting.
+                Just click the button and watch your content transform into a professional-looking document!
+               </p>
               </div>
              </div>
             )}
