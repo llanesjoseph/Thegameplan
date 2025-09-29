@@ -164,75 +164,83 @@ export default function CreatorApplicationsPage() {
  }
 
  return (
-  <main className="min-h-screen bg-gray-50">
-   <div className="max-w-7xl mx-auto px-4 py-6">
+  <main className="min-h-screen bg-gradient-to-br from-cream via-cream to-sky-blue/10">
+   <div className="max-w-6xl mx-auto px-6 py-8">
     {/* Header */}
-    <div className="mb-8">
-     <h1 className="text-3xl text-gray-900 mb-2">Coach Applications</h1>
-     <p className="text-gray-600">Review and manage coach applications</p>
+    <div className="text-center mb-8">
+     <h1 className="text-4xl text-dark font-heading mb-3">Coach Applications</h1>
+     <p className="text-dark/60 text-lg">Review and manage coach applications</p>
     </div>
 
     {/* Stats */}
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-     <div className="bg-white rounded-lg p-6 border border-gray-200">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+     <div className="bg-gradient-to-br from-white to-sky-blue/5 rounded-2xl shadow-lg border border-white/50 p-6 backdrop-blur-sm">
       <div className="flex items-center justify-between">
        <div>
-        <p className="text-sm  text-gray-600">Total Applications</p>
-        <p className="text-2xl text-gray-900">{applications.length}</p>
+        <p className="text-sm text-dark/60 mb-1">Total Applications</p>
+        <p className="text-3xl text-dark font-heading">{applications.length}</p>
        </div>
-       <FileText className="w-8 h-8 text-gray-400" />
+       <div className="w-12 h-12 bg-gradient-to-r from-sky-blue to-black rounded-xl flex items-center justify-center">
+        <FileText className="w-6 h-6 text-white" />
+       </div>
       </div>
      </div>
-     
-     <div className="bg-white rounded-lg p-6 border border-gray-200">
+
+     <div className="bg-gradient-to-br from-white to-orange/5 rounded-2xl shadow-lg border border-white/50 p-6 backdrop-blur-sm">
       <div className="flex items-center justify-between">
        <div>
-        <p className="text-sm  text-gray-600">Pending Review</p>
-        <p className="text-2xl text-yellow-600">
+        <p className="text-sm text-dark/60 mb-1">Pending Review</p>
+        <p className="text-3xl text-orange font-heading">
          {applications.filter(app => app.status === 'pending').length}
         </p>
        </div>
-       <Clock className="w-8 h-8 text-yellow-400" />
+       <div className="w-12 h-12 bg-gradient-to-r from-orange to-orange/80 rounded-xl flex items-center justify-center">
+        <Clock className="w-6 h-6 text-white" />
+       </div>
       </div>
      </div>
-     
-     <div className="bg-white rounded-lg p-6 border border-gray-200">
+
+     <div className="bg-gradient-to-br from-white to-green/5 rounded-2xl shadow-lg border border-white/50 p-6 backdrop-blur-sm">
       <div className="flex items-center justify-between">
        <div>
-        <p className="text-sm  text-gray-600">Approved</p>
-        <p className="text-2xl text-green-600">
+        <p className="text-sm text-dark/60 mb-1">Approved</p>
+        <p className="text-3xl text-green font-heading">
          {applications.filter(app => app.status === 'approved').length}
         </p>
        </div>
-       <CheckCircle className="w-8 h-8 text-green-400" />
+       <div className="w-12 h-12 bg-gradient-to-r from-green to-green/80 rounded-xl flex items-center justify-center">
+        <CheckCircle className="w-6 h-6 text-white" />
+       </div>
       </div>
      </div>
-     
-     <div className="bg-white rounded-lg p-6 border border-gray-200">
+
+     <div className="bg-gradient-to-br from-white to-red-100/50 rounded-2xl shadow-lg border border-white/50 p-6 backdrop-blur-sm">
       <div className="flex items-center justify-between">
        <div>
-        <p className="text-sm  text-gray-600">Rejected</p>
-        <p className="text-2xl text-red-600">
+        <p className="text-sm text-dark/60 mb-1">Rejected</p>
+        <p className="text-3xl text-red-600 font-heading">
          {applications.filter(app => app.status === 'rejected').length}
         </p>
        </div>
-       <XCircle className="w-8 h-8 text-red-400" />
+       <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-red-600 rounded-xl flex items-center justify-center">
+        <XCircle className="w-6 h-6 text-white" />
+       </div>
       </div>
      </div>
     </div>
 
     {/* Filters */}
-    <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+    <div className="bg-gradient-to-r from-white via-white to-sky-blue/5 rounded-2xl shadow-lg border border-white/50 p-6 mb-8 backdrop-blur-sm">
      <div className="flex flex-col sm:flex-row gap-4">
       <div className="flex-1">
        <div className="relative">
-        <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
+        <Search className="w-5 h-5 text-dark/40 absolute left-4 top-1/2 transform -translate-y-1/2" />
         <input
          type="text"
          placeholder="Search applications..."
          value={searchTerm}
          onChange={(e) => setSearchTerm(e.target.value)}
-         className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cardinal focus:border-transparent"
+         className="w-full pl-12 pr-4 py-3 border-2 border-sky-blue/20 bg-white/80 rounded-xl text-dark placeholder-dark/50 focus:border-sky-blue focus:ring-4 focus:ring-sky-blue/20 transition-all backdrop-blur-sm"
         />
        </div>
       </div>
@@ -241,10 +249,10 @@ export default function CreatorApplicationsPage() {
         <button
          key={status}
          onClick={() => setFilter(status)}
-         className={`px-4 py-2 rounded-lg  transition-colors ${
+         className={`px-6 py-3 rounded-xl font-medium transition-all ${
           filter === status
-           ? 'bg-cardinal text-white'
-           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+           ? 'bg-gradient-to-r from-sky-blue to-sky-blue/90 text-white shadow-lg'
+           : 'bg-white/80 text-dark hover:bg-white border border-sky-blue/20 hover:border-sky-blue/40'
          }`}
         >
          {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -255,60 +263,71 @@ export default function CreatorApplicationsPage() {
     </div>
 
     {/* Applications List */}
-    <div className="bg-white rounded-lg border border-gray-200">
+    <div className="bg-gradient-to-br from-white to-sky-blue/5 rounded-2xl shadow-lg border border-white/50 backdrop-blur-sm overflow-hidden">
      {loading ? (
-      <div className="p-8 text-center">
-       <Loader2 className="w-8 h-8 animate-spin text-cardinal mx-auto mb-4" />
-       <p className="text-gray-600">Loading applications...</p>
+      <div className="p-12 text-center">
+       <Loader2 className="w-8 h-8 animate-spin text-sky-blue mx-auto mb-4" />
+       <p className="text-dark/60">Loading applications...</p>
       </div>
      ) : filteredApplications.length === 0 ? (
-      <div className="p-8 text-center">
-       <FileText className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-       <p className="text-gray-600">No applications found</p>
+      <div className="p-12 text-center">
+       <FileText className="w-16 h-16 text-dark/20 mx-auto mb-4" />
+       <h3 className="text-xl text-dark font-heading mb-2">No applications found</h3>
+       <p className="text-dark/60">Try adjusting your search or filter criteria</p>
       </div>
      ) : (
-      <div className="divide-y divide-gray-200">
+      <div className="space-y-1">
        {filteredApplications.map((app) => (
-        <div key={app.id} className="p-6 hover:bg-gray-50 transition-colors">
+        <div key={app.id} className="p-6 hover:bg-white/50 transition-all duration-200 border-b border-sky-blue/10 last:border-b-0">
          <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-           <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
-            {app.headshotUrl ? (
-             <img 
-              src={app.headshotUrl} 
-              alt={`${app.firstName} ${app.lastName}`}
-              className="w-12 h-12 rounded-full object-cover"
-             />
-            ) : (
-             <User className="w-6 h-6 text-gray-400" />
-            )}
+          <div className="flex items-center gap-6">
+           <div className="relative">
+            <div className="w-16 h-16 rounded-2xl overflow-hidden shadow-lg border-2 border-white">
+             {app.headshotUrl ? (
+              <img
+               src={app.headshotUrl}
+               alt={`${app.firstName} ${app.lastName}`}
+               className="w-full h-full object-cover"
+              />
+             ) : (
+              <div className="w-full h-full bg-gradient-to-br from-sky-blue to-black flex items-center justify-center">
+               <User className="w-8 h-8 text-white" />
+              </div>
+             )}
+            </div>
            </div>
            <div>
-            <h3 className=" text-gray-900">
+            <h3 className="text-xl text-dark font-heading mb-1">
              {app.firstName} {app.lastName}
             </h3>
-            <p className="text-sm text-gray-600">{app.email}</p>
-            <div className="flex items-center gap-4 mt-1">
-             <span className="text-sm text-gray-500">{app.primarySport}</span>
-             <span className="text-sm text-gray-500">{app.experience}</span>
+            <p className="text-dark/60 mb-2">{app.email}</p>
+            <div className="flex items-center gap-6">
+             <div className="flex items-center gap-2">
+              <Award className="w-4 h-4 text-sky-blue" />
+              <span className="text-sm text-dark/70">{app.primarySport}</span>
+             </div>
+             <div className="flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-green" />
+              <span className="text-sm text-dark/70">{app.experience}</span>
+             </div>
             </div>
            </div>
           </div>
-          
+
           <div className="flex items-center gap-4">
-           <div className={`px-3 py-1 rounded-full text-sm  ${
-            app.status === 'pending' 
-             ? 'bg-yellow-100 text-yellow-800'
+           <div className={`px-4 py-2 rounded-xl text-sm font-medium shadow-sm ${
+            app.status === 'pending'
+             ? 'bg-gradient-to-r from-orange/20 to-orange/10 text-orange border border-orange/30'
              : app.status === 'approved'
-             ? 'bg-green-100 text-green-800'
-             : 'bg-red-100 text-red-800'
+             ? 'bg-gradient-to-r from-green/20 to-green/10 text-green border border-green/30'
+             : 'bg-gradient-to-r from-red-100 to-red-50 text-red-600 border border-red-200'
            }`}>
             {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
            </div>
-           
+
            <button
             onClick={() => setSelectedApp(app)}
-            className="p-2 text-gray-400 hover:text-cardinal rounded-lg hover:bg-red-50 transition-colors"
+            className="p-3 text-dark/40 hover:text-sky-blue rounded-xl hover:bg-sky-blue/10 transition-all duration-200 border border-sky-blue/20 hover:border-sky-blue/40 bg-white/80"
            >
             <Eye className="w-5 h-5" />
            </button>

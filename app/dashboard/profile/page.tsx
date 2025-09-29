@@ -28,7 +28,8 @@ import {
  Youtube,
  Globe,
  MessageSquare,
- Music
+ Music,
+ Mic
 } from 'lucide-react'
 import { DiscordIcon } from '@/components/icons/DiscordIcon'
 import { TikTokIcon } from '@/components/icons/TikTokIcon'
