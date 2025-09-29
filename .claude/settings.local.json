@@ -41,7 +41,8 @@
       "Bash(xargs:*)",
       "Bash(npm run deploy:*)",
       "Bash(npm run:*)",
-      "Bash(del test-ai-api.js)"
+      "Bash(del test-ai-api.js)",
+      "Bash(del:*)"
     ],
     "deny": [],
     "ask": []

@@ -667,13 +667,13 @@ export default function CreatorDashboard() {
  const { user: authUser, loading: authLoading } = useAuth()
  const router = useRouter()
  
- const [activeSection, setActiveSection] = useState<'create' | 'manage' | 'invitations'>('create')
+ const [activeSection, setActiveSection] = useState<'dashboard' | 'create' | 'manage' | 'invitations'>('dashboard')
 
  // Handle URL parameters for section switching
  useEffect(() => {
   const urlParams = new URLSearchParams(window.location.search)
   const sectionParam = urlParams.get('section') || urlParams.get('tab')
-  if (sectionParam && ['create', 'manage', 'invitations'].includes(sectionParam)) {
+  if (sectionParam && ['dashboard', 'create', 'manage', 'invitations'].includes(sectionParam)) {
    setActiveSection(sectionParam as any)
   }
  }, [])
@@ -868,7 +868,7 @@ export default function CreatorDashboard() {
 
  // Load published lessons for manage section
  useEffect(() => {
-  if (activeSection === 'manage' && authUser?.uid) {
+  if ((activeSection === 'manage' || activeSection === 'dashboard') && authUser?.uid) {
    loadPublishedLessons()
   }
  }, [activeSection, authUser?.uid])
@@ -1440,6 +1440,18 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
        <div className="text-xs text-gray-500">Invite Coaches</div>
       </button>
 
+      <button
+       onClick={() => setActiveSection('dashboard')}
+       className={`p-4 rounded-lg border-2 transition-all ${
+        activeSection === 'dashboard'
+         ? 'border-orange-500 bg-orange-50 shadow-md'
+         : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'
+       }`}
+      >
+       <LayoutDashboard className="h-6 w-6 text-orange-600 mx-auto mb-2" />
+       <div className="text-sm font-medium text-gray-900">Dashboard</div>
+       <div className="text-xs text-gray-500">All Tools</div>
+      </button>
      </div>
 
      {uploadSuccess && (
@@ -1462,9 +1474,9 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
      )}
 
      {/* Content Area */}
-     {activeSection === 'create' ? (
+     {activeSection === 'dashboard' ? (
+      // Comprehensive Coach Dashboard
       <div className="space-y-8">
-       {/* Comprehensive Coach Dashboard */}
        {/* Quick Actions Row */}
        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Content Creation */}
@@ -1639,7 +1651,7 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
         </div>
        </div>
       </div>
-     ) : (
+     ) : activeSection === 'create' ? (
       <div className="bg-white rounded-lg shadow-sm">
        <div className="p-6 border-b border-gray-200">
         <div className="flex items-center justify-between">
