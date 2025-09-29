@@ -1596,11 +1596,11 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
          </div>
         </div>
 
-        {/* Business Tools */}
+        {/* Stats */}
         <div className="bg-white rounded-lg shadow-sm p-6">
          <div className="flex items-center gap-3 mb-4">
           <TrendingUp className="h-6 w-6 text-purple-600" />
-          <h3 className="text-lg font-semibold text-gray-900">Business Tools</h3>
+          <h3 className="text-lg font-semibold text-gray-900">Stats</h3>
          </div>
          <div className="space-y-3">
           <Link
