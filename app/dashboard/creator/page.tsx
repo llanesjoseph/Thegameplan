@@ -737,35 +737,19 @@ export default function CreatorDashboard() {
     return
    }
 
-   // Get user token for authentication
-   const currentUser = auth.currentUser
-   if (!currentUser) {
-    throw new Error('User not authenticated')
-   }
+   console.log('📧 Sending coach invitation using simple endpoint')
 
-   const token = await currentUser.getIdToken()
-   if (!token) {
-    throw new Error('Failed to get authentication token')
-   }
-
-   // Send invitation
-   const response = await fetch('/api/coach-ingestion/generate-link', {
+   // Send invitation using simple endpoint
+   const response = await fetch('/api/coach-invitation-simple', {
     method: 'POST',
     headers: {
      'Content-Type': 'application/json',
-     'Authorization': `Bearer ${token}`,
     },
     body: JSON.stringify({
-     organizationName: `${authUser?.displayName || 'PLAYBOOKD'} Coaching Network`,
+     coachEmail: invitationForm.email,
+     coachName: invitationForm.name,
      sport: invitationForm.sport,
-     description: `Join as a ${invitationForm.sport} coach`,
-     customMessage: invitationForm.customMessage || `Hi ${invitationForm.name}, I'd like to invite you to join our coaching platform!`,
-     sendEmail: true,
-     recipientEmail: invitationForm.email,
-     recipientName: invitationForm.name,
-     expiresInDays: 30,
-     maxUses: 1,
-     autoApprove: false
+     personalMessage: invitationForm.customMessage || `Hi ${invitationForm.name}, I'd like to invite you to join our coaching platform!`
     })
    })
 
