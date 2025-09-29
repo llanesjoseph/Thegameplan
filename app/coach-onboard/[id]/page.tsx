@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import { Loader2, CheckCircle, AlertCircle, User, Award, Target, MessageSquare, Mic } from 'lucide-react'
 import VoiceCaptureIntake from '@/components/coach/VoiceCaptureIntake'
+import StreamlinedVoiceCapture from '@/components/coach/StreamlinedVoiceCapture'
 
 interface IngestionData {
   organizationName: string
@@ -255,7 +256,12 @@ export default function CoachOnboardPage() {
 
     setSubmitting(true)
     try {
-      const response = await fetch('/api/coach-ingestion/submit', {
+      // Use different submit endpoints based on invitation type
+      const submitEndpoint = ingestionId.startsWith('inv_')
+        ? '/api/submit-simple-coach'
+        : '/api/coach-ingestion/submit'
+
+      const response = await fetch(submitEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -282,14 +288,12 @@ export default function CoachOnboardPage() {
   }
 
   const validateForm = () => {
+    // Only require the absolute minimum - email and name
     if (!userInfo.email || !userInfo.firstName || !userInfo.lastName) {
-      setError('Please fill in all required personal information')
+      setError('Please fill in your email, first name, and last name')
       return false
     }
-    if (!coachData.experience || !coachData.bio) {
-      setError('Please fill in your coaching experience and bio')
-      return false
-    }
+    // Everything else is optional - take what we can get
     return true
   }
 
@@ -478,7 +482,7 @@ export default function CoachOnboardPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="experience">Years of Experience *</Label>
+                  <Label htmlFor="experience">Years of Experience</Label>
                   <Input
                     id="experience"
                     value={coachData.experience}
@@ -497,7 +501,7 @@ export default function CoachOnboardPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="bio">Coaching Bio *</Label>
+                  <Label htmlFor="bio">Coaching Bio</Label>
                   <Textarea
                     id="bio"
                     value={coachData.bio}
@@ -623,17 +627,23 @@ export default function CoachOnboardPage() {
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <h3 className="font-semibold text-blue-900 mb-2">🎤 Enhanced AI Coaching (Optional)</h3>
                   <p className="text-blue-800 text-sm mb-3">
-                    Complete this detailed intake to help our AI system capture your unique coaching voice and personality.
-                    This enables highly personalized AI responses that reflect your authentic coaching style.
+                    Help our AI capture your unique coaching voice and personality for highly personalized responses.
                   </p>
-                  <div className="flex gap-3">
+                  <div className="flex flex-col sm:flex-row gap-3">
                     <Button
                       onClick={() => setCurrentStep(5)}
+                      size="sm"
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      ⚡ Quick Voice Capture (5-7 min)
+                    </Button>
+                    <Button
+                      onClick={() => setCurrentStep(6)}
                       variant="outline"
                       size="sm"
                       className="text-blue-700 border-blue-300 hover:bg-blue-100"
                     >
-                      Complete Voice Capture
+                      📚 Detailed Voice Capture (12-15 min)
                     </Button>
                     <Button
                       onClick={handleSubmit}
@@ -651,6 +661,26 @@ export default function CoachOnboardPage() {
             )}
 
             {currentStep === 5 && (
+              <div>
+                <StreamlinedVoiceCapture
+                  onComplete={(data) => {
+                    setCoachData(prev => ({ ...prev, voiceCaptureData: data }))
+                    handleSubmit() // Auto-submit after streamlined capture
+                  }}
+                  onProgress={(progress) => {
+                    console.log('Streamlined voice capture progress:', progress)
+                  }}
+                  existingProfile={{
+                    sport: coachData.sport,
+                    experience: coachData.experience,
+                    bio: coachData.bio,
+                    tagline: coachData.tagline
+                  }}
+                />
+              </div>
+            )}
+
+            {currentStep === 6 && (
               <div>
                 {ingestionData?.metadata?.isJasmineSpecial && (
                   <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
@@ -689,14 +719,14 @@ export default function CoachOnboardPage() {
             )}
 
             <div className="flex justify-between pt-4">
-              {currentStep > 1 && currentStep !== 4 && (
+              {currentStep > 1 && currentStep !== 4 && currentStep !== 5 && (
                 <Button variant="outline" onClick={() => setCurrentStep(prev => prev - 1)}>
                   Previous
                 </Button>
               )}
-              {currentStep === 5 && (
+              {(currentStep === 5 || currentStep === 6) && (
                 <Button variant="outline" onClick={() => setCurrentStep(4)}>
-                  Back to Options
+                  Back to Voice Options
                 </Button>
               )}
               {currentStep < 4 ? (
@@ -707,7 +737,7 @@ export default function CoachOnboardPage() {
                 >
                   Next
                 </Button>
-              ) : currentStep === 5 ? (
+              ) : currentStep === 6 ? (
                 <Button
                   onClick={handleSubmit}
                   disabled={submitting}
