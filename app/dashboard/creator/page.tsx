@@ -1002,7 +1002,7 @@ export default function CreatorDashboard() {
     method: 'POST',
     headers: {
      'Content-Type': 'application/json',
-     'Authorization': `Bearer ${await user?.getIdToken()}`
+     'Authorization': `Bearer ${await authUser?.getIdToken()}`
     },
     body: JSON.stringify({
      topic: title,
