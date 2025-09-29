@@ -545,8 +545,7 @@ export default function CreatorApplicationsPage() {
       </div>
      </div>
     )}
-    </div>
-   </main>
-  </>
+   </div>
+  </div>
  )
 }
