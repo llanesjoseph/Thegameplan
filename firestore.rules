@@ -81,8 +81,6 @@ service cloud.firestore {
                        request.auth.uid == userId && 
                        isValidUserData();
       allow update: if (isOwner(userId) || isAdmin()) &&
-                       (request.auth.uid != userId || 
-                        resource.data.role == request.resource.data.role) &&
                        isValidUserData();
       allow delete: if isSuperAdmin();
     }
