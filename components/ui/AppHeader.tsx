@@ -77,7 +77,7 @@ export default function AppHeader({ className = '' }: AppHeaderProps) {
       case 'admin':
         return { label: 'Admin', color: 'bg-orange-600' }
       case 'creator':
-        return { label: 'Creator', color: 'bg-blue-600' }
+        return { label: 'Coach', color: 'bg-purple-600' }
       case 'coach':
         return { label: 'Coach', color: 'bg-purple-600' }
       case 'assistant':
