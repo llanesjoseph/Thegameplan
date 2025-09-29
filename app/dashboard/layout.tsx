@@ -11,14 +11,16 @@ import { UserIdentity } from '@/components/user-identity'
 export default function DashboardLayout({ children }: { children: ReactNode }) {
  const pathname = usePathname()
 
- // The main /dashboard page handles its own authentication
- // Only apply AuthGate to protected dashboard sub-routes
+ // Pages that handle their own auth and layout (no sidebar)
  const isMainDashboard = pathname === '/dashboard'
  const isOverviewPage = pathname === '/dashboard/overview'
  const isCreatorPage = pathname === '/dashboard/creator'
+ const isProfilePage = pathname === '/dashboard/profile'
+ const isCoachProfilePage = pathname === '/dashboard/coach/profile'
+ const isAdminApplicationsPage = pathname?.startsWith('/dashboard/admin/creator-applications') || pathname?.startsWith('/dashboard/admin/coach-applications')
 
- if (isMainDashboard || isOverviewPage || isCreatorPage) {
-  // Main dashboard, overview page, and creator page handle their own auth and layout
+ if (isMainDashboard || isOverviewPage || isCreatorPage || isProfilePage || isCoachProfilePage || isAdminApplicationsPage) {
+  // These pages handle their own auth and layout
   return <>{children}</>
  }
 
