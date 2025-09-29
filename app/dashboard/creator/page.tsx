@@ -737,11 +737,18 @@ export default function CreatorDashboard() {
     return
    }
 
+   // Get user token for authentication
+   const token = await authUser?.getIdToken()
+   if (!token) {
+    throw new Error('Authentication required')
+   }
+
    // Send invitation
    const response = await fetch('/api/coach-ingestion/generate-link', {
     method: 'POST',
     headers: {
      'Content-Type': 'application/json',
+     'Authorization': `Bearer ${token}`,
     },
     body: JSON.stringify({
      organizationName: `${authUser?.displayName || 'PLAYBOOKD'} Coaching Network`,
@@ -799,6 +806,7 @@ export default function CreatorDashboard() {
  // AI Features State
  const [showAIFeatures, setShowAIFeatures] = useState(false)
  const [detailedWriteup, setDetailedWriteup] = useState('')
+ const [previewMode, setPreviewMode] = useState(false)
 
  const [generatingIdeas, setGeneratingIdeas] = useState(false)
  const [enhancingContent, setEnhancingContent] = useState(false)
@@ -1011,6 +1019,9 @@ export default function CreatorDashboard() {
 
    // Populate the detailed lesson content textarea
    setDetailedWriteup(lessonContent.content)
+
+   // Automatically switch to preview mode to show the beautiful formatting
+   setPreviewMode(true)
 
    // Also populate structured lesson sections for advanced mode
    if (lessonContent.sections) {
@@ -2215,40 +2226,111 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
              </div>
             )}
 
-            <textarea
-             value={detailedWriteup}
-             onChange={(e) => setDetailedWriteup(e.target.value)}
-             rows={20}
-             className="w-full px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm resize-y"
-             placeholder="Create your comprehensive lesson content here...
+            {/* Preview/Edit Toggle */}
+            <div className="flex items-center justify-between mb-3">
+             <div className="flex items-center">
+              <span className="text-sm text-gray-700 mr-3">View Mode:</span>
+              <div className="flex rounded-lg border border-gray-300 p-1">
+               <button
+                type="button"
+                onClick={() => setPreviewMode(false)}
+                className={`px-3 py-1 text-sm rounded transition-colors ${
+                 !previewMode
+                  ? 'bg-blue-500 text-white'
+                  : 'text-gray-600 hover:text-gray-800'
+                }`}
+               >
+                ✏️ Edit
+               </button>
+               <button
+                type="button"
+                onClick={() => setPreviewMode(true)}
+                className={`px-3 py-1 text-sm rounded transition-colors ${
+                 previewMode
+                  ? 'bg-blue-500 text-white'
+                  : 'text-gray-600 hover:text-gray-800'
+                }`}
+               >
+                👁️ Preview
+               </button>
+              </div>
+             </div>
+             {detailedWriteup && (
+              <div className="text-xs text-gray-500">
+               {detailedWriteup.length} characters
+              </div>
+             )}
+            </div>
+
+            {previewMode && detailedWriteup ? (
+             // Preview Mode - Render the markdown-like content
+             <div className="border border-gray-300 rounded-lg p-6 bg-white min-h-[500px] max-h-[600px] overflow-y-auto">
+              <div
+               className="prose prose-sm max-w-none"
+               dangerouslySetInnerHTML={{
+                __html: detailedWriteup
+                 // Convert markdown-like formatting to HTML
+                 .replace(/^### (.*$)/gim, '<h3 class="text-lg font-semibold text-gray-900 mt-6 mb-3 border-b border-gray-200 pb-2">$1</h3>')
+                 .replace(/^## (.*$)/gim, '<h2 class="text-xl font-bold text-gray-900 mt-8 mb-4 border-b-2 border-blue-200 pb-3">$1</h2>')
+                 .replace(/^# (.*$)/gim, '<h1 class="text-2xl font-bold text-gray-900 mb-6">$1</h1>')
+                 .replace(/^\*\*(.*?)\*\*/gim, '<strong class="font-semibold text-gray-900">$1</strong>')
+                 .replace(/^\*(.*?)\*/gim, '<em class="italic text-gray-700">$1</em>')
+                 .replace(/^- (.*$)/gim, '<li class="ml-4 text-gray-700">$1</li>')
+                 .replace(/^(\d+)\. (.*$)/gim, '<li class="ml-4 text-gray-700 list-decimal">$2</li>')
+                 .replace(/^---$/gim, '<hr class="my-6 border-gray-300">')
+                 .replace(/\n\n/g, '</p><p class="mb-4 text-gray-700 leading-relaxed">')
+                 .replace(/^(?!<[h|l|d])/gim, '<p class="mb-4 text-gray-700 leading-relaxed">')
+                 .replace(/⚡/g, '<span class="text-yellow-500">⚡</span>')
+                 .replace(/✨/g, '<span class="text-blue-500">✨</span>')
+                 .replace(/🎯/g, '<span class="text-red-500">🎯</span>')
+               }}
+              />
+             </div>
+            ) : !previewMode ? (
+             // Edit Mode - Show textarea
+             <textarea
+              value={detailedWriteup}
+              onChange={(e) => setDetailedWriteup(e.target.value)}
+              rows={20}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm resize-y font-mono"
+              placeholder="Create your comprehensive lesson content here...
 
 Example structure:
-# Lesson Introduction
+## Lesson Introduction
 Brief overview of what we'll cover...
 
-## Learning Objectives
+### Learning Objectives
 - Students will be able to...
 - Students will understand...
 
-## Prerequisites
+### Prerequisites
 What students should know before this lesson...
 
-## Main Content
-### Section 1: Theory
+### Main Content
+**Step 1: Theory**
 Explain the concepts...
 
-### Section 2: Demonstration
+**Step 2: Demonstration**
 Show the techniques...
 
-### Section 3: Practice
+**Step 3: Practice**
 Guided practice activities...
 
-## Review & Next Steps
+### Review & Next Steps
 Summary and what comes next..."
-            />
+             />
+            ) : (
+             // Empty state for preview mode
+             <div className="border border-gray-300 rounded-lg p-8 bg-gray-50 min-h-[500px] flex items-center justify-center">
+              <div className="text-center text-gray-500">
+               <p className="text-lg mb-2">📝 No content to preview</p>
+               <p className="text-sm">Switch to Edit mode or use the AI Generator to create lesson content</p>
+              </div>
+             </div>
+            )}
            </div>
            <p className="mt-2 text-xs text-gray-500">
-            💡 Pro tip: Use the AI Content Enhancer above to automatically generate comprehensive lesson content, then customize it here.
+            💡 Pro tip: Use the AI Content Generator above to automatically create well-formatted lesson content, then customize it here.
            </p>
           </div>
          )}

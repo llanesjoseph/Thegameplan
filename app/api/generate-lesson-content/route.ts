@@ -29,12 +29,6 @@ export async function POST(request: NextRequest) {
 }
 
 async function generateLessonContent(title: string, description: string, sport: string, existingContent: string = '') {
-  const currentDate = new Date().toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  })
-
   // Get sport-specific information
   const sportInfo = getSportSpecificInfo(sport)
 
@@ -45,404 +39,148 @@ async function generateLessonContent(title: string, description: string, sport: 
 
   if (isExpanding) {
     // AI is expanding existing content - preserve what's there and enhance it
-    enhancedContent = `# ${title}
+    enhancedContent = `## Lesson Plan: ${title}
 
-*Enhanced and expanded lesson plan - Generated ${currentDate}*
+This lesson focuses on ${description.toLowerCase()}, building on the foundation you've already established.
 
----
+**Objective:** By the end of this session, students will be able to confidently ${description.toLowerCase()} and apply these skills in realistic scenarios.
 
-## 📋 Executive Summary
-
-**Lesson Focus:** ${title}
-**Sport:** ${sportInfo.name}
-**Target Audience:** ${sportInfo.name} athletes (All skill levels)
-**Duration:** 75-90 minutes
-**Difficulty Level:** Progressive (Beginner to Intermediate)
-
-**Key Learning Outcomes:**
-${sportInfo.objectives.map((obj: string) => `- ${obj}`).join('\n')}
+**Materials Needed:** ${sportInfo.equipment.slice(0, 3).join(', ')}.
 
 ---
 
-## 🎯 Enhanced Content Building on Your Foundation
+### Your Existing Content
 
 ${existingContent}
 
 ---
 
-## 📚 Comprehensive Lesson Development
+### Enhanced Structure & Drills
 
-### Learning Objectives (SMART Goals)
-By the end of this lesson, participants will **demonstrably**:
+#### 1. Warm-Up & Introduction (10 minutes)
 
-1. **Execute** the core techniques with 80% accuracy in controlled practice
-2. **Apply** learned skills in at least 3 different game scenarios
-3. **Analyze** their own performance and identify 2 areas for improvement
-4. **Demonstrate** understanding through peer teaching or explanation
+Start by explaining the core concepts of ${title.toLowerCase()}. The goal is to ${description.toLowerCase()} while maintaining proper ${sportInfo.name} fundamentals.
 
-### Prerequisites & Preparation
-**Student Requirements:**
-- ${sportInfo.prerequisites}
-- Understanding of ${sportInfo.name}-specific safety protocols
-- Appropriate fitness level for ${sportInfo.name} training
+* **Key Concept:** "${sportInfo.name} is about precision and timing - every movement should have purpose."
+* **Warm-up Drills:**
+${sportInfo.warmup.slice(0, 3).map((drill: string) => `    * ${drill}`).join('\n')}
 
-**Instructor Preparation:**
-- Equipment setup and safety check completed (${sportInfo.equipment.join(', ')})
-- Backup drills prepared for varying skill levels
-- Individual student progress notes reviewed
-- Review of ${sportInfo.name}-specific terminology and techniques
+#### 2. Core Technique Development (20 minutes)
 
----
+Break down the technique into manageable components.
 
-## 🏗️ Detailed Lesson Structure
+**Step 1: Foundation Position**
+* Establish proper ${sportInfo.terminology[0]} position
+* Focus on ${sportInfo.techniques[0]} fundamentals
+* **Drill:** Partner practice with controlled resistance (5 minutes)
 
-### Phase 1: Dynamic Introduction (12 minutes)
-**0-3 minutes: Welcome & Mindset**
-- Brief check-in with each participant
-- State lesson objectives clearly
-- Address any questions or concerns
-- Set positive, growth-focused tone
+**Step 2: Progressive Application**
+* Add ${sportInfo.techniques[1]} elements
+* Emphasize ${sportInfo.terminology[1]} principles
+* **Drill:** Situational practice with increasing intensity (10 minutes)
 
-**3-12 minutes: ${sportInfo.name}-Specific Warm-Up**
-${sportInfo.warmup.map((item: string, index: number) => `- ${item} (${index === 0 ? '3' : index === 1 ? '4' : index === 2 ? '3' : '2'} minutes)`).join('\n')}
-- Mental focus and ${sportInfo.name} visualization (2 minutes)
+**Step 3: Integration & Flow**
+* Combine all elements smoothly
+* Focus on timing and precision
+* **Drill:** Live practice with feedback (5 minutes)
 
-### Phase 2: ${sportInfo.name} Skill Development (25 minutes)
-**12-20 minutes: ${sportInfo.name} Technique Introduction**
-- Demonstrate ${title.toLowerCase()} at full intensity
-- Break down into key ${sportInfo.name} components
-- Explain ${sportInfo.name}-specific biomechanics and leverage
-- Show common errors and ${sportInfo.name}-specific corrections
-- Emphasize ${sportInfo.name} terminology: ${sportInfo.terminology.slice(0, 3).join(', ')}
+#### 3. Application & Sparring (15 minutes)
 
-**20-37 minutes: Guided ${sportInfo.name} Practice**
-- Individual technique drilling (${sportInfo.techniques.slice(0, 2).join(' and ')})
-- Progressive skill integration with ${sportInfo.name} applications
-- Partner-based practice with controlled resistance
-- Real-time coaching and technical corrections
+Apply the techniques in realistic scenarios.
 
-### Phase 3: ${sportInfo.name} Application & Mastery (25 minutes)
-**37-50 minutes: Progressive ${sportInfo.name} Challenges**
-- Controlled technique drilling (6 minutes)
-- Live ${sportInfo.name} scenarios with resistance (7 minutes)
-- Competitive ${sportInfo.name} situations (12 minutes)
-
-**50-62 minutes: ${sportInfo.name} Integration**
-- Situational ${sportInfo.name} drills and sparring
-- Real-time decision making under pressure
-- ${sportInfo.name}-specific problem solving
-- Technique refinement through live practice
-
-### Phase 4: Consolidation (13 minutes)
-**62-70 minutes: Cool Down & Reflection**
-- Physical recovery activities
-- Individual reflection time
-- Group discussion of key learnings
-- Goal setting for next practice
-
-**70-75 minutes: Documentation & Planning**
-- Quick assessment notes
-- Homework assignment
-- Preview next lesson
-- Equipment cleanup
+* **Controlled Sparring:** 3-minute rounds focusing on the lesson technique
+* **Reset & Feedback:** Quick coaching between rounds
+* **Progressive Intensity:** Start at 50%, build to 80%
 
 ---
 
-## 🔧 ${sportInfo.name} Equipment & Setup Requirements
+### Safety Notes
+${sportInfo.safetyNotes.slice(0, 2).map((note: string) => `* ${note}`).join('\n')}
 
-### Essential ${sportInfo.name} Equipment
-${sportInfo.equipment.map((item: string) => `- **${item}**`).join('\n')}
-- **Safety:** First aid kit, emergency contacts, communication device
-- **Learning Aids:** Timer, whiteboard for technique breakdown
-- **Optional:** Video recording for technique analysis
-
-### ${sportInfo.name} Space Requirements
-- **Training Area:** Appropriate ${sportInfo.name} training space with safety mats/boundaries
-- **Safety Perimeter:** Clear boundaries and safe training environment
-- **Equipment Storage:** Organized storage for ${sportInfo.name} equipment
-- **Hygiene Station:** Hand sanitizer, towels, water access
-
-### ${sportInfo.name} Safety Protocols
-${sportInfo.safetyNotes.map((note: string) => `- ${note}`).join('\n')}
+### Homework Assignment
+1. Practice the foundation position for 10 minutes daily
+2. Watch video examples of professional ${sportInfo.name} athletes
+3. Journal about what felt most challenging
 
 ---
 
-## 📊 Assessment & Progress Tracking
-
-### Formative Assessment (During Lesson)
-- **Observation Checklist:** Technical execution points
-- **Peer Assessment:** Partner feedback activities
-- **Self-Assessment:** Reflection questions and goal setting
-- **Quick Checks:** Understanding verification throughout
-
-### Summative Assessment (End of Lesson)
-- **Skill Demonstration:** Execute under pressure
-- **Knowledge Check:** Explain key concepts
-- **Application Test:** Perform in game scenario
-- **Progress Documentation:** Compare to baseline
-
-### Documentation Template
-
-**Student:** ________________  **Date:** ________________
-**Skill Focus:** ${title}
-
-**Technical Proficiency:** ⚪ Developing ⚪ Approaching ⚪ Proficient ⚪ Advanced
-**Tactical Understanding:** ⚪ Developing ⚪ Approaching ⚪ Proficient ⚪ Advanced
-**Effort & Attitude:** ⚪ Developing ⚪ Approaching ⚪ Proficient ⚪ Advanced
-
-**Key Strengths:** ________________________________
-**Growth Areas:** ________________________________
-**Next Lesson Focus:** ____________________________
-
----
-
-## 🏠 Extended Learning & Practice
-
-### Immediate Homework (Before Next Session)
-1. **Technical Practice:** 15 minutes, 3 times
-2. **Video Study:** Watch 2 professional examples
-3. **Reflection Journal:** Daily 5-minute entries
-4. **Fitness Component:** Related strength/flexibility work
-
-### Long-term Development
-- **Weekly Goals:** Specific, measurable targets
-- **Monthly Assessments:** Progress evaluation
-- **Seasonal Planning:** Skill progression mapping
-- **Competition Preparation:** Application opportunities
-
----
-
-## ⚠️ Safety & Risk Management
-
-### Risk Assessment Matrix
-**High Priority:**
-- Physical contact/collision potential
-- Equipment malfunction possibilities
-- Environmental hazards
-- Individual health considerations
-
-**Mitigation Strategies:**
-- Comprehensive warm-up protocols
-- Equipment inspection procedures
-- Clear communication systems
-- Emergency action plans
-
-### Incident Response Protocol
-1. **Immediate:** Assess, secure, communicate
-2. **Short-term:** First aid, documentation
-3. **Follow-up:** Investigation, prevention measures
-
----
-
-## 🎓 Professional Development Notes
-
-### Coaching Reflection Questions
-- What worked exceptionally well?
-- Which students needed additional support?
-- How can the lesson structure be optimized?
-- What resources would enhance learning?
-
-### Continuous Improvement
-- Student feedback integration
-- Peer coach consultation
-- Professional development application
-- Evidence-based practice updates
-
----
-
-**Document Version:** 2.0
-**Last Updated:** ${currentDate}
-**Next Review:** Schedule regular updates
-**Created By:** AI-Enhanced Lesson Planning System
-
-*This comprehensive lesson plan represents best practices in sports education and is designed to maximize learning outcomes while ensuring safety and engagement for all participants.*`
+*This enhanced lesson plan builds on your existing content while adding structure and sport-specific elements.*`
 
   } else {
-    // AI is creating new content from scratch
-    enhancedContent = `# ${title}
+    // AI is creating new content from scratch - keep it simple and actionable
+    enhancedContent = `## Lesson Plan: ${title}
 
-*Professional Lesson Plan - Generated ${currentDate}*
+This lesson focuses on ${description.toLowerCase()}, providing a clear path from basics to application.
 
----
+**Objective:** By the end of this session, students will confidently ${description.toLowerCase()} and apply these skills in realistic ${sportInfo.name} scenarios.
 
-## 📋 Executive Summary
-
-**Lesson Focus:** ${title}
-**Description:** ${description}
-**Sport:** ${sportInfo.name}
-**Target Audience:** ${sportInfo.name} athletes (All skill levels)
-**Duration:** 75-90 minutes
-**Difficulty Level:** Progressive (Beginner to Intermediate)
+**Materials Needed:** ${sportInfo.equipment.slice(0, 4).join(', ')}.
 
 ---
 
-## 🎯 ${sportInfo.name} Learning Objectives (SMART Goals)
+### 1. Introduction & Warm-Up (10 minutes)
 
-By the end of this ${sportInfo.name} lesson, participants will **demonstrably**:
+Start by explaining why ${title.toLowerCase()} is crucial in ${sportInfo.name}. It's not just about technique - it's about **understanding when and how to apply it effectively**.
 
-${sportInfo.objectives.map((obj: string, index: number) => `${index + 1}. **${obj}**`).join('\n')}
-
----
-
-## 🏗️ Comprehensive Lesson Structure
-
-### Phase 1: Dynamic Introduction (12 minutes)
-**Welcome & Mindset Setting (0-3 min)**
-- Individual participant check-in
-- Clear objective communication
-- Safety briefing and expectations
-- Positive learning environment establishment
-
-**${sportInfo.name} Warm-Up (3-12 min)**
-${sportInfo.warmup.map((item: string, index: number) => `- ${item}`).join('\n')}
-- Mental focus and ${sportInfo.name} visualization
-
-### Phase 2: Skill Development (25 minutes)
-**Technique Introduction (12-20 min)**
-- Full-speed skill demonstration
-- Component breakdown and analysis
-- Biomechanical principle explanation
-- Common error identification and correction
-- Multi-modal learning approach
-
-**Guided Practice (20-37 min)**
-- Individual component mastery
-- Progressive skill integration
-- Continuous feedback provision
-- Peer observation and coaching
-
-### Phase 3: Application & Mastery (25 minutes)
-**Progressive Challenges (37-50 min)**
-- Controlled environment practice
-- Variable scenario introduction
-- Competitive element integration
-- Decision-making development
-
-**Game Integration (50-62 min)**
-- Realistic application scenarios
-- Real-time decision making
-- Pressure situation management
-- Success celebration and learning extraction
-
-### Phase 4: Consolidation (13 minutes)
-**Cool Down & Reflection (62-70 min)**
-- Physical recovery protocols
-- Individual and group reflection
-- Key learning point identification
-- Goal setting for continued development
-
-**Documentation & Planning (70-75 min)**
-- Progress assessment and notes
-- Homework assignment
-- Next lesson preview
-- Equipment management
+* **Key Concept:** "In ${sportInfo.name}, timing and positioning are everything. Master these fundamentals first."
+* **Warm-up Drills:**
+${sportInfo.warmup.slice(0, 3).map((drill: string) => `    * ${drill}`).join('\n')}
+    * Mental focus and visualization
 
 ---
 
-## 📊 Assessment Framework
+### 2. The Three Pillars of ${title} (20 minutes)
 
-### Continuous Assessment Tools
-- **Technical Execution Checklist**
-- **Peer Feedback Systems**
-- **Self-Reflection Protocols**
-- **Real-time Performance Indicators**
+Break down the technique into three core components that students can master step by step.
 
-### Progress Documentation Template
+#### **Pillar 1: Foundation & Setup**
+Your success starts with proper positioning.
+* **Action:** Establish correct ${sportInfo.terminology[0]} position
+* **Focus:** ${sportInfo.techniques[0]} fundamentals
+* **Drill:** Partner A establishes position, Partner B provides controlled resistance. Focus on stability and control for 3 minutes, then switch.
 
-**Participant:** ________________  **Date:** ________________
-**Skill Focus:** ${title}
+#### **Pillar 2: Execution & Timing**
+The technique itself must be precise and well-timed. ⚡
+* **Action:** Apply ${sportInfo.techniques[1]} with proper ${sportInfo.terminology[1]} principles
+* **Focus:** Smooth execution and correct timing
+* **Drill:**
+    1. Partner A demonstrates the technique slowly
+    2. Partner B offers progressive resistance
+    3. Practice 10 repetitions, then switch roles
 
-**Technical Proficiency:** ⚪ Developing ⚪ Approaching ⚪ Proficient ⚪ Advanced
-**Tactical Understanding:** ⚪ Developing ⚪ Approaching ⚪ Proficient ⚪ Advanced
-**Effort & Engagement:** ⚪ Developing ⚪ Approaching ⚪ Proficient ⚪ Advanced
-
-**Strengths Demonstrated:** ________________________________
-**Development Opportunities:** _____________________________
-**Next Session Focus:** ___________________________________
-
----
-
-## 🔧 Equipment & Resource Requirements
-
-### Essential ${sportInfo.name} Equipment
-${sportInfo.equipment.map((item: string) => `- **${item}**`).join('\n')}
-- **Safety Equipment:** First aid, communication, emergency protocols
-- **Learning Aids:** Timer, technique breakdown tools
-- **Assessment Tools:** Observation sheets, progress tracking
-
-### ${sportInfo.name} Training Environment
-- **Space Requirements:** Proper ${sportInfo.name} training area with safety features
-- **Safety Protocols:** ${sportInfo.name}-specific safety measures in place
-- **Equipment Storage:** Organized and accessible ${sportInfo.name} gear
-- **Emergency Procedures:** Posted and practiced for ${sportInfo.name} activities
-
-### ${sportInfo.name} Safety Guidelines
-${sportInfo.safetyNotes.map((note: string) => `- ${note}`).join('\n')}
+#### **Pillar 3: Follow-Through & Control**
+Finish strong and maintain advantage.
+* **Action:** Complete the technique and establish dominant position
+* **Focus:** Control and next-step options
+* **Drill:** **"Complete the Sequence"** - Execute the full technique from setup to finish, emphasizing smooth transitions and control.
 
 ---
 
-## 🏠 Extended Learning Program
+### 3. Live Application (15 minutes)
 
-### Immediate Practice Assignment
-1. **Technical Skill Work:** 15-minute focused sessions (3x weekly)
-2. **Video Analysis:** Study professional examples and techniques
-3. **Reflection Journaling:** Daily 5-minute learning entries
-4. **Supplementary Fitness:** Related strength and flexibility work
+Apply the concepts in controlled, realistic scenarios.
 
-### Long-term Development Path
-- **Weekly Milestones:** Specific, measurable progression targets
-- **Monthly Evaluations:** Comprehensive progress assessment
-- **Seasonal Goals:** Major skill and performance objectives
-- **Competition Readiness:** Application in realistic scenarios
+* **Goal for Active Player:** Successfully execute the lesson technique
+* **Goal for Partner:** Provide realistic resistance while staying safe
+* **Format:** 2-minute rounds with 30-second rest and feedback
+
+Start at 60% intensity and gradually increase based on student comfort and skill level.
 
 ---
 
-## ⚠️ Safety & Risk Management
+### Key Safety Reminders
+${sportInfo.safetyNotes.slice(0, 3).map((note: string) => `* ${note}`).join('\n')}
 
-### Comprehensive Risk Assessment
-**Physical Safety Priorities:**
-- Injury prevention through proper preparation
-- Equipment safety and maintenance
-- Environmental hazard identification
-- Individual health consideration
-
-**Implementation Protocols:**
-- Systematic warm-up and cool-down
-- Regular equipment inspection
-- Clear communication systems
-- Emergency response procedures
+### Practice Assignment
+1. **Technical Practice:** 15 minutes daily focusing on Pillar 1 (foundation)
+2. **Video Study:** Watch 2 professional examples of this technique
+3. **Reflection:** Write one paragraph about what felt most challenging
 
 ---
 
-## 🎓 Coaching Excellence Framework
+**Next Lesson Preview:** We'll build on this foundation by adding variations and defensive counters.
 
-### Session Reflection Questions
-1. Which instructional strategies were most effective?
-2. How did individual learning needs get addressed?
-3. What environmental or equipment improvements are needed?
-4. How can student engagement and motivation be enhanced?
-
-### Continuous Professional Development
-- **Student Feedback Integration:** Regular input collection and application
-- **Peer Collaboration:** Coach consultation and shared learning
-- **Evidence-Based Practice:** Current research integration
-- **Skill Refinement:** Ongoing coaching education
-
----
-
-**Professional Standards Compliance:** ✅
-**Safety Protocol Adherence:** ✅
-**Learning Outcome Alignment:** ✅
-**Assessment Integration:** ✅
-
----
-
-**Document Version:** 1.0
-**Creation Date:** ${currentDate}
-**Next Review Scheduled:** 30 days from creation
-**Quality Assurance:** AI-Enhanced Professional Standards
-
-*This lesson plan represents current best practices in sports education and is designed to maximize learning outcomes while ensuring participant safety and engagement.*`
+*This lesson plan focuses on practical application while building solid fundamentals step by step.*`
   }
 
   return {
