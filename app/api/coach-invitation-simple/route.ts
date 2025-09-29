@@ -45,8 +45,8 @@ export async function POST(request: NextRequest) {
       invitationId
     })
 
-    // Create invitation URL (you can customize this)
-    const invitationUrl = `https://playbookd.crucibleanalytics.dev/coach-signup?invitation=${invitationId}&sport=${encodeURIComponent(sport)}`
+    // Create invitation URL pointing to existing coach onboard page
+    const invitationUrl = `https://playbookd.crucibleanalytics.dev/coach-onboard/${invitationId}?sport=${encodeURIComponent(sport)}&email=${encodeURIComponent(coachEmail)}&name=${encodeURIComponent(coachName)}`
 
     // Send actual email using existing email service
     console.log(`✉️ Sending invitation email to ${coachEmail}...`)
