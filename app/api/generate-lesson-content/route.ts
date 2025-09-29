@@ -29,12 +29,14 @@ export async function POST(request: NextRequest) {
 }
 
 async function generateLessonContent(title: string, description: string, sport: string, existingContent: string = '') {
-  const sportSpecific = sport.toLowerCase()
   const currentDate = new Date().toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric'
   })
+
+  // Get sport-specific information
+  const sportInfo = getSportSpecificInfo(sport)
 
   // Determine if we're expanding existing content or creating new
   const isExpanding = existingContent.length > 0
@@ -52,15 +54,13 @@ async function generateLessonContent(title: string, description: string, sport: 
 ## 📋 Executive Summary
 
 **Lesson Focus:** ${title}
-**Target Audience:** ${sportSpecific === 'general' ? 'All skill levels' : sportSpecific.charAt(0).toUpperCase() + sportSpecific.slice(1) + ' athletes'}
+**Sport:** ${sportInfo.name}
+**Target Audience:** ${sportInfo.name} athletes (All skill levels)
 **Duration:** 75-90 minutes
 **Difficulty Level:** Progressive (Beginner to Intermediate)
 
 **Key Learning Outcomes:**
-- Master fundamental techniques and principles
-- Apply skills in game-realistic scenarios
-- Develop tactical awareness and decision-making
-- Build confidence through structured progression
+${sportInfo.objectives.map((obj: string) => `- ${obj}`).join('\n')}
 
 ---
 
@@ -82,14 +82,15 @@ By the end of this lesson, participants will **demonstrably**:
 
 ### Prerequisites & Preparation
 **Student Requirements:**
-- Basic ${sportSpecific === 'general' ? 'athletic' : sportSpecific} movement patterns
-- Understanding of safety protocols
-- Appropriate fitness level for moderate intensity activity
+- ${sportInfo.prerequisites}
+- Understanding of ${sportInfo.name}-specific safety protocols
+- Appropriate fitness level for ${sportInfo.name} training
 
 **Instructor Preparation:**
-- Equipment setup and safety check completed
+- Equipment setup and safety check completed (${sportInfo.equipment.join(', ')})
 - Backup drills prepared for varying skill levels
 - Individual student progress notes reviewed
+- Review of ${sportInfo.name}-specific terminology and techniques
 
 ---
 
@@ -102,37 +103,35 @@ By the end of this lesson, participants will **demonstrably**:
 - Address any questions or concerns
 - Set positive, growth-focused tone
 
-**3-12 minutes: Progressive Warm-Up**
-- General movement activation (3 minutes)
-- Sport-specific movement patterns (4 minutes)
-- Skill-related preparation drills (3 minutes)
-- Mental focus and visualization (2 minutes)
+**3-12 minutes: ${sportInfo.name}-Specific Warm-Up**
+${sportInfo.warmup.map((item: string, index: number) => `- ${item} (${index === 0 ? '3' : index === 1 ? '4' : index === 2 ? '3' : '2'} minutes)`).join('\n')}
+- Mental focus and ${sportInfo.name} visualization (2 minutes)
 
-### Phase 2: Skill Development (25 minutes)
-**12-20 minutes: Technique Introduction**
-- Demonstrate full skill at game speed
-- Break down into 3-4 key components
-- Explain biomechanical principles
-- Show common errors and corrections
-- Use multiple learning modalities (visual, auditory, kinesthetic)
+### Phase 2: ${sportInfo.name} Skill Development (25 minutes)
+**12-20 minutes: ${sportInfo.name} Technique Introduction**
+- Demonstrate ${title.toLowerCase()} at full intensity
+- Break down into key ${sportInfo.name} components
+- Explain ${sportInfo.name}-specific biomechanics and leverage
+- Show common errors and ${sportInfo.name}-specific corrections
+- Emphasize ${sportInfo.name} terminology: ${sportInfo.terminology.slice(0, 3).join(', ')}
 
-**20-37 minutes: Guided Practice**
-- Component practice (5 minutes each component)
-- Gradual skill integration (7 minutes)
-- Individual feedback and corrections (throughout)
-- Peer observation and feedback exercises
+**20-37 minutes: Guided ${sportInfo.name} Practice**
+- Individual technique drilling (${sportInfo.techniques.slice(0, 2).join(' and ')})
+- Progressive skill integration with ${sportInfo.name} applications
+- Partner-based practice with controlled resistance
+- Real-time coaching and technical corrections
 
-### Phase 3: Application & Mastery (25 minutes)
-**37-50 minutes: Progressive Challenges**
-- Closed skill practice (6 minutes)
-- Open skill scenarios (7 minutes)
-- Competitive elements introduction (12 minutes)
+### Phase 3: ${sportInfo.name} Application & Mastery (25 minutes)
+**37-50 minutes: Progressive ${sportInfo.name} Challenges**
+- Controlled technique drilling (6 minutes)
+- Live ${sportInfo.name} scenarios with resistance (7 minutes)
+- Competitive ${sportInfo.name} situations (12 minutes)
 
-**50-62 minutes: Game Integration**
-- Small-sided games or drills
-- Real-time decision making
-- Pressure situations
-- Success celebration and learning extraction
+**50-62 minutes: ${sportInfo.name} Integration**
+- Situational ${sportInfo.name} drills and sparring
+- Real-time decision making under pressure
+- ${sportInfo.name}-specific problem solving
+- Technique refinement through live practice
 
 ### Phase 4: Consolidation (13 minutes)
 **62-70 minutes: Cool Down & Reflection**
@@ -149,19 +148,22 @@ By the end of this lesson, participants will **demonstrably**:
 
 ---
 
-## 🔧 Equipment & Setup Requirements
+## 🔧 ${sportInfo.name} Equipment & Setup Requirements
 
-### Essential Equipment
-- **Primary:** Sport-specific training tools
+### Essential ${sportInfo.name} Equipment
+${sportInfo.equipment.map((item: string) => `- **${item}**`).join('\n')}
 - **Safety:** First aid kit, emergency contacts, communication device
-- **Learning Aids:** Cones, markers, timing devices
-- **Optional:** Video recording equipment, performance tracking tools
+- **Learning Aids:** Timer, whiteboard for technique breakdown
+- **Optional:** Video recording for technique analysis
 
-### Space Requirements
-- Minimum area: Calculate based on activity requirements
-- Safety perimeter: 3-meter clearance recommended
-- Weather contingency plan prepared
-- Equipment storage accessible
+### ${sportInfo.name} Space Requirements
+- **Training Area:** Appropriate ${sportInfo.name} training space with safety mats/boundaries
+- **Safety Perimeter:** Clear boundaries and safe training environment
+- **Equipment Storage:** Organized storage for ${sportInfo.name} equipment
+- **Hygiene Station:** Hand sanitizer, towels, water access
+
+### ${sportInfo.name} Safety Protocols
+${sportInfo.safetyNotes.map((note: string) => `- ${note}`).join('\n')}
 
 ---
 
@@ -267,20 +269,18 @@ By the end of this lesson, participants will **demonstrably**:
 
 **Lesson Focus:** ${title}
 **Description:** ${description}
-**Target Audience:** ${sportSpecific === 'general' ? 'All skill levels' : sportSpecific.charAt(0).toUpperCase() + sportSpecific.slice(1) + ' athletes'}
+**Sport:** ${sportInfo.name}
+**Target Audience:** ${sportInfo.name} athletes (All skill levels)
 **Duration:** 75-90 minutes
 **Difficulty Level:** Progressive (Beginner to Intermediate)
 
 ---
 
-## 🎯 Learning Objectives (SMART Goals)
+## 🎯 ${sportInfo.name} Learning Objectives (SMART Goals)
 
-By the end of this lesson, participants will **demonstrably**:
+By the end of this ${sportInfo.name} lesson, participants will **demonstrably**:
 
-1. **Execute** the core techniques with 80% accuracy in controlled practice
-2. **Apply** learned skills in at least 3 different scenarios
-3. **Analyze** their own performance and identify 2 areas for improvement
-4. **Demonstrate** understanding through peer teaching or explanation
+${sportInfo.objectives.map((obj: string, index: number) => `${index + 1}. **${obj}**`).join('\n')}
 
 ---
 
@@ -293,11 +293,9 @@ By the end of this lesson, participants will **demonstrably**:
 - Safety briefing and expectations
 - Positive learning environment establishment
 
-**Progressive Warm-Up (3-12 min)**
-- General movement activation
-- Sport-specific movement patterns
-- Skill-related preparation drills
-- Mental focus and visualization
+**${sportInfo.name} Warm-Up (3-12 min)**
+${sportInfo.warmup.map((item: string, index: number) => `- ${item}`).join('\n')}
+- Mental focus and ${sportInfo.name} visualization
 
 ### Phase 2: Skill Development (25 minutes)
 **Technique Introduction (12-20 min)**
@@ -366,17 +364,20 @@ By the end of this lesson, participants will **demonstrably**:
 
 ## 🔧 Equipment & Resource Requirements
 
-### Essential Equipment
-- **Primary Training Tools:** Sport-specific equipment as required
+### Essential ${sportInfo.name} Equipment
+${sportInfo.equipment.map((item: string) => `- **${item}**`).join('\n')}
 - **Safety Equipment:** First aid, communication, emergency protocols
-- **Learning Aids:** Markers, timing devices, visual aids
-- **Assessment Tools:** Observation sheets, recording devices
+- **Learning Aids:** Timer, technique breakdown tools
+- **Assessment Tools:** Observation sheets, progress tracking
 
-### Environmental Setup
-- **Space Requirements:** Adequate training area with safety margins
-- **Weather Contingencies:** Indoor alternatives prepared
-- **Equipment Storage:** Organized and accessible
-- **Emergency Procedures:** Posted and practiced
+### ${sportInfo.name} Training Environment
+- **Space Requirements:** Proper ${sportInfo.name} training area with safety features
+- **Safety Protocols:** ${sportInfo.name}-specific safety measures in place
+- **Equipment Storage:** Organized and accessible ${sportInfo.name} gear
+- **Emergency Procedures:** Posted and practiced for ${sportInfo.name} activities
+
+### ${sportInfo.name} Safety Guidelines
+${sportInfo.safetyNotes.map((note: string) => `- ${note}`).join('\n')}
 
 ---
 
@@ -447,12 +448,96 @@ By the end of this lesson, participants will **demonstrably**:
   return {
     content: enhancedContent,
     sections: [], // Simplified for now
-    learningObjectives: [
-      `Understand the fundamental concepts of ${title.toLowerCase()}`,
+    learningObjectives: sportInfo.objectives,
+    prerequisites: sportInfo.prerequisites
+  }
+}
+
+function getSportSpecificInfo(sport: string) {
+  const sportKey = sport.toLowerCase()
+
+  const sportData: Record<string, any> = {
+    'bjj': {
+      name: 'Brazilian Jiu-Jitsu',
+      equipment: ['Gi or No-Gi attire', 'BJJ belt', 'Grappling mats', 'Water bottle', 'Towel'],
+      techniques: ['Guard work', 'Submissions', 'Escapes', 'Transitions', 'Takedowns', 'Sweeps'],
+      terminology: ['Guard', 'Mount', 'Side control', 'Back control', 'Half guard', 'Butterfly guard', 'Submissions', 'Taps'],
+      warmup: ['Joint mobility', 'Shrimping', 'Hip escapes', 'Forward/backward rolls', 'Bridging exercises'],
+      objectives: [
+        'Execute proper guard retention and recovery techniques',
+        'Apply fundamental submission techniques with correct leverage',
+        'Demonstrate effective escape techniques from dominant positions',
+        'Understand and apply basic BJJ positional hierarchy'
+      ],
+      prerequisites: 'Basic understanding of BJJ positions, proper tapping etiquette, appropriate fitness level for ground work',
+      safetyNotes: [
+        'Always tap immediately when caught in submissions',
+        'Communicate with partner about intensity level',
+        'Proper hygiene and clean training attire required',
+        'No shoes on mats, trim fingernails and toenails'
+      ]
+    },
+    'soccer': {
+      name: 'Soccer/Football',
+      equipment: ['Soccer ball', 'Cleats', 'Shin guards', 'Cones', 'Goals', 'Pinnies/bibs'],
+      techniques: ['Passing', 'Shooting', 'Dribbling', 'Defending', 'Heading', 'First touch'],
+      terminology: ['Touch', 'Through ball', 'Cross', 'Tackle', 'Offside', 'Set piece'],
+      warmup: ['Light jogging', 'Dynamic stretching', 'Ball touches', 'Passing in pairs'],
+      objectives: [
+        'Execute accurate passes under pressure',
+        'Demonstrate proper shooting technique and placement',
+        'Apply effective 1v1 defending principles',
+        'Show improved first touch and ball control'
+      ],
+      prerequisites: 'Basic ball handling skills, understanding of field positions, appropriate fitness level',
+      safetyNotes: [
+        'Proper shin guard usage mandatory',
+        'Check field for hazards before practice',
+        'Stay hydrated especially in hot weather',
+        'Communicate with teammates to avoid collisions'
+      ]
+    },
+    'basketball': {
+      name: 'Basketball',
+      equipment: ['Basketball', 'Court', 'Hoops', 'Cones', 'Scrimmage vests'],
+      techniques: ['Shooting', 'Dribbling', 'Passing', 'Defense', 'Rebounding', 'Footwork'],
+      terminology: ['Pick and roll', 'Fast break', 'Zone defense', 'Triple threat', 'Box out'],
+      warmup: ['Dynamic stretching', 'Layup lines', 'Ball handling drills', 'Light shooting'],
+      objectives: [
+        'Execute proper shooting form with consistent follow-through',
+        'Demonstrate effective ball handling with both hands',
+        'Apply fundamental defensive stance and positioning',
+        'Show improved passing accuracy and decision-making'
+      ],
+      prerequisites: 'Basic dribbling ability, understanding of court positions, cardiovascular fitness',
+      safetyNotes: [
+        'Proper basketball shoes with ankle support',
+        'Clear communication during scrimmages',
+        'Controlled contact, avoid unnecessary fouls',
+        'Stay aware of other players and court boundaries'
+      ]
+    }
+  }
+
+  // Default to general if sport not found
+  return sportData[sportKey] || {
+    name: sport,
+    equipment: ['Sport-specific equipment', 'Appropriate athletic wear', 'Water bottle'],
+    techniques: ['Fundamental skills', 'Basic techniques', 'Game application'],
+    terminology: ['Sport-specific terms'],
+    warmup: ['Dynamic warm-up', 'Sport-specific movement prep'],
+    objectives: [
+      `Understand fundamental concepts of ${sport}`,
       'Apply proper technique and form',
       'Execute skills in practical scenarios',
-      `Demonstrate improved ${sportSpecific} performance`
+      `Demonstrate improved ${sport} performance`
     ],
-    prerequisites: `Basic understanding of ${sportSpecific} fundamentals, appropriate equipment and safety gear, physical readiness for the activity level`
+    prerequisites: `Basic understanding of ${sport} fundamentals, appropriate equipment, physical readiness`,
+    safetyNotes: [
+      'Follow all safety protocols',
+      'Use appropriate protective equipment',
+      'Communicate with teammates and coaches',
+      'Stay hydrated and take breaks as needed'
+    ]
   }
 }

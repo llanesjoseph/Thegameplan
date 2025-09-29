@@ -999,7 +999,7 @@ export default function CreatorDashboard() {
      title,
      description,
      existingContent,
-     sport: 'general'
+     sport: selectedSport
     }),
    })
 

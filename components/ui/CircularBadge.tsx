@@ -13,7 +13,7 @@ export default function CircularBadge({ text, userRole, className = '', size = '
  // Determine text based on role
  const displayText = text || (() => {
   switch (userRole) {
-   case 'creator': return 'Creator'
+   case 'creator': return 'Coach'
    case 'coach': return 'Coach'
    case 'user': return 'Athlete'
    case 'admin': return 'Admin'

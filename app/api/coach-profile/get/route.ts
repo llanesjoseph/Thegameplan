@@ -5,7 +5,7 @@ import { adminDb as db } from '@/lib/firebase.admin'
 export async function GET(request: NextRequest) {
   try {
     // Require coach role to get profile data
-    const authResult = await requireAuth(request, ['coach', 'admin', 'superadmin'])
+    const authResult = await requireAuth(request, ['creator', 'coach', 'admin', 'superadmin'])
 
     if (!authResult.success) {
       return NextResponse.json({ error: authResult.error }, { status: authResult.status })

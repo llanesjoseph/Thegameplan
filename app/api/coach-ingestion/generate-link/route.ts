@@ -7,8 +7,8 @@ import { nanoid } from 'nanoid'
 
 export async function POST(request: NextRequest) {
   try {
-    // Require admin or coach role to generate ingestion links
-    const authResult = await requireAuth(request, ['admin', 'superadmin', 'coach'])
+    // Require creator, coach, admin, or superadmin role to generate ingestion links
+    const authResult = await requireAuth(request, ['creator', 'coach', 'admin', 'superadmin'])
 
     if (!authResult.success) {
       return NextResponse.json({ error: authResult.error }, { status: authResult.status })

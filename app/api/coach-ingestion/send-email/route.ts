@@ -5,8 +5,8 @@ import { auditLog } from '@/lib/audit-logger'
 
 export async function POST(request: NextRequest) {
   try {
-    // Require admin or coach role to send invitation emails
-    const authResult = await requireAuth(request, ['admin', 'superadmin', 'coach'])
+    // Require creator, coach, admin, or superadmin role to send invitation emails
+    const authResult = await requireAuth(request, ['creator', 'coach', 'admin', 'superadmin'])
 
     if (!authResult.success) {
       return NextResponse.json({ error: authResult.error }, { status: authResult.status })

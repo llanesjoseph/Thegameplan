@@ -13,7 +13,7 @@ interface UpdateImagesRequest {
 export async function POST(request: NextRequest) {
   try {
     // Require coach role to update profile images
-    const authResult = await requireAuth(request, ['coach', 'admin', 'superadmin'])
+    const authResult = await requireAuth(request, ['creator', 'coach', 'admin', 'superadmin'])
 
     if (!authResult.success) {
       return NextResponse.json({ error: authResult.error }, { status: authResult.status })
