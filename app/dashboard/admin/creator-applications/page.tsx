@@ -134,19 +134,22 @@ export default function CreatorApplicationsPage() {
 
   if (!hasAccess) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-cream via-cream to-sky-blue/10 flex items-center justify-center px-4">
-        <div className="max-w-md mx-auto text-center">
-          <div className="w-16 h-16 bg-gradient-to-r from-orange to-orange/80 rounded-2xl flex items-center justify-center mx-auto mb-6">
-            <XCircle className="w-8 h-8 text-white" />
+      <div className="min-h-screen bg-gradient-to-br from-cream via-cream to-sky-blue/10">
+        <AppHeader />
+        <div className="flex items-center justify-center min-h-[80vh] px-4">
+          <div className="max-w-md mx-auto text-center">
+            <div className="w-16 h-16 bg-gradient-to-r from-orange to-orange/80 rounded-2xl flex items-center justify-center mx-auto mb-6">
+              <XCircle className="w-8 h-8 text-white" />
+            </div>
+            <h1 className="text-2xl text-dark mb-4">Access Denied</h1>
+            <p className="text-dark/70 mb-6">You don't have permission to access the admin panel.</p>
+            <Link
+              href="/dashboard"
+              className="block w-full bg-gradient-to-r from-sky-blue to-black text-white py-3 rounded-xl"
+            >
+              Back to Dashboard
+            </Link>
           </div>
-          <h1 className="text-2xl text-dark mb-4">Access Denied</h1>
-          <p className="text-dark/70 mb-6">You don't have permission to access the admin panel.</p>
-          <Link
-            href="/dashboard"
-            className="block w-full bg-gradient-to-r from-sky-blue to-black text-white py-3 rounded-xl"
-          >
-            Back to Dashboard
-          </Link>
         </div>
       </div>
     )
@@ -176,12 +179,14 @@ export default function CreatorApplicationsPage() {
   })
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-cream via-cream to-sky-blue/10">
+    <div className="min-h-screen bg-gradient-to-br from-cream via-cream to-sky-blue/10">
+      <AppHeader />
+
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
-            <Link href="/dashboard/admin" className="p-3 hover:bg-white/80 rounded-xl transition-colors shadow-sm backdrop-blur-sm border border-white/20">
+            <Link href="/dashboard" className="p-3 hover:bg-white/80 rounded-xl transition-colors shadow-sm backdrop-blur-sm border border-white/20">
               <ArrowLeft className="w-5 h-5 text-dark" />
             </Link>
             <div>
@@ -489,6 +494,6 @@ export default function CreatorApplicationsPage() {
           </div>
         )}
       </div>
-    </main>
+    </div>
   )
 }
