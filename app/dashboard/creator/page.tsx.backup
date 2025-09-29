@@ -1463,10 +1463,9 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
 
      {/* Content Area */}
      {activeSection === 'create' ? (
-      // Comprehensive Coach Dashboard
-      <div className="space-y-8">
-       {/* Quick Actions Row */}
-       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+       <div className="space-y-8">
+        {/* Quick Actions Row */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Content Creation */}
         <div className="bg-white rounded-lg shadow-sm p-6">
          <div className="flex items-center gap-3 mb-4">
@@ -1639,6 +1638,7 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
         </div>
        </div>
       </div>
+       </div>
      ) : activeSection === 'create' ? (
       <div className="bg-white rounded-lg shadow-sm">
        <div className="p-6 border-b border-gray-200">
