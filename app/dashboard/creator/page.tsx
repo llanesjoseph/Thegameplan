@@ -1029,7 +1029,7 @@ export default function CreatorDashboard() {
    // The new API structure uses lessonPlan.parts instead of sections
    if (lessonPlan?.parts) {
     // Convert parts to sections format for compatibility
-    const sections = lessonPlan.parts.map(part => ({
+    const sections = lessonPlan.parts.map((part: any) => ({
      title: part.partTitle,
      content: part.description,
      duration: part.duration
