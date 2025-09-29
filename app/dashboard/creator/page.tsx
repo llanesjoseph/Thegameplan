@@ -738,9 +738,14 @@ export default function CreatorDashboard() {
    }
 
    // Get user token for authentication
-   const token = await authUser?.getIdToken()
+   const currentUser = auth.currentUser
+   if (!currentUser) {
+    throw new Error('User not authenticated')
+   }
+
+   const token = await currentUser.getIdToken()
    if (!token) {
-    throw new Error('Authentication required')
+    throw new Error('Failed to get authentication token')
    }
 
    // Send invitation
