@@ -9,7 +9,7 @@ interface CoachInvitationEmailProps {
   inviterName: string
   sport: string
   invitationUrl: string
-  qrCodeUrl: string
+  qrCodeUrl: string | null
   customMessage?: string
   expiresAt: string
   recipientName?: string

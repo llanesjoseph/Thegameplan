@@ -9,7 +9,7 @@ interface EmailTemplateProps {
   inviterName: string
   sport: string
   invitationUrl: string
-  qrCodeUrl: string
+  qrCodeUrl: string | null
   customMessage?: string
   expiresAt: string
   recipientName?: string
@@ -175,6 +175,7 @@ export function getPlaybookdCoachInvitationTemplate({
                     </a>
                 </div>
 
+                ${qrCodeUrl ? `
                 <!-- QR Code Section -->
                 <div class="qr-section" style="background: #f1f5f9; border: 2px dashed #13367A; border-radius: 12px; padding: 20px; margin: 20px 0; text-align: center;">
                     <h4 style="color: #13367A; margin: 0 0 12px 0; font-size: 18px; font-weight: 600;">
@@ -185,6 +186,7 @@ export function getPlaybookdCoachInvitationTemplate({
                         Scan with your phone camera to open the invitation
                     </p>
                 </div>
+                ` : ''}
 
                 <!-- Expiry Notice -->
                 <div class="expiry-notice" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 1px solid #f59e0b; color: #92400e; padding: 15px; border-radius: 8px; margin: 20px 0; text-align: center; font-weight: 600;">

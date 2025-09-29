@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
         inviterName: 'PLAYBOOKD Team',
         sport,
         invitationUrl,
-        qrCodeUrl: '', // Optional QR code
+        qrCodeUrl: null, // No QR code needed
         customMessage: personalMessage,
         expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
         recipientName: coachName,

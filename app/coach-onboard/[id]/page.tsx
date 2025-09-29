@@ -102,6 +102,24 @@ export default function CoachOnboardPage() {
         response = await fetch(`/api/mock-coach-validation?id=${ingestionId}`)
         result = await response.json()
         console.log('🧪 Using mock validation for test invitation')
+      } else if (ingestionId.startsWith('inv_')) {
+        // Handle simple invitations with the simple validation endpoint
+        response = await fetch(`/api/validate-simple-invitation?id=${ingestionId}`)
+        result = await response.json()
+        console.log('📧 Using simple invitation validation')
+
+        // Transform the simple invitation response to match expected format
+        if (result.success) {
+          result = {
+            valid: true,
+            data: result.data
+          }
+        } else {
+          result = {
+            valid: false,
+            error: result.error
+          }
+        }
       } else {
         response = await fetch(`/api/coach-ingestion/validate?id=${ingestionId}`)
         result = await response.json()
