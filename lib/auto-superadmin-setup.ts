@@ -36,24 +36,20 @@ export async function autoProvisionSuperadmin(uid: string, email: string, displa
   try {
     // Normalize email to lowercase for case-insensitive comparison
     const normalizedEmail = email.toLowerCase()
-    console.log(`🔍 Checking superadmin for email: ${email} (normalized: ${normalizedEmail})`)
 
     // Check if this email is in our superadmin list (case-insensitive)
     const superadminData = SUPERADMIN_USERS[normalizedEmail as keyof typeof SUPERADMIN_USERS]
     if (!superadminData) {
-      console.log(`❌ User ${email} is not in superadmin list`)
-      console.log(`Available superadmin emails:`, Object.keys(SUPERADMIN_USERS))
       return false
     }
-
-    console.log(`🚀 Auto-provisioning superadmin: ${email}`)
 
     // Check if user is already set up
     const userDoc = await getDoc(doc(db, 'users', uid))
     if (userDoc.exists() && userDoc.data().role === 'superadmin') {
-      console.log(`✅ ${email} is already a superadmin`)
-      return true
+      return true // Already set up, no need to log
     }
+
+    console.log(`🚀 Auto-provisioning superadmin: ${email}`)
 
     // Step 1: Set superadmin role in users collection
     await setDoc(doc(db, 'users', uid), {
@@ -78,8 +74,6 @@ export async function autoProvisionSuperadmin(uid: string, email: string, displa
       provisionedAt: serverTimestamp()
     }, { merge: true })
 
-    console.log(`  ✅ Superadmin role set for ${superadminData.firstName}`)
-
     // Step 2: Create/update profile
     await setDoc(doc(db, 'profiles', uid), {
       uid: uid,
@@ -95,8 +89,6 @@ export async function autoProvisionSuperadmin(uid: string, email: string, displa
       updatedAt: serverTimestamp(),
       autoProvisioned: true
     }, { merge: true })
-
-    console.log(`  ✅ Profile created for ${superadminData.firstName}`)
 
     // Step 3: Create pre-approved contributor application
     await addDoc(collection(db, 'contributorApplications'), {
@@ -122,9 +114,7 @@ export async function autoProvisionSuperadmin(uid: string, email: string, displa
       autoProvisioned: true
     })
 
-    console.log(`  ✅ Contributor application created for ${superadminData.firstName}`)
-
-    console.log(`🎉 SUCCESS! ${superadminData.firstName} ${superadminData.lastName} is now a superadmin with complete access!`)
+    console.log(`✅ Superadmin provisioned: ${superadminData.firstName} ${superadminData.lastName}`)
 
     return true
 

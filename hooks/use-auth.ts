@@ -40,21 +40,18 @@ export function useAuth() {
             // Check if this is a predefined superadmin user
             const email = user.email
             if (email && isSuperadminEmail(email)) {
-              console.log(`🔍 Detected superadmin user: ${email}`)
               const provisionResult = await autoProvisionSuperadmin(user.uid, email, user.displayName || undefined)
-              if (provisionResult) {
-                console.log(`✅ ${email} auto-provisioned as superadmin`)
+              // Reduced logging - only log if not already set up
+              if (!provisionResult) {
+                console.log(`⚙️ Setting up superadmin: ${email}`)
               }
             } else if (email && isKnownCoach(email)) {
               // Check if this is a known coach who should have coach role
               const correctRole = getKnownCoachRole(email)
-              console.log(`🏆 Detected known coach: ${email} - setting role to ${correctRole}`)
               await initializeUserDocument(user, correctRole || 'coach')
-              console.log(`✅ Coach ${email} initialized with correct role: ${correctRole}`)
             } else {
               // Initialize regular user document to prevent permission errors
               await initializeUserDocument(user, 'user') // Default to user for production
-              console.log('User document initialized successfully')
             }
 
             // Mark this user as initialized to prevent repeated calls
@@ -73,7 +70,7 @@ export function useAuth() {
       setLoading(false)
     })
     return () => unsub()
-  }, [])
+  }, [initializedUsers, setFirebaseUser])
 
   // Create enhanced user object with role
   const enhancedUser = user ? { ...user, role } as EnhancedUser : null
