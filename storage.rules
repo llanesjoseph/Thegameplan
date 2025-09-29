@@ -23,14 +23,19 @@ service firebase.storage {
     }
     
     function isCreator() {
-      return request.auth != null && 
+      return request.auth != null &&
              ('role' in request.auth.token && request.auth.token.role == 'creator');
     }
-    
+
+    function isCoach() {
+      return request.auth != null &&
+             ('role' in request.auth.token && request.auth.token.role == 'coach');
+    }
+
     function isCreatorOrHigher() {
-      return request.auth != null && 
-             ('role' in request.auth.token && 
-              request.auth.token.role in ['creator', 'admin', 'superadmin']);
+      return request.auth != null &&
+             ('role' in request.auth.token &&
+              request.auth.token.role in ['creator', 'coach', 'admin', 'superadmin']);
     }
     
     // File type validation
