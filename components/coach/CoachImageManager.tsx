@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { Camera, Upload, X, Plus, Trash2, Save, AlertCircle, CheckCircle, Play, Image as ImageIcon } from 'lucide-react'
 import ImageUploader from '@/components/ImageUploader'
 import { useAuth } from '@/hooks/use-auth'
+import { auth } from '@/lib/firebase.client'
 
 interface CoachProfile {
   uid: string
@@ -58,7 +59,7 @@ export default function CoachImageManager({ onProfileUpdate, className = '' }: C
   const loadCoachProfile = async () => {
     try {
       setLoading(true)
-      const token = await user?.getIdToken()
+      const token = await auth.currentUser?.getIdToken()
 
       const response = await fetch('/api/coach-profile/get', {
         headers: {
@@ -97,7 +98,7 @@ export default function CoachImageManager({ onProfileUpdate, className = '' }: C
       setSaving(true)
       setError(null)
 
-      const token = await user.getIdToken()
+      const token = await auth.currentUser?.getIdToken()
 
       const response = await fetch('/api/coach-profile/update-images', {
         method: 'POST',

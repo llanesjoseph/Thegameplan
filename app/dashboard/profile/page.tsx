@@ -35,6 +35,8 @@ import { TikTokIcon } from '@/components/icons/TikTokIcon'
 import AssistantCoachManager from '@/components/AssistantCoachManager'
 import ImageUploader from '@/components/ImageUploader'
 import AppHeader from '@/components/ui/AppHeader'
+import StreamlinedVoiceCapture from '@/components/coach/StreamlinedVoiceCapture'
+import VoiceCaptureIntake from '@/components/coach/VoiceCaptureIntake'
 
 // Comprehensive sports list from the app
 const SPORTS_OPTIONS = [
@@ -76,6 +78,8 @@ export default function ProfilePage() {
  const { role, loading } = useEnhancedRole()
  const [isEditing, setIsEditing] = useState(false)
  const [saveStatus, setSaveStatus] = useState<string | null>(null) // 'saving', 'success', 'error'
+ const [showVoiceCapture, setShowVoiceCapture] = useState(false)
+ const [voiceCaptureMode, setVoiceCaptureMode] = useState<'quick' | 'detailed' | null>(null)
  const [profileData, setProfileData] = useState({
   displayName: '',
   bio: '',
@@ -114,7 +118,10 @@ export default function ProfilePage() {
   averageRating: 0,
   verified: false,
   featured: false,
-  badges: [] as string[]
+  badges: [] as string[],
+  // Voice capture data
+  voiceCaptureData: null as any,
+  voiceCaptureCompleteness: 'none' as 'none' | 'quick' | 'detailed'
  })
 
  // Load profile data from database on component mount
@@ -203,9 +210,43 @@ export default function ProfilePage() {
   )
  }
 
+ const handleVoiceCaptureComplete = async (voiceData: any) => {
+  const completeness = voiceData.captureMode || 'detailed'
+  setProfileData(prev => ({
+   ...prev,
+   voiceCaptureData: voiceData,
+   voiceCaptureCompleteness: completeness
+  }))
+  setShowVoiceCapture(false)
+  setVoiceCaptureMode(null)
+
+  // Auto-save the voice data
+  setSaveStatus('saving')
+  try {
+   const profileWithVoice = {
+    ...profileData,
+    voiceCaptureData: voiceData,
+    voiceCaptureCompleteness: completeness,
+    userId: user?.uid,
+    updatedAt: new Date().toISOString()
+   }
+
+   const collection = role === 'creator' ? 'creator_profiles' : 'users'
+   const docRef = doc(db, collection, user.uid)
+   await setDoc(docRef, profileWithVoice, { merge: true })
+
+   setSaveStatus('success')
+   setTimeout(() => setSaveStatus(null), 3000)
+  } catch (error) {
+   console.error('Error saving voice data:', error)
+   setSaveStatus('error')
+   setTimeout(() => setSaveStatus(null), 5000)
+  }
+ }
+
  const handleSave = async () => {
   if (!user?.uid) return
-  
+
   setSaveStatus('saving')
   
   try {
@@ -446,7 +487,11 @@ export default function ProfilePage() {
        ) : (
         <div>
          <h2 className="text-4xl text-dark mb-3 font-heading">{profileData.displayName || user?.displayName || 'User Name'}</h2>
-         <p className="text-dark/70 mb-6 text-lg leading-relaxed">{profileData.bio || 'No bio added yet'}</p>
+         {profileData.bio ? (
+          <p className="text-dark/70 mb-6 text-lg leading-relaxed">{profileData.bio}</p>
+         ) : (
+          <p className="text-dark/40 mb-6 text-lg leading-relaxed italic">Click "Edit Profile" to add your coaching bio and credentials</p>
+         )}
          <div className="flex items-center gap-6 text-dark/60 flex-wrap">
           <div className="flex items-center gap-2 bg-sky-blue/10 px-4 py-2 rounded-xl">
            <MapPin className="w-4 h-4 text-sky-blue" />
@@ -588,11 +633,15 @@ export default function ProfilePage() {
           {/* Display view for coaches */}
           {!isEditing && (
            <div className="flex flex-wrap gap-2">
-            {profileData.specialties.map((specialty, index) => (
-             <span key={index} className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm">
-              {specialty}
-             </span>
-            ))}
+            {profileData.specialties.length > 0 ? (
+             profileData.specialties.map((specialty, index) => (
+              <span key={index} className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm">
+               {specialty}
+              </span>
+             ))
+            ) : (
+             <p className="text-dark/40 italic">Click "Edit Profile" to add your sports specialties</p>
+            )}
            </div>
           )}
          </div>
@@ -754,7 +803,7 @@ export default function ProfilePage() {
            placeholder="e.g., Weekends and Evenings"
           />
          ) : (
-          <span className="text-slate-700">{profileData.availability}</span>
+          <span className="text-slate-700">{profileData.availability || 'Not specified'}</span>
          )}
         </div>
         <div>
@@ -800,7 +849,7 @@ export default function ProfilePage() {
          placeholder="Describe your coaching philosophy and approach..."
         />
        ) : (
-        <p style={{ color: '#000000' }}>{profileData.coachingPhilosophy}</p>
+        <p style={{ color: '#000000' }}>{profileData.coachingPhilosophy || 'Click "Edit Profile" to add your coaching philosophy'}</p>
        )}
        </div>
       )}
@@ -855,12 +904,16 @@ export default function ProfilePage() {
         </div>
        ) : (
         <div className="space-y-2">
-         {profileData.achievements.map((achievement, index) => (
-          <div key={index} className="flex items-center gap-3">
-           <Award className="w-4 h-4 text-yellow-500" />
-           <span className="text-slate-700">{achievement}</span>
-          </div>
-         ))}
+         {profileData.achievements.length > 0 ? (
+          profileData.achievements.map((achievement, index) => (
+           <div key={index} className="flex items-center gap-3">
+            <Award className="w-4 h-4 text-yellow-500" />
+            <span className="text-slate-700">{achievement}</span>
+           </div>
+          ))
+         ) : (
+          <p className="text-dark/40 italic">Click "Edit Profile" to add your achievements and awards</p>
+         )}
         </div>
        )}
       </div>
@@ -1117,6 +1170,75 @@ export default function ProfilePage() {
       {/* Coach-Specific Sections */}
       {role === 'creator' && (
        <>
+        {/* AI Voice Capture Section */}
+        <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl shadow-lg border border-blue-200 p-8">
+         <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+           <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+            <Mic className="w-4 h-4 text-white" />
+           </div>
+           <h3 className="text-xl text-dark font-heading">AI Voice Capture</h3>
+          </div>
+          {profileData.voiceCaptureCompleteness !== 'none' && (
+           <div className="flex items-center gap-2">
+            <CheckCircle className="w-5 h-5 text-green-600" />
+            <span className="text-sm text-green-700 font-medium capitalize">
+             {profileData.voiceCaptureCompleteness} Capture Complete
+            </span>
+           </div>
+          )}
+         </div>
+
+         <div className="space-y-4">
+          <p className="text-dark/70 leading-relaxed">
+           Enhance your AI coaching with personalized voice capture. Help our AI understand your unique coaching style,
+           communication patterns, and teaching approach for more authentic responses.
+          </p>
+
+          {profileData.voiceCaptureCompleteness === 'none' ? (
+           <div className="flex flex-col sm:flex-row gap-3">
+            <button
+             onClick={() => {
+              setVoiceCaptureMode('quick')
+              setShowVoiceCapture(true)
+             }}
+             className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg"
+            >
+             <Mic className="w-4 h-4" />
+             ⚡ Quick Voice Capture (5-7 min)
+            </button>
+            <button
+             onClick={() => {
+              setVoiceCaptureMode('detailed')
+              setShowVoiceCapture(true)
+             }}
+             className="flex items-center gap-2 px-4 py-3 border-2 border-purple-600 text-purple-600 rounded-xl hover:bg-purple-50 transition-all"
+            >
+             <MessageSquare className="w-4 h-4" />
+             📚 Detailed Voice Capture (12-15 min)
+            </button>
+           </div>
+          ) : (
+           <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex items-center gap-2 px-4 py-3 bg-green-50 text-green-700 rounded-xl border border-green-200">
+             <CheckCircle className="w-4 h-4" />
+             Voice capture completed ({profileData.voiceCaptureCompleteness})
+            </div>
+            <button
+             onClick={() => {
+              setVoiceCaptureMode('detailed')
+              setShowVoiceCapture(true)
+             }}
+             className="flex items-center gap-2 px-4 py-3 border-2 border-sky-blue text-sky-blue rounded-xl hover:bg-sky-blue/5 transition-all"
+            >
+             <Upload className="w-4 h-4" />
+             Enhance Voice Profile
+            </button>
+           </div>
+          )}
+         </div>
+        </div>
+
         {/* Coaching Philosophy Section */}
         <div className="bg-gradient-to-br from-white to-black/5 rounded-2xl shadow-lg border border-white/50 p-8">
          <div className="flex items-center gap-3 mb-6">
@@ -1273,6 +1395,50 @@ export default function ProfilePage() {
      </div>
     </div>
    </div>
+
+   {/* Voice Capture Modal */}
+   {showVoiceCapture && (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+     <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-auto">
+      <div className="sticky top-0 bg-white/95 backdrop-blur-sm border-b p-4 flex items-center justify-between">
+       <h2 className="text-xl font-heading text-dark">AI Voice Capture</h2>
+       <button
+        onClick={() => {
+         setShowVoiceCapture(false)
+         setVoiceCaptureMode(null)
+        }}
+        className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+       >
+        <ArrowLeft className="w-5 h-5" />
+       </button>
+      </div>
+      <div className="p-6">
+       {voiceCaptureMode === 'quick' ? (
+        <StreamlinedVoiceCapture
+         onComplete={handleVoiceCaptureComplete}
+         onProgress={(progress) => {
+          console.log('Voice capture progress:', progress)
+         }}
+         existingProfile={{
+          sport: profileData.specialties[0] || '',
+          experience: profileData.experience,
+          bio: profileData.bio,
+          tagline: profileData.tagline
+         }}
+        />
+       ) : (
+        <VoiceCaptureIntake
+         onComplete={handleVoiceCaptureComplete}
+         onProgress={(progress) => {
+          console.log('Voice capture progress:', progress)
+         }}
+         prePopulatedData={undefined}
+        />
+       )}
+      </div>
+     </div>
+    </div>
+   )}
   </main>
  )
 }

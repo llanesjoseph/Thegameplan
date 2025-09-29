@@ -120,6 +120,7 @@ export function canCreateContent(roleData: UserRoleData | null): boolean {
 
   return roleData.role === 'creator' ||
          roleData.role === 'admin' ||
+         roleData.role === 'superadmin' ||
          roleData.permissions?.canCreateContent === true
 }
 
@@ -128,7 +129,7 @@ export function canCreateContent(roleData: UserRoleData | null): boolean {
  */
 export function isAdmin(roleData: UserRoleData | null): boolean {
   if (!roleData) return false
-  return roleData.role === 'admin'
+  return roleData.role === 'admin' || roleData.role === 'superadmin'
 }
 
 /**
@@ -136,7 +137,7 @@ export function isAdmin(roleData: UserRoleData | null): boolean {
  */
 export function canSwitchRoles(roleData: UserRoleData | null): boolean {
   if (!roleData) return false
-  return roleData.role === 'admin' && roleData.permissions?.canSwitchRoles !== false
+  return (roleData.role === 'admin' || roleData.role === 'superadmin') && roleData.permissions?.canSwitchRoles !== false
 }
 
 /**
@@ -165,6 +166,7 @@ export function canManageCoachingRequests(roleData: UserRoleData | null): boolea
   return roleData.role === 'creator' ||
          roleData.role === 'assistant' ||
          roleData.role === 'admin' ||
+         roleData.role === 'superadmin' ||
          roleData.permissions?.canViewCoachingRequests === true
 }
 
@@ -207,6 +209,7 @@ function getDefaultPermissions(role: UserRole) {
         canManageAthletes: true // limited scope
       }
     case 'admin':
+    case 'superadmin':
       return {
         canCreateContent: true,
         canManageContent: true,

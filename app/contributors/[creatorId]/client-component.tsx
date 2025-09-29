@@ -7,7 +7,7 @@ import { Play, Facebook, Twitter, Instagram, Linkedin, MessageCircle, Send, X, U
 import { useAuth } from '@/hooks/use-auth'
 import { useEnhancedRole } from '@/hooks/use-role-switcher'
 import { useRouter } from 'next/navigation'
-import { db } from '@/lib/firebase.client'
+import { db, auth } from '@/lib/firebase.client'
 import { collection, doc, addDoc, deleteDoc, getDocs, query, where, orderBy } from 'firebase/firestore'
 import AppHeader from '@/components/ui/AppHeader'
 
@@ -456,10 +456,10 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
 
   try {
    // Get the auth token
-   if (!user || typeof user.getIdToken !== 'function') {
+   if (!auth.currentUser) {
     throw new Error('User not properly authenticated')
    }
-   const token = await user.getIdToken()
+   const token = await auth.currentUser.getIdToken()
 
    const response = await fetch('/api/ai-coaching', {
     method: 'POST',
