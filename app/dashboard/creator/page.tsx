@@ -1018,7 +1018,7 @@ export default function CreatorDashboard() {
     throw new Error('Failed to generate lesson content')
    }
 
-   const { markdownContent } = await response.json()
+   const { markdownContent, lessonPlan } = await response.json()
 
    // Populate the detailed lesson content textarea
    setDetailedWriteup(markdownContent)
@@ -1026,17 +1026,15 @@ export default function CreatorDashboard() {
    // Automatically switch to preview mode to show the beautiful formatting
    setPreviewMode(true)
 
-   // Also populate structured lesson sections for advanced mode
-   if (lessonContent.sections) {
-    setLessonSections(lessonContent.sections)
-   }
-
-   if (lessonContent.learningObjectives) {
-    setLearningObjectives(lessonContent.learningObjectives)
-   }
-
-   if (lessonContent.prerequisites) {
-    setPrerequisites(lessonContent.prerequisites)
+   // The new API structure uses lessonPlan.parts instead of sections
+   if (lessonPlan?.parts) {
+    // Convert parts to sections format for compatibility
+    const sections = lessonPlan.parts.map(part => ({
+     title: part.partTitle,
+     content: part.description,
+     duration: part.duration
+    }))
+    setLessonSections(sections)
    }
 
   } catch (error) {
