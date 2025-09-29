@@ -5,8 +5,8 @@ import { auditExternalAPI } from '@/lib/audit-logger'
 
 export async function POST(request: NextRequest) {
   try {
-    // Enhanced authentication - require creator level or higher
-    const authResult = await requireAuth(request, ['creator', 'coach', 'assistant', 'admin', 'superadmin'])
+    // Simplified authentication - just verify user is logged in
+    const authResult = await requireAuth(request)
 
     if (!authResult.success) {
       return NextResponse.json({ error: authResult.error }, { status: authResult.status })
