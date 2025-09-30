@@ -2614,7 +2614,7 @@ Summary and what comes next..."
              </div>
              <div className="flex items-center space-x-2 ml-4">
               <button
-               onClick={() => window.open(`/lessons/${lesson.id}`, '_blank')}
+               onClick={() => window.open(`/lesson/${lesson.id}`, '_blank')}
                className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
                title="View lesson"
               >
