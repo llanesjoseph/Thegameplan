@@ -2798,12 +2798,14 @@ Summary and what comes next..."
           <div className="border-b border-gray-300 pb-4 mb-4">
            <div className="flex items-center gap-3 mb-2">
             <Mail className="w-5 h-5 text-blue-600" />
-            <span className="text-sm font-medium text-gray-700">PLAYBOOKD Coach Invitation</span>
+            <span className="text-sm font-medium text-gray-700">
+             PLAYBOOKD {invitationForm.invitationType === 'assistant' ? 'Assistant' : 'Coach'} Invitation
+            </span>
            </div>
            <div className="text-xs text-gray-500">
-            <p><strong>To:</strong> {invitationForm.email || 'coach@example.com'}</p>
+            <p><strong>To:</strong> {invitationForm.email || (invitationForm.invitationType === 'assistant' ? 'assistant@example.com' : 'coach@example.com')}</p>
             <p><strong>From:</strong> {authUser?.displayName || 'Coach'} via PLAYBOOKD</p>
-            <p><strong>Subject:</strong> Join {authUser?.displayName || 'PLAYBOOKD'} Coaching Network</p>
+            <p><strong>Subject:</strong> Join {authUser?.displayName || 'PLAYBOOKD'} {invitationForm.invitationType === 'assistant' ? 'Team' : 'Coaching Network'}</p>
            </div>
           </div>
 
@@ -2811,13 +2813,13 @@ Summary and what comes next..."
           <div className="space-y-4 text-sm">
            <div>
             <p className="font-medium text-gray-900">
-             Hi {invitationForm.name || '[Coach Name]'},
+             Hi {invitationForm.name || `[${invitationForm.invitationType === 'assistant' ? 'Assistant' : 'Coach'} Name]`},
             </p>
            </div>
 
            <div className="space-y-2">
             <p className="text-gray-700">
-             {authUser?.displayName || 'A fellow coach'} has invited you to join the PLAYBOOKD coaching platform as a <strong>{invitationForm.sport || '[Sport]'}</strong> coach.
+             {authUser?.displayName || 'A fellow coach'} has invited you to join the PLAYBOOKD {invitationForm.invitationType === 'assistant' ? 'team' : 'coaching platform'} as a <strong>{invitationForm.sport || '[Sport]'}</strong> {invitationForm.invitationType === 'assistant' ? 'assistant' : 'coach'}.
             </p>
 
             {invitationForm.customMessage && (
@@ -2833,13 +2835,23 @@ Summary and what comes next..."
 
            <div className="bg-white border border-gray-300 rounded p-4">
             <p className="font-medium text-gray-900 mb-2">What you'll get:</p>
-            <ul className="space-y-1 text-xs text-gray-600">
-             <li>• Create and publish training lessons</li>
-             <li>• Build your coaching profile and brand</li>
-             <li>• Connect with athletes and other coaches</li>
-             <li>• Access analytics and insights</li>
-             <li>• Grow your coaching business</li>
-            </ul>
+            {invitationForm.invitationType === 'assistant' ? (
+             <ul className="space-y-1 text-xs text-gray-600">
+              <li>• Assist with managing athletes and training</li>
+              <li>• Help create and organize content</li>
+              <li>• Collaborate with the coaching team</li>
+              <li>• Access coaching tools and resources</li>
+              <li>• Support athlete development</li>
+             </ul>
+            ) : (
+             <ul className="space-y-1 text-xs text-gray-600">
+              <li>• Create and publish training lessons</li>
+              <li>• Build your coaching profile and brand</li>
+              <li>• Connect with athletes and other coaches</li>
+              <li>• Access analytics and insights</li>
+              <li>• Grow your coaching business</li>
+             </ul>
+            )}
            </div>
 
            <div className="text-center">
