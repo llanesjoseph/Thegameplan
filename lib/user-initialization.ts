@@ -91,18 +91,27 @@ export async function initializeUserDocument(user: FirebaseUser | null, defaultR
       return { ...userData, role: correctRole }
     } else {
       // Create new user document with comprehensive data
-      // Note: Jasmine's role will be updated during provisioning if applicable
+      // Check if this is a superadmin user first
+      let initialRole = defaultRole
+      if (isSuperadmin(user.email)) {
+        initialRole = 'superadmin'
+        console.log(`✨ SUPERADMIN DETECTED: Setting ${user.email} to superadmin role`)
+      } else if (user.email && isKnownCoach(user.email)) {
+        initialRole = getKnownCoachRole(user.email) || defaultRole
+        console.log(`✨ KNOWN COACH DETECTED: Setting ${user.email} to ${initialRole} role`)
+      }
+
       const newUserData: UserProfile = {
         uid: user.uid,
         email: user.email || '',
         displayName: user.displayName || user.email?.split('@')[0] || 'Anonymous User',
-        role: defaultRole,
+        role: initialRole,
         createdAt: Timestamp.now(),
         lastLoginAt: Timestamp.now()
       }
 
       await setDoc(userDocRef, newUserData)
-      console.log('New user document created:', user.uid)
+      console.log('New user document created:', user.uid, 'with role:', initialRole)
 
       // Handle Jasmine onboarding for new user
       if (user.email) {
