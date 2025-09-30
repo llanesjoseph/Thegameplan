@@ -9,6 +9,7 @@ coverage
 # Service account keys
 firebase-admin-key.json
 *-key.json
+firebase-service-account-key.txt
 
 # Build outputs
 out/
