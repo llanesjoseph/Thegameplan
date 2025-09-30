@@ -1233,9 +1233,18 @@ export default function CreatorDashboard() {
    setUploadPaused({video: false, thumbnail: false})
    setUploadSuccess(true)
    setLessonCount(prev => prev + 1)
-   
+
+   // Refresh the lessons list to show the new lesson
+   await loadPublishedLessons()
+
+   // Auto-dismiss success message after 5 seconds
+   setTimeout(() => {
+    setUploadSuccess(false)
+   }, 5000)
+
   } catch (error) {
    console.error('Error creating lesson:', error)
+   alert('Failed to create lesson. Please try again.')
   } finally {
    setCreating(false)
   }
@@ -1521,19 +1530,35 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
      </div>
 
      {uploadSuccess && (
-      <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
-       <div className="flex">
-        <CheckCircle className="h-5 w-5 text-green-400" />
-        <div className="ml-3">
-         <p className="text-sm  text-green-800">
-          Success! Your lesson has been published.
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-in fade-in duration-200">
+       <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 animate-in zoom-in duration-300">
+        <div className="text-center">
+         <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
+          <CheckCircle className="h-10 w-10 text-green-600" />
+         </div>
+         <h3 className="text-2xl font-bold text-gray-900 mb-2">
+          Lesson Created Successfully! 🎉
+         </h3>
+         <p className="text-gray-600 mb-6">
+          Your lesson has been published and is now visible to athletes. You can view it in the Manage Content section.
          </p>
-         <button
-          onClick={() => setUploadSuccess(false)}
-          className="mt-2 text-sm text-green-600 hover:text-green-500"
-         >
-          Dismiss
-         </button>
+         <div className="flex gap-3">
+          <button
+           onClick={() => {
+            setUploadSuccess(false)
+            setActiveSection('manage')
+           }}
+           className="flex-1 px-4 py-3 bg-cardinal text-white rounded-lg font-medium hover:bg-cardinal-dark transition-colors"
+          >
+           View My Lessons
+          </button>
+          <button
+           onClick={() => setUploadSuccess(false)}
+           className="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+          >
+           Create Another
+          </button>
+         </div>
         </div>
        </div>
       </div>
