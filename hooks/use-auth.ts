@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { auth } from '@/lib/firebase.client'
 import { onAuthStateChanged, User } from 'firebase/auth'
 import { useRole } from './use-role'
@@ -15,7 +15,7 @@ interface EnhancedUser extends User {
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
-  const [initializedUsers, setInitializedUsers] = useState<Set<string>>(new Set())
+  const initializedUsersRef = useRef<Set<string>>(new Set())
   const { role, loading: roleLoading } = useRole()
   const { setFirebaseUser } = useAppStore()
 
@@ -35,7 +35,7 @@ export function useAuth() {
     const unsub = onAuthStateChanged(auth, async (user) => {
       if (user) {
         // Only initialize user document once per user session
-        if (!initializedUsers.has(user.uid)) {
+        if (!initializedUsersRef.current.has(user.uid)) {
           try {
             // Check if this is a predefined superadmin user
             const email = user.email
@@ -55,7 +55,7 @@ export function useAuth() {
             }
 
             // Mark this user as initialized to prevent repeated calls
-            setInitializedUsers(prev => new Set(prev).add(user.uid))
+            initializedUsersRef.current.add(user.uid)
           } catch (error) {
             console.warn('Failed to initialize user document:', error)
             // Continue anyway - user can still use the app with limited functionality
@@ -63,14 +63,14 @@ export function useAuth() {
         }
       } else {
         // Clear initialized users when user logs out
-        setInitializedUsers(new Set())
+        initializedUsersRef.current.clear()
       }
       setUser(user)
       setFirebaseUser(user)
       setLoading(false)
     })
     return () => unsub()
-  }, [initializedUsers, setFirebaseUser])
+  }, [setFirebaseUser])
 
   // Create enhanced user object with role
   const enhancedUser = user ? { ...user, role } as EnhancedUser : null
