@@ -683,7 +683,8 @@ export default function CreatorDashboard() {
   email: '',
   name: '',
   sport: 'Soccer',
-  customMessage: ''
+  customMessage: '',
+  invitationType: 'coach' as 'coach' | 'assistant' // Toggle between coach and assistant
  })
  const [invitationLoading, setInvitationLoading] = useState(false)
  const [invitationStatus, setInvitationStatus] = useState<{
@@ -749,7 +750,8 @@ export default function CreatorDashboard() {
      coachEmail: invitationForm.email,
      coachName: invitationForm.name,
      sport: invitationForm.sport,
-     personalMessage: invitationForm.customMessage || `Hi ${invitationForm.name}, I'd like to invite you to join our coaching platform!`
+     personalMessage: invitationForm.customMessage || `Hi ${invitationForm.name}, I'd like to invite you to join our coaching platform!`,
+     invitationType: invitationForm.invitationType // Pass the invitation type
     })
    })
 
@@ -766,7 +768,8 @@ export default function CreatorDashboard() {
      email: '',
      name: '',
      sport: 'Soccer',
-     customMessage: ''
+     customMessage: '',
+     invitationType: 'coach'
     })
    } else {
     throw new Error(data.error || 'Failed to send invitation')
@@ -1608,7 +1611,7 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
            <div className="font-medium text-green-900">Athlete Management</div>
            <div className="text-sm text-green-700">Invite and track your athletes</div>
           </Link>
-          {(role === 'admin' || role === 'superadmin') && (
+          {!loadingRole && (role === 'admin' || role === 'superadmin') && (
             <Link
              href="/dashboard/admin/coach-intake"
              className="block w-full text-left p-3 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors"
@@ -2638,16 +2641,50 @@ Summary and what comes next..."
        {/* Invitation Form */}
        <div className="bg-white rounded-lg shadow-sm">
         <div className="p-6 border-b border-gray-200">
-         <h2 className="text-lg font-semibold text-gray-900">Invite Other Coaches</h2>
-         <p className="text-sm text-gray-600 mt-1">Send personalized invitations to join your coaching network</p>
+         <h2 className="text-lg font-semibold text-gray-900">
+          {invitationForm.invitationType === 'coach' ? 'Invite Other Coaches' : 'Invite Assistant'}
+         </h2>
+         <p className="text-sm text-gray-600 mt-1">
+          {invitationForm.invitationType === 'coach'
+           ? 'Send personalized invitations to join your coaching network'
+           : 'Invite an assistant to help manage your coaching activities'}
+         </p>
         </div>
         <div className="p-6">
          <form onSubmit={handleCoachInvitation} className="space-y-4">
+          {/* Toggle between Coach and Assistant */}
+          <div className="flex items-center justify-center gap-2 p-1 bg-gray-100 rounded-lg">
+           <button
+            type="button"
+            onClick={() => setInvitationForm(prev => ({ ...prev, invitationType: 'coach' }))}
+            className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+             invitationForm.invitationType === 'coach'
+              ? 'bg-white text-blue-600 shadow-sm'
+              : 'text-gray-600 hover:text-gray-900'
+            }`}
+           >
+            Coach
+           </button>
+           <button
+            type="button"
+            onClick={() => setInvitationForm(prev => ({ ...prev, invitationType: 'assistant' }))}
+            className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+             invitationForm.invitationType === 'assistant'
+              ? 'bg-white text-green-600 shadow-sm'
+              : 'text-gray-600 hover:text-gray-900'
+            }`}
+           >
+            Assistant
+           </button>
+          </div>
+
           <div>
-           <label className="block text-sm font-medium text-gray-700 mb-2">Coach Email Address *</label>
+           <label className="block text-sm font-medium text-gray-700 mb-2">
+            {invitationForm.invitationType === 'coach' ? 'Coach Email Address *' : 'Assistant Email Address *'}
+           </label>
            <input
             type="email"
-            placeholder="coach@example.com"
+            placeholder={invitationForm.invitationType === 'coach' ? 'coach@example.com' : 'assistant@example.com'}
             value={invitationForm.email}
             onChange={(e) => setInvitationForm(prev => ({ ...prev, email: e.target.value }))}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -2657,10 +2694,12 @@ Summary and what comes next..."
           </div>
 
           <div>
-           <label className="block text-sm font-medium text-gray-700 mb-2">Coach Name *</label>
+           <label className="block text-sm font-medium text-gray-700 mb-2">
+            {invitationForm.invitationType === 'coach' ? 'Coach Name *' : 'Assistant Name *'}
+           </label>
            <input
             type="text"
-            placeholder="John Smith"
+            placeholder={invitationForm.invitationType === 'coach' ? 'John Smith' : 'Jane Doe'}
             value={invitationForm.name}
             onChange={(e) => setInvitationForm(prev => ({ ...prev, name: e.target.value }))}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"

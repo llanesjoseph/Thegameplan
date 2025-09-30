@@ -4,11 +4,11 @@ import { sendCoachInvitationEmail } from '@/lib/email-service'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { coachEmail, coachName, sport, personalMessage } = body
+    const { coachEmail, coachName, sport, personalMessage, invitationType = 'coach' } = body
 
     if (!coachEmail || !coachName || !sport) {
       return NextResponse.json(
-        { error: 'Coach email, name, and sport are required' },
+        { error: `${invitationType === 'assistant' ? 'Assistant' : 'Coach'} email, name, and sport are required` },
         { status: 400 }
       )
     }
@@ -38,15 +38,17 @@ export async function POST(request: NextRequest) {
       // For now, we'll just return success
     }
 
-    console.log('📧 Coach invitation created:', {
+    console.log(`📧 ${invitationType === 'assistant' ? 'Assistant' : 'Coach'} invitation created:`, {
       email: coachEmail,
       name: coachName,
       sport,
-      invitationId
+      invitationId,
+      type: invitationType
     })
 
-    // Create invitation URL pointing to existing coach onboard page
-    const invitationUrl = `https://playbookd.crucibleanalytics.dev/coach-onboard/${invitationId}?sport=${encodeURIComponent(sport)}&email=${encodeURIComponent(coachEmail)}&name=${encodeURIComponent(coachName)}`
+    // Create invitation URL - use athlete-onboard for assistants, coach-onboard for coaches
+    const onboardPath = invitationType === 'assistant' ? 'athlete-onboard' : 'coach-onboard'
+    const invitationUrl = `https://playbookd.crucibleanalytics.dev/${onboardPath}/${invitationId}?sport=${encodeURIComponent(sport)}&email=${encodeURIComponent(coachEmail)}&name=${encodeURIComponent(coachName)}&role=${invitationType}`
 
     // Send actual email using existing email service
     console.log(`✉️ Sending invitation email to ${coachEmail}...`)
@@ -54,7 +56,7 @@ export async function POST(request: NextRequest) {
     try {
       await sendCoachInvitationEmail({
         to: coachEmail,
-        organizationName: 'PLAYBOOKD Coaching Network',
+        organizationName: invitationType === 'assistant' ? 'PLAYBOOKD Team Network' : 'PLAYBOOKD Coaching Network',
         inviterName: 'PLAYBOOKD Team',
         sport,
         invitationUrl,

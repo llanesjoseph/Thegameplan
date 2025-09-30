@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { useEnhancedRole } from '@/hooks/use-role-switcher'
+import { useRouter } from 'next/navigation'
 import { db } from '@/lib/firebase'
 import { collection, query, orderBy, onSnapshot, doc, updateDoc, setDoc, deleteDoc } from 'firebase/firestore'
 import {
@@ -55,13 +56,21 @@ interface CoachApplication {
 
 export default function CoachApplicationsPage() {
  const { user } = useAuth()
- const { role } = useEnhancedRole()
+ const { role, loading: roleLoading } = useEnhancedRole()
+ const router = useRouter()
  const [applications, setApplications] = useState<CoachApplication[]>([])
  const [loading, setLoading] = useState(true)
  const [selectedApplication, setSelectedApplication] = useState<CoachApplication | null>(null)
  const [reviewNotes, setReviewNotes] = useState('')
  const [searchTerm, setSearchTerm] = useState('')
  const [statusFilter, setStatusFilter] = useState<string>('all')
+
+ // Redirect non-admin users automatically
+ useEffect(() => {
+  if (!roleLoading && role !== 'admin' && role !== 'superadmin') {
+   router.push('/dashboard/creator')
+  }
+ }, [role, roleLoading, router])
 
  useEffect(() => {
   if (role !== 'admin' && role !== 'superadmin') return

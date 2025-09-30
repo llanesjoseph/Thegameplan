@@ -8,6 +8,7 @@ import { db } from '@/lib/firebase'
 import { collection, query, orderBy, onSnapshot, doc, updateDoc, setDoc } from 'firebase/firestore'
 import AppHeader from '@/components/ui/AppHeader'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import {
   CheckCircle,
   XCircle,
@@ -58,6 +59,7 @@ interface CoachApplication {
 export default function CoachIntakeApprovalPage() {
   const { user } = useAuth()
   const { roleData, loading: roleLoading } = useCreatorStatus()
+  const router = useRouter()
   const [applications, setApplications] = useState<CoachApplication[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending')
@@ -67,6 +69,13 @@ export default function CoachIntakeApprovalPage() {
   const [submittingReview, setSubmittingReview] = useState(false)
 
   const hasAccess = isAdmin(roleData)
+
+  // Redirect non-admin users automatically
+  useEffect(() => {
+    if (!roleLoading && !hasAccess) {
+      router.push('/dashboard/creator')
+    }
+  }, [hasAccess, roleLoading, router])
 
   useEffect(() => {
     if (!hasAccess || roleLoading) return

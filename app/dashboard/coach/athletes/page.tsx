@@ -3,11 +3,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import AppHeader from '@/components/ui/AppHeader'
 import {
   Users,
@@ -183,68 +178,88 @@ export default function CoachAthletesPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'accepted':
-        return <Badge className="bg-green-100 text-green-800"><CheckCircle className="w-3 h-3 mr-1" />Accepted</Badge>
+        return (
+          <span className="px-4 py-2 bg-green/20 text-green rounded-full text-sm font-medium flex items-center gap-2">
+            <CheckCircle className="w-4 h-4" />
+            Accepted
+          </span>
+        )
       case 'pending':
-        return <Badge className="bg-yellow-100 text-yellow-800"><Clock className="w-3 h-3 mr-1" />Pending</Badge>
+        return (
+          <span className="px-4 py-2 bg-orange/20 text-orange rounded-full text-sm font-medium flex items-center gap-2">
+            <Clock className="w-4 h-4" />
+            Pending
+          </span>
+        )
       case 'expired':
-        return <Badge className="bg-red-100 text-red-800"><AlertCircle className="w-3 h-3 mr-1" />Expired</Badge>
+        return (
+          <span className="px-4 py-2 bg-cardinal/20 text-cardinal rounded-full text-sm font-medium flex items-center gap-2">
+            <AlertCircle className="w-4 h-4" />
+            Expired
+          </span>
+        )
       default:
-        return <Badge className="bg-gray-100 text-gray-800">{status}</Badge>
+        return (
+          <span className="px-4 py-2 bg-dark/20 text-dark rounded-full text-sm font-medium">
+            {status}
+          </span>
+        )
     }
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
+    <div className="min-h-screen bg-gradient-to-br from-cream via-cream to-sky-blue/10">
       <AppHeader />
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        {/* Header Section */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Athlete Management</h1>
-          <p className="text-gray-600">Invite and manage your athletes</p>
+          <h1 className="text-4xl text-dark font-heading mb-2">Athlete Management</h1>
+          <p className="text-dark/60">Invite and manage your athletes</p>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-4 mb-6">
-          <Button
+        <div className="flex gap-4 mb-8">
+          <button
             onClick={() => setShowBulkInvite(!showBulkInvite)}
-            className="bg-blue-600 hover:bg-blue-700"
+            className="px-6 py-3 bg-gradient-to-r from-sky-blue to-black text-white rounded-xl hover:opacity-90 transition-opacity flex items-center gap-2"
           >
-            <UserPlus className="w-4 h-4 mr-2" />
+            <UserPlus className="w-5 h-5" />
             {showBulkInvite ? 'Cancel Invite' : 'Invite Athletes'}
-          </Button>
+          </button>
 
-          <Button
-            variant="outline"
+          <button
             onClick={importFromCSV}
+            className="px-6 py-3 bg-white/80 backdrop-blur-sm text-dark border border-sky-blue/20 rounded-xl hover:bg-white transition-colors flex items-center gap-2"
           >
-            <Upload className="w-4 h-4 mr-2" />
+            <Upload className="w-5 h-5" />
             Import CSV
-          </Button>
+          </button>
 
-          <Button variant="outline">
-            <Download className="w-4 h-4 mr-2" />
+          <button className="px-6 py-3 bg-white/80 backdrop-blur-sm text-dark border border-sky-blue/20 rounded-xl hover:bg-white transition-colors flex items-center gap-2">
+            <Download className="w-5 h-5" />
             Export List
-          </Button>
+          </button>
         </div>
 
         {/* Bulk Invite Form */}
         {showBulkInvite && (
-          <Card className="mb-8">
-            <CardHeader>
-              <CardTitle>Invite Multiple Athletes</CardTitle>
-              <CardDescription>
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 mb-8 overflow-hidden">
+            <div className="p-6 border-b border-dark/10">
+              <h2 className="text-2xl text-dark font-heading mb-2">Invite Multiple Athletes</h2>
+              <p className="text-dark/60">
                 Send personalized invitations to multiple athletes at once
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
+              </p>
+            </div>
+            <div className="p-6 space-y-6">
               {/* Sport and Message */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium mb-2">Sport</label>
+                  <label className="block text-sm font-medium text-dark/70 mb-2">Sport</label>
                   <select
                     value={bulkForm.sport}
                     onChange={(e) => setBulkForm(prev => ({ ...prev, sport: e.target.value }))}
-                    className="w-full p-2 border border-gray-300 rounded-md"
+                    className="w-full px-4 py-3 border-2 border-sky-blue/20 bg-white/80 rounded-xl text-dark focus:border-sky-blue focus:ring-4 focus:ring-sky-blue/20 transition-all"
                   >
                     <option value="Brazilian Jiu-Jitsu">Brazilian Jiu-Jitsu</option>
                     <option value="Mixed Martial Arts">Mixed Martial Arts</option>
@@ -265,12 +280,13 @@ export default function CoachAthletesPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2">Custom Message (Optional)</label>
-                  <Textarea
+                  <label className="block text-sm font-medium text-dark/70 mb-2">Custom Message (Optional)</label>
+                  <textarea
                     value={bulkForm.customMessage}
                     onChange={(e) => setBulkForm(prev => ({ ...prev, customMessage: e.target.value }))}
                     placeholder="Add a personal message to your invitation..."
                     rows={3}
+                    className="w-full px-4 py-3 border-2 border-sky-blue/20 bg-white/80 rounded-xl text-dark placeholder-dark/50 focus:border-sky-blue focus:ring-4 focus:ring-sky-blue/20 transition-all resize-none"
                   />
                 </div>
               </div>
@@ -278,45 +294,46 @@ export default function CoachAthletesPage() {
               {/* Athletes List */}
               <div>
                 <div className="flex justify-between items-center mb-4">
-                  <label className="block text-sm font-medium">Athletes</label>
-                  <Button
+                  <label className="block text-sm font-medium text-dark/70">Athletes</label>
+                  <button
                     type="button"
-                    variant="outline"
-                    size="sm"
                     onClick={addAthleteRow}
+                    className="px-4 py-2 bg-sky-blue/20 text-sky-blue rounded-lg hover:bg-sky-blue/30 transition-colors flex items-center gap-2"
                   >
-                    <Plus className="w-4 h-4 mr-1" />
+                    <Plus className="w-4 h-4" />
                     Add Row
-                  </Button>
+                  </button>
                 </div>
 
                 <div className="space-y-3 max-h-96 overflow-y-auto">
                   {bulkForm.athletes.map((athlete, index) => (
                     <div key={index} className="flex gap-3 items-center">
                       <div className="flex-1">
-                        <Input
+                        <input
                           type="email"
                           placeholder="athlete@example.com"
                           value={athlete.email}
                           onChange={(e) => updateAthlete(index, 'email', e.target.value)}
+                          className="w-full px-4 py-3 border-2 border-sky-blue/20 bg-white/80 rounded-xl text-dark placeholder-dark/50 focus:border-sky-blue focus:ring-4 focus:ring-sky-blue/20 transition-all"
                         />
                       </div>
                       <div className="flex-1">
-                        <Input
+                        <input
+                          type="text"
                           placeholder="Athlete Name"
                           value={athlete.name}
                           onChange={(e) => updateAthlete(index, 'name', e.target.value)}
+                          className="w-full px-4 py-3 border-2 border-sky-blue/20 bg-white/80 rounded-xl text-dark placeholder-dark/50 focus:border-sky-blue focus:ring-4 focus:ring-sky-blue/20 transition-all"
                         />
                       </div>
                       {bulkForm.athletes.length > 1 && (
-                        <Button
+                        <button
                           type="button"
-                          variant="outline"
-                          size="sm"
                           onClick={() => removeAthleteRow(index)}
+                          className="p-3 text-orange hover:bg-orange/10 rounded-lg transition-colors"
                         >
-                          <X className="w-4 h-4" />
-                        </Button>
+                          <X className="w-5 h-5" />
+                        </button>
                       )}
                     </div>
                   ))}
@@ -325,88 +342,91 @@ export default function CoachAthletesPage() {
 
               {/* Send Button */}
               <div className="flex justify-end">
-                <Button
+                <button
                   onClick={handleBulkInvite}
                   disabled={isLoading}
-                  className="bg-green-600 hover:bg-green-700"
+                  className="px-6 py-3 bg-gradient-to-r from-green to-green/90 text-white rounded-xl hover:opacity-90 transition-opacity flex items-center gap-2 disabled:opacity-50"
                 >
                   {isLoading ? (
                     <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
                       Sending...
                     </>
                   ) : (
                     <>
-                      <Send className="w-4 h-4 mr-2" />
+                      <Send className="w-5 h-5" />
                       Send Invitations ({bulkForm.athletes.filter(a => a.email.trim()).length})
                     </>
                   )}
-                </Button>
+                </button>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         )}
 
         {/* Invitations List */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="w-5 h-5" />
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 overflow-hidden">
+          <div className="p-6 border-b border-dark/10">
+            <h2 className="text-2xl text-dark font-heading flex items-center gap-3 mb-2">
+              <Users className="w-6 h-6" />
               Athlete Invitations
-            </CardTitle>
-            <CardDescription>
+            </h2>
+            <p className="text-dark/60">
               Track the status of your athlete invitations
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+            </p>
+          </div>
+          <div className="p-6">
             {invitations.length === 0 ? (
-              <div className="text-center py-8">
-                <Users className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No invitations yet</h3>
-                <p className="text-gray-500 mb-4">Start by inviting your first athletes</p>
-                <Button onClick={() => setShowBulkInvite(true)}>
-                  <UserPlus className="w-4 h-4 mr-2" />
+              <div className="text-center py-12">
+                <Users className="w-16 h-16 mx-auto text-dark/30 mb-4" />
+                <h3 className="text-xl text-dark mb-2">No invitations yet</h3>
+                <p className="text-dark/60 mb-6">Start by inviting your first athletes</p>
+                <button
+                  onClick={() => setShowBulkInvite(true)}
+                  className="px-6 py-3 bg-gradient-to-r from-sky-blue to-black text-white rounded-xl hover:opacity-90 transition-opacity flex items-center gap-2 mx-auto"
+                >
+                  <UserPlus className="w-5 h-5" />
                   Invite Athletes
-                </Button>
+                </button>
               </div>
             ) : (
               <div className="space-y-4">
                 {invitations.map((invitation) => (
                   <div
                     key={invitation.id}
-                    className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
+                    className="flex items-center justify-between p-5 border-2 border-sky-blue/20 rounded-xl hover:bg-sky-blue/5 transition-colors"
                   >
-                    <div className="flex items-center space-x-4">
-                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                        <User className="w-5 h-5 text-blue-600" />
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-gradient-to-br from-sky-blue to-black rounded-xl flex items-center justify-center">
+                        <User className="w-6 h-6 text-white" />
                       </div>
                       <div>
-                        <h4 className="font-medium text-gray-900">{invitation.name}</h4>
-                        <p className="text-sm text-gray-500">{invitation.email}</p>
-                        <p className="text-xs text-gray-400">
+                        <h4 className="font-medium text-dark text-lg">{invitation.name}</h4>
+                        <p className="text-sm text-dark/60">{invitation.email}</p>
+                        <p className="text-xs text-dark/50">
                           {invitation.sport} • Sent {invitation.sentAt}
                         </p>
                       </div>
                     </div>
 
-                    <div className="flex items-center space-x-3">
+                    <div className="flex items-center gap-3">
                       {getStatusBadge(invitation.status)}
 
-                      <div className="flex space-x-1">
-                        <Button variant="outline" size="sm">
-                          <Mail className="w-4 h-4" />
-                        </Button>
-                        <Button variant="outline" size="sm">
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+                      <div className="flex gap-2">
+                        <button className="p-2 text-sky-blue hover:bg-sky-blue/10 rounded-lg transition-colors">
+                          <Mail className="w-5 h-5" />
+                        </button>
+                        <button className="p-2 text-orange hover:bg-orange/10 rounded-lg transition-colors">
+                          <Trash2 className="w-5 h-5" />
+                        </button>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   )

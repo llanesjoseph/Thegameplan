@@ -8,6 +8,7 @@ import { useAuth } from '@/hooks/use-auth'
 import { useCreatorStatus } from '@/hooks/use-creator-status'
 import AppHeader from '@/components/ui/AppHeader'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import {
   User,
   Clock,
@@ -47,6 +48,7 @@ interface CreatorApplication {
 export default function CreatorApplicationsPage() {
   const { user } = useAuth()
   const { roleData, loading: roleLoading } = useCreatorStatus()
+  const router = useRouter()
   const [applications, setApplications] = useState<CreatorApplication[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all')
@@ -56,6 +58,13 @@ export default function CreatorApplicationsPage() {
   const [submittingReview, setSubmittingReview] = useState(false)
 
   const hasAccess = isAdmin(roleData)
+
+  // Redirect non-admin users automatically
+  useEffect(() => {
+    if (!roleLoading && !hasAccess) {
+      router.push('/dashboard/creator')
+    }
+  }, [hasAccess, roleLoading, router])
 
   useEffect(() => {
     if (!hasAccess || roleLoading) return

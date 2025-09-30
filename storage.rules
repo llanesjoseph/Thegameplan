@@ -71,10 +71,7 @@ service firebase.storage {
     // User profile images - Public read, owner write
     match /users/{userId}/profile/{allPaths=**} {
       allow read: if true; // Public for profile images
-      allow write: if isOwner(userId) && 
-                      isValidImageType() && 
-                      isValidFileSize(10) && // 10MB limit
-                      isValidFileName();
+      allow write: if isOwner(userId);
       allow delete: if isOwner(userId) || isAdmin();
     }
     
