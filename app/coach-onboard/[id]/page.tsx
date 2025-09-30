@@ -474,12 +474,34 @@ export default function CoachOnboardPage() {
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="sport">Sport</Label>
-                  <Input
+                  <select
                     id="sport"
                     value={coachData.sport}
                     onChange={(e) => setCoachData(prev => ({ ...prev, sport: e.target.value }))}
-                    placeholder="Primary sport you coach"
-                  />
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <option value="">Select a sport</option>
+                    <option value="Soccer">Soccer</option>
+                    <option value="Basketball">Basketball</option>
+                    <option value="Football">Football</option>
+                    <option value="Baseball">Baseball</option>
+                    <option value="Softball">Softball</option>
+                    <option value="Volleyball">Volleyball</option>
+                    <option value="Tennis">Tennis</option>
+                    <option value="Track & Field">Track & Field</option>
+                    <option value="Cross Country">Cross Country</option>
+                    <option value="Swimming">Swimming</option>
+                    <option value="Wrestling">Wrestling</option>
+                    <option value="Lacrosse">Lacrosse</option>
+                    <option value="Hockey">Hockey</option>
+                    <option value="Golf">Golf</option>
+                    <option value="Gymnastics">Gymnastics</option>
+                    <option value="Brazilian Jiu-Jitsu (BJJ)">Brazilian Jiu-Jitsu (BJJ)</option>
+                    <option value="MMA">MMA</option>
+                    <option value="Boxing">Boxing</option>
+                    <option value="Martial Arts">Martial Arts</option>
+                    <option value="Other">Other</option>
+                  </select>
                 </div>
                 <div>
                   <Label htmlFor="experience">Years of Experience</Label>
