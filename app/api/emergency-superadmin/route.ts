@@ -6,6 +6,17 @@ import { adminDb as db } from '@/lib/firebase.admin'
  * TEMPORARY - Remove after fixing role issue
  */
 
+// Add CORS headers
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+}
+
+export async function OPTIONS() {
+  return NextResponse.json({}, { headers: corsHeaders })
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
@@ -17,14 +28,14 @@ export async function POST(request: NextRequest) {
     if (secret !== expectedSecret) {
       return NextResponse.json(
         { error: 'Invalid secret' },
-        { status: 401 }
+        { status: 401, headers: corsHeaders }
       )
     }
 
     if (!userEmail) {
       return NextResponse.json(
         { error: 'userEmail is required' },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       )
     }
 
@@ -34,7 +45,7 @@ export async function POST(request: NextRequest) {
     if (usersQuery.empty) {
       return NextResponse.json(
         { error: `User with email ${userEmail} not found` },
-        { status: 404 }
+        { status: 404, headers: corsHeaders }
       )
     }
 
@@ -58,13 +69,13 @@ export async function POST(request: NextRequest) {
         oldRole,
         newRole: 'superadmin'
       }
-    })
+    }, { headers: corsHeaders })
 
   } catch (error) {
     console.error('Emergency superadmin error:', error)
     return NextResponse.json(
       { error: 'Failed to update user role', details: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     )
   }
 }
