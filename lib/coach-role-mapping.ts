@@ -10,20 +10,8 @@ export const KNOWN_COACHES: Record<string, {
   credentials: string[]
   shouldBeRole: 'coach'
 }> = {
-  'llanes.joseph.m@gmail.com': {
-    email: 'llanes.joseph.m@gmail.com',
-    name: 'Joseph Llanes',
-    sport: 'Brazilian Jiu-Jitsu',
-    credentials: [
-      'IBJJF World Champion',
-      '3rd Degree Black Belt',
-      'Performance Training Specialist',
-      'Elite Competitor',
-      'Certified Instructor'
-    ],
-    shouldBeRole: 'coach'
-  }
-  // Add more known coaches here as needed
+  // Add known coaches here as needed
+  // Note: Removed llanes.joseph.m@gmail.com as they should be superadmin, not auto-corrected to coach
 }
 
 /**

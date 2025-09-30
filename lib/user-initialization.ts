@@ -4,6 +4,15 @@ import { FirebaseUser, UserRole } from '../types'
 import { isJasmineAikey, handleJasmineProvisioning } from './jasmine-client'
 import { isKnownCoach, getKnownCoachRole } from './coach-role-mapping'
 
+// Superadmin emails - these users should never have their role auto-corrected
+const SUPERADMIN_EMAILS = [
+  'llanes.joseph.m@gmail.com'
+]
+
+function isSuperadmin(email: string | null): boolean {
+  return email ? SUPERADMIN_EMAILS.includes(email.toLowerCase()) : false
+}
+
 export interface UserProfile {
   uid: string
   email: string
@@ -36,20 +45,23 @@ export async function initializeUserDocument(user: FirebaseUser | null, defaultR
       let roleNeedsUpdate = false
       let correctRole = userData.role
 
-      if (user.email && isKnownCoach(user.email)) {
-        const shouldBeRole = getKnownCoachRole(user.email)
-        if (shouldBeRole && userData.role !== shouldBeRole) {
-          correctRole = shouldBeRole
-          roleNeedsUpdate = true
-          console.log(`🚨 ROLE CORRECTION: ${user.email} should be ${shouldBeRole}, currently ${userData.role}`)
+      // Skip auto-corrections for superadmins
+      if (!isSuperadmin(user.email)) {
+        if (user.email && isKnownCoach(user.email)) {
+          const shouldBeRole = getKnownCoachRole(user.email)
+          if (shouldBeRole && userData.role !== shouldBeRole) {
+            correctRole = shouldBeRole
+            roleNeedsUpdate = true
+            console.log(`🚨 ROLE CORRECTION: ${user.email} should be ${shouldBeRole}, currently ${userData.role}`)
+          }
         }
-      }
 
-      // Upgrade 'user' roles to 'creator' for dashboard access
-      if (userData.role === 'user') {
-        correctRole = 'creator'
-        roleNeedsUpdate = true
-        console.log(`🔄 ROLE UPGRADE: Upgrading ${user.email} from 'user' to 'creator' for dashboard access`)
+        // Upgrade 'user' roles to 'creator' for dashboard access
+        if (userData.role === 'user') {
+          correctRole = 'creator'
+          roleNeedsUpdate = true
+          console.log(`🔄 ROLE UPGRADE: Upgrading ${user.email} from 'user' to 'creator' for dashboard access`)
+        }
       }
 
       await setDoc(userDocRef, {
