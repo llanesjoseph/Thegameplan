@@ -54,6 +54,9 @@ export default function UserSignupTracker() {
    } as UserSignup))
    setSignups(signupData)
    setLoading(false)
+  }, (error) => {
+   console.warn('Failed to load signups:', error)
+   setLoading(false)
   })
 
   // Listen to admin notifications
@@ -69,6 +72,8 @@ export default function UserSignupTracker() {
     ...doc.data()
    } as AdminNotification))
    setNotifications(notificationData)
+  }, (error) => {
+   console.warn('Failed to load notifications:', error)
   })
 
   return () => {

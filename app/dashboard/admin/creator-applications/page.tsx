@@ -73,6 +73,9 @@ export default function CreatorApplicationsPage() {
 
       setApplications(apps)
       setLoading(false)
+    }, (error) => {
+      console.warn('Failed to load creator applications:', error)
+      setLoading(false)
     })
 
     return () => unsubscribe()

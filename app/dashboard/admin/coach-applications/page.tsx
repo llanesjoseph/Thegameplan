@@ -79,6 +79,9 @@ export default function CoachApplicationsPage() {
 
    setApplications(apps)
    setLoading(false)
+  }, (error) => {
+   console.warn('Failed to load coach applications:', error)
+   setLoading(false)
   })
 
   return () => unsubscribe()

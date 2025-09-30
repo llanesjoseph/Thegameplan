@@ -84,6 +84,9 @@ export default function CoachIntakeApprovalPage() {
 
       setApplications(apps)
       setLoading(false)
+    }, (error) => {
+      console.warn('Failed to load coach applications:', error)
+      setLoading(false)
     })
 
     return () => unsubscribe()
