@@ -89,10 +89,7 @@ service firebase.storage {
     // Creator content - Videos, images, supporting materials (STANDARDIZED PATH)
     match /creators/{creatorId}/content/{allPaths=**} {
       allow read: if isAuthenticated(); // Authenticated users can access content
-      allow write: if isOwner(creatorId) &&
-                      (isValidImageType() || isValidVideoType() || isValidAudioType() || isValidDocumentType()) &&
-                      isValidFileSize(10000) && // 10GB limit for large videos
-                      isValidFileName();
+      allow write: if isOwner(creatorId);
       allow delete: if isOwner(creatorId) || isAdmin();
     }
 
@@ -107,10 +104,7 @@ service firebase.storage {
     // Creator profile assets - Headshots, action shots, logos
     match /creators/{creatorId}/assets/{allPaths=**} {
       allow read: if true; // Public for creator assets
-      allow write: if isOwner(creatorId) &&
-                      (isValidImageType() || isValidVideoType()) &&
-                      isValidFileSize(100) && // 100MB limit for assets
-                      isValidFileName();
+      allow write: if isOwner(creatorId);
       allow delete: if isOwner(creatorId) || isAdmin();
     }
     
