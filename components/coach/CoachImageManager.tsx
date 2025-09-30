@@ -5,7 +5,8 @@ import Image from 'next/image'
 import { Camera, Upload, X, Plus, Trash2, Save, AlertCircle, CheckCircle, Play, Image as ImageIcon } from 'lucide-react'
 import ImageUploader from '@/components/ImageUploader'
 import { useAuth } from '@/hooks/use-auth'
-import { auth } from '@/lib/firebase.client'
+import { db } from '@/lib/firebase.client'
+import { doc, getDoc, setDoc, Timestamp } from 'firebase/firestore'
 
 interface CoachProfile {
   uid: string
@@ -57,31 +58,53 @@ export default function CoachImageManager({ onProfileUpdate, className = '' }: C
   }, [user])
 
   const loadCoachProfile = async () => {
+    if (!user?.uid) return
+
     try {
       setLoading(true)
-      const token = await auth.currentUser?.getIdToken()
 
-      const response = await fetch('/api/coach-profile/get', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+      // Try coach_profiles collection first
+      const coachProfileDoc = await getDoc(doc(db, 'coach_profiles', user.uid))
+
+      let profileData: any = null
+      if (coachProfileDoc.exists()) {
+        profileData = { uid: user.uid, ...coachProfileDoc.data() }
+      } else {
+        // Fall back to creator_profiles if coach_profiles doesn't exist
+        const creatorProfileDoc = await getDoc(doc(db, 'creator_profiles', user.uid))
+        if (creatorProfileDoc.exists()) {
+          profileData = { uid: user.uid, ...creatorProfileDoc.data() }
         }
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to load profile')
       }
 
-      const data = await response.json()
-      if (data.success) {
-        const profileData = data.data
-        setProfile(profileData)
+      if (profileData) {
+        setProfile(profileData as CoachProfile)
         setHeadshotUrl(profileData.headshotUrl || '')
         setHeroImageUrl(profileData.heroImageUrl || '')
         setActionPhotos(profileData.actionPhotos || [])
         setHighlightVideo(profileData.highlightVideo || '')
       } else {
-        throw new Error(data.error || 'Failed to load profile')
+        // Create default profile if none exists
+        const defaultProfile = {
+          uid: user.uid,
+          email: user.email || '',
+          displayName: user.displayName || '',
+          firstName: '',
+          lastName: '',
+          sport: '',
+          tagline: '',
+          credentials: '',
+          bio: '',
+          actionPhotos: [],
+          specialties: [],
+          achievements: [],
+          sampleQuestions: [],
+          profileCompleteness: 0,
+          isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        }
+        setProfile(defaultProfile as CoachProfile)
       }
     } catch (error) {
       console.error('Error loading coach profile:', error)
@@ -92,62 +115,67 @@ export default function CoachImageManager({ onProfileUpdate, className = '' }: C
   }
 
   const saveProfileImages = async () => {
-    if (!user) return
+    if (!user?.uid) return
 
     try {
       setSaving(true)
       setError(null)
 
-      const token = await auth.currentUser?.getIdToken()
-
-      const response = await fetch('/api/coach-profile/update-images', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          headshotUrl: headshotUrl || undefined,
-          heroImageUrl: heroImageUrl || undefined,
-          actionPhotos: actionPhotos.length > 0 ? actionPhotos : undefined,
-          highlightVideo: highlightVideo || undefined
-        })
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to update profile images')
+      // Update profile with new image URLs
+      const updateData = {
+        headshotUrl: headshotUrl || null,
+        heroImageUrl: heroImageUrl || null,
+        actionPhotos: actionPhotos.length > 0 ? actionPhotos : [],
+        highlightVideo: highlightVideo || null,
+        updatedAt: Timestamp.now()
       }
 
-      const data = await response.json()
-      if (data.success) {
-        setSuccess('Profile images updated successfully!')
+      // Try coach_profiles first, then fall back to creator_profiles
+      const coachProfileRef = doc(db, 'coach_profiles', user.uid)
+      const coachProfileDoc = await getDoc(coachProfileRef)
 
-        // Reload profile to get updated data
-        await loadCoachProfile()
-
-        // Notify parent component
-        if (onProfileUpdate && profile) {
-          onProfileUpdate({
-            ...profile,
-            headshotUrl,
-            heroImageUrl,
-            actionPhotos,
-            highlightVideo,
-            profileCompleteness: data.data.profileCompleteness
-          })
-        }
-
-        // Clear success message after 3 seconds
-        setTimeout(() => setSuccess(null), 3000)
+      if (coachProfileDoc.exists()) {
+        await setDoc(coachProfileRef, updateData, { merge: true })
       } else {
-        throw new Error(data.error || 'Failed to update profile')
+        // Fall back to creator_profiles
+        const creatorProfileRef = doc(db, 'creator_profiles', user.uid)
+        await setDoc(creatorProfileRef, updateData, { merge: true })
       }
+
+      setSuccess('Profile images updated successfully!')
+
+      // Reload profile to get updated data
+      await loadCoachProfile()
+
+      // Notify parent component
+      if (onProfileUpdate && profile) {
+        onProfileUpdate({
+          ...profile,
+          headshotUrl,
+          heroImageUrl,
+          actionPhotos,
+          highlightVideo,
+          profileCompleteness: calculateCompleteness()
+        })
+      }
+
+      // Clear success message after 3 seconds
+      setTimeout(() => setSuccess(null), 3000)
     } catch (error) {
       console.error('Error updating profile images:', error)
       setError(error instanceof Error ? error.message : 'Failed to update profile images')
     } finally {
       setSaving(false)
     }
+  }
+
+  const calculateCompleteness = () => {
+    let completeness = profile?.profileCompleteness || 0
+    if (headshotUrl) completeness += 5
+    if (heroImageUrl) completeness += 5
+    if (actionPhotos.length > 0) completeness += 5
+    if (highlightVideo) completeness += 5
+    return Math.min(completeness, 100)
   }
 
   const handleImageUpload = (type: 'headshot' | 'hero' | 'action' | 'video', url: string) => {
