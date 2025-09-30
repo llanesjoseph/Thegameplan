@@ -250,7 +250,7 @@ export async function sendAthleteInvitationEmail({
     const expiryDate = new Date(expiresAt).toLocaleDateString()
 
     const { data, error } = await resend.emails.send({
-      from: 'PLAYBOOKD <onboarding@resend.dev>',
+      from: 'PLAYBOOKD <noreply@mail.crucibleanalytics.dev>',
       to: [to],
       subject: `🏆 You're Invited to Train with ${coachName} - PLAYBOOKD`,
       html: `
