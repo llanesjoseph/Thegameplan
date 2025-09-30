@@ -103,10 +103,41 @@ export default function UserProfileDropdown() {
  const { user, loading } = useAuth()
  const router = useRouter()
  const dropdownRef = useRef<HTMLDivElement>(null)
+ const [profileImageUrl, setProfileImageUrl] = useState<string>('')
 
  // Get role directly from user to avoid circular dependency with useEnhancedRole
  const role = user?.role || 'guest'
  const canSwitchRoles = user?.role === 'superadmin'
+
+ // Load profile image from Firestore
+ useEffect(() => {
+  const loadProfileImage = async () => {
+   if (!user?.uid) return
+
+   try {
+    const { doc, getDoc } = await import('firebase/firestore')
+    const { db } = await import('@/lib/firebase.client')
+
+    // Try different profile collections
+    let profileDoc = await getDoc(doc(db, 'coach_profiles', user.uid))
+    if (!profileDoc.exists()) {
+     profileDoc = await getDoc(doc(db, 'creator_profiles', user.uid))
+    }
+    if (!profileDoc.exists()) {
+     profileDoc = await getDoc(doc(db, 'profiles', user.uid))
+    }
+
+    if (profileDoc.exists()) {
+     const data = profileDoc.data()
+     setProfileImageUrl(data.profileImageUrl || data.headshotUrl || '')
+    }
+   } catch (error) {
+    console.error('Error loading profile image:', error)
+   }
+  }
+
+  loadProfileImage()
+ }, [user?.uid])
 
  const handleSignOut = async () => {
   try {
@@ -177,9 +208,17 @@ export default function UserProfileDropdown() {
      aria-label="User menu"
      aria-expanded={isOpen}
     >
-     <div className="w-9 h-9 rounded-full bg-clarity-accent flex items-center justify-center text-white text-sm  shadow-clarity-sm">
-      {initials}
-     </div>
+     {profileImageUrl ? (
+      <img
+       src={profileImageUrl}
+       alt={user.displayName || 'Profile'}
+       className="w-9 h-9 rounded-full object-cover shadow-clarity-sm"
+      />
+     ) : (
+      <div className="w-9 h-9 rounded-full bg-clarity-accent flex items-center justify-center text-white text-sm  shadow-clarity-sm">
+       {initials}
+      </div>
+     )}
      <span className="hidden lg:block text-sm  text-clarity-text-primary max-w-24 truncate">
       {user.displayName?.split(' ')[0] || 'User'}
      </span>
