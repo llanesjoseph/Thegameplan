@@ -24,15 +24,41 @@ class SecureStorage {
   private currentKeyId: string = 'default'
   private readonly VERSION = 1
   private readonly DEFAULT_TTL = 24 * 60 * 60 * 1000 // 24 hours
+  private initialized: boolean = false
 
   constructor() {
-    this.initializeKeys()
+    // Only initialize in browser environment
+    if (typeof window !== 'undefined') {
+      this.initializeKeys()
+    }
+  }
+
+  /**
+   * Check if running in browser environment
+   */
+  private isBrowser(): boolean {
+    return typeof window !== 'undefined' && typeof localStorage !== 'undefined'
+  }
+
+  /**
+   * Ensure initialization before any operation
+   */
+  private async ensureInitialized(): Promise<void> {
+    if (!this.isBrowser()) {
+      throw new Error('SecureStorage can only be used in browser environment')
+    }
+    if (!this.initialized) {
+      await this.initializeKeys()
+      this.initialized = true
+    }
   }
 
   /**
    * Initialize encryption keys
    */
   private async initializeKeys(): Promise<void> {
+    if (!this.isBrowser()) return
+
     try {
       // Generate or retrieve encryption key
       const key = await this.generateOrRetrieveKey()
@@ -40,6 +66,8 @@ class SecureStorage {
 
       // Schedule key rotation (every 7 days)
       this.scheduleKeyRotation()
+
+      this.initialized = true
     } catch (error) {
       console.error('Failed to initialize secure storage keys:', error)
       await auditLog('secure_storage_key_init_failed', {
@@ -99,6 +127,8 @@ class SecureStorage {
     value: any,
     options: SecureStorageOptions = {}
   ): Promise<void> {
+    await this.ensureInitialized()
+
     try {
       const ttl = options.ttl || this.DEFAULT_TTL
       const audit = options.audit !== false // Default to true
@@ -142,6 +172,8 @@ class SecureStorage {
    * Retrieve and decrypt data
    */
   async getItem<T = any>(key: string, options: { audit?: boolean } = {}): Promise<T | null> {
+    await this.ensureInitialized()
+
     try {
       const audit = options.audit !== false // Default to true
 
@@ -202,6 +234,8 @@ class SecureStorage {
    * Remove item from secure storage
    */
   async removeItem(key: string, options: { audit?: boolean } = {}): Promise<void> {
+    await this.ensureInitialized()
+
     try {
       const audit = options.audit !== false
 
@@ -228,6 +262,8 @@ class SecureStorage {
    * Clear all secure storage
    */
   async clear(): Promise<void> {
+    await this.ensureInitialized()
+
     try {
       const keys = Object.keys(localStorage).filter(k => k.startsWith('__gp_secure_'))
 
