@@ -10,7 +10,14 @@ export function useUrlRoleSwitcher() {
   const { user } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
-  const searchParams = useSearchParams()
+
+  // Safe searchParams access - returns null during SSR
+  let searchParams
+  try {
+    searchParams = useSearchParams()
+  } catch (e) {
+    searchParams = null
+  }
 
   // Get the view-as parameter from URL
   const urlRole = searchParams?.get('view-as') as UserRole

@@ -1,6 +1,6 @@
 'use client'
 
-import { ReactNode, useMemo } from 'react'
+import { ReactNode, useMemo, Suspense } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import { useUrlEnhancedRole } from '@/hooks/use-url-role-switcher'
@@ -12,7 +12,7 @@ interface AuthGateProps {
  children: ReactNode
 }
 
-export default function AuthGate({ allowedRoles = ['user', 'creator', 'superadmin'], children }: AuthGateProps) {
+function AuthGateInner({ allowedRoles = ['user', 'creator', 'superadmin'], children }: AuthGateProps) {
  const { user, loading } = useAuth()
  const { effectiveRole } = useUrlEnhancedRole()
  const role = effectiveRole
@@ -63,6 +63,21 @@ export default function AuthGate({ allowedRoles = ['user', 'creator', 'superadmi
  }
 
  return <>{children}</>
+}
+
+export default function AuthGate(props: AuthGateProps) {
+ return (
+  <Suspense fallback={
+   <div className="min-h-screen flex items-center justify-center nexus-bg">
+    <div className="text-center nexus-card nexus-card-primary p-8">
+     <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-nexus-primary mx-auto"></div>
+     <p className="mt-4 nexus-body-text">Loading...</p>
+    </div>
+   </div>
+  }>
+   <AuthGateInner {...props} />
+  </Suspense>
+ )
 }
 
 
