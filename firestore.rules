@@ -63,13 +63,13 @@ service cloud.firestore {
     
     // Validate content data structure
     function isValidContentData() {
-      return request.resource.data.keys().hasAll(['title', 'creatorUid', 'sport', 'status']) &&
+      return request.resource.data.keys().hasAll(['title', 'creatorUid', 'status']) &&
              request.resource.data.title is string &&
              request.resource.data.creatorUid is string &&
-             request.resource.data.sport is string &&
              request.resource.data.status in ['draft', 'published', 'archived'] &&
              request.resource.data.title.size() <= 200 &&
-             request.resource.data.title.size() >= 1;
+             request.resource.data.title.size() >= 1 &&
+             (!('sport' in request.resource.data) || request.resource.data.sport is string);
     }
     
     // ===== CORE COLLECTIONS =====
