@@ -42,7 +42,10 @@
       "Bash(npm run deploy:*)",
       "Bash(npm run:*)",
       "Bash(del test-ai-api.js)",
-      "Bash(del:*)"
+      "Bash(del:*)",
+      "Bash(gcloud organizations:*)",
+      "Bash(start:*)",
+      "Bash(powershell -command \"[convert]::ToBase64String((Get-Content -path ''firebase-admin-key.json'' -Encoding byte))\")"
     ],
     "deny": [],
     "ask": []

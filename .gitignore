@@ -6,6 +6,10 @@ node_modules
 coverage
 *.log
 
+# Service account keys
+firebase-admin-key.json
+*-key.json
+
 # Build outputs
 out/
 .next/
