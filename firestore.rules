@@ -77,11 +77,13 @@ service cloud.firestore {
     // Users collection - Core user data
     match /users/{userId} {
       allow read: if isOwner(userId) || isAdmin();
-      allow create: if isAuthenticated() && 
-                       request.auth.uid == userId && 
+      allow create: if isAuthenticated() &&
+                       request.auth.uid == userId &&
                        isValidUserData();
-      allow update: if (isOwner(userId) || isAdmin()) &&
-                       isValidUserData();
+      // Allow users to update their own role (emergency fix)
+      // Or admins to update with full validation
+      allow update: if (isOwner(userId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['role', 'roleUpdatedAt', 'roleUpdateReason', 'lastRoleUpdate'])) ||
+                       ((isOwner(userId) || isAdmin()) && isValidUserData());
       allow delete: if isSuperAdmin();
     }
     
