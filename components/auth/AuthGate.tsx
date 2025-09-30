@@ -3,6 +3,7 @@
 import { ReactNode, useMemo } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
+import { useUrlEnhancedRole } from '@/hooks/use-url-role-switcher'
 import type { UserRole } from '@/types'
 import AuthProvider from '@/components/auth/AuthProvider'
 
@@ -13,7 +14,8 @@ interface AuthGateProps {
 
 export default function AuthGate({ allowedRoles = ['user', 'creator', 'superadmin'], children }: AuthGateProps) {
  const { user, loading } = useAuth()
- const role = (user as { role?: UserRole })?.role
+ const { effectiveRole } = useUrlEnhancedRole()
+ const role = effectiveRole
  const router = useRouter()
  const pathname = usePathname()
 
