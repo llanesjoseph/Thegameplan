@@ -60,35 +60,23 @@ export default function AthleteOnboardingPage() {
     try {
       setIsLoading(true)
 
-      // Check if it's in our global cache (for testing)
-      if (typeof window !== 'undefined' && (globalThis as any).athleteInvitations) {
-        const invitation = (globalThis as any).athleteInvitations.get(invitationId)
-        if (invitation) {
-          setInvitation(invitation)
-          setFormData(prev => ({
-            ...prev,
-            email: invitation.athleteEmail,
-            firstName: invitation.athleteName.split(' ')[0] || '',
-            lastName: invitation.athleteName.split(' ').slice(1).join(' ') || ''
-          }))
-          setIsLoading(false)
-          return
-        }
-      }
-
-      // In production, this would fetch from your API
-      const response = await fetch(`/api/athlete/validate-invitation?id=${invitationId}`)
+      // Fetch invitation from API
+      const response = await fetch(`/api/validate-invitation?id=${invitationId}&type=athlete`)
       if (response.ok) {
         const data = await response.json()
-        setInvitation(data.invitation)
-        setFormData(prev => ({
-          ...prev,
-          email: data.invitation.athleteEmail,
-          firstName: data.invitation.athleteName.split(' ')[0] || '',
-          lastName: data.invitation.athleteName.split(' ').slice(1).join(' ') || ''
-        }))
+        if (data.success && data.invitation) {
+          setInvitation(data.invitation)
+          setFormData(prev => ({
+            ...prev,
+            email: data.invitation.athleteEmail,
+            firstName: data.invitation.athleteName.split(' ')[0] || '',
+            lastName: data.invitation.athleteName.split(' ').slice(1).join(' ') || ''
+          }))
+        } else {
+          console.error('Invalid or expired invitation')
+        }
       } else {
-        console.error('Invalid or expired invitation')
+        console.error('Failed to validate invitation')
       }
     } catch (error) {
       console.error('Error fetching invitation:', error)
@@ -100,12 +88,40 @@ export default function AthleteOnboardingPage() {
   const handleSubmit = async () => {
     setIsSubmitting(true)
     try {
-      // In production, this would submit to your API
-      await new Promise(resolve => setTimeout(resolve, 2000)) // Simulate API call
+      // Submit athlete application
+      const response = await fetch('/api/submit-athlete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          invitationId,
+          userInfo: {
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            email: formData.email,
+            phone: formData.phone
+          },
+          athleteData: {
+            dateOfBirth: formData.dateOfBirth,
+            experience: formData.experience,
+            goals: formData.goals,
+            medicalConditions: formData.medicalConditions,
+            emergencyContact: formData.emergencyContact,
+            emergencyPhone: formData.emergencyPhone
+          }
+        })
+      })
+
+      const result = await response.json()
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to submit application')
+      }
+
+      console.log('✅ Athlete application submitted:', result.data)
       setStep(4) // Success step
     } catch (error) {
       console.error('Error submitting:', error)
-      alert('Failed to complete onboarding. Please try again.')
+      alert(error instanceof Error ? error.message : 'Failed to complete onboarding. Please try again.')
     } finally {
       setIsSubmitting(false)
     }

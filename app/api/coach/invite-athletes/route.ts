@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { sendAthleteInvitationEmail } from '@/lib/email-service'
+import { adminDb } from '@/lib/firebase.admin'
 
 interface AthleteInvite {
   email: string
@@ -56,30 +57,27 @@ export async function POST(request: NextRequest) {
         // Generate QR code URL
         const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(invitationUrl)}`
 
-        // Store invitation data in memory (in production, this would go to database)
+        // Store invitation data in Firestore
         const invitationData = {
           id: invitationId,
           coachId,
-          athleteEmail: athlete.email,
+          athleteEmail: athlete.email.toLowerCase(),
           athleteName: athlete.name,
           sport,
           customMessage: customMessage || `Join our ${sport} team and take your performance to the next level!`,
           invitationUrl,
           qrCodeUrl,
           status: 'pending',
+          role: 'athlete', // CRITICAL: Store the target role
           createdAt: new Date().toISOString(),
           expiresAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(), // 14 days
-          type: 'athlete_invitation'
+          type: 'athlete_invitation',
+          used: false
         }
 
-        // Store in global cache for testing
-        if (typeof globalThis !== 'undefined') {
-          const global = globalThis as any
-          if (!global.athleteInvitations) {
-            global.athleteInvitations = new Map()
-          }
-          global.athleteInvitations.set(invitationId, invitationData)
-        }
+        // Store invitation in Firestore
+        await adminDb.collection('invitations').doc(invitationId).set(invitationData)
+        console.log(`💾 Stored athlete invitation in Firestore: ${invitationId}`)
 
         // Send email invitation
         const emailResult = await sendAthleteInvitationEmail({

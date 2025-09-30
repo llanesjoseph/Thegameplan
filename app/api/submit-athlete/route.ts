@@ -6,29 +6,21 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     const {
-      ingestionId,
-      coachData,
+      invitationId,
+      athleteData,
       userInfo
     } = body
 
     // Validate required fields
-    if (!ingestionId || !coachData || !userInfo) {
+    if (!invitationId || !userInfo) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
       )
     }
 
-    // Validate that this is a simple invitation
-    if (!ingestionId.startsWith('inv_')) {
-      return NextResponse.json(
-        { error: 'Invalid simple invitation ID' },
-        { status: 400 }
-      )
-    }
-
     // Get the invitation from Firestore
-    const invitationDoc = await adminDb.collection('invitations').doc(ingestionId).get()
+    const invitationDoc = await adminDb.collection('invitations').doc(invitationId).get()
 
     if (!invitationDoc.exists) {
       return NextResponse.json(
@@ -46,54 +38,52 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get the target role from the invitation
-    const targetRole = invitationData?.role || 'coach'
-    console.log(`🎯 Processing ${targetRole} application for ${userInfo.email}`)
+    // Verify this is an athlete invitation
+    const targetRole = invitationData?.role || 'athlete'
+    if (targetRole !== 'athlete') {
+      return NextResponse.json(
+        { error: 'Invalid invitation type for athlete onboarding' },
+        { status: 400 }
+      )
+    }
+
+    console.log(`🎯 Processing athlete application for ${userInfo.email}`)
 
     // Generate application ID
     const applicationId = nanoid()
     const now = new Date()
 
-    // Create a simplified coach/assistant application data structure
+    // Create athlete application data
     const applicationData = {
       id: applicationId,
-      invitationId: ingestionId,
-      invitationType: 'simple',
-      role: targetRole, // Store the target role
-      // Invitation context
-      organizationName: invitationData?.organizationName || 'PLAYBOOKD',
-      inviterName: invitationData?.inviterName || 'PLAYBOOKD Team',
-      sport: invitationData?.sport || coachData.sport,
-      autoApprove: true, // Auto-approve simple invitations
+      invitationId,
+      role: 'athlete',
+      coachId: invitationData?.coachId || '',
+      sport: invitationData?.sport || '',
       // User info
       email: userInfo.email?.toLowerCase(),
-      displayName: userInfo.displayName || `${userInfo.firstName} ${userInfo.lastName}`,
+      displayName: `${userInfo.firstName} ${userInfo.lastName}`,
       firstName: userInfo.firstName,
       lastName: userInfo.lastName,
       phone: userInfo.phone || '',
-      // Coach profile data
-      experience: coachData.experience || '',
-      credentials: coachData.credentials || '',
-      tagline: coachData.tagline || '',
-      philosophy: coachData.philosophy || '',
-      specialties: coachData.specialties || [],
-      achievements: coachData.achievements || [],
-      references: coachData.references || [],
-      sampleQuestions: coachData.sampleQuestions || [],
-      bio: coachData.bio || '',
-      voiceCaptureData: coachData.voiceCaptureData || null,
+      dateOfBirth: athleteData?.dateOfBirth || '',
+      // Athletic info
+      experience: athleteData?.experience || '',
+      goals: athleteData?.goals || '',
+      medicalConditions: athleteData?.medicalConditions || '',
+      emergencyContact: athleteData?.emergencyContact || '',
+      emergencyPhone: athleteData?.emergencyPhone || '',
       // Application metadata
       status: 'approved',
       submittedAt: now,
-      submittedVia: 'simple_invitation',
-      source: 'simple_coach_invitation',
+      submittedVia: 'athlete_invitation',
       createdAt: now,
       updatedAt: now
     }
 
     // Save application to Firestore
-    await adminDb.collection('coach_applications').doc(applicationId).set(applicationData)
-    console.log(`💾 Saved ${targetRole} application to Firestore:`, applicationId)
+    await adminDb.collection('athlete_applications').doc(applicationId).set(applicationData)
+    console.log(`💾 Saved athlete application to Firestore:`, applicationId)
 
     // Create Firebase user account with temporary password
     let userRecord
@@ -119,66 +109,63 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Create user document in Firestore with proper role
+    // Create user document in Firestore with athlete role
     const userDocData = {
       uid: userRecord.uid,
       email: userInfo.email?.toLowerCase(),
       displayName: `${userInfo.firstName} ${userInfo.lastName}`,
-      role: targetRole, // CRITICAL: Set the correct role from invitation
+      role: 'athlete', // CRITICAL: Set athlete role
       firstName: userInfo.firstName,
       lastName: userInfo.lastName,
       phone: userInfo.phone || '',
       createdAt: now,
       lastLoginAt: now,
       applicationId,
-      invitationId: ingestionId
+      invitationId,
+      coachId: invitationData?.coachId || ''
     }
 
     await adminDb.collection('users').doc(userRecord.uid).set(userDocData, { merge: true })
-    console.log(`✅ Created user document with role: ${targetRole}`)
+    console.log(`✅ Created user document with role: athlete`)
 
-    // Create coach or assistant profile
-    const profileCollection = targetRole === 'coach' ? 'coach_profiles' : 'creator_profiles'
-    const profileData = {
+    // Create athlete profile
+    const athleteProfile = {
       uid: userRecord.uid,
       email: userInfo.email?.toLowerCase(),
       displayName: `${userInfo.firstName} ${userInfo.lastName}`,
       firstName: userInfo.firstName,
       lastName: userInfo.lastName,
       phone: userInfo.phone || '',
-      sport: coachData.sport || invitationData?.sport || '',
-      experience: coachData.experience || '',
-      credentials: coachData.credentials || '',
-      tagline: coachData.tagline || '',
-      philosophy: coachData.philosophy || '',
-      specialties: coachData.specialties || [],
-      achievements: coachData.achievements || [],
-      references: coachData.references || [],
-      sampleQuestions: coachData.sampleQuestions || [],
-      bio: coachData.bio || '',
-      voiceCaptureData: coachData.voiceCaptureData || null,
+      sport: invitationData?.sport || '',
+      coachId: invitationData?.coachId || '',
+      dateOfBirth: athleteData?.dateOfBirth || '',
+      experience: athleteData?.experience || '',
+      goals: athleteData?.goals || '',
+      medicalConditions: athleteData?.medicalConditions || '',
+      emergencyContact: athleteData?.emergencyContact || '',
+      emergencyPhone: athleteData?.emergencyPhone || '',
       isActive: true,
-      profileCompleteness: 40,
+      profileCompleteness: 60,
       createdAt: now,
       updatedAt: now
     }
 
-    await adminDb.collection(profileCollection).doc(userRecord.uid).set(profileData)
-    console.log(`✅ Created ${targetRole} profile in ${profileCollection}`)
+    await adminDb.collection('athlete_profiles').doc(userRecord.uid).set(athleteProfile)
+    console.log(`✅ Created athlete profile`)
 
     // Mark invitation as used
-    await adminDb.collection('invitations').doc(ingestionId).update({
+    await adminDb.collection('invitations').doc(invitationId).update({
       used: true,
       usedAt: now.toISOString(),
       usedBy: userRecord.uid
     })
-    console.log(`✅ Marked invitation as used:`, ingestionId)
+    console.log(`✅ Marked invitation as used:`, invitationId)
 
     // Send password reset email so user can set their own password
     try {
       const resetLink = await auth.generatePasswordResetLink(userInfo.email?.toLowerCase())
       console.log(`📧 Password reset link generated for ${userInfo.email}`)
-      // TODO: Send this link via email
+      // TODO: Send this link via email service
     } catch (error) {
       console.error('Failed to generate password reset link:', error)
     }
@@ -189,17 +176,15 @@ export async function POST(request: NextRequest) {
         applicationId,
         userId: userRecord.uid,
         status: 'approved',
-        role: targetRole,
-        autoApproved: true,
-        organizationName: invitationData?.organizationName || 'PLAYBOOKD',
-        message: `Your ${targetRole} application has been automatically approved! Check your email for instructions to set your password.`
+        role: 'athlete',
+        message: 'Your athlete profile has been created! Check your email for instructions to set your password.'
       }
     })
 
   } catch (error) {
-    console.error('Submit simple coach application error:', error)
+    console.error('Submit athlete application error:', error)
     return NextResponse.json(
-      { error: 'Failed to submit coach application' },
+      { error: 'Failed to submit athlete application' },
       { status: 500 }
     )
   }

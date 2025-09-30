@@ -1,4 +1,4 @@
-import { doc, getDoc, setDoc, serverTimestamp, Timestamp } from 'firebase/firestore'
+import { doc, getDoc, setDoc, serverTimestamp, Timestamp, collection, query, where, getDocs, limit } from 'firebase/firestore'
 import { db } from './firebase.client'
 import { FirebaseUser, UserRole } from '../types'
 import { isJasmineAikey, handleJasmineProvisioning } from './jasmine-client'
@@ -11,6 +11,55 @@ const SUPERADMIN_EMAILS = [
 
 function isSuperadmin(email: string | null): boolean {
   return email ? SUPERADMIN_EMAILS.includes(email.toLowerCase()) : false
+}
+
+/**
+ * Check if user has a pending invitation and return the role from invitation
+ */
+async function checkPendingInvitation(email: string | null): Promise<UserRole | null> {
+  if (!email) return null
+
+  try {
+    // Query invitations collection for this email
+    const invitationsRef = collection(db, 'invitations')
+    const q = query(
+      invitationsRef,
+      where('coachEmail', '==', email.toLowerCase()),
+      where('used', '==', false),
+      limit(1)
+    )
+
+    const querySnapshot = await getDocs(q)
+
+    if (!querySnapshot.empty) {
+      const invitationData = querySnapshot.docs[0].data()
+      const role = invitationData.role as UserRole
+      console.log(`🎯 Found pending invitation for ${email} with role: ${role}`)
+      return role
+    }
+
+    // Also check for athlete invitations
+    const athleteQuery = query(
+      invitationsRef,
+      where('athleteEmail', '==', email.toLowerCase()),
+      where('used', '==', false),
+      limit(1)
+    )
+
+    const athleteSnapshot = await getDocs(athleteQuery)
+
+    if (!athleteSnapshot.empty) {
+      const invitationData = athleteSnapshot.docs[0].data()
+      const role = invitationData.role as UserRole
+      console.log(`🎯 Found pending athlete invitation for ${email} with role: ${role}`)
+      return role
+    }
+
+    return null
+  } catch (error) {
+    console.error('Error checking pending invitation:', error)
+    return null
+  }
 }
 
 export interface UserProfile {
@@ -91,14 +140,22 @@ export async function initializeUserDocument(user: FirebaseUser | null, defaultR
       return { ...userData, role: correctRole }
     } else {
       // Create new user document with comprehensive data
-      // Check if this is a superadmin user first
+      // Check role priority: superadmin > pending invitation > known coach > default
       let initialRole = defaultRole
+
       if (isSuperadmin(user.email)) {
         initialRole = 'superadmin'
         console.log(`✨ SUPERADMIN DETECTED: Setting ${user.email} to superadmin role`)
-      } else if (user.email && isKnownCoach(user.email)) {
-        initialRole = getKnownCoachRole(user.email) || defaultRole
-        console.log(`✨ KNOWN COACH DETECTED: Setting ${user.email} to ${initialRole} role`)
+      } else {
+        // Check for pending invitation first
+        const invitationRole = await checkPendingInvitation(user.email)
+        if (invitationRole) {
+          initialRole = invitationRole
+          console.log(`✨ PENDING INVITATION DETECTED: Setting ${user.email} to ${initialRole} role from invitation`)
+        } else if (user.email && isKnownCoach(user.email)) {
+          initialRole = getKnownCoachRole(user.email) || defaultRole
+          console.log(`✨ KNOWN COACH DETECTED: Setting ${user.email} to ${initialRole} role`)
+        }
       }
 
       const newUserData: UserProfile = {

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { sendCoachInvitationEmail } from '@/lib/email-service'
+import { adminDb } from '@/lib/firebase.admin'
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,6 +26,9 @@ export async function POST(request: NextRequest) {
     // Generate a simple invitation ID
     const invitationId = `inv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 
+    // Determine target role
+    const targetRole = invitationType === 'assistant' ? 'assistant' : 'coach'
+
     // Create invitation data
     const invitationData = {
       id: invitationId,
@@ -32,23 +36,27 @@ export async function POST(request: NextRequest) {
       coachName,
       sport,
       personalMessage: personalMessage || 'Join our coaching platform!',
+      role: targetRole, // CRITICAL: Store the target role
+      invitationType,
       createdAt: new Date().toISOString(),
+      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days
       status: 'sent',
-      // In a real implementation, this would be stored in database
-      // For now, we'll just return success
+      type: invitationType === 'assistant' ? 'assistant_invitation' : 'coach_invitation',
+      used: false
     }
 
-    console.log(`📧 ${invitationType === 'assistant' ? 'Assistant' : 'Coach'} invitation created:`, {
+    // Store invitation in Firestore
+    await adminDb.collection('invitations').doc(invitationId).set(invitationData)
+    console.log(`💾 Stored ${invitationType} invitation in Firestore:`, {
       email: coachEmail,
       name: coachName,
       sport,
       invitationId,
-      type: invitationType
+      role: targetRole
     })
 
-    // Create invitation URL - use athlete-onboard for assistants, coach-onboard for coaches
-    const onboardPath = invitationType === 'assistant' ? 'athlete-onboard' : 'coach-onboard'
-    const invitationUrl = `https://playbookd.crucibleanalytics.dev/${onboardPath}/${invitationId}?sport=${encodeURIComponent(sport)}&email=${encodeURIComponent(coachEmail)}&name=${encodeURIComponent(coachName)}&role=${invitationType}`
+    // Create invitation URL - both coaches and assistants use coach-onboard
+    const invitationUrl = `https://playbookd.crucibleanalytics.dev/coach-onboard/${invitationId}?sport=${encodeURIComponent(sport)}&email=${encodeURIComponent(coachEmail)}&name=${encodeURIComponent(coachName)}&role=${targetRole}`
 
     // Send actual email using existing email service
     console.log(`✉️ Sending invitation email to ${coachEmail}...`)
