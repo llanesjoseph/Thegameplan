@@ -113,20 +113,30 @@ export async function initializeUserDocument(user: FirebaseUser | null, defaultR
         }
       }
 
-      await setDoc(userDocRef, {
-        ...userData,
-        role: correctRole, // Update role if needed
-        lastLoginAt: Timestamp.now(),
-        ...(roleNeedsUpdate && {
-          roleUpdatedAt: Timestamp.now(),
-          roleUpdateReason: 'Known coach auto-correction'
-        })
-      }, { merge: true })
+      // Only update lastLoginAt if it's been more than 1 hour (prevents spam updates)
+      const shouldUpdateLastLogin = !userData.lastLoginAt ||
+        (userData.lastLoginAt instanceof Timestamp &&
+         Date.now() - userData.lastLoginAt.toMillis() > 60 * 60 * 1000)
 
-      if (roleNeedsUpdate) {
-        console.log(`✅ ROLE CORRECTED: ${user.email} updated from ${userData.role} to ${correctRole}`)
+      // Only update Firestore if something actually needs to change
+      if (roleNeedsUpdate || shouldUpdateLastLogin) {
+        await setDoc(userDocRef, {
+          ...userData,
+          role: correctRole, // Update role if needed
+          ...(shouldUpdateLastLogin && { lastLoginAt: Timestamp.now() }),
+          ...(roleNeedsUpdate && {
+            roleUpdatedAt: Timestamp.now(),
+            roleUpdateReason: 'Known coach auto-correction'
+          })
+        }, { merge: true })
+
+        if (roleNeedsUpdate) {
+          console.log(`✅ ROLE CORRECTED: ${user.email} updated from ${userData.role} to ${correctRole}`)
+        }
+        if (shouldUpdateLastLogin) {
+          console.log('Existing user document updated:', user.uid)
+        }
       }
-      console.log('Existing user document updated:', user.uid)
 
       // Handle Jasmine onboarding if needed
       if (user.email) {

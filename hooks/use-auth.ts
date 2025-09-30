@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useMemo } from 'react'
 import { auth } from '@/lib/firebase.client'
 import { onAuthStateChanged, User } from 'firebase/auth'
 import { useRole } from './use-role'
@@ -72,11 +72,13 @@ export function useAuth() {
     return () => unsub()
   }, [setFirebaseUser])
 
-  // Create enhanced user object with role
-  const enhancedUser = user ? { ...user, role } as EnhancedUser : null
+  // Create enhanced user object with role - memoized to prevent infinite loops
+  const enhancedUser = useMemo(() => {
+    return user ? { ...user, role } as EnhancedUser : null
+  }, [user, role])
 
-  return { 
-    user: enhancedUser, 
-    loading: loading || roleLoading 
+  return {
+    user: enhancedUser,
+    loading: loading || roleLoading
   }
 }
