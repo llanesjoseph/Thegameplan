@@ -11,6 +11,12 @@ const firebaseAdminConfig = {
 let app
 if (getApps().length === 0) {
   try {
+    // DEBUG: Log what env vars are available
+    console.log('🔍 Firebase Admin Init - Checking credentials...')
+    console.log('- FIREBASE_SERVICE_ACCOUNT_KEY:', process.env.FIREBASE_SERVICE_ACCOUNT_KEY ? 'SET ✅' : 'NOT SET ❌')
+    console.log('- FIREBASE_PRIVATE_KEY:', process.env.FIREBASE_PRIVATE_KEY ? 'SET ✅' : 'NOT SET ❌')
+    console.log('- FIREBASE_CLIENT_EMAIL:', process.env.FIREBASE_CLIENT_EMAIL ? 'SET ✅' : 'NOT SET ❌')
+
     // Check for service account key in environment
     if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
       const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY)
