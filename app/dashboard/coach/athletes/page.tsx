@@ -126,13 +126,23 @@ export default function CoachAthletesPage() {
 
       if (response.ok) {
         const result = await response.json()
-        alert(`Successfully sent ${result.successCount} invitations!`)
-        setShowBulkInvite(false)
-        setBulkForm({
-          sport: 'Soccer',
-          customMessage: '',
-          athletes: [{ email: '', name: '' }]
-        })
+
+        if (result.successCount === 0 && result.failCount > 0) {
+          // Show detailed error if all invitations failed
+          const failedDetails = result.results
+            ?.filter((r: any) => r.status === 'failed')
+            .map((r: any) => `${r.email}: ${r.error}`)
+            .join('\n')
+          alert(`Failed to send ${result.failCount} invitation(s):\n\n${failedDetails || 'Email service error. Please check your email configuration.'}`)
+        } else if (result.successCount > 0) {
+          alert(`Successfully sent ${result.successCount} invitation(s)!${result.failCount > 0 ? `\n${result.failCount} failed.` : ''}`)
+          setShowBulkInvite(false)
+          setBulkForm({
+            sport: 'Soccer',
+            customMessage: '',
+            athletes: [{ email: '', name: '' }]
+          })
+        }
         // Refresh invitations list
         // fetchInvitations()
       } else {
