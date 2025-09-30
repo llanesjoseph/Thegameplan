@@ -195,7 +195,7 @@ export default function AppHeader({ className = '' }: AppHeaderProps) {
               )}
             </div>
           ) : (
-            <Link href="/auth" className="bg-red-600 text-white px-4 py-2 rounded text-sm">
+            <Link href="/" className="bg-cardinal text-white px-4 py-2 rounded text-sm hover:bg-cardinal-dark transition-colors">
               SIGN IN
             </Link>
           )}
