@@ -1,12 +1,13 @@
 'use client'
 
 import { useEffect, useState, Suspense } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { doc, getDoc, updateDoc, increment } from 'firebase/firestore'
 import { db } from '@/lib/firebase.client'
 import Link from 'next/link'
 import { ArrowLeft, Play, Clock, Eye, User, Calendar, ExternalLink } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
+import AppHeader from '@/components/ui/AppHeader'
 
 interface LessonData {
  id: string
@@ -33,10 +34,11 @@ interface CreatorProfile {
 }
 
 export default function LessonContent() {
+ const router = useRouter()
  const params = useParams()
  const { user } = useAuth()
  const lessonId = params?.id as string
- 
+
  const [lesson, setLesson] = useState<LessonData | null>(null)
  const [creator, setCreator] = useState<CreatorProfile | null>(null)
  const [loading, setLoading] = useState(true)
@@ -107,11 +109,12 @@ export default function LessonContent() {
 
  if (loading) {
   return (
-   <div className="min-h-screen bg-white pt-24">
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+   <div className="min-h-screen bg-gradient-to-br from-cream via-cream to-sky-blue/10">
+    <AppHeader />
+    <div className="max-w-4xl mx-auto px-6 py-8">
      <div className="text-center py-20">
-      <div className="w-16 h-16 border-4 border-cardinal border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-      <p className="text-gray-600 text-lg">Loading lesson...</p>
+      <div className="w-16 h-16 border-4 border-sky-blue border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+      <p className="text-dark/60 text-lg">Loading lesson...</p>
      </div>
     </div>
    </div>
@@ -120,17 +123,18 @@ export default function LessonContent() {
 
  if (error || !lesson) {
   return (
-   <div className="min-h-screen bg-white pt-24">
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+   <div className="min-h-screen bg-gradient-to-br from-cream via-cream to-sky-blue/10">
+    <AppHeader />
+    <div className="max-w-4xl mx-auto px-6 py-8">
      <div className="text-center py-20">
-      <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-       <div className="text-red-600 text-2xl">!</div>
+      <div className="w-16 h-16 bg-cardinal/10 rounded-full flex items-center justify-center mx-auto mb-4">
+       <div className="text-cardinal text-2xl">!</div>
       </div>
-      <h1 className="text-gray-800 text-2xl mb-2">Lesson Not Found</h1>
-      <p className="text-gray-600 mb-6">{error || 'This lesson could not be found.'}</p>
-      <Link 
+      <h1 className="text-dark text-2xl font-heading mb-2">Lesson Not Found</h1>
+      <p className="text-dark/60 mb-6">{error || 'This lesson could not be found.'}</p>
+      <Link
        href="/lessons"
-       className="inline-flex items-center gap-2 px-6 py-3 bg-cardinal hover:bg-cardinal-dark text-white rounded-lg  transition-colors"
+       className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-sky-blue to-black text-white rounded-xl hover:opacity-90 transition-opacity"
       >
        <ArrowLeft className="w-4 h-4" />
        Back to Lessons
@@ -142,107 +146,106 @@ export default function LessonContent() {
  }
 
  return (
-  <div className="min-h-screen bg-white pt-24">
-   <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  <div className="min-h-screen bg-gradient-to-br from-cream via-cream to-sky-blue/10">
+   <AppHeader />
+   <div className="max-w-4xl mx-auto px-6 py-8">
     {/* Back Button */}
-    <div className="mb-8">
-     <Link 
-      href="/lessons" 
-      className="inline-flex items-center gap-2 text-cardinal hover:text-cardinal-dark transition-colors"
-     >
-      <ArrowLeft className="w-4 h-4" />
-      Back to Lessons
-     </Link>
-    </div>
+    <button
+     onClick={() => router.back()}
+     className="mb-6 inline-flex items-center gap-2 text-dark/60 hover:text-dark transition-colors"
+    >
+     <ArrowLeft className="w-5 h-5" />
+     Back
+    </button>
 
     {/* Lesson Header */}
     <div className="mb-8">
      <div className="flex items-center gap-2 mb-4">
-      <div className="px-3 py-1 bg-cardinal/10 text-cardinal rounded-full text-sm ">
+      <div className="px-3 py-1 bg-sky-blue/20 text-sky-blue rounded-full text-sm font-medium">
        {lesson.level}
       </div>
-      <div className="flex items-center gap-1 text-gray-600 text-sm">
+      <div className="flex items-center gap-1 text-dark/60 text-sm">
        <Eye className="w-4 h-4" />
        {lesson.views || 0} views
       </div>
-      <div className="flex items-center gap-1 text-gray-600 text-sm">
+      <div className="flex items-center gap-1 text-dark/60 text-sm">
        <Calendar className="w-4 h-4" />
-       {lesson.createdAt?.toDate ? 
-        lesson.createdAt.toDate().toLocaleDateString() : 
-        lesson.createdAt?.seconds ? 
+       {lesson.createdAt?.toDate ?
+        lesson.createdAt.toDate().toLocaleDateString() :
+        lesson.createdAt?.seconds ?
         new Date(lesson.createdAt.seconds * 1000).toLocaleDateString() :
         'Recently'
        }
       </div>
      </div>
-     
-     <h1 className="text-4xl text-gray-800 mb-4">{lesson.title}</h1>
-     
+
+     <h1 className="text-4xl text-dark font-heading mb-4">{lesson.title}</h1>
+
      {creator && (
       <div className="flex items-center gap-3 mb-4">
-       <div className="w-10 h-10 bg-cardinal/10 rounded-full flex items-center justify-center">
-        <User className="w-5 h-5 text-cardinal" />
+       <div className="w-10 h-10 bg-gradient-to-br from-sky-blue to-black rounded-full flex items-center justify-center">
+        <User className="w-5 h-5 text-white" />
        </div>
        <div>
-        <p className=" text-gray-800">{creator.displayName || creator.name}</p>
+        <p className="font-medium text-dark">{creator.displayName || creator.name}</p>
         {creator.bio && (
-         <p className="text-sm text-gray-600">{creator.bio}</p>
+         <p className="text-sm text-dark/60">{creator.bio}</p>
         )}
        </div>
       </div>
      )}
-     
-     <p className="text-gray-600 text-lg leading-relaxed mb-6">{lesson.description}</p>
-     
+
+     <p className="text-dark/60 text-lg leading-relaxed mb-6">{lesson.description}</p>
+
     </div>
 
     {/* Lesson Content */}
-    <div className="bg-white border border-gray-200 rounded-lg p-8 shadow-card">
+    <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-8">
      {lesson.videoUrl ? (
-      <div className="aspect-video bg-gray-100 rounded-lg mb-6 flex items-center justify-center border border-gray-200">
+      <div className="aspect-video bg-gradient-to-br from-sky-blue/10 to-cream rounded-xl mb-6 flex items-center justify-center border-2 border-sky-blue/20">
        <div className="text-center">
-        <Play className="w-16 h-16 text-cardinal mx-auto mb-4" />
-        <p className="text-gray-600">Video content would be displayed here</p>
-        <p className="text-sm text-gray-500 mt-2">Video URL: {lesson.videoUrl}</p>
+        <Play className="w-16 h-16 text-sky-blue mx-auto mb-4" />
+        <p className="text-dark/60">Video content would be displayed here</p>
+        <p className="text-sm text-dark/50 mt-2">Video URL: {lesson.videoUrl}</p>
        </div>
       </div>
      ) : (
-      <div className="aspect-video bg-gray-100 rounded-lg mb-6 flex items-center justify-center border border-gray-200">
+      <div className="aspect-video bg-gradient-to-br from-sky-blue/10 to-cream rounded-xl mb-6 flex items-center justify-center border-2 border-sky-blue/20">
        <div className="text-center">
-        <div className="w-16 h-16 bg-cardinal/10 rounded-full flex items-center justify-center mx-auto mb-4">
-         <Play className="w-8 h-8 text-cardinal" />
+        <div className="w-16 h-16 bg-gradient-to-br from-sky-blue to-black rounded-full flex items-center justify-center mx-auto mb-4">
+         <Play className="w-8 h-8 text-white" />
         </div>
-        <p className="text-gray-600">Text-based lesson content</p>
+        <p className="text-dark/60">Text-based lesson content</p>
        </div>
       </div>
      )}
      
      {lesson.longDescription && (
       <div className="prose max-w-none">
-       <h3 className="text-xl  text-gray-800 mb-4">Lesson Details</h3>
-       <div className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+       <h3 className="text-xl font-heading text-dark mb-4">Lesson Details</h3>
+       <div className="text-dark/70 leading-relaxed whitespace-pre-wrap">
         {lesson.longDescription}
        </div>
       </div>
      )}
-     
+
      {lesson.content && (
       <div className="prose max-w-none mt-6">
-       <h3 className="text-xl  text-gray-800 mb-4">Content</h3>
-       <div className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+       <h3 className="text-xl font-heading text-dark mb-4">Content</h3>
+       <div className="text-dark/70 leading-relaxed whitespace-pre-wrap">
         {lesson.content}
        </div>
       </div>
      )}
-     
+
      {lesson.tags && lesson.tags.length > 0 && (
-      <div className="mt-8 pt-6 border-t border-gray-200">
-       <h4 className="text-sm  text-gray-800 mb-3">Tags</h4>
+      <div className="mt-8 pt-6 border-t border-sky-blue/20">
+       <h4 className="text-sm font-medium text-dark mb-3">Tags</h4>
        <div className="flex flex-wrap gap-2">
         {lesson.tags.map((tag, index) => (
          <span
           key={index}
-          className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm"
+          className="px-3 py-1 bg-sky-blue/20 text-sky-blue rounded-full text-sm"
          >
           {tag}
          </span>
@@ -256,14 +259,14 @@ export default function LessonContent() {
     <div className="mt-8 flex flex-col sm:flex-row gap-4">
      <Link
       href="/lessons"
-      className="flex-1 sm:flex-none px-6 py-3 bg-cardinal hover:bg-cardinal-dark text-white rounded-lg  text-center transition-colors"
+      className="flex-1 sm:flex-none px-6 py-3 bg-gradient-to-r from-sky-blue to-black text-white rounded-xl text-center hover:opacity-90 transition-opacity font-medium"
      >
       Browse More Lessons
      </Link>
      {creator && (
       <Link
        href={`/lessons?coach=${lesson.creatorUid}`}
-       className="flex-1 sm:flex-none px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg  text-center transition-colors"
+       className="flex-1 sm:flex-none px-6 py-3 bg-white/80 backdrop-blur-sm text-dark border border-sky-blue/20 rounded-xl text-center hover:bg-white transition-colors font-medium"
       >
        More from {creator.displayName || creator.name}
       </Link>
