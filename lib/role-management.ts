@@ -7,6 +7,18 @@ import { User } from 'firebase/auth'
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore'
 import { db } from './firebase.client'
 
+/**
+ * Timeout wrapper for Firestore queries
+ */
+function withTimeout<T>(promise: Promise<T>, timeoutMs: number = 8000): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error('Firestore query timeout')), timeoutMs)
+    )
+  ])
+}
+
 export type UserRole = 'guest' | 'user' | 'creator' | 'coach' | 'assistant' | 'admin' | 'superadmin'
 
 export interface UserRoleData {
@@ -46,7 +58,7 @@ export interface CreatorApplicationStatus {
  */
 export async function getUserRole(userId: string): Promise<UserRoleData | null> {
   try {
-    const userDoc = await getDoc(doc(db, 'users', userId))
+    const userDoc = await withTimeout(getDoc(doc(db, 'users', userId)), 8000)
     if (userDoc.exists()) {
       return userDoc.data() as UserRoleData
     }

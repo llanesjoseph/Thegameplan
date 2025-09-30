@@ -37,6 +37,22 @@ export function useCreatorStatus() {
     error: null
   })
 
+  // Add timeout to prevent infinite loading
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (statusData.loading) {
+        console.warn('Creator status loading timeout - forcing state to resolve')
+        setStatusData(prev => ({
+          ...prev,
+          loading: false,
+          error: 'Loading timeout'
+        }))
+      }
+    }, 12000) // 12 second timeout
+
+    return () => clearTimeout(timeout)
+  }, [statusData.loading])
+
   const refreshStatus = async () => {
     if (!user?.uid) {
       setStatusData({
@@ -54,11 +70,17 @@ export function useCreatorStatus() {
     try {
       setStatusData(prev => ({ ...prev, loading: true, error: null }))
 
-      // Fetch role data and application status in parallel
-      const [roleData, applicationStatus] = await Promise.all([
+      // Fetch role data and application status in parallel with timeout
+      const statusPromise = Promise.all([
         getUserRole(user.uid),
         getCreatorApplicationStatus(user.uid)
       ])
+
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('Status check timeout')), 10000)
+      )
+
+      const [roleData, applicationStatus] = await Promise.race([statusPromise, timeoutPromise])
 
       setStatusData({
         roleData,
@@ -71,11 +93,16 @@ export function useCreatorStatus() {
       })
     } catch (error) {
       console.error('Error fetching creator status:', error)
-      setStatusData(prev => ({
-        ...prev,
+      // Set default values on timeout/error so page doesn't hang
+      setStatusData({
+        roleData: null,
+        applicationStatus: null,
+        canCreate: false,
+        isApprovedCreator: false,
+        hasPendingApplication: false,
         loading: false,
         error: error instanceof Error ? error.message : 'Unknown error'
-      }))
+      })
     }
   }
 
