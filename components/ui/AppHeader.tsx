@@ -6,7 +6,8 @@ import Link from 'next/link'
 import { useAuth } from '@/hooks/use-auth'
 import { useEnhancedRole } from '@/hooks/use-role-switcher'
 import { signOut } from 'firebase/auth'
-import { auth } from '@/lib/firebase.client'
+import { auth, db } from '@/lib/firebase.client'
+import { doc, getDoc } from 'firebase/firestore'
 
 interface AppHeaderProps {
   className?: string
@@ -17,7 +18,39 @@ export default function AppHeader({ className = '' }: AppHeaderProps) {
   const { role } = useEnhancedRole()
   const router = useRouter()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [profileImageUrl, setProfileImageUrl] = useState<string>('')
+  const [profileDisplayName, setProfileDisplayName] = useState<string>('')
   const dropdownRef = useRef<HTMLDivElement>(null)
+
+  // Load profile data from Firestore
+  useEffect(() => {
+    const loadProfileData = async () => {
+      if (!user?.uid) return
+
+      try {
+        // Try coach_profiles first, then creator_profiles
+        let profileDoc = await getDoc(doc(db, 'coach_profiles', user.uid))
+
+        if (!profileDoc.exists()) {
+          profileDoc = await getDoc(doc(db, 'creator_profiles', user.uid))
+        }
+
+        if (!profileDoc.exists()) {
+          profileDoc = await getDoc(doc(db, 'profiles', user.uid))
+        }
+
+        if (profileDoc.exists()) {
+          const data = profileDoc.data()
+          setProfileImageUrl(data.profileImageUrl || data.headshotUrl || '')
+          setProfileDisplayName(data.displayName || '')
+        }
+      } catch (error) {
+        console.error('Error loading profile:', error)
+      }
+    }
+
+    loadProfileData()
+  }, [user?.uid])
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -98,6 +131,10 @@ export default function AppHeader({ className = '' }: AppHeaderProps) {
   }
 
   const getUserName = () => {
+    // Use profile displayName if available, otherwise fall back to auth
+    if (profileDisplayName) {
+      return profileDisplayName.split(' ')[0] // First name only
+    }
     if (user?.displayName) {
       return user.displayName.split(' ')[0] // First name only
     }
@@ -154,9 +191,17 @@ export default function AppHeader({ className = '' }: AppHeaderProps) {
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className="flex items-center gap-2 hover:bg-gray-50 rounded-lg p-1 transition-colors"
               >
-                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white">
-                  {getUserInitials()}
-                </div>
+                {profileImageUrl ? (
+                  <img
+                    src={profileImageUrl}
+                    alt={getUserName()}
+                    className="w-8 h-8 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white">
+                    {getUserInitials()}
+                  </div>
+                )}
                 <span className="text-black">{getUserName()}</span>
                 <svg
                   className={`w-4 h-4 text-gray-500 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
