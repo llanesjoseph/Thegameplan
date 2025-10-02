@@ -150,7 +150,6 @@ export function useUrlEnhancedRole() {
   return {
     role: roleSwitcher.effectiveRole,
     loading,
-    effectiveRole: roleSwitcher.effectiveRole,
     ...roleSwitcher
   }
 }
