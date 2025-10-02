@@ -236,6 +236,23 @@ interface AthleteInvitationEmailProps {
   expiresAt: string
 }
 
+interface CoachNotificationEmailProps {
+  to: string
+  coachName: string
+  type: 'invitation_sent' | 'invitation_accepted' | 'invitation_declined' | 'invitation_expired'
+  athleteInfo?: {
+    name: string
+    email: string
+    sport?: string
+  }
+  invitationsSummary?: {
+    totalSent: number
+    athleteNames: string[]
+    sport: string
+  }
+  timestamp?: string
+}
+
 export async function sendAthleteInvitationEmail({
   to,
   athleteName,
@@ -304,4 +321,287 @@ export async function sendAthleteInvitationEmail({
       error: error instanceof Error ? error.message : 'Unknown error'
     }
   }
+}
+
+export async function sendCoachNotificationEmail({
+  to,
+  coachName,
+  type,
+  athleteInfo,
+  invitationsSummary,
+  timestamp = new Date().toISOString()
+}: CoachNotificationEmailProps) {
+  try {
+    let subject = ''
+    let htmlContent = ''
+
+    // Generate appropriate subject and content based on notification type
+    switch (type) {
+      case 'invitation_sent':
+        if (invitationsSummary) {
+          subject = `✅ ${invitationsSummary.totalSent} Athlete Invitation${invitationsSummary.totalSent > 1 ? 's' : ''} Sent Successfully - PLAYBOOKD`
+          htmlContent = generateInvitationSentEmail(coachName, invitationsSummary)
+        }
+        break
+
+      case 'invitation_accepted':
+        if (athleteInfo) {
+          subject = `🎉 ${athleteInfo.name} Accepted Your Invitation - PLAYBOOKD`
+          htmlContent = generateInvitationAcceptedEmail(coachName, athleteInfo)
+        }
+        break
+
+      case 'invitation_declined':
+        if (athleteInfo) {
+          subject = `📢 ${athleteInfo.name} Declined Your Invitation - PLAYBOOKD`
+          htmlContent = generateInvitationDeclinedEmail(coachName, athleteInfo)
+        }
+        break
+
+      case 'invitation_expired':
+        if (athleteInfo) {
+          subject = `⏰ Invitation to ${athleteInfo.name} Has Expired - PLAYBOOKD`
+          htmlContent = generateInvitationExpiredEmail(coachName, athleteInfo)
+        }
+        break
+
+      default:
+        throw new Error(`Unknown notification type: ${type}`)
+    }
+
+    const { data, error } = await resend.emails.send({
+      from: 'PLAYBOOKD <noreply@mail.crucibleanalytics.dev>',
+      to: [to],
+      subject,
+      html: htmlContent
+    })
+
+    if (error) {
+      console.error(`Failed to send coach notification email (${type}):`, error)
+      return { success: false, error: error.message }
+    }
+
+    console.log(`✅ Coach notification sent (${type}) to ${to}`)
+    return { success: true, data }
+  } catch (error) {
+    console.error('Coach notification email service error:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    }
+  }
+}
+
+// Helper functions to generate email HTML content for different notification types
+function generateInvitationSentEmail(coachName: string, summary: { totalSent: number; athleteNames: string[]; sport: string }) {
+  const athleteList = summary.athleteNames.slice(0, 10).map(name => `<li style="margin: 8px 0; color: #4b5563;">${name}</li>`).join('')
+  const moreCount = summary.athleteNames.length > 10 ? summary.athleteNames.length - 10 : 0
+
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Invitations Sent Successfully</title>
+    </head>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8fafc;">
+      <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #13367A; font-size: 32px; margin: 0; font-weight: bold;">PLAYBOOKD</h1>
+          <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">FOR THE FUTURE OF SPORTS</p>
+        </div>
+
+        <div style="background: #dcfce7; border: 2px solid #16a34a; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
+          <h2 style="color: #15803d; margin: 0;">✅ Invitations Sent Successfully!</h2>
+        </div>
+
+        <p>Hi ${coachName},</p>
+
+        <p>Great news! Your ${summary.sport} training invitations have been sent to the following athletes:</p>
+
+        <div style="background: #f1f5f9; border-radius: 8px; padding: 20px; margin: 20px 0;">
+          <h3 style="color: #1e40af; margin-top: 0;">📧 ${summary.totalSent} Invitation${summary.totalSent > 1 ? 's' : ''} Sent:</h3>
+          <ul style="margin: 0; padding-left: 20px;">
+            ${athleteList}
+            ${moreCount > 0 ? `<li style="margin: 8px 0; color: #6b7280; font-style: italic;">...and ${moreCount} more</li>` : ''}
+          </ul>
+        </div>
+
+        <div style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-radius: 8px; padding: 20px; margin: 20px 0;">
+          <h3 style="color: #1e40af; margin-top: 0;">What happens next?</h3>
+          <ol style="margin: 0; padding-left: 20px; color: #1e3a8a;">
+            <li style="margin: 8px 0;">Athletes receive your personalized invitation email</li>
+            <li style="margin: 8px 0;">They click the link to accept and join your program</li>
+            <li style="margin: 8px 0;">You'll be notified when they accept</li>
+            <li style="margin: 8px 0;">Start training together on PLAYBOOKD!</li>
+          </ol>
+        </div>
+
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="https://playbookd.crucibleanalytics.dev/dashboard/coach/athletes" style="background-color: #A01C21; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">View Your Athletes</a>
+        </div>
+
+        <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 14px;">
+          <p><strong>PLAYBOOKD</strong> - For The Future of Sports</p>
+          <p style="font-size: 12px;">This is an automated notification. Please do not reply to this email.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `
+}
+
+function generateInvitationAcceptedEmail(coachName: string, athleteInfo: { name: string; email: string; sport?: string }) {
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Athlete Accepted Invitation</title>
+    </head>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8fafc;">
+      <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #13367A; font-size: 32px; margin: 0; font-weight: bold;">PLAYBOOKD</h1>
+          <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">FOR THE FUTURE OF SPORTS</p>
+        </div>
+
+        <div style="background: #dcfce7; border: 2px solid #16a34a; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
+          <h2 style="color: #15803d; margin: 0;">🎉 New Athlete Joined!</h2>
+        </div>
+
+        <p>Hi ${coachName},</p>
+
+        <p>Great news! <strong>${athleteInfo.name}</strong> has accepted your invitation and joined your ${athleteInfo.sport || 'training'} program.</p>
+
+        <div style="background: #f0f9ff; border-left: 4px solid #0284c7; padding: 20px; margin: 20px 0;">
+          <h3 style="color: #0369a1; margin-top: 0;">Athlete Details:</h3>
+          <p style="margin: 5px 0;"><strong>Name:</strong> ${athleteInfo.name}</p>
+          <p style="margin: 5px 0;"><strong>Email:</strong> ${athleteInfo.email}</p>
+          ${athleteInfo.sport ? `<p style="margin: 5px 0;"><strong>Sport:</strong> ${athleteInfo.sport}</p>` : ''}
+        </div>
+
+        <p>You can now:</p>
+        <ul style="color: #4b5563;">
+          <li>Create personalized training plans for ${athleteInfo.name}</li>
+          <li>Share videos, drills, and coaching content</li>
+          <li>Track their progress and performance</li>
+          <li>Communicate directly through the platform</li>
+        </ul>
+
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="https://playbookd.crucibleanalytics.dev/dashboard/coach/athletes" style="background-color: #A01C21; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">View Your Athletes</a>
+        </div>
+
+        <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 14px;">
+          <p><strong>PLAYBOOKD</strong> - For The Future of Sports</p>
+          <p style="font-size: 12px;">This is an automated notification. Please do not reply to this email.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `
+}
+
+function generateInvitationDeclinedEmail(coachName: string, athleteInfo: { name: string; email: string; sport?: string }) {
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Invitation Update</title>
+    </head>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8fafc;">
+      <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #13367A; font-size: 32px; margin: 0; font-weight: bold;">PLAYBOOKD</h1>
+          <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">FOR THE FUTURE OF SPORTS</p>
+        </div>
+
+        <div style="background: #fef2f2; border: 2px solid #f87171; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
+          <h2 style="color: #dc2626; margin: 0;">Invitation Update</h2>
+        </div>
+
+        <p>Hi ${coachName},</p>
+
+        <p>We wanted to let you know that <strong>${athleteInfo.name}</strong> has declined your invitation to join your ${athleteInfo.sport || 'training'} program.</p>
+
+        <div style="background: #f9fafb; border-radius: 8px; padding: 20px; margin: 20px 0;">
+          <p style="margin: 5px 0;"><strong>Athlete:</strong> ${athleteInfo.name}</p>
+          <p style="margin: 5px 0;"><strong>Email:</strong> ${athleteInfo.email}</p>
+        </div>
+
+        <p>Don't be discouraged! Athletes may decline invitations for various reasons. You can:</p>
+        <ul style="color: #4b5563;">
+          <li>Reach out directly to understand their decision</li>
+          <li>Send invitations to other potential athletes</li>
+          <li>Continue building your coaching program</li>
+        </ul>
+
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="https://playbookd.crucibleanalytics.dev/dashboard/coach/athletes" style="background-color: #A01C21; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Invite More Athletes</a>
+        </div>
+
+        <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 14px;">
+          <p><strong>PLAYBOOKD</strong> - For The Future of Sports</p>
+          <p style="font-size: 12px;">This is an automated notification. Please do not reply to this email.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `
+}
+
+function generateInvitationExpiredEmail(coachName: string, athleteInfo: { name: string; email: string; sport?: string }) {
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Invitation Expired</title>
+    </head>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8fafc;">
+      <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #13367A; font-size: 32px; margin: 0; font-weight: bold;">PLAYBOOKD</h1>
+          <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">FOR THE FUTURE OF SPORTS</p>
+        </div>
+
+        <div style="background: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
+          <h2 style="color: #d97706; margin: 0;">⏰ Invitation Expired</h2>
+        </div>
+
+        <p>Hi ${coachName},</p>
+
+        <p>The invitation you sent to <strong>${athleteInfo.name}</strong> has expired without being accepted.</p>
+
+        <div style="background: #f9fafb; border-radius: 8px; padding: 20px; margin: 20px 0;">
+          <p style="margin: 5px 0;"><strong>Athlete:</strong> ${athleteInfo.name}</p>
+          <p style="margin: 5px 0;"><strong>Email:</strong> ${athleteInfo.email}</p>
+          ${athleteInfo.sport ? `<p style="margin: 5px 0;"><strong>Sport:</strong> ${athleteInfo.sport}</p>` : ''}
+        </div>
+
+        <p>Would you like to send a new invitation? Athletes sometimes miss emails or need a reminder. You can:</p>
+        <ul style="color: #4b5563;">
+          <li>Send a new invitation to ${athleteInfo.name}</li>
+          <li>Reach out directly via phone or text</li>
+          <li>Invite other athletes to your program</li>
+        </ul>
+
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="https://playbookd.crucibleanalytics.dev/dashboard/coach/athletes" style="background-color: #A01C21; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Resend Invitation</a>
+        </div>
+
+        <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 14px;">
+          <p><strong>PLAYBOOKD</strong> - For The Future of Sports</p>
+          <p style="font-size: 12px;">This is an automated notification. Please do not reply to this email.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `
 }

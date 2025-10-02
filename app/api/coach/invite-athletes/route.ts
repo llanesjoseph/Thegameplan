@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { sendAthleteInvitationEmail } from '@/lib/email-service'
-import { adminDb } from '@/lib/firebase.admin'
+import { sendAthleteInvitationEmail, sendCoachNotificationEmail } from '@/lib/email-service'
+import { adminDb, adminAuth } from '@/lib/firebase.admin'
 
 interface AthleteInvite {
   email: string
@@ -38,9 +38,34 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Get coach information for notifications
+    let coachEmail = ''
+    let coachName = 'Coach'
+    try {
+      // First try to get coach data from the users collection
+      const coachDoc = await adminDb.collection('users').doc(coachId).get()
+      if (coachDoc.exists) {
+        const coachData = coachDoc.data()
+        coachEmail = coachData?.email || ''
+        coachName = coachData?.displayName || 'Coach'
+      }
+
+      // If no display name, check creator_profiles collection
+      if (coachName === 'Coach') {
+        const creatorDoc = await adminDb.collection('creator_profiles').doc(coachId).get()
+        if (creatorDoc.exists) {
+          const creatorData = creatorDoc.data()
+          coachName = creatorData?.displayName || 'Coach'
+        }
+      }
+    } catch (error) {
+      console.log('Could not fetch coach data:', error)
+    }
+
     const results = []
     let successCount = 0
     let failCount = 0
+    const successfulAthleteNames: string[] = []
 
     // Process each athlete invitation
     for (const athlete of validAthletes) {
@@ -83,7 +108,7 @@ export async function POST(request: NextRequest) {
         const emailResult = await sendAthleteInvitationEmail({
           to: athlete.email,
           athleteName: athlete.name,
-          coachName: 'Coach', // This should come from coach's profile
+          coachName,
           sport,
           invitationUrl,
           qrCodeUrl,
@@ -93,6 +118,7 @@ export async function POST(request: NextRequest) {
 
         if (emailResult.success) {
           successCount++
+          successfulAthleteNames.push(athlete.name)
           results.push({
             email: athlete.email,
             name: athlete.name,
@@ -121,6 +147,26 @@ export async function POST(request: NextRequest) {
           error: error instanceof Error ? error.message : 'Unknown error'
         })
         console.error(`❌ Error processing invitation for ${athlete.email}:`, error)
+      }
+    }
+
+    // Send notification to coach if any invitations were successful
+    if (successCount > 0 && coachEmail) {
+      try {
+        await sendCoachNotificationEmail({
+          to: coachEmail,
+          coachName,
+          type: 'invitation_sent',
+          invitationsSummary: {
+            totalSent: successCount,
+            athleteNames: successfulAthleteNames,
+            sport
+          }
+        })
+        console.log(`📧 Coach notification sent to ${coachEmail}`)
+      } catch (error) {
+        console.error('Failed to send coach notification:', error)
+        // Don't fail the request if notification fails
       }
     }
 

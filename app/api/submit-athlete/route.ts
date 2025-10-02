@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { nanoid } from 'nanoid'
 import { auth, adminDb } from '@/lib/firebase.admin'
+import { sendCoachNotificationEmail } from '@/lib/email-service'
 
 export async function POST(request: NextRequest) {
   try {
@@ -156,10 +157,50 @@ export async function POST(request: NextRequest) {
     // Mark invitation as used
     await adminDb.collection('invitations').doc(invitationId).update({
       used: true,
+      status: 'accepted',
       usedAt: now.toISOString(),
       usedBy: userRecord.uid
     })
     console.log(`✅ Marked invitation as used:`, invitationId)
+
+    // Send notification to coach
+    if (invitationData?.coachId) {
+      try {
+        // Get coach information
+        const coachDoc = await adminDb.collection('users').doc(invitationData.coachId).get()
+        if (coachDoc.exists) {
+          const coachData = coachDoc.data()
+          const coachEmail = coachData?.email
+          let coachName = coachData?.displayName || 'Coach'
+
+          // If no display name, check creator_profiles
+          if (coachName === 'Coach') {
+            const creatorDoc = await adminDb.collection('creator_profiles').doc(invitationData.coachId).get()
+            if (creatorDoc.exists) {
+              const creatorData = creatorDoc.data()
+              coachName = creatorData?.displayName || 'Coach'
+            }
+          }
+
+          if (coachEmail) {
+            await sendCoachNotificationEmail({
+              to: coachEmail,
+              coachName,
+              type: 'invitation_accepted',
+              athleteInfo: {
+                name: `${userInfo.firstName} ${userInfo.lastName}`,
+                email: userInfo.email,
+                sport: invitationData?.sport
+              }
+            })
+            console.log(`📧 Coach notification sent to ${coachEmail} about athlete acceptance`)
+          }
+        }
+      } catch (error) {
+        console.error('Failed to send coach notification:', error)
+        // Don't fail the request if notification fails
+      }
+    }
 
     // Send password reset email so user can set their own password
     try {
