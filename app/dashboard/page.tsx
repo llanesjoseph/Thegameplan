@@ -43,6 +43,9 @@ export default function Dashboard() {
    } else if (userRole === 'admin') {
     console.log('Admin authenticated, redirecting to Admin Dashboard')
     router.push('/dashboard/admin')
+   } else if (userRole === 'athlete') {
+    console.log('Athlete authenticated, redirecting to Progress Dashboard')
+    router.push('/dashboard/progress')
    } else if (userRole === 'creator' || userRole === 'coach' || userRole === 'assistant' || userRole === 'user') {
     // All regular users go to creator dashboard now
     console.log(`${userRole} authenticated, redirecting to Creator Dashboard`)
