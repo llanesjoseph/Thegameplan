@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { useEnhancedRole } from '@/hooks/use-role-switcher'
+import AppHeader from '@/components/ui/AppHeader'
 import { db } from '@/lib/firebase.client'
 import { collection, query, getDocs, orderBy, limit, where, doc, updateDoc } from 'firebase/firestore'
 import { 
@@ -262,8 +263,10 @@ export default function AdminUserManagement() {
  }
 
  return (
-  <main className="min-h-screen py-16">
-   <div className="max-w-7xl mx-auto px-6">
+  <div className="min-h-screen bg-gray-50">
+   <AppHeader />
+   <main className="py-16">
+    <div className="max-w-7xl mx-auto px-6">
     {/* Header */}
     <div className="mb-12">
      <h1 className="text-4xl mb-4">User Management</h1>
@@ -574,7 +577,8 @@ export default function AdminUserManagement() {
       </div>
      </div>
     )}
-   </div>
-  </main>
+    </div>
+   </main>
+  </div>
  )
 }

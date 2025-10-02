@@ -2,6 +2,7 @@
 import { useEffect } from 'react'
 import { useUrlEnhancedRole } from "@/hooks/use-url-role-switcher"
 import { useRouter } from 'next/navigation'
+import AppHeader from '@/components/ui/AppHeader'
 import UserSignupTracker from '@/components/admin/UserSignupTracker'
 import CoachIngestionManager from '@/components/admin/CoachIngestionManager'
 
@@ -13,8 +14,9 @@ export default function AdminDashboard() {
  }, [role, router])
 
  return (
-  <main className="min-h-screen bg-gray-50">
-   <div className="max-w-6xl mx-auto px-6 py-10">
+  <div className="min-h-screen bg-gray-50">
+   <AppHeader />
+   <main className="max-w-6xl mx-auto px-6 py-10">
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
      <h1 className="text-3xl text-gray-900">Admin Dashboard</h1>
      <p className="text-gray-600 mt-2">Manage creators, content, sponsors, and reviews.</p>
@@ -55,8 +57,8 @@ export default function AdminDashboard() {
       </a>
      </div>
     </div>
-   </div>
-  </main>
+   </main>
+  </div>
  )
 }
 

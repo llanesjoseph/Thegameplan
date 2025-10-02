@@ -53,15 +53,15 @@ const CTA = () => {
        
        {/* CTA Buttons */}
        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-        <Link 
-         href="#" 
+        <Link
+         href="/subscribe"
          className="btn btn-primary text-lg px-8 py-4 inline-flex items-center gap-2 group"
         >
          Start Free Today
          <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
         </Link>
-        <Link 
-         href="#" 
+        <Link
+         href="/lessons"
          className="btn btn-secondary text-lg px-8 py-4"
         >
          Watch Demo

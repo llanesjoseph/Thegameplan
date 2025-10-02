@@ -2,6 +2,7 @@
 
 import { useAuth } from '@/hooks/use-auth'
 import { useState, useEffect } from 'react'
+import AppHeader from '@/components/ui/AppHeader'
 import { db } from '@/lib/firebase'
 import { collection, getDocs, doc, updateDoc, query, orderBy } from 'firebase/firestore'
 import {
@@ -139,6 +140,7 @@ export default function RoleManagement() {
 
  return (
   <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
+   <AppHeader />
    <div className="max-w-6xl mx-auto p-6">
     {/* Header */}
     <div className="mb-8">

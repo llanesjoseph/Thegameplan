@@ -5,6 +5,7 @@ import { collection, query, getDocs, updateDoc, doc, orderBy, where } from 'fire
 import { db } from '@/lib/firebase.client'
 import { useAuth } from '@/hooks/use-auth'
 import { useEnhancedRole } from '@/hooks/use-role-switcher'
+import AppHeader from '@/components/ui/AppHeader'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -187,9 +188,11 @@ export default function AdminRequestsPage() {
  const counts = getRequestCounts()
 
  return (
-  <div className="container mx-auto py-8">
-   <div className="space-y-6">
-    <div>
+  <div className="min-h-screen bg-gray-50">
+   <AppHeader />
+   <div className="container mx-auto py-8">
+    <div className="space-y-6">
+     <div>
      <h1 className="text-3xl ">Request Management</h1>
      <p className="text-gray-600">Manage and respond to user support requests</p>
     </div>
@@ -488,6 +491,7 @@ export default function AdminRequestsPage() {
       </TabsContent>
      ))}
     </Tabs>
+    </div>
    </div>
   </div>
  )

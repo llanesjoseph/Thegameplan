@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { useEnhancedRole } from '@/hooks/use-role-switcher'
 import { useRouter } from 'next/navigation'
+import AppHeader from '@/components/ui/AppHeader'
 import { db } from '@/lib/firebase'
 import { collection, query, orderBy, onSnapshot, doc, updateDoc, setDoc, deleteDoc } from 'firebase/firestore'
 import {
@@ -209,8 +210,9 @@ export default function CoachApplicationsPage() {
  }
 
  return (
-  <main className="min-h-screen bg-gradient-to-br from-cream via-cream to-sky-blue/10">
-   <div className="max-w-7xl mx-auto px-6 py-8">
+  <div className="min-h-screen bg-gradient-to-br from-cream via-cream to-sky-blue/10">
+   <AppHeader />
+   <main className="max-w-7xl mx-auto px-6 py-8">
     {/* Header */}
     <div className="flex items-center justify-between mb-8">
      <div className="flex items-center gap-4">
@@ -479,7 +481,7 @@ export default function CoachApplicationsPage() {
       </div>
      </div>
     )}
-   </div>
-  </main>
+   </main>
+  </div>
  )
 }

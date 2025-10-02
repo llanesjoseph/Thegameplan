@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { useEnhancedRole } from '@/hooks/use-role-switcher'
+import AppHeader from '@/components/ui/AppHeader'
 import { db } from '@/lib/firebase.client'
 import { doc, updateDoc, getDoc } from 'firebase/firestore'
 import { 
@@ -176,8 +177,10 @@ export default function AdminSettings() {
  }
 
  return (
-  <main className="min-h-screen py-16">
-   <div className="max-w-6xl mx-auto px-6">
+  <div className="min-h-screen bg-gray-50">
+   <AppHeader />
+   <main className="py-16">
+    <div className="max-w-6xl mx-auto px-6">
     {/* Header */}
     <div className="mb-12">
      <h1 className="text-4xl mb-4">Platform Settings</h1>
@@ -513,7 +516,8 @@ export default function AdminSettings() {
       </button>
      </div>
     </form>
-   </div>
-  </main>
+    </div>
+   </main>
+  </div>
  )
 }

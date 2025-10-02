@@ -174,13 +174,13 @@ export default function LandingPage() {
 
       {/* Right side - Social Links */}
       <div className="flex items-center gap-4">
-       <a href="#" className="text-dark hover:text-sky-blue">
+       <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-dark hover:text-sky-blue">
         <Facebook className="w-5 h-5" />
        </a>
-       <a href="#" className="text-dark hover:text-sky-blue">
+       <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-dark hover:text-sky-blue">
         <Instagram className="w-5 h-5" />
        </a>
-       <a href="#" className="text-dark hover:text-sky-blue">
+       <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="text-dark hover:text-sky-blue">
         <Twitter className="w-5 h-5" />
        </a>
       </div>

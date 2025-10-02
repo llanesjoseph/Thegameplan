@@ -4,6 +4,7 @@ import { useEnhancedRole } from "@/hooks/use-role-switcher"
 import { useRouter } from 'next/navigation'
 import { getFunctions, httpsCallable } from 'firebase/functions'
 import { auth } from '@/lib/firebase.client'
+import AppHeader from '@/components/ui/AppHeader'
 import { SetRoleResponse, FirebaseFunctionError } from '@/lib/types'
 
 export default function SuperAdminDashboard() {
@@ -39,8 +40,9 @@ export default function SuperAdminDashboard() {
  }
 
  return (
-  <main className="min-h-screen bg-gray-50">
-   <div className="max-w-7xl mx-auto px-6 py-10">
+  <div className="min-h-screen bg-gray-50">
+   <AppHeader />
+   <main className="max-w-7xl mx-auto px-6 py-10">
     <div className="mb-8">
      <h1 className="text-3xl text-gray-900">Superadmin Dashboard</h1>
      <p className="text-gray-600 mt-2">Complete platform administration and control center.</p>
@@ -102,8 +104,8 @@ export default function SuperAdminDashboard() {
       </div>
      </div>
     </div>
-   </div>
-  </main>
+   </main>
+  </div>
  )
 }
 

@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import { useEnhancedRole } from '@/hooks/use-role-switcher'
+import AppHeader from '@/components/ui/AppHeader'
 import { db } from '@/lib/firebase.client'
 import { doc, getDoc, collection, query, where, getDocs, orderBy, limit } from 'firebase/firestore'
 import CreatorGearManager from '@/components/gear/CreatorGearManager'
@@ -316,8 +317,9 @@ function GearContent() {
  }
 
  return (
-  <main className="min-h-screen bg-white pt-24">
-   <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+  <div className="min-h-screen bg-gray-50">
+   <AppHeader />
+   <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
     {/* Header */}
     <div className="mb-8">
      <div className="flex items-center gap-3 mb-4">
@@ -557,8 +559,8 @@ function GearContent() {
       Affiliate Disclosure: Some links may be affiliate links. We may earn a commission from purchases made through these links at no additional cost to you. All recommendations are based on genuine product evaluation by our expert coaches.
      </p>
     </div>
-   </div>
-  </main>
+   </main>
+  </div>
  )
 }
 
