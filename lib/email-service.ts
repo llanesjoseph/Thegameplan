@@ -239,11 +239,13 @@ interface AthleteInvitationEmailProps {
 interface CoachNotificationEmailProps {
   to: string
   coachName: string
-  type: 'invitation_sent' | 'invitation_accepted' | 'invitation_declined' | 'invitation_expired'
+  type: 'invitation_sent' | 'invitation_accepted' | 'invitation_declined' | 'invitation_expired' | 'athlete_profile_created'
   athleteInfo?: {
     name: string
     email: string
     sport?: string
+    skillLevel?: string
+    goals?: string
   }
   invitationsSummary?: {
     totalSent: number
@@ -362,6 +364,13 @@ export async function sendCoachNotificationEmail({
         if (athleteInfo) {
           subject = `⏰ Invitation to ${athleteInfo.name} Has Expired - PLAYBOOKD`
           htmlContent = generateInvitationExpiredEmail(coachName, athleteInfo)
+        }
+        break
+
+      case 'athlete_profile_created':
+        if (athleteInfo) {
+          subject = `🎉 ${athleteInfo.name} Created Their Athlete Profile - PLAYBOOKD`
+          htmlContent = generateAthleteProfileCreatedEmail(coachName, athleteInfo)
         }
         break
 
@@ -594,6 +603,60 @@ function generateInvitationExpiredEmail(coachName: string, athleteInfo: { name: 
 
         <div style="text-align: center; margin: 30px 0;">
           <a href="https://playbookd.crucibleanalytics.dev/dashboard/coach/athletes" style="background-color: #A01C21; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Resend Invitation</a>
+        </div>
+
+        <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 14px;">
+          <p><strong>PLAYBOOKD</strong> - For The Future of Sports</p>
+          <p style="font-size: 12px;">This is an automated notification. Please do not reply to this email.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `
+}
+
+function generateAthleteProfileCreatedEmail(coachName: string, athleteInfo: { name: string; email: string; sport?: string; skillLevel?: string; goals?: string }) {
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>New Athlete Profile Created</title>
+    </head>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8fafc;">
+      <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #13367A; font-size: 32px; margin: 0; font-weight: bold;">PLAYBOOKD</h1>
+          <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">FOR THE FUTURE OF SPORTS</p>
+        </div>
+
+        <div style="background: #dcfce7; border: 2px solid #16a34a; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
+          <h2 style="color: #15803d; margin: 0;">🎉 New Athlete Profile Created!</h2>
+        </div>
+
+        <p>Hi ${coachName},</p>
+
+        <p>Great news! <strong>${athleteInfo.name}</strong> has completed their athlete profile and is ready to start training with you.</p>
+
+        <div style="background: #f0f9ff; border-left: 4px solid #0284c7; padding: 20px; margin: 20px 0;">
+          <h3 style="color: #0369a1; margin-top: 0;">Athlete Profile:</h3>
+          <p style="margin: 5px 0;"><strong>Name:</strong> ${athleteInfo.name}</p>
+          ${athleteInfo.sport ? `<p style="margin: 5px 0;"><strong>Primary Sport:</strong> ${athleteInfo.sport}</p>` : ''}
+          ${athleteInfo.skillLevel ? `<p style="margin: 5px 0;"><strong>Skill Level:</strong> ${athleteInfo.skillLevel}</p>` : ''}
+          ${athleteInfo.goals ? `<p style="margin: 5px 0;"><strong>Training Goals:</strong> ${athleteInfo.goals}</p>` : ''}
+        </div>
+
+        <p>You can now:</p>
+        <ul style="color: #4b5563;">
+          <li>View their complete athletic profile</li>
+          <li>See their training goals and availability</li>
+          <li>Create personalized training plans</li>
+          <li>Start scheduling training sessions</li>
+        </ul>
+
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="https://playbookd.crucibleanalytics.dev/dashboard/creator/athletes" style="background-color: #A01C21; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">View Athlete Profile</a>
         </div>
 
         <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 14px;">
