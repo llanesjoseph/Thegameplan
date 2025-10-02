@@ -5,7 +5,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   Users,
   Search,
@@ -254,12 +253,9 @@ export default function AssistantAthletesPage() {
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  <Avatar>
-                    <AvatarImage src={athlete.avatar} />
-                    <AvatarFallback>
-                      {athlete.name.split(' ').map(n => n[0]).join('')}
-                    </AvatarFallback>
-                  </Avatar>
+                  <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold">
+                    {athlete.name.split(' ').map(n => n[0]).join('')}
+                  </div>
                   <div>
                     <CardTitle className="text-lg">{athlete.name}</CardTitle>
                     <CardDescription>{athlete.sport}</CardDescription>

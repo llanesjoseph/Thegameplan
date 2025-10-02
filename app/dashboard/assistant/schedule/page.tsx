@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Calendar } from '@/components/ui/calendar'
 import {
   CalendarDays,
   Clock,
@@ -180,12 +179,16 @@ export default function AssistantSchedulePage() {
             <CardTitle>Calendar</CardTitle>
           </CardHeader>
           <CardContent>
-            <Calendar
-              mode="single"
-              selected={selectedDate}
-              onSelect={setSelectedDate}
-              className="rounded-md border"
-            />
+            <div className="rounded-md border p-4">
+              <div className="text-center mb-4">
+                <h3 className="font-semibold text-lg">
+                  {selectedDate?.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                </h3>
+              </div>
+              <div className="text-sm text-gray-600 text-center">
+                Selected: {selectedDate?.toLocaleDateString()}
+              </div>
+            </div>
             <div className="mt-4">
               <Button className="w-full">
                 <Plus className="w-4 h-4 mr-2" />
