@@ -8,12 +8,11 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const {
       invitationId,
-      athleteData,
-      userInfo
+      athleteProfile
     } = body
 
     // Validate required fields
-    if (!invitationId || !userInfo) {
+    if (!invitationId || !athleteProfile) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -48,43 +47,42 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log(`🎯 Processing athlete application for ${userInfo.email}`)
+    console.log(`Processing athlete profile for ${athleteProfile.email}`)
 
-    // Generate application ID
-    const applicationId = nanoid()
+    // Generate athlete ID
+    const athleteId = nanoid()
     const now = new Date()
 
-    // Create athlete application data
-    const applicationData = {
-      id: applicationId,
+    // Create the athlete document with new structure
+    const athleteData = {
+      // Document metadata
+      id: athleteId,
+      uid: '', // Will be set after user creation
       invitationId,
-      role: 'athlete',
       coachId: invitationData?.coachId || '',
-      sport: invitationData?.sport || '',
-      // User info
-      email: userInfo.email?.toLowerCase(),
-      displayName: `${userInfo.firstName} ${userInfo.lastName}`,
-      firstName: userInfo.firstName,
-      lastName: userInfo.lastName,
-      phone: userInfo.phone || '',
-      dateOfBirth: athleteData?.dateOfBirth || '',
-      // Athletic info
-      experience: athleteData?.experience || '',
-      goals: athleteData?.goals || '',
-      medicalConditions: athleteData?.medicalConditions || '',
-      emergencyContact: athleteData?.emergencyContact || '',
-      emergencyPhone: athleteData?.emergencyPhone || '',
-      // Application metadata
-      status: 'approved',
-      submittedAt: now,
-      submittedVia: 'athlete_invitation',
+      status: 'active',
       createdAt: now,
-      updatedAt: now
-    }
+      updatedAt: now,
 
-    // Save application to Firestore
-    await adminDb.collection('athlete_applications').doc(applicationId).set(applicationData)
-    console.log(`💾 Saved athlete application to Firestore:`, applicationId)
+      // Basic info (minimal PII)
+      email: athleteProfile.email?.toLowerCase(), // For auth only
+      displayName: athleteProfile.displayName,
+      firstName: athleteProfile.firstName,
+      lastName: athleteProfile.lastName,
+
+      // Athletic profile (training-relevant information)
+      athleticProfile: {
+        primarySport: athleteProfile.primarySport,
+        secondarySports: athleteProfile.secondarySports || [],
+        yearsOfExperience: athleteProfile.yearsOfExperience,
+        skillLevel: athleteProfile.skillLevel,
+        trainingGoals: athleteProfile.trainingGoals,
+        achievements: athleteProfile.achievements || '',
+        availability: athleteProfile.availability || [],
+        learningStyle: athleteProfile.learningStyle,
+        specialNotes: athleteProfile.specialNotes || ''
+      }
+    }
 
     // Create Firebase user account with temporary password
     let userRecord
@@ -93,108 +91,117 @@ export async function POST(request: NextRequest) {
     try {
       // Try to create user
       userRecord = await auth.createUser({
-        email: userInfo.email?.toLowerCase(),
+        email: athleteProfile.email?.toLowerCase(),
         emailVerified: false,
         password: temporaryPassword,
-        displayName: `${userInfo.firstName} ${userInfo.lastName}`,
+        displayName: athleteProfile.displayName,
         disabled: false
       })
-      console.log(`✅ Created Firebase user:`, userRecord.uid)
+      console.log(`Created Firebase user: ${userRecord.uid}`)
     } catch (error: any) {
       if (error.code === 'auth/email-already-exists') {
         // User already exists, get their record
-        userRecord = await auth.getUserByEmail(userInfo.email?.toLowerCase())
-        console.log(`ℹ️ User already exists:`, userRecord.uid)
+        userRecord = await auth.getUserByEmail(athleteProfile.email?.toLowerCase())
+        console.log(`User already exists: ${userRecord.uid}`)
       } else {
         throw error
       }
     }
 
-    // Create user document in Firestore with athlete role
+    // Update athlete data with uid
+    athleteData.uid = userRecord.uid
+
+    // Save athlete document with new structure
+    await adminDb.collection('athletes').doc(athleteId).set(athleteData)
+    console.log(`Saved athlete profile to Firestore: ${athleteId}`)
+
+    // Create/update user document with athlete role
     const userDocData = {
       uid: userRecord.uid,
-      email: userInfo.email?.toLowerCase(),
-      displayName: `${userInfo.firstName} ${userInfo.lastName}`,
-      role: 'athlete', // CRITICAL: Set athlete role
-      firstName: userInfo.firstName,
-      lastName: userInfo.lastName,
-      phone: userInfo.phone || '',
+      email: athleteProfile.email?.toLowerCase(),
+      displayName: athleteProfile.displayName,
+      role: 'athlete',
+      firstName: athleteProfile.firstName,
+      lastName: athleteProfile.lastName,
+      athleteId, // Reference to athlete document
+      coachId: invitationData?.coachId || '',
       createdAt: now,
       lastLoginAt: now,
-      applicationId,
-      invitationId,
-      coachId: invitationData?.coachId || ''
+      invitationId
     }
 
     await adminDb.collection('users').doc(userRecord.uid).set(userDocData, { merge: true })
-    console.log(`✅ Created user document with role: athlete`)
-
-    // Create athlete profile
-    const athleteProfile = {
-      uid: userRecord.uid,
-      email: userInfo.email?.toLowerCase(),
-      displayName: `${userInfo.firstName} ${userInfo.lastName}`,
-      firstName: userInfo.firstName,
-      lastName: userInfo.lastName,
-      phone: userInfo.phone || '',
-      sport: invitationData?.sport || '',
-      coachId: invitationData?.coachId || '',
-      dateOfBirth: athleteData?.dateOfBirth || '',
-      experience: athleteData?.experience || '',
-      goals: athleteData?.goals || '',
-      medicalConditions: athleteData?.medicalConditions || '',
-      emergencyContact: athleteData?.emergencyContact || '',
-      emergencyPhone: athleteData?.emergencyPhone || '',
-      isActive: true,
-      profileCompleteness: 60,
-      createdAt: now,
-      updatedAt: now
-    }
-
-    await adminDb.collection('athlete_profiles').doc(userRecord.uid).set(athleteProfile)
-    console.log(`✅ Created athlete profile`)
+    console.log(`Created/updated user document with role: athlete`)
 
     // Mark invitation as used
     await adminDb.collection('invitations').doc(invitationId).update({
       used: true,
       status: 'accepted',
       usedAt: now.toISOString(),
-      usedBy: userRecord.uid
+      usedBy: userRecord.uid,
+      athleteId
     })
-    console.log(`✅ Marked invitation as used:`, invitationId)
+    console.log(`Marked invitation as used: ${invitationId}`)
 
-    // Send notification to coach
+    // Add athlete to coach's athlete list
     if (invitationData?.coachId) {
+      // Update coach's athlete list
+      const coachRef = adminDb.collection('users').doc(invitationData.coachId)
+      const coachDoc = await coachRef.get()
+
+      if (coachDoc.exists) {
+        const coachData = coachDoc.data()
+        const athletesList = coachData?.athletes || []
+
+        // Add new athlete to list if not already there
+        if (!athletesList.some((a: any) => a.id === athleteId)) {
+          athletesList.push({
+            id: athleteId,
+            uid: userRecord.uid,
+            name: athleteProfile.displayName,
+            email: athleteProfile.email,
+            sport: athleteProfile.primarySport,
+            skillLevel: athleteProfile.skillLevel,
+            joinedAt: now
+          })
+
+          await coachRef.update({
+            athletes: athletesList,
+            athleteCount: athletesList.length
+          })
+          console.log(`Added athlete to coach's list`)
+        }
+      }
+
+      // Send notification to coach
       try {
-        // Get coach information
-        const coachDoc = await adminDb.collection('users').doc(invitationData.coachId).get()
-        if (coachDoc.exists) {
-          const coachData = coachDoc.data()
-          const coachEmail = coachData?.email
-          let coachName = coachData?.displayName || 'Coach'
+        const coachData = coachDoc.data()
+        const coachEmail = coachData?.email
+        let coachName = coachData?.displayName || 'Coach'
 
-          // If no display name, check creator_profiles
-          if (coachName === 'Coach') {
-            const creatorDoc = await adminDb.collection('creator_profiles').doc(invitationData.coachId).get()
-            if (creatorDoc.exists) {
-              const creatorData = creatorDoc.data()
-              coachName = creatorData?.displayName || 'Coach'
+        // If no display name, check creator_profiles
+        if (coachName === 'Coach' && invitationData.coachId) {
+          const creatorDoc = await adminDb.collection('creator_profiles').doc(invitationData.coachId).get()
+          if (creatorDoc.exists) {
+            const creatorData = creatorDoc.data()
+            coachName = creatorData?.displayName || 'Coach'
+          }
+        }
+
+        if (coachEmail) {
+          await sendCoachNotificationEmail({
+            to: coachEmail,
+            coachName,
+            type: 'athlete_profile_created',
+            athleteInfo: {
+              name: athleteProfile.displayName,
+              email: athleteProfile.email,
+              sport: athleteProfile.primarySport,
+              skillLevel: athleteProfile.skillLevel,
+              goals: athleteProfile.trainingGoals
             }
-          }
-
-          if (coachEmail) {
-            await sendCoachNotificationEmail({
-              to: coachEmail,
-              coachName,
-              type: 'invitation_accepted',
-              athleteInfo: {
-                name: `${userInfo.firstName} ${userInfo.lastName}`,
-                email: userInfo.email,
-                sport: invitationData?.sport
-              }
-            })
-            console.log(`📧 Coach notification sent to ${coachEmail} about athlete acceptance`)
-          }
+          })
+          console.log(`Coach notification sent to ${coachEmail} about new athlete profile`)
         }
       } catch (error) {
         console.error('Failed to send coach notification:', error)
@@ -204,9 +211,9 @@ export async function POST(request: NextRequest) {
 
     // Send password reset email so user can set their own password
     try {
-      const resetLink = await auth.generatePasswordResetLink(userInfo.email?.toLowerCase())
-      console.log(`📧 Password reset link generated for ${userInfo.email}`)
-      // TODO: Send this link via email service
+      const resetLink = await auth.generatePasswordResetLink(athleteProfile.email?.toLowerCase())
+      console.log(`Password reset link generated for ${athleteProfile.email}`)
+      // TODO: Send this link via email service with welcome message
     } catch (error) {
       console.error('Failed to generate password reset link:', error)
     }
@@ -214,18 +221,18 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       data: {
-        applicationId,
+        athleteId,
         userId: userRecord.uid,
-        status: 'approved',
+        status: 'active',
         role: 'athlete',
-        message: 'Your athlete profile has been created! Check your email for instructions to set your password.'
+        message: 'Your athlete profile has been created successfully! Check your email for instructions to set your password.'
       }
     })
 
   } catch (error) {
-    console.error('Submit athlete application error:', error)
+    console.error('Submit athlete profile error:', error)
     return NextResponse.json(
-      { error: 'Failed to submit athlete application' },
+      { error: 'Failed to create athlete profile' },
       { status: 500 }
     )
   }

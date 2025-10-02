@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -11,12 +11,15 @@ import {
   CheckCircle,
   User,
   Mail,
-  Calendar,
-  Target,
   Trophy,
-  Users,
   ArrowRight,
-  Star
+  ArrowLeft,
+  Star,
+  Target,
+  Clock,
+  Calendar,
+  Activity,
+  BookOpen
 } from 'lucide-react'
 
 interface InvitationData {
@@ -30,25 +33,92 @@ interface InvitationData {
   expiresAt: string
 }
 
+// Sports list for dropdown
+const SPORTS_LIST = [
+  'Basketball', 'Football', 'Soccer', 'Baseball', 'Tennis',
+  'Golf', 'Swimming', 'Track & Field', 'Volleyball', 'Wrestling',
+  'Hockey', 'Lacrosse', 'Gymnastics', 'Cross Country', 'Softball',
+  'Other'
+]
+
+// Skill levels
+const SKILL_LEVELS = [
+  { value: 'beginner', label: 'Beginner', description: 'Just starting out' },
+  { value: 'intermediate', label: 'Intermediate', description: '1-3 years experience' },
+  { value: 'advanced', label: 'Advanced', description: '3+ years experience' },
+  { value: 'elite', label: 'Elite', description: 'Competitive/Professional level' }
+]
+
+// Learning styles
+const LEARNING_STYLES = [
+  { value: 'visual', label: 'Visual Learner', description: 'Learn best through demonstrations and videos' },
+  { value: 'hands-on', label: 'Hands-On', description: 'Learn best through practice and doing' },
+  { value: 'analytical', label: 'Analytical', description: 'Learn best through understanding concepts and strategy' },
+  { value: 'collaborative', label: 'Collaborative', description: 'Learn best through group training and teamwork' }
+]
+
 export default function AthleteOnboardingPage() {
   const params = useParams()
+  const router = useRouter()
   const invitationId = params.id as string
   const [invitation, setInvitation] = useState<InvitationData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [step, setStep] = useState(1)
+  const totalSteps = 4
+
+  // Form data with all new fields
   const [formData, setFormData] = useState({
+    // Basic Info
     firstName: '',
     lastName: '',
     email: '',
-    phone: '',
-    dateOfBirth: '',
-    experience: '',
-    goals: '',
-    medicalConditions: '',
-    emergencyContact: '',
-    emergencyPhone: ''
+
+    // Athletic Profile
+    primarySport: '',
+    secondarySports: [] as string[],
+    yearsOfExperience: '',
+    skillLevel: '',
+
+    // Training Info
+    trainingGoals: '',
+    achievements: '',
+    learningStyle: '',
+
+    // Availability & Notes
+    availability: {
+      monday: { available: false, timeSlots: '' },
+      tuesday: { available: false, timeSlots: '' },
+      wednesday: { available: false, timeSlots: '' },
+      thursday: { available: false, timeSlots: '' },
+      friday: { available: false, timeSlots: '' },
+      saturday: { available: false, timeSlots: '' },
+      sunday: { available: false, timeSlots: '' }
+    },
+    specialNotes: ''
   })
+
+  // Validation for each step
+  const validateStep = (stepNumber: number): boolean => {
+    switch(stepNumber) {
+      case 1:
+        return formData.firstName.trim() !== '' &&
+               formData.lastName.trim() !== '' &&
+               formData.email.trim() !== ''
+      case 2:
+        return formData.primarySport !== '' &&
+               formData.yearsOfExperience !== '' &&
+               formData.skillLevel !== ''
+      case 3:
+        return formData.trainingGoals.trim() !== '' &&
+               formData.learningStyle !== ''
+      case 4:
+        // At least one day should be selected
+        return Object.values(formData.availability).some(day => day.available)
+      default:
+        return true
+    }
+  }
 
   useEffect(() => {
     if (invitationId) {
@@ -59,9 +129,8 @@ export default function AthleteOnboardingPage() {
   const fetchInvitation = async () => {
     try {
       setIsLoading(true)
-
-      // Fetch invitation from API
       const response = await fetch(`/api/validate-invitation?id=${invitationId}&type=athlete`)
+
       if (response.ok) {
         const data = await response.json()
         if (data.success && data.invitation) {
@@ -70,7 +139,8 @@ export default function AthleteOnboardingPage() {
             ...prev,
             email: data.invitation.athleteEmail,
             firstName: data.invitation.athleteName.split(' ')[0] || '',
-            lastName: data.invitation.athleteName.split(' ').slice(1).join(' ') || ''
+            lastName: data.invitation.athleteName.split(' ').slice(1).join(' ') || '',
+            primarySport: data.invitation.sport || ''
           }))
         } else {
           console.error('Invalid or expired invitation')
@@ -88,25 +158,42 @@ export default function AthleteOnboardingPage() {
   const handleSubmit = async () => {
     setIsSubmitting(true)
     try {
-      // Submit athlete application
+      // Prepare availability data as a more readable format
+      const availabilityData = Object.entries(formData.availability)
+        .filter(([_, dayData]) => dayData.available)
+        .map(([day, dayData]) => ({
+          day,
+          timeSlots: dayData.timeSlots || 'Flexible'
+        }))
+
       const response = await fetch('/api/submit-athlete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           invitationId,
-          userInfo: {
+          athleteProfile: {
+            // Basic info
             firstName: formData.firstName,
             lastName: formData.lastName,
             email: formData.email,
-            phone: formData.phone
-          },
-          athleteData: {
-            dateOfBirth: formData.dateOfBirth,
-            experience: formData.experience,
-            goals: formData.goals,
-            medicalConditions: formData.medicalConditions,
-            emergencyContact: formData.emergencyContact,
-            emergencyPhone: formData.emergencyPhone
+            displayName: `${formData.firstName} ${formData.lastName}`,
+
+            // Athletic profile
+            primarySport: formData.primarySport,
+            secondarySports: formData.secondarySports,
+            yearsOfExperience: formData.yearsOfExperience,
+            skillLevel: formData.skillLevel,
+
+            // Training info
+            trainingGoals: formData.trainingGoals,
+            achievements: formData.achievements,
+            learningStyle: formData.learningStyle,
+
+            // Availability
+            availability: availabilityData,
+
+            // Special notes
+            specialNotes: formData.specialNotes
           }
         })
       })
@@ -117,14 +204,49 @@ export default function AthleteOnboardingPage() {
         throw new Error(result.error || 'Failed to submit application')
       }
 
-      console.log('✅ Athlete application submitted:', result.data)
-      setStep(4) // Success step
+      console.log('Athlete profile created successfully:', result.data)
+      setStep(totalSteps + 1) // Success step
     } catch (error) {
       console.error('Error submitting:', error)
       alert(error instanceof Error ? error.message : 'Failed to complete onboarding. Please try again.')
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  const handleSecondarySporsToggle = (sport: string) => {
+    setFormData(prev => ({
+      ...prev,
+      secondarySports: prev.secondarySports.includes(sport)
+        ? prev.secondarySports.filter(s => s !== sport)
+        : [...prev.secondarySports, sport]
+    }))
+  }
+
+  const handleAvailabilityToggle = (day: string) => {
+    setFormData(prev => ({
+      ...prev,
+      availability: {
+        ...prev.availability,
+        [day]: {
+          ...prev.availability[day as keyof typeof prev.availability],
+          available: !prev.availability[day as keyof typeof prev.availability].available
+        }
+      }
+    }))
+  }
+
+  const handleTimeSlotChange = (day: string, timeSlots: string) => {
+    setFormData(prev => ({
+      ...prev,
+      availability: {
+        ...prev.availability,
+        [day]: {
+          ...prev.availability[day as keyof typeof prev.availability],
+          timeSlots
+        }
+      }
+    }))
   }
 
   if (isLoading) {
@@ -148,7 +270,7 @@ export default function AthleteOnboardingPage() {
             <p className="text-gray-600 mb-6">
               This invitation link is invalid or has expired. Please contact your coach for a new invitation.
             </p>
-            <Button onClick={() => window.location.href = '/'}>
+            <Button onClick={() => router.push('/')}>
               Return to Home
             </Button>
           </div>
@@ -162,105 +284,100 @@ export default function AthleteOnboardingPage() {
       <AppHeader />
 
       <div className="container mx-auto px-4 py-8">
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-3xl mx-auto">
 
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome to PLAYBOOKD!</h1>
-            <p className="text-gray-600">Complete your athlete profile to get started</p>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Your Athlete Profile</h1>
+            <p className="text-gray-600">Help your coach understand your training needs and goals</p>
           </div>
 
           {/* Progress Bar */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-gray-700">Step {step} of 3</span>
-              <span className="text-sm text-gray-500">{Math.round((step / 3) * 100)}% Complete</span>
+          {step <= totalSteps && (
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-gray-700">Step {step} of {totalSteps}</span>
+                <span className="text-sm text-gray-500">{Math.round((step / totalSteps) * 100)}% Complete</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${(step / totalSteps) * 100}%` }}
+                />
+              </div>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div
-                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${(step / 3) * 100}%` }}
-              ></div>
-            </div>
-          </div>
+          )}
 
           {/* Invitation Details */}
-          <Card className="mb-6">
-            <CardContent className="p-6">
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                  <Trophy className="w-6 h-6 text-blue-600" />
+          {step <= totalSteps && (
+            <Card className="mb-6">
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                    <Trophy className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900">Training Invitation</h3>
+                    <p className="text-gray-600">{invitation.sport} • Coach Training Program</p>
+                    {invitation.customMessage && (
+                      <p className="text-sm text-gray-500 mt-1">{invitation.customMessage}</p>
+                    )}
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900">Training Invitation</h3>
-                  <p className="text-gray-600">{invitation.sport} • Coach Training Program</p>
-                  <p className="text-sm text-gray-500 mt-1">{invitation.customMessage}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )}
 
-          {/* Step Content */}
+          {/* Step 1: Basic Information */}
           {step === 1 && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <User className="w-5 h-5" />
-                  Personal Information
+                  Basic Information
                 </CardTitle>
-                <CardDescription>Tell us about yourself</CardDescription>
+                <CardDescription>Let's start with your basic details</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium mb-2">First Name</label>
+                    <label className="block text-sm font-medium mb-2">First Name *</label>
                     <Input
                       value={formData.firstName}
                       onChange={(e) => setFormData({...formData, firstName: e.target.value})}
                       placeholder="John"
+                      required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-2">Last Name</label>
+                    <label className="block text-sm font-medium mb-2">Last Name *</label>
                     <Input
                       value={formData.lastName}
                       onChange={(e) => setFormData({...formData, lastName: e.target.value})}
                       placeholder="Smith"
+                      required
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2">Email</label>
+                  <label className="block text-sm font-medium mb-2">Email *</label>
                   <Input
                     type="email"
                     value={formData.email}
                     onChange={(e) => setFormData({...formData, email: e.target.value})}
                     placeholder="john@example.com"
+                    required
                   />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Phone</label>
-                    <Input
-                      value={formData.phone}
-                      onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                      placeholder="(555) 123-4567"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Date of Birth</label>
-                    <Input
-                      type="date"
-                      value={formData.dateOfBirth}
-                      onChange={(e) => setFormData({...formData, dateOfBirth: e.target.value})}
-                    />
-                  </div>
+                  <p className="text-xs text-gray-500 mt-1">Used for login only, not shared with coach</p>
                 </div>
 
                 <div className="flex justify-end">
-                  <Button onClick={() => setStep(2)} className="flex items-center gap-2">
+                  <Button
+                    onClick={() => setStep(2)}
+                    disabled={!validateStep(1)}
+                    className="flex items-center gap-2"
+                  >
                     Next <ArrowRight className="w-4 h-4" />
                   </Button>
                 </div>
@@ -268,46 +385,98 @@ export default function AthleteOnboardingPage() {
             </Card>
           )}
 
+          {/* Step 2: Athletic Profile */}
           {step === 2 && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Target className="w-5 h-5" />
-                  Athletic Background
+                  <Activity className="w-5 h-5" />
+                  Athletic Profile
                 </CardTitle>
-                <CardDescription>Help us understand your experience and goals</CardDescription>
+                <CardDescription>Tell us about your sports experience</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2">Experience Level</label>
+                  <label className="block text-sm font-medium mb-2">Primary Sport *</label>
                   <select
-                    value={formData.experience}
-                    onChange={(e) => setFormData({...formData, experience: e.target.value})}
+                    value={formData.primarySport}
+                    onChange={(e) => setFormData({...formData, primarySport: e.target.value})}
                     className="w-full p-2 border border-gray-300 rounded-md"
+                    required
                   >
-                    <option value="">Select your experience level</option>
-                    <option value="beginner">Beginner (0-1 years)</option>
-                    <option value="intermediate">Intermediate (2-5 years)</option>
-                    <option value="advanced">Advanced (5+ years)</option>
-                    <option value="elite">Elite/Professional</option>
+                    <option value="">Select your main sport</option>
+                    {SPORTS_LIST.map(sport => (
+                      <option key={sport} value={sport}>{sport}</option>
+                    ))}
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2">Goals & Objectives</label>
-                  <Textarea
-                    value={formData.goals}
-                    onChange={(e) => setFormData({...formData, goals: e.target.value})}
-                    placeholder="What do you hope to achieve through this training program?"
-                    rows={4}
-                  />
+                  <label className="block text-sm font-medium mb-2">Secondary Sports/Interests</label>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {SPORTS_LIST.filter(s => s !== formData.primarySport).map(sport => (
+                      <label key={sport} className="flex items-center space-x-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={formData.secondarySports.includes(sport)}
+                          onChange={() => handleSecondarySporsToggle(sport)}
+                          className="rounded border-gray-300"
+                        />
+                        <span className="text-sm">{sport}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Years of Experience *</label>
+                  <select
+                    value={formData.yearsOfExperience}
+                    onChange={(e) => setFormData({...formData, yearsOfExperience: e.target.value})}
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                    required
+                  >
+                    <option value="">Select experience</option>
+                    <option value="less-than-1">Less than 1 year</option>
+                    <option value="1-2">1-2 years</option>
+                    <option value="3-5">3-5 years</option>
+                    <option value="5-10">5-10 years</option>
+                    <option value="more-than-10">More than 10 years</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Skill Level *</label>
+                  <div className="space-y-2">
+                    {SKILL_LEVELS.map(level => (
+                      <label key={level.value} className="flex items-start space-x-3 cursor-pointer p-3 border rounded-lg hover:bg-gray-50">
+                        <input
+                          type="radio"
+                          name="skillLevel"
+                          value={level.value}
+                          checked={formData.skillLevel === level.value}
+                          onChange={(e) => setFormData({...formData, skillLevel: e.target.value})}
+                          className="mt-1"
+                        />
+                        <div>
+                          <div className="font-medium">{level.label}</div>
+                          <div className="text-sm text-gray-500">{level.description}</div>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="flex justify-between">
                   <Button variant="outline" onClick={() => setStep(1)}>
+                    <ArrowLeft className="w-4 h-4 mr-2" />
                     Back
                   </Button>
-                  <Button onClick={() => setStep(3)} className="flex items-center gap-2">
+                  <Button
+                    onClick={() => setStep(3)}
+                    disabled={!validateStep(2)}
+                    className="flex items-center gap-2"
+                  >
                     Next <ArrowRight className="w-4 h-4" />
                   </Button>
                 </div>
@@ -315,63 +484,148 @@ export default function AthleteOnboardingPage() {
             </Card>
           )}
 
+          {/* Step 3: Training Goals & Style */}
           {step === 3 && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Users className="w-5 h-5" />
-                  Emergency & Medical Information
+                  <Target className="w-5 h-5" />
+                  Training Goals & Learning Style
                 </CardTitle>
-                <CardDescription>Important information for your safety</CardDescription>
+                <CardDescription>Help your coach understand how to train you best</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2">Medical Conditions or Allergies</label>
+                  <label className="block text-sm font-medium mb-2">Training Goals *</label>
                   <Textarea
-                    value={formData.medicalConditions}
-                    onChange={(e) => setFormData({...formData, medicalConditions: e.target.value})}
-                    placeholder="Any medical conditions, injuries, or allergies we should know about?"
+                    value={formData.trainingGoals}
+                    onChange={(e) => setFormData({...formData, trainingGoals: e.target.value})}
+                    placeholder="What do you want to achieve? (e.g., improve speed, master specific techniques, prepare for tryouts, etc.)"
+                    rows={4}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Current Achievements</label>
+                  <Textarea
+                    value={formData.achievements}
+                    onChange={(e) => setFormData({...formData, achievements: e.target.value})}
+                    placeholder="What have you accomplished so far? (e.g., team captain, tournament wins, personal records, etc.)"
                     rows={3}
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Emergency Contact Name</label>
-                    <Input
-                      value={formData.emergencyContact}
-                      onChange={(e) => setFormData({...formData, emergencyContact: e.target.value})}
-                      placeholder="Parent/Guardian name"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Emergency Contact Phone</label>
-                    <Input
-                      value={formData.emergencyPhone}
-                      onChange={(e) => setFormData({...formData, emergencyPhone: e.target.value})}
-                      placeholder="(555) 123-4567"
-                    />
+                <div>
+                  <label className="block text-sm font-medium mb-2">Preferred Learning Style *</label>
+                  <div className="space-y-2">
+                    {LEARNING_STYLES.map(style => (
+                      <label key={style.value} className="flex items-start space-x-3 cursor-pointer p-3 border rounded-lg hover:bg-gray-50">
+                        <input
+                          type="radio"
+                          name="learningStyle"
+                          value={style.value}
+                          checked={formData.learningStyle === style.value}
+                          onChange={(e) => setFormData({...formData, learningStyle: e.target.value})}
+                          className="mt-1"
+                        />
+                        <div>
+                          <div className="font-medium">{style.label}</div>
+                          <div className="text-sm text-gray-500">{style.description}</div>
+                        </div>
+                      </label>
+                    ))}
                   </div>
                 </div>
 
                 <div className="flex justify-between">
                   <Button variant="outline" onClick={() => setStep(2)}>
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    Back
+                  </Button>
+                  <Button
+                    onClick={() => setStep(4)}
+                    disabled={!validateStep(3)}
+                    className="flex items-center gap-2"
+                  >
+                    Next <ArrowRight className="w-4 h-4" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Step 4: Availability & Special Notes */}
+          {step === 4 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Calendar className="w-5 h-5" />
+                  Availability & Special Notes
+                </CardTitle>
+                <CardDescription>When can you train and any special requirements</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Training Availability *</label>
+                  <p className="text-xs text-gray-500 mb-3">Select the days you're available and add preferred time slots</p>
+                  <div className="space-y-2">
+                    {Object.keys(formData.availability).map((day) => (
+                      <div key={day} className="border rounded-lg p-3">
+                        <div className="flex items-center justify-between">
+                          <label className="flex items-center space-x-2 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={formData.availability[day as keyof typeof formData.availability].available}
+                              onChange={() => handleAvailabilityToggle(day)}
+                              className="rounded border-gray-300"
+                            />
+                            <span className="font-medium capitalize">{day}</span>
+                          </label>
+                          {formData.availability[day as keyof typeof formData.availability].available && (
+                            <Input
+                              type="text"
+                              placeholder="e.g., 3pm-5pm, Evening, Flexible"
+                              value={formData.availability[day as keyof typeof formData.availability].timeSlots}
+                              onChange={(e) => handleTimeSlotChange(day, e.target.value)}
+                              className="w-48"
+                            />
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Special Notes or Requirements</label>
+                  <Textarea
+                    value={formData.specialNotes}
+                    onChange={(e) => setFormData({...formData, specialNotes: e.target.value})}
+                    placeholder="Any injuries, equipment needs, dietary restrictions, or other information your coach should know?"
+                    rows={4}
+                  />
+                </div>
+
+                <div className="flex justify-between">
+                  <Button variant="outline" onClick={() => setStep(3)}>
+                    <ArrowLeft className="w-4 h-4 mr-2" />
                     Back
                   </Button>
                   <Button
                     onClick={handleSubmit}
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || !validateStep(4)}
                     className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
                   >
                     {isSubmitting ? (
                       <>
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                        Completing...
+                        Creating Profile...
                       </>
                     ) : (
                       <>
                         <CheckCircle className="w-4 h-4" />
-                        Complete Registration
+                        Complete Profile
                       </>
                     )}
                   </Button>
@@ -380,22 +634,21 @@ export default function AthleteOnboardingPage() {
             </Card>
           )}
 
-          {step === 4 && (
+          {/* Success Step */}
+          {step === totalSteps + 1 && (
             <Card>
               <CardContent className="p-8 text-center">
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <CheckCircle className="w-8 h-8 text-green-600" />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome to the Team!</h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">Profile Created Successfully!</h2>
                 <p className="text-gray-600 mb-6">
-                  Your athlete profile has been created successfully. Your coach will be notified and will reach out to you soon to begin your training journey.
+                  Your athlete profile has been created and your coach has been notified.
+                  They now have all the information needed to create a personalized training plan for you.
                 </p>
                 <div className="space-y-3">
-                  <Button className="w-full" onClick={() => window.location.href = '/dashboard'}>
-                    Access Your Dashboard
-                  </Button>
-                  <Button variant="outline" className="w-full">
-                    Download Mobile App
+                  <Button className="w-full" onClick={() => router.push('/dashboard')}>
+                    Go to Dashboard
                   </Button>
                 </div>
               </CardContent>
