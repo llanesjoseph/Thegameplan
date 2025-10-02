@@ -141,14 +141,16 @@ export function useUrlRoleSwitcher() {
 
 // Enhanced hook that provides the same interface as before
 export function useUrlEnhancedRole() {
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const roleSwitcher = useUrlRoleSwitcher()
 
-  const loading = !user
+  // Loading state should check auth loading, not just user presence
+  const loading = authLoading
 
   return {
     role: roleSwitcher.effectiveRole,
     loading,
+    effectiveRole: roleSwitcher.effectiveRole,
     ...roleSwitcher
   }
 }

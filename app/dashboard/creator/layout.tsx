@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic'
 
 export default function CreatorLayout({ children }: { children: ReactNode }) {
  return (
-  <AuthGate allowedRoles={['creator', 'superadmin']}>
+  <AuthGate allowedRoles={['user', 'creator', 'coach', 'assistant', 'admin', 'superadmin']}>
    {children}
   </AuthGate>
  )

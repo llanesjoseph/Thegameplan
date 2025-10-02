@@ -34,7 +34,7 @@ export default function Dashboard() {
  // Redirect authenticated users based on their role
  useEffect(() => {
   if (!loading && user) {
-   const userRole = (user as any).role || 'user'
+   const userRole = (user as any).role || 'creator' // Default to creator for dashboard access
 
    // Route based on user role
    if (userRole === 'superadmin') {
@@ -43,13 +43,14 @@ export default function Dashboard() {
    } else if (userRole === 'admin') {
     console.log('Admin authenticated, redirecting to Admin Dashboard')
     router.push('/dashboard/admin')
-   } else if (userRole === 'creator' || userRole === 'coach' || userRole === 'assistant') {
-    console.log('Coach/Creator authenticated, redirecting to Coaches Locker Room')
+   } else if (userRole === 'creator' || userRole === 'coach' || userRole === 'assistant' || userRole === 'user') {
+    // All regular users go to creator dashboard now
+    console.log(`${userRole} authenticated, redirecting to Creator Dashboard`)
     router.push('/dashboard/creator')
    } else {
-    // Athletes and regular users go to progress page
-    console.log('Athlete authenticated, redirecting to Progress Dashboard')
-    router.push('/dashboard/progress')
+    // Fallback to creator dashboard for any other role
+    console.log('User authenticated, redirecting to Creator Dashboard')
+    router.push('/dashboard/creator')
    }
   }
  }, [user, loading, router])

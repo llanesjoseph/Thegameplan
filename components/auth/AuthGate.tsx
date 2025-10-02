@@ -14,15 +14,21 @@ interface AuthGateProps {
 
 function AuthGateInner({ allowedRoles = ['user', 'creator', 'superadmin'], children }: AuthGateProps) {
  const { user, loading } = useAuth()
- const { effectiveRole } = useUrlEnhancedRole()
+ const { effectiveRole, loading: roleLoading } = useUrlEnhancedRole()
  const role = effectiveRole
  const router = useRouter()
  const pathname = usePathname()
 
  const isAuthorized = useMemo(() => {
-  if (!role) return false
-  return allowedRoles.includes(role)
- }, [role, allowedRoles])
+  // During loading, assume authorized to prevent flashing error
+  if (loading || roleLoading) return true
+
+  // If no role yet but user exists, default to 'user' role
+  const actualRole = role || (user ? 'user' : null)
+  if (!actualRole) return false
+
+  return allowedRoles.includes(actualRole)
+ }, [role, allowedRoles, loading, roleLoading, user])
 
  if (loading) {
   return (
@@ -46,17 +52,42 @@ function AuthGateInner({ allowedRoles = ['user', 'creator', 'superadmin'], child
  }
 
  if (!isAuthorized) {
+  // Get the actual user role for better error messaging
+  const actualRole = role || (user ? 'user' : 'guest')
+
   return (
    <div className="min-h-screen flex items-center justify-center nexus-bg">
-    <div className="nexus-card nexus-card-primary p-8 text-center">
-     <h2 className="text-2xl  mb-2">Insufficient permissions</h2>
-     <p className="opacity-80">Your role does not allow access to this page.</p>
-     <button
-      className="mt-6 nexus-button"
-      onClick={() => router.push('/dashboard/creator')}
-     >
-      Go to dashboard
-     </button>
+    <div className="nexus-card nexus-card-primary p-8 text-center max-w-md">
+     <h2 className="text-2xl mb-2">Access Restricted</h2>
+     <p className="opacity-80 mb-4">
+      Your current role ({actualRole}) does not have permission to access this page.
+     </p>
+     <p className="text-sm opacity-60 mb-6">
+      Required roles: {allowedRoles.join(', ')}
+     </p>
+     <div className="space-y-3">
+      <button
+       className="w-full nexus-button"
+       onClick={() => {
+        // Redirect based on user's actual role
+        if (actualRole === 'user' || actualRole === 'creator' || actualRole === 'coach' || actualRole === 'assistant') {
+         router.push('/dashboard/progress')
+        } else if (actualRole === 'admin' || actualRole === 'superadmin') {
+         router.push('/dashboard/admin')
+        } else {
+         router.push('/dashboard')
+        }
+       }}
+      >
+       Go to your dashboard
+      </button>
+      <button
+       className="w-full nexus-button-secondary"
+       onClick={() => router.push('/')}
+      >
+       Return home
+      </button>
+     </div>
     </div>
    </div>
   )
