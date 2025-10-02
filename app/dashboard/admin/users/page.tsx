@@ -112,7 +112,7 @@ export default function AdminUserManagement() {
  }, [users, searchTerm, statusFilter, roleFilter])
 
  useEffect(() => {
-  if (user && (role === 'superadmin')) {
+  if (user && (role === 'superadmin' || role === 'admin')) {
    loadUsers()
   }
  }, [user, role, loadUsers])
@@ -239,7 +239,7 @@ export default function AdminUserManagement() {
   )
  }
 
- if (role !== 'superadmin') {
+ if (role !== 'superadmin' && role !== 'admin') {
   return (
    <div className="min-h-screen flex items-center justify-center">
     <div className="text-center">

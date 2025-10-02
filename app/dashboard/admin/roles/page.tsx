@@ -53,7 +53,7 @@ export default function RoleManagement() {
    }
   }
 
-  if (user?.role === 'superadmin') {
+  if (user?.role === 'superadmin' || user?.role === 'admin') {
    loadUsers()
   }
  }, [user])
@@ -110,7 +110,7 @@ export default function RoleManagement() {
   return matchesSearch && matchesRole
  })
 
- if (user?.role !== 'superadmin') {
+ if (user?.role !== 'superadmin' && user?.role !== 'admin') {
   return (
    <div className="flex items-center justify-center min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
     <div className="text-center">

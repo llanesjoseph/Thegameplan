@@ -9,7 +9,7 @@ export default function AdminDashboard() {
  const { role } = useUrlEnhancedRole()
  const router = useRouter()
  useEffect(() => {
-  if (role !== 'superadmin') router.replace('/dashboard')
+  if (role !== 'superadmin' && role !== 'admin') router.replace('/dashboard')
  }, [role, router])
 
  return (

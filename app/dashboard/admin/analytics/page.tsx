@@ -163,12 +163,12 @@ export default function AdminAnalytics() {
  }, [timeRange])
 
  useEffect(() => {
-  if (user && (role === 'superadmin')) {
+  if (user && (role === 'superadmin' || role === 'admin')) {
    loadAnalytics()
   }
  }, [user, role, loadAnalytics])
 
- if (role !== 'superadmin') {
+ if (role !== 'superadmin' && role !== 'admin') {
   return (
    <div className="min-h-screen flex items-center justify-center">
     <div className="text-center">
