@@ -30,7 +30,7 @@ import {
 
 const navigationItems = {
  user: [
-  { title: 'Dashboard', icon: LayoutDashboard, href: '/dashboard/creator', color: 'text-blue-600' },
+  { title: 'Dashboard', icon: LayoutDashboard, href: '/dashboard/progress', color: 'text-blue-600' },
   { title: 'Progress', icon: TrendingUp, href: '/dashboard/progress', color: 'text-green-600' },
   { title: 'Request Coaching', icon: MessageCircle, href: '/dashboard/coaching', color: 'text-purple-600' },
   { title: 'Curated Gear', icon: ShoppingBag, href: '/gear', color: 'text-emerald-600' },

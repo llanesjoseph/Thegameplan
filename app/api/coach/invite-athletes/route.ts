@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { sendAthleteInvitationEmail, sendCoachNotificationEmail } from '@/lib/email-service'
-import { adminDb, adminAuth } from '@/lib/firebase.admin'
+import { adminDb } from '@/lib/firebase.admin'
 
 interface AthleteInvite {
   email: string

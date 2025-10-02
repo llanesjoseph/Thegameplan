@@ -31,11 +31,20 @@ export default function Dashboard() {
   handleRedirectResult()
  }, [router])
 
- // Redirect authenticated users directly to Coaches Locker Room
+ // Redirect authenticated users based on their role
  useEffect(() => {
   if (!loading && user) {
-   console.log('User is authenticated, redirecting to Coaches Locker Room')
-   router.push('/dashboard/creator')
+   const userRole = (user as any).role || 'user'
+
+   // Route based on user role
+   if (userRole === 'creator' || userRole === 'coach' || userRole === 'superadmin' || userRole === 'admin' || userRole === 'assistant') {
+    console.log('User is authenticated, redirecting to Coaches Locker Room')
+    router.push('/dashboard/creator')
+   } else {
+    // Athletes and regular users go to progress page
+    console.log('Athlete authenticated, redirecting to Progress Dashboard')
+    router.push('/dashboard/progress')
+   }
   }
  }, [user, loading, router])
 
