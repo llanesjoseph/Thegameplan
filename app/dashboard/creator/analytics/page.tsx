@@ -4,13 +4,14 @@ import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { useUrlEnhancedRole } from '@/hooks/use-url-role-switcher'
 import { AnalyticsService } from '@/lib/analytics'
-import { 
- BarChart3, 
- TrendingUp, 
- Users, 
- Eye, 
- Clock, 
- Star, 
+import AppHeader from '@/components/ui/AppHeader'
+import {
+ BarChart3,
+ TrendingUp,
+ Users,
+ Eye,
+ Clock,
+ Star,
  MessageSquare,
  Calendar,
  Target,
@@ -149,15 +150,17 @@ export default function CreatorAnalytics() {
  }
 
  return (
-  <div className="min-h-screen bg-gray-50 py-6">
-   <div className="max-w-7xl mx-auto px-6">
-    {/* Header */}
-    <div className="mb-8">
-     <h1 className="text-3xl text-gray-900 mb-2">Creator Analytics</h1>
-     <p className="text-gray-600">
-      Track your content performance and audience engagement
-     </p>
-    </div>
+  <div className="min-h-screen bg-gray-50">
+   <AppHeader />
+   <main className="py-16">
+    <div className="max-w-7xl mx-auto px-6">
+     {/* Header */}
+     <div className="mb-8">
+      <h1 className="text-3xl text-gray-900 mb-2">Creator Analytics</h1>
+      <p className="text-gray-600">
+       Track your content performance and audience engagement
+      </p>
+     </div>
 
     {/* Time Range Selector */}
     <div className="mb-8">
@@ -363,7 +366,7 @@ export default function CreatorAnalytics() {
       </div>
      </div>
     </div>
-   </div>
+   </main>
   </div>
  )
 }
