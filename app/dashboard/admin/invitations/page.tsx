@@ -47,8 +47,8 @@ export default function AdminInvitationsPage() {
       snapshot.forEach((doc) => {
         const data = doc.data() as Invitation
         invitesData.push({
-          id: doc.id,
-          ...data
+          ...data,
+          id: doc.id
         })
         if (data.coachId) {
           coachIds.add(data.coachId)
