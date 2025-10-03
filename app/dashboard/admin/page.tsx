@@ -41,6 +41,14 @@ export default function AdminDashboard() {
       </a>
 
       <a
+       href="/dashboard/admin/invitations"
+       className="p-6 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors"
+      >
+       <h2 className="text-lg  text-gray-900 mb-2">All Invitations</h2>
+       <p className="text-gray-600 text-sm">View all athlete invitations across coaches</p>
+      </a>
+
+      <a
        href="/dashboard/admin/content"
        className="p-6 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors"
       >

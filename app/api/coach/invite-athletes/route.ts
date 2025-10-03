@@ -75,8 +75,10 @@ export async function POST(request: NextRequest) {
         const randomSuffix = Math.random().toString(36).substring(2, 8)
         const invitationId = `athlete-invite-${timestamp}-${randomSuffix}`
 
-        // Create invitation URL
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'
+        // Create invitation URL - get from env or request headers
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ||
+                       `https://${request.headers.get('host')}` ||
+                       'https://playbookd.crucibleanalytics.dev'
         const invitationUrl = `${baseUrl}/athlete-onboard/${invitationId}`
 
         // Generate QR code URL
