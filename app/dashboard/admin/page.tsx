@@ -49,6 +49,14 @@ export default function AdminDashboard() {
       </a>
 
       <a
+       href="/dashboard/admin/sync-coaches"
+       className="p-6 bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-200 transition-colors"
+      >
+       <h2 className="text-lg  text-gray-900 mb-2">Sync Coaches</h2>
+       <p className="text-gray-600 text-sm">Sync coach profiles to public browse page</p>
+      </a>
+
+      <a
        href="/dashboard/admin/content"
        className="p-6 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors"
       >
