@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { getRedirectResult } from 'firebase/auth'
 import { auth } from '@/lib/firebase.client'
@@ -12,6 +12,7 @@ import ProfileCompletionBanner from '@/components/ui/ProfileCompletionBanner'
 export default function Dashboard() {
  const { user, loading } = useAuth()
  const router = useRouter()
+ const hasRedirected = useRef(false)
 
  useEffect(() => {
   // Handle OAuth redirect result
@@ -33,27 +34,28 @@ export default function Dashboard() {
 
  // Redirect authenticated users based on their role
  useEffect(() => {
-  if (!loading && user) {
+  if (!loading && user && !hasRedirected.current) {
+   hasRedirected.current = true
    const userRole = (user as any).role || 'creator' // Default to creator for dashboard access
 
    // Route based on user role
    if (userRole === 'superadmin') {
     console.log('Superadmin authenticated, redirecting to Admin Dashboard')
-    router.push('/dashboard/admin')
+    router.replace('/dashboard/admin')
    } else if (userRole === 'admin') {
     console.log('Admin authenticated, redirecting to Admin Dashboard')
-    router.push('/dashboard/admin')
+    router.replace('/dashboard/admin')
    } else if (userRole === 'athlete') {
     console.log('Athlete authenticated, redirecting to Progress Dashboard')
-    router.push('/dashboard/progress')
+    router.replace('/dashboard/progress')
    } else if (userRole === 'creator' || userRole === 'coach' || userRole === 'assistant' || userRole === 'user') {
     // All regular users go to creator dashboard now
     console.log(`${userRole} authenticated, redirecting to Creator Dashboard`)
-    router.push('/dashboard/creator')
+    router.replace('/dashboard/creator')
    } else {
     // Fallback to creator dashboard for any other role
     console.log('User authenticated, redirecting to Creator Dashboard')
-    router.push('/dashboard/creator')
+    router.replace('/dashboard/creator')
    }
   }
  }, [user, loading, router])
