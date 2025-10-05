@@ -1,14 +1,7 @@
 import CreatorPageClient from './client-component'
 
-// Generate static params for known creators
-export async function generateStaticParams() {
- return [
-  {
-   creatorId: 'jasmine-aikey',
-  },
-  // Add more creator IDs as they are added to the platform
- ]
-}
+// Force dynamic rendering to avoid build-time errors
+export const dynamic = 'force-dynamic'
 
 export default function CreatorPage({ params }: { params: { creatorId: string } }) {
  return <CreatorPageClient creatorId={params.creatorId} />
