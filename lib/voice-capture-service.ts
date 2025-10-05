@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Voice Capture Service
  *
@@ -114,7 +113,7 @@ export function processVoiceCaptureData(
 
   // Extract personality patterns
   const personalityProfile = {
-    communicationStyle: rawData.voiceCharacteristics?.communicationStyle || 'professional',
+    communicationStyle: rawData.philosophy?.communicationStyle || 'professional',
     motivationApproach: rawData.philosophy?.motivationStyle || 'supportive',
     intensityLevel: rawData.voiceCharacteristics?.intensityLevel || 'moderate',
     humorUse: rawData.voiceCharacteristics?.humorStyle || 'minimal',

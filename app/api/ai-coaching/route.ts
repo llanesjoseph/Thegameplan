@@ -6,6 +6,7 @@ import { createAISession, logAIInteraction, CURRENT_TERMS_VERSION } from '@/lib/
 import { PersonalizedCoachingEngine, SafetyCoachingSystem } from '@/lib/personalized-coaching'
 import { requireAuth } from '@/lib/auth-utils'
 import { auditExternalAPI } from '@/lib/audit-logger'
+import { logger } from '@/lib/logger'
 
 // Rate limiting (simple in-memory store - use Redis in production)
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>()
@@ -92,10 +93,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Medical safety check - CRITICAL SAFETY FEATURE
-    console.log('🏥 Performing medical safety analysis...')
+    logger.info('Performing medical safety analysis')
     const safetyAnalysis = analyzeMedicalSafety(question)
-    
-    console.log('🔍 Safety Analysis Result:', {
+
+    logger.info('Safety Analysis Result:', {
       isSafe: safetyAnalysis.isSafe,
       riskLevel: safetyAnalysis.riskLevel,
       shouldBlock: safetyAnalysis.shouldBlock,
@@ -104,7 +105,7 @@ export async function POST(request: NextRequest) {
 
     // If medical concerns detected, return safety response instead of AI coaching
     if (safetyAnalysis.shouldBlock) {
-      console.log('🚨 MEDICAL SAFETY BLOCK: Returning safety response instead of AI coaching')
+      logger.warn('MEDICAL SAFETY BLOCK: Returning safety response instead of AI coaching')
       
       // Log the safety event with proper parameters
       if (userId && userEmail && sessionId) {
@@ -350,12 +351,26 @@ export async function POST(request: NextRequest) {
 
 // Handle OPTIONS for CORS
 export async function OPTIONS(request: NextRequest) {
+  const origin = request.headers.get('origin') || ''
+  const allowedOrigins = [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://localhost:3002',
+    'https://playbookd.crucibleanalytics.dev',
+    process.env.NEXT_PUBLIC_APP_URL || '',
+  ].filter(Boolean)
+
+  const responseHeaders: Record<string, string> = {
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  }
+
+  if (allowedOrigins.includes(origin)) {
+    responseHeaders['Access-Control-Allow-Origin'] = origin
+  }
+
   return new NextResponse(null, {
     status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    },
+    headers: responseHeaders,
   })
 }

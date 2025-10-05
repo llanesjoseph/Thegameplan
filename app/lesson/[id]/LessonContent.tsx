@@ -8,6 +8,7 @@ import Link from 'next/link'
 import { ArrowLeft, Play, Clock, Eye, User, Calendar, ExternalLink } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import AppHeader from '@/components/ui/AppHeader'
+import LessonVideoPlayer from '@/components/LessonVideoPlayer'
 
 interface LessonData {
  id: string
@@ -16,7 +17,8 @@ interface LessonData {
  longDescription?: string
  level: string
  creatorUid: string
- videoUrl?: string
+ videoUrl?: string // YouTube URL or direct video URL
+ videoId?: string // GCS video ID for uploaded videos
  thumbnail?: string
  views: number
  createdAt: any
@@ -201,24 +203,13 @@ export default function LessonContent() {
 
     {/* Lesson Content */}
     <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-8">
-     {lesson.videoUrl ? (
-      <div className="aspect-video bg-gradient-to-br from-sky-blue/10 to-cream rounded-xl mb-6 flex items-center justify-center border-2 border-sky-blue/20">
-       <div className="text-center">
-        <Play className="w-16 h-16 text-sky-blue mx-auto mb-4" />
-        <p className="text-dark/60">Video content would be displayed here</p>
-        <p className="text-sm text-dark/50 mt-2">Video URL: {lesson.videoUrl}</p>
-       </div>
-      </div>
-     ) : (
-      <div className="aspect-video bg-gradient-to-br from-sky-blue/10 to-cream rounded-xl mb-6 flex items-center justify-center border-2 border-sky-blue/20">
-       <div className="text-center">
-        <div className="w-16 h-16 bg-gradient-to-br from-sky-blue to-black rounded-full flex items-center justify-center mx-auto mb-4">
-         <Play className="w-8 h-8 text-white" />
-        </div>
-        <p className="text-dark/60">Text-based lesson content</p>
-       </div>
-      </div>
-     )}
+     <div className="mb-6">
+      <LessonVideoPlayer
+        videoUrl={lesson.videoUrl}
+        videoId={lesson.videoId}
+        title={lesson.title}
+      />
+     </div>
      
      {lesson.longDescription && (
       <div className="prose max-w-none">

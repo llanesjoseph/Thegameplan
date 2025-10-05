@@ -130,23 +130,27 @@ export default function AthleteOnboardingPage() {
     try {
       setIsLoading(true)
       const response = await fetch(`/api/validate-invitation?id=${invitationId}&type=athlete`)
+      const data = await response.json()
 
-      if (response.ok) {
-        const data = await response.json()
-        if (data.success && data.invitation) {
-          setInvitation(data.invitation)
-          setFormData(prev => ({
-            ...prev,
-            email: data.invitation.athleteEmail,
-            firstName: data.invitation.athleteName.split(' ')[0] || '',
-            lastName: data.invitation.athleteName.split(' ').slice(1).join(' ') || '',
-            primarySport: data.invitation.sport || ''
-          }))
-        } else {
-          console.error('Invalid or expired invitation')
-        }
+      // Check if invitation was already used and should redirect
+      if (data.alreadyUsed && data.shouldRedirect) {
+        // Show message and redirect to sign-in
+        alert(data.message || 'Your account has already been created. Redirecting to sign in...')
+        router.push(data.redirectTo || '/')
+        return
+      }
+
+      if (response.ok && data.success && data.invitation) {
+        setInvitation(data.invitation)
+        setFormData(prev => ({
+          ...prev,
+          email: data.invitation.athleteEmail,
+          firstName: data.invitation.athleteName.split(' ')[0] || '',
+          lastName: data.invitation.athleteName.split(' ').slice(1).join(' ') || '',
+          primarySport: data.invitation.sport || ''
+        }))
       } else {
-        console.error('Failed to validate invitation')
+        console.error('Invalid or expired invitation')
       }
     } catch (error) {
       console.error('Error fetching invitation:', error)

@@ -5,7 +5,20 @@ import { useRouter, usePathname } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import { useUrlEnhancedRole } from '@/hooks/use-url-role-switcher'
 import type { UserRole } from '@/types'
-import AuthProvider from '@/components/auth/AuthProvider'
+import dynamic from 'next/dynamic'
+
+// Dynamically import AuthProvider with no SSR to ensure it's fully client-side
+const AuthProvider = dynamic(() => import('@/components/auth/AuthProvider'), {
+  ssr: false,
+  loading: () => (
+    <div className="min-h-screen flex items-center justify-center nexus-bg">
+      <div className="text-center nexus-card nexus-card-primary p-8">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-nexus-primary mx-auto"></div>
+        <p className="mt-4 nexus-body-text">Loading sign in...</p>
+      </div>
+    </div>
+  )
+})
 
 interface AuthGateProps {
  allowedRoles?: UserRole[]

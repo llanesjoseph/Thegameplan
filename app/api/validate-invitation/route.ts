@@ -39,10 +39,15 @@ export async function GET(request: NextRequest) {
 
     // Check if invitation has already been used
     if (invitationData?.used) {
-      return NextResponse.json(
-        { error: 'This invitation has already been used', success: false },
-        { status: 400 }
-      )
+      // Instead of erroring, redirect to sign-in with a helpful message
+      return NextResponse.json({
+        success: false,
+        alreadyUsed: true,
+        shouldRedirect: true,
+        redirectTo: '/',
+        message: 'Your account has already been created. Please sign in to continue.',
+        userEmail: invitationData?.athleteEmail || invitationData?.email
+      })
     }
 
     // Optionally validate the invitation type matches what's expected

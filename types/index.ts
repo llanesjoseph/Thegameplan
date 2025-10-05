@@ -1,10 +1,10 @@
-// @ts-nocheck
 // Comprehensive TypeScript definitions for Game Plan application
 
 // import { User } from 'firebase/auth' // Commented out as it's exported at the end
 import { Timestamp } from 'firebase/firestore'
 
 // Import unified user types from dedicated user types file
+import type { AppRole, CreatorProfile } from './user'
 export type {
   AppRole as UserRole,
   UserProfile,
@@ -24,7 +24,7 @@ export interface FirebaseUser {
 
 // Legacy AppUser interface for backward compatibility
 export interface AppUser extends FirebaseUser {
-  role: UserRole
+  role: AppRole
   createdAt: Timestamp | Date
   lastLoginAt?: Timestamp | Date
   subscriptionLevel?: SubscriptionTier
@@ -214,7 +214,7 @@ export interface LoadingState {
 // Firebase Security Rules Helper Types
 export interface SecurityContext {
   userId?: string
-  userRole?: UserRole
+  userRole?: AppRole
   resourceOwnerId?: string
 }
 

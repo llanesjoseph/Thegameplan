@@ -7,6 +7,7 @@ import { DashboardSidebar } from '@/components/DashboardSidebar'
 import { DashboardBreadcrumb } from '@/components/DashboardBreadcrumb'
 import SuperAdminTabs from '@/components/ui/SuperAdminTabs'
 import { UserIdentity } from '@/components/user-identity'
+import UploadManager from '@/components/UploadManager'
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
  const pathname = usePathname()
@@ -24,7 +25,12 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
  if (isMainDashboard || isOverviewPage || isCreatorPage || isProfilePage || isCoachProfilePage || isCoachAthletesPage || isAdminApplicationsPage) {
   // These pages handle their own auth and layout
-  return <>{children}</>
+  return (
+   <>
+    {children}
+    <UploadManager />
+   </>
+  )
  }
 
  // Protected dashboard sub-routes use AuthGate
@@ -45,6 +51,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       </div>
      </div>
     </div>
+    <UploadManager />
    </SuperAdminTabs>
   </AuthGate>
  )

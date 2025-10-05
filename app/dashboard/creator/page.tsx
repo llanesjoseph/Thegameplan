@@ -13,6 +13,7 @@ import CreatorAccessGate from '@/components/CreatorAccessGate'
 import { collection, addDoc, query, where, getCountFromServer, serverTimestamp, getDoc, doc, getDocs, orderBy, deleteDoc } from 'firebase/firestore'
 import { saveLessonData } from '@/lib/user-tracking-service'
 import { ref, uploadBytes, getDownloadURL, uploadBytesResumable } from 'firebase/storage'
+import DOMPurify from 'isomorphic-dompurify'
 // import { uploadService } from '@/lib/upload-service' // TEMPORARILY DISABLED TO FIX SSR ISSUES
 import UploadManager from '@/components/UploadManager'
 import VideoCompressionHelper from '@/components/VideoCompressionHelper'
@@ -712,6 +713,13 @@ export default function CreatorDashboard() {
  const [publishedLessons, setPublishedLessons] = useState<any[]>([])
  const [loadingLessons, setLoadingLessons] = useState(false)
 
+ // Video selection state
+ const [videoSelectionMode, setVideoSelectionMode] = useState<'upload' | 'library' | 'youtube' | 'none'>('upload')
+ const [selectedVideoId, setSelectedVideoId] = useState<string>('')
+ const [youtubeUrl, setYoutubeUrl] = useState<string>('')
+ const [libraryVideos, setLibraryVideos] = useState<any[]>([])
+ const [loadingLibraryVideos, setLoadingLibraryVideos] = useState(false)
+
  // Handle coach invitation submission
  const handleCoachInvitation = async (e: React.FormEvent) => {
   e.preventDefault()
@@ -837,6 +845,37 @@ export default function CreatorDashboard() {
   }
   loadLessonCount()
  }, [authUser])
+
+ // Load library videos when library mode is selected
+ const loadLibraryVideos = async () => {
+  if (!authUser) return
+  setLoadingLibraryVideos(true)
+  try {
+   const videosRef = collection(db, 'videos')
+   const q = query(
+    videosRef,
+    where('userId', '==', authUser.uid),
+    where('status', '==', 'completed'),
+    orderBy('createdAt', 'desc')
+   )
+   const snapshot = await getDocs(q)
+   const videos = snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+   }))
+   setLibraryVideos(videos)
+  } catch (error) {
+   console.error('Error loading library videos:', error)
+  } finally {
+   setLoadingLibraryVideos(false)
+  }
+ }
+
+ useEffect(() => {
+  if (videoSelectionMode === 'library' && authUser) {
+   loadLibraryVideos()
+  }
+ }, [videoSelectionMode, authUser])
 
  const loadPublishedLessons = async () => {
   if (!authUser?.uid) return
@@ -2302,20 +2341,22 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
               <div
                className="prose prose-sm max-w-none"
                dangerouslySetInnerHTML={{
-                __html: detailedWriteup
-                 // Convert markdown-like formatting to HTML
-                 .replace(/^### (.*$)/gim, '<h3 class="text-lg font-semibold text-gray-900 mt-6 mb-3 border-b border-gray-200 pb-2">$1</h3>')
-                 .replace(/^## (.*$)/gim, '<h2 class="text-xl font-bold text-gray-900 mt-8 mb-4 border-b-2 border-blue-200 pb-3">$1</h2>')
-                 .replace(/^# (.*$)/gim, '<h1 class="text-2xl font-bold text-gray-900 mb-6">$1</h1>')
-                 .replace(/^\*\*(.*?)\*\*/gim, '<strong class="font-semibold text-gray-900">$1</strong>')
-                 .replace(/^\*(.*?)\*/gim, '<em class="italic text-gray-700">$1</em>')
-                 .replace(/^- (.*$)/gim, '<li class="ml-4 text-gray-700">$1</li>')
-                 .replace(/^(\d+)\. (.*$)/gim, '<li class="ml-4 text-gray-700 list-decimal">$2</li>')
-                 .replace(/^---$/gim, '<hr class="my-6 border-gray-300">')
-                 .replace(/\n\n/g, '</p><p class="mb-4 text-gray-700 leading-relaxed">')
-                 .replace(/^(?!<[h|l|d])/gim, '<p class="mb-4 text-gray-700 leading-relaxed">')
-                 .replace(/⚡/g, '<span class="text-yellow-500">⚡</span>')
-                 .replace(/✨/g, '<span class="text-blue-500">✨</span>')
+                __html: DOMPurify.sanitize(
+                 detailedWriteup
+                  // Convert markdown-like formatting to HTML
+                  .replace(/^### (.*$)/gim, '<h3 class="text-lg font-semibold text-gray-900 mt-6 mb-3 border-b border-gray-200 pb-2">$1</h3>')
+                  .replace(/^## (.*$)/gim, '<h2 class="text-xl font-bold text-gray-900 mt-8 mb-4 border-b-2 border-blue-200 pb-3">$1</h2>')
+                  .replace(/^# (.*$)/gim, '<h1 class="text-2xl font-bold text-gray-900 mb-6">$1</h1>')
+                  .replace(/^\*\*(.*?)\*\*/gim, '<strong class="font-semibold text-gray-900">$1</strong>')
+                  .replace(/^\*(.*?)\*/gim, '<em class="italic text-gray-700">$1</em>')
+                  .replace(/^- (.*$)/gim, '<li class="ml-4 text-gray-700">$1</li>')
+                  .replace(/^(\d+)\. (.*$)/gim, '<li class="ml-4 text-gray-700 list-decimal">$2</li>')
+                  .replace(/^---$/gim, '<hr class="my-6 border-gray-300">')
+                  .replace(/\n\n/g, '</p><p class="mb-4 text-gray-700 leading-relaxed">')
+                  .replace(/^(?!<[h|l|d])/gim, '<p class="mb-4 text-gray-700 leading-relaxed">')
+                  .replace(/⚡/g, '<span class="text-yellow-500">⚡</span>')
+                  .replace(/✨/g, '<span class="text-blue-500">✨</span>')
+                )
                  .replace(/🎯/g, '<span class="text-red-500">🎯</span>')
                }}
               />
@@ -2386,121 +2427,224 @@ Summary and what comes next..."
          </select>
         </div>
 
-        {/* Video Upload */}
-        <div>
-         <label className="block text-sm  text-gray-700 mb-2">
-          Video File
-          <span className="text-gray-500 text-xs ml-2">(Optional)</span>
+        {/* Video Selection */}
+        <div className="border border-gray-200 rounded-lg p-4">
+         <label className="block text-sm font-medium text-gray-700 mb-3">
+          Video Content
+          <span className="text-gray-500 text-xs ml-2 font-normal">(Optional)</span>
          </label>
 
-         {/* Upload Options */}
+         {/* Video Selection Mode Tabs */}
          <div className="mb-4 flex flex-wrap gap-2">
           <button
            type="button"
-           onClick={() => setUseEnterpriseUpload(!useEnterpriseUpload)}
-           className={`px-3 py-1 text-xs rounded-full transition-colors ${
-            useEnterpriseUpload
-             ? 'bg-blue-100 text-blue-700 border border-blue-300'
-             : 'bg-gray-100 text-gray-600 border border-gray-300'
+           onClick={() => setVideoSelectionMode('upload')}
+           className={`px-4 py-2 text-sm rounded-lg transition-colors ${
+            videoSelectionMode === 'upload'
+             ? 'bg-cardinal text-white'
+             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
            }`}
           >
-           {useEnterpriseUpload ? '✓' : ''} Enterprise Upload (Large Files)
+           <Upload className="inline h-4 w-4 mr-1" />
+           Upload New
           </button>
 
           <button
            type="button"
-           onClick={() => setShowCompressionHelper(!showCompressionHelper)}
-           className="px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-600 border border-gray-300 hover:bg-gray-200 transition-colors"
+           onClick={() => setVideoSelectionMode('library')}
+           className={`px-4 py-2 text-sm rounded-lg transition-colors ${
+            videoSelectionMode === 'library'
+             ? 'bg-cardinal text-white'
+             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+           }`}
           >
-           🗜️ Compression Helper
+           <FileVideo className="inline h-4 w-4 mr-1" />
+           From Library
           </button>
 
           <button
            type="button"
-           onClick={() => setShowInAppCompressor(!showInAppCompressor)}
-           className="px-3 py-1 text-xs rounded-full bg-purple-100 text-purple-700 border border-purple-300 hover:bg-purple-200 transition-colors"
+           onClick={() => setVideoSelectionMode('youtube')}
+           className={`px-4 py-2 text-sm rounded-lg transition-colors ${
+            videoSelectionMode === 'youtube'
+             ? 'bg-cardinal text-white'
+             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+           }`}
           >
-           📹 In-App Compressor
+           <ExternalLink className="inline h-4 w-4 mr-1" />
+           YouTube URL
           </button>
 
           <button
            type="button"
-           onClick={() => setShowGcsUploader(!showGcsUploader)}
-           className="px-3 py-1 text-xs rounded-full bg-green-100 text-green-700 border border-green-300 hover:bg-green-200 transition-colors"
+           onClick={() => setVideoSelectionMode('none')}
+           className={`px-4 py-2 text-sm rounded-lg transition-colors ${
+            videoSelectionMode === 'none'
+             ? 'bg-cardinal text-white'
+             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+           }`}
           >
-           ☁️ Cloud Upload
+           <FileText className="inline h-4 w-4 mr-1" />
+           Text Only
           </button>
          </div>
 
-         <input
-          type="file"
-          accept="video/*"
-          onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-         />
+         {/* Upload New Video */}
+         {videoSelectionMode === 'upload' && (
+          <div className="space-y-3">
+           <div className="flex flex-wrap gap-2 mb-3">
+            <button
+             type="button"
+             onClick={() => setUseEnterpriseUpload(!useEnterpriseUpload)}
+             className={`px-3 py-1 text-xs rounded-full transition-colors ${
+              useEnterpriseUpload
+               ? 'bg-blue-100 text-blue-700 border border-blue-300'
+               : 'bg-gray-100 text-gray-600 border border-gray-300'
+             }`}
+            >
+             {useEnterpriseUpload ? '✓' : ''} Enterprise Upload
+            </button>
 
-         {videoFile && (
-          <div className="mt-2 p-3 bg-gray-50 rounded border">
-           <p className="text-sm text-gray-600">
-            Selected: <span className="">{videoFile.name}</span>
-           </p>
-           <p className="text-xs text-gray-500">
-            Size: {(videoFile.size / (1024 * 1024)).toFixed(1)} MB
-            {videoFile.size > 100 * 1024 * 1024 && (
-             <span className="text-orange-600 ml-2">
-              (Large file - consider using Enterprise Upload)
-             </span>
-            )}
-           </p>
+            <button
+             type="button"
+             onClick={() => setShowCompressionHelper(!showCompressionHelper)}
+             className="px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-600 border border-gray-300 hover:bg-gray-200"
+            >
+             🗜️ Compress
+            </button>
 
-           {/* Upload Progress */}
-           {uploadProgress.video > 0 && uploadProgress.video < 100 && (
-            <div className="mt-2">
-             <div className="flex items-center justify-between mb-1">
-              <span className="text-xs text-gray-600">Video Upload Progress</span>
-              <span className="text-xs text-gray-600">{uploadProgress.video}%</span>
-             </div>
-             <div className="w-full bg-gray-200 rounded-full h-2">
-              <div
-               className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-               style={{ width: `${uploadProgress.video}%` }}
-              />
-             </div>
+            <button
+             type="button"
+             onClick={() => setShowGcsUploader(!showGcsUploader)}
+             className="px-3 py-1 text-xs rounded-full bg-green-100 text-green-700 border border-green-300 hover:bg-green-200"
+            >
+             ☁️ Cloud Upload
+            </button>
+           </div>
 
-             {/* Upload Controls */}
-             {uploadTasks.video && (
-              <div className="flex gap-2 mt-2">
-               {uploadPaused.video ? (
-                <button
-                 type="button"
-                 onClick={() => resumeUpload('video')}
-                 className="text-xs text-green-600 hover:text-green-700 flex items-center"
-                >
-                 <PlayCircle className="h-3 w-3 mr-1" />
-                 Resume
-                </button>
-               ) : (
-                <button
-                 type="button"
-                 onClick={() => pauseUpload('video')}
-                 className="text-xs text-yellow-600 hover:text-yellow-700 flex items-center"
-                >
-                 <Pause className="h-3 w-3 mr-1" />
-                 Pause
-                </button>
-               )}
-               <button
-                type="button"
-                onClick={() => cancelUpload('video')}
-                className="text-xs text-red-600 hover:text-red-700 flex items-center"
-               >
-                <X className="h-3 w-3 mr-1" />
-                Cancel
-               </button>
-              </div>
-             )}
+           <input
+            type="file"
+            accept="video/*"
+            onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+           />
+
+           {videoFile && (
+            <div className="p-3 bg-gray-50 rounded border">
+             <p className="text-sm text-gray-600">
+              Selected: <span className="font-medium">{videoFile.name}</span>
+             </p>
+             <p className="text-xs text-gray-500">
+              Size: {(videoFile.size / (1024 * 1024)).toFixed(1)} MB
+             </p>
             </div>
            )}
+          </div>
+         )}
+
+         {/* Select from Library */}
+         {videoSelectionMode === 'library' && (
+          <div>
+           <div className="flex items-center justify-between mb-3">
+            <p className="text-sm text-gray-600">Select a video from your library</p>
+            <Link
+             href="/dashboard/creator/videos"
+             className="text-xs text-cardinal hover:text-cardinal-dark flex items-center"
+            >
+             <Upload className="h-3 w-3 mr-1" />
+             Manage Library
+            </Link>
+           </div>
+
+           {loadingLibraryVideos ? (
+            <div className="text-center py-8">
+             <Loader2 className="h-6 w-6 text-cardinal animate-spin mx-auto mb-2" />
+             <p className="text-sm text-gray-600">Loading videos...</p>
+            </div>
+           ) : libraryVideos.length === 0 ? (
+            <div className="text-center py-8 bg-gray-50 rounded-lg">
+             <Video className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+             <p className="text-sm text-gray-600 mb-2">No videos in library</p>
+             <Link
+              href="/dashboard/creator/videos"
+              className="text-sm text-cardinal hover:text-cardinal-dark"
+             >
+              Upload your first video
+             </Link>
+            </div>
+           ) : (
+            <div className="max-h-64 overflow-y-auto space-y-2 border border-gray-200 rounded-lg p-2">
+             {libraryVideos.map((video: any) => (
+              <button
+               key={video.id}
+               type="button"
+               onClick={() => setSelectedVideoId(video.id)}
+               className={`w-full text-left p-3 rounded-lg border transition-colors ${
+                selectedVideoId === video.id
+                 ? 'border-cardinal bg-cardinal-light'
+                 : 'border-gray-200 hover:border-gray-300 bg-white'
+               }`}
+              >
+               <div className="flex items-center justify-between">
+                <div className="flex-1 min-w-0">
+                 <p className="text-sm font-medium text-gray-900 truncate">
+                  {video.filename}
+                 </p>
+                 <p className="text-xs text-gray-500 font-mono">
+                  ID: {video.id.slice(0, 20)}...
+                 </p>
+                </div>
+                {selectedVideoId === video.id && (
+                 <CheckCircle className="h-5 w-5 text-cardinal flex-shrink-0 ml-2" />
+                )}
+               </div>
+              </button>
+             ))}
+            </div>
+           )}
+
+           {selectedVideoId && (
+            <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+             <p className="text-sm text-green-700 flex items-center">
+              <CheckCircle className="h-4 w-4 mr-2" />
+              Video selected from library
+             </p>
+            </div>
+           )}
+          </div>
+         )}
+
+         {/* YouTube URL */}
+         {videoSelectionMode === 'youtube' && (
+          <div>
+           <input
+            type="url"
+            value={youtubeUrl}
+            onChange={(e) => setYoutubeUrl(e.target.value)}
+            placeholder="https://www.youtube.com/watch?v=..."
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+           />
+           <p className="mt-2 text-xs text-gray-500">
+            Paste a YouTube video URL. The video will be embedded in your lesson.
+           </p>
+           {youtubeUrl && (
+            <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+             <p className="text-sm text-blue-700 flex items-center">
+              <ExternalLink className="h-4 w-4 mr-2" />
+              YouTube video will be embedded
+             </p>
+            </div>
+           )}
+          </div>
+         )}
+
+         {/* Text Only */}
+         {videoSelectionMode === 'none' && (
+          <div className="p-4 bg-gray-50 rounded-lg text-center">
+           <FileText className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+           <p className="text-sm text-gray-600">
+            This lesson will be text-only without video content
+           </p>
           </div>
          )}
         </div>

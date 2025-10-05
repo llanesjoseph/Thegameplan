@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Data Consistency Management Utility
  *
@@ -67,9 +66,9 @@ export class UserDataService {
         role: userData.role,
         onboardingComplete: false,
         subscriptionLevel: 'free',
-        createdAt: serverTimestamp(),
-        lastLoginAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
+        createdAt: serverTimestamp() as any as any,
+        lastLoginAt: serverTimestamp() as any as any,
+        updatedAt: serverTimestamp() as any as any,
         emailVerified: false
       }
 
@@ -95,8 +94,8 @@ export class UserDataService {
           favoriteContent: [],
           progressCompleted: 0
         },
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
+        createdAt: serverTimestamp() as any as any,
+        updatedAt: serverTimestamp() as any as any
       }
 
       // Batch write both documents
@@ -126,7 +125,7 @@ export class UserDataService {
       // Update primary user document
       batch.update(doc(db, COLLECTIONS.USERS, uid), {
         role: newRole,
-        updatedAt: serverTimestamp()
+        updatedAt: serverTimestamp() as any
       })
 
       // If promoting to creator role, ensure creator profile exists
@@ -151,8 +150,8 @@ export class UserDataService {
             isActive: false,
             featured: false,
             status: 'pending',
-            createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp()
+            createdAt: serverTimestamp() as any,
+            updatedAt: serverTimestamp() as any
           }
 
           batch.set(doc(db, COLLECTIONS.CREATOR_PROFILES, uid), creatorProfile)
@@ -195,7 +194,7 @@ export class UserDataService {
         // Remove from public collection if not approved
         try {
           await updateDoc(doc(db, COLLECTIONS.CREATOR_PUBLIC, uid), {
-            lastActiveAt: serverTimestamp()
+            lastActiveAt: serverTimestamp() as any
           })
         } catch {
           // Document might not exist, which is fine
@@ -223,7 +222,7 @@ export class UserDataService {
           avgRating: creatorData.stats?.avgRating || 0,
           totalReviews: creatorData.stats?.totalReviews || 0
         },
-        lastActiveAt: serverTimestamp()
+        lastActiveAt: serverTimestamp() as any
       }
 
       await setDoc(doc(db, COLLECTIONS.CREATOR_PUBLIC, uid), publicProfile)
@@ -425,7 +424,7 @@ export class DataIngestionValidator {
       emailVerified: Boolean(data.emailVerified),
       createdAt: data.createdAt || serverTimestamp(),
       lastLoginAt: data.lastLoginAt || serverTimestamp(),
-      updatedAt: serverTimestamp()
+      updatedAt: serverTimestamp() as any
     }
   }
 }

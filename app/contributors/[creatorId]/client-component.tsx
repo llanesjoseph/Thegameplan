@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation'
 import { db, auth } from '@/lib/firebase.client'
 import { collection, doc, addDoc, deleteDoc, getDocs, query, where, orderBy } from 'firebase/firestore'
 import AppHeader from '@/components/ui/AppHeader'
+import DOMPurify from 'isomorphic-dompurify'
 
 interface Creator {
  id: string
@@ -848,7 +849,7 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
               <div className="text-gray-800 text-sm leading-relaxed">
                {message.sender === 'creator' ? (
                 <div dangerouslySetInnerHTML={{
-                 __html: formatAIResponse(message.content)
+                 __html: DOMPurify.sanitize(formatAIResponse(message.content))
                 }} />
                ) : (
                 <div>{message.content}</div>
@@ -940,7 +941,7 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
                 </div>
                 <div className="text-gray-800 text-sm leading-relaxed">
                  <div dangerouslySetInnerHTML={{
-                  __html: formatAIResponse(response.content)
+                  __html: DOMPurify.sanitize(formatAIResponse(response.content))
                  }} />
                 </div>
                 <div className="flex items-center gap-2 mt-3 pt-2 border-t border-gray-100">

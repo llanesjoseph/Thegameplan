@@ -11,9 +11,11 @@ import { doc, getDoc } from 'firebase/firestore'
 
 interface AppHeaderProps {
   className?: string
+  title?: string
+  subtitle?: string
 }
 
-export default function AppHeader({ className = '' }: AppHeaderProps) {
+export default function AppHeader({ className = '', title, subtitle }: AppHeaderProps) {
   const { user } = useAuth()
   const { role } = useEnhancedRole()
   const router = useRouter()
@@ -158,17 +160,28 @@ export default function AppHeader({ className = '' }: AppHeaderProps) {
       `}</style>
 
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        {/* PLAYBOOKD Logo */}
-        <button
-          onClick={handleLogoClick}
-          className="text-2xl tracking-wider hover:opacity-80 transition-opacity"
-          style={{
-            fontFamily: 'Sports World, Impact, Arial Black, sans-serif',
-            color: '#624A41'
-          }}
-        >
-          PLAYBOOKD
-        </button>
+        {/* Left Side - Logo and optional title */}
+        <div className="flex items-center gap-6">
+          <button
+            onClick={handleLogoClick}
+            className="text-2xl tracking-wider hover:opacity-80 transition-opacity"
+            style={{
+              fontFamily: 'Sports World, Impact, Arial Black, sans-serif',
+              color: '#624A41'
+            }}
+          >
+            PLAYBOOKD
+          </button>
+
+          {title && (
+            <div className="border-l border-gray-300 pl-6">
+              <h1 className="text-xl font-semibold text-gray-900">{title}</h1>
+              {subtitle && (
+                <p className="text-sm text-gray-500">{subtitle}</p>
+              )}
+            </div>
+          )}
+        </div>
 
         {/* Right Side Navigation */}
         <div className="flex items-center gap-4">

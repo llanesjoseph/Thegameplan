@@ -45,7 +45,12 @@
       "Bash(del:*)",
       "Bash(gcloud organizations:*)",
       "Bash(start:*)",
-      "Bash(powershell -command \"[convert]::ToBase64String((Get-Content -path ''firebase-admin-key.json'' -Encoding byte))\")"
+      "Bash(powershell -command \"[convert]::ToBase64String((Get-Content -path ''firebase-admin-key.json'' -Encoding byte))\")",
+      "Bash(cat:*)",
+      "Bash(move \".claude\\agents\\principal-engineer-ux.md\" \".claude\\agents\\head-eng.md\")",
+      "Bash(mv:*)",
+      "Bash(powershell:*)",
+      "Bash(timeout:*)"
     ],
     "deny": [],
     "ask": []

@@ -109,6 +109,13 @@ export default function CoachOnboardPage() {
         result = await response.json()
         console.log('📧 Using simple invitation validation')
 
+        // Check if invitation was already used and should redirect
+        if (result.alreadyUsed && result.shouldRedirect) {
+          alert(result.message || 'Your account has already been created. Redirecting to sign in...')
+          router.push(result.redirectTo || '/')
+          return
+        }
+
         // Transform the simple invitation response to match expected format
         if (result.success) {
           result = {

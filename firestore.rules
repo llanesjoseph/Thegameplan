@@ -80,10 +80,10 @@ service cloud.firestore {
       allow create: if isAuthenticated() &&
                        request.auth.uid == userId &&
                        isValidUserData();
-      // Allow users to update their own role (emergency fix)
-      // Or admins to update with full validation
-      allow update: if (isOwner(userId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['role', 'roleUpdatedAt', 'roleUpdateReason', 'lastRoleUpdate'])) ||
-                       ((isOwner(userId) || isAdmin()) && isValidUserData());
+      // Allow users to update their own profile (except role changes)
+      // Only admins can change roles
+      allow update: if (isOwner(userId) && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role']) && isValidUserData()) ||
+                       (isAdmin() && isValidUserData());
       allow delete: if isSuperAdmin();
     }
     

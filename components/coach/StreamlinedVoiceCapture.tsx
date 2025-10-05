@@ -1,4 +1,3 @@
-// @ts-nocheck
 'use client'
 
 import React, { useState } from 'react'
@@ -25,6 +24,33 @@ import {
   BookOpen
 } from 'lucide-react'
 
+interface VoiceCaptureData {
+  coachingPhilosophy: string
+  communicationStyle: string
+  motivationApproach: string
+  keyStories: string[]
+  catchphrases: string[]
+  currentContext: string
+  technicalFocus: string
+  careerHighlights: string
+  specificExamples: string[]
+  personalityTraits: string[]
+}
+
+interface Question {
+  key: keyof VoiceCaptureData
+  label: string
+  placeholder: string
+  type: 'textarea' | 'text' | 'select' | 'phrase-array' | 'story-array' | 'example-array'
+  options?: string[]
+}
+
+interface Step {
+  title: string
+  description: string
+  questions: Question[]
+}
+
 interface StreamlinedVoiceCaptureProps {
   onComplete: (data: any) => void
   onProgress: (progress: number) => void
@@ -34,7 +60,7 @@ interface StreamlinedVoiceCaptureProps {
 export default function StreamlinedVoiceCapture({ onComplete, onProgress, existingProfile }: StreamlinedVoiceCaptureProps) {
   const [captureMode, setCaptureMode] = useState<'quick' | 'detailed' | null>(null)
   const [currentStep, setCurrentStep] = useState(0)
-  const [data, setData] = useState({
+  const [data, setData] = useState<VoiceCaptureData>({
     // Core essentials for authentic AI voice
     coachingPhilosophy: '',
     communicationStyle: '',
@@ -52,7 +78,7 @@ export default function StreamlinedVoiceCapture({ onComplete, onProgress, existi
     personalityTraits: []
   })
 
-  const quickModeSteps = [
+  const quickModeSteps: Step[] = [
     {
       title: "Your Coaching Voice",
       description: "Help us understand how you communicate",
@@ -79,7 +105,7 @@ export default function StreamlinedVoiceCapture({ onComplete, onProgress, existi
     }
   ]
 
-  const detailedModeSteps = [
+  const detailedModeSteps: Step[] = [
     ...quickModeSteps,
     {
       title: "Career Highlights",
@@ -169,22 +195,22 @@ export default function StreamlinedVoiceCapture({ onComplete, onProgress, existi
   const currentStepData = currentSteps[currentStep]
   const progress = ((currentStep + 1) / currentSteps.length) * 100
 
-  const updateData = (key: string, value: any) => {
+  const updateData = (key: keyof VoiceCaptureData, value: string | string[]) => {
     setData(prev => ({ ...prev, [key]: value }))
   }
 
-  const addToArray = (key: string, value: string) => {
+  const addToArray = (key: keyof VoiceCaptureData, value: string) => {
     if (!value.trim()) return
     setData(prev => ({
       ...prev,
-      [key]: [...(prev[key] || []), value.trim()]
+      [key]: [...((prev[key] as string[]) || []), value.trim()]
     }))
   }
 
-  const removeFromArray = (key: string, index: number) => {
+  const removeFromArray = (key: keyof VoiceCaptureData, index: number) => {
     setData(prev => ({
       ...prev,
-      [key]: prev[key].filter((_, i) => i !== index)
+      [key]: (prev[key] as string[]).filter((_, i) => i !== index)
     }))
   }
 
@@ -279,7 +305,15 @@ export default function StreamlinedVoiceCapture({ onComplete, onProgress, existi
   )
 }
 
-const QuestionRenderer = ({ question, value, onChange, onAddToArray, onRemoveFromArray }: any) => {
+interface QuestionRendererProps {
+  question: Question
+  value: string | string[]
+  onChange: (value: string | string[]) => void
+  onAddToArray: (value: string) => void
+  onRemoveFromArray: (index: number) => void
+}
+
+const QuestionRenderer = ({ question, value, onChange, onAddToArray, onRemoveFromArray }: QuestionRendererProps) => {
   const [tempValue, setTempValue] = useState('')
 
   switch (question.type) {
@@ -320,7 +354,7 @@ const QuestionRenderer = ({ question, value, onChange, onAddToArray, onRemoveFro
             onChange={(e) => onChange(e.target.value)}
           >
             <option value="">Choose...</option>
-            {question.options.map((option: string) => (
+            {question.options?.map((option: string) => (
               <option key={option} value={option}>{option}</option>
             ))}
           </select>
@@ -356,7 +390,7 @@ const QuestionRenderer = ({ question, value, onChange, onAddToArray, onRemoveFro
             </Button>
           </div>
           <div className="flex flex-wrap gap-2 mt-2">
-            {(value || []).map((phrase: string, index: number) => (
+            {(Array.isArray(value) ? value : []).map((phrase: string, index: number) => (
               <Badge
                 key={index}
                 variant="secondary"
@@ -396,7 +430,7 @@ const QuestionRenderer = ({ question, value, onChange, onAddToArray, onRemoveFro
             Add {question.type === 'story-array' ? 'Story' : 'Example'}
           </Button>
           <div className="space-y-2 mt-3">
-            {(value || []).map((item: string, index: number) => (
+            {(Array.isArray(value) ? value : []).map((item: string, index: number) => (
               <div key={index} className="p-3 bg-gray-50 rounded-lg">
                 <p className="text-sm">{item}</p>
                 <Button

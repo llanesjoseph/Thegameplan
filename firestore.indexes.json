@@ -1,181 +1,97 @@
 {
   "indexes": [
     {
-      "collectionGroup": "content",
+      "collectionGroup": "users",
       "queryScope": "COLLECTION",
       "fields": [
-        {"fieldPath": "sport", "order": "ASCENDING"},
-        {"fieldPath": "requiredTier", "order": "ASCENDING"},
-        {"fieldPath": "publishedAt", "order": "DESCENDING"}
+        { "fieldPath": "email", "order": "ASCENDING" },
+        { "fieldPath": "role", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "role", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
       ]
     },
     {
       "collectionGroup": "content",
       "queryScope": "COLLECTION",
       "fields": [
-        {"fieldPath": "creatorUid", "order": "ASCENDING"},
-        {"fieldPath": "publishedAt", "order": "DESCENDING"}
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "creatorUid", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
       ]
     },
     {
       "collectionGroup": "content",
       "queryScope": "COLLECTION",
       "fields": [
-        {"fieldPath": "creatorUid", "order": "ASCENDING"},
-        {"fieldPath": "createdAt", "order": "DESCENDING"}
+        { "fieldPath": "creatorUid", "order": "ASCENDING" },
+        { "fieldPath": "sport", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
       ]
     },
     {
-      "collectionGroup": "content",
+      "collectionGroup": "savedResponses",
       "queryScope": "COLLECTION",
       "fields": [
-        {"fieldPath": "status", "order": "ASCENDING"},
-        {"fieldPath": "createdAt", "order": "DESCENDING"}
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "creatorId", "order": "ASCENDING" },
+        { "fieldPath": "savedAt", "order": "DESCENDING" }
       ]
     },
     {
-      "collectionGroup": "coaching_requests",
+      "collectionGroup": "coach_ingestion_links",
       "queryScope": "COLLECTION",
       "fields": [
-        {"fieldPath": "userId", "order": "ASCENDING"},
-        {"fieldPath": "createdAt", "order": "DESCENDING"}
-      ]
-    },
-    {
-      "collectionGroup": "coaching_requests",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {"fieldPath": "targetCreatorUid", "order": "ASCENDING"},
-        {"fieldPath": "createdAt", "order": "DESCENDING"}
-      ]
-    },
-    {
-      "collectionGroup": "coaching_requests",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {"fieldPath": "status", "order": "ASCENDING"},
-        {"fieldPath": "createdAt", "order": "DESCENDING"}
-      ]
-    },
-    {
-      "collectionGroup": "requests",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {"fieldPath": "uid", "order": "ASCENDING"},
-        {"fieldPath": "createdAt", "order": "DESCENDING"}
-      ]
-    },
-    {
-      "collectionGroup": "requests",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {"fieldPath": "targetCreatorUid", "order": "ASCENDING"},
-        {"fieldPath": "createdAt", "order": "DESCENDING"}
-      ]
-    },
-    {
-      "collectionGroup": "events",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {"fieldPath": "status", "order": "ASCENDING"},
-        {"fieldPath": "createdAt", "order": "DESCENDING"}
-      ]
-    },
-    {
-      "collectionGroup": "events",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {"fieldPath": "creatorId", "order": "ASCENDING"},
-        {"fieldPath": "createdAt", "order": "DESCENDING"}
+        { "fieldPath": "creatorId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
       ]
     },
     {
       "collectionGroup": "ai_interaction_logs",
       "queryScope": "COLLECTION",
       "fields": [
-        {"fieldPath": "userId", "order": "ASCENDING"},
-        {"fieldPath": "timestamp", "order": "DESCENDING"}
-      ]
-    },
-    {
-      "collectionGroup": "ai_interaction_logs",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {"fieldPath": "userEmail", "order": "ASCENDING"},
-        {"fieldPath": "timestamp", "order": "DESCENDING"}
-      ]
-    },
-    {
-      "collectionGroup": "ai_interaction_logs",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {"fieldPath": "sessionId", "order": "ASCENDING"},
-        {"fieldPath": "timestamp", "order": "DESCENDING"}
-      ]
-    },
-    {
-      "collectionGroup": "ai_interaction_logs",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {"fieldPath": "provider", "order": "ASCENDING"},
-        {"fieldPath": "timestamp", "order": "DESCENDING"}
-      ]
-    },
-    {
-      "collectionGroup": "ai_interaction_logs",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {"fieldPath": "riskLevel", "order": "ASCENDING"},
-        {"fieldPath": "timestamp", "order": "DESCENDING"}
-      ]
-    },
-    {
-      "collectionGroup": "ai_interaction_logs",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {"fieldPath": "reviewRequired", "order": "ASCENDING"},
-        {"fieldPath": "timestamp", "order": "DESCENDING"}
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "timestamp", "order": "DESCENDING" }
       ]
     },
     {
       "collectionGroup": "ai_sessions",
       "queryScope": "COLLECTION",
       "fields": [
-        {"fieldPath": "userId", "order": "ASCENDING"},
-        {"fieldPath": "startTime", "order": "DESCENDING"}
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
       ]
     },
     {
-      "collectionGroup": "ai_sessions",
-      "queryScope": "COLLECTION",
+      "collectionGroup": "notifications",
+      "queryScope": "COLLECTION_GROUP",
       "fields": [
-        {"fieldPath": "userEmail", "order": "ASCENDING"},
-        {"fieldPath": "startTime", "order": "DESCENDING"}
+        { "fieldPath": "read", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
       ]
     },
     {
-      "collectionGroup": "ai_content_flags",
+      "collectionGroup": "auditLogs",
       "queryScope": "COLLECTION",
       "fields": [
-        {"fieldPath": "reviewed", "order": "ASCENDING"},
-        {"fieldPath": "flaggedAt", "order": "DESCENDING"}
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "severity", "order": "ASCENDING" },
+        { "fieldPath": "timestamp", "order": "DESCENDING" }
       ]
     },
     {
-      "collectionGroup": "ai_content_flags",
+      "collectionGroup": "auditLogs",
       "queryScope": "COLLECTION",
       "fields": [
-        {"fieldPath": "riskLevel", "order": "ASCENDING"},
-        {"fieldPath": "flaggedAt", "order": "DESCENDING"}
-      ]
-    },
-    {
-      "collectionGroup": "ai_content_flags",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {"fieldPath": "userId", "order": "ASCENDING"},
-        {"fieldPath": "flaggedAt", "order": "DESCENDING"}
+        { "fieldPath": "action", "order": "ASCENDING" },
+        { "fieldPath": "timestamp", "order": "DESCENDING" }
       ]
     }
-  ]
+  ],
+  "fieldOverrides": []
 }

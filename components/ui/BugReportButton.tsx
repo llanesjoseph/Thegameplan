@@ -25,9 +25,32 @@ export default function BugReportButton() {
     const originalWarn = console.warn
     const originalInfo = console.info
 
+    const safeStringify = (obj: any): string => {
+      try {
+        // Handle DOM elements and circular references
+        if (obj instanceof Element || obj instanceof Node) {
+          return `[DOM ${obj.constructor.name}]`
+        }
+
+        // Try normal stringify with circular reference handling
+        const seen = new WeakSet()
+        return JSON.stringify(obj, (key, value) => {
+          if (typeof value === 'object' && value !== null) {
+            if (seen.has(value)) {
+              return '[Circular Reference]'
+            }
+            seen.add(value)
+          }
+          return value
+        }, 2)
+      } catch (error) {
+        return String(obj)
+      }
+    }
+
     const captureLog = (type: 'log' | 'error' | 'warn' | 'info', ...args: any[]) => {
       const message = args.map(arg =>
-        typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+        typeof arg === 'object' ? safeStringify(arg) : String(arg)
       ).join(' ')
 
       const logEntry: ConsoleLog = {

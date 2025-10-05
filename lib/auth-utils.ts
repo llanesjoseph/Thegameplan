@@ -39,10 +39,11 @@ export async function verifyIdToken(token: string): Promise<DecodedIdToken | nul
 
     return decodedToken
 
-  } catch (error: any) {
+  } catch (error) {
+    const err = error as Error & { code?: string }
     await auditLog('token_verification_failed', {
-      error: error.message,
-      errorCode: error.code,
+      error: err.message || 'Unknown error',
+      errorCode: err.code || 'UNKNOWN',
       timestamp: new Date().toISOString()
     }, { severity: 'high' })
 
@@ -84,11 +85,12 @@ export async function hasRole(
 
     return hasAccess
 
-  } catch (error: any) {
+  } catch (error) {
+    const err = error as Error
     await auditLog('role_check_error', {
       userId,
       requiredRoles,
-      error: error.message,
+      error: err.message || 'Unknown error',
       timestamp: new Date().toISOString()
     }, { userId, severity: 'high' })
 

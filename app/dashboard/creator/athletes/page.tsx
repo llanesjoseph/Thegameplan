@@ -163,58 +163,15 @@ export default function CreatorAthletesPage() {
   // Get unique sports from all athletes
   const uniqueSports = [...new Set(athletes.map(a => a.athleticProfile.primarySport))].filter(Boolean)
 
-  if (loading) {
+  // AuthGate in layout handles authentication, so we only need loading states here
+  if (loading || !user) {
     return (
       <main className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="bg-white border border-gray-200 rounded-2xl p-12 shadow-sm">
           <div className="text-center">
             <div className="w-16 h-16 border-4 border-purple-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
             <p className="text-gray-900">Loading...</p>
-            <p className="text-slate-400 text-sm mt-1">Checking your access permissions</p>
-          </div>
-        </div>
-      </main>
-    )
-  }
-
-  if (!user) {
-    return (
-      <main className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="bg-white border border-gray-200 rounded-2xl p-12 max-w-md">
-          <div className="text-center">
-            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Users className="w-8 h-8 text-red-600" />
-            </div>
-            <h1 className="text-2xl text-gray-900 mb-4">Sign In Required</h1>
-            <p className="text-gray-600 mb-6">Please sign in to access your athletes.</p>
-            <Link
-              href="/dashboard"
-              className="inline-block px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg transition-all duration-200 shadow-lg"
-            >
-              Back to Dashboard
-            </Link>
-          </div>
-        </div>
-      </main>
-    )
-  }
-
-  if (!['creator', 'superadmin'].includes(role || '')) {
-    return (
-      <main className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="bg-white border border-gray-200 rounded-2xl p-12 max-w-lg">
-          <div className="text-center">
-            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Users className="w-8 h-8 text-red-600" />
-            </div>
-            <h1 className="text-2xl text-gray-900 mb-4">Coach Access Required</h1>
-            <p className="text-gray-600 mb-6">This page is only available to coaches.</p>
-            <Link
-              href="/dashboard"
-              className="inline-block px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg transition-all duration-200 shadow-lg"
-            >
-              Back to Dashboard
-            </Link>
+            <p className="text-slate-400 text-sm mt-1">Loading your athletes</p>
           </div>
         </div>
       </main>

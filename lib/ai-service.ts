@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import OpenAI from 'openai'
 import { PersonalizedCoachingEngine, SafetyCoachingSystem } from './personalized-coaching'
@@ -71,6 +70,12 @@ export interface CoachingContext {
     signatureClosing: string
     personalStoryIntros: string[]
   }
+  currentTeam?: string
+  college?: string
+  personalStoryIntros?: string[]
+  achievements?: string[]
+  location?: string
+  realEvents?: string[]
 }
 
 export const soccerCoachingContext: CoachingContext = {
@@ -291,45 +296,81 @@ export const sportContextRegistry: Record<string, CoachingContext> = {
   basketball: {
     sport: 'Basketball',
     coachName: 'Elite Coach',
+    coachCredentials: ['Elite coaching experience'],
+    expertise: ['fundamentals', 'teamwork', 'championship mindset'],
+    personalityTraits: ['motivational', 'direct', 'encouraging'],
     voiceCharacteristics: {
       tone: 'Confident and motivational',
       pace: 'Energetic with clear emphasis',
       emphasis: ['fundamentals', 'teamwork', 'championship mindset'],
       catchphrases: ['Trust your training', 'Champions are made in practice'],
       speakingStyle: 'Direct but encouraging, uses championship experience'
+    },
+    responseStyle: {
+      greeting: 'Ready to work?',
+      encouragement: ['You got this', 'Keep pushing', 'Trust the process'],
+      signatureClosing: 'Now get to work',
+      personalStoryIntros: ['Let me tell you something', 'I remember when']
     }
   },
   tennis: {
     sport: 'Tennis',
     coachName: 'Elite Coach',
+    coachCredentials: ['Elite coaching experience'],
+    expertise: ['technique', 'mental toughness', 'point construction'],
+    personalityTraits: ['precise', 'encouraging', 'strategic'],
     voiceCharacteristics: {
       tone: 'Precise and encouraging',
       pace: 'Measured with strategic emphasis',
       emphasis: ['technique', 'mental toughness', 'point construction'],
       catchphrases: ['Trust your preparation', 'Every point matters'],
       speakingStyle: 'Technical but supportive, focuses on mental game'
+    },
+    responseStyle: {
+      greeting: 'Let\'s get to work',
+      encouragement: ['Stay focused', 'Trust the process', 'One point at a time'],
+      signatureClosing: 'Keep grinding',
+      personalStoryIntros: ['I\'ve seen this before', 'Here\'s what I know']
     }
   },
   baseball: {
     sport: 'Baseball',
     coachName: 'Elite Coach',
+    coachCredentials: ['Elite coaching experience'],
+    expertise: ['fundamentals', 'situational awareness', 'consistency'],
+    personalityTraits: ['steady', 'instructional', 'patient'],
     voiceCharacteristics: {
       tone: 'Steady and instructional',
       pace: 'Patient with detailed explanations',
       emphasis: ['fundamentals', 'situational awareness', 'consistency'],
       catchphrases: ['Trust the process', 'Perfect practice makes perfect'],
       speakingStyle: 'Methodical and detailed, emphasizes fundamentals'
+    },
+    responseStyle: {
+      greeting: 'Let\'s break this down',
+      encouragement: ['Stay consistent', 'Trust your training', 'Focus on fundamentals'],
+      signatureClosing: 'Keep working',
+      personalStoryIntros: ['I always say', 'Here\'s what works']
     }
   },
   hockey: {
     sport: 'Hockey',
     coachName: 'Elite Coach',
+    coachCredentials: ['Elite coaching experience'],
+    expertise: ['speed', 'anticipation', 'championship mentality'],
+    personalityTraits: ['intense', 'focused', 'high-energy'],
     voiceCharacteristics: {
       tone: 'Intense and focused',
       pace: 'Quick with sharp emphasis',
       emphasis: ['speed', 'anticipation', 'championship mentality'],
       catchphrases: ['Play fast, think faster', 'Champions never quit'],
       speakingStyle: 'High-energy and direct, emphasizes game speed'
+    },
+    responseStyle: {
+      greeting: 'Let\'s go',
+      encouragement: ['Push harder', 'Stay sharp', 'Outwork them'],
+      signatureClosing: 'Now go compete',
+      personalStoryIntros: ['Listen up', 'I\'ll tell you this']
     }
   }
 }
@@ -1657,7 +1698,7 @@ export const generateDynamicLessonResponse = async (skillType: string, question:
     }
   }
 
-  const skill = skillMappings[skillType]?.[sportLower] || skillMappings[skillType]?.default || skillMappings[skillType].soccer
+  const skill = (skillMappings as any)[skillType]?.[sportLower] || (skillMappings as any)[skillType]?.default || (skillMappings as any)[skillType]?.soccer || { primary: skillType, tool: 'technique', target: 'target', verb: 'execute' }
 
   // Generate sport-specific emojis
   const sportEmojis = {
@@ -1669,7 +1710,7 @@ export const generateDynamicLessonResponse = async (skillType: string, question:
     bjj: '🥋',
     default: '🏆'
   }
-  const emoji = sportEmojis[sportLower] || sportEmojis.default
+  const emoji = (sportEmojis as any)[sportLower] || sportEmojis.default
 
   return `# ${emoji} ${skill.primary.toUpperCase()} MASTERY: Elite ${sport} Training System
 
@@ -1864,7 +1905,7 @@ export const generateDynamicLessonResponseSync = (skillType: string, question: s
     }
   }
 
-  const skill = skillMappings[skillType]?.[sportLower] || skillMappings[skillType]?.default || skillMappings[skillType].soccer
+  const skill = (skillMappings as any)[skillType]?.[sportLower] || (skillMappings as any)[skillType]?.default || (skillMappings as any)[skillType]?.soccer || { primary: skillType, tool: 'technique', target: 'target', verb: 'execute' }
 
   // Generate sport-specific emojis
   const sportEmojis = {
@@ -1876,7 +1917,7 @@ export const generateDynamicLessonResponseSync = (skillType: string, question: s
     bjj: '🥋',
     default: '🏆'
   }
-  const emoji = sportEmojis[sportLower] || sportEmojis.default
+  const emoji = (sportEmojis as any)[sportLower] || sportEmojis.default
 
   return `# ${emoji} ${skill.primary.toUpperCase()} MASTERY: Elite ${sport} Training System
 

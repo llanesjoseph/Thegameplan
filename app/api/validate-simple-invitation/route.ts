@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { adminDb } from '@/lib/firebase.admin'
 
 export async function GET(request: NextRequest) {
   try {
@@ -31,6 +32,25 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    // Check if invitation exists in Firestore and has been used
+    const invitationDoc = await adminDb.collection('invitations').doc(invitationId).get()
+
+    if (invitationDoc.exists) {
+      const invitationData = invitationDoc.data()
+
+      // Check if already used
+      if (invitationData?.used) {
+        return NextResponse.json({
+          success: false,
+          alreadyUsed: true,
+          shouldRedirect: true,
+          redirectTo: '/',
+          message: 'Your account has already been created. Please sign in to continue.',
+          userEmail: invitationData?.email
+        })
+      }
+    }
+
     // Extract timestamp to check if invitation has expired (30 days)
     const timestamp = parseInt(invitationId.split('_')[1])
     const invitationDate = new Date(timestamp)
@@ -38,10 +58,11 @@ export async function GET(request: NextRequest) {
     const now = new Date()
 
     if (now > expirationDate) {
-      return NextResponse.json(
-        { error: 'This invitation has expired' },
-        { status: 400 }
-      )
+      return NextResponse.json({
+        success: false,
+        error: 'This invitation has expired',
+        expired: true
+      }, { status: 400 })
     }
 
     // Return validation success with basic invitation data

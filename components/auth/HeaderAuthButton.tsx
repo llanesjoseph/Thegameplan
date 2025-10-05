@@ -71,25 +71,32 @@ export default function HeaderAuthButton() {
    <button
     onClick={() => setShowModal(true)}
     className="inline-flex items-center gap-2 px-6 py-3 bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 rounded-lg  transition-all duration-200 hover:scale-105 shadow-sm"
+    aria-label="Open sign in dialog"
    >
-    <User className="w-4 h-4" />
+    <User className="w-4 h-4" aria-hidden="true" />
     Sign In
    </button>
 
    {showModal && (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div
+     className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="auth-dialog-title"
+    >
      <div className="bg-white rounded-xl shadow-2xl max-w-md w-full">
       <div className="p-6">
        {/* Header */}
        <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl text-gray-800">
+        <h2 id="auth-dialog-title" className="text-2xl text-gray-800">
          {isSignUp ? 'Create Account' : 'Welcome Back'}
         </h2>
         <button
          onClick={() => setShowModal(false)}
          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+         aria-label="Close dialog"
         >
-         <X className="w-5 h-5 text-gray-600" />
+         <X className="w-5 h-5 text-gray-600" aria-hidden="true" />
         </button>
        </div>
 

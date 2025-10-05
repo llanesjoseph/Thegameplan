@@ -1,0 +1,38 @@
+Pages Still Needing AppHeader:
+
+PUBLIC PAGES:
+1. app\page.tsx (landing page - has custom header)
+2. app\gear\page.tsx
+3. app\terms\page.tsx
+4. app\privacy\page.tsx
+5. app\emergency-fix\page.tsx
+6. app\onboarding\page.tsx
+7. app\subscribe\page.tsx
+
+ADMIN PAGES:
+8. app\admin\contributors\page.tsx
+9. app\admin\seed\page.tsx
+10. app\admin\seed-complete\page.tsx
+11. app\admin\seed-direct\page.tsx
+12. app\admin\provision\page.tsx
+
+CONTRIBUTOR PAGES:
+13. app\contributors\apply\page.tsx
+
+DASHBOARD PAGES:
+14. app\dashboard\coach\page.tsx
+15. app\dashboard\overview\page.tsx
+
+CREATOR SUB-PAGES:
+16. app\dashboard\creator\analytics\page.tsx
+17. app\dashboard\creator\assistants\page.tsx
+18. app\dashboard\creator\overview\page.tsx
+19. app\dashboard\creator\requests\page.tsx
+20. app\dashboard\creator\schedule\page.tsx
+
+ASSISTANT SUB-PAGES:
+21. app\dashboard\assistant\requests\page.tsx
+22. app\dashboard\assistant\schedule\page.tsx
+23. app\dashboard\assistant\content\page.tsx
+24. app\dashboard\assistant\athletes\page.tsx
+25. app\dashboard\assistant\analytics\page.tsx

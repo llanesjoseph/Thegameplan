@@ -1,4 +1,3 @@
-// @ts-nocheck
 'use client'
 
 import React, { useState } from 'react'
@@ -108,6 +107,13 @@ interface VoiceCaptureIntakeProps {
   prePopulatedData?: () => Promise<any>
 }
 
+interface Section {
+  title: string
+  icon: any
+  description: string
+  progress: number
+}
+
 export default function VoiceCaptureIntake({ onComplete, onProgress, prePopulatedData }: VoiceCaptureIntakeProps) {
   const [currentSection, setCurrentSection] = useState(0)
   const [data, setData] = useState<VoiceCaptureData>({
@@ -173,7 +179,7 @@ export default function VoiceCaptureIntake({ onComplete, onProgress, prePopulate
     }
   })
 
-  const sections = [
+  const sections: Section[] = [
     {
       title: "College & Background",
       icon: GraduationCap,
@@ -421,7 +427,7 @@ const CollegeExperienceSection = ({ data, updateData, addToArray, removeFromArra
           </Button>
         </div>
         <div className="flex flex-wrap gap-2 mt-2">
-          {data.teamAchievements.map((achievement, index) => (
+          {data.teamAchievements.map((achievement: string, index: number) => (
             <Badge
               key={index}
               variant="secondary"
@@ -457,7 +463,7 @@ const CollegeExperienceSection = ({ data, updateData, addToArray, removeFromArra
           Add Memory
         </Button>
         <div className="space-y-2 mt-3">
-          {data.memorableGames.map((game, index) => (
+          {data.memorableGames.map((game: string, index: number) => (
             <div key={index} className="p-3 bg-gray-50 rounded-lg">
               <p className="text-sm">{game}</p>
               <Button
@@ -580,7 +586,7 @@ const PhilosophySection = ({ data, updateData, addToArray, removeFromArray }: an
           </Button>
         </div>
         <div className="flex flex-wrap gap-2 mt-2">
-          {data.coreBeliefs.map((belief, index) => (
+          {data.coreBeliefs.map((belief: string, index: number) => (
             <Badge
               key={index}
               variant="secondary"
@@ -662,7 +668,7 @@ const VoiceCharacteristicsSection = ({ data, updateData, addToArray, removeFromA
           </Button>
         </div>
         <div className="flex flex-wrap gap-2 mt-2">
-          {data.catchphrases.map((phrase, index) => (
+          {data.catchphrases.map((phrase: string, index: number) => (
             <Badge
               key={index}
               variant="secondary"
@@ -732,7 +738,7 @@ const TechnicalExpertiseSection = ({ data, updateData, addToArray, removeFromArr
           </Button>
         </div>
         <div className="space-y-2 mt-3">
-          {data.drillInventions.map((drill, index) => (
+          {data.drillInventions.map((drill: string, index: number) => (
             <div key={index} className="p-2 bg-gray-50 rounded">
               <span className="text-sm">{drill}</span>
               <Button
@@ -815,7 +821,7 @@ const StoryBankSection = ({ data, updateData, addToArray, removeFromArray }: any
         </div>
 
         <div className="space-y-3 mt-4">
-          {data[activeCategory].map((story, index) => (
+          {data[activeCategory].map((story: string, index: number) => (
             <div key={index} className="p-4 bg-gray-50 rounded-lg">
               <p className="text-sm mb-2">{story}</p>
               <Button
