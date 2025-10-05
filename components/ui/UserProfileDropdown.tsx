@@ -234,9 +234,12 @@ export default function UserProfileDropdown() {
      
      <div className="absolute right-0 top-full mt-2 w-48 bg-clarity-surface backdrop-blur-xl rounded-lg shadow-clarity-xl border border-clarity-text-secondary/10 py-1 z-50 animate-fade-in">
       
-      {/* Compact User Info - Just email as header */}
-      <div className="px-3 py-2 border-b border-clarity-text-secondary/10">
-       <p className="text-caption text-clarity-text-secondary truncate">
+      {/* User Info - Name and Email */}
+      <div className="px-3 py-2.5 border-b border-clarity-text-secondary/10">
+       <p className="text-sm font-medium text-clarity-text-primary truncate">
+        {user.displayName || 'User'}
+       </p>
+       <p className="text-xs text-clarity-text-secondary truncate mt-0.5">
         {user.email}
        </p>
       </div>
