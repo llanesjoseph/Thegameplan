@@ -97,7 +97,8 @@ export default function ContributorsPage() {
    if (filters.verified) q = query(q, where('verified', '==', true))
    if (filters.featured) q = query(q, where('featured', '==', true))
 
-   q = query(q, orderBy('featured', 'desc'), orderBy('name'))
+   // Simplified orderBy to avoid composite index requirement
+   q = query(q, orderBy('name'))
    if (!reset && lastDoc) q = query(q, startAfter(lastDoc))
    q = query(q, limit(ITEMS_PER_PAGE))
 
@@ -186,7 +187,13 @@ export default function ContributorsPage() {
 
  // Combine featured contributors with database contributors
  const allContributors = useMemo(() => {
-  return [...FEATURED_CONTRIBUTORS, ...contributors]
+  const combined = [...FEATURED_CONTRIBUTORS, ...contributors]
+  // Sort featured first, then by name
+  return combined.sort((a, b) => {
+   if (a.featured && !b.featured) return -1
+   if (!a.featured && b.featured) return 1
+   return (a.name || '').localeCompare(b.name || '')
+  })
  }, [contributors])
 
  const filteredContributors = useMemo(() => {
