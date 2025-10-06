@@ -1,0 +1,299 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { Shield, CheckCircle, AlertCircle, Loader2, Crown } from 'lucide-react'
+import { createUserWithEmailAndPassword, getAuth } from 'firebase/auth'
+import { auth } from '@/lib/firebase.client'
+
+interface InvitationData {
+  code: string
+  recipientName: string
+  recipientEmail: string
+  role: 'admin' | 'superadmin'
+  customMessage: string
+  status: string
+  expiresAt: { _seconds: number }
+  createdByName: string
+}
+
+export default function AdminOnboardingPage({ params }: { params: { code: string } }) {
+  const router = useRouter()
+  const [invitation, setInvitation] = useState<InvitationData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState(false)
+
+  const [formData, setFormData] = useState({
+    password: '',
+    confirmPassword: '',
+    agreeToTerms: false
+  })
+
+  useEffect(() => {
+    loadInvitation()
+  }, [params.code])
+
+  const loadInvitation = async () => {
+    try {
+      const response = await fetch(`/api/admin/verify-invitation/${params.code}`)
+      const result = await response.json()
+
+      if (!result.success) {
+        setError(result.error || 'Invalid invitation')
+        return
+      }
+
+      setInvitation(result.data)
+    } catch (err) {
+      setError('Failed to load invitation')
+      console.error('Error loading invitation:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (formData.password !== formData.confirmPassword) {
+      alert('Passwords do not match')
+      return
+    }
+
+    if (formData.password.length < 8) {
+      alert('Password must be at least 8 characters')
+      return
+    }
+
+    if (!formData.agreeToTerms) {
+      alert('You must agree to the terms and conditions')
+      return
+    }
+
+    setSubmitting(true)
+
+    try {
+      // Create Firebase auth user
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        invitation!.recipientEmail,
+        formData.password
+      )
+
+      // Get ID token
+      const token = await userCredential.user.getIdToken()
+
+      // Complete onboarding via API
+      const response = await fetch('/api/admin/complete-onboarding', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          invitationCode: params.code,
+          displayName: invitation!.recipientName
+        })
+      })
+
+      const result = await response.json()
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to complete onboarding')
+      }
+
+      // Success - redirect to admin dashboard
+      alert('✅ Welcome to the PLAYBOOKD admin team! Redirecting to your dashboard...')
+      router.push('/dashboard')
+    } catch (err: any) {
+      console.error('Onboarding error:', err)
+      if (err.code === 'auth/email-already-in-use') {
+        setError('This email is already registered. Please sign in instead.')
+      } else {
+        setError(err.message || 'Failed to complete registration')
+      }
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#E8E6D8' }}>
+        <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
+      </div>
+    )
+  }
+
+  if (error || !invitation) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-6" style={{ backgroundColor: '#E8E6D8' }}>
+        <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8">
+          <div className="text-center">
+            <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Invalid Invitation</h1>
+            <p className="text-gray-600 mb-6">{error || 'This invitation link is invalid or has expired.'}</p>
+            <button
+              onClick={() => router.push('/')}
+              className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+            >
+              Return Home
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-6" style={{ backgroundColor: '#E8E6D8' }}>
+      <div className="max-w-2xl w-full bg-white rounded-xl shadow-lg overflow-hidden">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-purple-600 to-blue-600 p-8 text-center">
+          {invitation.role === 'superadmin' ? (
+            <Crown className="w-16 h-16 text-white mx-auto mb-4" />
+          ) : (
+            <Shield className="w-16 h-16 text-white mx-auto mb-4" />
+          )}
+          <h1 className="text-3xl font-bold text-white mb-2">
+            Join PLAYBOOKD Admin Team
+          </h1>
+          <p className="text-purple-100">
+            You've been invited as {invitation.role === 'superadmin' ? 'a Super Administrator' : 'an Administrator'}
+          </p>
+        </div>
+
+        {/* Content */}
+        <div className="p-8">
+          {/* Welcome Message */}
+          <div className="mb-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-2">
+              Welcome, {invitation.recipientName}!
+            </h2>
+            <p className="text-gray-600">
+              {invitation.createdByName} has invited you to help manage the PLAYBOOKD platform.
+            </p>
+          </div>
+
+          {/* Custom Message */}
+          {invitation.customMessage && (
+            <div className="bg-purple-50 border-l-4 border-purple-600 p-4 mb-6 rounded">
+              <p className="text-gray-700 italic">"{invitation.customMessage}"</p>
+            </div>
+          )}
+
+          {/* Responsibilities */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
+            <h3 className="font-bold text-blue-900 mb-3 flex items-center gap-2">
+              <CheckCircle className="w-5 h-5" />
+              Your Admin Responsibilities
+            </h3>
+            <ul className="text-sm text-blue-800 space-y-2 list-disc list-inside">
+              {invitation.role === 'superadmin' ? (
+                <>
+                  <li>Full platform access and system configuration</li>
+                  <li>Manage all users, coaches, athletes, and content</li>
+                  <li>Configure features and platform settings</li>
+                  <li>Manage other administrators</li>
+                  <li>Monitor platform health and analytics</li>
+                </>
+              ) : (
+                <>
+                  <li>Manage users, coaches, and athletes</li>
+                  <li>Review and moderate content for safety</li>
+                  <li>Monitor compliance and safety systems</li>
+                  <li>Handle support requests and platform issues</li>
+                  <li>Access platform analytics and reporting</li>
+                </>
+              )}
+            </ul>
+          </div>
+
+          {/* Registration Form */}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Email (Auto-filled)
+              </label>
+              <input
+                type="email"
+                value={invitation.recipientEmail}
+                disabled
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Create Password *
+              </label>
+              <input
+                type="password"
+                value={formData.password}
+                onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                placeholder="Minimum 8 characters"
+                required
+                minLength={8}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Confirm Password *
+              </label>
+              <input
+                type="password"
+                value={formData.confirmPassword}
+                onChange={(e) => setFormData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                placeholder="Re-enter password"
+                required
+                minLength={8}
+              />
+            </div>
+
+            <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
+              <input
+                type="checkbox"
+                id="agreeToTerms"
+                checked={formData.agreeToTerms}
+                onChange={(e) => setFormData(prev => ({ ...prev, agreeToTerms: e.target.checked }))}
+                className="mt-1"
+                required
+              />
+              <label htmlFor="agreeToTerms" className="text-sm text-gray-700">
+                I agree to the Terms of Service and Privacy Policy. I understand my responsibilities as a platform administrator and will use my access appropriately.
+              </label>
+            </div>
+
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                <p className="text-red-800 text-sm">{error}</p>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {submitting ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Setting up your admin account...
+                </>
+              ) : (
+                <>
+                  <Shield className="w-5 h-5" />
+                  Complete Setup & Join Admin Team
+                </>
+              )}
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  )
+}

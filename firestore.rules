@@ -397,6 +397,16 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // Admin Invitations - Platform admin invitation system
+    match /admin_invitations/{invitationId} {
+      // Only admins can read and create admin invitations
+      allow read, create: if isAdmin();
+      // Only admins can update invitation status
+      allow update: if isAdmin();
+      // Cannot delete invitations (audit trail)
+      allow delete: if false;
+    }
+
     // ===== DEFAULT DENY =====
     match /{document=**} {
       allow read, write: if false;
