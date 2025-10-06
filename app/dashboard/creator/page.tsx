@@ -712,6 +712,8 @@ export default function CreatorDashboard() {
  const [uploadSuccess, setUploadSuccess] = useState(false)
  const [publishedLessons, setPublishedLessons] = useState<any[]>([])
  const [loadingLessons, setLoadingLessons] = useState(false)
+ const [athleteCount, setAthleteCount] = useState<number>(0)
+ const [pendingInvitationsCount, setPendingInvitationsCount] = useState<number>(0)
 
  // Video selection state
  const [videoSelectionMode, setVideoSelectionMode] = useState<'upload' | 'library' | 'youtube' | 'none'>('upload')
@@ -844,6 +846,40 @@ export default function CreatorDashboard() {
    }
   }
   loadLessonCount()
+ }, [authUser])
+
+ // Load athlete count
+ useEffect(() => {
+  const loadAthleteCount = async () => {
+   if (!authUser) return
+   try {
+    const q = query(collection(db, 'athletes'), where('coachId', '==', authUser.uid))
+    const snapshot = await getCountFromServer(q)
+    setAthleteCount(snapshot.data().count)
+   } catch (error) {
+    console.error('Error loading athlete count:', error)
+   }
+  }
+  loadAthleteCount()
+ }, [authUser])
+
+ // Load pending invitations count
+ useEffect(() => {
+  const loadPendingInvitations = async () => {
+   if (!authUser) return
+   try {
+    const q = query(
+     collection(db, 'invitations'),
+     where('coachId', '==', authUser.uid),
+     where('status', '==', 'pending')
+    )
+    const snapshot = await getCountFromServer(q)
+    setPendingInvitationsCount(snapshot.data().count)
+   } catch (error) {
+    console.error('Error loading pending invitations:', error)
+   }
+  }
+  loadPendingInvitations()
  }, [authUser])
 
  // Load library videos when library mode is selected
@@ -1497,8 +1533,8 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
          <Users className="h-6 w-6 text-purple-600" />
         </div>
         <div className="ml-4">
-         <p className="text-sm  text-gray-600">Subscribers</p>
-         <p className="text-2xl  text-gray-900">0</p>
+         <p className="text-sm  text-gray-600">Athletes</p>
+         <p className="text-2xl  text-gray-900">{athleteCount}</p>
         </div>
        </div>
       </div>
@@ -1617,6 +1653,11 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
          <div className="flex items-center gap-3 mb-4">
           <Plus className="h-6 w-6 text-blue-600" />
           <h3 className="text-lg font-semibold text-gray-900">Content Creation</h3>
+          {lessonCount > 0 && (
+           <span className="ml-auto inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-blue-600 rounded-full">
+            {lessonCount}
+           </span>
+          )}
          </div>
          <div className="space-y-3">
           <button
@@ -1641,14 +1682,28 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
          <div className="flex items-center gap-3 mb-4">
           <Users className="h-6 w-6 text-green-600" />
           <h3 className="text-lg font-semibold text-gray-900">Team Management</h3>
+          {athleteCount > 0 && (
+           <span className="ml-auto inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-green-600 rounded-full">
+            {athleteCount}
+           </span>
+          )}
          </div>
          <div className="space-y-3">
           <Link
            href="/dashboard/creator/athletes"
            className="block w-full text-left p-3 bg-green-50 hover:bg-green-100 rounded-lg transition-colors"
           >
-           <div className="font-medium text-green-900">Athlete Management</div>
-           <div className="text-sm text-green-700">Invite and track your athletes</div>
+           <div className="flex items-center justify-between">
+            <div>
+             <div className="font-medium text-green-900">Athlete Management</div>
+             <div className="text-sm text-green-700">Invite and track your athletes</div>
+            </div>
+            {athleteCount > 0 && (
+             <span className="inline-flex items-center justify-center min-w-[1.5rem] h-6 px-2 text-xs font-bold text-white bg-green-700 rounded-full">
+              {athleteCount}
+             </span>
+            )}
+           </div>
           </Link>
           {!loadingRole && (role === 'admin' || role === 'superadmin') && (
             <Link
@@ -1663,8 +1718,17 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
            onClick={() => setActiveSection('invitations')}
            className="w-full text-left p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
           >
-           <div className="font-medium text-gray-900">Coach Network</div>
-           <div className="text-sm text-gray-600">Invite other coaches to join</div>
+           <div className="flex items-center justify-between">
+            <div>
+             <div className="font-medium text-gray-900">Coach Network</div>
+             <div className="text-sm text-gray-600">Invite other coaches to join</div>
+            </div>
+            {pendingInvitationsCount > 0 && (
+             <span className="inline-flex items-center justify-center min-w-[1.5rem] h-6 px-2 text-xs font-bold text-white bg-orange-600 rounded-full">
+              {pendingInvitationsCount}
+             </span>
+            )}
+           </div>
           </button>
          </div>
         </div>
