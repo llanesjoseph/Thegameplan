@@ -670,6 +670,14 @@ export default function CreatorDashboard() {
  
  const [activeSection, setActiveSection] = useState<'dashboard' | 'create' | 'manage' | 'invitations'>('dashboard')
 
+ // Redirect admins/superadmins to admin dashboard
+ useEffect(() => {
+  if (!loadingRole && (role === 'admin' || role === 'superadmin')) {
+   console.log('🔄 Admin/Superadmin detected on creator dashboard, redirecting to admin dashboard')
+   router.replace('/dashboard/admin')
+  }
+ }, [role, loadingRole, router])
+
  // Handle URL parameters for section switching
  useEffect(() => {
   const urlParams = new URLSearchParams(window.location.search)
