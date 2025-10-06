@@ -25,7 +25,7 @@ interface AuthGateProps {
  children: ReactNode
 }
 
-function AuthGateInner({ allowedRoles = ['user', 'creator', 'superadmin'], children }: AuthGateProps) {
+function AuthGateInner({ allowedRoles = ['user', 'athlete', 'creator', 'superadmin'], children }: AuthGateProps) {
  const { user, loading } = useAuth()
  const { effectiveRole, loading: roleLoading } = useUrlEnhancedRole()
  const role = effectiveRole

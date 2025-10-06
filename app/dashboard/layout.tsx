@@ -15,6 +15,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
  // Pages that handle their own auth and layout (no sidebar)
  const isMainDashboard = pathname === '/dashboard'
  const isOverviewPage = pathname === '/dashboard/overview'
+ const isProgressPage = pathname === '/dashboard/progress'
  const isCreatorPage = pathname?.startsWith('/dashboard/creator')
  const isProfilePage = pathname === '/dashboard/profile'
  const isCoachProfilePage = pathname === '/dashboard/coach/profile'
@@ -23,7 +24,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                                   pathname?.startsWith('/dashboard/admin/coach-applications') ||
                                   pathname?.startsWith('/dashboard/admin/coach-intake')
 
- if (isMainDashboard || isOverviewPage || isCreatorPage || isProfilePage || isCoachProfilePage || isCoachAthletesPage || isAdminApplicationsPage) {
+ if (isMainDashboard || isOverviewPage || isProgressPage || isCreatorPage || isProfilePage || isCoachProfilePage || isCoachAthletesPage || isAdminApplicationsPage) {
   // These pages handle their own auth and layout
   return (
    <>
