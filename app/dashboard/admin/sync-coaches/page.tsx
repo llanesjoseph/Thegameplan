@@ -40,6 +40,7 @@ export default function SyncCoachesPage() {
   const [loading, setLoading] = useState(true)
   const [syncing, setSyncing] = useState<string | null>(null)
   const [results, setResults] = useState<Record<string, { success: boolean; message: string }>>({})
+  const [fixing, setFixing] = useState(false)
 
   useEffect(() => {
     // Allow superadmin, admin, and coach roles to access sync page
@@ -86,14 +87,48 @@ export default function SyncCoachesPage() {
     }
   }
 
+  const normalizeSport = (sport: string): string => {
+    const VALID_SPORTS = [
+      'soccer', 'basketball', 'football', 'baseball', 'tennis', 'volleyball',
+      'hockey', 'lacrosse', 'rugby', 'cricket', 'golf', 'swimming',
+      'track', 'cross-country', 'wrestling', 'boxing', 'mma', 'other'
+    ]
+
+    const SPORT_MAPPING: Record<string, string> = {
+      'coaching': 'other',
+      'n/a': 'other',
+      'general': 'other',
+      'brazilian jiu-jitsu': 'mma',
+      'bjj': 'mma',
+      'jiu-jitsu': 'mma'
+    }
+
+    const normalized = (sport || '').toLowerCase().trim()
+
+    // Check if already valid
+    if (VALID_SPORTS.includes(normalized)) {
+      return normalized
+    }
+
+    // Try mapping
+    if (SPORT_MAPPING[normalized]) {
+      return SPORT_MAPPING[normalized]
+    }
+
+    // Default to 'other'
+    return 'other'
+  }
+
   const syncCoach = async (coach: CoachProfile) => {
     setSyncing(coach.uid)
 
     try {
       const displayName = coach.displayName || coach.name || 'Unknown Coach'
-      const sport = Array.isArray(coach.sports) && coach.sports.length > 0
+      const rawSport = Array.isArray(coach.sports) && coach.sports.length > 0
         ? coach.sports[0]
-        : coach.sport || 'General'
+        : coach.sport || 'other'
+
+      const sport = normalizeSport(rawSport)
 
       const publicProfile = {
         id: coach.uid,
@@ -155,6 +190,31 @@ export default function SyncCoachesPage() {
     }
   }
 
+  const fixInvalidSports = async () => {
+    setFixing(true)
+    try {
+      const response = await fetch('/api/admin/fix-coach-sports', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        alert(`Fixed ${result.data.fixed} coaches with invalid sports!\n\nTotal: ${result.data.total}\nFixed: ${result.data.fixed}\nSkipped: ${result.data.skipped}`)
+        // Reload to update UI
+        await loadCoaches()
+      } else {
+        alert('Failed to fix sports: ' + (result.error || 'Unknown error'))
+      }
+    } catch (error) {
+      console.error('Error fixing sports:', error)
+      alert('Failed to fix sports')
+    } finally {
+      setFixing(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -179,14 +239,37 @@ export default function SyncCoachesPage() {
               <h1 className="text-3xl font-bold text-gray-900">Sync Coaches to Public</h1>
               <p className="text-gray-600 mt-2">Sync coach profiles to the public browse page</p>
             </div>
-            <button
-              onClick={syncAllCoaches}
-              disabled={syncing !== null}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-            >
-              <RefreshCw className={`w-5 h-5 ${syncing ? 'animate-spin' : ''}`} />
-              Sync All Coaches
-            </button>
+            <div className="flex gap-3">
+              <button
+                onClick={fixInvalidSports}
+                disabled={fixing || syncing !== null}
+                className="px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                <RefreshCw className={`w-5 h-5 ${fixing ? 'animate-spin' : ''}`} />
+                Fix Invalid Sports
+              </button>
+              <button
+                onClick={syncAllCoaches}
+                disabled={syncing !== null || fixing}
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                <RefreshCw className={`w-5 h-5 ${syncing ? 'animate-spin' : ''}`} />
+                Sync All Coaches
+              </button>
+            </div>
+          </div>
+
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+            <h3 className="font-semibold text-yellow-900 mb-2">⚠️ Important: Contributors Page Filters</h3>
+            <div className="text-sm text-yellow-800 space-y-1">
+              <p>• The <a href="/contributors" target="_blank" className="underline hover:text-yellow-900">/contributors</a> page may filter coaches based on:</p>
+              <ul className="ml-6 list-disc space-y-1">
+                <li><strong>Your sport preferences</strong> - If you have a preferred sport set in your profile, the page will ONLY show coaches in that sport</li>
+                <li><strong>Invalid sport values</strong> - Coaches with sports like "Coaching", "N/A", or "General" won't appear in the valid sports filter</li>
+                <li><strong>Active filters</strong> - Make sure to click "Clear All Filters" on the contributors page</li>
+              </ul>
+              <p className="mt-2"><strong>Solution:</strong> Click "Fix Invalid Sports" above to normalize all sport values, then clear all filters on the contributors page.</p>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
