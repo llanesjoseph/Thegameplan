@@ -7,7 +7,7 @@ import { db } from '@/lib/firebase.client'
 import { collection, getDocs, query, where, orderBy, doc, getDoc } from 'firebase/firestore'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Users, Search, Filter, Plus, Activity, Target, Calendar, ChevronRight } from 'lucide-react'
+import { ArrowLeft, Users, Search, Filter, Plus, Activity, Target, Calendar, ChevronRight, X, Send } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import AthleteProfileCard from '@/components/coach/AthleteProfileCard'
@@ -38,6 +38,12 @@ interface AthleteProfile {
   }
 }
 
+const SPORTS_LIST = [
+  'Soccer', 'Basketball', 'Baseball', 'Tennis', 'Brazilian Jiu-Jitsu',
+  'Running', 'Volleyball', 'Swimming', 'American Football', 'Golf',
+  'Boxing', 'Track & Field'
+]
+
 export default function CreatorAthletesPage() {
   const { user } = useAuth()
   const { role, loading } = useEnhancedRole()
@@ -49,6 +55,20 @@ export default function CreatorAthletesPage() {
   const [filterSport, setFilterSport] = useState('all')
   const [filterSkillLevel, setFilterSkillLevel] = useState('all')
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+
+  // Invitation modal state
+  const [showInviteModal, setShowInviteModal] = useState(false)
+  const [inviteForm, setInviteForm] = useState({
+    athleteEmail: '',
+    athleteName: '',
+    sport: 'Soccer',
+    customMessage: ''
+  })
+  const [inviteLoading, setInviteLoading] = useState(false)
+  const [inviteStatus, setInviteStatus] = useState<{ type: 'success' | 'error' | null; message: string }>({
+    type: null,
+    message: ''
+  })
 
   useEffect(() => {
     if (loading) return
@@ -160,6 +180,57 @@ export default function CreatorAthletesPage() {
   const handleSchedule = (athleteId: string) => {
     console.log('Schedule session with athlete:', athleteId)
     // TODO: Implement scheduling functionality
+  }
+
+  const handleInviteSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setInviteLoading(true)
+    setInviteStatus({ type: null, message: '' })
+
+    try {
+      const response = await fetch('/api/coach/invite-athletes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          coachId: user?.uid,
+          sport: inviteForm.sport,
+          customMessage: inviteForm.customMessage || `Join our ${inviteForm.sport} team and take your performance to the next level!`,
+          athletes: [{
+            email: inviteForm.athleteEmail,
+            name: inviteForm.athleteName
+          }]
+        })
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        setInviteStatus({
+          type: 'success',
+          message: `Invitation sent to ${inviteForm.athleteName}! They will receive an email with onboarding instructions.`
+        })
+        setInviteForm({
+          athleteEmail: '',
+          athleteName: '',
+          sport: 'Soccer',
+          customMessage: ''
+        })
+        setTimeout(() => {
+          setShowInviteModal(false)
+          setInviteStatus({ type: null, message: '' })
+        }, 3000)
+      } else {
+        throw new Error(data.error || 'Failed to send invitation')
+      }
+    } catch (error) {
+      console.error('Error sending invitation:', error)
+      setInviteStatus({
+        type: 'error',
+        message: error instanceof Error ? error.message : 'Failed to send invitation'
+      })
+    } finally {
+      setInviteLoading(false)
+    }
   }
 
   // Get unique sports from all athletes
@@ -295,7 +366,7 @@ export default function CreatorAthletesPage() {
               Start building your team by inviting athletes to join your training program.
             </p>
             <Button
-              onClick={() => router.push('/dashboard/creator?section=invitations')}
+              onClick={() => setShowInviteModal(true)}
               className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700"
             >
               <Plus className="w-4 h-4" />
@@ -321,6 +392,123 @@ export default function CreatorAthletesPage() {
                 expanded={viewMode === 'list'}
               />
             ))}
+          </div>
+        )}
+
+        {/* Invite Athletes Modal */}
+        {showInviteModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <Card className="max-w-md w-full p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold text-gray-900">Invite Athlete</h3>
+                <button
+                  onClick={() => setShowInviteModal(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <form onSubmit={handleInviteSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Athlete Name *
+                  </label>
+                  <Input
+                    type="text"
+                    value={inviteForm.athleteName}
+                    onChange={(e) => setInviteForm({ ...inviteForm, athleteName: e.target.value })}
+                    placeholder="John Smith"
+                    required
+                    className="w-full"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Athlete Email *
+                  </label>
+                  <Input
+                    type="email"
+                    value={inviteForm.athleteEmail}
+                    onChange={(e) => setInviteForm({ ...inviteForm, athleteEmail: e.target.value })}
+                    placeholder="athlete@example.com"
+                    required
+                    className="w-full"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Sport *
+                  </label>
+                  <select
+                    value={inviteForm.sport}
+                    onChange={(e) => setInviteForm({ ...inviteForm, sport: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900"
+                    required
+                  >
+                    {SPORTS_LIST.map(sport => (
+                      <option key={sport} value={sport}>{sport}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Personal Message (Optional)
+                  </label>
+                  <textarea
+                    value={inviteForm.customMessage}
+                    onChange={(e) => setInviteForm({ ...inviteForm, customMessage: e.target.value })}
+                    placeholder="Add a personal message to your invitation..."
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900"
+                  />
+                </div>
+
+                {inviteStatus.message && (
+                  <div
+                    className={`p-3 rounded-lg text-sm ${
+                      inviteStatus.type === 'success'
+                        ? 'bg-green-50 text-green-800 border border-green-200'
+                        : 'bg-red-50 text-red-800 border border-red-200'
+                    }`}
+                  >
+                    {inviteStatus.message}
+                  </div>
+                )}
+
+                <div className="flex gap-3">
+                  <Button
+                    type="button"
+                    onClick={() => setShowInviteModal(false)}
+                    variant="outline"
+                    className="flex-1"
+                    disabled={inviteLoading}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="flex-1 bg-green-600 hover:bg-green-700 inline-flex items-center justify-center gap-2"
+                    disabled={inviteLoading}
+                  >
+                    {inviteLoading ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4" />
+                        Send Invitation
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </form>
+            </Card>
           </div>
         )}
       </main>
