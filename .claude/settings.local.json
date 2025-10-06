@@ -50,7 +50,8 @@
       "Bash(move \".claude\\agents\\principal-engineer-ux.md\" \".claude\\agents\\head-eng.md\")",
       "Bash(mv:*)",
       "Bash(powershell:*)",
-      "Bash(timeout:*)"
+      "Bash(timeout:*)",
+      "Bash(firebase firestore:get:*)"
     ],
     "deny": [],
     "ask": []

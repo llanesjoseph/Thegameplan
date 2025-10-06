@@ -114,23 +114,35 @@ export async function POST(request: NextRequest) {
     await adminDb.collection('athletes').doc(athleteId).set(athleteData)
     console.log(`Saved athlete profile to Firestore: ${athleteId}`)
 
-    // Create/update user document with athlete role
+    // Check if user already exists and has a role
+    const existingUserDoc = await adminDb.collection('users').doc(userRecord.uid).get()
+    const existingUserData = existingUserDoc.data()
+
+    // Preserve existing role if user is coach/creator/admin, otherwise set to athlete
+    const shouldPreserveRole = existingUserData?.role &&
+                               ['creator', 'coach', 'assistant', 'admin', 'superadmin'].includes(existingUserData.role)
+
+    // Create/update user document - preserve role for coaches, otherwise set to athlete
     const userDocData = {
       uid: userRecord.uid,
       email: athleteProfile.email?.toLowerCase(),
       displayName: athleteProfile.displayName,
-      role: 'athlete',
+      role: shouldPreserveRole ? existingUserData.role : 'athlete',
       firstName: athleteProfile.firstName,
       lastName: athleteProfile.lastName,
       athleteId, // Reference to athlete document
       coachId: invitationData?.coachId || '',
-      createdAt: now,
       lastLoginAt: now,
       invitationId
     }
 
+    // Only set createdAt if this is a new user
+    if (!existingUserDoc.exists) {
+      userDocData.createdAt = now
+    }
+
     await adminDb.collection('users').doc(userRecord.uid).set(userDocData, { merge: true })
-    console.log(`Created/updated user document with role: athlete`)
+    console.log(`Created/updated user document - role: ${userDocData.role} (preserved: ${shouldPreserveRole})`)
 
     // Mark invitation as used
     await adminDb.collection('invitations').doc(invitationId).update({
