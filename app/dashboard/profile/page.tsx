@@ -126,6 +126,43 @@ export default function ProfilePage() {
      if (docSnap.exists()) {
       const savedProfile = docSnap.data()
       console.log('Loaded profile from Firestore:', savedProfile)
+
+      // For athletes, also load athletic profile data from athletes collection
+      if (role === 'athlete' && savedProfile.athleteId) {
+        try {
+          const athleteRef = doc(db, 'athletes', savedProfile.athleteId)
+          const athleteSnap = await getDoc(athleteRef)
+
+          if (athleteSnap.exists()) {
+            const athleteData = athleteSnap.data()
+            console.log('Loaded athlete profile data:', athleteData)
+
+            // Merge athletic profile data into the profile
+            const athleticProfile = athleteData.athleticProfile || {}
+            setProfileData(prev => ({
+              ...prev,
+              ...savedProfile,
+              // Athletic profile fields
+              specialties: athleticProfile.primarySport ? [athleticProfile.primarySport, ...(athleticProfile.secondarySports || [])] : prev.specialties,
+              experience: athleticProfile.skillLevel || prev.experience,
+              bio: athleticProfile.trainingGoals || prev.bio,
+              achievements: athleticProfile.achievements ? [athleticProfile.achievements] : prev.achievements,
+              availability: Array.isArray(athleticProfile.availability)
+                ? athleticProfile.availability.map((a: any) => `${a.day}: ${a.timeSlots}`).join(', ')
+                : prev.availability,
+              coachingPhilosophy: athleticProfile.specialNotes || prev.coachingPhilosophy,
+              languages: athleticProfile.learningStyle ? [athleticProfile.learningStyle] : prev.languages,
+              // Ensure user's current email/displayName takes precedence
+              displayName: savedProfile.displayName || user.displayName || prev.displayName,
+              email: user.email || savedProfile.email || prev.email
+            }))
+            return
+          }
+        } catch (athleteError) {
+          console.warn('Could not load athlete profile data:', athleteError)
+        }
+      }
+
       setProfileData(prev => ({
        ...prev,
        ...savedProfile,
