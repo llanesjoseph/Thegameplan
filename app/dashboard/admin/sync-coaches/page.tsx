@@ -8,6 +8,8 @@ import { useRouter } from 'next/navigation'
 import { CheckCircle, XCircle, RefreshCw, Users, ArrowRight } from 'lucide-react'
 import AppHeader from '@/components/ui/AppHeader'
 
+export const dynamic = 'force-dynamic'
+
 type CoachProfile = {
   uid: string
   displayName?: string
