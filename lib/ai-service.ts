@@ -280,6 +280,11 @@ export const platformAssistantContext: CoachingContext = {
 export const creatorContextRegistry: Record<string, CoachingContext> = {
   'jasmine-aikey': soccerCoachingContext,
   'joseph-llanes': bjjCoachingContext,
+  // Firebase UIDs for dynamically created coaches
+  'oquvoho6w3nc9qtblfsolk7a2rq2': bjjCoachingContext, // Joseph Llanes (BJJ)
+  '97pndcnn3rso5ys0rubeo7dn8qx2': platformAssistantContext, // Lona Vincent (Generic)
+  'mruyu2jarjq7ydxgysy2iyoad5q1': soccerCoachingContext, // Merline Saintil (Soccer)
+  'lbc6uoztc5odlpxqqcrqmogbwml2': platformAssistantContext, // Joseph Llanes duplicate (Generic)
   // Add more creators as they're added to the platform
 }
 
@@ -290,8 +295,11 @@ export const sportContextRegistry: Record<string, CoachingContext> = {
   bjj: bjjCoachingContext,
   'brazilian jiu-jitsu': bjjCoachingContext,
   grappling: bjjCoachingContext,
+  mma: bjjCoachingContext, // MMA mapped to BJJ context
+  'mixed martial arts': bjjCoachingContext,
   content: contentCreationContext,
   platform: platformAssistantContext,
+  other: platformAssistantContext, // Generic "other" sports use platform assistant
   // Dynamic sport contexts (use generic coach with sport-specific adaptation)
   basketball: {
     sport: 'Basketball',
