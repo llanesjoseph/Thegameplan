@@ -3,7 +3,7 @@ import { Timestamp } from 'firebase/firestore'
 
 // UNIFIED ROLE DEFINITION - Single source of truth
 // NOTE: 'creator' is deprecated - use 'coach' instead. Both are treated as equivalent.
-export type AppRole = 'guest' | 'user' | 'creator' | 'coach' | 'assistant' | 'admin' | 'superadmin'
+export type AppRole = 'guest' | 'user' | 'athlete' | 'creator' | 'coach' | 'assistant' | 'admin' | 'superadmin'
 
 // Helper function to normalize creator -> coach
 export function normalizeRole(role: AppRole): AppRole {

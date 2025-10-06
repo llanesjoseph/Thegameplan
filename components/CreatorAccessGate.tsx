@@ -43,8 +43,8 @@ export default function CreatorAccessGate({
   )
  }
 
- // Temporarily allow all access while fixing role issues
- if (true || canAccess) {
+ // Allow access only if user has proper creator role
+ if (canAccess) {
   return <>{children}</>
  }
 

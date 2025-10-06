@@ -5,7 +5,7 @@ import { useAuth } from './use-auth'
 import { doc, updateDoc, getDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase.client'
 
-export type UserRole = 'guest' | 'user' | 'creator' | 'coach' | 'assistant' | 'admin' | 'superadmin'
+export type UserRole = 'guest' | 'user' | 'athlete' | 'creator' | 'coach' | 'assistant' | 'admin' | 'superadmin'
 
 interface SimpleRoleState {
   originalRole: UserRole

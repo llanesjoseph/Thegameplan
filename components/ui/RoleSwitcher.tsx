@@ -2,16 +2,17 @@
 
 import { useState } from 'react'
 import { useEnhancedRole, UserRole } from '@/hooks/use-role-switcher'
-import { 
- Shield, 
- User, 
- Star, 
- Settings, 
- Crown, 
- ChevronDown, 
+import {
+ Shield,
+ User,
+ Star,
+ Settings,
+ Crown,
+ ChevronDown,
  RotateCcw,
  TestTube,
- Eye
+ Eye,
+ UserCheck
 } from 'lucide-react'
 
 interface RoleSwitcherProps {
@@ -21,6 +22,7 @@ interface RoleSwitcherProps {
 const roleIcons: Record<UserRole, React.ComponentType<{ className?: string }>> = {
  guest: User,
  user: User,
+ athlete: UserCheck,
  creator: Star,
  coach: Shield,
  assistant: Shield,
@@ -31,6 +33,7 @@ const roleIcons: Record<UserRole, React.ComponentType<{ className?: string }>> =
 const roleColors: Record<UserRole, string> = {
  guest: 'text-gray-400 bg-gray-400/10 border-gray-400/20',
  user: 'text-blue-400 bg-blue-400/10 border-blue-400/20',
+ athlete: 'text-blue-400 bg-blue-400/10 border-blue-400/20',
  creator: 'text-purple-400 bg-purple-400/10 border-purple-400/20',
  coach: 'text-purple-400 bg-purple-400/10 border-purple-400/20',
  assistant: 'text-green-400 bg-green-400/10 border-green-400/20',

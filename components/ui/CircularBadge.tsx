@@ -4,7 +4,7 @@ import React from 'react'
 
 interface CircularBadgeProps {
  text?: string
- userRole?: 'user' | 'creator' | 'coach' | 'admin' | 'superadmin' | 'assistant' | 'guest'
+ userRole?: 'user' | 'athlete' | 'creator' | 'coach' | 'admin' | 'superadmin' | 'assistant' | 'guest'
  className?: string
  size?: 'small' | 'normal'
 }
@@ -16,6 +16,7 @@ export default function CircularBadge({ text, userRole, className = '', size = '
    case 'creator': return 'Coach'
    case 'coach': return 'Coach'
    case 'user': return 'Athlete'
+   case 'athlete': return 'Athlete'
    case 'admin': return 'Admin'
    case 'superadmin': return 'Super Admin'
    case 'assistant': return 'Assistant'
@@ -32,6 +33,8 @@ export default function CircularBadge({ text, userRole, className = '', size = '
     return { bg: 'bg-purple-600', text: 'text-white', border: 'border-purple-700' }
    case 'user':
     return { bg: 'bg-red-500', text: 'text-white', border: 'border-red-600' }
+   case 'athlete':
+    return { bg: 'bg-blue-600', text: 'text-white', border: 'border-blue-700' }
    case 'admin':
     return { bg: 'bg-purple-500', text: 'text-white', border: 'border-purple-600' }
    case 'superadmin':

@@ -35,7 +35,8 @@ function CompactRoleSwitcher() {
 
  const roleConfig: Record<UserRole, { icon: React.ComponentType<{ className?: string }>; label: string }> = {
   guest: { icon: User, label: 'Guest' },
-  user: { icon: UserCheck, label: 'Athlete' },
+  user: { icon: UserCheck, label: 'User' },
+  athlete: { icon: UserCheck, label: 'Athlete' },
   creator: { icon: Star, label: 'Creator' },
   coach: { icon: Star, label: 'Coach' },
   assistant: { icon: Shield, label: 'Assistant' },

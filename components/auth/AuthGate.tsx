@@ -83,7 +83,7 @@ function AuthGateInner({ allowedRoles = ['user', 'creator', 'superadmin'], child
        className="w-full nexus-button"
        onClick={() => {
         // Redirect based on user's actual role
-        if (actualRole === 'user' || actualRole === 'creator' || actualRole === 'coach' || actualRole === 'assistant') {
+        if (actualRole === 'user' || actualRole === 'athlete' || actualRole === 'creator' || actualRole === 'coach' || actualRole === 'assistant') {
          router.push('/dashboard/progress')
         } else if (actualRole === 'admin' || actualRole === 'superadmin') {
          router.push('/dashboard/admin')

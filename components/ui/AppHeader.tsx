@@ -40,7 +40,8 @@ function CompactRoleSwitcher() {
 
   const roleConfig: Record<UserRole, { icon: React.ComponentType<{ className?: string }>; label: string }> = {
     guest: { icon: UserIcon, label: 'Guest' },
-    user: { icon: UserCheck, label: 'Athlete' },
+    user: { icon: UserCheck, label: 'User' },
+    athlete: { icon: UserCheck, label: 'Athlete' },
     creator: { icon: Star, label: 'Creator' },
     coach: { icon: Star, label: 'Coach' },
     assistant: { icon: Shield, label: 'Assistant' },
@@ -208,6 +209,10 @@ export default function AppHeader({ className = '', title, subtitle }: AppHeader
         return { label: 'Coach', color: 'bg-purple-600' }
       case 'assistant':
         return { label: 'Assistant', color: 'bg-green-600' }
+      case 'athlete':
+        return { label: 'Athlete', color: 'bg-blue-600' }
+      case 'user':
+        return { label: 'User', color: 'bg-gray-600' }
       default:
         return { label: 'User', color: 'bg-gray-600' }
     }

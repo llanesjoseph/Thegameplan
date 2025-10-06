@@ -24,6 +24,7 @@ export const REQUEST_LIMITS = {
 const ROLE_HIERARCHY: Record<AppRole, number> = {
   guest: 0,
   user: 1,
+  athlete: 1,
   creator: 2,
   coach: 3,
   assistant: 4,
@@ -172,7 +173,7 @@ export const ValidationSchemas = {
     uid: { type: 'string', required: true, minLength: 1 },
     email: { type: 'email', required: true },
     displayName: { type: 'string', required: false, maxLength: 100 },
-    role: { type: 'enum', values: ['guest', 'user', 'creator', 'coach', 'assistant', 'admin', 'superadmin'], required: true }
+    role: { type: 'enum', values: ['guest', 'user', 'athlete', 'creator', 'coach', 'assistant', 'admin', 'superadmin'], required: true }
   },
 
   // Content validation
