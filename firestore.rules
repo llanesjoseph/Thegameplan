@@ -330,7 +330,7 @@ service cloud.firestore {
       allow update, delete: if isAdmin();
     }
 
-    // Messages - Athlete-coach direct messaging
+    // Messages - Athlete-coach direct messaging with immutability
     match /messages/{messageId} {
       // Users can read messages where they are sender or recipient
       allow read: if isAuthenticated() &&
@@ -345,12 +345,48 @@ service cloud.firestore {
                        request.resource.data.content is string &&
                        request.resource.data.content.size() > 0 &&
                        request.resource.data.content.size() <= 2000;
-      // Users can update their own messages (for read receipts)
+      // Users can ONLY update read status - messages are immutable
       allow update: if isAuthenticated() &&
-                       (resource.data.recipientId == request.auth.uid || isAdmin()) &&
-                       request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
-      // Only admins can delete messages
-      allow delete: if isAdmin();
+                       resource.data.recipientId == request.auth.uid &&
+                       request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read', 'readAt']);
+      // Messages CANNOT be deleted - permanent audit trail for safety
+      allow delete: if false;
+    }
+
+    // Message Audit Logs - Immutable audit trail
+    match /message_audit_logs/{logId} {
+      // Only admins can read audit logs
+      allow read: if isAdmin();
+      // Audit logs created by system only
+      allow create: if false;
+      // Audit logs are immutable
+      allow update, delete: if false;
+    }
+
+    // Moderation Alerts - Safety monitoring
+    match /moderation_alerts/{alertId} {
+      // Only admins can read moderation alerts
+      allow read: if isAdmin();
+      // System creates alerts
+      allow create: if false;
+      // Admins can update status
+      allow update: if isAdmin();
+      // Cannot delete alerts
+      allow delete: if false;
+    }
+
+    // Message Reports - User-generated reports
+    match /message_reports/{reportId} {
+      // Users can read their own reports, admins can read all
+      allow read: if isAuthenticated() &&
+                     (resource.data.reportedBy == request.auth.uid || isAdmin());
+      // Users can create reports
+      allow create: if isAuthenticated() &&
+                       request.resource.data.reportedBy == request.auth.uid;
+      // Only admins can update reports
+      allow update: if isAdmin();
+      // Cannot delete reports
+      allow delete: if false;
     }
 
     // ===== DEFAULT DENY =====
