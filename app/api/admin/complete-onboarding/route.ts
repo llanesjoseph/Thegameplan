@@ -3,7 +3,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { adminAuth, adminDb } from '@/lib/firebase.admin'
+import { auth, adminDb } from '@/lib/firebase.admin'
 import { Timestamp } from 'firebase-admin/firestore'
 
 export async function POST(request: NextRequest) {
@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     }
 
     const token = authHeader.split('Bearer ')[1]
-    const decodedToken = await adminAuth.verifyIdToken(token)
+    const decodedToken = await auth.verifyIdToken(token)
 
     // Parse request body
     const { invitationCode, displayName } = await request.json()
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     const invitation = invitationDoc.data()
 
     // Verify invitation is for this user
-    const userRecord = await adminAuth.getUser(decodedToken.uid)
+    const userRecord = await auth.getUser(decodedToken.uid)
     if (userRecord.email?.toLowerCase() !== invitation.recipientEmail.toLowerCase()) {
       return NextResponse.json(
         { error: 'Invitation email does not match authenticated user' },

@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { adminAuth } from '@/lib/firebase.admin'
+import { auth } from '@/lib/firebase.admin'
 import { getFeatureFlags } from '@/lib/feature-flags'
 
 /**
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     }
 
     const token = authHeader.split('Bearer ')[1]
-    await adminAuth.verifyIdToken(token)
+    await auth.verifyIdToken(token)
 
     // Get feature flags
     const flags = await getFeatureFlags()

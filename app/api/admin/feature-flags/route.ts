@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { adminAuth, adminDb } from '@/lib/firebase.admin'
+import { auth, adminDb } from '@/lib/firebase.admin'
 import { getFeatureFlags, updateFeatureFlag, FeatureFlags } from '@/lib/feature-flags'
 
 /**
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     }
 
     const token = authHeader.split('Bearer ')[1]
-    const decodedToken = await adminAuth.verifyIdToken(token)
+    const decodedToken = await auth.verifyIdToken(token)
 
     // Verify admin role
     const userDoc = await adminDb.collection('users').doc(decodedToken.uid).get()
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
     }
 
     const token = authHeader.split('Bearer ')[1]
-    const decodedToken = await adminAuth.verifyIdToken(token)
+    const decodedToken = await auth.verifyIdToken(token)
 
     // Verify admin role
     const userDoc = await adminDb.collection('users').doc(decodedToken.uid).get()
