@@ -42,7 +42,8 @@ export default function SyncCoachesPage() {
   const [results, setResults] = useState<Record<string, { success: boolean; message: string }>>({})
 
   useEffect(() => {
-    if (user?.role !== 'superadmin' && user?.role !== 'admin') {
+    // Allow superadmin, admin, and coach roles to access sync page
+    if (user && user.role !== 'superadmin' && user.role !== 'admin' && user.role !== 'coach') {
       router.push('/dashboard')
     }
   }, [user, router])
