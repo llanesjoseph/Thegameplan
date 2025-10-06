@@ -11,8 +11,7 @@ export default defineConfig({
     css: true,
     include: ['tests/**/*.{test,spec}.ts', 'tests/**/*.{test,spec}.tsx'],
     exclude: [
-      'tests/e2e/**/*',
-      'tests/security/**/*', // Exclude Firestore rules tests (need emulator)
+      'tests/e2e/**/*', // E2E tests run separately with Playwright
       'node_modules/**/*',
       'lib/__tests__/**/*'
     ],
