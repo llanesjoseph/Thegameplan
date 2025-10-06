@@ -137,10 +137,10 @@ export function useCreatorDashboardAccess() {
   const getAccessStatus = () => {
     if (loading) return 'loading'
 
-    // If user has creator or superadmin role (using enhanced role for consistency), they're approved
-    if (role === 'creator' || role === 'superadmin') return 'approved'
+    // If user has creator, coach, assistant, or superadmin role (using enhanced role for consistency), they're approved
+    if (role === 'creator' || role === 'coach' || role === 'assistant' || role === 'superadmin') return 'approved'
 
-    // Check for pending applications only if not already a creator/superadmin
+    // Check for pending applications only if not already a creator/coach/assistant/superadmin
     if (hasPendingApplication) return 'pending'
 
     // If guest role, they haven't applied
@@ -174,8 +174,8 @@ export function useCreatorDashboardAccess() {
   return {
     accessStatus: getAccessStatus(),
     accessMessage: getAccessMessage(),
-    canAccess: role === 'creator' || role === 'superadmin', // Use enhanced role for consistency
-    canApply: !hasPendingApplication && role !== 'creator' && role !== 'superadmin',
+    canAccess: role === 'creator' || role === 'coach' || role === 'assistant' || role === 'superadmin', // Use enhanced role for consistency
+    canApply: !hasPendingApplication && role !== 'creator' && role !== 'coach' && role !== 'assistant' && role !== 'superadmin',
     loading
   }
 }
