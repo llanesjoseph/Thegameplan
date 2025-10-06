@@ -7,11 +7,12 @@
 
 import Link from 'next/link'
 import { useCreatorDashboardAccess } from '@/hooks/use-creator-status'
-import { 
- Clock, 
- UserCheck, 
- UserX, 
- FileText, 
+import AppHeader from '@/components/ui/AppHeader'
+import {
+ Clock,
+ UserCheck,
+ UserX,
+ FileText,
  ArrowRight,
  Loader2,
  CheckCircle,
@@ -54,6 +55,7 @@ export default function CreatorAccessGate({
 
  return (
   <div className="min-h-screen bg-gray-50">
+   <AppHeader />
    <div className="max-w-4xl mx-auto px-4 py-16">
     <div className="text-center mb-12">
      <div className="mb-6">

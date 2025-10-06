@@ -286,7 +286,8 @@ export default function CoachOnboardPage() {
         return
       }
 
-      setSubmitted(true)
+      // Redirect to confirmation page
+      router.push('/dashboard/apply-coach/submitted')
       setSubmitting(false)
     } catch (err) {
       setError('Failed to submit application')
