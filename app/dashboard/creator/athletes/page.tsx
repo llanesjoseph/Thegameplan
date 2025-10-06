@@ -6,11 +6,13 @@ import { useEnhancedRole } from '@/hooks/use-role-switcher'
 import { db } from '@/lib/firebase.client'
 import { collection, getDocs, query, where, orderBy, doc, getDoc } from 'firebase/firestore'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { ArrowLeft, Users, Search, Filter, Plus, Activity, Target, Calendar, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import AthleteProfileCard from '@/components/coach/AthleteProfileCard'
 import { Card } from '@/components/ui/card'
+import AppHeader from '@/components/ui/AppHeader'
 
 interface AthleteProfile {
   id: string
@@ -39,6 +41,7 @@ interface AthleteProfile {
 export default function CreatorAthletesPage() {
   const { user } = useAuth()
   const { role, loading } = useEnhancedRole()
+  const router = useRouter()
   const [athletes, setAthletes] = useState<AthleteProfile[]>([])
   const [filteredAthletes, setFilteredAthletes] = useState<AthleteProfile[]>([])
   const [loadingAthletes, setLoadingAthletes] = useState(true)
@@ -176,19 +179,20 @@ export default function CreatorAthletesPage() {
   }
 
   return (
-    <main className="min-h-screen">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gray-50">
+      <AppHeader />
+      <main className="max-w-7xl mx-auto px-6 py-10">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-4 mb-6">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
+            <div className="w-12 h-12 bg-gradient-to-br from-green-600 to-blue-600 rounded-xl flex items-center justify-center shadow-sm">
               <Users className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl text-slate-900 mb-1">
+              <h1 className="text-3xl font-bold text-gray-900 mb-1">
                 Athletes
               </h1>
-              <p className="text-slate-600">Manage your athletes and their training profiles</p>
+              <p className="text-gray-600">Manage your athletes and their training profiles</p>
             </div>
           </div>
 
@@ -282,31 +286,30 @@ export default function CreatorAthletesPage() {
             <p className="text-gray-600 text-sm mt-1">Fetching athlete profiles from your roster</p>
           </Card>
         ) : athletes.length === 0 ? (
-          <div className="bg-white border border-gray-100 rounded-2xl p-12">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users className="w-8 h-8 text-blue-600" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">No Athletes Yet</h3>
-              <p className="text-gray-600 mb-6">
-                Start building your team by inviting athletes to join your training program.
-              </p>
-              <Button className="inline-flex items-center gap-2">
-                <Plus className="w-4 h-4" />
-                Invite Athletes
-              </Button>
+          <Card className="text-center p-12">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Users className="w-8 h-8 text-green-600" />
             </div>
-          </div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">No Athletes Yet</h3>
+            <p className="text-gray-600 mb-6">
+              Start building your team by inviting athletes to join your training program.
+            </p>
+            <Button
+              onClick={() => router.push('/dashboard/creator?section=invitations')}
+              className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700"
+            >
+              <Plus className="w-4 h-4" />
+              Invite Athletes
+            </Button>
+          </Card>
         ) : filteredAthletes.length === 0 ? (
-          <div className="bg-white border border-gray-100 rounded-2xl p-12">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Search className="w-8 h-8 text-gray-600" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">No Results Found</h3>
-              <p className="text-gray-600">Try adjusting your search or filters.</p>
+          <Card className="text-center p-12">
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Search className="w-8 h-8 text-gray-600" />
             </div>
-          </div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">No Results Found</h3>
+            <p className="text-gray-600">Try adjusting your search or filters.</p>
+          </Card>
         ) : (
           <div className={viewMode === 'grid' ? 'grid md:grid-cols-2 lg:grid-cols-3 gap-4' : 'space-y-4'}>
             {filteredAthletes.map(athlete => (
@@ -320,7 +323,7 @@ export default function CreatorAthletesPage() {
             ))}
           </div>
         )}
-      </div>
-    </main>
+      </main>
+    </div>
   )
 }
