@@ -106,9 +106,10 @@ export default function CreatorAnalytics() {
  }, [user?.uid])
 
  useEffect(() => {
-  if (user?.uid && (role === 'creator' || role === 'superadmin')) {
+  const hasAccess = role === 'creator' || role === 'coach' || role === 'assistant' || role === 'superadmin'
+  if (user?.uid && hasAccess) {
    loadAnalytics()
-  } else if (!roleLoading && role && role !== 'creator' && role !== 'superadmin') {
+  } else if (!roleLoading && role && !hasAccess) {
    setLoading(false)
   }
  }, [user?.uid, role, roleLoading, loadAnalytics])
@@ -125,13 +126,14 @@ export default function CreatorAnalytics() {
   )
  }
 
- // Show access denied for non-creators (but allow superadmins)
- if (role !== 'creator' && role !== 'superadmin') {
+ // Show access denied for non-creators/coaches/assistants (but allow superadmins)
+ const hasAccess = role === 'creator' || role === 'coach' || role === 'assistant' || role === 'superadmin'
+ if (!hasAccess) {
   return (
    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
     <div className="text-center">
      <h1 className="text-2xl mb-4 text-gray-900">Access Denied</h1>
-     <p className="text-gray-600">This page is only available to creators.</p>
+     <p className="text-gray-600">This page is only available to creators and coaches.</p>
     </div>
    </div>
   )
