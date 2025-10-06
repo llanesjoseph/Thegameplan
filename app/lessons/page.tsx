@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import { collection, query, where, getDocs, orderBy } from 'firebase/firestore'
 import { db } from '@/lib/firebase.client'
 import Link from 'next/link'
-import { Play, Clock, Eye, Video, FileVideo, Search, ArrowLeft } from 'lucide-react'
+import { Play, Clock, Eye, Video, FileVideo, Search, ArrowLeft, ArrowRight } from 'lucide-react'
 import AppHeader from '@/components/ui/AppHeader'
 
 interface LessonData {
@@ -252,29 +252,9 @@ function LessonsContent() {
         <h3 className="text-2xl mb-3">
          Welcome to the Future of Athletic Training!
         </h3>
-        <p className="text-lg mb-6 opacity-90">
+        <p className="text-lg opacity-90">
          Our platform is currently in the starting lineup. Expert coaches and world-class training content are warming up behind the scenes. Get ready for game-changing lessons!
         </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-         <Link
-          href="/contributors"
-          className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white rounded-lg  transition-colors"
-          style={{color: '#8D9440'}}
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}
-         >
-          Become a Coach
-         </Link>
-         <Link
-          href="/dashboard"
-          className="inline-flex items-center justify-center gap-2 px-6 py-3 text-white rounded-lg  transition-colors"
-          style={{backgroundColor: 'rgba(32, 178, 170, 0.2)'}}
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(32, 178, 170, 0.3)'}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(32, 178, 170, 0.2)'}
-         >
-          Sign Up for Updates
-         </Link>
-        </div>
        </div>
       </div>
 
@@ -345,6 +325,18 @@ function LessonsContent() {
          </div>
         ))}
        </div>
+      </div>
+
+      {/* Become a Coach CTA */}
+      <div className="text-center mt-12">
+       <Link
+        href="/contributors"
+        className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+        style={{color: '#8D9440'}}
+       >
+        <span className="text-lg font-semibold">Become a Coach</span>
+        <ArrowRight className="w-5 h-5" />
+       </Link>
       </div>
      </div>
     ) : (
