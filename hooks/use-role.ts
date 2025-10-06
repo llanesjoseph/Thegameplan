@@ -40,12 +40,19 @@ export function useRole() {
           const userDoc = await Promise.race([userDocPromise, timeoutPromise])
           if (userDoc.exists()) {
             const data = userDoc.data() as { role?: AppRole }
-            setRole(data.role ?? 'user')
+            const fetchedRole = data.role ?? 'user'
+            console.log('📖 useRole: Loaded role from Firestore:', {
+              uid: user.uid,
+              email: user.email,
+              role: fetchedRole
+            })
+            setRole(fetchedRole)
           } else {
+            console.warn('⚠️ useRole: User document not found, defaulting to user role:', user.uid)
             setRole('user')
           }
         } catch (firestoreError) {
-          console.warn('Failed to fetch user role from Firestore:', firestoreError)
+          console.warn('❌ useRole: Failed to fetch user role from Firestore:', firestoreError)
           // Default to 'user' role if Firestore fails
           setRole('user')
         }

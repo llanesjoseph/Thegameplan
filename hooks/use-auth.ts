@@ -74,6 +74,13 @@ export function useAuth() {
 
   // Create enhanced user object with role - memoized to prevent infinite loops
   const enhancedUser = useMemo(() => {
+    if (user && role) {
+      console.log('✅ useAuth: User authenticated with role:', {
+        uid: user.uid,
+        email: user.email,
+        role: role
+      })
+    }
     return user ? { ...user, role } as EnhancedUser : null
   }, [user, role])
 
