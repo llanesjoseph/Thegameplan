@@ -10,6 +10,7 @@ import { ArrowLeft, Users, Search, Filter, Plus, Activity, Target, Calendar, Che
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import AthleteProfileCard from '@/components/coach/AthleteProfileCard'
+import { Card } from '@/components/ui/card'
 
 interface AthleteProfile {
   id: string
@@ -165,13 +166,11 @@ export default function CreatorAthletesPage() {
   if (loading || !user) {
     return (
       <main className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="bg-white border border-gray-200 rounded-2xl p-12 shadow-sm">
-          <div className="text-center">
-            <div className="w-16 h-16 border-4 border-purple-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-gray-900">Loading...</p>
-            <p className="text-slate-400 text-sm mt-1">Loading your athletes</p>
-          </div>
-        </div>
+        <Card className="text-center">
+          <div className="w-16 h-16 border-4 border-purple-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-900">Loading...</p>
+          <p className="text-slate-400 text-sm mt-1">Loading your athletes</p>
+        </Card>
       </main>
     )
   }
@@ -196,33 +195,33 @@ export default function CreatorAthletesPage() {
           {/* Stats Summary */}
           {!loadingAthletes && athletes.length > 0 && (
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-              <div className="bg-white border border-gray-100 rounded-xl p-4">
+              <Card className="p-4">
                 <div className="text-2xl font-bold text-gray-900">{athletes.length}</div>
                 <div className="text-gray-600 text-sm">Total Athletes</div>
-              </div>
-              <div className="bg-white border border-gray-100 rounded-xl p-4">
+              </Card>
+              <Card className="p-4">
                 <div className="text-2xl font-bold text-blue-600">
                   {athletes.filter(a => a.status === 'active').length}
                 </div>
                 <div className="text-gray-600 text-sm">Active</div>
-              </div>
-              <div className="bg-white border border-gray-100 rounded-xl p-4">
+              </Card>
+              <Card className="p-4">
                 <div className="text-2xl font-bold text-purple-600">
                   {uniqueSports.length}
                 </div>
                 <div className="text-gray-600 text-sm">Sports</div>
-              </div>
-              <div className="bg-white border border-gray-100 rounded-xl p-4">
+              </Card>
+              <Card className="p-4">
                 <div className="text-2xl font-bold text-green-600">
                   {athletes.filter(a => a.athleticProfile.skillLevel === 'advanced' || a.athleticProfile.skillLevel === 'elite').length}
                 </div>
                 <div className="text-gray-600 text-sm">Advanced+</div>
-              </div>
+              </Card>
             </div>
           )}
 
           {/* Search and Filters */}
-          <div className="bg-white border border-gray-100 rounded-xl p-4 mb-6">
+          <Card className="mb-6 p-4">
             <div className="flex flex-col lg:flex-row gap-4">
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -272,18 +271,16 @@ export default function CreatorAthletesPage() {
                 </Button>
               </div>
             </div>
-          </div>
+          </Card>
         </div>
 
         {/* Athletes Content */}
         {loadingAthletes ? (
-          <div className="bg-white border border-gray-100 rounded-2xl p-12">
-            <div className="text-center">
-              <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-gray-900">Loading athletes...</p>
-              <p className="text-gray-600 text-sm mt-1">Fetching athlete profiles from your roster</p>
-            </div>
-          </div>
+          <Card className="text-center">
+            <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-900">Loading athletes...</p>
+            <p className="text-gray-600 text-sm mt-1">Fetching athlete profiles from your roster</p>
+          </Card>
         ) : athletes.length === 0 ? (
           <div className="bg-white border border-gray-100 rounded-2xl p-12">
             <div className="text-center">

@@ -8,7 +8,7 @@ const Card = React.forwardRef<
  <div
   ref={ref}
   className={cn(
-   "rounded-lg border bg-card text-card-foreground shadow-sm",
+   "rounded-lg bg-white shadow-sm p-6",
    className
   )}
   {...props}
@@ -22,7 +22,7 @@ const CardHeader = React.forwardRef<
 >(({ className, ...props }, ref) => (
  <div
   ref={ref}
-  className={cn("flex flex-col space-y-1.5 p-6", className)}
+  className={cn("flex items-center gap-3 mb-4", className)}
   {...props}
  />
 ))
@@ -35,7 +35,7 @@ const CardTitle = React.forwardRef<
  <h3
   ref={ref}
   className={cn(
-   "text-2xl  leading-none tracking-tight",
+   "text-lg font-semibold text-gray-900",
    className
   )}
   {...props}
@@ -59,7 +59,7 @@ const CardContent = React.forwardRef<
  HTMLDivElement,
  React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
- <div ref={ref} className={cn("p-6 pt-0", className)} {...props} />
+ <div ref={ref} className={cn("space-y-3", className)} {...props} />
 ))
 CardContent.displayName = "CardContent"
 
@@ -69,10 +69,63 @@ const CardFooter = React.forwardRef<
 >(({ className, ...props }, ref) => (
  <div
   ref={ref}
-  className={cn("flex items-center p-6 pt-0", className)}
+  className={cn("flex items-center pt-4", className)}
   {...props}
  />
 ))
 CardFooter.displayName = "CardFooter"
 
-export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }
+// Stats Card - for displaying metrics
+interface CardStatsProps extends React.HTMLAttributes<HTMLDivElement> {
+ icon: React.ReactNode
+ label: string
+ value: string | number
+ iconBgColor?: string
+ iconColor?: string
+}
+
+const CardStats = React.forwardRef<HTMLDivElement, CardStatsProps>(
+ ({ icon, label, value, iconBgColor = 'bg-blue-100', iconColor = 'text-blue-600', className, ...props }, ref) => (
+  <Card ref={ref} className={cn("p-6", className)} {...props}>
+   <div className="flex items-center">
+    <div className={cn('p-2 rounded-lg', iconBgColor)}>
+     <div className={iconColor}>{icon}</div>
+    </div>
+    <div className="ml-4">
+     <p className="text-sm text-gray-600">{label}</p>
+     <p className="text-2xl font-bold text-gray-900">{value}</p>
+    </div>
+   </div>
+  </Card>
+ )
+)
+CardStats.displayName = "CardStats"
+
+// Notification Badge - for counts on cards
+interface NotificationBadgeProps {
+ count: number
+ color?: 'blue' | 'green' | 'orange' | 'purple' | 'red'
+}
+
+function NotificationBadge({ count, color = 'blue' }: NotificationBadgeProps) {
+ if (count === 0) return null
+
+ const colorClasses = {
+  blue: 'bg-blue-600',
+  green: 'bg-green-600',
+  orange: 'bg-orange-600',
+  purple: 'bg-purple-600',
+  red: 'bg-red-600'
+ }
+
+ return (
+  <span className={cn(
+   'inline-flex items-center justify-center min-w-[1.5rem] h-6 px-2 text-xs font-bold text-white rounded-full',
+   colorClasses[color]
+  )}>
+   {count}
+  </span>
+ )
+}
+
+export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent, CardStats, NotificationBadge }
