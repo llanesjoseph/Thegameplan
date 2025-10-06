@@ -46,8 +46,8 @@ export async function GET(request: NextRequest) {
         success: false,
         alreadyUsed: true,
         shouldRedirect: true,
-        redirectTo: '/',
-        message: 'Your account has already been created. Please sign in to continue.',
+        redirectTo: '/sign-in',
+        message: 'This invitation has already been used. Your account was created successfully. Redirecting to sign in...',
         userEmail: invitationData?.athleteEmail || invitationData?.email
       })
     }

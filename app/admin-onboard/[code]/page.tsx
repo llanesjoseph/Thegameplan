@@ -40,7 +40,24 @@ export default function AdminOnboardingPage({ params }: { params: { code: string
       const result = await response.json()
 
       if (!result.success) {
-        setError(result.error || 'Invalid invitation')
+        const errorMsg = result.error || 'Invalid invitation'
+
+        // If invitation was already used, redirect to sign-in after 3 seconds
+        if (errorMsg.toLowerCase().includes('already been used')) {
+          setError('This invitation has already been used. Redirecting you to sign in...')
+          setTimeout(() => {
+            router.push('/sign-in')
+          }, 3000)
+          return
+        }
+
+        // If invitation expired, show friendly message with sign-in option
+        if (errorMsg.toLowerCase().includes('expired')) {
+          setError('This invitation has expired. Please contact an administrator for a new invitation or sign in if you already have an account.')
+          return
+        }
+
+        setError(errorMsg)
         return
       }
 
@@ -127,19 +144,38 @@ export default function AdminOnboardingPage({ params }: { params: { code: string
   }
 
   if (error || !invitation) {
+    const isAlreadyUsed = error?.toLowerCase().includes('already been used')
+    const isExpired = error?.toLowerCase().includes('expired')
+
     return (
       <div className="min-h-screen flex items-center justify-center p-6" style={{ backgroundColor: '#E8E6D8' }}>
         <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8">
           <div className="text-center">
-            <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Invalid Invitation</h1>
+            {isAlreadyUsed ? (
+              <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+            ) : (
+              <AlertCircle className="w-16 h-16 text-amber-500 mx-auto mb-4" />
+            )}
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+              {isAlreadyUsed ? 'Invitation Already Used' : isExpired ? 'Invitation Expired' : 'Invalid Invitation'}
+            </h1>
             <p className="text-gray-600 mb-6">{error || 'This invitation link is invalid or has expired.'}</p>
-            <button
-              onClick={() => router.push('/')}
-              className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
-            >
-              Return Home
-            </button>
+            <div className="flex gap-3 justify-center">
+              {(isAlreadyUsed || isExpired) && (
+                <button
+                  onClick={() => router.push('/sign-in')}
+                  className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium"
+                >
+                  Sign In
+                </button>
+              )}
+              <button
+                onClick={() => router.push('/')}
+                className={`px-6 py-3 ${(isAlreadyUsed || isExpired) ? 'bg-gray-200 text-gray-700 hover:bg-gray-300' : 'bg-purple-600 text-white hover:bg-purple-700'} rounded-lg font-medium`}
+              >
+                Return Home
+              </button>
+            </div>
           </div>
         </div>
       </div>
