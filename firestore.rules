@@ -317,6 +317,19 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // Coach applications - Coach application and approval process
+    match /coach_applications/{applicationId} {
+      // Admins can read all, applicants can read their own if they have userId set
+      allow read: if isAdmin() ||
+                     (isAuthenticated() &&
+                      resource.data.userId != null &&
+                      resource.data.userId == request.auth.uid);
+      // Anyone can create applications (for simple invitation flow)
+      allow create: if true;
+      // Only admins can update or delete applications
+      allow update, delete: if isAdmin();
+    }
+
     // ===== DEFAULT DENY =====
     match /{document=**} {
       allow read, write: if false;
