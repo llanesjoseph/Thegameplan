@@ -118,11 +118,15 @@ export async function POST(request: NextRequest) {
     const existingUserDoc = await adminDb.collection('users').doc(userRecord.uid).get()
     const existingUserData = existingUserDoc.data()
 
-    // Preserve existing role if user is coach/creator/admin, otherwise set to athlete
+    // IMPORTANT: Preserve elevated roles (coach, creator, admin, superadmin)
+    // This allows coaches to also be athletes without losing coach permissions
+    // Only set to 'athlete' if they're a regular user or don't have a role
     const shouldPreserveRole = existingUserData?.role &&
                                ['creator', 'coach', 'assistant', 'admin', 'superadmin'].includes(existingUserData.role)
 
-    // Create/update user document - preserve role for coaches, otherwise set to athlete
+    // Create/update user document
+    // If user is already a coach/creator/admin, preserve their role but still create athlete profile
+    // If user is regular user/athlete, set to athlete
     const userDocData: any = {
       uid: userRecord.uid,
       email: athleteProfile.email?.toLowerCase(),
@@ -135,6 +139,8 @@ export async function POST(request: NextRequest) {
       lastLoginAt: now,
       invitationId
     }
+
+    console.log(`Setting user role: ${userDocData.role} (existing: ${existingUserData?.role}, shouldPreserve: ${shouldPreserveRole})`)
 
     // Only set createdAt if this is a new user
     if (!existingUserDoc.exists) {
