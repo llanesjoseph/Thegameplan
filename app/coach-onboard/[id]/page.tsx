@@ -96,8 +96,8 @@ export default function CoachOnboardPage() {
   const validateIngestionLink = async () => {
     try {
       // Try mock validation first for test invitations
-      let response
-      let result
+      let response: Response
+      let result: any
 
       if (ingestionId.startsWith('test-') || ingestionId.startsWith('jasmine-special-')) {
         response = await fetch(`/api/mock-coach-validation?id=${ingestionId}`)
