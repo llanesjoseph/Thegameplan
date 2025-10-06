@@ -80,19 +80,74 @@ All messages are automatically scanned for:
 - Keywords: insults, degrading language
 - Action: Flagged for review
 
-**Contact Info Sharing** 🚨 GROOMING RISK
-- Detects: phone numbers, emails, social media handles
-- Prevents off-platform communication
-- Action: Immediate flag
+**Phone Number Exchange** 🚨🚨🚨 CRITICAL - IMMEDIATE ADMIN ALERT
+- Detects: All phone number formats (US & International)
+  - 123-456-7890
+  - (123) 456-7890
+  - 1234567890
+  - 123 456 7890
+  - +1 (123) 456-7890
+  - International formats
+- Severity: CRITICAL (0.9 threat score)
+- Action:
+  - Immediate console alert with full details
+  - Admin dashboard critical notification
+  - Requires immediate review
+  - Potential grooming risk
+
+**Email Sharing** ⚠️ HIGH PRIORITY
+- Detects: Email addresses in any format
+- Severity: HIGH (0.7 inappropriate score)
+- Action: Immediate flag for review
+
+**Social Media Handle Sharing** ⚠️ MEDIUM PRIORITY
+- Detects: @username patterns
+- Severity: MEDIUM (0.6 inappropriate score)
+- Action: Flag for review
 
 #### Severity Levels
 
 ```typescript
-- CRITICAL: Threats, violence → Immediate admin notification
-- HIGH: Inappropriate content, grooming indicators
-- MEDIUM: Harassment, bullying
+- CRITICAL: Phone numbers, threats, violence → IMMEDIATE admin notification
+- HIGH: Email sharing, inappropriate content, grooming indicators
+- MEDIUM: Social media handles, harassment, bullying
 - LOW: Profanity, minor violations
 ```
+
+#### Phone Number Detection - CRITICAL PRIORITY
+
+When a phone number is detected:
+
+```
+Message sent with phone number
+    ↓
+Automated scan detects phone pattern
+    ↓
+🚨🚨🚨 CRITICAL ALERT
+    ↓
+Console logs:
+  - "PHONE NUMBER EXCHANGE DETECTED"
+  - Sender name and role
+  - Recipient name and role
+  - Message ID
+  - "ADMIN REVIEW REQUIRED IMMEDIATELY"
+    ↓
+Moderation alert created with:
+  - severity: 'critical'
+  - requiresImmediateAttention: true
+  - flaggedReasons: ['phone_number_exchange']
+    ↓
+Admin dashboard shows CRITICAL badge
+    ↓
+Admin must review within 1 hour
+```
+
+**Why Phone Numbers Are Critical:**
+- Primary grooming tactic (move conversation off-platform)
+- Enables direct contact with athlete
+- Bypasses platform safety monitoring
+- High risk for minors
+- Legal liability for platform
 
 ### 3. Firestore Security Rules
 
@@ -376,13 +431,37 @@ Reporter notified of outcome
 - `moderation_alerts` - Flagged content for review
 - `message_reports` - User-generated reports
 
+## Current Status
+
+**LIVE FEATURES:**
+✅ Complete audit logging system
+✅ Automated content moderation
+✅ Phone number detection (CRITICAL alerts)
+✅ Admin monitoring dashboard
+✅ User reporting system
+✅ Immutable message records
+✅ AI Coach chat (active on athlete dashboard)
+
+**COMING SOON:**
+🔜 Direct messaging UI (built, disabled for testing)
+🔜 Email/SMS notifications for critical alerts
+🔜 Parent/guardian dashboard access
+
+**Direct Messaging Status:**
+- Backend fully built and tested
+- Safety systems active and monitoring
+- Frontend shows "Coming Soon" to users
+- Will be enabled after other feature testing complete
+- AI Coach chat available in the meantime
+
 ## Future Enhancements
 
-1. **AI-Powered Moderation**: OpenAI Moderation API integration
-2. **Parent Dashboard**: Real-time message visibility for guardians
-3. **Behavioral Analysis**: Pattern detection for suspicious activity
-4. **Video Call Monitoring**: Metadata logging for video sessions
-5. **Encrypted Messages**: End-to-end encryption with escrow keys
+1. **Email/SMS Admin Alerts**: Immediate notification for critical flags
+2. **AI-Powered Moderation**: OpenAI Moderation API integration
+3. **Parent Dashboard**: Real-time message visibility for guardians
+4. **Behavioral Analysis**: Pattern detection for suspicious activity
+5. **Video Call Monitoring**: Metadata logging for video sessions
+6. **Encrypted Messages**: End-to-end encryption with escrow keys
 
 ## Legal Compliance
 

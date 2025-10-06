@@ -190,15 +190,39 @@ async function moderateContent(content: string): Promise<{
     toxicity = 0.8
   }
 
-  // Contact info sharing (potential grooming)
-  const contactPatterns = [
-    /\b\d{3}[-.]?\d{3}[-.]?\d{4}\b/, // Phone numbers
-    /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/, // Emails
-    /@[A-Za-z0-9_]+/, // Social media handles
+  // Phone number detection (CRITICAL - potential grooming)
+  const phonePatterns = [
+    /\b\d{3}[-.]?\d{3}[-.]?\d{4}\b/, // US format: 123-456-7890
+    /\b\(\d{3}\)\s?\d{3}[-.]?\d{4}\b/, // (123) 456-7890
+    /\b\d{10}\b/, // 1234567890
+    /\b\d{3}\s\d{3}\s\d{4}\b/, // 123 456 7890
+    /\b\+\d{1,3}[-.\s]?\(?\d{1,4}\)?[-.\s]?\d{1,4}[-.\s]?\d{1,9}\b/, // International
   ]
-  if (contactPatterns.some(pattern => pattern.test(content))) {
-    reasons.push('contact_info_sharing')
+  const hasPhoneNumber = phonePatterns.some(pattern => pattern.test(content))
+
+  if (hasPhoneNumber) {
+    reasons.push('phone_number_exchange')
+    threat = Math.max(threat, 0.9) // High threat score for phone sharing
+    console.log('🚨 PHONE NUMBER DETECTED - Admin notification required')
+  }
+
+  // Email detection (potential grooming)
+  const emailPattern = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/
+  if (emailPattern.test(content)) {
+    reasons.push('email_sharing')
+    inappropriate = Math.max(inappropriate, 0.7)
+  }
+
+  // Social media handle detection
+  const socialMediaPattern = /@[A-Za-z0-9_]+/
+  if (socialMediaPattern.test(content)) {
+    reasons.push('social_media_handle')
     inappropriate = Math.max(inappropriate, 0.6)
+  }
+
+  // Any contact info sharing
+  if (hasPhoneNumber || emailPattern.test(content) || socialMediaPattern.test(content)) {
+    reasons.push('contact_info_sharing')
   }
 
   const flagged = reasons.length > 0
@@ -223,6 +247,9 @@ async function createModerationAlert(
   moderationResult: { flagged: boolean; reasons: string[]; score: any }
 ): Promise<void> {
   try {
+    const severity = calculateSeverity(moderationResult.score)
+    const hasPhoneNumber = moderationResult.reasons.includes('phone_number_exchange')
+
     await adminDb.collection('moderation_alerts').add({
       messageId: auditLog.messageId,
       conversationId: auditLog.conversationId,
@@ -235,15 +262,27 @@ async function createModerationAlert(
       content: auditLog.content,
       flaggedReasons: moderationResult.reasons,
       moderationScore: moderationResult.score,
-      severity: calculateSeverity(moderationResult.score),
+      severity,
       status: 'pending_review',
       createdAt: Timestamp.now(),
       reviewedBy: null,
       reviewedAt: null,
-      actionTaken: null
+      actionTaken: null,
+      requiresImmediateAttention: hasPhoneNumber || severity === 'critical'
     })
 
-    console.log(`🚨 Moderation alert created for message: ${auditLog.messageId}`)
+    if (hasPhoneNumber) {
+      console.log(`🚨🚨🚨 CRITICAL: PHONE NUMBER EXCHANGE DETECTED`)
+      console.log(`   From: ${auditLog.senderName} (${auditLog.senderRole})`)
+      console.log(`   To: ${auditLog.recipientName} (${auditLog.recipientRole})`)
+      console.log(`   Message ID: ${auditLog.messageId}`)
+      console.log(`   ⚠️ ADMIN REVIEW REQUIRED IMMEDIATELY`)
+
+      // TODO: Send immediate email/SMS notification to admin team
+      // TODO: Create high-priority notification in admin dashboard
+    } else {
+      console.log(`🚨 Moderation alert created for message: ${auditLog.messageId}`)
+    }
   } catch (error) {
     console.error('Error creating moderation alert:', error)
   }
@@ -260,6 +299,8 @@ function calculateSeverity(score: {
 }): 'low' | 'medium' | 'high' | 'critical' {
   const maxScore = Math.max(score.toxicity, score.profanity, score.threat, score.inappropriate)
 
+  // Phone numbers, threats are CRITICAL
+  if (score.threat >= 0.9) return 'critical' // Phone numbers = 0.9 threat score
   if (score.threat > 0.7) return 'critical'
   if (maxScore > 0.8) return 'high'
   if (maxScore > 0.5) return 'medium'

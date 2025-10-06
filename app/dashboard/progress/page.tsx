@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/use-auth'
 import { useEnhancedRole } from '@/hooks/use-role-switcher'
 import { db } from '@/lib/firebase.client'
 import { doc, getDoc, collection, getDocs } from 'firebase/firestore'
+import { getAuth } from 'firebase/auth'
 import {
  TrendingUp,
  Target,
@@ -30,6 +31,7 @@ import { FootballIcon } from '@/components/icons/FootballIcon'
 import { MMAGlovesIcon } from '@/components/icons/MMAGlovesIcon'
 import AppHeader from '@/components/ui/AppHeader'
 import AskCoachAI from '@/components/athlete/AskCoachAI'
+import MessagingComingSoon from '@/components/athlete/MessagingComingSoon'
 import CoachMessaging from '@/components/athlete/CoachMessaging'
 
 export default function ProgressDashboard() {
@@ -38,6 +40,7 @@ export default function ProgressDashboard() {
  const router = useRouter()
  const [userProfile, setUserProfile] = useState<any>(null)
  const [coachInfo, setCoachInfo] = useState<{ id: string; name: string; sport?: string }>()
+ const [isDirectMessagingEnabled, setIsDirectMessagingEnabled] = useState(false)
  const [progressStats, setProgressStats] = useState({
   completedSessions: 5,
   totalHours: 23,
@@ -58,6 +61,35 @@ export default function ProgressDashboard() {
    router.replace('/dashboard/creator')
   }
  }, [role, roleLoading, router])
+
+ // Load feature flags
+ useEffect(() => {
+  const loadFeatureFlags = async () => {
+   if (!user) return
+
+   try {
+    const auth = getAuth()
+    const token = await auth.currentUser?.getIdToken()
+
+    const response = await fetch('/api/feature-flags', {
+     headers: {
+      Authorization: `Bearer ${token}`
+     }
+    })
+
+    if (response.ok) {
+     const flags = await response.json()
+     setIsDirectMessagingEnabled(flags.direct_messaging || false)
+    }
+   } catch (error) {
+    console.error('Error loading feature flags:', error)
+    // Default to disabled on error
+    setIsDirectMessagingEnabled(false)
+   }
+  }
+
+  loadFeatureFlags()
+ }, [user])
 
  useEffect(() => {
   const loadUserData = async () => {
@@ -288,10 +320,17 @@ export default function ProgressDashboard() {
    {/* Floating Chat Buttons */}
    {coachInfo && (
     <>
-     <CoachMessaging
-      coachId={coachInfo.id}
-      coachName={coachInfo.name}
-     />
+     {/* Direct Messaging - Conditionally rendered based on feature flag */}
+     {isDirectMessagingEnabled ? (
+      <CoachMessaging
+       coachId={coachInfo.id}
+       coachName={coachInfo.name}
+      />
+     ) : (
+      <MessagingComingSoon />
+     )}
+
+     {/* AI Coach Chat - Always Active */}
      <AskCoachAI
       coachId={coachInfo.id}
       coachName={coachInfo.name}

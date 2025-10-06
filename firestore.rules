@@ -389,6 +389,14 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // Feature Flags - Platform feature toggles
+    match /feature_flags/{flagId} {
+      // All authenticated users can read feature flags
+      allow read: if isAuthenticated();
+      // Only admins can write feature flags
+      allow write: if isAdmin();
+    }
+
     // ===== DEFAULT DENY =====
     match /{document=**} {
       allow read, write: if false;
