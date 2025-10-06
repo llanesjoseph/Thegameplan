@@ -490,24 +490,16 @@ export default function CoachOnboardPage() {
                     <option value="">Select a sport</option>
                     <option value="Soccer">Soccer</option>
                     <option value="Basketball">Basketball</option>
-                    <option value="Football">Football</option>
                     <option value="Baseball">Baseball</option>
-                    <option value="Softball">Softball</option>
-                    <option value="Volleyball">Volleyball</option>
                     <option value="Tennis">Tennis</option>
-                    <option value="Track & Field">Track & Field</option>
-                    <option value="Cross Country">Cross Country</option>
+                    <option value="Brazilian Jiu-Jitsu">Brazilian Jiu-Jitsu</option>
+                    <option value="Running">Running</option>
+                    <option value="Volleyball">Volleyball</option>
                     <option value="Swimming">Swimming</option>
-                    <option value="Wrestling">Wrestling</option>
-                    <option value="Lacrosse">Lacrosse</option>
-                    <option value="Hockey">Hockey</option>
+                    <option value="American Football">American Football</option>
                     <option value="Golf">Golf</option>
-                    <option value="Gymnastics">Gymnastics</option>
-                    <option value="Brazilian Jiu-Jitsu (BJJ)">Brazilian Jiu-Jitsu (BJJ)</option>
-                    <option value="MMA">MMA</option>
                     <option value="Boxing">Boxing</option>
-                    <option value="Martial Arts">Martial Arts</option>
-                    <option value="Other">Other</option>
+                    <option value="Track & Field">Track & Field</option>
                   </select>
                 </div>
                 <div>

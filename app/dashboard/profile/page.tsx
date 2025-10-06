@@ -39,40 +39,21 @@ import AppHeader from '@/components/ui/AppHeader'
 import StreamlinedVoiceCapture from '@/components/coach/StreamlinedVoiceCapture'
 import VoiceCaptureIntake from '@/components/coach/VoiceCaptureIntake'
 
-// Comprehensive sports list from the app
+// Sports list - matches database
 const SPORTS_OPTIONS = [
- 'Brazilian Jiu-Jitsu (BJJ)',
- 'Mixed Martial Arts (MMA)',
  'Soccer',
- 'American Football',
  'Basketball',
- 'Tennis',
  'Baseball',
- 'Volleyball',
- 'Golf',
- 'Swimming',
- 'Boxing',
- 'Wrestling',
- 'Track & Field',
- 'Gymnastics',
- 'Hockey',
- 'Cricket',
- 'Rugby',
- 'Softball',
- 'Badminton',
- 'Table Tennis',
- 'Martial Arts',
- 'CrossFit',
- 'Weightlifting',
+ 'Tennis',
+ 'Brazilian Jiu-Jitsu',
  'Running',
- 'Cycling',
- 'Rock Climbing',
- 'Skiing',
- 'Snowboarding',
- 'Surfing',
- 'Skateboarding',
- 'Other'
-].sort()
+ 'Volleyball',
+ 'Swimming',
+ 'American Football',
+ 'Golf',
+ 'Boxing',
+ 'Track & Field'
+]
 
 export default function ProfilePage() {
  const { user } = useAuth()

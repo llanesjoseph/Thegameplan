@@ -55,8 +55,9 @@ interface CreateLinkForm {
 }
 
 const sports = [
-  'Basketball', 'Soccer', 'Football', 'Baseball', 'Tennis', 'Swimming',
-  'Track & Field', 'Wrestling', 'Volleyball', 'Golf', 'Hockey', 'Softball'
+  'Soccer', 'Basketball', 'Baseball', 'Tennis', 'Brazilian Jiu-Jitsu',
+  'Running', 'Volleyball', 'Swimming', 'American Football', 'Golf',
+  'Boxing', 'Track & Field'
 ]
 
 export default function CoachIngestionManager() {

@@ -1835,21 +1835,18 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
                onChange={(e) => setSelectedSport(e.target.value)}
                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               >
-               <option value="BJJ">Brazilian Jiu-Jitsu</option>
-               <option value="MMA">Mixed Martial Arts</option>
-               <option value="boxing">Boxing</option>
-               <option value="wrestling">Wrestling</option>
                <option value="soccer">Soccer</option>
-               <option value="football">American Football</option>
                <option value="basketball">Basketball</option>
-               <option value="tennis">Tennis</option>
-               <option value="golf">Golf</option>
-               <option value="swimming">Swimming</option>
-               <option value="track">Track & Field</option>
-               <option value="volleyball">Volleyball</option>
                <option value="baseball">Baseball</option>
-               <option value="hockey">Hockey</option>
-               <option value="gymnastics">Gymnastics</option>
+               <option value="tennis">Tennis</option>
+               <option value="BJJ">Brazilian Jiu-Jitsu</option>
+               <option value="running">Running</option>
+               <option value="volleyball">Volleyball</option>
+               <option value="swimming">Swimming</option>
+               <option value="football">American Football</option>
+               <option value="golf">Golf</option>
+               <option value="boxing">Boxing</option>
+               <option value="track">Track & Field</option>
               </select>
              </div>
 
@@ -2861,21 +2858,18 @@ Summary and what comes next..."
             required
             disabled={invitationLoading}
            >
-            <option value="Brazilian Jiu-Jitsu">Brazilian Jiu-Jitsu</option>
-            <option value="Mixed Martial Arts">Mixed Martial Arts</option>
-            <option value="Boxing">Boxing</option>
-            <option value="Wrestling">Wrestling</option>
             <option value="Soccer">Soccer</option>
-            <option value="American Football">American Football</option>
             <option value="Basketball">Basketball</option>
-            <option value="Tennis">Tennis</option>
-            <option value="Golf">Golf</option>
-            <option value="Swimming">Swimming</option>
-            <option value="Track & Field">Track & Field</option>
-            <option value="Volleyball">Volleyball</option>
             <option value="Baseball">Baseball</option>
-            <option value="Hockey">Hockey</option>
-            <option value="Gymnastics">Gymnastics</option>
+            <option value="Tennis">Tennis</option>
+            <option value="Brazilian Jiu-Jitsu">Brazilian Jiu-Jitsu</option>
+            <option value="Running">Running</option>
+            <option value="Volleyball">Volleyball</option>
+            <option value="Swimming">Swimming</option>
+            <option value="American Football">American Football</option>
+            <option value="Golf">Golf</option>
+            <option value="Boxing">Boxing</option>
+            <option value="Track & Field">Track & Field</option>
            </select>
           </div>
 

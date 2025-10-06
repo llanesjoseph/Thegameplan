@@ -9,40 +9,21 @@ import { ArrowLeft, Upload, Star, Trophy, Target, Users, CheckCircle, AlertTrian
 import Link from 'next/link'
 import AppHeader from '@/components/ui/AppHeader'
 
-// Sports list from existing profile
+// Sports list - matches database
 const SPORTS_OPTIONS = [
- 'Brazilian Jiu-Jitsu (BJJ)',
- 'Mixed Martial Arts (MMA)',
  'Soccer',
- 'American Football',
  'Basketball',
- 'Tennis',
  'Baseball',
- 'Volleyball',
- 'Golf',
- 'Swimming',
- 'Boxing',
- 'Wrestling',
- 'Track & Field',
- 'Gymnastics',
- 'Hockey',
- 'Cricket',
- 'Rugby',
- 'Softball',
- 'Badminton',
- 'Table Tennis',
- 'Martial Arts',
- 'CrossFit',
- 'Weightlifting',
+ 'Tennis',
+ 'Brazilian Jiu-Jitsu',
  'Running',
- 'Cycling',
- 'Rock Climbing',
- 'Skiing',
- 'Snowboarding',
- 'Surfing',
- 'Skateboarding',
- 'Other'
-].sort()
+ 'Volleyball',
+ 'Swimming',
+ 'American Football',
+ 'Golf',
+ 'Boxing',
+ 'Track & Field'
+]
 
 interface ApplicationData {
  sport: string

@@ -271,22 +271,52 @@ service cloud.firestore {
     match /creatorAnalytics/{creatorId} {
       allow read, write: if isOwner(creatorId) || isAdmin();
     }
-    
+
     match /lessonAnalytics/{lessonId} {
       allow read, write: if isAdmin() ||
                             (isCreatorOrHigher() &&
                              exists(/databases/$(database)/documents/content/$(lessonId)) &&
                              get(/databases/$(database)/documents/content/$(lessonId)).data.creatorUid == request.auth.uid);
     }
-    
+
     match /userAnalytics/{userId} {
       allow read, write: if isAdmin();
     }
-    
+
     match /systemAnalytics/{date} {
       allow read, write: if isAdmin();
     }
-    
+
+    // Invitations - Athlete and coach invitation system
+    match /invitations/{invitationId} {
+      // Anyone can read valid invitations to validate them
+      allow read: if true;
+      // Only creators/coaches/admins can create invitations
+      allow create: if isCreatorOrHigher() &&
+                       request.resource.data.keys().hasAll(['coachId', 'role', 'status']) &&
+                       request.resource.data.coachId == request.auth.uid;
+      // Only the creator or admin can update their invitations
+      allow update: if (isCreatorOrHigher() && resource.data.coachId == request.auth.uid) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Athletes - Athlete profiles and training data
+    match /athletes/{athleteId} {
+      // Athletes can read their own profile, coaches can read their athletes, admins can read all
+      allow read: if isAuthenticated() &&
+                     (resource.data.uid == request.auth.uid ||
+                      resource.data.coachId == request.auth.uid ||
+                      isAdmin());
+      // Server-side creates athlete profiles via admin SDK
+      allow create: if false; // Only via server-side admin SDK
+      // Athletes and their coaches can update athlete profiles
+      allow update: if isAuthenticated() &&
+                       (resource.data.uid == request.auth.uid ||
+                        resource.data.coachId == request.auth.uid ||
+                        isAdmin());
+      allow delete: if isAdmin();
+    }
+
     // ===== DEFAULT DENY =====
     match /{document=**} {
       allow read, write: if false;

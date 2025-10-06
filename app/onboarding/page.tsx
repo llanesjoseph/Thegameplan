@@ -30,22 +30,18 @@ interface OnboardingData {
 }
 
 const SPORTS_OPTIONS = [
- 'Brazilian Jiu-Jitsu (BJJ)',
  'Soccer',
  'Basketball',
- 'Tennis',
  'Baseball',
- 'Football',
+ 'Tennis',
+ 'Brazilian Jiu-Jitsu',
+ 'Running',
  'Volleyball',
- 'Golf',
  'Swimming',
- 'Mixed Martial Arts (MMA)',
+ 'American Football',
+ 'Golf',
  'Boxing',
- 'Wrestling',
- 'Track & Field',
- 'Gymnastics',
- 'Hockey',
- 'Other'
+ 'Track & Field'
 ]
 
 const GOALS_OPTIONS = [

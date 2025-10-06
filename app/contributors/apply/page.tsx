@@ -57,7 +57,7 @@ type ContributorApplication = {
  reviewerNotes?: string
 }
 
-const SPORTS = ['soccer','basketball','football','baseball','tennis','volleyball','hockey','lacrosse','rugby','cricket','golf','swimming','track','cross-country','wrestling','boxing','mma','jujitsu','other']
+const SPORTS = ['Soccer','Basketball','Baseball','Tennis','Brazilian Jiu-Jitsu','Running','Volleyball','Swimming','American Football','Golf','Boxing','Track & Field']
 const EXPERIENCES = ['college','pro','olympic','coach','analyst','other']
 
 // Schedule & Availability Options

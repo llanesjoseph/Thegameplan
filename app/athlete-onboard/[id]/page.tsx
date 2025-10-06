@@ -33,12 +33,11 @@ interface InvitationData {
   expiresAt: string
 }
 
-// Sports list for dropdown
+// Sports list for dropdown - matches database
 const SPORTS_LIST = [
-  'Basketball', 'Football', 'Soccer', 'Baseball', 'Tennis',
-  'Golf', 'Swimming', 'Track & Field', 'Volleyball', 'Wrestling',
-  'Hockey', 'Lacrosse', 'Gymnastics', 'Cross Country', 'Softball',
-  'Other'
+  'Soccer', 'Basketball', 'Baseball', 'Tennis', 'Brazilian Jiu-Jitsu',
+  'Running', 'Volleyball', 'Swimming', 'American Football', 'Golf',
+  'Boxing', 'Track & Field'
 ]
 
 // Skill levels
