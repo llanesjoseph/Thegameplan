@@ -36,25 +36,39 @@ export default function Dashboard() {
  useEffect(() => {
   if (!loading && user && !hasRedirected.current) {
    hasRedirected.current = true
-   const userRole = (user as any).role || 'creator' // Default to creator for dashboard access
+   const userRole = (user as any).role
+
+   // Debug logging
+   console.log('🔍 DASHBOARD ROUTING DEBUG:', {
+    email: user.email,
+    uid: user.uid,
+    detectedRole: userRole,
+    roleType: typeof userRole,
+    userObject: user
+   })
+
+   // CRITICAL: Do not default to 'creator' if role is undefined - this causes athletes to see creator dashboard
+   if (!userRole) {
+    console.error('❌ ROLE NOT LOADED - Waiting for role to be available')
+    hasRedirected.current = false // Reset flag to allow retry
+    return
+   }
 
    // Route based on user role
    if (userRole === 'superadmin') {
-    console.log('Superadmin authenticated, redirecting to Admin Dashboard')
+    console.log('✅ Superadmin authenticated, redirecting to Admin Dashboard')
     router.replace('/dashboard/admin')
    } else if (userRole === 'admin') {
-    console.log('Admin authenticated, redirecting to Admin Dashboard')
+    console.log('✅ Admin authenticated, redirecting to Admin Dashboard')
     router.replace('/dashboard/admin')
    } else if (userRole === 'athlete') {
-    console.log('Athlete authenticated, redirecting to Progress Dashboard')
+    console.log('✅ Athlete authenticated, redirecting to Progress Dashboard')
     router.replace('/dashboard/progress')
    } else if (userRole === 'creator' || userRole === 'coach' || userRole === 'assistant' || userRole === 'user') {
-    // All regular users go to creator dashboard now
-    console.log(`${userRole} authenticated, redirecting to Creator Dashboard`)
+    console.log(`✅ ${userRole} authenticated, redirecting to Creator Dashboard`)
     router.replace('/dashboard/creator')
    } else {
-    // Fallback to creator dashboard for any other role
-    console.log('User authenticated, redirecting to Creator Dashboard')
+    console.warn('⚠️ Unknown role:', userRole, '- defaulting to Creator Dashboard')
     router.replace('/dashboard/creator')
    }
   }
