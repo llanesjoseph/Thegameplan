@@ -252,9 +252,9 @@ export async function POST(request: NextRequest) {
       context
     )
 
-    // Add authentication notice for unauthenticated users
+    // Add authentication notice ONLY for truly unauthenticated users (not those who failed auth but have userId)
     let authNotice = ''
-    if (!isAuthenticated) {
+    if (!isAuthenticated && requestUserId === 'anonymous') {
       authNotice = '\n\n---\n\n*💡 Sign in to unlock personalized coaching, progress tracking, and access to exclusive training content! Click the "Sign in" button to get started.*'
     }
 

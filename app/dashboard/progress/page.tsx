@@ -158,7 +158,7 @@ export default function ProgressDashboard() {
 
     {/* Progress Stats Grid */}
     <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
-     <div className="bg-white/80 rounded-xl p-6 text-center shadow-lg">
+     <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
       <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-sky-blue to-black flex items-center justify-center">
        <CheckCircle className="w-6 h-6 text-white" />
       </div>
@@ -168,7 +168,7 @@ export default function ProgressDashboard() {
       <p className="text-sm" style={{ color: '#000000' }}>Sessions Complete</p>
      </div>
 
-     <div className="bg-white/80 rounded-xl p-6 text-center shadow-lg">
+     <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
       <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-orange to-black flex items-center justify-center">
        <StopwatchIcon className="w-6 h-6 text-white" />
       </div>
@@ -178,7 +178,7 @@ export default function ProgressDashboard() {
       <p className="text-sm" style={{ color: '#000000' }}>Hours Trained</p>
      </div>
 
-     <div className="bg-white/80 rounded-xl p-6 text-center shadow-lg">
+     <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
       <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-green to-black flex items-center justify-center">
        <Zap className="w-6 h-6 text-white" />
       </div>
@@ -188,7 +188,7 @@ export default function ProgressDashboard() {
       <p className="text-sm" style={{ color: '#000000' }}>Day Streak</p>
      </div>
 
-     <div className="bg-white/80 rounded-xl p-6 text-center shadow-lg">
+     <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
       <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-black to-sky-blue flex items-center justify-center">
        <SportIcon className="w-6 h-6 text-white" />
       </div>
@@ -208,7 +208,7 @@ export default function ProgressDashboard() {
 
     <div className="max-w-4xl mx-auto space-y-4">
      {recentActivities.map((activity) => (
-      <div key={activity.id} className="bg-white rounded-lg p-6 shadow-lg flex items-center justify-between">
+      <div key={activity.id} className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 flex items-center justify-between">
        <div className="flex items-center gap-4">
         <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-sky-blue to-black flex items-center justify-center">
          {activity.type === 'lesson' && <Target className="w-6 h-6 text-white" />}
@@ -253,7 +253,7 @@ export default function ProgressDashboard() {
       Your Next Goal
      </h2>
 
-     <div className="bg-white/80 backdrop-blur-sm rounded-xl p-8 shadow-lg border border-black/5">
+     <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8">
       <div className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center shadow-lg" style={{ backgroundColor: '#91A6EB' }}>
        <Award className="w-8 h-8 text-white" />
       </div>
