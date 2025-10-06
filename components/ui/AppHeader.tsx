@@ -5,14 +5,102 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/hooks/use-auth'
 import { useEnhancedRole } from '@/hooks/use-role-switcher'
+import { useUrlEnhancedRole } from '@/hooks/use-url-role-switcher'
 import { signOut } from 'firebase/auth'
 import { auth, db } from '@/lib/firebase.client'
 import { doc, getDoc } from 'firebase/firestore'
+import { UserRole } from '@/hooks/use-url-role-switcher'
+import React from 'react'
+import {
+  Settings,
+  User as UserIcon,
+  Crown,
+  Star,
+  Shield,
+  UserCheck
+} from 'lucide-react'
 
 interface AppHeaderProps {
   className?: string
   title?: string
   subtitle?: string
+}
+
+// Ultra-compact role switcher
+function CompactRoleSwitcher() {
+  const {
+    effectiveRole,
+    isTestingMode,
+    switchToRole,
+    resetToOriginalRole,
+    getAvailableRoles
+  } = useUrlEnhancedRole()
+
+  const availableRoles = getAvailableRoles()
+
+  const roleConfig: Record<UserRole, { icon: React.ComponentType<{ className?: string }>; label: string }> = {
+    guest: { icon: UserIcon, label: 'Guest' },
+    user: { icon: UserCheck, label: 'Athlete' },
+    creator: { icon: Star, label: 'Creator' },
+    coach: { icon: Star, label: 'Coach' },
+    assistant: { icon: Shield, label: 'Assistant' },
+    admin: { icon: Settings, label: 'Admin' },
+    superadmin: { icon: Crown, label: 'Super Admin' }
+  }
+
+  return (
+    <div className="space-y-2">
+      {/* Current Role - Minimal */}
+      <div className="flex items-center justify-between text-caption">
+        <span className="text-gray-600">View:</span>
+        <div className="flex items-center gap-1">
+          {React.createElement(roleConfig[effectiveRole].icon, {
+            className: "w-3 h-3 text-blue-600"
+          })}
+          <span className="text-gray-900">
+            {roleConfig[effectiveRole].label}
+          </span>
+          {isTestingMode && (
+            <span className="text-orange-600">(Test)</span>
+          )}
+        </div>
+      </div>
+
+      {/* Compact Role Grid */}
+      <div className="grid grid-cols-2 gap-1">
+        {availableRoles.map((role) => {
+          const config = roleConfig[role.value]
+          const isCurrent = effectiveRole === role.value
+
+          return (
+            <button
+              key={role.value}
+              onClick={() => switchToRole(role.value)}
+              disabled={isCurrent}
+              className={`flex items-center gap-1 p-1.5 text-xs rounded transition-all ${
+                isCurrent
+                  ? 'bg-blue-600 text-white cursor-not-allowed'
+                  : 'bg-gray-50 border border-gray-300 hover:bg-blue-50'
+              }`}
+            >
+              <config.icon className="w-3 h-3" />
+              <span>{config.label}</span>
+            </button>
+          )
+        })}
+      </div>
+
+      {/* Reset Button - Minimal */}
+      {isTestingMode && (
+        <button
+          onClick={resetToOriginalRole}
+          className="w-full text-xs text-red-600 hover:bg-red-50 p-1.5 rounded transition-colors"
+        >
+          Reset
+        </button>
+      )}
+    </div>
+  )
 }
 
 export default function AppHeader({ className = '', title, subtitle }: AppHeaderProps) {
@@ -23,6 +111,9 @@ export default function AppHeader({ className = '', title, subtitle }: AppHeader
   const [profileImageUrl, setProfileImageUrl] = useState<string>('')
   const [profileDisplayName, setProfileDisplayName] = useState<string>('')
   const dropdownRef = useRef<HTMLDivElement>(null)
+
+  // Get role directly from user to avoid circular dependency
+  const canSwitchRoles = user?.role === 'superadmin'
 
   // Load profile data from Firestore
   useEffect(() => {
@@ -227,28 +318,60 @@ export default function AppHeader({ className = '', title, subtitle }: AppHeader
               </button>
 
               {isDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
-                  <Link
-                    href="/dashboard/profile"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                    onClick={() => setIsDropdownOpen(false)}
-                  >
-                    View Profile
-                  </Link>
-                  <Link
-                    href="/settings"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                    onClick={() => setIsDropdownOpen(false)}
-                  >
-                    Settings
-                  </Link>
-                  <hr className="my-1" />
-                  <button
-                    onClick={handleSignOut}
-                    className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50"
-                  >
-                    Sign Out
-                  </button>
+                <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+                  {/* User Info - Name and Email */}
+                  <div className="px-4 py-3 border-b border-gray-200">
+                    <p className="text-sm font-medium text-gray-900 truncate">
+                      {user.displayName || 'User'}
+                    </p>
+                    <p className="text-xs text-gray-600 truncate mt-0.5">
+                      {user.email}
+                    </p>
+                  </div>
+
+                  {/* Navigation Links */}
+                  <div className="py-1">
+                    <Link
+                      href="/dashboard/profile"
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                      onClick={() => setIsDropdownOpen(false)}
+                    >
+                      <UserIcon className="w-4 h-4 text-gray-500" />
+                      View Profile
+                    </Link>
+                    <Link
+                      href="/settings"
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                      onClick={() => setIsDropdownOpen(false)}
+                    >
+                      <Settings className="w-4 h-4 text-gray-500" />
+                      Settings
+                    </Link>
+                  </div>
+
+                  {/* Role Switcher - For superadmins only */}
+                  {canSwitchRoles && (
+                    <div className="px-3 py-2 border-t border-gray-200 bg-red-50">
+                      <div className="text-xs font-medium text-red-700 mb-2 flex items-center gap-1">
+                        <div className="w-1.5 h-1.5 bg-red-600 rounded-full"></div>
+                        Admin Tools
+                      </div>
+                      <CompactRoleSwitcher />
+                    </div>
+                  )}
+
+                  {/* Sign Out */}
+                  <div className="py-1 border-t border-gray-200">
+                    <button
+                      onClick={handleSignOut}
+                      className="flex items-center gap-2 px-4 py-2 w-full text-left text-sm text-red-600 hover:bg-red-50"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                      </svg>
+                      Sign Out
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
