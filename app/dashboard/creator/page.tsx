@@ -1644,7 +1644,7 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
          </div>
          <div className="space-y-3">
           <Link
-           href="/dashboard/coach/athletes"
+           href="/dashboard/creator/athletes"
            className="block w-full text-left p-3 bg-green-50 hover:bg-green-100 rounded-lg transition-colors"
           >
            <div className="font-medium text-green-900">Athlete Management</div>
