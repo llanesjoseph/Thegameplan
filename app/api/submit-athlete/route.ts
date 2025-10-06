@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
                                ['creator', 'coach', 'assistant', 'admin', 'superadmin'].includes(existingUserData.role)
 
     // Create/update user document - preserve role for coaches, otherwise set to athlete
-    const userDocData = {
+    const userDocData: any = {
       uid: userRecord.uid,
       email: athleteProfile.email?.toLowerCase(),
       displayName: athleteProfile.displayName,
