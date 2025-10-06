@@ -109,6 +109,28 @@ export async function POST(request: NextRequest) {
     await adminDb.collection(profileCollection).doc(userRecord.uid).set(profileData)
     console.log(`✅ Created ${role} profile in ${profileCollection}`)
 
+    // Create public creator profile for contributors page
+    const creatorPublicData = {
+      id: userRecord.uid,
+      name: displayName,
+      firstName: firstName,
+      sport: (sport || '').toLowerCase(),
+      tagline: tagline || '',
+      heroImageUrl: '',
+      headshotUrl: '',
+      badges: [],
+      lessonCount: 0,
+      specialties: specialties || [],
+      experience: 'coach' as const,
+      verified: true,
+      featured: false,
+      createdAt: now,
+      updatedAt: now
+    }
+
+    await adminDb.collection('creatorPublic').doc(userRecord.uid).set(creatorPublicData)
+    console.log(`✅ Created creatorPublic profile for ${role}`)
+
     // Update application status
     await adminDb.collection('coach_applications').doc(applicationId).update({
       status: 'approved',

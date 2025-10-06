@@ -170,6 +170,28 @@ export async function POST(request: NextRequest) {
       await adminDb.collection(profileCollection).doc(userRecord.uid).set(profileData)
       console.log(`✅ Created ${targetRole} profile in ${profileCollection}`)
 
+      // Create public creator profile for contributors page
+      const creatorPublicData = {
+        id: userRecord.uid,
+        name: `${userInfo.firstName} ${userInfo.lastName}`,
+        firstName: userInfo.firstName,
+        sport: (coachData.sport || invitationData?.sport || '').toLowerCase(),
+        tagline: coachData.tagline || '',
+        heroImageUrl: '',
+        headshotUrl: '',
+        badges: [],
+        lessonCount: 0,
+        specialties: coachData.specialties || [],
+        experience: 'coach' as const,
+        verified: true,
+        featured: false,
+        createdAt: now,
+        updatedAt: now
+      }
+
+      await adminDb.collection('creatorPublic').doc(userRecord.uid).set(creatorPublicData)
+      console.log(`✅ Created creatorPublic profile for ${targetRole}`)
+
       // Mark invitation as used
       await adminDb.collection('invitations').doc(ingestionId).update({
         used: true,
