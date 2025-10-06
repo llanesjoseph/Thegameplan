@@ -94,8 +94,8 @@ export async function initializeUserDocument(user: FirebaseUser | null, defaultR
       let roleNeedsUpdate = false
       let correctRole = userData.role
 
-      // Skip auto-corrections for superadmins
-      if (!isSuperadmin(user.email)) {
+      // Skip auto-corrections for superadmins and athletes
+      if (!isSuperadmin(user.email) && userData.role !== 'athlete') {
         if (user.email && isKnownCoach(user.email)) {
           const shouldBeRole = getKnownCoachRole(user.email)
           if (shouldBeRole && userData.role !== shouldBeRole) {
@@ -106,11 +106,17 @@ export async function initializeUserDocument(user: FirebaseUser | null, defaultR
         }
 
         // Upgrade 'user' roles to 'creator' for dashboard access
+        // NEVER upgrade athletes - they are the core audience
         if (userData.role === 'user') {
           correctRole = 'creator'
           roleNeedsUpdate = true
           console.log(`🔄 ROLE UPGRADE: Upgrading ${user.email} from 'user' to 'creator' for dashboard access`)
         }
+      }
+
+      // CRITICAL: Protect athlete role from any auto-corrections
+      if (userData.role === 'athlete') {
+        console.log(`🛡️ ATHLETE ROLE PROTECTED: ${user.email} - no auto-corrections applied`)
       }
 
       // Only update lastLoginAt if it's been more than 1 hour (prevents spam updates)
