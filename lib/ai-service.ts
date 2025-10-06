@@ -416,12 +416,27 @@ export function getCoachingContext(creatorId?: string, sport?: string): Coaching
   return soccerCoachingContext
 }
 
-// Enhanced context resolver with voice profile integration
+// Enhanced context resolver with DYNAMIC coach context and voice profile integration
 export async function getEnhancedCoachingContext(creatorId?: string, sport?: string): Promise<CoachingContext> {
-  // Get base context
+  // PRIORITY 1: Try to build dynamic context from Firestore coach profile
+  if (creatorId) {
+    try {
+      const { getDynamicCoachingContext } = await import('./dynamic-coach-context')
+      const dynamicContext = await getDynamicCoachingContext(creatorId)
+
+      if (dynamicContext) {
+        console.log(`✨ Using DYNAMIC coaching context for: ${dynamicContext.coachName} (${dynamicContext.sport})`)
+        return dynamicContext
+      }
+    } catch (error) {
+      console.warn('Failed to build dynamic context, falling back to static registry:', error)
+    }
+  }
+
+  // PRIORITY 2: Fall back to static context registry (hardcoded coaches)
   const baseContext = getCoachingContext(creatorId, sport)
 
-  // If we have a creator ID, try to enhance with voice profile
+  // PRIORITY 3: Try to enhance with voice profile
   if (creatorId) {
     try {
       const { getVoiceProfile, enhanceCoachingContextWithVoice } = await import('./voice-capture-service')
