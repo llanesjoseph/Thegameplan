@@ -181,22 +181,22 @@ export default function ProgressDashboard() {
    </div>
 
    {/* Goals & Next Steps Section */}
-   <div style={{ backgroundColor: '#91A6EB' }} className="py-12 px-6">
+   <div className="py-12 px-6">
     <div className="max-w-4xl mx-auto text-center">
-     <h2 className="text-2xl text-white mb-8 font-heading uppercase tracking-wide">
+     <h2 className="text-2xl mb-8 font-heading uppercase tracking-wide" style={{ color: '#000000' }}>
       Your Next Goal
      </h2>
 
-     <div className="bg-white/20 backdrop-blur-sm rounded-xl p-8 border border-white/30">
-      <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-white/30 flex items-center justify-center">
+     <div className="bg-white/80 backdrop-blur-sm rounded-xl p-8 shadow-lg border border-black/5">
+      <div className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center shadow-lg" style={{ backgroundColor: '#91A6EB' }}>
        <Award className="w-8 h-8 text-white" />
       </div>
 
-      <h3 className="text-xl text-white mb-4">
+      <h3 className="text-xl mb-4 font-heading" style={{ color: '#000000' }}>
        {progressStats.nextGoal}
       </h3>
 
-      <p className="text-white/90 mb-6">
+      <p className="mb-6" style={{ color: '#000000', opacity: 0.7 }}>
        Continue your training to unlock advanced techniques and take your skills to the next level.
       </p>
 
@@ -204,7 +204,7 @@ export default function ProgressDashboard() {
        <Link href="/lessons">
         <button
          style={{ backgroundColor: '#20B2AA' }}
-         className="px-6 py-3 rounded-full text-white  hover:opacity-90 transition-opacity"
+         className="px-6 py-3 rounded-full text-white  hover:opacity-90 transition-opacity shadow-lg"
         >
          Continue Training
         </button>
@@ -212,7 +212,8 @@ export default function ProgressDashboard() {
 
        <Link href="/dashboard/coaching">
         <button
-         className="px-6 py-3 rounded-full text-white  border-2 border-white/50 hover:bg-white/10 transition-all"
+         className="px-6 py-3 rounded-full  border-2 hover:bg-black/5 transition-all shadow-lg"
+         style={{ color: '#000000', borderColor: '#000000' }}
         >
          Get Coaching Help
         </button>
