@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import { useEnhancedRole } from '@/hooks/use-role-switcher'
-import { db } from '@/lib/firebase'
+import { db } from '@/lib/firebase.client'
 import { doc, getDoc, collection, getDocs } from 'firebase/firestore'
 import {
  TrendingUp,
@@ -18,7 +18,9 @@ import {
  ArrowRight,
  Star,
  Award,
- Zap
+ Zap,
+ MessageCircle,
+ Bot
 } from 'lucide-react'
 import { MedalIcon } from '@/components/icons/MedalIcon'
 import { StopwatchIcon } from '@/components/icons/StopwatchIcon'
@@ -27,12 +29,15 @@ import { BasketballIcon } from '@/components/icons/BasketballIcon'
 import { FootballIcon } from '@/components/icons/FootballIcon'
 import { MMAGlovesIcon } from '@/components/icons/MMAGlovesIcon'
 import AppHeader from '@/components/ui/AppHeader'
+import AskCoachAI from '@/components/athlete/AskCoachAI'
+import CoachMessaging from '@/components/athlete/CoachMessaging'
 
 export default function ProgressDashboard() {
  const { user } = useAuth()
  const { role, loading: roleLoading } = useEnhancedRole()
  const router = useRouter()
  const [userProfile, setUserProfile] = useState<any>(null)
+ const [coachInfo, setCoachInfo] = useState<{ id: string; name: string; sport?: string }>()
  const [progressStats, setProgressStats] = useState({
   completedSessions: 5,
   totalHours: 23,
@@ -61,7 +66,25 @@ export default function ProgressDashboard() {
    try {
     const userDoc = await getDoc(doc(db, 'users', user.uid))
     if (userDoc.exists()) {
-     setUserProfile(userDoc.data())
+     const userData = userDoc.data()
+     setUserProfile(userData)
+
+     // Load coach info if user has a coach
+     if (userData.coachId) {
+      try {
+       const coachDoc = await getDoc(doc(db, 'users', userData.coachId))
+       if (coachDoc.exists()) {
+        const coachData = coachDoc.data()
+        setCoachInfo({
+         id: userData.coachId,
+         name: coachData.displayName || 'Your Coach',
+         sport: userData.sport || coachData.sport
+        })
+       }
+      } catch (error) {
+       console.error('Error loading coach data:', error)
+      }
+     }
     }
    } catch (error) {
     console.error('Error loading user data:', error)
@@ -261,6 +284,21 @@ export default function ProgressDashboard() {
      ))}
     </div>
    </div>
+
+   {/* Floating Chat Buttons */}
+   {coachInfo && (
+    <>
+     <CoachMessaging
+      coachId={coachInfo.id}
+      coachName={coachInfo.name}
+     />
+     <AskCoachAI
+      coachId={coachInfo.id}
+      coachName={coachInfo.name}
+      sport={coachInfo.sport}
+     />
+    </>
+   )}
   </div>
  )
 }
