@@ -2,6 +2,7 @@ import { Resend } from 'resend'
 import { getEmailTemplate } from './email-templates'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://playbookd.crucibleanalytics.dev'
 
 interface CoachInvitationEmailProps {
   to: string
@@ -448,7 +449,7 @@ function generateInvitationSentEmail(coachName: string, summary: { totalSent: nu
         </div>
 
         <div style="text-align: center; margin: 30px 0;">
-          <a href="https://playbookd.crucibleanalytics.dev/dashboard/coach/athletes" style="background-color: #A01C21; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">View Your Athletes</a>
+          <a href="${APP_URL}/dashboard/coach/athletes" style="background-color: #A01C21; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">View Your Athletes</a>
         </div>
 
         <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 14px;">
@@ -501,7 +502,7 @@ function generateInvitationAcceptedEmail(coachName: string, athleteInfo: { name:
         </ul>
 
         <div style="text-align: center; margin: 30px 0;">
-          <a href="https://playbookd.crucibleanalytics.dev/dashboard/coach/athletes" style="background-color: #A01C21; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">View Your Athletes</a>
+          <a href="${APP_URL}/dashboard/coach/athletes" style="background-color: #A01C21; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">View Your Athletes</a>
         </div>
 
         <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 14px;">
@@ -551,7 +552,7 @@ function generateInvitationDeclinedEmail(coachName: string, athleteInfo: { name:
         </ul>
 
         <div style="text-align: center; margin: 30px 0;">
-          <a href="https://playbookd.crucibleanalytics.dev/dashboard/coach/athletes" style="background-color: #A01C21; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Invite More Athletes</a>
+          <a href="${APP_URL}/dashboard/coach/athletes" style="background-color: #A01C21; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Invite More Athletes</a>
         </div>
 
         <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 14px;">
@@ -602,7 +603,7 @@ function generateInvitationExpiredEmail(coachName: string, athleteInfo: { name: 
         </ul>
 
         <div style="text-align: center; margin: 30px 0;">
-          <a href="https://playbookd.crucibleanalytics.dev/dashboard/coach/athletes" style="background-color: #A01C21; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Resend Invitation</a>
+          <a href="${APP_URL}/dashboard/coach/athletes" style="background-color: #A01C21; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Resend Invitation</a>
         </div>
 
         <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 14px;">
@@ -656,7 +657,7 @@ function generateAthleteProfileCreatedEmail(coachName: string, athleteInfo: { na
         </ul>
 
         <div style="text-align: center; margin: 30px 0;">
-          <a href="https://playbookd.crucibleanalytics.dev/dashboard/creator/athletes" style="background-color: #A01C21; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">View Athlete Profile</a>
+          <a href="${APP_URL}/dashboard/creator/athletes" style="background-color: #A01C21; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">View Athlete Profile</a>
         </div>
 
         <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 14px;">
