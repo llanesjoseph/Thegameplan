@@ -26,12 +26,40 @@ import {
 
 interface CoachApplication {
   id: string
-  userId: string
+  userId?: string
   email: string
   displayName: string
-  currentRole: string
-  requestedRole: string
-  applicationData: {
+  firstName: string
+  lastName: string
+  phone?: string
+  role: string // Target role from invitation ('coach' or 'assistant')
+  invitationId: string
+  invitationType: string
+  organizationName?: string
+  inviterName?: string
+  sport?: string
+  // Profile data
+  experience?: string
+  credentials?: string
+  tagline?: string
+  philosophy?: string | {
+    title: string
+    description: string
+    points: Array<{
+      title: string
+      description: string
+    }>
+  }
+  specialties?: string[]
+  achievements?: string[]
+  references?: string[]
+  sampleQuestions?: string[]
+  bio?: string
+  voiceCaptureData?: any
+  // Legacy structure for old applications
+  currentRole?: string
+  requestedRole?: string
+  applicationData?: {
     sport: string
     experience: string
     credentials: string
@@ -50,10 +78,11 @@ interface CoachApplication {
     sampleQuestions: string[]
   }
   status: 'pending' | 'approved' | 'rejected' | 'under_review'
-  submittedAt: string
+  submittedAt: any
   reviewedAt?: string
   reviewedBy?: string
   reviewNotes?: string
+  autoApprove?: boolean
 }
 
 export default function CoachIntakeApprovalPage() {
@@ -109,47 +138,89 @@ export default function CoachIntakeApprovalPage() {
       const application = applications.find(app => app.id === applicationId)
       if (!application) return
 
-      // Update application status
-      await updateDoc(doc(db, 'coach_applications', applicationId), {
-        status: decision,
-        reviewedAt: new Date().toISOString(),
-        reviewedBy: user?.uid,
-        reviewNotes: reviewNotes
-      })
+      // Detect if this is a new simple invitation application or legacy application
+      const isSimpleInvitation = application.invitationType === 'simple'
+      const targetRole = application.role || application.requestedRole || 'coach'
 
-      if (decision === 'approved') {
+      if (decision === 'approved' && isSimpleInvitation && !application.userId) {
+        // For simple invitations without userId, we need to create the Firebase user first
+        const response = await fetch('/api/admin/approve-simple-coach', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            applicationId: application.id,
+            email: application.email,
+            displayName: application.displayName,
+            firstName: application.firstName,
+            lastName: application.lastName,
+            phone: application.phone,
+            role: targetRole,
+            sport: application.sport,
+            experience: application.experience,
+            credentials: application.credentials,
+            tagline: application.tagline,
+            philosophy: application.philosophy,
+            specialties: application.specialties,
+            achievements: application.achievements,
+            references: application.references,
+            sampleQuestions: application.sampleQuestions,
+            bio: application.bio,
+            voiceCaptureData: application.voiceCaptureData,
+            invitationId: application.invitationId,
+            reviewNotes: reviewNotes,
+            reviewedBy: user?.uid
+          })
+        })
+
+        const result = await response.json()
+
+        if (!response.ok) {
+          throw new Error(result.error || 'Failed to approve application')
+        }
+
+        setSelectedApp(null)
+        setReviewNotes('')
+        alert(`${targetRole.charAt(0).toUpperCase() + targetRole.slice(1)} application approved successfully! User account created and welcome email sent.`)
+      } else if (decision === 'approved' && application.userId) {
+        // Legacy flow for applications that already have a userId
+        const appData = application.applicationData || application
+
+        // Update application status
+        await updateDoc(doc(db, 'coach_applications', applicationId), {
+          status: decision,
+          reviewedAt: new Date().toISOString(),
+          reviewedBy: user?.uid,
+          reviewNotes: reviewNotes
+        })
+
         // Create coach profile
         const coachProfile = {
           id: application.userId,
           name: application.displayName,
           firstName: application.displayName.split(' ')[0],
-          sport: application.applicationData.sport.toLowerCase(),
-          tagline: application.applicationData.tagline,
+          sport: (appData.sport || application.sport || '').toLowerCase(),
+          tagline: appData.tagline || application.tagline || '',
           heroImageUrl: '',
           headshotUrl: '',
           badges: ['New Coach'],
           lessonCount: 0,
-          specialties: application.applicationData.specialties,
-          experience: application.applicationData.experience,
+          specialties: appData.specialties || application.specialties || [],
+          experience: appData.experience || application.experience || '',
           verified: true,
           featured: false,
-          credentials: application.applicationData.credentials || application.applicationData.experience,
-          philosophy: {
-            title: application.applicationData.philosophy.title,
-            description: application.applicationData.philosophy.description,
-            points: application.applicationData.philosophy.points.map(point => ({
-              icon: Award,
-              title: point.title,
-              description: point.description
-            }))
+          credentials: appData.credentials || application.credentials || appData.experience || application.experience || '',
+          philosophy: appData.philosophy || application.philosophy || {
+            title: 'My Coaching Philosophy',
+            description: '',
+            points: []
           },
-          sampleQuestions: application.applicationData.sampleQuestions.filter(q => q.trim()),
+          sampleQuestions: (appData.sampleQuestions || application.sampleQuestions || []).filter((q: string) => q?.trim()),
           assistantCoaches: [],
           stats: {
             studentsHelped: 0,
             averageRating: 0,
             totalLessons: 0,
-            yearsExperience: parseInt(application.applicationData.experience.match(/\d+/)?.[0] || '0')
+            yearsExperience: parseInt((appData.experience || application.experience || '0').match(/\d+/)?.[0] || '0')
           },
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
@@ -160,27 +231,49 @@ export default function CoachIntakeApprovalPage() {
 
         // Update user role
         await updateDoc(doc(db, 'users', application.userId), {
-          role: 'coach',
+          role: targetRole,
           updatedAt: new Date().toISOString()
         })
 
         // Add to creators index
         await setDoc(doc(db, 'creators_index', application.userId), {
           displayName: application.displayName,
-          sport: application.applicationData.sport,
-          specialties: application.applicationData.specialties,
+          sport: appData.sport || application.sport || '',
+          specialties: appData.specialties || application.specialties || [],
           lastUpdated: new Date().toISOString(),
           profileUrl: `/contributors/${application.userId}`,
           isActive: true
         })
-      }
 
-      setSelectedApp(null)
-      setReviewNotes('')
-      alert(`Application ${decision} successfully!`)
+        // Send approval email
+        await fetch('/api/coach-application/approve', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: application.email,
+            name: application.displayName
+          })
+        })
+
+        setSelectedApp(null)
+        setReviewNotes('')
+        alert(`Application ${decision} successfully!`)
+      } else {
+        // Rejection flow
+        await updateDoc(doc(db, 'coach_applications', applicationId), {
+          status: decision,
+          reviewedAt: new Date().toISOString(),
+          reviewedBy: user?.uid,
+          reviewNotes: reviewNotes
+        })
+
+        setSelectedApp(null)
+        setReviewNotes('')
+        alert(`Application ${decision} successfully!`)
+      }
     } catch (error) {
       console.error('Error reviewing application:', error)
-      alert('Failed to process review. Please try again.')
+      alert(`Failed to process review: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
       setSubmittingReview(false)
     }
@@ -222,10 +315,11 @@ export default function CoachIntakeApprovalPage() {
 
   const filteredApplications = applications.filter(app => {
     const matchesFilter = filter === 'all' || app.status === filter
+    const sport = app.sport || app.applicationData?.sport || ''
     const matchesSearch = searchTerm === '' ||
       app.displayName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       app.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      app.applicationData.sport.toLowerCase().includes(searchTerm.toLowerCase())
+      sport.toLowerCase().includes(searchTerm.toLowerCase())
 
     return matchesFilter && matchesSearch
   })
@@ -347,15 +441,15 @@ export default function CoachIntakeApprovalPage() {
                         <div className="flex items-center gap-4 text-sm text-dark/60">
                           <span className="flex items-center gap-1">
                             <Award className="w-4 h-4" />
-                            {app.applicationData.sport}
+                            {app.sport || app.applicationData?.sport || 'Not specified'}
                           </span>
-                          <span>{app.applicationData.experience}</span>
-                          <span>{app.applicationData.specialties.length} specialties</span>
+                          <span>{app.experience || app.applicationData?.experience || 'Not specified'}</span>
+                          <span>{(app.specialties || app.applicationData?.specialties || []).length} specialties</span>
                         </div>
 
-                        {app.applicationData.tagline && (
+                        {(app.tagline || app.applicationData?.tagline) && (
                           <p className="text-dark/60 text-sm mt-2 line-clamp-1 italic">
-                            "{app.applicationData.tagline}"
+                            "{app.tagline || app.applicationData?.tagline}"
                           </p>
                         )}
                       </div>
@@ -411,23 +505,29 @@ export default function CoachIntakeApprovalPage() {
                     <div className="space-y-3">
                       <div>
                         <label className="text-sm text-dark/60">Sport</label>
-                        <p className="text-dark">{selectedApp.applicationData.sport}</p>
+                        <p className="text-dark">{selectedApp.sport || selectedApp.applicationData?.sport || 'Not specified'}</p>
                       </div>
                       <div>
                         <label className="text-sm text-dark/60">Experience</label>
-                        <p className="text-dark">{selectedApp.applicationData.experience}</p>
+                        <p className="text-dark">{selectedApp.experience || selectedApp.applicationData?.experience || 'Not specified'}</p>
                       </div>
                       <div>
                         <label className="text-sm text-dark/60">Tagline</label>
-                        <p className="text-dark">{selectedApp.applicationData.tagline}</p>
+                        <p className="text-dark">{selectedApp.tagline || selectedApp.applicationData?.tagline || 'Not specified'}</p>
                       </div>
+                      {selectedApp.credentials && (
+                        <div>
+                          <label className="text-sm text-dark/60">Credentials</label>
+                          <p className="text-dark">{selectedApp.credentials}</p>
+                        </div>
+                      )}
                     </div>
                   </div>
 
                   <div>
                     <h3 className="text-lg text-dark mb-4">Specialties</h3>
                     <div className="flex flex-wrap gap-2">
-                      {selectedApp.applicationData.specialties.map((specialty, index) => (
+                      {(selectedApp.specialties || selectedApp.applicationData?.specialties || []).map((specialty, index) => (
                         <span
                           key={index}
                           className="px-3 py-1 bg-sky-blue/20 text-sky-blue rounded-full text-sm border border-sky-blue/30"
@@ -440,22 +540,46 @@ export default function CoachIntakeApprovalPage() {
                 </div>
 
                 {/* Philosophy */}
-                <div>
-                  <h3 className="text-lg text-dark mb-4">Coaching Philosophy</h3>
-                  <div className="bg-dark/5 rounded-xl p-6">
-                    <h4 className="text-xl text-dark mb-3">{selectedApp.applicationData.philosophy.title}</h4>
-                    <p className="text-dark/70 mb-6">{selectedApp.applicationData.philosophy.description}</p>
+                {(selectedApp.philosophy || selectedApp.applicationData?.philosophy) && (
+                  <div>
+                    <h3 className="text-lg text-dark mb-4">Coaching Philosophy</h3>
+                    <div className="bg-dark/5 rounded-xl p-6">
+                      {typeof selectedApp.philosophy === 'object' ? (
+                        <>
+                          <h4 className="text-xl text-dark mb-3">{selectedApp.philosophy.title}</h4>
+                          <p className="text-dark/70 mb-6">{selectedApp.philosophy.description}</p>
 
-                    <div className="grid md:grid-cols-3 gap-4">
-                      {selectedApp.applicationData.philosophy.points.map((point, index) => (
-                        <div key={index} className="bg-white rounded-lg p-4">
-                          <h5 className="text-dark mb-2">{point.title}</h5>
-                          <p className="text-dark/60 text-sm">{point.description}</p>
-                        </div>
-                      ))}
+                          {selectedApp.philosophy.points && selectedApp.philosophy.points.length > 0 && (
+                            <div className="grid md:grid-cols-3 gap-4">
+                              {selectedApp.philosophy.points.map((point, index) => (
+                                <div key={index} className="bg-white rounded-lg p-4">
+                                  <h5 className="text-dark mb-2">{point.title}</h5>
+                                  <p className="text-dark/60 text-sm">{point.description}</p>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </>
+                      ) : selectedApp.applicationData?.philosophy ? (
+                        <>
+                          <h4 className="text-xl text-dark mb-3">{selectedApp.applicationData.philosophy.title}</h4>
+                          <p className="text-dark/70 mb-6">{selectedApp.applicationData.philosophy.description}</p>
+
+                          <div className="grid md:grid-cols-3 gap-4">
+                            {selectedApp.applicationData.philosophy.points.map((point, index) => (
+                              <div key={index} className="bg-white rounded-lg p-4">
+                                <h5 className="text-dark mb-2">{point.title}</h5>
+                                <p className="text-dark/60 text-sm">{point.description}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </>
+                      ) : (
+                        <p className="text-dark/70">{selectedApp.philosophy}</p>
+                      )}
                     </div>
                   </div>
-                </div>
+                )}
 
                 {/* Review Actions */}
                 {selectedApp.status === 'pending' && (

@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
       organizationName: invitationData?.organizationName || 'PLAYBOOKD',
       inviterName: invitationData?.inviterName || 'PLAYBOOKD Team',
       sport: invitationData?.sport || coachData.sport,
-      autoApprove: true, // Auto-approve simple invitations
+      autoApprove: invitationData?.autoApprove || false, // Respect invitation settings
       // User info
       email: userInfo.email?.toLowerCase(),
       displayName: userInfo.displayName || `${userInfo.firstName} ${userInfo.lastName}`,
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
       bio: coachData.bio || '',
       voiceCaptureData: coachData.voiceCaptureData || null,
       // Application metadata
-      status: 'approved',
+      status: invitationData?.autoApprove ? 'approved' : 'pending',
       submittedAt: now,
       submittedVia: 'simple_invitation',
       source: 'simple_coach_invitation',
@@ -95,106 +95,124 @@ export async function POST(request: NextRequest) {
     await adminDb.collection('coach_applications').doc(applicationId).set(applicationData)
     console.log(`💾 Saved ${targetRole} application to Firestore:`, applicationId)
 
-    // Create Firebase user account with temporary password
-    let userRecord
-    const temporaryPassword = Math.random().toString(36).slice(-12) + 'A1!' // Meets Firebase requirements
+    // Only create user account and profiles if auto-approve is enabled
+    let userRecord = null
+    const shouldAutoApprove = invitationData?.autoApprove === true
 
-    try {
-      // Try to create user
-      userRecord = await auth.createUser({
+    if (shouldAutoApprove) {
+      // Create Firebase user account with temporary password
+      const temporaryPassword = Math.random().toString(36).slice(-12) + 'A1!' // Meets Firebase requirements
+
+      try {
+        // Try to create user
+        userRecord = await auth.createUser({
+          email: userInfo.email?.toLowerCase(),
+          emailVerified: false,
+          password: temporaryPassword,
+          displayName: `${userInfo.firstName} ${userInfo.lastName}`,
+          disabled: false
+        })
+        console.log(`✅ Created Firebase user:`, userRecord.uid)
+      } catch (error: any) {
+        if (error.code === 'auth/email-already-exists') {
+          // User already exists, get their record
+          userRecord = await auth.getUserByEmail(userInfo.email?.toLowerCase())
+          console.log(`ℹ️ User already exists:`, userRecord.uid)
+        } else {
+          throw error
+        }
+      }
+
+      // Create user document in Firestore with proper role
+      const userDocData = {
+        uid: userRecord.uid,
         email: userInfo.email?.toLowerCase(),
-        emailVerified: false,
-        password: temporaryPassword,
         displayName: `${userInfo.firstName} ${userInfo.lastName}`,
-        disabled: false
-      })
-      console.log(`✅ Created Firebase user:`, userRecord.uid)
-    } catch (error: any) {
-      if (error.code === 'auth/email-already-exists') {
-        // User already exists, get their record
-        userRecord = await auth.getUserByEmail(userInfo.email?.toLowerCase())
-        console.log(`ℹ️ User already exists:`, userRecord.uid)
-      } else {
-        throw error
-      }
-    }
-
-    // Create user document in Firestore with proper role
-    const userDocData = {
-      uid: userRecord.uid,
-      email: userInfo.email?.toLowerCase(),
-      displayName: `${userInfo.firstName} ${userInfo.lastName}`,
-      role: targetRole, // CRITICAL: Set the correct role from invitation
-      firstName: userInfo.firstName,
-      lastName: userInfo.lastName,
-      phone: userInfo.phone || '',
-      createdAt: now,
-      lastLoginAt: now,
-      applicationId,
-      invitationId: ingestionId
-    }
-
-    await adminDb.collection('users').doc(userRecord.uid).set(userDocData, { merge: true })
-    console.log(`✅ Created user document with role: ${targetRole}`)
-
-    // Create coach or assistant profile
-    const profileCollection = targetRole === 'coach' ? 'coach_profiles' : 'creator_profiles'
-    const profileData = {
-      uid: userRecord.uid,
-      email: userInfo.email?.toLowerCase(),
-      displayName: `${userInfo.firstName} ${userInfo.lastName}`,
-      firstName: userInfo.firstName,
-      lastName: userInfo.lastName,
-      phone: userInfo.phone || '',
-      sport: coachData.sport || invitationData?.sport || '',
-      experience: coachData.experience || '',
-      credentials: coachData.credentials || '',
-      tagline: coachData.tagline || '',
-      philosophy: coachData.philosophy || '',
-      specialties: coachData.specialties || [],
-      achievements: coachData.achievements || [],
-      references: coachData.references || [],
-      sampleQuestions: coachData.sampleQuestions || [],
-      bio: coachData.bio || '',
-      voiceCaptureData: coachData.voiceCaptureData || null,
-      isActive: true,
-      profileCompleteness: 40,
-      createdAt: now,
-      updatedAt: now
-    }
-
-    await adminDb.collection(profileCollection).doc(userRecord.uid).set(profileData)
-    console.log(`✅ Created ${targetRole} profile in ${profileCollection}`)
-
-    // Mark invitation as used
-    await adminDb.collection('invitations').doc(ingestionId).update({
-      used: true,
-      usedAt: now.toISOString(),
-      usedBy: userRecord.uid
-    })
-    console.log(`✅ Marked invitation as used:`, ingestionId)
-
-    // Send password reset email so user can set their own password
-    try {
-      const resetLink = await auth.generatePasswordResetLink(userInfo.email?.toLowerCase())
-      console.log(`📧 Password reset link generated for ${userInfo.email}`)
-      // TODO: Send this link via email
-    } catch (error) {
-      console.error('Failed to generate password reset link:', error)
-    }
-
-    return NextResponse.json({
-      success: true,
-      data: {
+        role: targetRole, // CRITICAL: Set the correct role from invitation
+        firstName: userInfo.firstName,
+        lastName: userInfo.lastName,
+        phone: userInfo.phone || '',
+        createdAt: now,
+        lastLoginAt: now,
         applicationId,
-        userId: userRecord.uid,
-        status: 'approved',
-        role: targetRole,
-        autoApproved: true,
-        organizationName: invitationData?.organizationName || 'PLAYBOOKD',
-        message: `Your ${targetRole} application has been automatically approved! Check your email for instructions to set your password.`
+        invitationId: ingestionId
       }
-    })
+
+      await adminDb.collection('users').doc(userRecord.uid).set(userDocData, { merge: true })
+      console.log(`✅ Created user document with role: ${targetRole}`)
+
+      // Create coach or assistant profile
+      const profileCollection = targetRole === 'coach' ? 'coach_profiles' : 'creator_profiles'
+      const profileData = {
+        uid: userRecord.uid,
+        email: userInfo.email?.toLowerCase(),
+        displayName: `${userInfo.firstName} ${userInfo.lastName}`,
+        firstName: userInfo.firstName,
+        lastName: userInfo.lastName,
+        phone: userInfo.phone || '',
+        sport: coachData.sport || invitationData?.sport || '',
+        experience: coachData.experience || '',
+        credentials: coachData.credentials || '',
+        tagline: coachData.tagline || '',
+        philosophy: coachData.philosophy || '',
+        specialties: coachData.specialties || [],
+        achievements: coachData.achievements || [],
+        references: coachData.references || [],
+        sampleQuestions: coachData.sampleQuestions || [],
+        bio: coachData.bio || '',
+        voiceCaptureData: coachData.voiceCaptureData || null,
+        isActive: true,
+        profileCompleteness: 40,
+        createdAt: now,
+        updatedAt: now
+      }
+
+      await adminDb.collection(profileCollection).doc(userRecord.uid).set(profileData)
+      console.log(`✅ Created ${targetRole} profile in ${profileCollection}`)
+
+      // Mark invitation as used
+      await adminDb.collection('invitations').doc(ingestionId).update({
+        used: true,
+        usedAt: now.toISOString(),
+        usedBy: userRecord.uid
+      })
+      console.log(`✅ Marked invitation as used:`, ingestionId)
+
+      // Send password reset email so user can set their own password
+      try {
+        const resetLink = await auth.generatePasswordResetLink(userInfo.email?.toLowerCase())
+        console.log(`📧 Password reset link generated for ${userInfo.email}`)
+        // TODO: Send this link via email
+      } catch (error) {
+        console.error('Failed to generate password reset link:', error)
+      }
+
+      return NextResponse.json({
+        success: true,
+        data: {
+          applicationId,
+          userId: userRecord.uid,
+          status: 'approved',
+          role: targetRole,
+          autoApproved: true,
+          organizationName: invitationData?.organizationName || 'PLAYBOOKD',
+          message: `Your ${targetRole} application has been automatically approved! Check your email for instructions to set your password.`
+        }
+      })
+    } else {
+      // Application submitted for manual review
+      return NextResponse.json({
+        success: true,
+        data: {
+          applicationId,
+          status: 'pending',
+          role: targetRole,
+          autoApproved: false,
+          organizationName: invitationData?.organizationName || 'PLAYBOOKD',
+          message: `Your ${targetRole} application has been submitted successfully! You will receive an email when it has been reviewed.`
+        }
+      })
+    }
 
   } catch (error) {
     console.error('Submit simple coach application error:', error)
