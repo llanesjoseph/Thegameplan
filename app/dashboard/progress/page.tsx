@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
+import { useEnhancedRole } from '@/hooks/use-role-switcher'
 import { db } from '@/lib/firebase'
 import { doc, getDoc, collection, getDocs } from 'firebase/firestore'
 import {
@@ -28,6 +30,8 @@ import AppHeader from '@/components/ui/AppHeader'
 
 export default function ProgressDashboard() {
  const { user } = useAuth()
+ const { role, loading: roleLoading } = useEnhancedRole()
+ const router = useRouter()
  const [userProfile, setUserProfile] = useState<any>(null)
  const [progressStats, setProgressStats] = useState({
   completedSessions: 5,
@@ -42,6 +46,13 @@ export default function ProgressDashboard() {
   { id: 3, title: 'Submission Setups', completion: 60, date: '1 week ago', type: 'lesson' },
   { id: 4, title: 'Competition Prep', completion: 40, date: '1 week ago', type: 'program' }
  ])
+
+ // Redirect coaches to their coach dashboard
+ useEffect(() => {
+  if (!roleLoading && (role === 'coach' || role === 'creator' || role === 'assistant')) {
+   router.replace('/dashboard/creator')
+  }
+ }, [role, roleLoading, router])
 
  useEffect(() => {
   const loadUserData = async () => {

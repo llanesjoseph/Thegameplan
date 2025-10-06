@@ -1527,17 +1527,19 @@ This ${titleAnalysis.trainingType.toLowerCase()} maximizes learning outcomes thr
        </div>
       </div>
 
-      <div className="bg-white rounded-lg p-6 shadow-sm">
-       <div className="flex items-center">
-        <div className="p-2 bg-purple-100 rounded-lg">
-         <Users className="h-6 w-6 text-purple-600" />
-        </div>
-        <div className="ml-4">
-         <p className="text-sm  text-gray-600">Athletes</p>
-         <p className="text-2xl  text-gray-900">{athleteCount}</p>
+      <Link href="/dashboard/creator/athletes" className="block">
+       <div className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+        <div className="flex items-center">
+         <div className="p-2 bg-purple-100 rounded-lg">
+          <Users className="h-6 w-6 text-purple-600" />
+         </div>
+         <div className="ml-4">
+          <p className="text-sm  text-gray-600">Athletes</p>
+          <p className="text-2xl  text-gray-900">{athleteCount}</p>
+         </div>
         </div>
        </div>
-      </div>
+      </Link>
 
       <div className="bg-white rounded-lg p-6 shadow-sm">
        <div className="flex items-center">
