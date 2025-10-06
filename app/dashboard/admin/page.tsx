@@ -40,9 +40,16 @@ export default function AdminDashboard() {
        </Card>
       </a>
 
+      <a href="/dashboard/admin/admin-invites">
+       <Card className="transition-all hover:shadow-md cursor-pointer bg-purple-50">
+        <CardTitle>Admin Invitations</CardTitle>
+        <p className="text-gray-600 text-sm mt-2">Invite and manage admin team members</p>
+       </Card>
+      </a>
+
       <a href="/dashboard/admin/invitations">
        <Card className="transition-all hover:shadow-md cursor-pointer">
-        <CardTitle>All Invitations</CardTitle>
+        <CardTitle>Athlete Invitations</CardTitle>
         <p className="text-gray-600 text-sm mt-2">View all athlete invitations across coaches</p>
        </Card>
       </a>
