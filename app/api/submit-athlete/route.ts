@@ -74,7 +74,6 @@ export async function POST(request: NextRequest) {
       athleticProfile: {
         primarySport: athleteProfile.primarySport,
         secondarySports: athleteProfile.secondarySports || [],
-        yearsOfExperience: athleteProfile.yearsOfExperience,
         skillLevel: athleteProfile.skillLevel,
         trainingGoals: athleteProfile.trainingGoals,
         achievements: athleteProfile.achievements || '',

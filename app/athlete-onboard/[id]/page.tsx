@@ -76,7 +76,6 @@ export default function AthleteOnboardingPage() {
     // Athletic Profile
     primarySport: '',
     secondarySports: [] as string[],
-    yearsOfExperience: '',
     skillLevel: '',
 
     // Training Info
@@ -106,7 +105,6 @@ export default function AthleteOnboardingPage() {
                formData.email.trim() !== ''
       case 2:
         return formData.primarySport !== '' &&
-               formData.yearsOfExperience !== '' &&
                formData.skillLevel !== ''
       case 3:
         return formData.trainingGoals.trim() !== '' &&
@@ -184,7 +182,6 @@ export default function AthleteOnboardingPage() {
             // Athletic profile
             primarySport: formData.primarySport,
             secondarySports: formData.secondarySports,
-            yearsOfExperience: formData.yearsOfExperience,
             skillLevel: formData.skillLevel,
 
             // Training info
@@ -429,23 +426,6 @@ export default function AthleteOnboardingPage() {
                       </label>
                     ))}
                   </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2">Years of Experience *</label>
-                  <select
-                    value={formData.yearsOfExperience}
-                    onChange={(e) => setFormData({...formData, yearsOfExperience: e.target.value})}
-                    className="w-full p-2 border border-gray-300 rounded-md"
-                    required
-                  >
-                    <option value="">Select experience</option>
-                    <option value="less-than-1">Less than 1 year</option>
-                    <option value="1-2">1-2 years</option>
-                    <option value="3-5">3-5 years</option>
-                    <option value="5-10">5-10 years</option>
-                    <option value="more-than-10">More than 10 years</option>
-                  </select>
                 </div>
 
                 <div>

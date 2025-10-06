@@ -23,7 +23,6 @@ interface AthleteProfile {
   athleticProfile: {
     primarySport: string
     secondarySports: string[]
-    yearsOfExperience: string
     skillLevel: string
     trainingGoals: string
     achievements: string
@@ -96,7 +95,6 @@ export default function CreatorAthletesPage() {
           athleticProfile: data.athleticProfile || {
             primarySport: '',
             secondarySports: [],
-            yearsOfExperience: '',
             skillLevel: '',
             trainingGoals: '',
             achievements: '',

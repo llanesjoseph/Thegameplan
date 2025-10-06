@@ -8,7 +8,6 @@ import {
   Trophy,
   Target,
   Calendar,
-  Clock,
   ChevronDown,
   ChevronUp,
   Activity,
@@ -29,7 +28,6 @@ interface AthleteProfile {
   athleticProfile: {
     primarySport: string
     secondarySports: string[]
-    yearsOfExperience: string
     skillLevel: string
     trainingGoals: string
     achievements: string
@@ -87,17 +85,6 @@ export default function AthleteProfileCard({
     }
   }
 
-  const formatExperience = (exp: string) => {
-    const experienceMap: { [key: string]: string } = {
-      'less-than-1': 'Less than 1 year',
-      '1-2': '1-2 years',
-      '3-5': '3-5 years',
-      '5-10': '5-10 years',
-      'more-than-10': '10+ years'
-    }
-    return experienceMap[exp] || exp
-  }
-
   return (
     <Card className="hover:shadow-lg transition-shadow duration-200">
       <CardHeader className="pb-4">
@@ -132,24 +119,15 @@ export default function AthleteProfileCard({
 
       <CardContent className="space-y-4">
         {/* Quick Summary */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-gray-50 rounded-lg p-3">
-            <div className="flex items-center gap-2 text-gray-600 text-sm mb-1">
-              <Clock className="w-4 h-4" />
-              <span className="font-medium">Experience</span>
-            </div>
-            <p className="text-gray-900">{formatExperience(athlete.athleticProfile.yearsOfExperience)}</p>
+        <div className="bg-gray-50 rounded-lg p-3">
+          <div className="flex items-center gap-2 text-gray-600 text-sm mb-1">
+            <BookOpen className="w-4 h-4" />
+            <span className="font-medium">Learning Style</span>
           </div>
-          <div className="bg-gray-50 rounded-lg p-3">
-            <div className="flex items-center gap-2 text-gray-600 text-sm mb-1">
-              <BookOpen className="w-4 h-4" />
-              <span className="font-medium">Learning Style</span>
-            </div>
-            <p className="text-gray-900 flex items-center gap-1">
-              <span>{getLearningStyleIcon(athlete.athleticProfile.learningStyle)}</span>
-              <span className="capitalize">{athlete.athleticProfile.learningStyle.replace('-', ' ')}</span>
-            </p>
-          </div>
+          <p className="text-gray-900 flex items-center gap-1">
+            <span>{getLearningStyleIcon(athlete.athleticProfile.learningStyle)}</span>
+            <span className="capitalize">{athlete.athleticProfile.learningStyle.replace('-', ' ')}</span>
+          </p>
         </div>
 
         {/* Training Goals Preview */}
