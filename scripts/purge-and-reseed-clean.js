@@ -1,25 +1,27 @@
 /**
- * PURGE AND RESEED DATABASE - 5 ROLE SYSTEM
+ * PURGE DATABASE - CLEAN SLATE FOR PRODUCTION
  *
  * ⚠️  WARNING: This will DELETE ALL DATA except joseph@crucibleanalytics.dev
  *
  * What this does:
- * 1. Saves joseph@crucibleanalytics.dev account
+ * 1. Saves joseph@crucibleanalytics.dev account (superadmin)
  * 2. DELETES ALL COLLECTIONS
  * 3. Recreates joseph as superadmin
- * 4. Creates clean sample data with 5 roles only
+ * 4. Creates llanes.joseph.m@gmail.com as coach (for testing)
+ * 5. NO MOCK DATA - clean slate for real users
  *
  * Run this in browser console at: https://playbookd.crucibleanalytics.dev
  * Must be logged in as: joseph@crucibleanalytics.dev
  */
 
 (async function() {
-  console.log('🔥 DATABASE PURGE AND RESEED SCRIPT')
+  console.log('🔥 DATABASE PURGE - PRODUCTION CLEAN SLATE')
   console.log('=' .repeat(60))
-  console.log('⚠️  THIS WILL DELETE ALL DATA EXCEPT JOSEPH!')
+  console.log('⚠️  THIS WILL DELETE ALL DATA!')
   console.log('=' .repeat(60))
 
   const SUPERADMIN_EMAIL = 'joseph@crucibleanalytics.dev'
+  const JOSEPH_COACH_EMAIL = 'llanes.joseph.m@gmail.com'
 
   try {
     // Get Firebase instances
@@ -37,8 +39,7 @@
       setDoc,
       query,
       where,
-      serverTimestamp,
-      writeBatch
+      serverTimestamp
     } = await import('firebase/firestore')
 
     // STEP 1: Verify logged in as Joseph
@@ -59,7 +60,10 @@
     // STEP 2: Final confirmation
     console.log('\n⚠️  FINAL WARNING')
     console.log('=' .repeat(60))
-    console.log('This will DELETE ALL DATA except joseph@crucibleanalytics.dev')
+    console.log('This will DELETE ALL DATA')
+    console.log('Only keeping:')
+    console.log('  - joseph@crucibleanalytics.dev (superadmin)')
+    console.log('  - llanes.joseph.m@gmail.com (coach)')
     console.log('=' .repeat(60))
 
     const confirm1 = confirm('⚠️  DELETE ALL DATA? This cannot be undone!')
@@ -68,14 +72,14 @@
       return
     }
 
-    const confirm2 = confirm('Are you ABSOLUTELY SURE? Type OK if yes.')
+    const confirm2 = confirm('Are you ABSOLUTELY SURE? Click OK to proceed.')
     if (!confirm2) {
       console.log('❌ Cancelled')
       return
     }
 
     // STEP 3: Save Joseph's data
-    console.log('\n💾 STEP 2: Saving Joseph\'s account...')
+    console.log('\n💾 STEP 2: Saving Joseph\'s accounts...')
     const josephQuery = query(
       collection(db, 'users'),
       where('email', '==', SUPERADMIN_EMAIL)
@@ -88,20 +92,37 @@
     if (!josephSnapshot.empty) {
       josephDocId = josephSnapshot.docs[0].id
       josephData = josephSnapshot.docs[0].data()
-      console.log('✅ Joseph\'s account saved')
+      console.log('✅ Joseph superadmin account saved')
       console.log('   ID:', josephDocId)
       console.log('   Email:', josephData.email)
-      console.log('   Current Role:', josephData.role)
     } else {
       console.log('⚠️  Joseph not found in users collection')
       josephDocId = currentUser.uid
       josephData = {
         uid: currentUser.uid,
         email: currentUser.email,
-        displayName: currentUser.displayName || 'Joseph',
+        displayName: currentUser.displayName || 'Joseph Llanes',
         photoURL: currentUser.photoURL || null,
         emailVerified: currentUser.emailVerified || false
       }
+    }
+
+    // Check if coach account exists
+    const josephCoachQuery = query(
+      collection(db, 'users'),
+      where('email', '==', JOSEPH_COACH_EMAIL)
+    )
+    const josephCoachSnapshot = await getDocs(josephCoachQuery)
+
+    let josephCoachData = null
+    let josephCoachDocId = null
+
+    if (!josephCoachSnapshot.empty) {
+      josephCoachDocId = josephCoachSnapshot.docs[0].id
+      josephCoachData = josephCoachSnapshot.docs[0].data()
+      console.log('✅ Joseph coach account found')
+      console.log('   ID:', josephCoachDocId)
+      console.log('   Email:', josephCoachData.email)
     }
 
     // STEP 4: Delete all collections
@@ -127,7 +148,9 @@
       'notifications',
       'invitations',
       'feature_flags',
-      'savedResponses'
+      'savedResponses',
+      'creatorAnalytics',
+      'disclaimer_acknowledgments'
     ]
 
     let totalDeleted = 0
@@ -156,8 +179,9 @@
     console.log(`\n✅ Purged ${totalDeleted} documents from ${collectionsToDelete.length} collections`)
 
     // STEP 5: Recreate Joseph as superadmin
-    console.log('\n👑 STEP 4: Recreating Joseph as superadmin...')
+    console.log('\n👑 STEP 4: Recreating accounts...')
 
+    // Create Joseph superadmin account
     await setDoc(doc(db, 'users', josephDocId), {
       uid: josephDocId,
       email: SUPERADMIN_EMAIL,
@@ -171,132 +195,17 @@
       lastLoginAt: serverTimestamp()
     })
 
-    console.log('✅ Joseph recreated as superadmin')
+    console.log('✅ Joseph superadmin recreated')
 
-    // STEP 6: Create sample data
-    console.log('\n📦 STEP 5: Creating sample data...')
+    // Create Joseph coach account
+    const coachDocId = josephCoachDocId || 'joseph-coach-account'
 
-    // Sample Athletes
-    const sampleAthletes = [
-      {
-        id: 'athlete1',
-        email: 'sarah.athlete@test.com',
-        displayName: 'Sarah Johnson',
-        sport: 'Soccer',
-        skillLevel: 'intermediate',
-        age: 16
-      },
-      {
-        id: 'athlete2',
-        email: 'mike.athlete@test.com',
-        displayName: 'Mike Chen',
-        sport: 'Basketball',
-        skillLevel: 'beginner',
-        age: 14
-      },
-      {
-        id: 'athlete3',
-        email: 'emma.athlete@test.com',
-        displayName: 'Emma Davis',
-        sport: 'Soccer',
-        skillLevel: 'advanced',
-        age: 17
-      }
-    ]
-
-    for (const athlete of sampleAthletes) {
-      // Create user document
-      await setDoc(doc(db, 'users', athlete.id), {
-        uid: athlete.id,
-        email: athlete.email,
-        displayName: athlete.displayName,
-        role: 'athlete',
-        photoURL: null,
-        onboardingComplete: true,
-        emailVerified: true,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-        lastLoginAt: serverTimestamp()
-      })
-
-      // Create athlete profile
-      await setDoc(doc(db, 'athletes', athlete.id), {
-        uid: athlete.id,
-        email: athlete.email,
-        displayName: athlete.displayName,
-        sport: athlete.sport,
-        skillLevel: athlete.skillLevel,
-        age: athlete.age,
-        coachId: 'coach1',
-        onboardingComplete: true,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      })
-
-      console.log(`✅ Created athlete: ${athlete.displayName}`)
-    }
-
-    // Sample Coaches
-    const sampleCoaches = [
-      {
-        id: 'coach1',
-        email: 'alex.coach@test.com',
-        displayName: 'Coach Alex Rivera',
-        sport: 'Soccer',
-        bio: 'Professional soccer coach with 10 years experience',
-        verified: true
-      },
-      {
-        id: 'coach2',
-        email: 'jordan.coach@test.com',
-        displayName: 'Coach Jordan Smith',
-        sport: 'Basketball',
-        bio: 'Former pro player, now coaching youth basketball',
-        verified: true
-      }
-    ]
-
-    for (const coach of sampleCoaches) {
-      // Create user document
-      await setDoc(doc(db, 'users', coach.id), {
-        uid: coach.id,
-        email: coach.email,
-        displayName: coach.displayName,
-        role: 'coach',
-        photoURL: null,
-        onboardingComplete: true,
-        emailVerified: true,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-        lastLoginAt: serverTimestamp()
-      })
-
-      // Create coach profile
-      await setDoc(doc(db, 'coaches', coach.id), {
-        uid: coach.id,
-        email: coach.email,
-        displayName: coach.displayName,
-        sport: coach.sport,
-        bio: coach.bio,
-        certifications: ['Level 1 Coaching License'],
-        specialties: ['Youth Development', 'Technical Skills'],
-        verified: coach.verified,
-        status: 'approved',
-        onboardingComplete: true,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      })
-
-      console.log(`✅ Created coach: ${coach.displayName}`)
-    }
-
-    // Sample Assistant
-    await setDoc(doc(db, 'users', 'assistant1'), {
-      uid: 'assistant1',
-      email: 'taylor.assistant@test.com',
-      displayName: 'Taylor Martinez',
-      role: 'assistant',
-      photoURL: null,
+    await setDoc(doc(db, 'users', coachDocId), {
+      uid: coachDocId,
+      email: JOSEPH_COACH_EMAIL,
+      displayName: josephCoachData?.displayName || 'Joseph Llanes',
+      photoURL: josephCoachData?.photoURL || null,
+      role: 'coach',
       onboardingComplete: true,
       emailVerified: true,
       createdAt: serverTimestamp(),
@@ -304,51 +213,42 @@
       lastLoginAt: serverTimestamp()
     })
 
-    await setDoc(doc(db, 'assistants', 'assistant1'), {
-      uid: 'assistant1',
-      email: 'taylor.assistant@test.com',
-      displayName: 'Taylor Martinez',
-      coachId: 'coach1',
-      permissions: ['view_athletes', 'create_content'],
-      createdAt: serverTimestamp()
-    })
-
-    console.log('✅ Created assistant: Taylor Martinez')
-
-    // Sample Admin
-    await setDoc(doc(db, 'users', 'admin1'), {
-      uid: 'admin1',
-      email: 'admin@test.com',
-      displayName: 'Admin User',
-      role: 'admin',
-      photoURL: null,
+    // Create coach profile
+    await setDoc(doc(db, 'coaches', coachDocId), {
+      uid: coachDocId,
+      email: JOSEPH_COACH_EMAIL,
+      displayName: josephCoachData?.displayName || 'Joseph Llanes',
+      slug: 'joseph-llanes',
+      sport: josephCoachData?.sport || 'Multi-Sport',
+      bio: josephCoachData?.bio || 'Coach and platform administrator',
+      certifications: josephCoachData?.certifications || [],
+      specialties: josephCoachData?.specialties || [],
+      verified: true,
+      status: 'approved',
+      isActive: true,
+      featured: false,
       onboardingComplete: true,
-      emailVerified: true,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
-      lastLoginAt: serverTimestamp()
+      approvedAt: serverTimestamp(),
+      approvedBy: josephDocId
     })
 
-    await setDoc(doc(db, 'admins', 'admin1'), {
-      uid: 'admin1',
-      email: 'admin@test.com',
-      displayName: 'Admin User',
-      permissions: ['manage_users', 'manage_content', 'view_analytics'],
-      createdAt: serverTimestamp()
-    })
+    console.log('✅ Joseph coach account created')
+    console.log('   Email:', JOSEPH_COACH_EMAIL)
+    console.log('   Can now send invites and create lessons')
 
-    console.log('✅ Created admin: Admin User')
-
-    // STEP 7: Summary
+    // STEP 6: Summary
     console.log('\n📊 SUMMARY')
     console.log('=' .repeat(60))
-    console.log('✅ Database purged and reseeded')
+    console.log('✅ Database purged and reset')
     console.log('\nAccounts created:')
-    console.log('  👑 1 Superadmin: joseph@crucibleanalytics.dev')
-    console.log('  🏃 3 Athletes')
-    console.log('  🎓 2 Coaches')
-    console.log('  🤝 1 Assistant')
-    console.log('  ⚙️  1 Admin')
+    console.log('  👑 joseph@crucibleanalytics.dev (superadmin)')
+    console.log('  🎓 llanes.joseph.m@gmail.com (coach)')
+    console.log('\nDatabase is now a CLEAN SLATE')
+    console.log('  - No mock data')
+    console.log('  - No test accounts')
+    console.log('  - Ready for real users')
     console.log('\n5-Role System Active:')
     console.log('  - athlete')
     console.log('  - coach')
@@ -358,19 +258,12 @@
     console.log('=' .repeat(60))
 
     console.log('\n🎉 SUCCESS!')
-    console.log('\n📝 Test Accounts:')
-    console.log('  Athletes:')
-    console.log('    - sarah.athlete@test.com')
-    console.log('    - mike.athlete@test.com')
-    console.log('    - emma.athlete@test.com')
-    console.log('  Coaches:')
-    console.log('    - alex.coach@test.com')
-    console.log('    - jordan.coach@test.com')
-    console.log('  Assistant:')
-    console.log('    - taylor.assistant@test.com')
-    console.log('  Admin:')
-    console.log('    - admin@test.com')
-    console.log('\n⚠️  Note: Test accounts need passwords set in Firebase Auth')
+    console.log('\n📝 Next Steps:')
+    console.log('  1. Sign in as llanes.joseph.m@gmail.com to test coach features')
+    console.log('  2. Create lessons and content')
+    console.log('  3. Send athlete invitations')
+    console.log('  4. Jasmine\'s coach card is hard-coded (shows even before signup)')
+    console.log('  5. Real users can now sign up and get proper roles')
 
   } catch (error) {
     console.error('\n❌ ERROR')
