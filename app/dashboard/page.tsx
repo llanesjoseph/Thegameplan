@@ -63,23 +63,22 @@ export default function Dashboard() {
   // Mark as redirected BEFORE redirecting to prevent double-redirect
   hasRedirected.current = true
 
-   // Route based on user role
-   if (userRole === 'superadmin') {
-    console.log('✅ Superadmin authenticated, redirecting to Admin Dashboard')
-    router.replace('/dashboard/admin')
-   } else if (userRole === 'admin') {
-    console.log('✅ Admin authenticated, redirecting to Admin Dashboard')
-    router.replace('/dashboard/admin')
-   } else if (userRole === 'athlete') {
-    console.log('✅ Athlete authenticated, redirecting to Progress Dashboard')
-    router.replace('/dashboard/progress')
-   } else if (userRole === 'creator' || userRole === 'coach' || userRole === 'assistant' || userRole === 'user') {
-    console.log(`✅ ${userRole} authenticated, redirecting to Creator Dashboard`)
-    router.replace('/dashboard/creator')
-   } else {
-    console.warn('⚠️ Unknown role:', userRole, '- defaulting to Creator Dashboard')
-    router.replace('/dashboard/creator')
-   }
+  // Route based on user role
+  if (userRole === 'superadmin') {
+   console.log('✅ Superadmin authenticated, redirecting to Admin Dashboard')
+   router.replace('/dashboard/admin')
+  } else if (userRole === 'admin') {
+   console.log('✅ Admin authenticated, redirecting to Admin Dashboard')
+   router.replace('/dashboard/admin')
+  } else if (userRole === 'athlete') {
+   console.log('✅ Athlete authenticated, redirecting to Progress Dashboard')
+   router.replace('/dashboard/progress')
+  } else if (userRole === 'creator' || userRole === 'coach' || userRole === 'assistant' || userRole === 'user') {
+   console.log(`✅ ${userRole} authenticated, redirecting to Creator Dashboard`)
+   router.replace('/dashboard/creator')
+  } else {
+   console.warn('⚠️ Unknown role:', userRole, '- defaulting to Creator Dashboard')
+   router.replace('/dashboard/creator')
   }
  }, [user, loading, router])
 
