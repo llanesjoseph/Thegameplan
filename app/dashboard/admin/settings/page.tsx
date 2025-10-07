@@ -156,10 +156,10 @@ export default function AdminSettings() {
 
  if (role !== 'superadmin' && role !== 'admin') {
   return (
-   <div className="min-h-screen flex items-center justify-center">
-    <div className="text-center">
-     <h1 className="text-2xl mb-4">Access Denied</h1>
-     <p className="text-brand-grey">This page is only available to administrators.</p>
+   <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#E8E6D8' }}>
+    <div className="text-center bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8">
+     <h1 className="text-2xl mb-4 font-heading" style={{ color: '#000000' }}>Access Denied</h1>
+     <p style={{ color: '#000000', opacity: 0.7 }}>This page is only available to administrators.</p>
     </div>
    </div>
   )
@@ -167,43 +167,36 @@ export default function AdminSettings() {
 
  if (loading) {
   return (
-   <div className="min-h-screen flex items-center justify-center">
+   <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#E8E6D8' }}>
     <div className="text-center">
-     <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 mx-auto"></div>
-     <p className="mt-4 text-brand-grey">Loading settings...</p>
+     <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-black mx-auto"></div>
+     <p className="mt-4" style={{ color: '#000000', opacity: 0.7 }}>Loading settings...</p>
     </div>
    </div>
   )
  }
 
  return (
-  <div className="min-h-screen bg-gray-50">
-   <AppHeader />
-   <main className="py-16">
-    <div className="max-w-6xl mx-auto px-6">
-    {/* Header */}
-    <div className="mb-12">
-     <h1 className="text-4xl mb-4">Platform Settings</h1>
-     <p className="text-xl text-brand-grey">
-      Configure platform behavior, security, and user experience settings
-     </p>
-    </div>
+  <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
+   <AppHeader title="Platform Settings" subtitle="Configure platform behavior, security, and user experience settings" />
+   <main className="max-w-6xl mx-auto px-6 py-8">
+    <div className="space-y-8">
 
     {/* Save Status */}
     {saveStatus !== 'idle' && (
-     <div className={`mb-8 p-4 rounded-lg flex items-center gap-3 ${
-      saveStatus === 'success' 
-       ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
-       : 'bg-red-500/20 text-red-400 border border-red-500/30'
+     <div className={`p-4 rounded-xl flex items-center gap-3 shadow-lg border ${
+      saveStatus === 'success'
+       ? 'bg-white/90 backdrop-blur-sm border-white/50'
+       : 'bg-white/90 backdrop-blur-sm border-white/50'
      }`}>
       {saveStatus === 'success' ? (
-       <CheckCircle className="w-5 h-5" />
+       <CheckCircle className="w-5 h-5" style={{ color: '#20B2AA' }} />
       ) : (
-       <XCircle className="w-5 h-5" />
+       <XCircle className="w-5 h-5" style={{ color: '#FF6B35' }} />
       )}
-      <span>
-       {saveStatus === 'success' 
-        ? 'Settings saved successfully!' 
+      <span style={{ color: saveStatus === 'success' ? '#20B2AA' : '#FF6B35' }}>
+       {saveStatus === 'success'
+        ? 'Settings saved successfully!'
         : 'Error saving settings. Please try again.'}
       </span>
      </div>
@@ -212,55 +205,57 @@ export default function AdminSettings() {
     {/* Settings Form */}
     <form onSubmit={(e) => { e.preventDefault(); saveSettings(); }} className="space-y-8">
      {/* Content Moderation */}
-     <div className="card">
-      <h2 className="text-2xl  mb-6 flex items-center gap-2">
-       <Video className="w-6 h-6 text-blue-400" />
+     <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8">
+      <h2 className="text-2xl font-heading mb-6 flex items-center gap-2" style={{ color: '#000000' }}>
+       <Video className="w-6 h-6" style={{ color: '#91A6EB' }} />
        Content Moderation
       </h2>
       
       <div className="grid md:grid-cols-2 gap-6">
        <div className="space-y-4">
         <div className="flex items-center justify-between">
-         <label className="text-sm ">Auto-approve content</label>
+         <label className="text-sm font-semibold" style={{ color: '#000000' }}>Auto-approve content</label>
          <input
           type="checkbox"
           checked={settings.contentModeration.autoApprove}
           onChange={(e) => updateSetting('contentModeration', 'autoApprove', e.target.checked)}
-          className="toggle"
+          className="w-4 h-4 accent-black"
          />
         </div>
-        
+
         <div className="flex items-center justify-between">
-         <label className="text-sm ">Require admin review</label>
+         <label className="text-sm font-semibold" style={{ color: '#000000' }}>Require admin review</label>
          <input
           type="checkbox"
           checked={settings.contentModeration.requireReview}
           onChange={(e) => updateSetting('contentModeration', 'requireReview', e.target.checked)}
-          className="toggle"
+          className="w-4 h-4 accent-black"
          />
         </div>
        </div>
-       
+
        <div className="space-y-4">
         <div>
-         <label className="block text-sm  mb-2">Max video length (minutes)</label>
+         <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>Max video length (minutes)</label>
          <input
           type="number"
           value={settings.contentModeration.maxVideoLength}
           onChange={(e) => updateSetting('contentModeration', 'maxVideoLength', parseInt(e.target.value))}
-          className="input w-full"
+          className="w-full px-4 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black bg-white"
+          style={{ color: '#000000' }}
           min="1"
           max="120"
          />
         </div>
-        
+
         <div>
-         <label className="block text-sm  mb-2">Max file size (MB)</label>
+         <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>Max file size (MB)</label>
          <input
           type="number"
           value={settings.contentModeration.maxFileSize}
           onChange={(e) => updateSetting('contentModeration', 'maxFileSize', parseInt(e.target.value))}
-          className="input w-full"
+          className="w-full px-4 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black bg-white"
+          style={{ color: '#000000' }}
           min="10"
           max="2000"
          />
@@ -270,9 +265,9 @@ export default function AdminSettings() {
      </div>
 
      {/* User Management */}
-     <div className="card">
-      <h2 className="text-2xl  mb-6 flex items-center gap-2">
-       <Users className="w-6 h-6 text-green-400" />
+     <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8">
+      <h2 className="text-2xl font-heading mb-6 flex items-center gap-2" style={{ color: '#000000' }}>
+       <Users className="w-6 h-6" style={{ color: '#20B2AA' }} />
        User Management
       </h2>
       
@@ -328,9 +323,9 @@ export default function AdminSettings() {
      </div>
 
      {/* Content Settings */}
-     <div className="card">
-      <h2 className="text-2xl  mb-6 flex items-center gap-2">
-       <Video className="w-6 h-6 text-purple-400" />
+     <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8">
+      <h2 className="text-2xl font-heading mb-6 flex items-center gap-2" style={{ color: '#000000' }}>
+       <Video className="w-6 h-6" style={{ color: '#FF6B35' }} />
        Content Settings
       </h2>
       
@@ -384,9 +379,9 @@ export default function AdminSettings() {
      </div>
 
      {/* Notifications */}
-     <div className="card">
-      <h2 className="text-2xl  mb-6 flex items-center gap-2">
-       <Bell className="w-6 h-6 text-orange-400" />
+     <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8">
+      <h2 className="text-2xl font-heading mb-6 flex items-center gap-2" style={{ color: '#000000' }}>
+       <Bell className="w-6 h-6" style={{ color: '#91A6EB' }} />
        Notification Settings
       </h2>
       
@@ -438,9 +433,9 @@ export default function AdminSettings() {
      </div>
 
      {/* Security */}
-     <div className="card">
-      <h2 className="text-2xl  mb-6 flex items-center gap-2">
-       <Shield className="w-6 h-6 text-red-400" />
+     <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8">
+      <h2 className="text-2xl font-heading mb-6 flex items-center gap-2" style={{ color: '#000000' }}>
+       <Shield className="w-6 h-6" style={{ color: '#FF6B35' }} />
        Security Settings
       </h2>
       
@@ -500,16 +495,17 @@ export default function AdminSettings() {
       <button
        type="submit"
        disabled={saving}
-       className="btn btn-accent btn-lg px-8"
+       className="px-8 py-3 rounded-lg text-white font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+       style={{ backgroundColor: '#91A6EB' }}
       >
        {saving ? (
         <>
-         <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+         <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
          Saving...
         </>
        ) : (
         <>
-         <Save className="w-5 h-5 mr-2" />
+         <Save className="w-5 h-5" />
          Save Settings
         </>
        )}

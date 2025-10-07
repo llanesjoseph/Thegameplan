@@ -191,16 +191,14 @@ export default function CoachApplicationsPage() {
  // Unauthorized access
  if (role !== 'admin' && role !== 'superadmin') {
   return (
-   <div className="min-h-screen bg-gradient-to-br from-cream via-cream to-sky-blue/10 flex items-center justify-center px-4">
-    <div className="max-w-md mx-auto text-center">
-     <div className="w-16 h-16 bg-gradient-to-r from-orange to-orange/80 rounded-2xl flex items-center justify-center mx-auto mb-6">
-      <XCircle className="w-8 h-8 text-white" />
-     </div>
-     <h1 className="text-2xl text-dark mb-4">Access Denied</h1>
-     <p className="text-dark/70 mb-6">You don't have permission to access the admin panel.</p>
+   <div className="min-h-screen flex items-center justify-center px-4" style={{ backgroundColor: '#E8E6D8' }}>
+    <div className="max-w-md mx-auto text-center bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8">
+     <h1 className="text-2xl mb-4 font-heading" style={{ color: '#000000' }}>Access Denied</h1>
+     <p className="mb-6" style={{ color: '#000000', opacity: 0.7 }}>You don't have permission to access the admin panel.</p>
      <Link
       href="/dashboard"
-      className="block w-full bg-gradient-to-r from-sky-blue to-black text-white py-3 rounded-xl "
+      className="block w-full py-3 rounded-xl text-white font-semibold"
+      style={{ backgroundColor: '#91A6EB' }}
      >
       Back to Dashboard
      </Link>
@@ -210,8 +208,8 @@ export default function CoachApplicationsPage() {
  }
 
  return (
-  <div className="min-h-screen bg-gradient-to-br from-cream via-cream to-sky-blue/10">
-   <AppHeader />
+  <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
+   <AppHeader title="Coach Applications" subtitle="Review and approve coaching applications" />
    <main className="max-w-7xl mx-auto px-6 py-8">
     {/* Header */}
     <div className="flex items-center justify-between mb-8">

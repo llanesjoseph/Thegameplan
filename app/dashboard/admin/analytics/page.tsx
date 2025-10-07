@@ -6,13 +6,13 @@ import { useEnhancedRole } from '@/hooks/use-role-switcher'
 import AppHeader from '@/components/ui/AppHeader'
 import { db } from '@/lib/firebase.client'
 import { collection, query, getDocs, orderBy, limit, where } from 'firebase/firestore'
-import { 
- BarChart3, 
- TrendingUp, 
- Users, 
- Eye, 
- Clock, 
- Star, 
+import {
+ BarChart3,
+ TrendingUp,
+ Users,
+ Eye,
+ Clock,
+ Star,
  Video,
  Calendar,
  Target,
@@ -66,7 +66,7 @@ export default function AdminAnalytics() {
  const [topCreators, setTopCreators] = useState<TopCreators[]>([])
  const [loading, setLoading] = useState(true)
  const [timeRange, setTimeRange] = useState('30d')
- 
+
  const { user } = useAuth()
  const { role } = useEnhancedRole()
 
@@ -81,14 +81,14 @@ export default function AdminAnalytics() {
    const totalUsers = 127
    const totalCreators = 8
    const totalContent = 24
-   
+
    // Calculate mock stats (replace with real calculations when available)
    const totalViews = totalContent * 150 // Mock average views per content
    const averageWatchTime = 8.5 // Mock average watch time
    const monthlyGrowth = 15 // Mock monthly growth percentage
    const activeUsers = Math.floor(totalUsers * 0.7) // Mock 70% active users
    const contentPublished = Math.floor(totalContent * 0.8) // Mock 80% published content
-   
+
    setSystemStats({
     totalUsers,
     totalCreators,
@@ -99,7 +99,7 @@ export default function AdminAnalytics() {
     activeUsers,
     contentPublished
    })
-   
+
    // Mock top content data
    setTopContent([
     {
@@ -127,7 +127,7 @@ export default function AdminAnalytics() {
      completionRate: 85
     }
    ])
-   
+
    // Mock top creators data
    setTopCreators([
     {
@@ -155,7 +155,7 @@ export default function AdminAnalytics() {
      averageRating: 4.8
     }
    ])
-   
+
   } catch (error) {
    console.error('Error loading analytics:', error)
   } finally {
@@ -171,10 +171,10 @@ export default function AdminAnalytics() {
 
  if (role !== 'superadmin' && role !== 'admin') {
   return (
-   <div className="min-h-screen flex items-center justify-center">
-    <div className="text-center">
-     <h1 className="text-2xl mb-4">Access Denied</h1>
-     <p className="text-brand-grey">This page is only available to administrators.</p>
+   <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#E8E6D8' }}>
+    <div className="text-center bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8">
+     <h1 className="text-2xl mb-4 font-heading" style={{ color: '#000000' }}>Access Denied</h1>
+     <p style={{ color: '#000000', opacity: 0.7 }}>This page is only available to administrators.</p>
     </div>
    </div>
   )
@@ -182,28 +182,19 @@ export default function AdminAnalytics() {
 
  if (loading) {
   return (
-   <div className="min-h-screen flex items-center justify-center">
+   <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#E8E6D8' }}>
     <div className="text-center">
-     <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 mx-auto"></div>
-     <p className="mt-4 text-brand-grey">Loading analytics...</p>
+     <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-black mx-auto"></div>
+     <p className="mt-4" style={{ color: '#000000', opacity: 0.7 }}>Loading analytics...</p>
     </div>
    </div>
   )
  }
 
  return (
-  <div className="min-h-screen bg-gray-50">
-   <AppHeader />
-   <main className="py-16">
-    <div className="max-w-7xl mx-auto px-6">
-    {/* Header */}
-    <div className="mb-12">
-     <h1 className="text-4xl mb-4">System Analytics</h1>
-     <p className="text-xl text-brand-grey">
-      Comprehensive insights into platform performance and user engagement
-     </p>
-    </div>
-
+  <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
+   <AppHeader title="System Analytics" subtitle="Comprehensive insights into platform performance and user engagement" />
+   <main className="max-w-7xl mx-auto px-6 py-8">
     {/* Time Range Selector */}
     <div className="mb-8">
      <div className="flex gap-2">
@@ -211,13 +202,14 @@ export default function AdminAnalytics() {
        <button
         key={range}
         onClick={() => setTimeRange(range)}
-        className={`px-4 py-2 rounded-lg text-sm  transition-colors ${
+        className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
          timeRange === range
-          ? 'bg-blue-600 text-white'
-          : 'bg-white/10 text-brand-grey hover:bg-white/20'
+          ? 'bg-black text-white'
+          : 'bg-white/90 backdrop-blur-sm border border-white/50 hover:bg-white'
         }`}
+        style={timeRange !== range ? { color: '#000000' } : {}}
        >
-        {range === '7d' ? '7 Days' : 
+        {range === '7d' ? '7 Days' :
          range === '30d' ? '30 Days' :
          range === '90d' ? '90 Days' : '1 Year'}
        </button>
@@ -227,123 +219,123 @@ export default function AdminAnalytics() {
 
     {/* Key Metrics */}
     <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-     <div className="card text-center">
-      <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-       <Users className="w-6 h-6 text-blue-600" />
+     <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
+      <div className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: '#91A6EB' }}>
+       <Users className="w-6 h-6 text-white" />
       </div>
-      <div className="text-3xl text-blue-400 mb-2">
+      <div className="text-4xl font-heading mb-2" style={{ color: '#91A6EB' }}>
        {systemStats.totalUsers.toLocaleString()}
       </div>
-      <div className="text-sm text-brand-grey">Total Athletes</div>
-      <div className="text-xs text-green-400 mt-1">
+      <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Total Athletes</div>
+      <div className="text-xs mt-1" style={{ color: '#20B2AA' }}>
        +{systemStats.monthlyGrowth}% this month
       </div>
      </div>
 
-     <div className="card text-center">
-      <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-       <Star className="w-6 h-6 text-purple-600" />
+     <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
+      <div className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: '#FF6B35' }}>
+       <Star className="w-6 h-6 text-white" />
       </div>
-      <div className="text-3xl text-purple-400 mb-2">
+      <div className="text-4xl font-heading mb-2" style={{ color: '#FF6B35' }}>
        {systemStats.totalCreators.toLocaleString()}
       </div>
-      <div className="text-sm text-brand-grey">Active Creators</div>
-      <div className="text-xs text-purple-400 mt-1">Coaches</div>
+      <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Active Creators</div>
+      <div className="text-xs mt-1" style={{ color: '#000000', opacity: 0.5 }}>Coaches</div>
      </div>
 
-     <div className="card text-center">
-      <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-       <Video className="w-6 h-6 text-green-600" />
+     <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
+      <div className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: '#20B2AA' }}>
+       <Video className="w-6 h-6 text-white" />
       </div>
-      <div className="text-3xl text-green-400 mb-2">
+      <div className="text-4xl font-heading mb-2" style={{ color: '#20B2AA' }}>
        {systemStats.totalContent.toLocaleString()}
       </div>
-      <div className="text-sm text-brand-grey">Total Content</div>
-      <div className="text-xs text-green-400 mt-1">
+      <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Total Content</div>
+      <div className="text-xs mt-1" style={{ color: '#20B2AA' }}>
        {systemStats.contentPublished} published
       </div>
      </div>
 
-     <div className="card text-center">
-      <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-       <Eye className="w-6 h-6 text-orange-600" />
+     <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
+      <div className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: '#000000' }}>
+       <Eye className="w-6 h-6 text-white" />
       </div>
-      <div className="text-3xl text-orange-400 mb-2">
+      <div className="text-4xl font-heading mb-2" style={{ color: '#000000' }}>
        {systemStats.totalViews.toLocaleString()}
       </div>
-      <div className="text-sm text-brand-grey">Total Views</div>
-      <div className="text-xs text-orange-400 mt-1">All time</div>
+      <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Total Views</div>
+      <div className="text-xs mt-1" style={{ color: '#000000', opacity: 0.5 }}>All time</div>
      </div>
     </div>
 
     {/* Engagement Metrics */}
     <div className="grid md:grid-cols-3 gap-6 mb-12">
-     <div className="card text-center">
-      <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-       <Clock className="w-6 h-6 text-blue-600" />
+     <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
+      <div className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: '#91A6EB' }}>
+       <Clock className="w-6 h-6 text-white" />
       </div>
-      <div className="text-3xl text-blue-400 mb-2">
+      <div className="text-4xl font-heading mb-2" style={{ color: '#91A6EB' }}>
        {systemStats.averageWatchTime.toFixed(1)}h
       </div>
-      <div className="text-sm text-brand-grey">Avg Watch Time</div>
-      <div className="text-xs text-blue-400 mt-1">Per session</div>
+      <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Avg Watch Time</div>
+      <div className="text-xs mt-1" style={{ color: '#000000', opacity: 0.5 }}>Per session</div>
      </div>
 
-     <div className="card text-center">
-      <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-       <Activity className="w-6 h-6 text-green-600" />
+     <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
+      <div className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: '#20B2AA' }}>
+       <Activity className="w-6 h-6 text-white" />
       </div>
-      <div className="text-3xl text-green-400 mb-2">
+      <div className="text-4xl font-heading mb-2" style={{ color: '#20B2AA' }}>
        {systemStats.activeUsers.toLocaleString()}
       </div>
-      <div className="text-sm text-brand-grey">Active Athletes</div>
-      <div className="text-xs text-green-400 mt-1">Last 30 days</div>
+      <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Active Athletes</div>
+      <div className="text-xs mt-1" style={{ color: '#000000', opacity: 0.5 }}>Last 30 days</div>
      </div>
 
-     <div className="card text-center">
-      <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-       <Zap className="w-6 h-6 text-purple-600" />
+     <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
+      <div className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: '#FF6B35' }}>
+       <Zap className="w-6 h-6 text-white" />
       </div>
-      <div className="text-3xl text-purple-400 mb-2">
+      <div className="text-4xl font-heading mb-2" style={{ color: '#FF6B35' }}>
        {systemStats.monthlyGrowth}%
       </div>
-      <div className="text-sm text-brand-grey">Monthly Growth</div>
-      <div className="text-xs text-purple-400 mt-1">User acquisition</div>
+      <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Monthly Growth</div>
+      <div className="text-xs mt-1" style={{ color: '#000000', opacity: 0.5 }}>User acquisition</div>
      </div>
     </div>
 
     {/* Top Performing Content */}
     <div className="mb-12">
-     <h2 className="text-2xl  mb-6">Top Performing Content</h2>
-     <div className="card overflow-hidden">
+     <h2 className="text-2xl font-heading mb-6" style={{ color: '#000000' }}>Top Performing Content</h2>
+     <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 overflow-hidden">
       <div className="overflow-x-auto">
        <table className="w-full">
-        <thead className="bg-white/5">
+        <thead style={{ backgroundColor: 'rgba(0,0,0,0.03)' }}>
          <tr>
-          <th className="text-left p-4 ">Content</th>
-          <th className="text-left p-4 ">Creator</th>
-          <th className="text-center p-4 ">Views</th>
-          <th className="text-center p-4 ">Watch Time</th>
-          <th className="text-center p-4 ">Completion</th>
+          <th className="text-left p-4 font-semibold" style={{ color: '#000000' }}>Content</th>
+          <th className="text-left p-4 font-semibold" style={{ color: '#000000' }}>Creator</th>
+          <th className="text-center p-4 font-semibold" style={{ color: '#000000' }}>Views</th>
+          <th className="text-center p-4 font-semibold" style={{ color: '#000000' }}>Watch Time</th>
+          <th className="text-center p-4 font-semibold" style={{ color: '#000000' }}>Completion</th>
          </tr>
         </thead>
         <tbody>
          {topContent.map((content, index) => (
-          <tr key={content.id} className="border-t border-white/10">
+          <tr key={content.id} className="border-t border-gray-300/30 hover:bg-white/30 transition-colors">
            <td className="p-4">
-            <div className="">{content.title}</div>
+            <div style={{ color: '#000000' }}>{content.title}</div>
            </td>
            <td className="p-4">
-            <div className="text-sm">{content.creatorName}</div>
+            <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>{content.creatorName}</div>
            </td>
            <td className="p-4 text-center">
-            <div className="">{content.views.toLocaleString()}</div>
+            <div style={{ color: '#000000' }}>{content.views.toLocaleString()}</div>
            </td>
            <td className="p-4 text-center">
-            <div className="">{content.watchTime.toFixed(1)}h</div>
+            <div style={{ color: '#000000' }}>{content.watchTime.toFixed(1)}h</div>
            </td>
            <td className="p-4 text-center">
-            <div className="">{content.completionRate}%</div>
+            <div style={{ color: '#000000' }}>{content.completionRate}%</div>
            </td>
           </tr>
          ))}
@@ -355,32 +347,32 @@ export default function AdminAnalytics() {
 
     {/* Top Creators */}
     <div className="mb-12">
-     <h2 className="text-2xl  mb-6">Top Creators</h2>
+     <h2 className="text-2xl font-heading mb-6" style={{ color: '#000000' }}>Top Creators</h2>
      <div className="grid md:grid-cols-3 gap-6">
       {topCreators.map((creator) => (
-       <div key={creator.uid} className="card">
+       <div key={creator.uid} className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
         <div className="flex items-center gap-3 mb-4">
-         <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-          <Star className="w-6 h-6 text-purple-600" />
+         <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: '#91A6EB' }}>
+          <Star className="w-6 h-6 text-white" />
          </div>
          <div>
-          <h3 className="">{creator.name}</h3>
-          <div className="text-sm text-brand-grey">{creator.followers} followers</div>
+          <h3 className="font-semibold" style={{ color: '#000000' }}>{creator.name}</h3>
+          <div className="text-sm" style={{ color: '#000000', opacity: 0.6 }}>{creator.followers} followers</div>
          </div>
         </div>
-        
+
         <div className="space-y-3">
          <div className="flex justify-between items-center">
-          <span className="text-sm text-brand-grey">Content</span>
-          <span className="">{creator.contentCount}</span>
+          <span className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Content</span>
+          <span style={{ color: '#000000' }}>{creator.contentCount}</span>
          </div>
          <div className="flex justify-between items-center">
-          <span className="text-sm text-brand-grey">Total Views</span>
-          <span className="">{creator.totalViews.toLocaleString()}</span>
+          <span className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Total Views</span>
+          <span style={{ color: '#000000' }}>{creator.totalViews.toLocaleString()}</span>
          </div>
          <div className="flex justify-between items-center">
-          <span className="text-sm text-brand-grey">Rating</span>
-          <span className="">{creator.averageRating}/5.0</span>
+          <span className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Rating</span>
+          <span style={{ color: '#000000' }}>{creator.averageRating}/5.0</span>
          </div>
         </div>
        </div>
@@ -390,50 +382,49 @@ export default function AdminAnalytics() {
 
     {/* Platform Insights */}
     <div>
-     <h2 className="text-2xl  mb-6">Platform Insights</h2>
+     <h2 className="text-2xl font-heading mb-6" style={{ color: '#000000' }}>Platform Insights</h2>
      <div className="grid md:grid-cols-2 gap-6">
-      <div className="card">
-       <h3 className=" mb-4 flex items-center gap-2">
-        <TrendingUp className="w-5 h-5 text-green-400" />
+      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+       <h3 className="font-semibold mb-4 flex items-center gap-2" style={{ color: '#000000' }}>
+        <TrendingUp className="w-5 h-5" style={{ color: '#20B2AA' }} />
         Growth Trends
        </h3>
        <div className="space-y-4">
         <div className="flex justify-between items-center">
-         <span className="text-brand-grey">User Growth</span>
-         <span className=" text-green-400">+{systemStats.monthlyGrowth}%</span>
+         <span style={{ color: '#000000', opacity: 0.7 }}>User Growth</span>
+         <span className="font-semibold" style={{ color: '#20B2AA' }}>+{systemStats.monthlyGrowth}%</span>
         </div>
         <div className="flex justify-between items-center">
-         <span className="text-brand-grey">Content Growth</span>
-         <span className=" text-blue-400">+25%</span>
+         <span style={{ color: '#000000', opacity: 0.7 }}>Content Growth</span>
+         <span className="font-semibold" style={{ color: '#91A6EB' }}>+25%</span>
         </div>
         <div className="flex justify-between items-center">
-         <span className="text-brand-grey">Engagement Rate</span>
-         <span className=" text-purple-400">78%</span>
+         <span style={{ color: '#000000', opacity: 0.7 }}>Engagement Rate</span>
+         <span className="font-semibold" style={{ color: '#FF6B35' }}>78%</span>
         </div>
        </div>
       </div>
 
-      <div className="card">
-       <h3 className=" mb-4 flex items-center gap-2">
-        <Target className="w-5 h-5 text-blue-400" />
+      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+       <h3 className="font-semibold mb-4 flex items-center gap-2" style={{ color: '#000000' }}>
+        <Target className="w-5 h-5" style={{ color: '#91A6EB' }} />
         Performance Metrics
        </h3>
        <div className="space-y-4">
         <div className="flex justify-between items-center">
-         <span className="text-brand-grey">Avg Session Duration</span>
-         <span className=" text-blue-400">{systemStats.averageWatchTime.toFixed(1)}h</span>
+         <span style={{ color: '#000000', opacity: 0.7 }}>Avg Session Duration</span>
+         <span className="font-semibold" style={{ color: '#91A6EB' }}>{systemStats.averageWatchTime.toFixed(1)}h</span>
         </div>
         <div className="flex justify-between items-center">
-         <span className="text-brand-grey">Content Completion</span>
-         <span className=" text-green-400">85%</span>
+         <span style={{ color: '#000000', opacity: 0.7 }}>Content Completion</span>
+         <span className="font-semibold" style={{ color: '#20B2AA' }}>85%</span>
         </div>
         <div className="flex justify-between items-center">
-         <span className="text-brand-grey">User Retention</span>
-         <span className=" text-purple-400">72%</span>
+         <span style={{ color: '#000000', opacity: 0.7 }}>User Retention</span>
+         <span className="font-semibold" style={{ color: '#FF6B35' }}>72%</span>
         </div>
        </div>
       </div>
-     </div>
      </div>
     </div>
    </main>

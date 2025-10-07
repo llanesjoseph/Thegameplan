@@ -161,10 +161,10 @@ export default function AdminRequestsPage() {
 
  if (role !== 'superadmin' && role !== 'admin') {
   return (
-   <div className="container mx-auto py-8">
-    <div className="text-center">
-     <h1 className="text-2xl mb-4">Access Denied</h1>
-     <p className="text-gray-600">This page is only available to administrators.</p>
+   <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#E8E6D8' }}>
+    <div className="text-center bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8">
+     <h1 className="text-2xl mb-4 font-heading" style={{ color: '#000000' }}>Access Denied</h1>
+     <p style={{ color: '#000000', opacity: 0.7 }}>This page is only available to administrators.</p>
     </div>
    </div>
   )
@@ -172,14 +172,10 @@ export default function AdminRequestsPage() {
 
  if (loading) {
   return (
-   <div className="container mx-auto py-8">
-    <div className="animate-pulse space-y-6">
-     <div className="h-8 bg-gray-200 rounded w-1/4"></div>
-     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-      {[...Array(4)].map((_, i) => (
-       <div key={i} className="h-24 bg-gray-200 rounded"></div>
-      ))}
-     </div>
+   <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#E8E6D8' }}>
+    <div className="text-center">
+     <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-black mx-auto"></div>
+     <p className="mt-4" style={{ color: '#000000', opacity: 0.7 }}>Loading requests...</p>
     </div>
    </div>
   )
@@ -188,79 +184,69 @@ export default function AdminRequestsPage() {
  const counts = getRequestCounts()
 
  return (
-  <div className="min-h-screen bg-gray-50">
-   <AppHeader />
-   <div className="container mx-auto py-8">
+  <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
+   <AppHeader title="Request Management" subtitle="Manage and respond to user support requests" />
+   <main className="max-w-7xl mx-auto px-6 py-8">
     <div className="space-y-6">
-     <div>
-     <h1 className="text-3xl ">Request Management</h1>
-     <p className="text-gray-600">Manage and respond to user support requests</p>
-    </div>
 
     {/* Stats Cards */}
-    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-     <Card>
-      <CardContent className="p-4 text-center">
-       <div className="text-2xl text-blue-600">{counts.total}</div>
-       <div className="text-sm text-gray-600">Total Requests</div>
-      </CardContent>
-     </Card>
-     <Card>
-      <CardContent className="p-4 text-center">
-       <div className="text-2xl text-orange-600">{counts.open}</div>
-       <div className="text-sm text-gray-600">Open</div>
-      </CardContent>
-     </Card>
-     <Card>
-      <CardContent className="p-4 text-center">
-       <div className="text-2xl text-blue-600">{counts.inProgress}</div>
-       <div className="text-sm text-gray-600">In Progress</div>
-      </CardContent>
-     </Card>
-     <Card>
-      <CardContent className="p-4 text-center">
-       <div className="text-2xl text-green-600">{counts.resolved}</div>
-       <div className="text-sm text-gray-600">Resolved</div>
-      </CardContent>
-     </Card>
-     <Card>
-      <CardContent className="p-4 text-center">
-       <div className="text-2xl text-red-600">{counts.urgent}</div>
-       <div className="text-sm text-gray-600">Urgent</div>
-      </CardContent>
-     </Card>
+    <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+     <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
+      <div className="text-4xl font-heading mb-2" style={{ color: '#91A6EB' }}>{counts.total}</div>
+      <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Total Requests</div>
+     </div>
+     <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
+      <div className="text-4xl font-heading mb-2" style={{ color: '#FF6B35' }}>{counts.open}</div>
+      <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Open</div>
+     </div>
+     <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
+      <div className="text-4xl font-heading mb-2" style={{ color: '#91A6EB' }}>{counts.inProgress}</div>
+      <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>In Progress</div>
+     </div>
+     <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
+      <div className="text-4xl font-heading mb-2" style={{ color: '#20B2AA' }}>{counts.resolved}</div>
+      <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Resolved</div>
+     </div>
+     <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
+      <div className="text-4xl font-heading mb-2" style={{ color: '#FF6B35' }}>{counts.urgent}</div>
+      <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Urgent</div>
+     </div>
     </div>
 
     {/* Filters */}
-    <div className="flex gap-4 items-center">
-     <div className="flex items-center gap-2">
-      <Filter className="h-4 w-4" />
-      <span className="text-sm ">Filters:</span>
+    <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 mb-8">
+     <div className="flex gap-4 items-center">
+      <div className="flex items-center gap-2">
+       <Filter className="h-4 w-4" style={{ color: '#000000', opacity: 0.7 }} />
+       <span className="text-sm font-semibold" style={{ color: '#000000' }}>Filters:</span>
+      </div>
+      <select
+       value={filterType}
+       onChange={(e) => setFilterType(e.target.value)}
+       className="px-4 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black bg-white"
+       style={{ color: '#000000' }}
+      >
+       <option value="all">All Types</option>
+       {requestTypes.map(type => (
+        <option key={type.value} value={type.value}>
+         {type.label}
+        </option>
+       ))}
+      </select>
+      <select
+       value={filterPriority}
+       onChange={(e) => setFilterPriority(e.target.value)}
+       className="px-4 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black bg-white"
+       style={{ color: '#000000' }}
+      >
+       <option value="all">All Priorities</option>
+       {priorities.map(priority => (
+        <option key={priority.value} value={priority.value}>
+         {priority.label}
+        </option>
+       ))}
+      </select>
      </div>
-     <select
-      value={filterType}
-      onChange={(e) => setFilterType(e.target.value)}
-      className="flex h-10 w-48 items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-     >
-      <option value="all">All Types</option>
-      {requestTypes.map(type => (
-       <option key={type.value} value={type.value}>
-        {type.label}
-       </option>
-      ))}
-     </select>
-     <select
-      value={filterPriority}
-      onChange={(e) => setFilterPriority(e.target.value)}
-      className="flex h-10 w-48 items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-     >
-      <option value="all">All Priorities</option>
-      {priorities.map(priority => (
-       <option key={priority.value} value={priority.value}>
-        {priority.label}
-       </option>
-      ))}
-     </select>
     </div>
 
     {/* Requests List */}
