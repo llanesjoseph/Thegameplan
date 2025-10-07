@@ -1,55 +1,12 @@
 'use client'
-import { useEffect } from 'react'
-import { useUrlEnhancedRole } from "@/hooks/use-url-role-switcher"
-import { useRouter } from 'next/navigation'
 import AppHeader from '@/components/ui/AppHeader'
 import UserSignupTracker from '@/components/admin/UserSignupTracker'
 import CoachIngestionManager from '@/components/admin/CoachIngestionManager'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 
 export default function AdminDashboard() {
- const { role, loading } = useUrlEnhancedRole()
- const router = useRouter()
-
- useEffect(() => {
-  // Don't redirect while loading - wait for role to be determined
-  if (loading) return
-
-  // Only redirect if role is loaded and NOT admin/superadmin
-  if (role && role !== 'superadmin' && role !== 'admin') {
-   router.replace('/dashboard')
-  }
- }, [role, loading, router])
-
- // Show loading state while role is being determined
- if (loading) {
-  return (
-   <div className="min-h-screen bg-gray-50">
-    <AppHeader />
-    <div className="flex items-center justify-center min-h-[80vh]">
-     <div className="text-center">
-      <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-cardinal mx-auto"></div>
-      <p className="mt-4 text-gray-700">Loading admin dashboard...</p>
-     </div>
-    </div>
-   </div>
-  )
- }
-
- // Show access denied if not admin/superadmin
- if (role && role !== 'superadmin' && role !== 'admin') {
-  return (
-   <div className="min-h-screen bg-gray-50">
-    <AppHeader />
-    <div className="flex items-center justify-center min-h-[80vh]">
-     <div className="text-center bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-      <p className="text-xl text-gray-700">Access Denied</p>
-      <p className="mt-2 text-gray-600">You don't have permission to view this page.</p>
-     </div>
-    </div>
-   </div>
-  )
- }
+ // Authorization is handled by the layout's AuthGate component
+ // No need for additional redirect logic here
 
  return (
   <div className="min-h-screen bg-gray-50">

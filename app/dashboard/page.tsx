@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { getRedirectResult } from 'firebase/auth'
 import { auth } from '@/lib/firebase.client'
 import { useAuth } from '@/hooks/use-auth'
@@ -12,6 +12,7 @@ import ProfileCompletionBanner from '@/components/ui/ProfileCompletionBanner'
 export default function Dashboard() {
  const { user, loading } = useAuth()
  const router = useRouter()
+ const pathname = usePathname()
  const hasRedirected = useRef(false)
 
  useEffect(() => {
@@ -30,7 +31,7 @@ export default function Dashboard() {
   }
 
   handleRedirectResult()
- }, [router])
+ }, [])
 
  // Redirect authenticated users based on their role
  useEffect(() => {
@@ -43,16 +44,10 @@ export default function Dashboard() {
   // Don't redirect if already redirected
   if (hasRedirected.current) return
 
-  const userRole = (user as any).role
+  // Only redirect if we're on the base dashboard page
+  if (pathname !== '/dashboard') return
 
-  // Debug logging
-  console.log('🔍 DASHBOARD ROUTING DEBUG:', {
-   email: user.email,
-   uid: user.uid,
-   detectedRole: userRole,
-   roleType: typeof userRole,
-   userObject: user
-  })
+  const userRole = (user as any).role
 
   // CRITICAL: Do not default to 'creator' if role is undefined - this causes athletes to see creator dashboard
   if (!userRole) {
@@ -62,6 +57,16 @@ export default function Dashboard() {
 
   // Mark as redirected BEFORE redirecting to prevent double-redirect
   hasRedirected.current = true
+
+  // Use sessionStorage to prevent re-redirects on re-renders
+  const redirectKey = `dashboard_redirect_${user.uid}`
+  if (typeof window !== 'undefined') {
+   const lastRedirect = sessionStorage.getItem(redirectKey)
+   if (lastRedirect && Date.now() - parseInt(lastRedirect) < 5000) {
+    return // Don't redirect again within 5 seconds
+   }
+   sessionStorage.setItem(redirectKey, Date.now().toString())
+  }
 
   // Route based on user role
   if (userRole === 'superadmin') {
@@ -80,7 +85,7 @@ export default function Dashboard() {
    console.warn('⚠️ Unknown role:', userRole, '- defaulting to Creator Dashboard')
    router.replace('/dashboard/creator')
   }
- }, [user, loading, router])
+ }, [user, loading, pathname])
 
  if (loading) {
   return (
