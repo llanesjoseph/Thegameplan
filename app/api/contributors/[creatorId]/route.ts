@@ -12,12 +12,12 @@ export async function GET(
     let coachProfile = null
 
     // Try to find by document ID
-    const coachProfileDoc = await db.collection('coach_profiles').doc(creatorId).get()
+    const coachProfileDoc = await db.collection('coaches').doc(creatorId).get()
     if (coachProfileDoc.exists) {
       coachProfile = coachProfileDoc.data()
     } else {
       // Try to find by a slug/identifier field
-      const coachQuery = await db.collection('coach_profiles')
+      const coachQuery = await db.collection('coaches')
         .where('slug', '==', creatorId)
         .limit(1)
         .get()
@@ -31,7 +31,7 @@ export async function GET(
           const firstName = nameParts[0]
           const lastName = nameParts[nameParts.length - 1]
 
-          const nameQuery = await db.collection('coach_profiles')
+          const nameQuery = await db.collection('coaches')
             .where('firstName', '==', firstName)
             .where('lastName', '==', lastName)
             .limit(1)
