@@ -34,25 +34,34 @@ export default function Dashboard() {
 
  // Redirect authenticated users based on their role
  useEffect(() => {
-  if (!loading && user && !hasRedirected.current) {
-   hasRedirected.current = true
-   const userRole = (user as any).role
+  // Don't redirect while loading
+  if (loading) return
 
-   // Debug logging
-   console.log('🔍 DASHBOARD ROUTING DEBUG:', {
-    email: user.email,
-    uid: user.uid,
-    detectedRole: userRole,
-    roleType: typeof userRole,
-    userObject: user
-   })
+  // Don't redirect if no user
+  if (!user) return
 
-   // CRITICAL: Do not default to 'creator' if role is undefined - this causes athletes to see creator dashboard
-   if (!userRole) {
-    console.error('❌ ROLE NOT LOADED - Waiting for role to be available')
-    hasRedirected.current = false // Reset flag to allow retry
-    return
-   }
+  // Don't redirect if already redirected
+  if (hasRedirected.current) return
+
+  const userRole = (user as any).role
+
+  // Debug logging
+  console.log('🔍 DASHBOARD ROUTING DEBUG:', {
+   email: user.email,
+   uid: user.uid,
+   detectedRole: userRole,
+   roleType: typeof userRole,
+   userObject: user
+  })
+
+  // CRITICAL: Do not default to 'creator' if role is undefined - this causes athletes to see creator dashboard
+  if (!userRole) {
+   console.error('❌ ROLE NOT LOADED - Waiting for role to be available')
+   return // Don't set hasRedirected, allow retry
+  }
+
+  // Mark as redirected BEFORE redirecting to prevent double-redirect
+  hasRedirected.current = true
 
    // Route based on user role
    if (userRole === 'superadmin') {
