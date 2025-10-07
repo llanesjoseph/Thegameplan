@@ -219,33 +219,31 @@ export default function SyncCoachesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <AppHeader />
-        <div className="max-w-6xl mx-auto px-6 py-10">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading coaches...</p>
-          </div>
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#E8E6D8' }}>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto"></div>
+          <p className="mt-4" style={{ color: '#000000', opacity: 0.7 }}>Loading coaches...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <AppHeader />
+    <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
+      <AppHeader title="Sync Coaches" subtitle="Sync coach profiles to public browse page" />
       <main className="max-w-6xl mx-auto px-6 py-10">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+        <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Sync Coaches to Public</h1>
-              <p className="text-gray-600 mt-2">Sync coach profiles to the public browse page and fix invalid sports</p>
+              <h1 className="text-3xl font-heading" style={{ color: '#000000' }}>Sync Coaches to Public</h1>
+              <p className="mt-2" style={{ color: '#000000', opacity: 0.7 }}>Sync coach profiles to the public browse page and fix invalid sports</p>
             </div>
             <div className="flex gap-3">
               <button
                 onClick={fixInvalidSports}
                 disabled={fixing || syncing !== null}
-                className="px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="px-6 py-3 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                style={{ backgroundColor: '#FF6B35' }}
               >
                 <RefreshCw className={`w-5 h-5 ${fixing ? 'animate-spin' : ''}`} />
                 Fix Invalid Sports
@@ -253,7 +251,8 @@ export default function SyncCoachesPage() {
               <button
                 onClick={syncAllCoaches}
                 disabled={syncing !== null || fixing}
-                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="px-6 py-3 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                style={{ backgroundColor: '#91A6EB' }}
               >
                 <RefreshCw className={`w-5 h-5 ${syncing ? 'animate-spin' : ''}`} />
                 Sync All Coaches
@@ -261,9 +260,9 @@ export default function SyncCoachesPage() {
             </div>
           </div>
 
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-            <h3 className="font-semibold text-yellow-900 mb-2">⚠️ Important: Contributors Page Filters</h3>
-            <div className="text-sm text-yellow-800 space-y-1">
+          <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 mb-6">
+            <h3 className="font-semibold mb-2" style={{ color: '#FF6B35' }}>⚠️ Important: Contributors Page Filters</h3>
+            <div className="text-sm space-y-1" style={{ color: '#000000', opacity: 0.7 }}>
               <p>• The <a href="/contributors" target="_blank" className="underline hover:text-yellow-900">/contributors</a> page may filter coaches based on:</p>
               <ul className="ml-6 list-disc space-y-1">
                 <li><strong>Your sport preferences</strong> - If you have a preferred sport set in your profile, the page will ONLY show coaches in that sport</li>
@@ -275,28 +274,23 @@ export default function SyncCoachesPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <div className="bg-blue-50 rounded-lg p-4">
-              <div className="flex items-center gap-2 text-blue-600 mb-1">
-                <Users className="w-5 h-5" />
-                <span className="font-semibold">Total Coaches</span>
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
+              <div className="text-4xl font-heading mb-2" style={{ color: '#91A6EB' }}>
+                {coaches.length}
               </div>
-              <p className="text-3xl font-bold text-blue-900">{coaches.length}</p>
+              <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Total Coaches</div>
             </div>
-            <div className="bg-green-50 rounded-lg p-4">
-              <div className="flex items-center gap-2 text-green-600 mb-1">
-                <CheckCircle className="w-5 h-5" />
-                <span className="font-semibold">Synced</span>
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
+              <div className="text-4xl font-heading mb-2" style={{ color: '#20B2AA' }}>
+                {publicCoaches.size}
               </div>
-              <p className="text-3xl font-bold text-green-900">{publicCoaches.size}</p>
+              <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Synced</div>
             </div>
-            <div className="bg-orange-50 rounded-lg p-4">
-              <div className="flex items-center gap-2 text-orange-600 mb-1">
-                <XCircle className="w-5 h-5" />
-                <span className="font-semibold">Not Synced</span>
-              </div>
-              <p className="text-3xl font-bold text-orange-900">
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
+              <div className="text-4xl font-heading mb-2" style={{ color: '#FF6B35' }}>
                 {coaches.length - publicCoaches.size}
-              </p>
+              </div>
+              <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Not Synced</div>
             </div>
           </div>
 
@@ -309,32 +303,32 @@ export default function SyncCoachesPage() {
               return (
                 <div
                   key={coach.uid}
-                  className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                  className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 hover:shadow-2xl transition-shadow"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3">
-                        <h3 className="font-semibold text-gray-900">{displayName}</h3>
+                        <h3 className="font-semibold" style={{ color: '#000000' }}>{displayName}</h3>
                         {isPublic ? (
-                          <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs flex items-center gap-1">
+                          <span className="px-3 py-1 rounded-full text-xs flex items-center gap-1" style={{ backgroundColor: '#20B2AA', color: 'white' }}>
                             <CheckCircle className="w-3 h-3" />
                             Public
                           </span>
                         ) : (
-                          <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-xs flex items-center gap-1">
+                          <span className="px-3 py-1 rounded-full text-xs flex items-center gap-1" style={{ backgroundColor: '#FF6B35', color: 'white' }}>
                             <XCircle className="w-3 h-3" />
                             Not Public
                           </span>
                         )}
                       </div>
-                      <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
+                      <div className="flex items-center gap-4 mt-2 text-sm" style={{ color: '#000000', opacity: 0.7 }}>
                         <span>UID: {coach.uid}</span>
                         <span>Sport: {coach.sport || coach.sports?.[0] || 'N/A'}</span>
                         <span>Status: {coach.status || 'N/A'}</span>
                         <span>Active: {coach.isActive ? 'Yes' : 'No'}</span>
                       </div>
                       {result && (
-                        <p className={`mt-2 text-sm ${result.success ? 'text-green-600' : 'text-red-600'}`}>
+                        <p className={`mt-2 text-sm`} style={{ color: result.success ? '#20B2AA' : '#FF6B35' }}>
                           {result.message}
                         </p>
                       )}
@@ -342,7 +336,8 @@ export default function SyncCoachesPage() {
                     <button
                       onClick={() => syncCoach(coach)}
                       disabled={syncing !== null}
-                      className="ml-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                      className="ml-4 px-4 py-2 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                      style={{ backgroundColor: '#91A6EB' }}
                     >
                       {syncing === coach.uid ? (
                         <>
@@ -364,8 +359,8 @@ export default function SyncCoachesPage() {
 
           {coaches.length === 0 && (
             <div className="text-center py-12">
-              <Users className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600">No coaches found</p>
+              <Users className="w-16 h-16 mx-auto mb-4" style={{ color: '#000000', opacity: 0.4 }} />
+              <p style={{ color: '#000000', opacity: 0.7 }}>No coaches found</p>
             </div>
           )}
         </div>

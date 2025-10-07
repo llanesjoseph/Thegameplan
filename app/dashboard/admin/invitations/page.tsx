@@ -172,71 +172,64 @@ export default function AdminInvitationsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <AppHeader />
-      <main className="py-16">
-        <div className="max-w-7xl mx-auto px-6">
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">All Invitations</h1>
-            <p className="text-gray-600">View and manage all athlete invitations across all coaches</p>
-          </div>
-
+    <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
+      <AppHeader title="All Invitations" subtitle="View and manage all athlete invitations across all coaches" />
+      <main className="max-w-7xl mx-auto px-6 py-8">
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
-            <div className="bg-white rounded-lg shadow p-6">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Total</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+                  <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Total</p>
+                  <p className="text-3xl font-heading" style={{ color: '#91A6EB' }}>{stats.total}</p>
                 </div>
-                <Mail className="w-8 h-8 text-blue-500" />
+                <Mail className="w-8 h-8" style={{ color: '#91A6EB' }} />
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Pending</p>
-                  <p className="text-2xl font-bold text-yellow-600">{stats.pending}</p>
+                  <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Pending</p>
+                  <p className="text-3xl font-heading" style={{ color: '#FF6B35' }}>{stats.pending}</p>
                 </div>
-                <Clock className="w-8 h-8 text-yellow-500" />
+                <Clock className="w-8 h-8" style={{ color: '#FF6B35' }} />
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Accepted</p>
-                  <p className="text-2xl font-bold text-green-600">{stats.accepted}</p>
+                  <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Accepted</p>
+                  <p className="text-3xl font-heading" style={{ color: '#20B2AA' }}>{stats.accepted}</p>
                 </div>
-                <CheckCircle className="w-8 h-8 text-green-500" />
+                <CheckCircle className="w-8 h-8" style={{ color: '#20B2AA' }} />
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Declined</p>
-                  <p className="text-2xl font-bold text-red-600">{stats.declined}</p>
+                  <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Declined</p>
+                  <p className="text-3xl font-heading" style={{ color: '#FF6B35' }}>{stats.declined}</p>
                 </div>
-                <XCircle className="w-8 h-8 text-red-500" />
+                <XCircle className="w-8 h-8" style={{ color: '#FF6B35' }} />
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Expired</p>
-                  <p className="text-2xl font-bold text-gray-600">{stats.expired}</p>
+                  <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Expired</p>
+                  <p className="text-3xl font-heading" style={{ color: '#000000' }}>{stats.expired}</p>
                 </div>
-                <Calendar className="w-8 h-8 text-gray-500" />
+                <Calendar className="w-8 h-8" style={{ color: '#000000' }} />
               </div>
             </div>
           </div>
 
           {/* Filters */}
-          <div className="bg-white rounded-lg shadow p-6 mb-6">
+          <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 mb-8">
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1">
                 <input
@@ -244,57 +237,63 @@ export default function AdminInvitationsPage() {
                   placeholder="Search by athlete name, email, sport, or coach..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cardinal focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black bg-white"
+                  style={{ color: '#000000' }}
                 />
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
                 <button
                   onClick={() => setFilter('all')}
-                  className={`px-4 py-2 rounded-lg font-medium ${
+                  className={`px-4 py-2 rounded-lg font-semibold transition-all ${
                     filter === 'all'
-                      ? 'bg-cardinal text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'bg-black text-white'
+                      : 'bg-white border border-gray-300/50 hover:bg-black/5'
                   }`}
+                  style={filter !== 'all' ? { color: '#000000' } : {}}
                 >
                   All
                 </button>
                 <button
                   onClick={() => setFilter('pending')}
-                  className={`px-4 py-2 rounded-lg font-medium ${
+                  className={`px-4 py-2 rounded-lg font-semibold transition-all ${
                     filter === 'pending'
-                      ? 'bg-yellow-500 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'text-white'
+                      : 'bg-white border border-gray-300/50 hover:bg-black/5'
                   }`}
+                  style={filter === 'pending' ? { backgroundColor: '#FF6B35' } : { color: '#000000' }}
                 >
                   Pending
                 </button>
                 <button
                   onClick={() => setFilter('accepted')}
-                  className={`px-4 py-2 rounded-lg font-medium ${
+                  className={`px-4 py-2 rounded-lg font-semibold transition-all ${
                     filter === 'accepted'
-                      ? 'bg-green-500 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'text-white'
+                      : 'bg-white border border-gray-300/50 hover:bg-black/5'
                   }`}
+                  style={filter === 'accepted' ? { backgroundColor: '#20B2AA' } : { color: '#000000' }}
                 >
                   Accepted
                 </button>
                 <button
                   onClick={() => setFilter('declined')}
-                  className={`px-4 py-2 rounded-lg font-medium ${
+                  className={`px-4 py-2 rounded-lg font-semibold transition-all ${
                     filter === 'declined'
-                      ? 'bg-red-500 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'text-white'
+                      : 'bg-white border border-gray-300/50 hover:bg-black/5'
                   }`}
+                  style={filter === 'declined' ? { backgroundColor: '#FF6B35' } : { color: '#000000' }}
                 >
                   Declined
                 </button>
                 <button
                   onClick={() => setFilter('expired')}
-                  className={`px-4 py-2 rounded-lg font-medium ${
+                  className={`px-4 py-2 rounded-lg font-semibold transition-all ${
                     filter === 'expired'
-                      ? 'bg-gray-500 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'bg-black text-white'
+                      : 'bg-white border border-gray-300/50 hover:bg-black/5'
                   }`}
+                  style={filter !== 'expired' ? { color: '#000000' } : {}}
                 >
                   Expired
                 </button>
@@ -303,15 +302,15 @@ export default function AdminInvitationsPage() {
           </div>
 
           {/* Invitations Table */}
-          <div className="bg-white rounded-lg shadow overflow-hidden">
+          <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 overflow-hidden">
             {loading ? (
               <div className="flex items-center justify-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cardinal"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
               </div>
             ) : filteredInvitations.length === 0 ? (
               <div className="text-center py-12">
-                <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500 text-lg">No invitations found</p>
+                <Users className="w-16 h-16 mx-auto mb-4" style={{ color: '#000000', opacity: 0.3 }} />
+                <p className="text-lg" style={{ color: '#000000', opacity: 0.6 }}>No invitations found</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
