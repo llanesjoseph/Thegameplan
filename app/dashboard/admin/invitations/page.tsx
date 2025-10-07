@@ -140,6 +140,17 @@ export default function AdminInvitationsPage() {
     })
   }
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#E8E6D8' }}>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto"></div>
+          <p className="mt-4" style={{ color: '#000000', opacity: 0.7 }}>Loading invitations...</p>
+        </div>
+      </div>
+    )
+  }
+
   const filteredInvitations = invitations.filter(invite => {
     // Filter by status
     const isExpired = new Date(invite.expiresAt) < new Date()
@@ -175,6 +186,7 @@ export default function AdminInvitationsPage() {
     <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
       <AppHeader title="All Invitations" subtitle="View and manage all athlete invitations across all coaches" />
       <main className="max-w-7xl mx-auto px-6 py-8">
+        <div>
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
             <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">

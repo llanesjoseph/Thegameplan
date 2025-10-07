@@ -143,22 +143,6 @@ export default function AdminRequestsPage() {
   return priorityOption?.color || 'bg-gray-100 text-gray-800'
  }
 
- const filteredRequests = requests.filter(request => {
-  if (filterType !== 'all' && request.type !== filterType) return false
-  if (filterPriority !== 'all' && request.priority !== filterPriority) return false
-  return true
- })
-
- const getRequestCounts = () => {
-  return {
-   total: requests.length,
-   open: requests.filter(r => r.status === 'open').length,
-   inProgress: requests.filter(r => r.status === 'in_progress').length,
-   resolved: requests.filter(r => r.status === 'resolved').length,
-   urgent: requests.filter(r => r.priority === 'urgent').length
-  }
- }
-
  if (role !== 'superadmin' && role !== 'admin') {
   return (
    <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#E8E6D8' }}>
@@ -181,13 +165,30 @@ export default function AdminRequestsPage() {
   )
  }
 
+ const filteredRequests = requests.filter(request => {
+  if (filterType !== 'all' && request.type !== filterType) return false
+  if (filterPriority !== 'all' && request.priority !== filterPriority) return false
+  return true
+ })
+
+ const getRequestCounts = () => {
+  return {
+   total: requests.length,
+   open: requests.filter(r => r.status === 'open').length,
+   inProgress: requests.filter(r => r.status === 'in_progress').length,
+   resolved: requests.filter(r => r.status === 'resolved').length,
+   urgent: requests.filter(r => r.priority === 'urgent').length
+  }
+ }
+
  const counts = getRequestCounts()
 
  return (
   <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
    <AppHeader title="Request Management" subtitle="Manage and respond to user support requests" />
    <main className="max-w-7xl mx-auto px-6 py-8">
-    <div className="space-y-6">
+    <div>
+     <div className="space-y-6">
 
     {/* Stats Cards */}
     <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
@@ -477,8 +478,9 @@ export default function AdminRequestsPage() {
       </TabsContent>
      ))}
     </Tabs>
+     </div>
     </div>
-   </div>
+   </main>
   </div>
  )
 }

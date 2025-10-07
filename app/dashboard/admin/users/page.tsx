@@ -138,76 +138,15 @@ export default function AdminUserManagement() {
  }
 
  const updateUserRole = async (uid: string, newRole: string) => {
-  console.log('🔧 ADMIN: updateUserRole called with:', { uid, newRole, isSelfChange: uid === user?.uid })
-
   try {
-   // Flag is already set in onChange handler
-   console.log('💾 ADMIN: Checking localStorage flag:', localStorage.getItem('admin_role_change_in_progress'))
-
-   // Show loading state during update
-   setUsers(users.map(u => u.uid === uid ? { ...u, role: '...' } : u))
-   console.log('⏳ ADMIN: Set loading state for user', uid)
-
-   // Try direct Firestore update first (simpler and more reliable)
-   console.log('📡 ADMIN: Updating role directly in Firestore')
-
    await updateDoc(doc(db, 'users', uid), {
     role: newRole,
-    updatedAt: new Date(),
-    ...(newRole === 'creator' && {
-     creatorStatus: 'approved',
-     permissions: {
-      canCreateContent: true,
-      canManageContent: true,
-      canAccessAnalytics: true,
-      canReceivePayments: true
-     }
-    })
+    updatedAt: new Date()
    })
-
-   console.log('✅ ADMIN: Direct Firestore update successful')
-
-   console.log(`✅ ADMIN: User role updated successfully to ${newRole}`)
-
-   // If user is changing their own role, handle specially to prevent flicker
-   if (uid === user?.uid) {
-    console.log('🔄 ADMIN: Self role change confirmed - initiating immediate redirect to prevent flicker')
-    console.log('🧹 ADMIN: Clearing superadmin_roleTestingMode from localStorage')
-
-    // Close modal immediately
-    setSelectedUser(null)
-
-    // Clear any cached role data and force immediate page navigation
-    localStorage.removeItem('superadmin_roleTestingMode')
-
-    console.log('🚀 ADMIN: Triggering page replacement in 0ms')
-    // Use replace instead of reload to prevent back button issues
-    window.location.replace(window.location.pathname)
-    return // Exit early to prevent further updates
-   }
-
-   // For other users, update local state normally
    setUsers(users.map(u => u.uid === uid ? { ...u, role: newRole } : u))
-   console.log(`✅ ADMIN: Updated local state for user ${uid} to ${newRole}`)
-
-   // Close the modal after successful update
    setSelectedUser(null)
-
-   // Clear the flag after successful update for other users
-   console.log('⏰ ADMIN: Setting timeout to clear admin_role_change_in_progress flag in 1000ms')
-   setTimeout(() => {
-    localStorage.removeItem('admin_role_change_in_progress')
-    setIsRoleChangeInProgress(false)
-    console.log('🧹 ADMIN: Cleared admin_role_change_in_progress flag after timeout')
-   }, 1000)
   } catch (error) {
-   console.error('❌ ADMIN: Error updating user role:', error)
-   // Clear flag on error
-   localStorage.removeItem('admin_role_change_in_progress')
-   setIsRoleChangeInProgress(false)
-   console.log('🧹 ADMIN: Cleared flag due to error')
-   // Revert optimistic update on error
-   setUsers(users.map(u => u.uid === uid ? { ...u, role: users.find(ou => ou.uid === uid)?.role || 'user' } : u))
+   console.error('Error updating user role:', error)
   }
  }
 
@@ -266,7 +205,8 @@ export default function AdminUserManagement() {
   <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
    <AppHeader title="User Management" subtitle="Manage user accounts, roles, and support requests" />
    <main className="max-w-7xl mx-auto px-6 py-8">
-    {/* Stats Overview */}
+    <div>
+     {/* Stats Overview */}
     <div className="grid md:grid-cols-4 gap-6 mb-8">
      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
       <div className="text-4xl font-heading mb-2" style={{ color: '#91A6EB' }}>
@@ -584,7 +524,7 @@ export default function AdminUserManagement() {
       </div>
      </div>
     )}
-    </div>
+     </div>
    </main>
   </div>
  )
