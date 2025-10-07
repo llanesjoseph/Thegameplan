@@ -89,15 +89,18 @@ export async function getDynamicCoachingContext(coachId: string): Promise<Coachi
   }
 
   try {
-    // Try coach_profiles first
-    let coachDoc = await adminDb.collection('coach_profiles').doc(coachId).get()
+    // Try coaches collection first (new data model)
+    let coachDoc = await adminDb.collection('coaches').doc(coachId).get()
 
-    // Fall back to creator_profiles
+    // Fall back to legacy collections
+    if (!coachDoc.exists) {
+      coachDoc = await adminDb.collection('coach_profiles').doc(coachId).get()
+    }
+
     if (!coachDoc.exists) {
       coachDoc = await adminDb.collection('creator_profiles').doc(coachId).get()
     }
 
-    // Fall back to creatorPublic
     if (!coachDoc.exists) {
       coachDoc = await adminDb.collection('creatorPublic').doc(coachId).get()
     }
