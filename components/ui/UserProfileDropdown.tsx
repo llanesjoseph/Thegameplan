@@ -37,7 +37,7 @@ function CompactRoleSwitcher() {
   guest: { icon: User, label: 'Guest' },
   user: { icon: UserCheck, label: 'User' },
   athlete: { icon: UserCheck, label: 'Athlete' },
-  creator: { icon: Star, label: 'Creator' },
+  creator: { icon: Star, label: 'Creator' }, // Legacy - being phased out
   coach: { icon: Star, label: 'Coach' },
   assistant: { icon: Shield, label: 'Assistant' },
   admin: { icon: Settings, label: 'Admin' },

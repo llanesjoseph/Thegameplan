@@ -76,15 +76,28 @@ service cloud.firestore {
     
     // Users collection - Core user data
     match /users/{userId} {
-      allow read: if isOwner(userId) || isAdmin();
+      // CRITICAL: Users MUST be able to read their own document without role checks
+      // to prevent circular dependency (isAdmin requires reading this same document)
+      allow read: if isOwner(userId);
+
+      // Admins can read all user documents
+      allow read: if isAuthenticated() &&
+                     exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+                     get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'superadmin'];
+
       allow create: if isAuthenticated() &&
                        request.auth.uid == userId &&
                        isValidUserData();
       // Allow users to update their own profile (except role changes)
       // Only admins can change roles
       allow update: if (isOwner(userId) && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role']) && isValidUserData()) ||
-                       (isAdmin() && isValidUserData());
-      allow delete: if isSuperAdmin();
+                       (isAuthenticated() &&
+                        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+                        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'superadmin'] &&
+                        isValidUserData());
+      allow delete: if isAuthenticated() &&
+                       exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+                       get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'superadmin';
     }
     
     // Profiles collection - Extended user profiles

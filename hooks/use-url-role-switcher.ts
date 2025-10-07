@@ -83,19 +83,9 @@ export function useUrlRoleSwitcher() {
   // Get available roles for switching
   const getAvailableRoles = (): { value: UserRole; label: string; description: string }[] => [
     {
-      value: 'guest',
-      label: 'Guest',
-      description: 'Not signed in - limited access'
-    },
-    {
       value: 'user',
       label: 'Athlete',
       description: 'Training and content access'
-    },
-    {
-      value: 'creator',
-      label: 'Creator',
-      description: 'Can create and manage training content'
     },
     {
       value: 'coach',
@@ -104,7 +94,7 @@ export function useUrlRoleSwitcher() {
     },
     {
       value: 'assistant',
-      label: 'Assistant',
+      label: 'Assistant Coach',
       description: 'Assists coaches with training management'
     },
     {
