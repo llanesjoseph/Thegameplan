@@ -199,12 +199,13 @@
 
     // Create Joseph coach account
     const coachDocId = josephCoachDocId || 'joseph-coach-account'
+    const coachPhotoURL = 'https://res.cloudinary.com/dr0jtjwlh/image/upload/v1759857380/DSC_0989_s9kw3x.jpg'
 
     await setDoc(doc(db, 'users', coachDocId), {
       uid: coachDocId,
       email: JOSEPH_COACH_EMAIL,
-      displayName: josephCoachData?.displayName || 'Joseph Llanes',
-      photoURL: josephCoachData?.photoURL || null,
+      displayName: 'Joseph Llanes',
+      photoURL: coachPhotoURL,
       role: 'coach',
       onboardingComplete: true,
       emailVerified: true,
@@ -213,21 +214,42 @@
       lastLoginAt: serverTimestamp()
     })
 
-    // Create coach profile
+    // Create detailed BJJ coach profile
     await setDoc(doc(db, 'coaches', coachDocId), {
       uid: coachDocId,
       email: JOSEPH_COACH_EMAIL,
-      displayName: josephCoachData?.displayName || 'Joseph Llanes',
-      slug: 'joseph-llanes',
-      sport: josephCoachData?.sport || 'Multi-Sport',
-      bio: josephCoachData?.bio || 'Coach and platform administrator',
-      certifications: josephCoachData?.certifications || [],
-      specialties: josephCoachData?.specialties || [],
+      displayName: 'Joseph Llanes',
+      slug: 'joseph-llanes-bjj',
+      sport: 'BJJ',
+      bio: 'BJJ Blue Belt with 3 years of experience specializing in ground game and self-defense. Passionate about teaching fundamental techniques and building strong foundations for students of all levels.',
+      tagline: 'Blue Belt BJJ Coach - Building Strong Foundations',
+      certifications: ['BJJ Blue Belt'],
+      specialties: ['Brazilian Jiu-Jitsu', 'Ground Game', 'Self-Defense', 'Fundamentals'],
+      experience: '3 years of coaching experience',
+      headshotUrl: coachPhotoURL,
+      profileImageUrl: coachPhotoURL,
+      heroImageUrl: null,
       verified: true,
       status: 'approved',
       isActive: true,
       featured: false,
       onboardingComplete: true,
+      stats: {
+        totalAthletes: 0,
+        totalContent: 0,
+        avgRating: 0,
+        totalReviews: 0,
+        totalLessons: 0,
+        totalRevenue: 0
+      },
+      socialLinks: {
+        website: null,
+        instagram: null,
+        youtube: null,
+        tiktok: null,
+        twitter: null,
+        linkedin: null
+      },
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
       approvedAt: serverTimestamp(),
@@ -236,6 +258,9 @@
 
     console.log('✅ Joseph coach account created')
     console.log('   Email:', JOSEPH_COACH_EMAIL)
+    console.log('   Sport: BJJ (Blue Belt)')
+    console.log('   Experience: 3 years')
+    console.log('   Profile Photo: Set')
     console.log('   Can now send invites and create lessons')
 
     // STEP 6: Summary
