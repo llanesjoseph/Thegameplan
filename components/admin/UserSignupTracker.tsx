@@ -103,7 +103,7 @@ export default function UserSignupTracker() {
 
  if (loading) {
   return (
-   <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+   <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
     <div className="animate-pulse space-y-4">
      <div className="h-6 bg-gray-200 rounded w-1/4"></div>
      <div className="space-y-3">
@@ -117,16 +117,16 @@ export default function UserSignupTracker() {
  }
 
  return (
-  <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+  <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50">
    {/* Tabs */}
-   <div className="border-b border-gray-200">
+   <div className="border-b border-gray-300/50">
     <nav className="flex space-x-8 px-6" aria-label="Tabs">
      <button
       onClick={() => setActiveTab('signups')}
-      className={`py-4 px-1 border-b-2  text-sm ${
+      className={`py-4 px-1 border-b-2 text-sm font-semibold transition-colors ${
        activeTab === 'signups'
-        ? 'border-sky-blue text-sky-blue'
-        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+        ? 'border-black text-black'
+        : 'border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-400'
       }`}
      >
       <div className="flex items-center gap-2">
@@ -136,10 +136,10 @@ export default function UserSignupTracker() {
      </button>
      <button
       onClick={() => setActiveTab('notifications')}
-      className={`py-4 px-1 border-b-2  text-sm ${
+      className={`py-4 px-1 border-b-2 text-sm font-semibold transition-colors ${
        activeTab === 'notifications'
-        ? 'border-sky-blue text-sky-blue'
-        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+        ? 'border-black text-black'
+        : 'border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-400'
       }`}
      >
       <div className="flex items-center gap-2">
@@ -153,48 +153,52 @@ export default function UserSignupTracker() {
    <div className="p-6">
     {activeTab === 'signups' && (
      <div className="space-y-4">
-      <h3 className="text-lg  text-gray-900">Recent User Signups</h3>
+      <h3 className="text-xl font-heading" style={{ color: '#000000' }}>Recent User Signups</h3>
 
       {signups.length === 0 ? (
-       <p className="text-gray-500">No signups yet.</p>
+       <p style={{ color: '#000000', opacity: 0.6 }}>No signups yet.</p>
       ) : (
        <div className="space-y-3">
         {signups.map((signup) => (
          <div
           key={signup.id}
-          className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
+          className="flex items-center justify-between p-4 border border-gray-300/50 rounded-xl hover:shadow-md transition-all"
+          style={{ backgroundColor: 'rgba(255, 255, 255, 0.5)' }}
          >
           <div className="flex items-center gap-4">
-           <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-            signup.isSuperadmin ? 'bg-black text-white' : 'bg-sky-blue text-white'
-           }`}>
-            <Users className="w-5 h-5" />
+           <div
+            className="w-12 h-12 rounded-xl flex items-center justify-center shadow-md"
+            style={{ backgroundColor: signup.isSuperadmin ? '#000000' : '#91A6EB' }}
+           >
+            <Users className="w-6 h-6 text-white" />
            </div>
            <div>
             <div className="flex items-center gap-2">
-             <h4 className=" text-gray-900">
+             <h4 className="font-semibold" style={{ color: '#000000' }}>
               {signup.displayName || 'Anonymous'}
              </h4>
              {signup.isSuperadmin && (
-              <span className="px-2 py-1 text-xs bg-black text-white rounded-full">
+              <span className="px-3 py-1 text-xs font-semibold bg-black text-white rounded-full">
                Superadmin
               </span>
              )}
             </div>
-            <p className="text-sm text-gray-500">{signup.email}</p>
+            <p className="text-sm" style={{ color: '#000000', opacity: 0.6 }}>{signup.email}</p>
            </div>
           </div>
 
           <div className="text-right">
-           <div className="flex items-center gap-2 text-sm text-gray-500 mb-1">
+           <div className="flex items-center gap-2 text-sm mb-2" style={{ color: '#000000', opacity: 0.6 }}>
             <Calendar className="w-4 h-4" />
             {formatTimestamp(signup.timestamp)}
            </div>
-           <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs  ${
-            signup.signUpMethod === 'google'
-             ? 'bg-blue-100 text-blue-800'
-             : 'bg-green-100 text-green-800'
-           }`}>
+           <div
+            className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold"
+            style={{
+             backgroundColor: signup.signUpMethod === 'google' ? '#91A6EB' : '#20B2AA',
+             color: '#ffffff'
+            }}
+           >
             {signup.signUpMethod === 'google' ? '🔵' : '📧'} {signup.signUpMethod}
            </div>
           </div>
@@ -207,39 +211,35 @@ export default function UserSignupTracker() {
 
     {activeTab === 'notifications' && (
      <div className="space-y-4">
-      <h3 className="text-lg  text-gray-900">Admin Notifications</h3>
+      <h3 className="text-xl font-heading" style={{ color: '#000000' }}>Admin Notifications</h3>
 
       {notifications.length === 0 ? (
-       <p className="text-gray-500">No notifications.</p>
+       <p style={{ color: '#000000', opacity: 0.6 }}>No notifications.</p>
       ) : (
        <div className="space-y-3">
         {notifications.map((notification) => (
          <div
           key={notification.id}
-          className={`p-4 border rounded-lg ${
+          className={`p-4 border rounded-xl transition-all ${
            notification.read
-            ? 'border-gray-200 bg-gray-50'
-            : 'border-sky-blue bg-sky-blue/5'
+            ? 'border-gray-300/50 bg-white/30'
+            : 'border-gray-400 bg-white/60 shadow-md'
           }`}
          >
           <div className="flex items-start justify-between">
            <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
-             <h4 className={` ${
-              notification.read ? 'text-gray-700' : 'text-gray-900'
-             }`}>
+             <h4 className="font-semibold" style={{ color: notification.read ? '#666666' : '#000000' }}>
               {notification.title}
              </h4>
              {!notification.read && (
-              <span className="w-2 h-2 bg-sky-blue rounded-full"></span>
+              <span className="w-2 h-2 bg-black rounded-full"></span>
              )}
             </div>
-            <p className={`text-sm mb-2 ${
-             notification.read ? 'text-gray-500' : 'text-gray-700'
-            }`}>
+            <p className="text-sm mb-2" style={{ color: notification.read ? '#888888' : '#000000', opacity: notification.read ? 0.8 : 1 }}>
              {notification.message}
             </p>
-            <div className="text-xs text-gray-400">
+            <div className="text-xs" style={{ color: '#000000', opacity: 0.4 }}>
              {formatTimestamp(notification.timestamp)}
             </div>
            </div>
@@ -247,7 +247,8 @@ export default function UserSignupTracker() {
            {!notification.read && (
             <button
              onClick={() => markNotificationAsRead(notification.id)}
-             className="ml-4 p-2 text-gray-400 hover:text-sky-blue"
+             className="ml-4 p-2 hover:bg-black/10 rounded-lg transition-colors"
+             style={{ color: '#000000', opacity: 0.6 }}
              title="Mark as read"
             >
              <CheckCircle className="w-4 h-4" />

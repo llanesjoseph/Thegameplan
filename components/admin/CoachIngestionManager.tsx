@@ -199,29 +199,65 @@ export default function CoachIngestionManager() {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Coach Ingestion Links</h2>
-        <p className="text-gray-600">Create and manage invitation links for coach onboarding</p>
+    <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+      <div className="mb-6">
+        <h2 className="text-2xl font-heading mb-2" style={{ color: '#000000' }}>Coach Ingestion Links</h2>
+        <p style={{ color: '#000000', opacity: 0.7 }}>Create and manage invitation links for coach onboarding</p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="quick">Quick Test</TabsTrigger>
-          <TabsTrigger value="create">Create Link</TabsTrigger>
-          <TabsTrigger value="results">Generated Link</TabsTrigger>
-          <TabsTrigger value="manage">Manage Links</TabsTrigger>
-        </TabsList>
+        <div className="border-b border-gray-300/50 mb-6">
+          <nav className="flex space-x-6" aria-label="Tabs">
+            <button
+              onClick={() => setActiveTab('quick')}
+              className={`py-3 px-1 border-b-2 text-sm font-semibold transition-colors ${
+                activeTab === 'quick'
+                  ? 'border-black text-black'
+                  : 'border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-400'
+              }`}
+            >
+              Quick Test
+            </button>
+            <button
+              onClick={() => setActiveTab('create')}
+              className={`py-3 px-1 border-b-2 text-sm font-semibold transition-colors ${
+                activeTab === 'create'
+                  ? 'border-black text-black'
+                  : 'border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-400'
+              }`}
+            >
+              Create Link
+            </button>
+            <button
+              onClick={() => setActiveTab('results')}
+              className={`py-3 px-1 border-b-2 text-sm font-semibold transition-colors ${
+                activeTab === 'results'
+                  ? 'border-black text-black'
+                  : 'border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-400'
+              }`}
+            >
+              Generated Link
+            </button>
+            <button
+              onClick={() => setActiveTab('manage')}
+              className={`py-3 px-1 border-b-2 text-sm font-semibold transition-colors ${
+                activeTab === 'manage'
+                  ? 'border-black text-black'
+                  : 'border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-400'
+              }`}
+            >
+              Manage Links
+            </button>
+          </nav>
+        </div>
 
         <TabsContent value="quick" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Quick Test Invitations</CardTitle>
-              <CardDescription>
-                Send test invitations quickly for testing purposes
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
+          <div>
+            <h3 className="text-xl font-heading mb-2" style={{ color: '#000000' }}>Quick Test Invitations</h3>
+            <p className="mb-6" style={{ color: '#000000', opacity: 0.7 }}>
+              Send test invitations quickly for testing purposes
+            </p>
+            <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Button
                   onClick={async () => {
@@ -287,29 +323,27 @@ export default function CoachIngestionManager() {
                 </Button>
               </div>
 
-              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                <h4 className="font-medium text-blue-900 mb-2">Test URLs Available:</h4>
-                <div className="space-y-2 text-sm text-blue-800">
+              <div className="bg-white/60 p-4 rounded-xl border border-gray-300/50">
+                <h4 className="font-semibold mb-2" style={{ color: '#000000' }}>Test URLs Available:</h4>
+                <div className="space-y-2 text-sm" style={{ color: '#000000', opacity: 0.8 }}>
                   <div><strong>Regular Test:</strong> /coach-onboard/test-{Date.now()}</div>
                   <div><strong>Jasmine Special:</strong> /coach-onboard/jasmine-special-{Date.now()}</div>
-                  <div className="mt-2 text-blue-600">
+                  <div className="mt-2" style={{ opacity: 0.7 }}>
                     <strong>Note:</strong> These create mock invitation data for testing the onboarding flow.
                   </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </TabsContent>
 
         <TabsContent value="create" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Create Coach Invitation Link</CardTitle>
-              <CardDescription>
-                Generate a shareable link and QR code for coach onboarding
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
+          <div>
+            <h3 className="text-xl font-heading mb-2" style={{ color: '#000000' }}>Create Coach Invitation Link</h3>
+            <p className="mb-6" style={{ color: '#000000', opacity: 0.7 }}>
+              Generate a shareable link and QR code for coach onboarding
+            </p>
+            <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="organizationName">Organization Name *</Label>
@@ -399,7 +433,7 @@ export default function CoachIngestionManager() {
               </div>
 
               {form.sendEmail && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-white/60 rounded-xl border border-gray-300/50">
                   <div>
                     <Label htmlFor="recipientEmail">Recipient Email *</Label>
                     <Input
@@ -430,24 +464,22 @@ export default function CoachIngestionManager() {
                 {creating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {form.sendEmail ? 'Generate Link & Send Email' : 'Generate Invitation Link'}
               </Button>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </TabsContent>
 
         <TabsContent value="results" className="space-y-6">
           {generatedLink ? (
             <div className="space-y-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <CheckCircle className="h-5 w-5 text-green-500" />
-                    Invitation Link Generated!
-                  </CardTitle>
-                  <CardDescription>
-                    Your coach invitation link and QR code are ready to share
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <CheckCircle className="h-6 w-6" style={{ color: '#20B2AA' }} />
+                  <h3 className="text-xl font-heading" style={{ color: '#000000' }}>Invitation Link Generated!</h3>
+                </div>
+                <p className="mb-6" style={{ color: '#000000', opacity: 0.7 }}>
+                  Your coach invitation link and QR code are ready to share
+                </p>
+                <div className="space-y-4">
                   <div>
                     <Label>Invitation Link</Label>
                     <div className="flex gap-2">
@@ -459,12 +491,12 @@ export default function CoachIngestionManager() {
                   </div>
 
                   {emailSent && recipientInfo.email && (
-                    <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-                      <div className="flex items-center gap-2 text-green-800">
+                    <div className="mb-4 p-4 bg-white/60 border border-gray-300/50 rounded-xl">
+                      <div className="flex items-center gap-2 mb-2" style={{ color: '#20B2AA' }}>
                         <CheckCircle className="h-5 w-5" />
                         <span className="font-semibold">Email Sent Successfully!</span>
                       </div>
-                      <p className="text-green-700 mt-1">
+                      <p className="mt-1" style={{ color: '#000000', opacity: 0.8 }}>
                         Invitation email delivered to <strong>{recipientInfo.email}</strong>
                         {recipientInfo.name && ` (${recipientInfo.name})`}
                       </p>
@@ -478,7 +510,7 @@ export default function CoachIngestionManager() {
                         <img
                           src={qrCodeUrl}
                           alt="Coach Invitation QR Code"
-                          className="border rounded-lg"
+                          className="border border-gray-300/50 rounded-xl"
                         />
                       )}
                       <Button variant="outline" onClick={downloadQRCode}>
@@ -487,44 +519,39 @@ export default function CoachIngestionManager() {
                       </Button>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             </div>
           ) : (
-            <Card>
-              <CardContent className="flex flex-col items-center justify-center py-8">
-                <LinkIcon className="h-12 w-12 text-gray-400 mb-4" />
-                <p className="text-gray-500">No invitation link generated yet</p>
-                <Button
-                  variant="outline"
-                  onClick={() => setActiveTab('create')}
-                  className="mt-4"
-                >
-                  Create New Link
-                </Button>
-              </CardContent>
-            </Card>
+            <div className="flex flex-col items-center justify-center py-8">
+              <LinkIcon className="h-12 w-12 mb-4" style={{ color: '#000000', opacity: 0.3 }} />
+              <p className="mb-4" style={{ color: '#000000', opacity: 0.6 }}>No invitation link generated yet</p>
+              <Button
+                variant="outline"
+                onClick={() => setActiveTab('create')}
+              >
+                Create New Link
+              </Button>
+            </div>
           )}
         </TabsContent>
 
         <TabsContent value="manage" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Manage Invitation Links</CardTitle>
-              <CardDescription>
-                View and manage all coach invitation links
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+          <div>
+            <h3 className="text-xl font-heading mb-2" style={{ color: '#000000' }}>Manage Invitation Links</h3>
+            <p className="mb-6" style={{ color: '#000000', opacity: 0.7 }}>
+              View and manage all coach invitation links
+            </p>
+            <div>
               {loading ? (
                 <div className="flex items-center justify-center py-8">
                   <Loader2 className="h-8 w-8 animate-spin" />
-                  <span className="ml-2">Loading links...</span>
+                  <span className="ml-2" style={{ color: '#000000', opacity: 0.7 }}>Loading links...</span>
                 </div>
               ) : ingestionLinks.length === 0 ? (
                 <div className="text-center py-8">
-                  <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500 mb-4">No invitation links created yet</p>
+                  <Users className="h-12 w-12 mx-auto mb-4" style={{ color: '#000000', opacity: 0.3 }} />
+                  <p className="mb-4" style={{ color: '#000000', opacity: 0.6 }}>No invitation links created yet</p>
                   <Button onClick={() => setActiveTab('create')}>
                     <Plus className="mr-2 h-4 w-4" />
                     Create First Link
@@ -533,16 +560,16 @@ export default function CoachIngestionManager() {
               ) : (
                 <div className="space-y-4">
                   {ingestionLinks.map((link) => (
-                    <div key={link.id} className="border rounded-lg p-4">
+                    <div key={link.id} className="border border-gray-300/50 rounded-xl p-4 bg-white/50 hover:shadow-md transition-all">
                       <div className="flex justify-between items-start mb-2">
                         <div>
-                          <h3 className="font-semibold">{link.organizationName}</h3>
-                          <p className="text-sm text-gray-600">{link.sport} • {link.description}</p>
+                          <h3 className="font-semibold" style={{ color: '#000000' }}>{link.organizationName}</h3>
+                          <p className="text-sm" style={{ color: '#000000', opacity: 0.6 }}>{link.sport} • {link.description}</p>
                         </div>
                         {getStatusBadge(link)}
                       </div>
 
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-600 mb-3">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-3" style={{ color: '#000000', opacity: 0.7 }}>
                         <div className="flex items-center gap-1">
                           <Calendar className="h-4 w-4" />
                           Expires: {formatDate(link.expiresAt)}
@@ -583,8 +610,8 @@ export default function CoachIngestionManager() {
                   ))}
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </TabsContent>
       </Tabs>
     </div>
