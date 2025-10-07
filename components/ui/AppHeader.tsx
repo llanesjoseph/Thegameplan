@@ -188,6 +188,9 @@ export default function AppHeader({ className = '', title, subtitle }: AppHeader
       case 'assistant':
         router.push('/dashboard/coaching')
         break
+      case 'athlete':
+        router.push('/dashboard/progress')
+        break
       case 'user':
         router.push('/dashboard')
         break
