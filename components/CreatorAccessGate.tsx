@@ -6,7 +6,10 @@
 'use client'
 
 import Link from 'next/link'
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { useCreatorDashboardAccess } from '@/hooks/use-creator-status'
+import { useUrlEnhancedRole } from '@/hooks/use-url-role-switcher'
 import AppHeader from '@/components/ui/AppHeader'
 import {
  Clock,
@@ -26,12 +29,21 @@ interface CreatorAccessGateProps {
  showFullPage?: boolean
 }
 
-export default function CreatorAccessGate({ 
- children, 
+export default function CreatorAccessGate({
+ children,
  fallbackContent,
- showFullPage = true 
+ showFullPage = true
 }: CreatorAccessGateProps) {
+ const router = useRouter()
+ const { role } = useUrlEnhancedRole()
  const { accessStatus, accessMessage, canAccess, canApply, loading } = useCreatorDashboardAccess()
+
+ // Redirect athletes to their dashboard
+ useEffect(() => {
+  if (!loading && role === 'athlete') {
+   router.replace('/dashboard/progress')
+  }
+ }, [role, loading, router])
 
  if (loading) {
   return (
