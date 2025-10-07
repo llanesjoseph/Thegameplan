@@ -37,7 +37,7 @@ type FilterState = {
 const SPORTS = [
  'soccer', 'basketball', 'football', 'baseball', 'tennis', 'volleyball',
  'hockey', 'lacrosse', 'rugby', 'cricket', 'golf', 'swimming',
- 'track', 'cross-country', 'wrestling', 'boxing', 'mma', 'other'
+ 'track', 'cross-country', 'wrestling', 'boxing', 'mma', 'BJJ', 'other'
 ]
 
 const EXPERIENCES = [
@@ -91,19 +91,19 @@ export default function ContributorsPage() {
  const loadContributors = async (reset = false) => {
   setLoading(true)
   try {
-   let q = query(collection(db, 'creatorPublic'))
+   let q = query(collection(db, 'coaches'))
    if (filters.sport) q = query(q, where('sport', '==', filters.sport))
    if (filters.experience) q = query(q, where('experience', '==', filters.experience))
    if (filters.verified) q = query(q, where('verified', '==', true))
    if (filters.featured) q = query(q, where('featured', '==', true))
 
    // Simplified orderBy to avoid composite index requirement
-   q = query(q, orderBy('name'))
+   q = query(q, orderBy('displayName'))
    if (!reset && lastDoc) q = query(q, startAfter(lastDoc))
    q = query(q, limit(ITEMS_PER_PAGE))
 
    const snapshot = await getDocs(q)
-   const newItems = snapshot.docs.map(d => ({ id: d.id, ...(d.data() as any) })) as Contributor[]
+   const newItems = snapshot.docs.map(d => ({ id: d.id, name: d.data().displayName, ...(d.data() as any) })) as Contributor[]
    if (reset) {
     setContributors(newItems)
    } else {
@@ -113,7 +113,7 @@ export default function ContributorsPage() {
    setHasMore(snapshot.docs.length === ITEMS_PER_PAGE)
 
    if (reset) {
-    const countSnap = await getDocs(collection(db, 'creatorPublic'))
+    const countSnap = await getDocs(collection(db, 'coaches'))
     setTotalCount(countSnap.size)
    }
   } catch (e) {
