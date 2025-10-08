@@ -205,12 +205,6 @@ export default function AdminDashboard() {
    <AppHeader title="Admin Dashboard" subtitle="Full platform control" />
 
    <main className="max-w-7xl mx-auto px-6 py-8 space-y-8">
-    {/* User Signup Tracker */}
-    <UserSignupTracker />
-
-    {/* Coach Ingestion Manager */}
-    <CoachIngestionManager />
-
     {/* Inline Content Display */}
     {activeSection && (
      <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/50 p-8 relative">
