@@ -12,12 +12,12 @@ export default function AdminInvitesPage() {
   const { role, loading: roleLoading } = useEnhancedRole()
   const router = useRouter()
 
-  // Redirect non-admins
+  // Redirect non-admins (only after user and role are fully loaded)
   useEffect(() => {
-    if (!roleLoading && role !== 'admin' && role !== 'superadmin') {
+    if (!roleLoading && user && role !== 'admin' && role !== 'superadmin') {
       router.replace('/dashboard')
     }
-  }, [role, roleLoading, router])
+  }, [role, roleLoading, router, user])
 
   if (roleLoading) {
     return (

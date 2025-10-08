@@ -66,12 +66,12 @@ export default function CoachApplicationsPage() {
  const [searchTerm, setSearchTerm] = useState('')
  const [statusFilter, setStatusFilter] = useState<string>('all')
 
- // Redirect non-admin users automatically
+ // Redirect non-admin users automatically (only after user and role are fully loaded)
  useEffect(() => {
-  if (!roleLoading && role !== 'admin' && role !== 'superadmin') {
-   router.push('/dashboard/creator')
+  if (!roleLoading && user && role !== 'admin' && role !== 'superadmin') {
+   router.push('/dashboard')
   }
- }, [role, roleLoading, router])
+ }, [role, roleLoading, router, user])
 
  useEffect(() => {
   if (role !== 'admin' && role !== 'superadmin') return
