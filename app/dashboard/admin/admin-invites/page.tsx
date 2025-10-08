@@ -8,18 +8,21 @@ import AppHeader from '@/components/ui/AppHeader'
 import AdminInvitationManager from '@/components/admin/AdminInvitationManager'
 
 export default function AdminInvitesPage() {
-  const { user } = useAuth()
-  const { role, loading: roleLoading } = useEnhancedRole()
+  const { user, loading } = useAuth()
+  const { role } = useEnhancedRole()
   const router = useRouter()
 
-  // Redirect non-admins (only after user and role are fully loaded)
+  // Redirect non-admins (only after everything is fully loaded)
   useEffect(() => {
-    if (!roleLoading && user && role !== 'admin' && role !== 'superadmin') {
+    // Only redirect if we're done loading AND have confirmed non-admin status
+    if (!loading && user && role !== 'admin' && role !== 'superadmin') {
+      console.log('🚫 Access denied, redirecting non-admin user:', { role, user: user.email })
       router.replace('/dashboard')
     }
-  }, [role, roleLoading, router, user])
+  }, [role, loading, router, user])
 
-  if (roleLoading) {
+  // Show loading state while auth/role is loading
+  if (loading) {
     return (
       <div style={{ backgroundColor: '#E8E6D8' }} className="min-h-screen">
         <AppHeader />
@@ -30,6 +33,7 @@ export default function AdminInvitesPage() {
     )
   }
 
+  // Don't render if not admin (will redirect via useEffect)
   if (role !== 'admin' && role !== 'superadmin') {
     return null
   }

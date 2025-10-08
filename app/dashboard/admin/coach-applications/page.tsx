@@ -56,8 +56,8 @@ interface CoachApplication {
 }
 
 export default function CoachApplicationsPage() {
- const { user } = useAuth()
- const { role, loading: roleLoading } = useEnhancedRole()
+ const { user, loading: authLoading } = useAuth()
+ const { role } = useEnhancedRole()
  const router = useRouter()
  const [applications, setApplications] = useState<CoachApplication[]>([])
  const [loading, setLoading] = useState(true)
@@ -66,12 +66,14 @@ export default function CoachApplicationsPage() {
  const [searchTerm, setSearchTerm] = useState('')
  const [statusFilter, setStatusFilter] = useState<string>('all')
 
- // Redirect non-admin users automatically (only after user and role are fully loaded)
+ // Redirect non-admin users automatically (only after everything is fully loaded)
  useEffect(() => {
-  if (!roleLoading && user && role !== 'admin' && role !== 'superadmin') {
+  // Only redirect if we're done loading AND have confirmed non-admin status
+  if (!authLoading && user && role !== 'admin' && role !== 'superadmin') {
+   console.log('🚫 Access denied, redirecting non-admin user:', { role, user: user.email })
    router.push('/dashboard')
   }
- }, [role, roleLoading, router, user])
+ }, [role, authLoading, router, user])
 
  useEffect(() => {
   if (role !== 'admin' && role !== 'superadmin') return
@@ -188,7 +190,19 @@ export default function CoachApplicationsPage() {
   return matchesSearch && matchesStatus
  })
 
- // Unauthorized access
+ // Show loading while auth is loading
+ if (authLoading) {
+  return (
+   <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#E8E6D8' }}>
+    <div className="text-center">
+     <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-black mx-auto"></div>
+     <p className="mt-4" style={{ color: '#000000', opacity: 0.7 }}>Loading...</p>
+    </div>
+   </div>
+  )
+ }
+
+ // Unauthorized access (will also trigger redirect via useEffect)
  if (role !== 'admin' && role !== 'superadmin') {
   return (
    <div className="min-h-screen flex items-center justify-center px-4" style={{ backgroundColor: '#E8E6D8' }}>
