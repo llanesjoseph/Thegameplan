@@ -428,6 +428,60 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // User Signups - Recent user signup tracking for admin dashboard
+    match /userSignups/{signupId} {
+      // Only admins can read user signups
+      allow read: if isAdmin();
+      // System creates signup records
+      allow create: if isAuthenticated();
+      // Cannot update or delete signup records (audit trail)
+      allow update, delete: if false;
+    }
+
+    // Admin Notifications - Admin notification system
+    match /adminNotifications/{notificationId} {
+      // Only admins can read notifications
+      allow read: if isAdmin();
+      // System creates notifications
+      allow create: if isAuthenticated();
+      // Admins can update notifications (mark as read)
+      allow update: if isAdmin();
+      // Cannot delete notifications
+      allow delete: if false;
+    }
+
+    // Curated Gear - Recommended equipment and gear
+    match /curatedGear/{gearId} {
+      // Anyone can read curated gear
+      allow read: if true;
+      // Only admins can create/update/delete gear
+      allow write: if isAdmin();
+    }
+
+    // Videos - Video content management
+    match /videos/{videoId} {
+      // Anyone authenticated can read published videos
+      allow read: if isAuthenticated() &&
+                     (resource.data.status == 'published' ||
+                      resource.data.creatorId == request.auth.uid ||
+                      isAdmin());
+      // Creators and coaches can create videos
+      allow create: if isCreatorOrHigher() &&
+                       request.resource.data.creatorId == request.auth.uid;
+      // Creators can update their own videos, admins can update any
+      allow update: if (isCreatorOrHigher() && resource.data.creatorId == request.auth.uid) || isAdmin();
+      // Only admins can delete videos
+      allow delete: if isAdmin();
+    }
+
+    // Creators Index - Creator discovery index
+    match /creators_index/{creatorId} {
+      // Anyone can read the creators index
+      allow read: if true;
+      // Only admins and the creator themselves can write
+      allow write: if isOwner(creatorId) || isAdmin();
+    }
+
     // ===== DEFAULT DENY =====
     match /{document=**} {
       allow read, write: if false;
