@@ -1,8 +1,6 @@
 'use client'
-import React, { useState } from 'react'
+import { useState } from 'react'
 import AppHeader from '@/components/ui/AppHeader'
-import UserSignupTracker from '@/components/admin/UserSignupTracker'
-import CoachIngestionManager from '@/components/admin/CoachIngestionManager'
 import AdminInvitationManager from '@/components/admin/AdminInvitationManager'
 import {
   Users,
@@ -142,62 +140,60 @@ export default function AdminDashboard() {
   }
  ]
 
+ const getSectionPath = (sectionId: string) => {
+  const pathMap: Record<string, string> = {
+   'users': '/dashboard/admin/users',
+   'roles': '/dashboard/admin/roles',
+   'analytics': '/dashboard/admin/analytics',
+   'invitations': '/dashboard/admin/invitations',
+   'coach-applications': '/dashboard/admin/coach-applications',
+   'locker-room': '/dashboard/admin/coaches-locker-room',
+   'athletes': '/dashboard/admin/athletes',
+   'requests': '/dashboard/admin/requests',
+   'assistant-coaches': '/dashboard/admin/assistant-coaches',
+   'content': '/dashboard/admin/content',
+   'gear': '/dashboard/admin/curated-gear',
+   'sync': '/dashboard/admin/sync-coaches',
+   'settings': '/dashboard/admin/settings'
+  }
+  return pathMap[sectionId]
+ }
+
  const renderInlineContent = () => {
   if (!activeSection) return null
 
   const activeCard = adminCards.find(card => card.id === activeSection)
   const title = activeCard?.title || 'Section'
 
-  switch (activeSection) {
-   case 'admin-invites':
-    return (
-     <div>
-      <h2 className="text-3xl font-heading mb-6" style={{ color: '#000000' }}>{title}</h2>
-      <AdminInvitationManager />
-     </div>
-    )
-
-   case 'users':
-   case 'roles':
-   case 'analytics':
-   case 'invitations':
-   case 'coach-applications':
-   case 'locker-room':
-   case 'athletes':
-   case 'requests':
-   case 'assistant-coaches':
-   case 'content':
-   case 'gear':
-   case 'sync':
-   case 'settings':
-    return (
-     <div>
-      <h2 className="text-3xl font-heading mb-6" style={{ color: '#000000' }}>{title}</h2>
-      <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-12 text-center">
-       <div className="animate-pulse mb-4">
-        {React.createElement(activeCard?.icon || Users, {
-         className: "w-16 h-16 mx-auto mb-4",
-         style: { color: activeCard?.color }
-        })}
-       </div>
-       <h3 className="text-xl font-heading mb-2" style={{ color: '#000000' }}>
-        {title}
-       </h3>
-       <p className="text-sm mb-4" style={{ color: '#000000', opacity: 0.7 }}>
-        {activeCard?.description}
-       </p>
-       <div className="inline-block px-4 py-2 bg-yellow-100 border border-yellow-300 rounded-lg text-sm">
-        <span className="font-semibold">🚧 Content Loading...</span>
-        <br />
-        <span className="text-xs">This section is being integrated</span>
-       </div>
-      </div>
-     </div>
-    )
-
-   default:
-    return null
+  // Admin Invitations uses the component directly
+  if (activeSection === 'admin-invites') {
+   return (
+    <div>
+     <h2 className="text-3xl font-heading mb-6" style={{ color: '#000000' }}>{title}</h2>
+     <AdminInvitationManager />
+    </div>
+   )
   }
+
+  // All other sections load via iframe
+  const sectionPath = getSectionPath(activeSection)
+  if (sectionPath) {
+   return (
+    <div className="space-y-4">
+     <h2 className="text-3xl font-heading" style={{ color: '#000000' }}>{title}</h2>
+     <div className="bg-white rounded-xl overflow-hidden shadow-inner" style={{ height: '80vh' }}>
+      <iframe
+       src={sectionPath}
+       className="w-full h-full border-0"
+       title={title}
+       style={{ minHeight: '600px' }}
+      />
+     </div>
+    </div>
+   )
+  }
+
+  return null
  }
 
  return (
