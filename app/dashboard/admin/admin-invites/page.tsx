@@ -1,27 +1,40 @@
 'use client'
 
-import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/use-auth'
-import { useEnhancedRole } from '@/hooks/use-role-switcher'
 import AppHeader from '@/components/ui/AppHeader'
 import AdminInvitationManager from '@/components/admin/AdminInvitationManager'
+import Link from 'next/link'
 
 export default function AdminInvitesPage() {
   const { user, loading } = useAuth()
-  const { role } = useEnhancedRole()
-  const router = useRouter()
+  const [mounted, setMounted] = useState(false)
+  const [isAuthorized, setIsAuthorized] = useState(false)
 
-  // Redirect non-admins (only after everything is fully loaded)
+  // Ensure client-side only rendering
   useEffect(() => {
-    // Only redirect if we're done loading AND have confirmed non-admin status
-    if (!loading && user && role !== 'admin' && role !== 'superadmin') {
-      console.log('🚫 Access denied, redirecting non-admin user:', { role, user: user.email })
-      router.replace('/dashboard')
-    }
-  }, [role, loading, router, user])
+    setMounted(true)
+  }, [])
 
-  // Show loading state while auth/role is loading
+  // Check authorization after mounting and loading complete
+  useEffect(() => {
+    if (mounted && !loading && user) {
+      const userRole = (user as any).role
+      const authorized = userRole === 'admin' || userRole === 'superadmin'
+      setIsAuthorized(authorized)
+
+      if (!authorized) {
+        console.log('🚫 Access denied to admin invites:', { role: userRole, email: user.email })
+      }
+    }
+  }, [mounted, loading, user])
+
+  // Don't render anything during SSR
+  if (!mounted) {
+    return null
+  }
+
+  // Show loading state while auth is loading
   if (loading) {
     return (
       <div style={{ backgroundColor: '#E8E6D8' }} className="min-h-screen">
@@ -33,15 +46,32 @@ export default function AdminInvitesPage() {
     )
   }
 
-  // Don't render if not admin (will redirect via useEffect)
-  if (role !== 'admin' && role !== 'superadmin') {
-    return null
+  // Show access denied screen if not authorized (no redirect)
+  if (!isAuthorized) {
+    return (
+      <div style={{ backgroundColor: '#E8E6D8' }} className="min-h-screen">
+        <AppHeader />
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="max-w-md mx-auto text-center bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8">
+            <h1 className="text-2xl mb-4 font-heading" style={{ color: '#000000' }}>Access Denied</h1>
+            <p className="mb-6" style={{ color: '#000000', opacity: 0.7 }}>
+              This page is only available to administrators.
+            </p>
+            <Link
+              href="/dashboard/admin"
+              className="inline-block px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
+            >
+              Back to Admin Dashboard
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
     <div style={{ backgroundColor: '#E8E6D8' }} className="min-h-screen">
       <AppHeader />
-
       <div className="max-w-7xl mx-auto px-6 py-12">
         <AdminInvitationManager />
       </div>

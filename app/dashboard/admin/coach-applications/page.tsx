@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/use-auth'
-import { useEnhancedRole } from '@/hooks/use-role-switcher'
-import { useRouter } from 'next/navigation'
 import AppHeader from '@/components/ui/AppHeader'
 import { db } from '@/lib/firebase'
 import { collection, query, orderBy, onSnapshot, doc, updateDoc, setDoc, deleteDoc } from 'firebase/firestore'
@@ -57,26 +55,35 @@ interface CoachApplication {
 
 export default function CoachApplicationsPage() {
  const { user, loading: authLoading } = useAuth()
- const { role } = useEnhancedRole()
- const router = useRouter()
  const [applications, setApplications] = useState<CoachApplication[]>([])
  const [loading, setLoading] = useState(true)
  const [selectedApplication, setSelectedApplication] = useState<CoachApplication | null>(null)
  const [reviewNotes, setReviewNotes] = useState('')
  const [searchTerm, setSearchTerm] = useState('')
  const [statusFilter, setStatusFilter] = useState<string>('all')
+ const [mounted, setMounted] = useState(false)
+ const [isAuthorized, setIsAuthorized] = useState(false)
 
- // Redirect non-admin users automatically (only after everything is fully loaded)
+ // Ensure client-side only rendering
  useEffect(() => {
-  // Only redirect if we're done loading AND have confirmed non-admin status
-  if (!authLoading && user && role !== 'admin' && role !== 'superadmin') {
-   console.log('🚫 Access denied, redirecting non-admin user:', { role, user: user.email })
-   router.push('/dashboard')
+  setMounted(true)
+ }, [])
+
+ // Check authorization after mounting and loading complete
+ useEffect(() => {
+  if (mounted && !authLoading && user) {
+   const userRole = (user as any).role
+   const authorized = userRole === 'admin' || userRole === 'superadmin'
+   setIsAuthorized(authorized)
+
+   if (!authorized) {
+    console.log('🚫 Access denied to coach applications:', { role: userRole, email: user.email })
+   }
   }
- }, [role, authLoading, router, user])
+ }, [mounted, authLoading, user])
 
  useEffect(() => {
-  if (role !== 'admin' && role !== 'superadmin') return
+  if (!isAuthorized) return
 
   const q = query(
    collection(db, 'coach_applications'),
@@ -97,7 +104,7 @@ export default function CoachApplicationsPage() {
   })
 
   return () => unsubscribe()
- }, [role])
+ }, [isAuthorized])
 
  const handleReviewApplication = async (applicationId: string, newStatus: 'approved' | 'rejected', notes: string = '') => {
   if (!user?.uid) return
@@ -190,6 +197,11 @@ export default function CoachApplicationsPage() {
   return matchesSearch && matchesStatus
  })
 
+ // Don't render anything during SSR
+ if (!mounted) {
+  return null
+ }
+
  // Show loading while auth is loading
  if (authLoading) {
   return (
@@ -202,8 +214,8 @@ export default function CoachApplicationsPage() {
   )
  }
 
- // Unauthorized access (will also trigger redirect via useEffect)
- if (role !== 'admin' && role !== 'superadmin') {
+ // Show access denied if not authorized (no redirect)
+ if (!isAuthorized) {
   return (
    <div className="min-h-screen flex items-center justify-center px-4" style={{ backgroundColor: '#E8E6D8' }}>
     <div className="max-w-md mx-auto text-center bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8">
