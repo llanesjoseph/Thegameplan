@@ -191,8 +191,7 @@ export default function AdminDashboard() {
          <button
           key={index}
           onClick={() => setActiveSection(card.id)}
-          className={`block group cursor-pointer text-left ${isActive ? 'ring-2 ring-offset-2' : ''}`}
-          style={isActive ? { ringColor: card.color } : {}}
+          className={`block group cursor-pointer text-left ${isActive ? 'ring-2 ring-black ring-offset-2' : ''}`}
          >
           <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 h-full transition-all hover:shadow-2xl hover:scale-105">
            <div className="flex flex-col h-full">
