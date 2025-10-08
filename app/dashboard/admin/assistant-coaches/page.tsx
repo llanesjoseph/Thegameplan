@@ -31,12 +31,21 @@ interface AssistantCoach {
   status?: 'active' | 'inactive'
 }
 
+interface Coach {
+  id: string
+  displayName?: string
+  email?: string
+}
+
 export default function AssistantCoaches() {
   const [assistantCoaches, setAssistantCoaches] = useState<AssistantCoach[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [showInviteModal, setShowInviteModal] = useState(false)
   const [newInviteEmail, setNewInviteEmail] = useState('')
+  const [coaches, setCoaches] = useState<Coach[]>([])
+  const [selectedCoachId, setSelectedCoachId] = useState('')
+  const [coachSearchTerm, setCoachSearchTerm] = useState('')
 
   const { user } = useAuth()
   const { role } = useEnhancedRole()
@@ -62,6 +71,14 @@ export default function AssistantCoaches() {
         const coachesMap = new Map(
           coachesSnapshot.docs.map((doc) => [doc.id, doc.data().displayName || doc.data().email])
         )
+
+        // Store coaches list for the invite modal
+        const coachesList = coachesSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          displayName: doc.data().displayName,
+          email: doc.data().email
+        }))
+        setCoaches(coachesList)
 
         const assistantCoachesData = snapshot.docs.map((doc) => {
           const data = doc.data()
@@ -94,7 +111,15 @@ export default function AssistantCoaches() {
   }, [user, role])
 
   const handleInvite = async () => {
-    if (!newInviteEmail) return
+    if (!newInviteEmail) {
+      alert('Please enter an email address')
+      return
+    }
+
+    if (!selectedCoachId) {
+      alert('Please select a coach to assign this assistant to')
+      return
+    }
 
     try {
       // Create invitation in Firebase
@@ -102,18 +127,30 @@ export default function AssistantCoaches() {
         email: newInviteEmail,
         role: 'assistant_coach',
         status: 'pending',
+        assignedCoachId: selectedCoachId,
         createdAt: new Date(),
         createdBy: user?.uid
       })
 
       alert('Invitation sent successfully!')
       setNewInviteEmail('')
+      setSelectedCoachId('')
+      setCoachSearchTerm('')
       setShowInviteModal(false)
     } catch (error) {
       console.error('Error sending invitation:', error)
       alert('Failed to send invitation')
     }
   }
+
+  // Filter coaches based on search term
+  const filteredCoaches = coaches.filter((coach) => {
+    const searchLower = coachSearchTerm.toLowerCase()
+    return (
+      coach.displayName?.toLowerCase().includes(searchLower) ||
+      coach.email?.toLowerCase().includes(searchLower)
+    )
+  })
 
   const handleDelete = async (assistantCoachId: string) => {
     if (!confirm('Are you sure you want to remove this assistant coach?')) return
@@ -266,25 +303,97 @@ export default function AssistantCoaches() {
         {/* Invite Modal */}
         {showInviteModal && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full mx-4">
+            <div className="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
               <h2 className="text-2xl font-heading mb-4" style={{ color: '#000000' }}>
                 Invite Assistant Coach
               </h2>
               <p className="mb-6" style={{ color: '#666' }}>
-                Send an invitation to a new assistant coach
+                Send an invitation to a new assistant coach and assign them to a coach
               </p>
+
+              {/* Email Input */}
               <div className="mb-6">
                 <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
-                  Email Address
+                  Email Address *
                 </label>
                 <input
                   type="email"
                   value={newInviteEmail}
                   onChange={(e) => setNewInviteEmail(e.target.value)}
-                  placeholder="coach@example.com"
+                  placeholder="assistant@example.com"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                 />
               </div>
+
+              {/* Coach Assignment */}
+              <div className="mb-6">
+                <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                  Assign to Coach *
+                </label>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 z-10" />
+                  <input
+                    type="text"
+                    value={coachSearchTerm}
+                    onChange={(e) => setCoachSearchTerm(e.target.value)}
+                    placeholder="Search for a coach..."
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                  />
+                </div>
+
+                {/* Coaches List */}
+                {coachSearchTerm && (
+                  <div className="mt-2 max-h-48 overflow-y-auto border border-gray-300 rounded-lg bg-white shadow-lg">
+                    {filteredCoaches.length > 0 ? (
+                      filteredCoaches.map((coach) => (
+                        <button
+                          key={coach.id}
+                          onClick={() => {
+                            setSelectedCoachId(coach.id)
+                            setCoachSearchTerm(coach.displayName || coach.email || '')
+                          }}
+                          className={`w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0 ${
+                            selectedCoachId === coach.id ? 'bg-blue-50' : ''
+                          }`}
+                        >
+                          <div style={{ color: '#000000' }}>{coach.displayName || 'No name'}</div>
+                          <div className="text-sm" style={{ color: '#000000', opacity: 0.6 }}>{coach.email}</div>
+                        </button>
+                      ))
+                    ) : (
+                      <div className="px-4 py-3 text-center" style={{ color: '#666' }}>
+                        No coaches found
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Selected Coach Display */}
+                {selectedCoachId && !coachSearchTerm && (
+                  <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="text-sm font-semibold" style={{ color: '#000000' }}>
+                          Selected Coach:
+                        </div>
+                        <div style={{ color: '#000000' }}>
+                          {coaches.find(c => c.id === selectedCoachId)?.displayName || 'Unknown'}
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => {
+                          setSelectedCoachId('')
+                          setCoachSearchTerm('')
+                        }}
+                        className="text-red-600 hover:text-red-800"
+                      >
+                        <XCircle className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <div className="flex gap-3">
                 <button
                   onClick={handleInvite}
@@ -296,6 +405,8 @@ export default function AssistantCoaches() {
                   onClick={() => {
                     setShowInviteModal(false)
                     setNewInviteEmail('')
+                    setSelectedCoachId('')
+                    setCoachSearchTerm('')
                   }}
                   className="flex-1 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
                 >
