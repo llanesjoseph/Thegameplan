@@ -74,20 +74,77 @@ export default function AdminAnalytics() {
   try {
    setLoading(true)
 
-   // AGGRESSIVE FIX: Use mock data to prevent Firebase permission errors
-   console.log('📊 Loading analytics with mock data to prevent permission errors')
+   console.log('📊 Loading real analytics data from Firebase')
 
-   // Mock system stats based on typical platform metrics
-   const totalUsers = 127
-   const totalCreators = 8
-   const totalContent = 24
+   // Get total users (all users with role 'athlete' or any user)
+   const usersSnapshot = await getDocs(collection(db, 'users'))
+   const totalUsers = usersSnapshot.size
 
-   // Calculate mock stats (replace with real calculations when available)
-   const totalViews = totalContent * 150 // Mock average views per content
-   const averageWatchTime = 8.5 // Mock average watch time
-   const monthlyGrowth = 15 // Mock monthly growth percentage
-   const activeUsers = Math.floor(totalUsers * 0.7) // Mock 70% active users
-   const contentPublished = Math.floor(totalContent * 0.8) // Mock 80% published content
+   // Get total creators (users with role 'coach' or 'creator')
+   const creatorsQuery = query(
+    collection(db, 'users'),
+    where('role', 'in', ['coach', 'creator'])
+   )
+   const creatorsSnapshot = await getDocs(creatorsQuery)
+   const totalCreators = creatorsSnapshot.size
+
+   // Get total content/videos
+   const videosSnapshot = await getDocs(collection(db, 'videos'))
+   const totalContent = videosSnapshot.size
+
+   // Count published content
+   const publishedVideos = videosSnapshot.docs.filter(doc =>
+    doc.data().status === 'published' || doc.data().published === true
+   )
+   const contentPublished = publishedVideos.length
+
+   // Calculate total views from videos
+   let totalViews = 0
+   let totalWatchTimeMinutes = 0
+   let totalCompletions = 0
+
+   videosSnapshot.docs.forEach(doc => {
+    const data = doc.data()
+    totalViews += data.views || 0
+    totalWatchTimeMinutes += data.totalWatchTime || 0
+    totalCompletions += data.completions || 0
+   })
+
+   // Convert watch time to hours
+   const averageWatchTime = totalWatchTimeMinutes / 60 || 0
+
+   // Calculate active users (users who have activity in last 30 days)
+   const thirtyDaysAgo = new Date()
+   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+
+   const activeUsersQuery = query(
+    collection(db, 'users'),
+    where('lastActive', '>=', thirtyDaysAgo)
+   )
+   const activeUsersSnapshot = await getDocs(activeUsersQuery)
+   const activeUsers = activeUsersSnapshot.size
+
+   // Calculate monthly growth (compare current month to previous)
+   const now = new Date()
+   const firstDayThisMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+   const firstDayLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+
+   const thisMonthQuery = query(
+    collection(db, 'users'),
+    where('createdAt', '>=', firstDayThisMonth)
+   )
+   const lastMonthQuery = query(
+    collection(db, 'users'),
+    where('createdAt', '>=', firstDayLastMonth),
+    where('createdAt', '<', firstDayThisMonth)
+   )
+
+   const thisMonthSnapshot = await getDocs(thisMonthQuery)
+   const lastMonthSnapshot = await getDocs(lastMonthQuery)
+
+   const monthlyGrowth = lastMonthSnapshot.size > 0
+    ? Math.round(((thisMonthSnapshot.size - lastMonthSnapshot.size) / lastMonthSnapshot.size) * 100)
+    : 0
 
    setSystemStats({
     totalUsers,
@@ -100,61 +157,85 @@ export default function AdminAnalytics() {
     contentPublished
    })
 
-   // Mock top content data
-   setTopContent([
-    {
-     id: '1',
-     title: 'Midfield Vision Training',
-     creatorName: 'Jasmine Aikey',
-     views: 1250,
-     watchTime: 45.5,
-     completionRate: 92
-    },
-    {
-     id: '2',
-     title: 'Advanced Passing Techniques',
-     creatorName: 'Coming Soon',
-     views: 980,
-     watchTime: 38.2,
-     completionRate: 88
-    },
-    {
-     id: '3',
-     title: 'Defensive Positioning',
-     creatorName: 'Coming Soon',
-     views: 750,
-     watchTime: 32.1,
-     completionRate: 85
-    }
-   ])
+   // Get top content (videos sorted by views)
+   const topContentQuery = query(
+    collection(db, 'videos'),
+    orderBy('views', 'desc'),
+    limit(3)
+   )
+   const topContentSnapshot = await getDocs(topContentQuery)
 
-   // Mock top creators data
-   setTopCreators([
-    {
-     uid: '1',
-     name: 'Jasmine Aikey',
-     followers: 1250,
-     contentCount: 8,
-     totalViews: 8500,
-     averageRating: 4.9
-    },
-    {
-     uid: '2',
-     name: 'Coming Soon',
-     followers: 800,
-     contentCount: 5,
-     totalViews: 4200,
-     averageRating: 4.7
-    },
-    {
-     uid: '3',
-     name: 'Coming Soon',
-     followers: 600,
-     contentCount: 3,
-     totalViews: 2800,
-     averageRating: 4.8
-    }
-   ])
+   const topContentData: TopContent[] = await Promise.all(
+    topContentSnapshot.docs.map(async (doc) => {
+     const data = doc.data()
+
+     // Get creator name
+     let creatorName = 'Unknown'
+     if (data.creatorId) {
+      const creatorDoc = await getDocs(
+       query(collection(db, 'users'), where('uid', '==', data.creatorId))
+      )
+      if (!creatorDoc.empty) {
+       creatorName = creatorDoc.docs[0].data().displayName || 'Unknown'
+      }
+     }
+
+     return {
+      id: doc.id,
+      title: data.title || 'Untitled',
+      creatorName,
+      views: data.views || 0,
+      watchTime: (data.totalWatchTime || 0) / 60, // Convert to hours
+      completionRate: data.views > 0 ? Math.round(((data.completions || 0) / data.views) * 100) : 0
+     }
+    })
+   )
+   setTopContent(topContentData)
+
+   // Get top creators (coaches with most content and views)
+   const creatorsData = await Promise.all(
+    creatorsSnapshot.docs.map(async (doc) => {
+     const userData = doc.data()
+     const uid = doc.id
+
+     // Get creator's videos
+     const creatorVideosQuery = query(
+      collection(db, 'videos'),
+      where('creatorId', '==', uid)
+     )
+     const creatorVideosSnapshot = await getDocs(creatorVideosQuery)
+
+     // Calculate total views for this creator
+     let creatorTotalViews = 0
+     let totalRating = 0
+     let ratingCount = 0
+
+     creatorVideosSnapshot.docs.forEach(videoDoc => {
+      const videoData = videoDoc.data()
+      creatorTotalViews += videoData.views || 0
+      if (videoData.rating) {
+       totalRating += videoData.rating
+       ratingCount++
+      }
+     })
+
+     return {
+      uid,
+      name: userData.displayName || userData.email?.split('@')[0] || 'Unknown',
+      followers: userData.followers || 0,
+      contentCount: creatorVideosSnapshot.size,
+      totalViews: creatorTotalViews,
+      averageRating: ratingCount > 0 ? totalRating / ratingCount : 0
+     }
+    })
+   )
+
+   // Sort by total views and take top 3
+   const sortedCreators = creatorsData
+    .sort((a, b) => b.totalViews - a.totalViews)
+    .slice(0, 3)
+
+   setTopCreators(sortedCreators)
 
   } catch (error) {
    console.error('Error loading analytics:', error)

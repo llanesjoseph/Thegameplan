@@ -34,7 +34,7 @@ export default function AdminDashboard() {
   {
    title: 'Role Management',
    description: 'Assign and modify user roles',
-   href: '/dashboard/admin/role-management',
+   href: '/dashboard/admin/roles',
    icon: UserCog,
    color: '#20B2AA'
   },
@@ -83,7 +83,7 @@ export default function AdminDashboard() {
   {
    title: 'Coach Requests',
    description: 'Handle coaching session requests',
-   href: '/dashboard/admin/coach-requests',
+   href: '/dashboard/admin/requests',
    icon: MessageSquare,
    color: '#20B2AA'
   },
