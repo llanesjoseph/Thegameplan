@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import AppHeader from '@/components/ui/AppHeader'
 import UserSignupTracker from '@/components/admin/UserSignupTracker'
 import CoachIngestionManager from '@/components/admin/CoachIngestionManager'
@@ -32,120 +32,169 @@ export default function AdminDashboard() {
    id: 'users',
    title: 'All Users',
    description: 'View and manage all user accounts',
-   href: '/dashboard/admin/users',
    icon: Users,
-   color: '#91A6EB'
+   color: '#91A6EB',
+   inline: true
   },
   {
    id: 'roles',
    title: 'Role Management',
    description: 'Assign and modify user roles',
-   href: '/dashboard/admin/roles',
    icon: UserCog,
-   color: '#20B2AA'
+   color: '#20B2AA',
+   inline: true
   },
   {
    id: 'analytics',
    title: 'System Analytics',
    description: 'View comprehensive platform analytics',
-   href: '/dashboard/admin/analytics',
    icon: BarChart3,
-   color: '#FF6B35'
+   color: '#FF6B35',
+   inline: true
   },
   {
    id: 'invitations',
    title: 'All Invitations',
    description: 'Manage all platform invitations',
-   href: '/dashboard/admin/invitations',
    icon: Mail,
-   color: '#91A6EB'
+   color: '#91A6EB',
+   inline: true
   },
   {
    id: 'admin-invites',
    title: 'Admin Invitations',
    description: 'Invite and manage admin team members',
-   inline: true,
    icon: UserCheck,
-   color: '#20B2AA'
+   color: '#20B2AA',
+   inline: true
   },
   {
    id: 'coach-applications',
    title: 'Coach Applications',
    description: 'Review and approve coach applications',
-   href: '/dashboard/admin/coach-applications',
    icon: FileText,
-   color: '#FF6B35'
+   color: '#FF6B35',
+   inline: true
   },
   {
    id: 'locker-room',
    title: 'Coaches Locker Room',
    description: 'Manage coach resources and tools',
-   href: '/dashboard/admin/coaches-locker-room',
    icon: Target,
-   color: '#000000'
+   color: '#000000',
+   inline: true
   },
   {
    id: 'athletes',
    title: 'Athletes',
    description: 'Manage athlete accounts and progress',
-   href: '/dashboard/admin/athletes',
    icon: Trophy,
-   color: '#91A6EB'
+   color: '#91A6EB',
+   inline: true
   },
   {
    id: 'requests',
    title: 'Coach Requests',
    description: 'Handle coaching session requests',
-   href: '/dashboard/admin/requests',
    icon: MessageSquare,
-   color: '#20B2AA'
+   color: '#20B2AA',
+   inline: true
   },
   {
    id: 'assistant-coaches',
    title: 'Assistant Coaches',
    description: 'Manage assistant coach accounts',
-   href: '/dashboard/admin/assistant-coaches',
    icon: Shield,
-   color: '#FF6B35'
+   color: '#FF6B35',
+   inline: true
   },
   {
    id: 'content',
    title: 'Content Management',
    description: 'Review and moderate platform content',
-   href: '/dashboard/admin/content',
    icon: Calendar,
-   color: '#000000'
+   color: '#000000',
+   inline: true
   },
   {
    id: 'gear',
    title: 'Curated Gear',
    description: 'Manage recommended gear and equipment',
-   href: '/dashboard/admin/curated-gear',
    icon: ShoppingBag,
-   color: '#91A6EB'
+   color: '#91A6EB',
+   inline: true
   },
   {
    id: 'sync',
    title: 'Sync Coaches',
    description: 'Sync coach profiles to public browse page',
-   href: '/dashboard/admin/sync-coaches',
    icon: Dumbbell,
-   color: '#20B2AA'
+   color: '#20B2AA',
+   inline: true
   },
   {
    id: 'settings',
    title: 'System Settings',
    description: 'Configure platform-wide settings',
-   href: '/dashboard/admin/settings',
    icon: Settings,
-   color: '#000000'
+   color: '#000000',
+   inline: true
   }
  ]
 
  const renderInlineContent = () => {
+  if (!activeSection) return null
+
+  const activeCard = adminCards.find(card => card.id === activeSection)
+  const title = activeCard?.title || 'Section'
+
   switch (activeSection) {
    case 'admin-invites':
-    return <AdminInvitationManager />
+    return (
+     <div>
+      <h2 className="text-3xl font-heading mb-6" style={{ color: '#000000' }}>{title}</h2>
+      <AdminInvitationManager />
+     </div>
+    )
+
+   case 'users':
+   case 'roles':
+   case 'analytics':
+   case 'invitations':
+   case 'coach-applications':
+   case 'locker-room':
+   case 'athletes':
+   case 'requests':
+   case 'assistant-coaches':
+   case 'content':
+   case 'gear':
+   case 'sync':
+   case 'settings':
+    return (
+     <div>
+      <h2 className="text-3xl font-heading mb-6" style={{ color: '#000000' }}>{title}</h2>
+      <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-12 text-center">
+       <div className="animate-pulse mb-4">
+        {React.createElement(activeCard?.icon || Users, {
+         className: "w-16 h-16 mx-auto mb-4",
+         style: { color: activeCard?.color }
+        })}
+       </div>
+       <h3 className="text-xl font-heading mb-2" style={{ color: '#000000' }}>
+        {title}
+       </h3>
+       <p className="text-sm mb-4" style={{ color: '#000000', opacity: 0.7 }}>
+        {activeCard?.description}
+       </p>
+       <div className="inline-block px-4 py-2 bg-yellow-100 border border-yellow-300 rounded-lg text-sm">
+        <span className="font-semibold">🚧 Content Loading...</span>
+        <br />
+        <span className="text-xs">This section is being integrated</span>
+       </div>
+      </div>
+     </div>
+    )
+
    default:
     return null
   }
@@ -186,41 +235,13 @@ export default function AdminDashboard() {
        const Icon = card.icon
        const isActive = activeSection === card.id
 
-       if (card.inline) {
-        return (
-         <button
-          key={index}
-          onClick={() => setActiveSection(card.id)}
-          className={`block group cursor-pointer text-left ${isActive ? 'ring-2 ring-black ring-offset-2' : ''}`}
-         >
-          <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 h-full transition-all hover:shadow-2xl hover:scale-105">
-           <div className="flex flex-col h-full">
-            {/* Icon */}
-            <div
-             className="w-10 h-10 rounded-lg mb-3 flex items-center justify-center shadow-md"
-             style={{ backgroundColor: card.color }}
-            >
-             <Icon className="w-5 h-5 text-white" />
-            </div>
-
-            {/* Title */}
-            <h3 className="text-sm font-heading mb-1" style={{ color: '#000000' }}>
-             {card.title}
-            </h3>
-
-            {/* Description */}
-            <p className="text-xs flex-grow" style={{ color: '#000000', opacity: 0.6 }}>
-             {card.description}
-            </p>
-           </div>
-          </div>
-         </button>
-        )
-       }
-
        return (
-        <a key={index} href={card.href} className="block group cursor-pointer">
-         <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 h-full transition-all hover:shadow-2xl hover:scale-105">
+        <button
+         key={index}
+         onClick={() => setActiveSection(card.id)}
+         className={`block group cursor-pointer text-left transition-all ${isActive ? 'ring-2 ring-black ring-offset-2' : ''}`}
+        >
+         <div className={`bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 h-full transition-all hover:shadow-2xl hover:scale-105 ${isActive ? 'bg-white shadow-2xl' : ''}`}>
           <div className="flex flex-col h-full">
            {/* Icon */}
            <div
@@ -241,7 +262,7 @@ export default function AdminDashboard() {
            </p>
           </div>
          </div>
-        </a>
+        </button>
        )
       })}
      </div>
