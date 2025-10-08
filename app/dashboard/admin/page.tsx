@@ -168,7 +168,7 @@ export default function AdminDashboard() {
   // Admin Invitations uses the component directly
   if (activeSection === 'admin-invites') {
    return (
-    <div>
+    <div className="p-8">
      <h2 className="text-3xl font-heading mb-6" style={{ color: '#000000' }}>{title}</h2>
      <AdminInvitationManager />
     </div>
@@ -179,16 +179,12 @@ export default function AdminDashboard() {
   const sectionPath = getSectionPath(activeSection)
   if (sectionPath) {
    return (
-    <div className="space-y-4">
-     <h2 className="text-3xl font-heading" style={{ color: '#000000' }}>{title}</h2>
-     <div className="bg-white rounded-xl overflow-hidden shadow-inner" style={{ height: '80vh' }}>
-      <iframe
-       src={sectionPath}
-       className="w-full h-full border-0"
-       title={title}
-       style={{ minHeight: '600px' }}
-      />
-     </div>
+    <div className="rounded-xl overflow-hidden shadow-lg" style={{ height: '85vh', minHeight: '700px' }}>
+     <iframe
+      src={sectionPath}
+      className="w-full h-full border-0"
+      title={title}
+     />
     </div>
    )
   }
@@ -203,10 +199,10 @@ export default function AdminDashboard() {
    <main className="max-w-7xl mx-auto px-6 py-8 space-y-8">
     {/* Inline Content Display */}
     {activeSection && (
-     <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/50 p-8 relative">
+     <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/50 relative overflow-hidden">
       <button
        onClick={() => setActiveSection(null)}
-       className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-lg transition-colors"
+       className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-lg transition-colors z-50 shadow-lg"
        title="Close"
       >
        <X className="w-5 h-5" style={{ color: '#000000' }} />
