@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import AppHeader from '@/components/ui/AppHeader'
 import { useAuth } from '@/hooks/use-auth'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -35,7 +35,7 @@ interface Lesson {
   averageRating: number
 }
 
-export default function LessonLibraryPage() {
+function LessonLibraryPageContent() {
   const { user } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -441,5 +441,19 @@ export default function LessonLibraryPage() {
         )}
       </main>
     </div>
+  )
+}
+
+export default function LessonLibraryPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
+        <div className="flex items-center justify-center py-12">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
+        </div>
+      </div>
+    }>
+      <LessonLibraryPageContent />
+    </Suspense>
   )
 }

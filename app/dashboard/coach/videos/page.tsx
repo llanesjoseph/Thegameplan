@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import AppHeader from '@/components/ui/AppHeader'
 import {
@@ -31,7 +31,7 @@ interface VideoItem {
   views: number
 }
 
-export default function VideoManagerPage() {
+function VideoManagerPageContent() {
   const searchParams = useSearchParams()
   const embedded = searchParams.get('embedded') === 'true'
 
@@ -307,5 +307,19 @@ export default function VideoManagerPage() {
         )}
       </main>
     </div>
+  )
+}
+
+export default function VideoManagerPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
+        <div className="flex items-center justify-center py-12">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
+        </div>
+      </div>
+    }>
+      <VideoManagerPageContent />
+    </Suspense>
   )
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { useSearchParams } from 'next/navigation'
 import AppHeader from '@/components/ui/AppHeader'
@@ -28,7 +28,7 @@ interface BulkAthlete {
   name: string
 }
 
-export default function InviteAthletesPage() {
+function InviteAthletesPageContent() {
   const { user } = useAuth()
   const searchParams = useSearchParams()
   const embedded = searchParams.get('embedded') === 'true'
@@ -494,5 +494,19 @@ export default function InviteAthletesPage() {
         </div>
       </main>
     </div>
+  )
+}
+
+export default function InviteAthletesPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
+        <div className="flex items-center justify-center py-12">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
+        </div>
+      </div>
+    }>
+      <InviteAthletesPageContent />
+    </Suspense>
   )
 }

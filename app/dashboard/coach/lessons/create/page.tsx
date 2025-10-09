@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import AppHeader from '@/components/ui/AppHeader'
 import { useAuth } from '@/hooks/use-auth'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -40,7 +40,7 @@ interface LessonForm {
   visibility: 'public' | 'athletes_only' | 'specific_athletes'
 }
 
-export default function CreateLessonPage() {
+function CreateLessonPageContent() {
   const { user } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -592,5 +592,19 @@ export default function CreateLessonPage() {
         </div>
       </main>
     </div>
+  )
+}
+
+export default function CreateLessonPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
+        <div className="flex items-center justify-center py-12">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
+        </div>
+      </div>
+    }>
+      <CreateLessonPageContent />
+    </Suspense>
   )
 }

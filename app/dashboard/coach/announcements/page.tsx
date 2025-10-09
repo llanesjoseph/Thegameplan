@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { useSearchParams } from 'next/navigation'
 import AppHeader from '@/components/ui/AppHeader'
@@ -29,7 +29,7 @@ interface Announcement {
   urgent: boolean
 }
 
-export default function AnnouncementsPage() {
+function AnnouncementsPageContent() {
   const { user } = useAuth()
   const searchParams = useSearchParams()
   const embedded = searchParams.get('embedded') === 'true'
@@ -365,5 +365,19 @@ export default function AnnouncementsPage() {
         )}
       </main>
     </div>
+  )
+}
+
+export default function AnnouncementsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
+        <div className="flex items-center justify-center py-12">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
+        </div>
+      </div>
+    }>
+      <AnnouncementsPageContent />
+    </Suspense>
   )
 }
