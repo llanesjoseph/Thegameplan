@@ -24,8 +24,8 @@ import {
 function DynamicIframe({ src, title }: { src: string; title: string }) {
  return (
   <div className="rounded-xl overflow-hidden shadow-lg w-full" style={{
-    height: 'clamp(300px, 67vh, 800px)',
-    maxHeight: '67vh'
+    height: 'clamp(250px, 40vh, 600px)',
+    maxHeight: '45vh'
   }}>
    <iframe
     src={src}
@@ -185,8 +185,8 @@ export default function AdminDashboard() {
   if (activeSection === 'admin-invites') {
    return (
     <div className="p-4 sm:p-6 lg:p-8 overflow-y-auto" style={{
-      height: 'clamp(300px, 67vh, 800px)',
-      maxHeight: '67vh'
+      height: 'clamp(250px, 40vh, 600px)',
+      maxHeight: '45vh'
     }}>
      <h2 className="text-2xl sm:text-3xl font-heading mb-4 sm:mb-6" style={{ color: '#000000' }}>{title}</h2>
      <AdminInvitationManager />
