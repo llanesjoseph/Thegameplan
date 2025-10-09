@@ -1,5 +1,5 @@
 'use client'
-import { useState, useRef, useEffect } from 'react'
+import { useState } from 'react'
 import AppHeader from '@/components/ui/AppHeader'
 import AdminInvitationManager from '@/components/admin/AdminInvitationManager'
 import {
@@ -20,70 +20,11 @@ import {
   X
 } from 'lucide-react'
 
-// Dynamic iframe component that scales based on content
+// Simple iframe component with fixed responsive height
 function DynamicIframe({ src, title }: { src: string; title: string }) {
- const iframeRef = useRef<HTMLIFrameElement>(null)
- const containerRef = useRef<HTMLDivElement>(null)
-
- useEffect(() => {
-  const iframe = iframeRef.current
-  const container = containerRef.current
-  if (!iframe || !container) return
-
-  const measureContent = () => {
-   try {
-    const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document
-    if (iframeDoc) {
-     // Wait for final content to render
-     setTimeout(() => {
-      const body = iframeDoc.body
-      const html = iframeDoc.documentElement
-
-      // Get maximum of all possible height measurements
-      const contentHeight = Math.max(
-       body.scrollHeight,
-       body.offsetHeight,
-       html.clientHeight,
-       html.scrollHeight,
-       html.offsetHeight
-      )
-
-      const viewportHeight = window.innerHeight
-      const maxHeight = viewportHeight * 0.75 // 75vh in pixels
-      const minHeight = 450 // Minimum for very small content
-
-      // Determine final height based on content
-      let finalHeight
-      if (contentHeight < 600) {
-       // Small content - use content height with minimum
-       finalHeight = Math.max(contentHeight + 100, minHeight)
-      } else {
-       // Substantial content - cap at 75vh
-       finalHeight = Math.min(contentHeight + 50, maxHeight)
-      }
-
-      container.style.height = `${finalHeight}px`
-      console.log('📏 Iframe sized:', { contentHeight, finalHeight, maxHeight })
-     }, 500) // Single measurement after 500ms
-    }
-   } catch (error) {
-    console.warn('Cannot measure iframe content:', error)
-    if (container) container.style.height = '60vh'
-   }
-  }
-
-  iframe.addEventListener('load', measureContent)
-  return () => iframe.removeEventListener('load', measureContent)
- }, [src])
-
  return (
-  <div
-   ref={containerRef}
-   className="rounded-xl overflow-hidden shadow-lg overflow-y-auto"
-   style={{ height: '60vh', maxHeight: '75vh', minHeight: '450px' }}
-  >
+  <div className="rounded-xl overflow-hidden shadow-lg" style={{ height: '70vh', maxHeight: '75vh' }}>
    <iframe
-    ref={iframeRef}
     src={src}
     className="w-full h-full border-0"
     title={title}
