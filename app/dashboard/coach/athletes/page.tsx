@@ -205,6 +205,57 @@ function CoachAthletesContent() {
     }
   }
 
+  const handleResendInvitation = async (invitationId: string) => {
+    if (!confirm('Resend this invitation? The athlete will receive another email.')) {
+      return
+    }
+
+    setIsLoading(true)
+    try {
+      if (!user) { console.error('No user found'); return; }
+      const token = await user.getIdToken()
+
+      const response = await fetch('/api/coach/resend-invitation', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ invitationId }),
+      })
+
+      const result = await response.json()
+
+      if (response.ok) {
+        if (result.data?.emailSent) {
+          alert(`✅ Invitation resent successfully!\n\nEmail sent to: ${result.data.athleteEmail}\nResend count: ${result.data.resendCount}`)
+        } else {
+          alert(`⚠️ Invitation was processed but email failed to send:\n${result.data?.emailError || 'Unknown error'}`)
+        }
+        // Reload athlete data to show updated resend count
+        loadAthleteData()
+      } else if (response.status === 429) {
+        alert(`⏱️ Too many resend attempts!\n\nPlease wait ${result.retryAfter || 60} seconds before trying again.`)
+      } else {
+        throw new Error(result.error || 'Failed to resend invitation')
+      }
+    } catch (error) {
+      console.error('Error resending invitation:', error)
+      alert(`Failed to resend invitation: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleRemoveInvitation = async (invitationId: string) => {
+    if (!confirm('Remove this invitation? This action cannot be undone.')) {
+      return
+    }
+
+    alert('Remove invitation feature coming soon!')
+    // TODO: Implement remove invitation API endpoint
+  }
+
   const importFromCSV = () => {
     const input = document.createElement('input')
     input.type = 'file'
@@ -569,14 +620,18 @@ function CoachAthletesContent() {
 
                       <div className="flex gap-2">
                         <button
-                          className="p-2 rounded-lg hover:opacity-80 transition-opacity"
+                          onClick={() => handleResendInvitation(invitation.id)}
+                          disabled={isLoading}
+                          className="p-2 rounded-lg hover:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
                           style={{ backgroundColor: 'rgba(145, 166, 235, 0.1)', color: '#91A6EB' }}
                           title="Resend invitation"
                         >
                           <Mail className="w-5 h-5" />
                         </button>
                         <button
-                          className="p-2 rounded-lg hover:opacity-80 transition-opacity"
+                          onClick={() => handleRemoveInvitation(invitation.id)}
+                          disabled={isLoading}
+                          className="p-2 rounded-lg hover:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
                           style={{ backgroundColor: 'rgba(255, 107, 53, 0.1)', color: '#FF6B35' }}
                           title="Remove invitation"
                         >

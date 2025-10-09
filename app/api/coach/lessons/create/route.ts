@@ -1,11 +1,39 @@
+/**
+ * API endpoint for creating lessons
+ * Features:
+ * - Atomic transaction for lesson creation
+ * - Immutable creatorUid attribution
+ * - Server-side validation for all fields
+ * - Audit logging
+ */
+
 import { NextRequest, NextResponse } from 'next/server'
 import { auth, adminDb } from '@/lib/firebase.admin'
+import { auditLog } from '@/lib/audit-logger'
+import { FieldValue } from 'firebase-admin/firestore'
+
+// Validation constants
+const MAX_TITLE_LENGTH = 200
+const MIN_TITLE_LENGTH = 1
+const MAX_OBJECTIVES = 20
+const MAX_SECTIONS = 50
+const MAX_TAGS = 15
+const VALID_LEVELS = ['beginner', 'intermediate', 'advanced'] as const
+const VALID_VISIBILITY = ['public', 'athletes_only', 'specific_athletes'] as const
 
 export async function POST(request: NextRequest) {
+  const requestId = `lesson-create-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
+
   try {
     // 1. Verify authentication
     const authHeader = request.headers.get('authorization')
     if (!authHeader?.startsWith('Bearer ')) {
+      await auditLog('lesson_create_unauthorized', {
+        requestId,
+        error: 'Missing authorization header',
+        timestamp: new Date().toISOString()
+      }, { severity: 'high' })
+
       return NextResponse.json(
         { error: 'Missing or invalid authorization header' },
         { status: 401 }
@@ -17,6 +45,12 @@ export async function POST(request: NextRequest) {
     try {
       decodedToken = await auth.verifyIdToken(token)
     } catch (error) {
+      await auditLog('lesson_create_invalid_token', {
+        requestId,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString()
+      }, { severity: 'high' })
+
       return NextResponse.json(
         { error: 'Invalid authentication token' },
         { status: 401 }
@@ -28,6 +62,12 @@ export async function POST(request: NextRequest) {
     // 2. Verify user has coach role
     const userDoc = await adminDb.collection('users').doc(uid).get()
     if (!userDoc.exists) {
+      await auditLog('lesson_create_user_not_found', {
+        requestId,
+        userId: uid,
+        timestamp: new Date().toISOString()
+      }, { userId: uid, severity: 'medium' })
+
       return NextResponse.json(
         { error: 'User not found' },
         { status: 404 }
@@ -38,6 +78,13 @@ export async function POST(request: NextRequest) {
     const userRole = userData?.role || userData?.roles?.[0] || 'user'
 
     if (!['coach', 'creator', 'admin', 'superadmin'].includes(userRole)) {
+      await auditLog('lesson_create_forbidden', {
+        requestId,
+        userId: uid,
+        userRole,
+        timestamp: new Date().toISOString()
+      }, { userId: uid, severity: 'medium' })
+
       return NextResponse.json(
         { error: 'Only coaches can create lessons' },
         { status: 403 }
@@ -54,24 +101,91 @@ export async function POST(request: NextRequest) {
       objectives,
       sections,
       tags,
-      visibility,
-      coachId,
-      coachName
+      visibility
     } = body
 
-    // 4. Validate required fields
-    if (!title || !sport || !level) {
+    // 4. SERVER-SIDE VALIDATION - CRITICAL
+    const validationErrors: string[] = []
+
+    // Title validation
+    if (!title || typeof title !== 'string') {
+      validationErrors.push('Title is required and must be a string')
+    } else if (title.trim().length < MIN_TITLE_LENGTH) {
+      validationErrors.push(`Title must be at least ${MIN_TITLE_LENGTH} character`)
+    } else if (title.trim().length > MAX_TITLE_LENGTH) {
+      validationErrors.push(`Title must not exceed ${MAX_TITLE_LENGTH} characters`)
+    }
+
+    // Sport validation
+    if (!sport || typeof sport !== 'string') {
+      validationErrors.push('Sport is required and must be a string')
+    }
+
+    // Level validation
+    if (!level || !VALID_LEVELS.includes(level)) {
+      validationErrors.push(`Level must be one of: ${VALID_LEVELS.join(', ')}`)
+    }
+
+    // Duration validation
+    if (duration !== undefined && (typeof duration !== 'number' || duration < 5 || duration > 240)) {
+      validationErrors.push('Duration must be a number between 5 and 240 minutes')
+    }
+
+    // Objectives validation
+    if (objectives !== undefined) {
+      if (!Array.isArray(objectives)) {
+        validationErrors.push('Objectives must be an array')
+      } else if (objectives.length > MAX_OBJECTIVES) {
+        validationErrors.push(`Maximum ${MAX_OBJECTIVES} objectives allowed`)
+      } else if (objectives.some((obj: any) => typeof obj !== 'string')) {
+        validationErrors.push('All objectives must be strings')
+      }
+    }
+
+    // Sections validation
+    if (sections !== undefined) {
+      if (!Array.isArray(sections)) {
+        validationErrors.push('Sections must be an array')
+      } else if (sections.length > MAX_SECTIONS) {
+        validationErrors.push(`Maximum ${MAX_SECTIONS} sections allowed`)
+      }
+    }
+
+    // Tags validation
+    if (tags !== undefined) {
+      if (!Array.isArray(tags)) {
+        validationErrors.push('Tags must be an array')
+      } else if (tags.length > MAX_TAGS) {
+        validationErrors.push(`Maximum ${MAX_TAGS} tags allowed`)
+      } else if (tags.some((tag: any) => typeof tag !== 'string')) {
+        validationErrors.push('All tags must be strings')
+      }
+    }
+
+    // Visibility validation
+    if (visibility !== undefined && !VALID_VISIBILITY.includes(visibility)) {
+      validationErrors.push(`Visibility must be one of: ${VALID_VISIBILITY.join(', ')}`)
+    }
+
+    if (validationErrors.length > 0) {
+      await auditLog('lesson_create_validation_failed', {
+        requestId,
+        userId: uid,
+        validationErrors,
+        timestamp: new Date().toISOString()
+      }, { userId: uid, severity: 'low' })
+
       return NextResponse.json(
-        { error: 'Missing required fields: title, sport, level' },
+        { error: 'Validation failed', details: validationErrors },
         { status: 400 }
       )
     }
 
-    // 5. Create lesson document
+    // 5. Create lesson document with IMMUTABLE creatorUid
     const lessonData = {
       // Basic info
       title: title.trim(),
-      sport: sport.toLowerCase(),
+      sport: sport.toLowerCase().trim(),
       level,
       duration: duration || 60,
 
@@ -83,16 +197,16 @@ export async function POST(request: NextRequest) {
       // Visibility
       visibility: visibility || 'athletes_only',
 
-      // Coach info
-      coachId: coachId || uid,
-      coachName: coachName || userData?.displayName || 'Unknown Coach',
-      coachEmail: userData?.email || '',
+      // CRITICAL: Use creatorUid (matches Firestore rules) and make it IMMUTABLE
+      creatorUid: uid, // IMMUTABLE - Set once, never changed
+      creatorName: userData?.displayName || 'Unknown Coach',
+      creatorEmail: userData?.email || '',
 
       // Metadata
       status: 'published',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      publishedAt: new Date().toISOString(),
+      createdAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
+      publishedAt: FieldValue.serverTimestamp(),
 
       // Analytics
       viewCount: 0,
@@ -101,25 +215,56 @@ export async function POST(request: NextRequest) {
       ratingCount: 0
     }
 
-    // 6. Save to Firestore
-    const lessonRef = await adminDb.collection('lessons').add(lessonData)
+    // 6. ATOMIC TRANSACTION - Save lesson and update coach count
+    let lessonId: string | null = null
 
-    // 7. Update coach's lesson count
-    const coachRef = adminDb.collection('users').doc(uid)
-    await coachRef.update({
-      lessonCount: (userData?.lessonCount || 0) + 1,
-      lastLessonCreatedAt: new Date().toISOString()
+    await adminDb.runTransaction(async (transaction) => {
+      // Create lesson reference
+      const lessonRef = adminDb.collection('content').doc()
+      lessonId = lessonRef.id
+
+      // Set lesson data
+      transaction.set(lessonRef, lessonData)
+
+      // Update coach's lesson count atomically
+      const coachRef = adminDb.collection('users').doc(uid)
+      transaction.update(coachRef, {
+        lessonCount: FieldValue.increment(1),
+        lastLessonCreatedAt: FieldValue.serverTimestamp()
+      })
     })
+
+    // 7. Audit logging
+    await auditLog('lesson_created', {
+      requestId,
+      userId: uid,
+      lessonId,
+      title: lessonData.title,
+      sport: lessonData.sport,
+      level: lessonData.level,
+      visibility: lessonData.visibility,
+      timestamp: new Date().toISOString()
+    }, { userId: uid, severity: 'low' })
+
+    console.log(`✅ Lesson created by ${uid}: ${lessonId}`)
 
     // 8. Return success
     return NextResponse.json({
       success: true,
-      lessonId: lessonRef.id,
+      lessonId,
       message: 'Lesson created successfully'
     })
 
   } catch (error: any) {
     console.error('Error creating lesson:', error)
+
+    await auditLog('lesson_create_error', {
+      requestId,
+      error: error.message || 'Unknown error',
+      stack: error.stack,
+      timestamp: new Date().toISOString()
+    }, { severity: 'high' })
+
     return NextResponse.json(
       { error: error.message || 'Internal server error' },
       { status: 500 }

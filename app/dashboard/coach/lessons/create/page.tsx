@@ -349,23 +349,36 @@ function CreateLessonPageContent() {
 
     setSaving(true)
     try {
+      // Get Firebase ID token for authentication
+      if (!user) {
+        alert('You must be logged in to create a lesson')
+        return
+      }
+
+      const token = await user.getIdToken()
+
       const response = await fetch('/api/coach/lessons/create', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...lesson,
-          coachId: user?.uid,
-          coachName: user?.displayName || 'Unknown Coach'
-        })
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(lesson) // Send only lesson data, backend will add creatorUid
       })
 
       if (!response.ok) {
         const error = await response.json()
-        throw new Error(error.error || 'Failed to create lesson')
+        // Handle validation errors
+        if (error.details && Array.isArray(error.details)) {
+          alert(`Validation Error:\n\n${error.details.join('\n')}`)
+        } else {
+          throw new Error(error.error || 'Failed to create lesson')
+        }
+        return
       }
 
       const data = await response.json()
-      alert('Lesson created successfully!')
+      alert('✅ Lesson created successfully!')
 
       // Redirect to lesson library
       if (embedded) {
@@ -375,7 +388,7 @@ function CreateLessonPageContent() {
       }
     } catch (error: any) {
       console.error('Error creating lesson:', error)
-      alert(`Error: ${error.message}`)
+      alert(`Error creating lesson: ${error.message}`)
     } finally {
       setSaving(false)
     }
