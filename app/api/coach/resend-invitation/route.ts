@@ -124,13 +124,28 @@ export async function POST(request: NextRequest) {
 
     const invitationData = invitationDoc.data()
 
+    // Safety check for invitation data
+    if (!invitationData) {
+      await auditLog('resend_invitation_invalid_data', {
+        requestId,
+        userId: uid,
+        invitationId,
+        timestamp: new Date().toISOString()
+      }, { userId: uid, severity: 'high' })
+
+      return NextResponse.json(
+        { error: 'Invalid invitation data' },
+        { status: 500 }
+      )
+    }
+
     // 5. Verify ownership (coach can only resend their own invitations, unless admin)
-    if (invitationData?.coachId !== uid && !['admin', 'superadmin'].includes(userRole)) {
+    if (invitationData.coachId !== uid && !['admin', 'superadmin'].includes(userRole)) {
       await auditLog('resend_invitation_ownership_violation', {
         requestId,
         userId: uid,
         invitationId,
-        actualCoachId: invitationData?.coachId,
+        actualCoachId: invitationData.coachId,
         timestamp: new Date().toISOString()
       }, { userId: uid, severity: 'high' })
 
@@ -141,7 +156,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 6. Check if invitation is already accepted
-    if (invitationData?.status === 'accepted' || invitationData?.used) {
+    if (invitationData.status === 'accepted' || invitationData.used) {
       return NextResponse.json(
         { error: 'This invitation has already been accepted' },
         { status: 400 }
@@ -199,7 +214,7 @@ export async function POST(request: NextRequest) {
     const resendTimestamp = new Date().toISOString()
     await adminDb.collection('invitations').doc(invitationId).update({
       lastResendAt: resendTimestamp,
-      resendCount: (invitationData?.resendCount || 0) + 1,
+      resendCount: (invitationData.resendCount || 0) + 1,
       status: 'pending' // Reset to pending if it was expired
     })
 
@@ -250,7 +265,7 @@ export async function POST(request: NextRequest) {
       emailSent,
       emailId,
       emailError,
-      resendCount: (invitationData?.resendCount || 0) + 1,
+      resendCount: (invitationData.resendCount || 0) + 1,
       timestamp: resendTimestamp
     }, { userId: uid, severity: 'low' })
 
@@ -284,7 +299,7 @@ export async function POST(request: NextRequest) {
         emailSent,
         emailId,
         emailError,
-        resendCount: (invitationData?.resendCount || 0) + 1,
+        resendCount: (invitationData.resendCount || 0) + 1,
         timestamp: resendTimestamp
       }
     })
