@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import AppHeader from '@/components/ui/AppHeader'
 import AdminInvitationManager from '@/components/admin/AdminInvitationManager'
 import {
@@ -19,6 +19,51 @@ import {
   Trophy,
   X
 } from 'lucide-react'
+
+// Dynamic iframe component that scales based on content
+function DynamicIframe({ src, title }: { src: string; title: string }) {
+ const iframeRef = useRef<HTMLIFrameElement>(null)
+ const [height, setHeight] = useState('75vh')
+
+ useEffect(() => {
+  const iframe = iframeRef.current
+  if (!iframe) return
+
+  const handleLoad = () => {
+   try {
+    const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document
+    if (iframeDoc) {
+     // Get the actual content height
+     const contentHeight = iframeDoc.body.scrollHeight
+     const viewportHeight = window.innerHeight
+     const maxHeight = viewportHeight * 0.75 // 75vh in pixels
+
+     // Set height to content or max, whichever is smaller
+     const finalHeight = Math.min(contentHeight, maxHeight)
+     setHeight(`${Math.max(finalHeight, 400)}px`) // Minimum 400px
+    }
+   } catch (error) {
+    // If we can't access iframe content (shouldn't happen on same domain)
+    console.warn('Cannot measure iframe content:', error)
+    setHeight('75vh') // Fallback to 75vh
+   }
+  }
+
+  iframe.addEventListener('load', handleLoad)
+  return () => iframe.removeEventListener('load', handleLoad)
+ }, [src])
+
+ return (
+  <div className="rounded-xl overflow-hidden shadow-lg" style={{ height, maxHeight: '75vh', minHeight: '400px' }}>
+   <iframe
+    ref={iframeRef}
+    src={src}
+    className="w-full h-full border-0"
+    title={title}
+   />
+  </div>
+ )
+}
 
 export default function AdminDashboard() {
  // Authorization is handled by the layout's AuthGate component
@@ -178,16 +223,7 @@ export default function AdminDashboard() {
   // All other sections load via iframe
   const sectionPath = getSectionPath(activeSection)
   if (sectionPath) {
-   return (
-    <div className="rounded-xl overflow-hidden shadow-lg" style={{ maxHeight: '75vh', minHeight: '400px', height: 'auto' }}>
-     <iframe
-      src={sectionPath}
-      className="w-full border-0"
-      title={title}
-      style={{ height: '75vh', minHeight: '400px' }}
-     />
-    </div>
-   )
+   return <DynamicIframe src={sectionPath} title={title} />
   }
 
   return null
