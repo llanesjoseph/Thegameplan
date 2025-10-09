@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useAuth } from '@/hooks/use-auth'
+import { auth } from '@/lib/firebase.client'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -29,7 +29,6 @@ interface CreateAdminInviteForm {
 }
 
 export default function AdminInvitationManager() {
-  const { user } = useAuth()
   const [activeTab, setActiveTab] = useState('create')
   const [creating, setCreating] = useState(false)
   const [generatedLink, setGeneratedLink] = useState<string>('')
@@ -49,7 +48,10 @@ export default function AdminInvitationManager() {
   })
 
   const createAdminInvitation = async () => {
-    if (!user) {
+    // Get current Firebase user
+    const currentUser = auth.currentUser
+
+    if (!currentUser) {
       alert('You must be logged in to create admin invitations')
       return
     }
@@ -68,8 +70,8 @@ export default function AdminInvitationManager() {
 
     setCreating(true)
     try {
-      // Get Firebase ID token
-      const token = await user.getIdToken()
+      // Get Firebase ID token from current user
+      const token = await currentUser.getIdToken()
 
       const response = await fetch('/api/admin/create-admin-invitation', {
         method: 'POST',
