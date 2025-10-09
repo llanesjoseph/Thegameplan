@@ -46,38 +46,34 @@ function AnnouncementsPageContent() {
     urgent: false
   })
 
-  const [announcements, setAnnouncements] = useState<Announcement[]>([
-    {
-      id: '1',
-      title: 'Practice Schedule Change',
-      message: 'Tomorrow\'s practice has been moved to 4:00 PM instead of 3:00 PM. Please arrive 15 minutes early for warm-ups.',
-      audience: 'all',
-      sentAt: '2025-10-08 14:30',
-      views: 18,
-      acknowledged: 15,
-      urgent: true
-    },
-    {
-      id: '2',
-      title: 'New Training Videos Available',
-      message: 'I\'ve uploaded 3 new defensive training videos to your lesson library. Check them out before our next practice!',
-      audience: 'all',
-      sentAt: '2025-10-07 09:15',
-      views: 22,
-      acknowledged: 20,
-      urgent: false
-    },
-    {
-      id: '3',
-      title: 'Congratulations Team!',
-      message: 'Great work at Saturday\'s tournament! Everyone showed amazing improvement. Keep up the excellent work!',
-      audience: 'all',
-      sentAt: '2025-10-06 18:45',
-      views: 24,
-      acknowledged: 24,
-      urgent: false
+  const [announcements, setAnnouncements] = useState<Announcement[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (user) {
+      loadAnnouncements()
     }
-  ])
+  }, [user])
+
+  const loadAnnouncements = async () => {
+    setLoading(true)
+    try {
+      const token = await user?.getIdToken()
+      const response = await fetch('/api/coach/announcements', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+
+      if (!response.ok) throw new Error('Failed to load announcements')
+
+      const data = await response.json()
+      setAnnouncements(data.announcements || [])
+    } catch (error) {
+      console.error('Error loading announcements:', error)
+      setAnnouncements([])
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleCreateAnnouncement = async () => {
     if (!newAnnouncement.title || !newAnnouncement.message) {
@@ -85,26 +81,51 @@ function AnnouncementsPageContent() {
       return
     }
 
-    // In production, this would call an API
-    const announcement: Announcement = {
-      id: Date.now().toString(),
-      ...newAnnouncement,
-      sentAt: new Date().toISOString(),
-      views: 0,
-      acknowledged: 0
+    try {
+      const token = await user?.getIdToken()
+      const response = await fetch('/api/coach/announcements', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(newAnnouncement)
+      })
+
+      if (!response.ok) throw new Error('Failed to create announcement')
+
+      alert('Announcement sent successfully!')
+      setShowCreateModal(false)
+      setNewAnnouncement({ title: '', message: '', audience: 'all', sport: '', urgent: false })
+      loadAnnouncements()
+    } catch (error) {
+      console.error('Error creating announcement:', error)
+      alert('Failed to create announcement')
     }
+  }
 
-    setAnnouncements([announcement, ...announcements])
-    setShowCreateModal(false)
-    setNewAnnouncement({
-      title: '',
-      message: '',
-      audience: 'all',
-      sport: '',
-      urgent: false
-    })
+  const handleDelete = async (id: string, title: string) => {
+    if (!confirm(`Delete "${title}"?`)) return
 
-    alert('Announcement sent successfully!')
+    try {
+      const token = await user?.getIdToken()
+      const response = await fetch('/api/coach/announcements', {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ announcementId: id })
+      })
+
+      if (!response.ok) throw new Error('Failed to delete announcement')
+
+      alert('Announcement deleted successfully')
+      loadAnnouncements()
+    } catch (error) {
+      console.error('Error deleting announcement:', error)
+      alert('Failed to delete announcement')
+    }
   }
 
   // Show loading state while checking auth
@@ -211,6 +232,12 @@ function AnnouncementsPageContent() {
         </div>
 
         {/* Announcements List */}
+        {loading ? (
+          <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-12 text-center">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-black mb-4"></div>
+            <p style={{ color: '#000000', opacity: 0.7 }}>Loading announcements...</p>
+          </div>
+        ) : (
         <div className="space-y-4">
           {announcements.length === 0 ? (
             <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-12 text-center">
@@ -280,6 +307,7 @@ function AnnouncementsPageContent() {
                       <Edit className="w-4 h-4" style={{ color: '#000000' }} />
                     </button>
                     <button
+                      onClick={() => handleDelete(announcement.id, announcement.title)}
                       className="p-2 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
                       title="Delete"
                     >
@@ -310,6 +338,7 @@ function AnnouncementsPageContent() {
             ))
           )}
         </div>
+        )}
 
         {/* Create Modal */}
         {showCreateModal && (
