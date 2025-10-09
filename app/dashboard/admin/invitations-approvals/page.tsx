@@ -1,65 +1,289 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useAuth } from '@/hooks/use-auth'
+import { useEnhancedRole } from '@/hooks/use-role-switcher'
 import AppHeader from '@/components/ui/AppHeader'
-import { Mail, UserCheck, FileText, MessageSquare, Shield } from 'lucide-react'
+import AdminInvitationManager from '@/components/admin/AdminInvitationManager'
+import { db } from '@/lib/firebase.client'
+import { collection, getDocs, doc, updateDoc, query, orderBy, where, Timestamp } from 'firebase/firestore'
+import {
+  Mail,
+  UserCheck,
+  FileText,
+  MessageSquare,
+  Shield,
+  CheckCircle,
+  XCircle,
+  Clock,
+  AlertTriangle,
+  Send,
+  Eye,
+  Search,
+  Filter
+} from 'lucide-react'
 
-interface ApprovalSection {
+// Types
+interface Invitation {
   id: string
-  title: string
-  description: string
-  icon: any
-  color: string
-  url: string
+  coachId: string
+  athleteName: string
+  athleteEmail: string
+  sport: string
+  status: 'pending' | 'accepted' | 'declined' | 'expired'
+  createdAt: Date
+  expiresAt: Date
+  invitationUrl: string
+  coachName?: string
 }
 
-export default function InvitationsApprovalsHub() {
-  const [activeTab, setActiveTab] = useState<string>('invitations')
+interface CoachApplication {
+  id: string
+  userId: string
+  email: string
+  displayName: string
+  sport: string
+  experienceLevel: string
+  bio: string
+  certifications: string[]
+  status: 'pending' | 'approved' | 'rejected'
+  submittedAt: Date
+  reviewedAt?: Date
+  reviewedBy?: string
+}
 
-  const sections: ApprovalSection[] = [
-    {
-      id: 'invitations',
-      title: 'All Invitations',
-      description: 'Manage all platform invitations',
-      icon: Mail,
-      color: '#91A6EB',
-      url: '/dashboard/admin/invitations?embedded=true'
-    },
-    {
-      id: 'admin-invites',
-      title: 'Admin Invitations',
-      description: 'Invite and manage admin team members',
-      icon: UserCheck,
-      color: '#20B2AA',
-      url: '/dashboard/admin/admin-invites?embedded=true'
-    },
-    {
-      id: 'coach-applications',
-      title: 'Coach Applications',
-      description: 'Review and approve coach applications',
-      icon: FileText,
-      color: '#FF6B35',
-      url: '/dashboard/admin/coach-applications?embedded=true'
-    },
-    {
-      id: 'requests',
-      title: 'Coach Requests',
-      description: 'Handle coaching session requests',
-      icon: MessageSquare,
-      color: '#20B2AA',
-      url: '/dashboard/admin/requests?embedded=true'
-    },
-    {
-      id: 'assistant-coaches',
-      title: 'Assistant Coaches',
-      description: 'Manage assistant coach accounts',
-      icon: Shield,
-      color: '#FF6B35',
-      url: '/dashboard/admin/assistant-coaches?embedded=true'
+interface CoachRequest {
+  id: string
+  userId: string
+  userEmail: string
+  userName: string
+  category: string
+  priority: string
+  status: string
+  subject: string
+  description: string
+  adminResponse?: string
+  createdAt: Date
+  updatedAt: Date
+}
+
+interface AssistantCoach {
+  id: string
+  email: string
+  displayName: string
+  headCoachId: string
+  headCoachName: string
+  sport: string
+  status: 'active' | 'inactive'
+  addedAt: Date
+}
+
+export default function InvitationsApprovalsUnified() {
+  const [activeTab, setActiveTab] = useState<'invitations' | 'admin-invites' | 'applications' | 'requests' | 'assistants'>('invitations')
+  const { user } = useAuth()
+  const { role } = useEnhancedRole()
+
+  // All Invitations State
+  const [invitations, setInvitations] = useState<Invitation[]>([])
+  const [invitationsLoading, setInvitationsLoading] = useState(false)
+  const [invitationFilter, setInvitationFilter] = useState<'all' | 'pending' | 'accepted' | 'declined' | 'expired'>('all')
+  const [invitationSearch, setInvitationSearch] = useState('')
+
+  // Coach Applications State
+  const [applications, setApplications] = useState<CoachApplication[]>([])
+  const [applicationsLoading, setApplicationsLoading] = useState(false)
+  const [applicationFilter, setApplicationFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all')
+  const [selectedApplication, setSelectedApplication] = useState<CoachApplication | null>(null)
+
+  // Coach Requests State
+  const [requests, setRequests] = useState<CoachRequest[]>([])
+  const [requestsLoading, setRequestsLoading] = useState(false)
+  const [requestFilter, setRequestFilter] = useState<'all' | 'open' | 'in_progress' | 'resolved' | 'closed'>('all')
+  const [selectedRequest, setSelectedRequest] = useState<CoachRequest | null>(null)
+  const [adminResponse, setAdminResponse] = useState('')
+
+  // Assistant Coaches State
+  const [assistants, setAssistants] = useState<AssistantCoach[]>([])
+  const [assistantsLoading, setAssistantsLoading] = useState(false)
+
+  // Load data when tab changes
+  useEffect(() => {
+    if (user && (role === 'superadmin' || role === 'admin')) {
+      switch (activeTab) {
+        case 'invitations':
+          loadInvitations()
+          break
+        case 'applications':
+          loadApplications()
+          break
+        case 'requests':
+          loadRequests()
+          break
+        case 'assistants':
+          loadAssistants()
+          break
+      }
     }
-  ]
+  }, [activeTab, user, role])
 
-  const activeSection = sections.find(s => s.id === activeTab)
+  // Load All Invitations
+  const loadInvitations = async () => {
+    try {
+      setInvitationsLoading(true)
+      const invitationsQuery = query(collection(db, 'invitations'), orderBy('createdAt', 'desc'))
+      const snapshot = await getDocs(invitationsQuery)
+      const invitationsData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        createdAt: doc.data().createdAt?.toDate() || new Date(),
+        expiresAt: doc.data().expiresAt?.toDate() || new Date()
+      })) as Invitation[]
+      setInvitations(invitationsData)
+    } catch (error) {
+      console.error('Error loading invitations:', error)
+    } finally {
+      setInvitationsLoading(false)
+    }
+  }
+
+  // Load Coach Applications
+  const loadApplications = async () => {
+    try {
+      setApplicationsLoading(true)
+      const applicationsQuery = query(collection(db, 'coachApplications'), orderBy('submittedAt', 'desc'))
+      const snapshot = await getDocs(applicationsQuery)
+      const applicationsData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        submittedAt: doc.data().submittedAt?.toDate() || new Date(),
+        reviewedAt: doc.data().reviewedAt?.toDate()
+      })) as CoachApplication[]
+      setApplications(applicationsData)
+    } catch (error) {
+      console.error('Error loading applications:', error)
+    } finally {
+      setApplicationsLoading(false)
+    }
+  }
+
+  // Load Coach Requests
+  const loadRequests = async () => {
+    try {
+      setRequestsLoading(true)
+      const requestsQuery = query(collection(db, 'requests'), orderBy('createdAt', 'desc'))
+      const snapshot = await getDocs(requestsQuery)
+      const requestsData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        createdAt: doc.data().createdAt?.toDate() || new Date(),
+        updatedAt: doc.data().updatedAt?.toDate() || new Date()
+      })) as CoachRequest[]
+      setRequests(requestsData)
+    } catch (error) {
+      console.error('Error loading requests:', error)
+    } finally {
+      setRequestsLoading(false)
+    }
+  }
+
+  // Load Assistant Coaches
+  const loadAssistants = async () => {
+    try {
+      setAssistantsLoading(true)
+      const assistantsQuery = query(
+        collection(db, 'users'),
+        where('role', '==', 'assistant_coach'),
+        orderBy('createdAt', 'desc')
+      )
+      const snapshot = await getDocs(assistantsQuery)
+      const assistantsData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        addedAt: doc.data().createdAt?.toDate() || new Date()
+      })) as AssistantCoach[]
+      setAssistants(assistantsData)
+    } catch (error) {
+      console.error('Error loading assistants:', error)
+    } finally {
+      setAssistantsLoading(false)
+    }
+  }
+
+  // Application Actions
+  const handleApplicationReview = async (applicationId: string, status: 'approved' | 'rejected') => {
+    if (!confirm(`Are you sure you want to ${status === 'approved' ? 'approve' : 'reject'} this application?`)) return
+
+    try {
+      await updateDoc(doc(db, 'coachApplications', applicationId), {
+        status,
+        reviewedAt: Timestamp.now(),
+        reviewedBy: user?.email
+      })
+      setSelectedApplication(null)
+      loadApplications()
+    } catch (error) {
+      console.error('Error updating application:', error)
+    }
+  }
+
+  // Request Actions
+  const handleRequestUpdate = async (requestId: string, status: string) => {
+    try {
+      await updateDoc(doc(db, 'requests', requestId), {
+        status,
+        adminResponse,
+        updatedAt: Timestamp.now(),
+        updatedBy: user?.email
+      })
+      setSelectedRequest(null)
+      setAdminResponse('')
+      loadRequests()
+    } catch (error) {
+      console.error('Error updating request:', error)
+    }
+  }
+
+  // Filter functions
+  const filteredInvitations = invitations.filter(inv => {
+    if (invitationFilter !== 'all' && inv.status !== invitationFilter) return false
+    if (invitationSearch && !inv.athleteName.toLowerCase().includes(invitationSearch.toLowerCase()) &&
+        !inv.athleteEmail.toLowerCase().includes(invitationSearch.toLowerCase())) return false
+    return true
+  })
+
+  const filteredApplications = applications.filter(app =>
+    applicationFilter === 'all' || app.status === applicationFilter
+  )
+
+  const filteredRequests = requests.filter(req =>
+    requestFilter === 'all' || req.status === requestFilter
+  )
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'pending': return 'bg-yellow-100 text-yellow-800'
+      case 'accepted':
+      case 'approved':
+      case 'resolved': return 'bg-green-100 text-green-800'
+      case 'declined':
+      case 'rejected':
+      case 'closed': return 'bg-red-100 text-red-800'
+      case 'expired': return 'bg-gray-100 text-gray-800'
+      case 'in_progress': return 'bg-blue-100 text-blue-800'
+      default: return 'bg-gray-100 text-gray-800'
+    }
+  }
+
+  if (role !== 'superadmin' && role !== 'admin') {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#E8E6D8' }}>
+        <div className="text-center bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8">
+          <h1 className="text-2xl mb-4 font-heading" style={{ color: '#000000' }}>Access Denied</h1>
+          <p style={{ color: '#000000', opacity: 0.7 }}>This page is only available to administrators.</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
@@ -69,37 +293,498 @@ export default function InvitationsApprovalsHub() {
         {/* Tab Navigation */}
         <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-2 mb-6">
           <div className="flex gap-2 overflow-x-auto">
-            {sections.map((section) => {
-              const Icon = section.icon
-              const isActive = activeTab === section.id
-
-              return (
-                <button
-                  key={section.id}
-                  onClick={() => setActiveTab(section.id)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all whitespace-nowrap ${
-                    isActive ? 'bg-black text-white' : 'hover:bg-gray-100'
-                  }`}
-                >
-                  <Icon className="w-5 h-5" />
-                  <span className="font-semibold">{section.title}</span>
-                </button>
-              )
-            })}
+            <button
+              onClick={() => setActiveTab('invitations')}
+              className={`flex items-center gap-2 px-4 py-3 rounded-lg transition-all whitespace-nowrap font-semibold ${
+                activeTab === 'invitations' ? 'bg-black text-white' : 'hover:bg-gray-100'
+              }`}
+            >
+              <Mail className="w-5 h-5" />
+              All Invitations
+            </button>
+            <button
+              onClick={() => setActiveTab('admin-invites')}
+              className={`flex items-center gap-2 px-4 py-3 rounded-lg transition-all whitespace-nowrap font-semibold ${
+                activeTab === 'admin-invites' ? 'bg-black text-white' : 'hover:bg-gray-100'
+              }`}
+            >
+              <UserCheck className="w-5 h-5" />
+              Admin Invitations
+            </button>
+            <button
+              onClick={() => setActiveTab('applications')}
+              className={`flex items-center gap-2 px-4 py-3 rounded-lg transition-all whitespace-nowrap font-semibold ${
+                activeTab === 'applications' ? 'bg-black text-white' : 'hover:bg-gray-100'
+              }`}
+            >
+              <FileText className="w-5 h-5" />
+              Coach Applications
+            </button>
+            <button
+              onClick={() => setActiveTab('requests')}
+              className={`flex items-center gap-2 px-4 py-3 rounded-lg transition-all whitespace-nowrap font-semibold ${
+                activeTab === 'requests' ? 'bg-black text-white' : 'hover:bg-gray-100'
+              }`}
+            >
+              <MessageSquare className="w-5 h-5" />
+              Coach Requests
+            </button>
+            <button
+              onClick={() => setActiveTab('assistants')}
+              className={`flex items-center gap-2 px-4 py-3 rounded-lg transition-all whitespace-nowrap font-semibold ${
+                activeTab === 'assistants' ? 'bg-black text-white' : 'hover:bg-gray-100'
+              }`}
+            >
+              <Shield className="w-5 h-5" />
+              Assistant Coaches
+            </button>
           </div>
         </div>
 
-        {/* Active Section Content */}
-        {activeSection && (
-          <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 overflow-hidden" style={{
-            height: 'clamp(400px, 60vh, 850px)',
-            maxHeight: '65vh'
-          }}>
-            <iframe
-              src={activeSection.url}
-              className="w-full h-full border-0"
-              title={activeSection.title}
-            />
+        {/* ALL INVITATIONS TAB */}
+        {activeTab === 'invitations' && (
+          <div className="space-y-6">
+            {/* Stats Cards */}
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 text-center">
+                <Mail className="w-8 h-8 mx-auto mb-2" style={{ color: '#91A6EB' }} />
+                <div className="text-3xl font-heading" style={{ color: '#91A6EB' }}>{invitations.length}</div>
+                <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Total</div>
+              </div>
+              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 text-center">
+                <Clock className="w-8 h-8 mx-auto mb-2" style={{ color: '#FF6B35' }} />
+                <div className="text-3xl font-heading" style={{ color: '#FF6B35' }}>{invitations.filter(i => i.status === 'pending').length}</div>
+                <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Pending</div>
+              </div>
+              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 text-center">
+                <CheckCircle className="w-8 h-8 mx-auto mb-2" style={{ color: '#20B2AA' }} />
+                <div className="text-3xl font-heading" style={{ color: '#20B2AA' }}>{invitations.filter(i => i.status === 'accepted').length}</div>
+                <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Accepted</div>
+              </div>
+              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 text-center">
+                <XCircle className="w-8 h-8 mx-auto mb-2" style={{ color: '#FF6B35' }} />
+                <div className="text-3xl font-heading" style={{ color: '#FF6B35' }}>{invitations.filter(i => i.status === 'declined').length}</div>
+                <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Declined</div>
+              </div>
+              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 text-center">
+                <AlertTriangle className="w-8 h-8 mx-auto mb-2" style={{ color: '#000000', opacity: 0.5 }} />
+                <div className="text-3xl font-heading" style={{ color: '#000000' }}>{invitations.filter(i => i.status === 'expired').length}</div>
+                <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Expired</div>
+              </div>
+            </div>
+
+            {/* Filters */}
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4">
+              <div className="flex gap-4">
+                <div className="flex-1 relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5" style={{ color: '#000000', opacity: 0.5 }} />
+                  <input
+                    type="text"
+                    placeholder="Search by athlete name or email..."
+                    value={invitationSearch}
+                    onChange={(e) => setInvitationSearch(e.target.value)}
+                    className="w-full pl-10 px-4 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  {['all', 'pending', 'accepted', 'declined', 'expired'].map(status => (
+                    <button
+                      key={status}
+                      onClick={() => setInvitationFilter(status as any)}
+                      className={`px-4 py-2 rounded-lg font-semibold transition-colors capitalize ${
+                        invitationFilter === status ? 'bg-black text-white' : 'bg-gray-200 hover:bg-gray-300'
+                      }`}
+                    >
+                      {status}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Invitations Table */}
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="text-left p-4 font-semibold" style={{ color: '#000000' }}>Athlete</th>
+                      <th className="text-left p-4 font-semibold" style={{ color: '#000000' }}>Sport</th>
+                      <th className="text-left p-4 font-semibold" style={{ color: '#000000' }}>Coach</th>
+                      <th className="text-left p-4 font-semibold" style={{ color: '#000000' }}>Status</th>
+                      <th className="text-left p-4 font-semibold" style={{ color: '#000000' }}>Sent</th>
+                      <th className="text-left p-4 font-semibold" style={{ color: '#000000' }}>Expires</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {invitationsLoading ? (
+                      <tr>
+                        <td colSpan={6} className="text-center p-12">
+                          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto"></div>
+                        </td>
+                      </tr>
+                    ) : filteredInvitations.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} className="text-center p-12" style={{ color: '#000000', opacity: 0.7 }}>
+                          No invitations found
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredInvitations.map(invitation => (
+                        <tr key={invitation.id} className="border-t border-gray-200 hover:bg-gray-50">
+                          <td className="p-4">
+                            <div className="font-semibold" style={{ color: '#000000' }}>{invitation.athleteName}</div>
+                            <div className="text-sm" style={{ color: '#000000', opacity: 0.6 }}>{invitation.athleteEmail}</div>
+                          </td>
+                          <td className="p-4" style={{ color: '#000000' }}>{invitation.sport}</td>
+                          <td className="p-4" style={{ color: '#000000' }}>{invitation.coachName || 'Unknown'}</td>
+                          <td className="p-4">
+                            <span className={`px-3 py-1 rounded-full text-xs font-semibold capitalize ${getStatusColor(invitation.status)}`}>
+                              {invitation.status}
+                            </span>
+                          </td>
+                          <td className="p-4 text-sm" style={{ color: '#000000', opacity: 0.7 }}>
+                            {invitation.createdAt.toLocaleDateString()}
+                          </td>
+                          <td className="p-4 text-sm" style={{ color: '#000000', opacity: 0.7 }}>
+                            {invitation.expiresAt.toLocaleDateString()}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ADMIN INVITATIONS TAB */}
+        {activeTab === 'admin-invites' && (
+          <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+            <AdminInvitationManager />
+          </div>
+        )}
+
+        {/* COACH APPLICATIONS TAB */}
+        {activeTab === 'applications' && (
+          <div className="space-y-6">
+            {/* Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 text-center">
+                <FileText className="w-8 h-8 mx-auto mb-2" style={{ color: '#91A6EB' }} />
+                <div className="text-3xl font-heading" style={{ color: '#91A6EB' }}>{applications.length}</div>
+                <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Total</div>
+              </div>
+              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 text-center">
+                <Clock className="w-8 h-8 mx-auto mb-2" style={{ color: '#FF6B35' }} />
+                <div className="text-3xl font-heading" style={{ color: '#FF6B35' }}>{applications.filter(a => a.status === 'pending').length}</div>
+                <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Pending</div>
+              </div>
+              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 text-center">
+                <CheckCircle className="w-8 h-8 mx-auto mb-2" style={{ color: '#20B2AA' }} />
+                <div className="text-3xl font-heading" style={{ color: '#20B2AA' }}>{applications.filter(a => a.status === 'approved').length}</div>
+                <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Approved</div>
+              </div>
+              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 text-center">
+                <XCircle className="w-8 h-8 mx-auto mb-2" style={{ color: '#FF6B35' }} />
+                <div className="text-3xl font-heading" style={{ color: '#FF6B35' }}>{applications.filter(a => a.status === 'rejected').length}</div>
+                <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Rejected</div>
+              </div>
+            </div>
+
+            {/* Filter Buttons */}
+            <div className="flex gap-2">
+              {['all', 'pending', 'approved', 'rejected'].map(status => (
+                <button
+                  key={status}
+                  onClick={() => setApplicationFilter(status as any)}
+                  className={`px-4 py-2 rounded-lg font-semibold transition-colors capitalize ${
+                    applicationFilter === status ? 'bg-black text-white' : 'bg-gray-200 hover:bg-gray-300'
+                  }`}
+                >
+                  {status}
+                </button>
+              ))}
+            </div>
+
+            {/* Applications List */}
+            <div className="space-y-4">
+              {applicationsLoading ? (
+                <div className="text-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto"></div>
+                </div>
+              ) : filteredApplications.length === 0 ? (
+                <div className="text-center py-12" style={{ color: '#000000', opacity: 0.7 }}>
+                  No applications found
+                </div>
+              ) : (
+                filteredApplications.map(app => (
+                  <div key={app.id} className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        <h3 className="text-xl font-heading mb-2" style={{ color: '#000000' }}>{app.displayName}</h3>
+                        <p className="text-sm mb-2" style={{ color: '#000000', opacity: 0.7 }}>{app.email}</p>
+                        <div className="flex gap-4 text-sm mb-3" style={{ color: '#000000', opacity: 0.6 }}>
+                          <span>Sport: {app.sport}</span>
+                          <span>•</span>
+                          <span>Level: {app.experienceLevel}</span>
+                          <span>•</span>
+                          <span>Submitted: {app.submittedAt.toLocaleDateString()}</span>
+                        </div>
+                        <p className="mb-3" style={{ color: '#000000' }}>{app.bio}</p>
+                        {app.certifications?.length > 0 && (
+                          <div className="flex gap-2 flex-wrap">
+                            {app.certifications.map((cert, i) => (
+                              <span key={i} className="px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+                                {cert}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className={`px-3 py-1 rounded-full text-xs font-semibold capitalize ${getStatusColor(app.status)}`}>
+                          {app.status}
+                        </span>
+                      </div>
+                    </div>
+
+                    {app.status === 'pending' && (
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleApplicationReview(app.id, 'approved')}
+                          className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors"
+                        >
+                          <CheckCircle className="w-4 h-4 inline mr-2" />
+                          Approve
+                        </button>
+                        <button
+                          onClick={() => handleApplicationReview(app.id, 'rejected')}
+                          className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors"
+                        >
+                          <XCircle className="w-4 h-4 inline mr-2" />
+                          Reject
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* COACH REQUESTS TAB */}
+        {activeTab === 'requests' && (
+          <div className="space-y-6">
+            {/* Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 text-center">
+                <MessageSquare className="w-8 h-8 mx-auto mb-2" style={{ color: '#91A6EB' }} />
+                <div className="text-3xl font-heading" style={{ color: '#91A6EB' }}>{requests.length}</div>
+                <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Total</div>
+              </div>
+              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 text-center">
+                <Clock className="w-8 h-8 mx-auto mb-2" style={{ color: '#FF6B35' }} />
+                <div className="text-3xl font-heading" style={{ color: '#FF6B35' }}>{requests.filter(r => r.status === 'open').length}</div>
+                <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Open</div>
+              </div>
+              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 text-center">
+                <Send className="w-8 h-8 mx-auto mb-2" style={{ color: '#91A6EB' }} />
+                <div className="text-3xl font-heading" style={{ color: '#91A6EB' }}>{requests.filter(r => r.status === 'in_progress').length}</div>
+                <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>In Progress</div>
+              </div>
+              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 text-center">
+                <CheckCircle className="w-8 h-8 mx-auto mb-2" style={{ color: '#20B2AA' }} />
+                <div className="text-3xl font-heading" style={{ color: '#20B2AA' }}>{requests.filter(r => r.status === 'resolved').length}</div>
+                <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Resolved</div>
+              </div>
+              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 text-center">
+                <XCircle className="w-8 h-8 mx-auto mb-2" style={{ color: '#000000', opacity: 0.5 }} />
+                <div className="text-3xl font-heading" style={{ color: '#000000' }}>{requests.filter(r => r.status === 'closed').length}</div>
+                <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Closed</div>
+              </div>
+            </div>
+
+            {/* Filter */}
+            <div className="flex gap-2">
+              {['all', 'open', 'in_progress', 'resolved', 'closed'].map(status => (
+                <button
+                  key={status}
+                  onClick={() => setRequestFilter(status as any)}
+                  className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+                    requestFilter === status ? 'bg-black text-white' : 'bg-gray-200 hover:bg-gray-300'
+                  }`}
+                >
+                  {status.replace('_', ' ')}
+                </button>
+              ))}
+            </div>
+
+            {/* Requests List */}
+            <div className="grid md:grid-cols-2 gap-6">
+              {requestsLoading ? (
+                <div className="col-span-2 text-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto"></div>
+                </div>
+              ) : filteredRequests.length === 0 ? (
+                <div className="col-span-2 text-center py-12" style={{ color: '#000000', opacity: 0.7 }}>
+                  No requests found
+                </div>
+              ) : (
+                filteredRequests.map(request => (
+                  <div key={request.id} className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex-1">
+                        <h3 className="text-lg font-heading mb-1" style={{ color: '#000000' }}>{request.subject}</h3>
+                        <p className="text-sm mb-2" style={{ color: '#000000', opacity: 0.6 }}>
+                          {request.userName} • {request.userEmail}
+                        </p>
+                        <div className="flex gap-2 mb-3">
+                          <span className={`px-2 py-1 rounded text-xs font-semibold ${getStatusColor(request.status)}`}>
+                            {request.status.replace('_', ' ')}
+                          </span>
+                          <span className="px-2 py-1 rounded text-xs font-semibold bg-gray-100 text-gray-800">
+                            {request.category}
+                          </span>
+                          <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                            request.priority === 'urgent' ? 'bg-red-100 text-red-800' :
+                            request.priority === 'high' ? 'bg-orange-100 text-orange-800' :
+                            request.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-gray-100 text-gray-800'
+                          }`}>
+                            {request.priority}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <p className="mb-4 text-sm" style={{ color: '#000000' }}>{request.description}</p>
+
+                    {request.adminResponse && (
+                      <div className="mb-4 p-3 rounded-lg bg-blue-50 border border-blue-200">
+                        <p className="text-sm font-semibold mb-1" style={{ color: '#000000' }}>Admin Response:</p>
+                        <p className="text-sm" style={{ color: '#000000' }}>{request.adminResponse}</p>
+                      </div>
+                    )}
+
+                    <button
+                      onClick={() => {
+                        setSelectedRequest(request)
+                        setAdminResponse(request.adminResponse || '')
+                      }}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors font-semibold"
+                    >
+                      <Eye className="w-4 h-4 inline mr-2" />
+                      View & Respond
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Request Modal */}
+            {selectedRequest && (
+              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
+                  <h2 className="text-2xl font-heading mb-4" style={{ color: '#000000' }}>{selectedRequest.subject}</h2>
+                  <p className="mb-4" style={{ color: '#000000' }}>{selectedRequest.description}</p>
+
+                  <div className="mb-4">
+                    <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>Admin Response</label>
+                    <textarea
+                      value={adminResponse}
+                      onChange={(e) => setAdminResponse(e.target.value)}
+                      rows={4}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                      placeholder="Type your response..."
+                    />
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleRequestUpdate(selectedRequest.id, 'in_progress')}
+                      className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700"
+                    >
+                      In Progress
+                    </button>
+                    <button
+                      onClick={() => handleRequestUpdate(selectedRequest.id, 'resolved')}
+                      className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700"
+                    >
+                      Resolve
+                    </button>
+                    <button
+                      onClick={() => handleRequestUpdate(selectedRequest.id, 'closed')}
+                      className="flex-1 px-4 py-2 bg-gray-600 text-white rounded-lg font-semibold hover:bg-gray-700"
+                    >
+                      Close
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSelectedRequest(null)
+                        setAdminResponse('')
+                      }}
+                      className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ASSISTANT COACHES TAB */}
+        {activeTab === 'assistants' && (
+          <div className="space-y-6">
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4">
+              <div className="text-center" style={{ color: '#91A6EB' }}>
+                <Shield className="w-16 h-16 mx-auto mb-4" />
+                <div className="text-4xl font-heading mb-2">{assistants.length}</div>
+                <div className="text-lg">Assistant Coaches</div>
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              {assistantsLoading ? (
+                <div className="col-span-2 text-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto"></div>
+                </div>
+              ) : assistants.length === 0 ? (
+                <div className="col-span-2 text-center py-12" style={{ color: '#000000', opacity: 0.7 }}>
+                  No assistant coaches found
+                </div>
+              ) : (
+                assistants.map(assistant => (
+                  <div key={assistant.id} className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#20B2AA' }}>
+                        <Shield className="w-6 h-6 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-lg font-heading mb-1" style={{ color: '#000000' }}>{assistant.displayName}</h3>
+                        <p className="text-sm mb-2" style={{ color: '#000000', opacity: 0.6 }}>{assistant.email}</p>
+                        <div className="flex gap-2 mb-2">
+                          <span className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>
+                            Sport: {assistant.sport}
+                          </span>
+                          <span>•</span>
+                          <span className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>
+                            Head Coach: {assistant.headCoachName}
+                          </span>
+                        </div>
+                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(assistant.status)}`}>
+                          {assistant.status}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         )}
       </main>

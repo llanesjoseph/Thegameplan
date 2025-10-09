@@ -2,6 +2,7 @@
 import { useState, useRef, useEffect } from 'react'
 import AppHeader from '@/components/ui/AppHeader'
 import AdminInvitationManager from '@/components/admin/AdminInvitationManager'
+import InvitationsApprovalsUnified from './invitations-approvals/page'
 import {
   Users,
   Mail,
@@ -166,7 +167,6 @@ export default function AdminDashboard() {
    'users': '/dashboard/admin/users?embedded=true',
    'roles': '/dashboard/admin/roles?embedded=true',
    'analytics': '/dashboard/admin/analytics?embedded=true',
-   'invitations-approvals': '/dashboard/admin/invitations-approvals?embedded=true',
    'locker-room': '/dashboard/admin/coaches-locker-room?embedded=true',
    'athletes': '/dashboard/admin/athletes?embedded=true',
    'content': '/dashboard/admin/content?embedded=true',
@@ -182,6 +182,11 @@ export default function AdminDashboard() {
 
   const activeCard = adminCards.find(card => card.id === activeSection)
   const title = activeCard?.title || 'Section'
+
+  // Invitations & Approvals - render directly without iframe
+  if (activeSection === 'invitations-approvals') {
+   return <InvitationsApprovalsUnified />
+  }
 
   // Admin Invitations uses the component directly
   if (activeSection === 'admin-invites') {
