@@ -15,7 +15,10 @@ import {
   Save,
   Eye,
   Link as LinkIcon,
-  Upload
+  Upload,
+  Sparkles,
+  Wand2,
+  Lightbulb
 } from 'lucide-react'
 
 interface LessonSection {
@@ -47,6 +50,9 @@ function CreateLessonPageContent() {
   const embedded = searchParams.get('embedded') === 'true'
 
   const [saving, setSaving] = useState(false)
+  const [generating, setGenerating] = useState(false)
+  const [showAIModal, setShowAIModal] = useState(false)
+  const [aiPrompt, setAiPrompt] = useState('')
   const [currentObjective, setCurrentObjective] = useState('')
   const [currentTag, setCurrentTag] = useState('')
 
@@ -152,6 +158,149 @@ function CreateLessonPageContent() {
     }))
   }
 
+  // Generate lesson with AI
+  const handleAIGenerate = async () => {
+    if (!aiPrompt.trim()) {
+      alert('Please describe what lesson you want to create')
+      return
+    }
+
+    setGenerating(true)
+    try {
+      const token = await user?.getIdToken()
+      const response = await fetch('/api/generate-lesson-simple', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          prompt: aiPrompt,
+          sport: lesson.sport || 'general',
+          level: lesson.level || 'intermediate',
+          coachId: user?.uid
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to generate lesson')
+      }
+
+      const data = await response.json()
+
+      // Parse and populate the form with AI-generated content
+      if (data.lesson) {
+        setLesson(prev => ({
+          ...prev,
+          title: data.lesson.title || prev.title,
+          sport: data.lesson.sport || prev.sport,
+          level: data.lesson.level || prev.level,
+          duration: data.lesson.duration || prev.duration,
+          objectives: data.lesson.objectives || prev.objectives,
+          tags: data.lesson.tags || prev.tags,
+          sections: (data.lesson.sections || []).map((s: any, idx: number) => ({
+            id: `section-${Date.now()}-${idx}`,
+            title: s.title || '',
+            type: s.type || 'text',
+            content: s.content || '',
+            order: idx,
+            duration: s.duration || 0,
+            videoUrl: s.videoUrl,
+            videoSource: s.videoSource
+          }))
+        }))
+
+        setShowAIModal(false)
+        setAiPrompt('')
+        alert('AI lesson generated! Review and edit as needed before saving.')
+      }
+    } catch (error: any) {
+      console.error('Error generating lesson:', error)
+      alert(`Failed to generate lesson: ${error.message}`)
+    } finally {
+      setGenerating(false)
+    }
+  }
+
+  // Quick-fill objectives with AI suggestions
+  const suggestObjectives = async () => {
+    if (!lesson.sport || !lesson.level) {
+      alert('Please select sport and skill level first')
+      return
+    }
+
+    setGenerating(true)
+    try {
+      const token = await user?.getIdToken()
+      const response = await fetch('/api/generate-lesson-content', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          contentType: 'objectives',
+          sport: lesson.sport,
+          level: lesson.level,
+          topic: lesson.title || 'general training'
+        })
+      })
+
+      if (!response.ok) throw new Error('Failed to generate suggestions')
+
+      const data = await response.json()
+      if (data.objectives) {
+        setLesson(prev => ({
+          ...prev,
+          objectives: [...prev.objectives, ...data.objectives]
+        }))
+      }
+    } catch (error: any) {
+      console.error('Error suggesting objectives:', error)
+      alert(`Failed to suggest objectives: ${error.message}`)
+    } finally {
+      setGenerating(false)
+    }
+  }
+
+  // AI-enhance a section
+  const enhanceSection = async (sectionId: string) => {
+    const section = lesson.sections.find(s => s.id === sectionId)
+    if (!section) return
+
+    setGenerating(true)
+    try {
+      const token = await user?.getIdToken()
+      const response = await fetch('/api/generate-lesson-content', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          contentType: section.type,
+          sport: lesson.sport,
+          level: lesson.level,
+          topic: section.title || lesson.title,
+          existingContent: section.content
+        })
+      })
+
+      if (!response.ok) throw new Error('Failed to enhance section')
+
+      const data = await response.json()
+      if (data.content) {
+        updateSection(sectionId, { content: data.content })
+        alert('Section enhanced with AI!')
+      }
+    } catch (error: any) {
+      console.error('Error enhancing section:', error)
+      alert(`Failed to enhance section: ${error.message}`)
+    } finally {
+      setGenerating(false)
+    }
+  }
+
   // Save lesson
   const handleSave = async () => {
     if (!lesson.title || !lesson.sport || !lesson.level) {
@@ -245,20 +394,101 @@ function CreateLessonPageContent() {
   return (
     <div style={{ backgroundColor: embedded ? 'transparent' : '#E8E6D8' }} className={embedded ? '' : 'min-h-screen'}>
       {!embedded && (
-        <AppHeader title="Create Lesson" subtitle="Build comprehensive training content for your athletes" />
+        <div>
+          <AppHeader title="Create Lesson" subtitle="Build comprehensive training content for your athletes" />
+          <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 -mt-4 mb-4">
+            <button
+              onClick={() => setShowAIModal(true)}
+              className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:from-purple-700 hover:to-blue-700 transition-all flex items-center gap-2 shadow-lg"
+            >
+              <Sparkles className="w-5 h-5" />
+              AI Generate Complete Lesson
+            </button>
+          </div>
+        </div>
       )}
 
       <main className={`w-full ${embedded ? 'p-4' : 'max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6'} space-y-6`}>
         {/* Header */}
         {embedded && (
           <div className="mb-4">
-            <div className="flex items-center gap-3 mb-2">
-              <GraduationCap className="w-8 h-8" style={{ color: '#20B2AA' }} />
-              <h1 className="text-3xl font-heading" style={{ color: '#000000' }}>Create Lesson</h1>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-3">
+                <GraduationCap className="w-8 h-8" style={{ color: '#20B2AA' }} />
+                <h1 className="text-3xl font-heading" style={{ color: '#000000' }}>Create Lesson</h1>
+              </div>
+              <button
+                onClick={() => setShowAIModal(true)}
+                className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:from-purple-700 hover:to-blue-700 transition-all flex items-center gap-2 shadow-lg"
+              >
+                <Sparkles className="w-5 h-5" />
+                AI Generate
+              </button>
             </div>
             <p style={{ color: '#000000', opacity: 0.7 }}>
               Build comprehensive training content for your athletes
             </p>
+          </div>
+        )}
+
+        {/* AI Generation Modal */}
+        {showAIModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-6 h-6 text-purple-600" />
+                  <h2 className="text-2xl font-heading" style={{ color: '#000000' }}>AI Lesson Generator</h2>
+                </div>
+                <button
+                  onClick={() => setShowAIModal(false)}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  disabled={generating}
+                >
+                  <span className="text-2xl">&times;</span>
+                </button>
+              </div>
+
+              <p className="mb-4 text-sm" style={{ color: '#000000', opacity: 0.7 }}>
+                Describe the lesson you want to create and our AI will generate a complete lesson plan with sections, objectives, and content.
+              </p>
+
+              <textarea
+                value={aiPrompt}
+                onChange={(e) => setAiPrompt(e.target.value)}
+                placeholder="Example: Create a beginner baseball lesson about proper batting stance and swing mechanics. Include warm-up drills, technique breakdown, and practice exercises."
+                rows={6}
+                className="w-full px-4 py-3 border-2 border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 mb-4"
+                disabled={generating}
+              />
+
+              <div className="flex gap-3">
+                <button
+                  onClick={handleAIGenerate}
+                  disabled={generating || !aiPrompt.trim()}
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:from-purple-700 hover:to-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {generating ? (
+                    <>
+                      <div className="inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Wand2 className="w-5 h-5" />
+                      Generate Lesson
+                    </>
+                  )}
+                </button>
+                <button
+                  onClick={() => setShowAIModal(false)}
+                  disabled={generating}
+                  className="px-6 py-3 bg-gray-100 text-black rounded-lg font-semibold hover:bg-gray-200 transition-colors disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
           </div>
         )}
 
@@ -339,9 +569,19 @@ function CreateLessonPageContent() {
 
             {/* Objectives */}
             <div>
-              <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
-                Learning Objectives
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-semibold" style={{ color: '#000000' }}>
+                  Learning Objectives
+                </label>
+                <button
+                  onClick={suggestObjectives}
+                  disabled={generating || !lesson.sport || !lesson.level}
+                  className="px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Lightbulb className="w-4 h-4" />
+                  AI Suggest
+                </button>
+              </div>
               <div className="flex gap-2 mb-2">
                 <input
                   type="text"
@@ -479,6 +719,15 @@ function CreateLessonPageContent() {
                       <span className="text-xs px-2 py-1 bg-gray-100 rounded capitalize">
                         {section.type}
                       </span>
+                      <button
+                        onClick={() => enhanceSection(section.id)}
+                        disabled={generating || !lesson.sport || !lesson.level}
+                        className="text-xs px-2 py-1 bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Enhance with AI"
+                      >
+                        <Wand2 className="w-3 h-3" />
+                        AI Enhance
+                      </button>
                     </div>
                     <div className="flex gap-1">
                       <button
