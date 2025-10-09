@@ -1,9 +1,10 @@
 'use client'
 
 import { useState, Suspense } from 'react'
-import { User, Image as ImageIcon, Settings, ArrowLeft } from 'lucide-react'
+import { User, Image as ImageIcon, Settings, ArrowLeft, Mic } from 'lucide-react'
 import AppHeader from '@/components/ui/AppHeader'
 import CoachImageManager from '@/components/coach/CoachImageManager'
+import StreamlinedVoiceCapture from '@/components/coach/StreamlinedVoiceCapture'
 import { useAuth } from '@/hooks/use-auth'
 import { useEnhancedRole } from '@/hooks/use-role-switcher'
 import { useSearchParams } from 'next/navigation'
@@ -90,6 +91,21 @@ function CoachProfileContent() {
               <div className="flex items-center gap-2">
                 <User className="w-4 h-4" />
                 Profile Info
+              </div>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('voice')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                activeTab === 'voice'
+                  ? 'border-black'
+                  : 'border-transparent hover:border-gray-300'
+              }`}
+              style={{ color: activeTab === 'voice' ? '#000000' : 'rgba(0, 0, 0, 0.5)' }}
+            >
+              <div className="flex items-center gap-2">
+                <Mic className="w-4 h-4" />
+                Voice Capture
               </div>
             </button>
 
@@ -191,6 +207,28 @@ function CoachProfileContent() {
                   </a>
                 </div>
               </div>
+            </div>
+          )}
+
+          {activeTab === 'voice' && (
+            <div className="p-8">
+              <div className="mb-6">
+                <h3 className="text-2xl font-heading mb-2" style={{ color: '#000000' }}>
+                  AI Voice Capture
+                </h3>
+                <p style={{ color: '#000000', opacity: 0.7 }}>
+                  Train your AI coaching assistant to sound authentically like you. Share your coaching philosophy, stories, and communication style.
+                </p>
+              </div>
+              <StreamlinedVoiceCapture
+                onComplete={(data) => {
+                  console.log('Voice capture completed:', data)
+                  alert('Voice capture saved successfully! Your AI coaching voice is now configured.')
+                }}
+                onProgress={(progress) => {
+                  console.log('Progress:', progress)
+                }}
+              />
             </div>
           )}
 
