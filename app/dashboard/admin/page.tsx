@@ -34,41 +34,41 @@ function DynamicIframe({ src, title }: { src: string; title: string }) {
    try {
     const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document
     if (iframeDoc) {
-     // Multiple measurements with delays to catch dynamic content
-     const measurements = [100, 300, 500]
+     // Wait for final content to render
+     setTimeout(() => {
+      const body = iframeDoc.body
+      const html = iframeDoc.documentElement
 
-     measurements.forEach((delay) => {
-      setTimeout(() => {
-       const body = iframeDoc.body
-       const html = iframeDoc.documentElement
+      // Get maximum of all possible height measurements
+      const contentHeight = Math.max(
+       body.scrollHeight,
+       body.offsetHeight,
+       html.clientHeight,
+       html.scrollHeight,
+       html.offsetHeight
+      )
 
-       // Get maximum of all possible height measurements
-       const contentHeight = Math.max(
-        body.scrollHeight,
-        body.offsetHeight,
-        html.clientHeight,
-        html.scrollHeight,
-        html.offsetHeight
-       )
+      const viewportHeight = window.innerHeight
+      const maxHeight = viewportHeight * 0.75 // 75vh in pixels
+      const minHeight = 450 // Minimum for very small content
 
-       const viewportHeight = window.innerHeight
-       const maxHeight = viewportHeight * 0.75 // 75vh in pixels
+      // Determine final height based on content
+      let finalHeight
+      if (contentHeight < 600) {
+       // Small content - use content height with minimum
+       finalHeight = Math.max(contentHeight + 100, minHeight)
+      } else {
+       // Substantial content - cap at 75vh
+       finalHeight = Math.min(contentHeight + 50, maxHeight)
+      }
 
-       // If content is substantial, use it; otherwise default to reasonable size
-       if (contentHeight > 300) {
-        const finalHeight = Math.min(contentHeight + 50, maxHeight) // Add 50px padding
-        container.style.height = `${finalHeight}px`
-        console.log('📏 Iframe measured:', { contentHeight, finalHeight, maxHeight, delay })
-       } else {
-        // Small content - use a moderate default
-        container.style.height = '600px'
-       }
-      }, delay)
-     })
+      container.style.height = `${finalHeight}px`
+      console.log('📏 Iframe sized:', { contentHeight, finalHeight, maxHeight })
+     }, 500) // Single measurement after 500ms
     }
    } catch (error) {
     console.warn('Cannot measure iframe content:', error)
-    if (container) container.style.height = '75vh'
+    if (container) container.style.height = '60vh'
    }
   }
 
@@ -80,7 +80,7 @@ function DynamicIframe({ src, title }: { src: string; title: string }) {
   <div
    ref={containerRef}
    className="rounded-xl overflow-hidden shadow-lg overflow-y-auto"
-   style={{ height: '70vh', maxHeight: '75vh', minHeight: '500px' }}
+   style={{ height: '60vh', maxHeight: '75vh', minHeight: '450px' }}
   >
    <iframe
     ref={iframeRef}
