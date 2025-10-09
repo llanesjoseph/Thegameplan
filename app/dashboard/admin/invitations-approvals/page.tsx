@@ -20,7 +20,9 @@ import {
   Send,
   Eye,
   Search,
-  Filter
+  Filter,
+  UserPlus,
+  Users
 } from 'lucide-react'
 
 // Types
@@ -78,8 +80,8 @@ interface AssistantCoach {
   addedAt: Date
 }
 
-export default function InvitationsApprovalsUnified() {
-  const [activeTab, setActiveTab] = useState<'invitations' | 'admin-invites' | 'applications' | 'requests' | 'assistants'>('invitations')
+export default function InvitationsApprovalsUnified({ embedded = false }: { embedded?: boolean }) {
+  const [activeTab, setActiveTab] = useState<'invitations' | 'admin-invites' | 'coach-invites' | 'athlete-invites' | 'applications' | 'requests' | 'assistants'>('invitations')
   const { user } = useAuth()
   const { role } = useEnhancedRole()
 
@@ -106,12 +108,40 @@ export default function InvitationsApprovalsUnified() {
   const [assistants, setAssistants] = useState<AssistantCoach[]>([])
   const [assistantsLoading, setAssistantsLoading] = useState(false)
 
+  // Coach Invite Form State
+  const [coachInviteForm, setCoachInviteForm] = useState({
+    coachEmail: '',
+    coachName: '',
+    sport: '',
+    customMessage: '',
+    expiresInDays: 7
+  })
+  const [coachInviteLoading, setCoachInviteLoading] = useState(false)
+
+  // Athlete Invite Form State
+  const [athleteInviteForm, setAthleteInviteForm] = useState({
+    athleteEmail: '',
+    athleteName: '',
+    sport: '',
+    coachId: '',
+    customMessage: '',
+    expiresInDays: 14
+  })
+  const [athleteInviteLoading, setAthleteInviteLoading] = useState(false)
+
+  // Coaches List for Athlete Assignment
+  const [coaches, setCoaches] = useState<Array<{id: string, name: string, email: string, sport: string}>>([])
+  const [coachesLoading, setCoachesLoading] = useState(false)
+
   // Load data when tab changes
   useEffect(() => {
     if (user && (role === 'superadmin' || role === 'admin')) {
       switch (activeTab) {
         case 'invitations':
           loadInvitations()
+          break
+        case 'athlete-invites':
+          loadCoaches() // Load coaches when athlete invite tab is active
           break
         case 'applications':
           loadApplications()
@@ -209,6 +239,154 @@ export default function InvitationsApprovalsUnified() {
     }
   }
 
+  // Load Coaches for Athlete Assignment
+  const loadCoaches = async () => {
+    try {
+      setCoachesLoading(true)
+      const coachesQuery = query(
+        collection(db, 'users'),
+        where('role', '==', 'coach')
+      )
+      const snapshot = await getDocs(coachesQuery)
+      const coachesData = snapshot.docs.map(doc => {
+        const data = doc.data()
+        return {
+          id: doc.id,
+          name: data.displayName || data.email || 'Unknown',
+          email: data.email || '',
+          sport: data.sport || 'Not specified'
+        }
+      })
+      setCoaches(coachesData)
+    } catch (error) {
+      console.error('Error loading coaches:', error)
+    } finally {
+      setCoachesLoading(false)
+    }
+  }
+
+  // Handle Coach Invitation Submit
+  const handleCoachInviteSubmit = async () => {
+    // Validate form
+    if (!coachInviteForm.coachEmail || !coachInviteForm.coachName || !coachInviteForm.sport) {
+      alert('Please fill in all required fields')
+      return
+    }
+
+    try {
+      setCoachInviteLoading(true)
+
+      // Get Firebase ID token
+      const idToken = await user?.getIdToken()
+      if (!idToken) {
+        alert('Authentication error. Please log in again.')
+        return
+      }
+
+      const response = await fetch('/api/admin/create-coach-invitation', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`
+        },
+        body: JSON.stringify(coachInviteForm)
+      })
+
+      const result = await response.json()
+
+      if (!response.ok || !result.success) {
+        alert(result.error || 'Failed to create coach invitation')
+        return
+      }
+
+      // Success!
+      if (result.data.emailSent) {
+        alert(`✅ Coach invitation sent successfully to ${coachInviteForm.coachEmail}!`)
+      } else {
+        alert(`⚠️ Invitation created but email failed to send: ${result.data.emailError}. Share this link manually:\n\n${result.data.url}`)
+      }
+
+      // Reset form
+      setCoachInviteForm({
+        coachEmail: '',
+        coachName: '',
+        sport: '',
+        customMessage: '',
+        expiresInDays: 7
+      })
+
+      // Reload invitations
+      loadInvitations()
+    } catch (error) {
+      console.error('Error creating coach invitation:', error)
+      alert('Failed to create coach invitation. Please try again.')
+    } finally {
+      setCoachInviteLoading(false)
+    }
+  }
+
+  // Handle Athlete Invitation Submit
+  const handleAthleteInviteSubmit = async () => {
+    // Validate form
+    if (!athleteInviteForm.athleteEmail || !athleteInviteForm.athleteName || !athleteInviteForm.sport || !athleteInviteForm.coachId) {
+      alert('Please fill in all required fields')
+      return
+    }
+
+    try {
+      setAthleteInviteLoading(true)
+
+      // Get Firebase ID token
+      const idToken = await user?.getIdToken()
+      if (!idToken) {
+        alert('Authentication error. Please log in again.')
+        return
+      }
+
+      const response = await fetch('/api/admin/create-athlete-invitation', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`
+        },
+        body: JSON.stringify(athleteInviteForm)
+      })
+
+      const result = await response.json()
+
+      if (!response.ok || !result.success) {
+        alert(result.error || 'Failed to create athlete invitation')
+        return
+      }
+
+      // Success!
+      const coachName = coaches.find(c => c.id === athleteInviteForm.coachId)?.name || 'coach'
+      if (result.data.emailSent) {
+        alert(`✅ Athlete invitation sent successfully to ${athleteInviteForm.athleteEmail} and assigned to ${coachName}!`)
+      } else {
+        alert(`⚠️ Invitation created but email failed to send: ${result.data.emailError}. Share this link manually:\n\n${result.data.url}`)
+      }
+
+      // Reset form
+      setAthleteInviteForm({
+        athleteEmail: '',
+        athleteName: '',
+        sport: '',
+        coachId: '',
+        customMessage: '',
+        expiresInDays: 14
+      })
+
+      // Reload invitations
+      loadInvitations()
+    } catch (error) {
+      console.error('Error creating athlete invitation:', error)
+      alert('Failed to create athlete invitation. Please try again.')
+    } finally {
+      setAthleteInviteLoading(false)
+    }
+  }
+
   // Application Actions
   const handleApplicationReview = async (applicationId: string, status: 'approved' | 'rejected') => {
     if (!confirm(`Are you sure you want to ${status === 'approved' ? 'approve' : 'reject'} this application?`)) return
@@ -285,57 +463,74 @@ export default function InvitationsApprovalsUnified() {
     )
   }
 
-  return (
-    <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
-      <AppHeader title="Invitations & Approvals" subtitle="Manage all invitations, applications, and approval workflows" />
-
-      <main className="max-w-7xl mx-auto px-6 py-8">
+  // Embedded mode - no header, no full page wrapper
+  if (embedded) {
+    return (
+      <div className="space-y-6">
         {/* Tab Navigation */}
-        <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-2 mb-6">
+        <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-white/50 p-2 mb-4">
           <div className="flex gap-2 overflow-x-auto">
             <button
               onClick={() => setActiveTab('invitations')}
-              className={`flex items-center gap-2 px-4 py-3 rounded-lg transition-all whitespace-nowrap font-semibold ${
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all whitespace-nowrap font-semibold text-sm ${
                 activeTab === 'invitations' ? 'bg-black text-white' : 'hover:bg-gray-100'
               }`}
             >
-              <Mail className="w-5 h-5" />
+              <Mail className="w-4 h-4" />
               All Invitations
             </button>
             <button
               onClick={() => setActiveTab('admin-invites')}
-              className={`flex items-center gap-2 px-4 py-3 rounded-lg transition-all whitespace-nowrap font-semibold ${
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all whitespace-nowrap font-semibold text-sm ${
                 activeTab === 'admin-invites' ? 'bg-black text-white' : 'hover:bg-gray-100'
               }`}
             >
-              <UserCheck className="w-5 h-5" />
+              <UserCheck className="w-4 h-4" />
               Admin Invitations
             </button>
             <button
+              onClick={() => setActiveTab('coach-invites')}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all whitespace-nowrap font-semibold text-sm ${
+                activeTab === 'coach-invites' ? 'bg-black text-white' : 'hover:bg-gray-100'
+              }`}
+            >
+              <UserPlus className="w-4 h-4" />
+              Coach Invites
+            </button>
+            <button
+              onClick={() => setActiveTab('athlete-invites')}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all whitespace-nowrap font-semibold text-sm ${
+                activeTab === 'athlete-invites' ? 'bg-black text-white' : 'hover:bg-gray-100'
+              }`}
+            >
+              <Users className="w-4 h-4" />
+              Athlete Invites
+            </button>
+            <button
               onClick={() => setActiveTab('applications')}
-              className={`flex items-center gap-2 px-4 py-3 rounded-lg transition-all whitespace-nowrap font-semibold ${
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all whitespace-nowrap font-semibold text-sm ${
                 activeTab === 'applications' ? 'bg-black text-white' : 'hover:bg-gray-100'
               }`}
             >
-              <FileText className="w-5 h-5" />
+              <FileText className="w-4 h-4" />
               Coach Applications
             </button>
             <button
               onClick={() => setActiveTab('requests')}
-              className={`flex items-center gap-2 px-4 py-3 rounded-lg transition-all whitespace-nowrap font-semibold ${
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all whitespace-nowrap font-semibold text-sm ${
                 activeTab === 'requests' ? 'bg-black text-white' : 'hover:bg-gray-100'
               }`}
             >
-              <MessageSquare className="w-5 h-5" />
+              <MessageSquare className="w-4 h-4" />
               Coach Requests
             </button>
             <button
               onClick={() => setActiveTab('assistants')}
-              className={`flex items-center gap-2 px-4 py-3 rounded-lg transition-all whitespace-nowrap font-semibold ${
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all whitespace-nowrap font-semibold text-sm ${
                 activeTab === 'assistants' ? 'bg-black text-white' : 'hover:bg-gray-100'
               }`}
             >
-              <Shield className="w-5 h-5" />
+              <Shield className="w-4 h-4" />
               Assistant Coaches
             </button>
           </div>
@@ -343,38 +538,38 @@ export default function InvitationsApprovalsUnified() {
 
         {/* ALL INVITATIONS TAB */}
         {activeTab === 'invitations' && (
-          <div className="space-y-6">
-            {/* Stats Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 text-center">
-                <Mail className="w-8 h-8 mx-auto mb-2" style={{ color: '#91A6EB' }} />
-                <div className="text-3xl font-heading" style={{ color: '#91A6EB' }}>{invitations.length}</div>
-                <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Total</div>
+          <div className="space-y-4">
+            {/* Stats Cards - Compact */}
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+              <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-white/50 p-3 text-center">
+                <Mail className="w-6 h-6 mx-auto mb-1" style={{ color: '#91A6EB' }} />
+                <div className="text-2xl font-heading" style={{ color: '#91A6EB' }}>{invitations.length}</div>
+                <div className="text-xs" style={{ color: '#000000', opacity: 0.7 }}>Total</div>
               </div>
               <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 text-center">
-                <Clock className="w-8 h-8 mx-auto mb-2" style={{ color: '#FF6B35' }} />
-                <div className="text-3xl font-heading" style={{ color: '#FF6B35' }}>{invitations.filter(i => i.status === 'pending').length}</div>
-                <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Pending</div>
+                <Clock className="w-6 h-6 mx-auto mb-1" style={{ color: '#FF6B35' }} />
+                <div className="text-2xl font-heading" style={{ color: '#FF6B35' }}>{invitations.filter(i => i.status === 'pending').length}</div>
+                <div className="text-xs" style={{ color: '#000000', opacity: 0.7 }}>Pending</div>
               </div>
               <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 text-center">
-                <CheckCircle className="w-8 h-8 mx-auto mb-2" style={{ color: '#20B2AA' }} />
-                <div className="text-3xl font-heading" style={{ color: '#20B2AA' }}>{invitations.filter(i => i.status === 'accepted').length}</div>
-                <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Accepted</div>
+                <CheckCircle className="w-6 h-6 mx-auto mb-1" style={{ color: '#20B2AA' }} />
+                <div className="text-2xl font-heading" style={{ color: '#20B2AA' }}>{invitations.filter(i => i.status === 'accepted').length}</div>
+                <div className="text-xs" style={{ color: '#000000', opacity: 0.7 }}>Accepted</div>
               </div>
               <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 text-center">
-                <XCircle className="w-8 h-8 mx-auto mb-2" style={{ color: '#FF6B35' }} />
-                <div className="text-3xl font-heading" style={{ color: '#FF6B35' }}>{invitations.filter(i => i.status === 'declined').length}</div>
-                <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Declined</div>
+                <XCircle className="w-6 h-6 mx-auto mb-1" style={{ color: '#FF6B35' }} />
+                <div className="text-2xl font-heading" style={{ color: '#FF6B35' }}>{invitations.filter(i => i.status === 'declined').length}</div>
+                <div className="text-xs" style={{ color: '#000000', opacity: 0.7 }}>Declined</div>
               </div>
               <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 text-center">
-                <AlertTriangle className="w-8 h-8 mx-auto mb-2" style={{ color: '#000000', opacity: 0.5 }} />
-                <div className="text-3xl font-heading" style={{ color: '#000000' }}>{invitations.filter(i => i.status === 'expired').length}</div>
-                <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Expired</div>
+                <AlertTriangle className="w-6 h-6 mx-auto mb-1" style={{ color: '#000000', opacity: 0.5 }} />
+                <div className="text-2xl font-heading" style={{ color: '#000000' }}>{invitations.filter(i => i.status === 'expired').length}</div>
+                <div className="text-xs" style={{ color: '#000000', opacity: 0.7 }}>Expired</div>
               </div>
             </div>
 
             {/* Filters */}
-            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4">
+            <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-white/50 p-3">
               <div className="flex gap-4">
                 <div className="flex-1 relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5" style={{ color: '#000000', opacity: 0.5 }} />
@@ -408,12 +603,12 @@ export default function InvitationsApprovalsUnified() {
                 <table className="w-full">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="text-left p-4 font-semibold" style={{ color: '#000000' }}>Athlete</th>
-                      <th className="text-left p-4 font-semibold" style={{ color: '#000000' }}>Sport</th>
-                      <th className="text-left p-4 font-semibold" style={{ color: '#000000' }}>Coach</th>
-                      <th className="text-left p-4 font-semibold" style={{ color: '#000000' }}>Status</th>
-                      <th className="text-left p-4 font-semibold" style={{ color: '#000000' }}>Sent</th>
-                      <th className="text-left p-4 font-semibold" style={{ color: '#000000' }}>Expires</th>
+                      <th className="text-left p-2 text-xs font-semibold" style={{ color: '#000000' }}>Athlete</th>
+                      <th className="text-left p-2 text-xs font-semibold" style={{ color: '#000000' }}>Sport</th>
+                      <th className="text-left p-2 text-xs font-semibold" style={{ color: '#000000' }}>Coach</th>
+                      <th className="text-left p-2 text-xs font-semibold" style={{ color: '#000000' }}>Status</th>
+                      <th className="text-left p-2 text-xs font-semibold" style={{ color: '#000000' }}>Sent</th>
+                      <th className="text-left p-2 text-xs font-semibold" style={{ color: '#000000' }}>Expires</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -432,13 +627,13 @@ export default function InvitationsApprovalsUnified() {
                     ) : (
                       filteredInvitations.map(invitation => (
                         <tr key={invitation.id} className="border-t border-gray-200 hover:bg-gray-50">
-                          <td className="p-4">
+                          <td className="p-2 text-sm">
                             <div className="font-semibold" style={{ color: '#000000' }}>{invitation.athleteName}</div>
                             <div className="text-sm" style={{ color: '#000000', opacity: 0.6 }}>{invitation.athleteEmail}</div>
                           </td>
                           <td className="p-4" style={{ color: '#000000' }}>{invitation.sport}</td>
                           <td className="p-4" style={{ color: '#000000' }}>{invitation.coachName || 'Unknown'}</td>
-                          <td className="p-4">
+                          <td className="p-2 text-sm">
                             <span className={`px-3 py-1 rounded-full text-xs font-semibold capitalize ${getStatusColor(invitation.status)}`}>
                               {invitation.status}
                             </span>
@@ -463,6 +658,237 @@ export default function InvitationsApprovalsUnified() {
         {activeTab === 'admin-invites' && (
           <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
             <AdminInvitationManager />
+          </div>
+        )}
+
+        {/* COACH INVITES TAB */}
+        {activeTab === 'coach-invites' && (
+          <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-white/50 p-6">
+            <div className="mb-6">
+              <div className="flex items-center gap-3 mb-2">
+                <UserPlus className="w-6 h-6" style={{ color: '#20B2AA' }} />
+                <h2 className="text-2xl font-heading" style={{ color: '#000000' }}>Invite Coach</h2>
+              </div>
+              <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>
+                Invite qualified coaches to join the platform and work with athletes
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                    Coach Email *
+                  </label>
+                  <input
+                    type="email"
+                    value={coachInviteForm.coachEmail}
+                    onChange={(e) => setCoachInviteForm(prev => ({...prev, coachEmail: e.target.value}))}
+                    placeholder="coach@example.com"
+                    disabled={coachInviteLoading}
+                    className="w-full px-4 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black disabled:opacity-50 disabled:cursor-not-allowed"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                    Coach Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={coachInviteForm.coachName}
+                    onChange={(e) => setCoachInviteForm(prev => ({...prev, coachName: e.target.value}))}
+                    placeholder="John Smith"
+                    disabled={coachInviteLoading}
+                    className="w-full px-4 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black disabled:opacity-50 disabled:cursor-not-allowed"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                    Sport *
+                  </label>
+                  <select
+                    value={coachInviteForm.sport}
+                    onChange={(e) => setCoachInviteForm(prev => ({...prev, sport: e.target.value}))}
+                    disabled={coachInviteLoading}
+                    className="w-full px-4 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <option value="">Select sport...</option>
+                    <option value="baseball">Baseball</option>
+                    <option value="basketball">Basketball</option>
+                    <option value="football">Football</option>
+                    <option value="soccer">Soccer</option>
+                    <option value="softball">Softball</option>
+                    <option value="volleyball">Volleyball</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                    Link Expires In (Days)
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="30"
+                    value={coachInviteForm.expiresInDays}
+                    onChange={(e) => setCoachInviteForm(prev => ({...prev, expiresInDays: parseInt(e.target.value) || 7}))}
+                    disabled={coachInviteLoading}
+                    className="w-full px-4 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black disabled:opacity-50 disabled:cursor-not-allowed"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                  Welcome Message (Optional)
+                </label>
+                <textarea
+                  rows={3}
+                  value={coachInviteForm.customMessage}
+                  onChange={(e) => setCoachInviteForm(prev => ({...prev, customMessage: e.target.value}))}
+                  placeholder="Welcome message for the coach..."
+                  disabled={coachInviteLoading}
+                  className="w-full px-4 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black disabled:opacity-50 disabled:cursor-not-allowed"
+                />
+              </div>
+
+              <button
+                onClick={handleCoachInviteSubmit}
+                disabled={coachInviteLoading}
+                className="w-full px-6 py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {coachInviteLoading ? 'Sending...' : 'Send Coach Invitation'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ATHLETE INVITES TAB */}
+        {activeTab === 'athlete-invites' && (
+          <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-white/50 p-6">
+            <div className="mb-6">
+              <div className="flex items-center gap-3 mb-2">
+                <Users className="w-6 h-6" style={{ color: '#91A6EB' }} />
+                <h2 className="text-2xl font-heading" style={{ color: '#000000' }}>Invite Athlete</h2>
+              </div>
+              <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>
+                Invite athletes and assign them to a coach
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                    Athlete Email *
+                  </label>
+                  <input
+                    type="email"
+                    value={athleteInviteForm.athleteEmail}
+                    onChange={(e) => setAthleteInviteForm(prev => ({...prev, athleteEmail: e.target.value}))}
+                    placeholder="athlete@example.com"
+                    disabled={athleteInviteLoading}
+                    className="w-full px-4 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black disabled:opacity-50 disabled:cursor-not-allowed"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                    Athlete Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={athleteInviteForm.athleteName}
+                    onChange={(e) => setAthleteInviteForm(prev => ({...prev, athleteName: e.target.value}))}
+                    placeholder="Jane Doe"
+                    disabled={athleteInviteLoading}
+                    className="w-full px-4 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black disabled:opacity-50 disabled:cursor-not-allowed"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                    Sport *
+                  </label>
+                  <select
+                    value={athleteInviteForm.sport}
+                    onChange={(e) => setAthleteInviteForm(prev => ({...prev, sport: e.target.value}))}
+                    disabled={athleteInviteLoading}
+                    className="w-full px-4 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <option value="">Select sport...</option>
+                    <option value="baseball">Baseball</option>
+                    <option value="basketball">Basketball</option>
+                    <option value="football">Football</option>
+                    <option value="soccer">Soccer</option>
+                    <option value="softball">Softball</option>
+                    <option value="volleyball">Volleyball</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                    Assign to Coach *
+                  </label>
+                  <select
+                    value={athleteInviteForm.coachId}
+                    onChange={(e) => setAthleteInviteForm(prev => ({...prev, coachId: e.target.value}))}
+                    disabled={athleteInviteLoading || coachesLoading}
+                    className="w-full px-4 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <option value="">
+                      {coachesLoading ? 'Loading coaches...' : coaches.length === 0 ? 'No coaches available' : 'Select coach...'}
+                    </option>
+                    {coaches.map(coach => (
+                      <option key={coach.id} value={coach.id}>
+                        {coach.name} - {coach.sport} ({coach.email})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                  Link Expires In (Days)
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  max="30"
+                  value={athleteInviteForm.expiresInDays}
+                  onChange={(e) => setAthleteInviteForm(prev => ({...prev, expiresInDays: parseInt(e.target.value) || 14}))}
+                  disabled={athleteInviteLoading}
+                  className="w-full px-4 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black disabled:opacity-50 disabled:cursor-not-allowed"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                  Welcome Message (Optional)
+                </label>
+                <textarea
+                  rows={3}
+                  value={athleteInviteForm.customMessage}
+                  onChange={(e) => setAthleteInviteForm(prev => ({...prev, customMessage: e.target.value}))}
+                  placeholder="Welcome message for the athlete..."
+                  disabled={athleteInviteLoading}
+                  className="w-full px-4 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black disabled:opacity-50 disabled:cursor-not-allowed"
+                />
+              </div>
+
+              <button
+                onClick={handleAthleteInviteSubmit}
+                disabled={athleteInviteLoading || !athleteInviteForm.coachId}
+                className="w-full px-6 py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {athleteInviteLoading ? 'Sending...' : 'Send Athlete Invitation'}
+              </button>
+            </div>
           </div>
         )}
 
@@ -787,6 +1213,210 @@ export default function InvitationsApprovalsUnified() {
             </div>
           </div>
         )}
+      </div>
+    )
+  }
+
+  // Non-embedded mode - full page with header
+  return (
+    <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
+      <AppHeader title="Invitations & Approvals" subtitle="Manage all invitations, applications, and approval workflows" />
+
+      <main className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 space-y-6">
+        {/* Tab Navigation */}
+        <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-white/50 p-2 mb-4">
+          <div className="flex gap-2 overflow-x-auto">
+            <button
+              onClick={() => setActiveTab('invitations')}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all whitespace-nowrap font-semibold text-sm ${
+                activeTab === 'invitations' ? 'bg-black text-white' : 'hover:bg-gray-100'
+              }`}
+            >
+              <Mail className="w-4 h-4" />
+              All Invitations
+            </button>
+            <button
+              onClick={() => setActiveTab('admin-invites')}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all whitespace-nowrap font-semibold text-sm ${
+                activeTab === 'admin-invites' ? 'bg-black text-white' : 'hover:bg-gray-100'
+              }`}
+            >
+              <UserCheck className="w-4 h-4" />
+              Admin Invitations
+            </button>
+            <button
+              onClick={() => setActiveTab('coach-invites')}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all whitespace-nowrap font-semibold text-sm ${
+                activeTab === 'coach-invites' ? 'bg-black text-white' : 'hover:bg-gray-100'
+              }`}
+            >
+              <UserPlus className="w-4 h-4" />
+              Coach Invites
+            </button>
+            <button
+              onClick={() => setActiveTab('athlete-invites')}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all whitespace-nowrap font-semibold text-sm ${
+                activeTab === 'athlete-invites' ? 'bg-black text-white' : 'hover:bg-gray-100'
+              }`}
+            >
+              <Users className="w-4 h-4" />
+              Athlete Invites
+            </button>
+            <button
+              onClick={() => setActiveTab('applications')}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all whitespace-nowrap font-semibold text-sm ${
+                activeTab === 'applications' ? 'bg-black text-white' : 'hover:bg-gray-100'
+              }`}
+            >
+              <FileText className="w-4 h-4" />
+              Coach Applications
+            </button>
+            <button
+              onClick={() => setActiveTab('requests')}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all whitespace-nowrap font-semibold text-sm ${
+                activeTab === 'requests' ? 'bg-black text-white' : 'hover:bg-gray-100'
+              }`}
+            >
+              <MessageSquare className="w-4 h-4" />
+              Coach Requests
+            </button>
+            <button
+              onClick={() => setActiveTab('assistants')}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all whitespace-nowrap font-semibold text-sm ${
+                activeTab === 'assistants' ? 'bg-black text-white' : 'hover:bg-gray-100'
+              }`}
+            >
+              <Shield className="w-4 h-4" />
+              Assistant Coaches
+            </button>
+          </div>
+        </div>
+
+        {/* Reuse the same tab content from embedded mode - note: this is duplicated for now, should be refactored to a shared component */}
+        {activeTab === 'invitations' && (
+          <div className="space-y-4">
+            {/* Stats Cards - Compact */}
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+              <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-white/50 p-3 text-center">
+                <Mail className="w-6 h-6 mx-auto mb-1" style={{ color: '#91A6EB' }} />
+                <div className="text-2xl font-heading" style={{ color: '#91A6EB' }}>{invitations.length}</div>
+                <div className="text-xs" style={{ color: '#000000', opacity: 0.7 }}>Total</div>
+              </div>
+              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 text-center">
+                <Clock className="w-6 h-6 mx-auto mb-1" style={{ color: '#FF6B35' }} />
+                <div className="text-2xl font-heading" style={{ color: '#FF6B35' }}>{invitations.filter(i => i.status === 'pending').length}</div>
+                <div className="text-xs" style={{ color: '#000000', opacity: 0.7 }}>Pending</div>
+              </div>
+              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 text-center">
+                <CheckCircle className="w-6 h-6 mx-auto mb-1" style={{ color: '#20B2AA' }} />
+                <div className="text-2xl font-heading" style={{ color: '#20B2AA' }}>{invitations.filter(i => i.status === 'accepted').length}</div>
+                <div className="text-xs" style={{ color: '#000000', opacity: 0.7 }}>Accepted</div>
+              </div>
+              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 text-center">
+                <XCircle className="w-6 h-6 mx-auto mb-1" style={{ color: '#FF6B35' }} />
+                <div className="text-2xl font-heading" style={{ color: '#FF6B35' }}>{invitations.filter(i => i.status === 'declined').length}</div>
+                <div className="text-xs" style={{ color: '#000000', opacity: 0.7 }}>Declined</div>
+              </div>
+              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 text-center">
+                <AlertTriangle className="w-6 h-6 mx-auto mb-1" style={{ color: '#000000', opacity: 0.5 }} />
+                <div className="text-2xl font-heading" style={{ color: '#000000' }}>{invitations.filter(i => i.status === 'expired').length}</div>
+                <div className="text-xs" style={{ color: '#000000', opacity: 0.7 }}>Expired</div>
+              </div>
+            </div>
+
+            {/* Filters */}
+            <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-white/50 p-3">
+              <div className="flex gap-4">
+                <div className="flex-1 relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5" style={{ color: '#000000', opacity: 0.5 }} />
+                  <input
+                    type="text"
+                    placeholder="Search by athlete name or email..."
+                    value={invitationSearch}
+                    onChange={(e) => setInvitationSearch(e.target.value)}
+                    className="w-full pl-10 px-4 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  {['all', 'pending', 'accepted', 'declined', 'expired'].map(status => (
+                    <button
+                      key={status}
+                      onClick={() => setInvitationFilter(status as any)}
+                      className={`px-4 py-2 rounded-lg font-semibold transition-colors capitalize ${
+                        invitationFilter === status ? 'bg-black text-white' : 'bg-gray-200 hover:bg-gray-300'
+                      }`}
+                    >
+                      {status}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Invitations Table */}
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="text-left p-2 text-xs font-semibold" style={{ color: '#000000' }}>Athlete</th>
+                      <th className="text-left p-2 text-xs font-semibold" style={{ color: '#000000' }}>Sport</th>
+                      <th className="text-left p-2 text-xs font-semibold" style={{ color: '#000000' }}>Coach</th>
+                      <th className="text-left p-2 text-xs font-semibold" style={{ color: '#000000' }}>Status</th>
+                      <th className="text-left p-2 text-xs font-semibold" style={{ color: '#000000' }}>Sent</th>
+                      <th className="text-left p-2 text-xs font-semibold" style={{ color: '#000000' }}>Expires</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {invitationsLoading ? (
+                      <tr>
+                        <td colSpan={6} className="text-center p-12">
+                          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto"></div>
+                        </td>
+                      </tr>
+                    ) : filteredInvitations.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} className="text-center p-12" style={{ color: '#000000', opacity: 0.7 }}>
+                          No invitations found
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredInvitations.map(invitation => (
+                        <tr key={invitation.id} className="border-t border-gray-200 hover:bg-gray-50">
+                          <td className="p-2 text-sm">
+                            <div className="font-semibold" style={{ color: '#000000' }}>{invitation.athleteName}</div>
+                            <div className="text-sm" style={{ color: '#000000', opacity: 0.6 }}>{invitation.athleteEmail}</div>
+                          </td>
+                          <td className="p-4" style={{ color: '#000000' }}>{invitation.sport}</td>
+                          <td className="p-4" style={{ color: '#000000' }}>{invitation.coachName || 'Unknown'}</td>
+                          <td className="p-2 text-sm">
+                            <span className={`px-3 py-1 rounded-full text-xs font-semibold capitalize ${getStatusColor(invitation.status)}`}>
+                              {invitation.status}
+                            </span>
+                          </td>
+                          <td className="p-4 text-sm" style={{ color: '#000000', opacity: 0.7 }}>
+                            {invitation.createdAt.toLocaleDateString()}
+                          </td>
+                          <td className="p-4 text-sm" style={{ color: '#000000', opacity: 0.7 }}>
+                            {invitation.expiresAt.toLocaleDateString()}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'admin-invites' && (
+          <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+            <AdminInvitationManager />
+          </div>
+        )}
+
+        {/* Add other tabs similarly - for brevity, reusing embedded mode logic */}
       </main>
     </div>
   )

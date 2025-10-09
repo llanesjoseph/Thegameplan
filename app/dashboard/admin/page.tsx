@@ -185,7 +185,7 @@ export default function AdminDashboard() {
 
   // Invitations & Approvals - render directly without iframe
   if (activeSection === 'invitations-approvals') {
-   return <InvitationsApprovalsUnified />
+   return <InvitationsApprovalsUnified embedded={true} />
   }
 
   // Admin Invitations uses the component directly
