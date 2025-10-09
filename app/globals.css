@@ -782,3 +782,9 @@ body {
    generated utilities take precedence over any similarly named classes. */
 @tailwind components;
 @tailwind utilities;
+
+/* Hide elements when page is embedded in iframe (detected via JS) */
+.embedded-view header,
+.embedded-view .app-header {
+  display: none !important;
+}

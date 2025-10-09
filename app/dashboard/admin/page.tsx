@@ -142,19 +142,19 @@ export default function AdminDashboard() {
 
  const getSectionPath = (sectionId: string) => {
   const pathMap: Record<string, string> = {
-   'users': '/dashboard/admin/users',
-   'roles': '/dashboard/admin/roles',
-   'analytics': '/dashboard/admin/analytics',
-   'invitations': '/dashboard/admin/invitations',
-   'coach-applications': '/dashboard/admin/coach-applications',
-   'locker-room': '/dashboard/admin/coaches-locker-room',
-   'athletes': '/dashboard/admin/athletes',
-   'requests': '/dashboard/admin/requests',
-   'assistant-coaches': '/dashboard/admin/assistant-coaches',
-   'content': '/dashboard/admin/content',
-   'gear': '/dashboard/admin/curated-gear',
-   'sync': '/dashboard/admin/sync-coaches',
-   'settings': '/dashboard/admin/settings'
+   'users': '/dashboard/admin/users?embedded=true',
+   'roles': '/dashboard/admin/roles?embedded=true',
+   'analytics': '/dashboard/admin/analytics?embedded=true',
+   'invitations': '/dashboard/admin/invitations?embedded=true',
+   'coach-applications': '/dashboard/admin/coach-applications?embedded=true',
+   'locker-room': '/dashboard/admin/coaches-locker-room?embedded=true',
+   'athletes': '/dashboard/admin/athletes?embedded=true',
+   'requests': '/dashboard/admin/requests?embedded=true',
+   'assistant-coaches': '/dashboard/admin/assistant-coaches?embedded=true',
+   'content': '/dashboard/admin/content?embedded=true',
+   'gear': '/dashboard/admin/curated-gear?embedded=true',
+   'sync': '/dashboard/admin/sync-coaches?embedded=true',
+   'settings': '/dashboard/admin/settings?embedded=true'
   }
   return pathMap[sectionId]
  }
