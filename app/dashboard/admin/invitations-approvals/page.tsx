@@ -80,7 +80,8 @@ interface AssistantCoach {
   addedAt: Date
 }
 
-export default function InvitationsApprovalsUnified({ embedded = false }: { embedded?: boolean }) {
+export default function InvitationsApprovalsUnified({ searchParams }: { searchParams: { embedded?: string } }) {
+  const embedded = searchParams?.embedded === 'true'
   const [activeTab, setActiveTab] = useState<'invitations' | 'admin-invites' | 'coach-invites' | 'athlete-invites' | 'applications' | 'requests' | 'assistants'>('invitations')
   const { user } = useAuth()
   const { role } = useEnhancedRole()

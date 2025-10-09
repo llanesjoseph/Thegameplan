@@ -79,11 +79,11 @@ export default function Dashboard() {
    console.log('✅ Athlete authenticated, redirecting to Progress Dashboard')
    router.replace('/dashboard/progress')
   } else if (userRole === 'creator' || userRole === 'coach' || userRole === 'assistant' || userRole === 'user') {
-   console.log(`✅ ${userRole} authenticated, redirecting to Creator Dashboard`)
-   router.replace('/dashboard/creator')
+   console.log(`✅ ${userRole} authenticated, redirecting to Coach Dashboard`)
+   router.replace('/dashboard/coach-unified')
   } else {
-   console.warn('⚠️ Unknown role:', userRole, '- defaulting to Creator Dashboard')
-   router.replace('/dashboard/creator')
+   console.warn('⚠️ Unknown role:', userRole, '- defaulting to Coach Dashboard')
+   router.replace('/dashboard/coach-unified')
   }
  }, [user, loading, pathname])
 
