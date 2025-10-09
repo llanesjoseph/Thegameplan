@@ -24,6 +24,24 @@ function AnalyticsPageContent() {
   const embedded = searchParams.get('embedded') === 'true'
 
   const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d' | 'all'>('30d')
+  const [loading, setLoading] = useState(true)
+  const [stats, setStats] = useState({
+    totalLessons: 0,
+    totalViews: 0,
+    totalCompletions: 0,
+    averageRating: 0,
+    activeAthletes: 0,
+    lessonCompletionRate: 0,
+    avgTimePerLesson: 0
+  })
+  const [topLessons, setTopLessons] = useState<any[]>([])
+  const [athleteActivity, setAthleteActivity] = useState<any[]>([])
+  const [trends, setTrends] = useState({
+    weekGrowth: 0,
+    monthGrowth: 0,
+    newAthletesMonth: 0,
+    avgEngagement: 0
+  })
 
   // Authentication check
   useEffect(() => {
@@ -37,32 +55,45 @@ function AnalyticsPageContent() {
     }
   }, [user, authLoading, embedded, router])
 
-  // Sample analytics data
-  const stats = {
-    totalLessons: 12,
-    totalViews: 384,
-    totalCompletions: 156,
-    averageRating: 4.7,
-    activeAthletes: 24,
-    lessonCompletionRate: 68,
-    avgTimePerLesson: 18
+  // Load analytics data
+  useEffect(() => {
+    if (user) {
+      loadAnalytics()
+    }
+  }, [user, timeRange])
+
+  const loadAnalytics = async () => {
+    setLoading(true)
+    try {
+      const token = await user?.getIdToken()
+      const response = await fetch('/api/coach/analytics', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to load analytics')
+      }
+
+      const data = await response.json()
+      if (data.analytics) {
+        setStats(data.analytics.stats)
+        setTopLessons(data.analytics.topLessons || [])
+        setAthleteActivity(data.analytics.athleteActivity || [])
+        setTrends(data.analytics.trends || {
+          weekGrowth: 0,
+          monthGrowth: 0,
+          newAthletesMonth: 0,
+          avgEngagement: 0
+        })
+      }
+    } catch (error) {
+      console.error('Error loading analytics:', error)
+    } finally {
+      setLoading(false)
+    }
   }
-
-  const topLessons = [
-    { id: 1, title: 'Advanced Pitching Mechanics', views: 89, completions: 45, rating: 4.9 },
-    { id: 2, title: 'Defensive Positioning Fundamentals', views: 72, completions: 38, rating: 4.8 },
-    { id: 3, title: 'Batting Practice Drills', views: 65, completions: 32, rating: 4.6 },
-    { id: 4, title: 'Base Running Strategies', views: 54, completions: 25, rating: 4.5 },
-    { id: 5, title: 'Warm-Up and Stretching', views: 48, completions: 16, rating: 4.4 }
-  ]
-
-  const athleteActivity = [
-    { name: 'Sarah Johnson', completions: 8, lastActive: '2 hours ago', progress: 67 },
-    { name: 'Mike Chen', completions: 7, lastActive: '5 hours ago', progress: 58 },
-    { name: 'Emily Rodriguez', completions: 6, lastActive: '1 day ago', progress: 50 },
-    { name: 'James Williams', completions: 5, lastActive: '1 day ago', progress: 42 },
-    { name: 'Alex Thompson', completions: 4, lastActive: '2 days ago', progress: 33 }
-  ]
 
   // Show loading state while checking auth
   if (authLoading) {
@@ -105,7 +136,13 @@ function AnalyticsPageContent() {
         <AppHeader title="Analytics" subtitle="Track engagement and athlete progress" />
       )}
 
-      <main className={`w-full ${embedded ? 'p-4' : 'max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6'} space-y-6`}>
+      {loading ? (
+        <div className={`w-full ${embedded ? 'p-12' : 'max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-12'} text-center`}>
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-black mb-4"></div>
+          <p style={{ color: '#000000', opacity: 0.7 }}>Loading analytics...</p>
+        </div>
+      ) : (
+        <main className={`w-full ${embedded ? 'p-4' : 'max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6'} space-y-6`}>
         {/* Header */}
         {embedded && (
           <div className="mb-4">
@@ -230,25 +267,25 @@ function AnalyticsPageContent() {
             <div className="grid grid-cols-2 gap-4">
               <div className="p-4 rounded-lg" style={{ backgroundColor: 'rgba(145, 166, 235, 0.1)' }}>
                 <p className="text-sm mb-1" style={{ color: '#000000', opacity: 0.7 }}>This Week</p>
-                <p className="text-2xl font-heading mb-1" style={{ color: '#91A6EB' }}>+24%</p>
+                <p className="text-2xl font-heading mb-1" style={{ color: '#91A6EB' }}>+{trends.weekGrowth}%</p>
                 <p className="text-xs" style={{ color: '#000000', opacity: 0.6 }}>vs last week</p>
               </div>
 
               <div className="p-4 rounded-lg" style={{ backgroundColor: 'rgba(32, 178, 170, 0.1)' }}>
                 <p className="text-sm mb-1" style={{ color: '#000000', opacity: 0.7 }}>This Month</p>
-                <p className="text-2xl font-heading mb-1" style={{ color: '#20B2AA' }}>+18%</p>
+                <p className="text-2xl font-heading mb-1" style={{ color: '#20B2AA' }}>+{trends.monthGrowth}%</p>
                 <p className="text-xs" style={{ color: '#000000', opacity: 0.6 }}>vs last month</p>
               </div>
 
               <div className="p-4 rounded-lg" style={{ backgroundColor: 'rgba(255, 107, 53, 0.1)' }}>
                 <p className="text-sm mb-1" style={{ color: '#000000', opacity: 0.7 }}>New Athletes</p>
-                <p className="text-2xl font-heading mb-1" style={{ color: '#FF6B35' }}>+8</p>
+                <p className="text-2xl font-heading mb-1" style={{ color: '#FF6B35' }}>+{trends.newAthletesMonth}</p>
                 <p className="text-xs" style={{ color: '#000000', opacity: 0.6 }}>this month</p>
               </div>
 
               <div className="p-4 rounded-lg bg-black/5">
                 <p className="text-sm mb-1" style={{ color: '#000000', opacity: 0.7 }}>Avg Engagement</p>
-                <p className="text-2xl font-heading mb-1" style={{ color: '#000000' }}>4.2hrs</p>
+                <p className="text-2xl font-heading mb-1" style={{ color: '#000000' }}>{trends.avgEngagement}hrs</p>
                 <p className="text-xs" style={{ color: '#000000', opacity: 0.6 }}>per athlete/week</p>
               </div>
             </div>
@@ -317,7 +354,7 @@ function AnalyticsPageContent() {
                 className="flex items-center gap-4 p-4 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
               >
                 <div className="w-10 h-10 rounded-full flex items-center justify-center font-semibold text-white" style={{ background: 'linear-gradient(135deg, #91A6EB 0%, #000000 100%)' }}>
-                  {athlete.name.split(' ').map(n => n[0]).join('')}
+                  {athlete.name.split(' ').map((n: string) => n[0]).join('')}
                 </div>
 
                 <div className="flex-1 min-w-0">
@@ -350,6 +387,7 @@ function AnalyticsPageContent() {
           </div>
         </div>
       </main>
+      )}
     </div>
   )
 }
