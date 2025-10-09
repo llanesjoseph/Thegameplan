@@ -102,9 +102,16 @@ function InviteAthletesPageContent() {
       return
     }
 
+    if (!user) {
+      alert('Please log in to send invitations')
+      return
+    }
+
     setSending(true)
     try {
-      const token = await user?.getIdToken()
+      // Get Firebase ID token
+      const token = await user.getIdToken()
+
       const response = await fetch('/api/coach/invite-athletes', {
         method: 'POST',
         headers: {
@@ -112,8 +119,8 @@ function InviteAthletesPageContent() {
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          coachId: user?.uid,
-          coachName: user?.displayName,
+          coachId: user.uid,
+          coachName: user.displayName || 'Coach',
           sport: singleInvite.sport,
           customMessage: singleInvite.customMessage,
           expiresInDays: singleInvite.expiresInDays,
@@ -125,7 +132,8 @@ function InviteAthletesPageContent() {
       })
 
       if (!response.ok) {
-        throw new Error('Failed to send invitation')
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || 'Failed to send invitation')
       }
 
       alert('Invitation sent successfully!')
@@ -140,7 +148,7 @@ function InviteAthletesPageContent() {
       })
     } catch (error) {
       console.error('Error sending invitation:', error)
-      alert('Failed to send invitation. Please try again.')
+      alert(error instanceof Error ? error.message : 'Failed to send invitation. Please try again.')
     } finally {
       setSending(false)
     }
@@ -154,9 +162,16 @@ function InviteAthletesPageContent() {
       return
     }
 
+    if (!user) {
+      alert('Please log in to send invitations')
+      return
+    }
+
     setSending(true)
     try {
-      const token = await user?.getIdToken()
+      // Get Firebase ID token
+      const token = await user.getIdToken()
+
       const response = await fetch('/api/coach/invite-athletes', {
         method: 'POST',
         headers: {
@@ -164,8 +179,8 @@ function InviteAthletesPageContent() {
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          coachId: user?.uid,
-          coachName: user?.displayName,
+          coachId: user.uid,
+          coachName: user.displayName || 'Coach',
           sport: bulkSport,
           customMessage: bulkMessage,
           expiresInDays: 7,
@@ -174,7 +189,8 @@ function InviteAthletesPageContent() {
       })
 
       if (!response.ok) {
-        throw new Error('Failed to send invitations')
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || 'Failed to send invitations')
       }
 
       const result = await response.json()
@@ -186,7 +202,7 @@ function InviteAthletesPageContent() {
       setBulkAthletes([{ email: '', name: '' }])
     } catch (error) {
       console.error('Error sending invitations:', error)
-      alert('Failed to send invitations. Please try again.')
+      alert(error instanceof Error ? error.message : 'Failed to send invitations. Please try again.')
     } finally {
       setSending(false)
     }
@@ -371,8 +387,24 @@ function InviteAthletesPageContent() {
                 <button
                   onClick={handleSingleInvite}
                   disabled={sending || !singleInvite.athleteName || !singleInvite.athleteEmail}
-                  className="w-full px-6 py-4 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-lg"
-                  style={{ minHeight: '56px' }}
+                  className="w-full px-6 py-4 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl disabled:cursor-not-allowed flex items-center justify-center gap-2 text-lg"
+                  style={{
+                    minHeight: '56px',
+                    backgroundColor: (sending || !singleInvite.athleteName || !singleInvite.athleteEmail) ? '#9CA3AF' : '#16A34A',
+                    color: '#FFFFFF',
+                    opacity: (sending || !singleInvite.athleteName || !singleInvite.athleteEmail) ? 0.7 : 1,
+                    cursor: (sending || !singleInvite.athleteName || !singleInvite.athleteEmail) ? 'not-allowed' : 'pointer'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!sending && singleInvite.athleteName && singleInvite.athleteEmail) {
+                      e.currentTarget.style.backgroundColor = '#15803D'
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!sending && singleInvite.athleteName && singleInvite.athleteEmail) {
+                      e.currentTarget.style.backgroundColor = '#16A34A'
+                    }
+                  }}
                 >
                   {sending ? (
                     <>
