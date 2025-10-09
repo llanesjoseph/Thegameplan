@@ -136,103 +136,34 @@ export default function CoachesLockerRoom() {
     }
   }, [user, role])
 
-  const gettingStartedResources: Resource[] = [
-    {
-      id: '1',
-      title: 'Quick Start Guide',
-      description: '5-step process to go from signup to first video',
-      type: 'guide',
-      url: '/dashboard/admin/coaches-locker-room/quick-start-guide'
-    },
-    {
-      id: '2',
-      title: 'Platform Walkthrough',
-      description: 'Interactive tour of all coach features',
-      type: 'guide',
-      url: '/dashboard/admin/coaches-locker-room/platform-walkthrough'
-    },
-    {
-      id: '3',
-      title: 'Equipment Setup Guide',
-      description: 'Recommended cameras, mics, lighting for quality videos',
-      type: 'guide',
-      url: '/dashboard/admin/coaches-locker-room/equipment-setup'
-    },
-    {
-      id: '4',
-      title: 'First Video Checklist',
-      description: 'Essential elements for your debut content',
-      type: 'document',
-      url: '/dashboard/admin/coaches-locker-room/first-video-checklist'
-    }
-  ]
-
-  const contentCreationResources: Resource[] = [
-    {
-      id: '5',
-      title: 'Video Best Practices',
-      description: 'Engagement tips, ideal length, pacing, structure',
-      type: 'guide',
-      url: '/dashboard/admin/coaches-locker-room/video-best-practices'
-    },
-    {
-      id: '6',
-      title: 'Content Templates',
-      description: 'Pre-built outlines for drills, technique, mental game',
-      type: 'template',
-      url: '/dashboard/admin/coaches-locker-room/content-templates'
-    },
-    {
-      id: '7',
-      title: 'Scripting Guide',
-      description: 'How to plan and script effective training videos',
-      type: 'document',
-      url: '/dashboard/admin/coaches-locker-room/scripting-guide'
-    },
-    {
-      id: '8',
-      title: 'Editing Resources',
-      description: 'Free/affordable editing tools and tutorials',
-      type: 'guide',
-      url: '/dashboard/admin/coaches-locker-room/editing-resources'
-    },
-    {
-      id: '9',
-      title: 'Thumbnail Design Guide',
-      description: 'Creating eye-catching video thumbnails',
-      type: 'guide',
-      url: '/dashboard/admin/coaches-locker-room/thumbnail-design'
-    }
-  ]
-
-  const communityResources: Resource[] = [
-    {
-      id: '10',
-      title: 'Coach Directory',
-      description: 'Browse other coaches for inspiration',
-      type: 'guide',
-      url: '/dashboard/admin/coaches-locker-room/coach-directory'
-    },
+  const adminTools: Resource[] = [
     {
       id: '11',
       title: 'Success Stories',
-      description: 'Case studies of top-performing coaches',
+      description: 'Manage and publish case studies of top-performing coaches',
       type: 'document',
       url: '/dashboard/admin/coaches-locker-room/success-stories'
     },
     {
       id: '12',
       title: 'Monthly Tips Newsletter',
-      description: 'Best practices from the community',
+      description: 'Create and send monthly best practices to all coaches',
       type: 'document',
       url: '/dashboard/admin/coaches-locker-room/monthly-tips'
     },
     {
       id: '13',
       title: 'Coach Forum/Chat',
-      description: 'Connect with other coaches',
+      description: 'Moderate and manage coach community discussions',
       type: 'guide',
       url: '/dashboard/admin/coaches-locker-room/forum'
+    },
+    {
+      id: '14',
+      title: 'Coach Announcements',
+      description: 'Send announcements via email or direct message to all coaches',
+      type: 'guide',
+      url: '/dashboard/admin/coaches-locker-room/announcements'
     }
   ]
 
@@ -305,74 +236,18 @@ export default function CoachesLockerRoom() {
           </div>
         </div>
 
-        {/* Coach Announcements */}
+        {/* Admin Tools for Coach Management */}
         <div className="mb-12">
-          <div className="bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl shadow-lg p-6 text-white">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-heading">Coach Announcements</h2>
-              <a
-                href="/dashboard/admin/coaches-locker-room/announcements"
-                className="px-4 py-2 bg-white text-purple-600 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
-              >
-                Manage Announcements
-              </a>
-            </div>
-            <p className="opacity-90">Send important updates, tips, and news to all coaches via email or direct message.</p>
-          </div>
-        </div>
-
-        {/* Getting Started Resources */}
-        <div className="mb-12">
-          <h2 className="text-2xl font-heading mb-6" style={{ color: '#000000' }}>🚀 Getting Started</h2>
+          <h2 className="text-2xl font-heading mb-6" style={{ color: '#000000' }}>Admin Tools</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {gettingStartedResources.map((resource) => (
-              <a key={resource.id} href={resource.url} className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 hover:shadow-2xl transition-all hover:scale-105">
+            {adminTools.map((tool) => (
+              <a key={tool.id} href={tool.url} className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 hover:shadow-2xl transition-all hover:scale-105">
                 <div className="w-12 h-12 rounded-lg flex items-center justify-center mb-4" style={{ backgroundColor: '#20B2AA' }}>
-                  {resource.type === 'guide' && <BookOpen className="w-6 h-6 text-white" />}
-                  {resource.type === 'template' && <FileText className="w-6 h-6 text-white" />}
-                  {resource.type === 'video' && <Video className="w-6 h-6 text-white" />}
-                  {resource.type === 'document' && <FileText className="w-6 h-6 text-white" />}
+                  {tool.type === 'guide' && <MessageSquare className="w-6 h-6 text-white" />}
+                  {tool.type === 'document' && <FileText className="w-6 h-6 text-white" />}
                 </div>
-                <h3 className="font-semibold mb-2" style={{ color: '#000000' }}>{resource.title}</h3>
-                <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>{resource.description}</p>
-              </a>
-            ))}
-          </div>
-        </div>
-
-        {/* Content Creation Resources */}
-        <div className="mb-12">
-          <h2 className="text-2xl font-heading mb-6" style={{ color: '#000000' }}>🎬 Content Creation</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {contentCreationResources.map((resource) => (
-              <a key={resource.id} href={resource.url} className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 hover:shadow-2xl transition-all hover:scale-105">
-                <div className="w-12 h-12 rounded-lg flex items-center justify-center mb-4" style={{ backgroundColor: '#91A6EB' }}>
-                  {resource.type === 'guide' && <BookOpen className="w-6 h-6 text-white" />}
-                  {resource.type === 'template' && <FileText className="w-6 h-6 text-white" />}
-                  {resource.type === 'video' && <Video className="w-6 h-6 text-white" />}
-                  {resource.type === 'document' && <FileText className="w-6 h-6 text-white" />}
-                </div>
-                <h3 className="font-semibold mb-2" style={{ color: '#000000' }}>{resource.title}</h3>
-                <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>{resource.description}</p>
-              </a>
-            ))}
-          </div>
-        </div>
-
-        {/* Community Resources */}
-        <div className="mb-12">
-          <h2 className="text-2xl font-heading mb-6" style={{ color: '#000000' }}>🤝 Community</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {communityResources.map((resource) => (
-              <a key={resource.id} href={resource.url} className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 hover:shadow-2xl transition-all hover:scale-105">
-                <div className="w-12 h-12 rounded-lg flex items-center justify-center mb-4" style={{ backgroundColor: '#FF6B35' }}>
-                  {resource.type === 'guide' && <BookOpen className="w-6 h-6 text-white" />}
-                  {resource.type === 'template' && <FileText className="w-6 h-6 text-white" />}
-                  {resource.type === 'video' && <Video className="w-6 h-6 text-white" />}
-                  {resource.type === 'document' && <FileText className="w-6 h-6 text-white" />}
-                </div>
-                <h3 className="font-semibold mb-2" style={{ color: '#000000' }}>{resource.title}</h3>
-                <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>{resource.description}</p>
+                <h3 className="font-semibold mb-2" style={{ color: '#000000' }}>{tool.title}</h3>
+                <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>{tool.description}</p>
               </a>
             ))}
           </div>
