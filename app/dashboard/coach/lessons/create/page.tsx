@@ -167,9 +167,16 @@ function CreateLessonPageContent() {
       return
     }
 
+    if (!user) {
+      alert('Please log in to generate lessons')
+      return
+    }
+
     setGenerating(true)
     try {
-      const token = await user?.getIdToken()
+      // Get Firebase ID token
+      const token = await user.getIdToken()
+
       const response = await fetch('/api/generate-lesson-simple', {
         method: 'POST',
         headers: {
@@ -180,12 +187,13 @@ function CreateLessonPageContent() {
           prompt: aiPrompt,
           sport: lesson.sport || 'general',
           level: lesson.level || 'intermediate',
-          coachId: user?.uid
+          coachId: user.uid
         })
       })
 
       if (!response.ok) {
-        throw new Error('Failed to generate lesson')
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || 'Failed to generate lesson')
       }
 
       const data = await response.json()
@@ -218,7 +226,7 @@ function CreateLessonPageContent() {
       }
     } catch (error: any) {
       console.error('Error generating lesson:', error)
-      alert(`Failed to generate lesson: ${error.message}`)
+      alert(error instanceof Error ? error.message : 'Failed to generate lesson. Please try again.')
     } finally {
       setGenerating(false)
     }
@@ -231,9 +239,16 @@ function CreateLessonPageContent() {
       return
     }
 
+    if (!user) {
+      alert('Please log in to use AI suggestions')
+      return
+    }
+
     setGenerating(true)
     try {
-      const token = await user?.getIdToken()
+      // Get Firebase ID token
+      const token = await user.getIdToken()
+
       const response = await fetch('/api/generate-lesson-content', {
         method: 'POST',
         headers: {
@@ -248,7 +263,10 @@ function CreateLessonPageContent() {
         })
       })
 
-      if (!response.ok) throw new Error('Failed to generate suggestions')
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || 'Failed to generate suggestions')
+      }
 
       const data = await response.json()
       if (data.objectives) {
@@ -259,7 +277,7 @@ function CreateLessonPageContent() {
       }
     } catch (error: any) {
       console.error('Error suggesting objectives:', error)
-      alert(`Failed to suggest objectives: ${error.message}`)
+      alert(error instanceof Error ? error.message : 'Failed to suggest objectives. Please try again.')
     } finally {
       setGenerating(false)
     }
@@ -270,9 +288,16 @@ function CreateLessonPageContent() {
     const section = lesson.sections.find(s => s.id === sectionId)
     if (!section) return
 
+    if (!user) {
+      alert('Please log in to use AI enhancement')
+      return
+    }
+
     setGenerating(true)
     try {
-      const token = await user?.getIdToken()
+      // Get Firebase ID token
+      const token = await user.getIdToken()
+
       const response = await fetch('/api/generate-lesson-content', {
         method: 'POST',
         headers: {
@@ -288,7 +313,10 @@ function CreateLessonPageContent() {
         })
       })
 
-      if (!response.ok) throw new Error('Failed to enhance section')
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || 'Failed to enhance section')
+      }
 
       const data = await response.json()
       if (data.content) {
@@ -297,7 +325,7 @@ function CreateLessonPageContent() {
       }
     } catch (error: any) {
       console.error('Error enhancing section:', error)
-      alert(`Failed to enhance section: ${error.message}`)
+      alert(error instanceof Error ? error.message : 'Failed to enhance section. Please try again.')
     } finally {
       setGenerating(false)
     }
