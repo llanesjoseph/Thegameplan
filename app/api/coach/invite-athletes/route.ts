@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { sendAthleteInvitationEmail, sendCoachNotificationEmail } from '@/lib/email-service'
-import { adminDb } from '@/lib/firebase.admin'
+import { auth, adminDb } from '@/lib/firebase.admin'
 
 interface AthleteInvite {
   email: string
@@ -16,8 +16,58 @@ interface InviteRequest {
 
 export async function POST(request: NextRequest) {
   try {
+    // 1. Verify authentication
+    const authHeader = request.headers.get('authorization')
+    if (!authHeader?.startsWith('Bearer ')) {
+      return NextResponse.json(
+        { error: 'Missing or invalid authorization header' },
+        { status: 401 }
+      )
+    }
+
+    const token = authHeader.split('Bearer ')[1]
+    let decodedToken
+    try {
+      decodedToken = await auth.verifyIdToken(token)
+    } catch (error) {
+      return NextResponse.json(
+        { error: 'Invalid authentication token' },
+        { status: 401 }
+      )
+    }
+
+    const uid = decodedToken.uid
+
+    // 2. Verify user has coach role
+    const userDoc = await adminDb.collection('users').doc(uid).get()
+    if (!userDoc.exists) {
+      return NextResponse.json(
+        { error: 'User not found' },
+        { status: 404 }
+      )
+    }
+
+    const userData = userDoc.data()
+    const userRole = userData?.role || userData?.roles?.[0] || 'user'
+
+    if (!['coach', 'creator', 'admin', 'superadmin'].includes(userRole)) {
+      return NextResponse.json(
+        { error: 'Only coaches can invite athletes' },
+        { status: 403 }
+      )
+    }
+
+    // 3. Parse request body
     const body: InviteRequest = await request.json()
     const { coachId, sport, customMessage, athletes } = body
+
+    // 4. Verify the coachId matches the authenticated user (unless admin/superadmin)
+    if (coachId !== uid && !['admin', 'superadmin'].includes(userRole)) {
+      return NextResponse.json(
+        { error: 'You can only send invitations as yourself' },
+        { status: 403 }
+      )
+    }
 
     if (!coachId || !sport || !athletes || athletes.length === 0) {
       return NextResponse.json(
