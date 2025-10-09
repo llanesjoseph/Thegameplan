@@ -24,6 +24,7 @@ import {
   UserPlus,
   Users
 } from 'lucide-react'
+import EmailPreview from '@/components/admin/EmailPreview'
 
 // Types
 interface Invitation {
@@ -664,18 +665,21 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
 
         {/* COACH INVITES TAB */}
         {activeTab === 'coach-invites' && (
-          <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-white/50 p-6">
-            <div className="mb-6">
-              <div className="flex items-center gap-3 mb-2">
-                <UserPlus className="w-6 h-6" style={{ color: '#20B2AA' }} />
-                <h2 className="text-2xl font-heading" style={{ color: '#000000' }}>Invite Coach</h2>
+          <div className="space-y-4">
+            <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-white/50 p-6">
+              <div className="mb-6">
+                <div className="flex items-center gap-3 mb-2">
+                  <UserPlus className="w-6 h-6" style={{ color: '#20B2AA' }} />
+                  <h2 className="text-2xl font-heading" style={{ color: '#000000' }}>Invite Coach</h2>
+                </div>
+                <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>
+                  Invite qualified coaches to join the platform and work with athletes
+                </p>
               </div>
-              <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>
-                Invite qualified coaches to join the platform and work with athletes
-              </p>
-            </div>
 
-            <div className="space-y-4">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Form Column */}
+                <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
@@ -756,31 +760,51 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
                 />
               </div>
 
-              <button
-                onClick={handleCoachInviteSubmit}
-                disabled={coachInviteLoading}
-                className="w-full px-6 py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {coachInviteLoading ? 'Sending...' : 'Send Coach Invitation'}
-              </button>
+                  <button
+                    onClick={handleCoachInviteSubmit}
+                    disabled={coachInviteLoading}
+                    className="w-full px-6 py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {coachInviteLoading ? 'Sending...' : 'Send Coach Invitation'}
+                  </button>
+                </div>
+
+                {/* Preview Column */}
+                <div className="hidden lg:block">
+                  <EmailPreview
+                    type="coach"
+                    data={{
+                      name: coachInviteForm.coachName,
+                      email: coachInviteForm.coachEmail,
+                      sport: coachInviteForm.sport,
+                      customMessage: coachInviteForm.customMessage,
+                      expiresInDays: coachInviteForm.expiresInDays
+                    }}
+                    inviterName={user?.displayName || 'Admin'}
+                  />
+                </div>
+              </div>
             </div>
           </div>
         )}
 
         {/* ATHLETE INVITES TAB */}
         {activeTab === 'athlete-invites' && (
-          <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-white/50 p-6">
-            <div className="mb-6">
-              <div className="flex items-center gap-3 mb-2">
-                <Users className="w-6 h-6" style={{ color: '#91A6EB' }} />
-                <h2 className="text-2xl font-heading" style={{ color: '#000000' }}>Invite Athlete</h2>
+          <div className="space-y-4">
+            <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-white/50 p-6">
+              <div className="mb-6">
+                <div className="flex items-center gap-3 mb-2">
+                  <Users className="w-6 h-6" style={{ color: '#91A6EB' }} />
+                  <h2 className="text-2xl font-heading" style={{ color: '#000000' }}>Invite Athlete</h2>
+                </div>
+                <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>
+                  Invite athletes and assign them to a coach
+                </p>
               </div>
-              <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>
-                Invite athletes and assign them to a coach
-              </p>
-            </div>
 
-            <div className="space-y-4">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Form Column */}
+                <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
@@ -882,13 +906,31 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
                 />
               </div>
 
-              <button
-                onClick={handleAthleteInviteSubmit}
-                disabled={athleteInviteLoading || !athleteInviteForm.coachId}
-                className="w-full px-6 py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {athleteInviteLoading ? 'Sending...' : 'Send Athlete Invitation'}
-              </button>
+                  <button
+                    onClick={handleAthleteInviteSubmit}
+                    disabled={athleteInviteLoading || !athleteInviteForm.coachId}
+                    className="w-full px-6 py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {athleteInviteLoading ? 'Sending...' : 'Send Athlete Invitation'}
+                  </button>
+                </div>
+
+                {/* Preview Column */}
+                <div className="hidden lg:block">
+                  <EmailPreview
+                    type="athlete"
+                    data={{
+                      name: athleteInviteForm.athleteName,
+                      email: athleteInviteForm.athleteEmail,
+                      sport: athleteInviteForm.sport,
+                      customMessage: athleteInviteForm.customMessage,
+                      expiresInDays: athleteInviteForm.expiresInDays,
+                      coachName: coaches.find(c => c.id === athleteInviteForm.coachId)?.name
+                    }}
+                    inviterName={user?.displayName || 'Admin'}
+                  />
+                </div>
+              </div>
             </div>
           </div>
         )}
