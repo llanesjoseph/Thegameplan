@@ -179,11 +179,12 @@ export default function AdminDashboard() {
   const sectionPath = getSectionPath(activeSection)
   if (sectionPath) {
    return (
-    <div className="rounded-xl overflow-hidden shadow-lg" style={{ height: '85vh', minHeight: '700px' }}>
+    <div className="rounded-xl overflow-hidden shadow-lg" style={{ maxHeight: '75vh', minHeight: '400px', height: 'auto' }}>
      <iframe
       src={sectionPath}
-      className="w-full h-full border-0"
+      className="w-full border-0"
       title={title}
+      style={{ height: '75vh', minHeight: '400px' }}
      />
     </div>
    )
