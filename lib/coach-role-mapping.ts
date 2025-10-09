@@ -10,8 +10,13 @@ export const KNOWN_COACHES: Record<string, {
   credentials: string[]
   shouldBeRole: 'coach'
 }> = {
-  // Add known coaches here as needed
-  // Note: Removed llanes.joseph.m@gmail.com as they should be superadmin, not auto-corrected to coach
+  'llanes.joseph.m@gmail.com': {
+    email: 'llanes.joseph.m@gmail.com',
+    name: 'Joseph Llanes',
+    sport: 'Multi-Sport',
+    credentials: ['Professional Coach'],
+    shouldBeRole: 'coach'
+  }
 }
 
 /**

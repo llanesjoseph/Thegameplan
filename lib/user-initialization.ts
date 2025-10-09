@@ -6,7 +6,9 @@ import { isKnownCoach, getKnownCoachRole } from './coach-role-mapping'
 
 // Superadmin emails - these users should never have their role auto-corrected
 const SUPERADMIN_EMAILS = [
-  'llanes.joseph.m@gmail.com'
+  'joseph@crucibleanalytics.dev',
+  'lonaloraine.vincent@gmail.com',
+  'merlinesaintil@gmail.com'
 ]
 
 function isSuperadmin(email: string | null): boolean {
