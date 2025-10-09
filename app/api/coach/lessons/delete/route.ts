@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { adminDb } from '@/lib/firebaseAdmin'
-import { adminAuth } from '@/lib/firebaseAdmin'
+import { auth, adminDb } from '@/lib/firebase.admin'
 
 export async function DELETE(request: NextRequest) {
   try {
@@ -16,7 +15,7 @@ export async function DELETE(request: NextRequest) {
     const token = authHeader.split('Bearer ')[1]
     let decodedToken
     try {
-      decodedToken = await adminAuth.verifyIdToken(token)
+      decodedToken = await auth.verifyIdToken(token)
     } catch (error) {
       return NextResponse.json(
         { error: 'Invalid authentication token' },
