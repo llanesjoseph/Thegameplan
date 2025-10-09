@@ -20,3 +20,4 @@ dist/
 GITHUB_SECRETS_SETUP.txt
 
 .vercel
+serviceAccountKey.json

@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, Suspense } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useAuth } from '@/hooks/use-auth'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import AppHeader from '@/components/ui/AppHeader'
 import {
   UserCog,
@@ -14,6 +14,8 @@ import {
   CheckCircle,
   Clock,
   Send
+,
+  AlertCircle
 } from 'lucide-react'
 
 interface Assistant {
@@ -28,7 +30,8 @@ interface Assistant {
 }
 
 function AssistantCoachesPageContent() {
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
+  const router = useRouter()
   const searchParams = useSearchParams()
   const embedded = searchParams.get('embedded') === 'true'
 
@@ -140,6 +143,53 @@ function AssistantCoachesPageContent() {
       <span className="px-2 py-0.5 rounded text-xs font-semibold capitalize" style={{ backgroundColor: color.bg, color: color.text }}>
         {role}
       </span>
+    )
+  }
+
+  // Authentication check
+  useEffect(() => {
+    if (authLoading) return
+
+    if (!user) {
+      console.warn('[AssistantCoaches] Unauthorized access attempt - no user')
+      if (!embedded) {
+        router.push('/')
+      }
+    }
+  }, [user, authLoading, embedded, router])
+
+  // Show loading state while checking auth
+  if (authLoading) {
+    return (
+      <div style={{ backgroundColor: embedded ? 'transparent' : '#E8E6D8' }} className={embedded ? 'p-12' : 'min-h-screen flex items-center justify-center'}>
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-black mb-4"></div>
+          <p style={{ color: '#000000', opacity: 0.7 }}>Verifying access...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Show error if not authenticated
+  if (!user) {
+    return (
+      <div style={{ backgroundColor: embedded ? 'transparent' : '#E8E6D8' }} className={embedded ? 'p-12' : 'min-h-screen flex items-center justify-center'}>
+        <div className="text-center bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8 max-w-md">
+          <AlertCircle className="w-16 h-16 mx-auto mb-4" style={{ color: '#FF6B35' }} />
+          <h2 className="text-2xl font-heading mb-2" style={{ color: '#000000' }}>Access Denied</h2>
+          <p className="mb-6" style={{ color: '#000000', opacity: 0.7 }}>
+            You must be logged in as a coach to access this page.
+          </p>
+          {!embedded && (
+            <button
+              onClick={() => router.push('/')}
+              className="px-6 py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors"
+            >
+              Return to Login
+            </button>
+          )}
+        </div>
+      </div>
     )
   }
 
@@ -428,6 +478,7 @@ function AssistantCoachesPageContent() {
     </div>
   )
 }
+
 
 export default function AssistantCoachesPage() {
   return (

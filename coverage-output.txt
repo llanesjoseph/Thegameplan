@@ -1,0 +1,150 @@
+
+> playbookd@1.0.0 test:coverage
+> vitest run --coverage
+
+
+[1m[46m RUN [49m[22m [36mv3.2.4 [39m[90mC:/Users/bigpe/OneDrive/Desktop/Crucible/GAMEPLAN-SOURCE-ONLY[39m
+      [2mCoverage enabled with [22m[33mv8[39m
+
+ [32m✓[39m tests/unit/phone-detection.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m tests/unit/athlete-profile-data.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m tests/unit/role-routing.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m tests/integration/email-service.test.ts [2m([22m[2m32 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+ [32m✓[39m tests/integration/message-safety.test.ts [2m([22m[2m63 tests[22m[2m)[22m[32m 33[2mms[22m[39m
+ [32m✓[39m tests/integration/api-validation.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m tests/integration/video-upload.test.ts [2m([22m[2m59 tests[22m[2m)[22m[32m 27[2mms[22m[39m
+ [32m✓[39m tests/integration/invitation-system.test.ts [2m([22m[2m32 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+ [32m✓[39m tests/integration/api-routes.test.ts [2m([22m[2m59 tests[22m[2m)[22m[32m 28[2mms[22m[39m
+ [32m✓[39m tests/integration/ai-coaching-safety.test.ts [2m([22m[2m27 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+ [31m❯[39m tests/security/firestore-rules.test.ts [2m([22m[2m40 tests[22m[2m | [22m[33m40 skipped[39m[2m)[22m[32m 120[2mms[22m[39m
+   [2m[90m↓[39m[22m Firestore Security Rules - Critical Security Tests[2m > [22mUsers Collection - Privacy & Role Protection[2m > [22mshould allow users to read their own profile
+   [2m[90m↓[39m[22m Firestore Security Rules - Critical Security Tests[2m > [22mUsers Collection - Privacy & Role Protection[2m > [22mshould prevent users from reading other users profiles
+   [2m[90m↓[39m[22m Firestore Security Rules - Critical Security Tests[2m > [22mUsers Collection - Privacy & Role Protection[2m > [22mshould allow admins to read any user profile
+   [2m[90m↓[39m[22m Firestore Security Rules - Critical Security Tests[2m > [22mUsers Collection - Privacy & Role Protection[2m > [22mshould prevent users from changing their own role
+   [2m[90m↓[39m[22m Firestore Security Rules - Critical Security Tests[2m > [22mUsers Collection - Privacy & Role Protection[2m > [22mshould allow admins to change user roles
+   [2m[90m↓[39m[22m Firestore Security Rules - Critical Security Tests[2m > [22mUsers Collection - Privacy & Role Protection[2m > [22mshould allow users to update their own profile (except role)
+   [2m[90m↓[39m[22m Firestore Security Rules - Critical Security Tests[2m > [22mUsers Collection - Privacy & Role Protection[2m > [22mshould only allow superadmins to delete users
+   [2m[90m↓[39m[22m Firestore Security Rules - Critical Security Tests[2m > [22mMessages Collection - Immutability & Safety[2m > [22mshould allow users to send messages where they are the sender
+   [2m[90m↓[39m[22m Firestore Security Rules - Critical Security Tests[2m > [22mMessages Collection - Immutability & Safety[2m > [22mshould prevent users from sending messages as someone else
+   [2m[90m↓[39m[22m Firestore Security Rules - Critical Security Tests[2m > [22mMessages Collection - Immutability & Safety[2m > [22mshould allow users to read messages where they are sender or recipient
+   [2m[90m↓[39m[22m Firestore Security Rules - Critical Security Tests[2m > [22mMessages Collection - Immutability & Safety[2m > [22mshould prevent users from reading messages they are not part of
+   [2m[90m↓[39m[22m Firestore Security Rules - Critical Security Tests[2m > [22mMessages Collection - Immutability & Safety[2m > [22mshould allow admins to read all messages (moderation)
+   [2m[90m↓[39m[22m Firestore Security Rules - Critical Security Tests[2m > [22mMessages Collection - Immutability & Safety[2m > [22mshould prevent message deletion (immutability for legal compliance)
+   [2m[90m↓[39m[22m Firestore Security Rules - Critical Security Tests[2m > [22mMessages Collection - Immutability & Safety[2m > [22mshould allow recipients to mark messages as read (and ONLY that)
+   [2m[90m↓[39m[22m Firestore Security Rules - Critical Security Tests[2m > [22mMessages Collection - Immutability & Safety[2m > [22mshould prevent recipients from modifying message content
+   [2m[90m↓[39m[22m Firestore Security Rules - Critical Security Tests[2m > [22mMessages Collection - Immutability & Safety[2m > [22mshould enforce message size limits (max 2000 characters)
+   [2m[90m↓[39m[22m Firestore Security Rules - Critical Security Tests[2m > [22mMessages Collection - Immutability & Safety[2m > [22mshould prevent empty messages
+   [2m[90m↓[39m[22m Firestore Security Rules - Critical Security Tests[2m > [22mAudit Logs - Immutability[2m > [22mshould allow admins to read audit logs
+   [2m[90m↓[39m[22m Firestore Security Rules - Critical Security Tests[2m > [22mAudit Logs - Immutability[2m > [22mshould prevent non-admins from reading audit logs
+   [2m[90m↓[39m[22m Firestore Security Rules - Critical Security Tests[2m > [22mAudit Logs - Immutability[2m > [22mshould prevent audit log updates (immutability)
+   [2m[90m↓[39m[22m Firestore Security Rules - Critical Security Tests[2m > [22mAudit Logs - Immutability[2m > [22mshould prevent audit log deletion (immutability)
+   [2m[90m↓[39m[22m Firestore Security Rules - Critical Security Tests[2m > [22mFeature Flags - Admin Control[2m > [22mshould allow authenticated users to read feature flags
+   [2m[90m↓[39m[22m Firestore Security Rules - Critical Security Tests[2m > [22mFeature Flags - Admin Control[2m > [22mshould prevent non-admins from writing feature flags
+   [2m[90m↓[39m[22m Firestore Security Rules - Critical Security Tests[2m > [22mFeature Flags - Admin Control[2m > [22mshould allow admins to write feature flags
+   [2m[90m↓[39m[22m Firestore Security Rules - Critical Security Tests[2m > [22mAdmin Invitations - Admin Only Access[2m > [22mshould allow admins to create admin invitations
+   [2m[90m↓[39m[22m Firestore Security Rules - Critical Security Tests[2m > [22mAdmin Invitations - Admin Only Access[2m > [22mshould prevent non-admins from creating admin invitations
+   [2m[90m↓[39m[22m Firestore Security Rules - Critical Security Tests[2m > [22mAdmin Invitations - Admin Only Access[2m > [22mshould prevent deletion of admin invitations (audit trail)
+   [2m[90m↓[39m[22m Firestore Security Rules - Critical Security Tests[2m > [22mAthletes Collection - Access Control[2m > [22mshould allow athletes to read their own profile
+   [2m[90m↓[39m[22m Firestore Security Rules - Critical Security Tests[2m > [22mAthletes Collection - Access Control[2m > [22mshould allow coaches to read their athletes profiles
+   [2m[90m↓[39m[22m Firestore Security Rules - Critical Security Tests[2m > [22mAthletes Collection - Access Control[2m > [22mshould prevent unrelated users from reading athlete profiles
+   [2m[90m↓[39m[22m Firestore Security Rules - Critical Security Tests[2m > [22mAthletes Collection - Access Control[2m > [22mshould prevent client-side athlete profile creation (server-side only)
+   [2m[90m↓[39m[22m Firestore Security Rules - Critical Security Tests[2m > [22mModeration Alerts - Safety Monitoring[2m > [22mshould allow admins to read moderation alerts
+   [2m[90m↓[39m[22m Firestore Security Rules - Critical Security Tests[2m > [22mModeration Alerts - Safety Monitoring[2m > [22mshould prevent non-admins from reading moderation alerts
+   [2m[90m↓[39m[22m Firestore Security Rules - Critical Security Tests[2m > [22mModeration Alerts - Safety Monitoring[2m > [22mshould prevent client-side creation of moderation alerts
+   [2m[90m↓[39m[22m Firestore Security Rules - Critical Security Tests[2m > [22mModeration Alerts - Safety Monitoring[2m > [22mshould prevent deletion of moderation alerts (permanent record)
+   [2m[90m↓[39m[22m Firestore Security Rules - Critical Security Tests[2m > [22mContent Collection - Creator Permissions[2m > [22mshould allow creators to create content
+   [2m[90m↓[39m[22m Firestore Security Rules - Critical Security Tests[2m > [22mContent Collection - Creator Permissions[2m > [22mshould prevent regular users from creating content
+   [2m[90m↓[39m[22m Firestore Security Rules - Critical Security Tests[2m > [22mContent Collection - Creator Permissions[2m > [22mshould allow creators to update their own content
+   [2m[90m↓[39m[22m Firestore Security Rules - Critical Security Tests[2m > [22mContent Collection - Creator Permissions[2m > [22mshould prevent creators from modifying other creators content
+   [2m[90m↓[39m[22m Firestore Security Rules - Critical Security Tests[2m > [22mContent Collection - Creator Permissions[2m > [22mshould only show published content to regular users
+[90mstdout[2m | tests/components/critical-components.test.tsx[2m > [22m[2mGcsVideoUploader Component[2m > [22m[2mFile Selection[2m > [22m[2mshould accept valid video file
+[22m[39m📁 File selected: { name: [32m'test.mp4'[39m, size: [32m'13 B'[39m, type: [32m'video/mp4'[39m }
+
+[90mstdout[2m | tests/components/critical-components.test.tsx[2m > [22m[2mGcsVideoUploader Component[2m > [22m[2mFile Selection[2m > [22m[2mshould show file size after selection
+[22m[39m📁 File selected: { name: [32m'test.mp4'[39m, size: [32m'1.00 MB'[39m, type: [32m'video/mp4'[39m }
+
+[90mstdout[2m | tests/components/critical-components.test.tsx[2m > [22m[2mGcsVideoUploader Component[2m > [22m[2mFile Selection[2m > [22m[2mshould show Start Upload button after file selection
+[22m[39m📁 File selected: { name: [32m'test.mp4'[39m, size: [32m'5 B'[39m, type: [32m'video/mp4'[39m }
+
+ [32m✓[39m tests/components/critical-components.test.tsx [2m([22m[2m45 tests[22m[2m)[22m[33m 3186[2mms[22m[39m
+   [33m[2m✓[22m[39m CoachMessaging Component[2m > [22mMessage Sending[2m > [22mshould enable send button when message is typed [33m 325[2mms[22m[39m
+   [33m[2m✓[22m[39m CoachMessaging Component[2m > [22mMessage Sending[2m > [22mshould call addDoc when sending message [33m 414[2mms[22m[39m
+   [33m[2m✓[22m[39m CoachMessaging Component[2m > [22mMessage Sending[2m > [22mshould clear input after sending message [33m 404[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Suites 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/security/firestore-rules.test.ts[2m [ tests/security/firestore-rules.test.ts ][22m
+[31m[1mTypeError[22m: fetch failed[39m
+[90m [2m❯[22m loadFirestoreRules node_modules/@firebase/rules-unit-testing/src/impl/rules.ts:[2m50:16[22m[39m
+[90m [2m❯[22m initializeTestEnvironment node_modules/@firebase/rules-unit-testing/src/initialize.ts:[2m94:5[22m[39m
+[36m [2m❯[22m tests/security/firestore-rules.test.ts:[2m27:13[22m[39m
+    [90m 25| [39m  [35mconst[39m rules [33m=[39m [34mreadFileSync[39m(rulesPath[33m,[39m [32m'utf8'[39m)
+    [90m 26| [39m
+    [90m 27| [39m  testEnv [33m=[39m [35mawait[39m [34minitializeTestEnvironment[39m({
+    [90m   | [39m            [31m^[39m
+    [90m 28| [39m    projectId[33m:[39m [32m'test-project-firestore-rules'[39m[33m,[39m
+    [90m 29| [39m    firestore[33m:[39m {
+
+{
+  stack: 'AggregateError: \n' +
+    '    at internalConnectMultiple (node:net:1139:18)\n' +
+    '    at afterConnectMultiple (node:net:1714:7)',
+  errors: [
+    {
+      stack: 'Error: connect ECONNREFUSED ::1:8080\n' +
+        '    at createConnectionError (node:net:1677:14)\n' +
+        '    at afterConnectMultiple (node:net:1707:16)',
+      message: 'connect ECONNREFUSED ::1:8080',
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 8080,
+      constructor: 'Function<Error>',
+      name: 'Error',
+      toString: 'Function<toString>'
+    },
+    {
+      stack: 'Error: connect ECONNREFUSED 127.0.0.1:8080\n' +
+        '    at createConnectionError (node:net:1677:14)\n' +
+        '    at afterConnectMultiple (node:net:1707:16)',
+      message: 'connect ECONNREFUSED 127.0.0.1:8080',
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 8080,
+      constructor: 'Function<Error>',
+      name: 'Error',
+      toString: 'Function<toString>'
+    }
+  ],
+  code: 'ECONNREFUSED',
+  message: '',
+  constructor: 'Function<AggregateError>',
+  name: 'Caused by: AggregateError',
+  toString: 'Function<toString>',
+  stacks: []
+}
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ errors: [ { stack: 'Error: connect ECONNREFUSED ::1:8080\n    at createConnectionError (node:net:1677:14)\n    at afterConnectMultiple (node:net:1707:16)', message: 'connect ECONNREFUSED ::1:8080', errno: -4078, code: 'ECONNREFUSED', syscall: 'connect', address: '::1', port: 8080, constructor: 'Function<Error>', name: 'Error', toString: 'Function<toString>' }, { stack: 'Error: connect ECONNREFUSED 127.0.0.1:8080\n    at createConnectionError (node:net:1677:14)\n    at afterConnectMultiple (node:net:1707:16)', message: 'connect ECONNREFUSED 127.0.0.1:8080', errno: -4078, code: 'ECONNREFUSED', syscall: 'connect', address: '127.0.0.1', port: 8080, constructor: 'Function<Error>', name: 'Error', toString: 'Function<toString>' } ], code: 'ECONNREFUSED' }[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/security/firestore-rules.test.ts[2m [ tests/security/firestore-rules.test.ts ][22m
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'cleanup')[39m
+[36m [2m❯[22m tests/security/firestore-rules.test.ts:[2m38:17[22m[39m
+    [90m 36| [39m
+    [90m 37| [39m[34mafterAll[39m([35masync[39m () [33m=>[39m {
+    [90m 38| [39m  [35mawait[39m testEnv[33m.[39m[34mcleanup[39m()
+    [90m   | [39m                [31m^[39m
+    [90m 39| [39m})
+    [90m 40| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m11 passed[39m[22m[90m (12)[39m
+[2m      Tests [22m [1m[32m385 passed[39m[22m[2m | [22m[33m40 skipped[39m[90m (425)[39m
+[2m   Start at [22m 15:29:17
+[2m   Duration [22m 11.32s[2m (transform 1.82s, setup 11.95s, collect 3.90s, tests 3.52s, environment 30.73s, prepare 6.25s)[22m
+

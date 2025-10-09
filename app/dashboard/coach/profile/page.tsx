@@ -1,17 +1,20 @@
 'use client'
 
-import { useState, Suspense } from 'react'
-import { User, Image as ImageIcon, Settings, ArrowLeft, Mic } from 'lucide-react'
+import { useState, useEffect, Suspense } from 'react'
+import { User, Image as ImageIcon, Settings, ArrowLeft, Mic ,
+  AlertCircle
+} from 'lucide-react'
 import AppHeader from '@/components/ui/AppHeader'
 import CoachImageManager from '@/components/coach/CoachImageManager'
 import StreamlinedVoiceCapture from '@/components/coach/StreamlinedVoiceCapture'
 import { useAuth } from '@/hooks/use-auth'
 import { useEnhancedRole } from '@/hooks/use-role-switcher'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 
 function CoachProfileContent() {
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
+  const router = useRouter()
   const { role } = useEnhancedRole()
   const searchParams = useSearchParams()
   const embedded = searchParams.get('embedded') === 'true'
@@ -20,7 +23,42 @@ function CoachProfileContent() {
 
   // Only allow coaches to access this page
   if (role !== 'coach' && role !== 'admin' && role !== 'superadmin') {
+    // Show loading state while checking auth
+  if (authLoading) {
     return (
+      <div style={{ backgroundColor: embedded ? 'transparent' : '#E8E6D8' }} className={embedded ? 'p-12' : 'min-h-screen flex items-center justify-center'}>
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-black mb-4"></div>
+          <p style={{ color: '#000000', opacity: 0.7 }}>Verifying access...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Show error if not authenticated
+  if (!user) {
+    return (
+      <div style={{ backgroundColor: embedded ? 'transparent' : '#E8E6D8' }} className={embedded ? 'p-12' : 'min-h-screen flex items-center justify-center'}>
+        <div className="text-center bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8 max-w-md">
+          <AlertCircle className="w-16 h-16 mx-auto mb-4" style={{ color: '#FF6B35' }} />
+          <h2 className="text-2xl font-heading mb-2" style={{ color: '#000000' }}>Access Denied</h2>
+          <p className="mb-6" style={{ color: '#000000', opacity: 0.7 }}>
+            You must be logged in as a coach to access this page.
+          </p>
+          {!embedded && (
+            <button
+              onClick={() => router.push('/')}
+              className="px-6 py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors"
+            >
+              Return to Login
+            </button>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  return (
       <div style={{ backgroundColor: embedded ? 'transparent' : '#E8E6D8' }} className={embedded ? '' : 'min-h-screen'}>
         {!embedded && <AppHeader title="Coach Profile" subtitle="Manage your coaching profile" />}
 
@@ -283,3 +321,4 @@ export default function CoachProfilePage() {
     </Suspense>
   )
 }
+
