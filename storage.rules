@@ -71,7 +71,10 @@ service firebase.storage {
     // User profile images - Public read, owner write
     match /users/{userId}/profile/{allPaths=**} {
       allow read: if true; // Public for profile images
-      allow write: if isOwner(userId);
+      allow write: if isOwner(userId) &&
+                      isValidImageType() &&
+                      isValidFileSize(10) && // 10MB limit for profile images
+                      isValidFileName();
       allow delete: if isOwner(userId) || isAdmin();
     }
     
@@ -101,8 +104,21 @@ service firebase.storage {
     // Creator profile assets - Headshots, action shots, logos
     match /creators/{creatorId}/assets/{allPaths=**} {
       allow read: if true; // Public for creator assets
-      allow write: if isOwner(creatorId);
+      allow write: if isOwner(creatorId) &&
+                      isValidImageType() &&
+                      isValidFileSize(10) && // 10MB limit for creator assets
+                      isValidFileName();
       allow delete: if isOwner(creatorId) || isAdmin();
+    }
+
+    // Contributor applications - For coach/creator application submissions
+    match /contributor-applications/{allPaths=**} {
+      allow read: if isAdmin(); // Only admins can read applications
+      allow write: if isAuthenticated() &&
+                      (isValidImageType() || isValidDocumentType()) &&
+                      isValidFileSize(10) && // 10MB limit for application files
+                      isValidFileName();
+      allow delete: if isAdmin();
     }
     
     // Lesson content - Educational videos and materials
