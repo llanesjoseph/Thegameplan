@@ -104,27 +104,11 @@ export default function AdminDashboard() {
    inline: true
   },
   {
-   id: 'invitations',
-   title: 'All Invitations',
-   description: 'Manage all platform invitations',
-   icon: Mail,
-   color: '#91A6EB',
-   inline: true
-  },
-  {
-   id: 'admin-invites',
-   title: 'Admin Invitations',
-   description: 'Invite and manage admin team members',
+   id: 'invitations-approvals',
+   title: 'Invitations & Approvals',
+   description: 'Manage all invitations, applications, and approval workflows',
    icon: UserCheck,
    color: '#20B2AA',
-   inline: true
-  },
-  {
-   id: 'coach-applications',
-   title: 'Coach Applications',
-   description: 'Review and approve coach applications',
-   icon: FileText,
-   color: '#FF6B35',
    inline: true
   },
   {
@@ -141,22 +125,6 @@ export default function AdminDashboard() {
    description: 'Manage athlete accounts and progress',
    icon: Trophy,
    color: '#91A6EB',
-   inline: true
-  },
-  {
-   id: 'requests',
-   title: 'Coach Requests',
-   description: 'Handle coaching session requests',
-   icon: MessageSquare,
-   color: '#20B2AA',
-   inline: true
-  },
-  {
-   id: 'assistant-coaches',
-   title: 'Assistant Coaches',
-   description: 'Manage assistant coach accounts',
-   icon: Shield,
-   color: '#FF6B35',
    inline: true
   },
   {
@@ -198,12 +166,9 @@ export default function AdminDashboard() {
    'users': '/dashboard/admin/users?embedded=true',
    'roles': '/dashboard/admin/roles?embedded=true',
    'analytics': '/dashboard/admin/analytics?embedded=true',
-   'invitations': '/dashboard/admin/invitations?embedded=true',
-   'coach-applications': '/dashboard/admin/coach-applications?embedded=true',
+   'invitations-approvals': '/dashboard/admin/invitations-approvals?embedded=true',
    'locker-room': '/dashboard/admin/coaches-locker-room?embedded=true',
    'athletes': '/dashboard/admin/athletes?embedded=true',
-   'requests': '/dashboard/admin/requests?embedded=true',
-   'assistant-coaches': '/dashboard/admin/assistant-coaches?embedded=true',
    'content': '/dashboard/admin/content?embedded=true',
    'gear': '/dashboard/admin/curated-gear?embedded=true',
    'sync': '/dashboard/admin/sync-coaches?embedded=true',
