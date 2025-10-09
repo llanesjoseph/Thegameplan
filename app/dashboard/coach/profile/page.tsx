@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { User, Image as ImageIcon, Settings, ArrowLeft } from 'lucide-react'
 import AppHeader from '@/components/ui/AppHeader'
 import CoachImageManager from '@/components/coach/CoachImageManager'
@@ -9,7 +9,7 @@ import { useEnhancedRole } from '@/hooks/use-role-switcher'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
-export default function CoachProfilePage() {
+function CoachProfileContent() {
   const { user } = useAuth()
   const { role } = useEnhancedRole()
   const searchParams = useSearchParams()
@@ -229,5 +229,19 @@ export default function CoachProfilePage() {
         </div>
       </main>
     </div>
+  )
+}
+
+export default function CoachProfilePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
+        <div className="flex items-center justify-center py-12">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
+        </div>
+      </div>
+    }>
+      <CoachProfileContent />
+    </Suspense>
   )
 }
