@@ -49,6 +49,7 @@ function CoachAthletesContent() {
   const [invitations, setInvitations] = useState<AthleteInvitation[]>([])
   const [showBulkInvite, setShowBulkInvite] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [dataLoading, setDataLoading] = useState(true)
 
   // Authentication check
   useEffect(() => {
@@ -61,35 +62,59 @@ function CoachAthletesContent() {
       }
     }
   }, [user, authLoading, embedded, router])
+
   const [bulkForm, setBulkForm] = useState<BulkInviteForm>({
     sport: 'Soccer',
     customMessage: '',
     athletes: [{ email: '', name: '' }]
   })
 
-  // Sample data for demonstration
+  // Load real athlete data from API
   useEffect(() => {
-    setInvitations([
-      {
-        id: '1',
-        email: 'athlete1@example.com',
-        name: 'John Smith',
-        sport: 'Soccer',
-        status: 'accepted',
-        sentAt: '2025-09-25',
-        customMessage: 'Welcome to our team!'
-      },
-      {
-        id: '2',
-        email: 'athlete2@example.com',
-        name: 'Sarah Johnson',
-        sport: 'Soccer',
-        status: 'pending',
-        sentAt: '2025-09-27',
-        expiresAt: '2025-10-04'
+    if (user) {
+      loadAthleteData()
+    }
+  }, [user])
+
+  const loadAthleteData = async () => {
+    setDataLoading(true)
+    try {
+      const token = await user?.getIdToken()
+
+      // Fetch athletes from the API
+      const response = await fetch('/api/coach/athletes', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to load athletes')
       }
-    ])
-  }, [])
+
+      const data = await response.json()
+
+      // Transform athletes data into invitation format
+      const athleteInvitations = (data.athletes || []).map((athlete: any) => ({
+        id: athlete.id,
+        email: athlete.email || athlete.athleteEmail || '',
+        name: athlete.name || athlete.athleteName || 'Unknown',
+        sport: athlete.sport || 'Unknown',
+        status: athlete.status || 'accepted',
+        sentAt: athlete.createdAt ? new Date(athlete.createdAt).toLocaleDateString() : 'Unknown',
+        expiresAt: athlete.expiresAt ? new Date(athlete.expiresAt).toLocaleDateString() : undefined,
+        customMessage: athlete.customMessage
+      }))
+
+      setInvitations(athleteInvitations)
+    } catch (error) {
+      console.error('Error loading athlete data:', error)
+      // Don't show alert for empty state, just log the error
+      setInvitations([])
+    } finally {
+      setDataLoading(false)
+    }
+  }
 
   const addAthleteRow = () => {
     setBulkForm(prev => ({
@@ -125,10 +150,14 @@ function CoachAthletesContent() {
         return
       }
 
+      // Get auth token
+      const token = await user?.getIdToken()
+
       // Send invitations
       const response = await fetch('/api/coach/invite-athletes', {
         method: 'POST',
         headers: {
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -156,6 +185,8 @@ function CoachAthletesContent() {
             customMessage: '',
             athletes: [{ email: '', name: '' }]
           })
+          // Reload athlete data to show new invitations
+          loadAthleteData()
         }
       } else {
         throw new Error('Failed to send invitations')
@@ -456,7 +487,12 @@ function CoachAthletesContent() {
           </div>
 
           <div className="p-6">
-            {invitations.length === 0 ? (
+            {dataLoading ? (
+              <div className="text-center py-12">
+                <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-black mb-4"></div>
+                <p style={{ color: '#000000', opacity: 0.7 }}>Loading athletes...</p>
+              </div>
+            ) : invitations.length === 0 ? (
               <div className="text-center py-12">
                 <Users className="w-16 h-16 mx-auto mb-4" style={{ color: '#000000', opacity: 0.3 }} />
                 <h3 className="text-xl font-heading mb-2" style={{ color: '#000000' }}>
