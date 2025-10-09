@@ -40,38 +40,68 @@ function VideoManagerPageContent() {
   const searchParams = useSearchParams()
   const embedded = searchParams.get('embedded') === 'true'
 
-  const [videos, setVideos] = useState<VideoItem[]>([
-    {
-      id: '1',
-      title: 'Advanced Pitching Mechanics',
-      description: 'Learn proper pitching form and mechanics',
-      source: 'youtube',
-      url: 'https://youtube.com/watch?v=example',
-      thumbnail: '',
-      duration: 12,
-      sport: 'baseball',
-      tags: ['pitching', 'mechanics', 'fundamentals'],
-      createdAt: '2025-09-15',
-      views: 45
-    },
-    {
-      id: '2',
-      title: 'Defensive Drills Compilation',
-      description: 'Essential defensive training exercises',
-      source: 'vimeo',
-      url: 'https://vimeo.com/example',
-      thumbnail: '',
-      duration: 18,
-      sport: 'baseball',
-      tags: ['defense', 'drills', 'training'],
-      createdAt: '2025-09-20',
-      views: 32
-    }
-  ])
-
+  const [videos, setVideos] = useState<VideoItem[]>([])
+  const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [sportFilter, setSportFilter] = useState('all')
   const [showAddModal, setShowAddModal] = useState(false)
+
+  // Load videos from API
+  useEffect(() => {
+    if (user) {
+      loadVideos()
+    }
+  }, [user])
+
+  const loadVideos = async () => {
+    setLoading(true)
+    try {
+      const token = await user?.getIdToken()
+      const response = await fetch('/api/coach/videos', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to load videos')
+      }
+
+      const data = await response.json()
+      setVideos(data.videos || [])
+    } catch (error) {
+      console.error('Error loading videos:', error)
+      setVideos([])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleDelete = async (videoId: string, videoTitle: string) => {
+    if (!confirm(`Are you sure you want to delete "${videoTitle}"? This cannot be undone.`)) return
+
+    try {
+      const token = await user?.getIdToken()
+      const response = await fetch('/api/coach/videos', {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ videoId })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to delete video')
+      }
+
+      alert('Video deleted successfully')
+      loadVideos()
+    } catch (error) {
+      console.error('Error deleting video:', error)
+      alert('Failed to delete video')
+    }
+  }
 
   const filteredVideos = videos.filter(video => {
     const matchesSearch = video.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -221,7 +251,12 @@ function VideoManagerPageContent() {
         </div>
 
         {/* Video Grid */}
-        {filteredVideos.length === 0 ? (
+        {loading ? (
+          <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-12 text-center">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-black mb-4"></div>
+            <p style={{ color: '#000000', opacity: 0.7 }}>Loading videos...</p>
+          </div>
+        ) : filteredVideos.length === 0 ? (
           <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-12 text-center">
             <Video className="w-16 h-16 mx-auto mb-4" style={{ color: '#000000', opacity: 0.3 }} />
             <h3 className="text-xl font-heading mb-2" style={{ color: '#000000' }}>
@@ -308,6 +343,7 @@ function VideoManagerPageContent() {
                       <Edit className="w-4 h-4" style={{ color: '#000000' }} />
                     </button>
                     <button
+                      onClick={() => handleDelete(video.id, video.title)}
                       className="p-2 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
                       title="Delete"
                     >

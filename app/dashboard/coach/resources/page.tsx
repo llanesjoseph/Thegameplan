@@ -38,48 +38,69 @@ function ResourceLibraryPageContent() {
   const searchParams = useSearchParams()
   const embedded = searchParams.get('embedded') === 'true'
 
-  const [resources, setResources] = useState<Resource[]>([
-    {
-      id: '1',
-      title: 'Training Program Template',
-      description: 'Complete 12-week training program template',
-      type: 'pdf',
-      url: '/resources/training-template.pdf',
-      sport: 'general',
-      tags: ['training', 'template', 'program'],
-      size: '2.4 MB',
-      createdAt: '2025-09-10',
-      downloads: 28
-    },
-    {
-      id: '2',
-      title: 'Nutrition Guide for Athletes',
-      description: 'Comprehensive nutrition and meal planning guide',
-      type: 'pdf',
-      url: '/resources/nutrition-guide.pdf',
-      sport: 'general',
-      tags: ['nutrition', 'health', 'meal-plan'],
-      size: '1.8 MB',
-      createdAt: '2025-09-18',
-      downloads: 42
-    },
-    {
-      id: '3',
-      title: 'USA Baseball Coaching Resources',
-      description: 'Official coaching materials and drills',
-      type: 'link',
-      url: 'https://usabaseball.com',
-      sport: 'baseball',
-      tags: ['drills', 'coaching', 'fundamentals'],
-      createdAt: '2025-09-22',
-      downloads: 15
-    }
-  ])
-
+  const [resources, setResources] = useState<Resource[]>([])
+  const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [sportFilter, setSportFilter] = useState('all')
   const [typeFilter, setTypeFilter] = useState('all')
   const [showAddModal, setShowAddModal] = useState(false)
+
+  // Load resources from API
+  useEffect(() => {
+    if (user) {
+      loadResources()
+    }
+  }, [user])
+
+  const loadResources = async () => {
+    setLoading(true)
+    try {
+      const token = await user?.getIdToken()
+      const response = await fetch('/api/coach/resources', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to load resources')
+      }
+
+      const data = await response.json()
+      setResources(data.resources || [])
+    } catch (error) {
+      console.error('Error loading resources:', error)
+      setResources([])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleDelete = async (resourceId: string, resourceTitle: string) => {
+    if (!confirm(`Are you sure you want to delete "${resourceTitle}"? This cannot be undone.`)) return
+
+    try {
+      const token = await user?.getIdToken()
+      const response = await fetch('/api/coach/resources', {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ resourceId })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to delete resource')
+      }
+
+      alert('Resource deleted successfully')
+      loadResources()
+    } catch (error) {
+      console.error('Error deleting resource:', error)
+      alert('Failed to delete resource')
+    }
+  }
 
   const filteredResources = resources.filter(resource => {
     const matchesSearch = resource.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -263,7 +284,12 @@ function ResourceLibraryPageContent() {
         </div>
 
         {/* Resource Grid */}
-        {filteredResources.length === 0 ? (
+        {loading ? (
+          <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-12 text-center">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-black mb-4"></div>
+            <p style={{ color: '#000000', opacity: 0.7 }}>Loading resources...</p>
+          </div>
+        ) : filteredResources.length === 0 ? (
           <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-12 text-center">
             <FileText className="w-16 h-16 mx-auto mb-4" style={{ color: '#000000', opacity: 0.3 }} />
             <h3 className="text-xl font-heading mb-2" style={{ color: '#000000' }}>
@@ -352,6 +378,7 @@ function ResourceLibraryPageContent() {
                     <Edit className="w-4 h-4" style={{ color: '#000000' }} />
                   </button>
                   <button
+                    onClick={() => handleDelete(resource.id, resource.title)}
                     className="p-2 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
                     title="Delete"
                   >
