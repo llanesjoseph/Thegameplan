@@ -23,38 +23,46 @@ import {
 // Dynamic iframe component that scales based on content
 function DynamicIframe({ src, title }: { src: string; title: string }) {
  const iframeRef = useRef<HTMLIFrameElement>(null)
- const [height, setHeight] = useState('75vh')
+ const [height, setHeight] = useState('600px')
 
  useEffect(() => {
   const iframe = iframeRef.current
   if (!iframe) return
 
-  const handleLoad = () => {
+  const measureContent = () => {
    try {
     const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document
     if (iframeDoc) {
-     // Get the actual content height
-     const contentHeight = iframeDoc.body.scrollHeight
-     const viewportHeight = window.innerHeight
-     const maxHeight = viewportHeight * 0.75 // 75vh in pixels
+     // Wait a bit for content to fully render
+     setTimeout(() => {
+      // Get the actual content height (using multiple measurements for accuracy)
+      const bodyHeight = iframeDoc.body.scrollHeight
+      const docHeight = iframeDoc.documentElement.scrollHeight
+      const contentHeight = Math.max(bodyHeight, docHeight)
 
-     // Set height to content or max, whichever is smaller
-     const finalHeight = Math.min(contentHeight, maxHeight)
-     setHeight(`${Math.max(finalHeight, 400)}px`) // Minimum 400px
+      const viewportHeight = window.innerHeight
+      const maxHeight = viewportHeight * 0.75 // 75vh in pixels
+      const minHeight = 500 // Minimum reasonable height
+
+      // Set height to content, but capped between min and max
+      const finalHeight = Math.min(Math.max(contentHeight, minHeight), maxHeight)
+      setHeight(`${finalHeight}px`)
+
+      console.log('📏 Iframe height:', { contentHeight, finalHeight, maxHeight })
+     }, 300) // Wait 300ms for content to render
     }
    } catch (error) {
-    // If we can't access iframe content (shouldn't happen on same domain)
     console.warn('Cannot measure iframe content:', error)
     setHeight('75vh') // Fallback to 75vh
    }
   }
 
-  iframe.addEventListener('load', handleLoad)
-  return () => iframe.removeEventListener('load', handleLoad)
+  iframe.addEventListener('load', measureContent)
+  return () => iframe.removeEventListener('load', measureContent)
  }, [src])
 
  return (
-  <div className="rounded-xl overflow-hidden shadow-lg" style={{ height, maxHeight: '75vh', minHeight: '400px' }}>
+  <div className="rounded-xl overflow-hidden shadow-lg overflow-y-auto" style={{ height, maxHeight: '75vh', minHeight: '500px' }}>
    <iframe
     ref={iframeRef}
     src={src}
