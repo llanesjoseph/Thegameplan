@@ -38,22 +38,7 @@ import ImageUploader from '@/components/ImageUploader'
 import AppHeader from '@/components/ui/AppHeader'
 import StreamlinedVoiceCapture from '@/components/coach/StreamlinedVoiceCapture'
 import VoiceCaptureIntake from '@/components/coach/VoiceCaptureIntake'
-
-// Sports list - matches database
-const SPORTS_OPTIONS = [
- 'Soccer',
- 'Basketball',
- 'Baseball',
- 'Tennis',
- 'Brazilian Jiu-Jitsu',
- 'Running',
- 'Volleyball',
- 'Swimming',
- 'American Football',
- 'Golf',
- 'Boxing',
- 'Track & Field'
-]
+import { SPORTS } from '@/lib/constants/sports'
 
 export default function ProfilePage() {
  const { user } = useAuth()
@@ -566,7 +551,7 @@ export default function ProfilePage() {
              value=""
             >
              <option value="">Select a sport to add...</option>
-             {SPORTS_OPTIONS.map((sport) => (
+             {SPORTS.map((sport) => (
               <option
                key={sport}
                value={sport}
@@ -689,7 +674,7 @@ export default function ProfilePage() {
              value=""
             >
              <option value="">Select a sport to add...</option>
-             {SPORTS_OPTIONS.map((sport) => (
+             {SPORTS.map((sport) => (
               <option
                key={sport}
                value={sport}
