@@ -11,24 +11,6 @@ const SUPERADMIN_USERS = {
     contentDescription: 'Educational content focused on platform usage, content creation best practices, and system optimization.',
     achievements: ['Platform Development', 'Content Strategy', 'User Experience Design'],
     certifications: ['Firebase Certified', 'Web Development']
-  },
-  'lonaloraine.vincent@gmail.com': {
-    firstName: 'Lona',
-    lastName: 'Vincent',
-    bio: 'Platform Administrator and Content Strategist',
-    expertise: ['content-strategy', 'user-management', 'platform-operations', 'community-building'],
-    contentDescription: 'Strategic content focused on user engagement, community building, and platform optimization.',
-    achievements: ['Content Strategy', 'User Management', 'Community Building'],
-    certifications: ['Digital Marketing', 'Community Management']
-  },
-  'merlinesaintil@gmail.com': {
-    firstName: 'Merline',
-    lastName: 'Saintil',
-    bio: 'Platform Administrator and Operations Manager',
-    expertise: ['operations-management', 'user-experience', 'content-moderation', 'quality-assurance'],
-    contentDescription: 'Operational content focused on platform efficiency, user experience, and quality standards.',
-    achievements: ['Operations Management', 'UX Optimization', 'Quality Assurance'],
-    certifications: ['Operations Management', 'UX Design']
   }
 }
 
