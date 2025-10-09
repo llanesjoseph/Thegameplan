@@ -168,7 +168,7 @@ export default function AdminDashboard() {
   // Admin Invitations uses the component directly
   if (activeSection === 'admin-invites') {
    return (
-    <div className="p-8">
+    <div className="p-8 overflow-y-auto" style={{ maxHeight: '75vh', minHeight: '400px' }}>
      <h2 className="text-3xl font-heading mb-6" style={{ color: '#000000' }}>{title}</h2>
      <AdminInvitationManager />
     </div>
