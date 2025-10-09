@@ -20,10 +20,13 @@ import {
   X
 } from 'lucide-react'
 
-// Simple iframe component with fixed responsive height
+// Responsive iframe component with adaptive height
 function DynamicIframe({ src, title }: { src: string; title: string }) {
  return (
-  <div className="rounded-xl overflow-hidden shadow-lg" style={{ height: '70vh', maxHeight: '75vh' }}>
+  <div className="rounded-xl overflow-hidden shadow-lg w-full" style={{
+    height: 'clamp(500px, 65vh, 900px)',
+    maxHeight: '75vh'
+  }}>
    <iframe
     src={src}
     className="w-full h-full border-0"
@@ -181,8 +184,11 @@ export default function AdminDashboard() {
   // Admin Invitations uses the component directly
   if (activeSection === 'admin-invites') {
    return (
-    <div className="p-8 overflow-y-auto" style={{ maxHeight: '75vh', minHeight: '400px' }}>
-     <h2 className="text-3xl font-heading mb-6" style={{ color: '#000000' }}>{title}</h2>
+    <div className="p-4 sm:p-6 lg:p-8 overflow-y-auto" style={{
+      height: 'clamp(500px, 65vh, 900px)',
+      maxHeight: '75vh'
+    }}>
+     <h2 className="text-2xl sm:text-3xl font-heading mb-4 sm:mb-6" style={{ color: '#000000' }}>{title}</h2>
      <AdminInvitationManager />
     </div>
    )
@@ -201,13 +207,13 @@ export default function AdminDashboard() {
   <div style={{ backgroundColor: '#E8E6D8' }} className="min-h-screen">
    <AppHeader title="Admin Dashboard" subtitle="Full platform control" />
 
-   <main className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+   <main className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 space-y-6 lg:space-y-8">
     {/* Inline Content Display */}
     {activeSection && (
-     <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/50 relative overflow-hidden">
+     <div className="bg-white/90 backdrop-blur-sm rounded-xl lg:rounded-2xl shadow-2xl border border-white/50 relative overflow-hidden">
       <button
        onClick={() => setActiveSection(null)}
-       className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-lg transition-colors z-50 shadow-lg"
+       className="absolute top-3 right-3 sm:top-4 sm:right-4 p-2 hover:bg-gray-100 rounded-lg transition-colors z-50 shadow-lg"
        title="Close"
       >
        <X className="w-5 h-5" style={{ color: '#000000' }} />
@@ -218,10 +224,10 @@ export default function AdminDashboard() {
 
     {/* Admin Tools Grid */}
     <div>
-     <h2 className="text-2xl font-heading mb-6 uppercase tracking-wide" style={{ color: '#000000' }}>
+     <h2 className="text-xl sm:text-2xl font-heading mb-4 sm:mb-6 uppercase tracking-wide" style={{ color: '#000000' }}>
       Admin Tools
      </h2>
-     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
       {adminCards.map((card, index) => {
        const Icon = card.icon
        const isActive = activeSection === card.id
@@ -232,23 +238,23 @@ export default function AdminDashboard() {
          onClick={() => setActiveSection(card.id)}
          className={`block group cursor-pointer text-left transition-all ${isActive ? 'ring-2 ring-black ring-offset-2' : ''}`}
         >
-         <div className={`bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 h-full transition-all hover:shadow-2xl hover:scale-105 ${isActive ? 'bg-white shadow-2xl' : ''}`}>
-          <div className="flex flex-col h-full">
+         <div className={`bg-white/90 backdrop-blur-sm rounded-lg sm:rounded-xl shadow-lg border border-white/50 p-3 sm:p-4 h-full transition-all hover:shadow-2xl hover:scale-105 ${isActive ? 'bg-white shadow-2xl' : ''}`}>
+          <div className="flex flex-col h-full min-h-[100px] sm:min-h-[120px]">
            {/* Icon */}
            <div
-            className="w-10 h-10 rounded-lg mb-3 flex items-center justify-center shadow-md"
+            className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg mb-2 sm:mb-3 flex items-center justify-center shadow-md"
             style={{ backgroundColor: card.color }}
            >
-            <Icon className="w-5 h-5 text-white" />
+            <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
            </div>
 
            {/* Title */}
-           <h3 className="text-sm font-heading mb-1" style={{ color: '#000000' }}>
+           <h3 className="text-xs sm:text-sm font-heading mb-1 line-clamp-2" style={{ color: '#000000' }}>
             {card.title}
            </h3>
 
            {/* Description */}
-           <p className="text-xs flex-grow" style={{ color: '#000000', opacity: 0.6 }}>
+           <p className="text-[10px] sm:text-xs flex-grow line-clamp-2" style={{ color: '#000000', opacity: 0.6 }}>
             {card.description}
            </p>
           </div>
