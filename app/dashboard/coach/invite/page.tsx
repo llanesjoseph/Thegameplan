@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/use-auth'
 import { useSearchParams, useRouter } from 'next/navigation'
 import AppHeader from '@/components/ui/AppHeader'
 import EmailPreview from '@/components/admin/EmailPreview'
+import { SPORTS } from '@/lib/constants/sports'
 import {
   UserPlus,
   Mail,
@@ -330,18 +331,9 @@ function InviteAthletesPageContent() {
                   onChange={(e) => setSingleInvite({ ...singleInvite, sport: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
                 >
-                  <option value="Baseball">Baseball</option>
-                  <option value="Basketball">Basketball</option>
-                  <option value="Football">Football</option>
-                  <option value="Soccer">Soccer</option>
-                  <option value="Softball">Softball</option>
-                  <option value="Volleyball">Volleyball</option>
-                  <option value="Track & Field">Track & Field</option>
-                  <option value="Swimming">Swimming</option>
-                  <option value="Tennis">Tennis</option>
-                  <option value="Golf">Golf</option>
-                  <option value="Wrestling">Wrestling</option>
-                  <option value="Other">Other</option>
+                  {SPORTS.map(sport => (
+                    <option key={sport} value={sport}>{sport}</option>
+                  ))}
                 </select>
               </div>
 
@@ -438,13 +430,9 @@ function InviteAthletesPageContent() {
                   onChange={(e) => setBulkSport(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
                 >
-                  <option value="Baseball">Baseball</option>
-                  <option value="Basketball">Basketball</option>
-                  <option value="Football">Football</option>
-                  <option value="Soccer">Soccer</option>
-                  <option value="Softball">Softball</option>
-                  <option value="Volleyball">Volleyball</option>
-                  <option value="Other">Other</option>
+                  {SPORTS.map(sport => (
+                    <option key={sport} value={sport}>{sport}</option>
+                  ))}
                 </select>
               </div>
 
