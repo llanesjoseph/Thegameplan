@@ -97,7 +97,7 @@ function LessonLibraryPageContent() {
   const loadLessons = async () => {
     setLoading(true)
     try {
-      const token = await user?.getIdToken()
+      const token = await user.getIdToken()
       const response = await fetch('/api/coach/lessons/list', {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -130,7 +130,7 @@ function LessonLibraryPageContent() {
     if (!confirm('Create a copy of this lesson?')) return
 
     try {
-      const token = await user?.getIdToken()
+      const token = await user.getIdToken()
       const response = await fetch('/api/coach/lessons/duplicate', {
         method: 'POST',
         headers: {
@@ -156,7 +156,7 @@ function LessonLibraryPageContent() {
     if (!confirm(`Are you sure you want to delete "${lessonTitle}"? This cannot be undone.`)) return
 
     try {
-      const token = await user?.getIdToken()
+      const token = await user.getIdToken()
       const response = await fetch('/api/coach/lessons/delete', {
         method: 'DELETE',
         headers: {

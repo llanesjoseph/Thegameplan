@@ -279,7 +279,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
       setCoachInviteLoading(true)
 
       // Get Firebase ID token
-      const idToken = await user?.getIdToken()
+      const idToken = await user.getIdToken()
       if (!idToken) {
         alert('Authentication error. Please log in again.')
         return
@@ -339,7 +339,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
       setAthleteInviteLoading(true)
 
       // Get Firebase ID token
-      const idToken = await user?.getIdToken()
+      const idToken = await user.getIdToken()
       if (!idToken) {
         alert('Authentication error. Please log in again.')
         return

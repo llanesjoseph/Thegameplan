@@ -74,7 +74,7 @@ export default function EditLessonPage() {
   const loadLesson = async () => {
     setLoading(true)
     try {
-      const token = await user?.getIdToken()
+      const token = await user.getIdToken()
       const response = await fetch(`/api/coach/lessons/${lessonId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -207,7 +207,7 @@ export default function EditLessonPage() {
 
     setSaving(true)
     try {
-      const token = await user?.getIdToken()
+      const token = await user.getIdToken()
       const response = await fetch(`/api/coach/lessons/${lessonId}`, {
         method: 'PUT',
         headers: {

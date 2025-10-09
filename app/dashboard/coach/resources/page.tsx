@@ -55,7 +55,7 @@ function ResourceLibraryPageContent() {
   const loadResources = async () => {
     setLoading(true)
     try {
-      const token = await user?.getIdToken()
+      const token = await user.getIdToken()
       const response = await fetch('/api/coach/resources', {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -80,7 +80,7 @@ function ResourceLibraryPageContent() {
     if (!confirm(`Are you sure you want to delete "${resourceTitle}"? This cannot be undone.`)) return
 
     try {
-      const token = await user?.getIdToken()
+      const token = await user.getIdToken()
       const response = await fetch('/api/coach/resources', {
         method: 'DELETE',
         headers: {

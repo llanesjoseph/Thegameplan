@@ -79,7 +79,7 @@ function CoachAthletesContent() {
   const loadAthleteData = async () => {
     setDataLoading(true)
     try {
-      const token = await user?.getIdToken()
+      const token = await user.getIdToken()
 
       // Fetch athletes from the API
       const response = await fetch('/api/coach/athletes', {
@@ -151,7 +151,7 @@ function CoachAthletesContent() {
       }
 
       // Get auth token
-      const token = await user?.getIdToken()
+      const token = await user.getIdToken()
 
       // Send invitations
       const response = await fetch('/api/coach/invite-athletes', {

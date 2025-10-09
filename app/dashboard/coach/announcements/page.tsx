@@ -58,7 +58,7 @@ function AnnouncementsPageContent() {
   const loadAnnouncements = async () => {
     setLoading(true)
     try {
-      const token = await user?.getIdToken()
+      const token = await user.getIdToken()
       const response = await fetch('/api/coach/announcements', {
         headers: { 'Authorization': `Bearer ${token}` }
       })
@@ -82,7 +82,7 @@ function AnnouncementsPageContent() {
     }
 
     try {
-      const token = await user?.getIdToken()
+      const token = await user.getIdToken()
       const response = await fetch('/api/coach/announcements', {
         method: 'POST',
         headers: {
@@ -108,7 +108,7 @@ function AnnouncementsPageContent() {
     if (!confirm(`Delete "${title}"?`)) return
 
     try {
-      const token = await user?.getIdToken()
+      const token = await user.getIdToken()
       const response = await fetch('/api/coach/announcements', {
         method: 'DELETE',
         headers: {

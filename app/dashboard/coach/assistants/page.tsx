@@ -62,7 +62,7 @@ function AssistantCoachesPageContent() {
   const loadAssistants = async () => {
     setLoading(true)
     try {
-      const token = await user?.getIdToken()
+      const token = await user.getIdToken()
       if (!token) {
         console.error('No authentication token available')
         setAssistants([])
@@ -94,7 +94,7 @@ function AssistantCoachesPageContent() {
     }
 
     try {
-      const token = await user?.getIdToken()
+      const token = await user.getIdToken()
       if (!token) {
         alert('Authentication required')
         return
@@ -139,7 +139,7 @@ function AssistantCoachesPageContent() {
     }
 
     try {
-      const token = await user?.getIdToken()
+      const token = await user.getIdToken()
       if (!token) {
         alert('Authentication required')
         return

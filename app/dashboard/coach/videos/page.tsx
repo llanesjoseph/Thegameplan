@@ -56,7 +56,7 @@ function VideoManagerPageContent() {
   const loadVideos = async () => {
     setLoading(true)
     try {
-      const token = await user?.getIdToken()
+      const token = await user.getIdToken()
       const response = await fetch('/api/coach/videos', {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -81,7 +81,7 @@ function VideoManagerPageContent() {
     if (!confirm(`Are you sure you want to delete "${videoTitle}"? This cannot be undone.`)) return
 
     try {
-      const token = await user?.getIdToken()
+      const token = await user.getIdToken()
       const response = await fetch('/api/coach/videos', {
         method: 'DELETE',
         headers: {

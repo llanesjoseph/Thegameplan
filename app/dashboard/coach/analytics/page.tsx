@@ -65,7 +65,7 @@ function AnalyticsPageContent() {
   const loadAnalytics = async () => {
     setLoading(true)
     try {
-      const token = await user?.getIdToken()
+      const token = await user.getIdToken()
       const response = await fetch('/api/coach/analytics', {
         headers: {
           'Authorization': `Bearer ${token}`
