@@ -366,23 +366,32 @@ function InviteAthletesPageContent() {
                 </select>
               </div>
 
-              <button
-                onClick={handleSingleInvite}
-                disabled={sending || !singleInvite.athleteName || !singleInvite.athleteEmail}
-                className="w-full px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                {sending ? (
-                  <>
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                    Sending...
-                  </>
-                ) : (
-                  <>
-                    <Send className="w-5 h-5" />
-                    Send Invitation
-                  </>
-                )}
-              </button>
+              {/* Send Button - Prominent placement */}
+              <div className="pt-4 border-t border-gray-200">
+                <button
+                  onClick={handleSingleInvite}
+                  disabled={sending || !singleInvite.athleteName || !singleInvite.athleteEmail}
+                  className="w-full px-6 py-4 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-lg"
+                  style={{ minHeight: '56px' }}
+                >
+                  {sending ? (
+                    <>
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                      <span>Sending Invitation...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-6 h-6" />
+                      <span>Send Invitation</span>
+                    </>
+                  )}
+                </button>
+                {!singleInvite.athleteName || !singleInvite.athleteEmail ? (
+                  <p className="text-xs text-gray-500 mt-2 text-center">
+                    Fill in athlete name and email to send
+                  </p>
+                ) : null}
+              </div>
             </div>
 
             {/* Preview Column */}
