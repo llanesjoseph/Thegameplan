@@ -175,6 +175,9 @@ function CreateLessonPageContent() {
     setGenerating(true)
     try {
       // Get Firebase ID token
+      if (!user) { console.error('No user found'); return; }
+
+      if (!user) { console.error('No user found'); return; }
       const token = await user.getIdToken()
 
       const response = await fetch('/api/generate-lesson-simple', {
@@ -247,6 +250,9 @@ function CreateLessonPageContent() {
     setGenerating(true)
     try {
       // Get Firebase ID token
+      if (!user) { console.error('No user found'); return; }
+
+      if (!user) { console.error('No user found'); return; }
       const token = await user.getIdToken()
 
       const response = await fetch('/api/generate-lesson-content', {
@@ -296,6 +302,9 @@ function CreateLessonPageContent() {
     setGenerating(true)
     try {
       // Get Firebase ID token
+      if (!user) { console.error('No user found'); return; }
+
+      if (!user) { console.error('No user found'); return; }
       const token = await user.getIdToken()
 
       const response = await fetch('/api/generate-lesson-content', {

@@ -58,6 +58,9 @@ function AnnouncementsPageContent() {
   const loadAnnouncements = async () => {
     setLoading(true)
     try {
+      if (!user) { console.error('No user found'); return; }
+
+      if (!user) { console.error('No user found'); return; }
       const token = await user.getIdToken()
       const response = await fetch('/api/coach/announcements', {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -82,6 +85,9 @@ function AnnouncementsPageContent() {
     }
 
     try {
+      if (!user) { console.error('No user found'); return; }
+
+      if (!user) { console.error('No user found'); return; }
       const token = await user.getIdToken()
       const response = await fetch('/api/coach/announcements', {
         method: 'POST',
@@ -108,6 +114,9 @@ function AnnouncementsPageContent() {
     if (!confirm(`Delete "${title}"?`)) return
 
     try {
+      if (!user) { console.error('No user found'); return; }
+
+      if (!user) { console.error('No user found'); return; }
       const token = await user.getIdToken()
       const response = await fetch('/api/coach/announcements', {
         method: 'DELETE',

@@ -65,6 +65,13 @@ function AnalyticsPageContent() {
   const loadAnalytics = async () => {
     setLoading(true)
     try {
+      if (!user) {
+        console.error('No user found when loading analytics')
+        return
+      }
+      if (!user) { console.error('No user found'); return; }
+
+      if (!user) { console.error('No user found'); return; }
       const token = await user.getIdToken()
       const response = await fetch('/api/coach/analytics', {
         headers: {

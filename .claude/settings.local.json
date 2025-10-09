@@ -26,7 +26,8 @@
       "Bash(do)",
       "Bash(echo \"Checking $file\")",
       "Bash(done)",
-      "Bash(do echo \"=== $file ===\" head -10 \"$file\")"
+      "Bash(do echo \"=== $file ===\" head -10 \"$file\")",
+      "Bash(npx vercel:*)"
     ],
     "deny": [],
     "ask": []

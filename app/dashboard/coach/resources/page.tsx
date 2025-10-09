@@ -55,6 +55,9 @@ function ResourceLibraryPageContent() {
   const loadResources = async () => {
     setLoading(true)
     try {
+      if (!user) { console.error('No user found'); return; }
+
+      if (!user) { console.error('No user found'); return; }
       const token = await user.getIdToken()
       const response = await fetch('/api/coach/resources', {
         headers: {
@@ -80,6 +83,9 @@ function ResourceLibraryPageContent() {
     if (!confirm(`Are you sure you want to delete "${resourceTitle}"? This cannot be undone.`)) return
 
     try {
+      if (!user) { console.error('No user found'); return; }
+
+      if (!user) { console.error('No user found'); return; }
       const token = await user.getIdToken()
       const response = await fetch('/api/coach/resources', {
         method: 'DELETE',

@@ -97,6 +97,9 @@ function LessonLibraryPageContent() {
   const loadLessons = async () => {
     setLoading(true)
     try {
+      if (!user) { console.error('No user found'); return; }
+
+      if (!user) { console.error('No user found'); return; }
       const token = await user.getIdToken()
       const response = await fetch('/api/coach/lessons/list', {
         headers: {
@@ -130,6 +133,9 @@ function LessonLibraryPageContent() {
     if (!confirm('Create a copy of this lesson?')) return
 
     try {
+      if (!user) { console.error('No user found'); return; }
+
+      if (!user) { console.error('No user found'); return; }
       const token = await user.getIdToken()
       const response = await fetch('/api/coach/lessons/duplicate', {
         method: 'POST',
@@ -156,6 +162,9 @@ function LessonLibraryPageContent() {
     if (!confirm(`Are you sure you want to delete "${lessonTitle}"? This cannot be undone.`)) return
 
     try {
+      if (!user) { console.error('No user found'); return; }
+
+      if (!user) { console.error('No user found'); return; }
       const token = await user.getIdToken()
       const response = await fetch('/api/coach/lessons/delete', {
         method: 'DELETE',

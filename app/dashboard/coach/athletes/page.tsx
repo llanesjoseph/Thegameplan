@@ -79,6 +79,9 @@ function CoachAthletesContent() {
   const loadAthleteData = async () => {
     setDataLoading(true)
     try {
+      if (!user) { console.error('No user found'); return; }
+
+      if (!user) { console.error('No user found'); return; }
       const token = await user.getIdToken()
 
       // Fetch athletes from the API
@@ -151,6 +154,9 @@ function CoachAthletesContent() {
       }
 
       // Get auth token
+      if (!user) { console.error('No user found'); return; }
+
+      if (!user) { console.error('No user found'); return; }
       const token = await user.getIdToken()
 
       // Send invitations
@@ -450,25 +456,50 @@ function CoachAthletesContent() {
                 </div>
               </div>
 
-              {/* Send Button */}
-              <div className="flex justify-end">
+              {/* Send Button - SUPER PROMINENT */}
+              <div className="pt-6 border-t-2 border-gray-200 mt-6">
                 <button
                   onClick={handleBulkInvite}
                   disabled={isLoading}
-                  className="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors flex items-center gap-2 disabled:opacity-50"
+                  className="w-full px-8 py-5 rounded-xl font-bold transition-all shadow-2xl hover:shadow-3xl disabled:cursor-not-allowed flex items-center justify-center gap-3 text-xl"
+                  style={{
+                    minHeight: '70px',
+                    backgroundColor: isLoading ? '#9CA3AF' : '#16A34A',
+                    color: '#FFFFFF',
+                    opacity: isLoading ? 0.7 : 1,
+                    cursor: isLoading ? 'not-allowed' : 'pointer',
+                    border: '3px solid #15803D'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isLoading) {
+                      e.currentTarget.style.backgroundColor = '#15803D'
+                      e.currentTarget.style.transform = 'scale(1.02)'
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isLoading) {
+                      e.currentTarget.style.backgroundColor = '#16A34A'
+                      e.currentTarget.style.transform = 'scale(1)'
+                    }
+                  }}
                 >
                   {isLoading ? (
                     <>
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                      Sending...
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-4 border-white"></div>
+                      <span className="text-xl font-bold">Sending Invitations...</span>
                     </>
                   ) : (
                     <>
-                      <Send className="w-5 h-5" />
-                      Send Invitations ({bulkForm.athletes.filter(a => a.email.trim()).length})
+                      <Send className="w-8 h-8" />
+                      <span className="text-xl font-bold">
+                        Send {bulkForm.athletes.filter(a => a.email.trim()).length} Invitation(s)
+                      </span>
                     </>
                   )}
                 </button>
+                <p className="text-center text-sm mt-3" style={{ color: '#000000', opacity: 0.6 }}>
+                  Click the big green button above to send invitations
+                </p>
               </div>
             </div>
           </div>

@@ -74,6 +74,7 @@ export default function EditLessonPage() {
   const loadLesson = async () => {
     setLoading(true)
     try {
+      if (!user) { console.error('No user found'); return; }
       const token = await user.getIdToken()
       const response = await fetch(`/api/coach/lessons/${lessonId}`, {
         headers: {
@@ -207,6 +208,7 @@ export default function EditLessonPage() {
 
     setSaving(true)
     try {
+      if (!user) { console.error('No user found'); return; }
       const token = await user.getIdToken()
       const response = await fetch(`/api/coach/lessons/${lessonId}`, {
         method: 'PUT',

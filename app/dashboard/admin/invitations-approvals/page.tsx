@@ -278,7 +278,15 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
     try {
       setCoachInviteLoading(true)
 
+      if (!user) {
+        alert('Please log in to send invitations')
+        return
+      }
+
       // Get Firebase ID token
+      if (!user) { console.error('No user found'); return; }
+
+      if (!user) { console.error('No user found'); return; }
       const idToken = await user.getIdToken()
       if (!idToken) {
         alert('Authentication error. Please log in again.')
@@ -338,7 +346,15 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
     try {
       setAthleteInviteLoading(true)
 
+      if (!user) {
+        alert('Please log in to send invitations')
+        return
+      }
+
       // Get Firebase ID token
+      if (!user) { console.error('No user found'); return; }
+
+      if (!user) { console.error('No user found'); return; }
       const idToken = await user.getIdToken()
       if (!idToken) {
         alert('Authentication error. Please log in again.')

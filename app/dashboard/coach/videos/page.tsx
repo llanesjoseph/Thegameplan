@@ -56,6 +56,9 @@ function VideoManagerPageContent() {
   const loadVideos = async () => {
     setLoading(true)
     try {
+      if (!user) { console.error('No user found'); return; }
+
+      if (!user) { console.error('No user found'); return; }
       const token = await user.getIdToken()
       const response = await fetch('/api/coach/videos', {
         headers: {
@@ -81,6 +84,9 @@ function VideoManagerPageContent() {
     if (!confirm(`Are you sure you want to delete "${videoTitle}"? This cannot be undone.`)) return
 
     try {
+      if (!user) { console.error('No user found'); return; }
+
+      if (!user) { console.error('No user found'); return; }
       const token = await user.getIdToken()
       const response = await fetch('/api/coach/videos', {
         method: 'DELETE',

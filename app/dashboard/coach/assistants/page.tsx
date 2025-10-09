@@ -62,6 +62,9 @@ function AssistantCoachesPageContent() {
   const loadAssistants = async () => {
     setLoading(true)
     try {
+      if (!user) { console.error('No user found'); return; }
+
+      if (!user) { console.error('No user found'); return; }
       const token = await user.getIdToken()
       if (!token) {
         console.error('No authentication token available')
@@ -94,6 +97,9 @@ function AssistantCoachesPageContent() {
     }
 
     try {
+      if (!user) { console.error('No user found'); return; }
+
+      if (!user) { console.error('No user found'); return; }
       const token = await user.getIdToken()
       if (!token) {
         alert('Authentication required')
@@ -139,6 +145,9 @@ function AssistantCoachesPageContent() {
     }
 
     try {
+      if (!user) { console.error('No user found'); return; }
+
+      if (!user) { console.error('No user found'); return; }
       const token = await user.getIdToken()
       if (!token) {
         alert('Authentication required')

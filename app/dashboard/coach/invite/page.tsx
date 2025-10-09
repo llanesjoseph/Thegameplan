@@ -110,6 +110,9 @@ function InviteAthletesPageContent() {
     setSending(true)
     try {
       // Get Firebase ID token
+      if (!user) { console.error('No user found'); return; }
+
+      if (!user) { console.error('No user found'); return; }
       const token = await user.getIdToken()
 
       const response = await fetch('/api/coach/invite-athletes', {
@@ -170,6 +173,9 @@ function InviteAthletesPageContent() {
     setSending(true)
     try {
       // Get Firebase ID token
+      if (!user) { console.error('No user found'); return; }
+
+      if (!user) { console.error('No user found'); return; }
       const token = await user.getIdToken()
 
       const response = await fetch('/api/coach/invite-athletes', {
