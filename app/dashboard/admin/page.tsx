@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import AppHeader from '@/components/ui/AppHeader'
 import AdminInvitationManager from '@/components/admin/AdminInvitationManager'
 import {
@@ -20,14 +20,51 @@ import {
   X
 } from 'lucide-react'
 
-// Responsive iframe component with adaptive height
+// Responsive iframe component with dynamic height based on content
 function DynamicIframe({ src, title }: { src: string; title: string }) {
+ const iframeRef = useRef<HTMLIFrameElement>(null)
+ const [height, setHeight] = useState<string>('75vh')
+
+ useEffect(() => {
+  const iframe = iframeRef.current
+  if (!iframe) return
+
+  const measureHeight = () => {
+   try {
+    const iframeDocument = iframe.contentDocument || iframe.contentWindow?.document
+    if (iframeDocument) {
+     const contentHeight = iframeDocument.documentElement.scrollHeight
+     const maxHeight = window.innerHeight * 0.75 // 3/4 of viewport
+     const calculatedHeight = Math.min(contentHeight + 40, maxHeight)
+     setHeight(`${calculatedHeight}px`)
+    }
+   } catch (e) {
+    // Cross-origin or access denied - fallback to 75vh
+    setHeight('75vh')
+   }
+  }
+
+  // Multiple measurement attempts for reliability
+  iframe.addEventListener('load', () => {
+   setTimeout(measureHeight, 100)
+   setTimeout(measureHeight, 300)
+   setTimeout(measureHeight, 500)
+   setTimeout(measureHeight, 1000)
+  })
+
+  return () => {
+   iframe.removeEventListener('load', measureHeight)
+  }
+ }, [src])
+
  return (
   <div className="rounded-xl overflow-hidden shadow-lg w-full" style={{
-    height: 'clamp(450px, 60vh, 850px)',
-    maxHeight: '65vh'
+    height,
+    maxHeight: '75vh',
+    transition: 'height 0.3s ease'
   }}>
    <iframe
+    ref={iframeRef}
     src={src}
     className="w-full h-full border-0"
     title={title}
@@ -185,8 +222,8 @@ export default function AdminDashboard() {
   if (activeSection === 'admin-invites') {
    return (
     <div className="p-4 sm:p-6 lg:p-8 overflow-y-auto" style={{
-      height: 'clamp(450px, 60vh, 850px)',
-      maxHeight: '65vh'
+      height: 'auto',
+      maxHeight: '75vh'
     }}>
      <h2 className="text-2xl sm:text-3xl font-heading mb-4 sm:mb-6" style={{ color: '#000000' }}>{title}</h2>
      <AdminInvitationManager />
