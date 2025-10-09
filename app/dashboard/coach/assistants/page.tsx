@@ -42,28 +42,8 @@ function AssistantCoachesPageContent() {
     role: 'assistant' as 'assistant' | 'viewer',
     permissions: [] as string[]
   })
-
-  const [assistants, setAssistants] = useState<Assistant[]>([
-    {
-      id: '1',
-      name: 'Mike Johnson',
-      email: 'mike.johnson@example.com',
-      status: 'active',
-      role: 'assistant',
-      permissions: ['view_lessons', 'edit_lessons', 'view_athletes', 'send_announcements'],
-      invitedAt: '2025-09-15',
-      acceptedAt: '2025-09-15'
-    },
-    {
-      id: '2',
-      name: 'Sarah Chen',
-      email: 'sarah.chen@example.com',
-      status: 'pending',
-      role: 'viewer',
-      permissions: ['view_lessons', 'view_athletes'],
-      invitedAt: '2025-10-01'
-    }
-  ])
+  const [assistants, setAssistants] = useState<Assistant[]>([])
+  const [loading, setLoading] = useState(true)
 
   const availablePermissions = [
     { id: 'view_lessons', label: 'View Lessons', description: 'Can view all lessons' },
@@ -79,32 +59,111 @@ function AssistantCoachesPageContent() {
     viewer: ['view_lessons', 'view_athletes', 'view_analytics']
   }
 
+  const loadAssistants = async () => {
+    setLoading(true)
+    try {
+      const token = await user?.getIdToken()
+      if (!token) {
+        console.error('No authentication token available')
+        setAssistants([])
+        return
+      }
+
+      const response = await fetch('/api/coach/assistants', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to load assistants')
+      }
+
+      const data = await response.json()
+      setAssistants(data.assistants || [])
+    } catch (error) {
+      console.error('Error loading assistants:', error)
+      setAssistants([])
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const handleInvite = async () => {
     if (!inviteForm.name || !inviteForm.email) {
       alert('Please fill in name and email')
       return
     }
 
-    const newAssistant: Assistant = {
-      id: Date.now().toString(),
-      name: inviteForm.name,
-      email: inviteForm.email,
-      status: 'pending',
-      role: inviteForm.role,
-      permissions: inviteForm.permissions.length > 0 ? inviteForm.permissions : rolePermissions[inviteForm.role],
-      invitedAt: new Date().toISOString()
+    try {
+      const token = await user?.getIdToken()
+      if (!token) {
+        alert('Authentication required')
+        return
+      }
+
+      const response = await fetch('/api/coach/assistants', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: inviteForm.name,
+          email: inviteForm.email,
+          role: inviteForm.role,
+          permissions: inviteForm.permissions.length > 0 ? inviteForm.permissions : rolePermissions[inviteForm.role]
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to send invitation')
+      }
+
+      alert('Invitation sent successfully!')
+      setShowInviteModal(false)
+      setInviteForm({
+        name: '',
+        email: '',
+        role: 'assistant',
+        permissions: []
+      })
+      loadAssistants()
+    } catch (error) {
+      console.error('Error inviting assistant:', error)
+      alert('Failed to send invitation')
+    }
+  }
+
+  const handleDelete = async (assistantId: string, assistantName: string) => {
+    if (!confirm(`Are you sure you want to remove ${assistantName} as an assistant coach?`)) {
+      return
     }
 
-    setAssistants([...assistants, newAssistant])
-    setShowInviteModal(false)
-    setInviteForm({
-      name: '',
-      email: '',
-      role: 'assistant',
-      permissions: []
-    })
+    try {
+      const token = await user?.getIdToken()
+      if (!token) {
+        alert('Authentication required')
+        return
+      }
 
-    alert('Invitation sent successfully!')
+      const response = await fetch('/api/coach/assistants', {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ assistantId })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to remove assistant')
+      }
+
+      alert('Assistant removed successfully')
+      loadAssistants()
+    } catch (error) {
+      console.error('Error removing assistant:', error)
+      alert('Failed to remove assistant')
+    }
   }
 
   const getStatusBadge = (status: string) => {
@@ -145,6 +204,13 @@ function AssistantCoachesPageContent() {
       </span>
     )
   }
+
+  // Load assistants data
+  useEffect(() => {
+    if (user) {
+      loadAssistants()
+    }
+  }, [user])
 
   // Authentication check
   useEffect(() => {
@@ -263,7 +329,12 @@ function AssistantCoachesPageContent() {
 
         {/* Assistants List */}
         <div className="space-y-4">
-          {assistants.length === 0 ? (
+          {loading ? (
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-12 text-center">
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-black mb-4"></div>
+              <p style={{ color: '#000000', opacity: 0.7 }}>Loading assistants...</p>
+            </div>
+          ) : assistants.length === 0 ? (
             <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-12 text-center">
               <UserCog className="w-16 h-16 mx-auto mb-4" style={{ color: '#000000', opacity: 0.3 }} />
               <h3 className="text-xl font-heading mb-2" style={{ color: '#000000' }}>
@@ -348,6 +419,7 @@ function AssistantCoachesPageContent() {
                       <Edit className="w-4 h-4" style={{ color: '#000000' }} />
                     </button>
                     <button
+                      onClick={() => handleDelete(assistant.id, assistant.name)}
                       className="p-2 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
                       title="Remove assistant"
                     >
