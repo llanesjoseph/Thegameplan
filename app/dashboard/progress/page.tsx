@@ -24,6 +24,7 @@ import Link from 'next/link'
 import AppHeader from '@/components/ui/AppHeader'
 import AthleteOnboardingModal from '@/components/athlete/AthleteOnboardingModal'
 import VideoReviewRequestModal from '@/components/athlete/VideoReviewRequestModal'
+import AIAssistant from '@/components/AIAssistant'
 
 // Responsive iframe component with dynamic height
 function DynamicIframe({ src, title }: { src: string; title: string }) {
@@ -84,6 +85,7 @@ export default function AthleteDashboard() {
   const [onboardingComplete, setOnboardingComplete] = useState(false)
   const [isCheckingOnboarding, setIsCheckingOnboarding] = useState(true)
   const [showVideoReviewModal, setShowVideoReviewModal] = useState(false)
+  const [showAIAssistant, setShowAIAssistant] = useState(false)
   const [hasCoachRole, setHasCoachRole] = useState(false)
   const [coachId, setCoachId] = useState<string | null>(null)
   const [coachName, setCoachName] = useState<string>('')
@@ -129,8 +131,8 @@ export default function AthleteDashboard() {
       description: 'Get instant answers to training questions',
       icon: Sparkles,
       color: '#9333EA',
-      path: null, // Coming soon
-      action: () => alert('🤖 AI Coach Assistant coming soon!')
+      path: null,
+      action: () => setShowAIAssistant(true)
     }
   ]
 
@@ -373,6 +375,24 @@ export default function AthleteDashboard() {
           onClose={() => setShowVideoReviewModal(false)}
           onSuccess={handleVideoReviewSuccess}
         />
+      )}
+
+      {/* AI Assistant Modal */}
+      {showAIAssistant && user && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-4xl h-[600px]">
+            <AIAssistant
+              mode="fullscreen"
+              userId={user.uid}
+              userEmail={user.email || ''}
+              title="AI Coach Assistant"
+              context="You are an expert sports training AI assistant. Help athletes with training questions, technique advice, injury prevention, nutrition, and motivation. Be supportive and encouraging."
+              placeholder="Ask me anything about your training..."
+              onClose={() => setShowAIAssistant(false)}
+              requireLegalConsent={true}
+            />
+          </div>
+        </div>
       )}
 
       <div style={{ backgroundColor: '#E8E6D8' }} className="min-h-screen">
