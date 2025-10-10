@@ -92,6 +92,8 @@ export default function AthleteDashboard() {
   const [activeSection, setActiveSection] = useState<string | null>(null)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [hasNoData, setHasNoData] = useState(false)
+  const [lessonCount, setLessonCount] = useState<number>(0)
+  const [videoCount, setVideoCount] = useState<number>(0)
 
   // NO REDIRECT LOGIC HERE - Main dashboard handles all routing
   // This page just renders athlete dashboard content
@@ -265,6 +267,56 @@ export default function AthleteDashboard() {
     }
 
     fetchCoachData()
+  }, [coachId])
+
+  // Fetch coach's lessons and videos when coachId changes
+  useEffect(() => {
+    const fetchCoachContent = async () => {
+      if (!coachId) {
+        setLessonCount(0)
+        setVideoCount(0)
+        return
+      }
+
+      try {
+        // 🔍 VERIFICATION: Using correct data model patterns
+        // ✅ Collection: content (NOT lessons!)
+        // ✅ Field: creatorUid (NOT coachId!)
+        // ✅ Pattern: Query content by creator
+
+        const contentRef = collection(db, 'content')
+        const contentQuery = query(
+          contentRef,
+          where('creatorUid', '==', coachId),
+          where('status', '==', 'published')
+        )
+        const contentSnap = await getDocs(contentQuery)
+
+        // Count lessons and videos
+        let lessons = 0
+        let videos = 0
+
+        contentSnap.forEach(doc => {
+          const data = doc.data()
+          if (data.type === 'video') {
+            videos++
+          } else {
+            lessons++
+          }
+        })
+
+        setLessonCount(lessons)
+        setVideoCount(videos)
+
+        console.log(`📚 Found ${lessons} lessons and ${videos} videos from coach`)
+      } catch (error) {
+        console.error('Error fetching coach content:', error)
+        setLessonCount(0)
+        setVideoCount(0)
+      }
+    }
+
+    fetchCoachContent()
   }, [coachId])
 
   const handleOnboardingComplete = () => {
@@ -575,11 +627,11 @@ export default function AthleteDashboard() {
                 {/* Quick Stats - Persistent and Prominent */}
                 <div className="grid grid-cols-3 gap-3 sm:gap-4">
                   <div className="text-center p-4 sm:p-5 bg-gradient-to-br from-sky-blue/10 to-sky-blue/5 rounded-lg border border-sky-blue/20">
-                    <div className="text-3xl sm:text-4xl font-heading mb-1" style={{ color: '#91A6EB' }}>0</div>
+                    <div className="text-3xl sm:text-4xl font-heading mb-1" style={{ color: '#91A6EB' }}>{lessonCount}</div>
                     <p className="text-xs sm:text-sm font-medium" style={{ color: '#000000', opacity: 0.7 }}>Lessons</p>
                   </div>
                   <div className="text-center p-4 sm:p-5 bg-gradient-to-br from-teal/10 to-teal/5 rounded-lg border border-teal/20">
-                    <div className="text-3xl sm:text-4xl font-heading mb-1" style={{ color: '#20B2AA' }}>0</div>
+                    <div className="text-3xl sm:text-4xl font-heading mb-1" style={{ color: '#20B2AA' }}>{videoCount}</div>
                     <p className="text-xs sm:text-sm font-medium" style={{ color: '#000000', opacity: 0.7 }}>Videos</p>
                   </div>
                   <div className="text-center p-4 sm:p-5 bg-gradient-to-br from-orange/10 to-orange/5 rounded-lg border border-orange/20">
