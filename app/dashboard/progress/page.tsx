@@ -1,16 +1,11 @@
 'use client'
 
 /**
- * Athlete Dashboard - Completely Redesigned
- * Features:
- * - Mandatory onboarding on first login
- * - Card-style navigation with logical grouping
- * - Learning & Training cards
- * - Communication & Support cards
- * - Conditional Coach Dashboard access
+ * Athlete Dashboard - Unified Card & Iframe Pattern
+ * Matches coach dashboard design with clickable cards that open iframes inline
  */
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import { doc, getDoc } from 'firebase/firestore'
@@ -21,12 +16,65 @@ import {
   Users,
   MessageCircle,
   LayoutDashboard,
-  Sparkles
+  Sparkles,
+  Calendar,
+  X
 } from 'lucide-react'
 import Link from 'next/link'
 import AppHeader from '@/components/ui/AppHeader'
 import AthleteOnboardingModal from '@/components/athlete/AthleteOnboardingModal'
 import VideoReviewRequestModal from '@/components/athlete/VideoReviewRequestModal'
+
+// Responsive iframe component with dynamic height
+function DynamicIframe({ src, title }: { src: string; title: string }) {
+  const iframeRef = useRef<HTMLIFrameElement>(null)
+  const [height, setHeight] = useState<string>('60vh')
+
+  useEffect(() => {
+    const iframe = iframeRef.current
+    if (!iframe) return
+
+    const measureHeight = () => {
+      try {
+        const iframeDocument = iframe.contentDocument || iframe.contentWindow?.document
+        if (iframeDocument) {
+          const contentHeight = iframeDocument.documentElement.scrollHeight
+          const maxHeight = window.innerHeight * 0.6
+          const calculatedHeight = Math.min(contentHeight + 40, maxHeight)
+          setHeight(`${calculatedHeight}px`)
+        }
+      } catch (e) {
+        setHeight('60vh')
+      }
+    }
+
+    iframe.addEventListener('load', () => {
+      setTimeout(measureHeight, 100)
+      setTimeout(measureHeight, 300)
+      setTimeout(measureHeight, 500)
+      setTimeout(measureHeight, 1000)
+    })
+
+    return () => {
+      iframe.removeEventListener('load', measureHeight)
+    }
+  }, [src])
+
+  return (
+    <div className="rounded-xl overflow-hidden shadow-lg w-full" style={{
+      height,
+      maxHeight: '60vh',
+      transition: 'height 0.3s ease'
+    }}>
+      <iframe
+        ref={iframeRef}
+        src={src}
+        className="w-full h-full border-0"
+        title={title}
+      />
+    </div>
+  )
+}
 
 export default function AthleteDashboard() {
   const { user } = useAuth()
@@ -38,9 +86,61 @@ export default function AthleteDashboard() {
   const [showVideoReviewModal, setShowVideoReviewModal] = useState(false)
   const [hasCoachRole, setHasCoachRole] = useState(false)
   const [coachId, setCoachId] = useState<string | null>(null)
+  const [activeSection, setActiveSection] = useState<string | null>(null)
 
   // NO REDIRECT LOGIC HERE - Main dashboard handles all routing
   // This page just renders athlete dashboard content
+
+  // Athlete cards matching coach dashboard pattern
+  const athleteCards = [
+    {
+      id: 'lessons',
+      title: 'Review Lessons',
+      description: 'Access all assigned and completed training content',
+      icon: BookOpen,
+      color: '#91A6EB',
+      path: '/dashboard/lessons?embedded=true'
+    },
+    {
+      id: 'video-review',
+      title: 'Request Video Review',
+      description: 'Upload a performance clip for coach feedback',
+      icon: Video,
+      color: '#20B2AA',
+      path: null, // Opens modal instead
+      action: () => setShowVideoReviewModal(true)
+    },
+    {
+      id: 'schedule',
+      title: 'Request 1-on-1',
+      description: 'Schedule a private training session',
+      icon: Calendar,
+      color: '#FF6B35',
+      path: '/dashboard/schedule?embedded=true'
+    },
+    {
+      id: 'ai-chat',
+      title: 'Chat with AI Agent',
+      description: 'Get instant answers to training questions',
+      icon: Sparkles,
+      color: '#9333EA',
+      path: null, // Coming soon
+      action: () => alert('🤖 AI Coach Assistant coming soon!')
+    }
+  ]
+
+  // Add coach dashboard card conditionally
+  if (hasCoachRole) {
+    athleteCards.push({
+      id: 'coach-dashboard',
+      title: 'Coach Dashboard',
+      description: 'Switch to your coach dashboard',
+      icon: LayoutDashboard,
+      color: '#000000',
+      path: '/dashboard/coach-unified',
+      action: () => router.push('/dashboard/coach-unified')
+    })
+  }
 
   // Check onboarding status
   useEffect(() => {
@@ -109,22 +209,21 @@ export default function AthleteDashboard() {
     )
   }
 
-  const cardSectionStyle = {
-    backgroundColor: '#FFFFFF',
-    borderRadius: '12px',
-    padding: '24px',
-    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-    border: '1px solid rgba(255, 255, 255, 0.5)'
+  const handleCardClick = (card: typeof athleteCards[0]) => {
+    if (card.action) {
+      card.action()
+    } else if (card.path) {
+      setActiveSection(card.id)
+    }
   }
 
-  const sectionTitleStyle = {
-    color: '#000000',
-    fontSize: '20px',
-    fontWeight: 'bold',
-    marginBottom: '16px',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px'
+  const renderInlineContent = () => {
+    if (!activeSection) return null
+
+    const activeCard = athleteCards.find(card => card.id === activeSection)
+    if (!activeCard || !activeCard.path) return null
+
+    return <DynamicIframe src={activeCard.path} title={activeCard.title} />
   }
 
   return (
@@ -150,211 +249,130 @@ export default function AthleteDashboard() {
       )}
 
       <div style={{ backgroundColor: '#E8E6D8' }} className="min-h-screen">
-        <AppHeader />
+        <AppHeader title="Athlete Dashboard" subtitle="Your training hub for excellence" />
 
-        {/* Header Section */}
-        <div className="text-center py-12 px-6">
-          <h1 className="text-4xl mb-4 font-heading uppercase tracking-wide" style={{ color: '#000000' }}>
-            Athlete Dashboard
-          </h1>
-          <p className="text-lg" style={{ color: '#000000' }}>
-            {user?.displayName ? `Welcome back, ${user.displayName}!` : 'Welcome to your training hub'}
-          </p>
-        </div>
-
-        {/* Dashboard Content */}
-        <div className="max-w-7xl mx-auto px-6 pb-12 space-y-8">
-
-          {/* ========== LEARNING & TRAINING ========== */}
-          <div style={cardSectionStyle}>
-            <h2 style={sectionTitleStyle}>
-              <BookOpen className="w-6 h-6" style={{ color: '#91A6EB' }} />
-              Learning & Training
-            </h2>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Review Lessons Card */}
-              <Link href="/dashboard/lessons" className="group cursor-pointer">
-                <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 h-full transition-all hover:shadow-2xl hover:scale-105">
-                  <div className="flex flex-col h-full">
-                    <div
-                      className="w-14 h-14 rounded-xl mb-4 flex items-center justify-center shadow-lg"
-                      style={{ backgroundColor: '#91A6EB' }}
-                    >
-                      <BookOpen className="w-7 h-7 text-white" />
-                    </div>
-
-                    <h3 className="text-xl font-heading mb-2" style={{ color: '#000000' }}>
-                      Review Lessons
-                    </h3>
-
-                    <p className="text-sm flex-grow" style={{ color: '#000000', opacity: 0.7 }}>
-                      Access all assigned and completed training content from your coach
-                    </p>
-
-                    <div className="mt-4 flex items-center gap-2 text-sm font-semibold group-hover:gap-3 transition-all" style={{ color: '#91A6EB' }}>
-                      <span>Open Lessons</span>
-                      <span className="text-lg">→</span>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-
-              {/* Request Video Review Card */}
+        <main className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 space-y-6 lg:space-y-8">
+          {/* Inline Content Display */}
+          {activeSection && (
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl lg:rounded-2xl shadow-2xl border border-white/50 relative overflow-hidden">
               <button
-                onClick={() => setShowVideoReviewModal(true)}
-                className="group cursor-pointer text-left"
+                onClick={() => setActiveSection(null)}
+                className="absolute top-3 right-3 sm:top-4 sm:right-4 p-2 hover:bg-gray-100 rounded-lg transition-colors z-50 shadow-lg"
+                title="Close"
               >
-                <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 h-full transition-all hover:shadow-2xl hover:scale-105">
-                  <div className="flex flex-col h-full">
-                    <div
-                      className="w-14 h-14 rounded-xl mb-4 flex items-center justify-center shadow-lg"
-                      style={{ backgroundColor: '#20B2AA' }}
-                    >
-                      <Video className="w-7 h-7 text-white" />
-                    </div>
-
-                    <h3 className="text-xl font-heading mb-2" style={{ color: '#000000' }}>
-                      Request Video Review
-                    </h3>
-
-                    <p className="text-sm flex-grow" style={{ color: '#000000', opacity: 0.7 }}>
-                      Upload a performance clip and get personalized feedback from your coach
-                    </p>
-
-                    <div className="mt-4 flex items-center gap-2 text-sm font-semibold group-hover:gap-3 transition-all" style={{ color: '#20B2AA' }}>
-                      <span>Submit Video</span>
-                      <span className="text-lg">→</span>
-                    </div>
-                  </div>
-                </div>
+                <X className="w-5 h-5" style={{ color: '#000000' }} />
               </button>
-            </div>
-          </div>
-
-          {/* ========== COMMUNICATION & SUPPORT ========== */}
-          <div style={cardSectionStyle}>
-            <h2 style={sectionTitleStyle}>
-              <MessageCircle className="w-6 h-6" style={{ color: '#FF6B35' }} />
-              Communication & Support
-            </h2>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Request 1-on-1 Card */}
-              <Link href="/dashboard/schedule" className="group cursor-pointer">
-                <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 h-full transition-all hover:shadow-2xl hover:scale-105">
-                  <div className="flex flex-col h-full">
-                    <div
-                      className="w-14 h-14 rounded-xl mb-4 flex items-center justify-center shadow-lg"
-                      style={{ backgroundColor: '#FF6B35' }}
-                    >
-                      <Users className="w-7 h-7 text-white" />
-                    </div>
-
-                    <h3 className="text-xl font-heading mb-2" style={{ color: '#000000' }}>
-                      Request 1-on-1
-                    </h3>
-
-                    <p className="text-sm flex-grow" style={{ color: '#000000', opacity: 0.7 }}>
-                      Schedule a private training session with your coach
-                    </p>
-
-                    <div className="mt-4 flex items-center gap-2 text-sm font-semibold group-hover:gap-3 transition-all" style={{ color: '#FF6B35' }}>
-                      <span>View Schedule</span>
-                      <span className="text-lg">→</span>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-
-              {/* Chat with AI Agent Card */}
-              <button
-                onClick={() => alert('🤖 AI Coach Assistant coming soon! Get instant answers to your training questions.')}
-                className="group cursor-pointer text-left"
-              >
-                <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 h-full transition-all hover:shadow-2xl hover:scale-105">
-                  <div className="flex flex-col h-full">
-                    <div
-                      className="w-14 h-14 rounded-xl mb-4 flex items-center justify-center shadow-lg"
-                      style={{ backgroundColor: '#9333EA' }}
-                    >
-                      <Sparkles className="w-7 h-7 text-white" />
-                    </div>
-
-                    <h3 className="text-xl font-heading mb-2" style={{ color: '#000000' }}>
-                      Chat with AI Agent
-                    </h3>
-
-                    <p className="text-sm flex-grow" style={{ color: '#000000', opacity: 0.7 }}>
-                      Get instant answers to training questions from our AI assistant
-                    </p>
-
-                    <div className="mt-4">
-                      <span className="inline-block px-3 py-1 bg-purple-100 text-purple-800 text-xs font-semibold rounded-full">
-                        Coming Soon
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </button>
-            </div>
-          </div>
-
-          {/* ========== CONDITIONAL: COACH DASHBOARD ACCESS ========== */}
-          {hasCoachRole && (
-            <div style={cardSectionStyle}>
-              <h2 style={sectionTitleStyle}>
-                <LayoutDashboard className="w-6 h-6" style={{ color: '#000000' }} />
-                Quick Access
-              </h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Access Coach Dashboard Card */}
-                <Link href="/dashboard/coach-unified" className="group cursor-pointer">
-                  <div className="bg-gradient-to-br from-gray-900 to-gray-700 rounded-xl shadow-lg border border-white/50 p-6 h-full transition-all hover:shadow-2xl hover:scale-105">
-                    <div className="flex flex-col h-full">
-                      <div
-                        className="w-14 h-14 rounded-xl mb-4 flex items-center justify-center shadow-lg"
-                        style={{ backgroundColor: '#FFFFFF' }}
-                      >
-                        <LayoutDashboard className="w-7 h-7" style={{ color: '#000000' }} />
-                      </div>
-
-                      <h3 className="text-xl font-heading mb-2 text-white">
-                        Access Coach Dashboard
-                      </h3>
-
-                      <p className="text-sm flex-grow text-white opacity-80">
-                        Switch to your coach dashboard to manage athletes and content
-                      </p>
-
-                      <div className="mt-4 flex items-center gap-2 text-sm font-semibold group-hover:gap-3 transition-all text-white">
-                        <span>Switch to Coach</span>
-                        <span className="text-lg">→</span>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              </div>
+              {renderInlineContent()}
             </div>
           )}
 
-          {/* Quick Stats Section */}
-          <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
-              <div className="text-3xl font-heading mb-2" style={{ color: '#91A6EB' }}>0</div>
-              <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Lessons Completed</p>
-            </div>
-            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
-              <div className="text-3xl font-heading mb-2" style={{ color: '#20B2AA' }}>0</div>
-              <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Videos Reviewed</p>
-            </div>
-            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
-              <div className="text-3xl font-heading mb-2" style={{ color: '#FF6B35' }}>0</div>
-              <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Training Hours</p>
+          {/* Athlete Tools Grid */}
+          <div>
+            <h2 className="text-xl sm:text-2xl font-heading mb-4 sm:mb-6 uppercase tracking-wide" style={{ color: '#000000' }}>
+              Training Tools
+            </h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
+              {athleteCards.map((card, index) => {
+                const Icon = card.icon
+                const isActive = activeSection === card.id
+
+                return (
+                  <button
+                    key={index}
+                    onClick={() => handleCardClick(card)}
+                    className={`block group cursor-pointer text-left transition-all ${isActive ? 'ring-2 ring-black ring-offset-2' : ''}`}
+                  >
+                    <div className={`bg-white/90 backdrop-blur-sm rounded-lg sm:rounded-xl shadow-lg border border-white/50 p-3 sm:p-4 h-full transition-all hover:shadow-2xl hover:scale-105 ${isActive ? 'bg-white shadow-2xl' : ''}`}>
+                      <div className="flex flex-col h-full min-h-[100px] sm:min-h-[120px]">
+                        {/* Icon */}
+                        <div
+                          className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg mb-2 sm:mb-3 flex items-center justify-center shadow-md"
+                          style={{ backgroundColor: card.color }}
+                        >
+                          <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                        </div>
+
+                        {/* Title */}
+                        <h3 className="text-xs sm:text-sm font-heading mb-1 line-clamp-2" style={{ color: '#000000' }}>
+                          {card.title}
+                        </h3>
+
+                        {/* Description */}
+                        <p className="text-[10px] sm:text-xs flex-grow line-clamp-2" style={{ color: '#000000', opacity: 0.6 }}>
+                          {card.description}
+                        </p>
+                      </div>
+                    </div>
+                  </button>
+                )
+              })}
             </div>
           </div>
-        </div>
+
+          {/* Welcome Section (when no card is active) */}
+          {!activeSection && (
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 sm:p-8">
+              <div className="max-w-3xl">
+                <h2 className="text-2xl sm:text-3xl font-heading mb-4" style={{ color: '#000000' }}>
+                  Welcome back, {user?.displayName?.split(' ')[0] || 'Athlete'}! 👋
+                </h2>
+                <p className="text-base sm:text-lg mb-6" style={{ color: '#000000', opacity: 0.7 }}>
+                  Your training hub gives you everything you need to excel in your sport.
+                </p>
+
+                <div className="grid sm:grid-cols-2 gap-4 mb-6">
+                  <div className="bg-gradient-to-br from-sky-blue/10 to-sky-blue/5 rounded-lg p-4 border-2" style={{ borderColor: '#91A6EB' }}>
+                    <BookOpen className="w-8 h-8 mb-2" style={{ color: '#91A6EB' }} />
+                    <h3 className="font-heading mb-1" style={{ color: '#000000' }}>Review Lessons</h3>
+                    <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>
+                      Access all your assigned training content and track progress
+                    </p>
+                  </div>
+
+                  <div className="bg-gradient-to-br from-teal/10 to-teal/5 rounded-lg p-4 border-2" style={{ borderColor: '#20B2AA' }}>
+                    <Video className="w-8 h-8 mb-2" style={{ color: '#20B2AA' }} />
+                    <h3 className="font-heading mb-1" style={{ color: '#000000' }}>Get Feedback</h3>
+                    <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>
+                      Upload performance videos and receive personalized coaching
+                    </p>
+                  </div>
+
+                  <div className="bg-gradient-to-br from-orange/10 to-orange/5 rounded-lg p-4 border-2" style={{ borderColor: '#FF6B35' }}>
+                    <Calendar className="w-8 h-8 mb-2" style={{ color: '#FF6B35' }} />
+                    <h3 className="font-heading mb-1" style={{ color: '#000000' }}>Schedule Sessions</h3>
+                    <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>
+                      Book 1-on-1 training sessions with your coach
+                    </p>
+                  </div>
+
+                  <div className="bg-gradient-to-br from-purple/10 to-purple/5 rounded-lg p-4 border-2 border-purple-200">
+                    <Sparkles className="w-8 h-8 mb-2" style={{ color: '#9333EA' }} />
+                    <h3 className="font-heading mb-1" style={{ color: '#000000' }}>AI Assistant</h3>
+                    <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>
+                      Get instant answers to your training questions (Coming Soon)
+                    </p>
+                  </div>
+                </div>
+
+                {/* Quick Stats */}
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="text-center p-4 bg-sky-blue/10 rounded-lg">
+                    <div className="text-3xl font-heading mb-1" style={{ color: '#91A6EB' }}>0</div>
+                    <p className="text-xs" style={{ color: '#000000', opacity: 0.7 }}>Lessons Completed</p>
+                  </div>
+                  <div className="text-center p-4 bg-teal/10 rounded-lg">
+                    <div className="text-3xl font-heading mb-1" style={{ color: '#20B2AA' }}>0</div>
+                    <p className="text-xs" style={{ color: '#000000', opacity: 0.7 }}>Videos Reviewed</p>
+                  </div>
+                  <div className="text-center p-4 bg-orange/10 rounded-lg">
+                    <div className="text-3xl font-heading mb-1" style={{ color: '#FF6B35' }}>0</div>
+                    <p className="text-xs" style={{ color: '#000000', opacity: 0.7 }}>Training Hours</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </main>
       </div>
     </>
   )
