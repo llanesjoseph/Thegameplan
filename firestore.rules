@@ -84,10 +84,10 @@ service cloud.firestore {
                      exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
                      get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'superadmin'];
 
-      // Allow reading coach/creator user documents for discovery (name, basic info)
-      allow read: if isAuthenticated() &&
-                     exists(/databases/$(database)/documents/users/$(userId)) &&
-                     get(/databases/$(database)/documents/users/$(userId)).data.role in ['coach', 'assistant_coach'];
+      // PUBLIC: Anyone can read coach user documents for public coach profiles
+      // This allows /coach/[id] pages to work without authentication
+      allow read: if exists(/databases/$(database)/documents/users/$(userId)) &&
+                     get(/databases/$(database)/documents/users/$(userId)).data.role in ['coach', 'creator', 'assistant_coach'];
 
       // Athletes can read their coach's user document
       allow read: if isAuthenticated() &&
@@ -163,7 +163,8 @@ service cloud.firestore {
 
     // Creator private profiles - Creator business data (LEGACY)
     match /creator_profiles/{userId} {
-      allow read: if isOwner(userId) || isAdmin();
+      // PUBLIC: Anyone can read creator profiles for public coach discovery
+      allow read: if true;
       allow write: if isAdmin();
     }
 
