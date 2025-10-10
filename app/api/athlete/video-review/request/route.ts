@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
   try {
     // Parse request body
     const body = await request.json()
-    const { athleteId, coachId, videoUrl, title, description, specificQuestions } = body
+    const { athleteId, assignedCoachUid, videoUrl, title, description, specificQuestions } = body
 
     // Validation
     if (!athleteId || !videoUrl || !title || !description) {
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
       athleteId,
       athleteName,
       athleteEmail: athleteData?.email || '',
-      coachId: coachId || null, // Can be null if no specific coach assigned yet
+      assignedCoachUid: assignedCoachUid || null, // Can be null if no specific coach assigned yet
       videoUrl: videoUrl.trim(),
       title: title.trim(),
       description: description.trim(),
@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
       requestId,
       reviewId: reviewRef.id,
       athleteId,
-      coachId: coachId || 'unassigned',
+      assignedCoachUid: assignedCoachUid || 'unassigned',
       title,
       timestamp: new Date().toISOString()
     }, { userId: athleteId, severity: 'low' })

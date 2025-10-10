@@ -46,8 +46,8 @@ export async function GET(request: NextRequest) {
 
     // 3. Get coach's lessons
     const lessonsSnapshot = await adminDb
-      .collection('lessons')
-      .where('coachId', '==', uid)
+      .collection('content ')
+      .where('creatorUid', '==', uid)
       .get()
 
     const lessons = lessonsSnapshot.docs.map(doc => ({
@@ -78,7 +78,7 @@ export async function GET(request: NextRequest) {
     // 6. Get coach's athletes
     const athletesSnapshot = await adminDb
       .collection('athletes')
-      .where('coachId', '==', uid)
+      .where('creatorUid', '==', uid)
       .get()
 
     const athletes = athletesSnapshot.docs.map(doc => ({

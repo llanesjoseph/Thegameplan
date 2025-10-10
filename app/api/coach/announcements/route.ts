@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
 
     const announcementsSnapshot = await adminDb
       .collection('announcements')
-      .where('coachId', '==', uid)
+      .where('creatorUid', '==', uid)
       .orderBy('sentAt', 'desc')
       .get()
 
@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
     }
 
     const announcementData = {
-      coachId: uid,
+      creatorUid: uid,
       title,
       message,
       audience: audience || 'all',
@@ -159,7 +159,7 @@ export async function DELETE(request: NextRequest) {
 
     const announcementData = announcementDoc.data()
 
-    if (announcementData?.coachId !== uid && !['admin', 'superadmin'].includes(userRole)) {
+    if (announcementData?.creatorUid !== uid && !['admin', 'superadmin'].includes(userRole)) {
       return NextResponse.json({ error: 'You can only delete your own announcements' }, { status: 403 })
     }
 

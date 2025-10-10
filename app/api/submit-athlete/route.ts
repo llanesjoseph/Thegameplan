@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
       id: athleteId,
       uid: '', // Will be set after user creation
       invitationId,
-      coachId: invitationData?.coachId || '',
+      creatorUid: invitationData?.creatorUid || '',
       status: 'active',
       createdAt: now,
       updatedAt: now,
@@ -135,7 +135,7 @@ export async function POST(request: NextRequest) {
       firstName: athleteProfile.firstName,
       lastName: athleteProfile.lastName,
       athleteId, // Reference to athlete document
-      coachId: invitationData?.coachId || '',
+      creatorUid: invitationData?.creatorUid || '',
       lastLoginAt: now,
       invitationId,
       // CRITICAL: Protect role from auto-corrections (role comes from invitation)
@@ -165,9 +165,9 @@ export async function POST(request: NextRequest) {
     console.log(`Marked invitation as used: ${invitationId}`)
 
     // Add athlete to coach's athlete list
-    if (invitationData?.coachId) {
+    if (invitationData?.creatorUid) {
       // Update coach's athlete list
-      const coachRef = adminDb.collection('users').doc(invitationData.coachId)
+      const coachRef = adminDb.collection('users').doc(invitationData.creatorUid)
       const coachDoc = await coachRef.get()
 
       if (coachDoc.exists) {
@@ -201,8 +201,8 @@ export async function POST(request: NextRequest) {
         let coachName = coachData?.displayName || 'Coach'
 
         // If no display name, check creator_profiles
-        if (coachName === 'Coach' && invitationData.coachId) {
-          const creatorDoc = await adminDb.collection('creator_profiles').doc(invitationData.coachId).get()
+        if (coachName === 'Coach' && invitationData.creatorUid) {
+          const creatorDoc = await adminDb.collection('creator_profiles').doc(invitationData.creatorUid).get()
           if (creatorDoc.exists) {
             const creatorData = creatorDoc.data()
             coachName = creatorData?.displayName || 'Coach'

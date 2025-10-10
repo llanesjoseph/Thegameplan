@@ -45,10 +45,10 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // 3. Query resources by coachId
+    // 3. Query resources by creatorUid
     const resourcesSnapshot = await adminDb
       .collection('resources')
-      .where('coachId', '==', uid)
+      .where('creatorUid', '==', uid)
       .orderBy('createdAt', 'desc')
       .get()
 
@@ -132,7 +132,7 @@ export async function POST(request: NextRequest) {
 
     // 5. Create resource document
     const resourceData = {
-      coachId: uid,
+      creatorUid: uid,
       title,
       description: description || '',
       type,
@@ -230,7 +230,7 @@ export async function DELETE(request: NextRequest) {
     const resourceData = resourceDoc.data()
 
     // 5. Verify ownership (or admin)
-    if (resourceData?.coachId !== uid && !['admin', 'superadmin'].includes(userRole)) {
+    if (resourceData?.creatorUid !== uid && !['admin', 'superadmin'].includes(userRole)) {
       return NextResponse.json(
         { error: 'You can only delete your own resources' },
         { status: 403 }

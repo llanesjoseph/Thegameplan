@@ -50,10 +50,10 @@ export async function GET(request: NextRequest) {
         processedCount++
 
         // Send notification to coach if this is an athlete invitation
-        if (invitationData.type === 'athlete_invitation' && invitationData.coachId) {
+        if (invitationData.type === 'athlete_invitation' && invitationData.creatorUid) {
           try {
             // Get coach information
-            const coachDoc = await adminDb.collection('users').doc(invitationData.coachId).get()
+            const coachDoc = await adminDb.collection('users').doc(invitationData.creatorUid).get()
             if (coachDoc.exists) {
               const coachData = coachDoc.data()
               const coachEmail = coachData?.email
@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
 
               // If no display name, check creator_profiles
               if (coachName === 'Coach') {
-                const creatorDoc = await adminDb.collection('creator_profiles').doc(invitationData.coachId).get()
+                const creatorDoc = await adminDb.collection('creator_profiles').doc(invitationData.creatorUid).get()
                 if (creatorDoc.exists) {
                   const creatorData = creatorDoc.data()
                   coachName = creatorData?.displayName || 'Coach'

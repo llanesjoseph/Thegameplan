@@ -8,7 +8,7 @@ interface AthleteInvite {
 }
 
 interface InviteRequest {
-  coachId: string
+  creatorUid: string
   sport: string
   customMessage?: string
   athletes: AthleteInvite[]
@@ -59,19 +59,19 @@ export async function POST(request: NextRequest) {
 
     // 3. Parse request body
     const body: InviteRequest = await request.json()
-    const { coachId, sport, customMessage, athletes } = body
+    const { creatorUid, sport, customMessage, athletes } = body
 
-    // 4. Verify the coachId matches the authenticated user (unless admin/superadmin)
-    if (coachId !== uid && !['admin', 'superadmin'].includes(userRole)) {
+    // 4. Verify the creatorUid matches the authenticated user (unless admin/superadmin)
+    if (creatorUid !== uid && !['admin', 'superadmin'].includes(userRole)) {
       return NextResponse.json(
         { error: 'You can only send invitations as yourself' },
         { status: 403 }
       )
     }
 
-    if (!coachId || !sport || !athletes || athletes.length === 0) {
+    if (!creatorUid || !sport || !athletes || athletes.length === 0) {
       return NextResponse.json(
-        { error: 'Missing required fields: coachId, sport, and athletes' },
+        { error: 'Missing required fields: creatorUid, sport, and athletes' },
         { status: 400 }
       )
     }
@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
     let coachName = 'Coach'
     try {
       // First try to get coach data from the users collection
-      const coachDoc = await adminDb.collection('users').doc(coachId).get()
+      const coachDoc = await adminDb.collection('users').doc(creatorUid).get()
       if (coachDoc.exists) {
         const coachData = coachDoc.data()
         coachEmail = coachData?.email || ''
@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
 
       // If no display name, check creator_profiles collection
       if (coachName === 'Coach') {
-        const creatorDoc = await adminDb.collection('creator_profiles').doc(coachId).get()
+        const creatorDoc = await adminDb.collection('creator_profiles').doc(creatorUid).get()
         if (creatorDoc.exists) {
           const creatorData = creatorDoc.data()
           coachName = creatorData?.displayName || 'Coach'
@@ -137,7 +137,7 @@ export async function POST(request: NextRequest) {
         // Store invitation data in Firestore
         const invitationData = {
           id: invitationId,
-          coachId,
+          creatorUid,
           athleteEmail: athlete.email.toLowerCase(),
           athleteName: athlete.name,
           sport,

@@ -45,10 +45,10 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // 3. Query videos by coachId
+    // 3. Query videos by creatorUid
     const videosSnapshot = await adminDb
       .collection('videos')
-      .where('coachId', '==', uid)
+      .where('creatorUid', '==', uid)
       .orderBy('createdAt', 'desc')
       .get()
 
@@ -132,7 +132,7 @@ export async function POST(request: NextRequest) {
 
     // 5. Create video document
     const videoData = {
-      coachId: uid,
+      creatorUid: uid,
       title,
       description: description || '',
       source,
@@ -231,7 +231,7 @@ export async function DELETE(request: NextRequest) {
     const videoData = videoDoc.data()
 
     // 5. Verify ownership (or admin)
-    if (videoData?.coachId !== uid && !['admin', 'superadmin'].includes(userRole)) {
+    if (videoData?.creatorUid !== uid && !['admin', 'superadmin'].includes(userRole)) {
       return NextResponse.json(
         { error: 'You can only delete your own videos' },
         { status: 403 }

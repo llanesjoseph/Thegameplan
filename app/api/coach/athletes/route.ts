@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
     // Query athletes for this coach
     const athletesSnapshot = await adminDb
       .collection('athletes')
-      .where('coachId', '==', userId)
+      .where('creatorUid', '==', userId)
       .orderBy('createdAt', 'desc')
       .get()
 
@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
 
     // Create invitation
     const invitation = {
-      coachId: userId,
+      creatorUid: userId,
       coachName: userData?.displayName || userData?.email || 'Coach',
       athleteEmail: athleteEmail.toLowerCase(),
       athleteName,

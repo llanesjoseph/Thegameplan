@@ -140,12 +140,12 @@ export async function POST(request: NextRequest) {
     }
 
     // 5. Verify ownership (coach can only resend their own invitations, unless admin)
-    if (invitationData.coachId !== uid && !['admin', 'superadmin'].includes(userRole)) {
+    if (invitationData.creatorUid !== uid && !['admin', 'superadmin'].includes(userRole)) {
       await auditLog('resend_invitation_ownership_violation', {
         requestId,
         userId: uid,
         invitationId,
-        actualCoachId: invitationData.coachId,
+        actualCreatorUid: invitationData.creatorUid,
         timestamp: new Date().toISOString()
       }, { userId: uid, severity: 'high' })
 
@@ -205,7 +205,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 8. Get coach information
-    const coachDoc = await adminDb.collection('users').doc(invitationData.coachId).get()
+    const coachDoc = await adminDb.collection('users').doc(invitationData.creatorUid).get()
     const coachData = coachDoc.data()
     const coachName = coachData?.displayName || 'Coach'
     const coachEmail = coachData?.email || ''

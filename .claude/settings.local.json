@@ -31,7 +31,17 @@
       "Bash(find:*)",
       "Bash(Get-Content .env.local)",
       "Bash(firebase auth:export:*)",
-      "Bash(Get-Content ..nextserverappapicoachlessonslistroute.js)"
+      "Bash(Get-Content ..nextserverappapicoachlessonslistroute.js)",
+      "Bash(git reset:*)",
+      "Bash(firebase firestore:get:*)",
+      "Bash(firebase firestore:indexes:*)",
+      "Bash(git log:*)",
+      "Bash(firebase --version)",
+      "Bash(firebase projects:list:*)",
+      "Bash(ConvertFrom-Json)",
+      "Bash(ConvertTo-Json -Depth 10)",
+      "WebFetch(domain:console.firebase.google.com)",
+      "WebFetch(domain:playbookd.crucibleanalytics.dev)"
     ],
     "deny": [],
     "ask": []

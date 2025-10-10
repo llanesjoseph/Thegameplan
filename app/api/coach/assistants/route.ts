@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
 
     const assistantsSnapshot = await adminDb
       .collection('assistant_coaches')
-      .where('coachId', '==', uid)
+      .where('creatorUid', '==', uid)
       .orderBy('invitedAt', 'desc')
       .get()
 
@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
     }
 
     const assistantData = {
-      coachId: uid,
+      creatorUid: uid,
       name,
       email: email.toLowerCase(),
       status: 'pending',
@@ -157,7 +157,7 @@ export async function DELETE(request: NextRequest) {
 
     const assistantData = assistantDoc.data()
 
-    if (assistantData?.coachId !== uid && !['admin', 'superadmin'].includes(userRole)) {
+    if (assistantData?.creatorUid !== uid && !['admin', 'superadmin'].includes(userRole)) {
       return NextResponse.json({ error: 'You can only remove your own assistants' }, { status: 403 })
     }
 

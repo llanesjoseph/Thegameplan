@@ -33,12 +33,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Parse request body
-    const { athleteEmail, athleteName, sport, coachId, customMessage, expiresInDays } = await request.json()
+    const { athleteEmail, athleteName, sport, creatorUid, customMessage, expiresInDays } = await request.json()
 
     // Validate required fields
-    if (!athleteEmail || !athleteName || !sport || !coachId) {
+    if (!athleteEmail || !athleteName || !sport || !creatorUid) {
       return NextResponse.json(
-        { error: 'Missing required fields: athleteEmail, athleteName, sport, coachId' },
+        { error: 'Missing required fields: athleteEmail, athleteName, sport, creatorUid' },
         { status: 400 }
       )
     }
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify the coach exists and get coach info
-    const coachDoc = await adminDb.collection('users').doc(coachId).get()
+    const coachDoc = await adminDb.collection('users').doc(creatorUid).get()
     if (!coachDoc.exists) {
       return NextResponse.json(
         { error: 'Coach not found' },
@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
       id: invitationCode,
       type: 'athlete_invitation',
       role: 'athlete', // CRITICAL: Target role
-      coachId, // The assigned coach
+      creatorUid, // The assigned coach
       coachName,
       athleteEmail: athleteEmail.toLowerCase(),
       athleteName,
@@ -169,7 +169,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    console.log(`✅ Athlete invitation created for ${athleteEmail} assigned to coach ${coachId} by ${userData.email}`)
+    console.log(`✅ Athlete invitation created for ${athleteEmail} assigned to coach ${creatorUid} by ${userData.email}`)
 
     return NextResponse.json({
       success: true,
