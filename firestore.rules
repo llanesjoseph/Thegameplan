@@ -44,11 +44,11 @@ service cloud.firestore {
       return isCoach();
     }
 
-    // Check if user has coach role or higher
+    // Check if user has coach role or higher (includes legacy 'creator' role)
     function isCreatorOrHigher() {
       return isAuthenticated() &&
              exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['coach', 'assistant_coach', 'admin', 'superadmin'];
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['creator', 'coach', 'assistant_coach', 'admin', 'superadmin'];
     }
     
     // Validate user data structure
