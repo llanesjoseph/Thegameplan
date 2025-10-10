@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/use-auth'
 import { useEnhancedRole } from '@/hooks/use-role-switcher'
 import AppHeader from '@/components/ui/AppHeader'
 import AdminInvitationManager from '@/components/admin/AdminInvitationManager'
-import { db } from '@/lib/firebase.client'
+import { db, auth } from '@/lib/firebase.client'
 import { collection, getDocs, doc, updateDoc, query, orderBy, where, Timestamp } from 'firebase/firestore'
 import {
   Mail,
@@ -284,10 +284,13 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
       }
 
       // Get Firebase ID token
-      if (!user) { console.error('No user found'); return; }
+      const currentUser = auth.currentUser
+      if (!currentUser) {
+        alert('Please log in to send invitations')
+        return
+      }
 
-      if (!user) { console.error('No user found'); return; }
-      const idToken = await user.getIdToken()
+      const idToken = await currentUser.getIdToken()
       if (!idToken) {
         alert('Authentication error. Please log in again.')
         return
@@ -352,10 +355,13 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
       }
 
       // Get Firebase ID token
-      if (!user) { console.error('No user found'); return; }
+      const currentUser = auth.currentUser
+      if (!currentUser) {
+        alert('Please log in to send invitations')
+        return
+      }
 
-      if (!user) { console.error('No user found'); return; }
-      const idToken = await user.getIdToken()
+      const idToken = await currentUser.getIdToken()
       if (!idToken) {
         alert('Authentication error. Please log in again.')
         return
