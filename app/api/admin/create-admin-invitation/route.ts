@@ -88,8 +88,8 @@ export async function POST(request: NextRequest) {
       recipientName,
       role,
       customMessage: customMessage || '',
-      status: 'pending',
-      autoApprove: true, // Admin invitations are always auto-approved
+      status: 'active', // Admin invitations are auto-approved and immediately active
+      autoApprove: true,
       createdBy: decodedToken.uid,
       createdByName: userData.displayName || userData.email,
       createdAt: Timestamp.now(),
