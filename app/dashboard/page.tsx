@@ -47,7 +47,20 @@ export default function Dashboard() {
     if (userDoc.exists()) {
      const role = userDoc.data()?.role || null
      console.log('✅ ROLE FETCHED:', role, 'for', user.email)
-     setActualRole(role)
+
+     // If role is 'user' or 'creator', wait a bit for auto-upgrade to complete
+     if (role === 'user' || role === 'creator') {
+      console.log('⏳ Detected legacy role, waiting for auto-upgrade...')
+      // Wait 2 seconds for user initialization to upgrade the role
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      // Refetch the role
+      const updatedDoc = await getDoc(userDocRef)
+      const updatedRole = updatedDoc.data()?.role || null
+      console.log('🔄 REFETCHED ROLE:', updatedRole, 'for', user.email)
+      setActualRole(updatedRole)
+     } else {
+      setActualRole(role)
+     }
     } else {
      console.warn('⚠️ No user document found for:', user.uid)
      setActualRole(null)
