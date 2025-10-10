@@ -94,30 +94,37 @@ export async function initializeUserDocument(user: FirebaseUser | null, defaultR
       let roleNeedsUpdate = false
       let correctRole = userData.role
 
-      // Skip auto-corrections for superadmins and athletes
-      if (!isSuperadmin(user.email) && userData.role !== 'athlete') {
-        if (user.email && isKnownCoach(user.email)) {
-          const shouldBeRole = getKnownCoachRole(user.email)
-          if (shouldBeRole && userData.role !== shouldBeRole) {
-            correctRole = shouldBeRole
+      // CRITICAL: Check if role is manually set and protected from auto-corrections
+      const isRoleProtected = userData.manuallySetRole === true || userData.roleProtected === true
+
+      if (isRoleProtected) {
+        console.log(`🔒 ROLE PROTECTED: ${user.email} has manually set role '${userData.role}' - no auto-corrections will be applied`)
+      } else {
+        // Skip auto-corrections for superadmins and athletes
+        if (!isSuperadmin(user.email) && userData.role !== 'athlete') {
+          if (user.email && isKnownCoach(user.email)) {
+            const shouldBeRole = getKnownCoachRole(user.email)
+            if (shouldBeRole && userData.role !== shouldBeRole) {
+              correctRole = shouldBeRole
+              roleNeedsUpdate = true
+              console.log(`🚨 ROLE CORRECTION: ${user.email} should be ${shouldBeRole}, currently ${userData.role}`)
+            }
+          }
+
+          // Upgrade 'user' or 'creator' roles to 'athlete' (most common user type)
+          // NEVER upgrade athletes - they are already the correct role
+          // NEVER upgrade coaches - they are already the correct role
+          if (userData.role === 'user' || userData.role === 'creator') {
+            correctRole = 'athlete'
             roleNeedsUpdate = true
-            console.log(`🚨 ROLE CORRECTION: ${user.email} should be ${shouldBeRole}, currently ${userData.role}`)
+            console.log(`🔄 ROLE UPGRADE: Upgrading ${user.email} from '${userData.role}' to 'athlete'`)
           }
         }
 
-        // Upgrade 'user' or 'creator' roles to 'athlete' (most common user type)
-        // NEVER upgrade athletes - they are already the correct role
-        // NEVER upgrade coaches - they are already the correct role
-        if (userData.role === 'user' || userData.role === 'creator') {
-          correctRole = 'athlete'
-          roleNeedsUpdate = true
-          console.log(`🔄 ROLE UPGRADE: Upgrading ${user.email} from '${userData.role}' to 'athlete'`)
+        // CRITICAL: Protect athlete role from any auto-corrections
+        if (userData.role === 'athlete') {
+          console.log(`🛡️ ATHLETE ROLE PROTECTED: ${user.email} - no auto-corrections applied`)
         }
-      }
-
-      // CRITICAL: Protect athlete role from any auto-corrections
-      if (userData.role === 'athlete') {
-        console.log(`🛡️ ATHLETE ROLE PROTECTED: ${user.email} - no auto-corrections applied`)
       }
 
       // Only update lastLoginAt if it's been more than 1 hour (prevents spam updates)

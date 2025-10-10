@@ -12,11 +12,9 @@ This document explains the **bulletproof routing system** that ensures 100% reli
 |-----------|----------------|------------|
 | `athlete` | `/dashboard/progress` | ✅ Always |
 | `coach` | `/dashboard/coach-unified` | ✅ Always |
-| `creator` | `/dashboard/coach-unified` | ✅ Always |
-| `assistant` | `/dashboard/coach-unified` | ✅ Always |
+| `assistant_coach` | `/dashboard/coach-unified` | ✅ Always |
 | `admin` | `/dashboard/admin` | ✅ Always |
 | `superadmin` | `/dashboard/admin` | ✅ Always |
-| `user` | `/dashboard/coach-unified` | ✅ Always (safe default) |
 | Unknown | `/dashboard/coach-unified` | ✅ Always (safe default) |
 
 ---

@@ -50,11 +50,13 @@ export async function GET(request: NextRequest) {
     console.log(`📋 Current role: ${userData.role}`)
     console.log(`🔄 Updating to: ${newRole}`)
 
-    // Update role
+    // Update role with protection flag to prevent auto-corrections
     await adminDb.collection('users').doc(userId).update({
       role: newRole,
       roleUpdatedAt: new Date(),
-      roleUpdateReason: 'Manual role fix via API'
+      roleUpdateReason: 'Manual role fix via API',
+      manuallySetRole: true, // This flag prevents auto-corrections
+      roleProtected: true // Additional protection layer
     })
 
     console.log(`✅ Role updated successfully`)

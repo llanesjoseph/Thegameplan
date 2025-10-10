@@ -32,25 +32,23 @@ service cloud.firestore {
              get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'superadmin';
     }
     
-    // Check if user is a creator
-    function isCreator() {
-      return isAuthenticated() &&
-             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'creator';
-    }
-
-    // Check if user is a coach
+    // Check if user is a coach (primary coach function)
     function isCoach() {
       return isAuthenticated() &&
              exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
              get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'coach';
     }
 
-    // Check if user has creator role or higher
+    // Legacy creator check - kept for backwards compatibility during migration
+    function isCreator() {
+      return isCoach();
+    }
+
+    // Check if user has coach role or higher
     function isCreatorOrHigher() {
       return isAuthenticated() &&
              exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['creator', 'coach', 'assistant', 'admin', 'superadmin'];
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['coach', 'assistant_coach', 'admin', 'superadmin'];
     }
     
     // Validate user data structure
@@ -58,7 +56,7 @@ service cloud.firestore {
     function isValidUserData() {
       return request.resource.data.keys().hasAll(['email', 'role']) &&
              request.resource.data.email is string &&
-             request.resource.data.role in ['user', 'athlete', 'creator', 'coach', 'assistant', 'admin', 'superadmin'] &&
+             request.resource.data.role in ['athlete', 'coach', 'assistant_coach', 'admin', 'superadmin'] &&
              request.resource.data.email.matches('.*@.*\\..*');
     }
     

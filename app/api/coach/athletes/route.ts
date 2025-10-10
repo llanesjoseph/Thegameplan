@@ -31,9 +31,9 @@ export async function GET(request: NextRequest) {
     // Get the user's role to ensure they're a coach
     const userDoc = await adminDb.collection('users').doc(userId).get()
     const userData = userDoc.data()
-    const userRole = userData?.role || userData?.roles?.[0] || 'user'
+    const userRole = userData?.role || userData?.roles?.[0] || 'athlete'
 
-    if (!['coach', 'creator', 'admin', 'superadmin'].includes(userRole)) {
+    if (!['coach', 'admin', 'superadmin'].includes(userRole)) {
       return NextResponse.json(
         { error: 'Forbidden - coach access required' },
         { status: 403 }
@@ -103,9 +103,9 @@ export async function POST(request: NextRequest) {
     // Get the user's role to ensure they're a coach
     const userDoc = await adminDb.collection('users').doc(userId).get()
     const userData = userDoc.data()
-    const userRole = userData?.role || userData?.roles?.[0] || 'user'
+    const userRole = userData?.role || userData?.roles?.[0] || 'athlete'
 
-    if (!['coach', 'creator', 'admin', 'superadmin'].includes(userRole)) {
+    if (!['coach', 'admin', 'superadmin'].includes(userRole)) {
       return NextResponse.json(
         { error: 'Forbidden - coach access required' },
         { status: 403 }
