@@ -177,11 +177,11 @@ export default function AthleteDashboard() {
             userRoles.includes('assistant_coach')
           )
 
-          // Get assigned coach ID if exists
-          setCoachId(userData?.assignedCoachId || null)
+          // Get assigned coach ID if exists (use coachId for athletes, assignedCoachId for assistants)
+          setCoachId(userData?.coachId || userData?.assignedCoachId || null)
 
           // Check if user has any data/content
-          setHasNoData(!userData?.assignedCoachId && !completed)
+          setHasNoData(!(userData?.coachId || userData?.assignedCoachId) && !completed)
         } else {
           // New user without profile - show onboarding
           setShowOnboarding(true)
