@@ -306,7 +306,7 @@ export default function AthleteDashboard() {
                   <p className="text-sm sm:text-base mb-3" style={{ color: '#000000', opacity: 0.7 }}>
                     Your coach is working hard to create personalized content just for you. Hang tight! New lessons and training materials will be available soon.
                   </p>
-                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/60 border" style={{ borderColor: '#20B2AA', borderOpacity: 0.3 }}>
+                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/60 border" style={{ borderColor: 'rgba(32, 178, 170, 0.3)' }}>
                     <Sparkles className="w-4 h-4" style={{ color: '#20B2AA' }} />
                     <span className="text-sm font-semibold" style={{ color: '#20B2AA' }}>Content Coming Soon</span>
                   </div>
