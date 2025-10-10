@@ -181,8 +181,6 @@ export default function AthleteDashboard() {
 
           // Check if user has any data/content
           setHasNoData(!userData?.assignedCoachId && !completed)
-
-          console.log('✅ Onboarding status checked:', completed ? 'Complete' : 'Incomplete')
         } else {
           // New user without profile - show onboarding
           setShowOnboarding(true)
@@ -464,80 +462,45 @@ export default function AthleteDashboard() {
 
           {/* Welcome Section (when no card is active) */}
           {!activeSection && (
-            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 sm:p-8">
-              <div className="max-w-3xl">
-                <h2 className="text-2xl sm:text-3xl font-heading mb-4" style={{ color: '#000000' }}>
-                  Welcome back, {user?.displayName?.split(' ')[0] || 'Athlete'}! 👋
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 overflow-hidden">
+              {/* Compact Header with Gradient */}
+              <div className="bg-gradient-to-r from-sky-blue/20 to-teal/20 px-6 sm:px-8 py-4 sm:py-5 border-b border-white/50">
+                <h2 className="text-xl sm:text-2xl font-heading" style={{ color: '#000000' }}>
+                  Welcome back, {user?.displayName?.split(' ')[0] || 'Athlete'}!
                 </h2>
+              </div>
 
+              <div className="p-6 sm:p-8">
                 {/* Empty State Message */}
                 {hasNoData && !coachId && (
-                  <div className="mb-6 p-4 rounded-lg border-2" style={{ borderColor: '#20B2AA', backgroundColor: 'rgba(32, 178, 170, 0.05)' }}>
+                  <div className="mb-6 p-4 rounded-lg bg-teal/5 border border-teal/20">
                     <div className="flex items-start gap-3">
-                      <svg className="w-6 h-6 flex-shrink-0 mt-0.5" style={{ color: '#20B2AA' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#20B2AA' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                       <div>
-                        <h3 className="font-heading mb-1" style={{ color: '#000000' }}>Getting Started</h3>
-                        <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>
-                          Your dashboard is ready, but you haven't been assigned a coach yet. Once your coach adds you to their roster, you'll see personalized training content, video reviews, and more here.
+                        <p className="text-sm font-medium mb-1" style={{ color: '#000000' }}>Getting Started</p>
+                        <p className="text-sm" style={{ color: '#000000', opacity: 0.6 }}>
+                          Waiting for coach assignment. Once connected, you'll see training content here.
                         </p>
                       </div>
                     </div>
                   </div>
                 )}
 
-                <p className="text-base sm:text-lg mb-6" style={{ color: '#000000', opacity: 0.7 }}>
-                  Your training hub gives you everything you need to excel in your sport.
-                </p>
-
-                <div className="grid sm:grid-cols-2 gap-4 mb-6">
-                  <div className="bg-gradient-to-br from-sky-blue/10 to-sky-blue/5 rounded-lg p-4 border-2" style={{ borderColor: '#91A6EB' }}>
-                    <BookOpen className="w-8 h-8 mb-2" style={{ color: '#91A6EB' }} />
-                    <h3 className="font-heading mb-1" style={{ color: '#000000' }}>Review Lessons</h3>
-                    <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>
-                      Access all your assigned training content and track progress
-                    </p>
+                {/* Quick Stats - Persistent and Prominent */}
+                <div className="grid grid-cols-3 gap-3 sm:gap-4">
+                  <div className="text-center p-4 sm:p-5 bg-gradient-to-br from-sky-blue/10 to-sky-blue/5 rounded-lg border border-sky-blue/20">
+                    <div className="text-3xl sm:text-4xl font-heading mb-1" style={{ color: '#91A6EB' }}>0</div>
+                    <p className="text-xs sm:text-sm font-medium" style={{ color: '#000000', opacity: 0.7 }}>Lessons</p>
                   </div>
-
-                  <div className="bg-gradient-to-br from-teal/10 to-teal/5 rounded-lg p-4 border-2" style={{ borderColor: '#20B2AA' }}>
-                    <Video className="w-8 h-8 mb-2" style={{ color: '#20B2AA' }} />
-                    <h3 className="font-heading mb-1" style={{ color: '#000000' }}>Get Feedback</h3>
-                    <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>
-                      Upload performance videos and receive personalized coaching
-                    </p>
+                  <div className="text-center p-4 sm:p-5 bg-gradient-to-br from-teal/10 to-teal/5 rounded-lg border border-teal/20">
+                    <div className="text-3xl sm:text-4xl font-heading mb-1" style={{ color: '#20B2AA' }}>0</div>
+                    <p className="text-xs sm:text-sm font-medium" style={{ color: '#000000', opacity: 0.7 }}>Videos</p>
                   </div>
-
-                  <div className="bg-gradient-to-br from-orange/10 to-orange/5 rounded-lg p-4 border-2" style={{ borderColor: '#FF6B35' }}>
-                    <Calendar className="w-8 h-8 mb-2" style={{ color: '#FF6B35' }} />
-                    <h3 className="font-heading mb-1" style={{ color: '#000000' }}>Schedule Sessions</h3>
-                    <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>
-                      Book 1-on-1 training sessions with your coach
-                    </p>
-                  </div>
-
-                  <div className="bg-gradient-to-br from-purple/10 to-purple/5 rounded-lg p-4 border-2 border-purple-200">
-                    <Sparkles className="w-8 h-8 mb-2" style={{ color: '#9333EA' }} />
-                    <h3 className="font-heading mb-1" style={{ color: '#000000' }}>AI Assistant</h3>
-                    <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>
-                      Get instant answers to your training questions (Coming Soon)
-                    </p>
-                  </div>
-                </div>
-
-                {/* Quick Stats */}
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="text-center p-4 bg-sky-blue/10 rounded-lg">
-                    <div className="text-3xl font-heading mb-1" style={{ color: '#91A6EB' }}>0</div>
-                    <p className="text-xs" style={{ color: '#000000', opacity: 0.7 }}>Lessons Completed</p>
-                  </div>
-                  <div className="text-center p-4 bg-teal/10 rounded-lg">
-                    <div className="text-3xl font-heading mb-1" style={{ color: '#20B2AA' }}>0</div>
-                    <p className="text-xs" style={{ color: '#000000', opacity: 0.7 }}>Videos Reviewed</p>
-                  </div>
-                  <div className="text-center p-4 bg-orange/10 rounded-lg">
-                    <div className="text-3xl font-heading mb-1" style={{ color: '#FF6B35' }}>0</div>
-                    <p className="text-xs" style={{ color: '#000000', opacity: 0.7 }}>Training Hours</p>
+                  <div className="text-center p-4 sm:p-5 bg-gradient-to-br from-orange/10 to-orange/5 rounded-lg border border-orange/20">
+                    <div className="text-3xl sm:text-4xl font-heading mb-1" style={{ color: '#FF6B35' }}>0</div>
+                    <p className="text-xs sm:text-sm font-medium" style={{ color: '#000000', opacity: 0.7 }}>Hours</p>
                   </div>
                 </div>
               </div>
