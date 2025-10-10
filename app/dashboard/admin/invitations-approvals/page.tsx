@@ -25,6 +25,7 @@ import {
   Users
 } from 'lucide-react'
 import EmailPreview from '@/components/admin/EmailPreview'
+import { SPORTS } from '@/lib/constants/sports'
 
 // Types
 interface Invitation {
@@ -743,13 +744,9 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
                     className="w-full px-4 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <option value="">Select sport...</option>
-                    <option value="baseball">Baseball</option>
-                    <option value="basketball">Basketball</option>
-                    <option value="football">Football</option>
-                    <option value="soccer">Soccer</option>
-                    <option value="softball">Softball</option>
-                    <option value="volleyball">Volleyball</option>
-                    <option value="other">Other</option>
+                    {SPORTS.map(sport => (
+                      <option key={sport} value={sport}>{sport}</option>
+                    ))}
                   </select>
                 </div>
                 <div>
@@ -868,13 +865,9 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
                     className="w-full px-4 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <option value="">Select sport...</option>
-                    <option value="baseball">Baseball</option>
-                    <option value="basketball">Basketball</option>
-                    <option value="football">Football</option>
-                    <option value="soccer">Soccer</option>
-                    <option value="softball">Softball</option>
-                    <option value="volleyball">Volleyball</option>
-                    <option value="other">Other</option>
+                    {SPORTS.map(sport => (
+                      <option key={sport} value={sport}>{sport}</option>
+                    ))}
                   </select>
                 </div>
                 <div>
