@@ -106,6 +106,7 @@ export async function initializeUserDocument(user: FirebaseUser | null, defaultR
       } else {
         // Skip auto-corrections for superadmins and athletes
         if (!isSuperadmin(user.email) && userData.role !== 'athlete') {
+          // PRIORITY 1: Check if known coach and needs correction
           if (user.email && isKnownCoach(user.email)) {
             const shouldBeRole = getKnownCoachRole(user.email)
             if (shouldBeRole && userData.role !== shouldBeRole) {
@@ -114,11 +115,8 @@ export async function initializeUserDocument(user: FirebaseUser | null, defaultR
               console.log(`🚨 ROLE CORRECTION: ${user.email} should be ${shouldBeRole}, currently ${userData.role}`)
             }
           }
-
-          // Upgrade 'user' or 'creator' roles to 'athlete' (most common user type)
-          // NEVER upgrade athletes - they are already the correct role
-          // NEVER upgrade coaches - they are already the correct role
-          if (userData.role === 'user' || userData.role === 'creator') {
+          // PRIORITY 2: Upgrade 'user' or 'creator' to 'athlete' ONLY if NOT a known coach
+          else if (userData.role === 'user' || userData.role === 'creator') {
             correctRole = 'athlete'
             roleNeedsUpdate = true
             console.log(`🔄 ROLE UPGRADE: Upgrading ${user.email} from '${userData.role}' to 'athlete'`)
