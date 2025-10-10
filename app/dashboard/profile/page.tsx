@@ -252,24 +252,41 @@ export default function ProfilePage() {
   if (!user?.uid) return
 
   setSaveStatus('saving')
-  
+
   try {
    // Add metadata
    const profileWithMetadata = {
     ...profileData,
     userId: user.uid,
+    uid: user.uid, // Add uid field for consistency
     updatedAt: new Date().toISOString(),
     createdAt: profileData.createdAt || new Date().toISOString(),
    }
 
    // Try to save to Firestore first
    try {
-    const collection = role === 'creator' ? 'creator_profiles' : 'users'
-    const docRef = doc(db, collection, user.uid)
-    await setDoc(docRef, profileWithMetadata, { merge: true })
+    // IMPORTANT: Always update users collection with basic profile data
+    const usersRef = doc(db, 'users', user.uid)
+    await setDoc(usersRef, {
+     displayName: profileData.displayName,
+     bio: profileData.bio,
+     email: profileData.email,
+     photoURL: profileData.profileImageUrl,
+     location: profileData.location,
+     experience: profileData.experience,
+     sport: profileData.specialties[0] || '',
+     specialties: profileData.specialties,
+     updatedAt: new Date().toISOString()
+    }, { merge: true })
+    console.log('✅ Updated users collection')
 
-    // For creators, also update the creators index for discoverability
+    // For creators, ALSO save full profile to creator_profiles
     if (role === 'creator') {
+     const creatorProfileRef = doc(db, 'creator_profiles', user.uid)
+     await setDoc(creatorProfileRef, profileWithMetadata, { merge: true })
+     console.log('✅ Updated creator_profiles collection')
+
+     // Update creators index for discoverability
      const creatorsIndexRef = doc(db, 'creators_index', user.uid)
      await setDoc(creatorsIndexRef, {
       displayName: profileData.displayName,
@@ -281,16 +298,17 @@ export default function ProfilePage() {
       profileUrl: `/contributors/${user.uid}`,
       isActive: true
      }, { merge: true })
+     console.log('✅ Updated creators_index')
     }
-    
-    console.log('Profile saved to Firestore successfully:', profileWithMetadata)
+
+    console.log('✅ Profile saved to ALL Firestore collections successfully')
    } catch (firestoreError) {
     console.warn('Firestore save failed, using localStorage:', firestoreError instanceof Error ? firestoreError.message : firestoreError)
-    
+
     // Fallback to localStorage
     const key = role === 'creator' ? `creator_profile_${user.uid}` : `user_profile_${user.uid}`
     localStorage.setItem(key, JSON.stringify(profileWithMetadata))
-    
+
     // For creators, also save to creators index for discovery
     if (role === 'creator') {
      const creatorsIndex = JSON.parse(localStorage.getItem('creators_index') || '{}')
@@ -306,7 +324,7 @@ export default function ProfilePage() {
      }
      localStorage.setItem('creators_index', JSON.stringify(creatorsIndex))
     }
-    
+
     console.log('Profile saved to localStorage successfully:', profileWithMetadata)
    }
    
