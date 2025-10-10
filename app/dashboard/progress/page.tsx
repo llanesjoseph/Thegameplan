@@ -98,6 +98,17 @@ export default function AthleteDashboard() {
 
   // Athlete cards matching coach dashboard pattern
   const athleteCards = [
+    // Coach Profile Card - First card, only shows if coach is assigned
+    ...(coachId && coachName ? [{
+      id: 'my-coach',
+      title: coachName,
+      description: 'View coach profile and training philosophy',
+      icon: Users,
+      color: '#8D9440',
+      path: null,
+      action: () => router.push(`/coach/${coachId}`),
+      isCoachCard: true // Special flag to render differently
+    }] : []),
     {
       id: 'lessons',
       title: 'Review Lessons',
@@ -133,12 +144,9 @@ export default function AthleteDashboard() {
       color: '#9333EA',
       path: 'ai-assistant', // Special flag for inline AI component
       action: null
-    }
-  ]
-
-  // Add coach dashboard card conditionally
-  if (hasCoachRole) {
-    athleteCards.push({
+    },
+    // Add coach dashboard card conditionally for users who are also coaches
+    ...(hasCoachRole ? [{
       id: 'coach-dashboard',
       title: 'Coach Dashboard',
       description: 'Switch to your coach dashboard',
@@ -146,8 +154,8 @@ export default function AthleteDashboard() {
       color: '#000000',
       path: null,
       action: () => router.push('/dashboard/coach-unified')
-    })
-  }
+    }] : [])
+  ]
 
   // Check onboarding status
   useEffect(() => {
@@ -485,6 +493,7 @@ export default function AthleteDashboard() {
               {athleteCards.map((card, index) => {
                 const Icon = card.icon
                 const isActive = activeSection === card.id
+                const isCoachCard = card.id === 'my-coach'
 
                 return (
                   <button
@@ -494,13 +503,29 @@ export default function AthleteDashboard() {
                   >
                     <div className={`bg-white/90 backdrop-blur-sm rounded-lg sm:rounded-xl shadow-lg border border-white/50 p-3 sm:p-4 h-full transition-all hover:shadow-2xl hover:scale-105 ${isActive ? 'bg-white shadow-2xl' : ''}`}>
                       <div className="flex flex-col h-full min-h-[100px] sm:min-h-[120px]">
-                        {/* Icon */}
-                        <div
-                          className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg mb-2 sm:mb-3 flex items-center justify-center shadow-md"
-                          style={{ backgroundColor: card.color }}
-                        >
-                          <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-                        </div>
+                        {/* Icon or Profile Picture */}
+                        {isCoachCard ? (
+                          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden mb-2 sm:mb-3 shadow-md flex-shrink-0" style={{ backgroundColor: card.color }}>
+                            {coachPhotoURL ? (
+                              <img
+                                src={coachPhotoURL}
+                                alt={coachName}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-white text-lg font-heading">
+                                {coachName.charAt(0).toUpperCase()}
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div
+                            className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg mb-2 sm:mb-3 flex items-center justify-center shadow-md"
+                            style={{ backgroundColor: card.color }}
+                          >
+                            <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                          </div>
+                        )}
 
                         {/* Title */}
                         <h3 className="text-xs sm:text-sm font-heading mb-1 line-clamp-2" style={{ color: '#000000' }}>
