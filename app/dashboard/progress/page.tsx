@@ -102,7 +102,8 @@ export default function AthleteDashboard() {
       description: 'Access all assigned and completed training content',
       icon: BookOpen,
       color: '#91A6EB',
-      path: '/dashboard/lessons?embedded=true'
+      path: null, // Coming soon
+      action: () => alert('📚 Lessons feature coming soon! Your coach will assign training content here.')
     },
     {
       id: 'video-review',
@@ -119,7 +120,8 @@ export default function AthleteDashboard() {
       description: 'Schedule a private training session',
       icon: Calendar,
       color: '#FF6B35',
-      path: '/dashboard/schedule?embedded=true'
+      path: null, // Coming soon
+      action: () => alert('📅 Scheduling feature coming soon! Book 1-on-1 sessions with your coach.')
     },
     {
       id: 'ai-chat',
