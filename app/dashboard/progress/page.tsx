@@ -88,6 +88,7 @@ export default function AthleteDashboard() {
   const [hasCoachRole, setHasCoachRole] = useState(false)
   const [coachId, setCoachId] = useState<string | null>(null)
   const [coachName, setCoachName] = useState<string>('')
+  const [coachPhotoURL, setCoachPhotoURL] = useState<string>('')
   const [activeSection, setActiveSection] = useState<string | null>(null)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [hasNoData, setHasNoData] = useState(false)
@@ -208,11 +209,12 @@ export default function AthleteDashboard() {
     checkOnboardingStatus()
   }, [user])
 
-  // Fetch coach name when coachId changes
+  // Fetch coach name and profile picture when coachId changes
   useEffect(() => {
-    const fetchCoachName = async () => {
+    const fetchCoachData = async () => {
       if (!coachId) {
         setCoachName('')
+        setCoachPhotoURL('')
         return
       }
 
@@ -223,14 +225,38 @@ export default function AthleteDashboard() {
         if (coachSnap.exists()) {
           const coachData = coachSnap.data()
           setCoachName(coachData?.displayName || coachData?.email || 'Your Coach')
+
+          // Try to get profile image from users.photoURL first
+          let profileImageUrl = coachData?.photoURL || ''
+
+          // If no photoURL, try to get from creator_profiles
+          if (!profileImageUrl) {
+            try {
+              const profileQuery = query(
+                collection(db, 'creator_profiles'),
+                where('uid', '==', coachId)
+              )
+              const profileSnap = await getDocs(profileQuery)
+
+              if (!profileSnap.empty) {
+                const profileData = profileSnap.docs[0].data()
+                profileImageUrl = profileData?.profileImageUrl || ''
+              }
+            } catch (error) {
+              console.warn('Could not fetch creator profile:', error)
+            }
+          }
+
+          setCoachPhotoURL(profileImageUrl)
         }
       } catch (error) {
-        console.warn('Could not fetch coach name:', error)
+        console.warn('Could not fetch coach data:', error)
         setCoachName('Your Coach')
+        setCoachPhotoURL('')
       }
     }
 
-    fetchCoachName()
+    fetchCoachData()
   }, [coachId])
 
   const handleOnboardingComplete = () => {
@@ -420,8 +446,19 @@ export default function AthleteDashboard() {
             <div className="bg-white/90 backdrop-blur-sm rounded-xl lg:rounded-2xl shadow-lg border border-white/50 overflow-hidden hover:shadow-2xl transition-shadow">
               <Link href={`/coach/${coachId}`} className="block p-6 sm:p-8">
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-full flex items-center justify-center shadow-md" style={{ backgroundColor: '#8D9440' }}>
-                    <Users className="w-8 h-8 text-white" />
+                  {/* Coach Profile Picture */}
+                  <div className="w-16 h-16 rounded-full overflow-hidden shadow-md flex-shrink-0" style={{ backgroundColor: '#8D9440' }}>
+                    {coachPhotoURL ? (
+                      <img
+                        src={coachPhotoURL}
+                        alt={coachName}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-white text-2xl font-heading">
+                        {coachName.charAt(0).toUpperCase()}
+                      </div>
+                    )}
                   </div>
                   <div className="flex-1">
                     <h3 className="text-xl font-heading mb-1" style={{ color: '#000000' }}>
