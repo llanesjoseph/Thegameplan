@@ -75,7 +75,7 @@ export interface UserProfile {
  * Ensures a user document exists in Firestore with proper role
  * Call this when user signs in to prevent permission errors
  */
-export async function initializeUserDocument(user: FirebaseUser | null, defaultRole: UserRole = 'creator'): Promise<UserProfile> {
+export async function initializeUserDocument(user: FirebaseUser | null, defaultRole: UserRole = 'coach'): Promise<UserProfile> {
   if (!user?.uid) {
     throw new Error('User object is required')
   }
@@ -105,12 +105,12 @@ export async function initializeUserDocument(user: FirebaseUser | null, defaultR
           }
         }
 
-        // Upgrade 'user' roles to 'creator' for dashboard access
+        // Upgrade 'user' or 'creator' roles to 'coach' for dashboard access
         // NEVER upgrade athletes - they are the core audience
-        if (userData.role === 'user') {
-          correctRole = 'creator'
+        if (userData.role === 'user' || userData.role === 'creator') {
+          correctRole = 'coach'
           roleNeedsUpdate = true
-          console.log(`🔄 ROLE UPGRADE: Upgrading ${user.email} from 'user' to 'creator' for dashboard access`)
+          console.log(`🔄 ROLE UPGRADE: Upgrading ${user.email} from '${userData.role}' to 'coach' for dashboard access`)
         }
       }
 
