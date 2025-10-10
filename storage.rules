@@ -35,7 +35,7 @@
       function isCreatorOrHigher() {
         return request.auth != null &&
               ('role' in request.auth.token &&
-                request.auth.token.role in ['coach', 'assistant_coach', 'admin', 'superadmin']);
+                request.auth.token.role in ['creator', 'coach', 'assistant_coach', 'admin', 'superadmin']);
       }
       
       // File type validation
