@@ -137,7 +137,11 @@ export async function POST(request: NextRequest) {
       athleteId, // Reference to athlete document
       coachId: invitationData?.coachId || '',
       lastLoginAt: now,
-      invitationId
+      invitationId,
+      // CRITICAL: Protect role from auto-corrections (role comes from invitation)
+      manuallySetRole: true,
+      roleProtected: true,
+      roleSource: 'invitation'
     }
 
     console.log(`Setting user role: ${userDocData.role} (existing: ${existingUserData?.role}, shouldPreserve: ${shouldPreserveRole})`)

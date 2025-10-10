@@ -74,7 +74,11 @@ export async function POST(request: NextRequest) {
       createdAt: now,
       lastLoginAt: now,
       applicationId,
-      invitationId: invitationId
+      invitationId: invitationId,
+      // CRITICAL: Protect role from auto-corrections (role comes from approved application)
+      manuallySetRole: true,
+      roleProtected: true,
+      roleSource: 'admin_approval'
     }
 
     await adminDb.collection('users').doc(userRecord.uid).set(userDocData, { merge: true })

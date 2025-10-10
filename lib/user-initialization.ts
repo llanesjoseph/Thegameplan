@@ -69,6 +69,9 @@ export interface UserProfile {
   role: UserRole
   createdAt: Timestamp | Date
   lastLoginAt: Timestamp | Date
+  manuallySetRole?: boolean
+  roleProtected?: boolean
+  roleSource?: string
 }
 
 /**
@@ -166,18 +169,22 @@ export async function initializeUserDocument(user: FirebaseUser | null, defaultR
       // Create new user document with comprehensive data
       // Check role priority: superadmin > pending invitation > known coach > default
       let initialRole = defaultRole
+      let roleSource = 'default'
 
       if (isSuperadmin(user.email)) {
         initialRole = 'superadmin'
+        roleSource = 'superadmin'
         console.log(`✨ SUPERADMIN DETECTED: Setting ${user.email} to superadmin role`)
       } else {
         // Check for pending invitation first
         const invitationRole = await checkPendingInvitation(user.email)
         if (invitationRole) {
           initialRole = invitationRole
+          roleSource = 'invitation'
           console.log(`✨ PENDING INVITATION DETECTED: Setting ${user.email} to ${initialRole} role from invitation`)
         } else if (user.email && isKnownCoach(user.email)) {
           initialRole = getKnownCoachRole(user.email) || defaultRole
+          roleSource = 'known_coach'
           console.log(`✨ KNOWN COACH DETECTED: Setting ${user.email} to ${initialRole} role`)
         }
       }
@@ -189,6 +196,14 @@ export async function initializeUserDocument(user: FirebaseUser | null, defaultR
         role: initialRole,
         createdAt: Timestamp.now(),
         lastLoginAt: Timestamp.now()
+      }
+
+      // CRITICAL: Protect roles from invitations and known mappings
+      if (roleSource === 'invitation' || roleSource === 'known_coach' || roleSource === 'superadmin') {
+        newUserData.manuallySetRole = true
+        newUserData.roleProtected = true
+        newUserData.roleSource = roleSource
+        console.log(`🔒 ROLE PROTECTED: ${user.email} role '${initialRole}' from ${roleSource} - protection flags set`)
       }
 
       await setDoc(userDocRef, newUserData)
