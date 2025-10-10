@@ -56,7 +56,7 @@ service cloud.firestore {
     function isValidUserData() {
       return request.resource.data.keys().hasAll(['email', 'role']) &&
              request.resource.data.email is string &&
-             request.resource.data.role in ['athlete', 'coach', 'assistant_coach', 'admin', 'superadmin'] &&
+             request.resource.data.role in ['creator', 'athlete', 'coach', 'assistant_coach', 'admin', 'superadmin'] &&
              request.resource.data.email.matches('.*@.*\\..*');
     }
     
