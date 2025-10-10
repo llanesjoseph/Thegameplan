@@ -89,10 +89,11 @@ service cloud.firestore {
       allow read: if exists(/databases/$(database)/documents/users/$(userId)) &&
                      get(/databases/$(database)/documents/users/$(userId)).data.role in ['coach', 'creator', 'assistant_coach'];
 
-      // Athletes can read their coach's user document
+      // Athletes can read their coach's user document (check users.coachId field)
       allow read: if isAuthenticated() &&
-                     exists(/databases/$(database)/documents/athletes/$(request.auth.uid)) &&
-                     get(/databases/$(database)/documents/athletes/$(request.auth.uid)).data.coachId == userId;
+                     exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+                     (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.coachId == userId ||
+                      get(/databases/$(database)/documents/users/$(request.auth.uid)).data.assignedCoachId == userId);
 
       allow create: if isAuthenticated() &&
                        request.auth.uid == userId &&
@@ -128,8 +129,9 @@ service cloud.firestore {
                     (isAuthenticated() && isOwner(resource.data.creatorUid)) ||
                     (isAuthenticated() && isAdmin()) ||
                     (isAuthenticated() &&
-                     exists(/databases/$(database)/documents/athletes/$(request.auth.uid)) &&
-                     get(/databases/$(database)/documents/athletes/$(request.auth.uid)).data.coachId == resource.data.creatorUid &&
+                     exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+                     (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.coachId == resource.data.creatorUid ||
+                      get(/databases/$(database)/documents/users/$(request.auth.uid)).data.assignedCoachId == resource.data.creatorUid) &&
                      (resource.data.visibility == 'public' || resource.data.visibility == 'athletes_only'));
 
       // Allow listing content (queries)
@@ -176,8 +178,9 @@ service cloud.firestore {
                      isCoach() ||
                      isAdmin() ||
                      (isAuthenticated() &&
-                      exists(/databases/$(database)/documents/athletes/$(request.auth.uid)) &&
-                      get(/databases/$(database)/documents/athletes/$(request.auth.uid)).data.coachId == userId);
+                      exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+                      (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.coachId == userId ||
+                       get(/databases/$(database)/documents/users/$(request.auth.uid)).data.assignedCoachId == userId));
       allow create: if isOwner(userId) && (isCoach() || isCreator());
       allow update: if isOwner(userId) && (isCoach() || isCreator()) || isAdmin();
       allow delete: if isAdmin();
