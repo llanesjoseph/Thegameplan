@@ -1,11 +1,55 @@
 rules_version = '2';
 
-// Game Plan Platform - Production Security Rules
+// AthLeap Platform - Production Security Rules
 // Comprehensive role-based access control with medical safety and audit logging
+
+// ╔═══════════════════════════════════════════════════════════════════════════╗
+// ║                    ⚠️  CRITICAL DATA MODEL REFERENCE  ⚠️                  ║
+// ║                                                                            ║
+// ║  BEFORE EDITING THESE RULES, READ THIS CAREFULLY TO AVOID BREAKING ACCESS ║
+// ╚═══════════════════════════════════════════════════════════════════════════╝
+//
+// 🎯 KEY FACTS ABOUT THE DATA MODEL:
+//
+// 1. ALL USERS ARE IN THE 'users' COLLECTION
+//    - Athletes: users with role: 'athlete'
+//    - Coaches: users with role: 'coach' (also legacy 'creator')
+//    - There is NO separate 'athletes' collection!
+//
+// 2. ATHLETE-COACH RELATIONSHIP
+//    - Athletes have a 'coachId' or 'assignedCoachId' field
+//    - This field contains the coach's UID from the 'users' collection
+//    - Both athlete and coach are in the SAME 'users' collection
+//
+// 3. COACH EXTENDED PROFILES
+//    - Primary data: users collection (users.photoURL, users.sport, etc.)
+//    - Extended data: creator_profiles collection (legacy name, should be coach_profiles)
+//
+// 4. COMMON MISTAKES TO AVOID:
+//    ❌ exists(/databases/$(database)/documents/athletes/...)
+//       → There is NO 'athletes' collection!
+//
+//    ❌ Checking role without loading from users collection
+//       → All role checks MUST reference users collection
+//
+//    ✅ exists(/databases/$(database)/documents/users/$(uid))
+//    ✅ get(/databases/$(database)/documents/users/$(uid)).data.role == 'athlete'
+//    ✅ get(/databases/$(database)/documents/users/$(uid)).data.coachId == coachUid
+//
+// 5. ATHLETE ACCESS PATTERN:
+//    Athletes can read their coach's data if:
+//    - User exists in 'users' collection with role: 'athlete'
+//    - User has coachId or assignedCoachId matching the coach's UID
+//    - Coach also exists in 'users' collection with role: 'coach'
+//
+// 📚 See /docs/DATA_MODEL.md for full documentation
+// 🔧 See /lib/data-model-helpers.ts for type-safe helper functions
+//
+// ═════════════════════════════════════════════════════════════════════════════
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
+
     // ===== HELPER FUNCTIONS =====
     
     // Check if user is authenticated
@@ -72,8 +116,15 @@ service cloud.firestore {
     }
     
     // ===== CORE COLLECTIONS =====
-    
-    // Users collection - Core user data
+
+    // ╔═══════════════════════════════════════════════════════════════════════╗
+    // ║  Users Collection - THE PRIMARY USER COLLECTION                       ║
+    // ║                                                                        ║
+    // ║  ⚠️  CRITICAL: ALL users are here (athletes, coaches, admins)         ║
+    // ║  ⚠️  Athletes have role: 'athlete' and coachId field                  ║
+    // ║  ⚠️  Coaches have role: 'coach'/'creator'                             ║
+    // ║  ⚠️  There is NO separate 'athletes' collection!                      ║
+    // ╚═══════════════════════════════════════════════════════════════════════╝
     match /users/{userId} {
       // CRITICAL: Users MUST be able to read their own document without role checks
       // to prevent circular dependency (isAdmin requires reading this same document)
@@ -377,7 +428,17 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-    // Athletes - Athlete profiles and training data
+    // ╔═══════════════════════════════════════════════════════════════════════╗
+    // ║  ⚠️  IMPORTANT: This 'athletes' collection is OPTIONAL/LEGACY        ║
+    // ║                                                                        ║
+    // ║  PRIMARY ATHLETE DATA is in the 'users' collection!                  ║
+    // ║  This collection only exists for extended athlete-specific data.     ║
+    // ║                                                                        ║
+    // ║  When writing security rules for athlete access:                     ║
+    // ║  - Check 'users' collection, NOT 'athletes' collection               ║
+    // ║  - Use users.role == 'athlete' to identify athletes                  ║
+    // ║  - Use users.coachId to link athletes to coaches                     ║
+    // ╚═══════════════════════════════════════════════════════════════════════╝
     match /athletes/{athleteId} {
       // Athletes can read their own profile, coaches can read their athletes, admins can read all
       allow read: if isAuthenticated() &&
