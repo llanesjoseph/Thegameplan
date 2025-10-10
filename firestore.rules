@@ -89,6 +89,11 @@ service cloud.firestore {
                      exists(/databases/$(database)/documents/users/$(userId)) &&
                      get(/databases/$(database)/documents/users/$(userId)).data.role in ['coach', 'assistant_coach'];
 
+      // Athletes can read their coach's user document
+      allow read: if isAuthenticated() &&
+                     exists(/databases/$(database)/documents/athletes/$(request.auth.uid)) &&
+                     get(/databases/$(database)/documents/athletes/$(request.auth.uid)).data.coachId == userId;
+
       allow create: if isAuthenticated() &&
                        request.auth.uid == userId &&
                        isValidUserData();
@@ -118,13 +123,19 @@ service cloud.firestore {
     match /content/{contentId} {
       // Allow reading individual documents (get)
       // Public can read published content, creators can read their own drafts
+      // Athletes can read content from their assigned coach
       allow get: if resource.data.status == 'published' ||
                     (isAuthenticated() && isOwner(resource.data.creatorUid)) ||
-                    (isAuthenticated() && isAdmin());
+                    (isAuthenticated() && isAdmin()) ||
+                    (isAuthenticated() &&
+                     exists(/databases/$(database)/documents/athletes/$(request.auth.uid)) &&
+                     get(/databases/$(database)/documents/athletes/$(request.auth.uid)).data.coachId == resource.data.creatorUid &&
+                     (resource.data.visibility == 'public' || resource.data.visibility == 'athletes_only'));
 
       // Allow listing content (queries)
       // Public can query all content (will be filtered to published by app)
       // Creators can query their own content, admins can query all
+      // Athletes can query content from their coach
       allow list: if true;
 
       allow create: if isCreatorOrHigher() &&
@@ -158,7 +169,14 @@ service cloud.firestore {
 
     // Coach profiles - Coach business data
     match /coach_profiles/{userId} {
-      allow read: if isOwner(userId) || isCoach() || isAdmin();
+      // Coaches can read their own profile, admins can read all
+      // Athletes can read their coach's profile if they have a matching coachId
+      allow read: if isOwner(userId) ||
+                     isCoach() ||
+                     isAdmin() ||
+                     (isAuthenticated() &&
+                      exists(/databases/$(database)/documents/athletes/$(request.auth.uid)) &&
+                      get(/databases/$(database)/documents/athletes/$(request.auth.uid)).data.coachId == userId);
       allow create: if isOwner(userId) && (isCoach() || isCreator());
       allow update: if isOwner(userId) && (isCoach() || isCreator()) || isAdmin();
       allow delete: if isAdmin();
