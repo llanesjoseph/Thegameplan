@@ -102,7 +102,7 @@ export default function CoachIntakeApprovalPage() {
   // Redirect non-admin users automatically
   useEffect(() => {
     if (!roleLoading && !hasAccess) {
-      router.push('/dashboard/creator')
+      router.push('/dashboard/coach-unified')
     }
   }, [hasAccess, roleLoading, router])
 
@@ -331,7 +331,7 @@ export default function CoachIntakeApprovalPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
-            <Link href="/dashboard/creator" className="p-3 hover:bg-white/80 rounded-xl transition-colors shadow-sm backdrop-blur-sm border border-white/20">
+            <Link href="/dashboard/coach-unified" className="p-3 hover:bg-white/80 rounded-xl transition-colors shadow-sm backdrop-blur-sm border border-white/20">
               <ArrowLeft className="w-5 h-5 text-dark" />
             </Link>
             <div>

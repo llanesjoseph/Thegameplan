@@ -116,6 +116,8 @@ Loading screen shows exactly what's pending:
 - **NO redirect logic**
 - Just renders coach dashboard content
 - Shows coaching tools and athlete management
+- **IMPORTANT**: The `/dashboard/creator` page has been REMOVED
+- All coaches, creators, and assistants use `/dashboard/coach-unified`
 
 ### `/dashboard/admin` (Admin Dashboard)
 - **NO redirect logic**
@@ -241,12 +243,14 @@ The system is working correctly when:
 - ❌ Use 'guest' role in routing decisions
 - ❌ Route before role is loaded from Firestore
 - ❌ Create multiple routing logic locations
+- ❌ Create links to `/dashboard/creator` (page has been removed)
 
 ### ALWAYS:
 - ✅ Keep routing logic in `app/dashboard/page.tsx` ONLY
 - ✅ Wait for actual role from Firestore
 - ✅ Log routing decisions for debugging
 - ✅ Show clear loading states
+- ✅ Use `/dashboard/coach-unified` for all coach/creator/assistant navigation
 
 ---
 
