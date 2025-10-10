@@ -117,15 +117,15 @@ service cloud.firestore {
     // Content collection - Lessons, courses, educational content
     match /content/{contentId} {
       // Allow reading individual documents (get)
-      allow get: if isAuthenticated() &&
-                    (resource.data.status == 'published' ||
-                     isOwner(resource.data.creatorUid) ||
-                     isAdmin());
+      // Public can read published content, creators can read their own drafts
+      allow get: if resource.data.status == 'published' ||
+                    (isAuthenticated() && isOwner(resource.data.creatorUid)) ||
+                    (isAuthenticated() && isAdmin());
 
-      // Allow listing content (queries) - creators can query their own content,
-      // anyone can query published content, admins can query all
-      allow list: if isAuthenticated() &&
-                     (isCreatorOrHigher() || isAdmin());
+      // Allow listing content (queries)
+      // Public can query all content (will be filtered to published by app)
+      // Creators can query their own content, admins can query all
+      allow list: if true;
 
       allow create: if isCreatorOrHigher() &&
                        isValidContentData() &&
