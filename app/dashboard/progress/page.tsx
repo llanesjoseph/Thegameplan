@@ -107,8 +107,8 @@ export default function AthleteDashboard() {
       description: 'View coach profile and training philosophy',
       icon: Users,
       color: '#8D9440',
-      path: null,
-      action: () => router.push(`/coach/${coachId}`),
+      path: `/coach/${coachId}`, // Opens in iframe inline
+      action: null,
       isCoachCard: true // Special flag to render differently
     }] : []),
     {

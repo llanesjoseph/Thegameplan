@@ -74,8 +74,9 @@ export default function CoachProfilePage() {
 
       const userData = userSnap.data()
 
-      // Check if user is actually a coach
-      if (userData.role !== 'coach' && userData.role !== 'assistant_coach') {
+      // Check if user is actually a coach (includes legacy 'creator' role)
+      const validCoachRoles = ['coach', 'creator', 'assistant_coach']
+      if (!validCoachRoles.includes(userData.role)) {
         setError('This user is not a coach')
         return
       }
