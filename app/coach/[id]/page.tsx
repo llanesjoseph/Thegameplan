@@ -53,6 +53,12 @@ export default function CoachProfilePage() {
   const [error, setError] = useState<string | null>(null)
   const [totalLessons, setTotalLessons] = useState(0)
   const [totalAthletes, setTotalAthletes] = useState(0)
+  const [isInIframe, setIsInIframe] = useState(false)
+
+  // Detect if page is loaded in iframe
+  useEffect(() => {
+    setIsInIframe(window.self !== window.top)
+  }, [])
 
   useEffect(() => {
     if (!coachId) return
@@ -153,7 +159,7 @@ export default function CoachProfilePage() {
   if (loading) {
     return (
       <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
-        <AppHeader />
+        {!isInIframe && <AppHeader />}
         <div className="max-w-5xl mx-auto px-6 py-12">
           <div className="text-center py-20">
             <div className="w-16 h-16 border-4 border-t-transparent rounded-full animate-spin mx-auto mb-4" style={{ borderColor: '#20B2AA' }}></div>
@@ -167,16 +173,18 @@ export default function CoachProfilePage() {
   if (error || !coach) {
     return (
       <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
-        <AppHeader />
+        {!isInIframe && <AppHeader />}
         <div className="max-w-5xl mx-auto px-6 py-12">
-          <button
-            onClick={() => router.back()}
-            className="mb-6 inline-flex items-center gap-2 hover:opacity-70 transition-opacity"
-            style={{ color: '#000000' }}
-          >
-            <ArrowLeft className="w-5 h-5" />
-            Back
-          </button>
+          {!isInIframe && (
+            <button
+              onClick={() => router.back()}
+              className="mb-6 inline-flex items-center gap-2 hover:opacity-70 transition-opacity"
+              style={{ color: '#000000' }}
+            >
+              <ArrowLeft className="w-5 h-5" />
+              Back
+            </button>
+          )}
 
           <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-12 text-center">
             <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ backgroundColor: '#FF6B35' }}>
@@ -196,18 +204,20 @@ export default function CoachProfilePage() {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
-      <AppHeader />
+      {!isInIframe && <AppHeader />}
 
       <div className="max-w-5xl mx-auto px-6 py-8">
-        {/* Back Button */}
-        <button
-          onClick={() => router.back()}
-          className="mb-6 inline-flex items-center gap-2 hover:opacity-70 transition-opacity"
-          style={{ color: '#000000' }}
-        >
-          <ArrowLeft className="w-5 h-5" />
-          Back
-        </button>
+        {/* Back Button - Only show when not in iframe */}
+        {!isInIframe && (
+          <button
+            onClick={() => router.back()}
+            className="mb-6 inline-flex items-center gap-2 hover:opacity-70 transition-opacity"
+            style={{ color: '#000000' }}
+          >
+            <ArrowLeft className="w-5 h-5" />
+            Back
+          </button>
+        )}
 
         {/* Cover Image */}
         {coach.coverImageUrl && (

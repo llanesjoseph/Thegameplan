@@ -229,18 +229,28 @@ export default function AthleteDashboard() {
       }
 
       try {
+        console.log('🔍 Fetching coach data for coachId:', coachId)
         const coachRef = doc(db, 'users', coachId)
         const coachSnap = await getDoc(coachRef)
 
         if (coachSnap.exists()) {
           const coachData = coachSnap.data()
+          console.log('📋 Coach data from users collection:', {
+            displayName: coachData?.displayName,
+            email: coachData?.email,
+            photoURL: coachData?.photoURL,
+            role: coachData?.role
+          })
+
           setCoachName(coachData?.displayName || coachData?.email || 'Your Coach')
 
           // Try to get profile image from users.photoURL first
           let profileImageUrl = coachData?.photoURL || ''
+          console.log('🖼️ Initial photoURL from users collection:', profileImageUrl)
 
           // If no photoURL, try to get from creator_profiles
           if (!profileImageUrl) {
+            console.log('⚠️ No photoURL in users collection, checking creator_profiles...')
             try {
               const profileQuery = query(
                 collection(db, 'creator_profiles'),
@@ -251,16 +261,22 @@ export default function AthleteDashboard() {
               if (!profileSnap.empty) {
                 const profileData = profileSnap.docs[0].data()
                 profileImageUrl = profileData?.profileImageUrl || ''
+                console.log('🖼️ Found profileImageUrl in creator_profiles:', profileImageUrl)
+              } else {
+                console.log('⚠️ No creator_profiles document found')
               }
             } catch (error) {
               console.warn('Could not fetch creator profile:', error)
             }
           }
 
+          console.log('✅ Final profile image URL:', profileImageUrl)
           setCoachPhotoURL(profileImageUrl)
+        } else {
+          console.warn('⚠️ Coach document not found in users collection')
         }
       } catch (error) {
-        console.warn('Could not fetch coach data:', error)
+        console.error('❌ Error fetching coach data:', error)
         setCoachName('Your Coach')
         setCoachPhotoURL('')
       }
@@ -547,6 +563,15 @@ export default function AthleteDashboard() {
                 const isActive = activeSection === card.id
                 const isCoachCard = card.id === 'my-coach'
 
+                // Debug logging for coach card rendering
+                if (isCoachCard) {
+                  console.log('🎨 Rendering coach card with:', {
+                    coachName,
+                    coachPhotoURL,
+                    hasPhoto: !!coachPhotoURL
+                  })
+                }
+
                 return (
                   <button
                     key={index}
@@ -563,6 +588,11 @@ export default function AthleteDashboard() {
                                 src={coachPhotoURL}
                                 alt={coachName}
                                 className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  console.error('❌ Failed to load coach photo:', coachPhotoURL)
+                                  console.error('Image error event:', e)
+                                }}
+                                onLoad={() => console.log('✅ Coach photo loaded successfully:', coachPhotoURL)}
                               />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center text-white text-3xl sm:text-4xl font-heading">
