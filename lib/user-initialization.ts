@@ -98,7 +98,8 @@ export async function initializeUserDocument(user: FirebaseUser | null, defaultR
       let correctRole = userData.role
 
       // CRITICAL: Check if role is manually set and protected from auto-corrections
-      const isRoleProtected = userData.manuallySetRole === true || userData.roleProtected === true
+      const userDataAny = userData as any
+      const isRoleProtected = userDataAny.manuallySetRole === true || userDataAny.roleProtected === true
 
       if (isRoleProtected) {
         console.log(`🔒 ROLE PROTECTED: ${user.email} has manually set role '${userData.role}' - no auto-corrections will be applied`)
