@@ -67,7 +67,7 @@ export default function AdminUserManagement() {
      uid: doc.id,
      email: data.email || '',
      displayName: data.displayName || '',
-     role: data.role || 'user',
+     role: data.role || 'athlete',
      status: data.status || 'active',
      createdAt: data.createdAt?.toDate() || new Date(),
      lastActive: data.lastActive?.toDate() || new Date(),
@@ -161,7 +161,8 @@ export default function AdminUserManagement() {
 
  const getRoleIcon = (userRole: string) => {
   switch (userRole) {
-   case 'creator': return <Star className="w-4 h-4 text-purple-400" />
+   case 'coach': return <Star className="w-4 h-4 text-purple-400" />
+   case 'assistant_coach': return <Star className="w-4 h-4 text-indigo-400" />
    case 'admin': return <Shield className="w-4 h-4 text-orange-400" />
    case 'superadmin': return <Shield className="w-4 h-4 text-red-400" />
    default: return <Users className="w-4 h-4 text-blue-400" />
@@ -170,12 +171,12 @@ export default function AdminUserManagement() {
 
  const getRoleLabel = (userRole: string) => {
   switch (userRole) {
-   case 'user': return 'Athlete'
-   case 'creator': return 'Coach'
+   case 'athlete': return 'Athlete'
+   case 'coach': return 'Coach'
    case 'assistant_coach': return 'Assistant Coach'
    case 'admin': return 'Admin'
    case 'superadmin': return 'Super Admin'
-   default: return userRole
+   default: return userRole.charAt(0).toUpperCase() + userRole.slice(1)
   }
  }
 
@@ -227,7 +228,7 @@ export default function AdminUserManagement() {
      </div>
      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
       <div className="text-4xl font-heading mb-2" style={{ color: '#20B2AA' }}>
-       {users.filter(u => u.role === 'creator').length}
+       {users.filter(u => u.role === 'coach').length}
       </div>
       <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Coaches</div>
      </div>
@@ -282,8 +283,8 @@ export default function AdminUserManagement() {
         style={{ color: '#000000' }}
        >
         <option value="all">All Roles</option>
-        <option value="user">Athletes</option>
-        <option value="creator">Coaches</option>
+        <option value="athlete">Athletes</option>
+        <option value="coach">Coaches</option>
         <option value="admin">Admins</option>
         <option value="superadmin">Super Admins</option>
        </select>
@@ -312,7 +313,7 @@ export default function AdminUserManagement() {
          <tr key={user.uid} className="border-t border-gray-300/30 hover:bg-white/30 transition-colors">
           <td className="p-4">
            <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-md" style={{ backgroundColor: user.role === 'creator' ? '#20B2AA' : '#91A6EB' }}>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-md" style={{ backgroundColor: user.role === 'coach' ? '#20B2AA' : '#91A6EB' }}>
              {getRoleIcon(user.role)}
             </div>
             <div>
@@ -446,8 +447,8 @@ export default function AdminUserManagement() {
           className="w-full px-4 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black bg-white"
           style={{ color: '#000000' }}
          >
-          <option value="user">Athlete</option>
-          <option value="creator">Coach</option>
+          <option value="athlete">Athlete</option>
+          <option value="coach">Coach</option>
           <option value="admin">Admin</option>
           {role === 'superadmin' && (
            <option value="superadmin">Super Admin</option>
@@ -467,10 +468,10 @@ export default function AdminUserManagement() {
           <button
            onClick={() => {
             if (confirm(`Make ${selectedUser.displayName || selectedUser.email} a coach?`)) {
-             updateUserRole(selectedUser.uid, 'creator')
+             updateUserRole(selectedUser.uid, 'coach')
             }
            }}
-           disabled={selectedUser.role === 'creator'}
+           disabled={selectedUser.role === 'coach'}
            className="px-4 py-2 rounded-lg text-white font-semibold transition-all disabled:opacity-50"
            style={{ backgroundColor: '#20B2AA' }}
           >
@@ -483,10 +484,10 @@ export default function AdminUserManagement() {
           <button
            onClick={() => {
             if (confirm(`Make ${selectedUser.displayName || selectedUser.email} an athlete?`)) {
-             updateUserRole(selectedUser.uid, 'user')
+             updateUserRole(selectedUser.uid, 'athlete')
             }
            }}
-           disabled={selectedUser.role === 'user'}
+           disabled={selectedUser.role === 'athlete'}
            className="px-4 py-2 rounded-lg text-white font-semibold transition-all disabled:opacity-50"
            style={{ backgroundColor: '#91A6EB' }}
           >

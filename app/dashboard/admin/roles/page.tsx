@@ -79,7 +79,7 @@ export default function RoleManagement() {
   switch (role) {
    case 'superadmin':
     return <Crown className="w-4 h-4 text-red-600" />
-   case 'creator':
+   case 'coach':
     return <Award className="w-4 h-4 text-black" />
    case 'assistant_coach':
     return <UserCheck className="w-4 h-4 text-indigo-600" />
@@ -91,11 +91,11 @@ export default function RoleManagement() {
  const getRoleBadge = (role: string) => {
   const configs = {
    superadmin: { bg: 'bg-red-100', text: 'text-red-800', label: 'Super Admin' },
-   creator: { bg: 'bg-black/10', text: 'text-black', label: 'Coach' },
+   coach: { bg: 'bg-black/10', text: 'text-black', label: 'Coach' },
    assistant_coach: { bg: 'bg-indigo-100', text: 'text-indigo-800', label: 'Assistant Coach' },
-   user: { bg: 'bg-teal-100', text: 'text-teal-800', label: 'Athlete' }
+   athlete: { bg: 'bg-teal-100', text: 'text-teal-800', label: 'Athlete' }
   }
-  const config = configs[role as keyof typeof configs] || configs.user
+  const config = configs[role as keyof typeof configs] || configs.athlete
   return (
    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs  ${config.bg} ${config.text}`}>
     {getRoleIcon(role)}
@@ -178,8 +178,8 @@ export default function RoleManagement() {
         className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
        >
         <option value="all">All Roles</option>
-        <option value="user">Athletes</option>
-        <option value="creator">Coaches</option>
+        <option value="athlete">Athletes</option>
+        <option value="coach">Coaches</option>
         <option value="assistant_coach">Assistant Coaches</option>
         <option value="superadmin">Super Admins</option>
        </select>
@@ -238,8 +238,8 @@ export default function RoleManagement() {
               onChange={(e) => setEditingRole(e.target.value)}
               className="px-2 py-1 border border-gray-300 rounded text-sm"
              >
-              <option value="user">Athlete</option>
-              <option value="creator">Coach</option>
+              <option value="athlete">Athlete</option>
+              <option value="coach">Coach</option>
               <option value="assistant_coach">Assistant Coach</option>
               <option value="superadmin">Super Admin</option>
              </select>
@@ -280,13 +280,13 @@ export default function RoleManagement() {
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
      <div className="bg-white/80 rounded-xl p-4 text-center">
       <div className="text-2xl " style={{ color: '#000000' }}>
-       {users.filter(u => u.role === 'user').length}
+       {users.filter(u => u.role === 'athlete').length}
       </div>
       <div className="text-sm text-gray-600">Athletes</div>
      </div>
      <div className="bg-white/80 rounded-xl p-4 text-center">
       <div className="text-2xl " style={{ color: '#000000' }}>
-       {users.filter(u => u.role === 'creator').length}
+       {users.filter(u => u.role === 'coach').length}
       </div>
       <div className="text-sm text-gray-600">Coaches</div>
      </div>

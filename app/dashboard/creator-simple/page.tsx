@@ -109,7 +109,7 @@ export default function SimpleCreatorDashboard() {
       </button>
       
       <Link
-       href="/dashboard/creator"
+       href="/dashboard/coach-unified"
        className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg flex items-center gap-2 transition-colors"
       >
        <Plus className="w-4 h-4" />
@@ -305,7 +305,7 @@ export default function SimpleCreatorDashboard() {
      </Link>
      
      <Link
-      href="/dashboard/creator"
+      href="/dashboard/coach-unified"
       className="p-4 bg-white hover:bg-gray-50 border border-gray-200 rounded-xl transition-colors shadow-sm"
      >
       <h3 className="text-gray-900  mb-2">Create New Lesson</h3>

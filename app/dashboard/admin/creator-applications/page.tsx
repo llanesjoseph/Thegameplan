@@ -62,7 +62,7 @@ export default function CreatorApplicationsPage() {
   // Redirect non-admin users automatically
   useEffect(() => {
     if (!roleLoading && !hasAccess) {
-      router.push('/dashboard/creator')
+      router.push('/dashboard')
     }
   }, [hasAccess, roleLoading, router])
 

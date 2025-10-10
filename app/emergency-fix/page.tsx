@@ -57,7 +57,7 @@ export default function EmergencyFixPage() {
 
       // Auto-refresh after 2 seconds
       setTimeout(() => {
-        window.location.href = '/dashboard/creator'
+        window.location.href = '/dashboard/coach-unified'
       }, 2000)
 
     } catch (error) {

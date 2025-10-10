@@ -12,7 +12,7 @@ export default function DashboardOverview() {
   if (!loading) {
    // Redirect to Coaches Locker Room - this is now the main hub
    console.log('Dashboard overview accessed, redirecting to Coaches Locker Room')
-   router.replace('/dashboard/creator')
+   router.replace('/dashboard/coach-unified')
   }
  }, [loading, router])
 

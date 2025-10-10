@@ -18,9 +18,9 @@ import { doc, getDoc } from 'firebase/firestore'
  * Rules:
  * 1. ALWAYS wait for real role from Firestore (never use 'guest' or undefined)
  * 2. DIRECT routing to correct dashboard based on actual role
- * 3. Athletes ALWAYS go to /dashboard/progress
- * 4. Coaches/Creators ALWAYS go to /dashboard/coach-unified
- * 5. Admins ALWAYS go to /dashboard/admin
+ * 3. Athletes (role: 'athlete') ALWAYS go to /dashboard/progress
+ * 4. Coaches (role: 'coach' or 'assistant_coach') ALWAYS go to /dashboard/coach-unified
+ * 5. Admins (role: 'admin' or 'superadmin') ALWAYS go to /dashboard/admin
  */
 export default function Dashboard() {
  const { user, loading: authLoading } = useAuth()
@@ -125,11 +125,8 @@ export default function Dashboard() {
   } else if (actualRole === 'admin') {
    console.log('🛡️ ADMIN DETECTED - Routing to /dashboard/admin')
    router.replace('/dashboard/admin')
-  } else if (actualRole === 'coach' || actualRole === 'creator' || actualRole === 'assistant') {
-   console.log('👨‍🏫 COACH/CREATOR DETECTED - Routing to /dashboard/coach-unified')
-   router.replace('/dashboard/coach-unified')
-  } else if (actualRole === 'user') {
-   console.log('👤 USER DETECTED - Routing to /dashboard/coach-unified (default)')
+  } else if (actualRole === 'coach' || actualRole === 'assistant_coach') {
+   console.log('👨‍🏫 COACH DETECTED - Routing to /dashboard/coach-unified')
    router.replace('/dashboard/coach-unified')
   } else {
    console.warn('❓ UNKNOWN ROLE - Defaulting to /dashboard/coach-unified', { role: actualRole })

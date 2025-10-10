@@ -379,7 +379,7 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
     router.push('/dashboard/coaching')
     break
    case 'creator':
-    router.push('/dashboard/creator')
+    router.push('/dashboard/coach-unified')
     break
    case 'user':
    default:

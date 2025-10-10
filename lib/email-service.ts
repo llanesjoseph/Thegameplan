@@ -657,7 +657,7 @@ function generateAthleteProfileCreatedEmail(coachName: string, athleteInfo: { na
         </ul>
 
         <div style="text-align: center; margin: 30px 0;">
-          <a href="${APP_URL}/dashboard/creator/athletes" style="background-color: #A01C21; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">View Athlete Profile</a>
+          <a href="${APP_URL}/dashboard/coach/athletes" style="background-color: #A01C21; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">View Athlete Profile</a>
         </div>
 
         <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 14px;">

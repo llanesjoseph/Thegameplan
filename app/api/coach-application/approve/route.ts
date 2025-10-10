@@ -115,7 +115,7 @@ export async function POST(request: NextRequest) {
                         </div>
 
                         <div style="text-align: center; margin: 40px 0;">
-                          <a href="https://playbookd.com/dashboard/creator"
+                          <a href="https://playbookd.com/dashboard/coach-unified"
                              style="display: inline-block; padding: 16px 40px; background-color: #16a34a; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 18px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
                             Access Coach Dashboard →
                           </a>

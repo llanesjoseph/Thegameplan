@@ -49,7 +49,7 @@ export default function SimpleAuth() {
     router.push('/onboarding')
    } else {
     // Existing users go to dashboard
-    router.push('/dashboard/creator')
+    router.push('/dashboard')
    }
   } catch (error: any) {
    console.error('Google sign-in error:', error)
@@ -95,7 +95,7 @@ export default function SimpleAuth() {
     router.push('/onboarding')
    } else {
     // Existing users go to dashboard
-    router.push('/dashboard/creator')
+    router.push('/dashboard')
    }
   } catch (error: any) {
    console.error('Email auth error:', error)

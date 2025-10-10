@@ -228,7 +228,7 @@ export default function ContributorApplicationPage() {
    await applyForCreatorRole(user.uid, { id: ref.id, ...applicationData })
    
    alert(`Application submitted successfully! Reference: ${ref.id}`)
-   router.push('/dashboard/creator')
+   router.push('/dashboard/coach-unified')
   } catch (error) {
    console.error('Error submitting application:', error)
    alert('Failed to submit application. Please try again.')

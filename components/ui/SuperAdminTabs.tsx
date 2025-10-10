@@ -45,7 +45,7 @@ const SUPERADMIN_TAB_ROLES: TabRole[] = [
   borderColor: 'border-purple-500',
   bgColor: 'bg-purple-50',
   description: 'Coach content creation tools',
-  defaultPath: '/dashboard/creator'
+  defaultPath: '/dashboard/coach-unified'
  },
  {
   id: 'assistant_coach',

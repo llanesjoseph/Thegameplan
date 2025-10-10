@@ -7,10 +7,7 @@ import { ChevronRight } from 'lucide-react'
 const pathMappings: Record<string, string> = {
  '/dashboard': 'Dashboard',
  '/dashboard/overview': 'Overview',
- '/dashboard/creator': 'Lesson Studio',
- '/dashboard/creator/requests': 'Coaching Requests',
- '/dashboard/creator/schedule': 'My Schedule',
- '/dashboard/creator/analytics': 'Analytics',
+ '/dashboard/coach-unified': 'Coach Dashboard',
  '/dashboard/admin': 'Admin Panel',
  '/dashboard/admin/users': 'User Management',
  '/dashboard/admin/content': 'Content Review',

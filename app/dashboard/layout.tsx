@@ -16,7 +16,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
  const isMainDashboard = pathname === '/dashboard'
  const isOverviewPage = pathname === '/dashboard/overview'
  const isProgressPage = pathname === '/dashboard/progress'
- const isCreatorPage = pathname?.startsWith('/dashboard/creator')
+ const isCreatorPage = false // Legacy creator page removed
  const isProfilePage = pathname === '/dashboard/profile'
  const isCoachPage = pathname?.startsWith('/dashboard/coach')
  const isCoachingPage = pathname === '/dashboard/coaching'
