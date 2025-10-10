@@ -132,27 +132,18 @@ export async function initializeUserDocument(user: FirebaseUser | null, defaultR
 
       // DISABLED: lastLoginAt updates cause permission errors in production
       // Only critical role updates will be attempted
-      const shouldUpdateLastLogin = false
 
-      // Only update Firestore if something actually needs to change
-      if (roleNeedsUpdate || shouldUpdateLastLogin) {
+      // Only update Firestore if role actually needs to change
+      if (roleNeedsUpdate) {
         try {
           await setDoc(userDocRef, {
             ...userData,
-            role: correctRole, // Update role if needed
-            ...(shouldUpdateLastLogin && { lastLoginAt: Timestamp.now() }),
-            ...(roleNeedsUpdate && {
-              roleUpdatedAt: Timestamp.now(),
-              roleUpdateReason: 'Known coach auto-correction'
-            })
+            role: correctRole,
+            roleUpdatedAt: Timestamp.now(),
+            roleUpdateReason: 'Known coach auto-correction'
           }, { merge: true })
 
-          if (roleNeedsUpdate) {
-            console.log(`✅ ROLE CORRECTED: ${user.email} updated from ${userData.role} to ${correctRole}`)
-          }
-          if (shouldUpdateLastLogin) {
-            console.log('Existing user document updated:', user.uid)
-          }
+          console.log(`✅ ROLE CORRECTED: ${user.email} updated from ${userData.role} to ${correctRole}`)
         } catch (updateError) {
           // Gracefully handle permission errors - user doc exists, that's what matters
           console.warn('Could not update user document (non-critical):', updateError)
