@@ -669,3 +669,98 @@ function generateAthleteProfileCreatedEmail(coachName: string, athleteInfo: { na
     </html>
   `
 }
+
+// Athlete welcome email with password setup link
+interface AthleteWelcomeEmailProps {
+  to: string
+  athleteName: string
+  coachName: string
+  sport: string
+  passwordResetLink: string
+}
+
+export async function sendAthleteWelcomeEmail({
+  to,
+  athleteName,
+  coachName,
+  sport,
+  passwordResetLink
+}: AthleteWelcomeEmailProps) {
+  try {
+    const { data, error } = await resend.emails.send({
+      from: 'PLAYBOOKD <noreply@mail.crucibleanalytics.dev>',
+      to: [to],
+      subject: `🏆 Welcome to PLAYBOOKD - Set Your Password`,
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Welcome to PLAYBOOKD</title>
+        </head>
+        <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8fafc;">
+          <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <div style="text-align: center; margin-bottom: 30px;">
+              <h1 style="color: #13367A; font-size: 32px; margin: 0; font-weight: bold;">PLAYBOOKD</h1>
+              <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">FOR THE FUTURE OF SPORTS</p>
+            </div>
+
+            <div style="background: #dcfce7; border: 2px solid #16a34a; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
+              <h2 style="color: #15803d; margin: 0;">🎉 Welcome to Your Training Journey!</h2>
+            </div>
+
+            <p>Hi ${athleteName},</p>
+
+            <p>Congratulations! Your athlete profile has been successfully created. You're now part of <strong>${coachName}'s ${sport}</strong> training program on PLAYBOOKD.</p>
+
+            <div style="background: #fff3cd; border: 2px solid #f59e0b; border-radius: 8px; padding: 20px; margin: 20px 0;">
+              <h3 style="color: #d97706; margin-top: 0;">🔐 Set Your Password</h3>
+              <p style="margin: 5px 0; color: #92400e;">To access your athlete dashboard and start training, you need to create a password for your account.</p>
+            </div>
+
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${passwordResetLink}" style="background-color: #A01C21; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Set Your Password</a>
+            </div>
+
+            <div style="background: #f0f9ff; border-left: 4px solid #0284c7; padding: 20px; margin: 20px 0;">
+              <h3 style="color: #0369a1; margin-top: 0;">What's Next?</h3>
+              <ol style="margin: 0; padding-left: 20px; color: #1e3a8a;">
+                <li style="margin: 8px 0;">Click the button above to set your password</li>
+                <li style="margin: 8px 0;">Sign in to your athlete dashboard</li>
+                <li style="margin: 8px 0;">Access training content from ${coachName}</li>
+                <li style="margin: 8px 0;">Track your progress and performance</li>
+              </ol>
+            </div>
+
+            <div style="background: #fef2f2; border: 1px solid #fecaca; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <p style="margin: 0; color: #991b1b; font-size: 14px;">
+                <strong>⏰ Important:</strong> This password setup link will expire in 1 hour. If it expires, please contact ${coachName} for a new invitation.
+              </p>
+            </div>
+
+            <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 14px;">
+              <p><strong>PLAYBOOKD</strong> - For The Future of Sports</p>
+              <p style="font-size: 12px;">If you didn't request this account, please ignore this email.</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `
+    })
+
+    if (error) {
+      console.error('Failed to send athlete welcome email:', error)
+      return { success: false, error: error.message }
+    }
+
+    console.log(`✅ Athlete welcome email sent to ${to}`)
+    return { success: true, data }
+  } catch (error) {
+    console.error('Athlete welcome email service error:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    }
+  }
+}

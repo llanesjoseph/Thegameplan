@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import AppHeader from '@/components/ui/AppHeader'
+import { SPORTS } from '@/lib/constants/sports'
 import {
   CheckCircle,
   User,
@@ -32,13 +33,6 @@ interface InvitationData {
   status: string
   expiresAt: string
 }
-
-// Sports list for dropdown - matches database
-const SPORTS_LIST = [
-  'Soccer', 'Basketball', 'Baseball', 'Tennis', 'Brazilian Jiu-Jitsu',
-  'Running', 'Volleyball', 'Swimming', 'American Football', 'Golf',
-  'Boxing', 'Track & Field'
-]
 
 // Skill levels
 const SKILL_LEVELS = [
@@ -407,7 +401,7 @@ export default function AthleteOnboardingPage() {
                     required
                   >
                     <option value="">Select your main sport</option>
-                    {SPORTS_LIST.map(sport => (
+                    {SPORTS.map(sport => (
                       <option key={sport} value={sport}>{sport}</option>
                     ))}
                   </select>
@@ -416,7 +410,7 @@ export default function AthleteOnboardingPage() {
                 <div>
                   <label className="block text-sm font-medium mb-2">Secondary Sports/Interests</label>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                    {SPORTS_LIST.filter(s => s !== formData.primarySport).map(sport => (
+                    {SPORTS.filter(s => s !== formData.primarySport).map(sport => (
                       <label key={sport} className="flex items-center space-x-2 cursor-pointer">
                         <input
                           type="checkbox"

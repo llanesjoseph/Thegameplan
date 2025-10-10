@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { nanoid } from 'nanoid'
 import { auth, adminDb } from '@/lib/firebase.admin'
-import { sendCoachNotificationEmail } from '@/lib/email-service'
+import { sendCoachNotificationEmail, sendAthleteWelcomeEmail } from '@/lib/email-service'
 
 export async function POST(request: NextRequest) {
   try {
@@ -230,7 +230,21 @@ export async function POST(request: NextRequest) {
     try {
       const resetLink = await auth.generatePasswordResetLink(athleteProfile.email?.toLowerCase())
       console.log(`Password reset link generated for ${athleteProfile.email}`)
-      // TODO: Send this link via email service with welcome message
+
+      // Send welcome email with password reset link
+      const emailResult = await sendAthleteWelcomeEmail({
+        to: athleteProfile.email,
+        athleteName: athleteProfile.displayName,
+        coachName: invitationData?.coachName || 'Your Coach',
+        sport: athleteProfile.primarySport,
+        passwordResetLink: resetLink
+      })
+
+      if (emailResult.success) {
+        console.log(`✅ Welcome email sent to ${athleteProfile.email}`)
+      } else {
+        console.error(`❌ Failed to send welcome email: ${emailResult.error}`)
+      }
     } catch (error) {
       console.error('Failed to generate password reset link:', error)
     }
