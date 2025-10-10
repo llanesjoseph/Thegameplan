@@ -125,7 +125,7 @@ export async function POST(request: NextRequest) {
 
     try {
       const emailResult = await resend.emails.send({
-        from: 'PLAYBOOKD Team <noreply@playbookd.com>',
+        from: 'PLAYBOOKD Team <noreply@mail.crucibleanalytics.dev>',
         to: athleteEmail,
         subject: `Invitation to Join ${coachName}'s ${sport} Team on PLAYBOOKD`,
         html: generateAthleteInvitationEmail(
@@ -157,7 +157,7 @@ export async function POST(request: NextRequest) {
     if (coachEmail) {
       try {
         await resend.emails.send({
-          from: 'PLAYBOOKD Team <noreply@playbookd.com>',
+          from: 'PLAYBOOKD Team <noreply@mail.crucibleanalytics.dev>',
           to: coachEmail,
           subject: `New Athlete Invitation Sent - ${athleteName}`,
           html: generateCoachNotificationEmail(coachName, athleteName, sport, userData.displayName || userData.email)

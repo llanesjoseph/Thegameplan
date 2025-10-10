@@ -115,7 +115,7 @@ export async function POST(request: NextRequest) {
       }
 
       const emailResult = await resend.emails.send({
-        from: 'PLAYBOOKD Team <noreply@playbookd.com>',
+        from: 'PLAYBOOKD Team <noreply@mail.crucibleanalytics.dev>',
         to: recipientEmail,
         subject: 'Invitation to Join PLAYBOOKD Admin Team',
         html: generateAdminInvitationEmail(recipientName, role, invitationUrl, customMessage, userData.displayName || userData.email)

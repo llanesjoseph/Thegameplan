@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
 
     try {
       const emailResult = await resend.emails.send({
-        from: 'PLAYBOOKD Team <noreply@playbookd.com>',
+        from: 'PLAYBOOKD Team <noreply@mail.crucibleanalytics.dev>',
         to: coachEmail,
         subject: 'Invitation to Join PLAYBOOKD as a Coach',
         html: generateCoachInvitationEmail(coachName, sport, invitationUrl, customMessage || invitationData.customMessage, userData.displayName || userData.email)

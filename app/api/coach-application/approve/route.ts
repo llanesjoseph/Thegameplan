@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
 
     // Send approval email
     const { data, error } = await resend.emails.send({
-      from: 'PLAYBOOKD <noreply@playbookd.com>',
+      from: 'PLAYBOOKD <noreply@mail.crucibleanalytics.dev>',
       to: email,
       subject: '🎉 Welcome to PLAYBOOKD - Your Coach Application is Approved!',
       html: `
