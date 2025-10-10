@@ -852,30 +852,6 @@ export default function ProfilePage() {
        </div>
       )}
 
-      {/* Coaching Philosophy - Only for creators */}
-      {role === 'creator' && (
-       <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
-       <div className="flex items-center gap-3 mb-4">
-        <div className="w-8 h-8 bg-gradient-to-r from-black to-sky-blue rounded-lg flex items-center justify-center">
-         <MessageSquare className="w-4 h-4 text-white" />
-        </div>
-        <h3 className="text-lg  font-heading" style={{ color: '#000000' }}>Coaching Philosophy</h3>
-       </div>
-       {isEditing ? (
-        <textarea
-         value={profileData.coachingPhilosophy}
-         onChange={(e) => setProfileData(prev => ({ ...prev, coachingPhilosophy: e.target.value }))}
-         className="w-full border border-white/50 rounded p-3 bg-white/80 backdrop-blur-sm focus:ring-2 focus:ring-sky-blue"
-         style={{ color: '#000000' }}
-         rows={4}
-         placeholder="Describe your coaching philosophy and approach..."
-        />
-       ) : (
-        <p style={{ color: '#000000' }}>{profileData.coachingPhilosophy || 'Click "Edit Profile" to add your coaching philosophy'}</p>
-       )}
-       </div>
-      )}
-
       {/* Achievements */}
       <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
        <div className="flex items-center justify-between mb-4">
