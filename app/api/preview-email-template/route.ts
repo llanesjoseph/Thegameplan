@@ -6,9 +6,9 @@ export const dynamic = 'force-dynamic'
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const templateType = searchParams.get('type') as 'playbookd' | 'simple' || 'playbookd'
+    const templateType = searchParams.get('type') as 'athleap' | 'simple' || 'athleap'
     const name = searchParams.get('name') || 'Coach Demo'
-    const organizationName = searchParams.get('org') || 'PLAYBOOKD Demo'
+    const organizationName = searchParams.get('org') || 'AthLeap Demo'
     const sport = searchParams.get('sport') || 'Soccer'
 
     // Generate preview data
@@ -19,11 +19,11 @@ export async function GET(request: NextRequest) {
 
     const htmlContent = getEmailTemplate(templateType, {
       organizationName,
-      inviterName: 'PLAYBOOKD Team',
+      inviterName: 'AthLeap Team',
       sport,
       invitationUrl,
       qrCodeUrl,
-      customMessage: `Welcome to ${organizationName}! This is a preview of how your coach invitation email will look with the PLAYBOOKD template.`,
+      customMessage: `Welcome to ${organizationName}! This is a preview of how your coach invitation email will look with the AthLeap template.`,
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
       recipientName: name
     })
