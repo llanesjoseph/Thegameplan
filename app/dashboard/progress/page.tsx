@@ -319,6 +319,11 @@ export default function AthleteDashboard() {
     fetchCoachContent()
   }, [coachId])
 
+  // Debug: Track activeSection changes
+  useEffect(() => {
+    console.log('🔄 activeSection changed:', activeSection)
+  }, [activeSection])
+
   const handleOnboardingComplete = () => {
     setOnboardingComplete(true)
     setShowOnboarding(false)
@@ -424,21 +429,50 @@ export default function AthleteDashboard() {
   }
 
   const handleCardClick = (card: typeof athleteCards[0]) => {
+    console.log('🎯 Card clicked:', {
+      id: card.id,
+      title: card.title,
+      hasAction: !!card.action,
+      hasPath: !!card.path,
+      path: card.path
+    })
+
     if (card.action) {
+      console.log('⚡ Executing card action')
       card.action()
     } else if (card.path) {
+      console.log('📺 Opening inline content for:', card.id, 'with path:', card.path)
       setActiveSection(card.id)
+    } else {
+      console.warn('⚠️ Card has no action or path')
     }
   }
 
   const renderInlineContent = () => {
-    if (!activeSection) return null
+    if (!activeSection) {
+      console.log('ℹ️ No active section to render')
+      return null
+    }
 
+    console.log('🔍 Rendering inline content for:', activeSection)
     const activeCard = athleteCards.find(card => card.id === activeSection)
-    if (!activeCard || !activeCard.path) return null
+
+    if (!activeCard) {
+      console.warn('⚠️ Active card not found:', activeSection)
+      return null
+    }
+
+    if (!activeCard.path) {
+      console.warn('⚠️ Active card has no path:', activeSection)
+      return null
+    }
+
+    console.log('✅ Rendering content with path:', activeCard.path)
 
     // Special handling for AI Assistant - render component inline instead of iframe
     if (activeCard.path === 'ai-assistant' && user) {
+      console.log('🤖 Rendering AI Assistant inline')
+
       return (
         <div className="w-full" style={{ height: '600px' }}>
           <AIAssistant
@@ -458,6 +492,7 @@ export default function AthleteDashboard() {
     }
 
     // Default: render as iframe
+    console.log('📺 Rendering iframe with src:', activeCard.path, 'title:', activeCard.title)
     return <DynamicIframe src={activeCard.path} title={activeCard.title} />
   }
 
