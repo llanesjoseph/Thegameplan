@@ -501,41 +501,6 @@ export default function AthleteDashboard() {
             </div>
           )}
 
-          {/* Your Coach Section - Links to Coach Profile (READ-ONLY) */}
-          {!activeSection && coachId && coachName && (
-            <div className="bg-white/90 backdrop-blur-sm rounded-xl lg:rounded-2xl shadow-lg border border-white/50 overflow-hidden hover:shadow-2xl transition-shadow">
-              <Link href={`/coach/${coachId}`} className="block p-6 sm:p-8">
-                <div className="flex items-center gap-4">
-                  {/* Coach Profile Picture */}
-                  <div className="w-16 h-16 rounded-full overflow-hidden shadow-md flex-shrink-0" style={{ backgroundColor: '#8D9440' }}>
-                    {coachPhotoURL ? (
-                      <img
-                        src={coachPhotoURL}
-                        alt={coachName}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-white text-2xl font-heading">
-                        {coachName.charAt(0).toUpperCase()}
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-xl font-heading mb-1" style={{ color: '#000000' }}>
-                      Your Coach
-                    </h3>
-                    <p className="text-lg font-semibold mb-1" style={{ color: '#8D9440' }}>
-                      {coachName}
-                    </p>
-                    <p className="text-sm" style={{ color: '#000000', opacity: 0.6 }}>
-                      Click to view coach profile →
-                    </p>
-                  </div>
-                </div>
-              </Link>
-            </div>
-          )}
-
           {/* Athlete Tools Grid */}
           <div>
             <h2 className="text-xl sm:text-2xl font-heading mb-4 sm:mb-6 uppercase tracking-wide" style={{ color: '#000000' }}>
@@ -551,13 +516,13 @@ export default function AthleteDashboard() {
                   <button
                     key={index}
                     onClick={() => handleCardClick(card)}
-                    className={`block group cursor-pointer text-left transition-all ${isActive ? 'ring-2 ring-black ring-offset-2' : ''}`}
+                    className={`block group cursor-pointer text-left transition-all ${isActive ? 'ring-2 ring-black ring-offset-2' : ''} ${isCoachCard ? 'col-span-2 sm:col-span-1' : ''}`}
                   >
-                    <div className={`bg-white/90 backdrop-blur-sm rounded-lg sm:rounded-xl shadow-lg border border-white/50 p-3 sm:p-4 h-full transition-all hover:shadow-2xl hover:scale-105 ${isActive ? 'bg-white shadow-2xl' : ''}`}>
-                      <div className="flex flex-col h-full min-h-[100px] sm:min-h-[120px]">
+                    <div className={`bg-white/90 backdrop-blur-sm rounded-lg sm:rounded-xl shadow-lg border border-white/50 p-3 sm:p-4 h-full transition-all hover:shadow-2xl hover:scale-105 ${isActive ? 'bg-white shadow-2xl' : ''} ${isCoachCard ? 'sm:p-6' : ''}`}>
+                      <div className={`flex ${isCoachCard ? 'flex-row items-center gap-4' : 'flex-col'} h-full ${isCoachCard ? 'min-h-[120px]' : 'min-h-[100px] sm:min-h-[120px]'}`}>
                         {/* Icon or Profile Picture */}
                         {isCoachCard ? (
-                          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden mb-2 sm:mb-3 shadow-md flex-shrink-0" style={{ backgroundColor: card.color }}>
+                          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden shadow-xl flex-shrink-0 ring-4 ring-white/50" style={{ backgroundColor: card.color }}>
                             {coachPhotoURL ? (
                               <img
                                 src={coachPhotoURL}
@@ -565,7 +530,7 @@ export default function AthleteDashboard() {
                                 className="w-full h-full object-cover"
                               />
                             ) : (
-                              <div className="w-full h-full flex items-center justify-center text-white text-lg font-heading">
+                              <div className="w-full h-full flex items-center justify-center text-white text-3xl sm:text-4xl font-heading">
                                 {coachName.charAt(0).toUpperCase()}
                               </div>
                             )}
@@ -579,15 +544,18 @@ export default function AthleteDashboard() {
                           </div>
                         )}
 
-                        {/* Title */}
-                        <h3 className="text-xs sm:text-sm font-heading mb-1 line-clamp-2" style={{ color: '#000000' }}>
-                          {card.title}
-                        </h3>
+                        {/* Title and Description */}
+                        <div className={isCoachCard ? 'flex-1' : 'flex flex-col flex-grow'}>
+                          {/* Title */}
+                          <h3 className={`${isCoachCard ? 'text-base sm:text-lg' : 'text-xs sm:text-sm'} font-heading mb-1 line-clamp-2`} style={{ color: '#000000' }}>
+                            {card.title}
+                          </h3>
 
-                        {/* Description */}
-                        <p className="text-[10px] sm:text-xs flex-grow line-clamp-2" style={{ color: '#000000', opacity: 0.6 }}>
-                          {card.description}
-                        </p>
+                          {/* Description */}
+                          <p className={`${isCoachCard ? 'text-xs sm:text-sm' : 'text-[10px] sm:text-xs'} ${isCoachCard ? '' : 'flex-grow'} line-clamp-2`} style={{ color: '#000000', opacity: 0.6 }}>
+                            {card.description}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </button>
