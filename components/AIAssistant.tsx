@@ -354,7 +354,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
  }
 
  const containerClasses = {
-  inline: `bg-white rounded-xl shadow-lg border border-gray-200 ${className}`,
+  inline: `bg-white rounded-xl shadow-lg border border-gray-200 h-full flex flex-col ${className}`,
   floating: `fixed bottom-4 right-4 z-50 w-96 h-[500px] bg-white rounded-xl shadow-2xl border border-gray-200 ${className}`,
   fullscreen: `fixed inset-0 z-50 bg-white ${className}`
  }
@@ -404,7 +404,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
    </div>
 
    {/* Messages */}
-   <div className="flex-1 overflow-y-auto p-4 space-y-4" style={{ height: mode === 'inline' ? '400px' : 'calc(100% - 140px)' }}>
+   <div className="flex-1 overflow-y-auto p-4 space-y-4">
     {isLoadingHistory && (
      <div className="text-center text-gray-500 py-8">
       <div className="flex items-center justify-center gap-2 mb-3">

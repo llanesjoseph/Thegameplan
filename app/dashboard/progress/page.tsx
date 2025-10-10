@@ -85,7 +85,6 @@ export default function AthleteDashboard() {
   const [onboardingComplete, setOnboardingComplete] = useState(false)
   const [isCheckingOnboarding, setIsCheckingOnboarding] = useState(true)
   const [showVideoReviewModal, setShowVideoReviewModal] = useState(false)
-  const [showAIAssistant, setShowAIAssistant] = useState(false)
   const [hasCoachRole, setHasCoachRole] = useState(false)
   const [coachId, setCoachId] = useState<string | null>(null)
   const [coachName, setCoachName] = useState<string>('')
@@ -131,8 +130,8 @@ export default function AthleteDashboard() {
       description: 'Get instant answers to training questions',
       icon: Sparkles,
       color: '#9333EA',
-      path: null,
-      action: () => setShowAIAssistant(true)
+      path: 'ai-assistant', // Special flag for inline AI component
+      action: null
     }
   ]
 
@@ -352,6 +351,27 @@ export default function AthleteDashboard() {
     const activeCard = athleteCards.find(card => card.id === activeSection)
     if (!activeCard || !activeCard.path) return null
 
+    // Special handling for AI Assistant - render component inline instead of iframe
+    if (activeCard.path === 'ai-assistant' && user) {
+      return (
+        <div className="w-full" style={{ height: '600px' }}>
+          <AIAssistant
+            mode="inline"
+            userId={user.uid}
+            userEmail={user.email || ''}
+            title={coachName ? `${coachName}'s AI Assistant` : "AI Coach Assistant"}
+            context={`You are ${coachName ? coachName + "'s" : "a"} personal AI coaching assistant. You embody ${coachName ? "their" : "expert"} coaching philosophy, voice, and expertise. Provide specific, actionable advice based on ${coachName ? "their" : "professional"} methods and experience. Be personal, not generic.`}
+            placeholder={coachName ? `Ask ${coachName.split(' ')[0]} anything...` : "Ask me anything about your training..."}
+            requireLegalConsent={true}
+            sport={user.displayName?.includes('Soccer') ? 'Soccer' : undefined}
+            creatorId={coachId || undefined}
+            creatorName={coachName || undefined}
+          />
+        </div>
+      )
+    }
+
+    // Default: render as iframe
     return <DynamicIframe src={activeCard.path} title={activeCard.title} />
   }
 
@@ -375,27 +395,6 @@ export default function AthleteDashboard() {
           onClose={() => setShowVideoReviewModal(false)}
           onSuccess={handleVideoReviewSuccess}
         />
-      )}
-
-      {/* AI Assistant Modal - Coach's AI Clone */}
-      {showAIAssistant && user && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-4xl h-[600px]">
-            <AIAssistant
-              mode="fullscreen"
-              userId={user.uid}
-              userEmail={user.email || ''}
-              title={coachName ? `Chat with ${coachName}'s AI Assistant` : "AI Coach Assistant"}
-              context={`You are ${coachName ? coachName + "'s" : "a"} personal AI coaching assistant. You embody ${coachName ? "their" : "expert"} coaching philosophy, voice, and expertise. Provide specific, actionable advice based on ${coachName ? "their" : "professional"} methods and experience. Be personal, not generic.`}
-              placeholder={coachName ? `Ask ${coachName.split(' ')[0]} anything...` : "Ask me anything about your training..."}
-              onClose={() => setShowAIAssistant(false)}
-              requireLegalConsent={true}
-              sport={user.displayName?.includes('Soccer') ? 'Soccer' : undefined}
-              creatorId={coachId || undefined}
-              creatorName={coachName || undefined}
-            />
-          </div>
-        </div>
       )}
 
       <div style={{ backgroundColor: '#E8E6D8' }} className="min-h-screen">
