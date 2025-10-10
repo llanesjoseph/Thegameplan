@@ -1,216 +1,212 @@
-rules_version = '2';
+  rules_version = '2';
 
-// Game Plan Platform - Production Storage Security Rules
-// Comprehensive file access control with size limits and type validation
+  // Game Plan Platform - Production Storage Security Rules
+  // Comprehensive file access control with size limits and type validation
 
-service firebase.storage {
-  match /b/{bucket}/o {
-    
-    // ===== HELPER FUNCTIONS =====
-    
-    function isAuthenticated() {
-      return request.auth != null;
-    }
-    
-    function isOwner(userId) {
-      return request.auth != null && request.auth.uid == userId;
-    }
-    
-    function isAdmin() {
-      return request.auth != null && 
-             ('role' in request.auth.token && 
-              (request.auth.token.role == 'admin' || request.auth.token.role == 'superadmin'));
-    }
-    
-    function isCoach() {
-      return request.auth != null &&
-             ('role' in request.auth.token && request.auth.token.role == 'coach');
-    }
+  service firebase.storage {
+    match /b/{bucket}/o {
+      
+      // ===== HELPER FUNCTIONS =====
+      
+      function isAuthenticated() {
+        return request.auth != null;
+      }
+      
+      function isOwner(userId) {
+        return request.auth != null && request.auth.uid == userId;
+      }
+      
+      function isAdmin() {
+        return request.auth != null && 
+              ('role' in request.auth.token && 
+                (request.auth.token.role == 'admin' || request.auth.token.role == 'superadmin'));
+      }
+      
+      function isCoach() {
+        return request.auth != null &&
+              ('role' in request.auth.token && request.auth.token.role == 'coach');
+      }
 
-    // Legacy creator check - kept for backwards compatibility
-    function isCreator() {
-      return isCoach();
-    }
+      // Legacy creator check - kept for backwards compatibility
+      function isCreator() {
+        return isCoach();
+      }
 
-    function isCreatorOrHigher() {
-      return request.auth != null &&
-             ('role' in request.auth.token &&
-              request.auth.token.role in ['coach', 'assistant_coach', 'admin', 'superadmin']);
-    }
-    
-    // File type validation
-    function isValidImageType() {
-      return request.resource.contentType.matches('image/(jpeg|jpg|png|gif|webp|svg)');
-    }
-    
-    function isValidVideoType() {
-      return request.resource.contentType.matches('video/(mp4|webm|mov|avi|mkv)');
-    }
-    
-    function isValidAudioType() {
-      return request.resource.contentType.matches('audio/(mp3|wav|ogg|m4a)');
-    }
-    
-    function isValidDocumentType() {
-      return request.resource.contentType.matches('application/(pdf|msword|vnd\\.openxmlformats-officedocument\\.wordprocessingml\\.document)');
-    }
-    
-    // File size validation
-    function isValidFileSize(maxSizeInMB) {
-      return request.resource.size < maxSizeInMB * 1024 * 1024;
-    }
-    
-    // Check for malicious file names
-    function isValidFileName() {
-      return request.resource.name.matches('^[a-zA-Z0-9._-]+$') &&
-             !request.resource.name.matches('.*\\.(exe|bat|cmd|scr|com|pif|vbs|js|jar|sh|php|asp|jsp).*');
-    }
-    
-    // ===== STORAGE RULES =====
-    
-    // User profile images - Public read, owner write (FIXED: More permissive for all users)
-    match /users/{userId}/profile/{allPaths=**} {
-      allow read: if true; // Public for profile images
-      allow write: if isAuthenticated() &&
-                      (isOwner(userId) || request.auth.uid == userId) && // Allow authenticated user to upload to their own profile
-                      isValidImageType() &&
-                      isValidFileSize(10); // 10MB limit for profile images
-      allow delete: if isOwner(userId) || isAdmin();
-    }
-    
-    // User temporary uploads - For processing before moving to final location
-    match /users/{userId}/temp/{allPaths=**} {
-      allow read, write: if isAuthenticated() &&
-                            (isOwner(userId) || request.auth.uid == userId) &&
-                            isValidFileSize(1000); // 1GB limit for temp files
-      allow delete: if isOwner(userId) || isAdmin();
-    }
-    
-    // Creator content - Videos, images, supporting materials (STANDARDIZED PATH)
-    match /creators/{creatorId}/content/{allPaths=**} {
-      allow read: if isAuthenticated(); // Authenticated users can access content
-      allow write: if isOwner(creatorId);
-      allow delete: if isOwner(creatorId) || isAdmin();
-    }
+      function isCreatorOrHigher() {
+        return request.auth != null &&
+              ('role' in request.auth.token &&
+                request.auth.token.role in ['coach', 'assistant_coach', 'admin', 'superadmin']);
+      }
+      
+      // File type validation
+      function isValidImageType() {
+        return request.resource.contentType.matches('image/(jpeg|jpg|png|gif|webp|svg)');
+      }
+      
+      function isValidVideoType() {
+        return request.resource.contentType.matches('video/(mp4|webm|mov|avi|mkv)');
+      }
+      
+      function isValidAudioType() {
+        return request.resource.contentType.matches('audio/(mp3|wav|ogg|m4a)');
+      }
+      
+      function isValidDocumentType() {
+        return request.resource.contentType.matches('application/(pdf|msword|vnd\\.openxmlformats-officedocument\\.wordprocessingml\\.document)');
+      }
+      
+      // File size validation
+      function isValidFileSize(maxSizeInMB) {
+        return request.resource.size < maxSizeInMB * 1024 * 1024;
+      }
+      
+      // Check for malicious file names
+      function isValidFileName() {
+        return request.resource.name.matches('^[a-zA-Z0-9._-]+$') &&
+              !request.resource.name.matches('.*\\.(exe|bat|cmd|scr|com|pif|vbs|js|jar|sh|php|asp|jsp).*');
+      }
+      
+      // ===== STORAGE RULES =====
+      
+      // User profile images - Public read, ALL authenticated users can write to their own
+      match /users/{userId}/profile/{allPaths=**} {
+        allow read: if true; // Public for profile images
+        allow write: if isAuthenticated() && request.auth.uid == userId &&
+                        isValidImageType() &&
+                        isValidFileSize(10); // 10MB limit for profile images
+        allow delete: if request.auth.uid == userId || isAdmin();
+      }
+      
+      // User temporary uploads - For processing before moving to final location
+      match /users/{userId}/temp/{allPaths=**} {
+        allow read, write: if isAuthenticated() && request.auth.uid == userId &&
+                              isValidFileSize(1000); // 1GB limit for temp files
+        allow delete: if request.auth.uid == userId || isAdmin();
+      }
+      
+      // Creator content - Videos, images, supporting materials (STANDARDIZED PATH)
+      match /creators/{creatorId}/content/{allPaths=**} {
+        allow read: if isAuthenticated(); // Authenticated users can access content
+        allow write: if isOwner(creatorId);
+        allow delete: if isOwner(creatorId) || isAdmin();
+      }
 
-    // DEPRECATED: Legacy content path - Will be migrated to /creators/{creatorId}/content/
-    // Remove this rule after migration is complete
-    match /content/{userId}/{allPaths=**} {
-      allow read: if isAuthenticated(); // Authenticated users can access content
-      allow write: if false; // Disable new uploads to legacy path
-      allow delete: if isOwner(userId) || isAdmin(); // Allow cleanup of legacy files
-    }
-    
-    // Creator profile assets - Headshots, action shots, logos
-    match /creators/{creatorId}/assets/{allPaths=**} {
-      allow read: if true; // Public for creator assets
-      allow write: if isOwner(creatorId) &&
-                      isValidImageType() &&
-                      isValidFileSize(10) && // 10MB limit for creator assets
-                      isValidFileName();
-      allow delete: if isOwner(creatorId) || isAdmin();
-    }
+      // DEPRECATED: Legacy content path - Will be migrated to /creators/{creatorId}/content/
+      // Remove this rule after migration is complete
+      match /content/{userId}/{allPaths=**} {
+        allow read: if isAuthenticated(); // Authenticated users can access content
+        allow write: if false; // Disable new uploads to legacy path
+        allow delete: if isOwner(userId) || isAdmin(); // Allow cleanup of legacy files
+      }
+      
+      // Creator profile assets - Headshots, action shots, logos
+      match /creators/{creatorId}/assets/{allPaths=**} {
+        allow read: if true; // Public for creator assets
+        allow write: if isOwner(creatorId) &&
+                        isValidImageType() &&
+                        isValidFileSize(10) && // 10MB limit for creator assets
+                        isValidFileName();
+        allow delete: if isOwner(creatorId) || isAdmin();
+      }
 
-    // Contributor applications - For coach/creator application submissions
-    match /contributor-applications/{allPaths=**} {
-      allow read: if isAdmin(); // Only admins can read applications
-      allow write: if isAuthenticated() &&
-                      (isValidImageType() || isValidDocumentType()) &&
-                      isValidFileSize(10) && // 10MB limit for application files
-                      isValidFileName();
-      allow delete: if isAdmin();
-    }
-    
-    // Lesson content - Educational videos and materials
-    match /lessons/{lessonId}/{allPaths=**} {
-      allow read: if isAuthenticated(); // Authenticated users can access lessons
-      allow write: if isCreatorOrHigher() &&
-                      (isValidImageType() || isValidVideoType() || isValidAudioType() || isValidDocumentType()) &&
-                      isValidFileSize(10000) && // 10GB limit for large lesson content
-                      isValidFileName();
-      allow delete: if isCreatorOrHigher();
-    }
-    
-    // Gear images - Equipment photos and demonstrations
-    match /gear/{gearId}/{allPaths=**} {
-      allow read: if true; // Public for gear images
-      allow write: if isCreatorOrHigher() && 
-                      (isValidImageType() || isValidVideoType()) && 
-                      isValidFileSize(50) && // 50MB limit for gear images
-                      isValidFileName();
-      allow delete: if isCreatorOrHigher();
-    }
-    
-    // Public assets - Logos, marketing materials, static content
-    match /public/{allPaths=**} {
-      allow read: if true; // Public access
-      allow write: if isAdmin(); // Admin only for public assets
-      allow delete: if isAdmin();
-    }
-    
-    // Admin content - Administrative files and reports
-    match /admin/{allPaths=**} {
-      allow read, write, delete: if isAdmin(); // Admin only
-    }
-    
-    // System files - Backups, logs, system assets
-    match /system/{allPaths=**} {
-      allow read, write, delete: if isAdmin(); // Admin only
-    }
-    
-    // Temporary processing - For file processing and optimization
-    match /temp/processing/{allPaths=**} {
-      allow read, write, delete: if isAuthenticated() && 
-                                    isValidFileSize(2000) && // 2GB limit
-                                    isValidFileName();
-    }
-    
-    // User uploads - General user file uploads (FIXED: Allow all authenticated users)
-    match /uploads/{userId}/{allPaths=**} {
-      allow read: if isAuthenticated() && (isOwner(userId) || request.auth.uid == userId) || isAdmin();
-      allow write: if isAuthenticated() &&
-                      (isOwner(userId) || request.auth.uid == userId) &&
-                      (isValidImageType() || isValidVideoType() || isValidAudioType() || isValidDocumentType()) &&
-                      isValidFileSize(500); // 500MB limit
-      allow delete: if isOwner(userId) || isAdmin();
-    }
-    
-    // Video review submissions - Athletes upload videos for coach review (FIXED)
-    match /video-reviews/{userId}/{allPaths=**} {
-      allow read: if isAuthenticated() && (isOwner(userId) || request.auth.uid == userId) || isCreatorOrHigher(); // Athlete or any coach can read
-      allow write: if isAuthenticated() &&
-                      (isOwner(userId) || request.auth.uid == userId) &&
-                      isValidVideoType() &&
-                      isValidFileSize(500); // 500MB limit for video reviews
-      allow delete: if isOwner(userId) || isAdmin();
-    }
+      // Contributor applications - For coach/creator application submissions
+      match /contributor-applications/{allPaths=**} {
+        allow read: if isAdmin(); // Only admins can read applications
+        allow write: if isAuthenticated() &&
+                        (isValidImageType() || isValidDocumentType()) &&
+                        isValidFileSize(10) && // 10MB limit for application files
+                        isValidFileName();
+        allow delete: if isAdmin();
+      }
+      
+      // Lesson content - Educational videos and materials
+      match /lessons/{lessonId}/{allPaths=**} {
+        allow read: if isAuthenticated(); // Authenticated users can access lessons
+        allow write: if isCreatorOrHigher() &&
+                        (isValidImageType() || isValidVideoType() || isValidAudioType() || isValidDocumentType()) &&
+                        isValidFileSize(10000) && // 10GB limit for large lesson content
+                        isValidFileName();
+        allow delete: if isCreatorOrHigher();
+      }
+      
+      // Gear images - Equipment photos and demonstrations
+      match /gear/{gearId}/{allPaths=**} {
+        allow read: if true; // Public for gear images
+        allow write: if isCreatorOrHigher() && 
+                        (isValidImageType() || isValidVideoType()) && 
+                        isValidFileSize(50) && // 50MB limit for gear images
+                        isValidFileName();
+        allow delete: if isCreatorOrHigher();
+      }
+      
+      // Public assets - Logos, marketing materials, static content
+      match /public/{allPaths=**} {
+        allow read: if true; // Public access
+        allow write: if isAdmin(); // Admin only for public assets
+        allow delete: if isAdmin();
+      }
+      
+      // Admin content - Administrative files and reports
+      match /admin/{allPaths=**} {
+        allow read, write, delete: if isAdmin(); // Admin only
+      }
+      
+      // System files - Backups, logs, system assets
+      match /system/{allPaths=**} {
+        allow read, write, delete: if isAdmin(); // Admin only
+      }
+      
+      // Temporary processing - For file processing and optimization
+      match /temp/processing/{allPaths=**} {
+        allow read, write, delete: if isAuthenticated() && 
+                                      isValidFileSize(2000) && // 2GB limit
+                                      isValidFileName();
+      }
+      
+      // User uploads - General user file uploads
+      match /uploads/{userId}/{allPaths=**} {
+        allow read: if request.auth.uid == userId || isAdmin();
+        allow write: if isAuthenticated() && request.auth.uid == userId &&
+                        (isValidImageType() || isValidVideoType() || isValidAudioType() || isValidDocumentType()) &&
+                        isValidFileSize(500); // 500MB limit
+        allow delete: if request.auth.uid == userId || isAdmin();
+      }
+      
+      // Video review submissions - Athletes upload videos for coach review
+      match /video-reviews/{userId}/{allPaths=**} {
+        allow read: if request.auth.uid == userId || isCreatorOrHigher(); // Athlete or any coach can read
+        allow write: if isAuthenticated() && request.auth.uid == userId &&
+                        isValidVideoType() &&
+                        isValidFileSize(500); // 500MB limit for video reviews
+        allow delete: if request.auth.uid == userId || isAdmin();
+      }
 
-    // Coaching session recordings - Private session recordings
-    match /sessions/{sessionId}/{allPaths=**} {
-      allow read: if isAuthenticated() &&
-                     (request.auth.uid in resource.metadata.participants ||
-                      request.auth.uid == resource.metadata.creatorId);
-      allow write: if isCreatorOrHigher() &&
-                      (isValidVideoType() || isValidAudioType()) &&
-                      isValidFileSize(10000) && // 10GB limit for session recordings
-                      isValidFileName();
-      allow delete: if isCreatorOrHigher();
-    }
-    
-    // Analytics exports - Data exports and reports (admin only)
-    match /exports/{allPaths=**} {
-      allow read, write, delete: if isAdmin();
-    }
-    
-    // Backup files - System backups (admin only)
-    match /backups/{allPaths=**} {
-      allow read, write, delete: if isAdmin();
-    }
-    
-    // ===== DEFAULT DENY =====
-    // Any path not explicitly defined above is denied by default
-    match /{allPaths=**} {
-      allow read, write, delete: if false;
+      // Coaching session recordings - Private session recordings
+      match /sessions/{sessionId}/{allPaths=**} {
+        allow read: if isAuthenticated() &&
+                      (request.auth.uid in resource.metadata.participants ||
+                        request.auth.uid == resource.metadata.creatorId);
+        allow write: if isCreatorOrHigher() &&
+                        (isValidVideoType() || isValidAudioType()) &&
+                        isValidFileSize(10000) && // 10GB limit for session recordings
+                        isValidFileName();
+        allow delete: if isCreatorOrHigher();
+      }
+      
+      // Analytics exports - Data exports and reports (admin only)
+      match /exports/{allPaths=**} {
+        allow read, write, delete: if isAdmin();
+      }
+      
+      // Backup files - System backups (admin only)
+      match /backups/{allPaths=**} {
+        allow read, write, delete: if isAdmin();
+      }
+      
+      // ===== DEFAULT DENY =====
+      // Any path not explicitly defined above is denied by default
+      match /{allPaths=**} {
+        allow read, write, delete: if false;
+      }
     }
   }
-}
