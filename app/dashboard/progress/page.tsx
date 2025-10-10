@@ -13,7 +13,6 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
-import { useEnhancedRole } from '@/hooks/use-role-switcher'
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase.client'
 import {
@@ -31,7 +30,6 @@ import VideoReviewRequestModal from '@/components/athlete/VideoReviewRequestModa
 
 export default function AthleteDashboard() {
   const { user } = useAuth()
-  const { role, loading: roleLoading } = useEnhancedRole()
   const router = useRouter()
 
   const [showOnboarding, setShowOnboarding] = useState(false)
@@ -41,13 +39,8 @@ export default function AthleteDashboard() {
   const [hasCoachRole, setHasCoachRole] = useState(false)
   const [coachId, setCoachId] = useState<string | null>(null)
 
-  // Redirect non-athletes (but wait for role to actually load - don't redirect on 'guest' which is the loading state)
-  useEffect(() => {
-    if (!roleLoading && role && role !== 'athlete' && role !== 'guest') {
-      console.log(`⚠️ Non-athlete detected (${role}), redirecting to coach dashboard`)
-      router.replace('/dashboard/coach-unified')
-    }
-  }, [role, roleLoading, router])
+  // NO REDIRECT LOGIC HERE - Main dashboard handles all routing
+  // This page just renders athlete dashboard content
 
   // Check onboarding status
   useEffect(() => {
@@ -105,7 +98,7 @@ export default function AthleteDashboard() {
     alert('✅ Video review request submitted successfully! Your coach will be notified.')
   }
 
-  if (roleLoading || isCheckingOnboarding) {
+  if (isCheckingOnboarding) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#E8E6D8' }}>
         <div className="text-center">

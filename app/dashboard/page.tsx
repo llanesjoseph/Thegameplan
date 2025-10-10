@@ -1,19 +1,67 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { getRedirectResult } from 'firebase/auth'
-import { auth } from '@/lib/firebase.client'
+import { auth, db } from '@/lib/firebase.client'
 import { useAuth } from '@/hooks/use-auth'
 import SimpleAuth from '@/components/auth/SimpleAuth'
 import AppHeader from '@/components/ui/AppHeader'
-import ProfileCompletionBanner from '@/components/ui/ProfileCompletionBanner'
+import { doc, getDoc } from 'firebase/firestore'
 
+/**
+ * BULLETPROOF ROUTING SYSTEM
+ *
+ * This is the SINGLE SOURCE OF TRUTH for all dashboard routing.
+ * NO other page should have redirect logic - they just render content.
+ *
+ * Rules:
+ * 1. ALWAYS wait for real role from Firestore (never use 'guest' or undefined)
+ * 2. DIRECT routing to correct dashboard based on actual role
+ * 3. Athletes ALWAYS go to /dashboard/progress
+ * 4. Coaches/Creators ALWAYS go to /dashboard/coach-unified
+ * 5. Admins ALWAYS go to /dashboard/admin
+ */
 export default function Dashboard() {
- const { user, loading } = useAuth()
+ const { user, loading: authLoading } = useAuth()
  const router = useRouter()
  const pathname = usePathname()
  const hasRedirected = useRef(false)
+ const [actualRole, setActualRole] = useState<string | null>(null)
+ const [roleLoading, setRoleLoading] = useState(true)
+
+ // Fetch role directly from Firestore - BULLETPROOF approach
+ useEffect(() => {
+  if (!user?.uid) {
+   setRoleLoading(false)
+   setActualRole(null)
+   return
+  }
+
+  const fetchRole = async () => {
+   try {
+    console.log('🔍 FETCHING ROLE for:', user.email)
+    const userDocRef = doc(db, 'users', user.uid)
+    const userDoc = await getDoc(userDocRef)
+
+    if (userDoc.exists()) {
+     const role = userDoc.data()?.role || null
+     console.log('✅ ROLE FETCHED:', role, 'for', user.email)
+     setActualRole(role)
+    } else {
+     console.warn('⚠️ No user document found for:', user.uid)
+     setActualRole(null)
+    }
+   } catch (error) {
+    console.error('❌ Error fetching role:', error)
+    setActualRole(null)
+   } finally {
+    setRoleLoading(false)
+   }
+  }
+
+  fetchRole()
+ }, [user?.uid, user?.email])
 
  useEffect(() => {
   // Handle OAuth redirect result
@@ -22,7 +70,6 @@ export default function Dashboard() {
     const result = await getRedirectResult(auth)
     if (result) {
      console.log('Successfully signed in via redirect:', result.user.displayName)
-     // Redirect to onboarding for new users to complete their profile
      router.push('/onboarding')
     }
    } catch (error) {
@@ -33,61 +80,65 @@ export default function Dashboard() {
   handleRedirectResult()
  }, [])
 
- // Redirect authenticated users based on their role
+ // BULLETPROOF ROUTING - Wait for actual role, then route correctly
  useEffect(() => {
-  // Don't redirect while loading
-  if (loading) return
-
-  // Don't redirect if no user
-  if (!user) return
-
-  // Don't redirect if already redirected
-  if (hasRedirected.current) return
-
-  // Only redirect if we're on the base dashboard page
-  if (pathname !== '/dashboard') return
-
-  const userRole = (user as any).role
-
-  // CRITICAL: Do not default to 'creator' if role is undefined - this causes athletes to see creator dashboard
-  if (!userRole) {
-   console.error('❌ ROLE NOT LOADED - Waiting for role to be available')
-   return // Don't set hasRedirected, allow retry
+  // Must have user and actual role loaded
+  if (authLoading || roleLoading) {
+   console.log('⏳ Waiting for auth and role to load...')
+   return
   }
 
-  // Mark as redirected BEFORE redirecting to prevent double-redirect
+  // Must be on base dashboard page
+  if (pathname !== '/dashboard') {
+   return
+  }
+
+  // Must have user
+  if (!user) {
+   console.log('👤 No user - showing auth form')
+   return
+  }
+
+  // Must have actual role (not null, not undefined, not guest)
+  if (!actualRole || actualRole === 'guest') {
+   console.warn('⚠️ No valid role yet - waiting...', { actualRole, email: user.email })
+   return
+  }
+
+  // Prevent double redirect
+  if (hasRedirected.current) {
+   return
+  }
+
+  // Mark as redirected
   hasRedirected.current = true
 
-  // Use sessionStorage to prevent re-redirects on re-renders
-  const redirectKey = `dashboard_redirect_${user.uid}`
-  if (typeof window !== 'undefined') {
-   const lastRedirect = sessionStorage.getItem(redirectKey)
-   if (lastRedirect && Date.now() - parseInt(lastRedirect) < 5000) {
-    return // Don't redirect again within 5 seconds
-   }
-   sessionStorage.setItem(redirectKey, Date.now().toString())
-  }
+  // BULLETPROOF ROUTING LOGIC - Based on actual role from Firestore
+  console.log('🎯 ROUTING USER:', { email: user.email, role: actualRole })
 
-  // Route based on user role
-  if (userRole === 'superadmin') {
-   console.log('✅ Superadmin authenticated, redirecting to Admin Dashboard')
-   router.replace('/dashboard/admin')
-  } else if (userRole === 'admin') {
-   console.log('✅ Admin authenticated, redirecting to Admin Dashboard')
-   router.replace('/dashboard/admin')
-  } else if (userRole === 'athlete') {
-   console.log('✅ Athlete authenticated, redirecting to Progress Dashboard')
+  if (actualRole === 'athlete') {
+   console.log('🏃 ATHLETE DETECTED - Routing to /dashboard/progress')
    router.replace('/dashboard/progress')
-  } else if (userRole === 'creator' || userRole === 'coach' || userRole === 'assistant' || userRole === 'user') {
-   console.log(`✅ ${userRole} authenticated, redirecting to Coach Dashboard`)
+  } else if (actualRole === 'superadmin') {
+   console.log('👑 SUPERADMIN DETECTED - Routing to /dashboard/admin')
+   router.replace('/dashboard/admin')
+  } else if (actualRole === 'admin') {
+   console.log('🛡️ ADMIN DETECTED - Routing to /dashboard/admin')
+   router.replace('/dashboard/admin')
+  } else if (actualRole === 'coach' || actualRole === 'creator' || actualRole === 'assistant') {
+   console.log('👨‍🏫 COACH/CREATOR DETECTED - Routing to /dashboard/coach-unified')
+   router.replace('/dashboard/coach-unified')
+  } else if (actualRole === 'user') {
+   console.log('👤 USER DETECTED - Routing to /dashboard/coach-unified (default)')
    router.replace('/dashboard/coach-unified')
   } else {
-   console.warn('⚠️ Unknown role:', userRole, '- defaulting to Coach Dashboard')
+   console.warn('❓ UNKNOWN ROLE - Defaulting to /dashboard/coach-unified', { role: actualRole })
    router.replace('/dashboard/coach-unified')
   }
- }, [user, loading, pathname])
+ }, [user, authLoading, roleLoading, actualRole, pathname, router])
 
- if (loading) {
+ // Show loading state while auth or role is loading
+ if (authLoading || roleLoading) {
   return (
    <div className="min-h-screen bg-gray-50">
     <AppHeader />
@@ -95,6 +146,9 @@ export default function Dashboard() {
      <div className="text-center bg-white rounded-xl shadow-sm border border-gray-200 p-8">
       <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-cardinal mx-auto"></div>
       <p className="mt-4 text-gray-700">Loading your dashboard...</p>
+      <p className="mt-2 text-sm text-gray-500">
+       {authLoading ? 'Authenticating...' : 'Loading role...'}
+      </p>
      </div>
     </div>
    </div>
