@@ -105,12 +105,13 @@ export async function initializeUserDocument(user: FirebaseUser | null, defaultR
           }
         }
 
-        // Upgrade 'user' or 'creator' roles to 'coach' for dashboard access
-        // NEVER upgrade athletes - they are the core audience
+        // Upgrade 'user' or 'creator' roles to 'athlete' (most common user type)
+        // NEVER upgrade athletes - they are already the correct role
+        // NEVER upgrade coaches - they are already the correct role
         if (userData.role === 'user' || userData.role === 'creator') {
-          correctRole = 'coach'
+          correctRole = 'athlete'
           roleNeedsUpdate = true
-          console.log(`🔄 ROLE UPGRADE: Upgrading ${user.email} from '${userData.role}' to 'coach' for dashboard access`)
+          console.log(`🔄 ROLE UPGRADE: Upgrading ${user.email} from '${userData.role}' to 'athlete'`)
         }
       }
 
