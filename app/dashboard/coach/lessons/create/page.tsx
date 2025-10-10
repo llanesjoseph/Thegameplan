@@ -627,10 +627,13 @@ function CreateLessonPageContent() {
                   <option value="">Select sport...</option>
                   <option value="baseball">Baseball</option>
                   <option value="basketball">Basketball</option>
+                  <option value="bjj">Brazilian Jiu-Jitsu (BJJ)</option>
                   <option value="football">Football</option>
                   <option value="soccer">Soccer</option>
                   <option value="softball">Softball</option>
                   <option value="volleyball">Volleyball</option>
+                  <option value="wrestling">Wrestling</option>
+                  <option value="mma">MMA</option>
                   <option value="other">Other</option>
                 </select>
               </div>
