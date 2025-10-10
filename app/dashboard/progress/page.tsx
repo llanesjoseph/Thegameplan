@@ -8,7 +8,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
-import { doc, getDoc } from 'firebase/firestore'
+import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore'
 import { db } from '@/lib/firebase.client'
 import {
   BookOpen,
@@ -86,6 +86,7 @@ export default function AthleteDashboard() {
   const [showVideoReviewModal, setShowVideoReviewModal] = useState(false)
   const [hasCoachRole, setHasCoachRole] = useState(false)
   const [coachId, setCoachId] = useState<string | null>(null)
+  const [coachName, setCoachName] = useState<string>('')
   const [activeSection, setActiveSection] = useState<string | null>(null)
 
   // NO REDIRECT LOGIC HERE - Main dashboard handles all routing
@@ -166,9 +167,9 @@ export default function AthleteDashboard() {
           const userRoles = userData?.roles || []
           setHasCoachRole(
             userRole === 'coach' ||
-            userRole === 'creator' ||
+            userRole === 'assistant_coach' ||
             userRoles.includes('coach') ||
-            userRoles.includes('creator')
+            userRoles.includes('assistant_coach')
           )
 
           // Get assigned coach ID if exists
@@ -188,6 +189,31 @@ export default function AthleteDashboard() {
 
     checkOnboardingStatus()
   }, [user])
+
+  // Fetch coach name when coachId changes
+  useEffect(() => {
+    const fetchCoachName = async () => {
+      if (!coachId) {
+        setCoachName('')
+        return
+      }
+
+      try {
+        const coachRef = doc(db, 'users', coachId)
+        const coachSnap = await getDoc(coachRef)
+
+        if (coachSnap.exists()) {
+          const coachData = coachSnap.data()
+          setCoachName(coachData?.displayName || coachData?.email || 'Your Coach')
+        }
+      } catch (error) {
+        console.warn('Could not fetch coach name:', error)
+        setCoachName('Your Coach')
+      }
+    }
+
+    fetchCoachName()
+  }, [coachId])
 
   const handleOnboardingComplete = () => {
     setOnboardingComplete(true)
@@ -263,6 +289,53 @@ export default function AthleteDashboard() {
                 <X className="w-5 h-5" style={{ color: '#000000' }} />
               </button>
               {renderInlineContent()}
+            </div>
+          )}
+
+          {/* Message from Coach - Content Being Created */}
+          {!activeSection && (
+            <div className="bg-gradient-to-br from-[#20B2AA]/20 via-[#91A6EB]/10 to-white/90 backdrop-blur-sm rounded-xl lg:rounded-2xl shadow-lg border-2 p-6 sm:p-8" style={{ borderColor: '#20B2AA' }}>
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl flex items-center justify-center shadow-md" style={{ backgroundColor: '#20B2AA' }}>
+                  <MessageCircle className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg sm:text-xl font-heading mb-2" style={{ color: '#000000' }}>
+                    Your Coach is Building Your Training Program
+                  </h3>
+                  <p className="text-sm sm:text-base mb-3" style={{ color: '#000000', opacity: 0.7 }}>
+                    Your coach is working hard to create personalized content just for you. Hang tight! New lessons and training materials will be available soon.
+                  </p>
+                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/60 border" style={{ borderColor: '#20B2AA', borderOpacity: 0.3 }}>
+                    <Sparkles className="w-4 h-4" style={{ color: '#20B2AA' }} />
+                    <span className="text-sm font-semibold" style={{ color: '#20B2AA' }}>Content Coming Soon</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Your Coach Section - Links to Coach Profile (READ-ONLY) */}
+          {!activeSection && coachId && coachName && (
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl lg:rounded-2xl shadow-lg border border-white/50 overflow-hidden hover:shadow-2xl transition-shadow">
+              <Link href={`/coach/${coachId}`} className="block p-6 sm:p-8">
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 rounded-full flex items-center justify-center shadow-md" style={{ backgroundColor: '#8D9440' }}>
+                    <Users className="w-8 h-8 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-xl font-heading mb-1" style={{ color: '#000000' }}>
+                      Your Coach
+                    </h3>
+                    <p className="text-lg font-semibold mb-1" style={{ color: '#8D9440' }}>
+                      {coachName}
+                    </p>
+                    <p className="text-sm" style={{ color: '#000000', opacity: 0.6 }}>
+                      Click to view coach profile →
+                    </p>
+                  </div>
+                </div>
+              </Link>
             </div>
           )}
 

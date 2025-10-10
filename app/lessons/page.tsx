@@ -27,6 +27,7 @@ function LessonsContent() {
  const router = useRouter()
  const searchParams = useSearchParams()
  const coachFilter = searchParams?.get('coach') || null
+ const isEmbedded = searchParams?.get('embedded') === 'true'
 
  const [lessons, setLessons] = useState<LessonData[]>([])
  const [loading, setLoading] = useState(true)
@@ -130,9 +131,9 @@ function LessonsContent() {
 
  if (loading) {
   return (
-   <div className="min-h-screen bg-gradient-to-br from-cream via-cream to-sky-blue/10">
-    <AppHeader />
-    <div className="max-w-7xl mx-auto px-6 py-8">
+   <div className="min-h-screen bg-gradient-to-br from-cream via-cream to-sky-blue/10" style={{ backgroundColor: isEmbedded ? 'transparent' : undefined }}>
+    {!isEmbedded && <AppHeader />}
+    <div className={`max-w-7xl mx-auto px-6 ${isEmbedded ? 'py-4' : 'py-8'}`}>
      <div className="text-center py-20">
       <div className="w-16 h-16 border-4 border-sky-blue border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
       <p className="text-dark/60 text-lg">Loading lessons...</p>
@@ -144,9 +145,9 @@ function LessonsContent() {
 
  if (error) {
   return (
-   <div className="min-h-screen bg-gradient-to-br from-cream via-cream to-sky-blue/10">
-    <AppHeader />
-    <div className="max-w-7xl mx-auto px-6 py-8">
+   <div className="min-h-screen bg-gradient-to-br from-cream via-cream to-sky-blue/10" style={{ backgroundColor: isEmbedded ? 'transparent' : undefined }}>
+    {!isEmbedded && <AppHeader />}
+    <div className={`max-w-7xl mx-auto px-6 ${isEmbedded ? 'py-4' : 'py-8'}`}>
      <div className="text-center py-20">
       <div className="w-16 h-16 bg-cardinal/10 rounded-full flex items-center justify-center mx-auto mb-4">
        <div className="text-cardinal text-2xl">!</div>
@@ -176,20 +177,23 @@ function LessonsContent() {
  }
 
  return (
-  <div className="min-h-screen bg-gradient-to-br from-cream via-cream to-sky-blue/10">
-   <AppHeader />
-   <div className="max-w-7xl mx-auto px-6 py-8">
+  <div className="min-h-screen bg-gradient-to-br from-cream via-cream to-sky-blue/10" style={{ backgroundColor: isEmbedded ? 'transparent' : undefined }}>
+   {!isEmbedded && <AppHeader />}
+   <div className={`max-w-7xl mx-auto px-6 ${isEmbedded ? 'py-4' : 'py-8'}`}>
     {/* Back Button */}
-    <button
-     onClick={() => router.back()}
-     className="mb-6 inline-flex items-center gap-2 text-dark/60 hover:text-dark transition-colors"
-    >
-     <ArrowLeft className="w-5 h-5" />
-     Back
-    </button>
+    {!isEmbedded && (
+     <button
+      onClick={() => router.back()}
+      className="mb-6 inline-flex items-center gap-2 text-dark/60 hover:text-dark transition-colors"
+     >
+      <ArrowLeft className="w-5 h-5" />
+      Back
+     </button>
+    )}
 
     {/* Header */}
-    <div className="mb-8">
+    {!isEmbedded && (
+     <div className="mb-8">
      {coachFilter && (
       <Link href="/lessons" className="inline-flex items-center gap-2 text-sky-blue hover:text-black mb-4 transition-colors">
        <ArrowLeft className="w-4 h-4" />
@@ -208,6 +212,7 @@ function LessonsContent() {
       }
      </p>
     </div>
+    )}
 
     {/* Filters - Only show when there are lessons */}
     {lessons.length > 0 && (
@@ -445,7 +450,6 @@ export default function LessonsPage() {
  return (
   <Suspense fallback={
    <div className="min-h-screen bg-gradient-to-br from-cream via-cream to-sky-blue/10">
-    <AppHeader />
     <div className="max-w-7xl mx-auto px-6 py-8">
      <div className="text-center py-20">
       <div className="w-16 h-16 border-4 border-sky-blue border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>

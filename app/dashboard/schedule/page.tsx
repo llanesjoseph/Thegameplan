@@ -1,5 +1,6 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { db, auth } from '@/lib/firebase.client'
 import { doc, getDoc, setDoc, addDoc, collection, serverTimestamp, query, where, getDocs, limit } from 'firebase/firestore'
 import { onAuthStateChanged, signInAnonymously } from 'firebase/auth'
@@ -8,7 +9,10 @@ import AppHeader from '@/components/ui/AppHeader'
 
 type Slot = { day: string, start: string, end: string }
 
-export default function UserSchedule() {
+function UserScheduleContent() {
+ const searchParams = useSearchParams()
+ const isEmbedded = searchParams.get('embedded') === 'true'
+
  const [uid, setUid] = useState<string | null>(null)
  const [slots, setSlots] = useState<Slot[]>([{ day: 'Mon', start: '17:00', end: '18:00' }])
  const [creatorUid, setCreatorUid] = useState('')
@@ -144,22 +148,24 @@ export default function UserSchedule() {
  ]
 
  return (
-  <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
-   <AppHeader />
+  <div className="min-h-screen" style={{ backgroundColor: isEmbedded ? 'transparent' : '#E8E6D8' }}>
+   {!isEmbedded && <AppHeader />}
    <div className="relative overflow-hidden">
-    <div className="relative max-w-4xl mx-auto px-6 py-12">
+    <div className={`relative max-w-4xl mx-auto px-6 ${isEmbedded ? 'py-4' : 'py-12'}`}>
      {/* Header */}
-     <div className="text-center mb-12">
-      <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 bg-gradient-to-br from-sky-blue to-black">
-       <Calendar className="w-8 h-8 text-white" />
+     {!isEmbedded && (
+      <div className="text-center mb-12">
+       <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 bg-gradient-to-br from-sky-blue to-black">
+        <Calendar className="w-8 h-8 text-white" />
+       </div>
+       <h1 className="text-4xl font-heading uppercase tracking-wide mb-4" style={{ color: '#000000' }}>
+        Set Your Schedule
+       </h1>
+       <p className="text-xl max-w-2xl mx-auto" style={{ color: '#000000' }}>
+        Let coaches know when you're available for training sessions
+       </p>
       </div>
-      <h1 className="text-4xl font-heading uppercase tracking-wide mb-4" style={{ color: '#000000' }}>
-       Set Your Schedule
-      </h1>
-      <p className="text-xl max-w-2xl mx-auto" style={{ color: '#000000' }}>
-       Let coaches know when you're available for training sessions
-      </p>
-     </div>
+     )}
 
      {/* Single Column Layout */}
      <div className="max-w-3xl mx-auto space-y-8">
@@ -372,4 +378,17 @@ export default function UserSchedule() {
  )
 }
 
-
+export default function UserSchedule() {
+ return (
+  <Suspense fallback={
+   <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#E8E6D8' }}>
+    <div className="text-center">
+     <div className="w-16 h-16 border-4 border-t-transparent rounded-full animate-spin mx-auto mb-4" style={{ borderColor: '#20B2AA' }}></div>
+     <p style={{ color: '#000000', opacity: 0.7 }}>Loading schedule...</p>
+    </div>
+   </div>
+  }>
+   <UserScheduleContent />
+  </Suspense>
+ )
+}

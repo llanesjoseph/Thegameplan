@@ -22,20 +22,20 @@ service firebase.storage {
               (request.auth.token.role == 'admin' || request.auth.token.role == 'superadmin'));
     }
     
-    function isCreator() {
-      return request.auth != null &&
-             ('role' in request.auth.token && request.auth.token.role == 'creator');
-    }
-
     function isCoach() {
       return request.auth != null &&
              ('role' in request.auth.token && request.auth.token.role == 'coach');
     }
 
+    // Legacy creator check - kept for backwards compatibility
+    function isCreator() {
+      return isCoach();
+    }
+
     function isCreatorOrHigher() {
       return request.auth != null &&
              ('role' in request.auth.token &&
-              request.auth.token.role in ['creator', 'coach', 'admin', 'superadmin']);
+              request.auth.token.role in ['coach', 'assistant_coach', 'admin', 'superadmin']);
     }
     
     // File type validation
@@ -175,6 +175,16 @@ service firebase.storage {
       allow delete: if isOwner(userId) || isAdmin();
     }
     
+    // Video review submissions - Athletes upload videos for coach review
+    match /video-reviews/{userId}/{allPaths=**} {
+      allow read: if isOwner(userId) || isCreatorOrHigher(); // Athlete or any coach can read
+      allow write: if isOwner(userId) &&
+                      isValidVideoType() &&
+                      isValidFileSize(500) && // 500MB limit for video reviews
+                      isValidFileName();
+      allow delete: if isOwner(userId) || isAdmin();
+    }
+
     // Coaching session recordings - Private session recordings
     match /sessions/{sessionId}/{allPaths=**} {
       allow read: if isAuthenticated() &&
