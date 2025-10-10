@@ -246,7 +246,7 @@ export default function CoachProfilePage() {
               <p className="text-lg mb-3" style={{ color: '#20B2AA' }}>
                 {coach.sport}
               </p>
-              {coach.yearsExperience > 0 && (
+              {coach.yearsExperience && coach.yearsExperience > 0 && (
                 <div className="flex items-center gap-2 text-sm" style={{ color: '#000000', opacity: 0.7 }}>
                   <Trophy className="w-4 h-4" />
                   {coach.yearsExperience} years of coaching experience
