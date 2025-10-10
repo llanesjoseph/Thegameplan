@@ -377,7 +377,7 @@ export default function AthleteDashboard() {
         />
       )}
 
-      {/* AI Assistant Modal */}
+      {/* AI Assistant Modal - Coach's AI Clone */}
       {showAIAssistant && user && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="w-full max-w-4xl h-[600px]">
@@ -385,11 +385,14 @@ export default function AthleteDashboard() {
               mode="fullscreen"
               userId={user.uid}
               userEmail={user.email || ''}
-              title="AI Coach Assistant"
-              context="You are an expert sports training AI assistant. Help athletes with training questions, technique advice, injury prevention, nutrition, and motivation. Be supportive and encouraging."
-              placeholder="Ask me anything about your training..."
+              title={coachName ? `Chat with ${coachName}'s AI Assistant` : "AI Coach Assistant"}
+              context={`You are ${coachName ? coachName + "'s" : "a"} personal AI coaching assistant. You embody ${coachName ? "their" : "expert"} coaching philosophy, voice, and expertise. Provide specific, actionable advice based on ${coachName ? "their" : "professional"} methods and experience. Be personal, not generic.`}
+              placeholder={coachName ? `Ask ${coachName.split(' ')[0]} anything...` : "Ask me anything about your training..."}
               onClose={() => setShowAIAssistant(false)}
               requireLegalConsent={true}
+              sport={user.displayName?.includes('Soccer') ? 'Soccer' : undefined}
+              creatorId={coachId || undefined}
+              creatorName={coachName || undefined}
             />
           </div>
         </div>

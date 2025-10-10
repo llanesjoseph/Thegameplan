@@ -38,6 +38,8 @@ interface AIAssistantProps {
  userId?: string
  userEmail?: string
  sport?: string
+ creatorId?: string
+ creatorName?: string
  requireLegalConsent?: boolean
 }
 
@@ -52,6 +54,8 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
  userId,
  userEmail,
  sport,
+ creatorId,
+ creatorName,
  requireLegalConsent = true
 }) => {
  const [messages, setMessages] = useState<Message[]>([])
@@ -260,6 +264,8 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
      userEmail: userEmail,
      sessionId: sessionId,
      sport: sport,
+     creatorId: creatorId, // Coach ID for voice-cloned AI persona
+     creatorName: creatorName, // Coach name for context
      disclaimerAccepted: hasAcceptedTerms,
      userConsent: hasAcceptedTerms
     }),
