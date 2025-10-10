@@ -599,6 +599,16 @@ service cloud.firestore {
       allow write: if isOwner(creatorId) || isAdmin();
     }
 
+    // Platform Stats - Platform-wide statistics and metrics
+    match /platformStats/{statsId} {
+      // Admins can read platform stats
+      allow read: if isAdmin();
+      // Authenticated users can create/update stats (for tracking)
+      allow create, update: if isAuthenticated();
+      // Only admins can delete stats
+      allow delete: if isAdmin();
+    }
+
     // ===== DEFAULT DENY =====
     match /{document=**} {
       allow read, write: if false;

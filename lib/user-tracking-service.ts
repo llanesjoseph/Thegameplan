@@ -88,11 +88,13 @@ export async function trackNewUser(userData: Omit<NewUserData, 'timestamp'>): Pr
       // Update platform statistics
       await updatePlatformStats('newSignups')
     } else {
-      // Update login count for returning user
-      await updateDoc(doc(db, 'users', uid), {
-        lastLoginAt: serverTimestamp(),
-        'stats.loginCount': increment(1)
-      })
+      // DISABLED: lastLoginAt updates cause permission errors in production
+      // Athletes don't have permission to update their own user documents
+      // This was causing Firestore 400 errors on every login
+      // await updateDoc(doc(db, 'users', uid), {
+      //   lastLoginAt: serverTimestamp(),
+      //   'stats.loginCount': increment(1)
+      // })
       console.log(`🔄 Returning user login tracked for ${email}`)
     }
 
@@ -131,11 +133,12 @@ export async function saveLessonData(lessonData: Omit<LessonData, 'id' | 'create
     const lessonRef = await addDoc(collection(db, 'lessons'), lessonDoc)
     console.log(`✅ Lesson saved with ID: ${lessonRef.id}`)
 
-    // Update user stats
-    await updateDoc(doc(db, 'users', userId), {
-      'stats.lessonsCreated': increment(1),
-      lastActive: serverTimestamp()
-    })
+    // DISABLED: User stats updates cause permission errors in production
+    // Users don't have permission to update their own user documents
+    // await updateDoc(doc(db, 'users', userId), {
+    //   'stats.lessonsCreated': increment(1),
+    //   lastActive: serverTimestamp()
+    // })
 
     // Update platform statistics
     await updatePlatformStats('lessonsCreated')
