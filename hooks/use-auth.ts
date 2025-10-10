@@ -50,8 +50,9 @@ export function useAuth() {
               const correctRole = getKnownCoachRole(email)
               await initializeUserDocument(user, correctRole || 'coach')
             } else {
-              // Initialize regular user document with coach role for dashboard access
-              await initializeUserDocument(user, 'coach') // Default to coach for dashboard access
+              // Initialize regular user document - DO NOT auto-assign a role
+              // Let the user document initialization handle role assignment
+              await initializeUserDocument(user, 'athlete') // Default to athlete (most common user type)
             }
 
             // Mark this user as initialized to prevent repeated calls
