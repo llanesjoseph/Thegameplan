@@ -137,7 +137,7 @@ export default function AthleteDashboard() {
       description: 'Switch to your coach dashboard',
       icon: LayoutDashboard,
       color: '#000000',
-      path: '/dashboard/coach-unified',
+      path: null,
       action: () => router.push('/dashboard/coach-unified')
     })
   }
