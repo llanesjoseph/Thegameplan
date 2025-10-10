@@ -292,29 +292,6 @@ export default function AthleteDashboard() {
             </div>
           )}
 
-          {/* Message from Coach - Content Being Created */}
-          {!activeSection && (
-            <div className="bg-gradient-to-br from-[#20B2AA]/20 via-[#91A6EB]/10 to-white/90 backdrop-blur-sm rounded-xl lg:rounded-2xl shadow-lg border-2 p-6 sm:p-8" style={{ borderColor: '#20B2AA' }}>
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl flex items-center justify-center shadow-md" style={{ backgroundColor: '#20B2AA' }}>
-                  <MessageCircle className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-lg sm:text-xl font-heading mb-2" style={{ color: '#000000' }}>
-                    Your Coach is Building Your Training Program
-                  </h3>
-                  <p className="text-sm sm:text-base mb-3" style={{ color: '#000000', opacity: 0.7 }}>
-                    Your coach is working hard to create personalized content just for you. Hang tight! New lessons and training materials will be available soon.
-                  </p>
-                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/60 border" style={{ borderColor: 'rgba(32, 178, 170, 0.3)' }}>
-                    <Sparkles className="w-4 h-4" style={{ color: '#20B2AA' }} />
-                    <span className="text-sm font-semibold" style={{ color: '#20B2AA' }}>Content Coming Soon</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* Your Coach Section - Links to Coach Profile (READ-ONLY) */}
           {!activeSection && coachId && coachName && (
             <div className="bg-white/90 backdrop-blur-sm rounded-xl lg:rounded-2xl shadow-lg border border-white/50 overflow-hidden hover:shadow-2xl transition-shadow">
