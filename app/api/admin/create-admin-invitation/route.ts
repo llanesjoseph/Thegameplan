@@ -109,6 +109,11 @@ export async function POST(request: NextRequest) {
     let emailError = null
 
     try {
+      // Check if Resend API key is configured
+      if (!process.env.RESEND_API_KEY) {
+        throw new Error('RESEND_API_KEY environment variable is not configured')
+      }
+
       const emailResult = await resend.emails.send({
         from: 'PLAYBOOKD Team <noreply@playbookd.com>',
         to: recipientEmail,
@@ -119,10 +124,14 @@ export async function POST(request: NextRequest) {
       if (emailResult.data?.id) {
         emailSent = true
         console.log(`✅ Admin invitation email sent to ${recipientEmail} (${emailResult.data.id})`)
+      } else if (emailResult.error) {
+        // Resend returned an error
+        emailError = `Resend API error: ${JSON.stringify(emailResult.error)}`
+        console.error('Resend API error:', emailResult.error)
       }
     } catch (error: any) {
       console.error('Error sending admin invitation email:', error)
-      emailError = error.message
+      emailError = error.message || 'Unknown email error'
     }
 
     // Update invitation with email status
