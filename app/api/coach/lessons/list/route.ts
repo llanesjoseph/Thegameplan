@@ -45,11 +45,13 @@ export async function GET(request: NextRequest) {
     }
 
     // 3. Query lessons by creatorUid from content collection
+    console.log(`✅ Querying content collection for creatorUid: ${uid}`)
     const lessonsSnapshot = await adminDb
       .collection('content')
       .where('creatorUid', '==', uid)
       .orderBy('createdAt', 'desc')
       .get()
+    console.log(`✅ Query successful: Found ${lessonsSnapshot.docs.length} lessons`)
 
     const lessons = lessonsSnapshot.docs.map(doc => ({
       id: doc.id,
@@ -63,9 +65,18 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error: any) {
-    console.error('Error listing lessons:', error)
+    console.error('❌ CRITICAL ERROR listing lessons:', {
+      message: error.message,
+      code: error.code,
+      stack: error.stack,
+      name: error.name
+    })
     return NextResponse.json(
-      { error: error.message || 'Internal server error' },
+      {
+        error: error.message || 'Internal server error',
+        details: error.code || error.name,
+        hint: 'Check Vercel logs for full error details'
+      },
       { status: 500 }
     )
   }
