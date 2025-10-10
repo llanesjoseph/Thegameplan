@@ -21,8 +21,8 @@ function CoachProfileContent() {
 
   const [activeTab, setActiveTab] = useState('images')
 
-  // Only allow coaches to access this page
-  if (role !== 'coach' && role !== 'admin' && role !== 'superadmin') {
+  // Only allow coaches to access this page (includes legacy 'creator' role)
+  if (role !== 'coach' && role !== 'creator' && role !== 'admin' && role !== 'superadmin') {
     // Show loading state while checking auth
   if (authLoading) {
     return (
