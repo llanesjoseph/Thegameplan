@@ -41,9 +41,10 @@ export default function AthleteDashboard() {
   const [hasCoachRole, setHasCoachRole] = useState(false)
   const [coachId, setCoachId] = useState<string | null>(null)
 
-  // Redirect non-athletes
+  // Redirect non-athletes (but wait for role to actually load - don't redirect on 'guest' which is the loading state)
   useEffect(() => {
-    if (!roleLoading && role && role !== 'athlete') {
+    if (!roleLoading && role && role !== 'athlete' && role !== 'guest') {
+      console.log(`⚠️ Non-athlete detected (${role}), redirecting to coach dashboard`)
       router.replace('/dashboard/coach-unified')
     }
   }, [role, roleLoading, router])
