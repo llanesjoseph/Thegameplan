@@ -4,8 +4,9 @@ import { useAuth } from '@/hooks/use-auth'
 import { auth, db } from '@/lib/firebase.client'
 import { doc, setDoc, getDoc } from 'firebase/firestore'
 import { useEnhancedRole } from "@/hooks/use-role-switcher"
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import {
  User,
  Camera,
@@ -40,9 +41,11 @@ import StreamlinedVoiceCapture from '@/components/coach/StreamlinedVoiceCapture'
 import VoiceCaptureIntake from '@/components/coach/VoiceCaptureIntake'
 import { SPORTS } from '@/lib/constants/sports'
 
-export default function ProfilePage() {
+function ProfilePageContent() {
  const { user } = useAuth()
  const { role, loading } = useEnhancedRole()
+ const searchParams = useSearchParams()
+ const embedded = searchParams.get('embedded') === 'true'
  const [isEditing, setIsEditing] = useState(false)
  const [saveStatus, setSaveStatus] = useState<string | null>(null) // 'saving', 'success', 'error'
  const [showVoiceCapture, setShowVoiceCapture] = useState(false)
@@ -344,15 +347,17 @@ export default function ProfilePage() {
  }
 
  return (
-  <main className="min-h-screen bg-gradient-to-br from-cream via-cream to-sky-blue/10">
-   <AppHeader />
+  <main className={embedded ? "" : "min-h-screen bg-gradient-to-br from-cream via-cream to-sky-blue/10"}>
+   {!embedded && <AppHeader />}
    <div className="max-w-5xl mx-auto px-6 py-8">
     {/* Page Header */}
     <div className="flex items-center justify-between mb-8">
      <div className="flex items-center gap-4">
-      <Link href="/dashboard" className="p-3 hover:bg-white/80 rounded-xl transition-colors shadow-sm backdrop-blur-sm border border-white/20">
-       <ArrowLeft className="w-5 h-5 text-dark" />
-      </Link>
+      {!embedded && (
+       <Link href="/dashboard" className="p-3 hover:bg-white/80 rounded-xl transition-colors shadow-sm backdrop-blur-sm border border-white/20">
+        <ArrowLeft className="w-5 h-5 text-dark" />
+       </Link>
+      )}
       <div>
        <h1 className="text-4xl text-dark font-heading">
         {role === 'creator' ? 'Coach Profile' : 'Athlete Profile'}
@@ -1439,4 +1444,19 @@ export default function ProfilePage() {
    )}
   </main>
  )
+}
+
+export default function ProfilePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-cream via-cream to-sky-blue/10">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
+          <p className="text-dark">Loading profile...</p>
+        </div>
+      </div>
+    }>
+      <ProfilePageContent />
+    </Suspense>
+  )
 }

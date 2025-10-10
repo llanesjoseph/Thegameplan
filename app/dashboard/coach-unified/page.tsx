@@ -176,7 +176,7 @@ export default function CoachUnifiedDashboard() {
       'resources': '/dashboard/coach/resources?embedded=true',
       'analytics': '/dashboard/coach/analytics?embedded=true',
       'invite': '/dashboard/coach/invite?embedded=true',
-      'profile': '/dashboard/coach/profile?embedded=true',
+      'profile': '/dashboard/profile?embedded=true',
       'announcements': '/dashboard/coach/announcements?embedded=true',
       'assistants': '/dashboard/coach/assistants?embedded=true'
     }
