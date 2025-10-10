@@ -104,8 +104,8 @@ export async function initializeUserDocument(user: FirebaseUser | null, defaultR
       if (isRoleProtected) {
         console.log(`🔒 ROLE PROTECTED: ${user.email} has manually set role '${userData.role}' - no auto-corrections will be applied`)
       } else {
-        // Skip auto-corrections for superadmins and athletes
-        if (!isSuperadmin(user.email) && userData.role !== 'athlete') {
+        // Skip auto-corrections for superadmins, athletes, and creators
+        if (!isSuperadmin(user.email) && userData.role !== 'athlete' && userData.role !== 'creator') {
           // PRIORITY 1: Check if known coach and needs correction
           if (user.email && isKnownCoach(user.email)) {
             const shouldBeRole = getKnownCoachRole(user.email)
@@ -115,17 +115,18 @@ export async function initializeUserDocument(user: FirebaseUser | null, defaultR
               console.log(`🚨 ROLE CORRECTION: ${user.email} should be ${shouldBeRole}, currently ${userData.role}`)
             }
           }
-          // PRIORITY 2: Upgrade 'user' or 'creator' to 'athlete' ONLY if NOT a known coach
-          else if (userData.role === 'user' || userData.role === 'creator') {
+          // PRIORITY 2: Upgrade 'user' to 'athlete' ONLY if NOT a known coach
+          // NOTE: 'creator' is a valid coach-level role and should NOT be auto-upgraded
+          else if (userData.role === 'user') {
             correctRole = 'athlete'
             roleNeedsUpdate = true
             console.log(`🔄 ROLE UPGRADE: Upgrading ${user.email} from '${userData.role}' to 'athlete'`)
           }
         }
 
-        // CRITICAL: Protect athlete role from any auto-corrections
-        if (userData.role === 'athlete') {
-          console.log(`🛡️ ATHLETE ROLE PROTECTED: ${user.email} - no auto-corrections applied`)
+        // CRITICAL: Protect athlete and creator roles from any auto-corrections
+        if (userData.role === 'athlete' || userData.role === 'creator') {
+          console.log(`🛡️ ROLE PROTECTED: ${user.email} role '${userData.role}' - no auto-corrections applied`)
         }
       }
 

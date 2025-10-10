@@ -29,7 +29,9 @@
       "Bash(do echo \"=== $file ===\" head -10 \"$file\")",
       "Bash(npx vercel:*)",
       "Bash(find:*)",
-      "Bash(Get-Content .env.local)"
+      "Bash(Get-Content .env.local)",
+      "Bash(firebase auth:export:*)",
+      "Bash(Get-Content ..nextserverappapicoachlessonslistroute.js)"
     ],
     "deny": [],
     "ask": []

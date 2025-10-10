@@ -50,7 +50,7 @@ export async function GET(
 
     // 3. Get lesson
     const lessonId = params.id
-    const lessonDoc = await adminDb.collection('lessons').doc(lessonId).get()
+    const lessonDoc = await adminDb.collection('content').doc(lessonId).get()
 
     if (!lessonDoc.exists) {
       return NextResponse.json(
@@ -62,7 +62,7 @@ export async function GET(
     const lessonData = lessonDoc.data()
 
     // 4. Verify ownership (or admin)
-    if (lessonData?.coachId !== uid && !['admin', 'superadmin'].includes(userRole)) {
+    if (lessonData?.creatorUid !== uid && !['admin', 'superadmin'].includes(userRole)) {
       return NextResponse.json(
         { error: 'You can only view your own lessons' },
         { status: 403 }
@@ -135,7 +135,7 @@ export async function PUT(
 
     // 3. Get existing lesson
     const lessonId = params.id
-    const lessonDoc = await adminDb.collection('lessons').doc(lessonId).get()
+    const lessonDoc = await adminDb.collection('content').doc(lessonId).get()
 
     if (!lessonDoc.exists) {
       return NextResponse.json(
@@ -147,7 +147,7 @@ export async function PUT(
     const existingLesson = lessonDoc.data()
 
     // 4. Verify ownership
-    if (existingLesson?.coachId !== uid && !['admin', 'superadmin'].includes(userRole)) {
+    if (existingLesson?.creatorUid !== uid && !['admin', 'superadmin'].includes(userRole)) {
       return NextResponse.json(
         { error: 'You can only update your own lessons' },
         { status: 403 }
@@ -195,9 +195,9 @@ export async function PUT(
       updatedAt: new Date().toISOString(),
 
       // Preserve original metadata
-      coachId: existingLesson?.coachId,
-      coachName: existingLesson?.coachName,
-      coachEmail: existingLesson?.coachEmail,
+      creatorUid: existingLesson?.creatorUid,
+      creatorName: existingLesson?.creatorName,
+      creatorEmail: existingLesson?.creatorEmail,
       status: existingLesson?.status || 'published',
       createdAt: existingLesson?.createdAt,
       publishedAt: existingLesson?.publishedAt,
@@ -208,7 +208,7 @@ export async function PUT(
     }
 
     // 8. Save to Firestore
-    await adminDb.collection('lessons').doc(lessonId).update(updateData)
+    await adminDb.collection('content').doc(lessonId).update(updateData)
 
     // 9. Return success
     return NextResponse.json({

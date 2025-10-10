@@ -56,7 +56,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // 4. Get lesson
-    const lessonDoc = await adminDb.collection('lessons').doc(lessonId).get()
+    const lessonDoc = await adminDb.collection('content').doc(lessonId).get()
     if (!lessonDoc.exists) {
       return NextResponse.json(
         { error: 'Lesson not found' },
@@ -67,7 +67,7 @@ export async function DELETE(request: NextRequest) {
     const lessonData = lessonDoc.data()
 
     // 5. Verify ownership
-    if (lessonData?.coachId !== uid) {
+    if (lessonData?.creatorUid !== uid) {
       return NextResponse.json(
         { error: 'You can only delete your own lessons' },
         { status: 403 }
@@ -75,7 +75,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // 6. Delete lesson
-    await adminDb.collection('lessons').doc(lessonId).delete()
+    await adminDb.collection('content').doc(lessonId).delete()
 
     // 7. Update coach's lesson count
     await adminDb.collection('users').doc(uid).update({

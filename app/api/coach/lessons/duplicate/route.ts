@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 4. Get original lesson
-    const lessonDoc = await adminDb.collection('lessons').doc(lessonId).get()
+    const lessonDoc = await adminDb.collection('content').doc(lessonId).get()
     if (!lessonDoc.exists) {
       return NextResponse.json(
         { error: 'Lesson not found' },
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
     const originalLesson = lessonDoc.data()
 
     // 5. Verify ownership
-    if (originalLesson?.coachId !== uid) {
+    if (originalLesson?.creatorUid !== uid) {
       return NextResponse.json(
         { error: 'You can only duplicate your own lessons' },
         { status: 403 }
@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
       ratingCount: 0
     }
 
-    const newLessonRef = await adminDb.collection('lessons').add(duplicateLesson)
+    const newLessonRef = await adminDb.collection('content').add(duplicateLesson)
 
     // 7. Update coach's lesson count
     await adminDb.collection('users').doc(uid).update({

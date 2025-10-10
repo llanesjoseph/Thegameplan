@@ -44,10 +44,10 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // 3. Query lessons by coachId
+    // 3. Query lessons by creatorUid from content collection
     const lessonsSnapshot = await adminDb
-      .collection('lessons')
-      .where('coachId', '==', uid)
+      .collection('content')
+      .where('creatorUid', '==', uid)
       .orderBy('createdAt', 'desc')
       .get()
 
