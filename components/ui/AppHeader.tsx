@@ -247,29 +247,18 @@ export default function AppHeader({ className = '', title, subtitle }: AppHeader
 
   return (
     <header className={`bg-white px-4 py-4 shadow-sm ${className}`}>
-      {/* Add Sports World Font */}
-      <style jsx global>{`
-        @font-face {
-          font-family: 'Sports World';
-          src: url('/fonts/sports-world-regular.ttf') format('truetype');
-          font-weight: normal;
-          font-style: normal;
-          font-display: swap;
-        }
-      `}</style>
-
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* Left Side - Logo and optional title */}
         <div className="flex items-center gap-6">
           <button
             onClick={handleLogoClick}
-            className="text-2xl tracking-wider hover:opacity-80 transition-opacity"
+            className="text-3xl hover:opacity-80 transition-opacity"
             style={{
-              fontFamily: 'Sports World, Impact, Arial Black, sans-serif',
+              fontFamily: 'var(--font-permanent-marker)',
               color: '#624A41'
             }}
           >
-            PLAYBOOKD
+            AthLeap
           </button>
 
           {title && (

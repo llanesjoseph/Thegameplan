@@ -2,7 +2,7 @@ import { Resend } from 'resend'
 import { getEmailTemplate } from './email-templates'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://playbookd.crucibleanalytics.dev'
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://athleap.crucibleanalytics.dev'
 
 interface CoachInvitationEmailProps {
   to: string
@@ -14,7 +14,7 @@ interface CoachInvitationEmailProps {
   customMessage?: string
   expiresAt: string
   recipientName?: string
-  templateType?: 'playbookd' | 'simple'
+  templateType?: 'athleap' | 'simple'
 }
 
 export async function sendCoachInvitationEmail({
@@ -27,7 +27,7 @@ export async function sendCoachInvitationEmail({
   customMessage,
   expiresAt,
   recipientName,
-  templateType = 'playbookd'
+  templateType = 'athleap'
 }: CoachInvitationEmailProps) {
   try {
     // Generate the HTML using the new template system
@@ -43,9 +43,9 @@ export async function sendCoachInvitationEmail({
     })
 
     const { data, error } = await resend.emails.send({
-      from: 'PLAYBOOKD <noreply@mail.crucibleanalytics.dev>', // Use verified mail subdomain
+      from: 'AthLeap <noreply@mail.crucibleanalytics.dev>', // Use verified mail subdomain
       to: [to],
-      subject: `🏆 You're Invited to Join ${organizationName} - PLAYBOOKD`,
+      subject: `🏆 You're Invited to Join ${organizationName} - AthLeap`,
       html: htmlContent
     })
 
@@ -77,13 +77,13 @@ export async function sendApplicationStatusEmail({
   applicantName,
   organizationName,
   status,
-  loginUrl = 'https://playbookd.com/dashboard'
+  loginUrl = 'https://athleap.com/dashboard'
 }: ApplicationStatusEmailProps) {
   try {
     const isApproved = status === 'approved'
 
     const { data, error } = await resend.emails.send({
-      from: 'PLAYBOOKD <joseph@crucibleanalytics.dev>',
+      from: 'AthLeap <joseph@crucibleanalytics.dev>',
       to: [to],
       subject: isApproved
         ? `🎉 Welcome to ${organizationName} - Coach Application Approved!`
@@ -164,7 +164,7 @@ export async function sendApplicationStatusEmail({
         <body>
           <div class="container">
             <div class="header">
-              <div class="logo">🏆 PLAYBOOKD</div>
+              <div class="logo">🏆 AthLeap</div>
               <h1>Application ${isApproved ? 'Approved!' : 'Update'}</h1>
             </div>
 
@@ -203,7 +203,7 @@ export async function sendApplicationStatusEmail({
             `}
 
             <div class="footer">
-              <p><strong>PLAYBOOKD</strong> - For The Future of Sports</p>
+              <p><strong>AthLeap</strong> - The Work Before the Win</p>
               <p>If you have any questions, please contact the ${organizationName} team.</p>
             </div>
           </div>
@@ -270,16 +270,16 @@ export async function sendAthleteInvitationEmail({
     const expiryDate = new Date(expiresAt).toLocaleDateString()
 
     const { data, error } = await resend.emails.send({
-      from: 'PLAYBOOKD <noreply@mail.crucibleanalytics.dev>',
+      from: 'AthLeap <noreply@mail.crucibleanalytics.dev>',
       to: [to],
-      subject: `🏆 You're Invited to Train with ${coachName} - PLAYBOOKD`,
+      subject: `🏆 You're Invited to Train with ${coachName} - AthLeap`,
       html: `
         <!DOCTYPE html>
         <html lang="en">
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Athletic Training Invitation - PLAYBOOKD</title>
+            <title>Athletic Training Invitation - AthLeap</title>
             <style>
                 body { font-family: 'Inter', sans-serif; background-color: #E8E6D8; margin: 0; padding: 16px; }
                 .cta-button { background-color: #A01C21; color: white; font-weight: bold; padding: 16px 40px; border-radius: 8px; text-decoration: none; text-transform: uppercase; letter-spacing: 2px; font-size: 18px; display: inline-block; }
@@ -291,20 +291,20 @@ export async function sendAthleteInvitationEmail({
         <body>
             <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); overflow: hidden;">
                 <header style="background-color: #13367A; padding: 24px; text-align: center;">
-                    <h1 style="font-size: 3rem; color: white; letter-spacing: 3px; margin: 0; font-weight: bold;">PLAYBOOKD</h1>
-                    <p style="color: #87ceeb; font-size: 14px; margin: 4px 0 0 0; letter-spacing: 3px;">FOR THE FUTURE OF SPORTS</p>
+                    <h1 style="font-family: 'Permanent Marker', cursive; font-size: 3rem; color: white; margin: 0;">AthLeap</h1>
+                    <p style="color: #87ceeb; font-size: 14px; margin: 4px 0 0 0; letter-spacing: 3px;">THE WORK BEFORE THE WIN</p>
                 </header>
                 <div><img src="https://res.cloudinary.com/dr0jtjwlh/image/upload/v1758865671/2023_11_2_ze5r3n.jpg" alt="Athletic Training" style="width: 100%; height: auto; display: block;"></div>
                 <main style="padding: 40px 24px; text-align: center;">
                     <h2 style="font-size: 2.5rem; color: #13367A; line-height: 1.2; margin: 0 0 8px 0; font-weight: bold;">WELCOME ${athleteName.toUpperCase()}</h2>
                     <h3 style="font-size: 1.5rem; color: #A01C21; margin: 0 0 24px 0; font-weight: bold;">JOIN ${coachName.toUpperCase()}'S ${sport.toUpperCase()} TRAINING</h3>
                     <div class="invitation-card"><p style="margin: 0; color: #374151; font-size: 16px; line-height: 1.6;"><strong>${coachName}</strong> has invited you to join their elite ${sport} training program!</p>${customMessage ? `<p style="margin: 16px 0 0 0; color: #6366f1; font-style: italic; font-size: 15px;">"${customMessage}"</p>` : ''}</div>
-                    <p style="color: #4b5563; margin: 24px auto; max-width: 500px; line-height: 1.6; font-size: 16px;">Take your ${sport} skills to the next level with personalized coaching, advanced training techniques, and performance tracking on the PLAYBOOKD platform.</p>
+                    <p style="color: #4b5563; margin: 24px auto; max-width: 500px; line-height: 1.6; font-size: 16px;">Take your ${sport} skills to the next level with personalized coaching, advanced training techniques, and performance tracking on the AthLeap platform.</p>
                     <div style="margin: 32px 0;"><a href="${invitationUrl}" class="cta-button">Join Training Program</a></div>
                     <div class="qr-section"><h4 style="color: #13367A; margin: 0 0 12px 0; font-size: 18px; font-weight: 600;">Or scan this QR code:</h4><img src="${qrCodeUrl}" alt="Training Invitation QR Code" style="max-width: 180px; height: auto; margin: 0 auto; display: block;"><p style="font-size: 12px; color: #6b7280; margin: 12px 0 0 0;">Scan with your phone camera to open the invitation</p></div>
                     <div class="expiry-notice">⏰ <strong>Important:</strong> This invitation expires on ${expiryDate}</div>
                 </main>
-                <footer style="background-color: #f9fafb; text-align: center; padding: 24px; border-top: 1px solid #e5e7eb;"><p style="color: #6b7280; font-size: 14px; margin: 0 0 8px 0;">This invitation was sent by ${coachName}</p><p style="margin: 0; font-weight: 700; color: #13367A; font-size: 16px;">PLAYBOOKD - FOR THE FUTURE OF SPORTS</p></footer>
+                <footer style="background-color: #f9fafb; text-align: center; padding: 24px; border-top: 1px solid #e5e7eb;"><p style="color: #6b7280; font-size: 14px; margin: 0 0 8px 0;">This invitation was sent by ${coachName}</p><p style="margin: 0; font-weight: 700; color: #13367A; font-size: 16px;">AthLeap - The Work Before the Win</p></footer>
             </div>
         </body>
         </html>
@@ -342,35 +342,35 @@ export async function sendCoachNotificationEmail({
     switch (type) {
       case 'invitation_sent':
         if (invitationsSummary) {
-          subject = `✅ ${invitationsSummary.totalSent} Athlete Invitation${invitationsSummary.totalSent > 1 ? 's' : ''} Sent Successfully - PLAYBOOKD`
+          subject = `✅ ${invitationsSummary.totalSent} Athlete Invitation${invitationsSummary.totalSent > 1 ? 's' : ''} Sent Successfully - AthLeap`
           htmlContent = generateInvitationSentEmail(coachName, invitationsSummary)
         }
         break
 
       case 'invitation_accepted':
         if (athleteInfo) {
-          subject = `🎉 ${athleteInfo.name} Accepted Your Invitation - PLAYBOOKD`
+          subject = `🎉 ${athleteInfo.name} Accepted Your Invitation - AthLeap`
           htmlContent = generateInvitationAcceptedEmail(coachName, athleteInfo)
         }
         break
 
       case 'invitation_declined':
         if (athleteInfo) {
-          subject = `📢 ${athleteInfo.name} Declined Your Invitation - PLAYBOOKD`
+          subject = `📢 ${athleteInfo.name} Declined Your Invitation - AthLeap`
           htmlContent = generateInvitationDeclinedEmail(coachName, athleteInfo)
         }
         break
 
       case 'invitation_expired':
         if (athleteInfo) {
-          subject = `⏰ Invitation to ${athleteInfo.name} Has Expired - PLAYBOOKD`
+          subject = `⏰ Invitation to ${athleteInfo.name} Has Expired - AthLeap`
           htmlContent = generateInvitationExpiredEmail(coachName, athleteInfo)
         }
         break
 
       case 'athlete_profile_created':
         if (athleteInfo) {
-          subject = `🎉 ${athleteInfo.name} Created Their Athlete Profile - PLAYBOOKD`
+          subject = `🎉 ${athleteInfo.name} Created Their Athlete Profile - AthLeap`
           htmlContent = generateAthleteProfileCreatedEmail(coachName, athleteInfo)
         }
         break
@@ -380,7 +380,7 @@ export async function sendCoachNotificationEmail({
     }
 
     const { data, error } = await resend.emails.send({
-      from: 'PLAYBOOKD <noreply@mail.crucibleanalytics.dev>',
+      from: 'AthLeap <noreply@mail.crucibleanalytics.dev>',
       to: [to],
       subject,
       html: htmlContent
@@ -418,8 +418,8 @@ function generateInvitationSentEmail(coachName: string, summary: { totalSent: nu
     <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8fafc;">
       <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #13367A; font-size: 32px; margin: 0; font-weight: bold;">PLAYBOOKD</h1>
-          <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">FOR THE FUTURE OF SPORTS</p>
+          <h1 style="font-family: 'Permanent Marker', cursive; color: #13367A; font-size: 32px; margin: 0;">AthLeap</h1>
+          <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">THE WORK BEFORE THE WIN</p>
         </div>
 
         <div style="background: #dcfce7; border: 2px solid #16a34a; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
@@ -444,7 +444,7 @@ function generateInvitationSentEmail(coachName: string, summary: { totalSent: nu
             <li style="margin: 8px 0;">Athletes receive your personalized invitation email</li>
             <li style="margin: 8px 0;">They click the link to accept and join your program</li>
             <li style="margin: 8px 0;">You'll be notified when they accept</li>
-            <li style="margin: 8px 0;">Start training together on PLAYBOOKD!</li>
+            <li style="margin: 8px 0;">Start training together on AthLeap!</li>
           </ol>
         </div>
 
@@ -453,7 +453,7 @@ function generateInvitationSentEmail(coachName: string, summary: { totalSent: nu
         </div>
 
         <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 14px;">
-          <p><strong>PLAYBOOKD</strong> - For The Future of Sports</p>
+          <p><strong>AthLeap</strong> - The Work Before the Win</p>
           <p style="font-size: 12px;">This is an automated notification. Please do not reply to this email.</p>
         </div>
       </div>
@@ -474,8 +474,8 @@ function generateInvitationAcceptedEmail(coachName: string, athleteInfo: { name:
     <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8fafc;">
       <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #13367A; font-size: 32px; margin: 0; font-weight: bold;">PLAYBOOKD</h1>
-          <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">FOR THE FUTURE OF SPORTS</p>
+          <h1 style="font-family: 'Permanent Marker', cursive; color: #13367A; font-size: 32px; margin: 0;">AthLeap</h1>
+          <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">THE WORK BEFORE THE WIN</p>
         </div>
 
         <div style="background: #dcfce7; border: 2px solid #16a34a; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
@@ -506,7 +506,7 @@ function generateInvitationAcceptedEmail(coachName: string, athleteInfo: { name:
         </div>
 
         <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 14px;">
-          <p><strong>PLAYBOOKD</strong> - For The Future of Sports</p>
+          <p><strong>AthLeap</strong> - The Work Before the Win</p>
           <p style="font-size: 12px;">This is an automated notification. Please do not reply to this email.</p>
         </div>
       </div>
@@ -527,8 +527,8 @@ function generateInvitationDeclinedEmail(coachName: string, athleteInfo: { name:
     <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8fafc;">
       <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #13367A; font-size: 32px; margin: 0; font-weight: bold;">PLAYBOOKD</h1>
-          <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">FOR THE FUTURE OF SPORTS</p>
+          <h1 style="font-family: 'Permanent Marker', cursive; color: #13367A; font-size: 32px; margin: 0;">AthLeap</h1>
+          <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">THE WORK BEFORE THE WIN</p>
         </div>
 
         <div style="background: #fef2f2; border: 2px solid #f87171; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
@@ -556,7 +556,7 @@ function generateInvitationDeclinedEmail(coachName: string, athleteInfo: { name:
         </div>
 
         <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 14px;">
-          <p><strong>PLAYBOOKD</strong> - For The Future of Sports</p>
+          <p><strong>AthLeap</strong> - The Work Before the Win</p>
           <p style="font-size: 12px;">This is an automated notification. Please do not reply to this email.</p>
         </div>
       </div>
@@ -577,8 +577,8 @@ function generateInvitationExpiredEmail(coachName: string, athleteInfo: { name: 
     <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8fafc;">
       <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #13367A; font-size: 32px; margin: 0; font-weight: bold;">PLAYBOOKD</h1>
-          <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">FOR THE FUTURE OF SPORTS</p>
+          <h1 style="font-family: 'Permanent Marker', cursive; color: #13367A; font-size: 32px; margin: 0;">AthLeap</h1>
+          <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">THE WORK BEFORE THE WIN</p>
         </div>
 
         <div style="background: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
@@ -607,7 +607,7 @@ function generateInvitationExpiredEmail(coachName: string, athleteInfo: { name: 
         </div>
 
         <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 14px;">
-          <p><strong>PLAYBOOKD</strong> - For The Future of Sports</p>
+          <p><strong>AthLeap</strong> - The Work Before the Win</p>
           <p style="font-size: 12px;">This is an automated notification. Please do not reply to this email.</p>
         </div>
       </div>
@@ -628,8 +628,8 @@ function generateAthleteProfileCreatedEmail(coachName: string, athleteInfo: { na
     <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8fafc;">
       <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #13367A; font-size: 32px; margin: 0; font-weight: bold;">PLAYBOOKD</h1>
-          <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">FOR THE FUTURE OF SPORTS</p>
+          <h1 style="font-family: 'Permanent Marker', cursive; color: #13367A; font-size: 32px; margin: 0;">AthLeap</h1>
+          <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">THE WORK BEFORE THE WIN</p>
         </div>
 
         <div style="background: #dcfce7; border: 2px solid #16a34a; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
@@ -661,7 +661,7 @@ function generateAthleteProfileCreatedEmail(coachName: string, athleteInfo: { na
         </div>
 
         <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 14px;">
-          <p><strong>PLAYBOOKD</strong> - For The Future of Sports</p>
+          <p><strong>AthLeap</strong> - The Work Before the Win</p>
           <p style="font-size: 12px;">This is an automated notification. Please do not reply to this email.</p>
         </div>
       </div>
@@ -688,22 +688,22 @@ export async function sendAthleteWelcomeEmail({
 }: AthleteWelcomeEmailProps) {
   try {
     const { data, error } = await resend.emails.send({
-      from: 'PLAYBOOKD <noreply@mail.crucibleanalytics.dev>',
+      from: 'AthLeap <noreply@mail.crucibleanalytics.dev>',
       to: [to],
-      subject: `🏆 Welcome to PLAYBOOKD - Set Your Password`,
+      subject: `🏆 Welcome to AthLeap - Set Your Password`,
       html: `
         <!DOCTYPE html>
         <html>
         <head>
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Welcome to PLAYBOOKD</title>
+          <title>Welcome to AthLeap</title>
         </head>
         <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8fafc;">
           <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
             <div style="text-align: center; margin-bottom: 30px;">
-              <h1 style="color: #13367A; font-size: 32px; margin: 0; font-weight: bold;">PLAYBOOKD</h1>
-              <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">FOR THE FUTURE OF SPORTS</p>
+              <h1 style="font-family: 'Permanent Marker', cursive; color: #13367A; font-size: 32px; margin: 0;">AthLeap</h1>
+              <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">THE WORK BEFORE THE WIN</p>
             </div>
 
             <div style="background: #dcfce7; border: 2px solid #16a34a; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
@@ -712,7 +712,7 @@ export async function sendAthleteWelcomeEmail({
 
             <p>Hi ${athleteName},</p>
 
-            <p>Congratulations! Your athlete profile has been successfully created. You're now part of <strong>${coachName}'s ${sport}</strong> training program on PLAYBOOKD.</p>
+            <p>Congratulations! Your athlete profile has been successfully created. You're now part of <strong>${coachName}'s ${sport}</strong> training program on AthLeap.</p>
 
             <div style="background: #fff3cd; border: 2px solid #f59e0b; border-radius: 8px; padding: 20px; margin: 20px 0;">
               <h3 style="color: #d97706; margin-top: 0;">🔐 Set Your Password</h3>
@@ -740,7 +740,7 @@ export async function sendAthleteWelcomeEmail({
             </div>
 
             <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 14px;">
-              <p><strong>PLAYBOOKD</strong> - For The Future of Sports</p>
+              <p><strong>AthLeap</strong> - The Work Before the Win</p>
               <p style="font-size: 12px;">If you didn't request this account, please ignore this email.</p>
             </div>
           </div>

@@ -1,5 +1,5 @@
 /**
- * PLAYBOOKD Email Templates
+ * AthLeap Email Templates
  *
  * Professional email templates with brand styling and dynamic content
  */
@@ -15,7 +15,7 @@ interface EmailTemplateProps {
   recipientName?: string
 }
 
-export function getPlaybookdCoachInvitationTemplate({
+export function getAthLeapCoachInvitationTemplate({
   organizationName,
   inviterName,
   sport,
@@ -33,7 +33,7 @@ export function getPlaybookdCoachInvitationTemplate({
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>You're Invited to PLAYBOOKD</title>
+    <title>You're Invited to AthLeap</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -130,8 +130,8 @@ export function getPlaybookdCoachInvitationTemplate({
 
         <!-- Header with Logo -->
         <header style="background-color: #13367A; padding: 24px; text-align: center;">
-            <h1 style="font-family: 'Sports World', sans-serif; font-size: 3rem; color: white; letter-spacing: 3px; margin: 0;">PLAYBOOKD</h1>
-            <p style="color: #87ceeb; font-size: 14px; margin: 4px 0 0 0; letter-spacing: 3px;">FOR THE FUTURE OF SPORTS</p>
+            <h1 style="font-family: 'Permanent Marker', cursive; font-size: 3rem; color: white; margin: 0;">AthLeap</h1>
+            <p style="color: #87ceeb; font-size: 14px; margin: 4px 0 0 0; letter-spacing: 3px;">THE WORK BEFORE THE WIN</p>
         </header>
 
         <main>
@@ -165,7 +165,7 @@ export function getPlaybookdCoachInvitationTemplate({
 
                 <!-- Body Text -->
                 <p style="color: #4b5563; margin: 24px auto; max-width: 500px; line-height: 1.6; font-size: 16px;">
-                    Join the future of sports coaching. Share your expertise, build your reputation, and help athletes reach their full potential on the PLAYBOOKD platform.
+                    Join the future of sports coaching. Share your expertise, build your reputation, and help athletes reach their full potential on the AthLeap platform.
                 </p>
 
                 <!-- Call to Action Button -->
@@ -200,7 +200,7 @@ export function getPlaybookdCoachInvitationTemplate({
                         <li style="margin: 8px 0;">Click the button above to access your personalized application</li>
                         <li style="margin: 8px 0;">Complete your coaching profile (takes about 10 minutes)</li>
                         <li style="margin: 8px 0;">Submit your application for review</li>
-                        <li style="margin: 8px 0;">Get approved and start coaching on PLAYBOOKD!</li>
+                        <li style="margin: 8px 0;">Get approved and start coaching on AthLeap!</li>
                     </ol>
                 </div>
             </div>
@@ -212,7 +212,7 @@ export function getPlaybookdCoachInvitationTemplate({
                 This invitation was sent by ${inviterName} (${organizationName})
             </p>
             <p style="margin: 0; font-weight: 700; color: #13367A; font-size: 16px;">
-                PLAYBOOKD - FOR THE FUTURE OF SPORTS
+                AthLeap - The Work Before the Win
             </p>
             <p style="color: #9ca3af; font-size: 12px; margin: 16px 0 0 0;">
                 <a href="#" style="color: #6b7280; text-decoration: underline;">Unsubscribe</a> |
@@ -229,17 +229,17 @@ export function getPlaybookdCoachInvitationTemplate({
 
 export function getSimpleCoachInvitationTemplate(props: EmailTemplateProps): string {
   // Fallback to a simpler template if needed
-  return getPlaybookdCoachInvitationTemplate(props)
+  return getAthLeapCoachInvitationTemplate(props)
 }
 
 // Template selector function
-export function getEmailTemplate(templateType: 'playbookd' | 'simple' = 'playbookd', props: EmailTemplateProps): string {
+export function getEmailTemplate(templateType: 'athleap' | 'simple' = 'athleap', props: EmailTemplateProps): string {
   switch (templateType) {
-    case 'playbookd':
-      return getPlaybookdCoachInvitationTemplate(props)
+    case 'athleap':
+      return getAthLeapCoachInvitationTemplate(props)
     case 'simple':
       return getSimpleCoachInvitationTemplate(props)
     default:
-      return getPlaybookdCoachInvitationTemplate(props)
+      return getAthLeapCoachInvitationTemplate(props)
   }
 }
