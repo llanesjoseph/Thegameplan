@@ -83,7 +83,11 @@ export function useAuth() {
     //     role: role
     //   })
     // }
-    return user ? { ...user, role } as EnhancedUser : null
+    if (!user) return null
+    // Don't use spread operator - it destroys Firebase Auth User methods like getIdToken()
+    const enhancedUser = user as EnhancedUser
+    enhancedUser.role = role
+    return enhancedUser
   }, [user, role])
 
   return {
