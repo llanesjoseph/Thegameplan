@@ -73,6 +73,16 @@ function DynamicIframe({ src, title }: { src: string; title: string }) {
 export default function CoachUnifiedDashboard() {
   const { user } = useAuth()
   const [activeSection, setActiveSection] = useState<string | null>(null)
+  const [showWelcome, setShowWelcome] = useState(false)
+
+  // Show welcome only once per session
+  useEffect(() => {
+    const hasSeenWelcome = sessionStorage.getItem('coach-welcome-seen')
+    if (!hasSeenWelcome) {
+      setShowWelcome(true)
+      sessionStorage.setItem('coach-welcome-seen', 'true')
+    }
+  }, [])
 
   const coachCards = [
     {
@@ -259,9 +269,16 @@ export default function CoachUnifiedDashboard() {
           </div>
         </div>
 
-        {/* Welcome Section (when no card is active) */}
-        {!activeSection && (
-          <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 sm:p-8">
+        {/* Welcome Section (only shown once per session) */}
+        {!activeSection && showWelcome && (
+          <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 sm:p-8 relative">
+            <button
+              onClick={() => setShowWelcome(false)}
+              className="absolute top-3 right-3 sm:top-4 sm:right-4 p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              title="Close welcome message"
+            >
+              <X className="w-5 h-5" style={{ color: '#000000' }} />
+            </button>
             <div className="max-w-3xl">
               <h2 className="text-2xl sm:text-3xl font-heading mb-4" style={{ color: '#000000' }}>
                 Welcome, Coach {user?.displayName?.split(' ')[0] || 'Coach'}! 👋
