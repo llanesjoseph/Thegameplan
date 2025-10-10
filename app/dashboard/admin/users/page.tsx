@@ -168,6 +168,17 @@ export default function AdminUserManagement() {
   }
  }
 
+ const getRoleLabel = (userRole: string) => {
+  switch (userRole) {
+   case 'user': return 'Athlete'
+   case 'creator': return 'Coach'
+   case 'assistant_coach': return 'Assistant Coach'
+   case 'admin': return 'Admin'
+   case 'superadmin': return 'Super Admin'
+   default: return userRole
+  }
+ }
+
  if (roleLoading) {
   return (
    <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#E8E6D8' }}>
@@ -316,7 +327,7 @@ export default function AdminUserManagement() {
           <td className="p-4">
            <div className="flex items-center gap-2" style={{ color: '#000000' }}>
             {getRoleIcon(user.role)}
-            <span className="capitalize">{user.role}</span>
+            <span>{getRoleLabel(user.role)}</span>
            </div>
           </td>
 
@@ -385,7 +396,7 @@ export default function AdminUserManagement() {
 
         <div className="flex items-center gap-3 p-3 rounded-lg bg-white/60 border border-gray-300/30">
          <Shield className="w-5 h-5" style={{ color: '#20B2AA' }} />
-         <span className="text-sm capitalize" style={{ color: '#000000' }}>{selectedUser.role}</span>
+         <span className="text-sm" style={{ color: '#000000' }}>{getRoleLabel(selectedUser.role)}</span>
         </div>
 
         <div className="flex items-center gap-3 p-3 rounded-lg bg-white/60 border border-gray-300/30">
