@@ -84,6 +84,11 @@ service cloud.firestore {
                      exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
                      get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'superadmin'];
 
+      // Allow reading coach/creator user documents for discovery (name, basic info)
+      allow read: if isAuthenticated() &&
+                     exists(/databases/$(database)/documents/users/$(userId)) &&
+                     get(/databases/$(database)/documents/users/$(userId)).data.role in ['coach', 'assistant_coach'];
+
       allow create: if isAuthenticated() &&
                        request.auth.uid == userId &&
                        isValidUserData();
@@ -208,9 +213,14 @@ service cloud.firestore {
       allow read, write: if isAdmin();
     }
     
-    // AI sessions - AI session management (admin only)
+    // AI sessions - AI session management
     match /ai_sessions/{sessionId} {
-      allow read, write: if isAdmin();
+      // Users can read and create their own sessions, admins can access all
+      allow read: if isAuthenticated() &&
+                     (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() &&
+                       request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAdmin();
     }
     
     // AI content flags - Content moderation flags (admin only)
@@ -221,6 +231,24 @@ service cloud.firestore {
     // Disclaimer acceptances - Legal compliance tracking
     match /disclaimer_acceptances/{userId} {
       allow read, write: if isOwner(userId) || isAdmin();
+    }
+
+    // Chat conversations - AI assistant chat history
+    match /chatConversations/{conversationId} {
+      // Conversation metadata - users can read/write their own conversations
+      allow read, write: if isAuthenticated() &&
+                            resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated() &&
+                       request.resource.data.userId == request.auth.uid;
+
+      // Chat messages subcollection
+      match /messages/{messageId} {
+        // Users can read/write messages in their own conversations
+        allow read, write: if isAuthenticated() &&
+                              get(/databases/$(database)/documents/chatConversations/$(conversationId)).data.userId == request.auth.uid;
+        allow create: if isAuthenticated() &&
+                         get(/databases/$(database)/documents/chatConversations/$(conversationId)).data.userId == request.auth.uid;
+      }
     }
     
     // Gear - Equipment and gear management
