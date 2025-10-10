@@ -130,28 +130,32 @@ export async function initializeUserDocument(user: FirebaseUser | null, defaultR
         }
       }
 
-      // Only update lastLoginAt if it's been more than 1 hour (prevents spam updates)
-      const shouldUpdateLastLogin = !userData.lastLoginAt ||
-        (userData.lastLoginAt instanceof Timestamp &&
-         Date.now() - userData.lastLoginAt.toMillis() > 60 * 60 * 1000)
+      // DISABLED: lastLoginAt updates cause permission errors in production
+      // Only critical role updates will be attempted
+      const shouldUpdateLastLogin = false
 
       // Only update Firestore if something actually needs to change
       if (roleNeedsUpdate || shouldUpdateLastLogin) {
-        await setDoc(userDocRef, {
-          ...userData,
-          role: correctRole, // Update role if needed
-          ...(shouldUpdateLastLogin && { lastLoginAt: Timestamp.now() }),
-          ...(roleNeedsUpdate && {
-            roleUpdatedAt: Timestamp.now(),
-            roleUpdateReason: 'Known coach auto-correction'
-          })
-        }, { merge: true })
+        try {
+          await setDoc(userDocRef, {
+            ...userData,
+            role: correctRole, // Update role if needed
+            ...(shouldUpdateLastLogin && { lastLoginAt: Timestamp.now() }),
+            ...(roleNeedsUpdate && {
+              roleUpdatedAt: Timestamp.now(),
+              roleUpdateReason: 'Known coach auto-correction'
+            })
+          }, { merge: true })
 
-        if (roleNeedsUpdate) {
-          console.log(`✅ ROLE CORRECTED: ${user.email} updated from ${userData.role} to ${correctRole}`)
-        }
-        if (shouldUpdateLastLogin) {
-          console.log('Existing user document updated:', user.uid)
+          if (roleNeedsUpdate) {
+            console.log(`✅ ROLE CORRECTED: ${user.email} updated from ${userData.role} to ${correctRole}`)
+          }
+          if (shouldUpdateLastLogin) {
+            console.log('Existing user document updated:', user.uid)
+          }
+        } catch (updateError) {
+          // Gracefully handle permission errors - user doc exists, that's what matters
+          console.warn('Could not update user document (non-critical):', updateError)
         }
       }
 
