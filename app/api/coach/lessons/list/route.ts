@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
     // 3. Query lessons by creatorUid from content collection
     console.log(`✅ Querying content collection for creatorUid: ${uid}`)
     const lessonsSnapshot = await adminDb
-      .collection('content')
+      .collection('content ')
       .where('creatorUid', '==', uid)
       .orderBy('createdAt', 'desc')
       .get()

@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 4. Get original lesson
-    const lessonDoc = await adminDb.collection('content').doc(lessonId).get()
+    const lessonDoc = await adminDb.collection('content ').doc(lessonId).get()
     if (!lessonDoc.exists) {
       return NextResponse.json(
         { error: 'Lesson not found' },
@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
       ratingCount: 0
     }
 
-    const newLessonRef = await adminDb.collection('content').add(duplicateLesson)
+    const newLessonRef = await adminDb.collection('content ').add(duplicateLesson)
 
     // 7. Update coach's lesson count
     await adminDb.collection('users').doc(uid).update({

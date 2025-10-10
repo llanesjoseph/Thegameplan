@@ -220,7 +220,7 @@ export async function POST(request: NextRequest) {
 
     await adminDb.runTransaction(async (transaction) => {
       // Create lesson reference
-      const lessonRef = adminDb.collection('content').doc()
+      const lessonRef = adminDb.collection('content ').doc()
       lessonId = lessonRef.id
 
       // Set lesson data

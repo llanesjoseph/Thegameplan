@@ -122,7 +122,7 @@ function InviteAthletesPageContent() {
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          coachId: user.uid,
+          creatorUid: user.uid,
           coachName: user.displayName || 'Coach',
           sport: singleInvite.sport,
           customMessage: singleInvite.customMessage,
@@ -185,7 +185,7 @@ function InviteAthletesPageContent() {
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          coachId: user.uid,
+          creatorUid: user.uid,
           coachName: user.displayName || 'Coach',
           sport: bulkSport,
           customMessage: bulkMessage,
