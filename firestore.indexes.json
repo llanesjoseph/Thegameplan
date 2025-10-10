@@ -43,6 +43,13 @@
       ]
     },
     {
+      "collectionGroup": "content",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "savedResponses",
       "queryScope": "COLLECTION",
       "fields": [
