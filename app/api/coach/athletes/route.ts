@@ -40,20 +40,44 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Query athletes for this coach
-    const athletesSnapshot = await adminDb
-      .collection('athletes')
-      .where('creatorUid', '==', userId)
-      .orderBy('createdAt', 'desc')
+    // Query athletes for this coach from users collection
+    // Check both coachId and assignedCoachId fields for compatibility
+    const athletesSnapshot1 = await adminDb
+      .collection('users')
+      .where('role', '==', 'athlete')
+      .where('coachId', '==', userId)
       .get()
 
-    const athletes = athletesSnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-      // Convert Firestore timestamps to ISO strings
-      createdAt: doc.data().createdAt?.toDate?.()?.toISOString() || null,
-      updatedAt: doc.data().updatedAt?.toDate?.()?.toISOString() || null
-    }))
+    const athletesSnapshot2 = await adminDb
+      .collection('users')
+      .where('role', '==', 'athlete')
+      .where('assignedCoachId', '==', userId)
+      .get()
+
+    // Combine results and deduplicate
+    const athleteMap = new Map()
+
+    athletesSnapshot1.docs.forEach(doc => {
+      athleteMap.set(doc.id, {
+        id: doc.id,
+        ...doc.data(),
+        createdAt: doc.data().createdAt?.toDate?.()?.toISOString() || null,
+        updatedAt: doc.data().updatedAt?.toDate?.()?.toISOString() || null,
+        lastLoginAt: doc.data().lastLoginAt?.toDate?.()?.toISOString() || null
+      })
+    })
+
+    athletesSnapshot2.docs.forEach(doc => {
+      athleteMap.set(doc.id, {
+        id: doc.id,
+        ...doc.data(),
+        createdAt: doc.data().createdAt?.toDate?.()?.toISOString() || null,
+        updatedAt: doc.data().updatedAt?.toDate?.()?.toISOString() || null,
+        lastLoginAt: doc.data().lastLoginAt?.toDate?.()?.toISOString() || null
+      })
+    })
+
+    const athletes = Array.from(athleteMap.values())
 
     console.log(`Fetched ${athletes.length} athletes for coach ${userId}`)
 

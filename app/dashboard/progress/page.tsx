@@ -117,8 +117,8 @@ export default function AthleteDashboard() {
       description: 'Access all assigned and completed training content',
       icon: BookOpen,
       color: '#91A6EB',
-      path: null, // Coming soon
-      action: () => alert('📚 Lessons feature coming soon! Your coach will assign training content here.')
+      path: '/dashboard/athlete-lessons', // Opens athlete lessons page
+      action: null
     },
     {
       id: 'video-review',

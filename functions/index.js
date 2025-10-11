@@ -1,11 +1,22 @@
-const functions = require('@google-cloud/functions-framework')
+/**
+ * Firebase Cloud Functions Entry Point
+ *
+ * This file exports both HTTP functions and Firestore triggers.
+ * - HTTP functions: aiCoaching (existing)
+ * - Firestore triggers: onLessonPublished, onAthleteAssigned, onLessonCompleted
+ */
+
+const functions = require('firebase-functions')
 const cors = require('cors')
 
 // Simple CORS setup
 const corsHandler = cors({ origin: true })
 
-// Simple AI Coaching Function for gcloud deployment
-functions.http('aiCoaching', (req, res) => {
+// ============================================================================
+// HTTP FUNCTION: AI Coaching (Existing)
+// ============================================================================
+
+exports.aiCoaching = functions.https.onRequest((req, res) => {
   corsHandler(req, res, () => {
     try {
       if (req.method !== 'POST') {
@@ -120,3 +131,15 @@ function generateCoachingResponse(question) {
 function generateSessionId() {
   return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)
 }
+
+// ============================================================================
+// FIRESTORE TRIGGERS: Coach-Athlete Data Flow
+// ============================================================================
+
+// Import and export Firestore triggers (v2 API)
+const firestoreTriggers = require('./firestore-triggers-v2')
+
+exports.onLessonPublished = firestoreTriggers.onLessonPublished
+exports.onAthleteAssigned = firestoreTriggers.onAthleteAssigned
+exports.onLessonCompleted = firestoreTriggers.onLessonCompleted
+exports.syncAthleteData = firestoreTriggers.syncAthleteData

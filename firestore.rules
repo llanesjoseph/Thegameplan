@@ -609,6 +609,34 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // ============================================================================
+    // COACH-ATHLETE DATA FLOW COLLECTIONS
+    // See: /docs/COACH_ATHLETE_DATA_FLOW_SOLUTION.md
+    // ============================================================================
+
+    // Coach Rosters - Maps coaches to their assigned athletes
+    match /coach_rosters/{coachId} {
+      // Coaches can read their own roster
+      allow read: if isOwner(coachId) || isAdmin();
+
+      // Only Cloud Functions can write (via Admin SDK)
+      // This ensures data integrity - roster updates happen automatically
+      allow write: if false;
+    }
+
+    // Athlete Feed - Personalized content feed for each athlete
+    match /athlete_feed/{athleteId} {
+      // Athletes can ONLY read their own feed
+      allow read: if isOwner(athleteId) || isAdmin();
+
+      // Athletes can update their own feed (mark lessons complete)
+      allow update: if isOwner(athleteId) &&
+                       request.resource.data.diff(resource.data).affectedKeys().hasOnly(['completedLessons', 'completionRate', 'lastActivity']);
+
+      // Only Cloud Functions can create/delete feeds (via Admin SDK)
+      allow create, delete: if false;
+    }
+
     // ===== DEFAULT DENY =====
     match /{document=**} {
       allow read, write: if false;
