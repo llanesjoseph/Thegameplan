@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth, adminDb } from '@/lib/firebase.admin'
+import { FieldPath } from 'firebase-admin/firestore'
 
 /**
  * GET /api/athlete/feed
@@ -84,7 +85,7 @@ export async function GET(request: NextRequest) {
         const chunk = availableLessonIds.slice(i, i + chunkSize)
         const lessonsSnapshot = await adminDb
           .collection('content')
-          .where(adminDb.FieldPath.documentId(), 'in', chunk)
+          .where(FieldPath.documentId(), 'in', chunk)
           .get()
 
         lessonsSnapshot.docs.forEach(doc => {
