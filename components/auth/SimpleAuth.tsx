@@ -31,7 +31,7 @@ export default function SimpleAuth() {
 
    console.log('Google sign-in successful:', user.email, isNewUser ? '(New User)' : '(Returning User)')
 
-   // Track user signup/login
+   // Track user signup/login (don't wait - do in background)
    const trackingData = {
     uid: user.uid,
     email: user.email || '',
@@ -41,16 +41,19 @@ export default function SimpleAuth() {
     isNewUser
    }
 
-   const tracked = await trackNewUser(trackingData)
-   if (tracked && isNewUser) {
-    // Notify admins of new user
-    await notifyAdminsOfNewUser({ ...trackingData, timestamp: new Date() })
-    // Redirect new users to onboarding
+   // Redirect immediately for better UX
+   if (isNewUser) {
     router.push('/onboarding')
    } else {
-    // Existing users go to dashboard
     router.push('/dashboard')
    }
+
+   // Track in background (don't await)
+   trackNewUser(trackingData).then(tracked => {
+    if (tracked && isNewUser) {
+      notifyAdminsOfNewUser({ ...trackingData, timestamp: new Date() })
+    }
+   })
   } catch (error: any) {
    console.error('Google sign-in error:', error)
    setError(`Google sign-in failed: ${error.message}`)
@@ -74,7 +77,7 @@ export default function SimpleAuth() {
 
    console.log('Apple sign-in successful:', user.email, isNewUser ? '(New User)' : '(Returning User)')
 
-   // Track user signup/login
+   // Track user signup/login (don't wait - do in background)
    const trackingData = {
     uid: user.uid,
     email: user.email || '',
@@ -84,16 +87,19 @@ export default function SimpleAuth() {
     isNewUser
    }
 
-   const tracked = await trackNewUser(trackingData)
-   if (tracked && isNewUser) {
-    // Notify admins of new user
-    await notifyAdminsOfNewUser({ ...trackingData, timestamp: new Date() })
-    // Redirect new users to onboarding
+   // Redirect immediately for better UX
+   if (isNewUser) {
     router.push('/onboarding')
    } else {
-    // Existing users go to dashboard
     router.push('/dashboard')
    }
+
+   // Track in background (don't await)
+   trackNewUser(trackingData).then(tracked => {
+    if (tracked && isNewUser) {
+      notifyAdminsOfNewUser({ ...trackingData, timestamp: new Date() })
+    }
+   })
   } catch (error: any) {
    console.error('Apple sign-in error:', error)
    setError(`Apple sign-in failed: ${error.message}`)
@@ -120,7 +126,7 @@ export default function SimpleAuth() {
    const user = result.user
    const isNewUser = isSignUp
 
-   // Track user signup/login
+   // Track user signup/login (don't wait - do in background)
    const trackingData = {
     uid: user.uid,
     email: user.email || '',
@@ -130,16 +136,19 @@ export default function SimpleAuth() {
     isNewUser
    }
 
-   const tracked = await trackNewUser(trackingData)
-   if (tracked && isNewUser) {
-    // Notify admins of new user
-    await notifyAdminsOfNewUser({ ...trackingData, timestamp: new Date() })
-    // Redirect new users to onboarding
+   // Redirect immediately for better UX
+   if (isNewUser) {
     router.push('/onboarding')
    } else {
-    // Existing users go to dashboard
     router.push('/dashboard')
    }
+
+   // Track in background (don't await)
+   trackNewUser(trackingData).then(tracked => {
+    if (tracked && isNewUser) {
+      notifyAdminsOfNewUser({ ...trackingData, timestamp: new Date() })
+    }
+   })
   } catch (error: any) {
    console.error('Email auth error:', error)
    setError(`Email authentication failed: ${error.message}`)

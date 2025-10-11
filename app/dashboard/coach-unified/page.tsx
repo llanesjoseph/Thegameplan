@@ -1,6 +1,9 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { doc, getDoc } from 'firebase/firestore'
+import { db } from '@/lib/firebase.client'
 import AppHeader from '@/components/ui/AppHeader'
 import { useAuth } from '@/hooks/use-auth'
 import {
@@ -73,8 +76,38 @@ function DynamicIframe({ src, title }: { src: string; title: string }) {
 
 export default function CoachUnifiedDashboard() {
   const { user } = useAuth()
+  const router = useRouter()
   const [activeSection, setActiveSection] = useState<string | null>(null)
   const [showWelcome, setShowWelcome] = useState(false)
+
+  // Role-based redirect - prevent admins from accessing coach dashboard
+  useEffect(() => {
+    if (!user?.uid) return
+
+    const checkRoleAndRedirect = async () => {
+      try {
+        const userDoc = await getDoc(doc(db, 'users', user.uid))
+        if (userDoc.exists()) {
+          const role = userDoc.data()?.role
+
+          // Redirect admins to admin dashboard
+          if (role === 'admin' || role === 'superadmin') {
+            console.log('🛡️ Admin detected on coach page - redirecting to admin dashboard')
+            router.replace('/dashboard/admin')
+          }
+          // Redirect athletes to their dashboard
+          else if (role === 'athlete') {
+            console.log('🏃 Athlete detected on coach page - redirecting to progress dashboard')
+            router.replace('/dashboard/progress')
+          }
+        }
+      } catch (error) {
+        console.error('Error checking role:', error)
+      }
+    }
+
+    checkRoleAndRedirect()
+  }, [user?.uid, router])
 
   // Show welcome only once per session
   useEffect(() => {
