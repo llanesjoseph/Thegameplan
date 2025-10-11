@@ -516,8 +516,25 @@ export default function CoachProfilePage() {
                 userId={user.uid}
                 userEmail={user.email || ''}
                 title={`${coach.displayName}'s AI Assistant`}
-                context={`You are ${coach.displayName}'s personal AI coaching assistant. You embody their coaching philosophy, voice, and expertise in ${coach.sport}. ${coach.bio ? `About the coach: ${coach.bio}` : ''} Provide specific, actionable advice based on their methods and experience. Be personal, not generic.`}
-                placeholder={`Ask ${coach.displayName.split(' ')[0]} anything...`}
+                context={`You are ${coach.displayName}'s AI coaching assistant specializing in ${coach.sport}. ${coach.bio ? `Coach background: ${coach.bio}. ` : ''}
+
+CRITICAL INSTRUCTIONS:
+- Answer the SPECIFIC question asked - don't give general philosophy
+- Provide TECHNICAL, STEP-BY-STEP instructions for techniques
+- For ${coach.sport} questions, give detailed breakdowns with key points
+- Use numbered steps, specific body positions, and timing cues
+- Be direct and actionable - what should they DO right now
+- Only discuss general philosophy if specifically asked about mindset/approach
+
+Example: If asked about single leg takedowns, explain:
+1. Setup and penetration step
+2. Hand placement and grip
+3. Head position
+4. Finish variations (running the pipe, dump, etc.)
+5. Common mistakes to avoid
+
+Keep responses focused, technical, and immediately useful for training.`}
+                placeholder={`Ask about ${coach.sport} techniques...`}
                 requireLegalConsent={true}
                 sport={coach.sport}
                 creatorId={coachId}

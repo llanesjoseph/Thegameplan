@@ -64,7 +64,8 @@ function DynamicIframe({ src, title }: { src: string; title: string }) {
   return (
     <div className="rounded-xl overflow-hidden shadow-lg w-full" style={{
       height,
-      maxHeight: '60vh',
+      maxHeight: '75vh', // Increased from 60vh for more spacious display
+      minHeight: '500px', // Ensure minimum height on all screens
       transition: 'height 0.3s ease'
     }}>
       <iframe
@@ -540,7 +541,7 @@ export default function AthleteDashboard() {
         <main className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 space-y-6 lg:space-y-8">
           {/* Inline Content Display */}
           {activeSection && (
-            <div className="bg-white/90 backdrop-blur-sm rounded-xl lg:rounded-2xl shadow-2xl border border-white/50 relative overflow-hidden">
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl lg:rounded-2xl shadow-2xl border border-white/50 relative overflow-hidden p-4 sm:p-6 lg:p-8">
               <button
                 onClick={() => setActiveSection(null)}
                 className="absolute top-3 right-3 sm:top-4 sm:right-4 p-2 hover:bg-gray-100 rounded-lg transition-colors z-50 shadow-lg"
