@@ -29,18 +29,45 @@ export async function POST(request: NextRequest) {
     // Determine target role
     const targetRole = invitationType === 'assistant' ? 'assistant' : 'coach'
 
-    // Create invitation data
+    // Get current user info from auth header
+    const authHeader = request.headers.get('authorization')
+    const token = authHeader?.replace('Bearer ', '')
+    let inviterEmail = 'admin@athleap.com'
+    let inviterId = 'system'
+
+    if (token) {
+      try {
+        const { auth } = await import('@/lib/firebase.admin')
+        const decodedToken = await auth.verifyIdToken(token)
+        inviterEmail = decodedToken.email || inviterEmail
+        inviterId = decodedToken.uid || inviterId
+      } catch (error) {
+        console.warn('Could not decode token for inviter info')
+      }
+    }
+
+    // Create invitation URL
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://playbookd.crucibleanalytics.dev'
+    const invitationUrl = `${baseUrl}/coach-onboard/${invitationId}?sport=${encodeURIComponent(sport)}&email=${encodeURIComponent(coachEmail)}&name=${encodeURIComponent(coachName)}&role=${targetRole}`
+
+    // Create invitation data matching admin dashboard structure
     const invitationData = {
       id: invitationId,
+      // Store coach info in athlete fields for dashboard compatibility
+      athleteName: coachName,
+      athleteEmail: coachEmail.toLowerCase(),
+      // Also store in coach fields for backwards compatibility
       coachEmail: coachEmail.toLowerCase(),
       coachName,
+      coachId: inviterId, // Who sent the invitation
       sport,
       personalMessage: personalMessage || 'Join our coaching platform!',
       role: targetRole, // CRITICAL: Store the target role
       invitationType,
-      createdAt: new Date().toISOString(),
-      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days
-      status: 'sent',
+      invitationUrl,
+      createdAt: new Date(), // Store as Date object, not ISO string
+      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+      status: 'pending', // Use 'pending' instead of 'sent' for dashboard compatibility
       type: invitationType === 'assistant' ? 'assistant_invitation' : 'coach_invitation',
       used: false
     }
@@ -54,10 +81,6 @@ export async function POST(request: NextRequest) {
       invitationId,
       role: targetRole
     })
-
-    // Create invitation URL - both coaches and assistants use coach-onboard
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://playbookd.crucibleanalytics.dev'
-    const invitationUrl = `${baseUrl}/coach-onboard/${invitationId}?sport=${encodeURIComponent(sport)}&email=${encodeURIComponent(coachEmail)}&name=${encodeURIComponent(coachName)}&role=${targetRole}`
 
     // Send actual email using existing email service
     console.log(`✉️ Sending invitation email to ${coachEmail}...`)
