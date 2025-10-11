@@ -2,6 +2,127 @@ import { NextRequest, NextResponse } from 'next/server'
 import { nanoid } from 'nanoid'
 import { auth, adminDb } from '@/lib/firebase.admin'
 
+// Admin notification function
+async function notifyAdminsOfNewApplication(data: {
+  applicationId: string
+  applicantName: string
+  applicantEmail: string
+  role: string
+  sport: string
+  submittedAt: Date
+}) {
+  try {
+    // Get all admin and superadmin users
+    const adminsSnapshot = await adminDb.collection('users')
+      .where('role', 'in', ['admin', 'superadmin'])
+      .get()
+
+    if (adminsSnapshot.empty) {
+      console.log('⚠️ No admins found to notify')
+      return
+    }
+
+    const adminEmails = adminsSnapshot.docs
+      .map(doc => doc.data().email)
+      .filter(email => email && typeof email === 'string')
+
+    if (adminEmails.length === 0) {
+      console.log('⚠️ No admin emails found')
+      return
+    }
+
+    console.log(`📧 Notifying ${adminEmails.length} admins about new ${data.role} application`)
+
+    // Import Resend
+    const { Resend } = await import('resend')
+    const resend = new Resend(process.env.RESEND_API_KEY)
+
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://playbookd.crucibleanalytics.dev'
+    const reviewUrl = `${baseUrl}/dashboard/admin/invitations-approvals?tab=applications`
+
+    // Send email to each admin
+    const emailPromises = adminEmails.map(adminEmail =>
+      resend.emails.send({
+        from: 'AthLeap Notifications <noreply@mail.crucibleanalytics.dev>',
+        to: adminEmail,
+        subject: `🔔 New ${data.role.charAt(0).toUpperCase() + data.role.slice(1)} Application - ${data.applicantName}`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="background: linear-gradient(to right, #20B2AA, #91A6EB); padding: 20px; border-radius: 8px 8px 0 0;">
+              <h1 style="color: white; margin: 0; font-size: 24px;">New Application Submitted</h1>
+            </div>
+
+            <div style="background: #f9f9f9; padding: 30px; border: 1px solid #e0e0e0; border-top: none; border-radius: 0 0 8px 8px;">
+              <p style="font-size: 16px; color: #333; margin-bottom: 20px;">
+                A new <strong>${data.role}</strong> has submitted an application and is awaiting your review.
+              </p>
+
+              <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #20B2AA;">
+                <h2 style="margin: 0 0 15px 0; color: #000; font-size: 18px;">Application Details</h2>
+                <table style="width: 100%; border-collapse: collapse;">
+                  <tr>
+                    <td style="padding: 8px 0; color: #666; font-weight: 600;">Name:</td>
+                    <td style="padding: 8px 0; color: #000;">${data.applicantName}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #666; font-weight: 600;">Email:</td>
+                    <td style="padding: 8px 0; color: #000;">${data.applicantEmail}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #666; font-weight: 600;">Role:</td>
+                    <td style="padding: 8px 0; color: #000;">${data.role.charAt(0).toUpperCase() + data.role.slice(1)}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #666; font-weight: 600;">Sport:</td>
+                    <td style="padding: 8px 0; color: #000;">${data.sport}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #666; font-weight: 600;">Submitted:</td>
+                    <td style="padding: 8px 0; color: #000;">${data.submittedAt.toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}</td>
+                  </tr>
+                </table>
+              </div>
+
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="${reviewUrl}"
+                   style="background: linear-gradient(to right, #20B2AA, #91A6EB);
+                          color: white;
+                          padding: 14px 32px;
+                          text-decoration: none;
+                          border-radius: 8px;
+                          display: inline-block;
+                          font-weight: 600;
+                          font-size: 16px;
+                          box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                  Review Application
+                </a>
+              </div>
+
+              <div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 15px; margin-top: 20px;">
+                <p style="margin: 0; color: #856404; font-size: 14px;">
+                  ⏰ <strong>Action Required:</strong> Please review and approve/reject this application as soon as possible.
+                  The applicant is waiting to get started!
+                </p>
+              </div>
+            </div>
+
+            <div style="text-align: center; padding: 20px; color: #999; font-size: 12px;">
+              <p style="margin: 0;">AthLeap Admin Notifications</p>
+              <p style="margin: 5px 0 0 0;">This is an automated notification for platform administrators</p>
+            </div>
+          </div>
+        `
+      })
+    )
+
+    await Promise.all(emailPromises)
+    console.log(`✅ Successfully notified ${adminEmails.length} admins`)
+  } catch (error) {
+    console.error('❌ Error notifying admins:', error)
+    throw error
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
@@ -105,6 +226,19 @@ export async function POST(request: NextRequest) {
     // IMPORTANT: Don't create Firebase account here
     // Let admin approve first, then coach can sign in with Google/Apple/Email
     // This prevents the "can't login" issue
+
+    // Notify all admins about new application (don't wait for this)
+    notifyAdminsOfNewApplication({
+      applicationId,
+      applicantName: applicationData.displayName,
+      applicantEmail: applicationData.email,
+      role: targetRole,
+      sport: applicationData.sport,
+      submittedAt: now
+    }).catch(error => {
+      console.error('Failed to notify admins:', error)
+      // Don't fail the whole request if notification fails
+    })
 
     // Only create user account and profiles if auto-approve is enabled
     let userRecord = null
