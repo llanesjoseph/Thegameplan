@@ -197,7 +197,7 @@ export default function CoachUnifiedDashboard() {
 
     return (
       <div className="p-6 text-center">
-        <h3 className="text-xl font-heading mb-2" style={{ color: '#000000' }}>
+        <h3 className="text-xl mb-2" style={{ color: '#000000' }}>
           {title}
         </h3>
         <p style={{ color: '#000000', opacity: 0.6 }}>
@@ -228,7 +228,7 @@ export default function CoachUnifiedDashboard() {
 
         {/* Coach Tools Grid */}
         <div>
-          <h2 className="text-xl sm:text-2xl font-heading mb-4 sm:mb-6 uppercase tracking-wide" style={{ color: '#000000' }}>
+          <h2 className="text-xl sm:text-2xl mb-4 sm:mb-6 uppercase tracking-wide" style={{ color: '#000000' }}>
             Coaching Tools
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
@@ -253,7 +253,7 @@ export default function CoachUnifiedDashboard() {
                       </div>
 
                       {/* Title */}
-                      <h3 className="text-xs sm:text-sm font-heading mb-1 line-clamp-2" style={{ color: '#000000' }}>
+                      <h3 className="text-xs sm:text-sm mb-1 line-clamp-2" style={{ color: '#000000' }}>
                         {card.title}
                       </h3>
 
@@ -280,7 +280,7 @@ export default function CoachUnifiedDashboard() {
               <X className="w-5 h-5" style={{ color: '#000000' }} />
             </button>
             <div className="max-w-3xl">
-              <h2 className="text-2xl sm:text-3xl font-heading mb-4" style={{ color: '#000000' }}>
+              <h2 className="text-2xl sm:text-3xl mb-4" style={{ color: '#000000' }}>
                 Welcome, Coach {user?.displayName?.split(' ')[0] || 'Coach'}! 👋
               </h2>
               <p className="text-base sm:text-lg mb-6" style={{ color: '#000000', opacity: 0.7 }}>
@@ -290,7 +290,7 @@ export default function CoachUnifiedDashboard() {
               <div className="grid sm:grid-cols-2 gap-4 mb-6">
                 <div className="bg-gradient-to-br from-sky-blue/10 to-sky-blue/5 rounded-lg p-4 border-2" style={{ borderColor: '#91A6EB' }}>
                   <GraduationCap className="w-8 h-8 mb-2" style={{ color: '#91A6EB' }} />
-                  <h3 className="font-heading mb-1" style={{ color: '#000000' }}>Create Lessons</h3>
+                  <h3 className="mb-1" style={{ color: '#000000' }}>Create Lessons</h3>
                   <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>
                     Build comprehensive training lessons with videos, drills, and resources
                   </p>
@@ -298,7 +298,7 @@ export default function CoachUnifiedDashboard() {
 
                 <div className="bg-gradient-to-br from-teal/10 to-teal/5 rounded-lg p-4 border-2" style={{ borderColor: '#20B2AA' }}>
                   <Video className="w-8 h-8 mb-2" style={{ color: '#20B2AA' }} />
-                  <h3 className="font-heading mb-1" style={{ color: '#000000' }}>Manage Videos</h3>
+                  <h3 className="mb-1" style={{ color: '#000000' }}>Manage Videos</h3>
                   <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>
                     Embed videos from YouTube, Vimeo, or upload directly
                   </p>
@@ -306,7 +306,7 @@ export default function CoachUnifiedDashboard() {
 
                 <div className="bg-gradient-to-br from-orange/10 to-orange/5 rounded-lg p-4 border-2" style={{ borderColor: '#FF6B35' }}>
                   <Users className="w-8 h-8 mb-2" style={{ color: '#FF6B35' }} />
-                  <h3 className="font-heading mb-1" style={{ color: '#000000' }}>Track Athletes</h3>
+                  <h3 className="mb-1" style={{ color: '#000000' }}>Track Athletes</h3>
                   <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>
                     Monitor progress, completion rates, and engagement
                   </p>
@@ -314,7 +314,7 @@ export default function CoachUnifiedDashboard() {
 
                 <div className="bg-gradient-to-br from-black/10 to-black/5 rounded-lg p-4 border-2 border-black/20">
                   <BarChart3 className="w-8 h-8 mb-2" style={{ color: '#000000' }} />
-                  <h3 className="font-heading mb-1" style={{ color: '#000000' }}>View Analytics</h3>
+                  <h3 className="mb-1" style={{ color: '#000000' }}>View Analytics</h3>
                   <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>
                     Get insights on lesson popularity and athlete activity
                   </p>
@@ -322,7 +322,7 @@ export default function CoachUnifiedDashboard() {
               </div>
 
               <div className="bg-gradient-to-r from-sky-blue to-teal rounded-lg p-4 text-white">
-                <h3 className="font-heading mb-2 text-lg">🎯 Quick Start Guide</h3>
+                <h3 className="mb-2 text-lg">🎯 Quick Start Guide</h3>
                 <ol className="space-y-2 text-sm">
                   <li><strong>1.</strong> Click "Create Lesson" to build your first training lesson</li>
                   <li><strong>2.</strong> Use "Video Manager" to organize your training footage</li>
