@@ -179,21 +179,21 @@ function AssistantCoachesPageContent() {
     switch (status) {
       case 'active':
         return (
-          <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold flex items-center gap-1">
+          <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs flex items-center gap-1">
             <CheckCircle className="w-3 h-3" />
             Active
           </span>
         )
       case 'pending':
         return (
-          <span className="px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1" style={{ backgroundColor: 'rgba(255, 107, 53, 0.1)', color: '#FF6B35' }}>
+          <span className="px-3 py-1 rounded-full text-xs flex items-center gap-1" style={{ backgroundColor: 'rgba(255, 107, 53, 0.1)', color: '#FF6B35' }}>
             <Clock className="w-3 h-3" />
             Pending
           </span>
         )
       case 'inactive':
         return (
-          <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-semibold">
+          <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">
             Inactive
           </span>
         )
@@ -208,7 +208,7 @@ function AssistantCoachesPageContent() {
     const color = colors[role as keyof typeof colors] || colors.viewer
 
     return (
-      <span className="px-2 py-0.5 rounded text-xs font-semibold capitalize" style={{ backgroundColor: color.bg, color: color.text }}>
+      <span className="px-2 py-0.5 rounded text-xs capitalize" style={{ backgroundColor: color.bg, color: color.text }}>
         {role}
       </span>
     )
@@ -251,14 +251,14 @@ function AssistantCoachesPageContent() {
       <div style={{ backgroundColor: embedded ? 'transparent' : '#E8E6D8' }} className={embedded ? 'p-12' : 'min-h-screen flex items-center justify-center'}>
         <div className="text-center bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8 max-w-md">
           <AlertCircle className="w-16 h-16 mx-auto mb-4" style={{ color: '#FF6B35' }} />
-          <h2 className="text-2xl font-heading mb-2" style={{ color: '#000000' }}>Access Denied</h2>
+          <h2 className="text-2xl mb-2" style={{ color: '#000000' }}>Access Denied</h2>
           <p className="mb-6" style={{ color: '#000000', opacity: 0.7 }}>
             You must be logged in as a coach to access this page.
           </p>
           {!embedded && (
             <button
               onClick={() => router.push('/')}
-              className="px-6 py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors"
+              className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
             >
               Return to Login
             </button>
@@ -280,7 +280,7 @@ function AssistantCoachesPageContent() {
           <div className="mb-4">
             <div className="flex items-center gap-3 mb-2">
               <UserCog className="w-8 h-8" style={{ color: '#20B2AA' }} />
-              <h1 className="text-3xl font-heading" style={{ color: '#000000' }}>Assistant Coaches</h1>
+              <h1 className="text-3xl" style={{ color: '#000000' }}>Assistant Coaches</h1>
             </div>
             <p style={{ color: '#000000', opacity: 0.7 }}>
               Manage coaching staff and delegate responsibilities
@@ -293,8 +293,8 @@ function AssistantCoachesPageContent() {
           <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-white/50 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold" style={{ color: '#000000', opacity: 0.7 }}>Total Assistants</p>
-                <p className="text-3xl font-heading" style={{ color: '#000000' }}>{assistants.length}</p>
+                <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Total Assistants</p>
+                <p className="text-3xl" style={{ color: '#000000' }}>{assistants.length}</p>
               </div>
               <UserCog className="w-10 h-10" style={{ color: '#20B2AA', opacity: 0.3 }} />
             </div>
@@ -303,8 +303,8 @@ function AssistantCoachesPageContent() {
           <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-white/50 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold" style={{ color: '#000000', opacity: 0.7 }}>Active</p>
-                <p className="text-3xl font-heading" style={{ color: '#000000' }}>
+                <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Active</p>
+                <p className="text-3xl" style={{ color: '#000000' }}>
                   {assistants.filter(a => a.status === 'active').length}
                 </p>
               </div>
@@ -315,8 +315,8 @@ function AssistantCoachesPageContent() {
           <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-white/50 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold" style={{ color: '#000000', opacity: 0.7 }}>Pending</p>
-                <p className="text-3xl font-heading" style={{ color: '#000000' }}>
+                <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Pending</p>
+                <p className="text-3xl" style={{ color: '#000000' }}>
                   {assistants.filter(a => a.status === 'pending').length}
                 </p>
               </div>
@@ -329,7 +329,7 @@ function AssistantCoachesPageContent() {
         <div>
           <button
             onClick={() => setShowInviteModal(true)}
-            className="px-6 py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors flex items-center gap-2"
+            className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2"
           >
             <Plus className="w-5 h-5" />
             Invite Assistant Coach
@@ -346,7 +346,7 @@ function AssistantCoachesPageContent() {
           ) : assistants.length === 0 ? (
             <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-12 text-center">
               <UserCog className="w-16 h-16 mx-auto mb-4" style={{ color: '#000000', opacity: 0.3 }} />
-              <h3 className="text-xl font-heading mb-2" style={{ color: '#000000' }}>
+              <h3 className="text-xl mb-2" style={{ color: '#000000' }}>
                 No assistant coaches yet
               </h3>
               <p className="mb-6" style={{ color: '#000000', opacity: 0.7 }}>
@@ -354,7 +354,7 @@ function AssistantCoachesPageContent() {
               </p>
               <button
                 onClick={() => setShowInviteModal(true)}
-                className="px-6 py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors inline-flex items-center gap-2"
+                className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors inline-flex items-center gap-2"
               >
                 <Plus className="w-5 h-5" />
                 Invite First Assistant
@@ -368,13 +368,13 @@ function AssistantCoachesPageContent() {
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-4 flex-1">
-                    <div className="w-12 h-12 rounded-full flex items-center justify-center font-semibold text-white" style={{ background: 'linear-gradient(135deg, #20B2AA 0%, #000000 100%)' }}>
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center text-white" style={{ background: 'linear-gradient(135deg, #20B2AA 0%, #000000 100%)' }}>
                       {assistant.name.split(' ').map(n => n[0]).join('')}
                     </div>
 
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <h3 className="text-lg font-heading" style={{ color: '#000000' }}>
+                        <h3 className="text-lg" style={{ color: '#000000' }}>
                           {assistant.name}
                         </h3>
                         {getStatusBadge(assistant.status)}
@@ -386,7 +386,7 @@ function AssistantCoachesPageContent() {
                       </p>
 
                       <div className="mb-3">
-                        <p className="text-xs font-semibold mb-2" style={{ color: '#000000', opacity: 0.7 }}>
+                        <p className="text-xs mb-2" style={{ color: '#000000', opacity: 0.7 }}>
                           Permissions:
                         </p>
                         <div className="flex flex-wrap gap-2">
@@ -446,7 +446,7 @@ function AssistantCoachesPageContent() {
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-heading" style={{ color: '#000000' }}>
+                <h2 className="text-2xl" style={{ color: '#000000' }}>
                   Invite Assistant Coach
                 </h2>
                 <button
@@ -459,7 +459,7 @@ function AssistantCoachesPageContent() {
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                  <label className="block text-sm mb-2" style={{ color: '#000000' }}>
                     Name *
                   </label>
                   <input
@@ -472,7 +472,7 @@ function AssistantCoachesPageContent() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                  <label className="block text-sm mb-2" style={{ color: '#000000' }}>
                     Email *
                   </label>
                   <input
@@ -485,7 +485,7 @@ function AssistantCoachesPageContent() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                  <label className="block text-sm mb-2" style={{ color: '#000000' }}>
                     Role
                   </label>
                   <select
@@ -499,7 +499,7 @@ function AssistantCoachesPageContent() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold mb-3" style={{ color: '#000000' }}>
+                  <label className="block text-sm mb-3" style={{ color: '#000000' }}>
                     Permissions
                   </label>
                   <div className="space-y-2 max-h-48 overflow-y-auto p-4 border border-gray-200 rounded-lg">
@@ -524,7 +524,7 @@ function AssistantCoachesPageContent() {
                           className="mt-1"
                         />
                         <label htmlFor={permission.id} className="flex-1">
-                          <p className="text-sm font-semibold" style={{ color: '#000000' }}>
+                          <p className="text-sm" style={{ color: '#000000' }}>
                             {permission.label}
                           </p>
                           <p className="text-xs" style={{ color: '#000000', opacity: 0.6 }}>
@@ -540,14 +540,14 @@ function AssistantCoachesPageContent() {
               <div className="flex gap-3 mt-6">
                 <button
                   onClick={handleInvite}
-                  className="flex-1 px-6 py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
+                  className="flex-1 px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
                 >
                   <Send className="w-5 h-5" />
                   Send Invitation
                 </button>
                 <button
                   onClick={() => setShowInviteModal(false)}
-                  className="px-6 py-3 bg-white border-2 border-gray-300 text-black rounded-lg font-semibold hover:bg-gray-50 transition-colors"
+                  className="px-6 py-3 bg-white border-2 border-gray-300 text-black rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   Cancel
                 </button>

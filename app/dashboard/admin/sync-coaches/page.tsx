@@ -235,7 +235,7 @@ export default function SyncCoachesPage() {
         <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-3xl font-heading" style={{ color: '#000000' }}>Sync Coaches to Public</h1>
+              <h1 className="text-3xl" style={{ color: '#000000' }}>Sync Coaches to Public</h1>
               <p className="mt-2" style={{ color: '#000000', opacity: 0.7 }}>Sync coach profiles to the public browse page and fix invalid sports</p>
             </div>
             <div className="flex gap-3">
@@ -275,19 +275,19 @@ export default function SyncCoachesPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
             <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
-              <div className="text-4xl font-heading mb-2" style={{ color: '#91A6EB' }}>
+              <div className="text-4xl mb-2" style={{ color: '#91A6EB' }}>
                 {coaches.length}
               </div>
               <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Total Coaches</div>
             </div>
             <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
-              <div className="text-4xl font-heading mb-2" style={{ color: '#20B2AA' }}>
+              <div className="text-4xl mb-2" style={{ color: '#20B2AA' }}>
                 {publicCoaches.size}
               </div>
               <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Synced</div>
             </div>
             <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
-              <div className="text-4xl font-heading mb-2" style={{ color: '#FF6B35' }}>
+              <div className="text-4xl mb-2" style={{ color: '#FF6B35' }}>
                 {coaches.length - publicCoaches.size}
               </div>
               <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Not Synced</div>

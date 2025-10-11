@@ -85,7 +85,7 @@ export default function AssistantAnalyticsPage() {
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Analytics Dashboard</h1>
+            <h1 className="text-3xl text-gray-900">Analytics Dashboard</h1>
             <p className="text-gray-600 mt-2">Track performance metrics and athlete progress</p>
           </div>
           <div className="flex gap-2">
@@ -118,7 +118,7 @@ export default function AssistantAnalyticsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Active Athletes</p>
-                <p className="text-2xl font-bold">{analyticsData.athleteMetrics.activeAthletes}</p>
+                <p className="text-2xl">{analyticsData.athleteMetrics.activeAthletes}</p>
                 <p className="text-xs text-green-600 mt-1">
                   +12% from last month
                 </p>
@@ -133,7 +133,7 @@ export default function AssistantAnalyticsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Completion Rate</p>
-                <p className="text-2xl font-bold">{analyticsData.athleteMetrics.completionRate}%</p>
+                <p className="text-2xl">{analyticsData.athleteMetrics.completionRate}%</p>
                 <p className="text-xs text-green-600 mt-1">
                   +5% from last month
                 </p>
@@ -148,7 +148,7 @@ export default function AssistantAnalyticsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Avg Progress</p>
-                <p className="text-2xl font-bold">{analyticsData.athleteMetrics.averageProgress}%</p>
+                <p className="text-2xl">{analyticsData.athleteMetrics.averageProgress}%</p>
                 <p className="text-xs text-green-600 mt-1">
                   +8% from last month
                 </p>
@@ -163,7 +163,7 @@ export default function AssistantAnalyticsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Total Sessions</p>
-                <p className="text-2xl font-bold">{analyticsData.sessionMetrics.totalSessions}</p>
+                <p className="text-2xl">{analyticsData.sessionMetrics.totalSessions}</p>
                 <p className="text-xs text-green-600 mt-1">
                   +18% from last month
                 </p>
@@ -244,7 +244,7 @@ export default function AssistantAnalyticsPage() {
                     <p className="text-sm text-gray-600">Average across all athletes</p>
                   </div>
                 </div>
-                <span className="text-2xl font-bold text-blue-600">
+                <span className="text-2xl text-blue-600">
                   +{analyticsData.performanceMetrics.improvementRate}%
                 </span>
               </div>
@@ -257,7 +257,7 @@ export default function AssistantAnalyticsPage() {
                     <p className="text-sm text-gray-600">Athletes meeting targets</p>
                   </div>
                 </div>
-                <span className="text-2xl font-bold text-green-600">
+                <span className="text-2xl text-green-600">
                   {analyticsData.performanceMetrics.goalAchievement}%
                 </span>
               </div>
@@ -278,7 +278,7 @@ export default function AssistantAnalyticsPage() {
               <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
                 <div className="flex items-center gap-4">
                   <div className="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center">
-                    <span className="text-sm font-bold">{index + 1}</span>
+                    <span className="text-sm">{index + 1}</span>
                   </div>
                   <div>
                     <p className="font-semibold">{performer.name}</p>
@@ -287,7 +287,7 @@ export default function AssistantAnalyticsPage() {
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="text-right">
-                    <p className="text-2xl font-bold">{performer.score}</p>
+                    <p className="text-2xl">{performer.score}</p>
                     <p className="text-xs text-green-600">+{Math.floor(Math.random() * 10 + 5)}% this month</p>
                   </div>
                   {index === 0 && <Trophy className="w-6 h-6 text-yellow-500" />}

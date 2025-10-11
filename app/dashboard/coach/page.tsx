@@ -205,7 +205,7 @@ export default function CoachDashboard() {
 
         {/* Coach Tools Grid */}
         <div>
-          <h2 className="text-xl sm:text-2xl font-heading mb-4 sm:mb-6 uppercase tracking-wide" style={{ color: '#000000' }}>
+          <h2 className="text-xl sm:text-2xl mb-4 sm:mb-6 uppercase tracking-wide" style={{ color: '#000000' }}>
             Coach Tools
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
@@ -230,7 +230,7 @@ export default function CoachDashboard() {
                       </div>
 
                       {/* Title */}
-                      <h3 className="text-xs sm:text-sm font-heading mb-1 line-clamp-2" style={{ color: '#000000' }}>
+                      <h3 className="text-xs sm:text-sm mb-1 line-clamp-2" style={{ color: '#000000' }}>
                         {card.title}
                       </h3>
 

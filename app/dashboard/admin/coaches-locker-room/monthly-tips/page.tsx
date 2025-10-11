@@ -160,7 +160,7 @@ export default function MonthlyTipsManager() {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#E8E6D8' }}>
         <div className="text-center bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8">
-          <h1 className="text-2xl mb-4 font-heading" style={{ color: '#000000' }}>Access Denied</h1>
+          <h1 className="text-2xl mb-4" style={{ color: '#000000' }}>Access Denied</h1>
           <p style={{ color: '#000000', opacity: 0.7 }}>This page is only available to administrators.</p>
         </div>
       </div>
@@ -186,7 +186,7 @@ export default function MonthlyTipsManager() {
         {(isCreating || editingNewsletter) && (
           <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 mb-8">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-heading" style={{ color: '#000000' }}>
+              <h2 className="text-2xl" style={{ color: '#000000' }}>
                 {editingNewsletter ? 'Edit Newsletter' : 'Create Newsletter'}
               </h2>
               <button
@@ -204,7 +204,7 @@ export default function MonthlyTipsManager() {
             <div className="space-y-4">
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>Month</label>
+                  <label className="block text-sm mb-2" style={{ color: '#000000' }}>Month</label>
                   <select
                     value={formData.month}
                     onChange={(e) => setFormData({ ...formData, month: e.target.value })}
@@ -226,7 +226,7 @@ export default function MonthlyTipsManager() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>Year</label>
+                  <label className="block text-sm mb-2" style={{ color: '#000000' }}>Year</label>
                   <input
                     type="number"
                     value={formData.year}
@@ -237,7 +237,7 @@ export default function MonthlyTipsManager() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>Email Subject</label>
+                <label className="block text-sm mb-2" style={{ color: '#000000' }}>Email Subject</label>
                 <input
                   type="text"
                   value={formData.subject}
@@ -248,7 +248,7 @@ export default function MonthlyTipsManager() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>Introduction</label>
+                <label className="block text-sm mb-2" style={{ color: '#000000' }}>Introduction</label>
                 <textarea
                   value={formData.content}
                   onChange={(e) => setFormData({ ...formData, content: e.target.value })}
@@ -259,7 +259,7 @@ export default function MonthlyTipsManager() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>Tips</label>
+                <label className="block text-sm mb-2" style={{ color: '#000000' }}>Tips</label>
                 {formData.tips.map((tip, index) => (
                   <div key={index} className="flex gap-2 mb-2">
                     <input
@@ -290,7 +290,7 @@ export default function MonthlyTipsManager() {
 
               <button
                 onClick={editingNewsletter ? handleUpdate : handleCreate}
-                className="w-full py-3 px-4 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
+                className="w-full py-3 px-4 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
               >
                 <Save className="w-5 h-5" />
                 {editingNewsletter ? 'Update Newsletter' : 'Create Newsletter'}
@@ -303,7 +303,7 @@ export default function MonthlyTipsManager() {
         {!isCreating && !editingNewsletter && (
           <button
             onClick={() => setIsCreating(true)}
-            className="mb-8 px-6 py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors flex items-center gap-2"
+            className="mb-8 px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2"
           >
             <Plus className="w-5 h-5" />
             Create Newsletter
@@ -320,13 +320,13 @@ export default function MonthlyTipsManager() {
                     <Mail className="w-6 h-6 text-white" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-xl font-heading mb-2" style={{ color: '#000000' }}>{newsletter.subject}</h3>
+                    <h3 className="text-xl mb-2" style={{ color: '#000000' }}>{newsletter.subject}</h3>
                     <p className="text-sm mb-3" style={{ color: '#000000', opacity: 0.7 }}>{newsletter.month} {newsletter.year}</p>
                     <p className="text-sm mb-4" style={{ color: '#000000' }}>{newsletter.content}</p>
                     <div className="space-y-2">
                       {newsletter.tips.map((tip, index) => tip && (
                         <div key={index} className="flex items-start gap-2">
-                          <span className="text-sm font-semibold" style={{ color: '#20B2AA' }}>•</span>
+                          <span className="text-sm" style={{ color: '#20B2AA' }}>•</span>
                           <p className="text-sm" style={{ color: '#000000' }}>{tip}</p>
                         </div>
                       ))}

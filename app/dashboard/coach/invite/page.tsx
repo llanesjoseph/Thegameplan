@@ -244,14 +244,14 @@ function InviteAthletesPageContent() {
       <div style={{ backgroundColor: embedded ? 'transparent' : '#E8E6D8' }} className={embedded ? 'p-12' : 'min-h-screen flex items-center justify-center'}>
         <div className="text-center bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8 max-w-md">
           <AlertCircle className="w-16 h-16 mx-auto mb-4" style={{ color: '#FF6B35' }} />
-          <h2 className="text-2xl font-heading mb-2" style={{ color: '#000000' }}>Access Denied</h2>
+          <h2 className="text-2xl mb-2" style={{ color: '#000000' }}>Access Denied</h2>
           <p className="mb-6" style={{ color: '#000000', opacity: 0.7 }}>
             You must be logged in as a coach to access this page.
           </p>
           {!embedded && (
             <button
               onClick={() => router.push('/')}
-              className="px-6 py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors"
+              className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
             >
               Return to Login
             </button>
@@ -273,7 +273,7 @@ function InviteAthletesPageContent() {
           <div className="mb-4">
             <div className="flex items-center gap-3 mb-2">
               <UserPlus className="w-8 h-8" style={{ color: '#000000' }} />
-              <h1 className="text-3xl font-heading" style={{ color: '#000000' }}>Invite Athletes</h1>
+              <h1 className="text-3xl" style={{ color: '#000000' }}>Invite Athletes</h1>
             </div>
             <p style={{ color: '#000000', opacity: 0.7 }}>
               Send personalized invitations to join your team
@@ -285,7 +285,7 @@ function InviteAthletesPageContent() {
         <div className="flex gap-3">
           <button
             onClick={() => setInviteMode('single')}
-            className={`px-5 py-2.5 rounded-lg font-semibold transition-colors flex items-center gap-2 ${
+            className={`px-5 py-2.5 rounded-lg transition-colors flex items-center gap-2 ${
               inviteMode === 'single'
                 ? 'bg-black text-white'
                 : 'bg-white/90 backdrop-blur-sm border border-gray-300/50 hover:bg-white'
@@ -297,7 +297,7 @@ function InviteAthletesPageContent() {
           </button>
           <button
             onClick={() => setInviteMode('bulk')}
-            className={`px-5 py-2.5 rounded-lg font-semibold transition-colors flex items-center gap-2 ${
+            className={`px-5 py-2.5 rounded-lg transition-colors flex items-center gap-2 ${
               inviteMode === 'bulk'
                 ? 'bg-black text-white'
                 : 'bg-white/90 backdrop-blur-sm border border-gray-300/50 hover:bg-white'
@@ -314,12 +314,12 @@ function InviteAthletesPageContent() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Form Column */}
             <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 space-y-4">
-              <h2 className="text-xl font-heading mb-4" style={{ color: '#000000' }}>
+              <h2 className="text-xl mb-4" style={{ color: '#000000' }}>
                 Athlete Information
               </h2>
 
               <div>
-                <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                <label className="block text-sm mb-2" style={{ color: '#000000' }}>
                   Athlete Name *
                 </label>
                 <input
@@ -332,7 +332,7 @@ function InviteAthletesPageContent() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                <label className="block text-sm mb-2" style={{ color: '#000000' }}>
                   Email Address *
                 </label>
                 <input
@@ -345,7 +345,7 @@ function InviteAthletesPageContent() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                <label className="block text-sm mb-2" style={{ color: '#000000' }}>
                   Sport
                 </label>
                 <select
@@ -360,7 +360,7 @@ function InviteAthletesPageContent() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                <label className="block text-sm mb-2" style={{ color: '#000000' }}>
                   Custom Message (Optional)
                 </label>
                 <textarea
@@ -373,7 +373,7 @@ function InviteAthletesPageContent() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                <label className="block text-sm mb-2" style={{ color: '#000000' }}>
                   Invitation Expires In
                 </label>
                 <select
@@ -393,7 +393,7 @@ function InviteAthletesPageContent() {
                 <button
                   onClick={handleSingleInvite}
                   disabled={sending || !singleInvite.athleteName || !singleInvite.athleteEmail}
-                  className="w-full px-6 py-4 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl disabled:cursor-not-allowed flex items-center justify-center gap-2 text-lg"
+                  className="w-full px-6 py-4 rounded-xl transition-all shadow-lg hover:shadow-xl disabled:cursor-not-allowed flex items-center justify-center gap-2 text-lg"
                   style={{
                     minHeight: '56px',
                     backgroundColor: (sending || !singleInvite.athleteName || !singleInvite.athleteEmail) ? '#9CA3AF' : '#16A34A',
@@ -454,12 +454,12 @@ function InviteAthletesPageContent() {
         {inviteMode === 'bulk' && (
           <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-heading" style={{ color: '#000000' }}>
+              <h2 className="text-xl" style={{ color: '#000000' }}>
                 Bulk Invitation
               </h2>
               <button
                 onClick={importFromCSV}
-                className="px-4 py-2 bg-white border border-gray-300/50 rounded-lg font-semibold hover:bg-gray-50 transition-colors flex items-center gap-2"
+                className="px-4 py-2 bg-white border border-gray-300/50 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
                 style={{ color: '#000000' }}
               >
                 <Upload className="w-4 h-4" />
@@ -469,7 +469,7 @@ function InviteAthletesPageContent() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                <label className="block text-sm mb-2" style={{ color: '#000000' }}>
                   Sport
                 </label>
                 <select
@@ -484,7 +484,7 @@ function InviteAthletesPageContent() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                <label className="block text-sm mb-2" style={{ color: '#000000' }}>
                   Custom Message (Optional)
                 </label>
                 <textarea
@@ -499,12 +499,12 @@ function InviteAthletesPageContent() {
 
             <div>
               <div className="flex justify-between items-center mb-3">
-                <label className="block text-sm font-semibold" style={{ color: '#000000' }}>
+                <label className="block text-sm" style={{ color: '#000000' }}>
                   Athletes
                 </label>
                 <button
                   onClick={addBulkRow}
-                  className="px-3 py-1.5 rounded-lg text-sm font-semibold hover:opacity-80 transition-opacity flex items-center gap-1.5"
+                  className="px-3 py-1.5 rounded-lg text-sm hover:opacity-80 transition-opacity flex items-center gap-1.5"
                   style={{ backgroundColor: 'rgba(145, 166, 235, 0.2)', color: '#91A6EB' }}
                 >
                   <Plus className="w-4 h-4" />
@@ -546,7 +546,7 @@ function InviteAthletesPageContent() {
               <button
                 onClick={handleBulkInvite}
                 disabled={sending}
-                className="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors disabled:opacity-50 flex items-center gap-2"
+                className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 flex items-center gap-2"
               >
                 {sending ? (
                   <>
@@ -566,7 +566,7 @@ function InviteAthletesPageContent() {
 
         {/* Help Section */}
         <div className="rounded-xl p-6 border-2" style={{ background: 'linear-gradient(135deg, rgba(145, 166, 235, 0.1) 0%, rgba(145, 166, 235, 0.05) 100%)', borderColor: 'rgba(145, 166, 235, 0.3)' }}>
-          <h3 className="text-lg font-heading mb-3" style={{ color: '#000000' }}>
+          <h3 className="text-lg mb-3" style={{ color: '#000000' }}>
             💡 Invitation Tips
           </h3>
           <ul className="text-sm space-y-1" style={{ color: '#000000', opacity: 0.7 }}>

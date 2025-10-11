@@ -128,7 +128,7 @@ export default function AssistantRequestsPage() {
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Coaching Requests</h1>
+        <h1 className="text-3xl text-gray-900">Coaching Requests</h1>
         <p className="text-gray-600 mt-2">Manage and respond to athlete coaching requests</p>
       </div>
 
@@ -139,7 +139,7 @@ export default function AssistantRequestsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Pending</p>
-                <p className="text-2xl font-bold">
+                <p className="text-2xl">
                   {requests.filter(r => r.status === 'pending').length}
                 </p>
               </div>
@@ -153,7 +153,7 @@ export default function AssistantRequestsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">In Progress</p>
-                <p className="text-2xl font-bold">
+                <p className="text-2xl">
                   {requests.filter(r => r.status === 'in-progress').length}
                 </p>
               </div>
@@ -167,7 +167,7 @@ export default function AssistantRequestsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Completed Today</p>
-                <p className="text-2xl font-bold">
+                <p className="text-2xl">
                   {requests.filter(r => r.status === 'completed').length}
                 </p>
               </div>
@@ -181,7 +181,7 @@ export default function AssistantRequestsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">High Priority</p>
-                <p className="text-2xl font-bold">
+                <p className="text-2xl">
                   {requests.filter(r => r.priority === 'high').length}
                 </p>
               </div>
@@ -218,7 +218,7 @@ export default function AssistantRequestsPage() {
           <Card>
             <CardContent className="p-8 text-center">
               <MessageCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900">No requests found</h3>
+              <h3 className="text-lg text-gray-900">No requests found</h3>
               <p className="text-gray-600 mt-2">No coaching requests match your current filters.</p>
             </CardContent>
           </Card>
@@ -229,7 +229,7 @@ export default function AssistantRequestsPage() {
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-lg font-semibold">{request.subject}</h3>
+                      <h3 className="text-lg">{request.subject}</h3>
                       <Badge className={getStatusColor(request.status)}>
                         <span className="flex items-center gap-1">
                           {getStatusIcon(request.status)}

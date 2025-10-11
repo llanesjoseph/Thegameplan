@@ -117,7 +117,7 @@ export default function AssistantSchedulePage() {
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Schedule Management</h1>
+        <h1 className="text-3xl text-gray-900">Schedule Management</h1>
         <p className="text-gray-600 mt-2">Manage training sessions, meetings, and athlete appointments</p>
       </div>
 
@@ -128,7 +128,7 @@ export default function AssistantSchedulePage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Today's Events</p>
-                <p className="text-2xl font-bold">{todayEvents.length}</p>
+                <p className="text-2xl">{todayEvents.length}</p>
               </div>
               <CalendarDays className="w-8 h-8 text-blue-500" />
             </div>
@@ -140,7 +140,7 @@ export default function AssistantSchedulePage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">This Week</p>
-                <p className="text-2xl font-bold">{events.length}</p>
+                <p className="text-2xl">{events.length}</p>
               </div>
               <Clock className="w-8 h-8 text-green-500" />
             </div>
@@ -152,7 +152,7 @@ export default function AssistantSchedulePage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Athletes Scheduled</p>
-                <p className="text-2xl font-bold">12</p>
+                <p className="text-2xl">12</p>
               </div>
               <Users className="w-8 h-8 text-purple-500" />
             </div>
@@ -164,7 +164,7 @@ export default function AssistantSchedulePage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Virtual Sessions</p>
-                <p className="text-2xl font-bold">3</p>
+                <p className="text-2xl">3</p>
               </div>
               <Video className="w-8 h-8 text-red-500" />
             </div>
@@ -277,7 +277,7 @@ export default function AssistantSchedulePage() {
               <div key={event.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
                 <div className="flex items-center gap-4">
                   <div className="text-center">
-                    <p className="text-2xl font-bold">{event.date.getDate()}</p>
+                    <p className="text-2xl">{event.date.getDate()}</p>
                     <p className="text-sm text-gray-600">
                       {event.date.toLocaleDateString('en-US', { month: 'short' })}
                     </p>

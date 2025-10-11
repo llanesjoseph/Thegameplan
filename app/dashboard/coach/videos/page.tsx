@@ -145,14 +145,14 @@ function VideoManagerPageContent() {
       <div style={{ backgroundColor: embedded ? 'transparent' : '#E8E6D8' }} className={embedded ? 'p-12' : 'min-h-screen flex items-center justify-center'}>
         <div className="text-center bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8 max-w-md">
           <AlertCircle className="w-16 h-16 mx-auto mb-4" style={{ color: '#FF6B35' }} />
-          <h2 className="text-2xl font-heading mb-2" style={{ color: '#000000' }}>Access Denied</h2>
+          <h2 className="text-2xl mb-2" style={{ color: '#000000' }}>Access Denied</h2>
           <p className="mb-6" style={{ color: '#000000', opacity: 0.7 }}>
             You must be logged in as a coach to access this page.
           </p>
           {!embedded && (
             <button
               onClick={() => router.push('/')}
-              className="px-6 py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors"
+              className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
             >
               Return to Login
             </button>
@@ -174,7 +174,7 @@ function VideoManagerPageContent() {
           <div className="mb-4">
             <div className="flex items-center gap-3 mb-2">
               <Video className="w-8 h-8" style={{ color: '#FF6B35' }} />
-              <h1 className="text-3xl font-heading" style={{ color: '#000000' }}>Video Manager</h1>
+              <h1 className="text-3xl" style={{ color: '#000000' }}>Video Manager</h1>
             </div>
             <p style={{ color: '#000000', opacity: 0.7 }}>
               Organize and embed your training videos
@@ -187,8 +187,8 @@ function VideoManagerPageContent() {
           <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-white/50 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold" style={{ color: '#000000', opacity: 0.7 }}>Total Videos</p>
-                <p className="text-3xl font-heading" style={{ color: '#000000' }}>{videos.length}</p>
+                <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Total Videos</p>
+                <p className="text-3xl" style={{ color: '#000000' }}>{videos.length}</p>
               </div>
               <Video className="w-10 h-10" style={{ color: '#91A6EB', opacity: 0.3 }} />
             </div>
@@ -197,8 +197,8 @@ function VideoManagerPageContent() {
           <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-white/50 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold" style={{ color: '#000000', opacity: 0.7 }}>Total Views</p>
-                <p className="text-3xl font-heading" style={{ color: '#000000' }}>
+                <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Total Views</p>
+                <p className="text-3xl" style={{ color: '#000000' }}>
                   {videos.reduce((sum, v) => sum + v.views, 0)}
                 </p>
               </div>
@@ -209,8 +209,8 @@ function VideoManagerPageContent() {
           <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-white/50 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold" style={{ color: '#000000', opacity: 0.7 }}>Total Duration</p>
-                <p className="text-3xl font-heading" style={{ color: '#000000' }}>
+                <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Total Duration</p>
+                <p className="text-3xl" style={{ color: '#000000' }}>
                   {videos.reduce((sum, v) => sum + v.duration, 0)}m
                 </p>
               </div>
@@ -224,7 +224,7 @@ function VideoManagerPageContent() {
           <div className="flex flex-col md:flex-row gap-4">
             <button
               onClick={() => setShowAddModal(true)}
-              className="px-5 py-2.5 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors flex items-center gap-2"
+              className="px-5 py-2.5 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2"
             >
               <Plus className="w-5 h-5" />
               Add Video
@@ -265,7 +265,7 @@ function VideoManagerPageContent() {
         ) : filteredVideos.length === 0 ? (
           <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-12 text-center">
             <Video className="w-16 h-16 mx-auto mb-4" style={{ color: '#000000', opacity: 0.3 }} />
-            <h3 className="text-xl font-heading mb-2" style={{ color: '#000000' }}>
+            <h3 className="text-xl mb-2" style={{ color: '#000000' }}>
               {videos.length === 0 ? 'No videos yet' : 'No videos match your filters'}
             </h3>
             <p className="mb-6" style={{ color: '#000000', opacity: 0.7 }}>
@@ -277,7 +277,7 @@ function VideoManagerPageContent() {
             {videos.length === 0 && (
               <button
                 onClick={() => setShowAddModal(true)}
-                className="px-6 py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors inline-flex items-center gap-2"
+                className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors inline-flex items-center gap-2"
               >
                 <Plus className="w-5 h-5" />
                 Add Your First Video
@@ -297,7 +297,7 @@ function VideoManagerPageContent() {
                   <div className="absolute top-2 right-2 px-2 py-1 bg-black/70 text-white text-xs rounded">
                     {video.duration}m
                   </div>
-                  <div className="absolute bottom-2 left-2 px-2 py-1 rounded text-xs font-semibold text-white" style={{ backgroundColor: getSportColor(video.sport) }}>
+                  <div className="absolute bottom-2 left-2 px-2 py-1 rounded text-xs text-white" style={{ backgroundColor: getSportColor(video.sport) }}>
                     {video.sport}
                   </div>
                 </div>
@@ -337,7 +337,7 @@ function VideoManagerPageContent() {
                   {/* Actions */}
                   <div className="flex gap-2">
                     <button
-                      className="flex-1 px-3 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 text-sm font-semibold"
+                      className="flex-1 px-3 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 text-sm"
                     >
                       <Play className="w-4 h-4" />
                       Play
@@ -367,7 +367,7 @@ function VideoManagerPageContent() {
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-heading" style={{ color: '#000000' }}>Add Video</h2>
+                <h2 className="text-2xl" style={{ color: '#000000' }}>Add Video</h2>
                 <button
                   onClick={() => setShowAddModal(false)}
                   className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -380,7 +380,7 @@ function VideoManagerPageContent() {
               </p>
               <button
                 onClick={() => setShowAddModal(false)}
-                className="w-full px-6 py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors"
+                className="w-full px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
               >
                 Close
               </button>

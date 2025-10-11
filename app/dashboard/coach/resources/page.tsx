@@ -167,14 +167,14 @@ function ResourceLibraryPageContent() {
       <div style={{ backgroundColor: embedded ? 'transparent' : '#E8E6D8' }} className={embedded ? 'p-12' : 'min-h-screen flex items-center justify-center'}>
         <div className="text-center bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8 max-w-md">
           <AlertCircle className="w-16 h-16 mx-auto mb-4" style={{ color: '#FF6B35' }} />
-          <h2 className="text-2xl font-heading mb-2" style={{ color: '#000000' }}>Access Denied</h2>
+          <h2 className="text-2xl mb-2" style={{ color: '#000000' }}>Access Denied</h2>
           <p className="mb-6" style={{ color: '#000000', opacity: 0.7 }}>
             You must be logged in as a coach to access this page.
           </p>
           {!embedded && (
             <button
               onClick={() => router.push('/')}
-              className="px-6 py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors"
+              className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
             >
               Return to Login
             </button>
@@ -196,7 +196,7 @@ function ResourceLibraryPageContent() {
           <div className="mb-4">
             <div className="flex items-center gap-3 mb-2">
               <FileText className="w-8 h-8" style={{ color: '#91A6EB' }} />
-              <h1 className="text-3xl font-heading" style={{ color: '#000000' }}>Resource Library</h1>
+              <h1 className="text-3xl" style={{ color: '#000000' }}>Resource Library</h1>
             </div>
             <p style={{ color: '#000000', opacity: 0.7 }}>
               PDFs, links, and training materials for your athletes
@@ -209,8 +209,8 @@ function ResourceLibraryPageContent() {
           <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-white/50 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold" style={{ color: '#000000', opacity: 0.7 }}>Total Resources</p>
-                <p className="text-3xl font-heading" style={{ color: '#000000' }}>{resources.length}</p>
+                <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Total Resources</p>
+                <p className="text-3xl" style={{ color: '#000000' }}>{resources.length}</p>
               </div>
               <FileText className="w-10 h-10" style={{ color: '#91A6EB', opacity: 0.3 }} />
             </div>
@@ -219,8 +219,8 @@ function ResourceLibraryPageContent() {
           <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-white/50 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold" style={{ color: '#000000', opacity: 0.7 }}>Total Downloads</p>
-                <p className="text-3xl font-heading" style={{ color: '#000000' }}>
+                <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Total Downloads</p>
+                <p className="text-3xl" style={{ color: '#000000' }}>
                   {resources.reduce((sum, r) => sum + r.downloads, 0)}
                 </p>
               </div>
@@ -231,8 +231,8 @@ function ResourceLibraryPageContent() {
           <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-white/50 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold" style={{ color: '#000000', opacity: 0.7 }}>File Types</p>
-                <p className="text-3xl font-heading" style={{ color: '#000000' }}>
+                <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>File Types</p>
+                <p className="text-3xl" style={{ color: '#000000' }}>
                   {new Set(resources.map(r => r.type)).size}
                 </p>
               </div>
@@ -246,7 +246,7 @@ function ResourceLibraryPageContent() {
           <div className="flex flex-col md:flex-row gap-4">
             <button
               onClick={() => setShowAddModal(true)}
-              className="px-5 py-2.5 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors flex items-center gap-2"
+              className="px-5 py-2.5 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2"
             >
               <Plus className="w-5 h-5" />
               Add Resource
@@ -298,7 +298,7 @@ function ResourceLibraryPageContent() {
         ) : filteredResources.length === 0 ? (
           <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-12 text-center">
             <FileText className="w-16 h-16 mx-auto mb-4" style={{ color: '#000000', opacity: 0.3 }} />
-            <h3 className="text-xl font-heading mb-2" style={{ color: '#000000' }}>
+            <h3 className="text-xl mb-2" style={{ color: '#000000' }}>
               {resources.length === 0 ? 'No resources yet' : 'No resources match your filters'}
             </h3>
             <p className="mb-6" style={{ color: '#000000', opacity: 0.7 }}>
@@ -310,7 +310,7 @@ function ResourceLibraryPageContent() {
             {resources.length === 0 && (
               <button
                 onClick={() => setShowAddModal(true)}
-                className="px-6 py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors inline-flex items-center gap-2"
+                className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors inline-flex items-center gap-2"
               >
                 <Plus className="w-5 h-5" />
                 Add Your First Resource
@@ -334,10 +334,10 @@ function ResourceLibraryPageContent() {
                       {resource.title}
                     </h3>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs px-2 py-0.5 rounded-full capitalize font-semibold" style={{ backgroundColor: `${getSportColor(resource.sport)}20`, color: getSportColor(resource.sport) }}>
+                      <span className="text-xs px-2 py-0.5 rounded-full capitalize" style={{ backgroundColor: `${getSportColor(resource.sport)}20`, color: getSportColor(resource.sport) }}>
                         {resource.sport}
                       </span>
-                      <span className="text-xs px-2 py-0.5 rounded-full uppercase font-semibold" style={{ backgroundColor: `${getTypeColor(resource.type)}20`, color: getTypeColor(resource.type) }}>
+                      <span className="text-xs px-2 py-0.5 rounded-full uppercase" style={{ backgroundColor: `${getTypeColor(resource.type)}20`, color: getTypeColor(resource.type) }}>
                         {resource.type}
                       </span>
                     </div>
@@ -372,7 +372,7 @@ function ResourceLibraryPageContent() {
                 {/* Actions */}
                 <div className="flex gap-2">
                   <button
-                    className="flex-1 px-3 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 text-sm font-semibold"
+                    className="flex-1 px-3 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 text-sm"
                   >
                     <Download className="w-4 h-4" />
                     {resource.type === 'link' ? 'Open' : 'Download'}
@@ -401,7 +401,7 @@ function ResourceLibraryPageContent() {
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-heading" style={{ color: '#000000' }}>Add Resource</h2>
+                <h2 className="text-2xl" style={{ color: '#000000' }}>Add Resource</h2>
                 <button
                   onClick={() => setShowAddModal(false)}
                   className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -414,7 +414,7 @@ function ResourceLibraryPageContent() {
               </p>
               <button
                 onClick={() => setShowAddModal(false)}
-                className="w-full px-6 py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors"
+                className="w-full px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
               >
                 Close
               </button>

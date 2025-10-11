@@ -219,11 +219,11 @@ export default function CoachApplicationsPage() {
   return (
    <div className="min-h-screen flex items-center justify-center px-4" style={{ backgroundColor: '#E8E6D8' }}>
     <div className="max-w-md mx-auto text-center bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8">
-     <h1 className="text-2xl mb-4 font-heading" style={{ color: '#000000' }}>Access Denied</h1>
+     <h1 className="text-2xl mb-4" style={{ color: '#000000' }}>Access Denied</h1>
      <p className="mb-6" style={{ color: '#000000', opacity: 0.7 }}>You don't have permission to access the admin panel.</p>
      <Link
       href="/dashboard"
-      className="block w-full py-3 rounded-xl text-white font-semibold"
+      className="block w-full py-3 rounded-xl text-white"
       style={{ backgroundColor: '#91A6EB' }}
      >
       Back to Dashboard
@@ -244,7 +244,7 @@ export default function CoachApplicationsPage() {
        <ArrowLeft className="w-5 h-5 text-dark" />
       </Link>
       <div>
-       <h1 className="text-4xl text-dark font-heading">Coach Applications</h1>
+       <h1 className="text-4xl text-dark">Coach Applications</h1>
        <p className="text-dark/60 ">Review and approve coaching applications</p>
       </div>
      </div>

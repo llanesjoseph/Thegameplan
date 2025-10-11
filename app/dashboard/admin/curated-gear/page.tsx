@@ -153,7 +153,7 @@ export default function CuratedGear() {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#E8E6D8' }}>
         <div className="text-center bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8">
-          <h1 className="text-2xl mb-4 font-heading" style={{ color: '#000000' }}>Access Denied</h1>
+          <h1 className="text-2xl mb-4" style={{ color: '#000000' }}>Access Denied</h1>
           <p style={{ color: '#000000', opacity: 0.7 }}>This page is only available to administrators.</p>
         </div>
       </div>
@@ -181,7 +181,7 @@ export default function CuratedGear() {
             <div className="flex items-center gap-3">
               <ShoppingBag className="w-6 h-6" style={{ color: '#91A6EB' }} />
               <div>
-                <div className="text-2xl font-heading" style={{ color: '#000000' }}>
+                <div className="text-2xl" style={{ color: '#000000' }}>
                   {gearItems.length}
                 </div>
                 <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Total Items</div>
@@ -223,7 +223,7 @@ export default function CuratedGear() {
                   </div>
                 )}
                 {item.featured && (
-                  <div className="absolute top-2 right-2 bg-yellow-400 text-black px-2 py-1 rounded text-xs font-semibold">
+                  <div className="absolute top-2 right-2 bg-yellow-400 text-black px-2 py-1 rounded text-xs">
                     Featured
                   </div>
                 )}
@@ -241,7 +241,7 @@ export default function CuratedGear() {
                   <Tag className="w-4 h-4" style={{ color: '#20B2AA' }} />
                   <span className="text-sm" style={{ color: '#20B2AA' }}>{item.category}</span>
                 </div>
-                <div className="text-2xl font-heading mb-4" style={{ color: '#000000' }}>
+                <div className="text-2xl mb-4" style={{ color: '#000000' }}>
                   ${item.price.toFixed(2)}
                 </div>
                 <div className="flex gap-2">
@@ -268,12 +268,12 @@ export default function CuratedGear() {
         {showAddModal && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-xl shadow-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-              <h2 className="text-2xl font-heading mb-6" style={{ color: '#000000' }}>
+              <h2 className="text-2xl mb-6" style={{ color: '#000000' }}>
                 {editingItem ? 'Edit Gear Item' : 'Add Gear Item'}
               </h2>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                  <label className="block text-sm mb-2" style={{ color: '#000000' }}>
                     Item Name
                   </label>
                   <input
@@ -285,7 +285,7 @@ export default function CuratedGear() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                  <label className="block text-sm mb-2" style={{ color: '#000000' }}>
                     Description
                   </label>
                   <textarea
@@ -298,7 +298,7 @@ export default function CuratedGear() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                    <label className="block text-sm mb-2" style={{ color: '#000000' }}>
                       Category
                     </label>
                     <select
@@ -312,7 +312,7 @@ export default function CuratedGear() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                    <label className="block text-sm mb-2" style={{ color: '#000000' }}>
                       Price ($)
                     </label>
                     <input
@@ -326,7 +326,7 @@ export default function CuratedGear() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                  <label className="block text-sm mb-2" style={{ color: '#000000' }}>
                     Image URL
                   </label>
                   <input
@@ -337,7 +337,7 @@ export default function CuratedGear() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                  <label className="block text-sm mb-2" style={{ color: '#000000' }}>
                     Affiliate URL
                   </label>
                   <input
@@ -350,7 +350,7 @@ export default function CuratedGear() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                    <label className="block text-sm mb-2" style={{ color: '#000000' }}>
                       Rating (1-5)
                     </label>
                     <input
@@ -371,7 +371,7 @@ export default function CuratedGear() {
                         onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
                         className="w-4 h-4"
                       />
-                      <span className="text-sm font-semibold" style={{ color: '#000000' }}>Featured Item</span>
+                      <span className="text-sm" style={{ color: '#000000' }}>Featured Item</span>
                     </label>
                   </div>
                 </div>

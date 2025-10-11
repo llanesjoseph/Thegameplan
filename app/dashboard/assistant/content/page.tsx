@@ -163,7 +163,7 @@ export default function AssistantContentPage() {
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Content Organization</h1>
+        <h1 className="text-3xl text-gray-900">Content Organization</h1>
         <p className="text-gray-600 mt-2">Manage and organize training content and resources</p>
       </div>
 
@@ -174,7 +174,7 @@ export default function AssistantContentPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Total Content</p>
-                <p className="text-2xl font-bold">{contentItems.length}</p>
+                <p className="text-2xl">{contentItems.length}</p>
               </div>
               <Folder className="w-8 h-8 text-blue-500" />
             </div>
@@ -186,7 +186,7 @@ export default function AssistantContentPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Videos</p>
-                <p className="text-2xl font-bold">
+                <p className="text-2xl">
                   {contentItems.filter(i => i.type === 'video').length}
                 </p>
               </div>
@@ -200,7 +200,7 @@ export default function AssistantContentPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Total Views</p>
-                <p className="text-2xl font-bold">
+                <p className="text-2xl">
                   {contentItems.reduce((sum, item) => sum + item.views, 0).toLocaleString()}
                 </p>
               </div>
@@ -214,7 +214,7 @@ export default function AssistantContentPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Featured</p>
-                <p className="text-2xl font-bold">
+                <p className="text-2xl">
                   {contentItems.filter(i => i.featured).length}
                 </p>
               </div>

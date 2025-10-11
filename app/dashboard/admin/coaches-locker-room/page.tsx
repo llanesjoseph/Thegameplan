@@ -171,7 +171,7 @@ export default function CoachesLockerRoom() {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#E8E6D8' }}>
         <div className="text-center bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8">
-          <h1 className="text-2xl mb-4 font-heading" style={{ color: '#000000' }}>Access Denied</h1>
+          <h1 className="text-2xl mb-4" style={{ color: '#000000' }}>Access Denied</h1>
           <p style={{ color: '#000000', opacity: 0.7 }}>This page is only available to administrators.</p>
         </div>
       </div>
@@ -199,7 +199,7 @@ export default function CoachesLockerRoom() {
             <div className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: '#20B2AA' }}>
               <Users className="w-6 h-6 text-white" />
             </div>
-            <div className="text-4xl font-heading mb-2" style={{ color: '#20B2AA' }}>
+            <div className="text-4xl mb-2" style={{ color: '#20B2AA' }}>
               {stats.totalCoaches}
             </div>
             <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Total Coaches</div>
@@ -209,7 +209,7 @@ export default function CoachesLockerRoom() {
             <div className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: '#91A6EB' }}>
               <TrendingUp className="w-6 h-6 text-white" />
             </div>
-            <div className="text-4xl font-heading mb-2" style={{ color: '#91A6EB' }}>
+            <div className="text-4xl mb-2" style={{ color: '#91A6EB' }}>
               {stats.activeCoaches}
             </div>
             <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Active Coaches</div>
@@ -219,7 +219,7 @@ export default function CoachesLockerRoom() {
             <div className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: '#FF6B35' }}>
               <Video className="w-6 h-6 text-white" />
             </div>
-            <div className="text-4xl font-heading mb-2" style={{ color: '#FF6B35' }}>
+            <div className="text-4xl mb-2" style={{ color: '#FF6B35' }}>
               {stats.totalVideos}
             </div>
             <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Total Videos</div>
@@ -229,7 +229,7 @@ export default function CoachesLockerRoom() {
             <div className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: '#000000' }}>
               <Trophy className="w-6 h-6 text-white" />
             </div>
-            <div className="text-4xl font-heading mb-2" style={{ color: '#000000' }}>
+            <div className="text-4xl mb-2" style={{ color: '#000000' }}>
               {stats.totalViews.toLocaleString()}
             </div>
             <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Total Views</div>
@@ -238,7 +238,7 @@ export default function CoachesLockerRoom() {
 
         {/* Admin Tools for Coach Management */}
         <div className="mb-12">
-          <h2 className="text-2xl font-heading mb-6" style={{ color: '#000000' }}>Admin Tools</h2>
+          <h2 className="text-2xl mb-6" style={{ color: '#000000' }}>Admin Tools</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {adminTools.map((tool) => (
               <a key={tool.id} href={tool.url} className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 hover:shadow-2xl transition-all hover:scale-105">
@@ -255,16 +255,16 @@ export default function CoachesLockerRoom() {
 
         {/* Coaches List */}
         <div>
-          <h2 className="text-2xl font-heading mb-6" style={{ color: '#000000' }}>All Coaches</h2>
+          <h2 className="text-2xl mb-6" style={{ color: '#000000' }}>All Coaches</h2>
           <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead style={{ backgroundColor: 'rgba(0,0,0,0.03)' }}>
                   <tr>
-                    <th className="text-left p-4 font-semibold" style={{ color: '#000000' }}>Coach</th>
-                    <th className="text-center p-4 font-semibold" style={{ color: '#000000' }}>Videos</th>
-                    <th className="text-center p-4 font-semibold" style={{ color: '#000000' }}>Total Views</th>
-                    <th className="text-center p-4 font-semibold" style={{ color: '#000000' }}>Avg Rating</th>
+                    <th className="text-left p-4" style={{ color: '#000000' }}>Coach</th>
+                    <th className="text-center p-4" style={{ color: '#000000' }}>Videos</th>
+                    <th className="text-center p-4" style={{ color: '#000000' }}>Total Views</th>
+                    <th className="text-center p-4" style={{ color: '#000000' }}>Avg Rating</th>
                   </tr>
                 </thead>
                 <tbody>

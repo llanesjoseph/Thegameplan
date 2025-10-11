@@ -41,14 +41,14 @@ function CoachProfileContent() {
       <div style={{ backgroundColor: embedded ? 'transparent' : '#E8E6D8' }} className={embedded ? 'p-12' : 'min-h-screen flex items-center justify-center'}>
         <div className="text-center bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8 max-w-md">
           <AlertCircle className="w-16 h-16 mx-auto mb-4" style={{ color: '#FF6B35' }} />
-          <h2 className="text-2xl font-heading mb-2" style={{ color: '#000000' }}>Access Denied</h2>
+          <h2 className="text-2xl mb-2" style={{ color: '#000000' }}>Access Denied</h2>
           <p className="mb-6" style={{ color: '#000000', opacity: 0.7 }}>
             You must be logged in as a coach to access this page.
           </p>
           {!embedded && (
             <button
               onClick={() => router.push('/')}
-              className="px-6 py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors"
+              className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
             >
               Return to Login
             </button>
@@ -67,7 +67,7 @@ function CoachProfileContent() {
             <div className="w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-6" style={{ background: 'linear-gradient(135deg, #FF6B35 0%, rgba(255, 107, 53, 0.8) 100%)' }}>
               <User className="w-8 h-8 text-white" />
             </div>
-            <h2 className="text-2xl font-heading mb-2" style={{ color: '#000000' }}>
+            <h2 className="text-2xl mb-2" style={{ color: '#000000' }}>
               Access Restricted
             </h2>
             <p style={{ color: '#000000', opacity: 0.7 }}>
@@ -91,7 +91,7 @@ function CoachProfileContent() {
           <div className="mb-4">
             <div className="flex items-center gap-3 mb-2">
               <User className="w-8 h-8" style={{ color: '#FF6B35' }} />
-              <h1 className="text-3xl font-heading" style={{ color: '#000000' }}>My Profile</h1>
+              <h1 className="text-3xl" style={{ color: '#000000' }}>My Profile</h1>
             </div>
             <p style={{ color: '#000000', opacity: 0.7 }}>
               Manage your coaching profile images, videos, and presentation
@@ -179,7 +179,7 @@ function CoachProfileContent() {
           {activeTab === 'profile' && (
             <div className="p-8">
               <div className="max-w-2xl mx-auto space-y-6">
-                <h3 className="text-lg font-heading mb-6" style={{ color: '#000000' }}>
+                <h3 className="text-lg mb-6" style={{ color: '#000000' }}>
                   Profile Information
                 </h3>
 
@@ -251,7 +251,7 @@ function CoachProfileContent() {
           {activeTab === 'voice' && (
             <div className="p-8">
               <div className="mb-6">
-                <h3 className="text-2xl font-heading mb-2" style={{ color: '#000000' }}>
+                <h3 className="text-2xl mb-2" style={{ color: '#000000' }}>
                   AI Voice Capture
                 </h3>
                 <p style={{ color: '#000000', opacity: 0.7 }}>
@@ -276,7 +276,7 @@ function CoachProfileContent() {
                 <div className="w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-4" style={{ background: 'linear-gradient(135deg, rgba(145, 166, 235, 0.2) 0%, rgba(0, 0, 0, 0.2) 100%)' }}>
                   <Settings className="w-8 h-8" style={{ color: '#000000', opacity: 0.4 }} />
                 </div>
-                <h3 className="text-lg font-heading mb-2" style={{ color: '#000000' }}>
+                <h3 className="text-lg mb-2" style={{ color: '#000000' }}>
                   Profile Settings
                 </h3>
                 <p className="mb-4" style={{ color: '#000000', opacity: 0.7 }}>
@@ -292,7 +292,7 @@ function CoachProfileContent() {
 
         {/* Help Section */}
         <div className="rounded-xl p-6 border-2" style={{ background: 'linear-gradient(135deg, rgba(145, 166, 235, 0.1) 0%, rgba(145, 166, 235, 0.05) 100%)', borderColor: 'rgba(145, 166, 235, 0.3)' }}>
-          <h3 className="text-lg font-heading mb-3" style={{ color: '#000000' }}>
+          <h3 className="text-lg mb-3" style={{ color: '#000000' }}>
             Tips for Great Profile Images
           </h3>
           <ul className="text-sm space-y-1" style={{ color: '#000000', opacity: 0.7 }}>

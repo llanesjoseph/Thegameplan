@@ -193,7 +193,7 @@ export default function AssistantCoaches() {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#E8E6D8' }}>
         <div className="text-center bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8">
-          <h1 className="text-2xl mb-4 font-heading" style={{ color: '#000000' }}>Access Denied</h1>
+          <h1 className="text-2xl mb-4" style={{ color: '#000000' }}>Access Denied</h1>
           <p style={{ color: '#000000', opacity: 0.7 }}>This page is only available to administrators.</p>
         </div>
       </div>
@@ -222,7 +222,7 @@ export default function AssistantCoaches() {
               <div className="flex items-center gap-3">
                 <Shield className="w-6 h-6" style={{ color: '#FF6B35' }} />
                 <div>
-                  <div className="text-2xl font-heading" style={{ color: '#000000' }}>
+                  <div className="text-2xl" style={{ color: '#000000' }}>
                     {assistantCoaches.length}
                   </div>
                   <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Total Assistant Coaches</div>
@@ -259,10 +259,10 @@ export default function AssistantCoaches() {
             <table className="w-full">
               <thead style={{ backgroundColor: 'rgba(0,0,0,0.03)' }}>
                 <tr>
-                  <th className="text-left p-4 font-semibold" style={{ color: '#000000' }}>Assistant Coach</th>
-                  <th className="text-left p-4 font-semibold" style={{ color: '#000000' }}>Assigned To</th>
-                  <th className="text-center p-4 font-semibold" style={{ color: '#000000' }}>Status</th>
-                  <th className="text-center p-4 font-semibold" style={{ color: '#000000' }}>Actions</th>
+                  <th className="text-left p-4" style={{ color: '#000000' }}>Assistant Coach</th>
+                  <th className="text-left p-4" style={{ color: '#000000' }}>Assigned To</th>
+                  <th className="text-center p-4" style={{ color: '#000000' }}>Status</th>
+                  <th className="text-center p-4" style={{ color: '#000000' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -304,7 +304,7 @@ export default function AssistantCoaches() {
         {showInviteModal && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
             <div className="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
-              <h2 className="text-2xl font-heading mb-4" style={{ color: '#000000' }}>
+              <h2 className="text-2xl mb-4" style={{ color: '#000000' }}>
                 Invite Assistant Coach
               </h2>
               <p className="mb-6" style={{ color: '#666' }}>
@@ -313,7 +313,7 @@ export default function AssistantCoaches() {
 
               {/* Email Input */}
               <div className="mb-6">
-                <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                <label className="block text-sm mb-2" style={{ color: '#000000' }}>
                   Email Address *
                 </label>
                 <input
@@ -327,7 +327,7 @@ export default function AssistantCoaches() {
 
               {/* Coach Assignment */}
               <div className="mb-6">
-                <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                <label className="block text-sm mb-2" style={{ color: '#000000' }}>
                   Assign to Coach *
                 </label>
                 <div className="relative">
@@ -373,7 +373,7 @@ export default function AssistantCoaches() {
                   <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
                     <div className="flex items-center justify-between">
                       <div>
-                        <div className="text-sm font-semibold" style={{ color: '#000000' }}>
+                        <div className="text-sm" style={{ color: '#000000' }}>
                           Selected Coach:
                         </div>
                         <div style={{ color: '#000000' }}>

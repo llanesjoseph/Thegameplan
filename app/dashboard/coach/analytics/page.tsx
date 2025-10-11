@@ -120,14 +120,14 @@ function AnalyticsPageContent() {
       <div style={{ backgroundColor: embedded ? 'transparent' : '#E8E6D8' }} className={embedded ? 'p-12' : 'min-h-screen flex items-center justify-center'}>
         <div className="text-center bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8 max-w-md">
           <AlertCircle className="w-16 h-16 mx-auto mb-4" style={{ color: '#FF6B35' }} />
-          <h2 className="text-2xl font-heading mb-2" style={{ color: '#000000' }}>Access Denied</h2>
+          <h2 className="text-2xl mb-2" style={{ color: '#000000' }}>Access Denied</h2>
           <p className="mb-6" style={{ color: '#000000', opacity: 0.7 }}>
             You must be logged in as a coach to access this page.
           </p>
           {!embedded && (
             <button
               onClick={() => router.push('/')}
-              className="px-6 py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors"
+              className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
             >
               Return to Login
             </button>
@@ -156,7 +156,7 @@ function AnalyticsPageContent() {
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-3">
                 <BarChart3 className="w-8 h-8" style={{ color: '#20B2AA' }} />
-                <h1 className="text-3xl font-heading" style={{ color: '#000000' }}>Analytics</h1>
+                <h1 className="text-3xl" style={{ color: '#000000' }}>Analytics</h1>
               </div>
               <select
                 value={timeRange}
@@ -183,7 +183,7 @@ function AnalyticsPageContent() {
                 <Eye className="w-5 h-5" style={{ color: '#91A6EB' }} />
               </div>
               <div>
-                <p className="text-2xl font-heading" style={{ color: '#000000' }}>{stats.totalViews}</p>
+                <p className="text-2xl" style={{ color: '#000000' }}>{stats.totalViews}</p>
                 <p className="text-xs" style={{ color: '#000000', opacity: 0.6 }}>Total Views</p>
               </div>
             </div>
@@ -195,7 +195,7 @@ function AnalyticsPageContent() {
                 <CheckCircle className="w-5 h-5" style={{ color: '#20B2AA' }} />
               </div>
               <div>
-                <p className="text-2xl font-heading" style={{ color: '#000000' }}>{stats.totalCompletions}</p>
+                <p className="text-2xl" style={{ color: '#000000' }}>{stats.totalCompletions}</p>
                 <p className="text-xs" style={{ color: '#000000', opacity: 0.6 }}>Completions</p>
               </div>
             </div>
@@ -207,7 +207,7 @@ function AnalyticsPageContent() {
                 <Star className="w-5 h-5" style={{ color: '#FF6B35' }} />
               </div>
               <div>
-                <p className="text-2xl font-heading" style={{ color: '#000000' }}>{stats.averageRating}</p>
+                <p className="text-2xl" style={{ color: '#000000' }}>{stats.averageRating}</p>
                 <p className="text-xs" style={{ color: '#000000', opacity: 0.6 }}>Avg Rating</p>
               </div>
             </div>
@@ -219,7 +219,7 @@ function AnalyticsPageContent() {
                 <Users className="w-5 h-5" style={{ color: '#000000' }} />
               </div>
               <div>
-                <p className="text-2xl font-heading" style={{ color: '#000000' }}>{stats.activeAthletes}</p>
+                <p className="text-2xl" style={{ color: '#000000' }}>{stats.activeAthletes}</p>
                 <p className="text-xs" style={{ color: '#000000', opacity: 0.6 }}>Active Athletes</p>
               </div>
             </div>
@@ -231,7 +231,7 @@ function AnalyticsPageContent() {
           <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
             <div className="flex items-center gap-2 mb-4">
               <TrendingUp className="w-5 h-5" style={{ color: '#20B2AA' }} />
-              <h2 className="text-lg font-heading" style={{ color: '#000000' }}>Performance</h2>
+              <h2 className="text-lg" style={{ color: '#000000' }}>Performance</h2>
             </div>
 
             <div className="space-y-4">
@@ -268,31 +268,31 @@ function AnalyticsPageContent() {
           <div className="lg:col-span-2 bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
             <div className="flex items-center gap-2 mb-4">
               <BarChart3 className="w-5 h-5" style={{ color: '#91A6EB' }} />
-              <h2 className="text-lg font-heading" style={{ color: '#000000' }}>Engagement Trends</h2>
+              <h2 className="text-lg" style={{ color: '#000000' }}>Engagement Trends</h2>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="p-4 rounded-lg" style={{ backgroundColor: 'rgba(145, 166, 235, 0.1)' }}>
                 <p className="text-sm mb-1" style={{ color: '#000000', opacity: 0.7 }}>This Week</p>
-                <p className="text-2xl font-heading mb-1" style={{ color: '#91A6EB' }}>+{trends.weekGrowth}%</p>
+                <p className="text-2xl mb-1" style={{ color: '#91A6EB' }}>+{trends.weekGrowth}%</p>
                 <p className="text-xs" style={{ color: '#000000', opacity: 0.6 }}>vs last week</p>
               </div>
 
               <div className="p-4 rounded-lg" style={{ backgroundColor: 'rgba(32, 178, 170, 0.1)' }}>
                 <p className="text-sm mb-1" style={{ color: '#000000', opacity: 0.7 }}>This Month</p>
-                <p className="text-2xl font-heading mb-1" style={{ color: '#20B2AA' }}>+{trends.monthGrowth}%</p>
+                <p className="text-2xl mb-1" style={{ color: '#20B2AA' }}>+{trends.monthGrowth}%</p>
                 <p className="text-xs" style={{ color: '#000000', opacity: 0.6 }}>vs last month</p>
               </div>
 
               <div className="p-4 rounded-lg" style={{ backgroundColor: 'rgba(255, 107, 53, 0.1)' }}>
                 <p className="text-sm mb-1" style={{ color: '#000000', opacity: 0.7 }}>New Athletes</p>
-                <p className="text-2xl font-heading mb-1" style={{ color: '#FF6B35' }}>+{trends.newAthletesMonth}</p>
+                <p className="text-2xl mb-1" style={{ color: '#FF6B35' }}>+{trends.newAthletesMonth}</p>
                 <p className="text-xs" style={{ color: '#000000', opacity: 0.6 }}>this month</p>
               </div>
 
               <div className="p-4 rounded-lg bg-black/5">
                 <p className="text-sm mb-1" style={{ color: '#000000', opacity: 0.7 }}>Avg Engagement</p>
-                <p className="text-2xl font-heading mb-1" style={{ color: '#000000' }}>{trends.avgEngagement}hrs</p>
+                <p className="text-2xl mb-1" style={{ color: '#000000' }}>{trends.avgEngagement}hrs</p>
                 <p className="text-xs" style={{ color: '#000000', opacity: 0.6 }}>per athlete/week</p>
               </div>
             </div>
@@ -303,7 +303,7 @@ function AnalyticsPageContent() {
         <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
           <div className="flex items-center gap-2 mb-4">
             <Award className="w-5 h-5" style={{ color: '#FF6B35' }} />
-            <h2 className="text-lg font-heading" style={{ color: '#000000' }}>Top Performing Lessons</h2>
+            <h2 className="text-lg" style={{ color: '#000000' }}>Top Performing Lessons</h2>
           </div>
 
           <div className="space-y-3">
@@ -312,7 +312,7 @@ function AnalyticsPageContent() {
                 key={lesson.id}
                 className="flex items-center gap-4 p-4 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
               >
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center font-bold" style={{ backgroundColor: index === 0 ? '#FFD700' : index === 1 ? '#C0C0C0' : index === 2 ? '#CD7F32' : 'rgba(0,0,0,0.1)', color: index < 3 ? '#FFFFFF' : '#000000' }}>
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: index === 0 ? '#FFD700' : index === 1 ? '#C0C0C0' : index === 2 ? '#CD7F32' : 'rgba(0,0,0,0.1)', color: index < 3 ? '#FFFFFF' : '#000000' }}>
                   {index + 1}
                 </div>
 
@@ -337,7 +337,7 @@ function AnalyticsPageContent() {
                 </div>
 
                 <div className="text-right">
-                  <p className="text-sm font-semibold" style={{ color: '#20B2AA' }}>
+                  <p className="text-sm" style={{ color: '#20B2AA' }}>
                     {((lesson.completions / lesson.views) * 100).toFixed(0)}%
                   </p>
                   <p className="text-xs" style={{ color: '#000000', opacity: 0.5 }}>completion</p>
@@ -351,7 +351,7 @@ function AnalyticsPageContent() {
         <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
           <div className="flex items-center gap-2 mb-4">
             <Users className="w-5 h-5" style={{ color: '#91A6EB' }} />
-            <h2 className="text-lg font-heading" style={{ color: '#000000' }}>Most Active Athletes</h2>
+            <h2 className="text-lg" style={{ color: '#000000' }}>Most Active Athletes</h2>
           </div>
 
           <div className="space-y-3">
@@ -360,7 +360,7 @@ function AnalyticsPageContent() {
                 key={index}
                 className="flex items-center gap-4 p-4 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
               >
-                <div className="w-10 h-10 rounded-full flex items-center justify-center font-semibold text-white" style={{ background: 'linear-gradient(135deg, #91A6EB 0%, #000000 100%)' }}>
+                <div className="w-10 h-10 rounded-full flex items-center justify-center text-white" style={{ background: 'linear-gradient(135deg, #91A6EB 0%, #000000 100%)' }}>
                   {athlete.name.split(' ').map((n: string) => n[0]).join('')}
                 </div>
 

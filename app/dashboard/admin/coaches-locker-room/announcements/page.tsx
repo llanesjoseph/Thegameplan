@@ -225,7 +225,7 @@ export default function CoachAnnouncementsManager() {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#E8E6D8' }}>
         <div className="text-center bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8">
-          <h1 className="text-2xl mb-4 font-heading" style={{ color: '#000000' }}>Access Denied</h1>
+          <h1 className="text-2xl mb-4" style={{ color: '#000000' }}>Access Denied</h1>
           <p style={{ color: '#000000', opacity: 0.7 }}>This page is only available to administrators.</p>
         </div>
       </div>
@@ -251,7 +251,7 @@ export default function CoachAnnouncementsManager() {
         {(isCreating || editingAnnouncement) && (
           <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 mb-8">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-heading" style={{ color: '#000000' }}>
+              <h2 className="text-2xl" style={{ color: '#000000' }}>
                 {editingAnnouncement ? 'Edit Announcement' : 'Create Announcement'}
               </h2>
               <button
@@ -274,7 +274,7 @@ export default function CoachAnnouncementsManager() {
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>Title</label>
+                <label className="block text-sm mb-2" style={{ color: '#000000' }}>Title</label>
                 <input
                   type="text"
                   value={formData.title}
@@ -286,7 +286,7 @@ export default function CoachAnnouncementsManager() {
 
               <div className="grid md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>Type</label>
+                  <label className="block text-sm mb-2" style={{ color: '#000000' }}>Type</label>
                   <select
                     value={formData.type}
                     onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
@@ -299,7 +299,7 @@ export default function CoachAnnouncementsManager() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>Delivery</label>
+                  <label className="block text-sm mb-2" style={{ color: '#000000' }}>Delivery</label>
                   <select
                     value={formData.deliveryMethod}
                     onChange={(e) => setFormData({ ...formData, deliveryMethod: e.target.value as any })}
@@ -312,7 +312,7 @@ export default function CoachAnnouncementsManager() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>Audience</label>
+                  <label className="block text-sm mb-2" style={{ color: '#000000' }}>Audience</label>
                   <select
                     value={formData.targetAudience}
                     onChange={(e) => setFormData({ ...formData, targetAudience: e.target.value as any })}
@@ -326,7 +326,7 @@ export default function CoachAnnouncementsManager() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>Message</label>
+                <label className="block text-sm mb-2" style={{ color: '#000000' }}>Message</label>
                 <textarea
                   value={formData.content}
                   onChange={(e) => setFormData({ ...formData, content: e.target.value })}
@@ -338,7 +338,7 @@ export default function CoachAnnouncementsManager() {
 
               <button
                 onClick={editingAnnouncement ? handleUpdate : handleCreate}
-                className="w-full py-3 px-4 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
+                className="w-full py-3 px-4 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
               >
                 <Save className="w-5 h-5" />
                 {editingAnnouncement ? 'Update Announcement' : 'Create Announcement'}
@@ -351,7 +351,7 @@ export default function CoachAnnouncementsManager() {
         {!isCreating && !editingAnnouncement && (
           <button
             onClick={() => setIsCreating(true)}
-            className="mb-8 px-6 py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors flex items-center gap-2"
+            className="mb-8 px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2"
           >
             <Plus className="w-5 h-5" />
             Create Announcement
@@ -369,8 +369,8 @@ export default function CoachAnnouncementsManager() {
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <h3 className="text-xl font-heading" style={{ color: '#000000' }}>{announcement.title}</h3>
-                      <span className="px-2 py-1 rounded text-xs font-semibold text-white" style={{ backgroundColor: getTypeColor(announcement.type) }}>
+                      <h3 className="text-xl" style={{ color: '#000000' }}>{announcement.title}</h3>
+                      <span className="px-2 py-1 rounded text-xs text-white" style={{ backgroundColor: getTypeColor(announcement.type) }}>
                         {announcement.type}
                       </span>
                     </div>

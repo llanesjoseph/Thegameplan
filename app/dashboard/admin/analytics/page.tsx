@@ -254,7 +254,7 @@ export default function AdminAnalytics() {
   return (
    <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#E8E6D8' }}>
     <div className="text-center bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8">
-     <h1 className="text-2xl mb-4 font-heading" style={{ color: '#000000' }}>Access Denied</h1>
+     <h1 className="text-2xl mb-4" style={{ color: '#000000' }}>Access Denied</h1>
      <p style={{ color: '#000000', opacity: 0.7 }}>This page is only available to administrators.</p>
     </div>
    </div>
@@ -283,7 +283,7 @@ export default function AdminAnalytics() {
        <button
         key={range}
         onClick={() => setTimeRange(range)}
-        className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+        className={`px-4 py-2 rounded-lg text-sm transition-all ${
          timeRange === range
           ? 'bg-black text-white'
           : 'bg-white/90 backdrop-blur-sm border border-white/50 hover:bg-white'
@@ -304,7 +304,7 @@ export default function AdminAnalytics() {
       <div className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: '#91A6EB' }}>
        <Users className="w-6 h-6 text-white" />
       </div>
-      <div className="text-4xl font-heading mb-2" style={{ color: '#91A6EB' }}>
+      <div className="text-4xl mb-2" style={{ color: '#91A6EB' }}>
        {systemStats.totalUsers.toLocaleString()}
       </div>
       <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Total Athletes</div>
@@ -317,7 +317,7 @@ export default function AdminAnalytics() {
       <div className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: '#FF6B35' }}>
        <Star className="w-6 h-6 text-white" />
       </div>
-      <div className="text-4xl font-heading mb-2" style={{ color: '#FF6B35' }}>
+      <div className="text-4xl mb-2" style={{ color: '#FF6B35' }}>
        {systemStats.totalCreators.toLocaleString()}
       </div>
       <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Active Creators</div>
@@ -328,7 +328,7 @@ export default function AdminAnalytics() {
       <div className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: '#20B2AA' }}>
        <Video className="w-6 h-6 text-white" />
       </div>
-      <div className="text-4xl font-heading mb-2" style={{ color: '#20B2AA' }}>
+      <div className="text-4xl mb-2" style={{ color: '#20B2AA' }}>
        {systemStats.totalContent.toLocaleString()}
       </div>
       <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Total Content</div>
@@ -341,7 +341,7 @@ export default function AdminAnalytics() {
       <div className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: '#000000' }}>
        <Eye className="w-6 h-6 text-white" />
       </div>
-      <div className="text-4xl font-heading mb-2" style={{ color: '#000000' }}>
+      <div className="text-4xl mb-2" style={{ color: '#000000' }}>
        {systemStats.totalViews.toLocaleString()}
       </div>
       <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Total Views</div>
@@ -355,7 +355,7 @@ export default function AdminAnalytics() {
       <div className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: '#91A6EB' }}>
        <Clock className="w-6 h-6 text-white" />
       </div>
-      <div className="text-4xl font-heading mb-2" style={{ color: '#91A6EB' }}>
+      <div className="text-4xl mb-2" style={{ color: '#91A6EB' }}>
        {systemStats.averageWatchTime.toFixed(1)}h
       </div>
       <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Avg Watch Time</div>
@@ -366,7 +366,7 @@ export default function AdminAnalytics() {
       <div className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: '#20B2AA' }}>
        <Activity className="w-6 h-6 text-white" />
       </div>
-      <div className="text-4xl font-heading mb-2" style={{ color: '#20B2AA' }}>
+      <div className="text-4xl mb-2" style={{ color: '#20B2AA' }}>
        {systemStats.activeUsers.toLocaleString()}
       </div>
       <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Active Athletes</div>
@@ -377,7 +377,7 @@ export default function AdminAnalytics() {
       <div className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: '#FF6B35' }}>
        <Zap className="w-6 h-6 text-white" />
       </div>
-      <div className="text-4xl font-heading mb-2" style={{ color: '#FF6B35' }}>
+      <div className="text-4xl mb-2" style={{ color: '#FF6B35' }}>
        {systemStats.monthlyGrowth}%
       </div>
       <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Monthly Growth</div>
@@ -387,17 +387,17 @@ export default function AdminAnalytics() {
 
     {/* Top Performing Content */}
     <div className="mb-12">
-     <h2 className="text-2xl font-heading mb-6" style={{ color: '#000000' }}>Top Performing Content</h2>
+     <h2 className="text-2xl mb-6" style={{ color: '#000000' }}>Top Performing Content</h2>
      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 overflow-hidden">
       <div className="overflow-x-auto">
        <table className="w-full">
         <thead style={{ backgroundColor: 'rgba(0,0,0,0.03)' }}>
          <tr>
-          <th className="text-left p-4 font-semibold" style={{ color: '#000000' }}>Content</th>
-          <th className="text-left p-4 font-semibold" style={{ color: '#000000' }}>Creator</th>
-          <th className="text-center p-4 font-semibold" style={{ color: '#000000' }}>Views</th>
-          <th className="text-center p-4 font-semibold" style={{ color: '#000000' }}>Watch Time</th>
-          <th className="text-center p-4 font-semibold" style={{ color: '#000000' }}>Completion</th>
+          <th className="text-left p-4" style={{ color: '#000000' }}>Content</th>
+          <th className="text-left p-4" style={{ color: '#000000' }}>Creator</th>
+          <th className="text-center p-4" style={{ color: '#000000' }}>Views</th>
+          <th className="text-center p-4" style={{ color: '#000000' }}>Watch Time</th>
+          <th className="text-center p-4" style={{ color: '#000000' }}>Completion</th>
          </tr>
         </thead>
         <tbody>
@@ -428,7 +428,7 @@ export default function AdminAnalytics() {
 
     {/* Top Creators */}
     <div className="mb-12">
-     <h2 className="text-2xl font-heading mb-6" style={{ color: '#000000' }}>Top Creators</h2>
+     <h2 className="text-2xl mb-6" style={{ color: '#000000' }}>Top Creators</h2>
      <div className="grid md:grid-cols-3 gap-6">
       {topCreators.map((creator) => (
        <div key={creator.uid} className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
@@ -463,7 +463,7 @@ export default function AdminAnalytics() {
 
     {/* Platform Insights */}
     <div>
-     <h2 className="text-2xl font-heading mb-6" style={{ color: '#000000' }}>Platform Insights</h2>
+     <h2 className="text-2xl mb-6" style={{ color: '#000000' }}>Platform Insights</h2>
      <div className="grid md:grid-cols-2 gap-6">
       <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
        <h3 className="font-semibold mb-4 flex items-center gap-2" style={{ color: '#000000' }}>

@@ -138,7 +138,7 @@ export default function FeatureFlagsPage() {
       <div className="text-center py-12 px-6">
         <div className="flex items-center justify-center gap-3 mb-4">
           <Settings className="w-8 h-8" style={{ color: '#000000' }} />
-          <h1 className="text-3xl font-heading uppercase tracking-wide" style={{ color: '#000000' }}>
+          <h1 className="text-3xl uppercase tracking-wide" style={{ color: '#000000' }}>
             Feature Flags
           </h1>
         </div>
@@ -162,7 +162,7 @@ export default function FeatureFlagsPage() {
                     <MessageCircle className="w-6 h-6 text-white" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-xl font-heading mb-2" style={{ color: '#000000' }}>
+                    <h3 className="text-xl mb-2" style={{ color: '#000000' }}>
                       Direct Messaging
                     </h3>
                     <p className="text-sm mb-4" style={{ color: '#000000', opacity: 0.7 }}>

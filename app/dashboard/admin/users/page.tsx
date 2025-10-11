@@ -195,7 +195,7 @@ export default function AdminUserManagement() {
   return (
    <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#E8E6D8' }}>
     <div className="text-center bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8">
-     <h1 className="text-2xl mb-4 font-heading" style={{ color: '#000000' }}>Access Denied</h1>
+     <h1 className="text-2xl mb-4" style={{ color: '#000000' }}>Access Denied</h1>
      <p style={{ color: '#000000', opacity: 0.7 }}>This page is only available to administrators.</p>
     </div>
    </div>
@@ -221,25 +221,25 @@ export default function AdminUserManagement() {
      {/* Stats Overview */}
     <div className="grid md:grid-cols-4 gap-6 mb-8">
      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
-      <div className="text-4xl font-heading mb-2" style={{ color: '#91A6EB' }}>
+      <div className="text-4xl mb-2" style={{ color: '#91A6EB' }}>
        {users.filter(u => u.status === 'active').length}
       </div>
       <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Active Athletes</div>
      </div>
      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
-      <div className="text-4xl font-heading mb-2" style={{ color: '#20B2AA' }}>
+      <div className="text-4xl mb-2" style={{ color: '#20B2AA' }}>
        {users.filter(u => u.role === 'coach').length}
       </div>
       <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Coaches</div>
      </div>
      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
-      <div className="text-4xl font-heading mb-2" style={{ color: '#FF6B35' }}>
+      <div className="text-4xl mb-2" style={{ color: '#FF6B35' }}>
        {users.filter(u => u.status === 'pending').length}
       </div>
       <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Pending</div>
      </div>
      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
-      <div className="text-4xl font-heading mb-2" style={{ color: '#000000' }}>
+      <div className="text-4xl mb-2" style={{ color: '#000000' }}>
        {users.filter(u => u.status === 'suspended').length}
       </div>
       <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Suspended</div>
@@ -298,14 +298,14 @@ export default function AdminUserManagement() {
       <table className="w-full">
        <thead>
         <tr className="border-b border-gray-300/50">
-         <th className="text-left p-4 font-semibold" style={{ color: '#000000' }}>User</th>
-         <th className="text-left p-4 font-semibold" style={{ color: '#000000' }}>Role</th>
-         <th className="text-left p-4 font-semibold" style={{ color: '#000000' }}>Status</th>
-         <th className="text-left p-4 font-semibold" style={{ color: '#000000' }}>Sport/Level</th>
-         <th className="text-left p-4 font-semibold" style={{ color: '#000000' }}>Location</th>
-         <th className="text-left p-4 font-semibold" style={{ color: '#000000' }}>Joined</th>
-         <th className="text-left p-4 font-semibold" style={{ color: '#000000' }}>Last Active</th>
-         <th className="text-center p-4 font-semibold" style={{ color: '#000000' }}>Actions</th>
+         <th className="text-left p-4" style={{ color: '#000000' }}>User</th>
+         <th className="text-left p-4" style={{ color: '#000000' }}>Role</th>
+         <th className="text-left p-4" style={{ color: '#000000' }}>Status</th>
+         <th className="text-left p-4" style={{ color: '#000000' }}>Sport/Level</th>
+         <th className="text-left p-4" style={{ color: '#000000' }}>Location</th>
+         <th className="text-left p-4" style={{ color: '#000000' }}>Joined</th>
+         <th className="text-left p-4" style={{ color: '#000000' }}>Last Active</th>
+         <th className="text-center p-4" style={{ color: '#000000' }}>Actions</th>
         </tr>
        </thead>
        <tbody>
@@ -333,7 +333,7 @@ export default function AdminUserManagement() {
           </td>
 
           <td className="p-4">
-           <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(user.status)}`}>
+           <span className={`px-3 py-1 rounded-full text-xs ${getStatusColor(user.status)}`}>
             {user.status}
            </span>
           </td>
@@ -387,7 +387,7 @@ export default function AdminUserManagement() {
     {selectedUser && (
      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-2xl border border-white/50 max-w-md w-full mx-4 p-6">
-       <h3 className="text-2xl font-heading mb-6" style={{ color: '#000000' }}>User Actions</h3>
+       <h3 className="text-2xl mb-6" style={{ color: '#000000' }}>User Actions</h3>
 
        <div className="space-y-3 mb-6">
         <div className="flex items-center gap-3 p-3 rounded-lg bg-white/60 border border-gray-300/30">
@@ -409,7 +409,7 @@ export default function AdminUserManagement() {
        <div className="space-y-4">
         {/* Role Selector */}
         <div className="space-y-2">
-         <label className="text-sm font-semibold" style={{ color: '#000000' }}>Change Role</label>
+         <label className="text-sm" style={{ color: '#000000' }}>Change Role</label>
          <select
           value={selectedUser.role}
           onChange={(e) => {
@@ -472,7 +472,7 @@ export default function AdminUserManagement() {
             }
            }}
            disabled={selectedUser.role === 'coach'}
-           className="px-4 py-2 rounded-lg text-white font-semibold transition-all disabled:opacity-50"
+           className="px-4 py-2 rounded-lg text-white transition-all disabled:opacity-50"
            style={{ backgroundColor: '#20B2AA' }}
           >
            <div className="flex items-center justify-center gap-1">
@@ -488,7 +488,7 @@ export default function AdminUserManagement() {
             }
            }}
            disabled={selectedUser.role === 'athlete'}
-           className="px-4 py-2 rounded-lg text-white font-semibold transition-all disabled:opacity-50"
+           className="px-4 py-2 rounded-lg text-white transition-all disabled:opacity-50"
            style={{ backgroundColor: '#91A6EB' }}
           >
            <div className="flex items-center justify-center gap-1">
@@ -504,7 +504,7 @@ export default function AdminUserManagement() {
          <button
           onClick={() => updateUserStatus(selectedUser.uid, 'active')}
           disabled={selectedUser.status === 'active'}
-          className="w-full px-4 py-2 border border-gray-300/50 rounded-lg font-semibold transition-all hover:bg-black/5 disabled:opacity-50"
+          className="w-full px-4 py-2 border border-gray-300/50 rounded-lg transition-all hover:bg-black/5 disabled:opacity-50"
           style={{ color: '#000000' }}
          >
           <div className="flex items-center justify-center gap-2">
@@ -516,7 +516,7 @@ export default function AdminUserManagement() {
          <button
           onClick={() => updateUserStatus(selectedUser.uid, 'suspended')}
           disabled={selectedUser.status === 'suspended'}
-          className="w-full px-4 py-2 border border-gray-300/50 rounded-lg font-semibold transition-all hover:bg-black/5 disabled:opacity-50"
+          className="w-full px-4 py-2 border border-gray-300/50 rounded-lg transition-all hover:bg-black/5 disabled:opacity-50"
           style={{ color: '#000000' }}
          >
           <div className="flex items-center justify-center gap-2">
@@ -528,7 +528,7 @@ export default function AdminUserManagement() {
 
         <button
          onClick={() => setSelectedUser(null)}
-         className="w-full px-4 py-3 bg-black text-white rounded-lg font-semibold hover:bg-black/90 transition-all mt-4"
+         className="w-full px-4 py-3 bg-black text-white rounded-lg hover:bg-black/90 transition-all mt-4"
         >
          Close
         </button>

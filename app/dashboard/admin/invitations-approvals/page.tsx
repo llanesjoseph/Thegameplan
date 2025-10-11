@@ -481,7 +481,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#E8E6D8' }}>
         <div className="text-center bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8">
-          <h1 className="text-2xl mb-4 font-heading" style={{ color: '#000000' }}>Access Denied</h1>
+          <h1 className="text-2xl mb-4" style={{ color: '#000000' }}>Access Denied</h1>
           <p style={{ color: '#000000', opacity: 0.7 }}>This page is only available to administrators.</p>
         </div>
       </div>
@@ -497,7 +497,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
           <div className="flex gap-2 overflow-x-auto">
             <button
               onClick={() => setActiveTab('invitations')}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all whitespace-nowrap font-semibold text-sm ${
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all whitespace-nowrap text-sm ${
                 activeTab === 'invitations' ? 'bg-black text-white' : 'hover:bg-gray-100'
               }`}
             >
@@ -506,7 +506,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
             </button>
             <button
               onClick={() => setActiveTab('admin-invites')}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all whitespace-nowrap font-semibold text-sm ${
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all whitespace-nowrap text-sm ${
                 activeTab === 'admin-invites' ? 'bg-black text-white' : 'hover:bg-gray-100'
               }`}
             >
@@ -515,7 +515,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
             </button>
             <button
               onClick={() => setActiveTab('coach-invites')}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all whitespace-nowrap font-semibold text-sm ${
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all whitespace-nowrap text-sm ${
                 activeTab === 'coach-invites' ? 'bg-black text-white' : 'hover:bg-gray-100'
               }`}
             >
@@ -524,7 +524,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
             </button>
             <button
               onClick={() => setActiveTab('athlete-invites')}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all whitespace-nowrap font-semibold text-sm ${
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all whitespace-nowrap text-sm ${
                 activeTab === 'athlete-invites' ? 'bg-black text-white' : 'hover:bg-gray-100'
               }`}
             >
@@ -533,7 +533,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
             </button>
             <button
               onClick={() => setActiveTab('applications')}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all whitespace-nowrap font-semibold text-sm ${
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all whitespace-nowrap text-sm ${
                 activeTab === 'applications' ? 'bg-black text-white' : 'hover:bg-gray-100'
               }`}
             >
@@ -542,7 +542,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
             </button>
             <button
               onClick={() => setActiveTab('requests')}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all whitespace-nowrap font-semibold text-sm ${
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all whitespace-nowrap text-sm ${
                 activeTab === 'requests' ? 'bg-black text-white' : 'hover:bg-gray-100'
               }`}
             >
@@ -551,7 +551,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
             </button>
             <button
               onClick={() => setActiveTab('assistants')}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all whitespace-nowrap font-semibold text-sm ${
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all whitespace-nowrap text-sm ${
                 activeTab === 'assistants' ? 'bg-black text-white' : 'hover:bg-gray-100'
               }`}
             >
@@ -568,27 +568,27 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
               <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-white/50 p-3 text-center">
                 <Mail className="w-6 h-6 mx-auto mb-1" style={{ color: '#91A6EB' }} />
-                <div className="text-2xl font-heading" style={{ color: '#91A6EB' }}>{invitations.length}</div>
+                <div className="text-2xl" style={{ color: '#91A6EB' }}>{invitations.length}</div>
                 <div className="text-xs" style={{ color: '#000000', opacity: 0.7 }}>Total</div>
               </div>
               <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 text-center">
                 <Clock className="w-6 h-6 mx-auto mb-1" style={{ color: '#FF6B35' }} />
-                <div className="text-2xl font-heading" style={{ color: '#FF6B35' }}>{invitations.filter(i => i.status === 'pending').length}</div>
+                <div className="text-2xl" style={{ color: '#FF6B35' }}>{invitations.filter(i => i.status === 'pending').length}</div>
                 <div className="text-xs" style={{ color: '#000000', opacity: 0.7 }}>Pending</div>
               </div>
               <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 text-center">
                 <CheckCircle className="w-6 h-6 mx-auto mb-1" style={{ color: '#20B2AA' }} />
-                <div className="text-2xl font-heading" style={{ color: '#20B2AA' }}>{invitations.filter(i => i.status === 'accepted').length}</div>
+                <div className="text-2xl" style={{ color: '#20B2AA' }}>{invitations.filter(i => i.status === 'accepted').length}</div>
                 <div className="text-xs" style={{ color: '#000000', opacity: 0.7 }}>Accepted</div>
               </div>
               <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 text-center">
                 <XCircle className="w-6 h-6 mx-auto mb-1" style={{ color: '#FF6B35' }} />
-                <div className="text-2xl font-heading" style={{ color: '#FF6B35' }}>{invitations.filter(i => i.status === 'declined').length}</div>
+                <div className="text-2xl" style={{ color: '#FF6B35' }}>{invitations.filter(i => i.status === 'declined').length}</div>
                 <div className="text-xs" style={{ color: '#000000', opacity: 0.7 }}>Declined</div>
               </div>
               <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 text-center">
                 <AlertTriangle className="w-6 h-6 mx-auto mb-1" style={{ color: '#000000', opacity: 0.5 }} />
-                <div className="text-2xl font-heading" style={{ color: '#000000' }}>{invitations.filter(i => i.status === 'expired').length}</div>
+                <div className="text-2xl" style={{ color: '#000000' }}>{invitations.filter(i => i.status === 'expired').length}</div>
                 <div className="text-xs" style={{ color: '#000000', opacity: 0.7 }}>Expired</div>
               </div>
             </div>
@@ -611,7 +611,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
                     <button
                       key={status}
                       onClick={() => setInvitationFilter(status as any)}
-                      className={`px-4 py-2 rounded-lg font-semibold transition-colors capitalize ${
+                      className={`px-4 py-2 rounded-lg transition-colors capitalize ${
                         invitationFilter === status ? 'bg-black text-white' : 'bg-gray-200 hover:bg-gray-300'
                       }`}
                     >
@@ -628,12 +628,12 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
                 <table className="w-full">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="text-left p-2 text-xs font-semibold" style={{ color: '#000000' }}>Athlete</th>
-                      <th className="text-left p-2 text-xs font-semibold" style={{ color: '#000000' }}>Sport</th>
-                      <th className="text-left p-2 text-xs font-semibold" style={{ color: '#000000' }}>Coach</th>
-                      <th className="text-left p-2 text-xs font-semibold" style={{ color: '#000000' }}>Status</th>
-                      <th className="text-left p-2 text-xs font-semibold" style={{ color: '#000000' }}>Sent</th>
-                      <th className="text-left p-2 text-xs font-semibold" style={{ color: '#000000' }}>Expires</th>
+                      <th className="text-left p-2 text-xs" style={{ color: '#000000' }}>Athlete</th>
+                      <th className="text-left p-2 text-xs" style={{ color: '#000000' }}>Sport</th>
+                      <th className="text-left p-2 text-xs" style={{ color: '#000000' }}>Coach</th>
+                      <th className="text-left p-2 text-xs" style={{ color: '#000000' }}>Status</th>
+                      <th className="text-left p-2 text-xs" style={{ color: '#000000' }}>Sent</th>
+                      <th className="text-left p-2 text-xs" style={{ color: '#000000' }}>Expires</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -659,7 +659,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
                           <td className="p-4" style={{ color: '#000000' }}>{invitation.sport}</td>
                           <td className="p-4" style={{ color: '#000000' }}>{invitation.coachName || 'Unknown'}</td>
                           <td className="p-2 text-sm">
-                            <span className={`px-3 py-1 rounded-full text-xs font-semibold capitalize ${getStatusColor(invitation.status)}`}>
+                            <span className={`px-3 py-1 rounded-full text-xs capitalize ${getStatusColor(invitation.status)}`}>
                               {invitation.status}
                             </span>
                           </td>
@@ -693,7 +693,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
               <div className="mb-6">
                 <div className="flex items-center gap-3 mb-2">
                   <UserPlus className="w-6 h-6" style={{ color: '#20B2AA' }} />
-                  <h2 className="text-2xl font-heading" style={{ color: '#000000' }}>Invite Coach</h2>
+                  <h2 className="text-2xl" style={{ color: '#000000' }}>Invite Coach</h2>
                 </div>
                 <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>
                   Invite qualified coaches to join the platform and work with athletes
@@ -705,7 +705,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
                 <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                  <label className="block text-sm mb-2" style={{ color: '#000000' }}>
                     Coach Email *
                   </label>
                   <input
@@ -718,7 +718,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                  <label className="block text-sm mb-2" style={{ color: '#000000' }}>
                     Coach Name *
                   </label>
                   <input
@@ -734,7 +734,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                  <label className="block text-sm mb-2" style={{ color: '#000000' }}>
                     Sport *
                   </label>
                   <select
@@ -750,7 +750,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                  <label className="block text-sm mb-2" style={{ color: '#000000' }}>
                     Link Expires In (Days)
                   </label>
                   <input
@@ -766,7 +766,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
               </div>
 
               <div>
-                <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                <label className="block text-sm mb-2" style={{ color: '#000000' }}>
                   Welcome Message (Optional)
                 </label>
                 <textarea
@@ -782,7 +782,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
                   <button
                     onClick={handleCoachInviteSubmit}
                     disabled={coachInviteLoading}
-                    className="w-full px-6 py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {coachInviteLoading ? 'Sending...' : 'Send Coach Invitation'}
                   </button>
@@ -814,7 +814,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
               <div className="mb-6">
                 <div className="flex items-center gap-3 mb-2">
                   <Users className="w-6 h-6" style={{ color: '#91A6EB' }} />
-                  <h2 className="text-2xl font-heading" style={{ color: '#000000' }}>Invite Athlete</h2>
+                  <h2 className="text-2xl" style={{ color: '#000000' }}>Invite Athlete</h2>
                 </div>
                 <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>
                   Invite athletes and assign them to a coach
@@ -826,7 +826,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
                 <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                  <label className="block text-sm mb-2" style={{ color: '#000000' }}>
                     Athlete Email *
                   </label>
                   <input
@@ -839,7 +839,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                  <label className="block text-sm mb-2" style={{ color: '#000000' }}>
                     Athlete Name *
                   </label>
                   <input
@@ -855,7 +855,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                  <label className="block text-sm mb-2" style={{ color: '#000000' }}>
                     Sport *
                   </label>
                   <select
@@ -871,7 +871,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                  <label className="block text-sm mb-2" style={{ color: '#000000' }}>
                     Assign to Coach *
                   </label>
                   <select
@@ -893,7 +893,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
               </div>
 
               <div>
-                <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                <label className="block text-sm mb-2" style={{ color: '#000000' }}>
                   Link Expires In (Days)
                 </label>
                 <input
@@ -908,7 +908,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
               </div>
 
               <div>
-                <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                <label className="block text-sm mb-2" style={{ color: '#000000' }}>
                   Welcome Message (Optional)
                 </label>
                 <textarea
@@ -924,7 +924,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
                   <button
                     onClick={handleAthleteInviteSubmit}
                     disabled={athleteInviteLoading || !athleteInviteForm.coachId}
-                    className="w-full px-6 py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {athleteInviteLoading ? 'Sending...' : 'Send Athlete Invitation'}
                   </button>
@@ -957,22 +957,22 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 text-center">
                 <FileText className="w-8 h-8 mx-auto mb-2" style={{ color: '#91A6EB' }} />
-                <div className="text-3xl font-heading" style={{ color: '#91A6EB' }}>{applications.length}</div>
+                <div className="text-3xl" style={{ color: '#91A6EB' }}>{applications.length}</div>
                 <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Total</div>
               </div>
               <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 text-center">
                 <Clock className="w-8 h-8 mx-auto mb-2" style={{ color: '#FF6B35' }} />
-                <div className="text-3xl font-heading" style={{ color: '#FF6B35' }}>{applications.filter(a => a.status === 'pending').length}</div>
+                <div className="text-3xl" style={{ color: '#FF6B35' }}>{applications.filter(a => a.status === 'pending').length}</div>
                 <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Pending</div>
               </div>
               <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 text-center">
                 <CheckCircle className="w-8 h-8 mx-auto mb-2" style={{ color: '#20B2AA' }} />
-                <div className="text-3xl font-heading" style={{ color: '#20B2AA' }}>{applications.filter(a => a.status === 'approved').length}</div>
+                <div className="text-3xl" style={{ color: '#20B2AA' }}>{applications.filter(a => a.status === 'approved').length}</div>
                 <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Approved</div>
               </div>
               <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 text-center">
                 <XCircle className="w-8 h-8 mx-auto mb-2" style={{ color: '#FF6B35' }} />
-                <div className="text-3xl font-heading" style={{ color: '#FF6B35' }}>{applications.filter(a => a.status === 'rejected').length}</div>
+                <div className="text-3xl" style={{ color: '#FF6B35' }}>{applications.filter(a => a.status === 'rejected').length}</div>
                 <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Rejected</div>
               </div>
             </div>
@@ -983,7 +983,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
                 <button
                   key={status}
                   onClick={() => setApplicationFilter(status as any)}
-                  className={`px-4 py-2 rounded-lg font-semibold transition-colors capitalize ${
+                  className={`px-4 py-2 rounded-lg transition-colors capitalize ${
                     applicationFilter === status ? 'bg-black text-white' : 'bg-gray-200 hover:bg-gray-300'
                   }`}
                 >
@@ -1007,7 +1007,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
                   <div key={app.id} className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
-                        <h3 className="text-xl font-heading mb-2" style={{ color: '#000000' }}>{app.displayName}</h3>
+                        <h3 className="text-xl mb-2" style={{ color: '#000000' }}>{app.displayName}</h3>
                         <p className="text-sm mb-2" style={{ color: '#000000', opacity: 0.7 }}>{app.email}</p>
                         <div className="flex gap-4 text-sm mb-3" style={{ color: '#000000', opacity: 0.6 }}>
                           <span>Sport: {app.sport}</span>
@@ -1020,7 +1020,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
                         {app.certifications?.length > 0 && (
                           <div className="flex gap-2 flex-wrap">
                             {app.certifications.map((cert, i) => (
-                              <span key={i} className="px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+                              <span key={i} className="px-3 py-1 rounded-full text-xs bg-blue-100 text-blue-800">
                                 {cert}
                               </span>
                             ))}
@@ -1028,7 +1028,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
                         )}
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className={`px-3 py-1 rounded-full text-xs font-semibold capitalize ${getStatusColor(app.status)}`}>
+                        <span className={`px-3 py-1 rounded-full text-xs capitalize ${getStatusColor(app.status)}`}>
                           {app.status}
                         </span>
                       </div>
@@ -1038,14 +1038,14 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
                       <div className="flex gap-2">
                         <button
                           onClick={() => handleApplicationReview(app.id, 'approved')}
-                          className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors"
+                          className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                         >
                           <CheckCircle className="w-4 h-4 inline mr-2" />
                           Approve
                         </button>
                         <button
                           onClick={() => handleApplicationReview(app.id, 'rejected')}
-                          className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors"
+                          className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
                         >
                           <XCircle className="w-4 h-4 inline mr-2" />
                           Reject
@@ -1066,27 +1066,27 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 text-center">
                 <MessageSquare className="w-8 h-8 mx-auto mb-2" style={{ color: '#91A6EB' }} />
-                <div className="text-3xl font-heading" style={{ color: '#91A6EB' }}>{requests.length}</div>
+                <div className="text-3xl" style={{ color: '#91A6EB' }}>{requests.length}</div>
                 <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Total</div>
               </div>
               <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 text-center">
                 <Clock className="w-8 h-8 mx-auto mb-2" style={{ color: '#FF6B35' }} />
-                <div className="text-3xl font-heading" style={{ color: '#FF6B35' }}>{requests.filter(r => r.status === 'open').length}</div>
+                <div className="text-3xl" style={{ color: '#FF6B35' }}>{requests.filter(r => r.status === 'open').length}</div>
                 <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Open</div>
               </div>
               <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 text-center">
                 <Send className="w-8 h-8 mx-auto mb-2" style={{ color: '#91A6EB' }} />
-                <div className="text-3xl font-heading" style={{ color: '#91A6EB' }}>{requests.filter(r => r.status === 'in_progress').length}</div>
+                <div className="text-3xl" style={{ color: '#91A6EB' }}>{requests.filter(r => r.status === 'in_progress').length}</div>
                 <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>In Progress</div>
               </div>
               <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 text-center">
                 <CheckCircle className="w-8 h-8 mx-auto mb-2" style={{ color: '#20B2AA' }} />
-                <div className="text-3xl font-heading" style={{ color: '#20B2AA' }}>{requests.filter(r => r.status === 'resolved').length}</div>
+                <div className="text-3xl" style={{ color: '#20B2AA' }}>{requests.filter(r => r.status === 'resolved').length}</div>
                 <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Resolved</div>
               </div>
               <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 text-center">
                 <XCircle className="w-8 h-8 mx-auto mb-2" style={{ color: '#000000', opacity: 0.5 }} />
-                <div className="text-3xl font-heading" style={{ color: '#000000' }}>{requests.filter(r => r.status === 'closed').length}</div>
+                <div className="text-3xl" style={{ color: '#000000' }}>{requests.filter(r => r.status === 'closed').length}</div>
                 <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Closed</div>
               </div>
             </div>
@@ -1097,7 +1097,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
                 <button
                   key={status}
                   onClick={() => setRequestFilter(status as any)}
-                  className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+                  className={`px-4 py-2 rounded-lg transition-colors ${
                     requestFilter === status ? 'bg-black text-white' : 'bg-gray-200 hover:bg-gray-300'
                   }`}
                 >
@@ -1121,18 +1121,18 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
                   <div key={request.id} className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
-                        <h3 className="text-lg font-heading mb-1" style={{ color: '#000000' }}>{request.subject}</h3>
+                        <h3 className="text-lg mb-1" style={{ color: '#000000' }}>{request.subject}</h3>
                         <p className="text-sm mb-2" style={{ color: '#000000', opacity: 0.6 }}>
                           {request.userName} • {request.userEmail}
                         </p>
                         <div className="flex gap-2 mb-3">
-                          <span className={`px-2 py-1 rounded text-xs font-semibold ${getStatusColor(request.status)}`}>
+                          <span className={`px-2 py-1 rounded text-xs ${getStatusColor(request.status)}`}>
                             {request.status.replace('_', ' ')}
                           </span>
-                          <span className="px-2 py-1 rounded text-xs font-semibold bg-gray-100 text-gray-800">
+                          <span className="px-2 py-1 rounded text-xs bg-gray-100 text-gray-800">
                             {request.category}
                           </span>
-                          <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                          <span className={`px-2 py-1 rounded text-xs ${
                             request.priority === 'urgent' ? 'bg-red-100 text-red-800' :
                             request.priority === 'high' ? 'bg-orange-100 text-orange-800' :
                             request.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
@@ -1148,7 +1148,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
 
                     {request.adminResponse && (
                       <div className="mb-4 p-3 rounded-lg bg-blue-50 border border-blue-200">
-                        <p className="text-sm font-semibold mb-1" style={{ color: '#000000' }}>Admin Response:</p>
+                        <p className="text-sm mb-1" style={{ color: '#000000' }}>Admin Response:</p>
                         <p className="text-sm" style={{ color: '#000000' }}>{request.adminResponse}</p>
                       </div>
                     )}
@@ -1158,7 +1158,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
                         setSelectedRequest(request)
                         setAdminResponse(request.adminResponse || '')
                       }}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors font-semibold"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors"
                     >
                       <Eye className="w-4 h-4 inline mr-2" />
                       View & Respond
@@ -1172,11 +1172,11 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
             {selectedRequest && (
               <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                 <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
-                  <h2 className="text-2xl font-heading mb-4" style={{ color: '#000000' }}>{selectedRequest.subject}</h2>
+                  <h2 className="text-2xl mb-4" style={{ color: '#000000' }}>{selectedRequest.subject}</h2>
                   <p className="mb-4" style={{ color: '#000000' }}>{selectedRequest.description}</p>
 
                   <div className="mb-4">
-                    <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>Admin Response</label>
+                    <label className="block text-sm mb-2" style={{ color: '#000000' }}>Admin Response</label>
                     <textarea
                       value={adminResponse}
                       onChange={(e) => setAdminResponse(e.target.value)}
@@ -1189,19 +1189,19 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
                   <div className="flex gap-2">
                     <button
                       onClick={() => handleRequestUpdate(selectedRequest.id, 'in_progress')}
-                      className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700"
+                      className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                     >
                       In Progress
                     </button>
                     <button
                       onClick={() => handleRequestUpdate(selectedRequest.id, 'resolved')}
-                      className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700"
+                      className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
                     >
                       Resolve
                     </button>
                     <button
                       onClick={() => handleRequestUpdate(selectedRequest.id, 'closed')}
-                      className="flex-1 px-4 py-2 bg-gray-600 text-white rounded-lg font-semibold hover:bg-gray-700"
+                      className="flex-1 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
                     >
                       Close
                     </button>
@@ -1227,7 +1227,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
             <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4">
               <div className="text-center" style={{ color: '#91A6EB' }}>
                 <Shield className="w-16 h-16 mx-auto mb-4" />
-                <div className="text-4xl font-heading mb-2">{assistants.length}</div>
+                <div className="text-4xl mb-2">{assistants.length}</div>
                 <div className="text-lg">Assistant Coaches</div>
               </div>
             </div>
@@ -1249,7 +1249,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
                         <Shield className="w-6 h-6 text-white" />
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-lg font-heading mb-1" style={{ color: '#000000' }}>{assistant.displayName}</h3>
+                        <h3 className="text-lg mb-1" style={{ color: '#000000' }}>{assistant.displayName}</h3>
                         <p className="text-sm mb-2" style={{ color: '#000000', opacity: 0.6 }}>{assistant.email}</p>
                         <div className="flex gap-2 mb-2">
                           <span className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>
@@ -1260,7 +1260,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
                             Head Coach: {assistant.headCoachName}
                           </span>
                         </div>
-                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(assistant.status)}`}>
+                        <span className={`px-3 py-1 rounded-full text-xs ${getStatusColor(assistant.status)}`}>
                           {assistant.status}
                         </span>
                       </div>
@@ -1286,7 +1286,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
           <div className="flex gap-2 overflow-x-auto">
             <button
               onClick={() => setActiveTab('invitations')}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all whitespace-nowrap font-semibold text-sm ${
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all whitespace-nowrap text-sm ${
                 activeTab === 'invitations' ? 'bg-black text-white' : 'hover:bg-gray-100'
               }`}
             >
@@ -1295,7 +1295,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
             </button>
             <button
               onClick={() => setActiveTab('admin-invites')}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all whitespace-nowrap font-semibold text-sm ${
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all whitespace-nowrap text-sm ${
                 activeTab === 'admin-invites' ? 'bg-black text-white' : 'hover:bg-gray-100'
               }`}
             >
@@ -1304,7 +1304,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
             </button>
             <button
               onClick={() => setActiveTab('coach-invites')}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all whitespace-nowrap font-semibold text-sm ${
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all whitespace-nowrap text-sm ${
                 activeTab === 'coach-invites' ? 'bg-black text-white' : 'hover:bg-gray-100'
               }`}
             >
@@ -1313,7 +1313,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
             </button>
             <button
               onClick={() => setActiveTab('athlete-invites')}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all whitespace-nowrap font-semibold text-sm ${
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all whitespace-nowrap text-sm ${
                 activeTab === 'athlete-invites' ? 'bg-black text-white' : 'hover:bg-gray-100'
               }`}
             >
@@ -1322,7 +1322,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
             </button>
             <button
               onClick={() => setActiveTab('applications')}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all whitespace-nowrap font-semibold text-sm ${
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all whitespace-nowrap text-sm ${
                 activeTab === 'applications' ? 'bg-black text-white' : 'hover:bg-gray-100'
               }`}
             >
@@ -1331,7 +1331,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
             </button>
             <button
               onClick={() => setActiveTab('requests')}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all whitespace-nowrap font-semibold text-sm ${
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all whitespace-nowrap text-sm ${
                 activeTab === 'requests' ? 'bg-black text-white' : 'hover:bg-gray-100'
               }`}
             >
@@ -1340,7 +1340,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
             </button>
             <button
               onClick={() => setActiveTab('assistants')}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all whitespace-nowrap font-semibold text-sm ${
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all whitespace-nowrap text-sm ${
                 activeTab === 'assistants' ? 'bg-black text-white' : 'hover:bg-gray-100'
               }`}
             >
@@ -1357,27 +1357,27 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
               <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-white/50 p-3 text-center">
                 <Mail className="w-6 h-6 mx-auto mb-1" style={{ color: '#91A6EB' }} />
-                <div className="text-2xl font-heading" style={{ color: '#91A6EB' }}>{invitations.length}</div>
+                <div className="text-2xl" style={{ color: '#91A6EB' }}>{invitations.length}</div>
                 <div className="text-xs" style={{ color: '#000000', opacity: 0.7 }}>Total</div>
               </div>
               <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 text-center">
                 <Clock className="w-6 h-6 mx-auto mb-1" style={{ color: '#FF6B35' }} />
-                <div className="text-2xl font-heading" style={{ color: '#FF6B35' }}>{invitations.filter(i => i.status === 'pending').length}</div>
+                <div className="text-2xl" style={{ color: '#FF6B35' }}>{invitations.filter(i => i.status === 'pending').length}</div>
                 <div className="text-xs" style={{ color: '#000000', opacity: 0.7 }}>Pending</div>
               </div>
               <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 text-center">
                 <CheckCircle className="w-6 h-6 mx-auto mb-1" style={{ color: '#20B2AA' }} />
-                <div className="text-2xl font-heading" style={{ color: '#20B2AA' }}>{invitations.filter(i => i.status === 'accepted').length}</div>
+                <div className="text-2xl" style={{ color: '#20B2AA' }}>{invitations.filter(i => i.status === 'accepted').length}</div>
                 <div className="text-xs" style={{ color: '#000000', opacity: 0.7 }}>Accepted</div>
               </div>
               <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 text-center">
                 <XCircle className="w-6 h-6 mx-auto mb-1" style={{ color: '#FF6B35' }} />
-                <div className="text-2xl font-heading" style={{ color: '#FF6B35' }}>{invitations.filter(i => i.status === 'declined').length}</div>
+                <div className="text-2xl" style={{ color: '#FF6B35' }}>{invitations.filter(i => i.status === 'declined').length}</div>
                 <div className="text-xs" style={{ color: '#000000', opacity: 0.7 }}>Declined</div>
               </div>
               <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 text-center">
                 <AlertTriangle className="w-6 h-6 mx-auto mb-1" style={{ color: '#000000', opacity: 0.5 }} />
-                <div className="text-2xl font-heading" style={{ color: '#000000' }}>{invitations.filter(i => i.status === 'expired').length}</div>
+                <div className="text-2xl" style={{ color: '#000000' }}>{invitations.filter(i => i.status === 'expired').length}</div>
                 <div className="text-xs" style={{ color: '#000000', opacity: 0.7 }}>Expired</div>
               </div>
             </div>
@@ -1400,7 +1400,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
                     <button
                       key={status}
                       onClick={() => setInvitationFilter(status as any)}
-                      className={`px-4 py-2 rounded-lg font-semibold transition-colors capitalize ${
+                      className={`px-4 py-2 rounded-lg transition-colors capitalize ${
                         invitationFilter === status ? 'bg-black text-white' : 'bg-gray-200 hover:bg-gray-300'
                       }`}
                     >
@@ -1417,12 +1417,12 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
                 <table className="w-full">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="text-left p-2 text-xs font-semibold" style={{ color: '#000000' }}>Athlete</th>
-                      <th className="text-left p-2 text-xs font-semibold" style={{ color: '#000000' }}>Sport</th>
-                      <th className="text-left p-2 text-xs font-semibold" style={{ color: '#000000' }}>Coach</th>
-                      <th className="text-left p-2 text-xs font-semibold" style={{ color: '#000000' }}>Status</th>
-                      <th className="text-left p-2 text-xs font-semibold" style={{ color: '#000000' }}>Sent</th>
-                      <th className="text-left p-2 text-xs font-semibold" style={{ color: '#000000' }}>Expires</th>
+                      <th className="text-left p-2 text-xs" style={{ color: '#000000' }}>Athlete</th>
+                      <th className="text-left p-2 text-xs" style={{ color: '#000000' }}>Sport</th>
+                      <th className="text-left p-2 text-xs" style={{ color: '#000000' }}>Coach</th>
+                      <th className="text-left p-2 text-xs" style={{ color: '#000000' }}>Status</th>
+                      <th className="text-left p-2 text-xs" style={{ color: '#000000' }}>Sent</th>
+                      <th className="text-left p-2 text-xs" style={{ color: '#000000' }}>Expires</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1448,7 +1448,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
                           <td className="p-4" style={{ color: '#000000' }}>{invitation.sport}</td>
                           <td className="p-4" style={{ color: '#000000' }}>{invitation.coachName || 'Unknown'}</td>
                           <td className="p-2 text-sm">
-                            <span className={`px-3 py-1 rounded-full text-xs font-semibold capitalize ${getStatusColor(invitation.status)}`}>
+                            <span className={`px-3 py-1 rounded-full text-xs capitalize ${getStatusColor(invitation.status)}`}>
                               {invitation.status}
                             </span>
                           </td>

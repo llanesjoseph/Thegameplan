@@ -155,14 +155,14 @@ function AnnouncementsPageContent() {
       <div style={{ backgroundColor: embedded ? 'transparent' : '#E8E6D8' }} className={embedded ? 'p-12' : 'min-h-screen flex items-center justify-center'}>
         <div className="text-center bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8 max-w-md">
           <AlertCircle className="w-16 h-16 mx-auto mb-4" style={{ color: '#FF6B35' }} />
-          <h2 className="text-2xl font-heading mb-2" style={{ color: '#000000' }}>Access Denied</h2>
+          <h2 className="text-2xl mb-2" style={{ color: '#000000' }}>Access Denied</h2>
           <p className="mb-6" style={{ color: '#000000', opacity: 0.7 }}>
             You must be logged in as a coach to access this page.
           </p>
           {!embedded && (
             <button
               onClick={() => router.push('/')}
-              className="px-6 py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors"
+              className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
             >
               Return to Login
             </button>
@@ -184,7 +184,7 @@ function AnnouncementsPageContent() {
           <div className="mb-4">
             <div className="flex items-center gap-3 mb-2">
               <Bell className="w-8 h-8" style={{ color: '#91A6EB' }} />
-              <h1 className="text-3xl font-heading" style={{ color: '#000000' }}>Announcements</h1>
+              <h1 className="text-3xl" style={{ color: '#000000' }}>Announcements</h1>
             </div>
             <p style={{ color: '#000000', opacity: 0.7 }}>
               Broadcast updates and messages to your athletes
@@ -197,8 +197,8 @@ function AnnouncementsPageContent() {
           <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-white/50 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold" style={{ color: '#000000', opacity: 0.7 }}>Total Sent</p>
-                <p className="text-3xl font-heading" style={{ color: '#000000' }}>{announcements.length}</p>
+                <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Total Sent</p>
+                <p className="text-3xl" style={{ color: '#000000' }}>{announcements.length}</p>
               </div>
               <Bell className="w-10 h-10" style={{ color: '#91A6EB', opacity: 0.3 }} />
             </div>
@@ -207,8 +207,8 @@ function AnnouncementsPageContent() {
           <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-white/50 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold" style={{ color: '#000000', opacity: 0.7 }}>Total Views</p>
-                <p className="text-3xl font-heading" style={{ color: '#000000' }}>
+                <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Total Views</p>
+                <p className="text-3xl" style={{ color: '#000000' }}>
                   {announcements.reduce((sum, a) => sum + a.views, 0)}
                 </p>
               </div>
@@ -219,8 +219,8 @@ function AnnouncementsPageContent() {
           <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-white/50 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold" style={{ color: '#000000', opacity: 0.7 }}>Acknowledged</p>
-                <p className="text-3xl font-heading" style={{ color: '#000000' }}>
+                <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Acknowledged</p>
+                <p className="text-3xl" style={{ color: '#000000' }}>
                   {announcements.reduce((sum, a) => sum + a.acknowledged, 0)}
                 </p>
               </div>
@@ -233,7 +233,7 @@ function AnnouncementsPageContent() {
         <div>
           <button
             onClick={() => setShowCreateModal(true)}
-            className="px-6 py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors flex items-center gap-2"
+            className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2"
           >
             <Plus className="w-5 h-5" />
             Create Announcement
@@ -251,7 +251,7 @@ function AnnouncementsPageContent() {
           {announcements.length === 0 ? (
             <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-12 text-center">
               <Bell className="w-16 h-16 mx-auto mb-4" style={{ color: '#000000', opacity: 0.3 }} />
-              <h3 className="text-xl font-heading mb-2" style={{ color: '#000000' }}>
+              <h3 className="text-xl mb-2" style={{ color: '#000000' }}>
                 No announcements yet
               </h3>
               <p className="mb-6" style={{ color: '#000000', opacity: 0.7 }}>
@@ -259,7 +259,7 @@ function AnnouncementsPageContent() {
               </p>
               <button
                 onClick={() => setShowCreateModal(true)}
-                className="px-6 py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors inline-flex items-center gap-2"
+                className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors inline-flex items-center gap-2"
               >
                 <Plus className="w-5 h-5" />
                 Create First Announcement
@@ -275,11 +275,11 @@ function AnnouncementsPageContent() {
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
                       {announcement.urgent && (
-                        <span className="px-2 py-0.5 text-xs font-bold rounded-full bg-red-100 text-red-700">
+                        <span className="px-2 py-0.5 text-xs rounded-full bg-red-100 text-red-700">
                           URGENT
                         </span>
                       )}
-                      <h3 className="text-xl font-heading" style={{ color: '#000000' }}>
+                      <h3 className="text-xl" style={{ color: '#000000' }}>
                         {announcement.title}
                       </h3>
                     </div>
@@ -354,7 +354,7 @@ function AnnouncementsPageContent() {
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-heading" style={{ color: '#000000' }}>
+                <h2 className="text-2xl" style={{ color: '#000000' }}>
                   Create Announcement
                 </h2>
                 <button
@@ -367,7 +367,7 @@ function AnnouncementsPageContent() {
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                  <label className="block text-sm mb-2" style={{ color: '#000000' }}>
                     Title *
                   </label>
                   <input
@@ -380,7 +380,7 @@ function AnnouncementsPageContent() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                  <label className="block text-sm mb-2" style={{ color: '#000000' }}>
                     Message *
                   </label>
                   <textarea
@@ -393,7 +393,7 @@ function AnnouncementsPageContent() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                  <label className="block text-sm mb-2" style={{ color: '#000000' }}>
                     Audience
                   </label>
                   <select
@@ -415,7 +415,7 @@ function AnnouncementsPageContent() {
                     onChange={(e) => setNewAnnouncement({ ...newAnnouncement, urgent: e.target.checked })}
                     className="w-4 h-4"
                   />
-                  <label htmlFor="urgent" className="text-sm font-semibold" style={{ color: '#000000' }}>
+                  <label htmlFor="urgent" className="text-sm" style={{ color: '#000000' }}>
                     Mark as urgent
                   </label>
                 </div>
@@ -424,14 +424,14 @@ function AnnouncementsPageContent() {
               <div className="flex gap-3 mt-6">
                 <button
                   onClick={handleCreateAnnouncement}
-                  className="flex-1 px-6 py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
+                  className="flex-1 px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
                 >
                   <Send className="w-5 h-5" />
                   Send Announcement
                 </button>
                 <button
                   onClick={() => setShowCreateModal(false)}
-                  className="px-6 py-3 bg-white border-2 border-gray-300 text-black rounded-lg font-semibold hover:bg-gray-50 transition-colors"
+                  className="px-6 py-3 bg-white border-2 border-gray-300 text-black rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   Cancel
                 </button>

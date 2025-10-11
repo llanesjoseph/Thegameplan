@@ -193,7 +193,7 @@ export default function AdminInvitationsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Total</p>
-                  <p className="text-3xl font-heading" style={{ color: '#91A6EB' }}>{stats.total}</p>
+                  <p className="text-3xl" style={{ color: '#91A6EB' }}>{stats.total}</p>
                 </div>
                 <Mail className="w-8 h-8" style={{ color: '#91A6EB' }} />
               </div>
@@ -203,7 +203,7 @@ export default function AdminInvitationsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Pending</p>
-                  <p className="text-3xl font-heading" style={{ color: '#FF6B35' }}>{stats.pending}</p>
+                  <p className="text-3xl" style={{ color: '#FF6B35' }}>{stats.pending}</p>
                 </div>
                 <Clock className="w-8 h-8" style={{ color: '#FF6B35' }} />
               </div>
@@ -213,7 +213,7 @@ export default function AdminInvitationsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Accepted</p>
-                  <p className="text-3xl font-heading" style={{ color: '#20B2AA' }}>{stats.accepted}</p>
+                  <p className="text-3xl" style={{ color: '#20B2AA' }}>{stats.accepted}</p>
                 </div>
                 <CheckCircle className="w-8 h-8" style={{ color: '#20B2AA' }} />
               </div>
@@ -223,7 +223,7 @@ export default function AdminInvitationsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Declined</p>
-                  <p className="text-3xl font-heading" style={{ color: '#FF6B35' }}>{stats.declined}</p>
+                  <p className="text-3xl" style={{ color: '#FF6B35' }}>{stats.declined}</p>
                 </div>
                 <XCircle className="w-8 h-8" style={{ color: '#FF6B35' }} />
               </div>
@@ -233,7 +233,7 @@ export default function AdminInvitationsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Expired</p>
-                  <p className="text-3xl font-heading" style={{ color: '#000000' }}>{stats.expired}</p>
+                  <p className="text-3xl" style={{ color: '#000000' }}>{stats.expired}</p>
                 </div>
                 <Calendar className="w-8 h-8" style={{ color: '#000000' }} />
               </div>
@@ -256,7 +256,7 @@ export default function AdminInvitationsPage() {
               <div className="flex gap-2 flex-wrap">
                 <button
                   onClick={() => setFilter('all')}
-                  className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+                  className={`px-4 py-2 rounded-lg transition-all ${
                     filter === 'all'
                       ? 'bg-black text-white'
                       : 'bg-white border border-gray-300/50 hover:bg-black/5'
@@ -267,7 +267,7 @@ export default function AdminInvitationsPage() {
                 </button>
                 <button
                   onClick={() => setFilter('pending')}
-                  className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+                  className={`px-4 py-2 rounded-lg transition-all ${
                     filter === 'pending'
                       ? 'text-white'
                       : 'bg-white border border-gray-300/50 hover:bg-black/5'
@@ -278,7 +278,7 @@ export default function AdminInvitationsPage() {
                 </button>
                 <button
                   onClick={() => setFilter('accepted')}
-                  className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+                  className={`px-4 py-2 rounded-lg transition-all ${
                     filter === 'accepted'
                       ? 'text-white'
                       : 'bg-white border border-gray-300/50 hover:bg-black/5'
@@ -289,7 +289,7 @@ export default function AdminInvitationsPage() {
                 </button>
                 <button
                   onClick={() => setFilter('declined')}
-                  className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+                  className={`px-4 py-2 rounded-lg transition-all ${
                     filter === 'declined'
                       ? 'text-white'
                       : 'bg-white border border-gray-300/50 hover:bg-black/5'
@@ -300,7 +300,7 @@ export default function AdminInvitationsPage() {
                 </button>
                 <button
                   onClick={() => setFilter('expired')}
-                  className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+                  className={`px-4 py-2 rounded-lg transition-all ${
                     filter === 'expired'
                       ? 'bg-black text-white'
                       : 'bg-white border border-gray-300/50 hover:bg-black/5'

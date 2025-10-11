@@ -179,7 +179,7 @@ export default function CoachForumManager() {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#E8E6D8' }}>
         <div className="text-center bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8">
-          <h1 className="text-2xl mb-4 font-heading" style={{ color: '#000000' }}>Access Denied</h1>
+          <h1 className="text-2xl mb-4" style={{ color: '#000000' }}>Access Denied</h1>
           <p style={{ color: '#000000', opacity: 0.7 }}>This page is only available to administrators.</p>
         </div>
       </div>
@@ -204,7 +204,7 @@ export default function CoachForumManager() {
         <div className="grid md:grid-cols-2 gap-6">
           {/* Posts List */}
           <div className="space-y-4">
-            <h2 className="text-2xl font-heading" style={{ color: '#000000' }}>Forum Posts</h2>
+            <h2 className="text-2xl" style={{ color: '#000000' }}>Forum Posts</h2>
 
             {posts.map((post) => (
               <div
@@ -260,7 +260,7 @@ export default function CoachForumManager() {
             {selectedPost ? (
               <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
                 <div className="flex items-start justify-between mb-4">
-                  <h2 className="text-2xl font-heading" style={{ color: '#000000' }}>{selectedPost.title}</h2>
+                  <h2 className="text-2xl" style={{ color: '#000000' }}>{selectedPost.title}</h2>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => togglePin(selectedPost)}
@@ -296,7 +296,7 @@ export default function CoachForumManager() {
 
                 {/* Replies */}
                 <div className="border-t border-gray-300/30 pt-6">
-                  <h3 className="text-lg font-semibold mb-4" style={{ color: '#000000' }}>
+                  <h3 className="text-lg mb-4" style={{ color: '#000000' }}>
                     Replies ({replies.length})
                   </h3>
 
@@ -305,7 +305,7 @@ export default function CoachForumManager() {
                       <div key={reply.id} className={`p-4 rounded-lg ${reply.isHidden ? 'bg-red-50' : 'bg-gray-50'}`}>
                         <div className="flex items-start justify-between mb-2">
                           <div className="flex-1">
-                            <p className="text-sm font-semibold mb-1" style={{ color: '#000000' }}>
+                            <p className="text-sm mb-1" style={{ color: '#000000' }}>
                               {reply.authorName}
                               {reply.isHidden && <span className="ml-2 text-xs" style={{ color: '#FF6B35' }}>(Hidden)</span>}
                             </p>

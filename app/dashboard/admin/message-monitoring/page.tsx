@@ -152,7 +152,7 @@ export default function MessageMonitoringPage() {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 mb-2">
             <Shield className="w-10 h-10 text-red-600" />
-            <h1 className="text-4xl font-heading uppercase tracking-wide" style={{ color: '#000000' }}>
+            <h1 className="text-4xl uppercase tracking-wide" style={{ color: '#000000' }}>
               Message Monitoring & Safety
             </h1>
           </div>
@@ -167,7 +167,7 @@ export default function MessageMonitoringPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Total Alerts</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.totalAlerts}</p>
+                <p className="text-3xl text-gray-900">{stats.totalAlerts}</p>
               </div>
               <AlertTriangle className="w-8 h-8 text-orange-600" />
             </div>
@@ -177,7 +177,7 @@ export default function MessageMonitoringPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Pending Review</p>
-                <p className="text-3xl font-bold text-yellow-600">{stats.pending}</p>
+                <p className="text-3xl text-yellow-600">{stats.pending}</p>
               </div>
               <Clock className="w-8 h-8 text-yellow-600" />
             </div>
@@ -187,7 +187,7 @@ export default function MessageMonitoringPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Critical</p>
-                <p className="text-3xl font-bold text-red-600">{stats.critical}</p>
+                <p className="text-3xl text-red-600">{stats.critical}</p>
               </div>
               <Flag className="w-8 h-8 text-red-600" />
             </div>
@@ -197,7 +197,7 @@ export default function MessageMonitoringPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Total Messages</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.totalMessages}</p>
+                <p className="text-3xl text-gray-900">{stats.totalMessages}</p>
               </div>
               <MessageSquare className="w-8 h-8 text-blue-600" />
             </div>
@@ -207,7 +207,7 @@ export default function MessageMonitoringPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Flagged</p>
-                <p className="text-3xl font-bold text-orange-600">{stats.flaggedMessages}</p>
+                <p className="text-3xl text-orange-600">{stats.flaggedMessages}</p>
               </div>
               <Eye className="w-8 h-8 text-orange-600" />
             </div>
@@ -285,7 +285,7 @@ export default function MessageMonitoringPage() {
             {filteredAlerts.length === 0 ? (
               <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-12 text-center">
                 <Shield className="w-16 h-16 text-green-600 mx-auto mb-4" />
-                <h3 className="text-xl font-bold text-gray-900 mb-2">No alerts found</h3>
+                <h3 className="text-xl text-gray-900 mb-2">No alerts found</h3>
                 <p className="text-gray-600">All clear! No moderation alerts match your filters.</p>
               </div>
             ) : (

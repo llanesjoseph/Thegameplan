@@ -147,7 +147,7 @@ export default function AdminRequestsPage() {
   return (
    <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#E8E6D8' }}>
     <div className="text-center bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8">
-     <h1 className="text-2xl mb-4 font-heading" style={{ color: '#000000' }}>Access Denied</h1>
+     <h1 className="text-2xl mb-4" style={{ color: '#000000' }}>Access Denied</h1>
      <p style={{ color: '#000000', opacity: 0.7 }}>This page is only available to administrators.</p>
     </div>
    </div>
@@ -193,23 +193,23 @@ export default function AdminRequestsPage() {
     {/* Stats Cards */}
     <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
-      <div className="text-4xl font-heading mb-2" style={{ color: '#91A6EB' }}>{counts.total}</div>
+      <div className="text-4xl mb-2" style={{ color: '#91A6EB' }}>{counts.total}</div>
       <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Total Requests</div>
      </div>
      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
-      <div className="text-4xl font-heading mb-2" style={{ color: '#FF6B35' }}>{counts.open}</div>
+      <div className="text-4xl mb-2" style={{ color: '#FF6B35' }}>{counts.open}</div>
       <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Open</div>
      </div>
      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
-      <div className="text-4xl font-heading mb-2" style={{ color: '#91A6EB' }}>{counts.inProgress}</div>
+      <div className="text-4xl mb-2" style={{ color: '#91A6EB' }}>{counts.inProgress}</div>
       <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>In Progress</div>
      </div>
      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
-      <div className="text-4xl font-heading mb-2" style={{ color: '#20B2AA' }}>{counts.resolved}</div>
+      <div className="text-4xl mb-2" style={{ color: '#20B2AA' }}>{counts.resolved}</div>
       <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Resolved</div>
      </div>
      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
-      <div className="text-4xl font-heading mb-2" style={{ color: '#FF6B35' }}>{counts.urgent}</div>
+      <div className="text-4xl mb-2" style={{ color: '#FF6B35' }}>{counts.urgent}</div>
       <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Urgent</div>
      </div>
     </div>
@@ -219,7 +219,7 @@ export default function AdminRequestsPage() {
      <div className="flex gap-4 items-center">
       <div className="flex items-center gap-2">
        <Filter className="h-4 w-4" style={{ color: '#000000', opacity: 0.7 }} />
-       <span className="text-sm font-semibold" style={{ color: '#000000' }}>Filters:</span>
+       <span className="text-sm" style={{ color: '#000000' }}>Filters:</span>
       </div>
       <select
        value={filterType}

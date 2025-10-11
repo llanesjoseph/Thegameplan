@@ -158,7 +158,7 @@ export default function AdminSettings() {
   return (
    <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#E8E6D8' }}>
     <div className="text-center bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8">
-     <h1 className="text-2xl mb-4 font-heading" style={{ color: '#000000' }}>Access Denied</h1>
+     <h1 className="text-2xl mb-4" style={{ color: '#000000' }}>Access Denied</h1>
      <p style={{ color: '#000000', opacity: 0.7 }}>This page is only available to administrators.</p>
     </div>
    </div>
@@ -206,7 +206,7 @@ export default function AdminSettings() {
     <form onSubmit={(e) => { e.preventDefault(); saveSettings(); }} className="space-y-8">
      {/* Content Moderation */}
      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8">
-      <h2 className="text-2xl font-heading mb-6 flex items-center gap-2" style={{ color: '#000000' }}>
+      <h2 className="text-2xl mb-6 flex items-center gap-2" style={{ color: '#000000' }}>
        <Video className="w-6 h-6" style={{ color: '#91A6EB' }} />
        Content Moderation
       </h2>
@@ -214,7 +214,7 @@ export default function AdminSettings() {
       <div className="grid md:grid-cols-2 gap-6">
        <div className="space-y-4">
         <div className="flex items-center justify-between">
-         <label className="text-sm font-semibold" style={{ color: '#000000' }}>Auto-approve content</label>
+         <label className="text-sm" style={{ color: '#000000' }}>Auto-approve content</label>
          <input
           type="checkbox"
           checked={settings.contentModeration.autoApprove}
@@ -224,7 +224,7 @@ export default function AdminSettings() {
         </div>
 
         <div className="flex items-center justify-between">
-         <label className="text-sm font-semibold" style={{ color: '#000000' }}>Require admin review</label>
+         <label className="text-sm" style={{ color: '#000000' }}>Require admin review</label>
          <input
           type="checkbox"
           checked={settings.contentModeration.requireReview}
@@ -236,7 +236,7 @@ export default function AdminSettings() {
 
        <div className="space-y-4">
         <div>
-         <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>Max video length (minutes)</label>
+         <label className="block text-sm mb-2" style={{ color: '#000000' }}>Max video length (minutes)</label>
          <input
           type="number"
           value={settings.contentModeration.maxVideoLength}
@@ -249,7 +249,7 @@ export default function AdminSettings() {
         </div>
 
         <div>
-         <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>Max file size (MB)</label>
+         <label className="block text-sm mb-2" style={{ color: '#000000' }}>Max file size (MB)</label>
          <input
           type="number"
           value={settings.contentModeration.maxFileSize}
@@ -266,7 +266,7 @@ export default function AdminSettings() {
 
      {/* User Management */}
      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8">
-      <h2 className="text-2xl font-heading mb-6 flex items-center gap-2" style={{ color: '#000000' }}>
+      <h2 className="text-2xl mb-6 flex items-center gap-2" style={{ color: '#000000' }}>
        <Users className="w-6 h-6" style={{ color: '#20B2AA' }} />
        User Management
       </h2>
@@ -324,7 +324,7 @@ export default function AdminSettings() {
 
      {/* Content Settings */}
      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8">
-      <h2 className="text-2xl font-heading mb-6 flex items-center gap-2" style={{ color: '#000000' }}>
+      <h2 className="text-2xl mb-6 flex items-center gap-2" style={{ color: '#000000' }}>
        <Video className="w-6 h-6" style={{ color: '#FF6B35' }} />
        Content Settings
       </h2>
@@ -380,7 +380,7 @@ export default function AdminSettings() {
 
      {/* Notifications */}
      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8">
-      <h2 className="text-2xl font-heading mb-6 flex items-center gap-2" style={{ color: '#000000' }}>
+      <h2 className="text-2xl mb-6 flex items-center gap-2" style={{ color: '#000000' }}>
        <Bell className="w-6 h-6" style={{ color: '#91A6EB' }} />
        Notification Settings
       </h2>
@@ -434,7 +434,7 @@ export default function AdminSettings() {
 
      {/* Security */}
      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8">
-      <h2 className="text-2xl font-heading mb-6 flex items-center gap-2" style={{ color: '#000000' }}>
+      <h2 className="text-2xl mb-6 flex items-center gap-2" style={{ color: '#000000' }}>
        <Shield className="w-6 h-6" style={{ color: '#FF6B35' }} />
        Security Settings
       </h2>
@@ -495,7 +495,7 @@ export default function AdminSettings() {
       <button
        type="submit"
        disabled={saving}
-       className="px-8 py-3 rounded-lg text-white font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+       className="px-8 py-3 rounded-lg text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
        style={{ backgroundColor: '#91A6EB' }}
       >
        {saving ? (

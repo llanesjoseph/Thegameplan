@@ -53,7 +53,7 @@ export default function ApplicationSubmittedPage() {
             <CheckCircle className="w-12 h-12 text-green-600" />
           </div>
 
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl text-gray-900 mb-4">
             Application Submitted Successfully!
           </h1>
 
@@ -64,7 +64,7 @@ export default function ApplicationSubmittedPage() {
 
         {/* Timeline */}
         <div className="bg-white rounded-xl border border-gray-200 p-8 mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
+          <h2 className="text-2xl text-gray-900 mb-6 text-center">
             What Happens Next?
           </h2>
 
@@ -121,7 +121,7 @@ export default function ApplicationSubmittedPage() {
 
         {/* Next Steps Card */}
         <div className="bg-gradient-to-br from-cardinal/5 to-red-50 rounded-xl border border-cardinal/20 p-8 mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+          <h2 className="text-2xl text-gray-900 mb-4">
             While You Wait...
           </h2>
 
@@ -154,7 +154,7 @@ export default function ApplicationSubmittedPage() {
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
             href="/dashboard/progress"
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-cardinal text-white rounded-lg font-semibold hover:bg-cardinal-dark transition-colors"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-cardinal text-white rounded-lg hover:bg-cardinal-dark transition-colors"
           >
             <Home className="w-5 h-5" />
             Go to Dashboard
@@ -162,7 +162,7 @@ export default function ApplicationSubmittedPage() {
 
           <Link
             href="/contributors"
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
           >
             Browse Coaches
             <ArrowRight className="w-5 h-5" />
@@ -176,7 +176,7 @@ export default function ApplicationSubmittedPage() {
           </p>
           <Link
             href="/support"
-            className="text-cardinal hover:text-cardinal-dark font-semibold transition-colors"
+            className="text-cardinal hover:text-cardinal-dark transition-colors"
           >
             Contact Support →
           </Link>

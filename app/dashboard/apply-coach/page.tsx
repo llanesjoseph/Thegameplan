@@ -223,7 +223,7 @@ export default function ApplyCoachPage() {
       <ArrowLeft className="w-5 h-5 text-dark" />
      </Link>
      <div>
-      <h1 className="text-4xl text-dark font-heading">Apply to Become a Coach</h1>
+      <h1 className="text-4xl text-dark">Apply to Become a Coach</h1>
       <p className="text-dark/60 ">Share your expertise and help athletes reach their potential</p>
      </div>
     </div>

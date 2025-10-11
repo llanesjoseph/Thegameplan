@@ -152,7 +152,7 @@ export default function AssistantAthletesPage() {
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Athlete Management</h1>
+        <h1 className="text-3xl text-gray-900">Athlete Management</h1>
         <p className="text-gray-600 mt-2">Monitor and manage athlete progress and training</p>
       </div>
 
@@ -163,7 +163,7 @@ export default function AssistantAthletesPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Total Athletes</p>
-                <p className="text-2xl font-bold">{athletes.length}</p>
+                <p className="text-2xl">{athletes.length}</p>
               </div>
               <Users className="w-8 h-8 text-blue-500" />
             </div>
@@ -175,7 +175,7 @@ export default function AssistantAthletesPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Active</p>
-                <p className="text-2xl font-bold">
+                <p className="text-2xl">
                   {athletes.filter(a => a.status === 'active').length}
                 </p>
               </div>
@@ -189,7 +189,7 @@ export default function AssistantAthletesPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Avg Progress</p>
-                <p className="text-2xl font-bold">
+                <p className="text-2xl">
                   {Math.round(athletes.reduce((sum, a) => sum + a.progress, 0) / athletes.length)}%
                 </p>
               </div>
@@ -203,7 +203,7 @@ export default function AssistantAthletesPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Elite Athletes</p>
-                <p className="text-2xl font-bold">
+                <p className="text-2xl">
                   {athletes.filter(a => a.level === 'elite').length}
                 </p>
               </div>
@@ -253,7 +253,7 @@ export default function AssistantAthletesPage() {
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold">
+                  <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
                     {athlete.name.split(' ').map(n => n[0]).join('')}
                   </div>
                   <div>

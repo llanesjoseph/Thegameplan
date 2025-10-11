@@ -67,7 +67,7 @@ export default function SocialMediaGenerator() {
 
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Social Media Post Generator</h1>
+          <h1 className="text-3xl text-gray-900 mb-2">Social Media Post Generator</h1>
           <p className="text-gray-600">Create engaging social media content for your coaching brand</p>
         </div>
 
@@ -203,7 +203,7 @@ export default function SocialMediaGenerator() {
                     <div className="p-4">
                       <div className="flex items-center mb-4">
                         <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
-                          <span className="text-white font-bold text-sm">
+                          <span className="text-white text-sm">
                             {postData.coachName ? postData.coachName.charAt(0).toUpperCase() : 'C'}
                           </span>
                         </div>
@@ -233,7 +233,7 @@ export default function SocialMediaGenerator() {
                     <div className="p-4">
                       <div className="flex items-start mb-3">
                         <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center mr-3">
-                          <span className="text-white font-bold">
+                          <span className="text-white">
                             {postData.coachName ? postData.coachName.charAt(0).toUpperCase() : 'C'}
                           </span>
                         </div>
@@ -266,7 +266,7 @@ export default function SocialMediaGenerator() {
                     <div className="p-4">
                       <div className="flex items-center mb-4">
                         <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
-                          <span className="text-white font-bold text-sm">
+                          <span className="text-white text-sm">
                             {postData.coachName ? postData.coachName.charAt(0).toUpperCase() : 'C'}
                           </span>
                         </div>
@@ -296,7 +296,7 @@ export default function SocialMediaGenerator() {
                     <div className="p-4">
                       <div className="flex items-start mb-4">
                         <div className="w-12 h-12 bg-blue-700 rounded-full flex items-center justify-center mr-3">
-                          <span className="text-white font-bold">
+                          <span className="text-white">
                             {postData.coachName ? postData.coachName.charAt(0).toUpperCase() : 'C'}
                           </span>
                         </div>

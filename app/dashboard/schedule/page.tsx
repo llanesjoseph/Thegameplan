@@ -158,7 +158,7 @@ function UserScheduleContent() {
        <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 bg-gradient-to-br from-sky-blue to-black">
         <Calendar className="w-8 h-8 text-white" />
        </div>
-       <h1 className="text-4xl font-heading uppercase tracking-wide mb-4" style={{ color: '#000000' }}>
+       <h1 className="text-4xl uppercase tracking-wide mb-4" style={{ color: '#000000' }}>
         Set Your Schedule
        </h1>
        <p className="text-xl max-w-2xl mx-auto" style={{ color: '#000000' }}>
@@ -175,7 +175,7 @@ function UserScheduleContent() {
         <div className="w-12 h-12 rounded-full bg-gradient-to-br from-sky-blue to-black flex items-center justify-center">
          <Clock className="w-6 h-6 text-white" />
         </div>
-        <h2 className="text-2xl  font-heading" style={{ color: '#000000' }}>
+        <h2 className="text-2xl " style={{ color: '#000000' }}>
          Your Availability
         </h2>
        </div>
@@ -262,7 +262,7 @@ function UserScheduleContent() {
         <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green to-black flex items-center justify-center">
          <Send className="w-6 h-6 text-white" />
         </div>
-        <h2 className="text-2xl  font-heading" style={{ color: '#000000' }}>
+        <h2 className="text-2xl " style={{ color: '#000000' }}>
          Propose a Session
         </h2>
        </div>

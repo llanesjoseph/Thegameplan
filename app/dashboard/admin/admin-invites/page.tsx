@@ -53,7 +53,7 @@ export default function AdminInvitesPage() {
         <AppHeader />
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="max-w-md mx-auto text-center bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8">
-            <h1 className="text-2xl mb-4 font-heading" style={{ color: '#000000' }}>Access Denied</h1>
+            <h1 className="text-2xl mb-4" style={{ color: '#000000' }}>Access Denied</h1>
             <p className="mb-6" style={{ color: '#000000', opacity: 0.7 }}>
               This page is only available to administrators.
             </p>

@@ -28,7 +28,7 @@ export default function DashboardError({
      <AlertTriangle className="h-16 w-16 text-orange-500" />
     </div>
 
-    <h1 className="text-2xl font-bold text-gray-900 mb-2">
+    <h1 className="text-2xl text-gray-900 mb-2">
      Dashboard Error
     </h1>
 

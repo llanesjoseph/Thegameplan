@@ -182,7 +182,7 @@ export default function AdminContentReview() {
   return (
    <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#E8E6D8' }}>
     <div className="text-center bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8">
-     <h1 className="text-2xl mb-4 font-heading" style={{ color: '#000000' }}>Access Denied</h1>
+     <h1 className="text-2xl mb-4" style={{ color: '#000000' }}>Access Denied</h1>
      <p style={{ color: '#000000', opacity: 0.7 }}>This page is only available to administrators.</p>
     </div>
    </div>
@@ -207,25 +207,25 @@ export default function AdminContentReview() {
     {/* Stats Overview */}
     <div className="grid md:grid-cols-4 gap-6 mb-8">
      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
-      <div className="text-4xl font-heading mb-2" style={{ color: '#91A6EB' }}>
+      <div className="text-4xl mb-2" style={{ color: '#91A6EB' }}>
        {content.filter(c => c.status === 'pending').length}
       </div>
       <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Pending Review</div>
      </div>
      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
-      <div className="text-4xl font-heading mb-2" style={{ color: '#20B2AA' }}>
+      <div className="text-4xl mb-2" style={{ color: '#20B2AA' }}>
        {content.filter(c => c.status === 'published').length}
       </div>
       <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Published</div>
      </div>
      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
-      <div className="text-4xl font-heading mb-2" style={{ color: '#FF6B35' }}>
+      <div className="text-4xl mb-2" style={{ color: '#FF6B35' }}>
        {content.filter(c => c.status === 'rejected').length}
       </div>
       <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Rejected</div>
      </div>
      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
-      <div className="text-4xl font-heading mb-2" style={{ color: '#000000' }}>
+      <div className="text-4xl mb-2" style={{ color: '#000000' }}>
        {content.filter(c => c.flagged).length}
       </div>
       <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Flagged</div>
@@ -304,7 +304,7 @@ export default function AdminContentReview() {
 
        {/* Content Info */}
        <div className="space-y-3">
-        <h3 className="text-lg line-clamp-2 font-heading" style={{ color: '#000000' }}>{item.title}</h3>
+        <h3 className="text-lg line-clamp-2" style={{ color: '#000000' }}>{item.title}</h3>
         <p className="text-sm line-clamp-2" style={{ color: '#000000', opacity: 0.7 }}>{item.description}</p>
 
         <div className="flex items-center gap-4 text-sm" style={{ color: '#000000', opacity: 0.7 }}>
@@ -348,7 +348,7 @@ export default function AdminContentReview() {
         <div className="flex gap-2 pt-3 border-t border-gray-300/30">
          <button
           onClick={() => setSelectedContent(item)}
-          className="flex-1 px-4 py-2 border border-gray-300/50 rounded-lg font-semibold transition-all hover:bg-black/5"
+          className="flex-1 px-4 py-2 border border-gray-300/50 rounded-lg transition-all hover:bg-black/5"
           style={{ color: '#000000' }}
          >
           <div className="flex items-center justify-center gap-2">
@@ -391,7 +391,7 @@ export default function AdminContentReview() {
      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-2xl border border-white/50 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
        <div className="flex items-center justify-between mb-6 p-6 pb-0">
-        <h3 className="text-2xl font-heading" style={{ color: '#000000' }}>Content Review</h3>
+        <h3 className="text-2xl" style={{ color: '#000000' }}>Content Review</h3>
         <button
          onClick={() => setSelectedContent(null)}
          className="hover:bg-black/5 rounded-lg p-2"
@@ -404,7 +404,7 @@ export default function AdminContentReview() {
        <div className="grid md:grid-cols-2 gap-6 p-6">
         {/* Content Preview */}
         <div>
-         <h4 className="mb-3 font-heading" style={{ color: '#000000' }}>Content Preview</h4>
+         <h4 className="mb-3" style={{ color: '#000000' }}>Content Preview</h4>
          <div className="aspect-video rounded-lg overflow-hidden bg-black/5 mb-4">
           {selectedContent.thumbnailUrl ? (
            <img
@@ -421,30 +421,30 @@ export default function AdminContentReview() {
 
          <div className="space-y-3">
           <div>
-           <label className="block text-sm font-semibold mb-1" style={{ color: '#000000' }}>Title</label>
+           <label className="block text-sm mb-1" style={{ color: '#000000' }}>Title</label>
            <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>{selectedContent.title}</div>
           </div>
 
           <div>
-           <label className="block text-sm font-semibold mb-1" style={{ color: '#000000' }}>Description</label>
+           <label className="block text-sm mb-1" style={{ color: '#000000' }}>Description</label>
            <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>{selectedContent.description}</div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
            <div>
-            <label className="block text-sm font-semibold mb-1" style={{ color: '#000000' }}>Sport</label>
+            <label className="block text-sm mb-1" style={{ color: '#000000' }}>Sport</label>
             <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>{selectedContent.sport}</div>
            </div>
            <div>
-            <label className="block text-sm font-semibold mb-1" style={{ color: '#000000' }}>Level</label>
+            <label className="block text-sm mb-1" style={{ color: '#000000' }}>Level</label>
             <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>{selectedContent.level}</div>
            </div>
            <div>
-            <label className="block text-sm font-semibold mb-1" style={{ color: '#000000' }}>Duration</label>
+            <label className="block text-sm mb-1" style={{ color: '#000000' }}>Duration</label>
             <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>{selectedContent.duration} minutes</div>
            </div>
            <div>
-            <label className="block text-sm font-semibold mb-1" style={{ color: '#000000' }}>Created</label>
+            <label className="block text-sm mb-1" style={{ color: '#000000' }}>Created</label>
             <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>{selectedContent.createdAt.toLocaleDateString()}</div>
            </div>
           </div>
@@ -453,11 +453,11 @@ export default function AdminContentReview() {
 
         {/* Review Actions */}
         <div>
-         <h4 className="mb-3 font-heading" style={{ color: '#000000' }}>Review Actions</h4>
+         <h4 className="mb-3" style={{ color: '#000000' }}>Review Actions</h4>
 
          <div className="space-y-4">
           <div>
-           <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>Review Note</label>
+           <label className="block text-sm mb-2" style={{ color: '#000000' }}>Review Note</label>
            <textarea
             value={reviewNote}
             onChange={(e) => setReviewNote(e.target.value)}
@@ -471,7 +471,7 @@ export default function AdminContentReview() {
           <div className="space-y-3">
            <button
             onClick={() => updateContentStatus(selectedContent.id, 'published', reviewNote)}
-            className="w-full px-4 py-3 text-white rounded-lg font-semibold transition-all"
+            className="w-full px-4 py-3 text-white rounded-lg transition-all"
             style={{ backgroundColor: '#20B2AA' }}
            >
             <div className="flex items-center justify-center gap-2">
@@ -482,7 +482,7 @@ export default function AdminContentReview() {
 
            <button
             onClick={() => updateContentStatus(selectedContent.id, 'rejected', reviewNote)}
-            className="w-full px-4 py-3 border border-gray-300/50 rounded-lg font-semibold transition-all hover:bg-black/5"
+            className="w-full px-4 py-3 border border-gray-300/50 rounded-lg transition-all hover:bg-black/5"
             style={{ color: '#000000' }}
            >
             <div className="flex items-center justify-center gap-2">
@@ -493,7 +493,7 @@ export default function AdminContentReview() {
 
            <button
             onClick={() => setSelectedContent(null)}
-            className="w-full px-4 py-3 bg-black text-white rounded-lg font-semibold hover:bg-black/90 transition-all"
+            className="w-full px-4 py-3 bg-black text-white rounded-lg hover:bg-black/90 transition-all"
            >
             Cancel
            </button>
