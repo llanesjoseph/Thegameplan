@@ -17,7 +17,7 @@
       ]
     },
     {
-      "collectionGroup": "content ",
+      "collectionGroup": "content",
       "queryScope": "COLLECTION",
       "fields": [
         { "fieldPath": "status", "order": "ASCENDING" },
@@ -26,7 +26,7 @@
       ]
     },
     {
-      "collectionGroup": "content ",
+      "collectionGroup": "content",
       "queryScope": "COLLECTION",
       "fields": [
         { "fieldPath": "creatorUid", "order": "ASCENDING" },
@@ -34,7 +34,7 @@
       ]
     },
     {
-      "collectionGroup": "content ",
+      "collectionGroup": "content",
       "queryScope": "COLLECTION",
       "fields": [
         { "fieldPath": "creatorUid", "order": "ASCENDING" },
