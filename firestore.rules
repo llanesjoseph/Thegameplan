@@ -95,13 +95,20 @@ service cloud.firestore {
              get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['creator', 'coach', 'assistant_coach', 'admin', 'superadmin'];
     }
     
-    // Validate user data structure
+    // Validate user data structure for CREATE (requires all required fields)
     // NOTE: This allows additional fields beyond email/role for onboarding, profiles, etc.
     function isValidUserData() {
       return request.resource.data.keys().hasAll(['email', 'role']) &&
              request.resource.data.email is string &&
              request.resource.data.role in ['creator', 'athlete', 'coach', 'assistant_coach', 'admin', 'superadmin'] &&
              request.resource.data.email.matches('.*@.*\\..*');
+    }
+
+    // Validate user data structure for UPDATE (allows partial updates)
+    // Only validates fields that ARE present - allows updating photoURL, displayName, bio, etc.
+    function isValidUserUpdate() {
+      return (!('email' in request.resource.data) || (request.resource.data.email is string && request.resource.data.email.matches('.*@.*\\..*'))) &&
+             (!('role' in request.resource.data) || request.resource.data.role in ['creator', 'athlete', 'coach', 'assistant_coach', 'admin', 'superadmin']);
     }
     
     // Validate content data structure
@@ -151,11 +158,11 @@ service cloud.firestore {
                        isValidUserData();
       // Allow users to update their own profile (except role changes)
       // Only admins can change roles
-      allow update: if (isOwner(userId) && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role']) && isValidUserData()) ||
+      allow update: if (isOwner(userId) && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role']) && isValidUserUpdate()) ||
                        (isAuthenticated() &&
                         exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
                         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'superadmin'] &&
-                        isValidUserData());
+                        isValidUserUpdate());
       allow delete: if isAuthenticated() &&
                        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
                        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'superadmin';
