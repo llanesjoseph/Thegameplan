@@ -473,14 +473,14 @@ function CreateLessonPageContent() {
       <div style={{ backgroundColor: embedded ? 'transparent' : '#E8E6D8' }} className={embedded ? 'p-12' : 'min-h-screen flex items-center justify-center'}>
         <div className="text-center bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8 max-w-md">
           <AlertCircle className="w-16 h-16 mx-auto mb-4" style={{ color: '#FF6B35' }} />
-          <h2 className="text-2xl font-heading mb-2" style={{ color: '#000000' }}>Access Denied</h2>
+          <h2 className="text-2xl mb-2" style={{ color: '#000000' }}>Access Denied</h2>
           <p className="mb-6" style={{ color: '#000000', opacity: 0.7 }}>
             You must be logged in as a coach to access this page.
           </p>
           {!embedded && (
             <button
               onClick={() => router.push('/')}
-              className="px-6 py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors"
+              className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
             >
               Return to Login
             </button>
@@ -498,7 +498,7 @@ function CreateLessonPageContent() {
           <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 -mt-4 mb-4">
             <button
               onClick={() => setShowAIModal(true)}
-              className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:from-purple-700 hover:to-blue-700 transition-all flex items-center gap-2 shadow-lg"
+              className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all flex items-center gap-2 shadow-lg"
             >
               <Sparkles className="w-5 h-5" />
               AI Generate Complete Lesson
@@ -514,11 +514,11 @@ function CreateLessonPageContent() {
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-3">
                 <GraduationCap className="w-8 h-8" style={{ color: '#20B2AA' }} />
-                <h1 className="text-3xl font-heading" style={{ color: '#000000' }}>Create Lesson</h1>
+                <h1 className="text-3xl" style={{ color: '#000000' }}>Create Lesson</h1>
               </div>
               <button
                 onClick={() => setShowAIModal(true)}
-                className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:from-purple-700 hover:to-blue-700 transition-all flex items-center gap-2 shadow-lg"
+                className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all flex items-center gap-2 shadow-lg"
               >
                 <Sparkles className="w-5 h-5" />
                 AI Generate
@@ -537,7 +537,7 @@ function CreateLessonPageContent() {
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-6 h-6 text-purple-600" />
-                  <h2 className="text-2xl font-heading" style={{ color: '#000000' }}>AI Lesson Generator</h2>
+                  <h2 className="text-2xl" style={{ color: '#000000' }}>AI Lesson Generator</h2>
                 </div>
                 <button
                   onClick={() => setShowAIModal(false)}
@@ -565,7 +565,7 @@ function CreateLessonPageContent() {
                 <button
                   onClick={handleAIGenerate}
                   disabled={generating || !aiPrompt.trim()}
-                  className="flex-1 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:from-purple-700 hover:to-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {generating ? (
                     <>
@@ -582,7 +582,7 @@ function CreateLessonPageContent() {
                 <button
                   onClick={() => setShowAIModal(false)}
                   disabled={generating}
-                  className="px-6 py-3 bg-gray-100 text-black rounded-lg font-semibold hover:bg-gray-200 transition-colors disabled:opacity-50"
+                  className="px-6 py-3 bg-gray-100 text-black rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
                 >
                   Cancel
                 </button>
@@ -593,7 +593,7 @@ function CreateLessonPageContent() {
 
         {/* Basic Info */}
         <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
-          <h2 className="text-xl font-heading mb-4 flex items-center gap-2" style={{ color: '#000000' }}>
+          <h2 className="text-xl mb-4 flex items-center gap-2" style={{ color: '#000000' }}>
             <FileText className="w-5 h-5" />
             Basic Information
           </h2>
@@ -601,7 +601,7 @@ function CreateLessonPageContent() {
           <div className="space-y-4">
             {/* Title */}
             <div>
-              <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+              <label className="block text-sm mb-2" style={{ color: '#000000' }}>
                 Lesson Title *
               </label>
               <input
@@ -616,7 +616,7 @@ function CreateLessonPageContent() {
             {/* Sport and Level */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                <label className="block text-sm mb-2" style={{ color: '#000000' }}>
                   Sport *
                 </label>
                 <select
@@ -639,7 +639,7 @@ function CreateLessonPageContent() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                <label className="block text-sm mb-2" style={{ color: '#000000' }}>
                   Skill Level *
                 </label>
                 <select
@@ -655,7 +655,7 @@ function CreateLessonPageContent() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+                <label className="block text-sm mb-2" style={{ color: '#000000' }}>
                   Duration (minutes)
                 </label>
                 <input
@@ -672,7 +672,7 @@ function CreateLessonPageContent() {
             {/* Objectives */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="block text-sm font-semibold" style={{ color: '#000000' }}>
+                <label className="block text-sm" style={{ color: '#000000' }}>
                   Learning Objectives
                 </label>
                 <button
@@ -715,7 +715,7 @@ function CreateLessonPageContent() {
 
             {/* Tags */}
             <div>
-              <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+              <label className="block text-sm mb-2" style={{ color: '#000000' }}>
                 Tags
               </label>
               <div className="flex gap-2 mb-2">
@@ -749,7 +749,7 @@ function CreateLessonPageContent() {
 
             {/* Visibility */}
             <div>
-              <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+              <label className="block text-sm mb-2" style={{ color: '#000000' }}>
                 Visibility
               </label>
               <select
@@ -768,7 +768,7 @@ function CreateLessonPageContent() {
         {/* Lesson Sections */}
         <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-heading flex items-center gap-2" style={{ color: '#000000' }}>
+            <h2 className="text-xl flex items-center gap-2" style={{ color: '#000000' }}>
               <Video className="w-5 h-5" />
               Lesson Sections
             </h2>
@@ -815,7 +815,7 @@ function CreateLessonPageContent() {
                 <div key={section.id} className="border-2 border-gray-200 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-bold px-2 py-1 bg-black text-white rounded">
+                      <span className="text-sm px-2 py-1 bg-black text-white rounded">
                         {idx + 1}
                       </span>
                       <span className="text-xs px-2 py-1 bg-gray-100 rounded capitalize">
@@ -861,7 +861,7 @@ function CreateLessonPageContent() {
                     value={section.title}
                     onChange={(e) => updateSection(section.id, { title: e.target.value })}
                     placeholder="Section title (e.g., Warm-Up Drills)"
-                    className="w-full px-3 py-2 mb-3 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black font-semibold"
+                    className="w-full px-3 py-2 mb-3 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
                   />
 
                   {/* Video Section */}
@@ -929,14 +929,14 @@ function CreateLessonPageContent() {
           <button
             onClick={handleSave}
             disabled={saving || !lesson.title || !lesson.sport || !lesson.level}
-            className="flex-1 px-6 py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="flex-1 px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             <Save className="w-5 h-5" />
             {saving ? 'Saving...' : 'Save Lesson'}
           </button>
           <button
             onClick={() => router.back()}
-            className="px-6 py-3 bg-white border-2 border-gray-300 text-black rounded-lg font-semibold hover:bg-gray-50 transition-colors"
+            className="px-6 py-3 bg-white border-2 border-gray-300 text-black rounded-lg hover:bg-gray-50 transition-colors"
           >
             Cancel
           </button>

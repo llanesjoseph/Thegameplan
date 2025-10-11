@@ -227,14 +227,14 @@ function LessonLibraryPageContent() {
       <div style={{ backgroundColor: embedded ? 'transparent' : '#E8E6D8' }} className={embedded ? 'p-12' : 'min-h-screen flex items-center justify-center'}>
         <div className="text-center bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8 max-w-md">
           <AlertCircle className="w-16 h-16 mx-auto mb-4" style={{ color: '#FF6B35' }} />
-          <h2 className="text-2xl font-heading mb-2" style={{ color: '#000000' }}>Access Denied</h2>
+          <h2 className="text-2xl mb-2" style={{ color: '#000000' }}>Access Denied</h2>
           <p className="mb-6" style={{ color: '#000000', opacity: 0.7 }}>
             You must be logged in as a coach to access this page.
           </p>
           {!embedded && (
             <button
               onClick={() => router.push('/')}
-              className="px-6 py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors"
+              className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
             >
               Return to Login
             </button>
@@ -257,7 +257,7 @@ function LessonLibraryPageContent() {
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-3">
                 <BookOpen className="w-8 h-8" style={{ color: '#000000' }} />
-                <h1 className="text-3xl font-heading" style={{ color: '#000000' }}>Lesson Library</h1>
+                <h1 className="text-3xl" style={{ color: '#000000' }}>Lesson Library</h1>
               </div>
               <button
                 onClick={() => router.push(embedded ? '/dashboard/coach/lessons/create?embedded=true' : '/dashboard/coach/lessons/create')}
@@ -278,8 +278,8 @@ function LessonLibraryPageContent() {
           <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-white/50 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold" style={{ color: '#000000', opacity: 0.7 }}>Total Lessons</p>
-                <p className="text-3xl font-heading" style={{ color: '#000000' }}>{lessons.length}</p>
+                <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Total Lessons</p>
+                <p className="text-3xl" style={{ color: '#000000' }}>{lessons.length}</p>
               </div>
               <BookOpen className="w-10 h-10" style={{ color: '#91A6EB', opacity: 0.3 }} />
             </div>
@@ -288,8 +288,8 @@ function LessonLibraryPageContent() {
           <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-white/50 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold" style={{ color: '#000000', opacity: 0.7 }}>Total Views</p>
-                <p className="text-3xl font-heading" style={{ color: '#000000' }}>
+                <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Total Views</p>
+                <p className="text-3xl" style={{ color: '#000000' }}>
                   {lessons.reduce((sum, l) => sum + (l.viewCount || 0), 0)}
                 </p>
               </div>
@@ -300,8 +300,8 @@ function LessonLibraryPageContent() {
           <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-white/50 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold" style={{ color: '#000000', opacity: 0.7 }}>Completions</p>
-                <p className="text-3xl font-heading" style={{ color: '#000000' }}>
+                <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Completions</p>
+                <p className="text-3xl" style={{ color: '#000000' }}>
                   {lessons.reduce((sum, l) => sum + (l.completionCount || 0), 0)}
                 </p>
               </div>
@@ -312,8 +312,8 @@ function LessonLibraryPageContent() {
           <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-white/50 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold" style={{ color: '#000000', opacity: 0.7 }}>Avg Rating</p>
-                <p className="text-3xl font-heading" style={{ color: '#000000' }}>
+                <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Avg Rating</p>
+                <p className="text-3xl" style={{ color: '#000000' }}>
                   {lessons.length > 0
                     ? (lessons.reduce((sum, l) => sum + (l.averageRating || 0), 0) / lessons.length).toFixed(1)
                     : '0.0'
@@ -379,7 +379,7 @@ function LessonLibraryPageContent() {
         ) : filteredLessons.length === 0 ? (
           <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-white/50 p-12 text-center">
             <BookOpen className="w-16 h-16 mx-auto mb-4" style={{ opacity: 0.3 }} />
-            <h3 className="text-xl font-heading mb-2" style={{ color: '#000000' }}>
+            <h3 className="text-xl mb-2" style={{ color: '#000000' }}>
               {lessons.length === 0 ? 'No lessons yet' : 'No lessons match your filters'}
             </h3>
             <p className="mb-6" style={{ color: '#000000', opacity: 0.7 }}>
@@ -411,14 +411,14 @@ function LessonLibraryPageContent() {
                 <div className="p-5">
                   {/* Title and badges */}
                   <div className="mb-3">
-                    <h3 className="text-lg font-heading mb-2 line-clamp-2" style={{ color: '#000000' }}>
+                    <h3 className="text-lg mb-2 line-clamp-2" style={{ color: '#000000' }}>
                       {lesson.title}
                     </h3>
                     <div className="flex flex-wrap gap-2">
-                      <span className="text-xs px-2 py-1 bg-gray-100 rounded capitalize font-semibold">
+                      <span className="text-xs px-2 py-1 bg-gray-100 rounded capitalize">
                         {lesson.sport}
                       </span>
-                      <span className={`text-xs px-2 py-1 rounded capitalize font-semibold ${getLevelBadgeColor(lesson.level)}`}>
+                      <span className={`text-xs px-2 py-1 rounded capitalize ${getLevelBadgeColor(lesson.level)}`}>
                         {lesson.level}
                       </span>
                       <span className="text-xs px-2 py-1 bg-gray-100 rounded flex items-center gap-1">
