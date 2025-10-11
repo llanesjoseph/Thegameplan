@@ -8,7 +8,7 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore'
+import { doc, getDoc, collection, query, where, getDocs, orderBy, limit } from 'firebase/firestore'
 import { db } from '@/lib/firebase.client'
 import {
   ArrowLeft,
@@ -19,10 +19,14 @@ import {
   Mail,
   Calendar,
   Users,
-  Trophy
+  Trophy,
+  Sparkles,
+  MessageCircle
 } from 'lucide-react'
 import AppHeader from '@/components/ui/AppHeader'
+import AIAssistant from '@/components/AIAssistant'
 import Link from 'next/link'
+import { useAuth } from '@/hooks/use-auth'
 
 interface CoachProfile {
   uid: string
@@ -43,10 +47,22 @@ interface CoachProfile {
   }
 }
 
+interface Lesson {
+  id: string
+  title: string
+  description?: string
+  sport?: string
+  level?: string
+  createdAt: any
+  videoUrl?: string
+  thumbnailUrl?: string
+}
+
 export default function CoachProfilePage() {
   const params = useParams()
   const router = useRouter()
   const coachId = params?.id as string
+  const { user } = useAuth()
 
   const [coach, setCoach] = useState<CoachProfile | null>(null)
   const [loading, setLoading] = useState(true)
@@ -54,6 +70,8 @@ export default function CoachProfilePage() {
   const [totalLessons, setTotalLessons] = useState(0)
   const [totalAthletes, setTotalAthletes] = useState(0)
   const [isInIframe, setIsInIframe] = useState(false)
+  const [lessons, setLessons] = useState<Lesson[]>([])
+  const [showAIChat, setShowAIChat] = useState(false)
 
   // Detect if page is loaded in iframe
   useEffect(() => {
@@ -134,13 +152,28 @@ export default function CoachProfilePage() {
 
   const fetchCoachStats = async () => {
     try {
-      // Count lessons created by this coach
+      // Fetch lessons created by this coach (get all published lessons)
       const lessonsQuery = query(
         collection(db, 'content'),
         where('creatorUid', '==', coachId),
-        where('status', '==', 'published')
+        where('status', '==', 'published'),
+        orderBy('createdAt', 'desc'),
+        limit(6)  // Show up to 6 lessons
       )
       const lessonsSnap = await getDocs(lessonsQuery)
+
+      const lessonsData: Lesson[] = lessonsSnap.docs.map(doc => ({
+        id: doc.id,
+        title: doc.data().title || 'Untitled Lesson',
+        description: doc.data().description,
+        sport: doc.data().sport,
+        level: doc.data().level,
+        createdAt: doc.data().createdAt,
+        videoUrl: doc.data().videoUrl,
+        thumbnailUrl: doc.data().thumbnailUrl
+      }))
+
+      setLessons(lessonsData)
       setTotalLessons(lessonsSnap.size)
 
       // Count athletes assigned to this coach
@@ -385,16 +418,119 @@ export default function CoachProfilePage() {
           )}
         </div>
 
-        {/* View Lessons Button */}
-        <div className="mt-8 text-center">
-          <Link
-            href={`/lessons?coach=${coachId}`}
-            className="inline-flex items-center gap-2 px-8 py-4 rounded-xl text-white font-semibold hover:opacity-90 transition-opacity shadow-lg"
-            style={{ backgroundColor: '#91A6EB' }}
+        {/* Lessons Section */}
+        {lessons.length > 0 && (
+          <div className="mt-8 bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-heading" style={{ color: '#000000' }}>
+                Recent Lessons
+              </h2>
+              <Link
+                href={`/lessons?coach=${coachId}`}
+                className="text-sm hover:opacity-70 transition-opacity"
+                style={{ color: '#91A6EB' }}
+              >
+                View All →
+              </Link>
+            </div>
+
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {lessons.map((lesson) => (
+                <Link
+                  key={lesson.id}
+                  href={`/lesson/${lesson.id}`}
+                  className="group block bg-white rounded-xl shadow-md hover:shadow-xl transition-all overflow-hidden border border-gray-100"
+                >
+                  {/* Thumbnail */}
+                  {lesson.thumbnailUrl ? (
+                    <div className="h-40 overflow-hidden">
+                      <img
+                        src={lesson.thumbnailUrl}
+                        alt={lesson.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                      />
+                    </div>
+                  ) : (
+                    <div className="h-40 flex items-center justify-center" style={{ backgroundColor: '#91A6EB' }}>
+                      <BookOpen className="w-12 h-12 text-white opacity-50" />
+                    </div>
+                  )}
+
+                  {/* Content */}
+                  <div className="p-4">
+                    <h3 className="font-semibold mb-2 line-clamp-2" style={{ color: '#000000' }}>
+                      {lesson.title}
+                    </h3>
+                    {lesson.description && (
+                      <p className="text-sm mb-3 line-clamp-2" style={{ color: '#000000', opacity: 0.6 }}>
+                        {lesson.description}
+                      </p>
+                    )}
+                    <div className="flex flex-wrap gap-2">
+                      {lesson.sport && (
+                        <span className="text-xs px-2 py-1 rounded-full text-white" style={{ backgroundColor: '#91A6EB' }}>
+                          {lesson.sport}
+                        </span>
+                      )}
+                      {lesson.level && (
+                        <span className="text-xs px-2 py-1 rounded-full text-white" style={{ backgroundColor: '#20B2AA' }}>
+                          {lesson.level}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* AI Coach Chat Section */}
+        <div className="mt-8 bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 overflow-hidden">
+          {/* Chat Header/Toggle */}
+          <button
+            onClick={() => setShowAIChat(!showAIChat)}
+            className="w-full px-8 py-6 flex items-center justify-between hover:bg-gray-50 transition-colors"
           >
-            <Video className="w-5 h-5" />
-            View {coach.displayName}'s Lessons
-          </Link>
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: '#9333EA' }}>
+                <Sparkles className="w-6 h-6 text-white" />
+              </div>
+              <div className="text-left">
+                <h2 className="text-xl font-heading" style={{ color: '#000000' }}>
+                  Chat with {coach.displayName}'s AI Assistant
+                </h2>
+                <p className="text-sm" style={{ color: '#000000', opacity: 0.6 }}>
+                  Get instant answers about their training philosophy and methods
+                </p>
+              </div>
+            </div>
+            <MessageCircle className={`w-6 h-6 transition-transform ${showAIChat ? 'rotate-180' : ''}`} style={{ color: '#9333EA' }} />
+          </button>
+
+          {/* AI Chat */}
+          {showAIChat && user && (
+            <div className="border-t border-gray-200 p-6" style={{ height: '600px' }}>
+              <AIAssistant
+                mode="inline"
+                userId={user.uid}
+                userEmail={user.email || ''}
+                title={`${coach.displayName}'s AI Assistant`}
+                context={`You are ${coach.displayName}'s personal AI coaching assistant. You embody their coaching philosophy, voice, and expertise in ${coach.sport}. ${coach.bio ? `About the coach: ${coach.bio}` : ''} Provide specific, actionable advice based on their methods and experience. Be personal, not generic.`}
+                placeholder={`Ask ${coach.displayName.split(' ')[0]} anything...`}
+                requireLegalConsent={true}
+                sport={coach.sport}
+                creatorId={coachId}
+                creatorName={coach.displayName}
+              />
+            </div>
+          )}
+
+          {!showAIChat && (
+            <div className="px-8 pb-6 text-center" style={{ color: '#000000', opacity: 0.6 }}>
+              Click above to start chatting
+            </div>
+          )}
         </div>
       </div>
     </div>
