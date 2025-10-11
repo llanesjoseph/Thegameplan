@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
       coachEmail: coachEmail.toLowerCase(),
       coachName,
       sport,
-      customMessage: customMessage || `Join PLAYBOOKD as a ${sport} coach and help athletes reach their full potential!`,
+      customMessage: customMessage || `Join AthLeap as a ${sport} coach and help athletes reach their full potential!`,
       invitationUrl,
       status: 'pending',
       createdBy: decodedToken.uid,
@@ -98,9 +98,9 @@ export async function POST(request: NextRequest) {
 
     try {
       const emailResult = await resend.emails.send({
-        from: 'PLAYBOOKD Team <noreply@mail.crucibleanalytics.dev>',
+        from: 'AthLeap Team <noreply@mail.crucibleanalytics.dev>',
         to: coachEmail,
-        subject: 'Invitation to Join PLAYBOOKD as a Coach',
+        subject: 'Invitation to Join AthLeap as a Coach',
         html: generateCoachInvitationEmail(coachName, sport, invitationUrl, customMessage || invitationData.customMessage, userData.displayName || userData.email)
       })
 
@@ -155,18 +155,18 @@ function generateCoachInvitationEmail(
     <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Coach Invitation - PLAYBOOKD</title>
+      <title>Coach Invitation - AthLeap</title>
     </head>
     <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
       <div style="background: linear-gradient(135deg, #20B2AA 0%, #91A6EB 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
-        <h1 style="color: white; margin: 0; font-size: 28px;">🏆 PLAYBOOKD Coach Invitation</h1>
+        <h1 style="color: white; margin: 0; font-size: 28px;">🏆 AthLeap Coach Invitation</h1>
       </div>
 
       <div style="background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px;">
         <h2 style="color: #20B2AA; margin-top: 0;">Hello ${coachName}!</h2>
 
         <p style="font-size: 16px;">
-          You've been invited to join PLAYBOOKD as a <strong>${sport}</strong> coach!
+          You've been invited to join AthLeap as a <strong>${sport}</strong> coach!
         </p>
 
         ${customMessage ? `
@@ -205,7 +205,7 @@ function generateCoachInvitationEmail(
         <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
 
         <p style="font-size: 12px; color: #999; text-align: center;">
-          If you didn't expect this invitation or have questions, please contact the PLAYBOOKD team.<br>
+          If you didn't expect this invitation or have questions, please contact the AthLeap team.<br>
           This invitation is personal and should not be shared.
         </p>
       </div>

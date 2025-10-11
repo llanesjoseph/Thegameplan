@@ -15,8 +15,8 @@ interface EmailPreviewProps {
 
 export default function EmailPreview({ type, data, inviterName = 'Admin' }: EmailPreviewProps) {
   const defaultMessage = type === 'coach'
-    ? `Join PLAYBOOKD as a ${data.sport || '[Sport]'} coach and help athletes reach their full potential!`
-    : `Welcome to PLAYBOOKD! You've been assigned to ${data.coachName || '[Coach Name]'} for ${data.sport || '[Sport]'} training.`
+    ? `Join AthLeap as a ${data.sport || '[Sport]'} coach and help athletes reach their full potential!`
+    : `Welcome to AthLeap! You've been assigned to ${data.coachName || '[Coach Name]'} for ${data.sport || '[Sport]'} training.`
 
   const message = data.customMessage || defaultMessage
 
@@ -35,7 +35,7 @@ export default function EmailPreview({ type, data, inviterName = 'Admin' }: Emai
         <div className="p-6 max-h-[600px] overflow-y-auto">
           {/* Header */}
           <div style={{ background: 'linear-gradient(135deg, #20B2AA 0%, #91A6EB 100%)', padding: '30px', borderRadius: '10px 10px 0 0', textAlign: 'center' }}>
-            <h1 style={{ color: 'white', margin: 0, fontSize: '28px' }}>🏆 PLAYBOOKD Coach Invitation</h1>
+            <h1 style={{ color: 'white', margin: 0, fontSize: '28px' }}>🏆 AthLeap Coach Invitation</h1>
           </div>
 
           {/* Body */}
@@ -43,7 +43,7 @@ export default function EmailPreview({ type, data, inviterName = 'Admin' }: Emai
             <h2 style={{ color: '#20B2AA', marginTop: 0 }}>Hello {data.name || '[Coach Name]'}!</h2>
 
             <p style={{ fontSize: '16px' }}>
-              You've been invited to join PLAYBOOKD as a <strong>{data.sport || '[Sport]'}</strong> coach!
+              You've been invited to join AthLeap as a <strong>{data.sport || '[Sport]'}</strong> coach!
             </p>
 
             {message && (
@@ -82,7 +82,7 @@ export default function EmailPreview({ type, data, inviterName = 'Admin' }: Emai
             <hr style={{ border: 'none', borderTop: '1px solid #ddd', margin: '30px 0' }} />
 
             <p style={{ fontSize: '12px', color: '#999', textAlign: 'center' }}>
-              If you didn't expect this invitation or have questions, please contact the PLAYBOOKD team.<br />
+              If you didn't expect this invitation or have questions, please contact the AthLeap team.<br />
               This invitation is personal and should not be shared.
             </p>
           </div>
@@ -106,7 +106,7 @@ export default function EmailPreview({ type, data, inviterName = 'Admin' }: Emai
       <div className="p-6 max-h-[600px] overflow-y-auto">
         {/* Header */}
         <div style={{ background: 'linear-gradient(135deg, #91A6EB 0%, #20B2AA 100%)', padding: '30px', borderRadius: '10px 10px 0 0', textAlign: 'center' }}>
-          <h1 style={{ color: 'white', margin: 0, fontSize: '28px' }}>⚡ Welcome to PLAYBOOKD!</h1>
+          <h1 style={{ color: 'white', margin: 0, fontSize: '28px' }}>⚡ Welcome to AthLeap!</h1>
         </div>
 
         {/* Body */}
@@ -114,7 +114,7 @@ export default function EmailPreview({ type, data, inviterName = 'Admin' }: Emai
           <h2 style={{ color: '#91A6EB', marginTop: 0 }}>Hello {data.name || '[Athlete Name]'}!</h2>
 
           <p style={{ fontSize: '16px' }}>
-            You've been invited to join PLAYBOOKD for <strong>{data.sport || '[Sport]'}</strong> training!
+            You've been invited to join AthLeap for <strong>{data.sport || '[Sport]'}</strong> training!
           </p>
 
           <div style={{ background: 'white', padding: '20px', borderRadius: '8px', margin: '20px 0', border: '2px solid #91A6EB' }}>
@@ -169,7 +169,7 @@ export default function EmailPreview({ type, data, inviterName = 'Admin' }: Emai
           <hr style={{ border: 'none', borderTop: '1px solid #ddd', margin: '30px 0' }} />
 
           <p style={{ fontSize: '12px', color: '#999', textAlign: 'center' }}>
-            Questions? Reach out to your coach or contact PLAYBOOKD support.<br />
+            Questions? Reach out to your coach or contact AthLeap support.<br />
             This invitation is personal to you and should not be shared.
           </p>
         </div>

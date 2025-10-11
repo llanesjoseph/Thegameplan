@@ -135,7 +135,7 @@ export default function AdminInvitationManager() {
           <h2 className="text-2xl text-gray-900">Admin Invitations</h2>
         </div>
         <p className="text-gray-700">
-          Invite trusted individuals to help manage and operate the PLAYBOOKD platform
+          Invite trusted individuals to help manage and operate the AthLeap platform
         </p>
       </div>
 

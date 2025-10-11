@@ -107,7 +107,7 @@ function ProfilePageContent() {
         }))
 
         try {
-          const collection = role === 'creator' ? 'creator_profiles' : 'users'
+          const collection = (role === 'creator' || role === 'coach') ? 'creator_profiles' : 'users'
           const docRef = doc(db, collection, user.uid)
           const docSnap = await getDoc(docRef)
 
@@ -177,7 +177,7 @@ function ProfilePageContent() {
         updatedAt: new Date().toISOString()
       }
 
-      const collection = role === 'creator' ? 'creator_profiles' : 'users'
+      const collection = (role === 'creator' || role === 'coach') ? 'creator_profiles' : 'users'
       const docRef = doc(db, collection, user.uid)
       await setDoc(docRef, profileWithVoice, { merge: true })
 
@@ -216,7 +216,7 @@ function ProfilePageContent() {
         updatedAt: new Date().toISOString()
       }, { merge: true })
 
-      if (role === 'creator') {
+      if (role === 'creator' || role === 'coach') {
         const creatorProfileRef = doc(db, 'creator_profiles', user.uid)
         await setDoc(creatorProfileRef, profileWithMetadata, { merge: true })
 
@@ -256,7 +256,7 @@ function ProfilePageContent() {
     },
     {
       id: 'specialties',
-      title: role === 'creator' ? 'Sports Specialties' : 'Sports Interests',
+      title: (role === 'creator' || role === 'coach') ? 'Sports Specialties' : 'Sports Interests',
       description: 'Your sport focus areas',
       icon: Star,
       color: '#20B2AA'
@@ -311,7 +311,7 @@ function ProfilePageContent() {
   ]
 
   const filteredCards = profileCards.filter(card =>
-    role === 'creator' ? true : !card.coachOnly
+    (role === 'creator' || role === 'coach') ? true : !card.coachOnly
   )
 
   const renderSectionContent = () => {
@@ -393,7 +393,7 @@ function ProfilePageContent() {
         return (
           <div className="p-8 space-y-6">
             <h3 className="text-xl mb-4" style={{ color: '#000000' }}>
-              {role === 'creator' ? 'Sports Specialties' : 'Sports Interests'}
+              {(role === 'creator' || role === 'coach') ? 'Sports Specialties' : 'Sports Interests'}
             </h3>
 
             <div className="space-y-4">
@@ -782,7 +782,7 @@ function ProfilePageContent() {
             </Link>
             <div>
               <h1 className="text-4xl" style={{ color: '#000000' }}>
-                {role === 'creator' ? 'Coach Profile' : 'Athlete Profile'}
+                {(role === 'creator' || role === 'coach') ? 'Coach Profile' : 'Athlete Profile'}
               </h1>
               <p style={{ color: '#000000', opacity: 0.6 }}>Manage your profile information and settings</p>
             </div>
