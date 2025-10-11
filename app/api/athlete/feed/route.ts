@@ -75,7 +75,7 @@ export async function GET(request: NextRequest) {
 
     // 4. Fetch full lesson details for available lessons
     const availableLessonIds = feedData?.availableLessons || []
-    const lessons = []
+    const lessons: any[] = []
 
     if (availableLessonIds.length > 0) {
       // Batch fetch lessons (Firestore has limit of 10 for 'in' queries, so chunk if needed)
