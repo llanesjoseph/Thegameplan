@@ -210,7 +210,11 @@ function RecruitCoachContent() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-teal to-sky-blue hover:from-teal/90 hover:to-sky-blue/90 text-white py-3 px-6 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full py-3 px-6 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg"
+              style={{
+                background: 'linear-gradient(to right, #20B2AA, #91A6EB)',
+                color: '#FFFFFF'
+              }}
             >
               {loading ? (
                 <>
