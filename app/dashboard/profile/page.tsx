@@ -789,79 +789,84 @@ function ProfilePageContent() {
           </div>
         )}
 
-        {/* Inline Section Editor */}
-        {activeSection && (
-          <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-2xl border border-white/50 relative overflow-hidden mb-6">
-            <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: 'rgba(0, 0, 0, 0.1)' }}>
-              <h2 className="text-xl" style={{ color: '#000000' }}>
-                {profileCards.find(c => c.id === activeSection)?.title}
-              </h2>
-              <div className="flex items-center gap-2">
-                {saveStatus && (
-                  <div className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm ${
-                    saveStatus === 'saving' ? 'bg-sky-blue/20 text-sky-blue' :
-                    saveStatus === 'success' ? 'bg-green/20 text-green' :
-                    'bg-orange/20 text-orange'
-                  }`}>
-                    {saveStatus === 'saving' && <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-sky-blue"></div>}
-                    {saveStatus === 'success' && <CheckCircle className="w-4 h-4" />}
-                    {saveStatus === 'error' && <AlertCircle className="w-4 h-4" />}
-                    {saveStatus === 'saving' ? 'Saving...' : saveStatus === 'success' ? 'Saved!' : 'Error'}
-                  </div>
-                )}
-                <button
-                  onClick={handleSave}
-                  disabled={saveStatus === 'saving'}
-                  className="px-6 py-2 bg-gradient-to-r from-black to-black/90 text-white rounded-xl hover:from-black/90 hover:to-black transition-all flex items-center gap-2 disabled:opacity-50 shadow-lg"
-                >
-                  <Save className="w-4 h-4" />
-                  Save Changes
-                </button>
-                <button
-                  onClick={() => setActiveSection(null)}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  <X className="w-5 h-5" style={{ color: '#000000' }} />
-                </button>
-              </div>
-            </div>
-            {renderSectionContent()}
-          </div>
-        )}
+        {/* Unified Profile Card with Tabs */}
+        <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-2xl border border-white/50 relative overflow-hidden">
+          {/* Tab Navigation */}
+          <div className="border-b" style={{ borderColor: 'rgba(0, 0, 0, 0.1)' }}>
+            <div className="flex overflow-x-auto scrollbar-hide">
+              {filteredCards.map((card, index) => {
+                const Icon = card.icon
+                const isActive = activeSection === card.id
 
-        {/* Profile Cards Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
-          {filteredCards.map((card, index) => {
-            const Icon = card.icon
-            const isActive = activeSection === card.id
-
-            return (
-              <button
-                key={index}
-                onClick={() => setActiveSection(card.id)}
-                className={`block group cursor-pointer text-left transition-all ${isActive ? 'ring-2 ring-black ring-offset-2' : ''}`}
-              >
-                <div className={`bg-white/90 backdrop-blur-sm rounded-lg sm:rounded-xl shadow-lg border border-white/50 p-3 sm:p-4 h-full transition-all hover:shadow-2xl hover:scale-105 ${isActive ? 'bg-white shadow-2xl' : ''}`}>
-                  <div className="flex flex-col h-full min-h-[100px] sm:min-h-[120px]">
+                return (
+                  <button
+                    key={index}
+                    onClick={() => setActiveSection(card.id)}
+                    className={`flex items-center gap-2 px-4 sm:px-6 py-4 border-b-2 transition-all whitespace-nowrap ${
+                      isActive
+                        ? 'border-black'
+                        : 'border-transparent hover:border-gray-300'
+                    }`}
+                    style={{
+                      color: isActive ? '#000000' : 'rgba(0, 0, 0, 0.5)',
+                      backgroundColor: isActive ? 'rgba(0, 0, 0, 0.02)' : 'transparent'
+                    }}
+                  >
                     <div
-                      className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg mb-2 sm:mb-3 flex items-center justify-center shadow-md"
-                      style={{ backgroundColor: card.color }}
+                      className={`w-5 h-5 rounded-md flex items-center justify-center transition-all ${
+                        isActive ? 'shadow-md' : ''
+                      }`}
+                      style={{ backgroundColor: isActive ? card.color : 'rgba(0, 0, 0, 0.1)' }}
                     >
-                      <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                      <Icon className="w-3 h-3 text-white" />
                     </div>
+                    <span className="text-sm font-medium">{card.title}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
 
-                    <h3 className="text-xs sm:text-sm mb-1 line-clamp-2" style={{ color: '#000000' }}>
-                      {card.title}
-                    </h3>
-
-                    <p className="text-[10px] sm:text-xs flex-grow line-clamp-2" style={{ color: '#000000', opacity: 0.6 }}>
-                      {card.description}
-                    </p>
-                  </div>
+          {/* Save Button Bar */}
+          {activeSection && (
+            <div className="flex items-center justify-end gap-2 p-4 border-b bg-gray-50/50" style={{ borderColor: 'rgba(0, 0, 0, 0.05)' }}>
+              {saveStatus && (
+                <div className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm ${
+                  saveStatus === 'saving' ? 'bg-blue-100 text-blue-600' :
+                  saveStatus === 'success' ? 'bg-green-100 text-green-600' :
+                  'bg-red-100 text-red-600'
+                }`}>
+                  {saveStatus === 'saving' && <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>}
+                  {saveStatus === 'success' && <CheckCircle className="w-4 h-4" />}
+                  {saveStatus === 'error' && <AlertCircle className="w-4 h-4" />}
+                  {saveStatus === 'saving' ? 'Saving...' : saveStatus === 'success' ? 'Saved!' : 'Error'}
                 </div>
+              )}
+              <button
+                onClick={handleSave}
+                disabled={saveStatus === 'saving'}
+                className="px-6 py-2 bg-gradient-to-r from-black to-black/90 text-white rounded-xl hover:from-black/90 hover:to-black transition-all flex items-center gap-2 disabled:opacity-50 shadow-lg"
+              >
+                <Save className="w-4 h-4" />
+                Save Changes
               </button>
-            )
-          })}
+            </div>
+          )}
+
+          {/* Section Content */}
+          <div className="min-h-[400px]">
+            {activeSection ? (
+              renderSectionContent()
+            ) : (
+              <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+                <User className="w-16 h-16 mb-4" style={{ color: '#91A6EB', opacity: 0.5 }} />
+                <h3 className="text-xl mb-2" style={{ color: '#000000' }}>Welcome to Your Profile</h3>
+                <p style={{ color: '#000000', opacity: 0.6 }}>
+                  Select a tab above to view and edit your profile information
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
