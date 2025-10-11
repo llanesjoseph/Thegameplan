@@ -16,7 +16,8 @@ export async function GET(request: NextRequest) {
     const { user: authUser } = authResult
 
     // Get coach profile
-    const coachProfileDoc = await db.collection('coach_profiles').doc(authUser.uid).get()
+    // FIXED: Coaches use creator_profiles collection, same as creators
+    const coachProfileDoc = await db.collection('creator_profiles').doc(authUser.uid).get()
 
     if (!coachProfileDoc.exists) {
       return NextResponse.json(

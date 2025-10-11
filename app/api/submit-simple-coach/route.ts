@@ -146,7 +146,8 @@ export async function POST(request: NextRequest) {
       console.log(`✅ Created user document with role: ${targetRole}`)
 
       // Create coach or assistant profile
-      const profileCollection = targetRole === 'coach' ? 'coach_profiles' : 'creator_profiles'
+      // FIXED: Coaches should use creator_profiles collection, same as creators
+      const profileCollection = (targetRole === 'coach' || targetRole === 'creator') ? 'creator_profiles' : 'creator_profiles'
       const profileData = {
         uid: userRecord.uid,
         email: userInfo.email?.toLowerCase(),

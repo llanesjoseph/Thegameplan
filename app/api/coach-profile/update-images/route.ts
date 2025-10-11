@@ -38,7 +38,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if coach profile exists
-    const coachProfileDoc = await db.collection('coach_profiles').doc(authUser.uid).get()
+    // FIXED: Coaches use creator_profiles collection, same as creators
+    const coachProfileDoc = await db.collection('creator_profiles').doc(authUser.uid).get()
 
     if (!coachProfileDoc.exists) {
       return NextResponse.json(
@@ -78,7 +79,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Update coach profile in Firestore
-    await db.collection('coach_profiles').doc(authUser.uid).update(updateData)
+    await db.collection('creator_profiles').doc(authUser.uid).update(updateData)
 
     // Also update the creator data if it exists (for backwards compatibility)
     const creatorQuery = await db.collection('creators').where('email', '==', authUser.email).get()
@@ -92,7 +93,7 @@ export async function POST(request: NextRequest) {
     const completeness = calculateProfileCompleteness(updatedProfile)
 
     if (completeness !== currentProfile?.profileCompleteness) {
-      await db.collection('coach_profiles').doc(authUser.uid).update({
+      await db.collection('creator_profiles').doc(authUser.uid).update({
         profileCompleteness: completeness
       })
     }
