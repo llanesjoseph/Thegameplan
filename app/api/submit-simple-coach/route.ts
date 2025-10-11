@@ -209,9 +209,45 @@ export async function POST(request: NextRequest) {
       try {
         const resetLink = await auth.generatePasswordResetLink(userInfo.email?.toLowerCase())
         console.log(`📧 Password reset link generated for ${userInfo.email}`)
-        // TODO: Send this link via email
+
+        // Import Resend dynamically
+        const { Resend } = await import('resend')
+        const resend = new Resend(process.env.RESEND_API_KEY)
+
+        // Send welcome email with password setup link
+        await resend.emails.send({
+          from: 'AthLeap <noreply@mail.crucibleanalytics.dev>',
+          to: userInfo.email?.toLowerCase(),
+          subject: `Welcome to AthLeap - Set Your Password`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #000000;">Welcome to AthLeap, ${userInfo.firstName}!</h2>
+              <p>Your ${targetRole} account has been created successfully.</p>
+              <p>To complete your setup and access your dashboard, please set your password by clicking the button below:</p>
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="${resetLink}"
+                   style="background: linear-gradient(to right, #20B2AA, #91A6EB);
+                          color: white;
+                          padding: 12px 30px;
+                          text-decoration: none;
+                          border-radius: 8px;
+                          display: inline-block;
+                          font-weight: 600;">
+                  Set Your Password
+                </a>
+              </div>
+              <p style="color: #666; font-size: 14px;">This link will expire in 1 hour.</p>
+              <p style="color: #666; font-size: 14px;">If you didn't request this, please ignore this email.</p>
+              <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+              <p style="color: #999; font-size: 12px;">AthLeap - Empowering Athletes Through Expert Coaching</p>
+            </div>
+          `
+        })
+
+        console.log(`✅ Password setup email sent to ${userInfo.email}`)
       } catch (error) {
-        console.error('Failed to generate password reset link:', error)
+        console.error('Failed to send password setup email:', error)
+        // Don't fail the whole process if email fails
       }
 
       return NextResponse.json({

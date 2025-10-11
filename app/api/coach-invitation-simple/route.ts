@@ -69,7 +69,11 @@ export async function POST(request: NextRequest) {
       expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
       status: 'pending', // Use 'pending' instead of 'sent' for dashboard compatibility
       type: invitationType === 'assistant' ? 'assistant_invitation' : 'coach_invitation',
-      used: false
+      used: false,
+      // CRITICAL: Auto-approve coach-to-coach invitations to create account immediately
+      autoApprove: true,
+      organizationName: 'PLAYBOOKD Coaching Network',
+      inviterName: inviterEmail
     }
 
     // Store invitation in Firestore
