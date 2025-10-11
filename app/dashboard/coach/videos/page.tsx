@@ -34,6 +34,249 @@ interface VideoItem {
   views: number
 }
 
+function AddVideoModal({ onClose }: { onClose: () => void }) {
+  const { user } = useAuth()
+  const [loading, setLoading] = useState(false)
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    source: 'youtube' as 'youtube' | 'vimeo' | 'direct',
+    url: '',
+    thumbnail: '',
+    duration: 0,
+    sport: 'baseball',
+    tags: ''
+  })
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+
+    try {
+      if (!user) throw new Error('Not authenticated')
+
+      const token = await user.getIdToken()
+      const response = await fetch('/api/coach/videos', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          ...formData,
+          tags: formData.tags.split(',').map(t => t.trim()).filter(t => t)
+        })
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to add video')
+      }
+
+      alert('Video added successfully!')
+      onClose()
+    } catch (error) {
+      console.error('Error adding video:', error)
+      alert(error instanceof Error ? error.message : 'Failed to add video')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold" style={{ color: '#000000' }}>Add Video</h2>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            type="button"
+          >
+            <Plus className="w-5 h-5 rotate-45" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Title */}
+          <div>
+            <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
+              Video Title *
+            </label>
+            <input
+              type="text"
+              value={formData.title}
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+              placeholder="e.g., Advanced Batting Techniques"
+              required
+            />
+          </div>
+
+          {/* Description */}
+          <div>
+            <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
+              Description
+            </label>
+            <textarea
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+              placeholder="Describe what's covered in this video..."
+              rows={3}
+            />
+          </div>
+
+          {/* Source Type */}
+          <div>
+            <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
+              Video Source *
+            </label>
+            <div className="flex gap-4">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="source"
+                  value="youtube"
+                  checked={formData.source === 'youtube'}
+                  onChange={(e) => setFormData({ ...formData, source: e.target.value as 'youtube' })}
+                  className="w-4 h-4"
+                />
+                <Youtube className="w-5 h-5 text-red-600" />
+                <span>YouTube</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="source"
+                  value="vimeo"
+                  checked={formData.source === 'vimeo'}
+                  onChange={(e) => setFormData({ ...formData, source: e.target.value as 'vimeo' })}
+                  className="w-4 h-4"
+                />
+                <Video className="w-5 h-5" style={{ color: '#1ab7ea' }} />
+                <span>Vimeo</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="source"
+                  value="direct"
+                  checked={formData.source === 'direct'}
+                  onChange={(e) => setFormData({ ...formData, source: e.target.value as 'direct' })}
+                  className="w-4 h-4"
+                />
+                <LinkIcon className="w-5 h-5" />
+                <span>Direct Link</span>
+              </label>
+            </div>
+          </div>
+
+          {/* URL */}
+          <div>
+            <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
+              Video URL *
+            </label>
+            <input
+              type="url"
+              value={formData.url}
+              onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+              placeholder={
+                formData.source === 'youtube' ? 'https://www.youtube.com/watch?v=...' :
+                formData.source === 'vimeo' ? 'https://vimeo.com/...' :
+                'https://example.com/video.mp4'
+              }
+              required
+            />
+          </div>
+
+          {/* Sport */}
+          <div>
+            <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
+              Sport *
+            </label>
+            <select
+              value={formData.sport}
+              onChange={(e) => setFormData({ ...formData, sport: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+              required
+            >
+              <option value="baseball">Baseball</option>
+              <option value="basketball">Basketball</option>
+              <option value="football">Football</option>
+              <option value="soccer">Soccer</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          {/* Duration */}
+          <div>
+            <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
+              Duration (minutes)
+            </label>
+            <input
+              type="number"
+              value={formData.duration}
+              onChange={(e) => setFormData({ ...formData, duration: parseInt(e.target.value) || 0 })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+              placeholder="10"
+              min="0"
+            />
+          </div>
+
+          {/* Tags */}
+          <div>
+            <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
+              Tags (comma-separated)
+            </label>
+            <input
+              type="text"
+              value={formData.tags}
+              onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+              placeholder="batting, technique, advanced"
+            />
+          </div>
+
+          {/* Thumbnail URL (optional) */}
+          <div>
+            <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
+              Thumbnail URL (optional)
+            </label>
+            <input
+              type="url"
+              value={formData.thumbnail}
+              onChange={(e) => setFormData({ ...formData, thumbnail: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+              placeholder="https://example.com/thumbnail.jpg"
+            />
+          </div>
+
+          {/* Actions */}
+          <div className="flex gap-3 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              disabled={loading}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="flex-1 px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={loading}
+            >
+              {loading ? 'Adding...' : 'Add Video'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
 function VideoManagerPageContent() {
   const { user, loading: authLoading } = useAuth()
   const router = useRouter()
@@ -362,31 +605,11 @@ function VideoManagerPageContent() {
           </div>
         )}
 
-        {/* Add Video Modal Placeholder */}
-        {showAddModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl" style={{ color: '#000000' }}>Add Video</h2>
-                <button
-                  onClick={() => setShowAddModal(false)}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  <LinkIcon className="w-5 h-5" />
-                </button>
-              </div>
-              <p className="text-center py-8" style={{ color: '#000000', opacity: 0.7 }}>
-                Video upload functionality coming soon! You'll be able to add YouTube, Vimeo, and direct upload videos.
-              </p>
-              <button
-                onClick={() => setShowAddModal(false)}
-                className="w-full px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        )}
+        {/* Add Video Modal */}
+        {showAddModal && <AddVideoModal onClose={() => {
+          setShowAddModal(false)
+          loadVideos() // Reload videos after adding
+        }} />}
       </main>
     </div>
   )
