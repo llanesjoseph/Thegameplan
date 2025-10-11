@@ -95,9 +95,20 @@ export async function POST(request: NextRequest) {
     await adminDb.collection('coach_applications').doc(applicationId).set(applicationData)
     console.log(`💾 Saved ${targetRole} application to Firestore:`, applicationId)
 
+    // Update invitation status to show it's been completed (ready for admin approval)
+    await adminDb.collection('invitations').doc(ingestionId).update({
+      status: 'completed', // Changed from 'pending' to 'completed'
+      completedAt: now,
+      applicationId
+    })
+
+    // IMPORTANT: Don't create Firebase account here
+    // Let admin approve first, then coach can sign in with Google/Apple/Email
+    // This prevents the "can't login" issue
+
     // Only create user account and profiles if auto-approve is enabled
     let userRecord = null
-    const shouldAutoApprove = invitationData?.autoApprove === true
+    const shouldAutoApprove = false // DISABLED: Always require admin approval
 
     if (shouldAutoApprove) {
       // Create Firebase user account with temporary password

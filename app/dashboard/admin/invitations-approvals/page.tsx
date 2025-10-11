@@ -183,7 +183,8 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
   const loadApplications = async () => {
     try {
       setApplicationsLoading(true)
-      const applicationsQuery = query(collection(db, 'coachApplications'), orderBy('submittedAt', 'desc'))
+      // FIXED: Changed from 'coachApplications' to 'coach_applications'
+      const applicationsQuery = query(collection(db, 'coach_applications'), orderBy('submittedAt', 'desc'))
       const snapshot = await getDocs(applicationsQuery)
       const applicationsData = snapshot.docs.map(doc => ({
         id: doc.id,
@@ -417,15 +418,65 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
     if (!confirm(`Are you sure you want to ${status === 'approved' ? 'approve' : 'reject'} this application?`)) return
 
     try {
-      await updateDoc(doc(db, 'coachApplications', applicationId), {
-        status,
-        reviewedAt: Timestamp.now(),
-        reviewedBy: user?.email
-      })
+      if (status === 'approved') {
+        // Get the application to find invitationId
+        const appDoc = await getDocs(query(collection(db, 'coach_applications'), where('id', '==', applicationId)))
+        if (appDoc.empty) {
+          alert('Application not found')
+          return
+        }
+
+        const appData = appDoc.docs[0].data()
+        const invitationId = appData.invitationId || appData.invitationId
+
+        if (!invitationId) {
+          alert('No invitation ID found for this application')
+          return
+        }
+
+        // Call the approval API endpoint
+        const currentUser = auth.currentUser
+        if (!currentUser) {
+          alert('Please log in again')
+          return
+        }
+
+        const idToken = await currentUser.getIdToken()
+        const response = await fetch('/api/admin/approve-coach-invitation', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${idToken}`
+          },
+          body: JSON.stringify({
+            invitationId,
+            applicationId
+          })
+        })
+
+        const result = await response.json()
+
+        if (!response.ok) {
+          alert(`Failed to approve: ${result.error}`)
+          return
+        }
+
+        alert(`✅ Coach approved successfully! Welcome email sent to ${appData.email}`)
+      } else {
+        // Just update status for rejection
+        await updateDoc(doc(db, 'coach_applications', applicationId), {
+          status: 'rejected',
+          reviewedAt: Timestamp.now(),
+          reviewedBy: user?.email
+        })
+        alert('Application rejected')
+      }
+
       setSelectedApplication(null)
       loadApplications()
     } catch (error) {
       console.error('Error updating application:', error)
+      alert(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`)
     }
   }
 
