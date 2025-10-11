@@ -392,7 +392,7 @@ function ProfilePageContent() {
       case 'specialties':
         return (
           <div className="p-8 space-y-6">
-            <h3 className="text-xl font-heading mb-4" style={{ color: '#000000' }}>
+            <h3 className="text-xl mb-4" style={{ color: '#000000' }}>
               {role === 'creator' ? 'Sports Specialties' : 'Sports Interests'}
             </h3>
 
@@ -438,7 +438,7 @@ function ProfilePageContent() {
       case 'certifications':
         return (
           <div className="p-8 space-y-6">
-            <h3 className="text-xl font-heading mb-4" style={{ color: '#000000' }}>Certifications</h3>
+            <h3 className="text-xl mb-4" style={{ color: '#000000' }}>Certifications</h3>
 
             {profileData.certifications.map((cert, index) => (
               <div key={index} className="flex items-center gap-3">
@@ -481,7 +481,7 @@ function ProfilePageContent() {
       case 'achievements':
         return (
           <div className="p-8 space-y-6">
-            <h3 className="text-xl font-heading mb-4" style={{ color: '#000000' }}>Achievements & Awards</h3>
+            <h3 className="text-xl mb-4" style={{ color: '#000000' }}>Achievements & Awards</h3>
 
             {profileData.achievements.map((achievement, index) => (
               <div key={index} className="flex items-center gap-3">
@@ -524,7 +524,7 @@ function ProfilePageContent() {
       case 'social-links':
         return (
           <div className="p-8 space-y-4">
-            <h3 className="text-xl font-heading mb-4" style={{ color: '#000000' }}>Social Media Links</h3>
+            <h3 className="text-xl mb-4" style={{ color: '#000000' }}>Social Media Links</h3>
 
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-gradient-to-r from-pink-500 to-orange-500 rounded-lg flex items-center justify-center">
@@ -615,7 +615,7 @@ function ProfilePageContent() {
       case 'philosophy':
         return (
           <div className="p-8 space-y-6">
-            <h3 className="text-xl font-heading mb-4" style={{ color: '#000000' }}>Coaching Philosophy</h3>
+            <h3 className="text-xl mb-4" style={{ color: '#000000' }}>Coaching Philosophy</h3>
 
             <div>
               <label className="block text-sm mb-2" style={{ color: '#000000', opacity: 0.7 }}>Philosophy Title</label>
@@ -671,7 +671,7 @@ function ProfilePageContent() {
       case 'coaching-details':
         return (
           <div className="p-8 space-y-6">
-            <h3 className="text-xl font-heading mb-4" style={{ color: '#000000' }}>Coaching Details</h3>
+            <h3 className="text-xl mb-4" style={{ color: '#000000' }}>Coaching Details</h3>
 
             <div>
               <label className="block text-sm mb-2" style={{ color: '#000000', opacity: 0.7 }}>Availability</label>
@@ -702,7 +702,7 @@ function ProfilePageContent() {
       case 'voice-capture':
         return (
           <div className="p-8">
-            <h3 className="text-xl font-heading mb-4" style={{ color: '#000000' }}>AI Voice Capture</h3>
+            <h3 className="text-xl mb-4" style={{ color: '#000000' }}>AI Voice Capture</h3>
             <p className="mb-6" style={{ color: '#000000', opacity: 0.7 }}>
               Enhance your AI coaching with personalized voice capture. Help our AI understand your unique coaching style.
             </p>
@@ -767,7 +767,7 @@ function ProfilePageContent() {
           <div className="mb-6">
             <div className="flex items-center gap-3 mb-2">
               <User className="w-8 h-8" style={{ color: '#91A6EB' }} />
-              <h1 className="text-3xl font-heading" style={{ color: '#000000' }}>My Profile</h1>
+              <h1 className="text-3xl" style={{ color: '#000000' }}>My Profile</h1>
             </div>
             <p style={{ color: '#000000', opacity: 0.7 }}>
               Manage your profile information and settings
@@ -781,7 +781,7 @@ function ProfilePageContent() {
               <ArrowLeft className="w-5 h-5" style={{ color: '#000000' }} />
             </Link>
             <div>
-              <h1 className="text-4xl font-heading" style={{ color: '#000000' }}>
+              <h1 className="text-4xl" style={{ color: '#000000' }}>
                 {role === 'creator' ? 'Coach Profile' : 'Athlete Profile'}
               </h1>
               <p style={{ color: '#000000', opacity: 0.6 }}>Manage your profile information and settings</p>
@@ -793,7 +793,7 @@ function ProfilePageContent() {
         {activeSection && (
           <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-2xl border border-white/50 relative overflow-hidden mb-6">
             <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: 'rgba(0, 0, 0, 0.1)' }}>
-              <h2 className="text-xl font-heading" style={{ color: '#000000' }}>
+              <h2 className="text-xl" style={{ color: '#000000' }}>
                 {profileCards.find(c => c.id === activeSection)?.title}
               </h2>
               <div className="flex items-center gap-2">
@@ -850,7 +850,7 @@ function ProfilePageContent() {
                       <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                     </div>
 
-                    <h3 className="text-xs sm:text-sm font-heading mb-1 line-clamp-2" style={{ color: '#000000' }}>
+                    <h3 className="text-xs sm:text-sm mb-1 line-clamp-2" style={{ color: '#000000' }}>
                       {card.title}
                     </h3>
 
@@ -870,7 +870,7 @@ function ProfilePageContent() {
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-auto">
             <div className="sticky top-0 bg-white/95 backdrop-blur-sm border-b p-4 flex items-center justify-between">
-              <h2 className="text-xl font-heading" style={{ color: '#000000' }}>AI Voice Capture</h2>
+              <h2 className="text-xl" style={{ color: '#000000' }}>AI Voice Capture</h2>
               <button
                 onClick={() => {
                   setShowVoiceCapture(false)

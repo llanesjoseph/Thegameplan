@@ -362,14 +362,14 @@ export default function AthleteDashboard() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                 </div>
-                <h2 className="text-2xl font-heading mb-3" style={{ color: '#000000' }}>
+                <h2 className="text-2xl mb-3" style={{ color: '#000000' }}>
                   Permission Issue
                 </h2>
                 <p className="mb-4" style={{ color: '#000000', opacity: 0.7 }}>
                   We're having trouble loading your profile data. This usually happens when your account is still being set up.
                 </p>
                 <div className="bg-sky-blue/10 rounded-lg p-4 mb-6 text-left">
-                  <p className="text-sm font-semibold mb-2" style={{ color: '#000000' }}>What you can try:</p>
+                  <p className="text-sm mb-2" style={{ color: '#000000' }}>What you can try:</p>
                   <ul className="text-sm space-y-1" style={{ color: '#000000', opacity: 0.7 }}>
                     <li>• Sign out and sign back in</li>
                     <li>• Contact your coach or administrator</li>
@@ -378,7 +378,7 @@ export default function AthleteDashboard() {
                 </div>
                 <button
                   onClick={() => window.location.href = '/dashboard'}
-                  className="px-6 py-3 rounded-lg text-white font-semibold transition-colors"
+                  className="px-6 py-3 rounded-lg text-white transition-colors"
                   style={{ backgroundColor: '#91A6EB' }}
                 >
                   Return to Dashboard
@@ -391,7 +391,7 @@ export default function AthleteDashboard() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                 </div>
-                <h2 className="text-2xl font-heading mb-3" style={{ color: '#000000' }}>
+                <h2 className="text-2xl mb-3" style={{ color: '#000000' }}>
                   Profile Not Found
                 </h2>
                 <p className="mb-6" style={{ color: '#000000', opacity: 0.7 }}>
@@ -399,7 +399,7 @@ export default function AthleteDashboard() {
                 </p>
                 <button
                   onClick={() => window.location.href = '/dashboard'}
-                  className="px-6 py-3 rounded-lg text-white font-semibold transition-colors"
+                  className="px-6 py-3 rounded-lg text-white transition-colors"
                   style={{ backgroundColor: '#91A6EB' }}
                 >
                   Go to Onboarding
@@ -412,7 +412,7 @@ export default function AthleteDashboard() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <h2 className="text-2xl font-heading mb-3" style={{ color: '#000000' }}>
+                <h2 className="text-2xl mb-3" style={{ color: '#000000' }}>
                   Something Went Wrong
                 </h2>
                 <p className="mb-6" style={{ color: '#000000', opacity: 0.7 }}>
@@ -420,7 +420,7 @@ export default function AthleteDashboard() {
                 </p>
                 <button
                   onClick={() => window.location.reload()}
-                  className="px-6 py-3 rounded-lg text-white font-semibold transition-colors"
+                  className="px-6 py-3 rounded-lg text-white transition-colors"
                   style={{ backgroundColor: '#91A6EB' }}
                 >
                   Refresh Page
@@ -554,7 +554,7 @@ export default function AthleteDashboard() {
 
           {/* Athlete Tools Grid */}
           <div>
-            <h2 className="text-xl sm:text-2xl font-heading mb-4 sm:mb-6 uppercase tracking-wide" style={{ color: '#000000' }}>
+            <h2 className="text-xl sm:text-2xl mb-4 sm:mb-6 uppercase tracking-wide" style={{ color: '#000000' }}>
               Training Tools
             </h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
@@ -595,7 +595,7 @@ export default function AthleteDashboard() {
                                 onLoad={() => console.log('✅ Coach photo loaded successfully:', coachPhotoURL)}
                               />
                             ) : (
-                              <div className="w-full h-full flex items-center justify-center text-white text-3xl sm:text-4xl font-heading">
+                              <div className="w-full h-full flex items-center justify-center text-white text-3xl sm:text-4xl">
                                 {coachName.charAt(0).toUpperCase()}
                               </div>
                             )}
@@ -612,7 +612,7 @@ export default function AthleteDashboard() {
                         {/* Title and Description */}
                         <div className={isCoachCard ? 'flex-1' : 'flex flex-col flex-grow'}>
                           {/* Title */}
-                          <h3 className={`${isCoachCard ? 'text-base sm:text-lg' : 'text-xs sm:text-sm'} font-heading mb-1 line-clamp-2`} style={{ color: '#000000' }}>
+                          <h3 className={`${isCoachCard ? 'text-base sm:text-lg' : 'text-xs sm:text-sm'} mb-1 line-clamp-2`} style={{ color: '#000000' }}>
                             {card.title}
                           </h3>
 
@@ -634,7 +634,7 @@ export default function AthleteDashboard() {
             <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 overflow-hidden">
               {/* Compact Header with Gradient */}
               <div className="bg-gradient-to-r from-sky-blue/20 to-teal/20 px-6 sm:px-8 py-4 sm:py-5 border-b border-white/50">
-                <h2 className="text-xl sm:text-2xl font-heading" style={{ color: '#000000' }}>
+                <h2 className="text-xl sm:text-2xl" style={{ color: '#000000' }}>
                   Welcome back, {user?.displayName?.split(' ')[0] || 'Athlete'}!
                 </h2>
               </div>
@@ -660,15 +660,15 @@ export default function AthleteDashboard() {
                 {/* Quick Stats - Persistent and Prominent */}
                 <div className="grid grid-cols-3 gap-3 sm:gap-4">
                   <div className="text-center p-4 sm:p-5 bg-gradient-to-br from-sky-blue/10 to-sky-blue/5 rounded-lg border border-sky-blue/20">
-                    <div className="text-3xl sm:text-4xl font-heading mb-1" style={{ color: '#91A6EB' }}>{lessonCount}</div>
+                    <div className="text-3xl sm:text-4xl mb-1" style={{ color: '#91A6EB' }}>{lessonCount}</div>
                     <p className="text-xs sm:text-sm font-medium" style={{ color: '#000000', opacity: 0.7 }}>Lessons</p>
                   </div>
                   <div className="text-center p-4 sm:p-5 bg-gradient-to-br from-teal/10 to-teal/5 rounded-lg border border-teal/20">
-                    <div className="text-3xl sm:text-4xl font-heading mb-1" style={{ color: '#20B2AA' }}>{videoCount}</div>
+                    <div className="text-3xl sm:text-4xl mb-1" style={{ color: '#20B2AA' }}>{videoCount}</div>
                     <p className="text-xs sm:text-sm font-medium" style={{ color: '#000000', opacity: 0.7 }}>Videos</p>
                   </div>
                   <div className="text-center p-4 sm:p-5 bg-gradient-to-br from-orange/10 to-orange/5 rounded-lg border border-orange/20">
-                    <div className="text-3xl sm:text-4xl font-heading mb-1" style={{ color: '#FF6B35' }}>0</div>
+                    <div className="text-3xl sm:text-4xl mb-1" style={{ color: '#FF6B35' }}>0</div>
                     <p className="text-xs sm:text-sm font-medium" style={{ color: '#000000', opacity: 0.7 }}>Hours</p>
                   </div>
                 </div>

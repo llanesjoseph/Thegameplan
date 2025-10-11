@@ -157,7 +157,7 @@ export default function AthleteLessonsPage() {
             <div className="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ backgroundColor: '#FF6B35' }}>
               <BookOpen className="w-10 h-10 text-white" />
             </div>
-            <h2 className="text-2xl font-heading mb-3" style={{ color: '#000000' }}>
+            <h2 className="text-2xl mb-3" style={{ color: '#000000' }}>
               Error Loading Lessons
             </h2>
             <p className="mb-6" style={{ color: '#000000', opacity: 0.7 }}>
@@ -165,7 +165,7 @@ export default function AthleteLessonsPage() {
             </p>
             <button
               onClick={() => router.push('/dashboard/progress')}
-              className="px-6 py-3 rounded-lg text-white font-semibold transition-colors"
+              className="px-6 py-3 rounded-lg text-white transition-colors"
               style={{ backgroundColor: '#91A6EB' }}
             >
               Back to Dashboard
@@ -186,7 +186,7 @@ export default function AthleteLessonsPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-heading mb-2" style={{ color: '#000000' }}>
+              <h1 className="text-3xl mb-2" style={{ color: '#000000' }}>
                 My Lessons
               </h1>
               {feed?.coach && (
@@ -198,7 +198,7 @@ export default function AthleteLessonsPage() {
             </div>
             <button
               onClick={() => router.push('/dashboard/progress')}
-              className="px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
+              className="px-4 py-2 rounded-lg text-sm transition-colors"
               style={{ backgroundColor: '#91A6EB', color: 'white' }}
             >
               Back to Dashboard
@@ -208,10 +208,10 @@ export default function AthleteLessonsPage() {
           {/* Progress Bar */}
           <div className="mt-6">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-semibold" style={{ color: '#000000' }}>
+              <span className="text-sm" style={{ color: '#000000' }}>
                 Progress: {completedCount} / {totalCount} lessons
               </span>
-              <span className="text-sm font-semibold" style={{ color: '#20B2AA' }}>
+              <span className="text-sm" style={{ color: '#20B2AA' }}>
                 {totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0}%
               </span>
             </div>
@@ -233,7 +233,7 @@ export default function AthleteLessonsPage() {
         {lessons.length === 0 ? (
           <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-12 text-center">
             <BookOpen className="w-20 h-20 mx-auto mb-4" style={{ color: '#91A6EB', opacity: 0.5 }} />
-            <h2 className="text-2xl font-heading mb-2" style={{ color: '#000000' }}>
+            <h2 className="text-2xl mb-2" style={{ color: '#000000' }}>
               No Lessons Yet
             </h2>
             <p style={{ color: '#000000', opacity: 0.7 }}>
@@ -269,7 +269,7 @@ export default function AthleteLessonsPage() {
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-grow">
                           <h3
-                            className={`text-xl font-heading mb-2 ${lesson.isCompleted ? 'opacity-60 line-through' : ''}`}
+                            className={`text-xl mb-2 ${lesson.isCompleted ? 'opacity-60 line-through' : ''}`}
                             style={{ color: '#000000' }}
                           >
                             {lesson.title}
@@ -284,12 +284,12 @@ export default function AthleteLessonsPage() {
                           )}
                           <div className="flex flex-wrap gap-2">
                             {lesson.sport && (
-                              <span className="px-3 py-1 rounded-full text-xs font-semibold" style={{ backgroundColor: '#91A6EB', color: 'white' }}>
+                              <span className="px-3 py-1 rounded-full text-xs" style={{ backgroundColor: '#91A6EB', color: 'white' }}>
                                 {lesson.sport}
                               </span>
                             )}
                             {lesson.level && (
-                              <span className="px-3 py-1 rounded-full text-xs font-semibold" style={{ backgroundColor: '#8D9440', color: 'white' }}>
+                              <span className="px-3 py-1 rounded-full text-xs" style={{ backgroundColor: '#8D9440', color: 'white' }}>
                                 {lesson.level}
                               </span>
                             )}
@@ -305,7 +305,7 @@ export default function AthleteLessonsPage() {
                         {/* View Lesson Button */}
                         <Link
                           href={`/lessons/${lesson.id}`}
-                          className="flex-shrink-0 px-4 py-2 rounded-lg text-sm font-semibold transition-colors hover:shadow-lg"
+                          className="flex-shrink-0 px-4 py-2 rounded-lg text-sm transition-colors hover:shadow-lg"
                           style={{ backgroundColor: '#91A6EB', color: 'white' }}
                         >
                           View Lesson
