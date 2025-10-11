@@ -14,7 +14,8 @@ import {
   Bell,
   UserCog,
   GraduationCap,
-  X
+  X,
+  UserCheck
 } from 'lucide-react'
 
 // Responsive iframe component with dynamic height based on content
@@ -142,6 +143,14 @@ export default function CoachUnifiedDashboard() {
       inline: true
     },
     {
+      id: 'recruit-coach',
+      title: 'Recruit Fellow Coach',
+      description: 'Invite other coaches to join',
+      icon: UserCheck,
+      color: '#20B2AA',
+      inline: true
+    },
+    {
       id: 'profile',
       title: 'My Profile',
       description: 'Edit your coach profile',
@@ -176,6 +185,7 @@ export default function CoachUnifiedDashboard() {
       'resources': '/dashboard/coach/resources?embedded=true',
       'analytics': '/dashboard/coach/analytics?embedded=true',
       'invite': '/dashboard/coach/invite?embedded=true',
+      'recruit-coach': '/dashboard/coach/recruit?embedded=true',
       'profile': '/dashboard/profile?embedded=true',
       'announcements': '/dashboard/coach/announcements?embedded=true',
       'assistants': '/dashboard/coach/assistants?embedded=true'
