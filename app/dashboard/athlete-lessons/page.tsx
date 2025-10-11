@@ -181,55 +181,44 @@ export default function AthleteLessonsPage() {
 
   return (
     <div style={{ backgroundColor: '#E8E6D8' }} className="min-h-screen">
-      {/* Header */}
-      <div className="bg-white/90 backdrop-blur-sm shadow-lg border-b border-white/50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl mb-2" style={{ color: '#000000' }}>
-                My Lessons
-              </h1>
-              {feed?.coach && (
-                <p className="text-sm flex items-center gap-2" style={{ color: '#000000', opacity: 0.7 }}>
-                  <User className="w-4 h-4" />
-                  From {feed.coach.displayName}
-                </p>
-              )}
-            </div>
-            <button
-              onClick={() => router.push('/dashboard/progress')}
-              className="px-4 py-2 rounded-lg text-sm transition-colors"
-              style={{ backgroundColor: '#91A6EB', color: 'white' }}
-            >
-              Back to Dashboard
-            </button>
+      {/* Compact Progress Header */}
+      <div className="px-6 py-4">
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <h2 className="text-2xl mb-1" style={{ color: '#000000' }}>
+              My Lessons
+            </h2>
+            {feed?.coach && (
+              <p className="text-sm flex items-center gap-2" style={{ color: '#000000', opacity: 0.7 }}>
+                <User className="w-4 h-4" />
+                From {feed.coach.displayName}
+              </p>
+            )}
           </div>
+          <div className="text-right">
+            <div className="text-sm mb-1" style={{ color: '#000000', opacity: 0.7 }}>
+              {completedCount} / {totalCount} complete
+            </div>
+            <div className="text-2xl font-bold" style={{ color: '#20B2AA' }}>
+              {totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0}%
+            </div>
+          </div>
+        </div>
 
-          {/* Progress Bar */}
-          <div className="mt-6">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm" style={{ color: '#000000' }}>
-                Progress: {completedCount} / {totalCount} lessons
-              </span>
-              <span className="text-sm" style={{ color: '#20B2AA' }}>
-                {totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0}%
-              </span>
-            </div>
-            <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
-              <div
-                className="h-full transition-all duration-500"
-                style={{
-                  backgroundColor: '#20B2AA',
-                  width: `${totalCount > 0 ? (completedCount / totalCount) * 100 : 0}%`,
-                }}
-              />
-            </div>
-          </div>
+        {/* Compact Progress Bar */}
+        <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+          <div
+            className="h-full transition-all duration-500"
+            style={{
+              backgroundColor: '#20B2AA',
+              width: `${totalCount > 0 ? (completedCount / totalCount) * 100 : 0}%`,
+            }}
+          />
         </div>
       </div>
 
       {/* Lessons List */}
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="px-6 pb-8">
         {lessons.length === 0 ? (
           <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-12 text-center">
             <BookOpen className="w-20 h-20 mx-auto mb-4" style={{ color: '#91A6EB', opacity: 0.5 }} />
