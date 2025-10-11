@@ -131,6 +131,7 @@ export function canCreateContent(roleData: UserRoleData | null): boolean {
   if (!roleData) return false
 
   return roleData.role === 'creator' ||
+         roleData.role === 'coach' ||
          roleData.role === 'admin' ||
          roleData.role === 'superadmin' ||
          roleData.permissions?.canCreateContent === true
@@ -176,6 +177,7 @@ export function canManageCoachingRequests(roleData: UserRoleData | null): boolea
   if (!roleData) return false
 
   return roleData.role === 'creator' ||
+         roleData.role === 'coach' ||
          roleData.role === 'assistant' ||
          roleData.role === 'admin' ||
          roleData.role === 'superadmin' ||
@@ -197,6 +199,7 @@ export function hasPendingCreatorApplication(roleData: UserRoleData | null): boo
 function getDefaultPermissions(role: UserRole) {
   switch (role) {
     case 'creator':
+    case 'coach':
       return {
         canCreateContent: true,
         canManageContent: true,
@@ -269,8 +272,8 @@ export async function getCreatorApplicationStatus(userId: string): Promise<Creat
   try {
     // First check if user has an approved role
     const roleData = await getUserRole(userId)
-    
-    if (roleData && roleData.role === 'creator') {
+
+    if (roleData && (roleData.role === 'creator' || roleData.role === 'coach')) {
       return {
         applicationId: roleData.applicationId || '',
         status: 'approved',
