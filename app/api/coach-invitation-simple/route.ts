@@ -56,7 +56,8 @@ export async function POST(request: NextRequest) {
     })
 
     // Create invitation URL - both coaches and assistants use coach-onboard
-    const invitationUrl = `https://playbookd.crucibleanalytics.dev/coach-onboard/${invitationId}?sport=${encodeURIComponent(sport)}&email=${encodeURIComponent(coachEmail)}&name=${encodeURIComponent(coachName)}&role=${targetRole}`
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://playbookd.crucibleanalytics.dev'
+    const invitationUrl = `${baseUrl}/coach-onboard/${invitationId}?sport=${encodeURIComponent(sport)}&email=${encodeURIComponent(coachEmail)}&name=${encodeURIComponent(coachName)}&role=${targetRole}`
 
     // Send actual email using existing email service
     console.log(`✉️ Sending invitation email to ${coachEmail}...`)

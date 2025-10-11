@@ -24,7 +24,7 @@ export async function GET(
     }
 
     // Generate QR code URL
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://playbookd.crucibleanalytics.dev'
     const ingestionUrl = `${baseUrl}/coach-onboard/${ingestionId}`
 
     // Generate QR code
