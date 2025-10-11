@@ -91,8 +91,17 @@ export default function ContributorsPage() {
  const loadContributors = async (reset = false) => {
   setLoading(true)
   try {
-   let q = query(collection(db, 'coaches'))
-   if (filters.sport) q = query(q, where('sport', '==', filters.sport))
+   // Query creators_index instead of coaches (this is where profile saves write to)
+   let q = query(
+    collection(db, 'creators_index'),
+    where('isActive', '==', true) // Only show active coach profiles
+   )
+
+   // Apply filters
+   if (filters.sport) {
+    // Match sport in specialties array
+    q = query(q, where('specialties', 'array-contains', filters.sport))
+   }
    if (filters.experience) q = query(q, where('experience', '==', filters.experience))
    if (filters.verified) q = query(q, where('verified', '==', true))
    if (filters.featured) q = query(q, where('featured', '==', true))
@@ -103,7 +112,16 @@ export default function ContributorsPage() {
    q = query(q, limit(ITEMS_PER_PAGE))
 
    const snapshot = await getDocs(q)
-   const newItems = snapshot.docs.map(d => ({ id: d.id, name: d.data().displayName, ...(d.data() as any) })) as Contributor[]
+   const newItems = snapshot.docs.map(d => {
+    const data = d.data()
+    return {
+     id: d.id,
+     name: data.displayName,
+     sport: data.specialties?.[0] || '', // Use first specialty as primary sport
+     ...(data as any)
+    }
+   }) as Contributor[]
+
    if (reset) {
     setContributors(newItems)
    } else {
@@ -113,11 +131,12 @@ export default function ContributorsPage() {
    setHasMore(snapshot.docs.length === ITEMS_PER_PAGE)
 
    if (reset) {
-    const countSnap = await getDocs(collection(db, 'coaches'))
+    const countSnap = await getDocs(collection(db, 'creators_index'))
     setTotalCount(countSnap.size)
    }
   } catch (e) {
    // Graceful fallback (no DB): keep empty list; page still renders
+   console.warn('Error loading contributors:', e)
    if (reset) {
     setContributors([])
     setTotalCount(0)
