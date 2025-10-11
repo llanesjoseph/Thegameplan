@@ -16,6 +16,14 @@ export const KNOWN_COACHES: Record<string, {
     sport: 'Multi-Sport',
     credentials: ['Professional Coach'],
     shouldBeRole: 'coach'
+  },
+  // Support both email variations
+  'llanes.joseph.w@gmail.com': {
+    email: 'llanes.joseph.w@gmail.com',
+    name: 'Joseph Llanes',
+    sport: 'Multi-Sport',
+    credentials: ['Professional Coach'],
+    shouldBeRole: 'coach'
   }
 }
 
