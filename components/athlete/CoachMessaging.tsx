@@ -142,7 +142,7 @@ export default function CoachMessaging({ coachId, coachName, coachAvatar }: Coac
       >
         <MessageSquare className="w-7 h-7 text-white group-hover:scale-110 transition-transform" />
         {unreadCount > 0 && (
-          <span className="absolute -top-2 -right-2 w-6 h-6 bg-orange rounded-full flex items-center justify-center text-white text-xs font-bold">
+          <span className="absolute -top-2 -right-2 w-6 h-6 bg-orange rounded-full flex items-center justify-center text-white text-xs">
             {unreadCount}
           </span>
         )}

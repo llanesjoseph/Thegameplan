@@ -160,7 +160,7 @@ export default function BugReportButton() {
                     <Bug className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <h2 className="text-xl text-dark font-heading">Report a Bug</h2>
+                    <h2 className="text-xl text-dark">Report a Bug</h2>
                     <p className="text-sm text-dark/60">Help us improve the app</p>
                   </div>
                 </div>

@@ -15,7 +15,7 @@ export default function MessagingComingSoon() {
       >
         <MessageCircle className="w-7 h-7 text-white group-hover:scale-110 transition-transform" />
         <span className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center">
-          <span className="text-xs font-bold text-gray-900">!</span>
+          <span className="text-xs text-gray-900">!</span>
         </span>
       </button>
     )
@@ -48,7 +48,7 @@ export default function MessagingComingSoon() {
           <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-white flex items-center justify-center">
             <Lock className="w-10 h-10" style={{ color: '#91A6EB' }} />
           </div>
-          <h3 className="text-xl font-heading text-gray-900 mb-2">Coming Soon!</h3>
+          <h3 className="text-xl text-gray-900 mb-2">Coming Soon!</h3>
           <p className="text-sm text-gray-600">
             Direct messaging with your coach is currently in development
           </p>

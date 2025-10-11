@@ -129,7 +129,7 @@ export default function StreamlinedVoiceCapture({ onComplete, onProgress, existi
     return (
       <div className="max-w-2xl mx-auto p-6 space-y-6">
         <div className="text-center space-y-4">
-          <h2 className="text-2xl font-bold text-gray-900">Choose Your Voice Capture Experience</h2>
+          <h2 className="text-2xl text-gray-900">Choose Your Voice Capture Experience</h2>
           <p className="text-gray-600">
             Both options create high-quality AI coaching. Choose based on your time preference.
           </p>
@@ -246,7 +246,7 @@ export default function StreamlinedVoiceCapture({ onComplete, onProgress, existi
             {captureMode === 'quick' ? '⚡ Quick Capture' : '📚 Detailed Capture'}
           </Badge>
         </div>
-        <h1 className="text-2xl font-bold text-gray-900">{currentStepData.title}</h1>
+        <h1 className="text-2xl text-gray-900">{currentStepData.title}</h1>
         <p className="text-gray-600">{currentStepData.description}</p>
         <Progress value={progress} className="w-full max-w-md mx-auto" />
         <p className="text-sm text-gray-500">

@@ -132,7 +132,7 @@ export default function AdminInvitationManager() {
       <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-6 rounded-xl border border-purple-200">
         <div className="flex items-center gap-3 mb-2">
           <Shield className="w-6 h-6 text-purple-600" />
-          <h2 className="text-2xl font-bold text-gray-900">Admin Invitations</h2>
+          <h2 className="text-2xl text-gray-900">Admin Invitations</h2>
         </div>
         <p className="text-gray-700">
           Invite trusted individuals to help manage and operate the PLAYBOOKD platform

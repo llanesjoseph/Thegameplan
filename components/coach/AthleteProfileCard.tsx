@@ -90,11 +90,11 @@ export default function AthleteProfileCard({
       <CardHeader className="pb-4">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-lg">
               {athlete.firstName[0]}{athlete.lastName[0]}
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">{athlete.displayName}</h3>
+              <h3 className="text-lg text-gray-900">{athlete.displayName}</h3>
               <div className="flex items-center gap-4 text-sm text-gray-600 mt-1">
                 <div className="flex items-center gap-1">
                   <Activity className="w-3 h-3" />

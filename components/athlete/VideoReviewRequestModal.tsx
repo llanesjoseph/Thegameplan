@@ -150,7 +150,7 @@ export default function VideoReviewRequestModal({
               <Video className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h3 className="text-2xl font-heading" style={{ color: '#000000' }}>
+              <h3 className="text-2xl" style={{ color: '#000000' }}>
                 Request Video Review
               </h3>
               <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>
@@ -178,7 +178,7 @@ export default function VideoReviewRequestModal({
 
           {/* Upload Method Tabs */}
           <div>
-            <label className="text-sm font-semibold mb-3 block" style={{ color: '#000000' }}>
+            <label className="text-sm mb-3 block" style={{ color: '#000000' }}>
               How would you like to share your video? *
             </label>
             <div className="grid grid-cols-2 gap-3">
@@ -197,7 +197,7 @@ export default function VideoReviewRequestModal({
                 }`}
               >
                 <LinkIcon className="w-6 h-6 mx-auto mb-2" />
-                <div className="text-sm font-semibold">Share Link</div>
+                <div className="text-sm">Share Link</div>
                 <div className="text-xs opacity-75 mt-1">YouTube, Vimeo, etc.</div>
               </button>
               <button
@@ -215,7 +215,7 @@ export default function VideoReviewRequestModal({
                 }`}
               >
                 <Film className="w-6 h-6 mx-auto mb-2" />
-                <div className="text-sm font-semibold">Upload File</div>
+                <div className="text-sm">Upload File</div>
                 <div className="text-xs opacity-75 mt-1">MP4, MOV, AVI, WebM</div>
               </button>
             </div>
@@ -224,7 +224,7 @@ export default function VideoReviewRequestModal({
           {/* Video URL Input (if URL method selected) */}
           {uploadMethod === 'url' && (
             <div>
-              <label className="flex items-center gap-2 text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+              <label className="flex items-center gap-2 text-sm mb-2" style={{ color: '#000000' }}>
                 <LinkIcon className="w-4 h-4" />
                 Video URL *
               </label>
@@ -247,7 +247,7 @@ export default function VideoReviewRequestModal({
           {/* File Upload Input (if file method selected) */}
           {uploadMethod === 'file' && (
             <div>
-              <label className="flex items-center gap-2 text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+              <label className="flex items-center gap-2 text-sm mb-2" style={{ color: '#000000' }}>
                 <Upload className="w-4 h-4" />
                 Upload Video File *
               </label>
@@ -303,7 +303,7 @@ export default function VideoReviewRequestModal({
 
           {/* Title */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+            <label className="flex items-center gap-2 text-sm mb-2" style={{ color: '#000000' }}>
               <FileText className="w-4 h-4" />
               Title *
             </label>
@@ -321,7 +321,7 @@ export default function VideoReviewRequestModal({
 
           {/* Description */}
           <div>
-            <label className="text-sm font-semibold mb-2 block" style={{ color: '#000000' }}>
+            <label className="text-sm mb-2 block" style={{ color: '#000000' }}>
               Description *
             </label>
             <textarea
@@ -338,7 +338,7 @@ export default function VideoReviewRequestModal({
 
           {/* Specific Questions */}
           <div>
-            <label className="text-sm font-semibold mb-2 block" style={{ color: '#000000' }}>
+            <label className="text-sm mb-2 block" style={{ color: '#000000' }}>
               Specific Questions (Optional)
             </label>
             <textarea
@@ -358,7 +358,7 @@ export default function VideoReviewRequestModal({
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="flex-1 py-3 px-6 rounded-lg font-semibold transition-colors"
+              className="flex-1 py-3 px-6 rounded-lg transition-colors"
               style={{ backgroundColor: '#E8E6D8', color: '#000000' }}
             >
               Cancel
@@ -366,7 +366,7 @@ export default function VideoReviewRequestModal({
             <button
               type="submit"
               disabled={!isValid || isSubmitting || isUploading}
-              className="flex-1 py-3 px-6 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+              className="flex-1 py-3 px-6 rounded-lg flex items-center justify-center gap-2 transition-all disabled:opacity-50"
               style={{
                 backgroundColor: isValid && !isSubmitting && !isUploading ? '#16A34A' : '#9CA3AF',
                 color: '#FFFFFF'

@@ -69,7 +69,7 @@ export default function EmergencyFixPage() {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">Emergency Superadmin Fix</h1>
+        <h1 className="text-3xl text-gray-900 mb-4">Emergency Superadmin Fix</h1>
 
         {!user ? (
           <p className="text-gray-600">Please sign in to fix your role.</p>
@@ -78,7 +78,7 @@ export default function EmergencyFixPage() {
             {currentRole && (
               <div className="mb-4 p-3 bg-gray-100 rounded-lg">
                 <p className="text-sm text-gray-600">Current Role:</p>
-                <p className="text-lg font-semibold text-gray-900">{currentRole}</p>
+                <p className="text-lg text-gray-900">{currentRole}</p>
                 <p className="text-xs text-gray-500 mt-1">{user.email}</p>
               </div>
             )}

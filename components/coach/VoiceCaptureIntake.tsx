@@ -275,7 +275,7 @@ export default function VoiceCaptureIntake({ onComplete, onProgress, prePopulate
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       {/* Progress Header */}
       <div className="text-center space-y-4">
-        <h1 className="text-3xl font-bold text-gray-900">Voice Capture Intake</h1>
+        <h1 className="text-3xl text-gray-900">Voice Capture Intake</h1>
         <p className="text-lg text-gray-600">
           The more detail you provide, the more authentic your AI coaching voice becomes
         </p>

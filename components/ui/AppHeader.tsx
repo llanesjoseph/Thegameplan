@@ -263,7 +263,7 @@ export default function AppHeader({ className = '', title, subtitle }: AppHeader
 
           {title && (
             <div className="border-l border-gray-300 pl-6">
-              <h1 className="text-xl font-semibold text-gray-900">{title}</h1>
+              <h1 className="text-xl text-gray-900">{title}</h1>
               {subtitle && (
                 <p className="text-sm text-gray-500">{subtitle}</p>
               )}

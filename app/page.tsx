@@ -27,7 +27,7 @@ export default function LandingPage() {
       <div className="flex items-center">
        <div className="flex-shrink-0">
         <h1
-         className="text-2xl tracking-wider font-heading uppercase"
+         className="text-2xl tracking-wider uppercase"
          style={{
           color: '#624A41' // Dark color from palette
          }}

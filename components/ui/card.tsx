@@ -35,7 +35,7 @@ const CardTitle = React.forwardRef<
  <h3
   ref={ref}
   className={cn(
-   "text-lg font-semibold text-gray-900",
+   "text-lg text-gray-900",
    className
   )}
   {...props}
@@ -93,7 +93,7 @@ const CardStats = React.forwardRef<HTMLDivElement, CardStatsProps>(
     </div>
     <div className="ml-4">
      <p className="text-sm text-gray-600">{label}</p>
-     <p className="text-2xl font-bold text-gray-900">{value}</p>
+     <p className="text-2xl text-gray-900">{value}</p>
     </div>
    </div>
   </Card>
@@ -120,7 +120,7 @@ function NotificationBadge({ count, color = 'blue' }: NotificationBadgeProps) {
 
  return (
   <span className={cn(
-   'inline-flex items-center justify-center min-w-[1.5rem] h-6 px-2 text-xs font-bold text-white rounded-full',
+   'inline-flex items-center justify-center min-w-[1.5rem] h-6 px-2 text-xs text-white rounded-full',
    colorClasses[color]
   )}>
    {count}

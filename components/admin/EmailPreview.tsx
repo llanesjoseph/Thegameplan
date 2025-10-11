@@ -25,7 +25,7 @@ export default function EmailPreview({ type, data, inviterName = 'Admin' }: Emai
       <div className="border-2 border-gray-200 rounded-lg overflow-hidden bg-white shadow-lg">
         {/* Preview Label */}
         <div className="bg-gray-100 px-4 py-2 border-b border-gray-200">
-          <p className="text-sm font-semibold" style={{ color: '#000000' }}>Email Preview</p>
+          <p className="text-sm" style={{ color: '#000000' }}>Email Preview</p>
           <p className="text-xs" style={{ color: '#000000', opacity: 0.6 }}>
             This is what {data.name || 'the coach'} will see
           </p>
@@ -96,7 +96,7 @@ export default function EmailPreview({ type, data, inviterName = 'Admin' }: Emai
     <div className="border-2 border-gray-200 rounded-lg overflow-hidden bg-white shadow-lg">
       {/* Preview Label */}
       <div className="bg-gray-100 px-4 py-2 border-b border-gray-200">
-        <p className="text-sm font-semibold" style={{ color: '#000000' }}>Email Preview</p>
+        <p className="text-sm" style={{ color: '#000000' }}>Email Preview</p>
         <p className="text-xs" style={{ color: '#000000', opacity: 0.6 }}>
           This is what {data.name || 'the athlete'} will see
         </p>

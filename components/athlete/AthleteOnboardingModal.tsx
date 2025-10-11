@@ -98,7 +98,7 @@ export default function AthleteOnboardingModal({ userId, userEmail, onComplete }
             style={{ backgroundColor: '#91A6EB' }}>
             <Trophy className="w-8 h-8 text-white" />
           </div>
-          <h2 className="text-3xl font-heading mb-2" style={{ color: '#000000' }}>
+          <h2 className="text-3xl mb-2" style={{ color: '#000000' }}>
             Welcome to PLAYBOOKD!
           </h2>
           <p className="text-lg" style={{ color: '#000000', opacity: 0.7 }}>
@@ -120,7 +120,7 @@ export default function AthleteOnboardingModal({ userId, userEmail, onComplete }
 
           {/* First Name */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+            <label className="flex items-center gap-2 text-sm mb-2" style={{ color: '#000000' }}>
               <UserCircle className="w-4 h-4" />
               First Name *
             </label>
@@ -141,7 +141,7 @@ export default function AthleteOnboardingModal({ userId, userEmail, onComplete }
 
           {/* Primary Sport */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+            <label className="flex items-center gap-2 text-sm mb-2" style={{ color: '#000000' }}>
               <Trophy className="w-4 h-4" />
               Primary Sport *
             </label>
@@ -162,7 +162,7 @@ export default function AthleteOnboardingModal({ userId, userEmail, onComplete }
 
           {/* Years of Experience */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+            <label className="flex items-center gap-2 text-sm mb-2" style={{ color: '#000000' }}>
               <Calendar className="w-4 h-4" />
               Years of Experience *
             </label>
@@ -188,7 +188,7 @@ export default function AthleteOnboardingModal({ userId, userEmail, onComplete }
 
           {/* Typical Training Day */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+            <label className="flex items-center gap-2 text-sm mb-2" style={{ color: '#000000' }}>
               <FileText className="w-4 h-4" />
               Typical Training & Engagement Day *
             </label>
@@ -212,7 +212,7 @@ export default function AthleteOnboardingModal({ userId, userEmail, onComplete }
             <button
               type="submit"
               disabled={!isValid || isSubmitting}
-              className="w-full py-4 px-6 rounded-xl font-bold text-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-4 px-6 rounded-xl text-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               style={{
                 backgroundColor: isValid && !isSubmitting ? '#16A34A' : '#9CA3AF',
                 color: '#FFFFFF'

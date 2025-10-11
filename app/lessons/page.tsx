@@ -152,7 +152,7 @@ function LessonsContent() {
       <div className="w-16 h-16 bg-cardinal/10 rounded-full flex items-center justify-center mx-auto mb-4">
        <div className="text-cardinal text-2xl">!</div>
       </div>
-      <h1 className="text-dark text-2xl font-heading mb-2">Unable to Load Training</h1>
+      <h1 className="text-dark text-2xl mb-2">Unable to Load Training</h1>
       <p className="text-dark/60 mb-6">{error}</p>
       <div className="space-x-4">
        <button
@@ -200,7 +200,7 @@ function LessonsContent() {
        Back to All Training
       </Link>
      )}
-     <h1 className="text-4xl text-dark font-heading mb-2">
+     <h1 className="text-4xl text-dark mb-2">
       {coachFilter ? `${coachName}'s Training` : lessons.length === 0 ? 'Training Platform' : 'Browse Training'}
      </h1>
      <p className="text-dark/60">
@@ -339,7 +339,7 @@ function LessonsContent() {
         className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
         style={{color: '#8D9440'}}
        >
-        <span className="text-lg font-semibold">Become a Coach</span>
+        <span className="text-lg">Become a Coach</span>
         <ArrowRight className="w-5 h-5" />
        </Link>
       </div>

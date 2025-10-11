@@ -220,7 +220,7 @@ export default function ContributorsPage() {
    <main className="pb-20">
    {/* Hero Section */}
    <div className="text-center py-12 px-6">
-    <h1 className="text-4xl mb-4 font-heading" style={{ color: '#000000' }}>
+    <h1 className="text-4xl mb-4" style={{ color: '#000000' }}>
      Browse Our Elite Coaches
     </h1>
     <p className="text-lg max-w-3xl mx-auto" style={{ color: '#000000' }}>

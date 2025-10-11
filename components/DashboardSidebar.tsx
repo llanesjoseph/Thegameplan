@@ -149,7 +149,7 @@ export function DashboardSidebar() {
     <div className="p-4 border-b border-gray-100">
      <div className="flex items-center gap-3 mb-3">
       <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-to-br from-black to-sky-blue">
-       <span className="text-white text-sm font-heading tracking-wide">PBd</span>
+       <span className="text-white text-sm tracking-wide">PBd</span>
       </div>
       <div>
        <h2 className=" text-sm" style={{color: '#000000'}}>

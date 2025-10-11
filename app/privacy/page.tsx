@@ -148,7 +148,7 @@ export default function PrivacyPolicy() {
       </section>
 
       <section className="mb-8">
-       <h2 className="text-2xl font-semibold text-gray-900 mb-4">10. International Data Transfers</h2>
+       <h2 className="text-2xl text-gray-900 mb-4">10. International Data Transfers</h2>
        <p className="text-gray-700 mb-4">
         Your data may be processed in countries other than your own. We ensure adequate
         protection through standard contractual clauses and other legal mechanisms.

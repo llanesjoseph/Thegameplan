@@ -201,7 +201,7 @@ export default function CoachIngestionManager() {
   return (
     <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
       <div className="mb-6">
-        <h2 className="text-2xl font-heading mb-2" style={{ color: '#000000' }}>Coach Ingestion Links</h2>
+        <h2 className="text-2xl mb-2" style={{ color: '#000000' }}>Coach Ingestion Links</h2>
         <p style={{ color: '#000000', opacity: 0.7 }}>Create and manage invitation links for coach onboarding</p>
       </div>
 
@@ -210,7 +210,7 @@ export default function CoachIngestionManager() {
           <nav className="flex space-x-6" aria-label="Tabs">
             <button
               onClick={() => setActiveTab('quick')}
-              className={`py-3 px-1 border-b-2 text-sm font-semibold transition-colors ${
+              className={`py-3 px-1 border-b-2 text-sm transition-colors ${
                 activeTab === 'quick'
                   ? 'border-black text-black'
                   : 'border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-400'
@@ -220,7 +220,7 @@ export default function CoachIngestionManager() {
             </button>
             <button
               onClick={() => setActiveTab('create')}
-              className={`py-3 px-1 border-b-2 text-sm font-semibold transition-colors ${
+              className={`py-3 px-1 border-b-2 text-sm transition-colors ${
                 activeTab === 'create'
                   ? 'border-black text-black'
                   : 'border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-400'
@@ -230,7 +230,7 @@ export default function CoachIngestionManager() {
             </button>
             <button
               onClick={() => setActiveTab('results')}
-              className={`py-3 px-1 border-b-2 text-sm font-semibold transition-colors ${
+              className={`py-3 px-1 border-b-2 text-sm transition-colors ${
                 activeTab === 'results'
                   ? 'border-black text-black'
                   : 'border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-400'
@@ -240,7 +240,7 @@ export default function CoachIngestionManager() {
             </button>
             <button
               onClick={() => setActiveTab('manage')}
-              className={`py-3 px-1 border-b-2 text-sm font-semibold transition-colors ${
+              className={`py-3 px-1 border-b-2 text-sm transition-colors ${
                 activeTab === 'manage'
                   ? 'border-black text-black'
                   : 'border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-400'
@@ -253,7 +253,7 @@ export default function CoachIngestionManager() {
 
         <TabsContent value="quick" className="space-y-6">
           <div>
-            <h3 className="text-xl font-heading mb-2" style={{ color: '#000000' }}>Quick Test Invitations</h3>
+            <h3 className="text-xl mb-2" style={{ color: '#000000' }}>Quick Test Invitations</h3>
             <p className="mb-6" style={{ color: '#000000', opacity: 0.7 }}>
               Send test invitations quickly for testing purposes
             </p>
@@ -339,7 +339,7 @@ export default function CoachIngestionManager() {
 
         <TabsContent value="create" className="space-y-6">
           <div>
-            <h3 className="text-xl font-heading mb-2" style={{ color: '#000000' }}>Create Coach Invitation Link</h3>
+            <h3 className="text-xl mb-2" style={{ color: '#000000' }}>Create Coach Invitation Link</h3>
             <p className="mb-6" style={{ color: '#000000', opacity: 0.7 }}>
               Generate a shareable link and QR code for coach onboarding
             </p>
@@ -474,7 +474,7 @@ export default function CoachIngestionManager() {
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <CheckCircle className="h-6 w-6" style={{ color: '#20B2AA' }} />
-                  <h3 className="text-xl font-heading" style={{ color: '#000000' }}>Invitation Link Generated!</h3>
+                  <h3 className="text-xl" style={{ color: '#000000' }}>Invitation Link Generated!</h3>
                 </div>
                 <p className="mb-6" style={{ color: '#000000', opacity: 0.7 }}>
                   Your coach invitation link and QR code are ready to share
@@ -538,7 +538,7 @@ export default function CoachIngestionManager() {
 
         <TabsContent value="manage" className="space-y-6">
           <div>
-            <h3 className="text-xl font-heading mb-2" style={{ color: '#000000' }}>Manage Invitation Links</h3>
+            <h3 className="text-xl mb-2" style={{ color: '#000000' }}>Manage Invitation Links</h3>
             <p className="mb-6" style={{ color: '#000000', opacity: 0.7 }}>
               View and manage all coach invitation links
             </p>

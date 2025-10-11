@@ -220,7 +220,7 @@ export default function CoachImageManager({ onProfileUpdate, className = '' }: C
     return (
       <div className={`text-center p-8 ${className}`}>
         <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">Coach Profile Not Found</h3>
+        <h3 className="text-lg text-gray-900 mb-2">Coach Profile Not Found</h3>
         <p className="text-gray-600">Only approved coaches can manage profile images.</p>
       </div>
     )
@@ -236,7 +236,7 @@ export default function CoachImageManager({ onProfileUpdate, className = '' }: C
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Manage Profile Images</h2>
+          <h2 className="text-2xl text-gray-900">Manage Profile Images</h2>
           <p className="text-gray-600 mt-1">
             Customize your coaching profile with professional photos and videos
           </p>
@@ -262,7 +262,7 @@ export default function CoachImageManager({ onProfileUpdate, className = '' }: C
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm font-medium text-blue-800">Profile Completeness</span>
-          <span className="text-sm font-bold text-blue-800">{profile.profileCompleteness}%</span>
+          <span className="text-sm text-blue-800">{profile.profileCompleteness}%</span>
         </div>
         <div className="w-full bg-blue-200 rounded-full h-2">
           <div
@@ -298,7 +298,7 @@ export default function CoachImageManager({ onProfileUpdate, className = '' }: C
 
       {/* Headshot Section */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-gray-900">Profile Headshot</h3>
+        <h3 className="text-lg text-gray-900">Profile Headshot</h3>
         <div className="flex items-start gap-6">
           <div className="relative">
             <div className="w-32 h-32 rounded-full overflow-hidden bg-gray-100 border-4 border-white shadow-lg">
@@ -338,7 +338,7 @@ export default function CoachImageManager({ onProfileUpdate, className = '' }: C
 
       {/* Hero Image Section */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-gray-900">Hero Banner Image</h3>
+        <h3 className="text-lg text-gray-900">Hero Banner Image</h3>
         <div className="space-y-4">
           <div className="relative w-full h-48 rounded-lg overflow-hidden bg-gray-100 border-2 border-dashed border-gray-300">
             {heroImageUrl ? (
@@ -375,7 +375,7 @@ export default function CoachImageManager({ onProfileUpdate, className = '' }: C
       {/* Action Photos Section */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-900">Action Photos</h3>
+          <h3 className="text-lg text-gray-900">Action Photos</h3>
           <div className="relative">
             <ImageUploader
               uploadPath={`coaches/${user?.uid}/action/action_${Date.now()}`}
@@ -430,7 +430,7 @@ export default function CoachImageManager({ onProfileUpdate, className = '' }: C
 
       {/* Highlight Video Section */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-gray-900">Highlight Video</h3>
+        <h3 className="text-lg text-gray-900">Highlight Video</h3>
         <div className="space-y-4">
           <div className="relative w-full h-64 rounded-lg overflow-hidden bg-gray-100 border-2 border-dashed border-gray-300">
             {highlightVideo ? (

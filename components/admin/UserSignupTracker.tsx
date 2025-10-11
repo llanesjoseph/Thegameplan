@@ -123,7 +123,7 @@ export default function UserSignupTracker() {
     <nav className="flex space-x-8 px-6" aria-label="Tabs">
      <button
       onClick={() => setActiveTab('signups')}
-      className={`py-4 px-1 border-b-2 text-sm font-semibold transition-colors ${
+      className={`py-4 px-1 border-b-2 text-sm transition-colors ${
        activeTab === 'signups'
         ? 'border-black text-black'
         : 'border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-400'
@@ -136,7 +136,7 @@ export default function UserSignupTracker() {
      </button>
      <button
       onClick={() => setActiveTab('notifications')}
-      className={`py-4 px-1 border-b-2 text-sm font-semibold transition-colors ${
+      className={`py-4 px-1 border-b-2 text-sm transition-colors ${
        activeTab === 'notifications'
         ? 'border-black text-black'
         : 'border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-400'
@@ -153,7 +153,7 @@ export default function UserSignupTracker() {
    <div className="p-6">
     {activeTab === 'signups' && (
      <div className="space-y-4">
-      <h3 className="text-xl font-heading" style={{ color: '#000000' }}>Recent User Signups</h3>
+      <h3 className="text-xl" style={{ color: '#000000' }}>Recent User Signups</h3>
 
       {signups.length === 0 ? (
        <p style={{ color: '#000000', opacity: 0.6 }}>No signups yet.</p>
@@ -178,7 +178,7 @@ export default function UserSignupTracker() {
               {signup.displayName || 'Anonymous'}
              </h4>
              {signup.isSuperadmin && (
-              <span className="px-3 py-1 text-xs font-semibold bg-black text-white rounded-full">
+              <span className="px-3 py-1 text-xs bg-black text-white rounded-full">
                Superadmin
               </span>
              )}
@@ -193,7 +193,7 @@ export default function UserSignupTracker() {
             {formatTimestamp(signup.timestamp)}
            </div>
            <div
-            className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold"
+            className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs"
             style={{
              backgroundColor: signup.signUpMethod === 'google' ? '#91A6EB' : '#20B2AA',
              color: '#ffffff'
@@ -211,7 +211,7 @@ export default function UserSignupTracker() {
 
     {activeTab === 'notifications' && (
      <div className="space-y-4">
-      <h3 className="text-xl font-heading" style={{ color: '#000000' }}>Admin Notifications</h3>
+      <h3 className="text-xl" style={{ color: '#000000' }}>Admin Notifications</h3>
 
       {notifications.length === 0 ? (
        <p style={{ color: '#000000', opacity: 0.6 }}>No notifications.</p>

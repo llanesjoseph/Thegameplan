@@ -227,7 +227,7 @@ export default function AssistantCoachManager({
     <div className="w-8 h-8 bg-gradient-to-r from-sky-blue to-black rounded-lg flex items-center justify-center">
      <Users className="w-4 h-4 text-white" />
     </div>
-    <h3 className="text-xl text-dark font-heading">Assistant Coaches</h3>
+    <h3 className="text-xl text-dark">Assistant Coaches</h3>
    </div>
 
    {/* Current Assistants */}
