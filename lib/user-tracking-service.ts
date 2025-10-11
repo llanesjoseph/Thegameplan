@@ -7,7 +7,7 @@ export interface NewUserData {
   email: string
   displayName?: string
   photoURL?: string
-  signUpMethod: 'google' | 'email'
+  signUpMethod: 'google' | 'email' | 'apple'
   timestamp: any
   isNewUser: boolean
 }
