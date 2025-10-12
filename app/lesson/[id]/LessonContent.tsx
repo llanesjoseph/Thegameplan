@@ -26,6 +26,11 @@ interface LessonData {
  hasMedia?: boolean
  content?: string
  tags?: string[]
+ sections?: Array<{
+  title?: string
+  content?: string
+  videoUrl?: string
+ }>
 }
 
 interface CreatorProfile {
@@ -249,8 +254,30 @@ export default function LessonContent() {
       </div>
      )}
 
+     {/* Display sections if they exist */}
+     {lesson.sections && lesson.sections.length > 0 && lesson.sections.map((section, index) => (
+      <div key={index} className="prose max-w-none mt-6">
+       {section.title && (
+        <h3 className="text-2xl font-heading text-dark mb-4">{section.title}</h3>
+       )}
+       {section.content && (
+        <div className="text-dark/80 text-lg leading-relaxed whitespace-pre-wrap">
+         {section.content}
+        </div>
+       )}
+       {section.videoUrl && (
+        <div className="mt-4">
+         <LessonVideoPlayer
+          videoUrl={section.videoUrl}
+          title={section.title || `Section ${index + 1}`}
+         />
+        </div>
+       )}
+      </div>
+     ))}
+
      {/* Show message if no content is available */}
-     {!lesson.longDescription && !lesson.content && !lesson.videoUrl && !lesson.videoId && (
+     {!lesson.longDescription && !lesson.content && !lesson.videoUrl && !lesson.videoId && (!lesson.sections || lesson.sections.length === 0) && (
       <div className="mt-6 p-6 bg-sky-blue/10 rounded-xl border border-sky-blue/20 text-center">
        <p className="text-dark/70 text-lg">
         📝 This lesson is still being prepared. Check back soon for the full content!
