@@ -12,6 +12,7 @@ const serverEnvSchema = z.object({
   NEXT_PUBLIC_FIREBASE_APP_ID: z.string().min(1, 'Firebase app ID is required'),
   NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: z.string().optional(),
   NEXT_PUBLIC_GEMINI_API_KEY: z.string().optional(),
+  GEMINI_API_KEY: z.string().optional(), // Server-side only (secure)
   NEXT_PUBLIC_VERTEX_API_KEY: z.string().optional(),
   NEXT_PUBLIC_VERTEX_PROJECT_ID: z.string().optional(),
   NEXT_PUBLIC_VERTEX_LOCATION: z.string().default('us-central1'),
@@ -66,19 +67,20 @@ export function validateEnv(): Env {
       env = serverEnvSchema.parse(process.env)
       
       const hasAIService = !!(
-        env.NEXT_PUBLIC_GEMINI_API_KEY || 
-        env.NEXT_PUBLIC_VERTEX_API_KEY || 
+        env.NEXT_PUBLIC_GEMINI_API_KEY ||
+        env.GEMINI_API_KEY ||
+        env.NEXT_PUBLIC_VERTEX_API_KEY ||
         env.OPENAI_API_KEY
       )
-      
+
       if (!hasAIService) {
         console.warn('⚠️ No AI service API keys configured. AI features will use fallback content generation.')
       }
-      
+
       console.log('✅ Environment validation successful')
       console.log(`🔥 Firebase Project: ${env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}`)
       console.log(`🤖 AI Services: ${[
-        env.NEXT_PUBLIC_GEMINI_API_KEY && 'Gemini',
+        (env.NEXT_PUBLIC_GEMINI_API_KEY || env.GEMINI_API_KEY) && 'Gemini',
         env.NEXT_PUBLIC_VERTEX_API_KEY && 'Vertex',
         env.OPENAI_API_KEY && 'OpenAI'
       ].filter(Boolean).join(', ')}`)
@@ -164,10 +166,17 @@ export function getFirebaseConfig() {
 
 export function getAIServiceConfig() {
   const env = validateEnv()
+  const isServer = typeof window === 'undefined'
+
+  // Prefer server-side GEMINI_API_KEY (secure) over NEXT_PUBLIC (exposed to client)
+  const geminiApiKey = isServer && (env as any).GEMINI_API_KEY
+    ? (env as any).GEMINI_API_KEY
+    : env.NEXT_PUBLIC_GEMINI_API_KEY
+
   return {
     gemini: {
-      apiKey: env.NEXT_PUBLIC_GEMINI_API_KEY,
-      enabled: !!env.NEXT_PUBLIC_GEMINI_API_KEY
+      apiKey: geminiApiKey,
+      enabled: !!geminiApiKey
     },
     vertex: {
       apiKey: env.NEXT_PUBLIC_VERTEX_API_KEY,
