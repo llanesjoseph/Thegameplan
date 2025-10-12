@@ -44,6 +44,7 @@ export default function AthleteLessonsPage() {
   const { user } = useAuth()
   const router = useRouter()
   const [loading, setLoading] = useState(true)
+  const [initialLoad, setInitialLoad] = useState(true) // Track first load to prevent "no lessons" flash
   const [error, setError] = useState<string | null>(null)
   const [feed, setFeed] = useState<FeedData | null>(null)
   const [lessons, setLessons] = useState<Lesson[]>([])
@@ -91,6 +92,7 @@ export default function AthleteLessonsPage() {
         setError(err.message || 'Failed to load lessons')
       } finally {
         setLoading(false)
+        setInitialLoad(false) // Mark initial load complete
       }
     }
 
@@ -176,7 +178,7 @@ export default function AthleteLessonsPage() {
             <button
               onClick={() => router.push('/dashboard/progress')}
               className="px-6 py-3 rounded-lg text-white transition-colors"
-              style={{ backgroundColor: '#91A6EB' }}
+              style={{ backgroundColor: '#3B82F6' }}
             >
               Back to Dashboard
             </button>
@@ -222,9 +224,15 @@ export default function AthleteLessonsPage() {
         </div>
 
         {/* Lessons List */}
-        {lessons.length === 0 ? (
+        {initialLoad ? (
+          /* Still loading data - show loading state */
           <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-12 text-center">
-            <BookOpen className="w-20 h-20 mx-auto mb-4" style={{ color: '#91A6EB', opacity: 0.5 }} />
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mx-auto mb-4"></div>
+            <p style={{ color: '#000000', opacity: 0.7 }}>Loading lessons...</p>
+          </div>
+        ) : lessons.length === 0 ? (
+          <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-12 text-center">
+            <BookOpen className="w-20 h-20 mx-auto mb-4" style={{ color: '#3B82F6', opacity: 0.5 }} />
             <h2 className="text-2xl mb-2" style={{ color: '#000000' }}>
               No Lessons Yet
             </h2>
@@ -276,7 +284,7 @@ export default function AthleteLessonsPage() {
                           )}
                           <div className="flex flex-wrap gap-2">
                             {lesson.sport && (
-                              <span className="px-3 py-1 rounded-full text-xs" style={{ backgroundColor: '#91A6EB', color: 'white' }}>
+                              <span className="px-3 py-1 rounded-full text-xs" style={{ backgroundColor: '#3B82F6', color: 'white' }}>
                                 {lesson.sport}
                               </span>
                             )}
@@ -299,7 +307,7 @@ export default function AthleteLessonsPage() {
                           href={`/lesson/${lesson.id}`}
                           target={isInIframe ? '_parent' : '_self'}
                           className="flex-shrink-0 px-4 py-2 rounded-lg text-sm transition-colors hover:shadow-lg"
-                          style={{ backgroundColor: '#91A6EB', color: 'white' }}
+                          style={{ backgroundColor: '#3B82F6', color: 'white' }}
                         >
                           View Lesson
                         </Link>
