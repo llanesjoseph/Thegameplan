@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getFlaggedMessages } from '@/lib/message-audit-logger'
 import { requireAuth } from '@/lib/auth-utils'
 
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     // Require admin auth

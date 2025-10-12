@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { adminDb } from '@/lib/firebase.admin'
 
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic'
+
 /**
  * Emergency endpoint to fix user role
  * GET /api/fix-my-role?email=bigpenger@gmail.com&role=athlete
