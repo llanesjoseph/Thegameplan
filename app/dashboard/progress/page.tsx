@@ -105,10 +105,10 @@ export default function AthleteDashboard() {
     ...(coachId && coachName ? [{
       id: 'my-coach',
       title: coachName,
-      description: 'View coach profile and training philosophy',
-      icon: Users,
-      color: '#8D9440',
-      path: `/coach/${coachId}`, // Opens in iframe inline
+      description: 'Interact with your coach via AI assistant',
+      icon: Sparkles,
+      color: '#20B2AA',
+      path: 'ai-assistant', // Opens AI assistant inline
       action: null,
       isCoachCard: true // Special flag to render differently
     }] : []),
@@ -138,15 +138,6 @@ export default function AthleteDashboard() {
       color: '#FF6B35',
       path: null, // Coming soon
       action: () => alert('📅 Scheduling feature coming soon! Book 1-on-1 sessions with your coach.')
-    },
-    {
-      id: 'ai-chat',
-      title: 'Chat with AI Agent',
-      description: 'Get instant answers to training questions',
-      icon: Sparkles,
-      color: '#9333EA',
-      path: 'ai-assistant', // Special flag for inline AI component
-      action: null
     },
     // Add coach dashboard card conditionally for users who are also coaches
     ...(hasCoachRole ? [{
