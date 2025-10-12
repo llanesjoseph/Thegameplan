@@ -83,8 +83,8 @@ export default function AthleteDashboard() {
       icon: Calendar,
       color: '#FF6B35',
       path: null,
-      action: () => alert('📅 Scheduling feature coming soon! Book 1-on-1 sessions with your coach.'),
-      expandable: false
+      action: null,
+      expandable: true // Make it expandable to show inline
     },
     // Add coach dashboard card conditionally for users who are also coaches
     ...(hasCoachRole ? [{
@@ -585,6 +585,47 @@ Be ${coachName || "the coach"}, be specific, be technical.`}
                             sport="Brazilian Jiu-Jitsu"
                             creatorId={coachId || undefined}
                             creatorName={coachName || undefined}
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Expanded Content - Schedule 1-on-1 */}
+                    {isExpanded && card.id === 'schedule' && (
+                      <div
+                        className="mt-4 bg-gradient-to-br from-orange-50/90 to-white/90 backdrop-blur-sm rounded-xl shadow-2xl border border-orange-200/50 overflow-hidden animate-slideDown"
+                      >
+                        {/* Header */}
+                        <div className="bg-gradient-to-r from-orange-500/10 to-orange-400/10 px-6 py-4 border-b border-orange-200/50 flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: card.color }}>
+                              <Calendar className="w-5 h-5 text-white" />
+                            </div>
+                            <div>
+                              <h3 className="text-lg font-medium" style={{ color: '#000000' }}>
+                                Book a 1-on-1 Session
+                              </h3>
+                              <p className="text-xs" style={{ color: '#000000', opacity: 0.6 }}>
+                                Set your availability and propose a session with your coach
+                              </p>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => setExpandedCard(null)}
+                            className="p-2 hover:bg-orange-100 rounded-full transition-all animate-bounce-slow"
+                            title="Collapse Schedule"
+                          >
+                            <ChevronUp className="w-6 h-6" style={{ color: '#FF6B35' }} />
+                          </button>
+                        </div>
+
+                        {/* Schedule iframe */}
+                        <div style={{ minHeight: '600px', maxHeight: '800px' }}>
+                          <iframe
+                            src="/dashboard/schedule?embedded=true"
+                            className="w-full h-full border-0"
+                            style={{ height: '800px' }}
+                            title="Schedule Session"
                           />
                         </div>
                       </div>
