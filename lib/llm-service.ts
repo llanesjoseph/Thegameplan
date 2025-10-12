@@ -44,16 +44,54 @@ async function callOpenAI(question: string, context: CoachingContext, model: str
   }
   const client = new OpenAI({ apiKey: cfg.openai.apiKey })
   const prompt = generateCoachingPrompt(question, context)
+
+  // ⚡ AGGRESSIVE ENHANCEMENT: Build comprehensive system message with lesson content
+  // System messages have MORE WEIGHT in OpenAI - use this for mandatory instructions
+  let systemMessage = `You are ${context.coachName}, an elite ${context.sport.toLowerCase()} coach and former player with these credentials: ${context.coachCredentials.join(', ')}.
+
+YOUR COACHING IDENTITY:
+- Personality: ${context.personalityTraits.join(', ')}
+- Speaking style: ${context.voiceCharacteristics.speakingStyle}
+- Your catchphrases: "${context.voiceCharacteristics.catchphrases.join('", "')}"
+
+⚡ CRITICAL INSTRUCTION - YOU MUST BE SPECIFIC:
+You must provide SPECIFIC, TECHNICAL, STEP-BY-STEP coaching advice. NEVER give generic or vague responses like "This is a complex subject...". Always ground your advice in concrete techniques, positions, and movements with numbered steps.`
+
+  // ⚡ Add actual lesson content to system message for MAXIMUM IMPACT
+  if (context.lessonContent && context.lessonContent.availableLessons.length > 0) {
+    systemMessage += `
+
+⚡ YOUR TEACHING CONTENT (MANDATORY - Reference this):
+You have taught these specific lessons:
+${context.lessonContent.availableLessons.slice(0, 5).map((lesson, i) => `${i + 1}. ${lesson}`).join('\n')}
+
+Your specific techniques include: ${context.lessonContent.techniques.slice(0, 10).join(', ')}
+
+MANDATORY: When answering questions, reference your actual lessons and give detailed breakdowns like you do in your teaching content. For example: "Based on my lesson on [Lesson Name], here's how I teach this technique: Step 1..."
+
+NEVER give vague advice when you have specific lesson content available.`
+  }
+
+  systemMessage += `
+
+Respond authentically in character with encouraging, SPECIFIC, TECHNICAL advice. Be conversational but always include:
+- Concrete step-by-step instructions
+- Specific positions, grips, or movements
+- Common mistakes to avoid
+- Reference to your actual teaching content when relevant`
+
   const start = Date.now()
   const completion = await client.chat.completions.create({
     model,
     messages: [
-      { role: 'system', content: `You are ${context.coachName}, an elite ${context.sport.toLowerCase()} coach and former player. Respond authentically in character with encouraging, technical advice.` },
+      { role: 'system', content: systemMessage },
       { role: 'user', content: prompt }
     ],
-    max_tokens: 1000,
-    temperature: 0.7,
-    top_p: 0.9
+    max_tokens: 2000, // ⚡ DOUBLED from 1000 to allow detailed, substantial responses
+    temperature: 0.8, // ⚡ INCREASED from 0.7 for more creative, conversational responses
+    top_p: 0.95, // ⚡ INCREASED from 0.9 for more diverse vocabulary
+    presence_penalty: 0.3, // ⚡ NEW: Encourages introducing new topics/details
+    frequency_penalty: 0.3 // ⚡ NEW: Reduces repetitive phrasing
   })
   const latencyMs = Date.now() - start
   const text = completion.choices[0]?.message?.content?.trim() || ''
@@ -82,9 +120,9 @@ async function callGemini(question: string, context: CoachingContext, model: str
   const genModel = client.getGenerativeModel({
     model,
     generationConfig: {
-      temperature: 0.7,
-      topP: 0.9,
-      maxOutputTokens: 1000,
+      temperature: 0.8, // ⚡ INCREASED from 0.7 for more creative responses
+      topP: 0.95, // ⚡ INCREASED from 0.9 for more diverse vocabulary
+      maxOutputTokens: 2000, // ⚡ DOUBLED from 1000 for detailed responses
     }
   })
   const prompt = generateCoachingPrompt(question, context)
