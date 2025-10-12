@@ -49,29 +49,6 @@ export default function AthleteDashboard() {
 
   // Athlete cards with AI Assistant as a native card
   const athleteCards = [
-    // Coach Profile Card - First card, only shows if coach is assigned
-    ...(coachId && coachName ? [{
-      id: 'my-coach',
-      title: coachName,
-      description: `See what ${coachName.split(' ')[0]} is up to - profile, lessons & more!`,
-      icon: Users,
-      color: '#20B2AA',
-      path: null,
-      action: null,
-      isCoachCard: true,
-      expandable: true, // Make coach card expandable
-      highlighted: true // Add visual highlight
-    }] : []),
-    {
-      id: 'lessons',
-      title: 'Review Lessons',
-      description: 'Track progress and complete your assigned training',
-      icon: BookOpen,
-      color: '#91A6EB',
-      path: null, // Remove path to make it expandable
-      action: null,
-      expandable: true // Make lessons expandable
-    },
     {
       id: 'ai-assistant',
       title: coachName ? `Ask Your Coach ${coachName.split(' ')[0]}` : 'Ask Your Coach',
@@ -82,7 +59,19 @@ export default function AthleteDashboard() {
       color: '#8B5CF6',
       path: null,
       action: null,
-      expandable: true // This card expands inline
+      expandable: true, // This card expands inline
+      isCoachCard: true, // Show coach photo instead of icon
+      highlighted: true // Add visual highlight
+    },
+    {
+      id: 'lessons',
+      title: 'Review Lessons',
+      description: 'Track progress and complete your assigned training',
+      icon: BookOpen,
+      color: '#91A6EB',
+      path: null, // Remove path to make it expandable
+      action: null,
+      expandable: true // Make lessons expandable
     },
     {
       id: 'video-review',
@@ -491,47 +480,6 @@ export default function AthleteDashboard() {
                         </div>
                       </div>
                     </button>
-
-                    {/* Expanded Content - Coach Profile */}
-                    {isExpanded && card.id === 'my-coach' && coachId && (
-                      <div
-                        className="mt-4 bg-gradient-to-br from-teal-50/90 to-white/90 backdrop-blur-sm rounded-xl shadow-2xl border border-teal-200/50 overflow-hidden animate-slideDown"
-                      >
-                        {/* Header */}
-                        <div className="bg-gradient-to-r from-teal-500/10 to-teal-400/10 px-6 py-4 border-b border-teal-200/50 flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: card.color }}>
-                              <Users className="w-5 h-5 text-white" />
-                            </div>
-                            <div>
-                              <h3 className="text-lg font-medium" style={{ color: '#000000' }}>
-                                {coachName}'s Profile
-                              </h3>
-                              <p className="text-xs" style={{ color: '#000000', opacity: 0.6 }}>
-                                Explore your coach's profile, lessons, and training approach
-                              </p>
-                            </div>
-                          </div>
-                          <button
-                            onClick={() => setExpandedCard(null)}
-                            className="p-2 hover:bg-teal-100 rounded-lg transition-colors"
-                            title="Close"
-                          >
-                            <X className="w-5 h-5" style={{ color: '#000000' }} />
-                          </button>
-                        </div>
-
-                        {/* Coach Profile iframe */}
-                        <div style={{ minHeight: '600px', maxHeight: '800px' }}>
-                          <iframe
-                            src={`/coach/${coachId}`}
-                            className="w-full h-full border-0"
-                            style={{ height: '800px' }}
-                            title={`${coachName}'s Profile`}
-                          />
-                        </div>
-                      </div>
-                    )}
 
                     {/* Expanded Content - Lessons */}
                     {isExpanded && card.id === 'lessons' && (
