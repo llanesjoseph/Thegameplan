@@ -58,7 +58,7 @@ export default function AthleteDashboard() {
         ? `Chat with ${coachName.split(' ')[0]}'s AI assistant about training and techniques`
         : 'Get instant answers from your coach\'s AI assistant',
       icon: Sparkles,
-      color: '#8B5CF6',
+      color: '#20B2AA', // Changed from purple to teal
       path: null,
       action: null,
       expandable: true, // This card expands inline
@@ -524,13 +524,13 @@ export default function AthleteDashboard() {
                     {/* Card Button */}
                     <button
                       onClick={() => handleCardClick(card)}
-                      className={`block group cursor-pointer text-left transition-all w-full ${isExpanded ? 'ring-2 ring-purple-500 ring-offset-2' : ''} ${isHighlighted ? 'animate-pulse-subtle' : ''}`}
+                      className={`block group cursor-pointer text-left transition-all w-full ${isExpanded ? 'ring-2 ring-teal-500 ring-offset-2' : ''} ${isHighlighted ? 'animate-pulse-subtle' : ''}`}
                     >
-                      <div className={`bg-white/90 backdrop-blur-sm rounded-lg sm:rounded-xl shadow-lg p-3 sm:p-4 h-full transition-all hover:shadow-2xl hover:scale-105 ${isExpanded ? 'bg-white shadow-2xl' : ''} ${isCoachCard ? 'sm:p-6' : ''} ${isHighlighted ? 'border-2 border-teal-400 bg-gradient-to-br from-teal-50 to-white' : 'border border-white/50'}`}>
+                      <div className={`bg-white/90 backdrop-blur-sm rounded-lg sm:rounded-xl shadow-lg p-3 sm:p-4 h-full transition-all hover:shadow-2xl hover:scale-105 ${isExpanded ? 'bg-white shadow-2xl' : ''} ${isCoachCard ? 'sm:p-6' : ''} ${isHighlighted ? 'border-2 border-teal-500 bg-gradient-to-br from-teal-50 to-white' : 'border border-white/50'}`}>
                         <div className={`flex ${isCoachCard ? 'flex-row items-center gap-4' : 'flex-col'} h-full ${isCoachCard ? 'min-h-[120px]' : 'min-h-[100px] sm:min-h-[120px]'}`}>
                           {/* Icon or Profile Picture */}
                           {isCoachCard ? (
-                            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden shadow-xl flex-shrink-0 ring-4 ring-white/50" style={{ backgroundColor: card.color }}>
+                            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden shadow-xl flex-shrink-0 ring-4 ring-teal-500" style={{ backgroundColor: card.color }}>
                               {coachPhotoURL ? (
                                 <img
                                   src={coachPhotoURL}
@@ -624,10 +624,10 @@ export default function AthleteDashboard() {
                     {/* Expanded Content - AI Assistant */}
                     {isExpanded && card.id === 'ai-assistant' && user && (
                       <div
-                        className="mt-4 bg-gradient-to-br from-purple-50/90 to-white/90 backdrop-blur-sm rounded-xl shadow-2xl border border-purple-200/50 overflow-hidden animate-slideDown"
+                        className="mt-4 bg-gradient-to-br from-teal-50/90 to-white/90 backdrop-blur-sm rounded-xl shadow-2xl border border-teal-200/50 overflow-hidden animate-slideDown"
                       >
                         {/* Header */}
-                        <div className="bg-gradient-to-r from-purple-500/10 to-purple-400/10 px-6 py-4 border-b border-purple-200/50 flex items-center justify-between">
+                        <div className="bg-gradient-to-r from-teal-500/10 to-teal-400/10 px-6 py-4 border-b border-teal-200/50 flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: card.color }}>
                               <Sparkles className="w-5 h-5 text-white" />
@@ -643,7 +643,7 @@ export default function AthleteDashboard() {
                           </div>
                           <button
                             onClick={() => setExpandedCard(null)}
-                            className="p-2 hover:bg-purple-100 rounded-lg transition-colors"
+                            className="p-2 hover:bg-teal-100 rounded-lg transition-colors"
                             title="Close"
                           >
                             <X className="w-5 h-5" style={{ color: '#000000' }} />
