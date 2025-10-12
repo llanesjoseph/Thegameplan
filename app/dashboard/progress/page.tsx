@@ -545,10 +545,10 @@ export default function AthleteDashboard() {
                           </div>
                           <button
                             onClick={() => setExpandedCard(null)}
-                            className="p-2 hover:bg-teal-100 rounded-lg transition-colors"
-                            title="Close"
+                            className="p-2 hover:bg-orange-100 rounded-full transition-all animate-bounce-slow"
+                            title="Collapse AI Assistant"
                           >
-                            <X className="w-5 h-5" style={{ color: '#000000' }} />
+                            <ChevronUp className="w-6 h-6" style={{ color: '#FF6B35' }} />
                           </button>
                         </div>
 
