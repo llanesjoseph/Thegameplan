@@ -11,85 +11,58 @@ export async function GET(
     // First try to find coach profile by ID or slug
     let coachProfile = null
 
-    // Try to find by document ID
-    const coachProfileDoc = await db.collection('coaches').doc(creatorId).get()
+    // Try to find by document ID in creator_profiles (the correct collection)
+    const coachProfileDoc = await db.collection('creator_profiles').doc(creatorId).get()
     if (coachProfileDoc.exists) {
       coachProfile = coachProfileDoc.data()
     } else {
-      // Try to find by a slug/identifier field
-      const coachQuery = await db.collection('coaches')
-        .where('slug', '==', creatorId)
-        .limit(1)
-        .get()
-
-      if (!coachQuery.empty) {
-        coachProfile = coachQuery.docs[0].data()
+      // Try to find in creators_index (where the contributors page queries from)
+      const creatorIndexDoc = await db.collection('creators_index').doc(creatorId).get()
+      if (creatorIndexDoc.exists) {
+        // Found in creators_index, now get the full profile from creator_profiles
+        const fullProfile = await db.collection('creator_profiles').doc(creatorId).get()
+        if (fullProfile.exists) {
+          coachProfile = fullProfile.data()
+        } else {
+          // Use the basic data from creators_index if full profile doesn't exist
+          coachProfile = creatorIndexDoc.data()
+        }
       } else {
-        // Try to find by firstName-lastName pattern
-        const nameParts = creatorId.split('-')
-        if (nameParts.length >= 2) {
-          const firstName = nameParts[0]
-          const lastName = nameParts[nameParts.length - 1]
+        // Try to find by a slug/identifier field
+        const coachQuery = await db.collection('creator_profiles')
+          .where('slug', '==', creatorId)
+          .limit(1)
+          .get()
 
-          const nameQuery = await db.collection('coaches')
-            .where('firstName', '==', firstName)
-            .where('lastName', '==', lastName)
-            .limit(1)
-            .get()
+        if (!coachQuery.empty) {
+          coachProfile = coachQuery.docs[0].data()
+        } else {
+          // Try to find by firstName-lastName pattern
+          const nameParts = creatorId.split('-')
+          if (nameParts.length >= 2) {
+            const firstName = nameParts[0]
+            const lastName = nameParts[nameParts.length - 1]
 
-          if (!nameQuery.empty) {
-            coachProfile = nameQuery.docs[0].data()
+            const nameQuery = await db.collection('creator_profiles')
+              .where('firstName', '==', firstName)
+              .where('lastName', '==', lastName)
+              .limit(1)
+              .get()
+
+            if (!nameQuery.empty) {
+              coachProfile = nameQuery.docs[0].data()
+            }
           }
         }
       }
     }
 
-    // If no coach profile found, return default Jasmine data for backwards compatibility
+    // If no coach profile found, return 404 error
     if (!coachProfile) {
-      const defaultProfile = {
-        id: 'jasmine-aikey',
-        name: 'JASMINE AIKEY',
-        firstName: 'Jasmine',
-        lastName: 'Aikey',
-        sport: 'Soccer',
-        tagline: 'Elite soccer player at Stanford University.',
-        credentials: 'PAC-12 Champion and Midfielder of the Year',
-        description: 'I can answer questions about my athletic journey, techniques and mental preparation.',
-        heroImageUrl: 'https://res.cloudinary.com/dr0jtjwlh/image/upload/v1758865685/2025_05_2_graduation_vqvz1b.jpg',
-        headshotUrl: 'https://res.cloudinary.com/dr0jtjwlh/image/upload/v1758865683/2023_11_1_i2bx0r.jpg',
-        actionPhotos: [
-          'https://res.cloudinary.com/dr0jtjwlh/image/upload/v1758865678/2022_08_1_ysqlha.jpg',
-          'https://res.cloudinary.com/dr0jtjwlh/image/upload/v1758865678/2022_08_2_zhtbzx.jpg',
-          'https://res.cloudinary.com/dr0jtjwlh/image/upload/v1758865680/2025_08_3_the_Rainbow_sbl5rl.jpg',
-          'https://res.cloudinary.com/dr0jtjwlh/image/upload/v1758865677/2021_09_byctwr.jpg'
-        ],
-        highlightVideo: 'https://res.cloudinary.com/dr0jtjwlh/video/upload/v1758865568/Jasmine_Journey_Reel_odyfoj.mp4',
-        socialLinks: {
-          facebook: 'https://facebook.com/jasmineaikey',
-          twitter: 'https://twitter.com/jasmineaikey',
-          instagram: 'https://instagram.com/jasmineaikey',
-          linkedin: 'https://linkedin.com/in/jasmineaikey'
-        },
-        trainingLibrary: [
-          {
-            id: '1',
-            title: 'Footwork and Passing in Soccer',
-            status: 'Ended',
-            thumbnail: '/api/placeholder/120/80'
-          },
-          {
-            id: '2',
-            title: 'Soccer Drills for Beginners',
-            status: 'Ended',
-            thumbnail: '/api/placeholder/120/80'
-          }
-        ]
-      }
-
-      return NextResponse.json({
-        success: true,
-        data: defaultProfile
-      })
+      return NextResponse.json(
+        { error: 'Coach not found', success: false },
+        { status: 404 }
+      )
     }
 
     // Transform coach profile to creator format

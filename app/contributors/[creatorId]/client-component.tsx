@@ -43,51 +43,14 @@ const getCreatorData = async (creatorId: string): Promise<Creator | null> => {
   try {
     const response = await fetch(`/api/contributors/${creatorId}`)
     if (!response.ok) {
-      throw new Error('Failed to fetch creator data')
+      console.error(`Failed to fetch creator ${creatorId}: ${response.status}`)
+      return null
     }
     const data = await response.json()
     return data.success ? data.data : null
   } catch (error) {
     console.error('Error fetching creator data:', error)
-    // Return default Jasmine data as fallback
-    return {
-      id: 'jasmine-aikey',
-      name: 'JASMINE AIKEY',
-      firstName: 'Jasmine',
-      sport: 'Soccer',
-      tagline: 'Elite soccer player at Stanford University.',
-      credentials: 'PAC-12 Champion and Midfielder of the Year',
-      description: 'I can answer questions about my athletic journey, techniques and mental preparation.',
-      heroImageUrl: 'https://res.cloudinary.com/dr0jtjwlh/image/upload/v1758865685/2025_05_2_graduation_vqvz1b.jpg',
-      headshotUrl: 'https://res.cloudinary.com/dr0jtjwlh/image/upload/v1758865683/2023_11_1_i2bx0r.jpg',
-      actionPhotos: [
-        'https://res.cloudinary.com/dr0jtjwlh/image/upload/v1758865678/2022_08_1_ysqlha.jpg',
-        'https://res.cloudinary.com/dr0jtjwlh/image/upload/v1758865678/2022_08_2_zhtbzx.jpg',
-        'https://res.cloudinary.com/dr0jtjwlh/image/upload/v1758865680/2025_08_3_the_Rainbow_sbl5rl.jpg',
-        'https://res.cloudinary.com/dr0jtjwlh/image/upload/v1758865677/2021_09_byctwr.jpg'
-      ],
-      highlightVideo: 'https://res.cloudinary.com/dr0jtjwlh/video/upload/v1758865568/Jasmine_Journey_Reel_odyfoj.mp4',
-      socialLinks: {
-        facebook: 'https://facebook.com/jasmineaikey',
-        twitter: 'https://twitter.com/jasmineaikey',
-        instagram: 'https://instagram.com/jasmineaikey',
-        linkedin: 'https://linkedin.com/in/jasmineaikey'
-      },
-      trainingLibrary: [
-        {
-          id: '1',
-          title: 'Footwork and Passing in Soccer',
-          status: 'Ended',
-          thumbnail: '/api/placeholder/120/80'
-        },
-        {
-          id: '2',
-          title: 'Soccer Drills for Beginners',
-          status: 'Ended',
-          thumbnail: '/api/placeholder/120/80'
-        }
-      ]
-    }
+    return null
   }
 }
 
