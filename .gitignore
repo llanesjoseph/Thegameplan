@@ -21,3 +21,6 @@ GITHUB_SECRETS_SETUP.txt
 
 .vercel
 serviceAccountKey.json
+
+# Vercel environment file (upload manually)
+.env.vercel
