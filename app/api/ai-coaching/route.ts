@@ -106,7 +106,10 @@ export async function POST(request: NextRequest) {
     // If medical concerns detected, return safety response instead of AI coaching
     if (safetyAnalysis.shouldBlock) {
       logger.warn('MEDICAL SAFETY BLOCK: Returning safety response instead of AI coaching')
-      
+
+      // Get coach context for proper logging (even during safety blocks)
+      const safetyContext = await getEnhancedCoachingContext(creatorId, sport)
+
       // Log the safety event with proper parameters
       if (userId && userEmail && sessionId) {
         try {
@@ -117,8 +120,8 @@ export async function POST(request: NextRequest) {
             question,
             safetyAnalysis.safetyResponse,
             'emergency', // Use emergency provider for safety blocks
-            'soccer',
-            soccerCoachingContext.coachName,
+            safetyContext.sport.toLowerCase(),
+            safetyContext.coachName,
             true, // disclaimerShown
             true, // userConsent
             CURRENT_TERMS_VERSION
