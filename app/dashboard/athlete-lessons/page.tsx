@@ -50,9 +50,12 @@ export default function AthleteLessonsPage() {
   const [processingLesson, setProcessingLesson] = useState<string | null>(null)
   const [isInIframe, setIsInIframe] = useState(false)
 
-  // Detect if page is loaded in iframe
+  // Detect if page is loaded in iframe (check URL param or window)
   useEffect(() => {
-    setIsInIframe(window.self !== window.top)
+    const params = new URLSearchParams(window.location.search)
+    const embeddedParam = params.get('embedded') === 'true'
+    const windowCheck = window.self !== window.top
+    setIsInIframe(embeddedParam || windowCheck)
   }, [])
 
   // Fetch athlete feed and lessons
@@ -294,6 +297,7 @@ export default function AthleteLessonsPage() {
                         {/* View Lesson Button */}
                         <Link
                           href={`/lesson/${lesson.id}`}
+                          target={isInIframe ? '_parent' : '_self'}
                           className="flex-shrink-0 px-4 py-2 rounded-lg text-sm transition-colors hover:shadow-lg"
                           style={{ backgroundColor: '#91A6EB', color: 'white' }}
                         >

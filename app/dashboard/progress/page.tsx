@@ -565,7 +565,7 @@ export default function AthleteDashboard() {
                         {/* Lessons iframe */}
                         <div style={{ minHeight: '600px', maxHeight: '800px' }}>
                           <iframe
-                            src="/dashboard/athlete-lessons"
+                            src="/dashboard/athlete-lessons?embedded=true"
                             className="w-full h-full border-0"
                             style={{ height: '800px' }}
                             title="Your Lessons"
