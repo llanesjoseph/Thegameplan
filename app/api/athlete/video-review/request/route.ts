@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { adminDb } from '@/lib/firebase.admin'
 import { FieldValue } from 'firebase-admin/firestore'
 import { auditLog } from '@/lib/audit-logger'
+import { sendVideoReviewRequestEmail } from '@/lib/email-service'
 
 export async function POST(request: NextRequest) {
   const requestId = `video-review-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
@@ -79,8 +80,55 @@ export async function POST(request: NextRequest) {
 
     console.log(`✅ Video review request created: ${reviewRef.id} by athlete ${athleteId}`)
 
-    // If there's a coach, send them a notification (future enhancement)
-    // TODO: Send email/push notification to coach
+    // Send email notification to coach if assigned
+    if (assignedCoachUid) {
+      try {
+        // Fetch coach info from Firestore
+        const coachDoc = await adminDb.collection('users').doc(assignedCoachUid).get()
+
+        if (coachDoc.exists) {
+          const coachData = coachDoc.data()
+          const coachEmail = coachData?.email
+          const coachName = coachData?.displayName || 'Coach'
+
+          if (coachEmail) {
+            // Construct review dashboard URL
+            const reviewUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://playbookd.crucibleanalytics.dev'}/dashboard/coach/video-reviews`
+
+            // Send email notification
+            await sendVideoReviewRequestEmail({
+              to: coachEmail,
+              coachName,
+              athleteName,
+              athleteEmail: athleteData?.email || '',
+              videoTitle: title.trim(),
+              videoUrl: videoUrl.trim(),
+              description: description.trim(),
+              specificQuestions: specificQuestions?.trim(),
+              reviewUrl
+            })
+
+            console.log(`✅ Email notification sent to coach ${coachName} (${coachEmail})`)
+          } else {
+            console.warn(`⚠️ Coach ${assignedCoachUid} has no email address - skipping notification`)
+          }
+        } else {
+          console.warn(`⚠️ Coach ${assignedCoachUid} not found - skipping notification`)
+        }
+      } catch (emailError: any) {
+        // Don't fail the request if email fails - just log it
+        console.error('Failed to send coach notification email:', emailError)
+        await auditLog('video_review_email_failed', {
+          requestId,
+          reviewId: reviewRef.id,
+          coachId: assignedCoachUid,
+          error: emailError.message,
+          timestamp: new Date().toISOString()
+        }, { severity: 'medium' })
+      }
+    } else {
+      console.log(`ℹ️ No coach assigned - skipping email notification`)
+    }
 
     return NextResponse.json({
       success: true,

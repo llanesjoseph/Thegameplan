@@ -679,6 +679,117 @@ interface AthleteWelcomeEmailProps {
   passwordResetLink: string
 }
 
+// Video review request notification email
+interface VideoReviewRequestEmailProps {
+  to: string
+  coachName: string
+  athleteName: string
+  athleteEmail: string
+  videoTitle: string
+  videoUrl: string
+  description: string
+  specificQuestions?: string
+  reviewUrl: string
+}
+
+export async function sendVideoReviewRequestEmail({
+  to,
+  coachName,
+  athleteName,
+  athleteEmail,
+  videoTitle,
+  videoUrl,
+  description,
+  specificQuestions,
+  reviewUrl
+}: VideoReviewRequestEmailProps) {
+  try {
+    const { data, error } = await resend.emails.send({
+      from: 'AthLeap <noreply@mail.crucibleanalytics.dev>',
+      to: [to],
+      subject: `🎥 New Video Review Request from ${athleteName} - AthLeap`,
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>New Video Review Request</title>
+        </head>
+        <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8fafc;">
+          <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <div style="text-align: center; margin-bottom: 30px;">
+              <h1 style="font-family: 'Permanent Marker', cursive; color: #13367A; font-size: 32px; margin: 0;">AthLeap</h1>
+              <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">THE WORK BEFORE THE WIN</p>
+            </div>
+
+            <div style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border: 2px solid #20B2AA; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
+              <h2 style="color: #20B2AA; margin: 0;">🎥 New Video Review Request</h2>
+            </div>
+
+            <p>Hi ${coachName},</p>
+
+            <p><strong>${athleteName}</strong> has submitted a video for your review and feedback.</p>
+
+            <div style="background: #f0f9ff; border-left: 4px solid #20B2AA; padding: 20px; margin: 20px 0;">
+              <h3 style="color: #0369a1; margin-top: 0;">📋 Video Details:</h3>
+              <p style="margin: 5px 0;"><strong>Title:</strong> ${videoTitle}</p>
+              <p style="margin: 5px 0;"><strong>Athlete:</strong> ${athleteName} (${athleteEmail})</p>
+              <p style="margin: 10px 0 5px 0;"><strong>Description:</strong></p>
+              <p style="margin: 5px 0; color: #4b5563; font-style: italic;">"${description}"</p>
+              ${specificQuestions ? `
+                <p style="margin: 10px 0 5px 0;"><strong>Specific Questions:</strong></p>
+                <p style="margin: 5px 0; color: #4b5563; font-style: italic;">"${specificQuestions}"</p>
+              ` : ''}
+            </div>
+
+            <div style="background: #fef3c7; border: 1px solid #f59e0b; padding: 15px; border-radius: 8px; margin: 20px 0; text-align: center;">
+              <p style="margin: 0; color: #92400e; font-size: 14px;">
+                <strong>⏰ Quick Response Expected:</strong> Your athletes value timely feedback!
+              </p>
+            </div>
+
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${videoUrl}" style="background-color: #20B2AA; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; margin-right: 10px;">Watch Video</a>
+              <a href="${reviewUrl}" style="background-color: #A01C21; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Review Dashboard</a>
+            </div>
+
+            <div style="background: #f9fafb; border-radius: 8px; padding: 20px; margin: 20px 0;">
+              <h3 style="color: #1e40af; margin-top: 0;">💡 What to Look For:</h3>
+              <ul style="margin: 0; padding-left: 20px; color: #4b5563;">
+                <li style="margin: 8px 0;">Technical form and execution</li>
+                <li style="margin: 8px 0;">Areas for improvement</li>
+                <li style="margin: 8px 0;">Strengths to build on</li>
+                <li style="margin: 8px 0;">Specific drills or exercises to recommend</li>
+              </ul>
+            </div>
+
+            <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 14px;">
+              <p><strong>AthLeap</strong> - The Work Before the Win</p>
+              <p style="font-size: 12px;">This is an automated notification. Reply directly to ${athleteEmail} or use the platform.</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `
+    })
+
+    if (error) {
+      console.error('Failed to send video review request email:', error)
+      return { success: false, error: error.message }
+    }
+
+    console.log(`✅ Video review request email sent to coach ${to}`)
+    return { success: true, data }
+  } catch (error) {
+    console.error('Video review request email service error:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    }
+  }
+}
+
 export async function sendAthleteWelcomeEmail({
   to,
   athleteName,
