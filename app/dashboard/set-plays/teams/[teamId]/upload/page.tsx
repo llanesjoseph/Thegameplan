@@ -165,6 +165,7 @@ export default function UploadPlayPage() {
       if (!token) throw new Error('No auth token available')
 
       const playData: PlayCreateInput = {
+        teamId,
         title: title.trim(),
         description: description.trim(),
         notes: notes.trim(),
