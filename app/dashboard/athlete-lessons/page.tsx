@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import { BookOpen, CheckCircle2, Circle, Clock, User } from 'lucide-react'
 import Link from 'next/link'
+import AppHeader from '@/components/ui/AppHeader'
 
 interface Lesson {
   id: string
@@ -178,47 +179,38 @@ export default function AthleteLessonsPage() {
 
   const completedCount = feed?.completedLessons.length || 0
   const totalCount = lessons.length
+  const completionPercentage = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0
 
   return (
     <div style={{ backgroundColor: '#E8E6D8' }} className="min-h-screen">
-      {/* Compact Progress Header */}
-      <div className="px-6 py-4">
-        <div className="flex items-center justify-between mb-3">
-          <div>
-            <h2 className="text-2xl mb-1" style={{ color: '#000000' }}>
-              My Lessons
-            </h2>
-            {feed?.coach && (
-              <p className="text-sm flex items-center gap-2" style={{ color: '#000000', opacity: 0.7 }}>
-                <User className="w-4 h-4" />
-                From {feed.coach.displayName}
-              </p>
-            )}
-          </div>
-          <div className="text-right">
-            <div className="text-sm mb-1" style={{ color: '#000000', opacity: 0.7 }}>
-              {completedCount} / {totalCount} complete
-            </div>
+      <AppHeader
+        title="My Lessons"
+        subtitle={feed?.coach ? `From ${feed.coach.displayName} • ${completedCount}/${totalCount} complete (${completionPercentage}%)` : `${completedCount}/${totalCount} complete`}
+      />
+
+      <main className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 space-y-6 lg:space-y-8">
+        {/* Progress Bar */}
+        <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold" style={{ color: '#000000' }}>
+              Your Progress
+            </h3>
             <div className="text-2xl font-bold" style={{ color: '#20B2AA' }}>
-              {totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0}%
+              {completionPercentage}%
             </div>
+          </div>
+          <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
+            <div
+              className="h-full transition-all duration-500"
+              style={{
+                backgroundColor: '#20B2AA',
+                width: `${completionPercentage}%`,
+              }}
+            />
           </div>
         </div>
 
-        {/* Compact Progress Bar */}
-        <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-          <div
-            className="h-full transition-all duration-500"
-            style={{
-              backgroundColor: '#20B2AA',
-              width: `${totalCount > 0 ? (completedCount / totalCount) * 100 : 0}%`,
-            }}
-          />
-        </div>
-      </div>
-
-      {/* Lessons List */}
-      <main className="px-6 pb-8">
+        {/* Lessons List */}
         {lessons.length === 0 ? (
           <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-12 text-center">
             <BookOpen className="w-20 h-20 mx-auto mb-4" style={{ color: '#91A6EB', opacity: 0.5 }} />
@@ -293,7 +285,7 @@ export default function AthleteLessonsPage() {
 
                         {/* View Lesson Button */}
                         <Link
-                          href={`/lessons/${lesson.id}`}
+                          href={`/lesson/${lesson.id}`}
                           className="flex-shrink-0 px-4 py-2 rounded-lg text-sm transition-colors hover:shadow-lg"
                           style={{ backgroundColor: '#91A6EB', color: 'white' }}
                         >
