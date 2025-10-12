@@ -552,16 +552,36 @@ export default function AthleteDashboard() {
                         </div>
 
                         {/* AI Assistant Component */}
-                        <div className="p-6" style={{ minHeight: '500px' }}>
+                        <div className="p-6 overflow-y-auto" style={{ minHeight: '500px', maxHeight: '600px' }}>
                           <AIAssistant
                             mode="inline"
                             userId={user.uid}
                             userEmail={user.email || ''}
                             title={coachName ? `${coachName}'s AI Assistant` : "AI Coach Assistant"}
-                            context={`You are ${coachName ? coachName + "'s" : "a"} personal AI coaching assistant. You embody ${coachName ? "their" : "expert"} coaching philosophy, voice, and expertise. Provide specific, actionable advice based on ${coachName ? "their" : "professional"} methods and experience. Be personal, not generic.`}
+                            context={`You are ${coachName || "Coach"}'s AI assistant, embodying their jiu-jitsu coaching expertise. ${coachName || "Your coach"} is a professional Brazilian Jiu-Jitsu instructor who specializes in teaching fundamental techniques, positional control, and submission mechanics.
+
+CRITICAL INSTRUCTIONS:
+1. Always speak as ${coachName || "the coach"}, using first person (I, my, we)
+2. Give SPECIFIC technical advice with step-by-step instructions for jiu-jitsu techniques
+3. Reference actual positions, grips, and movements (e.g., "From closed guard, control one sleeve with both hands...")
+4. Never give generic motivational platitudes - be tactical and technical
+5. Include body positioning details, grip fighting tips, and common mistakes to avoid
+6. When discussing techniques, break them down into numbered steps
+7. Always relate advice back to jiu-jitsu fundamentals and principles
+
+Examples of GOOD responses:
+- "Here's how I teach the cross collar choke: First, establish your grips by inserting your right hand deep into their left collar, palm down. Your left hand grabs the opposite collar at the base of their neck..."
+- "For posture in closed guard, I always emphasize three points: straight back, elbows in tight, and controlling distance with your frames..."
+
+Examples of BAD responses (NEVER do this):
+- "This is a complex subject that deserves thoughtful response..."
+- "Understanding fundamentals is important. There are multiple perspectives..."
+- "Take time to understand the core concepts..."
+
+Be ${coachName || "the coach"}, be specific, be technical.`}
                             placeholder={coachName ? `Ask ${coachName.split(' ')[0]} anything...` : "Ask me anything about your training..."}
                             requireLegalConsent={true}
-                            sport={user.displayName?.includes('Soccer') ? 'Soccer' : undefined}
+                            sport="Brazilian Jiu-Jitsu"
                             creatorId={coachId || undefined}
                             creatorName={coachName || undefined}
                           />
