@@ -378,8 +378,16 @@ export async function getDynamicCoachingContext(coachId: string): Promise<Coachi
       coachDoc = await adminDb.collection('creatorPublic').doc(coachId).get()
     }
 
+    // ⚡ CRITICAL FIX: Also check users collection
     if (!coachDoc.exists) {
-      console.warn(`⚠️ Coach profile not found: ${coachId}`)
+      coachDoc = await adminDb.collection('users').doc(coachId).get()
+      if (coachDoc.exists) {
+        console.log(`✅ Found coach profile in users collection: ${coachId}`)
+      }
+    }
+
+    if (!coachDoc.exists) {
+      console.warn(`⚠️ Coach profile not found in any collection: ${coachId}`)
       return null
     }
 
