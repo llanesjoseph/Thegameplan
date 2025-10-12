@@ -15,35 +15,48 @@ const CACHE_TTL = 60 * 60 * 1000 // 1 hour
 
 /**
  * Fetch coach's actual lesson content for AI context
+ * ⚡ ENHANCED: Supports BOTH text and video lessons
  */
 async function fetchCoachLessonContent(coachId: string): Promise<{
   techniques: string[]
   lessonTitles: string[]
   fullContent: string[]
+  videoLessons: number
+  textLessons: number
+  hasContent: boolean
 }> {
   try {
-    console.log(`📚 Fetching lesson content for coach: ${coachId}`)
+    console.log(`📚 Fetching ALL lesson content (text + video) for coach: ${coachId}`)
 
     const lessonsSnapshot = await adminDb
       .collection('content')
       .where('creatorUid', '==', coachId)
       .where('status', '==', 'published')
-      .limit(10)
+      .limit(15) // Increased to capture more lessons
       .get()
 
     const techniques: string[] = []
     const lessonTitles: string[] = []
     const fullContent: string[] = []
+    let videoLessons = 0
+    let textLessons = 0
 
     lessonsSnapshot.forEach(doc => {
       const data = doc.data()
+      const hasVideo = !!(data.videoUrl || data.videoId)
+      const hasText = !!(data.content || data.longDescription || (data.sections && data.sections.length > 0))
 
-      // Add lesson title
+      // Count lesson types
+      if (hasVideo) videoLessons++
+      if (hasText) textLessons++
+
+      // Add lesson title with type indicator
       if (data.title) {
-        lessonTitles.push(data.title)
+        const typeIndicator = hasVideo && hasText ? '[Video + Text]' : hasVideo ? '[Video]' : '[Text]'
+        lessonTitles.push(`${data.title} ${typeIndicator}`)
       }
 
-      // Extract content from all available fields
+      // Extract content from text-based fields
       if (data.content) {
         fullContent.push(data.content)
       }
@@ -52,7 +65,13 @@ async function fetchCoachLessonContent(coachId: string): Promise<{
         fullContent.push(data.longDescription)
       }
 
-      // Extract from sections array
+      // ⚡ VIDEO LESSON SUPPORT: Extract metadata from video lessons
+      if (hasVideo && data.description) {
+        // Video lessons often have rich descriptions - use them!
+        fullContent.push(`[From Video Lesson: ${data.title}] ${data.description}`)
+      }
+
+      // Extract from sections array (works for both text and video lessons)
       if (data.sections && Array.isArray(data.sections)) {
         data.sections.forEach((section: any) => {
           if (section.title) {
@@ -61,26 +80,173 @@ async function fetchCoachLessonContent(coachId: string): Promise<{
           if (section.content) {
             fullContent.push(section.content)
           }
+          // Video sections may have descriptions
+          if (section.videoUrl && section.title) {
+            fullContent.push(`[Video Section: ${section.title}]`)
+          }
         })
       }
 
-      // Extract techniques from description
-      if (data.description) {
+      // Extract techniques from description (fallback)
+      if (data.description && !hasVideo) {
         fullContent.push(data.description)
+      }
+
+      // Extract from tags (often contain technique names)
+      if (data.tags && Array.isArray(data.tags)) {
+        data.tags.forEach((tag: string) => {
+          if (tag && tag.length > 3) { // Filter out short tags
+            techniques.push(tag)
+          }
+        })
       }
     })
 
-    console.log(`✅ Found ${lessonTitles.length} lessons with ${fullContent.length} content sections`)
+    const hasContent = lessonTitles.length > 0 || fullContent.length > 0 || techniques.length > 0
+
+    console.log(`✅ Found ${lessonTitles.length} lessons (${videoLessons} video, ${textLessons} text) with ${fullContent.length} content sections and ${techniques.length} techniques`)
 
     return {
       techniques: [...new Set(techniques)], // Remove duplicates
       lessonTitles: lessonTitles,
-      fullContent: fullContent
+      fullContent: fullContent,
+      videoLessons,
+      textLessons,
+      hasContent
     }
   } catch (error) {
     console.error('Error fetching lesson content:', error)
-    return { techniques: [], lessonTitles: [], fullContent: [] }
+    return {
+      techniques: [],
+      lessonTitles: [],
+      fullContent: [],
+      videoLessons: 0,
+      textLessons: 0,
+      hasContent: false
+    }
   }
+}
+
+/**
+ * ⚡ FALLBACK SYSTEM: Sport-specific fundamentals for coaches without lessons
+ * Provides solid coaching advice based on sport expertise
+ */
+function getSportSpecificFallbackContent(sport: string): {
+  techniques: string[]
+  fundamentals: string[]
+  commonTopics: string[]
+} {
+  const sportLower = sport.toLowerCase()
+
+  const sportContent: Record<string, any> = {
+    'bjj': {
+      techniques: [
+        'Guard Passing Fundamentals', 'Escapes from Side Control', 'Submission Defense',
+        'Positional Control', 'Grip Fighting', 'Sweeps from Closed Guard',
+        'Mount Attacks', 'Back Control Maintenance', 'Triangle Choke Setup',
+        'Armbar Mechanics', 'Kimura from Guard', 'Rear Naked Choke Details'
+      ],
+      fundamentals: [
+        'Position before submission', 'Base and posture management',
+        'Breathing and energy conservation', 'Hip movement and mobility',
+        'Frame creation and maintenance', 'Weight distribution principles'
+      ],
+      commonTopics: [
+        'How to improve guard retention', 'Dealing with bigger opponents',
+        'Developing a systematic game plan', 'Competition preparation',
+        'Training consistently without injury', 'Conceptual understanding of positions'
+      ]
+    },
+    'brazilian jiu-jitsu': {
+      techniques: [
+        'Guard Passing Fundamentals', 'Escapes from Side Control', 'Submission Defense',
+        'Positional Control', 'Grip Fighting', 'Sweeps from Closed Guard',
+        'Mount Attacks', 'Back Control Maintenance', 'Triangle Choke Setup',
+        'Armbar Mechanics', 'Kimura from Guard', 'Rear Naked Choke Details'
+      ],
+      fundamentals: [
+        'Position before submission', 'Base and posture management',
+        'Breathing and energy conservation', 'Hip movement and mobility',
+        'Frame creation and maintenance', 'Weight distribution principles'
+      ],
+      commonTopics: [
+        'How to improve guard retention', 'Dealing with bigger opponents',
+        'Developing a systematic game plan', 'Competition preparation',
+        'Training consistently without injury', 'Conceptual understanding of positions'
+      ]
+    },
+    'mma': {
+      techniques: [
+        'Striking Fundamentals', 'Takedown Defense', 'Ground and Pound',
+        'Cage Cutting', 'Clinch Work', 'Submission Defense from MMA positions',
+        'Striking from Guard', 'Stand-up Transitions', 'Fight IQ Development'
+      ],
+      fundamentals: [
+        'Cardio and conditioning', 'Weight cutting strategies',
+        'Camp structure and periodization', 'Mental preparation',
+        'Recovery and injury prevention', 'Fight analysis and game planning'
+      ],
+      commonTopics: [
+        'Balancing striking and grappling', 'Managing fight nerves',
+        'Building fight endurance', 'Developing finishing instincts',
+        'Cage awareness and positioning', 'Transitioning between ranges'
+      ]
+    },
+    'soccer': {
+      techniques: [
+        'Ball Control Fundamentals', 'Passing Accuracy', 'Shooting Technique',
+        'Defensive Positioning', 'Off-the-ball Movement', 'First Touch Development',
+        'Tactical Awareness', '1v1 Attacking', '1v1 Defending', 'Set Piece Execution'
+      ],
+      fundamentals: [
+        'Field vision and awareness', 'Communication on the pitch',
+        'Fitness and conditioning', 'Tactical discipline',
+        'Decision making under pressure', 'Team chemistry'
+      ],
+      commonTopics: [
+        'Improving technical skills', 'Tactical positioning',
+        'Reading the game', 'Building confidence',
+        'Playing under pressure', 'Team coordination'
+      ]
+    },
+    'basketball': {
+      techniques: [
+        'Shooting Form and Mechanics', 'Ball Handling Drills', 'Defensive Footwork',
+        'Pick and Roll Execution', 'Post Moves', 'Transition Offense',
+        'Help Defense Principles', 'Rebounding Positioning', 'Free Throw Routine'
+      ],
+      fundamentals: [
+        'Court awareness and vision', 'Communication on defense',
+        'Conditioning and stamina', 'Mental toughness',
+        'Team concepts and spacing', 'Shot selection'
+      ],
+      commonTopics: [
+        'Improving shooting consistency', 'Developing court vision',
+        'Playing better defense', 'Leadership on court',
+        'Handling pressure situations', 'Building basketball IQ'
+      ]
+    }
+  }
+
+  const defaultContent = {
+    techniques: [
+      'Fundamental Skills Development', 'Proper Technique Training',
+      'Mental Game Improvement', 'Physical Conditioning',
+      'Strategic Thinking', 'Competition Preparation'
+    ],
+    fundamentals: [
+      'Building strong foundations', 'Consistent practice habits',
+      'Mental toughness development', 'Injury prevention',
+      'Recovery and rest strategies', 'Goal setting and tracking'
+    ],
+    commonTopics: [
+      'Improving fundamental skills', 'Building confidence',
+      'Overcoming mental blocks', 'Training effectively',
+      'Competition preparation', 'Long-term development'
+    ]
+  }
+
+  return sportContent[sportLower] || defaultContent
 }
 
 /**
@@ -101,21 +267,42 @@ export async function buildDynamicCoachingContext(
   const specialties = coachData.specialties || []
   const experience = coachData.experience || ''
 
-  // ⚡ AGGRESSIVE ENHANCEMENT: Fetch actual lesson content
+  // ⚡ AGGRESSIVE ENHANCEMENT: Fetch actual lesson content (text + video)
   const lessonContent = await fetchCoachLessonContent(coachId)
+
+  // ⚡ FALLBACK SYSTEM: Use sport-specific fundamentals if no lessons exist
+  let effectiveTechniques = lessonContent.techniques
+  let effectiveLessonTitles = lessonContent.lessonTitles
+  let effectiveContent = lessonContent.fullContent
+  let usingFallback = false
+
+  if (!lessonContent.hasContent) {
+    console.log(`⚠️  No lessons found for coach ${coachId}, using sport-specific fallback content`)
+    const fallbackContent = getSportSpecificFallbackContent(sport)
+    effectiveTechniques = fallbackContent.techniques
+    effectiveLessonTitles = [...fallbackContent.commonTopics, ...fallbackContent.fundamentals]
+    effectiveContent = [
+      `As an expert ${sport} coach, I specialize in: ${fallbackContent.techniques.join(', ')}`,
+      `Core fundamentals I teach: ${fallbackContent.fundamentals.join(', ')}`,
+      `Common topics I address: ${fallbackContent.commonTopics.join(', ')}`
+    ]
+    usingFallback = true
+  }
 
   // Build dynamic credentials array
   const dynamicCredentials = [
     ...credentials,
     experience ? `${experience} Experience` : null,
-    coachData.verified ? 'Verified Coach' : null
+    coachData.verified ? 'Verified Coach' : null,
+    lessonContent.videoLessons > 0 ? `${lessonContent.videoLessons} Video Lessons` : null,
+    lessonContent.textLessons > 0 ? `${lessonContent.textLessons} Text Lessons` : null
   ].filter(Boolean) as string[]
 
-  // Build dynamic expertise from bio, specialties AND actual lesson content
+  // Build dynamic expertise from bio, specialties AND actual lesson content (or fallback)
   const dynamicExpertise = [
     ...specialties,
     ...extractExpertiseFromBio(bio),
-    ...lessonContent.techniques.slice(0, 10) // Add actual techniques from lessons
+    ...effectiveTechniques.slice(0, 12) // Add actual techniques from lessons or fallback
   ]
 
   // Build dynamic personality traits from bio and sport
@@ -135,28 +322,31 @@ export async function buildDynamicCoachingContext(
     personalityTraits: personalityTraits,
     voiceCharacteristics: voiceCharacteristics,
     responseStyle: responseStyle,
-    // ⚡ CRITICAL: Add actual lesson content to force specific responses
+    // ⚡ CRITICAL: Add actual lesson content OR sport-specific fallback
     lessonContent: {
-      availableLessons: lessonContent.lessonTitles,
-      techniques: lessonContent.techniques,
-      contentSamples: lessonContent.fullContent.slice(0, 5).map(content =>
+      availableLessons: effectiveLessonTitles,
+      techniques: effectiveTechniques,
+      contentSamples: effectiveContent.slice(0, 5).map(content =>
         content.substring(0, 500) // First 500 chars of each content piece
       )
     }
   }
 
-  // Try to enhance with voice profile
+  // ⚡ AGGRESSIVE: Always try to enhance with voice profile (lowered threshold)
   try {
     const voiceProfile = await getVoiceProfile(coachId)
-    if (voiceProfile && voiceProfile.completenessScore > 30) {
+    if (voiceProfile && voiceProfile.completenessScore > 10) { // Lowered from 30% to 10%
       console.log(`🎤 Enhancing with voice profile (${voiceProfile.completenessScore}% complete)`)
       return enhanceCoachingContextWithVoice(baseContext, voiceProfile)
+    } else if (voiceProfile) {
+      console.log(`📊 Voice profile exists but low completeness (${voiceProfile.completenessScore}%), using base context`)
     }
   } catch (error) {
     console.warn('Could not load voice profile, using base context:', error)
   }
 
-  console.log(`🎯 Context built with ${lessonContent.lessonTitles.length} lessons and ${lessonContent.fullContent.length} content pieces`)
+  const contentSource = usingFallback ? 'sport-specific fallback' : `${lessonContent.videoLessons} video + ${lessonContent.textLessons} text lessons`
+  console.log(`🎯 Context built with ${contentSource}, ${effectiveTechniques.length} techniques, ${effectiveContent.length} content pieces`)
   return baseContext
 }
 
