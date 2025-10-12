@@ -12,6 +12,9 @@ import { auditExternalAPI } from '@/lib/audit-logger'
 import { logger } from '@/lib/logger'
 import type { AIProvider } from '@/types'
 
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic'
+
 // ============================================================================
 // RATE LIMITING
 // ============================================================================
