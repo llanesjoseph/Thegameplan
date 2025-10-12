@@ -181,7 +181,7 @@ function getGeminiClient(): GoogleGenerativeAI | null {
   return geminiClient
 }
 
-async function callGemini(
+export async function callGemini(
   systemPrompt: string,
   userPrompt: string,
   temperature: number,

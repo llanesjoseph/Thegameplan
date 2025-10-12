@@ -239,11 +239,11 @@ export async function processCoachQuestion(
         logger.info('[QA-Agent] AI fallback generated', { length: fallbackResult.text.length })
 
         return {
-          text: fallbackResult.text + '\n\n_Note: This response is based on general coaching knowledge. For more personalized advice, consider adding specific training content._',
+          text: fallbackResult.text + '\n\n---\n\n💡 _This response draws from general coaching expertise. For even more personalized advice tailored to your specific training, consider creating lesson content on this topic!_',
           sources: [],
           confidence: {
-            overall: 0.5, // Medium confidence for general knowledge
-            coverage: 0.3,
+            overall: 0.6, // Good confidence for expert knowledge
+            coverage: 0.5,
             agreement: 0.7,
             recency: 0.5
           },
@@ -392,6 +392,7 @@ export async function processCoachQuestion(
 
 /**
  * Generate a helpful response using AI when no specific content is found
+ * This uses the AI's general coaching knowledge instead of specific lesson content
  */
 async function generateFallbackResponse(
   question: string,
@@ -403,34 +404,42 @@ async function generateFallbackResponse(
   },
   mode: EnsembleMode
 ): Promise<{ text: string }> {
-  logger.info('[QA-Agent:Fallback] Generating AI response without specific content')
+  logger.info('[QA-Agent:Fallback] Generating AI response using general coaching knowledge')
 
-  // Import ensemble functions
-  const { generateWithEnsemble } = await import('./ensemble-service')
+  // Import AI clients directly to bypass ensemble restrictions
+  const { callGemini } = await import('./ensemble-service')
 
-  // Create a synthetic "general knowledge" chunk
-  const syntheticChunk: RetrievedChunk = {
-    chunk_id: 'GENERAL_KNOWLEDGE',
-    text: `You are ${coachContext.name}, an expert ${coachContext.sport} coach. Use your general coaching knowledge and expertise to provide helpful, specific, and actionable advice.`,
-    label: 'General Coaching Knowledge',
-    source_type: 'qa_archive',
-    source_id: 'fallback',
-    metadata: {
-      sport: coachContext.sport,
-      coach_id: coachContext.coach_id
-    },
-    relevance_score: 0.5
+  // Build a comprehensive coaching prompt that encourages specific, actionable advice
+  const systemPrompt = `You are ${coachContext.name}, an expert ${coachContext.sport} coach with years of experience.
+
+Since you don't have specific lesson content for this question, draw from your extensive coaching knowledge and expertise to provide:
+
+1. SPECIFIC, ACTIONABLE ADVICE - Not generic platitudes
+2. STEP-BY-STEP GUIDANCE - Break down complex movements or concepts
+3. COMMON MISTAKES - What to avoid and why
+4. PROGRESSION TIPS - How to build up to more advanced techniques
+5. PRACTICE DRILLS - Concrete exercises they can do
+
+Be technical and detailed. Assume the athlete wants real coaching, not motivational fluff.
+${coachContext.voice_traits ? `Your coaching style: ${coachContext.voice_traits.join(', ')}` : ''}
+
+Remember: You're a real coach with expertise. Give advice you'd give to an athlete in person.`
+
+  const userPrompt = `Question: ${question}
+
+Provide detailed, specific coaching advice with actionable steps. Be technical and thorough.`
+
+  try {
+    // Use Gemini for fallback generation with higher temperature for more creative responses
+    const response = await callGemini(systemPrompt, userPrompt, 0.6, 'gemini-1.5-flash')
+
+    logger.info('[QA-Agent:Fallback] Generated fallback response', { length: response.length })
+
+    return { text: response }
+  } catch (error) {
+    logger.error('[QA-Agent:Fallback] Error generating fallback', { error })
+    throw error
   }
-
-  // Generate using ensemble with the synthetic context
-  const result = await generateWithEnsemble(
-    question,
-    [syntheticChunk],
-    coachContext,
-    mode
-  )
-
-  return { text: result.text }
 }
 
 /**
