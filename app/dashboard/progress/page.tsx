@@ -46,6 +46,8 @@ export default function AthleteDashboard() {
   const [hasNoData, setHasNoData] = useState(false)
   const [lessonCount, setLessonCount] = useState<number>(0)
   const [videoCount, setVideoCount] = useState<number>(0)
+  const [coachBio, setCoachBio] = useState<string>('')
+  const [coachSport, setCoachSport] = useState<string>('')
 
   // Athlete cards with AI Assistant as a native card
   const athleteCards = [
@@ -182,12 +184,16 @@ export default function AthleteDashboard() {
         if (coachSnap.exists()) {
           const coachData = coachSnap.data()
           setCoachName(coachData?.displayName || coachData?.email || 'Your Coach')
+          setCoachBio(coachData?.bio || '')
+          setCoachSport(coachData?.sport || 'Coaching')
 
           // Try to get profile image from users.photoURL first
           let profileImageUrl = coachData?.photoURL || ''
+          let bio = coachData?.bio || ''
+          let sport = coachData?.sport || 'Coaching'
 
-          // If no photoURL, try to get from creator_profiles
-          if (!profileImageUrl) {
+          // If no photoURL or bio, try to get from creator_profiles
+          if (!profileImageUrl || !bio) {
             try {
               const profileQuery = query(
                 collection(db, 'creator_profiles'),
@@ -197,7 +203,9 @@ export default function AthleteDashboard() {
 
               if (!profileSnap.empty) {
                 const profileData = profileSnap.docs[0].data()
-                profileImageUrl = profileData?.profileImageUrl || ''
+                profileImageUrl = profileImageUrl || profileData?.profileImageUrl || ''
+                bio = bio || profileData?.bio || ''
+                sport = sport || profileData?.sport || 'Coaching'
               }
             } catch (error) {
               console.warn('Could not fetch creator profile:', error)
@@ -205,6 +213,8 @@ export default function AthleteDashboard() {
           }
 
           setCoachPhotoURL(profileImageUrl)
+          setCoachBio(bio)
+          setCoachSport(sport)
         }
       } catch (error) {
         console.error('Error fetching coach data:', error)
@@ -408,6 +418,95 @@ export default function AthleteDashboard() {
         <AppHeader title="Athlete Dashboard" subtitle="Your training hub for excellence" />
 
         <main className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 space-y-6 lg:space-y-8">
+          {/* Your Coach Profile Section */}
+          {coachId && coachName && (
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 overflow-hidden">
+              {/* Header */}
+              <div className="bg-gradient-to-r from-teal/20 to-sky-blue/20 px-6 sm:px-8 py-4 border-b border-white/50">
+                <h2 className="text-xl sm:text-2xl" style={{ color: '#000000' }}>
+                  Your Coach
+                </h2>
+              </div>
+
+              {/* Coach Profile Content */}
+              <div className="p-6 sm:p-8">
+                <div className="flex flex-col sm:flex-row gap-6 items-start">
+                  {/* Coach Photo */}
+                  <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-2xl overflow-hidden shadow-2xl flex-shrink-0 ring-4 ring-white/50" style={{ backgroundColor: '#20B2AA' }}>
+                    {coachPhotoURL ? (
+                      <img
+                        src={coachPhotoURL}
+                        alt={coachName}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-white text-5xl font-bold">
+                        {coachName.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Coach Info */}
+                  <div className="flex-1">
+                    <h3 className="text-2xl sm:text-3xl font-bold mb-2" style={{ color: '#000000' }}>
+                      {coachName}
+                    </h3>
+
+                    {coachSport && (
+                      <div className="inline-flex items-center gap-2 px-3 py-1 bg-teal/10 rounded-full mb-4">
+                        <svg className="w-4 h-4" style={{ color: '#20B2AA' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                        </svg>
+                        <span className="text-sm font-medium" style={{ color: '#20B2AA' }}>
+                          {coachSport}
+                        </span>
+                      </div>
+                    )}
+
+                    {coachBio && (
+                      <p className="text-base sm:text-lg leading-relaxed mb-4" style={{ color: '#000000', opacity: 0.7 }}>
+                        {coachBio}
+                      </p>
+                    )}
+
+                    {/* Quick Actions */}
+                    <div className="flex flex-wrap gap-3 mt-4">
+                      <button
+                        onClick={() => setExpandedCard('ai-assistant')}
+                        className="px-4 py-2 bg-gradient-to-r from-teal to-sky-blue text-white rounded-lg hover:opacity-90 transition-opacity text-sm font-medium shadow-md"
+                      >
+                        💬 Chat with AI Assistant
+                      </button>
+
+                      <Link
+                        href={`/coach/${coachId}`}
+                        className="px-4 py-2 bg-white border-2 border-teal/30 text-teal rounded-lg hover:bg-teal/5 transition-colors text-sm font-medium shadow-sm"
+                      >
+                        👤 View Full Profile
+                      </Link>
+                    </div>
+
+                    {/* Stats Row */}
+                    <div className="mt-6 pt-6 border-t border-gray-200/50 flex gap-6">
+                      <div>
+                        <div className="text-2xl font-bold" style={{ color: '#91A6EB' }}>
+                          {lessonCount}
+                        </div>
+                        <div className="text-xs text-gray-600">Lessons</div>
+                      </div>
+                      <div>
+                        <div className="text-2xl font-bold" style={{ color: '#20B2AA' }}>
+                          {videoCount}
+                        </div>
+                        <div className="text-xs text-gray-600">Videos</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Athlete Tools Grid */}
           <div>
             <h2 className="text-xl sm:text-2xl mb-4 sm:mb-6 uppercase tracking-wide" style={{ color: '#000000' }}>
