@@ -121,6 +121,13 @@ service cloud.firestore {
              request.resource.data.title.size() >= 1 &&
              (!('sport' in request.resource.data) || request.resource.data.sport is string);
     }
+
+    // Check if user owns a conversation by ID
+    function ownsConversation(conversationId) {
+      return isAuthenticated() &&
+             exists(/databases/$(database)/documents/chatConversations/$(conversationId)) &&
+             get(/databases/$(database)/documents/chatConversations/$(conversationId)).data.userId == request.auth.uid;
+    }
     
     // ===== CORE COLLECTIONS =====
 
@@ -340,19 +347,8 @@ service cloud.firestore {
 
       // Chat messages subcollection
       match /messages/{messageId} {
-        // Messages belong to conversation owner
-        // Check parent conversation ownership
-        allow read: if isAuthenticated() &&
-                       exists(/databases/$(database)/documents/chatConversations/$(conversationId)) &&
-                       get(/databases/$(database)/documents/chatConversations/$(conversationId)).data.userId == request.auth.uid;
-
-        allow create: if isAuthenticated() &&
-                         exists(/databases/$(database)/documents/chatConversations/$(conversationId)) &&
-                         get(/databases/$(database)/documents/chatConversations/$(conversationId)).data.userId == request.auth.uid;
-
-        allow update, delete: if isAuthenticated() &&
-                                 exists(/databases/$(database)/documents/chatConversations/$(conversationId)) &&
-                                 get(/databases/$(database)/documents/chatConversations/$(conversationId)).data.userId == request.auth.uid;
+        // Messages belong to conversation owner - use helper function
+        allow read, create, update, delete: if ownsConversation(conversationId);
       }
     }
     
