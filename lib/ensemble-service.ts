@@ -129,12 +129,18 @@ function getDynamicTemperature(
 // OPENAI CALLS
 // ============================================================================
 
-const openaiClient = (() => {
-  const cfg = getAIServiceConfig()
-  return cfg.openai.enabled && cfg.openai.apiKey
-    ? new OpenAI({ apiKey: cfg.openai.apiKey })
-    : null
-})()
+// Lazy-load OpenAI client to avoid build-time env validation
+let openaiClient: OpenAI | null | undefined = undefined
+
+function getOpenAIClient(): OpenAI | null {
+  if (openaiClient === undefined) {
+    const cfg = getAIServiceConfig()
+    openaiClient = cfg.openai.enabled && cfg.openai.apiKey
+      ? new OpenAI({ apiKey: cfg.openai.apiKey })
+      : null
+  }
+  return openaiClient
+}
 
 async function callOpenAI(
   systemPrompt: string,
@@ -142,9 +148,10 @@ async function callOpenAI(
   temperature: number,
   model = 'gpt-4-turbo-preview'
 ): Promise<string> {
-  if (!openaiClient) throw new Error('OpenAI not configured')
+  const client = getOpenAIClient()
+  if (!client) throw new Error('OpenAI not configured')
 
-  const completion = await openaiClient.chat.completions.create({
+  const completion = await client.chat.completions.create({
     model,
     messages: [
       { role: 'system', content: systemPrompt },
@@ -161,12 +168,18 @@ async function callOpenAI(
 // GEMINI CALLS
 // ============================================================================
 
-const geminiClient = (() => {
-  const cfg = getAIServiceConfig()
-  return cfg.gemini.enabled && cfg.gemini.apiKey
-    ? new GoogleGenerativeAI(cfg.gemini.apiKey)
-    : null
-})()
+// Lazy-load Gemini client to avoid build-time env validation
+let geminiClient: GoogleGenerativeAI | null | undefined = undefined
+
+function getGeminiClient(): GoogleGenerativeAI | null {
+  if (geminiClient === undefined) {
+    const cfg = getAIServiceConfig()
+    geminiClient = cfg.gemini.enabled && cfg.gemini.apiKey
+      ? new GoogleGenerativeAI(cfg.gemini.apiKey)
+      : null
+  }
+  return geminiClient
+}
 
 async function callGemini(
   systemPrompt: string,
@@ -174,9 +187,10 @@ async function callGemini(
   temperature: number,
   model = 'gemini-1.5-flash'
 ): Promise<string> {
-  if (!geminiClient) throw new Error('Gemini not configured')
+  const client = getGeminiClient()
+  if (!client) throw new Error('Gemini not configured')
 
-  const genModel = geminiClient.getGenerativeModel({
+  const genModel = client.getGenerativeModel({
     model,
     generationConfig: { temperature, maxOutputTokens: 2000 },
     systemInstruction: systemPrompt

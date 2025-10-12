@@ -202,16 +202,10 @@ export function getStripeConfig() {
   }
 }
 
-// Initialize environment validation on import (but only on server-side)
-// Client-side validation will be handled by the functions that need it
-if (typeof window === 'undefined') {
-  try {
-    validateEnv()
-  } catch (error) {
-    // In production builds, we don't want to fail the entire build
-    // The validation will happen at runtime when the functions are called
-    if (process.env.NODE_ENV !== 'production') {
-      console.warn('Server-side environment validation failed:', error)
-    }
-  }
-}
+// Skip validation during Next.js build phase (Vercel deployment)
+// Environment variables are only available at runtime, not during build
+// Validation will happen at runtime when the functions are actually called
+//
+// Note: We don't validate on module import to prevent build failures.
+// Each helper function (getFirebaseConfig, etc.) calls validateEnv() which
+// will validate when actually needed at runtime.

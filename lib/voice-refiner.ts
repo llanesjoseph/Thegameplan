@@ -95,12 +95,18 @@ function getDefaultProfile(coach_id: string): Partial<CoachVoiceProfile> {
 // VOICE REFINEMENT
 // ============================================================================
 
-const openaiClient = (() => {
-  const cfg = getAIServiceConfig()
-  return cfg.openai.enabled && cfg.openai.apiKey
-    ? new OpenAI({ apiKey: cfg.openai.apiKey })
-    : null
-})()
+// Lazy-load OpenAI client to avoid build-time env validation
+let openaiClient: OpenAI | null | undefined = undefined
+
+function getOpenAIClient(): OpenAI | null {
+  if (openaiClient === undefined) {
+    const cfg = getAIServiceConfig()
+    openaiClient = cfg.openai.enabled && cfg.openai.apiKey
+      ? new OpenAI({ apiKey: cfg.openai.apiKey })
+      : null
+  }
+  return openaiClient
+}
 
 /**
  * Refine answer to match coach's voice while preserving facts and citations
@@ -113,7 +119,8 @@ export async function refineToCoachVoice(
     coach_id: string
   }
 ): Promise<string> {
-  if (!openaiClient) {
+  const client = getOpenAIClient()
+  if (!client) {
     logger.warn('[VoiceRefiner] OpenAI not available, skipping voice refinement')
     return rawAnswer
   }
@@ -161,7 +168,7 @@ ${rawAnswer}
 
 Remember: Keep facts, keep citations, only change style.`
 
-    const completion = await openaiClient.chat.completions.create({
+    const completion = await client.chat.completions.create({
       model: 'gpt-4-turbo-preview',
       messages: [
         { role: 'system', content: systemPrompt },
@@ -231,7 +238,8 @@ export async function analyzeCoachVoice(
     }
 
     // Use AI to analyze voice characteristics
-    if (!openaiClient) {
+    const client = getOpenAIClient()
+    if (!client) {
       logger.warn('[VoiceRefiner] OpenAI not available, using defaults')
       return getDefaultProfile(coach_id)
     }
@@ -254,7 +262,7 @@ Return JSON:
   }
 }`
 
-    const completion = await openaiClient.chat.completions.create({
+    const completion = await client.chat.completions.create({
       model: 'gpt-4-turbo-preview',
       messages: [
         { role: 'system', content: 'You are a linguistic analyst extracting voice characteristics.' },
