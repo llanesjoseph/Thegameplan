@@ -325,18 +325,34 @@ service cloud.firestore {
 
     // Chat conversations - AI assistant chat history
     match /chatConversations/{conversationId} {
-      // AGGRESSIVE FIX: Allow authenticated users to read/write their own data
-      // This is secure because we check userId on all operations
-      allow read, write: if isAuthenticated();
-      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
-      allow update, delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      // Users can read their own conversations
+      // Allow reading during creation (resource == null) or if userId matches
+      allow read: if isAuthenticated() &&
+                     (resource == null || resource.data.userId == request.auth.uid);
+
+      // Users can only create conversations for themselves
+      allow create: if isAuthenticated() &&
+                       request.resource.data.userId == request.auth.uid;
+
+      // Users can only update/delete their own conversations
+      allow update, delete: if isAuthenticated() &&
+                               resource.data.userId == request.auth.uid;
 
       // Chat messages subcollection
       match /messages/{messageId} {
-        // Allow authenticated users full access to messages
-        // Frontend ensures users only access their own conversations
-        allow read, write: if isAuthenticated();
-        allow create: if isAuthenticated();
+        // Messages belong to conversation owner
+        // Check parent conversation ownership
+        allow read: if isAuthenticated() &&
+                       exists(/databases/$(database)/documents/chatConversations/$(conversationId)) &&
+                       get(/databases/$(database)/documents/chatConversations/$(conversationId)).data.userId == request.auth.uid;
+
+        allow create: if isAuthenticated() &&
+                         exists(/databases/$(database)/documents/chatConversations/$(conversationId)) &&
+                         get(/databases/$(database)/documents/chatConversations/$(conversationId)).data.userId == request.auth.uid;
+
+        allow update, delete: if isAuthenticated() &&
+                                 exists(/databases/$(database)/documents/chatConversations/$(conversationId)) &&
+                                 get(/databases/$(database)/documents/chatConversations/$(conversationId)).data.userId == request.auth.uid;
       }
     }
     
