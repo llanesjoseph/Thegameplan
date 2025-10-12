@@ -333,14 +333,18 @@ service cloud.firestore {
 
       // Chat messages subcollection
       match /messages/{messageId} {
-        // Allow authenticated users to access messages in conversations they own
-        // Check parent doc exists and user owns it
-        function parentConversation() {
-          return get(/databases/$(database)/documents/chatConversations/$(conversationId));
-        }
+        // Allow authenticated users to access messages
+        // For writes: check userId in the message data being written
+        // For reads: check parent conversation exists and user owns it
+        allow read: if isAuthenticated() &&
+                       exists(/databases/$(database)/documents/chatConversations/$(conversationId)) &&
+                       get(/databases/$(database)/documents/chatConversations/$(conversationId)).data.userId == request.auth.uid;
 
-        allow read, write: if isAuthenticated() &&
-                              (parentConversation().data.userId == request.auth.uid);
+        allow create, update: if isAuthenticated() &&
+                                 request.resource.data.userId == request.auth.uid;
+
+        allow delete: if isAuthenticated() &&
+                         resource.data.userId == request.auth.uid;
       }
     }
     
