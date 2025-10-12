@@ -4,9 +4,18 @@
  */
 
 import { getSportContext, SportContext } from './sports-knowledge-base'
-// Dynamic import for ai-service to avoid Node.js modules in client bundle
-import type { CoachingContext } from './ai-service'
-import { generateWithRedundancy } from './llm-service'
+
+// CoachingContext type (previously from deleted ai-service module)
+export interface CoachingContext {
+  coachName: string
+  sport: string
+  expertise: string[]
+  voiceCharacteristics: {
+    tone: string
+    catchphrases: string[]
+  }
+  coachCredentials: string[]
+}
 
 export interface ContentGenerationRequest {
   title: string
@@ -253,31 +262,31 @@ export function generateDynamicPromptTemplate(request: ContentGenerationRequest)
 
 /**
  * Generate comprehensive lesson content using AI with sports-specific knowledge
+ *
+ * NOTE: This function previously used the deleted ai-service module.
+ * It now falls back to structured templates using the sports knowledge base.
  */
 export async function generateLessonContent(request: ContentGenerationRequest): Promise<GeneratedContent> {
   const sportContext = getSportContext(request.sport)
-  const { getCoachingContext } = await import('./ai-service')
-  const coachingContext = getCoachingContext(request.creatorId, request.sport)
+
+  // Create a default coaching context
+  const coachingContext: CoachingContext = {
+    coachName: 'Coach',
+    sport: request.sport,
+    expertise: [request.sport],
+    voiceCharacteristics: {
+      tone: 'Professional and instructional',
+      catchphrases: ['Practice makes perfect!', 'Stay focused and stay committed!']
+    },
+    coachCredentials: ['Experienced coach', 'Sports specialist']
+  }
 
   try {
-    // Generate dynamic prompt template
-    const dynamicTemplate = generateDynamicPromptTemplate(request)
-
-    // Use the dynamic template for AI generation
-    const combinedPrompt = `${dynamicTemplate.systemInstruction}
-
-${dynamicTemplate.userPrompt}`
-
-    // Use the robust AI service with dynamic prompt
-    const result = await generateWithRedundancy(combinedPrompt, coachingContext)
-
-    // Parse and structure the AI response
-    const structuredContent = parseAIResponse(result.text, request, sportContext)
-
-    return structuredContent
+    // Use fallback content generation with the sports knowledge base
+    return generateFallbackContent(request, sportContext, coachingContext)
   } catch (error) {
-    console.error('Dynamic content generation failed:', error)
-    // Fallback to structured template
+    console.error('Content generation failed:', error)
+    // Return minimal fallback
     return generateFallbackContent(request, sportContext, coachingContext)
   }
 }

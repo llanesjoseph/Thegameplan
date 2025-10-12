@@ -1,4 +1,14 @@
-import { CoachingContext } from './ai-service'
+// CoachingContext type (previously from deleted ai-service module)
+export interface CoachingContext {
+  coachName: string
+  sport: string
+  expertise: string[]
+  voiceCharacteristics: {
+    tone: string
+    catchphrases: string[]
+  }
+  coachCredentials: string[]
+}
 
 // Professional lesson structure interface
 export interface LessonStructure {
