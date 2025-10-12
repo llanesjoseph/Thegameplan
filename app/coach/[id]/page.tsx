@@ -19,12 +19,9 @@ import {
   Mail,
   Calendar,
   Users,
-  Trophy,
-  Sparkles,
-  MessageCircle
+  Trophy
 } from 'lucide-react'
 import AppHeader from '@/components/ui/AppHeader'
-import AIAssistant from '@/components/AIAssistant'
 import Link from 'next/link'
 import { useAuth } from '@/hooks/use-auth'
 
@@ -71,7 +68,6 @@ export default function CoachProfilePage() {
   const [totalAthletes, setTotalAthletes] = useState(0)
   const [isInIframe, setIsInIframe] = useState(false)
   const [lessons, setLessons] = useState<Lesson[]>([])
-  const [showAIChat, setShowAIChat] = useState(false)
 
   // Detect if page is loaded in iframe
   useEffect(() => {
@@ -493,70 +489,6 @@ export default function CoachProfilePage() {
           </div>
         )}
 
-        {/* AI Coach Chat Section */}
-        <div className="mt-8 bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 overflow-hidden">
-          {/* Chat Header/Toggle */}
-          <button
-            onClick={() => setShowAIChat(!showAIChat)}
-            className="w-full px-8 py-6 flex items-center justify-between hover:bg-gray-50 transition-colors"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: '#9333EA' }}>
-                <Sparkles className="w-6 h-6 text-white" />
-              </div>
-              <div className="text-left">
-                <h2 className="text-xl font-heading" style={{ color: '#000000' }}>
-                  Chat with {coach.displayName}'s AI Assistant
-                </h2>
-                <p className="text-sm" style={{ color: '#000000', opacity: 0.6 }}>
-                  Get instant answers about their training philosophy and methods
-                </p>
-              </div>
-            </div>
-            <MessageCircle className={`w-6 h-6 transition-transform ${showAIChat ? 'rotate-180' : ''}`} style={{ color: '#9333EA' }} />
-          </button>
-
-          {/* AI Chat */}
-          {showAIChat && user && (
-            <div className="border-t border-gray-200 p-6" style={{ height: '600px' }}>
-              <AIAssistant
-                mode="inline"
-                userId={user.uid}
-                userEmail={user.email || ''}
-                title={`${coach.displayName}'s AI Assistant`}
-                context={`You are ${coach.displayName}'s AI coaching assistant specializing in ${coach.sport}. ${coach.bio ? `Coach background: ${coach.bio}. ` : ''}
-
-CRITICAL INSTRUCTIONS:
-- Answer the SPECIFIC question asked - don't give general philosophy
-- Provide TECHNICAL, STEP-BY-STEP instructions for techniques
-- For ${coach.sport} questions, give detailed breakdowns with key points
-- Use numbered steps, specific body positions, and timing cues
-- Be direct and actionable - what should they DO right now
-- Only discuss general philosophy if specifically asked about mindset/approach
-
-Example: If asked about single leg takedowns, explain:
-1. Setup and penetration step
-2. Hand placement and grip
-3. Head position
-4. Finish variations (running the pipe, dump, etc.)
-5. Common mistakes to avoid
-
-Keep responses focused, technical, and immediately useful for training.`}
-                placeholder={`Ask about ${coach.sport} techniques...`}
-                requireLegalConsent={true}
-                sport={coach.sport}
-                creatorId={coachId}
-                creatorName={coach.displayName}
-              />
-            </div>
-          )}
-
-          {!showAIChat && (
-            <div className="px-8 pb-6 text-center" style={{ color: '#000000', opacity: 0.6 }}>
-              Click above to start chatting
-            </div>
-          )}
-        </div>
       </div>
     </div>
   )

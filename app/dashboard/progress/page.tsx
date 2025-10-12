@@ -71,8 +71,10 @@ export default function AthleteDashboard() {
     },
     {
       id: 'ai-assistant',
-      title: `Chat with ${coachName ? coachName.split(' ')[0] : 'Your Coach'}'s AI Assistant`,
-      description: 'Get instant answers about their training philosophy and methods',
+      title: coachName ? `Ask Your Coach ${coachName.split(' ')[0]}` : 'Ask Your Coach',
+      description: coachName
+        ? `Chat with ${coachName.split(' ')[0]}'s AI assistant about training and techniques`
+        : 'Get instant answers from your coach\'s AI assistant',
       icon: Sparkles,
       color: '#8B5CF6',
       path: null,
@@ -582,10 +584,10 @@ export default function AthleteDashboard() {
                             </div>
                             <div>
                               <h3 className="text-lg font-medium" style={{ color: '#000000' }}>
-                                {coachName ? `${coachName}'s AI Assistant` : "AI Coach Assistant"}
+                                {coachName ? `Your Coach ${coachName.split(' ')[0]}'s AI Assistant` : "Your Coach's AI Assistant"}
                               </h3>
                               <p className="text-xs" style={{ color: '#000000', opacity: 0.6 }}>
-                                Get instant answers about training philosophy and methods
+                                Ask questions about training, techniques, and your coach's philosophy
                               </p>
                             </div>
                           </div>
