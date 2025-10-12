@@ -9,6 +9,7 @@ import {
  collection,
  doc,
  addDoc,
+ setDoc,
  getDocs,
  query,
  where,
@@ -130,6 +131,22 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
 
  const saveMessageToFirestore = async (message: Message, conversationId: string) => {
   try {
+   // First ensure conversation document exists with correct ID
+   const conversationRef = doc(db, 'chatConversations', conversationId)
+   const conversationData = {
+    userId: userId,
+    lastActivity: serverTimestamp(),
+    messageCount: messages.length + 1,
+    sport: sport || null,
+    context: context.slice(0, 200),
+    title: title,
+    createdAt: serverTimestamp()
+   }
+
+   // Use setDoc with merge to create or update conversation
+   await setDoc(conversationRef, conversationData, { merge: true })
+
+   // Now save the message
    const messageData = {
     type: message.type,
     content: message.content,
@@ -137,30 +154,13 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
     userId: userId,
     sessionId: sessionId,
     sport: sport || null,
-    context: context.slice(0, 100) // First 100 chars for context reference
+    context: context.slice(0, 100)
    }
 
    await addDoc(
     collection(db, 'chatConversations', conversationId, 'messages'),
     messageData
    )
-
-   // Also update conversation metadata
-   const conversationData = {
-    userId: userId,
-    lastActivity: serverTimestamp(),
-    messageCount: messages.length + 1,
-    sport: sport || null,
-    context: context.slice(0, 200),
-    title: title
-   }
-
-   await addDoc(collection(db, 'chatConversations'), {
-    ...conversationData,
-    conversationId: conversationId
-   }).catch(() => {
-    // Conversation might already exist, that's fine
-   })
 
   } catch (error) {
    console.error('Error saving message to Firestore:', error)
