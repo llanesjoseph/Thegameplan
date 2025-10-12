@@ -18,7 +18,10 @@ import {
   Calendar,
   LayoutDashboard,
   ChevronDown,
-  X
+  X,
+  BarChart3,
+  TrendingUp,
+  Clock
 } from 'lucide-react'
 import Link from 'next/link'
 import AppHeader from '@/components/ui/AppHeader'
@@ -651,21 +654,159 @@ export default function AthleteDashboard() {
                   </div>
                 )}
 
-                {/* Quick Stats - Persistent and Prominent */}
+                {/* Quick Stats - Clickable Cards */}
                 <div className="grid grid-cols-3 gap-3 sm:gap-4">
-                  <div className="text-center p-4 sm:p-5 bg-gradient-to-br from-sky-blue/10 to-sky-blue/5 rounded-lg border border-sky-blue/20">
-                    <div className="text-3xl sm:text-4xl mb-1" style={{ color: '#91A6EB' }}>{lessonCount}</div>
+                  {/* Lessons Stat Card */}
+                  <button
+                    onClick={() => setExpandedCard(expandedCard === 'stat-lessons' ? null : 'stat-lessons')}
+                    className="text-center p-4 sm:p-5 bg-gradient-to-br from-sky-blue/10 to-sky-blue/5 rounded-lg border border-sky-blue/20 hover:shadow-xl hover:scale-105 transition-all cursor-pointer"
+                  >
+                    <BookOpen className="w-6 h-6 mx-auto mb-2" style={{ color: '#91A6EB' }} />
+                    <div className="text-3xl sm:text-4xl mb-1 font-bold" style={{ color: '#91A6EB' }}>{lessonCount}</div>
                     <p className="text-xs sm:text-sm font-medium" style={{ color: '#000000', opacity: 0.7 }}>Lessons</p>
-                  </div>
-                  <div className="text-center p-4 sm:p-5 bg-gradient-to-br from-teal/10 to-teal/5 rounded-lg border border-teal/20">
-                    <div className="text-3xl sm:text-4xl mb-1" style={{ color: '#20B2AA' }}>{videoCount}</div>
+                  </button>
+
+                  {/* Videos Stat Card */}
+                  <button
+                    onClick={() => alert('📹 Video library feature coming soon!')}
+                    className="text-center p-4 sm:p-5 bg-gradient-to-br from-teal/10 to-teal/5 rounded-lg border border-teal/20 hover:shadow-xl hover:scale-105 transition-all cursor-pointer"
+                  >
+                    <Video className="w-6 h-6 mx-auto mb-2" style={{ color: '#20B2AA' }} />
+                    <div className="text-3xl sm:text-4xl mb-1 font-bold" style={{ color: '#20B2AA' }}>{videoCount}</div>
                     <p className="text-xs sm:text-sm font-medium" style={{ color: '#000000', opacity: 0.7 }}>Videos</p>
-                  </div>
-                  <div className="text-center p-4 sm:p-5 bg-gradient-to-br from-orange/10 to-orange/5 rounded-lg border border-orange/20">
-                    <div className="text-3xl sm:text-4xl mb-1" style={{ color: '#FF6B35' }}>0</div>
+                  </button>
+
+                  {/* Hours/Analytics Stat Card */}
+                  <button
+                    onClick={() => setExpandedCard(expandedCard === 'stat-hours' ? null : 'stat-hours')}
+                    className="text-center p-4 sm:p-5 bg-gradient-to-br from-orange/10 to-orange/5 rounded-lg border border-orange/20 hover:shadow-xl hover:scale-105 transition-all cursor-pointer"
+                  >
+                    <Clock className="w-6 h-6 mx-auto mb-2" style={{ color: '#FF6B35' }} />
+                    <div className="text-3xl sm:text-4xl mb-1 font-bold" style={{ color: '#FF6B35' }}>0</div>
                     <p className="text-xs sm:text-sm font-medium" style={{ color: '#000000', opacity: 0.7 }}>Hours</p>
-                  </div>
+                  </button>
                 </div>
+
+                {/* Expanded Content - Lessons Stats */}
+                {expandedCard === 'stat-lessons' && (
+                  <div className="mt-4 bg-gradient-to-br from-sky-blue/10 to-white/90 backdrop-blur-sm rounded-xl shadow-2xl border border-sky-blue/20 overflow-hidden animate-slideDown">
+                    <div className="bg-gradient-to-r from-sky-blue/10 to-sky-blue/5 px-6 py-4 border-b border-sky-blue/20 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: '#91A6EB' }}>
+                          <BookOpen className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-medium" style={{ color: '#000000' }}>
+                            Your Lessons
+                          </h3>
+                          <p className="text-xs" style={{ color: '#000000', opacity: 0.6 }}>
+                            View and complete all your assigned lessons
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setExpandedCard(null)}
+                        className="p-2 hover:bg-sky-blue/10 rounded-lg transition-colors"
+                      >
+                        <X className="w-5 h-5" style={{ color: '#000000' }} />
+                      </button>
+                    </div>
+                    <div style={{ minHeight: '600px', maxHeight: '800px' }}>
+                      <iframe
+                        src="/dashboard/athlete-lessons"
+                        className="w-full h-full border-0"
+                        style={{ height: '800px' }}
+                        title="Your Lessons"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Expanded Content - Hours & Analytics */}
+                {expandedCard === 'stat-hours' && (
+                  <div className="mt-4 bg-gradient-to-br from-orange/10 to-white/90 backdrop-blur-sm rounded-xl shadow-2xl border border-orange/20 overflow-hidden animate-slideDown">
+                    <div className="bg-gradient-to-r from-orange/10 to-orange/5 px-6 py-4 border-b border-orange/20 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: '#FF6B35' }}>
+                          <BarChart3 className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-medium" style={{ color: '#000000' }}>
+                            Training Analytics
+                          </h3>
+                          <p className="text-xs" style={{ color: '#000000', opacity: 0.6 }}>
+                            Track your training time and progress
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setExpandedCard(null)}
+                        className="p-2 hover:bg-orange/10 rounded-lg transition-colors"
+                      >
+                        <X className="w-5 h-5" style={{ color: '#000000' }} />
+                      </button>
+                    </div>
+                    <div className="p-6">
+                      {/* Analytics Content */}
+                      <div className="grid sm:grid-cols-2 gap-6">
+                        {/* Total Training Time */}
+                        <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-white/50">
+                          <div className="flex items-center gap-3 mb-4">
+                            <Clock className="w-8 h-8" style={{ color: '#FF6B35' }} />
+                            <h4 className="text-lg font-semibold" style={{ color: '#000000' }}>Total Time</h4>
+                          </div>
+                          <div className="text-4xl font-bold mb-2" style={{ color: '#FF6B35' }}>0 hours</div>
+                          <p className="text-sm" style={{ color: '#000000', opacity: 0.6 }}>
+                            Time spent on training content
+                          </p>
+                        </div>
+
+                        {/* This Week */}
+                        <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-white/50">
+                          <div className="flex items-center gap-3 mb-4">
+                            <TrendingUp className="w-8 h-8" style={{ color: '#20B2AA' }} />
+                            <h4 className="text-lg font-semibold" style={{ color: '#000000' }}>This Week</h4>
+                          </div>
+                          <div className="text-4xl font-bold mb-2" style={{ color: '#20B2AA' }}>0 hours</div>
+                          <p className="text-sm" style={{ color: '#000000', opacity: 0.6 }}>
+                            Keep building your streak!
+                          </p>
+                        </div>
+
+                        {/* Lessons Completed */}
+                        <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-white/50">
+                          <div className="flex items-center gap-3 mb-4">
+                            <BookOpen className="w-8 h-8" style={{ color: '#91A6EB' }} />
+                            <h4 className="text-lg font-semibold" style={{ color: '#000000' }}>Completed</h4>
+                          </div>
+                          <div className="text-4xl font-bold mb-2" style={{ color: '#91A6EB' }}>0 / {lessonCount}</div>
+                          <p className="text-sm" style={{ color: '#000000', opacity: 0.6 }}>
+                            Lessons completed this month
+                          </p>
+                        </div>
+
+                        {/* Streak */}
+                        <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-white/50">
+                          <div className="flex items-center gap-3 mb-4">
+                            <div className="text-2xl">🔥</div>
+                            <h4 className="text-lg font-semibold" style={{ color: '#000000' }}>Streak</h4>
+                          </div>
+                          <div className="text-4xl font-bold mb-2" style={{ color: '#000000' }}>0 days</div>
+                          <p className="text-sm" style={{ color: '#000000', opacity: 0.6 }}>
+                            Start training to build your streak
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Coming Soon Notice */}
+                      <div className="mt-6 p-4 bg-gradient-to-r from-orange/5 to-yellow/5 rounded-lg border border-orange/20">
+                        <p className="text-sm text-center" style={{ color: '#000000', opacity: 0.7 }}>
+                          📊 <strong>Detailed analytics coming soon!</strong> Track your training time, completion rates, and progress over time.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}
