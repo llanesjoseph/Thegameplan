@@ -33,6 +33,22 @@ const nextConfig = {
   // Compression
   compress: true,
 
+  // Redirects for backwards compatibility
+  async redirects() {
+    return [
+      {
+        source: '/contributors',
+        destination: '/coaches',
+        permanent: true, // 301 redirect for SEO
+      },
+      {
+        source: '/contributors/:path*',
+        destination: '/coaches/:path*',
+        permanent: true,
+      },
+    ]
+  },
+
   // Vercel deployment - API routes enabled as serverless functions
 }
 

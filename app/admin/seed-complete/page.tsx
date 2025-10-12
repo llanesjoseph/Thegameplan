@@ -438,7 +438,7 @@ export default function CompleteSeedPage() {
      featured: true,
      lessonCount: 18,
      slug: "maria-rodriguez",
-     profileUrl: "/contributors/maria-rodriguez"
+     profileUrl: "/coaches/maria-rodriguez"
     }
    ]
 

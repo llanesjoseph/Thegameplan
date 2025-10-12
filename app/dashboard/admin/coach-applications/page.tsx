@@ -174,7 +174,7 @@ export default function CoachApplicationsPage() {
      sport: application.applicationData.sport,
      specialties: application.applicationData.specialties,
      lastUpdated: new Date().toISOString(),
-     profileUrl: `/contributors/${application.userId}`,
+     profileUrl: `/coaches/${application.userId}`,
      isActive: true
     })
    }

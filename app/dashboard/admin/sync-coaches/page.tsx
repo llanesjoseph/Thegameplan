@@ -263,7 +263,7 @@ export default function SyncCoachesPage() {
           <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 mb-6">
             <h3 className="font-semibold mb-2" style={{ color: '#FF6B35' }}>⚠️ Important: Contributors Page Filters</h3>
             <div className="text-sm space-y-1" style={{ color: '#000000', opacity: 0.7 }}>
-              <p>• The <a href="/contributors" target="_blank" className="underline hover:text-yellow-900">/contributors</a> page may filter coaches based on:</p>
+              <p>• The <a href="/coaches" target="_blank" className="underline hover:text-yellow-900">/coaches</a> page may filter coaches based on:</p>
               <ul className="ml-6 list-disc space-y-1">
                 <li><strong>Your sport preferences</strong> - If you have a preferred sport set in your profile, the page will ONLY show coaches in that sport</li>
                 <li><strong>Invalid sport values</strong> - Coaches with sports like "Coaching", "N/A", or "General" won't appear in the valid sports filter</li>

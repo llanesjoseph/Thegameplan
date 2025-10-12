@@ -274,7 +274,7 @@ export default function AppHeader({ className = '', title, subtitle }: AppHeader
         {/* Right Side Navigation */}
         <div className="flex items-center gap-4">
           {/* Browse Coaches Link */}
-          <Link href="/contributors" className="text-black hover:text-blue-600">
+          <Link href="/coaches" className="text-black hover:text-blue-600">
             Browse Coaches
           </Link>
 

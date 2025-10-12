@@ -215,7 +215,7 @@ export function DashboardSidebar() {
        <Link href="/lessons" className="text-gray-600 hover:text-gray-900 transition-colors">
         📚 Training
        </Link>
-       <Link href="/contributors" className="text-gray-600 hover:text-gray-900 transition-colors">
+       <Link href="/coaches" className="text-gray-600 hover:text-gray-900 transition-colors">
         👥 Coaches 
        </Link>
        <Link href="/subscribe" className="text-gray-600 hover:text-gray-900 transition-colors">

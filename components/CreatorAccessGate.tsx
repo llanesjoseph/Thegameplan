@@ -201,7 +201,7 @@ export default function CreatorAccessGate({
     <div className="text-center">
      {canApply && (
       <Link
-       href="/contributors/apply"
+       href="/coaches/apply"
        className="inline-flex items-center gap-2 px-6 py-3 bg-cardinal text-white rounded-lg  hover:bg-cardinal-dark transition-colors"
       >
        Apply to Become a Creator

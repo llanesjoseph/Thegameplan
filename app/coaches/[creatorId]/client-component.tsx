@@ -41,7 +41,7 @@ interface Creator {
 // Fetch creator data from API
 const getCreatorData = async (creatorId: string): Promise<Creator | null> => {
   try {
-    const response = await fetch(`/api/contributors/${creatorId}`)
+    const response = await fetch(`/api/coaches/${creatorId}`)
     if (!response.ok) {
       console.error(`Failed to fetch creator ${creatorId}: ${response.status}`)
       return null
@@ -494,7 +494,7 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
    <div className="min-h-screen flex items-center justify-center">
     <div className="text-center">
      <h1 className="text-2xl mb-4">Coach Not Found</h1>
-     <Link href="/contributors" className="text-blue-600 hover:underline">
+     <Link href="/coaches" className="text-blue-600 hover:underline">
       Back to Coaches
      </Link>
     </div>
@@ -519,7 +519,7 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
       </button>
       <div className="text-gray-300">|</div>
       <button
-       onClick={() => router.push('/contributors')}
+       onClick={() => router.push('/coaches')}
        className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors"
       >
        <Home className="w-4 h-4" />

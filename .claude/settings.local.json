@@ -41,7 +41,9 @@
       "Bash(ConvertFrom-Json)",
       "Bash(ConvertTo-Json -Depth 10)",
       "WebFetch(domain:console.firebase.google.com)",
-      "WebFetch(domain:playbookd.crucibleanalytics.dev)"
+      "WebFetch(domain:playbookd.crucibleanalytics.dev)",
+      "Bash(git mv:*)",
+      "Bash(del replace-contributors.js)"
     ],
     "deny": [],
     "ask": []

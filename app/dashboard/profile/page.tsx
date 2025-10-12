@@ -228,7 +228,7 @@ function ProfilePageContent() {
           specialties: profileData.specialties,
           experience: profileData.experience,
           lastUpdated: new Date().toISOString(),
-          profileUrl: `/contributors/${user.uid}`,
+          profileUrl: `/coaches/${user.uid}`,
           isActive: true
         }, { merge: true })
       }

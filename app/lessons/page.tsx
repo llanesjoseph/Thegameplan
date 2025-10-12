@@ -335,7 +335,7 @@ function LessonsContent() {
       {/* Become a Coach CTA */}
       <div className="text-center mt-12">
        <Link
-        href="/contributors"
+        href="/coaches"
         className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
         style={{color: '#8D9440'}}
        >

@@ -3,7 +3,7 @@ import { adminDb } from '@/lib/firebase.admin'
 
 /**
  * Sync existing coach profiles to creatorPublic collection
- * This ensures coaches appear on the /contributors page
+ * This ensures coaches appear on the /coaches page
  */
 export async function POST(request: NextRequest) {
   try {

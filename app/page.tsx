@@ -161,7 +161,7 @@ export default function LandingPage() {
      <div className="flex items-center justify-between">
       {/* Left side - can be expanded with links */}
       <div className="flex items-center gap-6">
-       <Link href="/contributors" className="text-dark hover:text-sky-blue ">
+       <Link href="/coaches" className="text-dark hover:text-sky-blue ">
         Coaches
        </Link>
        <Link href="/lessons" className="text-dark hover:text-sky-blue ">

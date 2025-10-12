@@ -139,7 +139,7 @@ export default function ContributorsClient() {
          </div>
         )}
         <div className="mt-4">
-         <Link href={`/contributors/${featured.slug || (featured.name || '').toLowerCase().replace(/\s+/g, '-')}`} className="text-clarity-accent hover:underline text-sm">View profile</Link>
+         <Link href={`/coaches/${featured.slug || (featured.name || '').toLowerCase().replace(/\s+/g, '-')}`} className="text-clarity-accent hover:underline text-sm">View profile</Link>
         </div>
        </div>
       </div>
@@ -160,7 +160,7 @@ export default function ContributorsClient() {
         <h3 className="text-clarity-text-primary  truncate">{c.name}</h3>
         {c.sport && (<p className="text-sm text-clarity-text-secondary truncate">{c.sport}</p>)}
         <div className="mt-2 text-sm">
-         <Link href={`/contributors/${c.slug || (c.name || '').toLowerCase().replace(/\s+/g, '-')}`} className="text-clarity-accent hover:underline">View profile</Link>
+         <Link href={`/coaches/${c.slug || (c.name || '').toLowerCase().replace(/\s+/g, '-')}`} className="text-clarity-accent hover:underline">View profile</Link>
         </div>
        </div>
       </NexusCard>

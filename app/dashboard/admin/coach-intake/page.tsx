@@ -241,7 +241,7 @@ export default function CoachIntakeApprovalPage() {
           sport: appData.sport || application.sport || '',
           specialties: appData.specialties || application.specialties || [],
           lastUpdated: new Date().toISOString(),
-          profileUrl: `/contributors/${application.userId}`,
+          profileUrl: `/coaches/${application.userId}`,
           isActive: true
         })
 

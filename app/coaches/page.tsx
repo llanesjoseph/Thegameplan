@@ -371,7 +371,7 @@ export default function ContributorsPage() {
       </span>
      </div>
      <Link
-      href="/contributors/apply"
+      href="/coaches/apply"
       className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
      >
       <Star className="w-4 h-4" />
@@ -384,7 +384,7 @@ export default function ContributorsPage() {
    <div className="max-w-7xl mx-auto px-6">
     <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
      {specialtyFiltered.map((c) => (
-      <Link key={c.id} href={`/contributors/${c.id}`} className="group block">
+      <Link key={c.id} href={`/coaches/${c.id}`} className="group block">
        <article className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 hover:shadow-xl transition-all group-hover:scale-[1.02]">
         <div className="relative mb-6">
          <div className="aspect-square rounded-lg overflow-hidden bg-gray-50">
@@ -506,7 +506,7 @@ export default function ContributorsPage() {
    <div className="max-w-7xl mx-auto px-4">
     <div className="flex flex-col md:flex-row items-center justify-between gap-4">
      <div className="flex items-center gap-6">
-      <Link href="/contributors" className="text-gray-600 hover:text-gray-900 transition-colors">
+      <Link href="/coaches" className="text-gray-600 hover:text-gray-900 transition-colors">
        Coaches
       </Link>
       <Link href="/lessons" className="text-gray-600 hover:text-gray-900 transition-colors">
