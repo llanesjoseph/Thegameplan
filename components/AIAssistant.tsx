@@ -280,7 +280,13 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
 
   try {
    console.log('🤖 Sending message to AI:', messageToSend)
-   
+
+   // Build conversation history for context (last 10 messages)
+   const conversationHistory = messages.slice(-10).map(msg => ({
+    role: msg.type === 'user' ? 'user' : 'assistant',
+    content: msg.content
+   }))
+
    // Use the new API endpoint that includes logging
    const response = await fetch('/api/ai-coaching', {
     method: 'POST',
@@ -289,6 +295,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
     },
     body: JSON.stringify({
      question: messageToSend,
+     conversationHistory: conversationHistory, // ADD conversation history
      userId: userId,
      userEmail: userEmail,
      sessionId: sessionId,

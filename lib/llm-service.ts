@@ -37,7 +37,7 @@ function getModelsFromEnv() {
   return { openaiModel, geminiModel, timeoutMs, primary }
 }
 
-async function callOpenAI(question: string, context: CoachingContext, model: string): Promise<LLMResult> {
+async function callOpenAI(question: string, context: CoachingContext, model: string, conversationHistory?: Array<{role: string, content: string}>): Promise<LLMResult> {
   const cfg = getAIServiceConfig()
   if (!cfg.openai.enabled || !cfg.openai.apiKey) {
     throw new Error('OpenAI not configured')
@@ -78,15 +78,32 @@ Respond authentically in character with encouraging, SPECIFIC, TECHNICAL advice.
 - Concrete step-by-step instructions
 - Specific positions, grips, or movements
 - Common mistakes to avoid
-- Reference to your actual teaching content when relevant`
+- Reference to your actual teaching content when relevant
+
+IMPORTANT: Maintain conversation context. If the user refers to something from earlier in the conversation, acknowledge it and build on it consistently.`
+
+  // Build messages array with conversation history
+  const messages: Array<{role: 'system' | 'user' | 'assistant', content: string}> = [
+    { role: 'system', content: systemMessage }
+  ]
+
+  // Add conversation history if provided
+  if (conversationHistory && conversationHistory.length > 0) {
+    conversationHistory.forEach((msg) => {
+      messages.push({
+        role: msg.role === 'user' ? 'user' : 'assistant',
+        content: msg.content
+      })
+    })
+  }
+
+  // Add current question
+  messages.push({ role: 'user', content: prompt })
 
   const start = Date.now()
   const completion = await client.chat.completions.create({
     model,
-    messages: [
-      { role: 'system', content: systemMessage },
-      { role: 'user', content: prompt }
-    ],
+    messages,
     max_tokens: 2000, // ⚡ DOUBLED from 1000 to allow detailed, substantial responses
     temperature: 0.8, // ⚡ INCREASED from 0.7 for more creative, conversational responses
     top_p: 0.95, // ⚡ INCREASED from 0.9 for more diverse vocabulary
@@ -110,7 +127,7 @@ Respond authentically in character with encouraging, SPECIFIC, TECHNICAL advice.
   }
 }
 
-async function callGemini(question: string, context: CoachingContext, model: string): Promise<LLMResult> {
+async function callGemini(question: string, context: CoachingContext, model: string, conversationHistory?: Array<{role: string, content: string}>): Promise<LLMResult> {
   const cfg = getAIServiceConfig()
   const apiKey = cfg.gemini.apiKey
   if (!cfg.gemini.enabled || !apiKey) {
@@ -123,11 +140,38 @@ async function callGemini(question: string, context: CoachingContext, model: str
       temperature: 0.8, // ⚡ INCREASED from 0.7 for more creative responses
       topP: 0.95, // ⚡ INCREASED from 0.9 for more diverse vocabulary
       maxOutputTokens: 2000, // ⚡ DOUBLED from 1000 for detailed responses
-    }
+    },
+    systemInstruction: `You are ${context.coachName}, an elite ${context.sport.toLowerCase()} coach.
+
+YOUR COACHING IDENTITY:
+- Personality: ${context.personalityTraits.join(', ')}
+- Speaking style: ${context.voiceCharacteristics.speakingStyle}
+- Your catchphrases: "${context.voiceCharacteristics.catchphrases.join('", "')}"
+
+⚡ CRITICAL: Provide SPECIFIC, TECHNICAL, STEP-BY-STEP coaching advice. Reference your actual lesson content.
+
+IMPORTANT: Maintain conversation context. If the user refers to something from earlier in the conversation, acknowledge it and build on it consistently.`
   })
+
   const prompt = generateCoachingPrompt(question, context)
   const start = Date.now()
-  const result = await genModel.generateContent(prompt)
+
+  // Use chat session with history if conversationHistory is provided
+  let result
+  if (conversationHistory && conversationHistory.length > 0) {
+    // Build history in Gemini format
+    const history = conversationHistory.map(msg => ({
+      role: msg.role === 'user' ? 'user' : 'model',
+      parts: [{ text: msg.content }]
+    }))
+
+    const chat = genModel.startChat({ history })
+    result = await chat.sendMessage(prompt)
+  } else {
+    // No history, use simple generateContent
+    result = await genModel.generateContent(prompt)
+  }
+
   const latencyMs = Date.now() - start
   const response = await result.response
   const text = response.text().trim()
@@ -137,7 +181,7 @@ async function callGemini(question: string, context: CoachingContext, model: str
   return { text, provider: 'gemini', model, latencyMs }
 }
 
-export async function generateWithRedundancy(question: string, context: CoachingContext): Promise<LLMResult> {
+export async function generateWithRedundancy(question: string, context: CoachingContext, conversationHistory?: Array<{role: string, content: string}>): Promise<LLMResult> {
   const { openaiModel, geminiModel, timeoutMs, primary } = getModelsFromEnv()
 
   // Check if any AI services are configured
@@ -151,15 +195,15 @@ export async function generateWithRedundancy(question: string, context: Coaching
   }
 
   const primaryFn = primary === 'gemini' && cfg.gemini.enabled
-    ? () => callGemini(question, context, geminiModel)
+    ? () => callGemini(question, context, geminiModel, conversationHistory)
     : cfg.openai.enabled
-    ? () => callOpenAI(question, context, openaiModel)
+    ? () => callOpenAI(question, context, openaiModel, conversationHistory)
     : null
 
   const fallbackFn = primary === 'gemini' && cfg.openai.enabled
-    ? () => callOpenAI(question, context, openaiModel)
+    ? () => callOpenAI(question, context, openaiModel, conversationHistory)
     : cfg.gemini.enabled
-    ? () => callGemini(question, context, geminiModel)
+    ? () => callGemini(question, context, geminiModel, conversationHistory)
     : null
 
   if (!primaryFn) {

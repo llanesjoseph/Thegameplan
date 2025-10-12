@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { question, userId, userEmail, sessionId, sport, creatorId, creatorName } = body
+    const { question, conversationHistory, userId, userEmail, sessionId, sport, creatorId, creatorName } = body
 
     // Validate that user can only make requests for themselves (unless admin) - skip if not authenticated
     if (isAuthenticated && userId && userId !== authenticatedUserId && authResult.success && !['admin', 'superadmin'].includes(authResult.user.role || '')) {
@@ -205,7 +205,7 @@ export async function POST(request: NextRequest) {
           requestUserId
         )
 
-        const result = await generateWithRedundancy(question, context)
+        const result = await generateWithRedundancy(question, context, conversationHistory)
         responseText = result.text
         provider = result.provider
         modelUsed = result.model
