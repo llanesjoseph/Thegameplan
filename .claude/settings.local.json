@@ -43,7 +43,9 @@
       "WebFetch(domain:console.firebase.google.com)",
       "WebFetch(domain:playbookd.crucibleanalytics.dev)",
       "Bash(git mv:*)",
-      "Bash(del replace-contributors.js)"
+      "Bash(del replace-contributors.js)",
+      "Bash(npm run dev:*)",
+      "Bash(start:*)"
     ],
     "deny": [],
     "ask": []
