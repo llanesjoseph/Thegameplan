@@ -152,17 +152,26 @@ export default function CoachProfilePage() {
 
   const fetchCoachStats = async () => {
     try {
-      // Fetch lessons created by this coach (get all published lessons)
-      const lessonsQuery = query(
+      // First, get the TOTAL count of all published lessons (without limit)
+      const totalLessonsQuery = query(
+        collection(db, 'content'),
+        where('creatorUid', '==', coachId),
+        where('status', '==', 'published')
+      )
+      const totalLessonsSnap = await getDocs(totalLessonsQuery)
+      setTotalLessons(totalLessonsSnap.size)
+
+      // Then, fetch the most recent 6 lessons for display
+      const recentLessonsQuery = query(
         collection(db, 'content'),
         where('creatorUid', '==', coachId),
         where('status', '==', 'published'),
         orderBy('createdAt', 'desc'),
         limit(6)  // Show up to 6 lessons
       )
-      const lessonsSnap = await getDocs(lessonsQuery)
+      const recentLessonsSnap = await getDocs(recentLessonsQuery)
 
-      const lessonsData: Lesson[] = lessonsSnap.docs.map(doc => ({
+      const lessonsData: Lesson[] = recentLessonsSnap.docs.map(doc => ({
         id: doc.id,
         title: doc.data().title || 'Untitled Lesson',
         description: doc.data().description,
@@ -174,7 +183,6 @@ export default function CoachProfilePage() {
       }))
 
       setLessons(lessonsData)
-      setTotalLessons(lessonsSnap.size)
 
       // Count athletes assigned to this coach
       const athletesQuery = query(
