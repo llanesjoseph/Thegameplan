@@ -1089,14 +1089,22 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
                       <div className="flex gap-2">
                         <button
                           onClick={() => handleApplicationReview(app.id, 'approved')}
-                          className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                          className="flex-1 px-4 py-2 rounded-lg transition-colors"
+                          style={{
+                            background: 'linear-gradient(to right, #20B2AA, #91A6EB)',
+                            color: '#FFFFFF'
+                          }}
                         >
                           <CheckCircle className="w-4 h-4 inline mr-2" />
                           Approve
                         </button>
                         <button
                           onClick={() => handleApplicationReview(app.id, 'rejected')}
-                          className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                          className="flex-1 px-4 py-2 rounded-lg transition-colors"
+                          style={{
+                            background: '#FF6B35',
+                            color: '#FFFFFF'
+                          }}
                         >
                           <XCircle className="w-4 h-4 inline mr-2" />
                           Reject
