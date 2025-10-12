@@ -50,23 +50,24 @@ export default function AthleteDashboard() {
     ...(coachId && coachName ? [{
       id: 'my-coach',
       title: coachName,
-      description: 'View profile, lessons, and interact via AI',
+      description: `See what ${coachName.split(' ')[0]} is up to - profile, lessons & more!`,
       icon: Users,
-      color: '#8D9440',
-      path: `/coach/${coachId}`,
+      color: '#20B2AA',
+      path: null,
       action: null,
       isCoachCard: true,
-      expandable: false
+      expandable: true, // Make coach card expandable
+      highlighted: true // Add visual highlight
     }] : []),
     {
       id: 'lessons',
       title: 'Review Lessons',
-      description: 'Access all assigned and completed training content',
+      description: 'Track progress and complete your assigned training',
       icon: BookOpen,
       color: '#91A6EB',
-      path: '/dashboard/athlete-lessons',
+      path: null, // Remove path to make it expandable
       action: null,
-      expandable: false
+      expandable: true // Make lessons expandable
     },
     {
       id: 'ai-assistant',
@@ -423,15 +424,16 @@ export default function AthleteDashboard() {
                 const Icon = card.icon
                 const isExpanded = expandedCard === card.id
                 const isCoachCard = card.id === 'my-coach'
+                const isHighlighted = card.highlighted
 
                 return (
                   <div key={index} className={`${isCoachCard ? 'col-span-2 sm:col-span-1' : ''} ${isExpanded ? 'col-span-2 sm:col-span-3 md:col-span-4' : ''}`}>
                     {/* Card Button */}
                     <button
                       onClick={() => handleCardClick(card)}
-                      className={`block group cursor-pointer text-left transition-all w-full ${isExpanded ? 'ring-2 ring-purple-500 ring-offset-2' : ''}`}
+                      className={`block group cursor-pointer text-left transition-all w-full ${isExpanded ? 'ring-2 ring-purple-500 ring-offset-2' : ''} ${isHighlighted ? 'animate-pulse-subtle' : ''}`}
                     >
-                      <div className={`bg-white/90 backdrop-blur-sm rounded-lg sm:rounded-xl shadow-lg border border-white/50 p-3 sm:p-4 h-full transition-all hover:shadow-2xl hover:scale-105 ${isExpanded ? 'bg-white shadow-2xl' : ''} ${isCoachCard ? 'sm:p-6' : ''}`}>
+                      <div className={`bg-white/90 backdrop-blur-sm rounded-lg sm:rounded-xl shadow-lg p-3 sm:p-4 h-full transition-all hover:shadow-2xl hover:scale-105 ${isExpanded ? 'bg-white shadow-2xl' : ''} ${isCoachCard ? 'sm:p-6' : ''} ${isHighlighted ? 'border-2 border-teal-400 bg-gradient-to-br from-teal-50 to-white' : 'border border-white/50'}`}>
                         <div className={`flex ${isCoachCard ? 'flex-row items-center gap-4' : 'flex-col'} h-full ${isCoachCard ? 'min-h-[120px]' : 'min-h-[100px] sm:min-h-[120px]'}`}>
                           {/* Icon or Profile Picture */}
                           {isCoachCard ? (
@@ -484,6 +486,88 @@ export default function AthleteDashboard() {
                         </div>
                       </div>
                     </button>
+
+                    {/* Expanded Content - Coach Profile */}
+                    {isExpanded && card.id === 'my-coach' && coachId && (
+                      <div
+                        className="mt-4 bg-gradient-to-br from-teal-50/90 to-white/90 backdrop-blur-sm rounded-xl shadow-2xl border border-teal-200/50 overflow-hidden animate-slideDown"
+                      >
+                        {/* Header */}
+                        <div className="bg-gradient-to-r from-teal-500/10 to-teal-400/10 px-6 py-4 border-b border-teal-200/50 flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: card.color }}>
+                              <Users className="w-5 h-5 text-white" />
+                            </div>
+                            <div>
+                              <h3 className="text-lg font-medium" style={{ color: '#000000' }}>
+                                {coachName}'s Profile
+                              </h3>
+                              <p className="text-xs" style={{ color: '#000000', opacity: 0.6 }}>
+                                Explore your coach's profile, lessons, and training approach
+                              </p>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => setExpandedCard(null)}
+                            className="p-2 hover:bg-teal-100 rounded-lg transition-colors"
+                            title="Close"
+                          >
+                            <X className="w-5 h-5" style={{ color: '#000000' }} />
+                          </button>
+                        </div>
+
+                        {/* Coach Profile iframe */}
+                        <div style={{ minHeight: '600px', maxHeight: '800px' }}>
+                          <iframe
+                            src={`/coach/${coachId}`}
+                            className="w-full h-full border-0"
+                            style={{ height: '800px' }}
+                            title={`${coachName}'s Profile`}
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Expanded Content - Lessons */}
+                    {isExpanded && card.id === 'lessons' && (
+                      <div
+                        className="mt-4 bg-gradient-to-br from-blue-50/90 to-white/90 backdrop-blur-sm rounded-xl shadow-2xl border border-blue-200/50 overflow-hidden animate-slideDown"
+                      >
+                        {/* Header */}
+                        <div className="bg-gradient-to-r from-blue-500/10 to-blue-400/10 px-6 py-4 border-b border-blue-200/50 flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: card.color }}>
+                              <BookOpen className="w-5 h-5 text-white" />
+                            </div>
+                            <div>
+                              <h3 className="text-lg font-medium" style={{ color: '#000000' }}>
+                                Your Lessons
+                              </h3>
+                              <p className="text-xs" style={{ color: '#000000', opacity: 0.6 }}>
+                                Review and complete your assigned training content
+                              </p>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => setExpandedCard(null)}
+                            className="p-2 hover:bg-blue-100 rounded-lg transition-colors"
+                            title="Close"
+                          >
+                            <X className="w-5 h-5" style={{ color: '#000000' }} />
+                          </button>
+                        </div>
+
+                        {/* Lessons iframe */}
+                        <div style={{ minHeight: '600px', maxHeight: '800px' }}>
+                          <iframe
+                            src="/dashboard/athlete-lessons"
+                            className="w-full h-full border-0"
+                            style={{ height: '800px' }}
+                            title="Your Lessons"
+                          />
+                        </div>
+                      </div>
+                    )}
 
                     {/* Expanded Content - AI Assistant */}
                     {isExpanded && card.id === 'ai-assistant' && user && (
@@ -602,6 +686,19 @@ export default function AthleteDashboard() {
 
         .animate-slideDown {
           animation: slideDown 0.3s ease-out forwards;
+        }
+
+        @keyframes pulseSubtle {
+          0%, 100% {
+            box-shadow: 0 0 0 0 rgba(20, 184, 166, 0.4);
+          }
+          50% {
+            box-shadow: 0 0 0 8px rgba(20, 184, 166, 0);
+          }
+        }
+
+        .animate-pulse-subtle {
+          animation: pulseSubtle 2s ease-in-out infinite;
         }
       `}</style>
     </>
