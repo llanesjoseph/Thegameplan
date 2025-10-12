@@ -9,8 +9,8 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import { BookOpen, CheckCircle2, Circle, Clock, User } from 'lucide-react'
-import Link from 'next/link'
 import AppHeader from '@/components/ui/AppHeader'
+import LessonOverlay from '@/components/LessonOverlay'
 
 interface Lesson {
   id: string
@@ -50,6 +50,7 @@ export default function AthleteLessonsPage() {
   const [lessons, setLessons] = useState<Lesson[]>([])
   const [processingLesson, setProcessingLesson] = useState<string | null>(null)
   const [isInIframe, setIsInIframe] = useState(false)
+  const [selectedLessonId, setSelectedLessonId] = useState<string | null>(null)
 
   // Detect if page is loaded in iframe (check URL param or window)
   useEffect(() => {
@@ -303,14 +304,13 @@ export default function AthleteLessonsPage() {
                         </div>
 
                         {/* View Lesson Button */}
-                        <Link
-                          href={`/lesson/${lesson.id}`}
-                          target={isInIframe ? '_parent' : '_self'}
+                        <button
+                          onClick={() => setSelectedLessonId(lesson.id)}
                           className="flex-shrink-0 px-4 py-2 rounded-lg text-sm transition-colors hover:shadow-lg"
                           style={{ backgroundColor: '#3B82F6', color: 'white' }}
                         >
                           View Lesson
-                        </Link>
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -320,6 +320,21 @@ export default function AthleteLessonsPage() {
           </div>
         )}
       </main>
+
+      {/* Lesson Overlay */}
+      {selectedLessonId && (
+        <LessonOverlay
+          lessonId={selectedLessonId}
+          onClose={() => setSelectedLessonId(null)}
+          isCompleted={lessons.find(l => l.id === selectedLessonId)?.isCompleted}
+          onToggleCompletion={() => {
+            const lesson = lessons.find(l => l.id === selectedLessonId)
+            if (lesson) {
+              toggleCompletion(lesson.id, lesson.isCompleted)
+            }
+          }}
+        />
+      )}
     </div>
   )
 }
