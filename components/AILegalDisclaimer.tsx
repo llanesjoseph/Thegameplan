@@ -38,19 +38,19 @@ export default function AILegalDisclaimer({
 
  return (
   <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-   <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto">
-    <div className="p-6">
+   <div className="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[85vh] overflow-y-auto">
+    <div className="p-5">
      {/* Header */}
-     <div className="flex items-center space-x-3 mb-6">
-      <Shield className="h-8 w-8 text-blue-600" />
+     <div className="flex items-center space-x-3 mb-4">
+      <Shield className="h-7 w-7 text-blue-600" />
       <div>
-       <h2 className="text-2xl text-gray-900">AI Coaching Terms & Disclaimers</h2>
-       <p className="text-gray-600">Please read and acknowledge these important legal notices</p>
+       <h2 className="text-xl text-gray-900">AI Coaching Terms & Disclaimers</h2>
+       <p className="text-sm text-gray-600">Please read and acknowledge these important legal notices</p>
       </div>
      </div>
 
      {/* Main Disclaimer */}
-     <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+     <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
       <div className="flex items-start space-x-3">
        <AlertTriangle className="h-6 w-6 text-red-600 mt-1 flex-shrink-0" />
        <div>
@@ -70,9 +70,9 @@ export default function AILegalDisclaimer({
      </div>
 
      {/* Liability Section */}
-     <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
-      <h3 className="text-lg  text-gray-900 mb-3">Liability & Risk Acknowledgment</h3>
-      <div className="text-sm text-gray-700 space-y-2">
+     <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 mb-4">
+      <h3 className="text-base  text-gray-900 mb-2">Liability & Risk Acknowledgment</h3>
+      <div className="text-sm text-gray-700 space-y-1">
        <p>By using this AI coaching service, you acknowledge and agree that:</p>
        <ul className="list-disc list-inside space-y-1 ml-4">
         <li>You assume all risks associated with following AI-generated coaching advice</li>
@@ -85,9 +85,9 @@ export default function AILegalDisclaimer({
      </div>
 
      {/* Data Collection Notice */}
-     <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-      <h3 className="text-lg  text-blue-900 mb-3">Data Collection & Privacy</h3>
-      <div className="text-sm text-blue-800 space-y-2">
+     <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+      <h3 className="text-base  text-blue-900 mb-2">Data Collection & Privacy</h3>
+      <div className="text-sm text-blue-800 space-y-1">
        <p>For legal and safety purposes, we collect and store:</p>
        <ul className="list-disc list-inside space-y-1 ml-4">
         <li>Your questions and AI responses (with privacy hashing)</li>
@@ -100,9 +100,9 @@ export default function AILegalDisclaimer({
      </div>
 
      {/* Age & Capacity */}
-     <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-      <h3 className="text-lg  text-yellow-900 mb-3">Age & Legal Capacity</h3>
-      <div className="text-sm text-yellow-800 space-y-2">
+     <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+      <h3 className="text-base  text-yellow-900 mb-2">Age & Legal Capacity</h3>
+      <div className="text-sm text-yellow-800 space-y-1">
        <p>By continuing, you confirm that you are:</p>
        <ul className="list-disc list-inside space-y-1 ml-4">
         <li>18 years of age or older, OR have parental/guardian consent</li>
@@ -113,7 +113,7 @@ export default function AILegalDisclaimer({
      </div>
 
      {/* Checkboxes */}
-     <div className="space-y-4 mb-6">
+     <div className="space-y-3 mb-4">
       <label className="flex items-start space-x-3 cursor-pointer">
        <input
         type="checkbox"
@@ -153,7 +153,7 @@ export default function AILegalDisclaimer({
 
      {/* User Info */}
      {userEmail && (
-      <div className="bg-gray-50 rounded-lg p-3 mb-6">
+      <div className="bg-gray-50 rounded-lg p-2 mb-4">
        <div className="flex items-center space-x-2">
         <FileText className="h-4 w-4 text-gray-600" />
         <span className="text-sm text-gray-700">
@@ -187,7 +187,7 @@ export default function AILegalDisclaimer({
      </div>
 
      {/* Fine Print */}
-     <div className="mt-6 pt-4 border-t border-gray-200">
+     <div className="mt-4 pt-3 border-t border-gray-200">
       <p className="text-xs text-gray-500 text-center">
        Terms version 1.0 • Last updated: {new Date().toLocaleDateString()} • 
        This agreement is governed by applicable laws and regulations

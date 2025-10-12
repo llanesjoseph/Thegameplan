@@ -172,10 +172,30 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
   if (!userId) return
 
   try {
+   // Check localStorage first for immediate persistence
+   const TERMS_VERSION = '1.0'
+   const PRIVACY_VERSION = '1.0'
+   const localStorageKey = `ai_terms_accepted_${userId}_v${TERMS_VERSION}_${PRIVACY_VERSION}`
+
+   const localAcceptance = localStorage.getItem(localStorageKey)
+
+   if (localAcceptance === 'true') {
+    // Already accepted in this browser session
+    setHasAcceptedTerms(true)
+    await initializeSession()
+    if (initialPrompt) {
+     handleSendMessage(initialPrompt)
+    }
+    return
+   }
+
+   // If not in localStorage, check Firestore (slower but persistent across devices)
    const compliance = await checkUserLegalCompliance(userId)
    if (compliance.needsTermsUpdate || compliance.needsPrivacyUpdate) {
     setShowDisclaimer(true)
    } else {
+    // User has accepted in Firestore, cache in localStorage
+    localStorage.setItem(localStorageKey, 'true')
     setHasAcceptedTerms(true)
     await initializeSession()
     if (initialPrompt) {
@@ -210,6 +230,15 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
  const handleAcceptTerms = async () => {
   setShowDisclaimer(false)
   setHasAcceptedTerms(true)
+
+  // Save acceptance to localStorage for immediate persistence
+  if (userId) {
+   const TERMS_VERSION = '1.0'
+   const PRIVACY_VERSION = '1.0'
+   const localStorageKey = `ai_terms_accepted_${userId}_v${TERMS_VERSION}_${PRIVACY_VERSION}`
+   localStorage.setItem(localStorageKey, 'true')
+  }
+
   await initializeSession()
   if (initialPrompt) {
    handleSendMessage(initialPrompt)
