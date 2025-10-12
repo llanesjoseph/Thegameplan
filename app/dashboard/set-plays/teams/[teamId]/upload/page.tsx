@@ -96,24 +96,29 @@ export default function UploadPlayPage() {
         // Upload to Firebase Storage
         const uploadPath = `teams/${teamId}/plays/${Date.now()}-${file.name}`
 
-        const upload = uploadService.uploadFile(
+        let downloadURL: string = ''
+
+        await uploadService.startUpload({
           file,
-          uploadPath,
-          (progress) => {
+          path: uploadPath,
+          onProgress: (progress) => {
             console.log(`Upload progress: ${progress}%`)
           },
-          () => {
-            console.log('Upload paused')
+          onStateChange: (state) => {
+            if (state === 'paused') {
+              console.log('Upload paused')
+            }
+          },
+          onSuccess: (url) => {
+            downloadURL = url
           }
-        )
-
-        const result = await upload.promise
+        })
 
         // Add to media array
         const newMedia: PlayMedia = {
           type: mediaType,
-          url: result.url,
-          thumbnailUrl: result.thumbnailUrl,
+          url: downloadURL,
+          thumbnailUrl: downloadURL, // For images/videos, use the same URL as thumbnail
           size: file.size,
           mimeType: file.type
         }
