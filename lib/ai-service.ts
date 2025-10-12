@@ -2653,10 +2653,10 @@ Your fitness will be tested more than any other position. Embrace it - that's yo
 
 What specific aspect of your sport would you like me to dive deeper into?`
   } else {
-    // General knowledge fallback
+    // General knowledge fallback - use dynamic sport context
     return `That's a really interesting question! Let me share what I know about this topic.
 
-Based on my knowledge and experience, this is a complex subject that deserves a thoughtful response. While I'm primarily known for my soccer expertise, I've learned that many principles apply across different areas of life.
+Based on my knowledge and experience, this is a complex subject that deserves a thoughtful response. While I'm primarily known for my ${context.sport} expertise, I've learned that many principles apply across different areas of life.
 
 **Key points to consider:**
 - Understanding the fundamentals is always important
@@ -2665,7 +2665,7 @@ Based on my knowledge and experience, this is a complex subject that deserves a 
 - Learning is an ongoing process
 
 **My approach:**
-I believe in giving you practical, actionable insights rather than just theory. Whether we're talking about soccer or any other topic, the key is to break complex concepts down into manageable pieces you can actually use.
+I believe in giving you practical, actionable insights rather than just theory. Whether we're talking about ${context.sport.toLowerCase()} or any other topic, the key is to break complex concepts down into manageable pieces you can actually use.
 
 **What I'd recommend:**
 Take time to really understand the core concepts, then build from there. Look for patterns and connections to things you already know. And don't hesitate to ask follow-up questions - the best learning happens through conversation.
