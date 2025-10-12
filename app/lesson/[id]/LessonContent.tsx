@@ -38,6 +38,7 @@ interface CreatorProfile {
  name: string
  bio?: string
  avatar?: string
+ profileImageUrl?: string
 }
 
 export default function LessonContent() {
@@ -190,14 +191,20 @@ export default function LessonContent() {
 
      {creator && (
       <div className="flex items-center gap-3 mb-4">
-       <div className="w-10 h-10 bg-gradient-to-br from-sky-blue to-black rounded-full flex items-center justify-center">
-        <User className="w-5 h-5 text-white" />
+       <div className="w-10 h-10 bg-gradient-to-br from-sky-blue to-black rounded-full overflow-hidden flex items-center justify-center">
+        {creator.profileImageUrl || creator.avatar ? (
+         <img
+          src={creator.profileImageUrl || creator.avatar}
+          alt={creator.displayName || creator.name}
+          className="w-full h-full object-cover"
+         />
+        ) : (
+         <User className="w-5 h-5 text-white" />
+        )}
        </div>
        <div>
+        <p className="text-sm text-dark/60">By</p>
         <p className="font-medium text-dark">{creator.displayName || creator.name}</p>
-        {creator.bio && (
-         <p className="text-sm text-dark/60">{creator.bio}</p>
-        )}
        </div>
       </div>
      )}
