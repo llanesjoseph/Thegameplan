@@ -658,7 +658,7 @@ export default function AthleteDashboard() {
                 <div className="grid grid-cols-3 gap-3 sm:gap-4">
                   {/* Lessons Stat Card */}
                   <button
-                    onClick={() => setExpandedCard(expandedCard === 'stat-lessons' ? null : 'stat-lessons')}
+                    onClick={() => setExpandedCard(expandedCard === 'lessons' ? null : 'lessons')}
                     className="text-center p-4 sm:p-5 bg-gradient-to-br from-sky-blue/10 to-sky-blue/5 rounded-lg border border-sky-blue/20 hover:shadow-xl hover:scale-105 transition-all cursor-pointer"
                   >
                     <BookOpen className="w-6 h-6 mx-auto mb-2" style={{ color: '#91A6EB' }} />
@@ -686,41 +686,6 @@ export default function AthleteDashboard() {
                     <p className="text-xs sm:text-sm font-medium" style={{ color: '#000000', opacity: 0.7 }}>Hours</p>
                   </button>
                 </div>
-              </div>
-            </div>
-          )}
-
-          {/* Expanded Content - Lessons Stats (outside Welcome Section) */}
-          {expandedCard === 'stat-lessons' && (
-            <div className="bg-gradient-to-br from-sky-blue/10 to-white/90 backdrop-blur-sm rounded-xl shadow-2xl border border-sky-blue/20 overflow-hidden animate-slideDown">
-              <div className="bg-gradient-to-r from-sky-blue/10 to-sky-blue/5 px-6 py-4 border-b border-sky-blue/20 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: '#91A6EB' }}>
-                    <BookOpen className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-medium" style={{ color: '#000000' }}>
-                      Your Lessons
-                    </h3>
-                    <p className="text-xs" style={{ color: '#000000', opacity: 0.6 }}>
-                      View and complete all your assigned lessons
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setExpandedCard(null)}
-                  className="p-2 hover:bg-sky-blue/10 rounded-lg transition-colors"
-                >
-                  <X className="w-5 h-5" style={{ color: '#000000' }} />
-                </button>
-              </div>
-              <div style={{ minHeight: '600px', maxHeight: '800px' }}>
-                <iframe
-                  src="/dashboard/athlete-lessons"
-                  className="w-full h-full border-0"
-                  style={{ height: '800px' }}
-                  title="Your Lessons"
-                />
               </div>
             </div>
           )}
