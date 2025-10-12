@@ -239,7 +239,7 @@ export async function processCoachQuestion(
         logger.info('[QA-Agent] AI fallback generated', { length: fallbackResult.text.length })
 
         return {
-          text: fallbackResult.text + '\n\n---\n\n💡 _This response draws from general coaching expertise. For even more personalized advice tailored to your specific training, consider creating lesson content on this topic!_',
+          text: fallbackResult.text + '\n\n---\n\n💡 _This response draws from general coaching expertise. For even more personalized advice tailored to your specific training, ask your coach to create a detailed lesson on this topic!_',
           sources: [],
           confidence: {
             overall: 0.6, // Good confidence for expert knowledge
@@ -261,7 +261,7 @@ export async function processCoachQuestion(
         logger.error('[QA-Agent] AI fallback failed', { error: fallbackError })
         // Only now fall back to the generic message
         return {
-          text: `I don't have specific lesson content that directly addresses this question yet. Consider creating a lesson on this topic for more personalized guidance.`,
+          text: `I don't have specific lesson content that directly addresses this question yet. Ask your coach to create a lesson on this topic for more personalized guidance!`,
           sources: [],
           confidence: {
             overall: 0.0,
