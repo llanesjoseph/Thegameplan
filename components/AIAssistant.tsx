@@ -5,6 +5,8 @@ import { Send, Bot, User, Minimize2, Maximize2, X, Sparkles, Zap } from 'lucide-
 import { createAISession, checkUserLegalCompliance } from '@/lib/ai-logging'
 import AILegalDisclaimer from './AILegalDisclaimer'
 import { db } from '@/lib/firebase'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import {
  collection,
  doc,
@@ -473,10 +475,35 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
       >
        <div className="flex items-start gap-2">
         {message.type === 'assistant' && (
-         <Bot className="w-4 h-4 mt-0.5 text-sky-blue" />
+         <Bot className="w-4 h-4 mt-0.5 text-sky-blue flex-shrink-0" />
         )}
         <div className="flex-1">
-         <p className="whitespace-pre-wrap">{message.content}</p>
+         {message.type === 'assistant' ? (
+          <div className="prose prose-sm max-w-none">
+           <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            components={{
+             h1: ({node, ...props}) => <h1 className="text-xl font-bold mb-3 mt-4 text-dark" {...props} />,
+             h2: ({node, ...props}) => <h2 className="text-lg font-bold mb-2 mt-3 text-dark" {...props} />,
+             h3: ({node, ...props}) => <h3 className="text-base font-bold mb-2 mt-3 text-dark" {...props} />,
+             h4: ({node, ...props}) => <h4 className="text-sm font-bold mb-1 mt-2 text-dark" {...props} />,
+             p: ({node, ...props}) => <p className="mb-3 leading-relaxed" {...props} />,
+             ul: ({node, ...props}) => <ul className="list-disc list-inside mb-3 space-y-1" {...props} />,
+             ol: ({node, ...props}) => <ol className="list-decimal list-inside mb-3 space-y-1" {...props} />,
+             li: ({node, ...props}) => <li className="ml-2" {...props} />,
+             strong: ({node, ...props}) => <strong className="font-bold text-dark" {...props} />,
+             em: ({node, ...props}) => <em className="italic" {...props} />,
+             code: ({node, ...props}) => <code className="bg-gray-200 px-1.5 py-0.5 rounded text-sm font-mono" {...props} />,
+             hr: ({node, ...props}) => <hr className="my-4 border-gray-300" {...props} />,
+             blockquote: ({node, ...props}) => <blockquote className="border-l-4 border-sky-blue pl-3 italic my-3" {...props} />
+            }}
+           >
+            {message.content}
+           </ReactMarkdown>
+          </div>
+         ) : (
+          <p className="whitespace-pre-wrap">{message.content}</p>
+         )}
          <p className={`text-xs mt-1 opacity-70 ${
           message.type === 'user' ? 'text-white' : 'text-gray-500'
          }`}>
@@ -484,7 +511,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
          </p>
         </div>
         {message.type === 'user' && (
-         <User className="w-4 h-4 mt-0.5" />
+         <User className="w-4 h-4 mt-0.5 flex-shrink-0" />
         )}
        </div>
       </div>
