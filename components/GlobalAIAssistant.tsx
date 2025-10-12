@@ -2,7 +2,6 @@
 
 import { useState, createContext, useContext } from 'react'
 import AIAssistant from './AIAssistant'
-import { platformAssistantContext } from '@/lib/ai-service'
 import { MessageCircle } from 'lucide-react'
 
 interface AIAssistantContextType {

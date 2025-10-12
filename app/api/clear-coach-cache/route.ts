@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { clearCoachContextCache } from '@/lib/dynamic-coach-context'
 
 /**
- * Simple API endpoint to clear coach context cache
+ * Legacy API endpoint for cache clearing
+ *
+ * Note: The new AI system (QA Agent) doesn't use client-side caching,
+ * so this endpoint is now a no-op for backwards compatibility.
+ *
  * Usage: POST /api/clear-coach-cache
  * Optional body: { "coachId": "specific-coach-id" }
  */
@@ -11,9 +14,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json().catch(() => ({}))
     const { coachId } = body
 
-    clearCoachContextCache(coachId)
-
-    // Also clear the AI response cache
+    // Clear AI cache if it exists (legacy support)
     if (typeof globalThis !== 'undefined') {
       ;(globalThis as any).__aiCache = new Map()
     }

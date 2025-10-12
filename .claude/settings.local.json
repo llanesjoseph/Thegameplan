@@ -45,7 +45,13 @@
       "Bash(git mv:*)",
       "Bash(del replace-contributors.js)",
       "Bash(npm run dev:*)",
-      "Bash(start:*)"
+      "Bash(start:*)",
+      "Bash(Test-Path .env.local)",
+      "Bash(curl -X POST http://localhost:3000/api/clear-coach-cache -H \"Content-Type: application/json\" -d \"{}\")",
+      "Bash(git rm:*)",
+      "Read(//c/Users/bigpe/Downloads/**)",
+      "Bash(curl -X POST http://localhost:3000/api/ai-coaching -H \"Content-Type: application/json\" -d \"{\"\"question\"\": \"\"What is a good warm-up for soccer training?\"\", \"\"creatorId\"\": \"\"test-coach-123\"\", \"\"userId\"\": \"\"test-user\"\", \"\"mode\"\": \"\"cross_check\"\"}\")",
+      "Bash(if exist nul del nul)"
     ],
     "deny": [],
     "ask": []

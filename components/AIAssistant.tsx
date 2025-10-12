@@ -2,7 +2,6 @@
 
 import React, { useState, useRef, useEffect } from 'react'
 import { Send, Bot, User, Minimize2, Maximize2, X, Sparkles, Zap } from 'lucide-react'
-import { getRobustAIResponse } from '@/lib/ai-service'
 import { createAISession, checkUserLegalCompliance } from '@/lib/ai-logging'
 import AILegalDisclaimer from './AILegalDisclaimer'
 import { db } from '@/lib/firebase'

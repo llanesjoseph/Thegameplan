@@ -6,7 +6,74 @@
  */
 
 import { adminDb as db } from '@/lib/firebase.admin'
-import { integrateVoiceProfileIntoAI, VoiceCaptureData } from '@/lib/voice-capture-service'
+
+// Voice Capture Data Type (for coach onboarding)
+export interface VoiceCaptureData {
+  collegeExperience: {
+    university: string
+    yearsAttended: string
+    major: string
+    sportRole: string
+    teamAchievements: string[]
+    memorableGames: string[]
+    coaches: string[]
+    teammates: string[]
+  }
+  careerMilestones: {
+    biggestWin: string
+    toughestLoss: string
+    breakthrough: string
+    proudestMoment: string
+    definingGame: string
+    championships: string[]
+    records: string[]
+  }
+  philosophy: {
+    coreBeliefs: string[]
+    trainingApproach: string
+    motivationStyle: string
+    communicationStyle: string
+    successDefinition: string
+    failureHandling: string
+    teamBuilding: string
+  }
+  voiceCharacteristics: {
+    catchphrases: string[]
+    encouragementStyle: string
+    correctionApproach: string
+    celebrationStyle: string
+    intensityLevel: string
+    humorStyle: string
+    professionalTone: string
+  }
+  technicalExpertise: {
+    specialties: string[]
+    uniqueDrills: string[]
+    innovations: string[]
+    strengthAreas: string[]
+    developmentFocus: string[]
+    mentalGame: string[]
+    physicalConditioning: string[]
+  }
+  storyBank: {
+    inspirationalStories: string[]
+    teachingMoments: string[]
+    realWorldExamples: string[]
+    comebackStories: string[]
+    disciplineStories: string[]
+    growthStories: string[]
+    teamworkStories: string[]
+  }
+  currentContext: {
+    currentTeam: string
+    currentLocation: string
+    recentEvents: string[]
+    currentChallenges: string[]
+    seasonGoals: string[]
+    upcomingEvents: string[]
+    localReferences: string[]
+  }
+}
 
 // Jasmine's specific email for identification
 const JASMINE_EMAIL = 'jasmine.aikey@gameplan.ai' // Update this to her actual email

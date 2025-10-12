@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { adminDb as db } from '@/lib/firebase.admin'
 import { auditLog } from '@/lib/audit-logger'
-import { integrateVoiceProfileIntoAI } from '@/lib/voice-capture-service'
 import { nanoid } from 'nanoid'
 
 export async function POST(request: NextRequest) {
@@ -91,27 +90,11 @@ export async function POST(request: NextRequest) {
     // Save application
     await db.collection('coach_applications').doc(applicationId).set(applicationData)
 
-    // Process voice capture data if provided
-    let voiceIntegrationResult = null
+    // Voice profile integration (legacy - now uses voice-refiner system)
+    // If voice capture data is provided, it's stored with the application
+    // and will be processed during coach profile creation
     if (coachData.voiceCaptureData) {
-      try {
-        voiceIntegrationResult = await integrateVoiceProfileIntoAI(
-          applicationId, // Use application ID as coach ID for now
-          coachData.voiceCaptureData
-        )
-
-        // Update application with voice integration status
-        await db.collection('coach_applications').doc(applicationId).update({
-          voiceProfileIntegrated: voiceIntegrationResult.success,
-          voiceProfileCompleteness: voiceIntegrationResult.completenessScore,
-          updatedAt: now
-        })
-
-        console.log(`🎤 Voice profile processing for ${applicationId}:`, voiceIntegrationResult)
-      } catch (voiceError) {
-        console.error('Voice profile integration failed:', voiceError)
-        // Don't fail the entire application if voice processing fails
-      }
+      console.log(`🎤 Voice capture data received for ${applicationId} - will be processed during profile creation`)
     }
 
     // Update ingestion link usage
