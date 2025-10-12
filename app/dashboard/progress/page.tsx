@@ -105,10 +105,10 @@ export default function AthleteDashboard() {
     ...(coachId && coachName ? [{
       id: 'my-coach',
       title: coachName,
-      description: 'Interact with your coach via AI assistant',
-      icon: Sparkles,
-      color: '#20B2AA',
-      path: 'ai-assistant', // Opens AI assistant inline
+      description: 'View profile, lessons, and interact via AI',
+      icon: Users,
+      color: '#8D9440',
+      path: `/coach/${coachId}`, // Opens coach profile page inline
       action: null,
       isCoachCard: true // Special flag to render differently
     }] : []),

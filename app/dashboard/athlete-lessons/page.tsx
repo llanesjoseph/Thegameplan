@@ -48,6 +48,12 @@ export default function AthleteLessonsPage() {
   const [feed, setFeed] = useState<FeedData | null>(null)
   const [lessons, setLessons] = useState<Lesson[]>([])
   const [processingLesson, setProcessingLesson] = useState<string | null>(null)
+  const [isInIframe, setIsInIframe] = useState(false)
+
+  // Detect if page is loaded in iframe
+  useEffect(() => {
+    setIsInIframe(window.self !== window.top)
+  }, [])
 
   // Fetch athlete feed and lessons
   useEffect(() => {
@@ -182,11 +188,13 @@ export default function AthleteLessonsPage() {
   const completionPercentage = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0
 
   return (
-    <div style={{ backgroundColor: '#E8E6D8' }} className="min-h-screen">
-      <AppHeader
-        title="My Lessons"
-        subtitle={feed?.coach ? `From ${feed.coach.displayName} • ${completedCount}/${totalCount} complete (${completionPercentage}%)` : `${completedCount}/${totalCount} complete`}
-      />
+    <div style={{ backgroundColor: isInIframe ? 'transparent' : '#E8E6D8' }} className="min-h-screen">
+      {!isInIframe && (
+        <AppHeader
+          title="My Lessons"
+          subtitle={feed?.coach ? `From ${feed.coach.displayName} • ${completedCount}/${totalCount} complete (${completionPercentage}%)` : `${completedCount}/${totalCount} complete`}
+        />
+      )}
 
       <main className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 space-y-6 lg:space-y-8">
         {/* Progress Bar */}
