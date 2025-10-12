@@ -516,7 +516,7 @@ export default function AthleteDashboard() {
               {athleteCards.map((card, index) => {
                 const Icon = card.icon
                 const isExpanded = expandedCard === card.id
-                const isCoachCard = card.id === 'my-coach'
+                const isCoachCard = card.isCoachCard || false
                 const isHighlighted = card.highlighted
 
                 return (
