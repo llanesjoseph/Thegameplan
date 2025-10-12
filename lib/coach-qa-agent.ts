@@ -431,7 +431,7 @@ Provide detailed, specific coaching advice with actionable steps. Be technical a
 
   try {
     // Use Gemini for fallback generation with higher temperature for more creative responses
-    const response = await callGemini(systemPrompt, userPrompt, 0.6, 'gemini-1.5-flash')
+    const response = await callGemini(systemPrompt, userPrompt, 0.6, 'gemini-2.5-flash')
 
     logger.info('[QA-Agent:Fallback] Generated fallback response', { length: response.length })
 

@@ -185,7 +185,7 @@ export async function callGemini(
   systemPrompt: string,
   userPrompt: string,
   temperature: number,
-  model = 'gemini-1.5-flash'
+  model = 'gemini-2.5-flash'
 ): Promise<string> {
   const client = getGeminiClient()
   if (!client) throw new Error('Gemini not configured')

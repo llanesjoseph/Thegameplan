@@ -197,7 +197,7 @@ export function getLLMOrchestrationConfig() {
     primaryProvider: (env.AI_PRIMARY_PROVIDER as 'gemini' | 'openai' | undefined) || 'gemini',
     timeoutMs: Number(env.AI_TIMEOUT_MS || 10000),
     openaiModel: env.AI_OPENAI_MODEL || 'gpt-4-turbo-preview',
-    geminiModel: env.AI_GEMINI_MODEL || 'gemini-1.5-flash',
+    geminiModel: env.AI_GEMINI_MODEL || 'gemini-2.5-flash',
   }
 }
 
