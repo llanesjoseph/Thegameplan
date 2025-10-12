@@ -21,8 +21,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
  const isCoachPage = pathname?.startsWith('/dashboard/coach')
  const isCoachingPage = pathname === '/dashboard/coaching'
  const isAdminPage = pathname?.startsWith('/dashboard/admin')
+ const isAthleteLessonsPage = pathname === '/dashboard/athlete-lessons'
 
- if (isMainDashboard || isOverviewPage || isProgressPage || isCreatorPage || isProfilePage || isCoachPage || isCoachingPage || isAdminPage) {
+ if (isMainDashboard || isOverviewPage || isProgressPage || isCreatorPage || isProfilePage || isCoachPage || isCoachingPage || isAdminPage || isAthleteLessonsPage) {
   // These pages handle their own auth and layout
   return (
    <>
