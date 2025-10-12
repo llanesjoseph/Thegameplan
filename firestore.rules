@@ -325,15 +325,24 @@ service cloud.firestore {
 
     // Chat conversations - AI assistant chat history
     match /chatConversations/{conversationId} {
-      // Conversation metadata - users can read/write their own conversations
-      allow read, write: if isAuthenticated() &&
-                            resource.data.userId == request.auth.uid;
+      // Users can read their own conversations OR any conversation where conversationId contains their UID
+      // This allows creating new conversations with predictable IDs like "userId_timestamp"
+      allow read: if isAuthenticated() &&
+                     (conversationId.matches('.*' + request.auth.uid + '.*') ||
+                      (resource != null && resource.data.userId == request.auth.uid));
+
+      // Users can create conversations for themselves
       allow create: if isAuthenticated() &&
                        request.resource.data.userId == request.auth.uid;
+
+      // Users can update/delete their own conversations
+      allow update, delete: if isAuthenticated() &&
+                               resource.data.userId == request.auth.uid;
 
       // Chat messages subcollection
       match /messages/{messageId} {
         // Users can read/write messages in their own conversations
+        // Check parent conversation ownership
         allow read, write: if isAuthenticated() &&
                               get(/databases/$(database)/documents/chatConversations/$(conversationId)).data.userId == request.auth.uid;
         allow create: if isAuthenticated() &&
