@@ -325,11 +325,10 @@ service cloud.firestore {
 
     // Chat conversations - AI assistant chat history
     match /chatConversations/{conversationId} {
-      // Users can read their own conversations OR any conversation where conversationId contains their UID
-      // This allows creating new conversations with predictable IDs like "userId_timestamp"
+      // Users can read their own conversations
+      // Allows both existing conversations (check userId) and non-existent ones for creation
       allow read: if isAuthenticated() &&
-                     (conversationId.matches('.*' + request.auth.uid + '.*') ||
-                      (resource != null && resource.data.userId == request.auth.uid));
+                     (resource == null || resource.data.userId == request.auth.uid);
 
       // Users can create conversations for themselves
       allow create: if isAuthenticated() &&
