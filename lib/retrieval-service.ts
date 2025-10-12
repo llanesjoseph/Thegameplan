@@ -43,9 +43,11 @@ export interface RetrievalOptions {
 
 /**
  * Extract keywords from question for basic relevance scoring
+ * Keeps action words and context that are important for sports/coaching
  */
 function extractKeywords(text: string): string[] {
-  const stopWords = new Set(['the', 'is', 'at', 'which', 'on', 'a', 'an', 'and', 'or', 'but', 'in', 'with', 'to', 'for', 'of', 'as', 'by', 'from', 'how', 'what', 'when', 'where', 'why', 'do', 'does', 'i', 'you', 'can', 'should'])
+  // Minimal stop words - keep action verbs and important context
+  const stopWords = new Set(['the', 'is', 'at', 'which', 'on', 'a', 'an', 'and', 'or', 'but', 'of', 'as', 'by', 'from'])
 
   return text
     .toLowerCase()
@@ -89,7 +91,7 @@ export async function retrieveRelevantContent(
   question: string,
   options: RetrievalOptions
 ): Promise<RetrievedChunk[]> {
-  const { coach_id, sport, max_chunks = 5, min_relevance = 0.2 } = options
+  const { coach_id, sport, max_chunks = 5, min_relevance = 0.1 } = options
 
   try {
     logger.info('[Retrieval] Starting content retrieval', { coach_id, sport })

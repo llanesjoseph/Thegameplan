@@ -217,24 +217,67 @@ export async function processCoachQuestion(
     logger.info('[QA-Agent] Retrieved chunks', { count: retrievedChunks.length })
 
     if (retrievedChunks.length === 0) {
-      logger.warn('[QA-Agent] No relevant content found')
-      return {
-        text: `I don't have specific lesson content that directly addresses this question. Consider creating a lesson on this topic, or rephrase your question to match existing content.`,
-        sources: [],
-        confidence: {
-          overall: 0.0,
-          coverage: 0.0,
-          agreement: 0.0,
-          recency: 0.0
-        },
-        voice_version: 0,
-        metadata: {
-          mode: request.mode || 'cross_check',
-          safety_checked: true,
-          safety_level: safetyAnalysis.riskLevel,
-          voice_refined: false,
-          latencyMs: Date.now() - startTime,
-          pipeline_stages: pipelineStages
+      logger.warn('[QA-Agent] No relevant content found, using AI fallback')
+      pipelineStages.push('ai_fallback')
+
+      // Use AI to provide helpful response based on general coaching knowledge
+      const fallbackContext = {
+        name: coachProfile.name,
+        sport: coachProfile.sport,
+        voice_traits: coachProfile.voice_traits,
+        coach_id: request.coach_id
+      }
+
+      try {
+        // Generate helpful response using ensemble service
+        const fallbackResult = await generateFallbackResponse(
+          normalizedQuestion,
+          fallbackContext,
+          request.mode || 'cross_check'
+        )
+
+        logger.info('[QA-Agent] AI fallback generated', { length: fallbackResult.text.length })
+
+        return {
+          text: fallbackResult.text + '\n\n_Note: This response is based on general coaching knowledge. For more personalized advice, consider adding specific training content._',
+          sources: [],
+          confidence: {
+            overall: 0.5, // Medium confidence for general knowledge
+            coverage: 0.3,
+            agreement: 0.7,
+            recency: 0.5
+          },
+          voice_version: 1,
+          metadata: {
+            mode: request.mode || 'cross_check',
+            safety_checked: true,
+            safety_level: safetyAnalysis.riskLevel,
+            voice_refined: true,
+            latencyMs: Date.now() - startTime,
+            pipeline_stages: pipelineStages
+          }
+        }
+      } catch (fallbackError) {
+        logger.error('[QA-Agent] AI fallback failed', { error: fallbackError })
+        // Only now fall back to the generic message
+        return {
+          text: `I don't have specific lesson content that directly addresses this question yet. Consider creating a lesson on this topic for more personalized guidance.`,
+          sources: [],
+          confidence: {
+            overall: 0.0,
+            coverage: 0.0,
+            agreement: 0.0,
+            recency: 0.0
+          },
+          voice_version: 0,
+          metadata: {
+            mode: request.mode || 'cross_check',
+            safety_checked: true,
+            safety_level: safetyAnalysis.riskLevel,
+            voice_refined: false,
+            latencyMs: Date.now() - startTime,
+            pipeline_stages: pipelineStages
+          }
         }
       }
     }
@@ -346,6 +389,49 @@ export async function processCoachQuestion(
 // ============================================================================
 // HELPER FUNCTIONS
 // ============================================================================
+
+/**
+ * Generate a helpful response using AI when no specific content is found
+ */
+async function generateFallbackResponse(
+  question: string,
+  coachContext: {
+    name: string
+    sport: string
+    voice_traits?: string[]
+    coach_id: string
+  },
+  mode: EnsembleMode
+): Promise<{ text: string }> {
+  logger.info('[QA-Agent:Fallback] Generating AI response without specific content')
+
+  // Import ensemble functions
+  const { generateWithEnsemble } = await import('./ensemble-service')
+
+  // Create a synthetic "general knowledge" chunk
+  const syntheticChunk: RetrievedChunk = {
+    chunk_id: 'GENERAL_KNOWLEDGE',
+    text: `You are ${coachContext.name}, an expert ${coachContext.sport} coach. Use your general coaching knowledge and expertise to provide helpful, specific, and actionable advice.`,
+    label: 'General Coaching Knowledge',
+    source_type: 'qa_archive',
+    source_id: 'fallback',
+    metadata: {
+      sport: coachContext.sport,
+      coach_id: coachContext.coach_id
+    },
+    relevance_score: 0.5
+  }
+
+  // Generate using ensemble with the synthetic context
+  const result = await generateWithEnsemble(
+    question,
+    [syntheticChunk],
+    coachContext,
+    mode
+  )
+
+  return { text: result.text }
+}
 
 /**
  * Get coach profile from Firestore
