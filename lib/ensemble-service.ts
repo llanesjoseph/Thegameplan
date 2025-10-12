@@ -142,7 +142,7 @@ function getOpenAIClient(): OpenAI | null {
   return openaiClient
 }
 
-async function callOpenAI(
+export async function callOpenAI(
   systemPrompt: string,
   userPrompt: string,
   temperature: number,

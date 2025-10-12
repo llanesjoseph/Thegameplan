@@ -436,9 +436,25 @@ Provide detailed, specific coaching advice with actionable steps. Be technical a
     logger.info('[QA-Agent:Fallback] Generated fallback response', { length: response.length })
 
     return { text: response }
-  } catch (error) {
-    logger.error('[QA-Agent:Fallback] Error generating fallback', { error })
-    throw error
+  } catch (geminiError) {
+    // If Gemini fails, try OpenAI as backup
+    logger.warn('[QA-Agent:Fallback] Gemini failed, trying OpenAI', {
+      error: geminiError instanceof Error ? geminiError.message : 'Unknown error'
+    })
+
+    try {
+      const { callOpenAI } = await import('./ensemble-service')
+      const response = await callOpenAI(systemPrompt, userPrompt, 0.6, 'gpt-4-turbo-preview')
+
+      logger.info('[QA-Agent:Fallback] Generated fallback response with OpenAI', { length: response.length })
+      return { text: response }
+    } catch (openaiError) {
+      logger.error('[QA-Agent:Fallback] Both Gemini and OpenAI failed', {
+        geminiError: geminiError instanceof Error ? geminiError.message : 'Unknown',
+        openaiError: openaiError instanceof Error ? openaiError.message : 'Unknown'
+      })
+      throw new Error('All AI providers failed')
+    }
   }
 }
 
