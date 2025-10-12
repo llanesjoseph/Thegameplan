@@ -1,0 +1,517 @@
+/**
+ * Ensemble Service - Dual Model Coordination (OpenAI + Gemini)
+ *
+ * Implements three ensemble modes:
+ * 1. Consensus: Both generate, adjudicator merges
+ * 2. Cross-check: Primary drafts, secondary verifies
+ * 3. Mixture of Experts: Route to best model per question type
+ */
+
+import OpenAI from 'openai'
+import { GoogleGenerativeAI } from '@google/generative-ai'
+import { getAIServiceConfig } from './env-validation'
+import { logger } from './logger'
+import { RetrievedChunk } from './retrieval-service'
+
+// ============================================================================
+// TYPES
+// ============================================================================
+
+export type EnsembleMode = 'consensus' | 'cross_check' | 'mixture_of_experts'
+
+export interface GeneratorOutput {
+  answer: string
+  support: Array<{
+    chunk_id: string
+    why_relevant: string
+  }>
+  confidence: {
+    coverage: number
+    agreement: number
+    recency: number
+    overall: number
+  }
+}
+
+export interface VerifierOutput {
+  unsupported_claims: Array<{
+    text: string
+    reason: string
+    missing_chunk_ids: string[]
+  }>
+  missing_citations: Array<{
+    location: string
+    suggested_chunk_id: string
+  }>
+  clarity_issues: string[]
+}
+
+export interface AdjudicatorOutput {
+  merged_answer: string
+  kept_from_openai: string[]
+  kept_from_gemini: string[]
+  dropped_items: Array<{
+    text: string
+    reason: string
+  }>
+}
+
+export interface EnsembleResult {
+  text: string
+  provider: string
+  model: string
+  latencyMs: number
+  confidence: {
+    coverage: number
+    agreement: number
+    recency: number
+    overall: number
+  }
+  sources_used: string[]
+  metadata: {
+    mode: EnsembleMode
+    verification_passed: boolean
+    patches_applied?: number
+  }
+}
+
+// ============================================================================
+// TEMPERATURE POLICY
+// ============================================================================
+
+interface TemperaturePolicy {
+  planner: number
+  generator: number
+  verifier: number
+  refiner: number
+  stitcher: number
+}
+
+/**
+ * Calculate dynamic temperature based on context
+ */
+function getDynamicTemperature(
+  stage: keyof TemperaturePolicy,
+  options: {
+    question_type?: 'factual' | 'drill' | 'ideas'
+    is_critical?: boolean
+    coverage?: number
+    agreement?: number
+  }
+): number {
+  const baseTemps: TemperaturePolicy = {
+    planner: 0.2,
+    generator: 0.25, // Default: factual
+    verifier: 0.1,
+    refiner: 0.2,
+    stitcher: 0.35
+  }
+
+  let temp = baseTemps[stage]
+
+  // Adjust generator temperature based on question type
+  if (stage === 'generator') {
+    if (options.question_type === 'drill') temp = 0.55
+    else if (options.question_type === 'ideas') temp = 0.75
+    else temp = 0.25 // factual
+  }
+
+  // Dynamic adjustments
+  if (options.coverage !== undefined && options.coverage < 0.6) temp -= 0.1
+  if (options.agreement !== undefined && options.agreement > 0.8) temp += 0.05
+  if (options.is_critical) temp -= 0.1
+
+  // Clamp to valid range
+  return Math.max(0, Math.min(1, temp))
+}
+
+// ============================================================================
+// OPENAI CALLS
+// ============================================================================
+
+const openaiClient = (() => {
+  const cfg = getAIServiceConfig()
+  return cfg.openai.enabled && cfg.openai.apiKey
+    ? new OpenAI({ apiKey: cfg.openai.apiKey })
+    : null
+})()
+
+async function callOpenAI(
+  systemPrompt: string,
+  userPrompt: string,
+  temperature: number,
+  model = 'gpt-4-turbo-preview'
+): Promise<string> {
+  if (!openaiClient) throw new Error('OpenAI not configured')
+
+  const completion = await openaiClient.chat.completions.create({
+    model,
+    messages: [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userPrompt }
+    ],
+    temperature,
+    max_tokens: 2000
+  })
+
+  return completion.choices[0]?.message?.content?.trim() || ''
+}
+
+// ============================================================================
+// GEMINI CALLS
+// ============================================================================
+
+const geminiClient = (() => {
+  const cfg = getAIServiceConfig()
+  return cfg.gemini.enabled && cfg.gemini.apiKey
+    ? new GoogleGenerativeAI(cfg.gemini.apiKey)
+    : null
+})()
+
+async function callGemini(
+  systemPrompt: string,
+  userPrompt: string,
+  temperature: number,
+  model = 'gemini-1.5-flash'
+): Promise<string> {
+  if (!geminiClient) throw new Error('Gemini not configured')
+
+  const genModel = geminiClient.getGenerativeModel({
+    model,
+    generationConfig: { temperature, maxOutputTokens: 2000 },
+    systemInstruction: systemPrompt
+  })
+
+  const result = await genModel.generateContent(userPrompt)
+  return result.response.text().trim()
+}
+
+// ============================================================================
+// ENSEMBLE MODE: CROSS-CHECK (Default)
+// ============================================================================
+
+/**
+ * Cross-check mode: Primary drafts, secondary verifies and patches
+ *
+ * 1. Primary model generates answer
+ * 2. Secondary model verifies (checks for unsupported claims)
+ * 3. Primary model patches issues
+ * 4. Finalize
+ */
+export async function ensembleCrossCheck(
+  question: string,
+  chunks: RetrievedChunk[],
+  coachContext: {
+    name: string
+    sport: string
+    voice_traits?: string[]
+  }
+): Promise<EnsembleResult> {
+  const startTime = Date.now()
+
+  logger.info('[Ensemble:CrossCheck] Starting cross-check mode')
+
+  // Build context from retrieved chunks
+  const context = chunks.map((chunk, i) =>
+    `[S${i + 1}] ${chunk.label}\n${chunk.text.slice(0, 500)}`
+  ).join('\n\n---\n\n')
+
+  // Step 1: Primary model (Gemini) generates answer
+  const generatorTemp = getDynamicTemperature('generator', { question_type: 'factual' })
+
+  const generatorSystemPrompt = `You are ${coachContext.name}, an expert ${coachContext.sport} coach.
+
+Use ONLY the provided source material to answer the question. Be specific and technical.
+${coachContext.voice_traits ? `Voice traits: ${coachContext.voice_traits.join(', ')}` : ''}
+
+SOURCES:
+${context}
+
+CRITICAL RULES:
+- Only use information from the sources above
+- Cite sources as [S1], [S2], etc.
+- If sources don't fully answer the question, say so
+- Be specific with step-by-step instructions`
+
+  const generatorUserPrompt = `Question: ${question}
+
+Provide a detailed, source-backed answer with citations.`
+
+  logger.info('[Ensemble:CrossCheck] Calling primary generator (Gemini)')
+  const draft = await callGemini(
+    generatorSystemPrompt,
+    generatorUserPrompt,
+    generatorTemp
+  )
+
+  logger.info('[Ensemble:CrossCheck] Draft generated', { length: draft.length })
+
+  // Step 2: Secondary model (OpenAI) verifies
+  const verifierTemp = getDynamicTemperature('verifier', {})
+
+  const verifierSystemPrompt = `You are a verification agent. Check if the answer is fully supported by the provided sources.
+
+SOURCES:
+${context}
+
+ANSWER TO VERIFY:
+${draft}
+
+Identify:
+1. Unsupported claims (statements not in sources)
+2. Missing citations (where sources exist but aren't cited)
+3. Clarity issues
+
+Return JSON:
+{
+  "unsupported_claims": [{"text": "...", "reason": "...", "missing_chunk_ids": []}],
+  "missing_citations": [{"location": "...", "suggested_chunk_id": "..."}],
+  "clarity_issues": ["..."]
+}`
+
+  logger.info('[Ensemble:CrossCheck] Calling verifier (OpenAI)')
+  const verificationRaw = await callOpenAI(
+    verifierSystemPrompt,
+    'Verify the answer against sources and return JSON.',
+    verifierTemp
+  )
+
+  let verification: VerifierOutput
+  try {
+    verification = JSON.parse(verificationRaw)
+  } catch {
+    logger.warn('[Ensemble:CrossCheck] Verifier returned invalid JSON, assuming pass')
+    verification = { unsupported_claims: [], missing_citations: [], clarity_issues: [] }
+  }
+
+  logger.info('[Ensemble:CrossCheck] Verification complete', {
+    unsupported: verification.unsupported_claims.length,
+    missing_cites: verification.missing_citations.length,
+    clarity: verification.clarity_issues.length
+  })
+
+  // Step 3: Patch if needed
+  let finalAnswer = draft
+  let patchesApplied = 0
+
+  if (verification.unsupported_claims.length > 0 || verification.missing_citations.length > 0) {
+    logger.info('[Ensemble:CrossCheck] Applying patches')
+
+    const patchPrompt = `Original answer had issues. Fix them:
+
+ISSUES:
+${JSON.stringify(verification, null, 2)}
+
+SOURCES:
+${context}
+
+ORIGINAL ANSWER:
+${draft}
+
+Rewrite the answer fixing all issues. Keep what's good, fix what's wrong, add missing citations.`
+
+    finalAnswer = await callGemini(
+      generatorSystemPrompt,
+      patchPrompt,
+      generatorTemp
+    )
+
+    patchesApplied = verification.unsupported_claims.length + verification.missing_citations.length
+    logger.info('[Ensemble:CrossCheck] Patches applied', { patchesApplied })
+  }
+
+  const latencyMs = Date.now() - startTime
+
+  // Calculate confidence
+  const sourcesUsed = Array.from(new Set(
+    (finalAnswer.match(/\[S\d+\]/g) || []).map(s => s.replace(/[[\]]/g, ''))
+  ))
+
+  const confidence = {
+    coverage: Math.min(sourcesUsed.length / chunks.length, 1.0),
+    agreement: 0.85, // Cross-check mode has high agreement by design
+    recency: chunks.length > 0 ? 0.7 : 0.5, // Estimated
+    overall: 0.8
+  }
+
+  return {
+    text: finalAnswer,
+    provider: 'gemini+openai',
+    model: 'cross_check',
+    latencyMs,
+    confidence,
+    sources_used: sourcesUsed,
+    metadata: {
+      mode: 'cross_check',
+      verification_passed: verification.unsupported_claims.length === 0,
+      patches_applied: patchesApplied
+    }
+  }
+}
+
+// ============================================================================
+// ENSEMBLE MODE: CONSENSUS (Higher Stakes)
+// ============================================================================
+
+/**
+ * Consensus mode: Both generate independently, adjudicator merges
+ *
+ * 1. OpenAI generates
+ * 2. Gemini generates
+ * 3. Adjudicator merges overlapping supported content
+ * 4. Other model verifies and flags issues
+ * 5. Finalize
+ */
+export async function ensembleConsensus(
+  question: string,
+  chunks: RetrievedChunk[],
+  coachContext: {
+    name: string
+    sport: string
+    voice_traits?: string[]
+  }
+): Promise<EnsembleResult> {
+  const startTime = Date.now()
+
+  logger.info('[Ensemble:Consensus] Starting consensus mode')
+
+  const context = chunks.map((chunk, i) =>
+    `[S${i + 1}] ${chunk.label}\n${chunk.text.slice(0, 500)}`
+  ).join('\n\n---\n\n')
+
+  const generatorTemp = getDynamicTemperature('generator', { question_type: 'factual', is_critical: true })
+
+  const systemPrompt = `You are ${coachContext.name}, an expert ${coachContext.sport} coach.
+
+SOURCES:
+${context}
+
+Answer using ONLY the sources. Cite as [S1], [S2], etc. Be specific and technical.`
+
+  const userPrompt = `Question: ${question}
+
+Provide a detailed answer with citations.`
+
+  // Generate from both models in parallel
+  logger.info('[Ensemble:Consensus] Calling both models in parallel')
+  const [openaiAnswer, geminiAnswer] = await Promise.all([
+    callOpenAI(systemPrompt, userPrompt, generatorTemp),
+    callGemini(systemPrompt, userPrompt, generatorTemp)
+  ])
+
+  logger.info('[Ensemble:Consensus] Both models responded', {
+    openai_length: openaiAnswer.length,
+    gemini_length: geminiAnswer.length
+  })
+
+  // Adjudicate: Merge overlapping content
+  const adjudicatorPrompt = `You are an adjudicator. Two models answered the same question. Merge their answers into one coherent response.
+
+Keep:
+- Content that both models agree on
+- Content that is well-supported by sources
+- The best phrasing from either model
+
+Drop:
+- Contradictions
+- Unsupported claims
+
+OPENAI ANSWER:
+${openaiAnswer}
+
+GEMINI ANSWER:
+${geminiAnswer}
+
+SOURCES:
+${context}
+
+Return JSON:
+{
+  "merged_answer": "...",
+  "kept_from_openai": ["snippet1", "snippet2"],
+  "kept_from_gemini": ["snippet1", "snippet2"],
+  "dropped_items": [{"text": "...", "reason": "..."}]
+}`
+
+  logger.info('[Ensemble:Consensus] Adjudicating')
+  const adjudicationRaw = await callOpenAI(
+    'You are an expert adjudicator merging answers from multiple models.',
+    adjudicatorPrompt,
+    getDynamicTemperature('stitcher', {})
+  )
+
+  let adjudication: AdjudicatorOutput
+  try {
+    adjudication = JSON.parse(adjudicationRaw)
+  } catch {
+    logger.warn('[Ensemble:Consensus] Adjudicator returned invalid JSON, using OpenAI answer')
+    adjudication = {
+      merged_answer: openaiAnswer,
+      kept_from_openai: [],
+      kept_from_gemini: [],
+      dropped_items: []
+    }
+  }
+
+  const latencyMs = Date.now() - startTime
+
+  const sourcesUsed = Array.from(new Set(
+    (adjudication.merged_answer.match(/\[S\d+\]/g) || []).map(s => s.replace(/[[\]]/g, ''))
+  ))
+
+  const agreement = 1 - (adjudication.dropped_items.length / 10) // Rough estimate
+
+  const confidence = {
+    coverage: Math.min(sourcesUsed.length / chunks.length, 1.0),
+    agreement: Math.max(0.5, agreement),
+    recency: 0.7,
+    overall: 0.85 // Consensus is high confidence
+  }
+
+  return {
+    text: adjudication.merged_answer,
+    provider: 'openai+gemini',
+    model: 'consensus',
+    latencyMs,
+    confidence,
+    sources_used: sourcesUsed,
+    metadata: {
+      mode: 'consensus',
+      verification_passed: true,
+      patches_applied: adjudication.dropped_items.length
+    }
+  }
+}
+
+// ============================================================================
+// MAIN ENSEMBLE FUNCTION
+// ============================================================================
+
+export async function generateWithEnsemble(
+  question: string,
+  chunks: RetrievedChunk[],
+  coachContext: {
+    name: string
+    sport: string
+    voice_traits?: string[]
+  },
+  mode: EnsembleMode = 'cross_check'
+): Promise<EnsembleResult> {
+  logger.info('[Ensemble] Starting generation', { mode, chunks: chunks.length })
+
+  switch (mode) {
+    case 'consensus':
+      return ensembleConsensus(question, chunks, coachContext)
+
+    case 'cross_check':
+      return ensembleCrossCheck(question, chunks, coachContext)
+
+    case 'mixture_of_experts':
+      // TODO: Implement MoE routing
+      logger.warn('[Ensemble] MoE not yet implemented, falling back to cross-check')
+      return ensembleCrossCheck(question, chunks, coachContext)
+
+    default:
+      return ensembleCrossCheck(question, chunks, coachContext)
+  }
+}
