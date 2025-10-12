@@ -249,6 +249,15 @@ export default function LessonContent() {
       </div>
      )}
 
+     {/* Show message if no content is available */}
+     {!lesson.longDescription && !lesson.content && !lesson.videoUrl && !lesson.videoId && (
+      <div className="mt-6 p-6 bg-sky-blue/10 rounded-xl border border-sky-blue/20 text-center">
+       <p className="text-dark/70 text-lg">
+        📝 This lesson is still being prepared. Check back soon for the full content!
+       </p>
+      </div>
+     )}
+
      {lesson.tags && lesson.tags.length > 0 && (
       <div className="mt-8 pt-6 border-t border-sky-blue/20">
        <h4 className="text-sm font-medium text-dark mb-3">Tags</h4>
