@@ -22,6 +22,9 @@ import {
 import { refineToCoachVoice } from './voice-refiner'
 import { analyzeMedicalSafety } from './medical-safety'
 
+// Re-export EnsembleMode for external use
+export type { EnsembleMode } from './ensemble-service'
+
 // ============================================================================
 // TYPES
 // ============================================================================

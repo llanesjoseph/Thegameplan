@@ -5,11 +5,12 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { processCoachQuestion, type QARequest } from '@/lib/coach-qa-agent'
+import { processCoachQuestion, type QARequest, type EnsembleMode } from '@/lib/coach-qa-agent'
 import { createAISession, logAIInteraction, CURRENT_TERMS_VERSION } from '@/lib/ai-logging'
 import { requireAuth } from '@/lib/auth-utils'
 import { auditExternalAPI } from '@/lib/audit-logger'
 import { logger } from '@/lib/logger'
+import type { AIProvider } from '@/types'
 
 // ============================================================================
 // RATE LIMITING
@@ -37,6 +38,28 @@ function checkRateLimit(identifier: string): { allowed: boolean; remaining: numb
 
   userLimit.count++
   return { allowed: true, remaining: RATE_LIMIT - userLimit.count }
+}
+
+// ============================================================================
+// HELPER: Map EnsembleMode to AIProvider for logging
+// ============================================================================
+
+/**
+ * Maps QA Agent ensemble modes to AIProvider types for interaction logging.
+ * This maintains compatibility with the existing logging system while using
+ * the new ensemble architecture.
+ */
+function mapEnsembleModeToProvider(mode: EnsembleMode): AIProvider {
+  switch (mode) {
+    case 'cross_check':
+      return 'gemini' // Primary model used in cross-check mode
+    case 'consensus':
+      return 'openai' // Primary model used in consensus mode
+    case 'mixture_of_experts':
+      return 'gemini' // Default to gemini for MoE
+    default:
+      return 'gemini' // Safe default
+  }
 }
 
 // ============================================================================
@@ -210,18 +233,15 @@ export async function POST(request: NextRequest) {
           currentSessionId,
           question,
           qaResponse.text,
-          qaResponse.metadata.mode, // provider
+          mapEnsembleModeToProvider(qaResponse.metadata.mode), // provider
           'sports', // sport (generic)
           'AI Coach', // coach name (generic)
           true, // disclaimerShown
           true, // userConsent
           CURRENT_TERMS_VERSION,
           {
-            mode: qaResponse.metadata.mode,
-            latencyMs: qaResponse.metadata.latencyMs,
-            confidence: qaResponse.confidence.overall,
-            safety_level: qaResponse.metadata.safety_level,
-            pipeline_stages: qaResponse.metadata.pipeline_stages.join(',')
+            model: qaResponse.metadata.mode, // Track which ensemble mode was used
+            latencyMs: qaResponse.metadata.latencyMs
           }
         )
         logger.info('[API] Interaction logged successfully')
