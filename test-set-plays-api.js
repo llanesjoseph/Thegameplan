@@ -1,7 +1,7 @@
 /**
  * Manual Test Script for Set Plays API
  *
- * This script tests the teams API endpoints
+ * This script tests the teams and plays API endpoints
  *
  * Usage:
  * 1. Start dev server: npm run dev
@@ -138,6 +138,103 @@ async function testSetPlaysAPI(token) {
         } else {
           console.log('⚠️  Team still appears in list (should be archived)')
         }
+      }
+
+      // Test 7: Create a play for the team
+      console.log('\n📝 Test 7: Creating a play...')
+      const createPlayResponse = await fetch(`${BASE_URL}/api/set-plays/teams/${teamId}/plays`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          title: 'Corner Kick Formation A',
+          description: 'Standard corner kick setup with near-post run',
+          notes: 'Watch for offside trap',
+          tags: ['corner-kick', 'set-piece', 'offense'],
+          visibility: 'team',
+          media: []
+        })
+      })
+
+      const createPlayData = await createPlayResponse.json()
+
+      if (createPlayData.success) {
+        console.log('✅ Play created successfully!')
+        console.log('   Play ID:', createPlayData.data.id)
+        console.log('   Play Title:', createPlayData.data.title)
+
+        const playId = createPlayData.data.id
+
+        // Test 8: Get the play by ID
+        console.log('\n📖 Test 8: Fetching play by ID...')
+        const getPlayResponse = await fetch(`${BASE_URL}/api/set-plays/plays/${playId}`, {
+          method: 'GET',
+          headers
+        })
+
+        const getPlayData = await getPlayResponse.json()
+
+        if (getPlayData.success) {
+          console.log('✅ Play fetched successfully!')
+          console.log('   Play:', getPlayData.data.title)
+          console.log('   Views:', getPlayData.data.views)
+        } else {
+          console.log('❌ Failed to fetch play:', getPlayData.error)
+        }
+
+        // Test 9: Update the play
+        console.log('\n✏️  Test 9: Updating play...')
+        const updatePlayResponse = await fetch(`${BASE_URL}/api/set-plays/plays/${playId}`, {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify({
+            title: 'Corner Kick Formation A (Updated)',
+            tags: ['corner-kick', 'set-piece', 'offense', 'practiced']
+          })
+        })
+
+        const updatePlayData = await updatePlayResponse.json()
+
+        if (updatePlayData.success) {
+          console.log('✅ Play updated successfully!')
+          console.log('   New Title:', updatePlayData.data.title)
+        } else {
+          console.log('❌ Failed to update play:', updatePlayData.error)
+        }
+
+        // Test 10: List all plays for the team
+        console.log('\n📋 Test 10: Listing plays for team...')
+        const listPlaysResponse = await fetch(`${BASE_URL}/api/set-plays/teams/${teamId}/plays`, {
+          method: 'GET',
+          headers
+        })
+
+        const listPlaysData = await listPlaysResponse.json()
+
+        if (listPlaysData.success) {
+          console.log(`✅ Found ${listPlaysData.data.count} play(s)`)
+          listPlaysData.data.plays.forEach(play => {
+            console.log(`   - ${play.title} (${play.visibility})`)
+          })
+        } else {
+          console.log('❌ Failed to list plays:', listPlaysData.error)
+        }
+
+        // Test 11: Delete the play
+        console.log('\n🗑️  Test 11: Deleting play...')
+        const deletePlayResponse = await fetch(`${BASE_URL}/api/set-plays/plays/${playId}`, {
+          method: 'DELETE',
+          headers
+        })
+
+        const deletePlayData = await deletePlayResponse.json()
+
+        if (deletePlayData.success) {
+          console.log('✅ Play deleted successfully!')
+        } else {
+          console.log('❌ Failed to delete play:', deletePlayData.error)
+        }
+      } else {
+        console.log('❌ Failed to create play:', createPlayData.error)
       }
 
       console.log('\n✨ All tests completed!\n')
