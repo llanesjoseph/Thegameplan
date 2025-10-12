@@ -18,6 +18,7 @@ import {
   Calendar,
   LayoutDashboard,
   ChevronDown,
+  ChevronUp,
   X,
   BarChart3,
   TrendingUp,
@@ -64,16 +65,6 @@ export default function AthleteDashboard() {
       expandable: true, // This card expands inline
       isCoachCard: true, // Show coach photo instead of icon
       highlighted: true // Add visual highlight
-    },
-    {
-      id: 'lessons',
-      title: 'Review Lessons',
-      description: 'Track progress and complete your assigned training',
-      icon: BookOpen,
-      color: '#91A6EB',
-      path: null, // Remove path to make it expandable
-      action: null,
-      expandable: true // Make lessons expandable
     },
     {
       id: 'video-review',
@@ -513,10 +504,10 @@ export default function AthleteDashboard() {
                           </div>
                           <button
                             onClick={() => setExpandedCard(null)}
-                            className="p-2 hover:bg-blue-100 rounded-lg transition-colors"
-                            title="Close"
+                            className="p-2 hover:bg-orange-100 rounded-full transition-all animate-bounce-slow"
+                            title="Collapse Lessons"
                           >
-                            <X className="w-5 h-5" style={{ color: '#000000' }} />
+                            <ChevronUp className="w-6 h-6" style={{ color: '#FF6B35' }} />
                           </button>
                         </div>
 
@@ -785,6 +776,19 @@ Be ${coachName || "the coach"}, be specific, be technical.`}
 
         .animate-pulse-subtle {
           animation: pulseSubtle 2s ease-in-out infinite;
+        }
+
+        @keyframes bounceSlow {
+          0%, 100% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(-6px);
+          }
+        }
+
+        .animate-bounce-slow {
+          animation: bounceSlow 1.5s ease-in-out infinite;
         }
       `}</style>
     </>
