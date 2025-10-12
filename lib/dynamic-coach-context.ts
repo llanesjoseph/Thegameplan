@@ -14,13 +14,84 @@ const contextCache = new Map<string, { context: CoachingContext; expiresAt: numb
 const CACHE_TTL = 60 * 60 * 1000 // 1 hour
 
 /**
+ * Fetch coach's actual lesson content for AI context
+ */
+async function fetchCoachLessonContent(coachId: string): Promise<{
+  techniques: string[]
+  lessonTitles: string[]
+  fullContent: string[]
+}> {
+  try {
+    console.log(`📚 Fetching lesson content for coach: ${coachId}`)
+
+    const lessonsSnapshot = await adminDb
+      .collection('content')
+      .where('creatorUid', '==', coachId)
+      .where('status', '==', 'published')
+      .limit(10)
+      .get()
+
+    const techniques: string[] = []
+    const lessonTitles: string[] = []
+    const fullContent: string[] = []
+
+    lessonsSnapshot.forEach(doc => {
+      const data = doc.data()
+
+      // Add lesson title
+      if (data.title) {
+        lessonTitles.push(data.title)
+      }
+
+      // Extract content from all available fields
+      if (data.content) {
+        fullContent.push(data.content)
+      }
+
+      if (data.longDescription) {
+        fullContent.push(data.longDescription)
+      }
+
+      // Extract from sections array
+      if (data.sections && Array.isArray(data.sections)) {
+        data.sections.forEach((section: any) => {
+          if (section.title) {
+            techniques.push(section.title)
+          }
+          if (section.content) {
+            fullContent.push(section.content)
+          }
+        })
+      }
+
+      // Extract techniques from description
+      if (data.description) {
+        fullContent.push(data.description)
+      }
+    })
+
+    console.log(`✅ Found ${lessonTitles.length} lessons with ${fullContent.length} content sections`)
+
+    return {
+      techniques: [...new Set(techniques)], // Remove duplicates
+      lessonTitles: lessonTitles,
+      fullContent: fullContent
+    }
+  } catch (error) {
+    console.error('Error fetching lesson content:', error)
+    return { techniques: [], lessonTitles: [], fullContent: [] }
+  }
+}
+
+/**
  * Build a dynamic coaching context from a coach's Firestore profile
+ * ENHANCED with actual lesson content for specific, non-generic responses
  */
 export async function buildDynamicCoachingContext(
   coachId: string,
   coachData: any
 ): Promise<CoachingContext> {
-  console.log(`🔨 Building dynamic context for coach: ${coachData.displayName || 'Unknown'}`)
+  console.log(`🔨 Building ENHANCED dynamic context for coach: ${coachData.displayName || 'Unknown'}`)
 
   // Extract coach information
   const displayName = coachData.displayName || coachData.name || 'Coach'
@@ -30,6 +101,9 @@ export async function buildDynamicCoachingContext(
   const specialties = coachData.specialties || []
   const experience = coachData.experience || ''
 
+  // ⚡ AGGRESSIVE ENHANCEMENT: Fetch actual lesson content
+  const lessonContent = await fetchCoachLessonContent(coachId)
+
   // Build dynamic credentials array
   const dynamicCredentials = [
     ...credentials,
@@ -37,11 +111,11 @@ export async function buildDynamicCoachingContext(
     coachData.verified ? 'Verified Coach' : null
   ].filter(Boolean) as string[]
 
-  // Build dynamic expertise from bio and specialties
+  // Build dynamic expertise from bio, specialties AND actual lesson content
   const dynamicExpertise = [
     ...specialties,
-    // Extract expertise keywords from bio
-    ...extractExpertiseFromBio(bio)
+    ...extractExpertiseFromBio(bio),
+    ...lessonContent.techniques.slice(0, 10) // Add actual techniques from lessons
   ]
 
   // Build dynamic personality traits from bio and sport
@@ -60,7 +134,15 @@ export async function buildDynamicCoachingContext(
     expertise: dynamicExpertise.length > 0 ? dynamicExpertise : ['Fundamentals', 'Technique', 'Mental Training'],
     personalityTraits: personalityTraits,
     voiceCharacteristics: voiceCharacteristics,
-    responseStyle: responseStyle
+    responseStyle: responseStyle,
+    // ⚡ CRITICAL: Add actual lesson content to force specific responses
+    lessonContent: {
+      availableLessons: lessonContent.lessonTitles,
+      techniques: lessonContent.techniques,
+      contentSamples: lessonContent.fullContent.slice(0, 5).map(content =>
+        content.substring(0, 500) // First 500 chars of each content piece
+      )
+    }
   }
 
   // Try to enhance with voice profile
@@ -74,6 +156,7 @@ export async function buildDynamicCoachingContext(
     console.warn('Could not load voice profile, using base context:', error)
   }
 
+  console.log(`🎯 Context built with ${lessonContent.lessonTitles.length} lessons and ${lessonContent.fullContent.length} content pieces`)
   return baseContext
 }
 

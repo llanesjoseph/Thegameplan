@@ -76,6 +76,12 @@ export interface CoachingContext {
   achievements?: string[]
   location?: string
   realEvents?: string[]
+  // ⚡ CRITICAL: Actual lesson content from coach's published lessons
+  lessonContent?: {
+    availableLessons: string[]
+    techniques: string[]
+    contentSamples: string[]
+  }
 }
 
 export const soccerCoachingContext: CoachingContext = {
