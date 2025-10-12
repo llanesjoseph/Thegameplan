@@ -121,13 +121,6 @@ service cloud.firestore {
              request.resource.data.title.size() >= 1 &&
              (!('sport' in request.resource.data) || request.resource.data.sport is string);
     }
-
-    // Check if user owns a conversation by ID
-    function ownsConversation(conversationId) {
-      return isAuthenticated() &&
-             exists(/databases/$(database)/documents/chatConversations/$(conversationId)) &&
-             get(/databases/$(database)/documents/chatConversations/$(conversationId)).data.userId == request.auth.uid;
-    }
     
     // ===== CORE COLLECTIONS =====
 
@@ -332,23 +325,22 @@ service cloud.firestore {
 
     // Chat conversations - AI assistant chat history
     match /chatConversations/{conversationId} {
-      // Users can read their own conversations
-      // Allow reading during creation (resource == null) or if userId matches
-      allow read: if isAuthenticated() &&
-                     (resource == null || resource.data.userId == request.auth.uid);
-
-      // Users can only create conversations for themselves
-      allow create: if isAuthenticated() &&
-                       request.resource.data.userId == request.auth.uid;
-
-      // Users can only update/delete their own conversations
-      allow update, delete: if isAuthenticated() &&
-                               resource.data.userId == request.auth.uid;
+      // Users can read/write their own conversations
+      allow read, write: if isAuthenticated() &&
+                            (resource == null ||
+                             (resource.data.keys().hasAny(['userId']) && resource.data.userId == request.auth.uid) ||
+                             (request.resource.data.keys().hasAny(['userId']) && request.resource.data.userId == request.auth.uid));
 
       // Chat messages subcollection
       match /messages/{messageId} {
-        // Messages belong to conversation owner - use helper function
-        allow read, create, update, delete: if ownsConversation(conversationId);
+        // Allow authenticated users to access messages in conversations they own
+        // Check parent doc exists and user owns it
+        function parentConversation() {
+          return get(/databases/$(database)/documents/chatConversations/$(conversationId));
+        }
+
+        allow read, write: if isAuthenticated() &&
+                              (parentConversation().data.userId == request.auth.uid);
       }
     }
     
