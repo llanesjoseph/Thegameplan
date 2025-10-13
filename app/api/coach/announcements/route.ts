@@ -154,7 +154,8 @@ export async function POST(request: NextRequest) {
         return null
       })
 
-      const allAthletes = (await Promise.all(athleteDetailsPromises)).filter(a => a !== null && a.email)
+      const allAthletesRaw = await Promise.all(athleteDetailsPromises)
+      const allAthletes = allAthletesRaw.filter((a): a is NonNullable<typeof a> => a !== null && Boolean(a.email))
 
       // Filter based on audience setting
       if (audience === 'all') {
