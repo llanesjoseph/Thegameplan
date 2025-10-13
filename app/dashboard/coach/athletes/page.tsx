@@ -602,7 +602,7 @@ function CoachAthletesContent() {
                       // Don't trigger if clicking on action buttons
                       if (!(e.target as HTMLElement).closest('button')) {
                         console.log('Athlete clicked:', invitation.name)
-                        // TODO: Navigate to athlete detail page or show modal
+                        router.push(`/dashboard/coach/athletes/${invitation.id}`)
                       }
                     }}
                   >
