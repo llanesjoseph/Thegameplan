@@ -43,6 +43,8 @@ interface AIAssistantProps {
  creatorId?: string
  creatorName?: string
  requireLegalConsent?: boolean
+ userPhotoURL?: string
+ coachPhotoURL?: string
 }
 
 const AIAssistant: React.FC<AIAssistantProps> = ({
@@ -58,7 +60,9 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
  sport,
  creatorId,
  creatorName,
- requireLegalConsent = true
+ requireLegalConsent = true,
+ userPhotoURL,
+ coachPhotoURL
 }) => {
  const [messages, setMessages] = useState<Message[]>([])
  const [inputValue, setInputValue] = useState('')
@@ -475,7 +479,19 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
       >
        <div className="flex items-start gap-2">
         {message.type === 'assistant' && (
-         <Bot className="w-4 h-4 mt-0.5 text-sky-blue flex-shrink-0" />
+         coachPhotoURL ? (
+          <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-sky-blue">
+           <img
+            src={coachPhotoURL}
+            alt={creatorName || 'Coach'}
+            className="w-full h-full object-cover"
+           />
+          </div>
+         ) : (
+          <div className="w-8 h-8 rounded-full bg-sky-blue flex items-center justify-center flex-shrink-0">
+           <Bot className="w-4 h-4 text-white" />
+          </div>
+         )
         )}
         <div className="flex-1">
          {message.type === 'assistant' ? (
@@ -511,7 +527,19 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
          </p>
         </div>
         {message.type === 'user' && (
-         <User className="w-4 h-4 mt-0.5 flex-shrink-0" />
+         userPhotoURL ? (
+          <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-white">
+           <img
+            src={userPhotoURL}
+            alt="You"
+            className="w-full h-full object-cover"
+           />
+          </div>
+         ) : (
+          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-sky-blue to-orange flex items-center justify-center flex-shrink-0">
+           <User className="w-4 h-4 text-white" />
+          </div>
+         )
         )}
        </div>
       </div>

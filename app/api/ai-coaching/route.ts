@@ -10,6 +10,7 @@ import { createAISession, logAIInteraction, CURRENT_TERMS_VERSION } from '@/lib/
 import { requireAuth } from '@/lib/auth-utils'
 import { auditExternalAPI } from '@/lib/audit-logger'
 import { logger } from '@/lib/logger'
+import { analyzeMentalHealthSafety, logMentalHealthEvent } from '@/lib/mental-health-safety'
 import type { AIProvider } from '@/types'
 
 // Force dynamic rendering for this API route
@@ -180,6 +181,48 @@ export async function POST(request: NextRequest) {
         logger.error('[API] Failed to create AI session', { error: sessionError })
         // Continue without session logging
       }
+    }
+
+    // ========================================================================
+    // MENTAL HEALTH SAFETY CHECK
+    // ========================================================================
+    const mentalHealthCheck = analyzeMentalHealthSafety(question)
+
+    if (mentalHealthCheck.isCrisis || mentalHealthCheck.shouldBlock) {
+      logger.warn('[API] Mental health crisis detected', {
+        user_id: requestUserId,
+        risk_level: mentalHealthCheck.riskLevel
+      })
+
+      // Log for human review
+      await logMentalHealthEvent(requestUserId, question, mentalHealthCheck)
+
+      // Return crisis response immediately
+      return NextResponse.json({
+        success: true,
+        response: mentalHealthCheck.safetyResponse,
+        sources: [],
+        confidence: {
+          overall: 1.0,
+          coverage: 1.0,
+          agreement: 1.0,
+          recency: 1.0
+        },
+        provider: 'safety_system',
+        model: 'mental_health_safety',
+        latencyMs: 0,
+        sessionId: currentSessionId,
+        metadata: {
+          mode: 'safety_intervention',
+          safety_checked: true,
+          safety_level: mentalHealthCheck.riskLevel,
+          voice_refined: false,
+          pipeline_stages: ['mental_health_safety']
+        },
+        mentalHealthCrisis: true,
+        hotlineInfo: mentalHealthCheck.hotlineInfo,
+        rateLimitRemaining: rateLimit.remaining
+      })
     }
 
     // ========================================================================

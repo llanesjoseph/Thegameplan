@@ -585,6 +585,8 @@ Be ${coachName || "the coach"}, be specific, be technical.`}
                             sport="Brazilian Jiu-Jitsu"
                             creatorId={coachId || undefined}
                             creatorName={coachName || undefined}
+                            userPhotoURL={user.photoURL || undefined}
+                            coachPhotoURL={coachPhotoURL || undefined}
                           />
                         </div>
                       </div>
