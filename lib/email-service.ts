@@ -693,6 +693,21 @@ interface VideoReviewRequestEmailProps {
   reviewUrl: string
 }
 
+// Live session request notification email
+interface LiveSessionRequestEmailProps {
+  to: string
+  coachName: string
+  athleteName: string
+  athleteEmail: string
+  preferredDate: string
+  preferredTime: string
+  duration: number
+  topic: string
+  description: string
+  specificGoals?: string
+  sessionUrl: string
+}
+
 export async function sendVideoReviewRequestEmail({
   to,
   coachName,
@@ -784,6 +799,113 @@ export async function sendVideoReviewRequestEmail({
     return { success: true, data }
   } catch (error) {
     console.error('Video review request email service error:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    }
+  }
+}
+
+export async function sendLiveSessionRequestEmail({
+  to,
+  coachName,
+  athleteName,
+  athleteEmail,
+  preferredDate,
+  preferredTime,
+  duration,
+  topic,
+  description,
+  specificGoals,
+  sessionUrl
+}: LiveSessionRequestEmailProps) {
+  try {
+    // Format date for display
+    const dateObj = new Date(preferredDate)
+    const formattedDate = dateObj.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+
+    const { data, error } = await resend.emails.send({
+      from: 'AthLeap <noreply@mail.crucibleanalytics.dev>',
+      to: [to],
+      subject: `📞 New Live 1-on-1 Session Request from ${athleteName} - AthLeap`,
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>New Live Session Request</title>
+        </head>
+        <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8fafc;">
+          <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <div style="text-align: center; margin-bottom: 30px;">
+              <h1 style="font-family: 'Permanent Marker', cursive; color: #13367A; font-size: 32px; margin: 0;">AthLeap</h1>
+              <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">THE WORK BEFORE THE WIN</p>
+            </div>
+
+            <div style="background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); border: 2px solid #16A34A; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
+              <h2 style="color: #16A34A; margin: 0;">📞 New Live 1-on-1 Session Request</h2>
+            </div>
+
+            <p>Hi ${coachName},</p>
+
+            <p><strong>${athleteName}</strong> has requested a live coaching session with you.</p>
+
+            <div style="background: #f0f9ff; border-left: 4px solid #16A34A; padding: 20px; margin: 20px 0;">
+              <h3 style="color: #0369a1; margin-top: 0;">📋 Session Details:</h3>
+              <p style="margin: 5px 0;"><strong>Athlete:</strong> ${athleteName} (${athleteEmail})</p>
+              <p style="margin: 5px 0;"><strong>Preferred Date:</strong> ${formattedDate}</p>
+              <p style="margin: 5px 0;"><strong>Preferred Time:</strong> ${preferredTime}</p>
+              <p style="margin: 5px 0;"><strong>Duration:</strong> ${duration} minutes</p>
+              <p style="margin: 10px 0 5px 0;"><strong>Topic:</strong></p>
+              <p style="margin: 5px 0; color: #4b5563; font-style: italic;">"${topic}"</p>
+              <p style="margin: 10px 0 5px 0;"><strong>Description:</strong></p>
+              <p style="margin: 5px 0; color: #4b5563; font-style: italic;">"${description}"</p>
+              ${specificGoals ? `
+                <p style="margin: 10px 0 5px 0;"><strong>Specific Goals:</strong></p>
+                <p style="margin: 5px 0; color: #4b5563; font-style: italic;">"${specificGoals}"</p>
+              ` : ''}
+            </div>
+
+            <div style="background: #fef3c7; border: 1px solid #f59e0b; padding: 15px; border-radius: 8px; margin: 20px 0; text-align: center;">
+              <p style="margin: 0; color: #92400e; font-size: 14px;">
+                <strong>⏰ Action Required:</strong> Please review and respond to this session request promptly!
+              </p>
+            </div>
+
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${sessionUrl}" style="background-color: #16A34A; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Review & Respond</a>
+            </div>
+
+            <div style="background: #f9fafb; border-radius: 8px; padding: 20px; margin: 20px 0;">
+              <h3 style="color: #1e40af; margin-top: 0;">💡 Next Steps:</h3>
+              <ol style="margin: 0; padding-left: 20px; color: #4b5563;">
+                <li style="margin: 8px 0;">Review the requested date and time</li>
+                <li style="margin: 8px 0;">Confirm or suggest an alternative time</li>
+                <li style="margin: 8px 0;">Prepare coaching materials for the session</li>
+                <li style="margin: 8px 0;">Send the meeting link to ${athleteName}</li>
+              </ol>
+            </div>
+
+            <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 14px;">
+              <p><strong>AthLeap</strong> - The Work Before the Win</p>
+              <p style="font-size: 12px;">This is an automated notification. Reply directly to ${athleteEmail} or use the platform.</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `
+    })
+
+    if (error) {
+      console.error('Failed to send live session request email:', error)
+      return { success: false, error: error.message }
+    }
+
+    console.log(`✅ Live session request email sent to coach ${to}`)
+    return { success: true, data }
+  } catch (error) {
+    console.error('Live session request email service error:', error)
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error'

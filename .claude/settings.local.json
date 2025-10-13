@@ -26,7 +26,8 @@
       "Bash(firebase deploy:*)",
       "Bash(cmd:*)",
       "Bash(firebase login:*)",
-      "Bash(firebase functions:list:*)"
+      "Bash(firebase functions:list:*)",
+      "Bash(git mv:*)"
     ],
     "deny": [],
     "ask": []
