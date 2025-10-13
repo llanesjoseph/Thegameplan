@@ -206,10 +206,11 @@ function CreateLessonPageContent() {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          prompt: aiPrompt.trim() || `Create a lesson about ${aiTopic}`,
+          topic: aiTopic.trim(),
           sport: aiSport,
           level: aiLevel,
-          coachId: user.uid
+          duration: '45 minutes',
+          detailedInstructions: aiPrompt.trim() || undefined
         })
       })
 

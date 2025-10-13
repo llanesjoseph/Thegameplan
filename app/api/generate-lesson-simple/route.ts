@@ -14,30 +14,52 @@ export async function POST(request: NextRequest) {
     // Generate rich, detailed lesson content without external API dependency
     const markdownContent = generateRichLessonContent(topic, sport, level, duration, detailedInstructions)
 
+    // Normalize sport name for display
+    const displaySport = normalizeSportName(sport)
+
+    // Parse duration string to number (e.g., "45 minutes" -> 45)
+    const durationNumber = typeof duration === 'string'
+      ? parseInt(duration.match(/\d+/)?.[0] || '60')
+      : duration
+
     return NextResponse.json({
       success: true,
-      markdownContent,
-      lessonPlan: {
-        title: `${sport}: ${topic}`,
-        objective: `Master ${topic} techniques and application in ${sport}`,
-        duration,
-        sport,
-        level,
-        parts: [
+      lesson: {
+        title: `${displaySport}: ${topic}`,
+        sport: sport,
+        level: level,
+        duration: durationNumber,
+        objectives: [
+          `Execute ${topic} techniques with proper form and timing`,
+          `Apply ${topic} principles in competitive scenarios`,
+          `Understand the biomechanical foundations of ${topic}`,
+          `Integrate ${topic} into overall ${sport} strategy`
+        ],
+        tags: [sport.toLowerCase(), topic.toLowerCase(), level, 'technique'],
+        sections: [
           {
-            partTitle: "Warm-Up & Fundamentals",
-            description: `Comprehensive warm-up and fundamental review for ${topic}`,
-            duration: "10 minutes"
+            title: "Dynamic Warm-Up & Technical Foundation",
+            type: "text",
+            content: `Start with sport-specific movement patterns that activate the muscle groups essential for ${topic}.\n\n**Movement Preparation:**\n${getSportSpecificWarmup(sport, topic)}\n\n**Technical Foundation Review:**\n- Body Positioning: Proper stance, weight distribution, and alignment\n- Breathing Pattern: Coordinated breathing with movement execution\n- Mental Focus: Concentration points and awareness cues\n- Safety Protocols: Injury prevention and proper progression`,
+            duration: 10
           },
           {
-            partTitle: "Technical Instruction",
-            description: `Detailed technical breakdown of ${topic} techniques`,
-            duration: "25 minutes"
+            title: "Master-Level Technical Instruction",
+            type: "text",
+            content: `**Core Technique Breakdown**\n\n**Setup Phase:**\n- Establish proper positioning relative to opponent/equipment\n- Check grip placement and pressure points\n- Verify foot positioning and weight distribution\n\n**Execution Phase:**\n1. Initial Movement: ${getInitialMovement(topic, sport)}\n2. Transition Point: ${getTransitionPoint(topic, sport)}\n3. Force Application: ${getForceApplication(topic, sport)}\n4. Follow-Through: ${getFollowThrough(topic, sport)}\n\n**Common Mistakes & Corrections:**\n❌ Rushing the setup phase → ✅ Take 2-3 seconds to establish proper positioning\n❌ Using excessive force early → ✅ Build pressure gradually through proper leverage\n❌ Neglecting opposite-side awareness → ✅ Maintain peripheral vision${detailedInstructions ? `\n\n**Additional Focus:**\n${detailedInstructions}` : ''}`,
+            duration: 25
           },
           {
-            partTitle: "Practice & Application",
-            description: `Live practice and real-world application of ${topic}`,
-            duration: "8 minutes"
+            title: "Progressive Practice & Live Application",
+            type: "drill",
+            content: `**Drill 1: Technical Repetition (3 minutes)**\n- Partners alternate executing ${topic} technique\n- Focus on form over speed\n- Coach provides individual corrections\n\n**Drill 2: Resistance Training (3 minutes)**\n- Add progressive resistance to ${topic} execution\n- Build strength and muscle memory\n- Emphasize proper breathing under pressure\n\n**Drill 3: Live Application (2 minutes)**\n- Integrate ${topic} into free-form practice\n- Encourage experimentation with timing and setup\n- Monitor for safety and proper execution\n\n**Competition Simulation:**\nPractice ${topic} under competition-like conditions with time pressure scenarios and strategic decision making.`,
+            duration: 8
+          },
+          {
+            title: "Cool-Down & Review",
+            type: "reflection",
+            content: `**Key Points Review:**\n- Primary execution cues for ${topic}\n- Most common mistake to avoid\n- Best setup opportunities\n\n**Cool-Down Protocol:**\n- Light stretching focusing on muscle groups used\n- Breathing exercises for recovery\n- Mental reflection on lesson key points\n\n**Homework Assignment:**\nPractice ${topic} technique:\n- 10 repetitions daily focusing on setup phase\n- Visualize competition applications\n- Review video examples if available`,
+            duration: 2
           }
         ]
       }
@@ -208,14 +230,36 @@ Practice ${topic} technique:
 *This lesson plan provides a comprehensive framework for teaching ${topic} in ${sport}. Adjust timing and intensity based on group needs and facility constraints.*`
 }
 
+function normalizeSportName(sport: string): string {
+  const sportMap: Record<string, string> = {
+    'bjj': 'Brazilian Jiu-Jitsu',
+    'brazilian jiu-jitsu': 'Brazilian Jiu-Jitsu',
+    'wrestling': 'Wrestling',
+    'boxing': 'Boxing',
+    'mma': 'MMA',
+    'baseball': 'Baseball',
+    'basketball': 'Basketball',
+    'football': 'Football',
+    'soccer': 'Soccer',
+    'softball': 'Softball',
+    'volleyball': 'Volleyball'
+  }
+  return sportMap[sport.toLowerCase()] || sport
+}
+
 function getSportSpecificWarmup(sport: string, topic: string): string {
-  const warmups = {
+  const normalizedSport = normalizeSportName(sport)
+  const warmups: Record<string, string> = {
     'Brazilian Jiu-Jitsu': `- Guard pulling and hip mobility drills\n- Bridging and shrimping movements\n- Grip strength activation\n- Core stability exercises`,
     'Wrestling': `- Stance and motion drills\n- Penetration step practice\n- Hand fighting exercises\n- Mat awareness movements`,
     'Boxing': `- Shadow boxing combinations\n- Footwork ladder patterns\n- Hand speed activation\n- Head movement drills`,
-    'MMA': `- Mixed range movement patterns\n- Stance switching drills\n- Clinch position practice\n- Ground transition movements`
+    'MMA': `- Mixed range movement patterns\n- Stance switching drills\n- Clinch position practice\n- Ground transition movements`,
+    'Baseball': `- Shoulder rotation and arm circles\n- Rotational core activation\n- Throwing mechanics review\n- Footwork and agility drills`,
+    'Basketball': `- Dynamic stretching for legs and hips\n- Jump activation exercises\n- Ball handling warm-up\n- Defensive stance movements`,
+    'Football': `- Position-specific movement patterns\n- Acceleration and deceleration drills\n- Contact preparation exercises\n- Agility ladder work`,
+    'Soccer': `- Dynamic leg swings and stretches\n- Footwork and ball control drills\n- Acceleration and change of direction\n- Passing accuracy warm-up`
   }
-  return warmups[sport as keyof typeof warmups] || `- Sport-specific movement patterns\n- Range of motion exercises\n- Activation drills\n- Balance and coordination work`
+  return warmups[normalizedSport] || `- Sport-specific movement patterns\n- Range of motion exercises\n- Activation drills\n- Balance and coordination work`
 }
 
 function getInitialMovement(topic: string, sport: string): string {
