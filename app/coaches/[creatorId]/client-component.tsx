@@ -11,6 +11,7 @@ import { db, auth } from '@/lib/firebase.client'
 import { collection, doc, addDoc, deleteDoc, getDocs, query, where, orderBy } from 'firebase/firestore'
 import AppHeader from '@/components/ui/AppHeader'
 import DOMPurify from 'isomorphic-dompurify'
+import FollowButton from '@/components/coach/FollowButton'
 
 interface Creator {
  id: string
@@ -561,6 +562,11 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
         </div>
        )}
       </div>
+     </div>
+
+     {/* Follow Button */}
+     <div className="mt-6 flex justify-center">
+      <FollowButton coachId={creator.id} coachName={creator.name} variant="default" />
      </div>
     </div>
 

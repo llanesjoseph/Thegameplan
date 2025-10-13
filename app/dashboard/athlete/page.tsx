@@ -16,12 +16,16 @@ import {
   Clock,
   TrendingUp,
   Megaphone,
-  ShoppingBag
+  ShoppingBag,
+  Rss
 } from 'lucide-react'
 import AppHeader from '@/components/ui/AppHeader'
 import AthleteOnboardingModal from '@/components/athlete/AthleteOnboardingModal'
 import VideoReviewRequestModal from '@/components/athlete/VideoReviewRequestModal'
 import Live1on1RequestModal from '@/components/athlete/Live1on1RequestModal'
+import MyCoachPanel from '@/components/athlete/MyCoachPanel'
+import CoachFeedView from '@/components/athlete/CoachFeedView'
+import CoachScheduleView from '@/components/athlete/CoachScheduleView'
 import AIAssistant from '@/components/AIAssistant'
 
 export default function AthleteDashboard() {
@@ -33,6 +37,7 @@ export default function AthleteDashboard() {
   const [isCheckingOnboarding, setIsCheckingOnboarding] = useState(true)
   const [showVideoReviewModal, setShowVideoReviewModal] = useState(false)
   const [showLive1on1Modal, setShowLive1on1Modal] = useState(false)
+  const [showCoachPanel, setShowCoachPanel] = useState(false)
   const [hasCoachRole, setHasCoachRole] = useState(false)
   const [coachId, setCoachId] = useState<string | null>(null)
   const [coachName, setCoachName] = useState<string>('')
@@ -86,6 +91,20 @@ export default function AthleteDashboard() {
       description: 'Chat with your coach\'s AI assistant',
       icon: Sparkles,
       color: '#20B2AA'
+    },
+    {
+      id: 'coach-feed',
+      title: "Coach's Feed",
+      description: 'Updates and tips from your coach',
+      icon: Rss,
+      color: '#20B2AA'
+    },
+    {
+      id: 'coach-schedule',
+      title: "Coach's Schedule",
+      description: 'View upcoming events and sessions',
+      icon: Calendar,
+      color: '#16A34A'
     },
     {
       id: 'announcements',
@@ -424,6 +443,15 @@ export default function AthleteDashboard() {
         />
       )}
 
+      {/* My Coach Panel */}
+      {coachId && (
+        <MyCoachPanel
+          coachId={coachId}
+          isOpen={showCoachPanel}
+          onClose={() => setShowCoachPanel(false)}
+        />
+      )}
+
       <div style={{ backgroundColor: '#E8E6D8' }} className="min-h-screen">
         <AppHeader title="Athlete Dashboard" subtitle="Your training hub for excellence" />
 
@@ -449,8 +477,13 @@ export default function AthleteDashboard() {
               {/* Sidebar Header with Coach Info */}
               <div className="sticky top-0 bg-white/95 backdrop-blur-sm z-10 border-b border-gray-200 p-4">
                 {coachId && coachName ? (
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-12 h-12 rounded-full overflow-hidden shadow-md" style={{ backgroundColor: '#20B2AA' }}>
+                  <button
+                    onClick={() => setShowCoachPanel(true)}
+                    className="flex items-center gap-3 mb-3 w-full p-2 rounded-lg hover:bg-gray-100 transition-all active:scale-95 touch-manipulation"
+                    style={{ minHeight: '44px' }}
+                    title="View coach information"
+                  >
+                    <div className="w-12 h-12 rounded-full overflow-hidden shadow-md flex-shrink-0" style={{ backgroundColor: '#20B2AA' }}>
                       {coachPhotoURL ? (
                         <img src={coachPhotoURL} alt={coachName} className="w-full h-full object-cover" />
                       ) : (
@@ -459,13 +492,14 @@ export default function AthleteDashboard() {
                         </div>
                       )}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs" style={{ color: '#666' }}>Your Coach</p>
+                    <div className="flex-1 min-w-0 text-left">
+                      <p className="text-xs" style={{ color: '#666' }}>My Coach: Quick View</p>
                       <p className="text-sm font-semibold truncate" style={{ color: '#000000' }}>
                         {coachName.split(' ')[0]}
                       </p>
+                      <p className="text-[10px]" style={{ color: '#20B2AA' }}>Tap to view →</p>
                     </div>
-                  </div>
+                  </button>
                 ) : (
                   <div className="mb-3">
                     <h2 className="text-base font-semibold" style={{ color: '#000000' }}>
@@ -588,6 +622,18 @@ export default function AthleteDashboard() {
                           userPhotoURL={user.photoURL || undefined}
                           coachPhotoURL={coachPhotoURL || undefined}
                         />
+                      </div>
+                    )}
+
+                    {activeSection === 'coach-feed' && user && (
+                      <div className="h-full overflow-y-auto">
+                        <CoachFeedView />
+                      </div>
+                    )}
+
+                    {activeSection === 'coach-schedule' && user && (
+                      <div className="h-full overflow-y-auto">
+                        <CoachScheduleView />
                       </div>
                     )}
 

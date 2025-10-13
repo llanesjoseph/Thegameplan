@@ -8,6 +8,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Search, Filter, Star, CheckCircle, Users, Trophy, User, Facebook, Instagram, Twitter } from 'lucide-react'
 import AppHeader from '@/components/ui/AppHeader'
+import FollowButton from '@/components/coach/FollowButton'
 
 type Contributor = {
  id: string
@@ -77,6 +78,7 @@ export default function ContributorsPage() {
  const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot<DocumentData> | null>(null)
  const [hasMore, setHasMore] = useState(true)
  const [totalCount, setTotalCount] = useState(0)
+ const [activeCoachCount, setActiveCoachCount] = useState(0)
  const [userPreferences, setUserPreferences] = useState<{ sports: string[]; level: string }>({ sports: [], level: 'all' })
 
  const [filters, setFilters] = useState<FilterState>({
@@ -130,9 +132,27 @@ export default function ContributorsPage() {
    setLastDoc(snapshot.docs[snapshot.docs.length - 1] || null)
    setHasMore(snapshot.docs.length === ITEMS_PER_PAGE)
 
+   // Load cached coach count instead of counting in real-time
    if (reset) {
-    const countSnap = await getDocs(collection(db, 'creators_index'))
-    setTotalCount(countSnap.size)
+    try {
+     const cacheDoc = await getDoc(doc(db, 'system_cache', 'coach_count'))
+     if (cacheDoc.exists()) {
+      const cacheData = cacheDoc.data()
+      setActiveCoachCount(cacheData.activeCoaches || 0)
+      setTotalCount(cacheData.totalCoaches || 0)
+      console.log(`📊 Loaded cached coach count: ${cacheData.activeCoaches} active`)
+     } else {
+      // Fallback: count in real-time if cache doesn't exist
+      const countSnap = await getDocs(collection(db, 'creators_index'))
+      setTotalCount(countSnap.size)
+      setActiveCoachCount(countSnap.size)
+     }
+    } catch (cacheError) {
+     console.warn('Failed to load cached count, falling back to real-time count:', cacheError)
+     const countSnap = await getDocs(collection(db, 'creators_index'))
+     setTotalCount(countSnap.size)
+     setActiveCoachCount(countSnap.size)
+    }
    }
   } catch (e) {
    // Graceful fallback (no DB): keep empty list; page still renders
@@ -140,6 +160,7 @@ export default function ContributorsPage() {
    if (reset) {
     setContributors([])
     setTotalCount(0)
+    setActiveCoachCount(0)
    }
    setHasMore(false)
   } finally {
@@ -240,7 +261,7 @@ export default function ContributorsPage() {
    {/* Hero Section */}
    <div className="text-center py-12 px-6">
     <h1 className="text-4xl mb-4" style={{ color: '#000000' }}>
-     Browse Our Elite Coaches
+     Browse {activeCoachCount > 0 ? `${activeCoachCount} ` : ''}Elite Coaches
     </h1>
     <p className="text-lg max-w-3xl mx-auto" style={{ color: '#000000' }}>
      {user
@@ -384,33 +405,39 @@ export default function ContributorsPage() {
    <div className="max-w-7xl mx-auto px-6">
     <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
      {specialtyFiltered.map((c) => (
-      <Link key={c.id} href={`/coaches/${c.id}`} className="group block">
-       <article className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 hover:shadow-xl transition-all group-hover:scale-[1.02]">
-        <div className="relative mb-6">
-         <div className="aspect-square rounded-lg overflow-hidden bg-gray-50">
-          <Image
-           src={c.headshotUrl || c.heroImageUrl || '/logo-gp.svg'}
-           alt={c.name}
-           width={300}
-           height={300}
-           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-          />
+      <div key={c.id} className="group block">
+       <article className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 hover:shadow-xl transition-all">
+        <Link href={`/coaches/${c.id}`} className="block">
+         <div className="relative mb-6">
+          <div className="aspect-square rounded-lg overflow-hidden bg-gray-50">
+           <Image
+            src={c.headshotUrl || c.heroImageUrl || '/logo-gp.svg'}
+            alt={c.name}
+            width={300}
+            height={300}
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+           />
+          </div>
+          <div className="absolute top-3 right-3 flex flex-col gap-2">
+           {c.verified && (
+            <div className="bg-green-600 text-white px-3 py-1 rounded-full text-xs flex items-center gap-1">
+             <CheckCircle className="w-3 h-3" />
+             Verified
+            </div>
+           )}
+           {c.featured && (
+            <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-xs flex items-center gap-1">
+             <Star className="w-3 h-3" />
+             Featured
+            </div>
+           )}
+          </div>
+          {/* Follow Button - Top Left */}
+          <div className="absolute top-3 left-3" onClick={(e) => e.preventDefault()}>
+           <FollowButton coachId={c.id} coachName={c.name} variant="icon-only" />
+          </div>
          </div>
-         <div className="absolute top-3 right-3 flex flex-col gap-2">
-          {c.verified && (
-           <div className="bg-green-600 text-white px-3 py-1 rounded-full text-xs flex items-center gap-1">
-            <CheckCircle className="w-3 h-3" />
-            Verified
-           </div>
-          )}
-          {c.featured && (
-           <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-xs flex items-center gap-1">
-            <Star className="w-3 h-3" />
-            Featured
-           </div>
-          )}
-         </div>
-        </div>
+        </Link>
 
         <div className="space-y-4">
          <div>

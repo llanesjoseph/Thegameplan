@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/use-auth'
 import { useEnhancedRole } from '@/hooks/use-role-switcher'
 import AppHeader from '@/components/ui/AppHeader'
 import { db } from '@/lib/firebase.client'
-import { collection, query, getDocs, orderBy, limit, where, doc, updateDoc } from 'firebase/firestore'
+import { collection, query, getDocs, orderBy, where, doc, updateDoc } from 'firebase/firestore'
 import { 
  Users, 
  Search, 
@@ -58,8 +58,7 @@ export default function AdminUserManagement() {
    // Load users from Firestore
    const usersQuery = query(
     collection(db, 'users'),
-    orderBy('createdAt', 'desc'),
-    limit(100)
+    orderBy('createdAt', 'desc')
    )
 
    const usersSnapshot = await getDocs(usersQuery)

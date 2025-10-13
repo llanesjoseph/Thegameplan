@@ -1,5 +1,6 @@
 import { adminDb as db } from '@/lib/firebase.admin'
 import { auditLog } from '@/lib/audit-logger'
+import { syncCoachToPublicProfile } from '@/lib/sync-coach-to-public-profile'
 
 interface CoachApplicationData {
   id: string
@@ -130,6 +131,29 @@ export async function autoPopulateCoachProfile(applicationId: string): Promise<b
     await db.collection('users').doc(userId).update({
       role: 'coach',
       updatedAt: new Date()
+    })
+
+    // 🚀 IMMEDIATE SYNC TO PUBLIC PROFILE
+    // This ensures the coach appears on Browse Coaches page immediately
+    await syncCoachToPublicProfile({
+      uid: userId,
+      email: coachProfile.email,
+      displayName: coachProfile.displayName,
+      firstName: coachProfile.firstName,
+      lastName: coachProfile.lastName,
+      sport: coachProfile.sport,
+      tagline: coachProfile.tagline,
+      bio: coachProfile.bio,
+      philosophy: coachProfile.philosophy,
+      experience: coachProfile.experience,
+      credentials: coachProfile.credentials,
+      specialties: coachProfile.specialties,
+      achievements: coachProfile.achievements,
+      isActive: coachProfile.isActive,
+      profileComplete: coachProfile.profileCompleteness >= 80, // 80%+ is considered complete
+      status: 'approved',
+      verified: true, // Auto-verified from ingestion
+      featured: false
     })
 
     // Update application status

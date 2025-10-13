@@ -14,7 +14,8 @@ import {
   User,
   X,
   Calendar,
-  MessageSquare
+  MessageSquare,
+  Rss
 } from 'lucide-react'
 
 // Responsive iframe component with dynamic height based on content
@@ -155,6 +156,22 @@ export default function CoachDashboard() {
       inline: true
     },
     {
+      id: 'feed',
+      title: "Coach's Feed",
+      description: 'Share content with your athletes',
+      icon: Rss,
+      color: '#20B2AA',
+      inline: true
+    },
+    {
+      id: 'schedule',
+      title: 'Schedule Publisher',
+      description: 'Publish events and training schedule',
+      icon: Calendar,
+      color: '#16A34A',
+      inline: true
+    },
+    {
       id: 'assistants',
       title: 'Assistant Coaches',
       description: 'Manage coaching staff permissions',
@@ -184,6 +201,8 @@ export default function CoachDashboard() {
       'resources': '/dashboard/coach/resources?embedded=true',
       'analytics': '/dashboard/coach/analytics?embedded=true',
       'announcements': '/dashboard/coach/announcements?embedded=true',
+      'feed': '/dashboard/coach/feed?embedded=true',
+      'schedule': '/dashboard/coach/schedule?embedded=true',
       'assistants': '/dashboard/coach/assistants?embedded=true',
       'profile': '/dashboard/coach/profile?embedded=true'
     }

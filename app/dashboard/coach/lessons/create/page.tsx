@@ -554,6 +554,37 @@ function CreateLessonPageContent() {
     }
   }, [user, authLoading, embedded, router])
 
+  // Auto-populate sport from coach profile
+  useEffect(() => {
+    const loadCoachProfile = async () => {
+      if (!user || authLoading || lesson.sport) return // Skip if no user, still loading, or sport already set
+
+      try {
+        const token = await user.getIdToken()
+        const response = await fetch('/api/coach-profile/get', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          if (data.success && data.data?.sport) {
+            // Auto-populate sport from coach profile
+            setLesson(prev => ({ ...prev, sport: data.data.sport }))
+            setAiSport(data.data.sport) // Also set AI modal sport
+            console.log(`✅ Auto-populated sport: ${data.data.sport}`)
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load coach profile:', error)
+        // Silently fail - coach can still manually select sport
+      }
+    }
+
+    loadCoachProfile()
+  }, [user, authLoading, lesson.sport])
+
   // Show loading state while checking auth
   if (authLoading) {
     return (

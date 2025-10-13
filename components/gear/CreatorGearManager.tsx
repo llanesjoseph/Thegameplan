@@ -280,15 +280,20 @@ export default function CreatorGearManager({ onItemAdded }: CreatorGearManagerPr
 
      {/* Affiliate Link */}
      <div>
-      <label className="block text-sm  text-gray-700 mb-1">Purchase Link*</label>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        Purchase Link (Your Affiliate Link)*
+      </label>
       <input
        type="url"
        required
        value={formData.affiliateLink}
        onChange={(e) => setFormData(prev => ({ ...prev, affiliateLink: e.target.value }))}
        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-cardinal focus:border-cardinal"
-       placeholder="https://nike.com/product-link"
+       placeholder="https://your-affiliate-link.com/product"
       />
+      <p className="text-xs text-gray-500 mt-1">
+        💡 Tip: Use your affiliate link here to earn commission when athletes purchase through your recommendation
+      </p>
      </div>
 
      {/* Tags */}

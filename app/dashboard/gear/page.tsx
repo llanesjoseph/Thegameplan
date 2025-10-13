@@ -108,23 +108,26 @@ export default function AthleteGearBrowsePage({ searchParams }: { searchParams: 
   const content = (
     <div className="space-y-6">
       {/* Header */}
-      <div>
+      <div className="mb-2">
         <h2 className="text-2xl font-bold" style={{ color: '#000000' }}>Recommended Gear</h2>
-        <p className="text-sm" style={{ color: '#666' }}>Equipment and gear recommended by coaches</p>
+        <p className="text-sm mt-1" style={{ color: '#000000', opacity: 0.7 }}>Equipment and gear recommended by coaches</p>
       </div>
 
       {/* Filters */}
-      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4">
+      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+        <h3 className="text-sm font-semibold mb-4 uppercase tracking-wide" style={{ color: '#000000' }}>
+          Search & Filter
+        </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Search */}
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5" style={{ color: '#666' }} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5" style={{ color: '#000000', opacity: 0.4 }} />
             <input
               type="text"
               placeholder="Search gear..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+              className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
             />
           </div>
 
@@ -132,7 +135,7 @@ export default function AthleteGearBrowsePage({ searchParams }: { searchParams: 
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+            className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
           >
             {categories.map((cat) => (
               <option key={cat} value={cat}>{cat}</option>
@@ -143,7 +146,7 @@ export default function AthleteGearBrowsePage({ searchParams }: { searchParams: 
           <select
             value={selectedLevel}
             onChange={(e) => setSelectedLevel(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+            className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
           >
             {levels.map((level) => (
               <option key={level} value={level}>{level === 'all' ? 'All Levels' : level.charAt(0).toUpperCase() + level.slice(1)}</option>
@@ -153,12 +156,14 @@ export default function AthleteGearBrowsePage({ searchParams }: { searchParams: 
       </div>
 
       {/* Stats */}
-      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4">
-        <div className="flex items-center gap-3">
-          <ShoppingBag className="w-8 h-8" style={{ color: '#91A6EB' }} />
+      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#91A6EB' }}>
+            <ShoppingBag className="w-6 h-6 text-white" />
+          </div>
           <div>
             <div className="text-3xl font-bold" style={{ color: '#000000' }}>{filteredGear.length}</div>
-            <div className="text-sm" style={{ color: '#666' }}>Available Gear Items</div>
+            <div className="text-sm" style={{ color: '#000000', opacity: 0.6 }}>Available Gear Items</div>
           </div>
         </div>
       </div>
@@ -169,10 +174,10 @@ export default function AthleteGearBrowsePage({ searchParams }: { searchParams: 
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto"></div>
         </div>
       ) : filteredGear.length === 0 ? (
-        <div className="text-center py-12 bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8">
-          <ShoppingBag className="w-16 h-16 mx-auto mb-4" style={{ color: '#91A6EB', opacity: 0.3 }} />
-          <h3 className="text-lg font-semibold mb-2" style={{ color: '#000000' }}>No gear found</h3>
-          <p className="text-sm" style={{ color: '#666' }}>
+        <div className="text-center py-16 bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-12">
+          <ShoppingBag className="w-20 h-20 mx-auto mb-4" style={{ color: '#91A6EB', opacity: 0.3 }} />
+          <h3 className="text-2xl font-semibold mb-3" style={{ color: '#000000' }}>No gear found</h3>
+          <p className="text-base" style={{ color: '#000000', opacity: 0.6 }}>
             {searchTerm || selectedCategory !== 'all' || selectedLevel !== 'all'
               ? 'Try adjusting your filters'
               : 'Your coaches haven\'t recommended any gear yet'}
@@ -184,61 +189,63 @@ export default function AthleteGearBrowsePage({ searchParams }: { searchParams: 
             const isFromCoach = coachId && item.createdBy === coachId
 
             return (
-              <div key={item.id} className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 overflow-hidden">
+              <div key={item.id} className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 overflow-hidden transition-all hover:shadow-2xl hover:scale-[1.02]">
                 <div className="relative">
                   {item.imageUrl ? (
-                    <img src={item.imageUrl} alt={item.name} className="w-full h-48 object-cover" />
+                    <img src={item.imageUrl} alt={item.name} className="w-full h-52 object-cover" />
                   ) : (
-                    <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
-                      <ImageIcon className="w-12 h-12 text-gray-400" />
+                    <div className="w-full h-52 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                      <ImageIcon className="w-16 h-16 text-gray-400" />
                     </div>
                   )}
                   {isFromCoach && (
-                    <div className="absolute top-2 left-2 bg-gradient-to-r from-teal-500 to-teal-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+                    <div className="absolute top-3 left-3 bg-gradient-to-r from-teal-500 to-teal-600 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg">
                       ⭐ Your Coach
                     </div>
                   )}
-                  <div className="absolute top-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
-                    {item.level}
+                  <div className="absolute top-3 right-3 bg-black/80 text-white px-3 py-1.5 rounded-full text-xs font-semibold">
+                    {item.level.charAt(0).toUpperCase() + item.level.slice(1)}
                   </div>
                 </div>
-                <div className="p-4">
+                <div className="p-5">
                   <div className="flex items-start justify-between mb-2">
-                    <h3 className="font-semibold text-base" style={{ color: '#000000' }}>{item.name}</h3>
+                    <h3 className="font-bold text-lg" style={{ color: '#000000' }}>{item.name}</h3>
                     {item.rating && (
                       <div className="flex items-center gap-1">
                         <Star className="w-4 h-4" style={{ color: '#FF6B35', fill: '#FF6B35' }} />
-                        <span className="text-sm" style={{ color: '#000000' }}>{item.rating}</span>
+                        <span className="text-sm font-semibold" style={{ color: '#000000' }}>{item.rating}</span>
                       </div>
                     )}
                   </div>
-                  <p className="text-sm mb-3 line-clamp-2" style={{ color: '#666' }}>{item.description}</p>
-                  <div className="flex items-center gap-2 mb-2">
+                  <p className="text-sm mb-4 line-clamp-2" style={{ color: '#000000', opacity: 0.7 }}>{item.description}</p>
+                  <div className="flex items-center gap-2 mb-3">
                     <Tag className="w-4 h-4" style={{ color: '#20B2AA' }} />
-                    <span className="text-xs" style={{ color: '#20B2AA' }}>{item.category} · {item.sport}</span>
+                    <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: '#20B2AA' }}>
+                      {item.category} · {item.sport}
+                    </span>
                   </div>
-                  <div className="text-xl font-bold mb-3" style={{ color: '#000000' }}>
+                  <div className="text-2xl font-bold mb-4" style={{ color: '#000000' }}>
                     {item.price}
                   </div>
                   {item.tags && item.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mb-3">
+                    <div className="flex flex-wrap gap-2 mb-4">
                       {item.tags.slice(0, 3).map((tag) => (
-                        <span key={tag} className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-xs">
+                        <span key={tag} className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
                           {tag}
                         </span>
                       ))}
                     </div>
                   )}
-                  <div className="text-xs mb-3" style={{ color: '#666' }}>
-                    Recommended by {item.creatorName}
+                  <div className="text-xs mb-4 pb-4 border-b border-gray-200" style={{ color: '#000000', opacity: 0.6 }}>
+                    Recommended by <span className="font-semibold">{item.creatorName}</span>
                   </div>
                   <a
                     href={item.affiliateLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full py-2 px-4 bg-gradient-to-r from-teal-500 to-teal-600 text-white rounded-lg hover:from-teal-600 hover:to-teal-700 transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+                    className="w-full py-3 px-4 bg-gradient-to-r from-teal-500 to-teal-600 text-white rounded-lg hover:from-teal-600 hover:to-teal-700 transition-all flex items-center justify-center gap-2 text-sm font-bold shadow-md hover:shadow-lg"
                   >
-                    <ExternalLink className="w-4 h-4" />
+                    <ExternalLink className="w-5 h-5" />
                     View & Buy
                   </a>
                 </div>
@@ -251,7 +258,13 @@ export default function AthleteGearBrowsePage({ searchParams }: { searchParams: 
   )
 
   if (embedded) {
-    return <div className="p-6">{content}</div>
+    return (
+      <div className="h-full overflow-y-auto" style={{ backgroundColor: '#E8E6D8' }}>
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          {content}
+        </div>
+      </div>
+    )
   }
 
   return (

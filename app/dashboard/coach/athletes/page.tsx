@@ -602,7 +602,10 @@ function CoachAthletesContent() {
                       // Don't trigger if clicking on action buttons
                       if (!(e.target as HTMLElement).closest('button')) {
                         console.log('Athlete clicked:', invitation.name)
-                        router.push(`/dashboard/coach/athletes/${invitation.id}`)
+                        const targetUrl = embedded
+                          ? `/dashboard/coach/athletes/${invitation.id}?embedded=true`
+                          : `/dashboard/coach/athletes/${invitation.id}`
+                        router.push(targetUrl)
                       }
                     }}
                   >

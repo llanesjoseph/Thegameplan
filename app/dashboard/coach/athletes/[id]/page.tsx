@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase.client'
@@ -42,8 +42,10 @@ interface AthleteDetails {
 export default function AthleteDetailPage() {
   const params = useParams()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { user } = useAuth()
   const athleteId = params.id as string
+  const embedded = searchParams.get('embedded') === 'true'
 
   const [athlete, setAthlete] = useState<AthleteDetails | null>(null)
   const [loading, setLoading] = useState(true)
@@ -96,7 +98,7 @@ export default function AthleteDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#E8E6D8' }}>
+      <div className={`${embedded ? 'p-12' : 'min-h-screen'} flex items-center justify-center`} style={{ backgroundColor: embedded ? 'transparent' : '#E8E6D8' }}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
           <p style={{ color: '#000000' }}>Loading athlete details...</p>
@@ -107,7 +109,7 @@ export default function AthleteDetailPage() {
 
   if (error || !athlete) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#E8E6D8' }}>
+      <div className={`${embedded ? 'p-12' : 'min-h-screen'} flex items-center justify-center`} style={{ backgroundColor: embedded ? 'transparent' : '#E8E6D8' }}>
         <div className="text-center bg-white rounded-xl p-8 max-w-md shadow-lg">
           <Trophy className="w-16 h-16 mx-auto mb-4 text-red-500" />
           <h2 className="text-2xl font-bold mb-2" style={{ color: '#000000' }}>
@@ -125,17 +127,18 @@ export default function AthleteDetailPage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
+    <div className={embedded ? '' : 'min-h-screen'} style={{ backgroundColor: embedded ? 'transparent' : '#E8E6D8' }}>
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <button
-            onClick={() => router.back()}
-            className="flex items-center gap-2 text-gray-600 hover:text-black mb-4 transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            Back to Athletes
-          </button>
+      {!embedded && (
+        <div className="bg-white border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <button
+              onClick={() => router.back()}
+              className="flex items-center gap-2 text-gray-600 hover:text-black mb-4 transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              Back to Athletes
+            </button>
 
           <div className="flex items-start gap-6">
             {/* Avatar */}
@@ -178,9 +181,40 @@ export default function AthleteDetailPage() {
           </div>
         </div>
       </div>
+      )}
+
+      {/* Embedded Header - Compact version */}
+      {embedded && (
+        <div className="bg-white border-b border-gray-200 p-4">
+          <button
+            onClick={() => router.back()}
+            className="flex items-center gap-2 text-gray-600 hover:text-black mb-3 transition-colors text-sm"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Athletes
+          </button>
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{ background: 'linear-gradient(135deg, #91A6EB 0%, #000000 100%)' }}>
+              <User className="w-8 h-8 text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h1 className="text-xl font-bold truncate" style={{ color: '#000000' }}>
+                {athlete.displayName}
+              </h1>
+              <p className="text-sm truncate" style={{ color: '#000000', opacity: 0.7 }}>
+                {athlete.email}
+              </p>
+            </div>
+            <div className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+              {athlete.status || 'Active'}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className={`${embedded ? 'px-4 py-6' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'}`}>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column - Athletic Profile */}
           <div className="lg:col-span-2 space-y-6">

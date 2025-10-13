@@ -1138,6 +1138,132 @@ export async function sendAdminNotificationEmail({
   }
 }
 
+// Schedule event notification email
+interface ScheduleEventNotificationEmailProps {
+  to: string
+  athleteName: string
+  coachName: string
+  eventType: string
+  eventDate: string
+  eventTime: string
+  location?: string
+  notes?: string
+  dashboardUrl?: string
+}
+
+export async function sendScheduleEventNotificationEmail({
+  to,
+  athleteName,
+  coachName,
+  eventType,
+  eventDate,
+  eventTime,
+  location,
+  notes,
+  dashboardUrl = `${APP_URL}/dashboard/athlete`
+}: ScheduleEventNotificationEmailProps) {
+  try {
+    // Format the date for display
+    const dateObj = new Date(`${eventDate}T${eventTime}`)
+    const formattedDate = dateObj.toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })
+    const formattedTime = dateObj.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    })
+
+    const { data, error } = await resend.emails.send({
+      from: 'AthLeap <noreply@mail.crucibleanalytics.dev>',
+      to: [to],
+      subject: `📅 New Event Scheduled: ${eventType} - ${coachName}`,
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>New Event Scheduled</title>
+        </head>
+        <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8fafc;">
+          <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <div style="text-align: center; margin-bottom: 30px;">
+              <h1 style="font-family: 'Permanent Marker', cursive; color: #13367A; font-size: 32px; margin: 0;">AthLeap</h1>
+              <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">THE WORK BEFORE THE WIN</p>
+            </div>
+
+            <div style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border: 2px solid #16A34A; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
+              <h2 style="color: #16A34A; margin: 0;">📅 New Event Scheduled</h2>
+            </div>
+
+            <p>Hi ${athleteName},</p>
+
+            <p><strong>${coachName}</strong> has scheduled a new event for you!</p>
+
+            <div style="background: #f0f9ff; border-left: 4px solid #16A34A; padding: 20px; margin: 20px 0;">
+              <h3 style="color: #0369a1; margin-top: 0;">📋 Event Details:</h3>
+              <p style="margin: 8px 0;"><strong>Event Type:</strong> ${eventType}</p>
+              <p style="margin: 8px 0;"><strong>Date:</strong> ${formattedDate}</p>
+              <p style="margin: 8px 0;"><strong>Time:</strong> ${formattedTime}</p>
+              ${location ? `<p style="margin: 8px 0;"><strong>Location:</strong> ${location}</p>` : ''}
+              ${notes ? `
+                <div style="margin-top: 15px;">
+                  <p style="margin: 5px 0;"><strong>Notes from Coach:</strong></p>
+                  <p style="margin: 5px 0; color: #4b5563; font-style: italic; padding: 10px; background: white; border-radius: 4px; white-space: pre-wrap;">"${notes}"</p>
+                </div>
+              ` : ''}
+            </div>
+
+            <div style="background: #fef3c7; border: 1px solid #f59e0b; padding: 15px; border-radius: 8px; margin: 20px 0; text-align: center;">
+              <p style="margin: 0; color: #92400e; font-size: 14px;">
+                <strong>📌 Mark Your Calendar:</strong> Don't forget to add this event to your schedule!
+              </p>
+            </div>
+
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${dashboardUrl}" style="background-color: #16A34A; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">View Full Schedule</a>
+            </div>
+
+            <div style="background: #f9fafb; border-radius: 8px; padding: 20px; margin: 20px 0;">
+              <h3 style="color: #1e40af; margin-top: 0;">💡 Get Ready:</h3>
+              <ul style="margin: 0; padding-left: 20px; color: #4b5563;">
+                <li style="margin: 8px 0;">Check your gear and equipment</li>
+                <li style="margin: 8px 0;">Review any preparation notes from your coach</li>
+                <li style="margin: 8px 0;">Plan your arrival time to be early</li>
+                <li style="margin: 8px 0;">Bring a positive attitude and be ready to work!</li>
+              </ul>
+            </div>
+
+            <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 14px;">
+              <p><strong>AthLeap</strong> - The Work Before the Win</p>
+              <p style="font-size: 12px;">Questions about this event? Contact ${coachName} directly through the platform.</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `
+    })
+
+    if (error) {
+      console.error('Failed to send schedule event notification email:', error)
+      return { success: false, error: error.message }
+    }
+
+    console.log(`✅ Schedule event notification sent to ${to}`)
+    return { success: true, data }
+  } catch (error) {
+    console.error('Schedule event notification email service error:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    }
+  }
+}
+
 export async function sendAnnouncementEmail({
   to,
   athleteName,
