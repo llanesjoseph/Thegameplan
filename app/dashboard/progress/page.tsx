@@ -403,10 +403,22 @@ export default function AthleteDashboard() {
         <AppHeader title="Athlete Dashboard" subtitle="Your training hub for excellence" />
 
         <main className="relative" style={{ height: 'calc(100vh - 120px)' }}>
+          {/* Mobile: Toggle button for sidebar */}
+          {activeSection && (
+            <button
+              onClick={() => setActiveSection(null)}
+              className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-6 py-3 bg-black text-white rounded-full shadow-lg flex items-center gap-2 touch-manipulation"
+              style={{ minHeight: '44px' }}
+            >
+              <ChevronRight className="w-5 h-5 rotate-180" />
+              Back to Tools
+            </button>
+          )}
+
           <div className="flex h-full">
             {/* Left Sidebar - Compact Training Tools */}
             <aside
-              className="w-64 bg-white/90 backdrop-blur-sm border-r border-gray-200 overflow-y-auto"
+              className={`w-64 bg-white/90 backdrop-blur-sm border-r border-gray-200 overflow-y-auto ${activeSection ? 'hidden lg:block' : 'block'}`}
               style={{ height: '100%' }}
             >
               {/* Sidebar Header with Coach Info */}
@@ -451,9 +463,10 @@ export default function AthleteDashboard() {
                     <button
                       key={tool.id}
                       onClick={() => handleToolClick(tool.id)}
-                      className={`w-full text-left transition-all rounded-lg ${
+                      className={`w-full text-left transition-all rounded-lg touch-manipulation active:scale-95 ${
                         isActive ? 'bg-black/10 shadow-md' : 'hover:bg-gray-100/80'
                       }`}
+                      style={{ minHeight: '44px' }}
                     >
                       <div className="flex items-center gap-3 p-3">
                         <div
@@ -509,11 +522,11 @@ export default function AthleteDashboard() {
             </aside>
 
             {/* Main Content Area */}
-            <div className="flex-1 overflow-hidden relative">
+            <div className={`flex-1 overflow-hidden relative ${!activeSection ? 'hidden lg:block' : ''}`}>
               {activeSection ? (
                 <div className="h-full bg-white/90 backdrop-blur-sm">
-                  {/* Content Header */}
-                  <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white/95 backdrop-blur-sm">
+                  {/* Content Header - Hidden on mobile to save space */}
+                  <div className="hidden lg:flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white/95 backdrop-blur-sm">
                     <div>
                       <h2 className="text-xl font-semibold" style={{ color: '#000000' }}>
                         {athleteTools.find(t => t.id === activeSection)?.title}
@@ -524,7 +537,8 @@ export default function AthleteDashboard() {
                     </div>
                     <button
                       onClick={() => setActiveSection(null)}
-                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors touch-manipulation"
+                      style={{ minHeight: '44px', minWidth: '44px' }}
                       title="Close"
                     >
                       <X className="w-5 h-5" style={{ color: '#000000' }} />
@@ -532,7 +546,7 @@ export default function AthleteDashboard() {
                   </div>
 
                   {/* Content */}
-                  <div style={{ height: 'calc(100% - 73px)' }}>
+                  <div className="h-full lg:h-[calc(100%-73px)]">
                     {activeSection === 'ai-assistant' && user && (
                       <div className="h-full p-6 overflow-y-auto">
                         <AIAssistant
@@ -677,19 +691,19 @@ export default function AthleteDashboard() {
                 </div>
               ) : (
                 /* Welcome State */
-                <div className="h-full flex items-center justify-center p-8">
+                <div className="h-full flex items-center justify-center p-4 sm:p-8">
                   <div className="max-w-2xl text-center">
                     <div className="mb-6">
-                      <TrendingUp className="w-20 h-20 mx-auto mb-4" style={{ color: '#20B2AA' }} />
-                      <h2 className="text-3xl font-bold mb-2" style={{ color: '#000000' }}>
+                      <TrendingUp className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4" style={{ color: '#20B2AA' }} />
+                      <h2 className="text-2xl sm:text-3xl font-bold mb-2" style={{ color: '#000000' }}>
                         Welcome back, {user?.displayName?.split(' ')[0] || 'Athlete'}!
                       </h2>
-                      <p className="text-lg" style={{ color: '#666' }}>
+                      <p className="text-base sm:text-lg" style={{ color: '#666' }}>
                         Select a tool from the left sidebar to start training
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4 text-left">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-left">
                       <div className="bg-gradient-to-br from-teal/10 to-teal/5 rounded-lg p-5 border-2" style={{ borderColor: '#20B2AA' }}>
                         <Sparkles className="w-8 h-8 mb-3" style={{ color: '#20B2AA' }} />
                         <h3 className="font-semibold mb-1" style={{ color: '#000000' }}>Ask Your Coach</h3>
@@ -724,9 +738,9 @@ export default function AthleteDashboard() {
                     </div>
 
                     {coachId && coachName && (
-                      <div className="mt-6 bg-gradient-to-r from-teal-500 to-teal-600 rounded-lg p-5 text-white text-left">
-                        <h3 className="font-semibold mb-3 text-lg">🎯 Training with {coachName.split(' ')[0]}</h3>
-                        <p className="text-sm">
+                      <div className="mt-4 sm:mt-6 bg-gradient-to-r from-teal-500 to-teal-600 rounded-lg p-4 sm:p-5 text-white text-left">
+                        <h3 className="font-semibold mb-2 sm:mb-3 text-base sm:text-lg">🎯 Training with {coachName.split(' ')[0]}</h3>
+                        <p className="text-xs sm:text-sm">
                           Your coach has prepared {lessonCount} lessons and {videoCount} videos for your training. Click "Ask {coachName.split(' ')[0]}" to get personalized coaching advice!
                         </p>
                       </div>
