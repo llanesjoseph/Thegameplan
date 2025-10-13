@@ -117,9 +117,10 @@ export default function AdminOnboardingPage({ params }: { params: { code: string
         throw new Error(result.error || 'Failed to complete onboarding')
       }
 
-      // Success - redirect to admin dashboard
+      // Success - force a full page reload to clear any cached role data
       alert('✅ Welcome to the PLAYBOOKD admin team! Redirecting to your dashboard...')
-      router.push('/dashboard')
+      // Use window.location.href for full page reload to ensure role is re-fetched
+      window.location.href = '/dashboard/admin'
     } catch (err: any) {
       console.error('Google sign-in error:', err)
       if (err.code === 'auth/popup-closed-by-user') {
@@ -184,9 +185,10 @@ export default function AdminOnboardingPage({ params }: { params: { code: string
         throw new Error(result.error || 'Failed to complete onboarding')
       }
 
-      // Success - redirect to admin dashboard
+      // Success - force a full page reload to clear any cached role data
       alert('✅ Welcome to the PLAYBOOKD admin team! Redirecting to your dashboard...')
-      router.push('/dashboard')
+      // Use window.location.href for full page reload to ensure role is re-fetched
+      window.location.href = '/dashboard/admin'
     } catch (err: any) {
       console.error('Onboarding error:', err)
       if (err.code === 'auth/email-already-in-use') {

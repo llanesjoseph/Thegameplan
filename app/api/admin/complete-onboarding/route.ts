@@ -70,24 +70,36 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create user document with admin role
+    // CRITICAL: Delete any existing user document first to ensure clean state
+    // This prevents race conditions where useAuth creates a user doc with wrong role
+    try {
+      await adminDb.collection('users').doc(decodedToken.uid).delete()
+      console.log(`🗑️ Deleted existing user document for ${invitation.recipientEmail}`)
+    } catch (deleteError) {
+      // Document might not exist yet - that's fine
+      console.log(`ℹ️ No existing user document to delete for ${invitation.recipientEmail}`)
+    }
+
+    // Create user document with admin role (INVITATION CONTROLS EVERYTHING)
     const userData = {
       email: invitation.recipientEmail.toLowerCase(),
       displayName,
-      role: invitation.role, // 'admin' or 'superadmin'
+      role: invitation.role, // 'admin' or 'superadmin' - INVITATION IS SOURCE OF TRUTH
       onboardedAt: Timestamp.now(),
       invitationCode,
       invitedBy: invitation.createdBy,
       createdAt: Timestamp.now(),
       updatedAt: Timestamp.now(),
+      lastLoginAt: Timestamp.now(),
       // CRITICAL: Protect admin roles from auto-correction
       manuallySetRole: true,
       roleProtected: true,
       roleSource: 'admin_invitation',
-      invitationRole: invitation.role
+      invitationRole: invitation.role // Store invitation role for enforcement
     }
 
     await adminDb.collection('users').doc(decodedToken.uid).set(userData)
+    console.log(`✅ Admin user document created with role: ${invitation.role}`)
 
     // Mark invitation as used
     await invitationDoc.ref.update({
