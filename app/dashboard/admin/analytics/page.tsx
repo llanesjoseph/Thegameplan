@@ -88,22 +88,22 @@ export default function AdminAnalytics() {
    const creatorsSnapshot = await getDocs(creatorsQuery)
    const totalCreators = creatorsSnapshot.size
 
-   // Get total content/videos
-   const videosSnapshot = await getDocs(collection(db, 'videos'))
-   const totalContent = videosSnapshot.size
+   // Get total content from 'content' collection
+   const contentSnapshot = await getDocs(collection(db, 'content'))
+   const totalContent = contentSnapshot.size
 
    // Count published content
-   const publishedVideos = videosSnapshot.docs.filter(doc =>
+   const publishedContent = contentSnapshot.docs.filter(doc =>
     doc.data().status === 'published' || doc.data().published === true
    )
-   const contentPublished = publishedVideos.length
+   const contentPublished = publishedContent.length
 
-   // Calculate total views from videos
+   // Calculate total views from content
    let totalViews = 0
    let totalWatchTimeMinutes = 0
    let totalCompletions = 0
 
-   videosSnapshot.docs.forEach(doc => {
+   contentSnapshot.docs.forEach(doc => {
     const data = doc.data()
     totalViews += data.views || 0
     totalWatchTimeMinutes += data.totalWatchTime || 0
@@ -157,9 +157,9 @@ export default function AdminAnalytics() {
     contentPublished
    })
 
-   // Get top content (videos sorted by views)
+   // Get top content (sorted by views)
    const topContentQuery = query(
-    collection(db, 'videos'),
+    collection(db, 'content'),
     orderBy('views', 'desc'),
     limit(3)
    )
@@ -169,11 +169,11 @@ export default function AdminAnalytics() {
     topContentSnapshot.docs.map(async (doc) => {
      const data = doc.data()
 
-     // Get creator name
+     // Get creator name from creatorUid field
      let creatorName = 'Unknown'
-     if (data.creatorId) {
+     if (data.creatorUid) {
       const creatorDoc = await getDocs(
-       query(collection(db, 'users'), where('uid', '==', data.creatorId))
+       query(collection(db, 'users'), where('uid', '==', data.creatorUid))
       )
       if (!creatorDoc.empty) {
        creatorName = creatorDoc.docs[0].data().displayName || 'Unknown'
@@ -198,23 +198,23 @@ export default function AdminAnalytics() {
      const userData = doc.data()
      const uid = doc.id
 
-     // Get creator's videos
-     const creatorVideosQuery = query(
-      collection(db, 'videos'),
-      where('creatorId', '==', uid)
+     // Get creator's content
+     const creatorContentQuery = query(
+      collection(db, 'content'),
+      where('creatorUid', '==', uid)
      )
-     const creatorVideosSnapshot = await getDocs(creatorVideosQuery)
+     const creatorContentSnapshot = await getDocs(creatorContentQuery)
 
      // Calculate total views for this creator
      let creatorTotalViews = 0
      let totalRating = 0
      let ratingCount = 0
 
-     creatorVideosSnapshot.docs.forEach(videoDoc => {
-      const videoData = videoDoc.data()
-      creatorTotalViews += videoData.views || 0
-      if (videoData.rating) {
-       totalRating += videoData.rating
+     creatorContentSnapshot.docs.forEach(contentDoc => {
+      const contentData = contentDoc.data()
+      creatorTotalViews += contentData.views || 0
+      if (contentData.rating) {
+       totalRating += contentData.rating
        ratingCount++
       }
      })
@@ -223,7 +223,7 @@ export default function AdminAnalytics() {
       uid,
       name: userData.displayName || userData.email?.split('@')[0] || 'Unknown',
       followers: userData.followers || 0,
-      contentCount: creatorVideosSnapshot.size,
+      contentCount: creatorContentSnapshot.size,
       totalViews: creatorTotalViews,
       averageRating: ratingCount > 0 ? totalRating / ratingCount : 0
      }
