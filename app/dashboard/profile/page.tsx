@@ -103,7 +103,8 @@ function ProfilePageContent() {
         setProfileData(prev => ({
           ...prev,
           displayName: user.displayName || prev.displayName,
-          email: user.email || prev.email
+          email: user.email || prev.email,
+          profileImageUrl: user.photoURL || prev.profileImageUrl
         }))
 
         try {
@@ -119,7 +120,9 @@ function ProfilePageContent() {
               ...prev,
               ...savedProfile,
               displayName: savedProfile.displayName || user.displayName || prev.displayName,
-              email: user.email || savedProfile.email || prev.email
+              email: user.email || savedProfile.email || prev.email,
+              // Map photoURL to profileImageUrl for consistency
+              profileImageUrl: savedProfile.photoURL || savedProfile.profileImageUrl || prev.profileImageUrl
             }))
             return
           }
