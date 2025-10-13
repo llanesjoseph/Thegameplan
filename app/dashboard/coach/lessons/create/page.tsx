@@ -18,9 +18,14 @@ import {
   Upload,
   Sparkles,
   Wand2,
-  Lightbulb
-,
-  AlertCircle
+  Lightbulb,
+  AlertCircle,
+  Zap,
+  Edit3,
+  ChevronRight,
+  CheckCircle2,
+  Target,
+  BookOpen
 } from 'lucide-react'
 
 interface LessonSection {
@@ -57,6 +62,7 @@ function CreateLessonPageContent() {
   const [aiPrompt, setAiPrompt] = useState('')
   const [currentObjective, setCurrentObjective] = useState('')
   const [currentTag, setCurrentTag] = useState('')
+  const [creationMethod, setCreationMethod] = useState<'choose' | 'ai' | 'manual'>('choose')
 
   const [lesson, setLesson] = useState<LessonForm>({
     title: '',
@@ -225,6 +231,7 @@ function CreateLessonPageContent() {
 
         setShowAIModal(false)
         setAiPrompt('')
+        setCreationMethod('manual') // Switch to manual mode so they can edit
         alert('AI lesson generated! Review and edit as needed before saving.')
       }
     } catch (error: any) {
@@ -492,37 +499,15 @@ function CreateLessonPageContent() {
 
   return (
     <div style={{ backgroundColor: embedded ? 'transparent' : '#E8E6D8' }} className={embedded ? '' : 'min-h-screen'}>
-      {!embedded && (
-        <div>
-          <AppHeader title="Create Lesson" subtitle="Build comprehensive training content for your athletes" />
-          <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 -mt-4 mb-4">
-            <button
-              onClick={() => setShowAIModal(true)}
-              className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all flex items-center gap-2 shadow-lg"
-            >
-              <Sparkles className="w-5 h-5" />
-              AI Generate Complete Lesson
-            </button>
-          </div>
-        </div>
-      )}
+      {!embedded && <AppHeader title="Create Lesson" subtitle="Build comprehensive training content for your athletes" />}
 
       <main className={`w-full ${embedded ? 'p-4' : 'max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6'} space-y-6`}>
-        {/* Header */}
+        {/* Header for embedded mode */}
         {embedded && (
-          <div className="mb-4">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-3">
-                <GraduationCap className="w-8 h-8" style={{ color: '#20B2AA' }} />
-                <h1 className="text-3xl" style={{ color: '#000000' }}>Create Lesson</h1>
-              </div>
-              <button
-                onClick={() => setShowAIModal(true)}
-                className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all flex items-center gap-2 shadow-lg"
-              >
-                <Sparkles className="w-5 h-5" />
-                AI Generate
-              </button>
+          <div className="mb-6">
+            <div className="flex items-center gap-3 mb-2">
+              <GraduationCap className="w-8 h-8" style={{ color: '#20B2AA' }} />
+              <h1 className="text-3xl font-medium" style={{ color: '#000000' }}>Create Lesson</h1>
             </div>
             <p style={{ color: '#000000', opacity: 0.7 }}>
               Build comprehensive training content for your athletes
@@ -530,14 +515,92 @@ function CreateLessonPageContent() {
           </div>
         )}
 
+        {/* Choice Screen - Choose how to create */}
+        {creationMethod === 'choose' && (
+          <div className="space-y-6">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl sm:text-3xl mb-3" style={{ color: '#000000' }}>
+                How would you like to create your lesson?
+              </h2>
+              <p className="text-base sm:text-lg" style={{ color: '#000000', opacity: 0.6 }}>
+                Choose the method that works best for you
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+              {/* AI Generation Option */}
+              <button
+                onClick={() => setShowAIModal(true)}
+                className="group bg-gradient-to-br from-purple-500 to-blue-600 text-white rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all hover:scale-105 text-left relative overflow-hidden"
+              >
+                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
+                <div className="relative z-10">
+                  <div className="w-16 h-16 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center mb-4">
+                    <Sparkles className="w-8 h-8" />
+                  </div>
+                  <h3 className="text-2xl font-medium mb-3">AI Generate</h3>
+                  <p className="text-white/90 mb-6 text-sm leading-relaxed">
+                    Describe what you want to teach, and our AI will create a complete lesson with sections, objectives, and content. Perfect for getting started quickly.
+                  </p>
+                  <div className="flex items-center gap-2 text-sm font-medium">
+                    <Zap className="w-5 h-5" />
+                    Fast & Recommended
+                    <ChevronRight className="w-5 h-5 ml-auto group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </div>
+              </button>
+
+              {/* Manual Creation Option */}
+              <button
+                onClick={() => setCreationMethod('manual')}
+                className="group bg-white/90 backdrop-blur-sm border-2 border-gray-200 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all hover:scale-105 text-left relative overflow-hidden hover:border-black"
+              >
+                <div className="absolute top-0 right-0 w-32 h-32 bg-black/5 rounded-full -mr-16 -mt-16"></div>
+                <div className="relative z-10">
+                  <div className="w-16 h-16 bg-black/10 rounded-xl flex items-center justify-center mb-4">
+                    <Edit3 className="w-8 h-8" style={{ color: '#000000' }} />
+                  </div>
+                  <h3 className="text-2xl font-medium mb-3" style={{ color: '#000000' }}>Build Manually</h3>
+                  <p className="mb-6 text-sm leading-relaxed" style={{ color: '#000000', opacity: 0.7 }}>
+                    Create your lesson from scratch with complete control over every detail. Build it your way, section by section.
+                  </p>
+                  <div className="flex items-center gap-2 text-sm font-medium" style={{ color: '#000000' }}>
+                    <Target className="w-5 h-5" />
+                    Full Control
+                    <ChevronRight className="w-5 h-5 ml-auto group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </div>
+              </button>
+            </div>
+
+            {/* Quick Tips */}
+            <div className="max-w-4xl mx-auto mt-8 bg-blue-50 border border-blue-200 rounded-xl p-6">
+              <div className="flex items-start gap-3">
+                <Lightbulb className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="font-medium mb-2" style={{ color: '#000000' }}>Pro Tip</h4>
+                  <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>
+                    Start with AI generation to get a solid foundation, then switch to manual editing to refine the details. You can always enhance individual sections with AI later!
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* AI Generation Modal */}
         {showAIModal && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="w-6 h-6 text-purple-600" />
-                  <h2 className="text-2xl" style={{ color: '#000000' }}>AI Lesson Generator</h2>
+            <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-6 sm:p-8">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-600 rounded-xl flex items-center justify-center">
+                    <Sparkles className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-medium" style={{ color: '#000000' }}>AI Lesson Generator</h2>
+                    <p className="text-sm" style={{ color: '#000000', opacity: 0.6 }}>Powered by advanced AI</p>
+                  </div>
                 </div>
                 <button
                   onClick={() => setShowAIModal(false)}
@@ -548,16 +611,16 @@ function CreateLessonPageContent() {
                 </button>
               </div>
 
-              <p className="mb-4 text-sm" style={{ color: '#000000', opacity: 0.7 }}>
-                Describe the lesson you want to create and our AI will generate a complete lesson plan with sections, objectives, and content.
+              <p className="mb-4 text-sm leading-relaxed" style={{ color: '#000000', opacity: 0.7 }}>
+                Describe the lesson you want to create in detail. Include the topic, key concepts, and what you want athletes to learn. The more specific you are, the better the AI can generate your lesson.
               </p>
 
               <textarea
                 value={aiPrompt}
                 onChange={(e) => setAiPrompt(e.target.value)}
-                placeholder="Example: Create a beginner baseball lesson about proper batting stance and swing mechanics. Include warm-up drills, technique breakdown, and practice exercises."
-                rows={6}
-                className="w-full px-4 py-3 border-2 border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 mb-4"
+                placeholder="Example: Create a beginner baseball lesson about proper batting stance and swing mechanics. Include warm-up drills, step-by-step technique breakdown with key focus points, common mistakes to avoid, and practice exercises that athletes can do at home."
+                rows={8}
+                className="w-full px-4 py-3 border-2 border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 mb-6 text-sm"
                 disabled={generating}
               />
 
@@ -565,7 +628,7 @@ function CreateLessonPageContent() {
                 <button
                   onClick={handleAIGenerate}
                   disabled={generating || !aiPrompt.trim()}
-                  className="flex-1 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-medium"
                 >
                   {generating ? (
                     <>
@@ -591,356 +654,477 @@ function CreateLessonPageContent() {
           </div>
         )}
 
-        {/* Basic Info */}
-        <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
-          <h2 className="text-xl mb-4 flex items-center gap-2" style={{ color: '#000000' }}>
-            <FileText className="w-5 h-5" />
-            Basic Information
-          </h2>
-
-          <div className="space-y-4">
-            {/* Title */}
-            <div>
-              <label className="block text-sm mb-2" style={{ color: '#000000' }}>
-                Lesson Title *
-              </label>
-              <input
-                type="text"
-                value={lesson.title}
-                onChange={(e) => setLesson(prev => ({ ...prev, title: e.target.value }))}
-                placeholder="e.g., Advanced Pitching Mechanics"
-                className="w-full px-4 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-              />
-            </div>
-
-            {/* Sport and Level */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm mb-2" style={{ color: '#000000' }}>
-                  Sport *
-                </label>
-                <select
-                  value={lesson.sport}
-                  onChange={(e) => setLesson(prev => ({ ...prev, sport: e.target.value }))}
-                  className="w-full px-4 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-                >
-                  <option value="">Select sport...</option>
-                  <option value="baseball">Baseball</option>
-                  <option value="basketball">Basketball</option>
-                  <option value="bjj">Brazilian Jiu-Jitsu (BJJ)</option>
-                  <option value="football">Football</option>
-                  <option value="soccer">Soccer</option>
-                  <option value="softball">Softball</option>
-                  <option value="volleyball">Volleyball</option>
-                  <option value="wrestling">Wrestling</option>
-                  <option value="mma">MMA</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm mb-2" style={{ color: '#000000' }}>
-                  Skill Level *
-                </label>
-                <select
-                  value={lesson.level}
-                  onChange={(e) => setLesson(prev => ({ ...prev, level: e.target.value as any }))}
-                  className="w-full px-4 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-                >
-                  <option value="">Select level...</option>
-                  <option value="beginner">Beginner</option>
-                  <option value="intermediate">Intermediate</option>
-                  <option value="advanced">Advanced</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm mb-2" style={{ color: '#000000' }}>
-                  Duration (minutes)
-                </label>
-                <input
-                  type="number"
-                  value={lesson.duration}
-                  onChange={(e) => setLesson(prev => ({ ...prev, duration: parseInt(e.target.value) || 60 }))}
-                  min="5"
-                  max="240"
-                  className="w-full px-4 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-                />
+        {/* Manual Creation Form */}
+        {creationMethod === 'manual' && (
+          <div className="space-y-6">
+            {/* Progress Indicator */}
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4">
+              <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2
+                    className={`w-5 h-5 ${lesson.title && lesson.sport && lesson.level ? 'text-green-500' : 'text-gray-300'}`}
+                  />
+                  <span style={{ color: '#000000', opacity: lesson.title && lesson.sport && lesson.level ? 1 : 0.5 }}>
+                    Basic Info
+                  </span>
+                </div>
+                <ChevronRight className="w-4 h-4" style={{ opacity: 0.3 }} />
+                <div className="flex items-center gap-2">
+                  <CheckCircle2
+                    className={`w-5 h-5 ${lesson.objectives.length > 0 ? 'text-green-500' : 'text-gray-300'}`}
+                  />
+                  <span style={{ color: '#000000', opacity: lesson.objectives.length > 0 ? 1 : 0.5 }}>
+                    Learning Goals
+                  </span>
+                </div>
+                <ChevronRight className="w-4 h-4" style={{ opacity: 0.3 }} />
+                <div className="flex items-center gap-2">
+                  <CheckCircle2
+                    className={`w-5 h-5 ${lesson.sections.length > 0 ? 'text-green-500' : 'text-gray-300'}`}
+                  />
+                  <span style={{ color: '#000000', opacity: lesson.sections.length > 0 ? 1 : 0.5 }}>
+                    Content
+                  </span>
+                </div>
               </div>
             </div>
 
-            {/* Objectives */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="block text-sm" style={{ color: '#000000' }}>
-                  Learning Objectives
-                </label>
+            {/* Step 1: Basic Info */}
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-black rounded-lg flex items-center justify-center text-white font-medium">
+                    1
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-medium" style={{ color: '#000000' }}>
+                      Basic Information
+                    </h2>
+                    <p className="text-sm" style={{ color: '#000000', opacity: 0.6 }}>
+                      Start with the essentials
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                {/* Title */}
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
+                    Lesson Title <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={lesson.title}
+                    onChange={(e) => setLesson(prev => ({ ...prev, title: e.target.value }))}
+                    placeholder="e.g., Advanced Pitching Mechanics"
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                  />
+                </div>
+
+                {/* Sport and Level */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
+                      Sport <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={lesson.sport}
+                      onChange={(e) => setLesson(prev => ({ ...prev, sport: e.target.value }))}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                    >
+                      <option value="">Select sport...</option>
+                      <option value="baseball">Baseball</option>
+                      <option value="basketball">Basketball</option>
+                      <option value="bjj">Brazilian Jiu-Jitsu (BJJ)</option>
+                      <option value="football">Football</option>
+                      <option value="soccer">Soccer</option>
+                      <option value="softball">Softball</option>
+                      <option value="volleyball">Volleyball</option>
+                      <option value="wrestling">Wrestling</option>
+                      <option value="mma">MMA</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
+                      Skill Level <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={lesson.level}
+                      onChange={(e) => setLesson(prev => ({ ...prev, level: e.target.value as any }))}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                    >
+                      <option value="">Select level...</option>
+                      <option value="beginner">Beginner</option>
+                      <option value="intermediate">Intermediate</option>
+                      <option value="advanced">Advanced</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
+                      Duration (minutes)
+                    </label>
+                    <input
+                      type="number"
+                      value={lesson.duration}
+                      onChange={(e) => setLesson(prev => ({ ...prev, duration: parseInt(e.target.value) || 60 }))}
+                      min="5"
+                      max="240"
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                    />
+                  </div>
+                </div>
+
+                {/* Visibility */}
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
+                    Who can view this lesson?
+                  </label>
+                  <select
+                    value={lesson.visibility}
+                    onChange={(e) => setLesson(prev => ({ ...prev, visibility: e.target.value as any }))}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                  >
+                    <option value="athletes_only">My Athletes Only</option>
+                    <option value="public">Public (Anyone can view)</option>
+                    <option value="specific_athletes">Specific Athletes (Choose later)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Step 2: Learning Goals */}
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-black rounded-lg flex items-center justify-center text-white font-medium">
+                    2
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-medium" style={{ color: '#000000' }}>
+                      Learning Goals
+                    </h2>
+                    <p className="text-sm" style={{ color: '#000000', opacity: 0.6 }}>
+                      What will athletes learn?
+                    </p>
+                  </div>
+                </div>
                 <button
                   onClick={suggestObjectives}
                   disabled={generating || !lesson.sport || !lesson.level}
-                  className="px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 py-2 text-sm bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Lightbulb className="w-4 h-4" />
                   AI Suggest
                 </button>
               </div>
-              <div className="flex gap-2 mb-2">
-                <input
-                  type="text"
-                  value={currentObjective}
-                  onChange={(e) => setCurrentObjective(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addObjective())}
-                  placeholder="Add an objective and press Enter"
-                  className="flex-1 px-4 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-                />
-                <button
-                  onClick={addObjective}
-                  className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2"
-                >
-                  <Plus className="w-4 h-4" />
-                  Add
-                </button>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {lesson.objectives.map((obj, idx) => (
-                  <div key={idx} className="bg-sky-blue/10 px-3 py-1 rounded-full flex items-center gap-2" style={{ borderColor: '#91A6EB', border: '1px solid' }}>
-                    <span className="text-sm">{obj}</span>
-                    <button onClick={() => removeObjective(idx)} className="hover:bg-red-100 rounded-full p-1">
-                      <Trash2 className="w-3 h-3" style={{ color: '#FF6B35' }} />
+
+              <div className="space-y-4">
+                {/* Objectives */}
+                <div>
+                  <div className="flex gap-2 mb-3">
+                    <input
+                      type="text"
+                      value={currentObjective}
+                      onChange={(e) => setCurrentObjective(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addObjective())}
+                      placeholder="Type an objective and press Enter (e.g., Master proper batting stance)"
+                      className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent text-sm"
+                    />
+                    <button
+                      onClick={addObjective}
+                      className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Add
                     </button>
                   </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Tags */}
-            <div>
-              <label className="block text-sm mb-2" style={{ color: '#000000' }}>
-                Tags
-              </label>
-              <div className="flex gap-2 mb-2">
-                <input
-                  type="text"
-                  value={currentTag}
-                  onChange={(e) => setCurrentTag(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
-                  placeholder="Add tags for organization (e.g., pitching, mechanics)"
-                  className="flex-1 px-4 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-                />
-                <button
-                  onClick={addTag}
-                  className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2"
-                >
-                  <Plus className="w-4 h-4" />
-                  Add
-                </button>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {lesson.tags.map((tag, idx) => (
-                  <div key={idx} className="bg-teal/10 px-3 py-1 rounded-full flex items-center gap-2" style={{ borderColor: '#20B2AA', border: '1px solid' }}>
-                    <span className="text-sm">{tag}</span>
-                    <button onClick={() => removeTag(idx)} className="hover:bg-red-100 rounded-full p-1">
-                      <Trash2 className="w-3 h-3" style={{ color: '#FF6B35' }} />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Visibility */}
-            <div>
-              <label className="block text-sm mb-2" style={{ color: '#000000' }}>
-                Visibility
-              </label>
-              <select
-                value={lesson.visibility}
-                onChange={(e) => setLesson(prev => ({ ...prev, visibility: e.target.value as any }))}
-                className="w-full px-4 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-              >
-                <option value="athletes_only">My Athletes Only</option>
-                <option value="public">Public (Anyone can view)</option>
-                <option value="specific_athletes">Specific Athletes (Choose later)</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        {/* Lesson Sections */}
-        <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl flex items-center gap-2" style={{ color: '#000000' }}>
-              <Video className="w-5 h-5" />
-              Lesson Sections
-            </h2>
-            <div className="flex gap-2">
-              <button
-                onClick={() => addSection('text')}
-                className="px-3 py-1 text-sm bg-sky-blue/20 rounded-lg hover:bg-sky-blue/30 transition-colors"
-                style={{ color: '#000000' }}
-              >
-                + Text
-              </button>
-              <button
-                onClick={() => addSection('video')}
-                className="px-3 py-1 text-sm bg-teal/20 rounded-lg hover:bg-teal/30 transition-colors"
-                style={{ color: '#000000' }}
-              >
-                + Video
-              </button>
-              <button
-                onClick={() => addSection('drill')}
-                className="px-3 py-1 text-sm bg-orange/20 rounded-lg hover:bg-orange/30 transition-colors"
-                style={{ color: '#000000' }}
-              >
-                + Drill
-              </button>
-              <button
-                onClick={() => addSection('reflection')}
-                className="px-3 py-1 text-sm bg-black/10 rounded-lg hover:bg-black/20 transition-colors"
-                style={{ color: '#000000' }}
-              >
-                + Reflection
-              </button>
-            </div>
-          </div>
-
-          {lesson.sections.length === 0 ? (
-            <div className="text-center py-12" style={{ color: '#000000', opacity: 0.5 }}>
-              <GraduationCap className="w-16 h-16 mx-auto mb-4" style={{ opacity: 0.3 }} />
-              <p className="text-lg">No sections yet. Add sections to build your lesson.</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {lesson.sections.map((section, idx) => (
-                <div key={section.id} className="border-2 border-gray-200 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm px-2 py-1 bg-black text-white rounded">
-                        {idx + 1}
-                      </span>
-                      <span className="text-xs px-2 py-1 bg-gray-100 rounded capitalize">
-                        {section.type}
-                      </span>
-                      <button
-                        onClick={() => enhanceSection(section.id)}
-                        disabled={generating || !lesson.sport || !lesson.level}
-                        className="text-xs px-2 py-1 bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
-                        title="Enhance with AI"
-                      >
-                        <Wand2 className="w-3 h-3" />
-                        AI Enhance
-                      </button>
+                  {lesson.objectives.length === 0 ? (
+                    <div className="text-center py-8 border-2 border-dashed border-gray-200 rounded-lg">
+                      <Target className="w-12 h-12 mx-auto mb-3" style={{ color: '#000000', opacity: 0.3 }} />
+                      <p className="text-sm" style={{ color: '#000000', opacity: 0.5 }}>
+                        No objectives yet. Add at least one learning objective.
+                      </p>
                     </div>
-                    <div className="flex gap-1">
-                      <button
-                        onClick={() => moveSection(section.id, 'up')}
-                        disabled={idx === 0}
-                        className="p-1 hover:bg-gray-100 rounded disabled:opacity-30 disabled:cursor-not-allowed"
-                      >
-                        <MoveUp className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => moveSection(section.id, 'down')}
-                        disabled={idx === lesson.sections.length - 1}
-                        className="p-1 hover:bg-gray-100 rounded disabled:opacity-30 disabled:cursor-not-allowed"
-                      >
-                        <MoveDown className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => deleteSection(section.id)}
-                        className="p-1 hover:bg-red-100 rounded"
-                      >
-                        <Trash2 className="w-4 h-4" style={{ color: '#FF6B35' }} />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Section Title */}
-                  <input
-                    type="text"
-                    value={section.title}
-                    onChange={(e) => updateSection(section.id, { title: e.target.value })}
-                    placeholder="Section title (e.g., Warm-Up Drills)"
-                    className="w-full px-3 py-2 mb-3 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-                  />
-
-                  {/* Video Section */}
-                  {section.type === 'video' && (
-                    <div className="space-y-3">
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                        <select
-                          value={section.videoSource || ''}
-                          onChange={(e) => updateSection(section.id, { videoSource: e.target.value as any })}
-                          className="px-3 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-                        >
-                          <option value="">Video source...</option>
-                          <option value="youtube">YouTube</option>
-                          <option value="vimeo">Vimeo</option>
-                          <option value="direct">Direct Upload</option>
-                        </select>
-                        <input
-                          type="number"
-                          value={section.duration || 0}
-                          onChange={(e) => updateSection(section.id, { duration: parseInt(e.target.value) || 0 })}
-                          placeholder="Duration (min)"
-                          className="px-3 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-                        />
-                      </div>
-                      {section.videoSource && section.videoSource !== 'direct' && (
-                        <input
-                          type="url"
-                          value={section.videoUrl || ''}
-                          onChange={(e) => updateSection(section.id, { videoUrl: e.target.value })}
-                          placeholder={`Paste ${section.videoSource} URL here`}
-                          className="w-full px-3 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-                        />
-                      )}
-                      {section.videoSource === 'direct' && (
-                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-                          <Upload className="w-8 h-8 mx-auto mb-2" style={{ opacity: 0.5 }} />
-                          <p className="text-sm" style={{ opacity: 0.7 }}>Video upload coming soon</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {lesson.objectives.map((obj, idx) => (
+                        <div key={idx} className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 px-4 py-3 rounded-lg flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <CheckCircle2 className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                            <span className="text-sm">{obj}</span>
+                          </div>
+                          <button onClick={() => removeObjective(idx)} className="hover:bg-red-100 rounded-full p-2 transition-colors">
+                            <Trash2 className="w-4 h-4" style={{ color: '#FF6B35' }} />
+                          </button>
                         </div>
-                      )}
-                      {renderVideoPreview(section)}
+                      ))}
                     </div>
                   )}
-
-                  {/* Content */}
-                  <textarea
-                    value={section.content}
-                    onChange={(e) => updateSection(section.id, { content: e.target.value })}
-                    placeholder={
-                      section.type === 'text' ? 'Detailed explanation and instructions...' :
-                      section.type === 'video' ? 'Description of what athletes will learn from this video...' :
-                      section.type === 'drill' ? 'Step-by-step drill instructions...' :
-                      'Reflection questions or key takeaways...'
-                    }
-                    rows={4}
-                    className="w-full px-3 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-                  />
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
 
-        {/* Action Buttons */}
-        <div className="flex gap-4">
-          <button
-            onClick={handleSave}
-            disabled={saving || !lesson.title || !lesson.sport || !lesson.level}
-            className="flex-1 px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-          >
-            <Save className="w-5 h-5" />
-            {saving ? 'Saving...' : 'Save Lesson'}
-          </button>
-          <button
-            onClick={() => router.back()}
-            className="px-6 py-3 bg-white border-2 border-gray-300 text-black rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            Cancel
-          </button>
-        </div>
+                {/* Tags */}
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
+                    Tags (Optional)
+                  </label>
+                  <div className="flex gap-2 mb-3">
+                    <input
+                      type="text"
+                      value={currentTag}
+                      onChange={(e) => setCurrentTag(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
+                      placeholder="Add tags for organization (e.g., pitching, mechanics)"
+                      className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent text-sm"
+                    />
+                    <button
+                      onClick={addTag}
+                      className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Add
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {lesson.tags.map((tag, idx) => (
+                      <div key={idx} className="bg-teal/20 px-3 py-2 rounded-full flex items-center gap-2 border border-teal/30">
+                        <span className="text-sm">{tag}</span>
+                        <button onClick={() => removeTag(idx)} className="hover:bg-red-100 rounded-full p-1">
+                          <Trash2 className="w-3 h-3" style={{ color: '#FF6B35' }} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Step 3: Lesson Content */}
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-black rounded-lg flex items-center justify-center text-white font-medium">
+                    3
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-medium" style={{ color: '#000000' }}>
+                      Lesson Content
+                    </h2>
+                    <p className="text-sm" style={{ color: '#000000', opacity: 0.6 }}>
+                      Build your lesson section by section
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Section Type Buttons */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+                <button
+                  onClick={() => addSection('text')}
+                  className="group bg-gradient-to-br from-sky-blue/20 to-sky-blue/10 border-2 border-sky-blue/30 rounded-xl p-4 hover:from-sky-blue/30 hover:to-sky-blue/20 transition-all hover:scale-105"
+                >
+                  <FileText className="w-8 h-8 mx-auto mb-2" style={{ color: '#91A6EB' }} />
+                  <h3 className="text-sm font-medium mb-1" style={{ color: '#000000' }}>Text</h3>
+                  <p className="text-xs" style={{ color: '#000000', opacity: 0.6 }}>Instructions & explanations</p>
+                </button>
+
+                <button
+                  onClick={() => addSection('video')}
+                  className="group bg-gradient-to-br from-teal/20 to-teal/10 border-2 border-teal/30 rounded-xl p-4 hover:from-teal/30 hover:to-teal/20 transition-all hover:scale-105"
+                >
+                  <Video className="w-8 h-8 mx-auto mb-2" style={{ color: '#20B2AA' }} />
+                  <h3 className="text-sm font-medium mb-1" style={{ color: '#000000' }}>Video</h3>
+                  <p className="text-xs" style={{ color: '#000000', opacity: 0.6 }}>Demonstrations & tutorials</p>
+                </button>
+
+                <button
+                  onClick={() => addSection('drill')}
+                  className="group bg-gradient-to-br from-orange/20 to-orange/10 border-2 border-orange/30 rounded-xl p-4 hover:from-orange/30 hover:to-orange/20 transition-all hover:scale-105"
+                >
+                  <Target className="w-8 h-8 mx-auto mb-2" style={{ color: '#FF6B35' }} />
+                  <h3 className="text-sm font-medium mb-1" style={{ color: '#000000' }}>Drill</h3>
+                  <p className="text-xs" style={{ color: '#000000', opacity: 0.6 }}>Practice exercises</p>
+                </button>
+
+                <button
+                  onClick={() => addSection('reflection')}
+                  className="group bg-gradient-to-br from-black/10 to-black/5 border-2 border-black/20 rounded-xl p-4 hover:from-black/20 hover:to-black/10 transition-all hover:scale-105"
+                >
+                  <Lightbulb className="w-8 h-8 mx-auto mb-2" style={{ color: '#000000' }} />
+                  <h3 className="text-sm font-medium mb-1" style={{ color: '#000000' }}>Reflection</h3>
+                  <p className="text-xs" style={{ color: '#000000', opacity: 0.6 }}>Questions & takeaways</p>
+                </button>
+              </div>
+
+              {lesson.sections.length === 0 ? (
+                <div className="text-center py-12 border-2 border-dashed border-gray-200 rounded-xl">
+                  <BookOpen className="w-16 h-16 mx-auto mb-4" style={{ color: '#000000', opacity: 0.3 }} />
+                  <p className="text-lg mb-2" style={{ color: '#000000', opacity: 0.5 }}>No content sections yet</p>
+                  <p className="text-sm" style={{ color: '#000000', opacity: 0.4 }}>
+                    Click a section type above to start building your lesson
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {lesson.sections.map((section, idx) => (
+                    <div key={section.id} className="border-2 border-gray-200 rounded-xl p-5 hover:border-gray-300 transition-colors">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm px-3 py-1.5 bg-black text-white rounded-lg font-medium">
+                            {idx + 1}
+                          </span>
+                          <span className="text-xs px-3 py-1.5 bg-gray-100 rounded-lg capitalize font-medium">
+                            {section.type}
+                          </span>
+                          <button
+                            onClick={() => enhanceSection(section.id)}
+                            disabled={generating || !lesson.sport || !lesson.level}
+                            className="text-xs px-3 py-1.5 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                            title="Enhance with AI"
+                          >
+                            <Wand2 className="w-3 h-3" />
+                            AI Enhance
+                          </button>
+                        </div>
+                        <div className="flex gap-1">
+                          <button
+                            onClick={() => moveSection(section.id, 'up')}
+                            disabled={idx === 0}
+                            className="p-2 hover:bg-gray-100 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                            title="Move up"
+                          >
+                            <MoveUp className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => moveSection(section.id, 'down')}
+                            disabled={idx === lesson.sections.length - 1}
+                            className="p-2 hover:bg-gray-100 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                            title="Move down"
+                          >
+                            <MoveDown className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => deleteSection(section.id)}
+                            className="p-2 hover:bg-red-100 rounded-lg transition-colors"
+                            title="Delete section"
+                          >
+                            <Trash2 className="w-4 h-4" style={{ color: '#FF6B35' }} />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Section Title */}
+                      <input
+                        type="text"
+                        value={section.title}
+                        onChange={(e) => updateSection(section.id, { title: e.target.value })}
+                        placeholder="Section title (e.g., Warm-Up Drills, Proper Form Technique)"
+                        className="w-full px-4 py-3 mb-4 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent font-medium"
+                      />
+
+                      {/* Video Section */}
+                      {section.type === 'video' && (
+                        <div className="space-y-3 mb-4">
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <select
+                              value={section.videoSource || ''}
+                              onChange={(e) => updateSection(section.id, { videoSource: e.target.value as any })}
+                              className="px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                            >
+                              <option value="">Video source...</option>
+                              <option value="youtube">YouTube</option>
+                              <option value="vimeo">Vimeo</option>
+                              <option value="direct">Direct Upload</option>
+                            </select>
+                            <input
+                              type="number"
+                              value={section.duration || 0}
+                              onChange={(e) => updateSection(section.id, { duration: parseInt(e.target.value) || 0 })}
+                              placeholder="Duration (min)"
+                              className="px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                            />
+                          </div>
+                          {section.videoSource && section.videoSource !== 'direct' && (
+                            <input
+                              type="url"
+                              value={section.videoUrl || ''}
+                              onChange={(e) => updateSection(section.id, { videoUrl: e.target.value })}
+                              placeholder={`Paste ${section.videoSource} URL here`}
+                              className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                            />
+                          )}
+                          {section.videoSource === 'direct' && (
+                            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                              <Upload className="w-10 h-10 mx-auto mb-3" style={{ opacity: 0.5 }} />
+                              <p className="text-sm" style={{ opacity: 0.7 }}>Video upload coming soon</p>
+                            </div>
+                          )}
+                          {renderVideoPreview(section)}
+                        </div>
+                      )}
+
+                      {/* Content */}
+                      <textarea
+                        value={section.content}
+                        onChange={(e) => updateSection(section.id, { content: e.target.value })}
+                        placeholder={
+                          section.type === 'text' ? 'Write detailed explanations, instructions, and key points athletes should know...' :
+                          section.type === 'video' ? 'Describe what athletes will learn from this video. Add any important notes to watch for...' :
+                          section.type === 'drill' ? 'Step-by-step instructions for the drill: setup, execution, key coaching points, and common mistakes...' :
+                          'Add reflection questions or key takeaways. What should athletes think about? What did they learn?'
+                        }
+                        rows={6}
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent resize-y"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-4 pt-4">
+              <button
+                onClick={handleSave}
+                disabled={saving || !lesson.title || !lesson.sport || !lesson.level}
+                className="flex-1 px-8 py-4 bg-black text-white rounded-xl hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-medium text-lg shadow-lg"
+              >
+                <Save className="w-6 h-6" />
+                {saving ? 'Saving Lesson...' : 'Save Lesson'}
+              </button>
+              <button
+                onClick={() => {
+                  if (lesson.title || lesson.sections.length > 0) {
+                    if (confirm('Are you sure you want to cancel? Your changes will be lost.')) {
+                      router.back()
+                    }
+                  } else {
+                    router.back()
+                  }
+                }}
+                className="px-8 py-4 bg-white border-2 border-gray-300 text-black rounded-xl hover:bg-gray-50 transition-colors font-medium"
+              >
+                Cancel
+              </button>
+            </div>
+
+            {/* Quick Link to AI Generation */}
+            <div className="text-center">
+              <button
+                onClick={() => {
+                  setShowAIModal(true)
+                }}
+                className="text-sm text-purple-600 hover:text-purple-700 underline flex items-center gap-1 mx-auto"
+              >
+                <Sparkles className="w-4 h-4" />
+                Want to start over with AI generation instead?
+              </button>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   )
@@ -959,4 +1143,3 @@ export default function CreateLessonPage() {
     </Suspense>
   )
 }
-
