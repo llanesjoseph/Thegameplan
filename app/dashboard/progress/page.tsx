@@ -77,9 +77,9 @@ export default function AthleteDashboard() {
       expandable: false
     },
     {
-      id: 'schedule',
-      title: 'Request 1-on-1',
-      description: 'Schedule a private training session',
+      id: 'upcoming-events',
+      title: 'Upcoming Events',
+      description: 'View scheduled sessions and upcoming training events',
       icon: Calendar,
       color: '#FF6B35',
       path: null,
@@ -590,8 +590,8 @@ Be ${coachName || "the coach"}, be specific, be technical.`}
                       </div>
                     )}
 
-                    {/* Expanded Content - Schedule 1-on-1 */}
-                    {isExpanded && card.id === 'schedule' && (
+                    {/* Expanded Content - Upcoming Events */}
+                    {isExpanded && card.id === 'upcoming-events' && (
                       <div
                         className="mt-4 bg-gradient-to-br from-orange-50/90 to-white/90 backdrop-blur-sm rounded-xl shadow-2xl border border-orange-200/50 overflow-hidden animate-slideDown"
                       >
@@ -603,30 +603,44 @@ Be ${coachName || "the coach"}, be specific, be technical.`}
                             </div>
                             <div>
                               <h3 className="text-lg font-medium" style={{ color: '#000000' }}>
-                                Book a 1-on-1 Session
+                                Upcoming Events & Sessions
                               </h3>
                               <p className="text-xs" style={{ color: '#000000', opacity: 0.6 }}>
-                                Set your availability and propose a session with your coach
+                                Your scheduled training sessions and upcoming events
                               </p>
                             </div>
                           </div>
                           <button
                             onClick={() => setExpandedCard(null)}
                             className="p-2 hover:bg-orange-100 rounded-full transition-all animate-bounce-slow"
-                            title="Collapse Schedule"
+                            title="Collapse Events"
                           >
                             <ChevronUp className="w-6 h-6" style={{ color: '#FF6B35' }} />
                           </button>
                         </div>
 
-                        {/* Schedule iframe */}
-                        <div style={{ minHeight: '600px', maxHeight: '800px' }}>
-                          <iframe
-                            src="/dashboard/schedule?embedded=true"
-                            className="w-full h-full border-0"
-                            style={{ height: '800px' }}
-                            title="Schedule Session"
-                          />
+                        {/* Events Content */}
+                        <div className="p-6">
+                          <div className="space-y-4">
+                            {/* Empty State */}
+                            <div className="text-center py-12">
+                              <Calendar className="w-16 h-16 mx-auto mb-4 opacity-20" />
+                              <h3 className="text-lg font-medium mb-2" style={{ color: '#000000' }}>
+                                No Upcoming Events
+                              </h3>
+                              <p className="text-sm mb-6" style={{ color: '#000000', opacity: 0.6 }}>
+                                Check back soon for scheduled training sessions, seminars, and events from your coach.
+                              </p>
+                              <button
+                                onClick={() => setShowVideoReviewModal(true)}
+                                className="px-6 py-3 rounded-lg text-white transition-colors inline-flex items-center gap-2"
+                                style={{ backgroundColor: '#FF6B35' }}
+                              >
+                                <Video className="w-5 h-5" />
+                                Request Video Review Instead
+                              </button>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     )}
