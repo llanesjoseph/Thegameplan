@@ -46,6 +46,14 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Prevent self-invitations
+    if (inviterEmail.toLowerCase() === coachEmail.toLowerCase()) {
+      return NextResponse.json(
+        { error: 'You cannot invite yourself. Please enter a different email address.' },
+        { status: 400 }
+      )
+    }
+
     // Create invitation URL
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://playbookd.crucibleanalytics.dev'
     const invitationUrl = `${baseUrl}/coach-onboard/${invitationId}?sport=${encodeURIComponent(sport)}&email=${encodeURIComponent(coachEmail)}&name=${encodeURIComponent(coachName)}&role=${targetRole}`
