@@ -299,8 +299,8 @@ export default function CoachOnboardPage() {
         return
       }
 
-      // Redirect to confirmation page
-      router.push('/dashboard/apply-coach/submitted')
+      // Redirect to coach unified dashboard
+      router.push('/dashboard/coach-unified')
       setSubmitting(false)
     } catch (err) {
       setError('Failed to submit application')
@@ -362,8 +362,8 @@ export default function CoachOnboardPage() {
                 ? 'Your coach application has been automatically approved! You should receive access shortly.'
                 : 'Your coach application has been submitted successfully. You will receive an email when it has been reviewed.'}
             </p>
-            <Button onClick={() => router.push('/')} className="w-full">
-              Continue to AthLeap
+            <Button onClick={() => router.push('/dashboard/coach-unified')} className="w-full">
+              Go to Coach Dashboard
             </Button>
           </CardContent>
         </Card>
