@@ -26,6 +26,7 @@ export default function CoachUnifiedDashboard() {
   const { user } = useAuth()
   const router = useRouter()
   const [showWelcome, setShowWelcome] = useState(false)
+  const [activeSection, setActiveSection] = useState<string | null>(null)
 
   // Role-based redirect - prevent admins from accessing coach dashboard
   useEffect(() => {
@@ -158,17 +159,17 @@ export default function CoachUnifiedDashboard() {
 
   const getSectionPath = (sectionId: string) => {
     const pathMap: Record<string, string> = {
-      'athletes': '/dashboard/coach/athletes',
-      'create-lesson': '/dashboard/coach/lessons/create',
-      'lesson-library': '/dashboard/coach/lessons/library',
-      'videos': '/dashboard/coach/videos',
-      'resources': '/dashboard/coach/resources',
-      'analytics': '/dashboard/coach/analytics',
-      'invite': '/dashboard/coach/invite',
-      'recruit-coach': '/dashboard/coach/recruit',
-      'profile': '/dashboard/profile',
-      'announcements': '/dashboard/coach/announcements',
-      'assistants': '/dashboard/coach/assistants'
+      'athletes': '/dashboard/coach/athletes?embedded=true',
+      'create-lesson': '/dashboard/coach/lessons/create?embedded=true',
+      'lesson-library': '/dashboard/coach/lessons/library?embedded=true',
+      'videos': '/dashboard/coach/videos?embedded=true',
+      'resources': '/dashboard/coach/resources?embedded=true',
+      'analytics': '/dashboard/coach/analytics?embedded=true',
+      'invite': '/dashboard/coach/invite?embedded=true',
+      'recruit-coach': '/dashboard/coach/recruit?embedded=true',
+      'profile': '/dashboard/profile?embedded=true',
+      'announcements': '/dashboard/coach/announcements?embedded=true',
+      'assistants': '/dashboard/coach/assistants?embedded=true'
     }
     return pathMap[sectionId]
   }
@@ -178,6 +179,31 @@ export default function CoachUnifiedDashboard() {
       <AppHeader title="Coach Dashboard" subtitle="Empower your athletes with expert training" />
 
       <main className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 space-y-6 lg:space-y-8">
+        {/* Inline Expanded Content */}
+        {activeSection && (
+          <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-2xl border border-white/50 overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+              <h2 className="text-xl font-medium" style={{ color: '#000000' }}>
+                {coachCards.find(c => c.id === activeSection)?.title || 'Section'}
+              </h2>
+              <button
+                onClick={() => setActiveSection(null)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                title="Close"
+              >
+                <X className="w-5 h-5" style={{ color: '#000000' }} />
+              </button>
+            </div>
+            <div style={{ height: '600px' }}>
+              <iframe
+                src={getSectionPath(activeSection)}
+                className="w-full h-full border-0"
+                title={coachCards.find(c => c.id === activeSection)?.title || 'Section'}
+              />
+            </div>
+          </div>
+        )}
+
         {/* Coach Tools Grid */}
         <div>
           <h2 className="text-xl sm:text-2xl mb-4 sm:mb-6 uppercase tracking-wide" style={{ color: '#000000' }}>
@@ -194,11 +220,8 @@ export default function CoachUnifiedDashboard() {
                     console.log('Card clicked:', card.id)
                     e.preventDefault()
                     e.stopPropagation()
-                    const path = getSectionPath(card.id)
-                    console.log('Navigating to:', path)
-                    if (path) {
-                      router.push(path)
-                    }
+                    // Toggle expansion: close if already open, open if closed
+                    setActiveSection(activeSection === card.id ? null : card.id)
                   }}
                   className="block group cursor-pointer text-left transition-all w-full"
                   style={{ position: 'relative', zIndex: 1 }}
@@ -218,7 +241,9 @@ export default function CoachUnifiedDashboard() {
                         {card.inline && (
                           <div className="p-2 rounded-full bg-white/50 shadow-md">
                             <ChevronDown
-                              className="w-6 h-6 sm:w-7 sm:h-7 transition-transform duration-300"
+                              className={`w-6 h-6 sm:w-7 sm:h-7 transition-transform duration-300 ${
+                                activeSection === card.id ? 'rotate-180' : ''
+                              }`}
                               style={{ color: card.color, strokeWidth: 2.5 }}
                             />
                           </div>
