@@ -307,11 +307,17 @@ function AnalyticsPageContent() {
           </div>
 
           <div className="space-y-3">
-            {topLessons.map((lesson, index) => (
-              <div
-                key={lesson.id}
-                className="flex items-center gap-4 p-4 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
-              >
+            {topLessons.length === 0 ? (
+              <div className="text-center py-8" style={{ color: '#000000', opacity: 0.5 }}>
+                <Award className="w-12 h-12 mx-auto mb-3" style={{ opacity: 0.3 }} />
+                <p>No lesson data yet. Create some lessons to see analytics!</p>
+              </div>
+            ) : (
+              topLessons.map((lesson, index) => (
+                <div
+                  key={lesson.id}
+                  className="flex items-center gap-4 p-4 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+                >
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: index === 0 ? '#FFD700' : index === 1 ? '#C0C0C0' : index === 2 ? '#CD7F32' : 'rgba(0,0,0,0.1)', color: index < 3 ? '#FFFFFF' : '#000000' }}>
                   {index + 1}
                 </div>
@@ -338,12 +344,13 @@ function AnalyticsPageContent() {
 
                 <div className="text-right">
                   <p className="text-sm" style={{ color: '#20B2AA' }}>
-                    {((lesson.completions / lesson.views) * 100).toFixed(0)}%
+                    {lesson.views > 0 ? ((lesson.completions / lesson.views) * 100).toFixed(0) : '0'}%
                   </p>
                   <p className="text-xs" style={{ color: '#000000', opacity: 0.5 }}>completion</p>
                 </div>
               </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
 
@@ -355,11 +362,17 @@ function AnalyticsPageContent() {
           </div>
 
           <div className="space-y-3">
-            {athleteActivity.map((athlete, index) => (
-              <div
-                key={index}
-                className="flex items-center gap-4 p-4 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
-              >
+            {athleteActivity.length === 0 ? (
+              <div className="text-center py-8" style={{ color: '#000000', opacity: 0.5 }}>
+                <Users className="w-12 h-12 mx-auto mb-3" style={{ opacity: 0.3 }} />
+                <p>No athlete activity yet. Invite athletes to see their progress!</p>
+              </div>
+            ) : (
+              athleteActivity.map((athlete, index) => (
+                <div
+                  key={index}
+                  className="flex items-center gap-4 p-4 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+                >
                 <div className="w-10 h-10 rounded-full flex items-center justify-center text-white" style={{ background: 'linear-gradient(135deg, #91A6EB 0%, #000000 100%)' }}>
                   {athlete.name.split(' ').map((n: string) => n[0]).join('')}
                 </div>
@@ -390,7 +403,8 @@ function AnalyticsPageContent() {
                   </div>
                 </div>
               </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
       </main>

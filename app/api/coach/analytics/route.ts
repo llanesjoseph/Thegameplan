@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
 
     // 3. Get coach's lessons
     const lessonsSnapshot = await adminDb
-      .collection('content ')
+      .collection('content')
       .where('creatorUid', '==', uid)
       .get()
 
