@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase.client'
@@ -19,67 +19,12 @@ import {
   GraduationCap,
   X,
   UserCheck,
-  ChevronDown,
-  ChevronUp
+  ChevronDown
 } from 'lucide-react'
-
-// Responsive iframe component with dynamic height based on content
-function DynamicIframe({ src, title }: { src: string; title: string }) {
-  const iframeRef = useRef<HTMLIFrameElement>(null)
-  const [height, setHeight] = useState<string>('60vh')
-
-  useEffect(() => {
-    const iframe = iframeRef.current
-    if (!iframe) return
-
-    const measureHeight = () => {
-      try {
-        const iframeDocument = iframe.contentDocument || iframe.contentWindow?.document
-        if (iframeDocument) {
-          const contentHeight = iframeDocument.documentElement.scrollHeight
-          const maxHeight = window.innerHeight * 0.6 // 60% of viewport
-          const calculatedHeight = Math.min(contentHeight + 40, maxHeight)
-          setHeight(`${calculatedHeight}px`)
-        }
-      } catch (e) {
-        // Cross-origin or access denied - fallback to 60vh
-        setHeight('60vh')
-      }
-    }
-
-    // Multiple measurement attempts for reliability
-    iframe.addEventListener('load', () => {
-      setTimeout(measureHeight, 100)
-      setTimeout(measureHeight, 300)
-      setTimeout(measureHeight, 500)
-      setTimeout(measureHeight, 1000)
-    })
-
-    return () => {
-      iframe.removeEventListener('load', measureHeight)
-    }
-  }, [src])
-
-  return (
-    <div className="rounded-xl overflow-hidden shadow-lg w-full" style={{
-      height,
-      maxHeight: '60vh',
-      transition: 'height 0.3s ease'
-    }}>
-      <iframe
-        ref={iframeRef}
-        src={src}
-        className="w-full h-full border-0"
-        title={title}
-      />
-    </div>
-  )
-}
 
 export default function CoachUnifiedDashboard() {
   const { user } = useAuth()
   const router = useRouter()
-  const [activeSection, setActiveSection] = useState<string | null>(null)
   const [showWelcome, setShowWelcome] = useState(false)
 
   // Role-based redirect - prevent admins from accessing coach dashboard
@@ -213,43 +158,19 @@ export default function CoachUnifiedDashboard() {
 
   const getSectionPath = (sectionId: string) => {
     const pathMap: Record<string, string> = {
-      'athletes': '/dashboard/coach/athletes?embedded=true',
-      'create-lesson': '/dashboard/coach/lessons/create?embedded=true',
-      'lesson-library': '/dashboard/coach/lessons/library?embedded=true',
-      'videos': '/dashboard/coach/videos?embedded=true',
-      'resources': '/dashboard/coach/resources?embedded=true',
-      'analytics': '/dashboard/coach/analytics?embedded=true',
-      'invite': '/dashboard/coach/invite?embedded=true',
-      'recruit-coach': '/dashboard/coach/recruit?embedded=true',
-      'profile': '/dashboard/profile?embedded=true',
-      'announcements': '/dashboard/coach/announcements?embedded=true',
-      'assistants': '/dashboard/coach/assistants?embedded=true'
+      'athletes': '/dashboard/coach/athletes',
+      'create-lesson': '/dashboard/coach/lessons/create',
+      'lesson-library': '/dashboard/coach/lessons/library',
+      'videos': '/dashboard/coach/videos',
+      'resources': '/dashboard/coach/resources',
+      'analytics': '/dashboard/coach/analytics',
+      'invite': '/dashboard/coach/invite',
+      'recruit-coach': '/dashboard/coach/recruit',
+      'profile': '/dashboard/profile',
+      'announcements': '/dashboard/coach/announcements',
+      'assistants': '/dashboard/coach/assistants'
     }
     return pathMap[sectionId]
-  }
-
-  const renderInlineContent = () => {
-    if (!activeSection) return null
-
-    const activeCard = coachCards.find(card => card.id === activeSection)
-    const title = activeCard?.title || 'Section'
-
-    // All sections load via iframe for now
-    const sectionPath = getSectionPath(activeSection)
-    if (sectionPath) {
-      return <DynamicIframe src={sectionPath} title={title} />
-    }
-
-    return (
-      <div className="p-6 text-center">
-        <h3 className="text-xl mb-2" style={{ color: '#000000' }}>
-          {title}
-        </h3>
-        <p style={{ color: '#000000', opacity: 0.6 }}>
-          This section is under construction. Check back soon!
-        </p>
-      </div>
-    )
   }
 
   return (
@@ -265,12 +186,16 @@ export default function CoachUnifiedDashboard() {
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
             {coachCards.map((card, index) => {
               const Icon = card.icon
-              const isActive = activeSection === card.id
 
               return (
                 <button
                   key={index}
-                  onClick={() => setActiveSection(card.id)}
+                  onClick={() => {
+                    const path = getSectionPath(card.id)
+                    if (path) {
+                      router.push(path)
+                    }
+                  }}
                   className="block group cursor-pointer text-left transition-all w-full"
                 >
                   <div className="bg-white/90 backdrop-blur-sm rounded-lg sm:rounded-xl shadow-lg p-3 sm:p-4 h-full transition-all hover:shadow-2xl hover:scale-105 border border-white/50">
@@ -313,7 +238,7 @@ export default function CoachUnifiedDashboard() {
         </div>
 
         {/* Welcome Section (only shown once per session) */}
-        {!activeSection && showWelcome && (
+        {showWelcome && (
           <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 sm:p-8 relative">
             <button
               onClick={() => setShowWelcome(false)}
