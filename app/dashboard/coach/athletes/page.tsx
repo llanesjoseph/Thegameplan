@@ -101,8 +101,8 @@ function CoachAthletesContent() {
       const athleteInvitations = (data.athletes || []).map((athlete: any) => ({
         id: athlete.id,
         email: athlete.email || athlete.athleteEmail || '',
-        name: athlete.name || athlete.athleteName || 'Unknown',
-        sport: athlete.sport || 'Unknown',
+        name: athlete.displayName || athlete.name || athlete.athleteName || 'Unknown',
+        sport: athlete.sport || athlete.preferredSports?.[0] || 'Unknown',
         status: athlete.status || 'accepted',
         sentAt: athlete.createdAt ? new Date(athlete.createdAt).toLocaleDateString() : 'Unknown',
         expiresAt: athlete.expiresAt ? new Date(athlete.expiresAt).toLocaleDateString() : undefined,

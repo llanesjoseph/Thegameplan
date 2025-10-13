@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Query athletes for this coach from users collection
-    // Check both coachId and assignedCoachId fields for compatibility
+    // Check coachId, assignedCoachId, and creatorUid fields for compatibility
     const athletesSnapshot1 = await adminDb
       .collection('users')
       .where('role', '==', 'athlete')
@@ -52,6 +52,12 @@ export async function GET(request: NextRequest) {
       .collection('users')
       .where('role', '==', 'athlete')
       .where('assignedCoachId', '==', userId)
+      .get()
+
+    const athletesSnapshot3 = await adminDb
+      .collection('users')
+      .where('role', '==', 'athlete')
+      .where('creatorUid', '==', userId)
       .get()
 
     // Combine results and deduplicate
@@ -68,6 +74,16 @@ export async function GET(request: NextRequest) {
     })
 
     athletesSnapshot2.docs.forEach(doc => {
+      athleteMap.set(doc.id, {
+        id: doc.id,
+        ...doc.data(),
+        createdAt: doc.data().createdAt?.toDate?.()?.toISOString() || null,
+        updatedAt: doc.data().updatedAt?.toDate?.()?.toISOString() || null,
+        lastLoginAt: doc.data().lastLoginAt?.toDate?.()?.toISOString() || null
+      })
+    })
+
+    athletesSnapshot3.docs.forEach(doc => {
       athleteMap.set(doc.id, {
         id: doc.id,
         ...doc.data(),
