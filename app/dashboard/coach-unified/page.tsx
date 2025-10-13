@@ -18,7 +18,9 @@ import {
   UserCog,
   GraduationCap,
   X,
-  UserCheck
+  UserCheck,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react'
 
 // Responsive iframe component with dynamic height based on content
@@ -255,58 +257,95 @@ export default function CoachUnifiedDashboard() {
       <AppHeader title="Coach Dashboard" subtitle="Empower your athletes with expert training" />
 
       <main className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 space-y-6 lg:space-y-8">
-        {/* Inline Content Display */}
-        {activeSection && (
-          <div className="bg-white/90 backdrop-blur-sm rounded-xl lg:rounded-2xl shadow-2xl border border-white/50 relative overflow-hidden">
-            <button
-              onClick={() => setActiveSection(null)}
-              className="absolute top-3 right-3 sm:top-4 sm:right-4 p-2 hover:bg-gray-100 rounded-lg transition-colors z-50 shadow-lg"
-              title="Close"
-            >
-              <X className="w-5 h-5" style={{ color: '#000000' }} />
-            </button>
-            {renderInlineContent()}
-          </div>
-        )}
-
         {/* Coach Tools Grid */}
         <div>
           <h2 className="text-xl sm:text-2xl mb-4 sm:mb-6 uppercase tracking-wide" style={{ color: '#000000' }}>
             Coaching Tools
           </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
             {coachCards.map((card, index) => {
               const Icon = card.icon
               const isActive = activeSection === card.id
 
               return (
-                <button
-                  key={index}
-                  onClick={() => setActiveSection(card.id)}
-                  className={`block group cursor-pointer text-left transition-all ${isActive ? 'ring-2 ring-black ring-offset-2' : ''}`}
-                >
-                  <div className={`bg-white/90 backdrop-blur-sm rounded-lg sm:rounded-xl shadow-lg border border-white/50 p-3 sm:p-4 h-full transition-all hover:shadow-2xl hover:scale-105 ${isActive ? 'bg-white shadow-2xl' : ''}`}>
-                    <div className="flex flex-col h-full min-h-[100px] sm:min-h-[120px]">
-                      {/* Icon */}
-                      <div
-                        className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg mb-2 sm:mb-3 flex items-center justify-center shadow-md"
-                        style={{ backgroundColor: card.color }}
-                      >
-                        <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                <div key={index} className={`${isActive ? 'col-span-2 sm:col-span-3 md:col-span-4' : ''}`}>
+                  {/* Card Button */}
+                  <button
+                    onClick={() => setActiveSection(isActive ? null : card.id)}
+                    className={`block group cursor-pointer text-left transition-all w-full ${isActive ? 'ring-2 ring-teal-500 ring-offset-2' : ''}`}
+                  >
+                    <div className={`bg-white/90 backdrop-blur-sm rounded-lg sm:rounded-xl shadow-lg p-3 sm:p-4 h-full transition-all hover:shadow-2xl hover:scale-105 ${isActive ? 'bg-white shadow-2xl border-2 border-teal-500' : 'border border-white/50'}`}>
+                      <div className="flex flex-col h-full min-h-[100px] sm:min-h-[120px]">
+                        <div className="flex items-start justify-between mb-2">
+                          {/* Icon */}
+                          <div
+                            className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center shadow-md"
+                            style={{ backgroundColor: card.color }}
+                          >
+                            <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                          </div>
+
+                          {/* Prominent Chevron Indicator */}
+                          {card.inline && (
+                            <div className="p-2 rounded-full bg-white/50 shadow-md">
+                              <ChevronDown
+                                className={`w-6 h-6 sm:w-7 sm:h-7 transition-transform duration-300 ${isActive ? 'rotate-180' : ''}`}
+                                style={{ color: card.color, strokeWidth: 2.5 }}
+                              />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Title */}
+                        <h3 className="text-xs sm:text-sm mb-1 line-clamp-2 font-medium" style={{ color: '#000000' }}>
+                          {card.title}
+                        </h3>
+
+                        {/* Description */}
+                        <p className="text-[10px] sm:text-xs flex-grow line-clamp-2" style={{ color: '#000000', opacity: 0.6 }}>
+                          {card.description}
+                        </p>
+                      </div>
+                    </div>
+                  </button>
+
+                  {/* Expanded Content */}
+                  {isActive && (
+                    <div className="mt-4 bg-gradient-to-br from-teal-50/90 to-white/90 backdrop-blur-sm rounded-xl shadow-2xl border border-teal-200/50 overflow-hidden animate-slideDown">
+                      {/* Header */}
+                      <div className="bg-gradient-to-r from-teal-500/10 to-teal-400/10 px-6 py-4 border-b border-teal-200/50 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: card.color }}>
+                            <Icon className="w-5 h-5 text-white" />
+                          </div>
+                          <div>
+                            <h3 className="text-lg font-medium" style={{ color: '#000000' }}>
+                              {card.title}
+                            </h3>
+                            <p className="text-xs" style={{ color: '#000000', opacity: 0.6 }}>
+                              {card.description}
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setActiveSection(null)
+                          }}
+                          className="p-2 hover:bg-orange-100 rounded-full transition-all animate-bounce-slow"
+                          title="Collapse"
+                        >
+                          <ChevronUp className="w-6 h-6" style={{ color: '#FF6B35' }} />
+                        </button>
                       </div>
 
-                      {/* Title */}
-                      <h3 className="text-xs sm:text-sm mb-1 line-clamp-2" style={{ color: '#000000' }}>
-                        {card.title}
-                      </h3>
-
-                      {/* Description */}
-                      <p className="text-[10px] sm:text-xs flex-grow line-clamp-2" style={{ color: '#000000', opacity: 0.6 }}>
-                        {card.description}
-                      </p>
+                      {/* Content */}
+                      <div className="p-4" style={{ minHeight: '400px' }}>
+                        {renderInlineContent()}
+                      </div>
                     </div>
-                  </div>
-                </button>
+                  )}
+                </div>
               )
             })}
           </div>
@@ -377,6 +416,38 @@ export default function CoachUnifiedDashboard() {
           </div>
         )}
       </main>
+
+      <style jsx>{`
+        @keyframes slideDown {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+            max-height: 0;
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+            max-height: 1000px;
+          }
+        }
+
+        .animate-slideDown {
+          animation: slideDown 0.3s ease-out forwards;
+        }
+
+        @keyframes bounceSlow {
+          0%, 100% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(-6px);
+          }
+        }
+
+        .animate-bounce-slow {
+          animation: bounceSlow 1.5s ease-in-out infinite;
+        }
+      `}</style>
     </div>
   )
 }
