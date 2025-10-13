@@ -155,6 +155,11 @@ export default function CoachOnboardPage() {
       setIngestionData(result.data)
       setCoachData(prev => ({ ...prev, sport: result.data.sport }))
 
+      // Pre-populate email from invitation if available
+      if (result.data.coachEmail) {
+        setUserInfo(prev => ({ ...prev, email: result.data.coachEmail }))
+      }
+
       // Check if this is Jasmine's special onboarding and pre-populate data
       if (result.data.metadata?.isJasmineSpecial && result.data.metadata?.prePopulateData) {
         console.log('🎯 Detected Jasmine special onboarding - pre-populating data')
@@ -461,14 +466,15 @@ export default function CoachOnboardPage() {
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <Label htmlFor="email">Email Address *</Label>
+                  <Label htmlFor="email">Email (From Invitation)</Label>
                   <Input
                     id="email"
                     type="email"
                     value={userInfo.email}
-                    onChange={(e) => setUserInfo(prev => ({ ...prev, email: e.target.value }))}
-                    placeholder="Enter your email address"
+                    disabled
+                    className="bg-gray-50 text-gray-600 cursor-not-allowed"
                   />
+                  <p className="text-xs text-gray-500 mt-1">This email is locked to your invitation and cannot be changed</p>
                 </div>
                 <div>
                   <Label htmlFor="displayName">Display Name</Label>

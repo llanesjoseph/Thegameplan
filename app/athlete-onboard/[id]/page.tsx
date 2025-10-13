@@ -357,15 +357,14 @@ export default function AthleteOnboardingPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2">Email *</label>
+                  <label className="block text-sm font-medium mb-2">Email (From Invitation)</label>
                   <Input
                     type="email"
                     value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    placeholder="john@example.com"
-                    required
+                    disabled
+                    className="bg-gray-50 text-gray-600 cursor-not-allowed"
                   />
-                  <p className="text-xs text-gray-500 mt-1">Used for login only, not shared with coach</p>
+                  <p className="text-xs text-gray-500 mt-1">This email is locked to your invitation and cannot be changed</p>
                 </div>
 
                 <div className="flex justify-end">
