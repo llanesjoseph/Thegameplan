@@ -40,6 +40,17 @@ export async function GET(request: NextRequest) {
     if (invitationDoc.exists) {
       const invitationData = invitationDoc.data()
 
+      // CRITICAL: Verify this is a coach/assistant/creator invitation
+      const targetRole = invitationData?.role
+      if (targetRole && !['coach', 'assistant', 'creator'].includes(targetRole)) {
+        return NextResponse.json({
+          success: false,
+          error: `This invitation is for a ${targetRole} account, not a coach account. Please use the correct invitation link.`,
+          wrongType: true,
+          correctType: targetRole
+        }, { status: 400 })
+      }
+
       // Check if already used
       if (invitationData?.used) {
         return NextResponse.json({

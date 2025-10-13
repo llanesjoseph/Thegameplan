@@ -118,6 +118,17 @@ export default function CoachOnboardPage() {
           return
         }
 
+        // Check if this is the wrong invitation type (e.g., athlete invitation used on coach page)
+        if (result.wrongType && result.correctType) {
+          const correctPage = result.correctType === 'athlete' ? 'athlete-onboard' : 'coach-onboard'
+          setError(`This is a ${result.correctType} invitation link. You will be redirected to the correct page...`)
+          setTimeout(() => {
+            router.push(`/${correctPage}/${ingestionId}`)
+          }, 3000)
+          setLoading(false)
+          return
+        }
+
         // Transform the simple invitation response to match expected format
         if (result.success) {
           result = {

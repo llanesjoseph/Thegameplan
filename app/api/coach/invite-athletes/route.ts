@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { sendAthleteInvitationEmail, sendCoachNotificationEmail } from '@/lib/email-service'
+import { sendAthleteInvitationEmail, sendCoachNotificationEmail, getAdminEmails, sendAdminNotificationEmail } from '@/lib/email-service'
 import { auth, adminDb } from '@/lib/firebase.admin'
 
 interface AthleteInvite {
@@ -157,6 +157,7 @@ export async function POST(request: NextRequest) {
         const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(invitationUrl)}`
 
         // Store invitation data in Firestore
+        const expirationDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000) // 14 days
         const invitationData = {
           id: invitationId,
           creatorUid,
@@ -168,8 +169,8 @@ export async function POST(request: NextRequest) {
           qrCodeUrl,
           status: 'pending',
           role: 'athlete', // CRITICAL: Store the target role
-          createdAt: new Date().toISOString(),
-          expiresAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(), // 14 days
+          createdAt: adminDb.Timestamp.now(),
+          expiresAt: adminDb.Timestamp.fromDate(expirationDate),
           type: 'athlete_invitation',
           used: false
         }
@@ -187,7 +188,7 @@ export async function POST(request: NextRequest) {
           invitationUrl,
           qrCodeUrl,
           customMessage: invitationData.customMessage,
-          expiresAt: invitationData.expiresAt
+          expiresAt: expirationDate.toISOString() // Email function expects ISO string
         })
 
         if (emailResult.success) {
@@ -201,6 +202,26 @@ export async function POST(request: NextRequest) {
             emailId: emailResult.data?.id
           })
           console.log(`✅ Athlete invitation sent to ${athlete.email}`)
+
+          // Notify admins about the invitation
+          try {
+            const adminEmails = await getAdminEmails()
+            if (adminEmails.length > 0) {
+              await sendAdminNotificationEmail({
+                adminEmails,
+                invitationType: 'athlete',
+                recipientEmail: athlete.email,
+                recipientName: athlete.name,
+                senderName: coachName,
+                senderEmail: coachEmail || userData?.email || 'Unknown',
+                sport,
+                customMessage
+              })
+            }
+          } catch (error) {
+            console.error('Failed to send admin notification:', error)
+            // Don't fail the request if admin notification fails
+          }
         } else {
           failCount++
           results.push({

@@ -1,5 +1,6 @@
 import { Resend } from 'resend'
 import { getEmailTemplate } from './email-templates'
+import { adminDb } from './firebase.admin'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://athleap.crucibleanalytics.dev'
@@ -885,6 +886,134 @@ interface AnnouncementEmailProps {
   announcementMessage: string
   isUrgent: boolean
   dashboardUrl?: string
+}
+
+/**
+ * Fetch all admin emails from Firestore
+ * Returns emails of users with 'admin' or 'superadmin' role
+ */
+export async function getAdminEmails(): Promise<string[]> {
+  try {
+    const adminsSnapshot = await adminDb
+      .collection('users')
+      .where('role', 'in', ['admin', 'superadmin'])
+      .get()
+
+    const adminEmails = adminsSnapshot.docs
+      .map(doc => doc.data().email)
+      .filter(email => email && typeof email === 'string') as string[]
+
+    console.log(`📧 Found ${adminEmails.length} admin email(s) for notifications`)
+    return adminEmails
+  } catch (error) {
+    console.error('Error fetching admin emails:', error)
+    return []
+  }
+}
+
+// Admin notification for invitation activity
+interface AdminNotificationEmailProps {
+  adminEmails: string[]
+  invitationType: 'coach' | 'athlete' | 'admin'
+  recipientEmail: string
+  recipientName: string
+  senderName: string
+  senderEmail: string
+  sport?: string
+  customMessage?: string
+}
+
+export async function sendAdminNotificationEmail({
+  adminEmails,
+  invitationType,
+  recipientEmail,
+  recipientName,
+  senderName,
+  senderEmail,
+  sport,
+  customMessage
+}: AdminNotificationEmailProps) {
+  try {
+    const invitationTypeLabel = invitationType === 'coach' ? 'Coach' : invitationType === 'athlete' ? 'Athlete' : 'Admin'
+    const subject = `🔔 New ${invitationTypeLabel} Invitation Sent - AthLeap`
+
+    const { data, error } = await resend.emails.send({
+      from: 'AthLeap Admin <noreply@mail.crucibleanalytics.dev>',
+      to: adminEmails,
+      subject,
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Invitation Activity Alert</title>
+        </head>
+        <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8fafc;">
+          <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <div style="text-align: center; margin-bottom: 30px;">
+              <h1 style="font-family: 'Permanent Marker', cursive; color: #13367A; font-size: 32px; margin: 0;">AthLeap</h1>
+              <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">ADMIN NOTIFICATION</p>
+            </div>
+
+            <div style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border: 2px solid #2563eb; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
+              <h2 style="color: #1e40af; margin: 0;">🔔 New ${invitationTypeLabel} Invitation Sent</h2>
+            </div>
+
+            <div style="background: #f0f9ff; border-left: 4px solid #0284c7; padding: 20px; margin: 20px 0;">
+              <h3 style="color: #0369a1; margin-top: 0;">Invitation Details:</h3>
+              <p style="margin: 8px 0;"><strong>Type:</strong> ${invitationTypeLabel} Invitation</p>
+              <p style="margin: 8px 0;"><strong>Sent By:</strong> ${senderName} (${senderEmail})</p>
+              <p style="margin: 8px 0;"><strong>Sent To:</strong> ${recipientName} (${recipientEmail})</p>
+              ${sport ? `<p style="margin: 8px 0;"><strong>Sport:</strong> ${sport}</p>` : ''}
+              ${customMessage ? `
+                <div style="margin-top: 15px;">
+                  <p style="margin: 5px 0;"><strong>Custom Message:</strong></p>
+                  <p style="margin: 5px 0; color: #4b5563; font-style: italic; padding: 10px; background: white; border-radius: 4px;">"${customMessage}"</p>
+                </div>
+              ` : ''}
+            </div>
+
+            <div style="background: #fff3cd; border: 1px solid #f59e0b; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <p style="margin: 0; color: #92400e; font-size: 14px; text-align: center;">
+                <strong>ℹ️ Note:</strong> This is an automated notification to keep you informed of platform invitation activity.
+              </p>
+            </div>
+
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${APP_URL}/dashboard/admin/invitations-approvals" style="background-color: #8B5CF6; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">View Invitations Dashboard</a>
+            </div>
+
+            <div style="background: #f9fafb; border-radius: 8px; padding: 15px; margin: 20px 0;">
+              <p style="margin: 0; color: #6b7280; font-size: 13px; text-align: center;">
+                Timestamp: ${new Date().toLocaleString('en-US', { dateStyle: 'full', timeStyle: 'short' })}
+              </p>
+            </div>
+
+            <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 14px;">
+              <p><strong>AthLeap Admin System</strong></p>
+              <p style="font-size: 12px;">This is an automated administrative notification. Do not reply to this email.</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `
+    })
+
+    if (error) {
+      console.error('Failed to send admin notification email:', error)
+      return { success: false, error: error.message }
+    }
+
+    console.log(`✅ Admin notification sent to ${adminEmails.length} admin(s)`)
+    return { success: true, data }
+  } catch (error) {
+    console.error('Admin notification email service error:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    }
+  }
 }
 
 export async function sendAnnouncementEmail({

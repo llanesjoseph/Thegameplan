@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth, adminDb } from '@/lib/firebase.admin'
 import { Timestamp } from 'firebase-admin/firestore'
 import { Resend } from 'resend'
+import { getAdminEmails, sendAdminNotificationEmail } from '@/lib/email-service'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -141,6 +142,28 @@ export async function POST(request: NextRequest) {
     })
 
     console.log(`✅ Admin invitation created for ${recipientEmail} (${role}) by ${userData.email}`)
+
+    // Notify other admins about the invitation
+    try {
+      const adminEmails = await getAdminEmails()
+      // Filter out the recipient from the notification list to avoid self-notification
+      const notifyAdmins = adminEmails.filter(email => email.toLowerCase() !== recipientEmail.toLowerCase())
+
+      if (notifyAdmins.length > 0) {
+        await sendAdminNotificationEmail({
+          adminEmails: notifyAdmins,
+          invitationType: 'admin',
+          recipientEmail,
+          recipientName,
+          senderName: userData.displayName || userData.email,
+          senderEmail: userData.email,
+          customMessage
+        })
+      }
+    } catch (error) {
+      console.error('Failed to send admin notification:', error)
+      // Don't fail the request if admin notification fails
+    }
 
     return NextResponse.json({
       success: true,

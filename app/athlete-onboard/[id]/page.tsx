@@ -314,7 +314,7 @@ export default function AthleteOnboardingPage() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900">Training Invitation</h3>
-                    <p className="text-gray-600">{invitation.sport} • Coach Training Program</p>
+                    <p className="text-gray-600">{invitation.sport} Training Program</p>
                     {invitation.customMessage && (
                       <p className="text-sm text-gray-500 mt-1">{invitation.customMessage}</p>
                     )}

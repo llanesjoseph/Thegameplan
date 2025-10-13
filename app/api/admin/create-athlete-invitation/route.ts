@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth, adminDb } from '@/lib/firebase.admin'
 import { Timestamp } from 'firebase-admin/firestore'
 import { Resend } from 'resend'
+import { getAdminEmails, sendAdminNotificationEmail } from '@/lib/email-service'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -110,8 +111,8 @@ export async function POST(request: NextRequest) {
       status: 'pending',
       createdBy: decodedToken.uid,
       createdByName: userData.displayName || userData.email,
-      createdAt: new Date().toISOString(),
-      expiresAt: expiresAt.toISOString(),
+      createdAt: Timestamp.now(),
+      expiresAt: Timestamp.fromDate(expiresAt),
       used: false,
       usedAt: null,
       usedBy: null
@@ -170,6 +171,26 @@ export async function POST(request: NextRequest) {
     }
 
     console.log(`✅ Athlete invitation created for ${athleteEmail} assigned to coach ${creatorUid} by ${userData.email}`)
+
+    // Notify admins about the invitation
+    try {
+      const adminEmails = await getAdminEmails()
+      if (adminEmails.length > 0) {
+        await sendAdminNotificationEmail({
+          adminEmails,
+          invitationType: 'athlete',
+          recipientEmail: athleteEmail,
+          recipientName: athleteName,
+          senderName: userData.displayName || userData.email,
+          senderEmail: userData.email,
+          sport,
+          customMessage
+        })
+      }
+    } catch (error) {
+      console.error('Failed to send admin notification:', error)
+      // Don't fail the request if admin notification fails
+    }
 
     return NextResponse.json({
       success: true,
