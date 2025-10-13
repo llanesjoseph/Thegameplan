@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Validate role
-    const validRoles = ['athlete', 'coach', 'assistant_coach', 'admin', 'superadmin']
+    const validRoles = ['athlete', 'coach', 'creator', 'assistant', 'admin', 'superadmin', 'user']
     if (!validRoles.includes(newRole)) {
       return NextResponse.json(
         { error: `Invalid role. Must be one of: ${validRoles.join(', ')}` },

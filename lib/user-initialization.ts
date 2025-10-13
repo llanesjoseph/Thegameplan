@@ -21,28 +21,29 @@ async function checkPendingInvitation(email: string | null): Promise<UserRole | 
 
   try {
     // Query invitations collection for this email
+    // Check BOTH used and unused invitations to respect role during sign-in
     const invitationsRef = collection(db, 'invitations')
-    const q = query(
+
+    // Try coachEmail field first (for coach invitations)
+    const coachQuery = query(
       invitationsRef,
       where('coachEmail', '==', email.toLowerCase()),
-      where('used', '==', false),
       limit(1)
     )
 
-    const querySnapshot = await getDocs(q)
+    const coachSnapshot = await getDocs(coachQuery)
 
-    if (!querySnapshot.empty) {
-      const invitationData = querySnapshot.docs[0].data()
+    if (!coachSnapshot.empty) {
+      const invitationData = coachSnapshot.docs[0].data()
       const role = invitationData.role as UserRole
-      console.log(`🎯 Found pending invitation for ${email} with role: ${role}`)
+      console.log(`🎯 Found invitation for ${email} with role: ${role} (coachEmail field)`)
       return role
     }
 
-    // Also check for athlete invitations
+    // Try athleteEmail field (for athlete invitations)
     const athleteQuery = query(
       invitationsRef,
       where('athleteEmail', '==', email.toLowerCase()),
-      where('used', '==', false),
       limit(1)
     )
 
@@ -51,7 +52,7 @@ async function checkPendingInvitation(email: string | null): Promise<UserRole | 
     if (!athleteSnapshot.empty) {
       const invitationData = athleteSnapshot.docs[0].data()
       const role = invitationData.role as UserRole
-      console.log(`🎯 Found pending athlete invitation for ${email} with role: ${role}`)
+      console.log(`🎯 Found invitation for ${email} with role: ${role} (athleteEmail field)`)
       return role
     }
 
