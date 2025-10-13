@@ -16,6 +16,7 @@ interface Creator {
  id: string
  name: string
  firstName: string
+ lastName?: string
  sport: string
  tagline: string
  heroImageUrl: string
@@ -541,14 +542,24 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
 
      {/* Profile Picture */}
      <div className="mt-8 flex justify-center">
-      <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white">
-       <Image
-        src={creator.headshotUrl}
-        alt={creator.name}
-        width={128}
-        height={128}
-        className="w-full h-full object-cover"
-       />
+      <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white bg-gray-200 flex items-center justify-center">
+       {creator.headshotUrl && !creator.headshotUrl.includes('placeholder') ? (
+        <Image
+         src={creator.headshotUrl}
+         alt={creator.name}
+         width={128}
+         height={128}
+         className="w-full h-full object-cover"
+         onError={(e) => {
+          const target = e.target as HTMLImageElement
+          target.style.display = 'none'
+         }}
+        />
+       ) : (
+        <div className="w-full h-full flex items-center justify-center bg-blue-500 text-white text-2xl font-bold">
+         {creator.firstName.charAt(0)}{creator.lastName ? creator.lastName.charAt(0) : ''}
+        </div>
+       )}
       </div>
      </div>
     </div>
@@ -583,7 +594,7 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
        {/* Left Side - Quote */}
        <div className="text-white">
         <blockquote className="text-2xl md:text-3xl  leading-relaxed">
-         Playing soccer with your feet is one thing, but playing soccer with your heart is another.
+         {creator.tagline || creator.description || `${creator.sport} training with ${creator.firstName}`}
         </blockquote>
 
         {/* Social Links */}
