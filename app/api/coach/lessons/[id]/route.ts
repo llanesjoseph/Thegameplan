@@ -50,7 +50,7 @@ export async function GET(
 
     // 3. Get lesson
     const lessonId = params.id
-    const lessonDoc = await adminDb.collection('content ').doc(lessonId).get()
+    const lessonDoc = await adminDb.collection('content').doc(lessonId).get()
 
     if (!lessonDoc.exists) {
       return NextResponse.json(
@@ -135,7 +135,7 @@ export async function PUT(
 
     // 3. Get existing lesson
     const lessonId = params.id
-    const lessonDoc = await adminDb.collection('content ').doc(lessonId).get()
+    const lessonDoc = await adminDb.collection('content').doc(lessonId).get()
 
     if (!lessonDoc.exists) {
       return NextResponse.json(
@@ -208,7 +208,7 @@ export async function PUT(
     }
 
     // 8. Save to Firestore
-    await adminDb.collection('content ').doc(lessonId).update(updateData)
+    await adminDb.collection('content').doc(lessonId).update(updateData)
 
     // 9. Return success
     return NextResponse.json({
