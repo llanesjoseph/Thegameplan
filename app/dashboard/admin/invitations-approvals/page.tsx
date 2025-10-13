@@ -164,15 +164,40 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
   const loadInvitations = async () => {
     try {
       setInvitationsLoading(true)
-      const invitationsQuery = query(collection(db, 'invitations'), orderBy('createdAt', 'desc'))
+      // Don't use orderBy to avoid issues with mixed date formats
+      const invitationsQuery = query(collection(db, 'invitations'))
       const snapshot = await getDocs(invitationsQuery)
-      const invitationsData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt?.toDate() || new Date(),
-        expiresAt: doc.data().expiresAt?.toDate() || new Date()
-      })) as Invitation[]
+      const invitationsData = snapshot.docs.map(doc => {
+        const data = doc.data()
+
+        // Helper function to convert dates (handles both Timestamp and ISO string)
+        const convertDate = (dateField: any): Date => {
+          if (!dateField) return new Date()
+          // If it's a Firestore Timestamp, use toDate()
+          if (dateField.toDate && typeof dateField.toDate === 'function') {
+            return dateField.toDate()
+          }
+          // If it's an ISO string, parse it
+          if (typeof dateField === 'string') {
+            return new Date(dateField)
+          }
+          // Fallback
+          return new Date()
+        }
+
+        return {
+          id: doc.id,
+          ...data,
+          createdAt: convertDate(data.createdAt),
+          expiresAt: convertDate(data.expiresAt)
+        }
+      }) as Invitation[]
+
+      // Sort in memory instead of in query (to handle mixed date formats)
+      invitationsData.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+
       setInvitations(invitationsData)
+      console.log(`✅ Loaded ${invitationsData.length} invitations`)
     } catch (error) {
       console.error('Error loading invitations:', error)
     } finally {
