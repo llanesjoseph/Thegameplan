@@ -89,7 +89,7 @@ function AuthGateInner({ allowedRoles = ['user', 'athlete', 'creator', 'superadm
        onClick={() => {
         // Redirect based on user's actual role
         if (actualRole === 'user' || actualRole === 'athlete' || actualRole === 'creator' || actualRole === 'coach' || actualRole === 'assistant') {
-         router.push('/dashboard/progress')
+         router.push('/dashboard/athlete')
         } else if (actualRole === 'admin' || actualRole === 'superadmin') {
          router.push('/dashboard/admin')
         } else {

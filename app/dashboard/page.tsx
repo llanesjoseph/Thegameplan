@@ -18,7 +18,7 @@ import { doc, getDoc } from 'firebase/firestore'
  * Rules:
  * 1. ALWAYS wait for real role from Firestore (never use 'guest' or undefined)
  * 2. DIRECT routing to correct dashboard based on actual role
- * 3. Athletes (role: 'athlete') ALWAYS go to /dashboard/progress
+ * 3. Athletes (role: 'athlete') ALWAYS go to /dashboard/athlete
  * 4. Coaches (role: 'coach' or 'assistant_coach') ALWAYS go to /dashboard/coach-unified
  * 5. Admins (role: 'admin' or 'superadmin') ALWAYS go to /dashboard/admin
  */
@@ -130,8 +130,8 @@ export default function Dashboard() {
   console.log('🎯 ROUTING USER:', { email: user.email, role: actualRole })
 
   if (actualRole === 'athlete') {
-   console.log('🏃 ATHLETE DETECTED - Routing to /dashboard/progress')
-   router.replace('/dashboard/progress')
+   console.log('🏃 ATHLETE DETECTED - Routing to /dashboard/athlete')
+   router.replace('/dashboard/athlete')
   } else if (actualRole === 'superadmin') {
    console.log('👑 SUPERADMIN DETECTED - Routing to /dashboard/admin')
    router.replace('/dashboard/admin')
