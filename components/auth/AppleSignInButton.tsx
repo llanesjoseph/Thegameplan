@@ -26,33 +26,44 @@ export default function AppleSignInButton({
   setError(null)
 
   try {
+   console.log('[AppleSignIn] Starting Apple Sign-In process...')
+   console.log('[AppleSignIn] Auth domain:', process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN)
+   console.log('[AppleSignIn] Project ID:', process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID)
+
    const provider = new OAuthProvider('apple.com')
-   
+
    // Request additional scopes if needed
    provider.addScope('email')
    provider.addScope('name')
-   
+
    // Configure custom parameters
    provider.setCustomParameters({
     // Locale for Apple sign-in UI
     locale: 'en'
    })
 
+   console.log('[AppleSignIn] Provider configured, attempting popup...')
+
    // Try popup first, fallback to redirect if popup fails
    try {
     const result = await signInWithPopup(auth, provider)
     const user = result.user
 
-    console.log('Successfully signed in with Apple:', user.displayName || user.email)
-    
+    console.log('[AppleSignIn] ✓ Successfully signed in with Apple:', user.displayName || user.email)
+    console.log('[AppleSignIn] User ID:', user.uid)
+    console.log('[AppleSignIn] Provider Data:', user.providerData)
+
     // Redirect to onboarding for new users to complete their profile
     router.push('/onboarding')
    } catch (popupError: unknown) {
-    console.log('Apple popup failed, trying redirect method:', popupError)
-    // If popup fails, try redirect method
     const errorCode = popupError && typeof popupError === 'object' && 'code' in popupError ? (popupError as any).code : null
+    const errorMessage = popupError && typeof popupError === 'object' && 'message' in popupError ? (popupError as any).message : 'Unknown error'
+
+    console.error('[AppleSignIn] Popup error:', errorCode, errorMessage)
+
+    // If popup fails, try redirect method
     if (errorCode === 'auth/popup-blocked' || errorCode === 'auth/popup-closed-by-user') {
-     console.log('Using redirect method instead')
+     console.log('[AppleSignIn] Using redirect method instead...')
      await signInWithRedirect(auth, provider)
      // Note: redirect will reload the page, so we don't need to handle the result here
      return
@@ -61,36 +72,49 @@ export default function AppleSignInButton({
      throw popupError
     }
    }
-   
+
   } catch (error: unknown) {
-   console.error('Apple sign in error:', error)
-   
-   // User-friendly error messages
    const errorCode = error && typeof error === 'object' && 'code' in error ? (error as any).code : null
+   const errorMessage = error && typeof error === 'object' && 'message' in error ? (error as any).message : 'Unknown error'
+
+   console.error('[AppleSignIn] ✗ Sign-in failed')
+   console.error('[AppleSignIn] Error code:', errorCode)
+   console.error('[AppleSignIn] Error message:', errorMessage)
+   console.error('[AppleSignIn] Full error:', error)
+
+   // User-friendly error messages with diagnostic info
    switch (errorCode) {
     case 'auth/account-exists-with-different-credential':
-     setError('An account already exists with the same email address but different sign-in credentials.')
+     setError('An account already exists with this email using a different sign-in method. Try signing in with Google or Email instead.')
      break
     case 'auth/auth-domain-config-required':
-     setError('Apple Sign-In is not properly configured. Please contact support.')
+     setError('⚠️ Configuration Error: Apple Sign-In is not properly configured in Firebase. Please contact support with error code: auth-domain-config')
+     console.error('[AppleSignIn] ADMIN ACTION REQUIRED: Check Firebase Console > Authentication > Settings > Authorized domains')
      break
     case 'auth/cancelled-popup-request':
      setError('Sign-in was cancelled. Please try again.')
      break
     case 'auth/operation-not-allowed':
-     setError('Apple Sign-In is not enabled. Please contact support.')
+     setError('⚠️ Configuration Error: Apple Sign-In is disabled. Please contact support with error code: operation-not-allowed')
+     console.error('[AppleSignIn] ADMIN ACTION REQUIRED: Enable Apple provider in Firebase Console > Authentication > Sign-in method')
      break
     case 'auth/popup-blocked':
-     setError('Sign-in popup was blocked by your browser. Please allow popups and try again.')
+     setError('Your browser blocked the sign-in popup. Please allow popups for this site and try again.')
      break
     case 'auth/popup-closed-by-user':
-     setError('Sign-in was cancelled.')
+     setError('Sign-in was cancelled. Please try again.')
      break
     case 'auth/unauthorized-domain':
-     setError('This domain is not authorized for Apple Sign-In.')
+     setError('⚠️ Configuration Error: This domain is not authorized. Please contact support with error code: unauthorized-domain')
+     console.error('[AppleSignIn] ADMIN ACTION REQUIRED: Add domain to Firebase Console > Authentication > Settings > Authorized domains')
+     console.error('[AppleSignIn] Current domain:', window.location.hostname)
+     break
+    case 'auth/network-request-failed':
+     setError('Network error. Please check your internet connection and try again.')
      break
     default:
-     setError('Apple Sign-In failed. Please try again or use a different method.')
+     setError(`Apple Sign-In failed: ${errorMessage || 'Unknown error'}. Please try Google or Email sign-in instead, or contact support.`)
+     console.error('[AppleSignIn] Unhandled error code:', errorCode)
    }
   } finally {
    setIsLoading(false)

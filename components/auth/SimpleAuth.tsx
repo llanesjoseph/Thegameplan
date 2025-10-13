@@ -67,6 +67,8 @@ export default function SimpleAuth() {
   setError(null)
 
   try {
+   console.log('[SimpleAuth:Apple] Starting Apple Sign-In...')
+
    const provider = new OAuthProvider('apple.com')
    provider.addScope('email')
    provider.addScope('name')
@@ -75,7 +77,7 @@ export default function SimpleAuth() {
    const user = result.user
    const isNewUser = (result as any).additionalUserInfo?.isNewUser || false
 
-   console.log('Apple sign-in successful:', user.email, isNewUser ? '(New User)' : '(Returning User)')
+   console.log('[SimpleAuth:Apple] ✓ Sign-in successful:', user.email, isNewUser ? '(New User)' : '(Returning User)')
 
    // Track user signup/login (don't wait - do in background)
    const trackingData = {
@@ -101,8 +103,20 @@ export default function SimpleAuth() {
     }
    })
   } catch (error: any) {
-   console.error('Apple sign-in error:', error)
-   setError(`Apple sign-in failed: ${error.message}`)
+   console.error('[SimpleAuth:Apple] ✗ Sign-in failed')
+   console.error('[SimpleAuth:Apple] Error code:', error.code)
+   console.error('[SimpleAuth:Apple] Error message:', error.message)
+
+   // Provide specific error messages
+   if (error.code === 'auth/operation-not-allowed') {
+    setError('⚠️ Apple Sign-In is not enabled. Please contact support or try Google/Email sign-in.')
+    console.error('[SimpleAuth:Apple] ADMIN ACTION: Enable Apple in Firebase Console')
+   } else if (error.code === 'auth/unauthorized-domain') {
+    setError('⚠️ Domain not authorized. Please contact support or try Google/Email sign-in.')
+    console.error('[SimpleAuth:Apple] ADMIN ACTION: Add domain to Firebase authorized domains')
+   } else {
+    setError(`Apple sign-in failed: ${error.message || 'Unknown error'}. Please try Google or Email instead.`)
+   }
   } finally {
    setIsLoading(false)
   }
