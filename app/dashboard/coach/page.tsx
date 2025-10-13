@@ -12,7 +12,9 @@ import {
   Bell,
   UserCog,
   User,
-  X
+  X,
+  Calendar,
+  MessageSquare
 } from 'lucide-react'
 
 // Responsive iframe component with dynamic height based on content
@@ -78,6 +80,22 @@ export default function CoachDashboard() {
       description: 'Manage your athletes and track progress',
       icon: Users,
       color: '#91A6EB',
+      inline: true
+    },
+    {
+      id: 'video-reviews',
+      title: 'Video Reviews',
+      description: 'Review athlete submitted videos',
+      icon: MessageSquare,
+      color: '#20B2AA',
+      inline: true
+    },
+    {
+      id: 'live-sessions',
+      title: 'Live Sessions',
+      description: 'Manage 1-on-1 coaching requests',
+      icon: Calendar,
+      color: '#16A34A',
       inline: true
     },
     {
@@ -157,6 +175,8 @@ export default function CoachDashboard() {
   const getSectionPath = (sectionId: string) => {
     const pathMap: Record<string, string> = {
       'athletes': '/dashboard/coach/athletes?embedded=true',
+      'video-reviews': '/dashboard/coach/video-reviews?embedded=true',
+      'live-sessions': '/dashboard/coach/live-sessions?embedded=true',
       'lessons': '/dashboard/coach/lessons/library?embedded=true',
       'create-lesson': '/dashboard/coach/lessons/create?embedded=true',
       'invite': '/dashboard/coach/invite?embedded=true',
