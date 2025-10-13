@@ -17,7 +17,8 @@ import {
   Crown,
   Star,
   Shield,
-  UserCheck
+  UserCheck,
+  Home
 } from 'lucide-react'
 
 interface AppHeaderProps {
@@ -189,7 +190,7 @@ export default function AppHeader({ className = '', title, subtitle }: AppHeader
         router.push('/dashboard/coaching')
         break
       case 'athlete':
-        router.push('/dashboard/progress')
+        router.push('/dashboard/athlete')
         break
       case 'user':
         router.push('/dashboard')
@@ -263,6 +264,19 @@ export default function AppHeader({ className = '', title, subtitle }: AppHeader
           >
             AthLeap
           </button>
+
+          {/* Dashboard Home Button - Prominent */}
+          {user && (
+            <button
+              onClick={handleLogoClick}
+              className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-all shadow-sm active:scale-95 touch-manipulation"
+              style={{ minHeight: '44px' }}
+              title="Go to Dashboard"
+            >
+              <Home className="w-5 h-5" />
+              <span className="hidden sm:inline font-medium">Dashboard</span>
+            </button>
+          )}
 
           {title && (
             <div className="border-l border-gray-300 pl-3 sm:pl-6 flex-1 sm:flex-none">
