@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth, adminDb } from '@/lib/firebase.admin'
+import { sendAnnouncementEmail } from '@/lib/email-service'
 
 // GET - List all announcements for a coach
 export async function GET(request: NextRequest) {
@@ -103,10 +104,123 @@ export async function POST(request: NextRequest) {
 
     const announcementRef = await adminDb.collection('announcements').add(announcementData)
 
+    // ============================================
+    // SEND EMAILS TO ATHLETES
+    // ============================================
+
+    console.log(`📧 Sending announcement emails to athletes...`)
+
+    // Get coach name for email
+    const coachName = userData?.displayName || userData?.name || 'Your Coach'
+
+    // Fetch athletes based on audience setting
+    let athletesToNotify: any[] = []
+
+    try {
+      // Get all coach-athlete relationships
+      const relationshipsSnapshot = await adminDb
+        .collection('coachAthleteRelationships')
+        .where('coachUid', '==', uid)
+        .where('status', '==', 'active')
+        .get()
+
+      const athleteUids = relationshipsSnapshot.docs.map(doc => doc.data().athleteUid)
+
+      if (athleteUids.length === 0) {
+        console.log('⚠️  No athletes found for this coach')
+        return NextResponse.json({
+          success: true,
+          announcementId: announcementRef.id,
+          message: 'Announcement created successfully (no athletes to notify)',
+          emailsSent: 0,
+          emailsFailed: 0
+        })
+      }
+
+      console.log(`Found ${athleteUids.length} athletes in coach's roster`)
+
+      // Fetch athlete details
+      const athleteDetailsPromises = athleteUids.map(async (athleteUid) => {
+        const athleteDoc = await adminDb.collection('users').doc(athleteUid).get()
+        if (athleteDoc.exists) {
+          const athleteData = athleteDoc.data()
+          return {
+            uid: athleteUid,
+            email: athleteData?.email,
+            name: athleteData?.displayName || athleteData?.name || 'Athlete',
+            sport: athleteData?.sport || athleteData?.sports?.[0]
+          }
+        }
+        return null
+      })
+
+      const allAthletes = (await Promise.all(athleteDetailsPromises)).filter(a => a !== null && a.email)
+
+      // Filter based on audience setting
+      if (audience === 'all') {
+        athletesToNotify = allAthletes
+      } else if (audience === 'sport' && sport) {
+        athletesToNotify = allAthletes.filter(athlete =>
+          athlete.sport?.toLowerCase() === sport.toLowerCase()
+        )
+      } else {
+        // For now, default to all if audience type is not recognized
+        athletesToNotify = allAthletes
+      }
+
+      console.log(`Filtered to ${athletesToNotify.length} athletes based on audience: ${audience}`)
+
+    } catch (error) {
+      console.error('Error fetching athletes:', error)
+    }
+
+    // Send emails to each athlete
+    let emailsSent = 0
+    let emailsFailed = 0
+    const athleteIdsSent: string[] = []
+
+    for (const athlete of athletesToNotify) {
+      try {
+        const emailResult = await sendAnnouncementEmail({
+          to: athlete.email,
+          athleteName: athlete.name,
+          coachName: coachName,
+          announcementTitle: title,
+          announcementMessage: message,
+          isUrgent: urgent || false
+        })
+
+        if (emailResult.success) {
+          emailsSent++
+          athleteIdsSent.push(athlete.uid)
+          console.log(`✅ Email sent to ${athlete.name} (${athlete.email})`)
+        } else {
+          emailsFailed++
+          console.error(`❌ Failed to send email to ${athlete.name}: ${emailResult.error}`)
+        }
+      } catch (error) {
+        emailsFailed++
+        console.error(`❌ Error sending email to ${athlete.name}:`, error)
+      }
+    }
+
+    // Update announcement document with email stats
+    await announcementRef.update({
+      athleteIds: athleteIdsSent,
+      emailsSent: emailsSent,
+      emailsFailed: emailsFailed,
+      totalRecipients: athletesToNotify.length
+    })
+
+    console.log(`📊 Email Summary: ${emailsSent} sent, ${emailsFailed} failed`)
+
     return NextResponse.json({
       success: true,
       announcementId: announcementRef.id,
-      message: 'Announcement created successfully'
+      message: 'Announcement created and emails sent successfully',
+      emailsSent,
+      emailsFailed,
+      totalRecipients: athletesToNotify.length
     })
   } catch (error: any) {
     console.error('Error creating announcement:', error)

@@ -1,0 +1,501 @@
+═══════════════════════════════════════════════════════════════
+                    MVP TESTING CHECKLIST
+           AthLeap - The Work Before the Win
+═══════════════════════════════════════════════════════════════
+
+Instructions: Test each item one at a time, marking them off as you complete them.
+For any issues found, note the details below the item.
+
+═══════════════════════════════════════════════════════════════
+SECTION 1: AUTHENTICATION & ONBOARDING
+═══════════════════════════════════════════════════════════════
+
+☐ 1. Sign Up - New Coach Account
+   - Navigate to homepage
+   - Click "Sign Up" or "Get Started"
+   - Create account with email/password
+   - Verify email confirmation works
+   - Check Firebase creates user record
+
+☐ 2. Onboarding Flow - Coach
+   - Complete coach profile setup
+   - Add sport specialization
+   - Upload profile photo
+   - Set coaching experience level
+   - Verify profile saves to Firestore
+
+☐ 3. Sign In - Existing User
+   - Sign out completely
+   - Sign back in with credentials
+   - Verify redirect to correct dashboard
+
+☐ 4. Password Reset Flow
+   - Click "Forgot Password"
+   - Enter email
+   - Receive reset email
+   - Successfully reset password
+
+═══════════════════════════════════════════════════════════════
+SECTION 2: COACH LESSON CREATION
+═══════════════════════════════════════════════════════════════
+
+☐ 5. AI Lesson Generation - Football
+   - Navigate to Create Lesson
+   - Select "AI Generate" option
+   - Choose Sport: Football
+   - Choose Level: Intermediate
+   - Enter Topic: "Proper Tackling Technique"
+   - Generate lesson
+   - VERIFY: No martial arts terminology appears
+   - VERIFY: Football-specific language used
+
+☐ 6. AI Lesson Generation - Soccer
+   - Create new AI lesson
+   - Choose Sport: Soccer
+   - Choose Level: Beginner
+   - Enter Topic: "Passing Fundamentals"
+   - Generate lesson
+   - VERIFY: Soccer-specific drills appear
+
+☐ 7. Manual Lesson Creation
+   - Navigate to Create Lesson
+   - Select "Build Manually"
+   - Fill in: Title, Sport, Level, Duration
+   - Add 2-3 learning objectives
+   - Add tags (e.g., "fundamentals", "beginner")
+   - Click "Save Lesson"
+   - Verify saves successfully
+
+☐ 8. Browse Existing Content (NEW FEATURE)
+   - Go to Create Lesson → Build Manually
+   - Fill in Sport and Level first
+   - Click "Browse Existing Content" button
+   - VERIFY: Shows 4 sections:
+     ✓ Your Previous Content
+     ✓ From Other Coaches
+     ✓ AI Suggestions
+     ✓ External Resources (USA Football, US Soccer, etc.)
+   - Try clicking "Insert" on suggested content
+   - VERIFY: Content adds to lesson sections
+
+☐ 9. Add Text Section
+   - Create or edit lesson
+   - Click "Text" section type
+   - Add section title
+   - Write content (instructions/explanations)
+   - Save section
+
+☐ 10. Add Video Section - YouTube
+   - Click "Video" section type
+   - Select "YouTube" as source
+   - Paste YouTube URL
+   - Set duration
+   - VERIFY: Video preview appears
+   - Save section
+
+☐ 11. Add Drill Section
+   - Click "Drill" section type
+   - Add drill title
+   - Write step-by-step instructions
+   - Save section
+
+☐ 12. AI Section Enhancement
+   - Have at least 1 section with basic content
+   - Click "AI Enhance" button on section
+   - VERIFY: AI expands/improves content
+   - VERIFY: Sport-specific language maintained
+
+☐ 13. Reorder Sections
+   - Create lesson with 3+ sections
+   - Use "Move Up" and "Move Down" buttons
+   - VERIFY: Order changes correctly
+
+☐ 14. Delete Section
+   - Click trash icon on a section
+   - VERIFY: Section removes from list
+
+☐ 15. Edit Published Lesson
+   - Go to Lesson Library
+   - Click edit on existing lesson
+   - Make changes
+   - Save
+   - VERIFY: Changes persist
+
+═══════════════════════════════════════════════════════════════
+SECTION 3: ATHLETE INVITATION SYSTEM
+═══════════════════════════════════════════════════════════════
+
+☐ 16. Single Athlete Invitation
+   - Navigate to "Invite Athletes" or "My Athletes"
+   - Click "Invite Single Athlete"
+   - Enter athlete name and email
+   - Send invitation
+   - VERIFY: Invitation appears in "My Athletes" as "pending"
+
+☐ 17. Bulk Athlete Invitations
+   - Navigate to Invite Athletes
+   - Use bulk invite feature
+   - Enter 3-5 athlete emails (comma or line separated)
+   - Send invitations
+   - VERIFY: All appear as pending
+
+☐ 18. View Pending Invitations
+   - Go to "My Athletes" page
+   - VERIFY: Can see all pending invitations
+   - VERIFY: Can click on athlete cards
+   - Test on mobile (if available)
+
+☐ 19. Resend Invitation
+   - Find pending invitation
+   - Click "Resend" button
+   - VERIFY: Success message appears
+
+═══════════════════════════════════════════════════════════════
+SECTION 4: ATHLETE EXPERIENCE
+═══════════════════════════════════════════════════════════════
+
+☐ 20. Athlete Sign Up (Use Different Email)
+   - Sign out of coach account
+   - Create new account as athlete
+   - Complete athlete onboarding
+   - Set sport and position
+
+☐ 21. Accept Coach Invitation
+   - Check email for invitation
+   - Click invitation link
+   - Accept invitation
+   - VERIFY: Coach appears in "My Coaches"
+
+☐ 22. Athlete Dashboard View
+   - Navigate to athlete dashboard (/dashboard/progress)
+   - VERIFY: Can see assigned lessons
+   - VERIFY: Can see progress tracking
+
+☐ 23. View Lesson as Athlete
+   - Click on a lesson
+   - VERIFY: Can read all sections
+   - VERIFY: Videos play correctly
+   - VERIFY: Drills are readable
+
+☐ 24. Complete Lesson Section
+   - Mark section as complete
+   - VERIFY: Progress bar updates
+   - VERIFY: Coach can see completion status
+
+☐ 25. Lesson Feed
+   - Navigate to athlete feed/dashboard
+   - VERIFY: Shows recently assigned lessons
+   - VERIFY: Shows upcoming content
+
+═══════════════════════════════════════════════════════════════
+SECTION 5: MOBILE RESPONSIVENESS (Test on iPhone)
+═══════════════════════════════════════════════════════════════
+
+☐ 26. Mobile - Homepage
+   - Open on iPhone Safari
+   - VERIFY: Layout stacks properly
+   - VERIFY: All buttons are tappable (44px min)
+   - VERIFY: Text is readable without zooming
+
+☐ 27. Mobile - Coach Dashboard
+   - Navigate to /dashboard/coach-unified
+   - VERIFY: Sidebar collapses on mobile
+   - VERIFY: Tool cards are clickable
+   - VERIFY: "Back to Tools" button appears when viewing tool
+
+☐ 28. Mobile - My Athletes Page
+   - Open My Athletes on mobile
+   - VERIFY: Athlete cards stack vertically
+   - VERIFY: Cards are clickable
+   - VERIFY: Touch targets are adequate
+
+☐ 29. Mobile - Lesson Creation
+   - Try creating lesson on mobile
+   - VERIFY: Form fields are usable
+   - VERIFY: Buttons don't overlap
+   - VERIFY: Keyboard doesn't hide inputs
+
+☐ 30. Mobile - Lesson Viewing (Athlete)
+   - View lesson as athlete on mobile
+   - VERIFY: Sections display correctly
+   - VERIFY: Videos are responsive
+   - VERIFY: Can scroll through content
+
+═══════════════════════════════════════════════════════════════
+SECTION 6: COACH DASHBOARD & TOOLS
+═══════════════════════════════════════════════════════════════
+
+☐ 31. Navigate Coach Unified Dashboard
+   - Open /dashboard/coach-unified
+   - VERIFY: See 11 tool cards in sidebar
+   - VERIFY: Order is correct:
+     1. My Athletes
+     2. Create Lesson
+     3. Lesson Library
+     4. Invite Athletes
+     5. Video Manager
+     6. Resource Library
+     7. Analytics
+     8. My Profile
+     9. Announcements
+     10. Assistant Coaches
+     11. Recruit Fellow Coach
+
+☐ 32. Lesson Library
+   - Click "Lesson Library"
+   - VERIFY: Shows all created lessons
+   - VERIFY: Can search/filter lessons
+   - VERIFY: Can edit and delete lessons
+
+☐ 33. Analytics Dashboard
+   - Click "Analytics"
+   - VERIFY: Shows engagement metrics
+   - VERIFY: Shows athlete completion rates
+
+☐ 34. Profile Management
+   - Click "My Profile"
+   - Update profile photo
+   - Update bio/description
+   - Save changes
+   - VERIFY: Changes appear in AppHeader
+
+☐ 35. Announcements
+   - Click "Announcements"
+   - Create test announcement
+   - Send to all athletes
+   - VERIFY: Athletes receive notification
+
+═══════════════════════════════════════════════════════════════
+SECTION 7: FIRESTORE DATA PERSISTENCE
+═══════════════════════════════════════════════════════════════
+
+☐ 36. User Profile Data
+   - Create/update profile
+   - Sign out
+   - Sign back in
+   - VERIFY: Profile data persists
+
+☐ 37. Lesson Data
+   - Create lesson with multiple sections
+   - Sign out
+   - Sign back in
+   - VERIFY: Lesson still exists with all sections
+
+☐ 38. Invitation Data
+   - Send athlete invitation
+   - Sign out
+   - Sign back in
+   - VERIFY: Invitation still shows as pending
+
+☐ 39. Cross-Device Persistence
+   - Create lesson on desktop
+   - Open mobile device
+   - Sign in with same account
+   - VERIFY: Lesson appears on mobile
+
+═══════════════════════════════════════════════════════════════
+SECTION 8: EMAIL DELIVERY
+═══════════════════════════════════════════════════════════════
+
+☐ 40. Welcome Email
+   - Create new account
+   - Check email inbox
+   - VERIFY: Welcome email received
+
+☐ 41. Athlete Invitation Email
+   - Send athlete invitation
+   - Check athlete's email
+   - VERIFY: Invitation email received
+   - VERIFY: Link works correctly
+
+☐ 42. Password Reset Email
+   - Request password reset
+   - Check email
+   - VERIFY: Reset link received
+   - VERIFY: Link works
+
+☐ 43. Announcement Email ✅ NOW IMPLEMENTED
+   - Send announcement to athletes
+   - Check athlete email
+   - VERIFY: Announcement delivered
+   - VERIFY: Urgent vs normal styling works
+   - VERIFY: Sport filtering works
+
+═══════════════════════════════════════════════════════════════
+SECTION 9: ADMIN PANEL (If applicable)
+═══════════════════════════════════════════════════════════════
+
+☐ 44. Admin Dashboard Access
+   - Sign in as admin/superadmin
+   - Navigate to /dashboard/admin
+   - VERIFY: Admin tools visible
+
+☐ 45. User Management
+   - View all users
+   - Edit user role
+   - VERIFY: Role change persists
+
+☐ 46. Coach Applications
+   - Navigate to coach applications
+   - Review pending application
+   - Approve/reject application
+
+☐ 47. Platform Analytics
+   - View platform-wide metrics
+   - VERIFY: User count is accurate
+   - VERIFY: Lesson count is accurate
+
+═══════════════════════════════════════════════════════════════
+SECTION 10: EDGE CASES & ERROR HANDLING
+═══════════════════════════════════════════════════════════════
+
+☐ 48. Create Lesson Without Required Fields
+   - Try to save lesson without title
+   - VERIFY: Validation error appears
+   - VERIFY: Cannot save incomplete lesson
+
+☐ 49. Invalid YouTube URL
+   - Add video section
+   - Enter invalid YouTube URL
+   - VERIFY: Graceful error handling
+
+☐ 50. Duplicate Email Invitation
+   - Invite same athlete twice
+   - VERIFY: System handles duplicate appropriately
+
+☐ 51. Network Error Handling
+   - Turn off internet mid-operation
+   - Try to save lesson
+   - VERIFY: Error message appears
+   - VERIFY: Data doesn't corrupt
+
+☐ 52. Large Content Upload
+   - Create lesson with very long text (5000+ words)
+   - VERIFY: Saves successfully
+   - VERIFY: Displays without performance issues
+
+═══════════════════════════════════════════════════════════════
+SECTION 11: SECURITY & PERMISSIONS
+═══════════════════════════════════════════════════════════════
+
+☐ 53. Unauthorized Access - Coach Pages
+   - Sign out completely
+   - Try to access /dashboard/coach/lessons/create directly
+   - VERIFY: Redirects to login
+
+☐ 54. Unauthorized Access - Admin Pages
+   - Sign in as coach (not admin)
+   - Try to access /dashboard/admin
+   - VERIFY: Access denied or redirected
+
+☐ 55. Cross-User Data Access
+   - Sign in as Coach A
+   - Create private lesson
+   - Sign in as Coach B
+   - VERIFY: Cannot see Coach A's private lesson
+
+☐ 56. API Authentication
+   - Check browser network tab
+   - VERIFY: All API calls include Authorization header
+   - VERIFY: No sensitive data in URL params
+
+═══════════════════════════════════════════════════════════════
+SECTION 12: PERFORMANCE & UX
+═══════════════════════════════════════════════════════════════
+
+☐ 57. Page Load Speed
+   - Clear cache
+   - Load homepage
+   - VERIFY: Loads in under 3 seconds
+
+☐ 58. AI Generation Speed
+   - Create AI lesson
+   - Time the generation process
+   - VERIFY: Completes in reasonable time (under 30 seconds)
+
+☐ 59. Browse Content Modal Performance
+   - Open "Browse Existing Content"
+   - VERIFY: Loads suggestions quickly
+   - VERIFY: Modal is scrollable with many items
+
+☐ 60. Navigation Responsiveness
+   - Click through multiple dashboard tools
+   - VERIFY: Transitions are smooth
+   - VERIFY: No layout shift/flashing
+
+═══════════════════════════════════════════════════════════════
+SECTION 13: DEPLOYMENT TO VERCEL
+═══════════════════════════════════════════════════════════════
+
+☐ 61. Commit All Changes
+   - git add .
+   - git commit -m "MVP ready for testing"
+   - git push origin master
+
+☐ 62. Deploy to Vercel
+   - Push to main branch
+   - VERIFY: Vercel auto-deploys
+   - Check build logs for errors
+
+☐ 63. Production Environment Variables
+   - Verify all env vars set in Vercel
+   - Check Firebase config
+   - Check API keys
+
+☐ 64. Production Smoke Test
+   - Visit production URL
+   - Sign in
+   - Create test lesson
+   - VERIFY: All features work in production
+
+☐ 65. Production Mobile Test
+   - Open production URL on iPhone
+   - Test critical user flows
+   - VERIFY: Mobile experience matches local
+
+═══════════════════════════════════════════════════════════════
+CRITICAL BUGS TO WATCH FOR
+═══════════════════════════════════════════════════════════════
+
+⚠️  Football coaches getting martial arts terminology
+    → FIXED: AI lesson generator now uses sport-specific language
+
+⚠️  My Athletes page not clickable on mobile
+    → FIXED: Touch targets increased to 44px, cards made clickable
+
+⚠️  Browse Existing Content not showing seed items
+    → TESTED: Verify coach's previous lessons appear first
+
+⚠️  Duplicate floating buttons in iframes
+    → FIXED: Check for floating button conflicts
+
+═══════════════════════════════════════════════════════════════
+TESTING NOTES
+═══════════════════════════════════════════════════════════════
+
+Date Started: ___________________
+Tester Name: ___________________
+
+Issues Found:
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+_____________________________________________________________
+
+Success Criteria for MVP Launch:
+☐ All authentication flows work
+☐ Coaches can create lessons with AI or manually
+☐ Coaches can browse and reuse existing content
+☐ Athletes can view and complete lessons
+☐ Invitation system works (single + bulk)
+☐ Mobile experience is smooth on iPhone
+☐ No critical bugs in production
+☐ Email delivery confirmed
+
+═══════════════════════════════════════════════════════════════
+END OF CHECKLIST - Good luck testing! 🚀
+═══════════════════════════════════════════════════════════════

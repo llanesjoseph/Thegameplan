@@ -25,7 +25,9 @@ import {
   ChevronRight,
   CheckCircle2,
   Target,
-  BookOpen
+  BookOpen,
+  Users,
+  User as UserIcon
 } from 'lucide-react'
 
 interface LessonSection {
@@ -66,6 +68,9 @@ function CreateLessonPageContent() {
   const [currentObjective, setCurrentObjective] = useState('')
   const [currentTag, setCurrentTag] = useState('')
   const [creationMethod, setCreationMethod] = useState<'choose' | 'ai' | 'manual'>('choose')
+  const [showContentSuggestionsModal, setShowContentSuggestionsModal] = useState(false)
+  const [contentSuggestions, setContentSuggestions] = useState<any>(null)
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false)
 
   const [lesson, setLesson] = useState<LessonForm>({
     title: '',
@@ -362,6 +367,76 @@ function CreateLessonPageContent() {
     } finally {
       setGenerating(false)
     }
+  }
+
+  // Browse existing content suggestions
+  const browseExistingContent = async () => {
+    if (!lesson.sport) {
+      alert('Please select a sport first')
+      return
+    }
+
+    if (!user) {
+      alert('Please log in to browse content')
+      return
+    }
+
+    setLoadingSuggestions(true)
+    setShowContentSuggestionsModal(true)
+
+    try {
+      const token = await user.getIdToken()
+
+      const response = await fetch('/api/coach/suggest-content', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          sport: lesson.sport,
+          topic: lesson.title || 'training',
+          level: lesson.level || 'intermediate',
+          contentType: undefined // Get all types
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || 'Failed to fetch content suggestions')
+      }
+
+      const data = await response.json()
+      setContentSuggestions(data.suggestions)
+    } catch (error: any) {
+      console.error('Error fetching content suggestions:', error)
+      alert(error instanceof Error ? error.message : 'Failed to fetch content suggestions')
+      setShowContentSuggestionsModal(false)
+    } finally {
+      setLoadingSuggestions(false)
+    }
+  }
+
+  // Insert suggested content as a new section
+  const insertSuggestedContent = (suggestion: any) => {
+    const newSection: LessonSection = {
+      id: `section-${Date.now()}`,
+      title: suggestion.title || '',
+      type: suggestion.type || 'text',
+      content: suggestion.content || '',
+      order: lesson.sections.length,
+      duration: suggestion.duration || 0,
+      videoUrl: suggestion.videoUrl,
+      videoSource: suggestion.videoSource
+    }
+
+    setLesson(prev => ({
+      ...prev,
+      sections: [...prev.sections, newSection]
+    }))
+
+    setShowContentSuggestionsModal(false)
+    alert('Content added to your lesson!')
   }
 
   // Save lesson
@@ -740,6 +815,216 @@ function CreateLessonPageContent() {
           </div>
         )}
 
+        {/* Content Suggestions Modal */}
+        {showContentSuggestionsModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+            <div className="bg-white rounded-xl shadow-2xl max-w-5xl w-full p-6 sm:p-8 my-8 max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between mb-6 sticky top-0 bg-white pb-4 border-b">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
+                    <BookOpen className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-medium" style={{ color: '#000000' }}>Browse Existing Content</h2>
+                    <p className="text-sm" style={{ color: '#000000', opacity: 0.6 }}>
+                      {lesson.sport ? `${lesson.sport.charAt(0).toUpperCase() + lesson.sport.slice(1)} training content` : 'Training content'}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowContentSuggestionsModal(false)}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  disabled={loadingSuggestions}
+                >
+                  <span className="text-2xl">&times;</span>
+                </button>
+              </div>
+
+              {loadingSuggestions ? (
+                <div className="text-center py-12">
+                  <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mb-4"></div>
+                  <p style={{ color: '#000000', opacity: 0.7 }}>Searching for relevant content...</p>
+                </div>
+              ) : contentSuggestions ? (
+                <div className="space-y-6">
+                  {/* My Content Section */}
+                  {contentSuggestions.myContent && contentSuggestions.myContent.length > 0 && (
+                    <div>
+                      <div className="flex items-center gap-2 mb-4">
+                        <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                          <UserIcon className="w-5 h-5 text-blue-600" />
+                        </div>
+                        <h3 className="text-lg font-medium" style={{ color: '#000000' }}>
+                          Your Previous Content ({contentSuggestions.myContent.length})
+                        </h3>
+                      </div>
+                      <div className="grid grid-cols-1 gap-3">
+                        {contentSuggestions.myContent.map((item: any, idx: number) => (
+                          <div key={idx} className="bg-blue-50 border border-blue-200 rounded-lg p-4 hover:bg-blue-100 transition-colors">
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <span className="text-xs px-2 py-1 bg-blue-200 text-blue-800 rounded-full font-medium capitalize">
+                                    {item.type}
+                                  </span>
+                                  {item.source === 'previous_lesson' && (
+                                    <span className="text-xs text-blue-600">From: {item.lessonTitle}</span>
+                                  )}
+                                </div>
+                                <h4 className="font-medium mb-1" style={{ color: '#000000' }}>{item.title}</h4>
+                                <p className="text-sm line-clamp-2" style={{ color: '#000000', opacity: 0.7 }}>
+                                  {item.content?.substring(0, 150)}...
+                                </p>
+                              </div>
+                              <button
+                                onClick={() => insertSuggestedContent(item)}
+                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium whitespace-nowrap"
+                              >
+                                Insert
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Platform Content Section */}
+                  {contentSuggestions.platformContent && contentSuggestions.platformContent.length > 0 && (
+                    <div>
+                      <div className="flex items-center gap-2 mb-4">
+                        <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                          <Users className="w-5 h-5 text-purple-600" />
+                        </div>
+                        <h3 className="text-lg font-medium" style={{ color: '#000000' }}>
+                          From Other Coaches ({contentSuggestions.platformContent.length})
+                        </h3>
+                      </div>
+                      <div className="grid grid-cols-1 gap-3">
+                        {contentSuggestions.platformContent.map((item: any, idx: number) => (
+                          <div key={idx} className="bg-purple-50 border border-purple-200 rounded-lg p-4 hover:bg-purple-100 transition-colors">
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <span className="text-xs px-2 py-1 bg-purple-200 text-purple-800 rounded-full font-medium capitalize">
+                                    {item.type}
+                                  </span>
+                                  <span className="text-xs text-purple-600">By: {item.creatorName}</span>
+                                </div>
+                                <h4 className="font-medium mb-1" style={{ color: '#000000' }}>{item.title}</h4>
+                                <p className="text-sm line-clamp-2" style={{ color: '#000000', opacity: 0.7 }}>
+                                  {item.content?.substring(0, 150)}...
+                                </p>
+                              </div>
+                              <button
+                                onClick={() => insertSuggestedContent(item)}
+                                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium whitespace-nowrap"
+                              >
+                                Insert
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* AI Generated Suggestions */}
+                  {contentSuggestions.aiGenerated && contentSuggestions.aiGenerated.length > 0 && (
+                    <div>
+                      <div className="flex items-center gap-2 mb-4">
+                        <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-blue-600 rounded-lg flex items-center justify-center">
+                          <Sparkles className="w-5 h-5 text-white" />
+                        </div>
+                        <h3 className="text-lg font-medium" style={{ color: '#000000' }}>
+                          AI Suggestions ({contentSuggestions.aiGenerated.length})
+                        </h3>
+                      </div>
+                      <div className="grid grid-cols-1 gap-3">
+                        {contentSuggestions.aiGenerated.map((item: any, idx: number) => (
+                          <div key={idx} className="bg-gradient-to-br from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-4 hover:from-purple-100 hover:to-blue-100 transition-colors">
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <span className="text-xs px-2 py-1 bg-purple-200 text-purple-800 rounded-full font-medium capitalize">
+                                    {item.type}
+                                  </span>
+                                  <span className="text-xs text-purple-600">AI Generated</span>
+                                </div>
+                                <h4 className="font-medium mb-1" style={{ color: '#000000' }}>{item.title}</h4>
+                                <p className="text-sm line-clamp-2" style={{ color: '#000000', opacity: 0.7 }}>
+                                  {item.content?.substring(0, 150)}...
+                                </p>
+                              </div>
+                              <button
+                                onClick={() => insertSuggestedContent(item)}
+                                className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-colors text-sm font-medium whitespace-nowrap"
+                              >
+                                Insert
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* External Resources */}
+                  {contentSuggestions.externalLinks && contentSuggestions.externalLinks.length > 0 && (
+                    <div>
+                      <div className="flex items-center gap-2 mb-4">
+                        <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                          <LinkIcon className="w-5 h-5 text-orange-600" />
+                        </div>
+                        <h3 className="text-lg font-medium" style={{ color: '#000000' }}>
+                          External Resources ({contentSuggestions.externalLinks.length})
+                        </h3>
+                      </div>
+                      <div className="grid grid-cols-1 gap-3">
+                        {contentSuggestions.externalLinks.map((link: any, idx: number) => (
+                          <a
+                            key={idx}
+                            href={link.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="bg-orange-50 border border-orange-200 rounded-lg p-4 hover:bg-orange-100 transition-colors block"
+                          >
+                            <div className="flex items-center justify-between gap-3">
+                              <div className="flex-1">
+                                <h4 className="font-medium mb-1 flex items-center gap-2" style={{ color: '#000000' }}>
+                                  {link.title}
+                                  <ChevronRight className="w-4 h-4" />
+                                </h4>
+                                <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>
+                                  {link.description}
+                                </p>
+                              </div>
+                            </div>
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Empty State */}
+                  {(!contentSuggestions.myContent || contentSuggestions.myContent.length === 0) &&
+                   (!contentSuggestions.platformContent || contentSuggestions.platformContent.length === 0) &&
+                   (!contentSuggestions.aiGenerated || contentSuggestions.aiGenerated.length === 0) &&
+                   (!contentSuggestions.externalLinks || contentSuggestions.externalLinks.length === 0) && (
+                    <div className="text-center py-12">
+                      <BookOpen className="w-16 h-16 mx-auto mb-4" style={{ color: '#000000', opacity: 0.3 }} />
+                      <p className="text-lg mb-2" style={{ color: '#000000', opacity: 0.5 }}>No content found</p>
+                      <p className="text-sm" style={{ color: '#000000', opacity: 0.4 }}>
+                        Try creating content manually or use AI generation
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ) : null}
+            </div>
+          </div>
+        )}
+
         {/* Manual Creation Form */}
         {creationMethod === 'manual' && (
           <div className="space-y-6">
@@ -1004,6 +1289,27 @@ function CreateLessonPageContent() {
                     </p>
                   </div>
                 </div>
+              </div>
+
+              {/* Browse Existing Content Button */}
+              <div className="mb-6">
+                <button
+                  onClick={browseExistingContent}
+                  disabled={!lesson.sport}
+                  className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl p-4 hover:from-green-600 hover:to-emerald-700 transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-3 shadow-lg"
+                >
+                  <BookOpen className="w-6 h-6" />
+                  <div className="text-left">
+                    <h3 className="font-medium text-base">Browse Existing Content</h3>
+                    <p className="text-xs text-white/80">Use your previous lessons, platform content, or get AI suggestions</p>
+                  </div>
+                  <ChevronRight className="w-5 h-5 ml-auto" />
+                </button>
+                {!lesson.sport && (
+                  <p className="text-xs mt-2 text-center" style={{ color: '#000000', opacity: 0.5 }}>
+                    Select a sport first to browse existing content
+                  </p>
+                )}
               </div>
 
               {/* Section Type Buttons */}
