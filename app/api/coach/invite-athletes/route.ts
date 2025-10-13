@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { sendAthleteInvitationEmail, sendCoachNotificationEmail, getAdminEmails, sendAdminNotificationEmail } from '@/lib/email-service'
 import { auth, adminDb } from '@/lib/firebase.admin'
+import { Timestamp } from 'firebase-admin/firestore'
 
 interface AthleteInvite {
   email: string
@@ -169,8 +170,8 @@ export async function POST(request: NextRequest) {
           qrCodeUrl,
           status: 'pending',
           role: 'athlete', // CRITICAL: Store the target role
-          createdAt: adminDb.Timestamp.now(),
-          expiresAt: adminDb.Timestamp.fromDate(expirationDate),
+          createdAt: Timestamp.now(),
+          expiresAt: Timestamp.fromDate(expirationDate),
           type: 'athlete_invitation',
           used: false
         }
