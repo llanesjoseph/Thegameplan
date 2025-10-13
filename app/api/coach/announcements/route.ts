@@ -35,14 +35,20 @@ export async function GET(request: NextRequest) {
     const announcementsSnapshot = await adminDb
       .collection('announcements')
       .where('creatorUid', '==', uid)
-      .orderBy('sentAt', 'desc')
       .get()
 
-    const announcements = announcementsSnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-      sentAt: doc.data().sentAt?.toDate?.()?.toISOString() || null
-    }))
+    const announcements = announcementsSnapshot.docs
+      .map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        sentAt: doc.data().sentAt?.toDate?.()?.toISOString() || null
+      }))
+      .sort((a, b) => {
+        // Sort by sentAt descending (newest first)
+        const dateA = a.sentAt ? new Date(a.sentAt).getTime() : 0
+        const dateB = b.sentAt ? new Date(b.sentAt).getTime() : 0
+        return dateB - dateA
+      })
 
     return NextResponse.json({ success: true, announcements, count: announcements.length })
   } catch (error: any) {
