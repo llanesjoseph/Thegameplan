@@ -60,6 +60,9 @@ function CreateLessonPageContent() {
   const [generating, setGenerating] = useState(false)
   const [showAIModal, setShowAIModal] = useState(false)
   const [aiPrompt, setAiPrompt] = useState('')
+  const [aiTopic, setAiTopic] = useState('')
+  const [aiSport, setAiSport] = useState('')
+  const [aiLevel, setAiLevel] = useState<'beginner' | 'intermediate' | 'advanced' | ''>('')
   const [currentObjective, setCurrentObjective] = useState('')
   const [currentTag, setCurrentTag] = useState('')
   const [creationMethod, setCreationMethod] = useState<'choose' | 'ai' | 'manual'>('choose')
@@ -168,8 +171,18 @@ function CreateLessonPageContent() {
 
   // Generate lesson with AI
   const handleAIGenerate = async () => {
-    if (!aiPrompt.trim()) {
-      alert('Please describe what lesson you want to create')
+    if (!aiSport) {
+      alert('Please select a sport')
+      return
+    }
+
+    if (!aiLevel) {
+      alert('Please select a skill level')
+      return
+    }
+
+    if (!aiTopic.trim()) {
+      alert('Please enter a topic for your lesson')
       return
     }
 
@@ -193,9 +206,9 @@ function CreateLessonPageContent() {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          prompt: aiPrompt,
-          sport: lesson.sport || 'general',
-          level: lesson.level || 'intermediate',
+          prompt: aiPrompt.trim() || `Create a lesson about ${aiTopic}`,
+          sport: aiSport,
+          level: aiLevel,
           coachId: user.uid
         })
       })
@@ -231,6 +244,9 @@ function CreateLessonPageContent() {
 
         setShowAIModal(false)
         setAiPrompt('')
+        setAiTopic('')
+        setAiSport('')
+        setAiLevel('')
         setCreationMethod('manual') // Switch to manual mode so they can edit
         alert('AI lesson generated! Review and edit as needed before saving.')
       }
@@ -611,23 +627,92 @@ function CreateLessonPageContent() {
                 </button>
               </div>
 
-              <p className="mb-4 text-sm leading-relaxed" style={{ color: '#000000', opacity: 0.7 }}>
-                Describe the lesson you want to create in detail. Include the topic, key concepts, and what you want athletes to learn. The more specific you are, the better the AI can generate your lesson.
+              <p className="mb-6 text-sm leading-relaxed" style={{ color: '#000000', opacity: 0.7 }}>
+                Fill in the details below and our AI will create a complete lesson plan with sections, objectives, and training content.
               </p>
 
-              <textarea
-                value={aiPrompt}
-                onChange={(e) => setAiPrompt(e.target.value)}
-                placeholder="Example: Create a beginner baseball lesson about proper batting stance and swing mechanics. Include warm-up drills, step-by-step technique breakdown with key focus points, common mistakes to avoid, and practice exercises that athletes can do at home."
-                rows={8}
-                className="w-full px-4 py-3 border-2 border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 mb-6 text-sm"
-                disabled={generating}
-              />
+              <div className="space-y-4 mb-6">
+                {/* Sport Selection */}
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
+                    Sport <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    value={aiSport}
+                    onChange={(e) => setAiSport(e.target.value)}
+                    className="w-full px-4 py-3 border-2 border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                    disabled={generating}
+                  >
+                    <option value="">Select sport...</option>
+                    <option value="baseball">Baseball</option>
+                    <option value="basketball">Basketball</option>
+                    <option value="bjj">Brazilian Jiu-Jitsu (BJJ)</option>
+                    <option value="football">Football</option>
+                    <option value="soccer">Soccer</option>
+                    <option value="softball">Softball</option>
+                    <option value="volleyball">Volleyball</option>
+                    <option value="wrestling">Wrestling</option>
+                    <option value="mma">MMA</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+
+                {/* Skill Level Selection */}
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
+                    Skill Level <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    value={aiLevel}
+                    onChange={(e) => setAiLevel(e.target.value as any)}
+                    className="w-full px-4 py-3 border-2 border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                    disabled={generating}
+                  >
+                    <option value="">Select level...</option>
+                    <option value="beginner">Beginner</option>
+                    <option value="intermediate">Intermediate</option>
+                    <option value="advanced">Advanced</option>
+                  </select>
+                </div>
+
+                {/* Lesson Topic */}
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
+                    Lesson Topic <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={aiTopic}
+                    onChange={(e) => setAiTopic(e.target.value)}
+                    placeholder="e.g., Proper Batting Stance and Swing Mechanics"
+                    className="w-full px-4 py-3 border-2 border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                    disabled={generating}
+                  />
+                </div>
+
+                {/* Detailed Description (Optional) */}
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
+                    Additional Details (Optional)
+                  </label>
+                  <textarea
+                    value={aiPrompt}
+                    onChange={(e) => setAiPrompt(e.target.value)}
+                    placeholder="Add any specific requirements, drills, key focus points, or teaching methods you want to include..."
+                    rows={4}
+                    className="w-full px-4 py-3 border-2 border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 text-sm"
+                    disabled={generating}
+                  />
+                  <p className="text-xs mt-2" style={{ color: '#000000', opacity: 0.5 }}>
+                    The more details you provide, the better the AI-generated lesson will be
+                  </p>
+                </div>
+              </div>
 
               <div className="flex gap-3">
                 <button
                   onClick={handleAIGenerate}
-                  disabled={generating || !aiPrompt.trim()}
+                  disabled={generating || !aiSport || !aiLevel || !aiTopic.trim()}
                   className="flex-1 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-medium"
                 >
                   {generating ? (
