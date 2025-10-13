@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { Bug, Send, X, Loader2 } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 
@@ -12,11 +13,18 @@ interface ConsoleLog {
 
 export default function BugReportButton() {
   const { user } = useAuth()
+  const searchParams = useSearchParams()
   const [isOpen, setIsOpen] = useState(false)
   const [description, setDescription] = useState('')
   const [sending, setSending] = useState(false)
   const [consoleLogs, setConsoleLogs] = useState<ConsoleLog[]>([])
   const consoleLogsRef = useRef<ConsoleLog[]>([])
+
+  // Don't render in embedded iframes
+  const isEmbedded = searchParams.get('embedded') === 'true'
+  if (isEmbedded) {
+    return null
+  }
 
   // Capture console logs
   useEffect(() => {

@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import {
  Play,
  Pause,
@@ -21,8 +22,15 @@ interface UploadManagerProps {
 }
 
 export default function UploadManager({ onUploadComplete, className = '' }: UploadManagerProps) {
+ const searchParams = useSearchParams()
  const [uploads, setUploads] = useState<UploadState[]>([])
  const [isMinimized, setIsMinimized] = useState(false)
+
+ // Don't render in embedded iframes
+ const isEmbedded = searchParams.get('embedded') === 'true'
+ if (isEmbedded) {
+  return null
+ }
 
  useEffect(() => {
   // Load existing uploads
