@@ -310,6 +310,20 @@ export default function AdminOnboardingPage({ params }: { params: { code: string
             </ul>
           </div>
 
+          {/* Terms Agreement - Must be checked before proceeding */}
+          <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg mb-6 border border-gray-200">
+            <input
+              type="checkbox"
+              id="agreeToTerms"
+              checked={formData.agreeToTerms}
+              onChange={(e) => setFormData(prev => ({ ...prev, agreeToTerms: e.target.checked }))}
+              className="mt-1"
+            />
+            <label htmlFor="agreeToTerms" className="text-sm text-gray-700">
+              I agree to the Terms of Service and Privacy Policy. I understand my responsibilities as a platform administrator and will use my access appropriately.
+            </label>
+          </div>
+
           {/* Google Sign-In Option */}
           <div className="mb-6">
             <button
@@ -388,20 +402,6 @@ export default function AdminOnboardingPage({ params }: { params: { code: string
                 required
                 minLength={8}
               />
-            </div>
-
-            <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
-              <input
-                type="checkbox"
-                id="agreeToTerms"
-                checked={formData.agreeToTerms}
-                onChange={(e) => setFormData(prev => ({ ...prev, agreeToTerms: e.target.checked }))}
-                className="mt-1"
-                required
-              />
-              <label htmlFor="agreeToTerms" className="text-sm text-gray-700">
-                I agree to the Terms of Service and Privacy Policy. I understand my responsibilities as a platform administrator and will use my access appropriately.
-              </label>
             </div>
 
             {error && (
