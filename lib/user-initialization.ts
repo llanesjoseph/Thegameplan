@@ -147,45 +147,13 @@ export async function initializeUserDocument(user: FirebaseUser | null, defaultR
         return userData
       }
 
-      // Check if this is a known coach who needs role correction
-      let roleNeedsUpdate = false
-      let correctRole: UserRole = userData.role
+      // REMOVED: Auto-correction logic that was causing role changes
+      // All roles are now managed via:
+      // 1. Invitation system (invitationRole field)
+      // 2. Cloud Functions (server-side enforcement)
+      // 3. Manual admin actions via API
 
-      // Only apply auto-corrections to 'user' role and for known coaches
-      if (!isSuperadmin(user.email)) {
-        // PRIORITY 1: Check if known coach and needs correction
-        if (user.email && isKnownCoach(user.email)) {
-          const shouldBeRole = getKnownCoachRole(user.email)
-          if (shouldBeRole && userData.role !== shouldBeRole) {
-            correctRole = shouldBeRole
-            roleNeedsUpdate = true
-            console.log(`🚨 ROLE CORRECTION: ${user.email} should be ${shouldBeRole}, currently ${userData.role}`)
-          }
-        }
-        // PRIORITY 2: Upgrade 'user' to 'athlete' ONLY if NOT a known coach
-        else if (userData.role === 'user') {
-          correctRole = 'athlete'
-          roleNeedsUpdate = true
-          console.log(`🔄 ROLE UPGRADE: Upgrading ${user.email} from '${userData.role}' to 'athlete'`)
-        }
-      }
-
-      // Only update Firestore if role actually needs to change
-      if (roleNeedsUpdate) {
-        try {
-          await setDoc(userDocRef, {
-            ...userData,
-            role: correctRole,
-            roleUpdatedAt: Timestamp.now(),
-            roleUpdateReason: 'Known coach auto-correction'
-          }, { merge: true })
-
-          console.log(`✅ ROLE CORRECTED: ${user.email} updated from ${userData.role} to ${correctRole}`)
-        } catch (updateError) {
-          // Gracefully handle permission errors - user doc exists, that's what matters
-          console.warn('Could not update user document (non-critical):', updateError)
-        }
-      }
+      console.log(`✅ User ${user.email} role '${userData.role}' preserved - no client-side auto-corrections`)
 
       // Handle Jasmine onboarding if needed
       if (user.email) {
@@ -196,10 +164,10 @@ export async function initializeUserDocument(user: FirebaseUser | null, defaultR
         }
       }
 
-      return { ...userData, role: correctRole }
+      return userData
     } else {
       // Create new user document with comprehensive data
-      // Check role priority: superadmin > pending invitation > known coach > default
+      // Check role priority: superadmin > pending invitation > default
       let initialRole = defaultRole
       let roleSource = 'default'
 
@@ -208,16 +176,15 @@ export async function initializeUserDocument(user: FirebaseUser | null, defaultR
         roleSource = 'superadmin'
         console.log(`✨ SUPERADMIN DETECTED: Setting ${user.email} to superadmin role`)
       } else {
-        // Check for pending invitation first
+        // Check for pending invitation - this is now the ONLY way roles are set
         const invitationRole = await checkPendingInvitation(user.email)
         if (invitationRole) {
           initialRole = invitationRole
           roleSource = 'invitation'
           console.log(`✨ PENDING INVITATION DETECTED: Setting ${user.email} to ${initialRole} role from invitation`)
-        } else if (user.email && isKnownCoach(user.email)) {
-          initialRole = getKnownCoachRole(user.email) || defaultRole
-          roleSource = 'known_coach'
-          console.log(`✨ KNOWN COACH DETECTED: Setting ${user.email} to ${initialRole} role`)
+        } else {
+          // No invitation found - use default role (coach)
+          console.log(`📋 NO INVITATION: ${user.email} will use default role '${defaultRole}'`)
         }
       }
 
@@ -230,8 +197,8 @@ export async function initializeUserDocument(user: FirebaseUser | null, defaultR
         lastLoginAt: Timestamp.now()
       }
 
-      // CRITICAL: Protect roles from invitations and known mappings
-      if (roleSource === 'invitation' || roleSource === 'known_coach' || roleSource === 'superadmin') {
+      // CRITICAL: Protect roles from invitations and superadmin
+      if (roleSource === 'invitation' || roleSource === 'superadmin') {
         newUserData.manuallySetRole = true
         newUserData.roleProtected = true
         newUserData.roleSource = roleSource
