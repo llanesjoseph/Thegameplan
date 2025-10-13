@@ -154,8 +154,9 @@ export async function POST(request: NextRequest) {
 
     console.log(`Setting user role: ${userDocData.role} (existing: ${existingUserData?.role}, shouldPreserve: ${shouldPreserveRole})`)
 
-    // Only set createdAt if this is a new user
-    if (!existingUserDoc.exists) {
+    // Set createdAt if this is a new user OR if it doesn't exist
+    // This ensures all users appear in admin panel queries that order by createdAt
+    if (!existingUserDoc.exists || !existingUserData?.createdAt) {
       userDocData.createdAt = now
     }
 
