@@ -2,17 +2,31 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
   try {
-    const { title, description, sport, existingContent } = await request.json()
+    const { title, description, sport, existingContent, contentType, level, topic } = await request.json()
 
-    if (!title || !description) {
+    // Support both old format (title/description) and new format (contentType/topic/level)
+    const lessonTitle = title || topic || 'General Training'
+    const lessonDescription = description || `Training session for ${sport}`
+    const lessonSport = sport
+
+    if (!lessonSport) {
       return NextResponse.json(
-        { error: 'Title and description are required' },
+        { error: 'Sport is required' },
         { status: 400 }
       )
     }
 
+    // If contentType is 'objectives', generate objectives specifically
+    if (contentType === 'objectives') {
+      const objectives = generateObjectives(lessonSport, level, lessonTitle)
+      return NextResponse.json({
+        success: true,
+        objectives
+      })
+    }
+
     // Generate comprehensive lesson content using AI
-    const lessonContent = await generateLessonContent(title, description, sport, existingContent)
+    const lessonContent = await generateLessonContent(lessonTitle, lessonDescription, lessonSport, existingContent)
 
     return NextResponse.json({
       success: true,
@@ -26,6 +40,22 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
+}
+
+function generateObjectives(sport: string, level: string, topic: string) {
+  const sportInfo = getSportSpecificInfo(sport)
+
+  // Generate level-appropriate objectives
+  const levelPrefix = level === 'beginner' ? 'Learn and practice' :
+                     level === 'intermediate' ? 'Master and apply' :
+                     'Refine and perfect'
+
+  return [
+    `${levelPrefix} fundamental ${topic.toLowerCase()} techniques in ${sportInfo.name}`,
+    `Demonstrate proper form and technique during ${topic.toLowerCase()} drills`,
+    `Apply ${topic.toLowerCase()} skills in realistic game scenarios`,
+    `Understand the strategic importance of ${topic.toLowerCase()} in ${sportInfo.name}`
+  ]
 }
 
 async function generateLessonContent(title: string, description: string, sport: string, existingContent: string = '') {
@@ -253,6 +283,86 @@ function getSportSpecificInfo(sport: string) {
         'Clear communication during scrimmages',
         'Controlled contact, avoid unnecessary fouls',
         'Stay aware of other players and court boundaries'
+      ]
+    },
+    'football': {
+      name: 'Football',
+      equipment: ['Football', 'Helmet', 'Pads', 'Cleats', 'Cones', 'Blocking sleds'],
+      techniques: ['Blocking', 'Tackling', 'Catching', 'Route running', 'Passing', 'Footwork'],
+      terminology: ['Down', 'Blitz', 'Play action', 'Screen pass', 'Zone coverage', 'Man coverage'],
+      warmup: ['Dynamic stretching', 'Agility ladder', 'Position-specific drills', 'Light catching'],
+      objectives: [
+        'Execute proper tackling technique with head safety',
+        'Demonstrate effective blocking form and footwork',
+        'Apply route running concepts with proper timing',
+        'Show improved catching technique and hand-eye coordination'
+      ],
+      prerequisites: 'Understanding of basic positions, proper equipment fitting, cardiovascular fitness',
+      safetyNotes: [
+        'Proper helmet and pad fitting mandatory',
+        'Practice proper tackling technique to avoid head injuries',
+        'Clear communication during contact drills',
+        'Stay hydrated and recognize heat exhaustion signs'
+      ]
+    },
+    'baseball': {
+      name: 'Baseball',
+      equipment: ['Baseball', 'Glove', 'Bat', 'Helmet', 'Bases', 'Batting tee'],
+      techniques: ['Hitting', 'Pitching', 'Fielding', 'Base running', 'Throwing', 'Catching'],
+      terminology: ['Fastball', 'Curve', 'Slider', 'Bunt', 'Double play', 'Stolen base'],
+      warmup: ['Arm circles', 'Light toss', 'Base running', 'Soft ground balls'],
+      objectives: [
+        'Execute proper batting stance and swing mechanics',
+        'Demonstrate correct throwing and catching form',
+        'Apply fundamental fielding techniques',
+        'Show improved pitching mechanics and control'
+      ],
+      prerequisites: 'Basic throwing ability, understanding of field positions, hand-eye coordination',
+      safetyNotes: [
+        'Proper helmet usage when batting',
+        'Clear communication on fly balls',
+        'Watch for wild pitches and foul balls',
+        'Proper sliding technique to avoid injuries'
+      ]
+    },
+    'volleyball': {
+      name: 'Volleyball',
+      equipment: ['Volleyball', 'Net', 'Court', 'Knee pads', 'Ankle braces'],
+      techniques: ['Serving', 'Passing', 'Setting', 'Hitting', 'Blocking', 'Digging'],
+      terminology: ['Ace', 'Kill', 'Dig', 'Set', 'Rotation', 'Libero'],
+      warmup: ['Light jogging', 'Shoulder circles', 'Passing pairs', 'Setting practice'],
+      objectives: [
+        'Execute consistent overhand serves with accuracy',
+        'Demonstrate proper passing platform and form',
+        'Apply effective hitting approach and arm swing',
+        'Show improved defensive positioning and digging'
+      ],
+      prerequisites: 'Basic hand-eye coordination, understanding of court positions, jumping ability',
+      safetyNotes: [
+        'Proper knee pad usage recommended',
+        'Clear communication to avoid collisions',
+        'Watch for net contact violations',
+        'Maintain awareness of other players'
+      ]
+    },
+    'tennis': {
+      name: 'Tennis',
+      equipment: ['Tennis racquet', 'Tennis balls', 'Court', 'Net', 'Ball hopper'],
+      techniques: ['Forehand', 'Backhand', 'Serve', 'Volley', 'Overhead', 'Footwork'],
+      terminology: ['Ace', 'Deuce', 'Love', 'Rally', 'Topspin', 'Slice'],
+      warmup: ['Light jogging', 'Arm circles', 'Shadow swings', 'Mini tennis'],
+      objectives: [
+        'Execute consistent groundstrokes with proper form',
+        'Demonstrate effective serve technique and placement',
+        'Apply net play fundamentals with volleys and overheads',
+        'Show improved court positioning and movement'
+      ],
+      prerequisites: 'Basic racquet grip, understanding of court boundaries, cardiovascular fitness',
+      safetyNotes: [
+        'Proper court shoes to prevent slipping',
+        'Stay hydrated especially in hot weather',
+        'Clear balls from court to prevent tripping',
+        'Communicate during doubles play'
       ]
     }
   }
