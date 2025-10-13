@@ -8,7 +8,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
-import { BookOpen, CheckCircle2, Circle, Clock, User } from 'lucide-react'
+import { BookOpen, CheckCircle2, Circle, Clock, User, RefreshCw } from 'lucide-react'
 import AppHeader from '@/components/ui/AppHeader'
 import LessonOverlay from '@/components/LessonOverlay'
 
@@ -51,6 +51,7 @@ export default function AthleteLessonsPage() {
   const [processingLesson, setProcessingLesson] = useState<string | null>(null)
   const [isInIframe, setIsInIframe] = useState(false)
   const [selectedLessonId, setSelectedLessonId] = useState<string | null>(null)
+  const [syncing, setSyncing] = useState(false)
 
   // Detect if page is loaded in iframe (check URL param or window)
   useEffect(() => {
@@ -151,6 +152,53 @@ export default function AthleteLessonsPage() {
     }
   }
 
+  // Sync lessons from coach
+  const syncLessons = async () => {
+    if (!user || syncing) return
+
+    setSyncing(true)
+
+    try {
+      const token = await user.getIdToken()
+
+      const response = await fetch('/api/athlete/sync-lessons', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to sync lessons')
+      }
+
+      const data = await response.json()
+
+      if (data.success) {
+        // Reload the feed after sync
+        const feedResponse = await fetch('/api/athlete/feed', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+
+        if (feedResponse.ok) {
+          const feedData = await feedResponse.json()
+          if (feedData.success) {
+            setFeed(feedData.feed)
+            setLessons(feedData.lessons || [])
+            alert(`✅ ${data.message}`)
+          }
+        }
+      }
+    } catch (err: any) {
+      console.error('Error syncing lessons:', err)
+      alert('Failed to sync lessons. Please try again.')
+    } finally {
+      setSyncing(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#E8E6D8' }}>
@@ -206,9 +254,21 @@ export default function AthleteLessonsPage() {
         {/* Progress Bar */}
         <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold" style={{ color: '#000000' }}>
-              Your Progress
-            </h3>
+            <div className="flex items-center gap-4">
+              <h3 className="text-lg font-semibold" style={{ color: '#000000' }}>
+                Your Progress
+              </h3>
+              <button
+                onClick={syncLessons}
+                disabled={syncing}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-all hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ backgroundColor: '#3B82F6', color: 'white' }}
+                title="Refresh lessons from your coach"
+              >
+                <RefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />
+                {syncing ? 'Syncing...' : 'Refresh'}
+              </button>
+            </div>
             <div className="text-2xl font-bold" style={{ color: '#20B2AA' }}>
               {completionPercentage}%
             </div>

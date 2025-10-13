@@ -40,6 +40,40 @@ export default function AthleteDashboard() {
   const [videoCount, setVideoCount] = useState<number>(0)
   const [announcements, setAnnouncements] = useState<any[]>([])
   const [unreadAnnouncements, setUnreadAnnouncements] = useState<number>(0)
+  const [dismissedAnnouncements, setDismissedAnnouncements] = useState<Set<string>>(new Set())
+
+  // Load dismissed announcements from localStorage
+  useEffect(() => {
+    const loadDismissedAnnouncements = () => {
+      try {
+        const dismissed = localStorage.getItem('dismissedAnnouncements')
+        if (dismissed) {
+          setDismissedAnnouncements(new Set(JSON.parse(dismissed)))
+        }
+      } catch (error) {
+        console.error('Error loading dismissed announcements:', error)
+      }
+    }
+
+    loadDismissedAnnouncements()
+  }, [])
+
+  // Handle dismissing an announcement
+  const handleDismissAnnouncement = (announcementId: string) => {
+    const newDismissed = new Set(dismissedAnnouncements)
+    newDismissed.add(announcementId)
+    setDismissedAnnouncements(newDismissed)
+
+    // Save to localStorage
+    try {
+      localStorage.setItem('dismissedAnnouncements', JSON.stringify(Array.from(newDismissed)))
+    } catch (error) {
+      console.error('Error saving dismissed announcements:', error)
+    }
+  }
+
+  // Filter visible announcements (exclude dismissed ones)
+  const visibleAnnouncements = announcements.filter(a => !dismissedAnnouncements.has(a.id))
 
   // Athlete tools - simplified for sidebar
   const athleteTools = [
@@ -249,13 +283,24 @@ export default function AthleteDashboard() {
 
         setAnnouncements(announcementsList)
 
-        // Count unread (announcements from last 7 days that haven't been viewed)
+        // Count unread (announcements from last 7 days that haven't been dismissed)
         const sevenDaysAgo = new Date()
         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
 
+        // Get dismissed IDs from localStorage
+        let dismissedIds: string[] = []
+        try {
+          const dismissed = localStorage.getItem('dismissedAnnouncements')
+          if (dismissed) {
+            dismissedIds = JSON.parse(dismissed)
+          }
+        } catch (error) {
+          console.error('Error loading dismissed announcements:', error)
+        }
+
         const unread = announcementsList.filter((announcement: any) => {
           const sentAt = announcement.sentAt?.toDate?.()
-          return sentAt && sentAt > sevenDaysAgo
+          return sentAt && sentAt > sevenDaysAgo && !dismissedIds.includes(announcement.id)
         }).length
 
         setUnreadAnnouncements(unread)
@@ -501,19 +546,21 @@ export default function AthleteDashboard() {
 
                     {activeSection === 'announcements' && (
                       <div className="h-full overflow-y-auto p-6">
-                        {announcements.length === 0 ? (
+                        {visibleAnnouncements.length === 0 ? (
                           <div className="flex flex-col items-center justify-center h-full text-center">
                             <Megaphone className="w-16 h-16 mb-4" style={{ color: '#A01C21' }} />
                             <h3 className="text-xl font-semibold mb-2" style={{ color: '#000000' }}>
-                              No announcements yet
+                              No announcements
                             </h3>
                             <p style={{ color: '#666' }}>
-                              Your coach hasn't sent any announcements. Check back later!
+                              {announcements.length > 0
+                                ? 'All announcements have been dismissed.'
+                                : 'Your coach hasn\'t sent any announcements. Check back later!'}
                             </p>
                           </div>
                         ) : (
                           <div className="max-w-4xl mx-auto space-y-4">
-                            {announcements.map((announcement: any) => {
+                            {visibleAnnouncements.map((announcement: any) => {
                               const sentAt = announcement.sentAt?.toDate?.()
                               const isRecent = sentAt && sentAt > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
                               const isUrgent = announcement.urgent
@@ -541,17 +588,26 @@ export default function AthleteDashboard() {
                                         </span>
                                       )}
                                     </div>
-                                    {sentAt && (
-                                      <span className="text-xs" style={{ color: '#666' }}>
-                                        {sentAt.toLocaleDateString('en-US', {
-                                          month: 'short',
-                                          day: 'numeric',
-                                          year: 'numeric',
-                                          hour: 'numeric',
-                                          minute: '2-digit'
-                                        })}
-                                      </span>
-                                    )}
+                                    <div className="flex items-center gap-3">
+                                      {sentAt && (
+                                        <span className="text-xs" style={{ color: '#666' }}>
+                                          {sentAt.toLocaleDateString('en-US', {
+                                            month: 'short',
+                                            day: 'numeric',
+                                            year: 'numeric',
+                                            hour: 'numeric',
+                                            minute: '2-digit'
+                                          })}
+                                        </span>
+                                      )}
+                                      <button
+                                        onClick={() => handleDismissAnnouncement(announcement.id)}
+                                        className="p-1 hover:bg-gray-200 rounded-full transition-colors"
+                                        title="Dismiss announcement"
+                                      >
+                                        <X className="w-4 h-4" style={{ color: '#666' }} />
+                                      </button>
+                                    </div>
                                   </div>
 
                                   {/* Title */}

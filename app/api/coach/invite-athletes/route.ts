@@ -115,11 +115,33 @@ export async function POST(request: NextRequest) {
     const results = []
     let successCount = 0
     let failCount = 0
+    let duplicateCount = 0
     const successfulAthleteNames: string[] = []
 
     // Process each athlete invitation
     for (const athlete of validAthletes) {
       try {
+        // Check for duplicate invitations (pending invitations from this coach to this email)
+        const existingInvitesSnapshot = await adminDb
+          .collection('invitations')
+          .where('creatorUid', '==', creatorUid)
+          .where('athleteEmail', '==', athlete.email.toLowerCase())
+          .where('status', '==', 'pending')
+          .get()
+
+        if (!existingInvitesSnapshot.empty) {
+          // Found pending invitation(s)
+          duplicateCount++
+          results.push({
+            email: athlete.email,
+            name: athlete.name,
+            status: 'duplicate',
+            error: 'An invitation to this email is already pending'
+          })
+          console.log(`⚠️ Duplicate invitation detected for ${athlete.email} - skipping`)
+          continue // Skip this athlete and move to next
+        }
+
         // Generate unique invitation ID
         const timestamp = Date.now()
         const randomSuffix = Math.random().toString(36).substring(2, 8)
@@ -224,9 +246,10 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: `Processed ${validAthletes.length} invitations`,
+      message: `Processed ${validAthletes.length} invitations: ${successCount} sent, ${duplicateCount} duplicates skipped, ${failCount} failed`,
       successCount,
       failCount,
+      duplicateCount,
       results
     })
 
