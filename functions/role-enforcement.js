@@ -8,7 +8,9 @@
  * 3. Server-side enforcement that cannot be bypassed
  */
 
-const functions = require('firebase-functions')
+const { onDocumentWritten } = require('firebase-functions/v2/firestore')
+const { onSchedule } = require('firebase-functions/v2/scheduler')
+const { onCall, HttpsError } = require('firebase-functions/v2/https')
 const admin = require('firebase-admin')
 
 // Initialize Admin SDK if not already initialized
@@ -24,57 +26,55 @@ const db = admin.firestore()
  * Runs every time a user document is created or updated.
  * If invitationRole exists and doesn't match role, immediately fix it.
  */
-exports.enforceInvitationRole = functions.firestore
-  .document('users/{userId}')
-  .onWrite(async (change, context) => {
-    try {
-      const userId = context.params.userId
+exports.enforceInvitationRole = onDocumentWritten('users/{userId}', async (event) => {
+  try {
+    const userId = event.params.userId
 
-      // If document was deleted, nothing to do
-      if (!change.after.exists) {
-        return null
-      }
-
-      const userData = change.after.data()
-      const currentRole = userData.role
-      const invitationRole = userData.invitationRole
-
-      // CRITICAL: If invitationRole exists and doesn't match role, FIX IT NOW
-      if (invitationRole && currentRole !== invitationRole) {
-        console.log(`🚨 ROLE MISMATCH DETECTED:`)
-        console.log(`   User: ${userData.email || userId}`)
-        console.log(`   Current role: ${currentRole}`)
-        console.log(`   Invitation role: ${invitationRole}`)
-        console.log(`   FIXING NOW...`)
-
-        await change.after.ref.update({
-          role: invitationRole,
-          roleUpdatedAt: admin.firestore.Timestamp.now(),
-          roleUpdateReason: 'Auto-enforced from invitationRole by Cloud Function',
-          roleEnforcedByCloudFunction: true,
-          lastEnforcementTimestamp: admin.firestore.Timestamp.now()
-        })
-
-        console.log(`   ✅ FIXED: Role updated to ${invitationRole}`)
-
-        // Log to a separate audit collection for monitoring
-        await db.collection('role_enforcement_audit').add({
-          userId,
-          email: userData.email,
-          incorrectRole: currentRole,
-          correctedRole: invitationRole,
-          timestamp: admin.firestore.Timestamp.now(),
-          trigger: 'firestore_trigger'
-        })
-      }
-
-      return null
-    } catch (error) {
-      console.error('Error in enforceInvitationRole:', error)
-      // Don't throw - we don't want to fail the entire operation
+    // If document was deleted, nothing to do
+    if (!event.data.after.exists) {
       return null
     }
-  })
+
+    const userData = event.data.after.data()
+    const currentRole = userData.role
+    const invitationRole = userData.invitationRole
+
+    // CRITICAL: If invitationRole exists and doesn't match role, FIX IT NOW
+    if (invitationRole && currentRole !== invitationRole) {
+      console.log(`🚨 ROLE MISMATCH DETECTED:`)
+      console.log(`   User: ${userData.email || userId}`)
+      console.log(`   Current role: ${currentRole}`)
+      console.log(`   Invitation role: ${invitationRole}`)
+      console.log(`   FIXING NOW...`)
+
+      await event.data.after.ref.update({
+        role: invitationRole,
+        roleUpdatedAt: admin.firestore.Timestamp.now(),
+        roleUpdateReason: 'Auto-enforced from invitationRole by Cloud Function',
+        roleEnforcedByCloudFunction: true,
+        lastEnforcementTimestamp: admin.firestore.Timestamp.now()
+      })
+
+      console.log(`   ✅ FIXED: Role updated to ${invitationRole}`)
+
+      // Log to a separate audit collection for monitoring
+      await db.collection('role_enforcement_audit').add({
+        userId,
+        email: userData.email,
+        incorrectRole: currentRole,
+        correctedRole: invitationRole,
+        timestamp: admin.firestore.Timestamp.now(),
+        trigger: 'firestore_trigger'
+      })
+    }
+
+    return null
+  } catch (error) {
+    console.error('Error in enforceInvitationRole:', error)
+    // Don't throw - we don't want to fail the entire operation
+    return null
+  }
+})
 
 /**
  * LAYER 2: Scheduled daily check for role consistency
@@ -82,10 +82,7 @@ exports.enforceInvitationRole = functions.firestore
  * Runs every day at 2 AM UTC to scan all users and fix any mismatches.
  * This catches any edge cases that might slip through.
  */
-exports.dailyRoleConsistencyCheck = functions.pubsub
-  .schedule('0 2 * * *') // Every day at 2 AM UTC
-  .timeZone('UTC')
-  .onRun(async (context) => {
+exports.dailyRoleConsistencyCheck = onSchedule('0 2 * * *', async (event) => {
     try {
       console.log('\n🔍 Starting daily role consistency check...')
 
@@ -153,31 +150,31 @@ exports.dailyRoleConsistencyCheck = functions.pubsub
         trigger: 'scheduled_check'
       })
 
-      return null
-    } catch (error) {
-      console.error('Error in dailyRoleConsistencyCheck:', error)
-      throw error
-    }
-  })
+  return null
+  } catch (error) {
+    console.error('Error in dailyRoleConsistencyCheck:', error)
+    throw error
+  }
+})
 
 /**
  * LAYER 3: Manual enforcement endpoint (admin only)
  *
  * Allows admins to manually trigger a full role consistency check.
  */
-exports.manualRoleEnforcement = functions.https.onCall(async (data, context) => {
+exports.manualRoleEnforcement = onCall(async (request) => {
   try {
     // Verify admin authentication
-    if (!context.auth) {
-      throw new functions.https.HttpsError('unauthenticated', 'Must be authenticated')
+    if (!request.auth) {
+      throw new HttpsError('unauthenticated', 'Must be authenticated')
     }
 
     // Check if user is admin or superadmin
-    const userDoc = await db.collection('users').doc(context.auth.uid).get()
+    const userDoc = await db.collection('users').doc(request.auth.uid).get()
     const userData = userDoc.data()
 
     if (!userData || !['admin', 'superadmin'].includes(userData.role)) {
-      throw new functions.https.HttpsError('permission-denied', 'Must be admin or superadmin')
+      throw new HttpsError('permission-denied', 'Must be admin or superadmin')
     }
 
     console.log(`\n🔧 Manual role enforcement triggered by ${userData.email}`)
@@ -215,7 +212,7 @@ exports.manualRoleEnforcement = functions.https.onCall(async (data, context) => 
           correctedRole: invitationRole,
           timestamp: admin.firestore.Timestamp.now(),
           trigger: 'manual_enforcement',
-          triggeredBy: context.auth.uid
+          triggeredBy: request.auth.uid
         })
       }
     }
@@ -226,7 +223,7 @@ exports.manualRoleEnforcement = functions.https.onCall(async (data, context) => 
       fixedCount,
       fixes,
       trigger: 'manual_enforcement',
-      triggeredBy: context.auth.uid
+      triggeredBy: request.auth.uid
     })
 
     return {
@@ -236,6 +233,6 @@ exports.manualRoleEnforcement = functions.https.onCall(async (data, context) => 
     }
   } catch (error) {
     console.error('Error in manualRoleEnforcement:', error)
-    throw new functions.https.HttpsError('internal', error.message)
+    throw new HttpsError('internal', error.message)
   }
 })

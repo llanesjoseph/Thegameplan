@@ -1,0 +1,1 @@
+cd C:\Users\bigpe\OneDrive\Desktop\Crucible\GAMEPLAN-SOURCE-ONLY && firebase deploy --only functions && firebase functions:list && echo. && echo ======================================== && echo ALL DONE - YOUR SYSTEM IS NOW PROTECTED && echo ========================================
