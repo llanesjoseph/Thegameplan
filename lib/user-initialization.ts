@@ -132,7 +132,7 @@ export async function initializeUserDocument(user: FirebaseUser | null, defaultR
 
       // Check if this is a known coach who needs role correction
       let roleNeedsUpdate = false
-      let correctRole = userData.role
+      let correctRole: UserRole = userData.role
 
       // Only apply auto-corrections to 'user' role and for known coaches
       if (!isSuperadmin(user.email)) {
