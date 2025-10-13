@@ -190,13 +190,18 @@ export default function CoachUnifiedDashboard() {
               return (
                 <button
                   key={index}
-                  onClick={() => {
+                  onClick={(e) => {
+                    console.log('Card clicked:', card.id)
+                    e.preventDefault()
+                    e.stopPropagation()
                     const path = getSectionPath(card.id)
+                    console.log('Navigating to:', path)
                     if (path) {
                       router.push(path)
                     }
                   }}
                   className="block group cursor-pointer text-left transition-all w-full"
+                  style={{ position: 'relative', zIndex: 1 }}
                 >
                   <div className="bg-white/90 backdrop-blur-sm rounded-lg sm:rounded-xl shadow-lg p-3 sm:p-4 h-full transition-all hover:shadow-2xl hover:scale-105 border border-white/50">
                     <div className="flex flex-col h-full min-h-[100px] sm:min-h-[120px]">
