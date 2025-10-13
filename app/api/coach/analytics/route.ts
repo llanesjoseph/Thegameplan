@@ -58,48 +58,101 @@ export async function GET(request: NextRequest) {
       ...doc.data()
     })) as any[]
 
-    // 4. Calculate lesson statistics
     const totalLessons = lessons.length
-    const totalViews = lessons.reduce((sum, lesson) => sum + (lesson.viewCount || 0), 0)
-    const totalCompletions = lessons.reduce((sum, lesson) => sum + (lesson.completionCount || 0), 0)
+
+    // 4. Get coach's athletes from users collection
+    const athletesSnapshot = await adminDb
+      .collection('users')
+      .where('role', '==', 'athlete')
+      .get()
+
+    const athletes = athletesSnapshot.docs
+      .map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }))
+      .filter((athlete: any) =>
+        athlete.coachId === uid || athlete.assignedCoachId === uid
+      ) as any[]
+
+    const activeAthletes = athletes.length
+
+    // 5. Get athlete_feed data to calculate real views and completions
+    const athleteFeedsSnapshot = await adminDb
+      .collection('athlete_feed')
+      .get()
+
+    const athleteFeeds = athleteFeedsSnapshot.docs
+      .map(doc => ({
+        athleteId: doc.id,
+        ...doc.data()
+      }))
+      .filter((feed: any) => feed.coachId === uid) as any[]
+
+    // 6. Calculate real lesson statistics from athlete_feed
+    let totalViews = 0
+    let totalCompletions = 0
+    const lessonStats = new Map<string, { views: number, completions: number }>()
+
+    athleteFeeds.forEach((feed: any) => {
+      const availableLessons = feed.availableLessons || []
+      const completedLessons = feed.completedLessons || []
+
+      // Each lesson in availableLessons counts as a view
+      availableLessons.forEach((lessonId: string) => {
+        totalViews++
+        const stats = lessonStats.get(lessonId) || { views: 0, completions: 0 }
+        stats.views++
+        lessonStats.set(lessonId, stats)
+      })
+
+      // Each lesson in completedLessons counts as a completion
+      completedLessons.forEach((lessonId: string) => {
+        totalCompletions++
+        const stats = lessonStats.get(lessonId) || { views: 0, completions: 0 }
+        stats.completions++
+        lessonStats.set(lessonId, stats)
+      })
+    })
+
     const ratingsSum = lessons.reduce((sum, lesson) => sum + (lesson.averageRating || 0), 0)
     const averageRating = totalLessons > 0 ? Number((ratingsSum / totalLessons).toFixed(1)) : 0
     const lessonCompletionRate = totalViews > 0 ? Math.round((totalCompletions / totalViews) * 100) : 0
 
-    // 5. Sort lessons by views to get top performers
-    const topLessons = [...lessons]
-      .sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0))
-      .slice(0, 5)
-      .map(lesson => ({
+    // 7. Create top lessons with real stats
+    const lessonsWithStats = lessons.map(lesson => {
+      const stats = lessonStats.get(lesson.id) || { views: 0, completions: 0 }
+      return {
         id: lesson.id,
         title: lesson.title || 'Untitled Lesson',
-        views: lesson.viewCount || 0,
-        completions: lesson.completionCount || 0,
+        views: stats.views,
+        completions: stats.completions,
         rating: lesson.averageRating || 0
-      }))
+      }
+    })
 
-    // 6. Get coach's athletes
-    const athletesSnapshot = await adminDb
-      .collection('athletes')
-      .where('creatorUid', '==', uid)
-      .get()
+    const topLessons = lessonsWithStats
+      .sort((a, b) => b.views - a.views)
+      .slice(0, 5)
 
-    const athletes = athletesSnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    })) as any[]
+    // 8. Calculate athlete activity with real data
+    const athleteActivity = athletes.slice(0, 5).map((athlete: any) => {
+      const feed = athleteFeeds.find(f => f.athleteId === athlete.id)
+      const completedCount = feed?.completedLessons?.length || 0
+      const availableCount = feed?.availableLessons?.length || 0
+      const progress = availableCount > 0
+        ? Math.round((completedCount / availableCount) * 100)
+        : 0
 
-    const activeAthletes = athletes.length
+      return {
+        name: athlete.displayName || athlete.name || 'Unknown Athlete',
+        completions: completedCount,
+        lastActive: athlete.lastActive || 'Recently',
+        progress
+      }
+    })
 
-    // 7. Calculate athlete activity (mock data for now - would need activity tracking)
-    const athleteActivity = athletes.slice(0, 5).map((athlete, index) => ({
-      name: athlete.name || athlete.athleteName || 'Unknown Athlete',
-      completions: Math.max(0, 8 - index),
-      lastActive: index === 0 ? '2 hours ago' : index === 1 ? '5 hours ago' : '1 day ago',
-      progress: Math.max(33, 67 - (index * 8))
-    }))
-
-    // 8. Build analytics response
+    // 9. Build analytics response
     const analytics = {
       stats: {
         totalLessons,
