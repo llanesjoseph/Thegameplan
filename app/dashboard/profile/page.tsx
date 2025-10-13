@@ -60,6 +60,8 @@ function ProfilePageContent() {
     location: '',
     email: '',
     profileImageUrl: '',
+    heroImageUrl: '',
+    actionPhotos: [] as string[],
     specialties: [] as string[],
     experience: '',
     availability: '',
@@ -230,6 +232,15 @@ function ProfilePageContent() {
           location: profileData.location,
           specialties: profileData.specialties,
           experience: profileData.experience,
+          // Add profile images for browse coaches page
+          headshotUrl: profileData.profileImageUrl,
+          photoURL: profileData.profileImageUrl,
+          heroImageUrl: profileData.heroImageUrl,
+          actionPhotos: profileData.actionPhotos,
+          tagline: profileData.tagline,
+          coachingCredentials: profileData.coachingCredentials,
+          verified: profileData.verified,
+          featured: profileData.featured,
           lastUpdated: new Date().toISOString(),
           profileUrl: `/coaches/${user.uid}`,
           isActive: true
@@ -256,6 +267,14 @@ function ProfilePageContent() {
       description: 'Name, bio, location, and contact',
       icon: User,
       color: '#91A6EB'
+    },
+    {
+      id: 'profile-images',
+      title: 'Profile Images',
+      description: 'Hero image and action photos',
+      icon: Camera,
+      color: '#FF6B35',
+      coachOnly: true
     },
     {
       id: 'specialties',
@@ -388,6 +407,94 @@ function ProfilePageContent() {
                 style={{ borderColor: 'rgba(145, 166, 235, 0.2)', backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
                 placeholder="Experience (e.g., 12 years)"
               />
+            </div>
+          </div>
+        )
+
+      case 'profile-images':
+        return (
+          <div className="p-8 space-y-6">
+            <h3 className="text-xl mb-4" style={{ color: '#000000' }}>Profile Images</h3>
+            <p className="text-sm mb-6" style={{ color: '#000000', opacity: 0.7 }}>
+              Upload high-quality images for your public coach profile page
+            </p>
+
+            {/* Hero Image */}
+            <div>
+              <label className="block text-sm mb-3" style={{ color: '#000000', fontWeight: '600' }}>
+                Hero Image (Banner)
+              </label>
+              <p className="text-xs mb-3" style={{ color: '#000000', opacity: 0.6 }}>
+                Wide banner image shown at the top of your profile (recommended: 1920x600px)
+              </p>
+              <div className="space-y-3">
+                {profileData.heroImageUrl && (
+                  <div className="relative w-full aspect-[16/5] rounded-xl overflow-hidden shadow-lg">
+                    <img
+                      src={profileData.heroImageUrl}
+                      alt="Hero"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+                <ImageUploader
+                  onUploadComplete={(url) => setProfileData(prev => ({ ...prev, heroImageUrl: url }))}
+                  onUploadError={(error) => console.error('Hero image upload failed:', error)}
+                  currentImageUrl={profileData.heroImageUrl}
+                  uploadPath={`users/${user?.uid}/profile/hero_${Date.now()}`}
+                />
+              </div>
+            </div>
+
+            {/* Action Photos */}
+            <div>
+              <label className="block text-sm mb-3" style={{ color: '#000000', fontWeight: '600' }}>
+                Action Photos
+              </label>
+              <p className="text-xs mb-3" style={{ color: '#000000', opacity: 0.6 }}>
+                Upload 2-4 action photos showing you in your sport (recommended: 800x800px each)
+              </p>
+
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                {profileData.actionPhotos.map((photo, index) => (
+                  <div key={index} className="relative aspect-square rounded-xl overflow-hidden shadow-lg group">
+                    <img
+                      src={photo}
+                      alt={`Action ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                    <button
+                      onClick={() => {
+                        const newPhotos = profileData.actionPhotos.filter((_, i) => i !== index)
+                        setProfileData(prev => ({ ...prev, actionPhotos: newPhotos }))
+                      }}
+                      className="absolute top-2 right-2 p-2 bg-red-600 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              {profileData.actionPhotos.length < 4 && (
+                <div className="border-2 border-dashed rounded-xl p-4" style={{ borderColor: 'rgba(145, 166, 235, 0.3)' }}>
+                  <ImageUploader
+                    onUploadComplete={(url) => setProfileData(prev => ({
+                      ...prev,
+                      actionPhotos: [...prev.actionPhotos, url]
+                    }))}
+                    onUploadError={(error) => console.error('Action photo upload failed:', error)}
+                    currentImageUrl=""
+                    uploadPath={`users/${user?.uid}/profile/action_${Date.now()}`}
+                  />
+                </div>
+              )}
+            </div>
+
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+              <p className="text-sm" style={{ color: '#1e40af' }}>
+                <strong>💡 Tip:</strong> High-quality images make your profile stand out! Use clear, well-lit photos that showcase your expertise and personality.
+              </p>
             </div>
           </div>
         )
