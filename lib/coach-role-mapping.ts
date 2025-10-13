@@ -3,12 +3,14 @@
  * For coaches who should have 'coach' role but might be incorrectly set as 'creator'
  */
 
+import { UserRole } from '../types'
+
 export const KNOWN_COACHES: Record<string, {
   email: string
   name: string
   sport: string
   credentials: string[]
-  shouldBeRole: 'coach'
+  shouldBeRole: UserRole
 }> = {
   'llanes.joseph.m@gmail.com': {
     email: 'llanes.joseph.m@gmail.com',
@@ -37,7 +39,7 @@ export function isKnownCoach(email: string): boolean {
 /**
  * Get the correct role for a known coach
  */
-export function getKnownCoachRole(email: string): 'coach' | null {
+export function getKnownCoachRole(email: string): UserRole | null {
   const coach = KNOWN_COACHES[email.toLowerCase()]
   return coach?.shouldBeRole || null
 }
