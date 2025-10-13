@@ -626,7 +626,7 @@ export default function AthleteOnboardingPage() {
                   They now have all the information needed to create a personalized training plan for you.
                 </p>
                 <div className="space-y-3">
-                  <Button className="w-full" onClick={() => router.push('/dashboard')}>
+                  <Button className="w-full" onClick={() => window.location.href = '/dashboard/progress'}>
                     Go to Dashboard
                   </Button>
                 </div>

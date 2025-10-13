@@ -160,7 +160,19 @@ export async function POST(request: NextRequest) {
       userDocData.createdAt = now
     }
 
-    await adminDb.collection('users').doc(userRecord.uid).set(userDocData, { merge: true })
+    // CRITICAL: Delete existing user doc first if it exists (prevent race conditions)
+    // UNLESS user has elevated role (coach/admin) that we're preserving
+    if (existingUserDoc.exists && !shouldPreserveRole) {
+      try {
+        await adminDb.collection('users').doc(userRecord.uid).delete()
+        console.log(`🗑️ Deleted existing user document for ${athleteProfile.email} to ensure clean state`)
+      } catch (deleteError) {
+        console.log(`ℹ️ No existing user document to delete for ${athleteProfile.email}`)
+      }
+    }
+
+    // Create fresh user document with invitation role as source of truth
+    await adminDb.collection('users').doc(userRecord.uid).set(userDocData)
     console.log(`Created/updated user document - role: ${userDocData.role} (preserved: ${shouldPreserveRole})`)
 
     // Mark invitation as used
