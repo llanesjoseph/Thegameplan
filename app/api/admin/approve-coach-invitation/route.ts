@@ -64,11 +64,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to create user account' }, { status: 500 })
     }
 
+    // Check if user document already exists
+    const existingUserDoc = await adminDb.collection('users').doc(userRecord.uid).get()
+    const existingUserData = existingUserDoc.data()
+
     // BULLETPROOF: Store invitation role and protect it from auto-corrections
     const targetRole = application.role || 'coach'
 
     // Create user document with bulletproof role protection
-    await adminDb.collection('users').doc(userRecord.uid).set({
+    const userDocData: any = {
       uid: userRecord.uid,
       email: application.email.toLowerCase(),
       displayName: application.displayName || `${application.firstName} ${application.lastName}`,
@@ -79,7 +83,6 @@ export async function POST(request: NextRequest) {
       // BULLETPROOF PROTECTION: Store the invitation role as source of truth
       invitationRole: targetRole,
       invitationType: application.role === 'coach' ? 'coach_invitation' : 'assistant_invitation',
-      createdAt: now,
       lastLoginAt: now,
       applicationId,
       invitationId,
@@ -88,7 +91,15 @@ export async function POST(request: NextRequest) {
       roleProtected: true,
       roleSource: 'admin_approval',
       roleLockedByInvitation: true
-    }, { merge: true })
+    }
+
+    // Set createdAt if this is a new user OR if it doesn't exist
+    // This ensures all users appear in admin panel queries that order by createdAt
+    if (!existingUserDoc.exists || !existingUserData?.createdAt) {
+      userDocData.createdAt = now
+    }
+
+    await adminDb.collection('users').doc(userRecord.uid).set(userDocData, { merge: true })
 
     // Create coach profile
     await adminDb.collection('creator_profiles').doc(userRecord.uid).set({

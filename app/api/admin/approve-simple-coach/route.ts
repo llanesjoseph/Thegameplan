@@ -62,8 +62,12 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Check if user document already exists
+    const existingUserDoc = await adminDb.collection('users').doc(userRecord.uid).get()
+    const existingUserData = existingUserDoc.data()
+
     // Create user document in Firestore with proper role
-    const userDocData = {
+    const userDocData: any = {
       uid: userRecord.uid,
       email: email.toLowerCase(),
       displayName: displayName,
@@ -71,7 +75,6 @@ export async function POST(request: NextRequest) {
       firstName: firstName,
       lastName: lastName,
       phone: phone || '',
-      createdAt: now,
       lastLoginAt: now,
       applicationId,
       invitationId: invitationId,
@@ -83,6 +86,12 @@ export async function POST(request: NextRequest) {
       roleProtected: true,
       roleSource: 'admin_approval',
       roleLockedByInvitation: true
+    }
+
+    // Set createdAt if this is a new user OR if it doesn't exist
+    // This ensures all users appear in admin panel queries that order by createdAt
+    if (!existingUserDoc.exists || !existingUserData?.createdAt) {
+      userDocData.createdAt = now
     }
 
     await adminDb.collection('users').doc(userRecord.uid).set(userDocData, { merge: true })
