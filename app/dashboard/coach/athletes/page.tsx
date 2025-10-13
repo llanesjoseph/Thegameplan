@@ -596,46 +596,60 @@ function CoachAthletesContent() {
                 {invitations.map((invitation) => (
                   <div
                     key={invitation.id}
-                    className="flex items-center justify-between p-5 border-2 border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
+                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-5 sm:p-6 border-2 border-gray-200 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all cursor-pointer active:scale-[0.98] touch-manipulation"
+                    style={{ minHeight: '120px' }}
+                    onClick={(e) => {
+                      // Don't trigger if clicking on action buttons
+                      if (!(e.target as HTMLElement).closest('button')) {
+                        console.log('Athlete clicked:', invitation.name)
+                        // TODO: Navigate to athlete detail page or show modal
+                      }
+                    }}
                   >
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #91A6EB 0%, #000000 100%)' }}>
-                        <User className="w-6 h-6 text-white" />
+                    <div className="flex items-center gap-4 mb-4 sm:mb-0">
+                      <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg, #91A6EB 0%, #000000 100%)' }}>
+                        <User className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
                       </div>
-                      <div>
-                        <h4 className="font-semibold text-lg" style={{ color: '#000000' }}>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-semibold text-lg sm:text-xl" style={{ color: '#000000' }}>
                           {invitation.name}
                         </h4>
-                        <p className="text-sm" style={{ color: '#000000', opacity: 0.6 }}>
+                        <p className="text-sm sm:text-base truncate" style={{ color: '#000000', opacity: 0.6 }}>
                           {invitation.email}
                         </p>
-                        <p className="text-xs" style={{ color: '#000000', opacity: 0.5 }}>
+                        <p className="text-xs sm:text-sm" style={{ color: '#000000', opacity: 0.5 }}>
                           {invitation.sport} • Sent {invitation.sentAt}
                         </p>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
                       {getStatusBadge(invitation.status)}
 
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 sm:gap-3">
                         <button
-                          onClick={() => handleResendInvitation(invitation.id)}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleResendInvitation(invitation.id)
+                          }}
                           disabled={isLoading}
-                          className="p-2 rounded-lg hover:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-                          style={{ backgroundColor: 'rgba(145, 166, 235, 0.1)', color: '#91A6EB' }}
+                          className="flex-1 sm:flex-none p-3 sm:p-2 rounded-lg hover:opacity-80 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
+                          style={{ backgroundColor: 'rgba(145, 166, 235, 0.1)', color: '#91A6EB', minWidth: '44px', minHeight: '44px' }}
                           title="Resend invitation"
                         >
-                          <Mail className="w-5 h-5" />
+                          <Mail className="w-5 h-5 mx-auto" />
                         </button>
                         <button
-                          onClick={() => handleRemoveInvitation(invitation.id)}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleRemoveInvitation(invitation.id)
+                          }}
                           disabled={isLoading}
-                          className="p-2 rounded-lg hover:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-                          style={{ backgroundColor: 'rgba(255, 107, 53, 0.1)', color: '#FF6B35' }}
+                          className="flex-1 sm:flex-none p-3 sm:p-2 rounded-lg hover:opacity-80 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
+                          style={{ backgroundColor: 'rgba(255, 107, 53, 0.1)', color: '#FF6B35', minWidth: '44px', minHeight: '44px' }}
                           title="Remove invitation"
                         >
-                          <Trash2 className="w-5 h-5" />
+                          <Trash2 className="w-5 h-5 mx-auto" />
                         </button>
                       </div>
                     </div>

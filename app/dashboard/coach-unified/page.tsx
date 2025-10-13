@@ -169,19 +169,31 @@ export default function CoachUnifiedDashboard() {
       <AppHeader title="Coach Dashboard" subtitle="Empower your athletes with expert training" />
 
       <main className="relative" style={{ height: 'calc(100vh - 120px)' }}>
+        {/* Mobile: Toggle button for sidebar */}
+        {activeSection && (
+          <button
+            onClick={() => setActiveSection(null)}
+            className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-6 py-3 bg-black text-white rounded-full shadow-lg flex items-center gap-2 touch-manipulation"
+            style={{ minHeight: '44px' }}
+          >
+            <ChevronRight className="w-5 h-5 rotate-180" />
+            Back to Tools
+          </button>
+        )}
+
         {/* Two-column layout: Sidebar + Main Content */}
         <div className="flex h-full">
           {/* Left Sidebar - Compact Coaching Tools */}
           <aside
             className={`bg-white/90 backdrop-blur-sm border-r border-gray-200 transition-all duration-300 overflow-y-auto ${
               isSidebarCollapsed ? 'w-16' : 'w-80'
-            }`}
+            } ${activeSection ? 'hidden lg:block' : 'block'}`}
             style={{ height: '100%' }}
           >
             {/* Sidebar Header */}
-            <div className="sticky top-0 bg-white/95 backdrop-blur-sm z-10 border-b border-gray-200 p-4">
+            <div className="sticky top-0 bg-white/95 backdrop-blur-sm z-10 border-b border-gray-200 p-3 sm:p-4">
               {!isSidebarCollapsed && (
-                <h2 className="text-lg font-semibold mb-1" style={{ color: '#000000' }}>
+                <h2 className="text-base sm:text-lg font-semibold mb-1" style={{ color: '#000000' }}>
                   Coaching Tools
                 </h2>
               )}
@@ -200,11 +212,12 @@ export default function CoachUnifiedDashboard() {
                   <button
                     key={card.id}
                     onClick={() => setActiveSection(card.id)}
-                    className={`w-full text-left transition-all rounded-lg ${
+                    className={`w-full text-left transition-all rounded-lg touch-manipulation active:scale-95 ${
                       isActive
                         ? 'bg-black/10 shadow-md'
                         : 'hover:bg-gray-100/80'
                     }`}
+                    style={{ minHeight: '44px' }}
                     title={isSidebarCollapsed ? card.title : undefined}
                   >
                     <div className={`flex items-center gap-3 p-3 ${isSidebarCollapsed ? 'justify-center' : ''}`}>
@@ -243,11 +256,11 @@ export default function CoachUnifiedDashboard() {
           </aside>
 
           {/* Main Content Area - Expanded Iframe */}
-          <div className="flex-1 overflow-hidden relative">
+          <div className={`flex-1 overflow-hidden relative ${!activeSection ? 'hidden lg:block' : ''}`}>
             {activeSection ? (
               <div className="h-full bg-white/90 backdrop-blur-sm">
-                {/* Content Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white/95 backdrop-blur-sm">
+                {/* Content Header - Hidden on mobile to save space */}
+                <div className="hidden lg:flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white/95 backdrop-blur-sm">
                   <div>
                     <h2 className="text-xl font-semibold" style={{ color: '#000000' }}>
                       {coachCards.find(c => c.id === activeSection)?.title}
@@ -258,7 +271,8 @@ export default function CoachUnifiedDashboard() {
                   </div>
                   <button
                     onClick={() => setActiveSection(null)}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors touch-manipulation"
+                    style={{ minHeight: '44px', minWidth: '44px' }}
                     title="Close"
                   >
                     <X className="w-5 h-5" style={{ color: '#000000' }} />
@@ -266,7 +280,7 @@ export default function CoachUnifiedDashboard() {
                 </div>
 
                 {/* Iframe Content */}
-                <div style={{ height: 'calc(100% - 73px)' }}>
+                <div className="h-full lg:h-[calc(100%-73px)]">
                   <iframe
                     src={getSectionPath(activeSection)}
                     className="w-full h-full border-0"
@@ -276,19 +290,19 @@ export default function CoachUnifiedDashboard() {
               </div>
             ) : (
               /* Welcome/Empty State */
-              <div className="h-full flex items-center justify-center p-8">
+              <div className="h-full flex items-center justify-center p-4 sm:p-8">
                 <div className="max-w-2xl text-center">
                   <div className="mb-6">
-                    <GraduationCap className="w-20 h-20 mx-auto mb-4" style={{ color: '#20B2AA' }} />
-                    <h2 className="text-3xl font-bold mb-2" style={{ color: '#000000' }}>
+                    <GraduationCap className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4" style={{ color: '#20B2AA' }} />
+                    <h2 className="text-2xl sm:text-3xl font-bold mb-2" style={{ color: '#000000' }}>
                       Welcome, Coach {user?.displayName?.split(' ')[0] || 'Coach'}! 👋
                     </h2>
-                    <p className="text-lg" style={{ color: '#666' }}>
+                    <p className="text-base sm:text-lg" style={{ color: '#666' }}>
                       Select a tool from the left sidebar to get started
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4 text-left">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-left">
                     <div className="bg-gradient-to-br from-sky-blue/10 to-sky-blue/5 rounded-lg p-5 border-2" style={{ borderColor: '#91A6EB' }}>
                       <GraduationCap className="w-8 h-8 mb-3" style={{ color: '#91A6EB' }} />
                       <h3 className="font-semibold mb-1" style={{ color: '#000000' }}>Create Lessons</h3>
@@ -322,9 +336,9 @@ export default function CoachUnifiedDashboard() {
                     </div>
                   </div>
 
-                  <div className="mt-6 bg-gradient-to-r from-sky-blue to-teal rounded-lg p-5 text-white text-left">
-                    <h3 className="font-semibold mb-3 text-lg">🎯 Quick Start</h3>
-                    <ol className="space-y-2 text-sm">
+                  <div className="mt-4 sm:mt-6 bg-gradient-to-r from-sky-blue to-teal rounded-lg p-4 sm:p-5 text-white text-left">
+                    <h3 className="font-semibold mb-2 sm:mb-3 text-base sm:text-lg">🎯 Quick Start</h3>
+                    <ol className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
                       <li><strong>1.</strong> Click any tool in the sidebar to open it</li>
                       <li><strong>2.</strong> Use "Create Lesson" to build your first training</li>
                       <li><strong>3.</strong> Check "Analytics" to track athlete engagement</li>

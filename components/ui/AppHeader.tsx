@@ -246,41 +246,48 @@ export default function AppHeader({ className = '', title, subtitle }: AppHeader
   }
 
   return (
-    <header className={`bg-white px-4 py-4 shadow-sm ${className}`}>
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
+    <header className={`bg-white px-4 py-3 sm:py-4 shadow-sm ${className}`}>
+      <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
         {/* Left Side - Logo and optional title */}
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-3 sm:gap-6 w-full sm:w-auto">
           <button
             onClick={handleLogoClick}
-            className="text-3xl hover:opacity-80 transition-opacity"
+            className="text-2xl sm:text-3xl hover:opacity-80 transition-opacity touch-manipulation"
             style={{
               fontFamily: 'var(--font-permanent-marker)',
-              color: '#624A41'
+              color: '#624A41',
+              minHeight: '44px',
+              display: 'flex',
+              alignItems: 'center'
             }}
           >
             AthLeap
           </button>
 
           {title && (
-            <div className="border-l border-gray-300 pl-6">
-              <h1 className="text-xl text-gray-900">{title}</h1>
+            <div className="border-l border-gray-300 pl-3 sm:pl-6 flex-1 sm:flex-none">
+              <h1 className="text-lg sm:text-xl text-gray-900">{title}</h1>
               {subtitle && (
-                <p className="text-sm text-gray-500">{subtitle}</p>
+                <p className="text-xs sm:text-sm text-gray-500 hidden sm:block">{subtitle}</p>
               )}
             </div>
           )}
         </div>
 
         {/* Right Side Navigation */}
-        <div className="flex items-center gap-4">
-          {/* Browse Coaches Link */}
-          <Link href="/coaches" className="text-black hover:text-blue-600">
+        <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto justify-between sm:justify-end">
+          {/* Browse Coaches Link - Hidden on mobile, shown on tablet+ */}
+          <Link
+            href="/coaches"
+            className="hidden md:block text-black hover:text-blue-600 touch-manipulation"
+            style={{ minHeight: '44px', display: 'flex', alignItems: 'center' }}
+          >
             Browse Coaches
           </Link>
 
-          {/* Role Badge */}
+          {/* Role Badge - Compact on mobile */}
           {user && (
-            <div className={`px-4 py-2 text-white rounded-lg ${getRoleDisplay().color}`}>
+            <div className={`px-2 sm:px-4 py-1 sm:py-2 text-white rounded-lg text-xs sm:text-sm ${getRoleDisplay().color}`}>
               {getRoleDisplay().label}
             </div>
           )}
@@ -290,20 +297,21 @@ export default function AppHeader({ className = '', title, subtitle }: AppHeader
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center gap-2 hover:bg-gray-50 rounded-lg p-1 transition-colors"
+                className="flex items-center gap-1 sm:gap-2 hover:bg-gray-50 rounded-lg p-1 transition-colors touch-manipulation"
+                style={{ minHeight: '44px' }}
               >
                 {profileImageUrl ? (
                   <img
                     src={profileImageUrl}
                     alt={getUserName()}
-                    className="w-8 h-8 rounded-full object-cover"
+                    className="w-9 h-9 sm:w-8 sm:h-8 rounded-full object-cover"
                   />
                 ) : (
-                  <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white">
+                  <div className="w-9 h-9 sm:w-8 sm:h-8 bg-blue-500 rounded-full flex items-center justify-center text-white">
                     {getUserInitials()}
                   </div>
                 )}
-                <span className="text-black">{getUserName()}</span>
+                <span className="text-black hidden sm:inline">{getUserName()}</span>
                 <svg
                   className={`w-4 h-4 text-gray-500 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
                   fill="none"

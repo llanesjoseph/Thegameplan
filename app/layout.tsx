@@ -32,6 +32,14 @@ export const metadata: Metadata = {
  icons: { icon: '/logo-gp.svg' }
 }
 
+// Viewport configuration for proper mobile rendering
+export const viewport = {
+ width: 'device-width',
+ initialScale: 1,
+ maximumScale: 5,
+ userScalable: true,
+}
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
  return (
   <html lang="en">
