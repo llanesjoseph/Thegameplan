@@ -143,3 +143,18 @@ exports.onLessonPublished = firestoreTriggers.onLessonPublished
 exports.onAthleteAssigned = firestoreTriggers.onAthleteAssigned
 exports.onLessonCompleted = firestoreTriggers.onLessonCompleted
 exports.syncAthleteData = firestoreTriggers.syncAthleteData
+
+// ============================================================================
+// ROLE ENFORCEMENT: Bulletproof invitation-based role management
+// ============================================================================
+
+const roleEnforcement = require('./role-enforcement')
+
+// Real-time enforcement on user document changes
+exports.enforceInvitationRole = roleEnforcement.enforceInvitationRole
+
+// Daily scheduled check for role consistency
+exports.dailyRoleConsistencyCheck = roleEnforcement.dailyRoleConsistencyCheck
+
+// Manual enforcement endpoint (admin only)
+exports.manualRoleEnforcement = roleEnforcement.manualRoleEnforcement

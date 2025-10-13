@@ -675,6 +675,30 @@ service cloud.firestore {
       allow create, delete: if false;
     }
 
+    // ============================================================================
+    // ROLE ENFORCEMENT SYSTEM - Critical security infrastructure
+    // ============================================================================
+
+    // Role Enforcement Audit - Audit trail of all role corrections
+    match /role_enforcement_audit/{auditId} {
+      // Only admins can read audit logs
+      allow read: if isAdmin();
+      // Only Cloud Functions can create audit logs
+      allow create: if false;
+      // Audit logs are immutable
+      allow update, delete: if false;
+    }
+
+    // Role Enforcement Reports - Summary reports from scheduled checks
+    match /role_enforcement_reports/{reportId} {
+      // Only admins can read reports
+      allow read: if isAdmin();
+      // Only Cloud Functions can create reports
+      allow create: if false;
+      // Reports are immutable
+      allow update, delete: if false;
+    }
+
     // ===== DEFAULT DENY =====
     match /{document=**} {
       allow read, write: if false;
