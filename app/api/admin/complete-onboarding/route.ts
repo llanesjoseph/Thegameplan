@@ -79,7 +79,12 @@ export async function POST(request: NextRequest) {
       invitationCode,
       invitedBy: invitation.createdBy,
       createdAt: Timestamp.now(),
-      updatedAt: Timestamp.now()
+      updatedAt: Timestamp.now(),
+      // CRITICAL: Protect admin roles from auto-correction
+      manuallySetRole: true,
+      roleProtected: true,
+      roleSource: 'admin_invitation',
+      invitationRole: invitation.role
     }
 
     await adminDb.collection('users').doc(decodedToken.uid).set(userData)

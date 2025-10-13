@@ -20,7 +20,24 @@ async function checkPendingInvitation(email: string | null): Promise<UserRole | 
   if (!email) return null
 
   try {
-    // Query invitations collection for this email
+    // CRITICAL: Check admin invitations FIRST (highest priority)
+    const adminInvitationsRef = collection(db, 'admin_invitations')
+    const adminQuery = query(
+      adminInvitationsRef,
+      where('recipientEmail', '==', email.toLowerCase()),
+      limit(1)
+    )
+
+    const adminSnapshot = await getDocs(adminQuery)
+
+    if (!adminSnapshot.empty) {
+      const invitationData = adminSnapshot.docs[0].data()
+      const role = invitationData.role as UserRole
+      console.log(`🎯 Found ADMIN invitation for ${email} with role: ${role}`)
+      return role
+    }
+
+    // Query regular invitations collection for this email
     // Check BOTH used and unused invitations to respect role during sign-in
     const invitationsRef = collection(db, 'invitations')
 
@@ -124,8 +141,8 @@ export async function initializeUserDocument(user: FirebaseUser | null, defaultR
         return userData
       }
 
-      // BULLETPROOF RULE #3: Athlete and creator roles are ALWAYS protected
-      if (userData.role === 'athlete' || userData.role === 'creator' || userData.role === 'coach') {
+      // BULLETPROOF RULE #3: Athlete, creator, coach, admin, and superadmin roles are ALWAYS protected
+      if (userData.role === 'athlete' || userData.role === 'creator' || userData.role === 'coach' || userData.role === 'admin' || userData.role === 'superadmin') {
         console.log(`🛡️ ROLE PROTECTED: ${user.email} role '${userData.role}' - no auto-corrections applied`)
         return userData
       }
