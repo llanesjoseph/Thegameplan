@@ -45,24 +45,26 @@ export default function AdminUserManagement() {
  const [isRoleChangeInProgress, setIsRoleChangeInProgress] = useState(false)
  const [editingRoleUid, setEditingRoleUid] = useState<string | null>(null)
  const [tempRole, setTempRole] = useState('')
- 
+ const [coaches, setCoaches] = useState<{uid: string, name: string}[]>([])
+ const [selectedCoachId, setSelectedCoachId] = useState('')
+
  const { user } = useAuth()
  const { role, loading: roleLoading } = useEnhancedRole()
 
  const loadUsers = useCallback(async () => {
   try {
    setLoading(true)
-   
+
    // Load users from Firestore
    const usersQuery = query(
     collection(db, 'users'),
     orderBy('createdAt', 'desc'),
     limit(100)
    )
-   
+
    const usersSnapshot = await getDocs(usersQuery)
    const usersData: User[] = []
-   
+
    usersSnapshot.forEach(doc => {
     const data = doc.data()
     usersData.push({
@@ -78,13 +80,38 @@ export default function AdminUserManagement() {
      location: data.location || ''
     })
    })
-   
+
    setUsers(usersData)
-   
+
   } catch (error) {
    console.error('Error loading users:', error)
   } finally {
    setLoading(false)
+  }
+ }, [])
+
+ const loadCoaches = useCallback(async () => {
+  try {
+   // Load all coaches for assignment dropdown
+   const coachesQuery = query(
+    collection(db, 'users'),
+    where('role', '==', 'coach')
+   )
+
+   const coachesSnapshot = await getDocs(coachesQuery)
+   const coachesData: {uid: string, name: string}[] = []
+
+   coachesSnapshot.forEach(doc => {
+    const data = doc.data()
+    coachesData.push({
+     uid: doc.id,
+     name: data.displayName || data.email || 'Unnamed Coach'
+    })
+   })
+
+   setCoaches(coachesData)
+  } catch (error) {
+   console.error('Error loading coaches:', error)
   }
  }, [])
 
@@ -117,8 +144,9 @@ export default function AdminUserManagement() {
  useEffect(() => {
   if (user && (role === 'superadmin' || role === 'admin')) {
    loadUsers()
+   loadCoaches()
   }
- }, [user, role, loadUsers])
+ }, [user, role, loadUsers, loadCoaches])
 
  useEffect(() => {
   filterUsers()
@@ -155,6 +183,25 @@ export default function AdminUserManagement() {
    setSelectedUser(null)
   } catch (error) {
    console.error('Error updating user role:', error)
+  }
+ }
+
+ const assignCoach = async (athleteUid: string, coachId: string) => {
+  try {
+   // Update athlete's coach assignment
+   await updateDoc(doc(db, 'users', athleteUid), {
+    coachId: coachId,
+    assignedCoachId: coachId,
+    updatedAt: new Date()
+   })
+
+   console.log(`✅ Assigned coach ${coachId} to athlete ${athleteUid}`)
+   alert('Coach assigned successfully!')
+   setSelectedUser(null)
+   loadUsers() // Reload to show updated data
+  } catch (error) {
+   console.error('Error assigning coach:', error)
+   alert('Failed to assign coach. Please try again.')
   }
  }
 
@@ -586,6 +633,41 @@ export default function AdminUserManagement() {
           </button>
          </div>
         </div>
+
+        {/* Assign Coach (Athletes Only) */}
+        {selectedUser.role === 'athlete' && (
+         <div className="border-t border-gray-300/30 pt-4 space-y-2">
+          <label className="text-sm font-medium" style={{ color: '#000000' }}>Assign Coach</label>
+          <select
+           value={selectedCoachId}
+           onChange={(e) => setSelectedCoachId(e.target.value)}
+           className="w-full px-4 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black bg-white"
+           style={{ color: '#000000' }}
+          >
+           <option value="">Select a coach...</option>
+           {coaches.map(coach => (
+            <option key={coach.uid} value={coach.uid}>{coach.name}</option>
+           ))}
+          </select>
+          <button
+           onClick={() => {
+            if (!selectedCoachId) {
+             alert('Please select a coach first')
+             return
+            }
+            assignCoach(selectedUser.uid, selectedCoachId)
+           }}
+           disabled={!selectedCoachId}
+           className="w-full px-4 py-2 rounded-lg text-white transition-all disabled:opacity-50"
+           style={{ backgroundColor: '#20B2AA' }}
+          >
+           <div className="flex items-center justify-center gap-2">
+            <Star className="w-4 h-4" />
+            <span>Assign Coach</span>
+           </div>
+          </button>
+         </div>
+        )}
 
         {/* Status Actions */}
         <div className="border-t border-gray-300/30 pt-4 space-y-2">
