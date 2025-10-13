@@ -68,7 +68,7 @@ export default function CuratedGear() {
   const loadGearItems = async () => {
     try {
       setLoading(true)
-      const gearQuery = query(collection(db, 'curatedGear'), orderBy('createdAt', 'desc'))
+      const gearQuery = query(collection(db, 'gear'), orderBy('createdAt', 'desc'))
       const snapshot = await getDocs(gearQuery)
 
       const items = snapshot.docs.map((doc) => ({
@@ -90,15 +90,18 @@ export default function CuratedGear() {
     try {
       if (editingItem) {
         // Update existing item
-        await updateDoc(doc(db, 'curatedGear', editingItem.id), {
+        await updateDoc(doc(db, 'gear', editingItem.id), {
           ...formData,
           updatedAt: new Date()
         })
       } else {
         // Add new item
-        await addDoc(collection(db, 'curatedGear'), {
+        await addDoc(collection(db, 'gear'), {
           ...formData,
-          createdAt: new Date()
+          createdAt: new Date(),
+          createdBy: user?.uid,
+          creatorName: user?.displayName || user?.email || 'Admin',
+          status: 'active'
         })
       }
 
@@ -141,7 +144,7 @@ export default function CuratedGear() {
     if (!confirm('Are you sure you want to delete this gear item?')) return
 
     try {
-      await deleteDoc(doc(db, 'curatedGear', itemId))
+      await deleteDoc(doc(db, 'gear', itemId))
       loadGearItems()
     } catch (error) {
       console.error('Error deleting gear item:', error)

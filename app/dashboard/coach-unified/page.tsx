@@ -19,7 +19,8 @@ import {
   GraduationCap,
   X,
   UserCheck,
-  ChevronRight
+  ChevronRight,
+  ShoppingBag
 } from 'lucide-react'
 
 export default function CoachUnifiedDashboard() {
@@ -144,6 +145,13 @@ export default function CoachUnifiedDashboard() {
       description: 'Invite other coaches to join',
       icon: UserCheck,
       color: '#20B2AA'
+    },
+    {
+      id: 'gear',
+      title: 'Gear Recommendations',
+      description: 'Recommend equipment to athletes',
+      icon: ShoppingBag,
+      color: '#FF6B35'
     }
   ]
 
@@ -159,7 +167,8 @@ export default function CoachUnifiedDashboard() {
       'recruit-coach': '/dashboard/coach/recruit?embedded=true',
       'profile': '/dashboard/profile?embedded=true',
       'announcements': '/dashboard/coach/announcements?embedded=true',
-      'assistants': '/dashboard/coach/assistants?embedded=true'
+      'assistants': '/dashboard/coach/assistants?embedded=true',
+      'gear': '/dashboard/coach/gear?embedded=true'
     }
     return pathMap[sectionId]
   }
@@ -198,7 +207,7 @@ export default function CoachUnifiedDashboard() {
                 </h2>
               )}
               <p className={`text-xs ${isSidebarCollapsed ? 'text-center' : ''}`} style={{ color: '#666' }}>
-                {isSidebarCollapsed ? '11' : '11 tools available'}
+                {isSidebarCollapsed ? '12' : '12 tools available'}
               </p>
             </div>
 

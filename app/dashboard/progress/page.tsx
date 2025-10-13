@@ -15,7 +15,8 @@ import {
   X,
   Clock,
   TrendingUp,
-  Megaphone
+  Megaphone,
+  ShoppingBag
 } from 'lucide-react'
 import AppHeader from '@/components/ui/AppHeader'
 import AthleteOnboardingModal from '@/components/athlete/AthleteOnboardingModal'
@@ -105,6 +106,13 @@ export default function AthleteDashboard() {
       description: 'Request coach feedback on your clips',
       icon: Video,
       color: '#FF6B35'
+    },
+    {
+      id: 'gear',
+      title: 'Gear Shop',
+      description: 'Browse recommended equipment',
+      icon: ShoppingBag,
+      color: '#91A6EB'
     },
     ...(hasCoachRole ? [{
       id: 'coach-dashboard',
@@ -655,6 +663,14 @@ export default function AthleteDashboard() {
                         src="/dashboard/athlete-lessons?embedded=true"
                         className="w-full h-full border-0"
                         title="Your Lessons"
+                      />
+                    )}
+
+                    {activeSection === 'gear' && (
+                      <iframe
+                        src="/dashboard/gear?embedded=true"
+                        className="w-full h-full border-0"
+                        title="Gear Shop"
                       />
                     )}
                   </div>
