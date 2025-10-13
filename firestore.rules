@@ -626,6 +626,27 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // Announcements - Coach announcements to athletes
+    match /announcements/{announcementId} {
+      // Coaches can read their own announcements
+      allow read: if isAuthenticated() &&
+                     (resource.data.creatorUid == request.auth.uid || isAdmin());
+
+      // Athletes can read announcements from their coach
+      allow read: if isAuthenticated() &&
+                     exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+                     (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.coachId == resource.data.creatorUid ||
+                      get(/databases/$(database)/documents/users/$(request.auth.uid)).data.assignedCoachId == resource.data.creatorUid);
+
+      // Coaches can create announcements
+      allow create: if isCreatorOrHigher() &&
+                       request.resource.data.creatorUid == request.auth.uid;
+
+      // Coaches can update and delete their own announcements
+      allow update, delete: if isAuthenticated() &&
+                               (resource.data.creatorUid == request.auth.uid || isAdmin());
+    }
+
     // ============================================================================
     // COACH-ATHLETE DATA FLOW COLLECTIONS
     // See: /docs/COACH_ATHLETE_DATA_FLOW_SOLUTION.md
