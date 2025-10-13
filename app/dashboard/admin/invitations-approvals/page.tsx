@@ -705,9 +705,11 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
                 <table className="w-full">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="text-left p-2 text-xs" style={{ color: '#000000' }}>Athlete</th>
+                      <th className="text-left p-2 text-xs" style={{ color: '#000000' }}>Recipient</th>
+                      <th className="text-left p-2 text-xs" style={{ color: '#000000' }}>Type</th>
                       <th className="text-left p-2 text-xs" style={{ color: '#000000' }}>Sport</th>
                       <th className="text-left p-2 text-xs" style={{ color: '#000000' }}>Coach</th>
+                      <th className="text-left p-2 text-xs" style={{ color: '#000000' }}>Sent By</th>
                       <th className="text-left p-2 text-xs" style={{ color: '#000000' }}>Status</th>
                       <th className="text-left p-2 text-xs" style={{ color: '#000000' }}>Sent</th>
                       <th className="text-left p-2 text-xs" style={{ color: '#000000' }}>Expires</th>
@@ -716,38 +718,55 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
                   <tbody>
                     {invitationsLoading ? (
                       <tr>
-                        <td colSpan={6} className="text-center p-12">
+                        <td colSpan={8} className="text-center p-12">
                           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto"></div>
                         </td>
                       </tr>
                     ) : filteredInvitations.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="text-center p-12" style={{ color: '#000000', opacity: 0.7 }}>
+                        <td colSpan={8} className="text-center p-12" style={{ color: '#000000', opacity: 0.7 }}>
                           No invitations found
                         </td>
                       </tr>
                     ) : (
-                      filteredInvitations.map(invitation => (
-                        <tr key={invitation.id} className="border-t border-gray-200 hover:bg-gray-50">
-                          <td className="p-2 text-sm">
-                            <div className="font-semibold" style={{ color: '#000000' }}>{invitation.athleteName}</div>
-                            <div className="text-sm" style={{ color: '#000000', opacity: 0.6 }}>{invitation.athleteEmail}</div>
-                          </td>
-                          <td className="p-4" style={{ color: '#000000' }}>{invitation.sport}</td>
-                          <td className="p-4" style={{ color: '#000000' }}>{invitation.coachName || 'Unknown'}</td>
-                          <td className="p-2 text-sm">
-                            <span className={`px-3 py-1 rounded-full text-xs capitalize ${getStatusColor(invitation.status)}`}>
-                              {invitation.status}
-                            </span>
-                          </td>
-                          <td className="p-4 text-sm" style={{ color: '#000000', opacity: 0.7 }}>
-                            {invitation.createdAt.toLocaleDateString()}
-                          </td>
-                          <td className="p-4 text-sm" style={{ color: '#000000', opacity: 0.7 }}>
-                            {invitation.expiresAt.toLocaleDateString()}
-                          </td>
-                        </tr>
-                      ))
+                      filteredInvitations.map(invitation => {
+                        const invData = invitation as any
+                        const invType = invData.role || invData.type || 'unknown'
+                        const sentBy = invData.createdByName || (invData.creatorUid ? 'Coach' : 'System')
+
+                        return (
+                          <tr key={invitation.id} className="border-t border-gray-200 hover:bg-gray-50">
+                            <td className="p-2 text-sm">
+                              <div className="font-semibold" style={{ color: '#000000' }}>{invitation.athleteName || invData.coachName || 'N/A'}</div>
+                              <div className="text-xs" style={{ color: '#000000', opacity: 0.6 }}>{invitation.athleteEmail || invData.coachEmail || invData.recipientEmail || 'N/A'}</div>
+                            </td>
+                            <td className="p-2 text-xs">
+                              <span className={`px-2 py-1 rounded-full text-xs capitalize ${
+                                invType.includes('athlete') ? 'bg-blue-100 text-blue-800' :
+                                invType.includes('coach') ? 'bg-purple-100 text-purple-800' :
+                                invType.includes('admin') ? 'bg-red-100 text-red-800' :
+                                'bg-gray-100 text-gray-800'
+                              }`}>
+                                {invType.replace('_', ' ').replace('invitation', '').trim()}
+                              </span>
+                            </td>
+                            <td className="p-2 text-sm" style={{ color: '#000000' }}>{invitation.sport || 'N/A'}</td>
+                            <td className="p-2 text-sm" style={{ color: '#000000' }}>{invitation.coachName || invData.assignedCoach || '-'}</td>
+                            <td className="p-2 text-sm" style={{ color: '#000000', opacity: 0.7 }}>{sentBy}</td>
+                            <td className="p-2 text-sm">
+                              <span className={`px-2 py-1 rounded-full text-xs capitalize ${getStatusColor(invitation.status)}`}>
+                                {invitation.status}
+                              </span>
+                            </td>
+                            <td className="p-2 text-xs" style={{ color: '#000000', opacity: 0.7 }}>
+                              {invitation.createdAt.toLocaleDateString()}
+                            </td>
+                            <td className="p-2 text-xs" style={{ color: '#000000', opacity: 0.7 }}>
+                              {invitation.expiresAt.toLocaleDateString()}
+                            </td>
+                          </tr>
+                        )
+                      })
                     )}
                   </tbody>
                 </table>
@@ -1567,9 +1586,11 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
                 <table className="w-full">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="text-left p-2 text-xs" style={{ color: '#000000' }}>Athlete</th>
+                      <th className="text-left p-2 text-xs" style={{ color: '#000000' }}>Recipient</th>
+                      <th className="text-left p-2 text-xs" style={{ color: '#000000' }}>Type</th>
                       <th className="text-left p-2 text-xs" style={{ color: '#000000' }}>Sport</th>
                       <th className="text-left p-2 text-xs" style={{ color: '#000000' }}>Coach</th>
+                      <th className="text-left p-2 text-xs" style={{ color: '#000000' }}>Sent By</th>
                       <th className="text-left p-2 text-xs" style={{ color: '#000000' }}>Status</th>
                       <th className="text-left p-2 text-xs" style={{ color: '#000000' }}>Sent</th>
                       <th className="text-left p-2 text-xs" style={{ color: '#000000' }}>Expires</th>
@@ -1578,38 +1599,55 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
                   <tbody>
                     {invitationsLoading ? (
                       <tr>
-                        <td colSpan={6} className="text-center p-12">
+                        <td colSpan={8} className="text-center p-12">
                           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto"></div>
                         </td>
                       </tr>
                     ) : filteredInvitations.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="text-center p-12" style={{ color: '#000000', opacity: 0.7 }}>
+                        <td colSpan={8} className="text-center p-12" style={{ color: '#000000', opacity: 0.7 }}>
                           No invitations found
                         </td>
                       </tr>
                     ) : (
-                      filteredInvitations.map(invitation => (
-                        <tr key={invitation.id} className="border-t border-gray-200 hover:bg-gray-50">
-                          <td className="p-2 text-sm">
-                            <div className="font-semibold" style={{ color: '#000000' }}>{invitation.athleteName}</div>
-                            <div className="text-sm" style={{ color: '#000000', opacity: 0.6 }}>{invitation.athleteEmail}</div>
-                          </td>
-                          <td className="p-4" style={{ color: '#000000' }}>{invitation.sport}</td>
-                          <td className="p-4" style={{ color: '#000000' }}>{invitation.coachName || 'Unknown'}</td>
-                          <td className="p-2 text-sm">
-                            <span className={`px-3 py-1 rounded-full text-xs capitalize ${getStatusColor(invitation.status)}`}>
-                              {invitation.status}
-                            </span>
-                          </td>
-                          <td className="p-4 text-sm" style={{ color: '#000000', opacity: 0.7 }}>
-                            {invitation.createdAt.toLocaleDateString()}
-                          </td>
-                          <td className="p-4 text-sm" style={{ color: '#000000', opacity: 0.7 }}>
-                            {invitation.expiresAt.toLocaleDateString()}
-                          </td>
-                        </tr>
-                      ))
+                      filteredInvitations.map(invitation => {
+                        const invData = invitation as any
+                        const invType = invData.role || invData.type || 'unknown'
+                        const sentBy = invData.createdByName || (invData.creatorUid ? 'Coach' : 'System')
+
+                        return (
+                          <tr key={invitation.id} className="border-t border-gray-200 hover:bg-gray-50">
+                            <td className="p-2 text-sm">
+                              <div className="font-semibold" style={{ color: '#000000' }}>{invitation.athleteName || invData.coachName || 'N/A'}</div>
+                              <div className="text-xs" style={{ color: '#000000', opacity: 0.6 }}>{invitation.athleteEmail || invData.coachEmail || invData.recipientEmail || 'N/A'}</div>
+                            </td>
+                            <td className="p-2 text-xs">
+                              <span className={`px-2 py-1 rounded-full text-xs capitalize ${
+                                invType.includes('athlete') ? 'bg-blue-100 text-blue-800' :
+                                invType.includes('coach') ? 'bg-purple-100 text-purple-800' :
+                                invType.includes('admin') ? 'bg-red-100 text-red-800' :
+                                'bg-gray-100 text-gray-800'
+                              }`}>
+                                {invType.replace('_', ' ').replace('invitation', '').trim()}
+                              </span>
+                            </td>
+                            <td className="p-2 text-sm" style={{ color: '#000000' }}>{invitation.sport || 'N/A'}</td>
+                            <td className="p-2 text-sm" style={{ color: '#000000' }}>{invitation.coachName || invData.assignedCoach || '-'}</td>
+                            <td className="p-2 text-sm" style={{ color: '#000000', opacity: 0.7 }}>{sentBy}</td>
+                            <td className="p-2 text-sm">
+                              <span className={`px-2 py-1 rounded-full text-xs capitalize ${getStatusColor(invitation.status)}`}>
+                                {invitation.status}
+                              </span>
+                            </td>
+                            <td className="p-2 text-xs" style={{ color: '#000000', opacity: 0.7 }}>
+                              {invitation.createdAt.toLocaleDateString()}
+                            </td>
+                            <td className="p-2 text-xs" style={{ color: '#000000', opacity: 0.7 }}>
+                              {invitation.expiresAt.toLocaleDateString()}
+                            </td>
+                          </tr>
+                        )
+                      })
                     )}
                   </tbody>
                 </table>
