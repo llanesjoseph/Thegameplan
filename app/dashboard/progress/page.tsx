@@ -470,11 +470,13 @@ export default function AthleteDashboard() {
 
                             {/* Expand/Collapse Indicator */}
                             {card.expandable && (
-                              <div className={`${isExpanded ? '' : 'hidden sm:block'} mt-2 sm:mt-0`}>
-                                <ChevronDown
-                                  className={`w-5 h-5 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}
-                                  style={{ color: card.color }}
-                                />
+                              <div className={`mt-2 sm:mt-0`}>
+                                <div className="p-2 rounded-full bg-white/50 shadow-md">
+                                  <ChevronDown
+                                    className={`w-7 h-7 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}
+                                    style={{ color: card.color, strokeWidth: 2.5 }}
+                                  />
+                                </div>
                               </div>
                             )}
                           </div>
@@ -592,60 +594,6 @@ Be ${coachName || "the coach"}, be specific, be technical.`}
                       </div>
                     )}
 
-                    {/* Expanded Content - Upcoming Events */}
-                    {isExpanded && card.id === 'upcoming-events' && (
-                      <div
-                        className="mt-4 bg-gradient-to-br from-orange-50/90 to-white/90 backdrop-blur-sm rounded-xl shadow-2xl border border-orange-200/50 overflow-hidden animate-slideDown"
-                      >
-                        {/* Header */}
-                        <div className="bg-gradient-to-r from-orange-500/10 to-orange-400/10 px-6 py-4 border-b border-orange-200/50 flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: card.color }}>
-                              <Calendar className="w-5 h-5 text-white" />
-                            </div>
-                            <div>
-                              <h3 className="text-lg font-medium" style={{ color: '#000000' }}>
-                                Upcoming Events & Sessions
-                              </h3>
-                              <p className="text-xs" style={{ color: '#000000', opacity: 0.6 }}>
-                                Your scheduled training sessions and upcoming events
-                              </p>
-                            </div>
-                          </div>
-                          <button
-                            onClick={() => setExpandedCard(null)}
-                            className="p-2 hover:bg-orange-100 rounded-full transition-all animate-bounce-slow"
-                            title="Collapse Events"
-                          >
-                            <ChevronUp className="w-6 h-6" style={{ color: '#FF6B35' }} />
-                          </button>
-                        </div>
-
-                        {/* Events Content */}
-                        <div className="p-6">
-                          <div className="space-y-4">
-                            {/* Empty State */}
-                            <div className="text-center py-12">
-                              <Calendar className="w-16 h-16 mx-auto mb-4 opacity-20" />
-                              <h3 className="text-lg font-medium mb-2" style={{ color: '#000000' }}>
-                                No Upcoming Events
-                              </h3>
-                              <p className="text-sm mb-6" style={{ color: '#000000', opacity: 0.6 }}>
-                                Check back soon for scheduled training sessions, seminars, and events from your coach.
-                              </p>
-                              <button
-                                onClick={() => setShowVideoReviewModal(true)}
-                                className="px-6 py-3 rounded-lg text-white transition-colors inline-flex items-center gap-2"
-                                style={{ backgroundColor: '#FF6B35' }}
-                              >
-                                <Video className="w-5 h-5" />
-                                Request Video Review Instead
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
                   </div>
                 )
               })}
