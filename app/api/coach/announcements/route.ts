@@ -123,18 +123,36 @@ export async function POST(request: NextRequest) {
     let athletesToNotify: any[] = []
 
     try {
-      // Get all accepted invitations from this coach
-      const invitationsSnapshot = await adminDb
-        .collection('invitations')
-        .where('creatorUid', '==', uid)
-        .where('status', '==', 'accepted')
-        .get()
+      // Find athletes by querying users collection directly
+      // This is more reliable than relying on invitations
+      const athletesQuery = adminDb
+        .collection('users')
+        .where('role', '==', 'athlete')
 
-      const athleteEmails = invitationsSnapshot.docs.map(doc => doc.data().athleteEmail)
+      const athletesSnapshot = await athletesQuery.get()
 
-      console.log(`Found ${athleteEmails.length} accepted invitations`)
+      console.log(`Found ${athletesSnapshot.size} athletes in database`)
 
-      if (athleteEmails.length === 0) {
+      // Filter athletes who have this coach
+      const allAthletes = athletesSnapshot.docs
+        .map(doc => {
+          const data = doc.data()
+          return {
+            uid: doc.id,
+            email: data?.email,
+            name: data?.displayName || data?.name || 'Athlete',
+            sport: data?.sport || data?.sports?.[0],
+            coachId: data?.coachId || data?.assignedCoachId
+          }
+        })
+        .filter(athlete =>
+          athlete.email &&
+          (athlete.coachId === uid)
+        )
+
+      console.log(`Found ${allAthletes.length} athletes assigned to this coach`)
+
+      if (allAthletes.length === 0) {
         console.log('⚠️  No athletes found for this coach')
         return NextResponse.json({
           success: true,
@@ -144,33 +162,6 @@ export async function POST(request: NextRequest) {
           emailsFailed: 0
         })
       }
-
-      console.log(`Found ${athleteEmails.length} athletes in coach's roster`)
-
-      // Fetch athlete details using email addresses
-      const athleteDetailsPromises = athleteEmails.map(async (email) => {
-        // Query users by email
-        const usersSnapshot = await adminDb
-          .collection('users')
-          .where('email', '==', email)
-          .limit(1)
-          .get()
-
-        if (!usersSnapshot.empty) {
-          const athleteDoc = usersSnapshot.docs[0]
-          const athleteData = athleteDoc.data()
-          return {
-            uid: athleteDoc.id,
-            email: athleteData?.email,
-            name: athleteData?.displayName || athleteData?.name || 'Athlete',
-            sport: athleteData?.sport || athleteData?.sports?.[0]
-          }
-        }
-        return null
-      })
-
-      const allAthletesRaw = await Promise.all(athleteDetailsPromises)
-      const allAthletes = allAthletesRaw.filter((a): a is NonNullable<typeof a> => a !== null && Boolean(a.email))
 
       // Filter based on audience setting
       if (audience === 'all') {
