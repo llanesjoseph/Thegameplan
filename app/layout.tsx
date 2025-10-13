@@ -1,5 +1,6 @@
 import './globals.css'
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Inter, Oswald, Permanent_Marker } from 'next/font/google'
@@ -36,7 +37,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   <html lang="en">
    <body className={`bg-white text-gray-800 ${inter.variable} ${oswald.variable} ${permanentMarker.variable}`}>
     {children}
-    <BugReportButton />
+    <Suspense fallback={null}>
+     <BugReportButton />
+    </Suspense>
     <Analytics />
     <SpeedInsights />
    </body>

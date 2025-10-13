@@ -9,6 +9,9 @@ import SuperAdminTabs from '@/components/ui/SuperAdminTabs'
 import { UserIdentity } from '@/components/user-identity'
 import UploadManager from '@/components/UploadManager'
 
+// Force dynamic rendering for all dashboard pages
+export const dynamic = 'force-dynamic'
+
 export default function DashboardLayout({ children }: { children: ReactNode }) {
  const pathname = usePathname()
 

@@ -4,6 +4,9 @@ import { ReactNode, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import AuthGate from '@/components/auth/AuthGate'
 
+// Force dynamic rendering for all dashboard admin pages
+export const dynamic = 'force-dynamic'
+
 function EmbeddedViewDetector() {
  const searchParams = useSearchParams()
  const isEmbedded = searchParams.get('embedded') === 'true'

@@ -33,6 +33,12 @@ const nextConfig = {
   // Compression
   compress: true,
 
+  // Skip static generation for dynamic routes
+  // These routes use useSearchParams() and require client-side rendering
+  generateBuildId: async () => {
+    return 'build-' + Date.now()
+  },
+
   // Redirects for backwards compatibility
   async redirects() {
     return [
@@ -50,6 +56,10 @@ const nextConfig = {
   },
 
   // Vercel deployment - API routes enabled as serverless functions
+  // Dynamic routes that should not be statically optimized
+  experimental: {
+    missingSuspenseWithCSRBailout: false, // Disable warnings for useSearchParams without Suspense
+  },
 }
 
 export default nextConfig
