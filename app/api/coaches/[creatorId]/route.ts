@@ -65,6 +65,24 @@ export async function GET(
       )
     }
 
+    // Debug logging for action photos
+    console.log(`[Coach Profile API] Fetching coach: ${creatorId}`)
+    console.log(`[Coach Profile API] Action photos in profile:`, coachProfile.actionPhotos)
+    console.log(`[Coach Profile API] Action photos type:`, typeof coachProfile.actionPhotos)
+    console.log(`[Coach Profile API] Action photos is array:`, Array.isArray(coachProfile.actionPhotos))
+
+    // Ensure action photos array has at least 3 photos for display
+    const actionPhotos = coachProfile.actionPhotos && Array.isArray(coachProfile.actionPhotos) && coachProfile.actionPhotos.length > 0
+      ? coachProfile.actionPhotos
+      : []
+
+    // Pad with placeholders if needed to ensure 3 photos minimum
+    const paddedActionPhotos = [
+      actionPhotos[0] || '/api/placeholder/800/600',
+      actionPhotos[1] || '/api/placeholder/800/600',
+      actionPhotos[2] || '/api/placeholder/800/600'
+    ]
+
     // Transform coach profile to creator format
     const creatorData = {
       id: coachProfile.uid || creatorId,
@@ -77,7 +95,7 @@ export async function GET(
       description: coachProfile.bio || 'I can help you with training, technique, and mental preparation.',
       heroImageUrl: coachProfile.heroImageUrl || '/api/placeholder/800/400',
       headshotUrl: coachProfile.headshotUrl || '/api/placeholder/200/200',
-      actionPhotos: coachProfile.actionPhotos || ['/api/placeholder/300/300'],
+      actionPhotos: paddedActionPhotos,
       highlightVideo: coachProfile.highlightVideo || undefined,
       socialLinks: {
         facebook: undefined,
