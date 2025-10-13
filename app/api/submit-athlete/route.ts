@@ -137,6 +137,9 @@ export async function POST(request: NextRequest) {
       lastName: athleteProfile.lastName,
       athleteId, // Reference to athlete document
       creatorUid: invitationData?.creatorUid || '',
+      // CRITICAL: Set coach assignment fields for analytics and data queries
+      coachId: invitationData?.creatorUid || invitationData?.coachId || '',
+      assignedCoachId: invitationData?.creatorUid || invitationData?.coachId || '',
       lastLoginAt: now,
       invitationId,
       // BULLETPROOF PROTECTION: Store invitation role as source of truth
