@@ -43,7 +43,7 @@ function AddVideoModal({ onClose }: { onClose: () => void }) {
     source: 'youtube' as 'youtube' | 'vimeo' | 'direct',
     url: '',
     thumbnail: '',
-    duration: 0,
+    duration: '' as string | number,
     sport: 'baseball',
     tags: ''
   })
@@ -64,6 +64,7 @@ function AddVideoModal({ onClose }: { onClose: () => void }) {
         },
         body: JSON.stringify({
           ...formData,
+          duration: formData.duration === '' ? 0 : typeof formData.duration === 'string' ? parseInt(formData.duration) || 0 : formData.duration,
           tags: formData.tags.split(',').map(t => t.trim()).filter(t => t)
         })
       })
@@ -218,9 +219,9 @@ function AddVideoModal({ onClose }: { onClose: () => void }) {
             <input
               type="number"
               value={formData.duration}
-              onChange={(e) => setFormData({ ...formData, duration: parseInt(e.target.value) || 0 })}
+              onChange={(e) => setFormData({ ...formData, duration: e.target.value === '' ? '' : parseInt(e.target.value) || '' })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-              placeholder="10"
+              placeholder="e.g., 10"
               min="0"
             />
           </div>

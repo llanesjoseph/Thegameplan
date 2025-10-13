@@ -46,18 +46,35 @@ export async function GET(request: NextRequest) {
     }
 
     // 3. Query videos by creatorUid
+    // Note: Removed orderBy to avoid composite index requirement
+    // Videos will be sorted on client-side if needed
     const videosSnapshot = await adminDb
       .collection('videos')
       .where('creatorUid', '==', uid)
-      .orderBy('createdAt', 'desc')
       .get()
 
-    const videos = videosSnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-      // Convert Firestore timestamps to ISO strings
-      createdAt: doc.data().createdAt?.toDate?.()?.toISOString() || null
-    }))
+    const videos = videosSnapshot.docs.map(doc => {
+      const data = doc.data()
+      return {
+        id: doc.id,
+        title: data.title || '',
+        description: data.description || '',
+        source: data.source || 'youtube',
+        url: data.url || '',
+        thumbnail: data.thumbnail || '',
+        duration: data.duration || 0,
+        sport: data.sport || 'other',
+        tags: data.tags || [],
+        views: data.views || 0,
+        // Convert Firestore timestamps to ISO strings for display
+        createdAt: data.createdAt?.toDate?.()?.toLocaleDateString() || 'Recently'
+      }
+    }).sort((a, b) => {
+      // Sort by createdAt descending on client-side
+      const dateA = videosSnapshot.docs.find(d => d.id === a.id)?.data().createdAt?.toDate?.()?.getTime() || 0
+      const dateB = videosSnapshot.docs.find(d => d.id === b.id)?.data().createdAt?.toDate?.()?.getTime() || 0
+      return dateB - dateA
+    })
 
     return NextResponse.json({
       success: true,
@@ -66,9 +83,16 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error: any) {
-    console.error('Error listing videos:', error)
+    console.error('Error listing videos:', {
+      message: error.message,
+      code: error.code,
+      stack: error.stack
+    })
     return NextResponse.json(
-      { error: error.message || 'Internal server error' },
+      {
+        error: error.message || 'Internal server error',
+        details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      },
       { status: 500 }
     )
   }
@@ -131,6 +155,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 5. Create video document
+    const now = new Date()
     const videoData = {
       creatorUid: uid,
       title,
@@ -138,26 +163,48 @@ export async function POST(request: NextRequest) {
       source,
       url,
       thumbnail: thumbnail || '',
-      duration: duration || 0,
+      duration: typeof duration === 'number' ? duration : parseInt(duration) || 0,
       sport,
-      tags: tags || [],
+      tags: Array.isArray(tags) ? tags : [],
       views: 0,
-      createdAt: new Date(),
-      updatedAt: new Date()
+      createdAt: now,
+      updatedAt: now
     }
 
+    console.log('Creating video:', {
+      title,
+      source,
+      sport,
+      duration: videoData.duration,
+      creatorUid: uid
+    })
+
     const videoRef = await adminDb.collection('videos').add(videoData)
+
+    console.log('Video created successfully:', videoRef.id)
 
     return NextResponse.json({
       success: true,
       videoId: videoRef.id,
+      video: {
+        id: videoRef.id,
+        ...videoData,
+        createdAt: now.toISOString()
+      },
       message: 'Video created successfully'
     })
 
   } catch (error: any) {
-    console.error('Error creating video:', error)
+    console.error('Error creating video:', {
+      message: error.message,
+      code: error.code,
+      stack: error.stack
+    })
     return NextResponse.json(
-      { error: error.message || 'Internal server error' },
+      {
+        error: error.message || 'Internal server error',
+        details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      },
       { status: 500 }
     )
   }
