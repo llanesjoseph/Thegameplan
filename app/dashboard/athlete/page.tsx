@@ -21,6 +21,7 @@ import {
 import AppHeader from '@/components/ui/AppHeader'
 import AthleteOnboardingModal from '@/components/athlete/AthleteOnboardingModal'
 import VideoReviewRequestModal from '@/components/athlete/VideoReviewRequestModal'
+import Live1on1RequestModal from '@/components/athlete/Live1on1RequestModal'
 import AIAssistant from '@/components/AIAssistant'
 
 export default function AthleteDashboard() {
@@ -31,6 +32,7 @@ export default function AthleteDashboard() {
   const [onboardingComplete, setOnboardingComplete] = useState(false)
   const [isCheckingOnboarding, setIsCheckingOnboarding] = useState(true)
   const [showVideoReviewModal, setShowVideoReviewModal] = useState(false)
+  const [showLive1on1Modal, setShowLive1on1Modal] = useState(false)
   const [hasCoachRole, setHasCoachRole] = useState(false)
   const [coachId, setCoachId] = useState<string | null>(null)
   const [coachName, setCoachName] = useState<string>('')
@@ -106,6 +108,13 @@ export default function AthleteDashboard() {
       description: 'Request coach feedback on your clips',
       icon: Video,
       color: '#FF6B35'
+    },
+    {
+      id: 'live-session',
+      title: 'Live 1-on-1 Session',
+      description: 'Schedule a live coaching call',
+      icon: Calendar,
+      color: '#16A34A'
     },
     {
       id: 'gear',
@@ -327,6 +336,10 @@ export default function AthleteDashboard() {
       setShowVideoReviewModal(true)
       return
     }
+    if (toolId === 'live-session') {
+      setShowLive1on1Modal(true)
+      return
+    }
     if (toolId === 'coach-dashboard') {
       router.push('/dashboard/coach-unified')
       return
@@ -396,6 +409,18 @@ export default function AthleteDashboard() {
           coachId={coachId || undefined}
           onClose={() => setShowVideoReviewModal(false)}
           onSuccess={() => alert('✅ Video review request submitted!')}
+        />
+      )}
+
+      {/* Live 1-on-1 Session Modal */}
+      {showLive1on1Modal && user && (
+        <Live1on1RequestModal
+          userId={user.uid}
+          userEmail={user.email || ''}
+          coachId={coachId || undefined}
+          coachName={coachName}
+          onClose={() => setShowLive1on1Modal(false)}
+          onSuccess={() => alert('✅ Live session request submitted! Your coach will respond soon.')}
         />
       )}
 

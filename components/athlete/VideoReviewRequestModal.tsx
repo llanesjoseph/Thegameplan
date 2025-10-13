@@ -198,7 +198,7 @@ export default function VideoReviewRequestModal({
               >
                 <LinkIcon className="w-6 h-6 mx-auto mb-2" />
                 <div className="text-sm">Share Link</div>
-                <div className="text-xs opacity-75 mt-1">YouTube, Vimeo, etc.</div>
+                <div className="text-xs opacity-75 mt-1">Vimeo, Google Drive, etc.</div>
               </button>
               <button
                 type="button"
@@ -232,14 +232,14 @@ export default function VideoReviewRequestModal({
                 type="url"
                 value={formData.videoUrl}
                 onChange={(e) => setFormData({ ...formData, videoUrl: e.target.value })}
-                placeholder="https://youtube.com/watch?v=... or https://vimeo.com/..."
+                placeholder="https://vimeo.com/... or https://drive.google.com/..."
                 className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:border-black transition-colors"
                 style={{ borderColor: '#E8E6D8' }}
                 required
                 disabled={isSubmitting || isUploading}
               />
               <p className="text-xs mt-1" style={{ color: '#000000', opacity: 0.6 }}>
-                YouTube, Vimeo, or Google Drive link to your video
+                Vimeo or Google Drive link to your video
               </p>
             </div>
           )}
