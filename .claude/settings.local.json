@@ -25,7 +25,8 @@
       "Bash(npx tsc:*)",
       "Bash(firebase deploy:*)",
       "Bash(cmd:*)",
-      "Bash(firebase login:*)"
+      "Bash(firebase login:*)",
+      "Bash(firebase functions:list:*)"
     ],
     "deny": [],
     "ask": []
