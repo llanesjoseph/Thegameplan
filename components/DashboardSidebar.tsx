@@ -59,10 +59,9 @@ const navigationItems = {
  ],
  superadmin: [
   { title: 'Dashboard', icon: LayoutDashboard, href: '/dashboard/coach-unified', color: 'text-blue-600' },
-  { title: 'Role Management', icon: Crown, href: '/dashboard/admin/roles', color: 'text-red-600' },
   { title: 'System Analytics', icon: BarChart3, href: '/dashboard/admin/analytics', color: 'text-purple-600' },
   { title: '━━━ User Management ━━━', icon: null, href: '', color: 'text-gray-400', disabled: true },
-  { title: 'All Users', icon: Users, href: '/dashboard/admin/users', color: 'text-green-600' },
+  { title: 'User & Role Management', icon: Crown, href: '/dashboard/admin/users', color: 'text-purple-600' },
   { title: 'All Invitations', icon: Mail, href: '/dashboard/admin/invitations', color: 'text-blue-600' },
   { title: 'Coach Applications', icon: Award, href: '/dashboard/admin/creator-applications', color: 'text-indigo-600' },
   { title: '━━━ Content Management ━━━', icon: null, href: '', color: 'text-gray-400', disabled: true },

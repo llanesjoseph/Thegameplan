@@ -3,7 +3,9 @@
 import { useState } from 'react'
 import GoogleSignInButton from './GoogleSignInButton'
 import EmailSignInButton from './EmailSignInButton'
-import AppleSignInButton from './AppleSignInButton'
+// TEMPORARILY DISABLED: Apple Sign-In requires Apple Developer account ($99/year)
+// and Service ID configuration. Uncomment below when ready to enable.
+// import AppleSignInButton from './AppleSignInButton'
 import { ClarityCard } from '@/components/ui/ClarityCard'
 import { Users, Shield, Zap } from 'lucide-react'
 
@@ -56,7 +58,8 @@ export default function AuthProvider({
     )}
     <div className="space-y-3">
      <GoogleSignInButton size="md" variant="default" />
-     <AppleSignInButton size="md" variant="default" />
+     {/* TEMPORARILY DISABLED: Apple Sign-In - uncomment when Apple Developer account is configured */}
+     {/* <AppleSignInButton size="md" variant="default" /> */}
      <EmailSignInButton size="md" variant="default" />
     </div>
     {returnUserPrompt && (
@@ -90,8 +93,9 @@ export default function AuthProvider({
      ) : (
       <>
        <GoogleSignInButton size="md" variant="default" />
-       <AppleSignInButton size="md" variant="default" />
-       
+       {/* TEMPORARILY DISABLED: Apple Sign-In - uncomment when Apple Developer account is configured */}
+       {/* <AppleSignInButton size="md" variant="default" /> */}
+
        <div className="relative my-4">
         <div className="absolute inset-0 flex items-center">
          <div className="w-full border-t border-gray-200"></div>
@@ -102,7 +106,7 @@ export default function AuthProvider({
          </span>
         </div>
        </div>
-       
+
        <EmailSignInButton size="md" variant="outline" />
       </>
      )}

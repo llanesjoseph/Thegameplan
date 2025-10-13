@@ -64,7 +64,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to create user account' }, { status: 500 })
     }
 
-    // Create user document
+    // BULLETPROOF: Store invitation role and protect it from auto-corrections
+    const targetRole = application.role || 'coach'
+
+    // Create user document with bulletproof role protection
     await adminDb.collection('users').doc(userRecord.uid).set({
       uid: userRecord.uid,
       email: application.email.toLowerCase(),
@@ -72,14 +75,19 @@ export async function POST(request: NextRequest) {
       firstName: application.firstName,
       lastName: application.lastName,
       phone: application.phone || '',
-      role: application.role || 'coach',
+      role: targetRole,
+      // BULLETPROOF PROTECTION: Store the invitation role as source of truth
+      invitationRole: targetRole,
+      invitationType: application.role === 'coach' ? 'coach_invitation' : 'assistant_invitation',
       createdAt: now,
       lastLoginAt: now,
       applicationId,
       invitationId,
+      // Multiple layers of protection
       manuallySetRole: true,
       roleProtected: true,
-      roleSource: 'admin_approval'
+      roleSource: 'admin_approval',
+      roleLockedByInvitation: true
     }, { merge: true })
 
     // Create coach profile

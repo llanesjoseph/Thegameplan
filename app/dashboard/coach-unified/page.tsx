@@ -19,7 +19,7 @@ import {
   GraduationCap,
   X,
   UserCheck,
-  ChevronDown
+  ChevronRight
 } from 'lucide-react'
 
 export default function CoachUnifiedDashboard() {
@@ -27,6 +27,7 @@ export default function CoachUnifiedDashboard() {
   const router = useRouter()
   const [showWelcome, setShowWelcome] = useState(false)
   const [activeSection, setActiveSection] = useState<string | null>(null)
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
 
   // Role-based redirect - prevent admins from accessing coach dashboard
   useEffect(() => {
@@ -72,88 +73,77 @@ export default function CoachUnifiedDashboard() {
       title: 'My Athletes',
       description: 'View and manage your athletes',
       icon: Users,
-      color: '#91A6EB',
-      inline: true
+      color: '#91A6EB'
     },
     {
       id: 'create-lesson',
       title: 'Create Lesson',
       description: 'Build comprehensive training lessons',
       icon: GraduationCap,
-      color: '#20B2AA',
-      inline: true
+      color: '#20B2AA'
     },
     {
       id: 'lesson-library',
       title: 'Lesson Library',
       description: 'View and edit all your lessons',
       icon: BookOpen,
-      color: '#000000',
-      inline: true
+      color: '#000000'
     },
     {
       id: 'videos',
       title: 'Video Manager',
       description: 'Organize and embed training videos',
       icon: Video,
-      color: '#FF6B35',
-      inline: true
+      color: '#FF6B35'
     },
     {
       id: 'resources',
       title: 'Resource Library',
       description: 'PDFs, links, and training materials',
       icon: FileText,
-      color: '#91A6EB',
-      inline: true
+      color: '#91A6EB'
     },
     {
       id: 'analytics',
       title: 'Analytics',
       description: 'Track engagement and progress',
       icon: BarChart3,
-      color: '#20B2AA',
-      inline: true
+      color: '#20B2AA'
     },
     {
       id: 'invite',
       title: 'Invite Athletes',
       description: 'Send bulk invitations to athletes',
       icon: UserPlus,
-      color: '#000000',
-      inline: true
+      color: '#000000'
     },
     {
       id: 'recruit-coach',
       title: 'Recruit Fellow Coach',
       description: 'Invite other coaches to join',
       icon: UserCheck,
-      color: '#20B2AA',
-      inline: true
+      color: '#20B2AA'
     },
     {
       id: 'profile',
       title: 'My Profile',
       description: 'Edit your coach profile',
       icon: Settings,
-      color: '#FF6B35',
-      inline: true
+      color: '#FF6B35'
     },
     {
       id: 'announcements',
       title: 'Announcements',
       description: 'Send updates to all athletes',
       icon: Bell,
-      color: '#91A6EB',
-      inline: true
+      color: '#91A6EB'
     },
     {
       id: 'assistants',
       title: 'Assistant Coaches',
       description: 'Manage coaching staff',
       icon: UserCog,
-      color: '#20B2AA',
-      inline: true
+      color: '#20B2AA'
     }
   ]
 
@@ -178,192 +168,174 @@ export default function CoachUnifiedDashboard() {
     <div style={{ backgroundColor: '#E8E6D8' }} className="min-h-screen">
       <AppHeader title="Coach Dashboard" subtitle="Empower your athletes with expert training" />
 
-      <main className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 space-y-6 lg:space-y-8">
-        {/* Inline Expanded Content */}
-        {activeSection && (
-          <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-2xl border border-white/50 overflow-hidden">
-            <div className="flex items-center justify-between p-4 border-b border-gray-200">
-              <h2 className="text-xl font-medium" style={{ color: '#000000' }}>
-                {coachCards.find(c => c.id === activeSection)?.title || 'Section'}
-              </h2>
-              <button
-                onClick={() => setActiveSection(null)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                title="Close"
-              >
-                <X className="w-5 h-5" style={{ color: '#000000' }} />
-              </button>
+      <main className="relative" style={{ height: 'calc(100vh - 120px)' }}>
+        {/* Two-column layout: Sidebar + Main Content */}
+        <div className="flex h-full">
+          {/* Left Sidebar - Compact Coaching Tools */}
+          <aside
+            className={`bg-white/90 backdrop-blur-sm border-r border-gray-200 transition-all duration-300 overflow-y-auto ${
+              isSidebarCollapsed ? 'w-16' : 'w-80'
+            }`}
+            style={{ height: '100%' }}
+          >
+            {/* Sidebar Header */}
+            <div className="sticky top-0 bg-white/95 backdrop-blur-sm z-10 border-b border-gray-200 p-4">
+              {!isSidebarCollapsed && (
+                <h2 className="text-lg font-semibold mb-1" style={{ color: '#000000' }}>
+                  Coaching Tools
+                </h2>
+              )}
+              <p className={`text-xs ${isSidebarCollapsed ? 'text-center' : ''}`} style={{ color: '#666' }}>
+                {isSidebarCollapsed ? '11' : '11 tools available'}
+              </p>
             </div>
-            <div style={{ height: '600px' }}>
-              <iframe
-                src={getSectionPath(activeSection)}
-                className="w-full h-full border-0"
-                title={coachCards.find(c => c.id === activeSection)?.title || 'Section'}
-              />
-            </div>
-          </div>
-        )}
 
-        {/* Coach Tools Grid */}
-        <div>
-          <h2 className="text-xl sm:text-2xl mb-4 sm:mb-6 uppercase tracking-wide" style={{ color: '#000000' }}>
-            Coaching Tools
-          </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
-            {coachCards.map((card, index) => {
-              const Icon = card.icon
+            {/* Compact Tool Cards */}
+            <div className="p-2 space-y-1">
+              {coachCards.map((card) => {
+                const Icon = card.icon
+                const isActive = activeSection === card.id
 
-              return (
-                <button
-                  key={index}
-                  onClick={(e) => {
-                    console.log('Card clicked:', card.id)
-                    e.preventDefault()
-                    e.stopPropagation()
-                    // Toggle expansion: close if already open, open if closed
-                    setActiveSection(activeSection === card.id ? null : card.id)
-                  }}
-                  className="block group cursor-pointer text-left transition-all w-full"
-                  style={{ position: 'relative', zIndex: 1 }}
-                >
-                  <div className="bg-white/90 backdrop-blur-sm rounded-lg sm:rounded-xl shadow-lg p-3 sm:p-4 h-full transition-all hover:shadow-2xl hover:scale-105 border border-white/50">
-                    <div className="flex flex-col h-full min-h-[100px] sm:min-h-[120px]">
-                      <div className="flex items-start justify-between mb-2">
-                        {/* Icon */}
-                        <div
-                          className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center shadow-md"
-                          style={{ backgroundColor: card.color }}
-                        >
-                          <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-                        </div>
-
-                        {/* Prominent Chevron Indicator */}
-                        {card.inline && (
-                          <div className="p-2 rounded-full bg-white/50 shadow-md">
-                            <ChevronDown
-                              className={`w-6 h-6 sm:w-7 sm:h-7 transition-transform duration-300 ${
-                                activeSection === card.id ? 'rotate-180' : ''
-                              }`}
-                              style={{ color: card.color, strokeWidth: 2.5 }}
-                            />
-                          </div>
-                        )}
+                return (
+                  <button
+                    key={card.id}
+                    onClick={() => setActiveSection(card.id)}
+                    className={`w-full text-left transition-all rounded-lg ${
+                      isActive
+                        ? 'bg-black/10 shadow-md'
+                        : 'hover:bg-gray-100/80'
+                    }`}
+                    title={isSidebarCollapsed ? card.title : undefined}
+                  >
+                    <div className={`flex items-center gap-3 p-3 ${isSidebarCollapsed ? 'justify-center' : ''}`}>
+                      {/* Icon */}
+                      <div
+                        className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                        style={{ backgroundColor: card.color }}
+                      >
+                        <Icon className="w-4 h-4 text-white" />
                       </div>
 
-                      {/* Title */}
-                      <h3 className="text-xs sm:text-sm mb-1 line-clamp-2 font-medium" style={{ color: '#000000' }}>
-                        {card.title}
-                      </h3>
+                      {/* Text content - hidden when collapsed */}
+                      {!isSidebarCollapsed && (
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <h3 className="text-sm font-medium truncate" style={{ color: '#000000' }}>
+                              {card.title}
+                            </h3>
+                            <ChevronRight
+                              className={`w-4 h-4 flex-shrink-0 transition-transform ${
+                                isActive ? 'rotate-90' : ''
+                              }`}
+                              style={{ color: card.color }}
+                            />
+                          </div>
+                          <p className="text-xs truncate mt-0.5" style={{ color: '#666' }}>
+                            {card.description}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+          </aside>
 
-                      {/* Description */}
-                      <p className="text-[10px] sm:text-xs flex-grow line-clamp-2" style={{ color: '#000000', opacity: 0.6 }}>
-                        {card.description}
+          {/* Main Content Area - Expanded Iframe */}
+          <div className="flex-1 overflow-hidden relative">
+            {activeSection ? (
+              <div className="h-full bg-white/90 backdrop-blur-sm">
+                {/* Content Header */}
+                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white/95 backdrop-blur-sm">
+                  <div>
+                    <h2 className="text-xl font-semibold" style={{ color: '#000000' }}>
+                      {coachCards.find(c => c.id === activeSection)?.title}
+                    </h2>
+                    <p className="text-sm mt-0.5" style={{ color: '#666' }}>
+                      {coachCards.find(c => c.id === activeSection)?.description}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setActiveSection(null)}
+                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                    title="Close"
+                  >
+                    <X className="w-5 h-5" style={{ color: '#000000' }} />
+                  </button>
+                </div>
+
+                {/* Iframe Content */}
+                <div style={{ height: 'calc(100% - 73px)' }}>
+                  <iframe
+                    src={getSectionPath(activeSection)}
+                    className="w-full h-full border-0"
+                    title={coachCards.find(c => c.id === activeSection)?.title || 'Section'}
+                  />
+                </div>
+              </div>
+            ) : (
+              /* Welcome/Empty State */
+              <div className="h-full flex items-center justify-center p-8">
+                <div className="max-w-2xl text-center">
+                  <div className="mb-6">
+                    <GraduationCap className="w-20 h-20 mx-auto mb-4" style={{ color: '#20B2AA' }} />
+                    <h2 className="text-3xl font-bold mb-2" style={{ color: '#000000' }}>
+                      Welcome, Coach {user?.displayName?.split(' ')[0] || 'Coach'}! 👋
+                    </h2>
+                    <p className="text-lg" style={{ color: '#666' }}>
+                      Select a tool from the left sidebar to get started
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 text-left">
+                    <div className="bg-gradient-to-br from-sky-blue/10 to-sky-blue/5 rounded-lg p-5 border-2" style={{ borderColor: '#91A6EB' }}>
+                      <GraduationCap className="w-8 h-8 mb-3" style={{ color: '#91A6EB' }} />
+                      <h3 className="font-semibold mb-1" style={{ color: '#000000' }}>Create Lessons</h3>
+                      <p className="text-sm" style={{ color: '#666' }}>
+                        Build training lessons with videos and drills
+                      </p>
+                    </div>
+
+                    <div className="bg-gradient-to-br from-teal/10 to-teal/5 rounded-lg p-5 border-2" style={{ borderColor: '#20B2AA' }}>
+                      <Users className="w-8 h-8 mb-3" style={{ color: '#20B2AA' }} />
+                      <h3 className="font-semibold mb-1" style={{ color: '#000000' }}>Manage Athletes</h3>
+                      <p className="text-sm" style={{ color: '#666' }}>
+                        Track progress and engagement
+                      </p>
+                    </div>
+
+                    <div className="bg-gradient-to-br from-orange/10 to-orange/5 rounded-lg p-5 border-2" style={{ borderColor: '#FF6B35' }}>
+                      <Video className="w-8 h-8 mb-3" style={{ color: '#FF6B35' }} />
+                      <h3 className="font-semibold mb-1" style={{ color: '#000000' }}>Video Library</h3>
+                      <p className="text-sm" style={{ color: '#666' }}>
+                        Organize all your training videos
+                      </p>
+                    </div>
+
+                    <div className="bg-gradient-to-br from-black/10 to-black/5 rounded-lg p-5 border-2 border-black/20">
+                      <BarChart3 className="w-8 h-8 mb-3" style={{ color: '#000000' }} />
+                      <h3 className="font-semibold mb-1" style={{ color: '#000000' }}>Analytics</h3>
+                      <p className="text-sm" style={{ color: '#666' }}>
+                        View insights and metrics
                       </p>
                     </div>
                   </div>
-                </button>
-              )
-            })}
+
+                  <div className="mt-6 bg-gradient-to-r from-sky-blue to-teal rounded-lg p-5 text-white text-left">
+                    <h3 className="font-semibold mb-3 text-lg">🎯 Quick Start</h3>
+                    <ol className="space-y-2 text-sm">
+                      <li><strong>1.</strong> Click any tool in the sidebar to open it</li>
+                      <li><strong>2.</strong> Use "Create Lesson" to build your first training</li>
+                      <li><strong>3.</strong> Check "Analytics" to track athlete engagement</li>
+                    </ol>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
-
-        {/* Welcome Section (only shown once per session) */}
-        {showWelcome && (
-          <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 sm:p-8 relative">
-            <button
-              onClick={() => setShowWelcome(false)}
-              className="absolute top-3 right-3 sm:top-4 sm:right-4 p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              title="Close welcome message"
-            >
-              <X className="w-5 h-5" style={{ color: '#000000' }} />
-            </button>
-            <div className="max-w-3xl">
-              <h2 className="text-2xl sm:text-3xl mb-4" style={{ color: '#000000' }}>
-                Welcome, Coach {user?.displayName?.split(' ')[0] || 'Coach'}! 👋
-              </h2>
-              <p className="text-base sm:text-lg mb-6" style={{ color: '#000000', opacity: 0.7 }}>
-                Your unified coaching dashboard gives you everything you need to create exceptional training experiences for your athletes.
-              </p>
-
-              <div className="grid sm:grid-cols-2 gap-4 mb-6">
-                <div className="bg-gradient-to-br from-sky-blue/10 to-sky-blue/5 rounded-lg p-4 border-2" style={{ borderColor: '#91A6EB' }}>
-                  <GraduationCap className="w-8 h-8 mb-2" style={{ color: '#91A6EB' }} />
-                  <h3 className="mb-1" style={{ color: '#000000' }}>Create Lessons</h3>
-                  <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>
-                    Build comprehensive training lessons with videos, drills, and resources
-                  </p>
-                </div>
-
-                <div className="bg-gradient-to-br from-teal/10 to-teal/5 rounded-lg p-4 border-2" style={{ borderColor: '#20B2AA' }}>
-                  <Video className="w-8 h-8 mb-2" style={{ color: '#20B2AA' }} />
-                  <h3 className="mb-1" style={{ color: '#000000' }}>Manage Videos</h3>
-                  <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>
-                    Embed videos from YouTube, Vimeo, or upload directly
-                  </p>
-                </div>
-
-                <div className="bg-gradient-to-br from-orange/10 to-orange/5 rounded-lg p-4 border-2" style={{ borderColor: '#FF6B35' }}>
-                  <Users className="w-8 h-8 mb-2" style={{ color: '#FF6B35' }} />
-                  <h3 className="mb-1" style={{ color: '#000000' }}>Track Athletes</h3>
-                  <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>
-                    Monitor progress, completion rates, and engagement
-                  </p>
-                </div>
-
-                <div className="bg-gradient-to-br from-black/10 to-black/5 rounded-lg p-4 border-2 border-black/20">
-                  <BarChart3 className="w-8 h-8 mb-2" style={{ color: '#000000' }} />
-                  <h3 className="mb-1" style={{ color: '#000000' }}>View Analytics</h3>
-                  <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>
-                    Get insights on lesson popularity and athlete activity
-                  </p>
-                </div>
-              </div>
-
-              <div className="bg-gradient-to-r from-sky-blue to-teal rounded-lg p-4 text-white">
-                <h3 className="mb-2 text-lg">🎯 Quick Start Guide</h3>
-                <ol className="space-y-2 text-sm">
-                  <li><strong>1.</strong> Click "Create Lesson" to build your first training lesson</li>
-                  <li><strong>2.</strong> Use "Video Manager" to organize your training footage</li>
-                  <li><strong>3.</strong> Go to "My Athletes" to see who's enrolled</li>
-                  <li><strong>4.</strong> Check "Analytics" to track engagement and progress</li>
-                </ol>
-              </div>
-            </div>
-          </div>
-        )}
       </main>
-
-      <style jsx>{`
-        @keyframes slideDown {
-          from {
-            opacity: 0;
-            transform: translateY(-10px);
-            max-height: 0;
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-            max-height: 1000px;
-          }
-        }
-
-        .animate-slideDown {
-          animation: slideDown 0.3s ease-out forwards;
-        }
-
-        @keyframes bounceSlow {
-          0%, 100% {
-            transform: translateY(0);
-          }
-          50% {
-            transform: translateY(-6px);
-          }
-        }
-
-        .animate-bounce-slow {
-          animation: bounceSlow 1.5s ease-in-out infinite;
-        }
-      `}</style>
     </div>
   )
 }

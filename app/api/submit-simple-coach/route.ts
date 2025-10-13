@@ -281,10 +281,14 @@ export async function POST(request: NextRequest) {
         lastLoginAt: now,
         applicationId,
         invitationId: ingestionId,
-        // CRITICAL: Protect role from auto-corrections (role comes from invitation)
+        // BULLETPROOF PROTECTION: Store invitation role as source of truth
+        invitationRole: targetRole,
+        invitationType: targetRole === 'coach' ? 'coach_invitation' : 'assistant_invitation',
+        // Multiple layers of protection from auto-corrections
         manuallySetRole: true,
         roleProtected: true,
-        roleSource: 'invitation'
+        roleSource: 'invitation',
+        roleLockedByInvitation: true
       }
 
       await adminDb.collection('users').doc(userRecord.uid).set(userDocData, { merge: true })

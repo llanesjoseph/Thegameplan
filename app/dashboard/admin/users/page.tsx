@@ -43,6 +43,8 @@ export default function AdminUserManagement() {
  const [roleFilter, setRoleFilter] = useState('all')
  const [selectedUser, setSelectedUser] = useState<User | null>(null)
  const [isRoleChangeInProgress, setIsRoleChangeInProgress] = useState(false)
+ const [editingRoleUid, setEditingRoleUid] = useState<string | null>(null)
+ const [tempRole, setTempRole] = useState('')
  
  const { user } = useAuth()
  const { role, loading: roleLoading } = useEnhancedRole()
@@ -139,8 +141,14 @@ export default function AdminUserManagement() {
 
  const updateUserRole = async (uid: string, newRole: string) => {
   try {
+   // BULLETPROOF: Update BOTH role AND invitationRole to ensure change persists
    await updateDoc(doc(db, 'users', uid), {
     role: newRole,
+    invitationRole: newRole, // Update the bulletproof field
+    roleSource: 'admin_manual_change',
+    roleUpdatedAt: new Date(),
+    manuallySetRole: true,
+    roleProtected: true,
     updatedAt: new Date()
    })
    setUsers(users.map(u => u.uid === uid ? { ...u, role: newRole } : u))
@@ -215,7 +223,7 @@ export default function AdminUserManagement() {
 
  return (
   <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
-   <AppHeader title="User Management" subtitle="Manage user accounts, roles, and support requests" />
+   <AppHeader title="User & Role Management" subtitle="Manage user accounts, roles, permissions, and status. Click any role to edit inline." />
    <main className="max-w-7xl mx-auto px-6 py-8">
     <div>
      {/* Stats Overview */}
@@ -326,10 +334,53 @@ export default function AdminUserManagement() {
           </td>
 
           <td className="p-4">
-           <div className="flex items-center gap-2" style={{ color: '#000000' }}>
-            {getRoleIcon(user.role)}
-            <span>{getRoleLabel(user.role)}</span>
-           </div>
+           {editingRoleUid === user.uid ? (
+            <div className="flex items-center gap-2">
+             <select
+              value={tempRole}
+              onChange={(e) => setTempRole(e.target.value)}
+              className="px-3 py-1 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black bg-white text-sm"
+              style={{ color: '#000000' }}
+             >
+              <option value="athlete">Athlete</option>
+              <option value="coach">Coach</option>
+              <option value="creator">Creator</option>
+              <option value="assistant">Assistant</option>
+              <option value="admin">Admin</option>
+              {role === 'superadmin' && <option value="superadmin">Super Admin</option>}
+             </select>
+             <button
+              onClick={() => {
+               updateUserRole(user.uid, tempRole)
+               setEditingRoleUid(null)
+              }}
+              className="p-1 hover:bg-green-500/10 rounded transition-colors"
+              title="Save"
+             >
+              <span className="text-green-600 text-lg">✓</span>
+             </button>
+             <button
+              onClick={() => setEditingRoleUid(null)}
+              className="p-1 hover:bg-red-500/10 rounded transition-colors"
+              title="Cancel"
+             >
+              <span className="text-red-600 text-lg">✕</span>
+             </button>
+            </div>
+           ) : (
+            <button
+             onClick={() => {
+              setEditingRoleUid(user.uid)
+              setTempRole(user.role)
+             }}
+             className="flex items-center gap-2 hover:bg-black/5 px-2 py-1 rounded-lg transition-colors"
+             style={{ color: '#000000' }}
+             title="Click to edit role"
+            >
+             {getRoleIcon(user.role)}
+             <span>{getRoleLabel(user.role)}</span>
+            </button>
+           )}
           </td>
 
           <td className="p-4">
@@ -381,6 +432,43 @@ export default function AdminUserManagement() {
     {/* User Count */}
     <div className="mt-6 text-center text-sm" style={{ color: '#000000', opacity: 0.7 }}>
      Showing {filteredUsers.length} of {users.length} users
+    </div>
+
+    {/* Detailed Role Statistics */}
+    <div className="mt-8">
+     <h2 className="text-xl mb-4" style={{ color: '#000000' }}>Role Distribution</h2>
+     <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
+       <div className="text-3xl mb-2" style={{ color: '#91A6EB' }}>
+        {users.filter(u => u.role === 'athlete').length}
+       </div>
+       <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Athletes</div>
+      </div>
+      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
+       <div className="text-3xl mb-2" style={{ color: '#20B2AA' }}>
+        {users.filter(u => u.role === 'coach').length}
+       </div>
+       <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Coaches</div>
+      </div>
+      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
+       <div className="text-3xl mb-2" style={{ color: '#FF6B35' }}>
+        {users.filter(u => u.role === 'creator').length}
+       </div>
+       <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Creators</div>
+      </div>
+      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
+       <div className="text-3xl mb-2" style={{ color: '#8B4513' }}>
+        {users.filter(u => u.role === 'assistant').length}
+       </div>
+       <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Assistants</div>
+      </div>
+      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
+       <div className="text-3xl mb-2" style={{ color: '#DC143C' }}>
+        {users.filter(u => u.role === 'admin' || u.role === 'superadmin').length}
+       </div>
+       <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Admins</div>
+      </div>
+     </div>
     </div>
 
     {/* User Actions Modal */}

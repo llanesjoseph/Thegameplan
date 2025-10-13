@@ -52,9 +52,13 @@ export async function POST(request: NextRequest) {
     const userData = userDoc.data()
     const oldRole = userData.role
 
-    // Update user role
+    // BULLETPROOF: Update BOTH role AND invitationRole to ensure change persists
     await db.collection('users').doc(userDoc.id).update({
       role: newRole,
+      invitationRole: newRole, // Update the bulletproof field
+      roleSource: 'admin_manual_change',
+      manuallySetRole: true,
+      roleProtected: true,
       updatedAt: new Date(),
       roleUpdatedBy: authUser.uid,
       roleUpdateReason: reason

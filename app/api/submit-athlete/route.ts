@@ -127,21 +127,26 @@ export async function POST(request: NextRequest) {
     // Create/update user document
     // If user is already a coach/creator/admin, preserve their role but still create athlete profile
     // If user is regular user/athlete, set to athlete
+    const finalRole = shouldPreserveRole ? existingUserData.role : targetRole
     const userDocData: any = {
       uid: userRecord.uid,
       email: athleteProfile.email?.toLowerCase(),
       displayName: athleteProfile.displayName,
-      role: shouldPreserveRole ? existingUserData.role : 'athlete',
+      role: finalRole,
       firstName: athleteProfile.firstName,
       lastName: athleteProfile.lastName,
       athleteId, // Reference to athlete document
       creatorUid: invitationData?.creatorUid || '',
       lastLoginAt: now,
       invitationId,
-      // CRITICAL: Protect role from auto-corrections (role comes from invitation)
+      // BULLETPROOF PROTECTION: Store invitation role as source of truth
+      invitationRole: targetRole,
+      invitationType: 'athlete_invitation',
+      // Multiple layers of protection from auto-corrections
       manuallySetRole: true,
       roleProtected: true,
-      roleSource: 'invitation'
+      roleSource: 'invitation',
+      roleLockedByInvitation: true
     }
 
     console.log(`Setting user role: ${userDocData.role} (existing: ${existingUserData?.role}, shouldPreserve: ${shouldPreserveRole})`)

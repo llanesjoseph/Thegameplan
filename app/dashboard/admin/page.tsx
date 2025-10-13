@@ -82,18 +82,10 @@ export default function AdminDashboard() {
  const adminCards = [
   {
    id: 'users',
-   title: 'All Users',
-   description: 'View and manage all user accounts',
-   icon: Users,
-   color: '#91A6EB',
-   inline: true
-  },
-  {
-   id: 'roles',
-   title: 'Role Management',
-   description: 'Assign and modify user roles',
+   title: 'User & Role Management',
+   description: 'Manage user accounts, roles, and permissions',
    icon: UserCog,
-   color: '#20B2AA',
+   color: '#8B5CF6',
    inline: true
   },
   {
@@ -165,7 +157,6 @@ export default function AdminDashboard() {
  const getSectionPath = (sectionId: string) => {
   const pathMap: Record<string, string> = {
    'users': '/dashboard/admin/users?embedded=true',
-   'roles': '/dashboard/admin/roles?embedded=true',
    'analytics': '/dashboard/admin/analytics?embedded=true',
    'locker-room': '/dashboard/admin/coaches-locker-room?embedded=true',
    'athletes': '/dashboard/admin/athletes?embedded=true',

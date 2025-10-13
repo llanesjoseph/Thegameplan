@@ -94,45 +94,64 @@ export async function initializeUserDocument(user: FirebaseUser | null, defaultR
       // Update last login time for existing user
       const userData = userDoc.data() as UserProfile
 
+      // CRITICAL: Check if role is manually set and protected from auto-corrections
+      const userDataAny = userData as any
+      const isRoleProtected = userDataAny.manuallySetRole === true || userDataAny.roleProtected === true
+      const invitationRole = userDataAny.invitationRole as UserRole | undefined
+
+      // BULLETPROOF RULE #1: If user has invitationRole field, ALWAYS enforce it
+      if (invitationRole && userData.role !== invitationRole) {
+        console.log(`🎯 INVITATION ROLE ENFORCEMENT: ${user.email} should be '${invitationRole}' (from invitation), currently '${userData.role}' - correcting now!`)
+        try {
+          await setDoc(userDocRef, {
+            ...userData,
+            role: invitationRole,
+            roleUpdatedAt: Timestamp.now(),
+            roleUpdateReason: 'Enforced from invitation',
+            manuallySetRole: true,
+            roleProtected: true
+          }, { merge: true })
+          console.log(`✅ ROLE ENFORCED: ${user.email} corrected to ${invitationRole} from invitation`)
+          return { ...userData, role: invitationRole }
+        } catch (error) {
+          console.error('Failed to enforce invitation role:', error)
+        }
+      }
+
+      // BULLETPROOF RULE #2: Protected roles cannot be auto-corrected
+      if (isRoleProtected) {
+        console.log(`🔒 ROLE PROTECTED: ${user.email} has manually set role '${userData.role}' - no auto-corrections will be applied`)
+        return userData
+      }
+
+      // BULLETPROOF RULE #3: Athlete and creator roles are ALWAYS protected
+      if (userData.role === 'athlete' || userData.role === 'creator' || userData.role === 'coach') {
+        console.log(`🛡️ ROLE PROTECTED: ${user.email} role '${userData.role}' - no auto-corrections applied`)
+        return userData
+      }
+
       // Check if this is a known coach who needs role correction
       let roleNeedsUpdate = false
       let correctRole = userData.role
 
-      // CRITICAL: Check if role is manually set and protected from auto-corrections
-      const userDataAny = userData as any
-      const isRoleProtected = userDataAny.manuallySetRole === true || userDataAny.roleProtected === true
-
-      if (isRoleProtected) {
-        console.log(`🔒 ROLE PROTECTED: ${user.email} has manually set role '${userData.role}' - no auto-corrections will be applied`)
-      } else {
-        // Skip auto-corrections for superadmins, athletes, and creators
-        if (!isSuperadmin(user.email) && userData.role !== 'athlete' && userData.role !== 'creator') {
-          // PRIORITY 1: Check if known coach and needs correction
-          if (user.email && isKnownCoach(user.email)) {
-            const shouldBeRole = getKnownCoachRole(user.email)
-            if (shouldBeRole && userData.role !== shouldBeRole) {
-              correctRole = shouldBeRole
-              roleNeedsUpdate = true
-              console.log(`🚨 ROLE CORRECTION: ${user.email} should be ${shouldBeRole}, currently ${userData.role}`)
-            }
-          }
-          // PRIORITY 2: Upgrade 'user' to 'athlete' ONLY if NOT a known coach
-          // NOTE: 'creator' is a valid coach-level role and should NOT be auto-upgraded
-          else if (userData.role === 'user') {
-            correctRole = 'athlete'
+      // Only apply auto-corrections to 'user' role and for known coaches
+      if (!isSuperadmin(user.email)) {
+        // PRIORITY 1: Check if known coach and needs correction
+        if (user.email && isKnownCoach(user.email)) {
+          const shouldBeRole = getKnownCoachRole(user.email)
+          if (shouldBeRole && userData.role !== shouldBeRole) {
+            correctRole = shouldBeRole
             roleNeedsUpdate = true
-            console.log(`🔄 ROLE UPGRADE: Upgrading ${user.email} from '${userData.role}' to 'athlete'`)
+            console.log(`🚨 ROLE CORRECTION: ${user.email} should be ${shouldBeRole}, currently ${userData.role}`)
           }
         }
-
-        // CRITICAL: Protect athlete and creator roles from any auto-corrections
-        if (userData.role === 'athlete' || userData.role === 'creator') {
-          console.log(`🛡️ ROLE PROTECTED: ${user.email} role '${userData.role}' - no auto-corrections applied`)
+        // PRIORITY 2: Upgrade 'user' to 'athlete' ONLY if NOT a known coach
+        else if (userData.role === 'user') {
+          correctRole = 'athlete'
+          roleNeedsUpdate = true
+          console.log(`🔄 ROLE UPGRADE: Upgrading ${user.email} from '${userData.role}' to 'athlete'`)
         }
       }
-
-      // DISABLED: lastLoginAt updates cause permission errors in production
-      // Only critical role updates will be attempted
 
       // Only update Firestore if role actually needs to change
       if (roleNeedsUpdate) {

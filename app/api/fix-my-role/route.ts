@@ -53,9 +53,11 @@ export async function GET(request: NextRequest) {
     console.log(`📋 Current role: ${userData.role}`)
     console.log(`🔄 Updating to: ${newRole}`)
 
-    // Update role with protection flag to prevent auto-corrections
+    // BULLETPROOF: Update BOTH role AND invitationRole to ensure change persists
     await adminDb.collection('users').doc(userId).update({
       role: newRole,
+      invitationRole: newRole, // Update the bulletproof field
+      roleSource: 'admin_manual_change',
       roleUpdatedAt: new Date(),
       roleUpdateReason: 'Manual role fix via API',
       manuallySetRole: true, // This flag prevents auto-corrections
