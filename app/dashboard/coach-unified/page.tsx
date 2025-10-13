@@ -90,6 +90,13 @@ export default function CoachUnifiedDashboard() {
       color: '#000000'
     },
     {
+      id: 'invite',
+      title: 'Invite Athletes',
+      description: 'Send bulk invitations to athletes',
+      icon: UserPlus,
+      color: '#000000'
+    },
+    {
       id: 'videos',
       title: 'Video Manager',
       description: 'Organize and embed training videos',
@@ -111,20 +118,6 @@ export default function CoachUnifiedDashboard() {
       color: '#20B2AA'
     },
     {
-      id: 'invite',
-      title: 'Invite Athletes',
-      description: 'Send bulk invitations to athletes',
-      icon: UserPlus,
-      color: '#000000'
-    },
-    {
-      id: 'recruit-coach',
-      title: 'Recruit Fellow Coach',
-      description: 'Invite other coaches to join',
-      icon: UserCheck,
-      color: '#20B2AA'
-    },
-    {
       id: 'profile',
       title: 'My Profile',
       description: 'Edit your coach profile',
@@ -143,6 +136,13 @@ export default function CoachUnifiedDashboard() {
       title: 'Assistant Coaches',
       description: 'Manage coaching staff',
       icon: UserCog,
+      color: '#20B2AA'
+    },
+    {
+      id: 'recruit-coach',
+      title: 'Recruit Fellow Coach',
+      description: 'Invite other coaches to join',
+      icon: UserCheck,
       color: '#20B2AA'
     }
   ]
