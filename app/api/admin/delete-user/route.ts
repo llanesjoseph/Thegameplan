@@ -47,21 +47,44 @@ export async function POST(request: NextRequest) {
       throw new Error(`Failed to delete from Firestore: ${firestoreError.message}`)
     }
 
-    // Optional: Clean up related data (invitations, sessions, etc.)
+    // Step 3: Clean up related data (invitations, sessions, etc.)
     try {
-      // Delete any invitations created by this user
-      const invitationsQuery = adminDb.collection('invitations')
+      let totalInvitationsDeleted = 0
+
+      // Delete any invitations created BY this user
+      const invitationsCreatedQuery = adminDb.collection('invitations')
         .where('creatorUid', '==', uid)
 
-      const invitationsSnapshot = await invitationsQuery.get()
+      const invitationsCreatedSnapshot = await invitationsCreatedQuery.get()
 
-      if (!invitationsSnapshot.empty) {
-        const batch = adminDb.batch()
-        invitationsSnapshot.docs.forEach(doc => {
-          batch.delete(doc.ref)
+      if (!invitationsCreatedSnapshot.empty) {
+        const batch1 = adminDb.batch()
+        invitationsCreatedSnapshot.docs.forEach(doc => {
+          batch1.delete(doc.ref)
         })
-        await batch.commit()
-        console.log(`✅ [DELETE-USER] Deleted ${invitationsSnapshot.size} invitations`)
+        await batch1.commit()
+        totalInvitationsDeleted += invitationsCreatedSnapshot.size
+        console.log(`✅ [DELETE-USER] Deleted ${invitationsCreatedSnapshot.size} invitations created by user`)
+      }
+
+      // Delete any invitations TO this email address (for re-testing)
+      const invitationsToQuery = adminDb.collection('invitations')
+        .where('athleteEmail', '==', email.toLowerCase())
+
+      const invitationsToSnapshot = await invitationsToQuery.get()
+
+      if (!invitationsToSnapshot.empty) {
+        const batch2 = adminDb.batch()
+        invitationsToSnapshot.docs.forEach(doc => {
+          batch2.delete(doc.ref)
+        })
+        await batch2.commit()
+        totalInvitationsDeleted += invitationsToSnapshot.size
+        console.log(`✅ [DELETE-USER] Deleted ${invitationsToSnapshot.size} invitations to this email`)
+      }
+
+      if (totalInvitationsDeleted > 0) {
+        console.log(`✅ [DELETE-USER] Total invitations cleaned up: ${totalInvitationsDeleted}`)
       }
     } catch (cleanupError) {
       console.warn(`⚠️ [DELETE-USER] Failed to clean up related data:`, cleanupError)
