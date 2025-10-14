@@ -52,17 +52,24 @@ export default function LiveSessionsPage() {
 
     try {
       setLoading(true)
+      // Removed orderBy to avoid composite index requirement - will sort in memory
       const sessionsQuery = query(
         collection(db, 'liveSessionRequests'),
-        where('coachId', '==', user.uid),
-        orderBy('createdAt', 'desc')
+        where('coachId', '==', user.uid)
       )
 
       const snapshot = await getDocs(sessionsQuery)
-      const sessionData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      } as LiveSessionRequest))
+      const sessionData = snapshot.docs
+        .map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        } as LiveSessionRequest))
+        // Sort in memory by createdAt (newest first)
+        .sort((a, b) => {
+          const dateA = a.createdAt?.toDate?.()?.getTime() || 0
+          const dateB = b.createdAt?.toDate?.()?.getTime() || 0
+          return dateB - dateA // Descending order (newest first)
+        })
 
       setRequests(sessionData)
     } catch (error) {
