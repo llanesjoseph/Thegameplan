@@ -275,6 +275,25 @@ export default function AthleteOnboardingPage() {
       const result = await signInWithPopup(auth, provider)
       console.log('✅ Google account created:', result.user.email)
 
+      // Complete the athlete profile (links profile data to the account)
+      console.log('🔗 Completing athlete profile...')
+      const completeResponse = await fetch('/api/complete-athlete-profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          invitationId,
+          email: formData.email
+        })
+      })
+
+      const completeResult = await completeResponse.json()
+
+      if (!completeResult.success) {
+        throw new Error(completeResult.error || 'Failed to complete profile')
+      }
+
+      console.log('✅ Profile completed successfully')
+
       // Sign them out immediately
       await signOut(auth)
       console.log('🔓 Signed out - redirecting to sign-in page')
@@ -308,6 +327,25 @@ export default function AthleteOnboardingPage() {
     try {
       const result = await createUserWithEmailAndPassword(auth, formData.email, password)
       console.log('✅ Email/password account created:', result.user.email)
+
+      // Complete the athlete profile (links profile data to the account)
+      console.log('🔗 Completing athlete profile...')
+      const completeResponse = await fetch('/api/complete-athlete-profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          invitationId,
+          email: formData.email
+        })
+      })
+
+      const completeResult = await completeResponse.json()
+
+      if (!completeResult.success) {
+        throw new Error(completeResult.error || 'Failed to complete profile')
+      }
+
+      console.log('✅ Profile completed successfully')
 
       // Sign them out immediately
       await signOut(auth)
