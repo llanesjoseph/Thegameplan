@@ -375,14 +375,6 @@ function CoachAthletesContent() {
         {/* Action Buttons */}
         <div className="flex flex-wrap gap-3">
           <button
-            onClick={() => setShowBulkInvite(!showBulkInvite)}
-            className="px-5 py-2.5 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2"
-          >
-            <UserPlus className="w-5 h-5" />
-            {showBulkInvite ? 'Cancel Invite' : 'Invite Athletes'}
-          </button>
-
-          <button
             onClick={importFromCSV}
             className="px-5 py-2.5 bg-white/90 backdrop-blur-sm border border-gray-300/50 rounded-lg hover:bg-white transition-colors flex items-center gap-2"
             style={{ color: '#000000' }}
