@@ -149,6 +149,11 @@ function InviteAthletesPageContent() {
         customMessage: '',
         expiresInDays: 7
       })
+
+      // Redirect back to dashboard after success
+      setTimeout(() => {
+        router.push('/dashboard/coach-unified')
+      }, 1500)
     } catch (error) {
       console.error('Error sending invitation:', error)
       alert(error instanceof Error ? error.message : 'Failed to send invitation. Please try again.')
@@ -206,6 +211,11 @@ function InviteAthletesPageContent() {
       setBulkSport('Soccer')
       setBulkMessage('')
       setBulkAthletes([{ email: '', name: '' }])
+
+      // Redirect back to dashboard after success
+      setTimeout(() => {
+        router.push('/dashboard/coach-unified')
+      }, 1500)
     } catch (error) {
       console.error('Error sending invitations:', error)
       alert(error instanceof Error ? error.message : 'Failed to send invitations. Please try again.')
@@ -250,10 +260,14 @@ function InviteAthletesPageContent() {
     return (
       <div style={{ backgroundColor: embedded ? 'transparent' : '#E8E6D8' }} className={embedded ? 'p-12' : 'min-h-screen flex items-center justify-center'}>
         <div className="text-center bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8 max-w-md">
-          <AlertCircle className="w-16 h-16 mx-auto mb-4" style={{ color: '#FF6B35' }} />
-          <h2 className="text-2xl mb-2" style={{ color: '#000000' }}>Access Denied</h2>
+          <AlertCircle className="w-16 h-16 mx-auto mb-4" style={{ color: embedded ? '#91A6EB' : '#FF6B35' }} />
+          <h2 className="text-2xl mb-2" style={{ color: '#000000' }}>
+            {embedded ? 'Redirecting...' : 'Access Denied'}
+          </h2>
           <p className="mb-6" style={{ color: '#000000', opacity: 0.7 }}>
-            You must be logged in as a coach to access this page.
+            {embedded
+              ? 'Opening invite page in full view for better access...'
+              : 'You must be logged in as a coach to access this page.'}
           </p>
           {!embedded && (
             <button
