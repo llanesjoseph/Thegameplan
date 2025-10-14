@@ -24,7 +24,7 @@ import {
   Lock,
   Key
 } from 'lucide-react'
-import { auth } from '@/lib/firebase-config'
+import { auth } from '@/lib/firebase.client'
 import {
   signInWithPopup,
   GoogleAuthProvider,
