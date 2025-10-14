@@ -220,7 +220,14 @@ function InviteAthletesPageContent() {
 
     if (!user) {
       console.warn('[InviteAthletes] Unauthorized access attempt - no user')
-      if (!embedded) {
+
+      // If embedded and no auth, redirect to full page (iframe can't access parent auth)
+      if (embedded) {
+        console.log('🔄 Redirecting from iframe to full page for auth access')
+        if (typeof window !== 'undefined') {
+          window.top?.location.replace('/dashboard/coach/invite')
+        }
+      } else {
         router.push('/')
       }
     }
