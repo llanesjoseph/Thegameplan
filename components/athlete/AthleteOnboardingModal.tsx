@@ -7,7 +7,7 @@
  */
 
 import { useState } from 'react'
-import { doc, updateDoc, serverTimestamp } from 'firebase/firestore'
+import { doc, updateDoc, serverTimestamp, getDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase.client'
 import { X, UserCircle, Trophy, Calendar, FileText } from 'lucide-react'
 
@@ -45,6 +45,7 @@ export default function AthleteOnboardingModal({ userId, userEmail, onComplete }
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [showSuccess, setShowSuccess] = useState(false)
 
   const isValid = formData.firstName.trim() !== '' &&
     formData.primarySport !== '' &&
@@ -58,42 +59,79 @@ export default function AthleteOnboardingModal({ userId, userEmail, onComplete }
     setIsSubmitting(true)
     setError(null)
 
-    try {
-      // Update user profile in Firestore
-      const userRef = doc(db, 'users', userId)
+    let retries = 0
+    const maxRetries = 3
 
-      await updateDoc(userRef, {
-        displayName: formData.firstName.trim(),
-        preferredSports: [formData.primarySport],
-        experienceYears: parseInt(formData.experienceYears, 10),
-        athleteProfile: {
-          typicalTrainingDay: formData.typicalTrainingDay.trim(),
-          onboardedAt: serverTimestamp()
-        },
-        onboardingComplete: true,
-        updatedAt: serverTimestamp()
-      })
+    while (retries < maxRetries) {
+      try {
+        console.log(`🔄 Attempt ${retries + 1}/${maxRetries} to save onboarding...`)
 
-      console.log('✅ Athlete onboarding completed successfully', {
-        userId,
-        displayName: formData.firstName.trim(),
-        primarySport: formData.primarySport
-      })
+        // Update user profile in Firestore
+        const userRef = doc(db, 'users', userId)
 
-      // Wait a moment for Firestore to propagate the write
-      await new Promise(resolve => setTimeout(resolve, 500))
+        await updateDoc(userRef, {
+          displayName: formData.firstName.trim(),
+          preferredSports: [formData.primarySport],
+          experienceYears: parseInt(formData.experienceYears, 10),
+          athleteProfile: {
+            typicalTrainingDay: formData.typicalTrainingDay.trim(),
+            onboardedAt: serverTimestamp()
+          },
+          onboardingComplete: true,
+          updatedAt: serverTimestamp()
+        })
 
-      // Store onboarding completion in localStorage to prevent re-showing modal
-      if (typeof window !== 'undefined') {
-        localStorage.setItem(`onboarding_complete_${userId}`, 'true')
-        console.log('💾 Saved onboarding completion to localStorage')
+        console.log('✅ Athlete onboarding completed successfully', {
+          userId,
+          displayName: formData.firstName.trim(),
+          primarySport: formData.primarySport,
+          attempt: retries + 1
+        })
+
+        // Verify the write by reading it back
+        const verifyDoc = await getDoc(userRef)
+        const verifyData = verifyDoc.data()
+
+        if (verifyData?.onboardingComplete !== true) {
+          throw new Error('Onboarding status not saved correctly - verification failed')
+        }
+
+        console.log('✅ Verified onboarding completion in Firestore')
+
+        // Store onboarding completion in localStorage to prevent re-showing modal
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(`onboarding_complete_${userId}`, 'true')
+          console.log('💾 Saved onboarding completion to localStorage')
+        }
+
+        // Show success message briefly before closing
+        setShowSuccess(true)
+        setIsSubmitting(false)
+
+        // Wait 2 seconds to show success message, then complete
+        setTimeout(() => {
+          onComplete()
+        }, 2000)
+        return
+
+      } catch (err: any) {
+        retries++
+        console.error(`❌ Error saving onboarding data (attempt ${retries}/${maxRetries}):`, err)
+
+        if (retries >= maxRetries) {
+          // All retries failed
+          setError(
+            `Failed to save your information after ${maxRetries} attempts. ` +
+            `Error: ${err.message || 'Unknown error'}. ` +
+            `Please try again or contact support if this persists.`
+          )
+          setIsSubmitting(false)
+          return
+        }
+
+        // Wait before retrying (exponential backoff)
+        await new Promise(resolve => setTimeout(resolve, 1000 * retries))
       }
-
-      onComplete()
-    } catch (err) {
-      console.error('❌ Error saving onboarding data:', err)
-      setError('Failed to save your information. Please try again.')
-      setIsSubmitting(false)
     }
   }
 
@@ -125,10 +163,28 @@ export default function AthleteOnboardingModal({ userId, userEmail, onComplete }
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-8 space-y-6">
+          {/* Success Message */}
+          {showSuccess && (
+            <div className="p-6 rounded-lg text-center" style={{ backgroundColor: '#D1FAE5' }}>
+              <div className="flex items-center justify-center gap-3 mb-2">
+                <Trophy className="w-6 h-6" style={{ color: '#16A34A' }} />
+                <p className="text-xl font-bold" style={{ color: '#16A34A' }}>Profile Saved Successfully!</p>
+              </div>
+              <p className="text-sm" style={{ color: '#16A34A' }}>Taking you to your dashboard...</p>
+            </div>
+          )}
+
           {/* Error Message */}
           {error && (
             <div className="p-4 rounded-lg" style={{ backgroundColor: '#FEE2E2' }}>
               <p style={{ color: '#DC2626' }}>{error}</p>
+              <a
+                href={`mailto:support@playbookd.com?subject=Onboarding%20Issue&body=User%20ID:%20${userId}%0AEmail:%20${userEmail}%0AError:%20${encodeURIComponent(error)}`}
+                className="text-sm underline mt-2 inline-block"
+                style={{ color: '#DC2626' }}
+              >
+                Contact Support for Help
+              </a>
             </div>
           )}
 
@@ -249,6 +305,40 @@ export default function AthleteOnboardingModal({ userId, userEmail, onComplete }
               <strong>Privacy Note:</strong> This information is only shared with your assigned coach to provide personalized training.
             </p>
           </div>
+
+          {/* Emergency Skip Option - Only show if there's an error */}
+          {error && (
+            <div className="pt-4 border-t" style={{ borderColor: '#E8E6D8' }}>
+              <details className="text-sm">
+                <summary className="cursor-pointer text-gray-600 hover:text-gray-900">
+                  Having persistent issues? Emergency options
+                </summary>
+                <div className="mt-3 p-4 rounded-lg" style={{ backgroundColor: '#FEF3C7' }}>
+                  <p className="text-xs mb-3" style={{ color: '#92400E' }}>
+                    <strong>Warning:</strong> Only use this if you've tried multiple times and contacted support.
+                    This will let you access the dashboard, but you'll need to complete your profile later.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (window.confirm('Are you sure? You will need to complete your profile later. We recommend contacting support first.')) {
+                        // Emergency bypass - mark as complete locally
+                        if (typeof window !== 'undefined') {
+                          localStorage.setItem(`onboarding_complete_${userId}`, 'true')
+                        }
+                        alert('Emergency skip activated. Please contact support to complete your profile.')
+                        onComplete()
+                      }
+                    }}
+                    className="px-4 py-2 text-sm rounded-lg"
+                    style={{ backgroundColor: '#FCD34D', color: '#78350F' }}
+                  >
+                    Emergency Skip (Not Recommended)
+                  </button>
+                </div>
+              </details>
+            </div>
+          )}
         </form>
       </div>
     </div>
