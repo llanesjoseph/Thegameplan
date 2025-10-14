@@ -24,6 +24,7 @@ import {
 import AppHeader from '@/components/ui/AppHeader'
 import Link from 'next/link'
 import { useAuth } from '@/hooks/use-auth'
+import CoachProfilePlaceholder from '@/components/coach/CoachProfilePlaceholder'
 
 interface CoachProfile {
   uid: string
@@ -53,6 +54,28 @@ interface Lesson {
   createdAt: any
   videoUrl?: string
   thumbnailUrl?: string
+}
+
+/**
+ * Helper function to check if a coach profile is "minimal" (needs placeholder view)
+ * A profile is considered minimal if it lacks substantive content beyond basic info
+ */
+function isProfileMinimal(
+  coach: CoachProfile | null,
+  totalLessons: number,
+  totalAthletes: number
+): boolean {
+  if (!coach) return true
+
+  // Profile is minimal if ALL of these are true:
+  const hasNoBio = !coach.bio || coach.bio.trim().length < 50
+  const hasNoSpecialties = !coach.specialties || coach.specialties.length === 0
+  const hasNoCertifications = !coach.certifications || coach.certifications.length === 0
+  const hasNoAchievements = !coach.achievements || coach.achievements.length === 0
+  const hasNoLessons = totalLessons === 0
+
+  // Show placeholder if they have no bio AND no lessons AND no professional credentials
+  return hasNoBio && hasNoLessons && hasNoCertifications && hasNoAchievements
 }
 
 export default function CoachProfilePage() {
@@ -321,7 +344,9 @@ export default function CoachProfilePage() {
               <BookOpen className="w-6 h-6 text-white" />
             </div>
             <div className="text-3xl font-heading mb-1" style={{ color: '#000000' }}>
-              {totalLessons}
+              {totalLessons > 0 ? totalLessons : (
+                <span className="text-xl text-gray-400">Coming Soon</span>
+              )}
             </div>
             <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Lessons Created</p>
           </div>
@@ -331,7 +356,9 @@ export default function CoachProfilePage() {
               <Users className="w-6 h-6 text-white" />
             </div>
             <div className="text-3xl font-heading mb-1" style={{ color: '#000000' }}>
-              {totalAthletes}
+              {totalAthletes > 0 ? totalAthletes : (
+                <span className="text-xl text-gray-400">Ready to Coach</span>
+              )}
             </div>
             <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Athletes Coached</p>
           </div>
@@ -341,13 +368,23 @@ export default function CoachProfilePage() {
               <Star className="w-6 h-6 text-white" />
             </div>
             <div className="text-3xl font-heading mb-1" style={{ color: '#000000' }}>
-              5.0
+              {totalAthletes > 0 ? '5.0' : (
+                <span className="text-xl text-gray-400">New Coach</span>
+              )}
             </div>
             <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Rating</p>
           </div>
         </div>
 
-        {/* About Section */}
+        {/* Show placeholder if profile is minimal, otherwise show full content */}
+        {isProfileMinimal(coach, totalLessons, totalAthletes) ? (
+          <CoachProfilePlaceholder
+            coachName={coach.displayName}
+            sport={coach.sport || 'General Athletics'}
+          />
+        ) : (
+          <>
+            {/* About Section */}
         {coach.bio && (
           <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-8 mb-6">
             <h2 className="text-2xl font-heading mb-4" style={{ color: '#000000' }}>
@@ -487,6 +524,8 @@ export default function CoachProfilePage() {
               ))}
             </div>
           </div>
+        )}
+          </>
         )}
 
       </div>
