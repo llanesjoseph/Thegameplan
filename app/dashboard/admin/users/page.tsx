@@ -6,19 +6,21 @@ import { useEnhancedRole } from '@/hooks/use-role-switcher'
 import AppHeader from '@/components/ui/AppHeader'
 import { db } from '@/lib/firebase.client'
 import { collection, query, getDocs, orderBy, where, doc, updateDoc } from 'firebase/firestore'
-import { 
- Users, 
- Search, 
- Filter, 
- MoreHorizontal, 
- UserCheck, 
- UserX, 
+import {
+ Users,
+ Search,
+ Filter,
+ MoreHorizontal,
+ UserCheck,
+ UserX,
  Shield,
  Star,
  Clock,
  Mail,
  Phone,
- Calendar
+ Calendar,
+ Trash2,
+ AlertTriangle
 } from 'lucide-react'
 
 interface User {
@@ -47,6 +49,9 @@ export default function AdminUserManagement() {
  const [tempRole, setTempRole] = useState('')
  const [coaches, setCoaches] = useState<{uid: string, name: string}[]>([])
  const [selectedCoachId, setSelectedCoachId] = useState('')
+ const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+ const [deleteStep, setDeleteStep] = useState(1)
+ const [isDeletingUser, setIsDeletingUser] = useState(false)
 
  const { user } = useAuth()
  const { role, loading: roleLoading } = useEnhancedRole()
@@ -202,6 +207,58 @@ export default function AdminUserManagement() {
    console.error('Error assigning coach:', error)
    alert('Failed to assign coach. Please try again.')
   }
+ }
+
+ const deleteUser = async (uid: string, email: string) => {
+  setIsDeletingUser(true)
+  try {
+   console.log(`🗑️ Deleting user: ${email} (${uid})`)
+
+   // Call API to delete from both Firebase Auth and Firestore
+   const response = await fetch('/api/admin/delete-user', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ uid, email })
+   })
+
+   const result = await response.json()
+
+   if (!response.ok || !result.success) {
+    throw new Error(result.error || 'Failed to delete user')
+   }
+
+   console.log('✅ User deleted successfully')
+   alert('User deleted successfully from both Firebase Auth and Database!')
+
+   // Remove from local state
+   setUsers(users.filter(u => u.uid !== uid))
+   setSelectedUser(null)
+   setShowDeleteConfirm(false)
+   setDeleteStep(1)
+  } catch (error) {
+   console.error('❌ Error deleting user:', error)
+   alert(error instanceof Error ? error.message : 'Failed to delete user. Please try again.')
+  } finally {
+   setIsDeletingUser(false)
+  }
+ }
+
+ const handleDeleteClick = () => {
+  setShowDeleteConfirm(true)
+  setDeleteStep(1)
+ }
+
+ const handleDeleteConfirm = () => {
+  if (deleteStep === 1) {
+   setDeleteStep(2)
+  } else if (deleteStep === 2 && selectedUser) {
+   deleteUser(selectedUser.uid, selectedUser.email)
+  }
+ }
+
+ const handleDeleteCancel = () => {
+  setShowDeleteConfirm(false)
+  setDeleteStep(1)
  }
 
  const getStatusColor = (status: string) => {
@@ -695,9 +752,92 @@ export default function AdminUserManagement() {
          </button>
         </div>
 
+        {/* Delete User Section */}
+        {!showDeleteConfirm ? (
+         <div className="border-t border-red-300/30 pt-4">
+          <button
+           onClick={handleDeleteClick}
+           className="w-full px-4 py-2 border-2 border-red-500 text-red-600 rounded-lg transition-all hover:bg-red-50"
+          >
+           <div className="flex items-center justify-center gap-2">
+            <Trash2 className="w-4 h-4" />
+            <span className="font-semibold">Delete User Permanently</span>
+           </div>
+          </button>
+          <p className="text-xs text-center mt-2" style={{ color: '#DC143C', opacity: 0.8 }}>
+           This will delete the user from both authentication and database
+          </p>
+         </div>
+        ) : (
+         <div className="border-t border-red-300/30 pt-4 space-y-3">
+          <div className="p-4 bg-red-50 rounded-lg border-2 border-red-300">
+           <div className="flex items-start gap-3">
+            <AlertTriangle className="w-6 h-6 text-red-600 flex-shrink-0 mt-0.5" />
+            <div>
+             <h4 className="font-bold text-red-800 mb-2">
+              {deleteStep === 1 ? 'Confirm Deletion - Step 1 of 2' : 'FINAL CONFIRMATION - Step 2 of 2'}
+             </h4>
+             {deleteStep === 1 ? (
+              <div className="text-sm text-red-700 space-y-2">
+               <p>You are about to permanently delete:</p>
+               <div className="bg-white/50 p-2 rounded border border-red-200">
+                <p className="font-semibold">{selectedUser.displayName || 'No Name'}</p>
+                <p className="text-xs">{selectedUser.email}</p>
+               </div>
+               <p className="font-semibold mt-2">This action will:</p>
+               <ul className="list-disc list-inside space-y-1 pl-2">
+                <li>Remove user from Firebase Authentication</li>
+                <li>Delete all user data from Firestore</li>
+                <li>This action CANNOT be undone</li>
+               </ul>
+              </div>
+             ) : (
+              <div className="text-sm text-red-700 space-y-2">
+               <p className="font-bold text-base">ARE YOU ABSOLUTELY SURE?</p>
+               <p>This is your final chance to cancel.</p>
+               <p className="font-semibold">
+                User <span className="bg-white px-2 py-0.5 rounded">{selectedUser.email}</span> will be permanently deleted.
+               </p>
+              </div>
+             )}
+            </div>
+           </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+           <button
+            onClick={handleDeleteCancel}
+            disabled={isDeletingUser}
+            className="px-4 py-2 border-2 border-gray-400 text-gray-700 rounded-lg transition-all hover:bg-gray-100 disabled:opacity-50"
+           >
+            Cancel
+           </button>
+           <button
+            onClick={handleDeleteConfirm}
+            disabled={isDeletingUser}
+            className="px-4 py-2 bg-red-600 text-white rounded-lg transition-all hover:bg-red-700 disabled:opacity-50 font-semibold"
+           >
+            {isDeletingUser ? (
+             <div className="flex items-center justify-center gap-2">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+              <span>Deleting...</span>
+             </div>
+            ) : (
+             deleteStep === 1 ? 'Continue to Step 2' : 'DELETE PERMANENTLY'
+            )}
+           </button>
+          </div>
+         </div>
+        )}
+
         <button
-         onClick={() => setSelectedUser(null)}
-         className="w-full px-4 py-3 bg-black text-white rounded-lg hover:bg-black/90 transition-all mt-4"
+         onClick={() => {
+          setSelectedUser(null)
+          setShowDeleteConfirm(false)
+          setDeleteStep(1)
+         }}
+         disabled={isDeletingUser}
+         className="w-full px-4 py-3 bg-black text-white rounded-lg hover:bg-black/90 transition-all mt-4 disabled:opacity-50"
         >
          Close
         </button>
