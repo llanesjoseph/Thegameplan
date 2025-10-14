@@ -247,7 +247,7 @@ export default function AppHeader({ className = '', title, subtitle }: AppHeader
   }
 
   return (
-    <header className={`bg-white px-4 py-3 sm:py-4 shadow-sm ${className}`}>
+    <header className={`bg-white px-4 py-3 sm:py-4 shadow-sm ${className}`} role="banner">
       <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
         {/* Left Side - Logo and optional title */}
         <div className="flex items-center gap-3 sm:gap-6 w-full sm:w-auto">
@@ -261,7 +261,7 @@ export default function AppHeader({ className = '', title, subtitle }: AppHeader
               display: 'flex',
               alignItems: 'center'
             }}
-          >
+            >
             AthLeap
           </button>
 
@@ -289,7 +289,7 @@ export default function AppHeader({ className = '', title, subtitle }: AppHeader
         </div>
 
         {/* Right Side Navigation */}
-        <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto justify-between sm:justify-end">
+        <nav className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto justify-between sm:justify-end" aria-label="Primary">
           {/* Browse Coaches Link - Hidden on mobile, shown on tablet+ */}
           <Link
             href="/coaches"
@@ -395,11 +395,11 @@ export default function AppHeader({ className = '', title, subtitle }: AppHeader
               )}
             </div>
           ) : (
-            <Link href="/" className="bg-cardinal text-white px-4 py-2 rounded text-sm hover:bg-cardinal-dark transition-colors">
+            <Link href="/" className="bg-cardinal text-white px-4 py-2 rounded text-sm hover:bg-cardinal-dark transition-colors" aria-label="Sign in">
               SIGN IN
             </Link>
           )}
-        </div>
+        </nav>
       </div>
     </header>
   )

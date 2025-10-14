@@ -152,6 +152,7 @@ export default function BugReportButton() {
         onClick={() => setIsOpen(true)}
         className="fixed bottom-6 right-24 z-50 bg-gradient-to-r from-orange to-orange/90 text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-all duration-300 hover:shadow-orange/50"
         title="Report a bug"
+        aria-label="Report a bug"
       >
         <Bug className="w-6 h-6" />
       </button>

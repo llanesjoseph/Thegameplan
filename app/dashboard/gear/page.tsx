@@ -107,11 +107,13 @@ export default function AthleteGearBrowsePage({ searchParams }: { searchParams: 
 
   const content = (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="mb-2">
-        <h2 className="text-2xl font-bold" style={{ color: '#000000' }}>Recommended Gear</h2>
-        <p className="text-sm mt-1" style={{ color: '#000000', opacity: 0.7 }}>Equipment and gear recommended by coaches</p>
-      </div>
+      {/* Header - Only show when NOT embedded */}
+      {!embedded && (
+        <div className="mb-2">
+          <h2 className="text-2xl font-bold" style={{ color: '#000000' }}>Recommended Gear</h2>
+          <p className="text-sm mt-1" style={{ color: '#000000', opacity: 0.7 }}>Equipment and gear recommended by coaches</p>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
@@ -158,7 +160,7 @@ export default function AthleteGearBrowsePage({ searchParams }: { searchParams: 
       {/* Stats */}
       <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#91A6EB' }}>
+          <div className="w-12 h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#7B92C4' }}>
             <ShoppingBag className="w-6 h-6 text-white" />
           </div>
           <div>
@@ -175,7 +177,7 @@ export default function AthleteGearBrowsePage({ searchParams }: { searchParams: 
         </div>
       ) : filteredGear.length === 0 ? (
         <div className="text-center py-16 bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-12">
-          <ShoppingBag className="w-20 h-20 mx-auto mb-4" style={{ color: '#91A6EB', opacity: 0.3 }} />
+          <ShoppingBag className="w-20 h-20 mx-auto mb-4" style={{ color: '#7B92C4', opacity: 0.3 }} />
           <h3 className="text-2xl font-semibold mb-3" style={{ color: '#000000' }}>No gear found</h3>
           <p className="text-base" style={{ color: '#000000', opacity: 0.6 }}>
             {searchTerm || selectedCategory !== 'all' || selectedLevel !== 'all'
@@ -199,7 +201,7 @@ export default function AthleteGearBrowsePage({ searchParams }: { searchParams: 
                     </div>
                   )}
                   {isFromCoach && (
-                    <div className="absolute top-3 left-3 bg-gradient-to-r from-teal-500 to-teal-600 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg">
+                    <div className="absolute top-3 left-3 bg-gradient-to-r from-slate-600 to-slate-700 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg">
                       ⭐ Your Coach
                     </div>
                   )}
@@ -219,8 +221,8 @@ export default function AthleteGearBrowsePage({ searchParams }: { searchParams: 
                   </div>
                   <p className="text-sm mb-4 line-clamp-2" style={{ color: '#000000', opacity: 0.7 }}>{item.description}</p>
                   <div className="flex items-center gap-2 mb-3">
-                    <Tag className="w-4 h-4" style={{ color: '#20B2AA' }} />
-                    <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: '#20B2AA' }}>
+                    <Tag className="w-4 h-4" style={{ color: '#5A9B9B' }} />
+                    <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: '#5A9B9B' }}>
                       {item.category} · {item.sport}
                     </span>
                   </div>
@@ -243,7 +245,7 @@ export default function AthleteGearBrowsePage({ searchParams }: { searchParams: 
                     href={item.affiliateLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full py-3 px-4 bg-gradient-to-r from-teal-500 to-teal-600 text-white rounded-lg hover:from-teal-600 hover:to-teal-700 transition-all flex items-center justify-center gap-2 text-sm font-bold shadow-md hover:shadow-lg"
+                    className="w-full py-3 px-4 bg-gradient-to-r from-slate-600 to-slate-700 text-white rounded-lg hover:from-slate-700 hover:to-slate-800 transition-all flex items-center justify-center gap-2 text-sm font-bold shadow-md hover:shadow-lg"
                   >
                     <ExternalLink className="w-5 h-5" />
                     View & Buy
@@ -259,10 +261,8 @@ export default function AthleteGearBrowsePage({ searchParams }: { searchParams: 
 
   if (embedded) {
     return (
-      <div className="h-full overflow-y-auto" style={{ backgroundColor: '#E8E6D8' }}>
-        <div className="max-w-7xl mx-auto px-6 py-8">
-          {content}
-        </div>
+      <div className="h-full overflow-y-auto p-6" style={{ backgroundColor: 'white' }}>
+        {content}
       </div>
     )
   }

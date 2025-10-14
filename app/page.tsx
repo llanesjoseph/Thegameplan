@@ -20,20 +20,20 @@ export default function LandingPage() {
    `}</style>
 
    {/* Header with Navigation */}
-   <header className="relative z-50 bg-white shadow-sm">
+   <header className="relative z-50 bg-white shadow-sm" role="banner">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
      <div className="flex items-center justify-between h-16">
       {/* Logo */}
       <div className="flex items-center">
        <div className="flex-shrink-0">
-        <h1
+        <p
          className="text-2xl tracking-wider uppercase"
          style={{
           color: '#624A41' // Dark color from palette
          }}
         >
          PLAYBOOKD
-        </h1>
+        </p>
        </div>
       </div>
 
@@ -69,7 +69,7 @@ export default function LandingPage() {
      }}
     >
      {/* Dark overlay */}
-     <div className="absolute inset-0 bg-black/50"></div>
+     <div className="absolute inset-0 bg-black/60"></div>
     </div>
 
     {/* Hero Content */}
@@ -93,14 +93,18 @@ export default function LandingPage() {
       FOR THE FUTURE OF SPORTS
      </p>
 
-     <Link href="/dashboard">
-      <ClarityButton
-       size="lg"
-       className="bg-orange text-white hover:bg-orange/90 text-lg px-8 py-4 rounded-lg shadow-lg"
-      >
-       JOIN US
-      </ClarityButton>
-     </Link>
+    <Link
+     href="/dashboard"
+     className="inline-block"
+     aria-label="Go to dashboard to sign up"
+    >
+     <ClarityButton
+      size="lg"
+      className="bg-orange text-white hover:bg-orange/90 text-lg px-8 py-4 rounded-lg shadow-lg"
+     >
+      JOIN US
+     </ClarityButton>
+    </Link>
     </div>
    </section>
 
@@ -116,9 +120,9 @@ export default function LandingPage() {
    </section>
 
    {/* Features Section */}
-   <section className="py-16 bg-sky-blue">
+   <section className="py-16 bg-primary-700">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-     <div className="text-center mb-12">
+      <div className="text-center mb-12">
       <h2 className="text-3xl sm:text-4xl text-white mb-4">
        Simple steps to a stronger game...
       </h2>
@@ -156,7 +160,7 @@ export default function LandingPage() {
    </section>
 
    {/* Footer */}
-   <footer className="bg-white py-8">
+   <footer className="bg-white py-8" role="contentinfo">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
      <div className="flex items-center justify-between">
       {/* Left side - can be expanded with links */}
@@ -174,13 +178,13 @@ export default function LandingPage() {
 
       {/* Right side - Social Links */}
       <div className="flex items-center gap-4">
-       <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-dark hover:text-sky-blue">
+       <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-dark hover:text-sky-blue" aria-label="PlayBookd on Facebook">
         <Facebook className="w-5 h-5" />
        </a>
-       <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-dark hover:text-sky-blue">
+       <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-dark hover:text-sky-blue" aria-label="PlayBookd on Instagram">
         <Instagram className="w-5 h-5" />
        </a>
-       <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="text-dark hover:text-sky-blue">
+       <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="text-dark hover:text-sky-blue" aria-label="PlayBookd on Twitter">
         <Twitter className="w-5 h-5" />
        </a>
       </div>

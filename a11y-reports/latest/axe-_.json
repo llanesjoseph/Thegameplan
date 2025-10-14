@@ -1,0 +1,226 @@
+{
+  "violations": [
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "tags": [
+        "cat.color",
+        "wcag2aa",
+        "wcag143",
+        "TTv5",
+        "TT13.c",
+        "EN-301-549",
+        "EN-9.1.4.3",
+        "ACT"
+      ],
+      "description": "Ensures the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.8/color-contrast?application=axeAPI",
+      "nodes": [
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#eef1f9",
+                "bgColor": "#5570c7",
+                "contrastRatio": 4.1,
+                "fontSize": "12.0pt (16px)",
+                "fontWeight": "normal",
+                "messageKey": null,
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<section class=\"jsx-c76c231e54586b21 py-16 bg-primary-700\">",
+                  "target": [
+                    ".bg-primary-700"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element has insufficient color contrast of 4.1 (foreground color: #eef1f9, background color: #5570c7, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<p class=\"jsx-c76c231e54586b21 text-white/90 leading-relaxed\">Create your athletic profile and share what's important to you. Set clear goals for your training and development journey.</p>",
+          "target": [
+            ".text-center.text-white:nth-child(1) > .text-white\\/90.leading-relaxed"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.1 (foreground color: #eef1f9, background color: #5570c7, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#eef1f9",
+                "bgColor": "#5570c7",
+                "contrastRatio": 4.1,
+                "fontSize": "12.0pt (16px)",
+                "fontWeight": "normal",
+                "messageKey": null,
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<section class=\"jsx-c76c231e54586b21 py-16 bg-primary-700\">",
+                  "target": [
+                    ".bg-primary-700"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element has insufficient color contrast of 4.1 (foreground color: #eef1f9, background color: #5570c7, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<p class=\"jsx-c76c231e54586b21 text-white/90 leading-relaxed\">Our coaches have been carefully curated to provide top tier training experiences and elevate your athletic journey.</p>",
+          "target": [
+            ".text-center.text-white:nth-child(2) > .text-white\\/90.leading-relaxed"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.1 (foreground color: #eef1f9, background color: #5570c7, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#eef1f9",
+                "bgColor": "#5570c7",
+                "contrastRatio": 4.1,
+                "fontSize": "12.0pt (16px)",
+                "fontWeight": "normal",
+                "messageKey": null,
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<section class=\"jsx-c76c231e54586b21 py-16 bg-primary-700\">",
+                  "target": [
+                    ".bg-primary-700"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element has insufficient color contrast of 4.1 (foreground color: #eef1f9, background color: #5570c7, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<p class=\"jsx-c76c231e54586b21 text-white/90 leading-relaxed\">Ask questions, engage with our community and track your progress with personalized performance insights.</p>",
+          "target": [
+            ".text-center.text-white:nth-child(3) > .text-white\\/90.leading-relaxed"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.1 (foreground color: #eef1f9, background color: #5570c7, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+        }
+      ]
+    }
+  ],
+  "incomplete": [
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "tags": [
+        "cat.color",
+        "wcag2aa",
+        "wcag143",
+        "TTv5",
+        "TT13.c",
+        "EN-301-549",
+        "EN-9.1.4.3",
+        "ACT"
+      ],
+      "description": "Ensures the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.8/color-contrast?application=axeAPI",
+      "nodes": [
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "96.0pt (128px)",
+                "fontWeight": "normal",
+                "messageKey": "bgImage",
+                "expectedContrastRatio": "3:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div class=\"jsx-c76c231e54586b21 absolute inset-0 bg-black/60\"></div>",
+                  "target": [
+                    ".bg-black\\/60"
+                  ]
+                },
+                {
+                  "html": "<div style=\"background-image:url(&quot;/hero-background.jpg&quot;);background-size:cover;background-position:center\" class=\"jsx-c76c231e54586b21 absolute inset-0 bg-cover bg-center bg-no-repeat\"><div class=\"jsx-c76c231e54586b21 absolute inset-0 bg-black/60\"></div></div>",
+                  "target": [
+                    ".bg-cover"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined due to a background image"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<h1 style=\"font-family:Sports World, Impact, Arial Black, sans-serif;color:white;text-shadow:3px 3px 6px rgba(0,0,0,0.7);line-height:0.9\" class=\"jsx-c76c231e54586b21 text-6xl sm:text-7xl md:text-8xl lg:text-9xl tracking-wider mb-6\">PLAYBOOKD</h1>",
+          "target": [
+            "h1"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background image"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "22.5pt (30px)",
+                "fontWeight": "normal",
+                "messageKey": "bgImage",
+                "expectedContrastRatio": "3:1"
+              },
+              "relatedNodes": [
+                {
+                  "html": "<div class=\"jsx-c76c231e54586b21 absolute inset-0 bg-black/60\"></div>",
+                  "target": [
+                    ".bg-black\\/60"
+                  ]
+                },
+                {
+                  "html": "<div style=\"background-image:url(&quot;/hero-background.jpg&quot;);background-size:cover;background-position:center\" class=\"jsx-c76c231e54586b21 absolute inset-0 bg-cover bg-center bg-no-repeat\"><div class=\"jsx-c76c231e54586b21 absolute inset-0 bg-black/60\"></div></div>",
+                  "target": [
+                    ".bg-cover"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element's background color could not be determined due to a background image"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<p style=\"text-shadow:2px 2px 4px rgba(0,0,0,0.8)\" class=\"jsx-c76c231e54586b21 text-xl sm:text-2xl md:text-3xl tracking-[0.3em] text-white mb-8\">FOR THE FUTURE OF SPORTS</p>",
+          "target": [
+            ".sm\\:text-2xl"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background image"
+        }
+      ]
+    }
+  ],
+  "passes": 19,
+  "inapplicable": 41,
+  "timestamp": "2025-10-14T20:07:58.491Z",
+  "url": "http://localhost:3000/"
+}

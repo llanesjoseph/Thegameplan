@@ -77,9 +77,9 @@ export default function CoachHomePage() {
         </div>
 
         {/* Helpful Tips */}
-        <div className="bg-gradient-to-r from-teal-500 to-teal-600 rounded-xl p-6 text-white shadow-lg">
+        <div className="bg-gradient-to-r from-slate-600 to-slate-700 rounded-xl p-6 text-white shadow-lg">
           <h3 className="font-bold text-lg mb-2">💡 Quick Tip</h3>
-          <p className="text-teal-50 text-sm">
+          <p className="text-slate-200 text-sm">
             Use the sidebar to access all your coaching tools. Click any tool to open it, and use the Quick Actions above for common tasks.
             Your pending items and today's schedule will keep you organized throughout the day.
           </p>

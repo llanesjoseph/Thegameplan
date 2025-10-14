@@ -183,7 +183,7 @@ describe('Error Handling System', () => {
 
   describe('Error Logger', () => {
     it('should be a singleton instance', () => {
-      const singleton = { instance: null }
+      const singleton: { instance: object | null } = { instance: null }
 
       if (!singleton.instance) {
         singleton.instance = {}
@@ -548,11 +548,13 @@ describe('Environment Validation', () => {
     })
 
     it('should return Vertex config with project and location', () => {
+      const apiKey = 'test-key'
+      const projectId = 'test-project'
       const config = {
-        apiKey: 'test-key',
-        projectId: 'test-project',
+        apiKey,
+        projectId,
         location: 'us-central1',
-        enabled: !!('test-key' && 'test-project')
+        enabled: !!(apiKey && projectId)
       }
 
       expect(config.projectId).toBe('test-project')

@@ -105,28 +105,28 @@ export default function CoachUnifiedDashboard() {
       title: 'Home',
       description: 'Today\'s overview and quick actions',
       icon: Home,
-      color: '#20B2AA'
+      color: '#5A9B9B'
     },
     {
       id: 'athletes',
       title: 'My Athletes',
       description: 'View and manage your athletes',
       icon: Users,
-      color: '#91A6EB'
+      color: '#7B92C4'
     },
     {
       id: 'create-lesson',
       title: 'Create Lesson',
       description: 'Build comprehensive training lessons',
       icon: GraduationCap,
-      color: '#20B2AA'
+      color: '#5A9B9B'
     },
     {
       id: 'live-sessions',
       title: 'Live 1-on-1 Sessions',
       description: 'Manage session requests',
       icon: Calendar,
-      color: '#16A34A',
+      color: '#5A9A70',
       badge: pendingRequestsCount
     },
     {
@@ -148,56 +148,56 @@ export default function CoachUnifiedDashboard() {
       title: 'Video Manager',
       description: 'Organize and embed training videos',
       icon: Video,
-      color: '#FF6B35'
+      color: '#C4886A'
     },
     {
       id: 'resources',
       title: 'Resource Library',
       description: 'PDFs, links, and training materials',
       icon: FileText,
-      color: '#91A6EB'
+      color: '#7B92C4'
     },
     {
       id: 'analytics',
       title: 'Analytics',
       description: 'Track engagement and progress',
       icon: BarChart3,
-      color: '#20B2AA'
+      color: '#5A9B9B'
     },
     {
       id: 'profile',
       title: 'My Profile',
       description: 'Edit your coach profile',
       icon: Settings,
-      color: '#FF6B35'
+      color: '#C4886A'
     },
     {
       id: 'announcements',
       title: 'Announcements',
       description: 'Send updates to all athletes',
       icon: Bell,
-      color: '#91A6EB'
+      color: '#7B92C4'
     },
     {
       id: 'assistants',
       title: 'Assistant Coaches',
       description: 'Manage coaching staff',
       icon: UserCog,
-      color: '#20B2AA'
+      color: '#5A9B9B'
     },
     {
       id: 'recruit-coach',
       title: 'Recruit Fellow Coach',
       description: 'Invite other coaches to join',
       icon: UserCheck,
-      color: '#20B2AA'
+      color: '#5A9B9B'
     },
     {
       id: 'gear',
       title: 'Gear Recommendations',
       description: 'Recommend equipment to athletes',
       icon: ShoppingBag,
-      color: '#FF6B35'
+      color: '#C4886A'
     }
   ]
 
@@ -366,7 +366,7 @@ export default function CoachUnifiedDashboard() {
               <div className="h-full flex items-center justify-center p-4 sm:p-8">
                 <div className="max-w-2xl text-center">
                   <div className="mb-6">
-                    <GraduationCap className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4" style={{ color: '#20B2AA' }} />
+                    <GraduationCap className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4" style={{ color: '#5A9B9B' }} />
                     <h2 className="text-2xl sm:text-3xl font-bold mb-2" style={{ color: '#000000' }}>
                       Welcome, Coach {user?.displayName?.split(' ')[0] || 'Coach'}! 👋
                     </h2>
@@ -376,24 +376,24 @@ export default function CoachUnifiedDashboard() {
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-left">
-                    <div className="bg-gradient-to-br from-sky-blue/10 to-sky-blue/5 rounded-lg p-5 border-2" style={{ borderColor: '#91A6EB' }}>
-                      <GraduationCap className="w-8 h-8 mb-3" style={{ color: '#91A6EB' }} />
+                    <div className="bg-gradient-to-br from-sky-blue/10 to-sky-blue/5 rounded-lg p-5 border-2" style={{ borderColor: '#7B92C4' }}>
+                      <GraduationCap className="w-8 h-8 mb-3" style={{ color: '#7B92C4' }} />
                       <h3 className="font-semibold mb-1" style={{ color: '#000000' }}>Create Lessons</h3>
                       <p className="text-sm" style={{ color: '#666' }}>
                         Build training lessons with videos and drills
                       </p>
                     </div>
 
-                    <div className="bg-gradient-to-br from-teal/10 to-teal/5 rounded-lg p-5 border-2" style={{ borderColor: '#20B2AA' }}>
-                      <Users className="w-8 h-8 mb-3" style={{ color: '#20B2AA' }} />
+                    <div className="bg-gradient-to-br from-teal/10 to-teal/5 rounded-lg p-5 border-2" style={{ borderColor: '#5A9B9B' }}>
+                      <Users className="w-8 h-8 mb-3" style={{ color: '#5A9B9B' }} />
                       <h3 className="font-semibold mb-1" style={{ color: '#000000' }}>Manage Athletes</h3>
                       <p className="text-sm" style={{ color: '#666' }}>
                         Track progress and engagement
                       </p>
                     </div>
 
-                    <div className="bg-gradient-to-br from-orange/10 to-orange/5 rounded-lg p-5 border-2" style={{ borderColor: '#FF6B35' }}>
-                      <Video className="w-8 h-8 mb-3" style={{ color: '#FF6B35' }} />
+                    <div className="bg-gradient-to-br from-orange/10 to-orange/5 rounded-lg p-5 border-2" style={{ borderColor: '#C4886A' }}>
+                      <Video className="w-8 h-8 mb-3" style={{ color: '#C4886A' }} />
                       <h3 className="font-semibold mb-1" style={{ color: '#000000' }}>Video Library</h3>
                       <p className="text-sm" style={{ color: '#666' }}>
                         Organize all your training videos
@@ -409,7 +409,7 @@ export default function CoachUnifiedDashboard() {
                     </div>
                   </div>
 
-                  <div className="mt-4 sm:mt-6 bg-gradient-to-r from-sky-blue to-teal rounded-lg p-4 sm:p-5 text-white text-left">
+                  <div className="mt-4 sm:mt-6 bg-gradient-to-r from-slate-600 to-slate-700 rounded-lg p-4 sm:p-5 text-white text-left">
                     <h3 className="font-semibold mb-2 sm:mb-3 text-base sm:text-lg">🎯 Quick Start</h3>
                     <ol className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
                       <li><strong>1.</strong> Click any tool in the sidebar to open it</li>

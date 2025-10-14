@@ -90,21 +90,21 @@ export default function AthleteDashboard() {
       title: coachName ? `Ask ${coachName.split(' ')[0]}` : 'Ask Your Coach',
       description: 'Chat with your coach\'s AI assistant',
       icon: Sparkles,
-      color: '#20B2AA'
+      color: '#5A9B9B'
     },
     {
       id: 'coach-feed',
       title: "Coach's Feed",
       description: 'Updates and tips from your coach',
       icon: Rss,
-      color: '#20B2AA'
+      color: '#5A9B9B'
     },
     {
       id: 'coach-schedule',
       title: "Coach's Schedule",
       description: 'View upcoming events and sessions',
       icon: Calendar,
-      color: '#16A34A'
+      color: '#5A9A70'
     },
     {
       id: 'announcements',
@@ -119,28 +119,28 @@ export default function AthleteDashboard() {
       title: 'My Lessons',
       description: 'View and complete training lessons',
       icon: BookOpen,
-      color: '#91A6EB'
+      color: '#7B92C4'
     },
     {
       id: 'video-review',
       title: 'Video Review',
       description: 'Request coach feedback on your clips',
       icon: Video,
-      color: '#FF6B35'
+      color: '#C4886A'
     },
     {
       id: 'live-session',
       title: 'Live 1-on-1 Session',
       description: 'Schedule a live coaching call',
       icon: Calendar,
-      color: '#16A34A'
+      color: '#5A9A70'
     },
     {
       id: 'gear',
       title: 'Gear Shop',
       description: 'Browse recommended equipment',
       icon: ShoppingBag,
-      color: '#91A6EB'
+      color: '#7B92C4'
     },
     ...(hasCoachRole ? [{
       id: 'coach-dashboard',
@@ -385,7 +385,7 @@ export default function AthleteDashboard() {
             <button
               onClick={() => window.location.reload()}
               className="px-6 py-3 rounded-lg text-white transition-colors"
-              style={{ backgroundColor: '#91A6EB' }}
+              style={{ backgroundColor: '#7B92C4' }}
             >
               Refresh Page
             </button>
@@ -483,7 +483,7 @@ export default function AthleteDashboard() {
                     style={{ minHeight: '44px' }}
                     title="View coach information"
                   >
-                    <div className="w-12 h-12 rounded-full overflow-hidden shadow-md flex-shrink-0" style={{ backgroundColor: '#20B2AA' }}>
+                    <div className="w-12 h-12 rounded-full overflow-hidden shadow-md flex-shrink-0" style={{ backgroundColor: '#5A9B9B' }}>
                       {coachPhotoURL ? (
                         <img src={coachPhotoURL} alt={coachName} className="w-full h-full object-cover" />
                       ) : (
@@ -497,7 +497,7 @@ export default function AthleteDashboard() {
                       <p className="text-sm font-semibold truncate" style={{ color: '#000000' }}>
                         {coachName.split(' ')[0]}
                       </p>
-                      <p className="text-[10px]" style={{ color: '#20B2AA' }}>Tap to view →</p>
+                      <p className="text-[10px]" style={{ color: '#5A9B9B' }}>Tap to view →</p>
                     </div>
                   </button>
                 ) : (
@@ -570,11 +570,11 @@ export default function AthleteDashboard() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-xs" style={{ color: '#666' }}>Lessons</span>
-                    <span className="text-sm font-bold" style={{ color: '#91A6EB' }}>{lessonCount}</span>
+                    <span className="text-sm font-bold" style={{ color: '#7B92C4' }}>{lessonCount}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-xs" style={{ color: '#666' }}>Videos</span>
-                    <span className="text-sm font-bold" style={{ color: '#20B2AA' }}>{videoCount}</span>
+                    <span className="text-sm font-bold" style={{ color: '#5A9B9B' }}>{videoCount}</span>
                   </div>
                 </div>
               </div>
@@ -765,7 +765,7 @@ export default function AthleteDashboard() {
                 <div className="h-full flex items-center justify-center p-4 sm:p-8">
                   <div className="max-w-2xl text-center">
                     <div className="mb-6">
-                      <TrendingUp className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4" style={{ color: '#20B2AA' }} />
+                      <TrendingUp className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4" style={{ color: '#5A9B9B' }} />
                       <h2 className="text-2xl sm:text-3xl font-bold mb-2" style={{ color: '#000000' }}>
                         Welcome back, {user?.displayName?.split(' ')[0] || 'Athlete'}!
                       </h2>
@@ -775,24 +775,24 @@ export default function AthleteDashboard() {
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-left">
-                      <div className="bg-gradient-to-br from-teal/10 to-teal/5 rounded-lg p-5 border-2" style={{ borderColor: '#20B2AA' }}>
-                        <Sparkles className="w-8 h-8 mb-3" style={{ color: '#20B2AA' }} />
+                      <div className="bg-gradient-to-br from-teal/10 to-teal/5 rounded-lg p-5 border-2" style={{ borderColor: '#5A9B9B' }}>
+                        <Sparkles className="w-8 h-8 mb-3" style={{ color: '#5A9B9B' }} />
                         <h3 className="font-semibold mb-1" style={{ color: '#000000' }}>Ask Your Coach</h3>
                         <p className="text-sm" style={{ color: '#666' }}>
                           Get instant answers from AI assistant
                         </p>
                       </div>
 
-                      <div className="bg-gradient-to-br from-sky-blue/10 to-sky-blue/5 rounded-lg p-5 border-2" style={{ borderColor: '#91A6EB' }}>
-                        <BookOpen className="w-8 h-8 mb-3" style={{ color: '#91A6EB' }} />
+                      <div className="bg-gradient-to-br from-sky-blue/10 to-sky-blue/5 rounded-lg p-5 border-2" style={{ borderColor: '#7B92C4' }}>
+                        <BookOpen className="w-8 h-8 mb-3" style={{ color: '#7B92C4' }} />
                         <h3 className="font-semibold mb-1" style={{ color: '#000000' }}>Training Lessons</h3>
                         <p className="text-sm" style={{ color: '#666' }}>
                           {lessonCount} lessons available
                         </p>
                       </div>
 
-                      <div className="bg-gradient-to-br from-orange/10 to-orange/5 rounded-lg p-5 border-2" style={{ borderColor: '#FF6B35' }}>
-                        <Video className="w-8 h-8 mb-3" style={{ color: '#FF6B35' }} />
+                      <div className="bg-gradient-to-br from-orange/10 to-orange/5 rounded-lg p-5 border-2" style={{ borderColor: '#C4886A' }}>
+                        <Video className="w-8 h-8 mb-3" style={{ color: '#C4886A' }} />
                         <h3 className="font-semibold mb-1" style={{ color: '#000000' }}>Video Review</h3>
                         <p className="text-sm" style={{ color: '#666' }}>
                           Get feedback on your performance
@@ -809,7 +809,7 @@ export default function AthleteDashboard() {
                     </div>
 
                     {coachId && coachName && (
-                      <div className="mt-4 sm:mt-6 bg-gradient-to-r from-teal-500 to-teal-600 rounded-lg p-4 sm:p-5 text-white text-left">
+                      <div className="mt-4 sm:mt-6 bg-gradient-to-r from-slate-600 to-slate-700 rounded-lg p-4 sm:p-5 text-white text-left">
                         <h3 className="font-semibold mb-2 sm:mb-3 text-base sm:text-lg">🎯 Training with {coachName.split(' ')[0]}</h3>
                         <p className="text-xs sm:text-sm">
                           Your coach has prepared {lessonCount} lessons and {videoCount} videos for your training. Click "Ask {coachName.split(' ')[0]}" to get personalized coaching advice!

@@ -162,9 +162,14 @@ describe('Authentication Utilities', () => {
     })
 
     it('should reject null authorization header', () => {
-      const authHeader = null
+      const authHeader: string | null = null
+      let startsWithBearer = false
+      if (authHeader) {
+        const header = authHeader as string
+        startsWithBearer = header.startsWith('Bearer ')
+      }
 
-      expect(authHeader?.startsWith('Bearer ')).toBeFalsy()
+      expect(startsWithBearer).toBeFalsy()
     })
 
     it('should reject empty authorization header', () => {
@@ -344,15 +349,20 @@ describe('Feature Flags System', () => {
     })
 
     it('should return false for non-existent flag', () => {
-      const flags = {}
-      const featureName = 'non_existent_feature' as any
+      const flags: Record<string, { enabled: boolean }> = {}
+      const featureName = 'non_existent_feature'
 
       expect(flags[featureName]?.enabled || false).toBe(false)
     })
 
     it('should handle null/undefined flag gracefully', () => {
-      const flag = null
-      expect(flag?.enabled || false).toBe(false)
+      const flag: { enabled: boolean } | null = null
+      let isEnabled = false
+      if (flag) {
+        const f = flag as { enabled: boolean }
+        isEnabled = f.enabled
+      }
+      expect(isEnabled).toBe(false)
     })
   })
 })
@@ -429,8 +439,15 @@ describe('Audit Logging System', () => {
     })
 
     it('should handle undefined user agent gracefully', () => {
-      const userAgent = undefined
-      const sanitized = userAgent?.split('/')[0] || 'unknown'
+      const userAgent: string | undefined = undefined
+      let sanitized = 'unknown'
+      if (userAgent) {
+        const ua = userAgent as string
+        const parts = ua.split('/')
+        if (parts.length > 0) {
+          sanitized = parts[0]
+        }
+      }
 
       expect(sanitized).toBe('unknown')
     })

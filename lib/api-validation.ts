@@ -437,6 +437,24 @@ export async function validateRequest(
 }
 
 /**
+ * Simple email validation
+ * Uses the same regex as validateData for consistency
+ */
+export function validateEmail(email: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  return typeof email === 'string' && emailRegex.test(email)
+}
+
+/**
+ * Simple role validation
+ * Reuses role values from ValidationSchemas for single source of truth
+ */
+export function validateRole(role: string): boolean {
+  const validRoles = ValidationSchemas.userProfile.role.values as readonly string[]
+  return validRoles.includes(role)
+}
+
+/**
  * Error response formatter
  */
 export function formatErrorResponse(error: unknown): NextResponse {
@@ -496,6 +514,8 @@ export default {
   validateAuthorization,
   validateData,
   validateFileUpload,
+  validateEmail,
+  validateRole,
   ValidationSchemas,
   formatErrorResponse,
   ValidationError,

@@ -8,50 +8,62 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 describe('AI Provider Management', () => {
   describe('API Key Validation', () => {
     it('should detect missing Gemini API key', () => {
-      const apiKey = undefined
-      const isValid = apiKey && apiKey !== 'YOUR_GEMINI_API_KEY_HERE' && apiKey.trim() !== ''
+      const apiKey: string | undefined = undefined
+      let isValid = false
+      if (apiKey) {
+        const key = apiKey as string
+        if (key !== 'YOUR_GEMINI_API_KEY_HERE' && key.trim() !== '') {
+          isValid = true
+        }
+      }
 
       expect(isValid).toBeFalsy()
     })
 
     it('should detect placeholder Gemini API key', () => {
-      const apiKey = 'YOUR_GEMINI_API_KEY_HERE'
-      const isValid = apiKey && apiKey !== 'YOUR_GEMINI_API_KEY_HERE' && apiKey.trim() !== ''
+      const apiKey: string = 'YOUR_GEMINI_API_KEY_HERE'
+      const isValid = apiKey !== 'YOUR_GEMINI_API_KEY_HERE' && !!apiKey.trim()
 
       expect(isValid).toBeFalsy()
     })
 
     it('should detect empty Gemini API key', () => {
-      const apiKey = '   '
-      const isValid = apiKey && apiKey !== 'YOUR_GEMINI_API_KEY_HERE' && apiKey.trim() !== ''
+      const apiKey: string = '   '
+      const isValid = apiKey !== 'YOUR_GEMINI_API_KEY_HERE' && !!apiKey.trim()
 
       expect(isValid).toBeFalsy()
     })
 
     it('should accept valid Gemini API key', () => {
-      const apiKey = 'AIzaSyC_valid_key_12345'
-      const isValid = apiKey && apiKey !== 'YOUR_GEMINI_API_KEY_HERE' && apiKey.trim() !== ''
+      const apiKey: string = 'AIzaSyC_valid_key_12345'
+      const isValid = apiKey !== 'YOUR_GEMINI_API_KEY_HERE' && !!apiKey.trim()
 
       expect(isValid).toBe(true)
     })
 
     it('should detect missing OpenAI API key', () => {
-      const apiKey = undefined
-      const isValid = apiKey && apiKey !== 'YOUR_OPENAI_API_KEY_HERE' && apiKey.trim() !== ''
+      const apiKey: string | undefined = undefined
+      let isValid = false
+      if (apiKey) {
+        const key = apiKey as string
+        if (key !== 'YOUR_OPENAI_API_KEY_HERE' && key.trim() !== '') {
+          isValid = true
+        }
+      }
 
       expect(isValid).toBeFalsy()
     })
 
     it('should detect placeholder OpenAI API key', () => {
-      const apiKey = 'YOUR_OPENAI_API_KEY_HERE'
-      const isValid = apiKey && apiKey !== 'YOUR_OPENAI_API_KEY_HERE' && apiKey.trim() !== ''
+      const apiKey: string = 'YOUR_OPENAI_API_KEY_HERE'
+      const isValid = apiKey !== 'YOUR_OPENAI_API_KEY_HERE' && !!apiKey.trim()
 
       expect(isValid).toBeFalsy()
     })
 
     it('should accept valid OpenAI API key', () => {
-      const apiKey = 'sk-proj-valid_key_12345'
-      const isValid = apiKey && apiKey !== 'YOUR_OPENAI_API_KEY_HERE' && apiKey.trim() !== ''
+      const apiKey: string = 'sk-proj-valid_key_12345'
+      const isValid = apiKey !== 'YOUR_OPENAI_API_KEY_HERE' && !!apiKey.trim()
 
       expect(isValid).toBe(true)
     })
@@ -179,35 +191,35 @@ describe('AI Provider Management', () => {
 
   describe('Response Validation', () => {
     it('should reject empty responses from Gemini', () => {
-      const text = ''
+      const text: string = ''
       const isValid = text && text.trim().length > 0
 
       expect(isValid).toBeFalsy()
     })
 
     it('should reject whitespace-only responses', () => {
-      const text = '   \n\t   '
+      const text: string = '   \n\t   '
       const isValid = text.trim().length > 0
 
       expect(isValid).toBe(false)
     })
 
     it('should accept valid responses', () => {
-      const text = 'Great question! Let me help you with that...'
+      const text: string = 'Great question! Let me help you with that...'
       const isValid = text && text.trim().length > 0
 
       expect(isValid).toBe(true)
     })
 
     it('should trim whitespace from responses', () => {
-      const rawResponse = '  \n  Great answer!  \n  '
+      const rawResponse: string = '  \n  Great answer!  \n  '
       const trimmedResponse = rawResponse.trim()
 
       expect(trimmedResponse).toBe('Great answer!')
     })
 
     it('should handle OpenAI response structure', () => {
-      const completion = {
+      const completion: { choices: Array<{ message: { content: string } }> } = {
         choices: [
           {
             message: {
@@ -224,7 +236,7 @@ describe('AI Provider Management', () => {
     })
 
     it('should detect missing response content', () => {
-      const completion = {
+      const completion: { choices: Array<{ message: { content: string } }> } = {
         choices: []
       }
 

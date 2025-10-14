@@ -44,7 +44,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
  return (
   <html lang="en">
    <body className={`bg-white text-gray-800 ${inter.variable} ${oswald.variable} ${permanentMarker.variable}`}>
-    {children}
+    {/* Skip to content for keyboard users */}
+    <a href="#main-content" className="sr-only focus:not-sr-only focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-black absolute top-2 left-2 bg-white text-black px-3 py-2 rounded">
+     Skip to main content
+    </a>
+    <main id="main-content" role="main">
+     {children}
+    </main>
     <Suspense fallback={null}>
      <BugReportButton />
     </Suspense>

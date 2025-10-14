@@ -27,7 +27,9 @@
       "Bash(cmd:*)",
       "Bash(firebase login:*)",
       "Bash(firebase functions:list:*)",
-      "Bash(git mv:*)"
+      "Bash(git mv:*)",
+      "Bash(npx eslint:*)",
+      "Bash(timeout 30 tail -f nul)"
     ],
     "deny": [],
     "ask": []

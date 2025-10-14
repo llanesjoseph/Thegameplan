@@ -319,8 +319,9 @@ export default function ContributorsPage() {
 
      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6 pt-6 border-t border-gray-200">
       <div>
-       <label className="block text-sm mb-3" style={{ color: '#000000' }}>Sport</label>
+       <label htmlFor="filter-sport" className="block text-sm mb-3" style={{ color: '#000000' }}>Sport</label>
        <select
+        id="filter-sport"
         value={filters.sport}
         onChange={(e) => setFilters(prev => ({ ...prev, sport: e.target.value }))}
         className="w-full bg-white p-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -331,8 +332,9 @@ export default function ContributorsPage() {
        </select>
       </div>
       <div>
-       <label className="block text-sm mb-3" style={{ color: '#000000' }}>Experience Level</label>
+       <label htmlFor="filter-experience" className="block text-sm mb-3" style={{ color: '#000000' }}>Experience Level</label>
        <select
+        id="filter-experience"
         value={filters.experience}
         onChange={(e) => setFilters(prev => ({ ...prev, experience: e.target.value }))}
         className="w-full bg-white p-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -343,8 +345,9 @@ export default function ContributorsPage() {
        </select>
       </div>
       <div>
-       <label className="block text-sm mb-3" style={{ color: '#000000' }}>Specialty</label>
+       <label htmlFor="filter-specialty" className="block text-sm mb-3" style={{ color: '#000000' }}>Specialty</label>
        <select
+        id="filter-specialty"
         value={filters.specialty}
         onChange={(e) => setFilters(prev => ({ ...prev, specialty: e.target.value }))}
         className="w-full bg-white p-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -393,7 +396,8 @@ export default function ContributorsPage() {
      </div>
      <Link
       href="/coaches/apply"
-      className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+      className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
+      style={{ boxShadow: '0 0 0 2px rgba(0,0,0,0.06) inset' }}
      >
       <Star className="w-4 h-4" />
       Become a Coach
@@ -544,13 +548,13 @@ export default function ContributorsPage() {
       </Link>
      </div>
      <div className="flex items-center gap-4">
-      <a href="https://facebook.com/playbookd" className="text-gray-600 hover:text-gray-900 transition-colors">
+      <a href="https://facebook.com/playbookd" className="text-gray-600 hover:text-gray-900 transition-colors" aria-label="PlayBookd on Facebook">
        <Facebook className="w-5 h-5" />
       </a>
-      <a href="https://instagram.com/playbookd" className="text-gray-600 hover:text-gray-900 transition-colors">
+      <a href="https://instagram.com/playbookd" className="text-gray-600 hover:text-gray-900 transition-colors" aria-label="PlayBookd on Instagram">
        <Instagram className="w-5 h-5" />
       </a>
-      <a href="https://twitter.com/playbookd" className="text-gray-600 hover:text-gray-900 transition-colors">
+      <a href="https://twitter.com/playbookd" className="text-gray-600 hover:text-gray-900 transition-colors" aria-label="PlayBookd on Twitter">
        <Twitter className="w-5 h-5" />
       </a>
      </div>
