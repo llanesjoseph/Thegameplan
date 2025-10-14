@@ -168,9 +168,6 @@ export default function LandingPage() {
        <Link href="/coaches" className="text-dark hover:text-sky-blue ">
         Coaches
        </Link>
-       <Link href="/athletes" className="text-dark hover:text-sky-blue ">
-        Athletes
-       </Link>
        <Link href="/lessons" className="text-dark hover:text-sky-blue ">
         Lessons
        </Link>
