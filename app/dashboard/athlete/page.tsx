@@ -160,6 +160,18 @@ export default function AthleteDashboard() {
       }
 
       try {
+        // Check sessionStorage first to prevent re-showing modal after completion
+        const sessionCompleted = typeof window !== 'undefined' &&
+          sessionStorage.getItem(`onboarding_complete_${user.uid}`) === 'true'
+
+        if (sessionCompleted) {
+          console.log('✅ Onboarding marked as complete in session - skipping modal')
+          setOnboardingComplete(true)
+          setShowOnboarding(false)
+          setIsCheckingOnboarding(false)
+          return
+        }
+
         const userRef = doc(db, 'users', user.uid)
         const userDoc = await getDoc(userRef)
 
@@ -413,9 +425,33 @@ export default function AthleteDashboard() {
         <AthleteOnboardingModal
           userId={user.uid}
           userEmail={user.email || ''}
-          onComplete={() => {
+          onComplete={async () => {
+            console.log('🎯 Onboarding complete - refreshing user data')
             setOnboardingComplete(true)
             setShowOnboarding(false)
+
+            // Refetch user data to get coach assignment and other details
+            try {
+              const userRef = doc(db, 'users', user.uid)
+              const userDoc = await getDoc(userRef)
+
+              if (userDoc.exists()) {
+                const userData = userDoc.data()
+                setCoachId(userData?.coachId || userData?.assignedCoachId || null)
+
+                // Check if user also has coach role
+                const userRole = userData?.role
+                const userRoles = userData?.roles || []
+                setHasCoachRole(
+                  userRole === 'coach' ||
+                  userRole === 'assistant_coach' ||
+                  userRoles.includes('coach') ||
+                  userRoles.includes('assistant_coach')
+                )
+              }
+            } catch (error) {
+              console.error('Error refreshing user data after onboarding:', error)
+            }
           }}
         />
       )}

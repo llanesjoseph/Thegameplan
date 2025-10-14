@@ -30,7 +30,9 @@
       "Bash(git mv:*)",
       "Bash(npx eslint:*)",
       "Bash(timeout 30 tail -f nul)",
-      "Bash(npx playwright test:*)"
+      "Bash(npx playwright test:*)",
+      "Bash(if [ -d \".next\" ])",
+      "Bash(then rm -rf .next)"
     ],
     "deny": [],
     "ask": []

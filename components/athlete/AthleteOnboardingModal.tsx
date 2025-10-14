@@ -75,6 +75,15 @@ export default function AthleteOnboardingModal({ userId, userEmail, onComplete }
       })
 
       console.log('✅ Athlete onboarding completed successfully')
+
+      // Wait a moment for Firestore to propagate the write
+      await new Promise(resolve => setTimeout(resolve, 500))
+
+      // Store onboarding completion in sessionStorage to prevent re-showing modal
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem(`onboarding_complete_${userId}`, 'true')
+      }
+
       onComplete()
     } catch (err) {
       console.error('❌ Error saving onboarding data:', err)
