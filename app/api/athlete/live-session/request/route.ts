@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { adminDb } from '@/lib/firebase.admin'
+import { auth as adminAuth, adminDb } from '@/lib/firebase.admin'
 import { FieldValue } from 'firebase-admin/firestore'
 import { auditLog } from '@/lib/audit-logger'
 import { sendLiveSessionRequestEmail } from '@/lib/email-service'
@@ -13,9 +13,27 @@ export async function POST(request: NextRequest) {
   const requestId = `live-session-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
 
   try {
+    // Verify authentication
+    const authHeader = request.headers.get('Authorization')
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const token = authHeader.split('Bearer ')[1]
+    const decodedToken = await adminAuth.verifyIdToken(token)
+    const authenticatedUserId = decodedToken.uid
+
     // Parse request body
     const body = await request.json()
     const { athleteId, athleteEmail, coachId, preferredDate, preferredTime, duration, topic, description, specificGoals } = body
+
+    // Verify the authenticated user matches the athleteId in the request
+    if (authenticatedUserId !== athleteId) {
+      return NextResponse.json(
+        { error: 'Unauthorized: You can only create requests for yourself' },
+        { status: 403 }
+      )
+    }
 
     // Validation
     if (!athleteId || !athleteEmail || !preferredDate || !preferredTime || !duration || !topic || !description) {

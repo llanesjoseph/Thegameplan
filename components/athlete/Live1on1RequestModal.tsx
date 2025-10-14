@@ -6,7 +6,8 @@
  */
 
 import { useState } from 'react'
-import { X, Video, Calendar, Clock, Send, FileText } from 'lucide-react'
+import { X, Video, Calendar, Clock, Send, FileText, AlertCircle } from 'lucide-react'
+import { useAuth } from '@/hooks/use-auth'
 
 interface Live1on1RequestModalProps {
   userId: string
@@ -25,6 +26,7 @@ export default function Live1on1RequestModal({
   onClose,
   onSuccess
 }: Live1on1RequestModalProps) {
+  const { user } = useAuth()
   const [formData, setFormData] = useState({
     preferredDate: '',
     preferredTime: '',
@@ -43,16 +45,25 @@ export default function Live1on1RequestModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!isValid) return
+    if (!isValid || !user) {
+      if (!user) {
+        setError('You must be signed in to request a session')
+      }
+      return
+    }
 
     setIsSubmitting(true)
     setError(null)
 
     try {
+      // Get authentication token
+      const token = await user.getIdToken()
+
       const response = await fetch('/api/athlete/live-session/request', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
           athleteId: userId,
@@ -70,10 +81,10 @@ export default function Live1on1RequestModal({
       const result = await response.json()
 
       if (!response.ok) {
-        throw new Error(result.error || 'Failed to submit session request')
+        throw new Error(result.error || result.message || 'Failed to submit session request')
       }
 
-      console.log('✅ Live session request submitted successfully')
+      console.log('✅ Live session request submitted successfully:', result.sessionId)
       onSuccess()
       onClose()
     } catch (err) {
@@ -119,8 +130,14 @@ export default function Live1on1RequestModal({
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {/* Error Message */}
           {error && (
-            <div className="p-4 rounded-lg" style={{ backgroundColor: '#FEE2E2' }}>
-              <p style={{ color: '#DC2626' }}>{error}</p>
+            <div className="p-4 rounded-lg bg-red-50 border-2 border-red-200">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="font-semibold text-red-900 mb-1">Error</h4>
+                  <p className="text-red-700 text-sm">{error}</p>
+                </div>
+              </div>
             </div>
           )}
 
