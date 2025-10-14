@@ -33,32 +33,68 @@ export async function GET(request: NextRequest) {
       })
     }
 
-    // Fetch all future events from assigned coach
+    // Fetch all events from assigned coach
+    // Note: Removed orderBy to avoid composite index requirement - we'll sort in memory
     const now = new Date()
-    const eventsSnapshot = await adminDb
-      .collection('coach_schedule')
-      .where('coachId', '==', assignedCoachId)
-      .orderBy('eventDate', 'asc')
-      .get()
+
+    let eventsSnapshot
+    try {
+      eventsSnapshot = await adminDb
+        .collection('coach_schedule')
+        .where('coachId', '==', assignedCoachId)
+        .get()
+    } catch (firestoreError) {
+      console.error('Firestore query error:', firestoreError)
+      // Return empty events instead of failing completely
+      return NextResponse.json({
+        success: true,
+        events: [],
+        message: 'Unable to load schedule at this time',
+        coachId: assignedCoachId
+      })
+    }
+
+    // Check if coach has any schedule events
+    if (eventsSnapshot.empty) {
+      return NextResponse.json({
+        success: true,
+        events: [],
+        message: 'Your coach has not created any schedule events yet',
+        coachId: assignedCoachId
+      })
+    }
 
     const events = eventsSnapshot.docs
-      .map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        eventDate: doc.data().eventDate?.toDate?.()?.toISOString() || null,
-        eventDateTime: doc.data().eventDateTime,
-        createdAt: doc.data().createdAt?.toDate?.()?.toISOString() || null,
-        updatedAt: doc.data().updatedAt?.toDate?.()?.toISOString() || null
-      }))
-      // Filter to only show future events (optional - you may want to show past events too)
+      .map(doc => {
+        const data = doc.data()
+        return {
+          id: doc.id,
+          ...data,
+          eventDate: data.eventDate?.toDate?.()?.toISOString() || null,
+          eventDateTime: data.eventDateTime || null,
+          createdAt: data.createdAt?.toDate?.()?.toISOString() || null,
+          updatedAt: data.updatedAt?.toDate?.()?.toISOString() || null
+        }
+      })
+      // Filter to only show future events
       .filter(event => {
-        if (!event.eventDateTime) return true
-        return new Date(event.eventDateTime) >= now
+        if (!event.eventDateTime) return false // Exclude events without dateTime
+        try {
+          return new Date(event.eventDateTime) >= now
+        } catch {
+          return false // Exclude events with invalid dates
+        }
+      })
+      // Sort by date in memory (ascending)
+      .sort((a, b) => {
+        if (!a.eventDateTime || !b.eventDateTime) return 0
+        return new Date(a.eventDateTime).getTime() - new Date(b.eventDateTime).getTime()
       })
 
     return NextResponse.json({
       success: true,
       events,
+      message: events.length === 0 ? 'No upcoming events scheduled' : undefined,
       coachId: assignedCoachId
     })
   } catch (error) {

@@ -23,6 +23,7 @@ export default function CoachScheduleView() {
   const [events, setEvents] = useState<ScheduleEvent[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [infoMessage, setInfoMessage] = useState<string | null>(null)
   const [selectedEvent, setSelectedEvent] = useState<ScheduleEvent | null>(null)
 
   useEffect(() => {
@@ -32,26 +33,44 @@ export default function CoachScheduleView() {
   }, [user])
 
   const loadSchedule = async () => {
-    if (!user) return
+    if (!user) {
+      setError('Please sign in to view your coach\'s schedule')
+      setIsLoading(false)
+      return
+    }
 
     setIsLoading(true)
     setError(null)
+    setInfoMessage(null)
+
     try {
       const token = await user.getIdToken()
       const response = await fetch('/api/athlete/coach-schedule', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       })
 
+      const data = await response.json()
+
       if (response.ok) {
-        const data = await response.json()
         setEvents(data.events || [])
+        // Store any informational message from the API
+        if (data.message) {
+          setInfoMessage(data.message)
+        }
       } else {
-        const errorData = await response.json()
-        setError(errorData.message || 'Failed to load schedule')
+        // Handle error responses
+        setError(data.error || data.message || 'Failed to load schedule')
       }
     } catch (error) {
       console.error('Error loading schedule:', error)
-      setError('Failed to load coach schedule')
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        setError('Network error: Unable to connect to the server. Please check your internet connection.')
+      } else {
+        setError('An unexpected error occurred while loading the schedule. Please try again.')
+      }
     } finally {
       setIsLoading(false)
     }
@@ -109,12 +128,20 @@ export default function CoachScheduleView() {
   if (error) {
     return (
       <div className="p-8">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6 flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-          <div>
-            <h3 className="font-semibold text-red-900 mb-1">Error Loading Schedule</h3>
-            <p className="text-red-700 text-sm">{error}</p>
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+          <div className="flex items-start gap-3 mb-4">
+            <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <h3 className="font-semibold text-red-900 mb-1">Error Loading Schedule</h3>
+              <p className="text-red-700 text-sm">{error}</p>
+            </div>
           </div>
+          <button
+            onClick={loadSchedule}
+            className="bg-red-100 hover:bg-red-200 text-red-700 px-4 py-2 rounded-lg font-semibold transition-colors text-sm"
+          >
+            Try Again
+          </button>
         </div>
       </div>
     )
@@ -138,9 +165,20 @@ export default function CoachScheduleView() {
         <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
           <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-gray-900 mb-2">No Upcoming Events</h3>
-          <p className="text-gray-600">
-            Your coach hasn't published any upcoming events yet.
+          <p className="text-gray-600 mb-4">
+            {infoMessage || "Your coach hasn't published any upcoming events yet."}
           </p>
+          {infoMessage && (
+            <button
+              onClick={loadSchedule}
+              className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-semibold transition-colors text-sm inline-flex items-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Refresh
+            </button>
+          )}
         </div>
       ) : (
         <>
