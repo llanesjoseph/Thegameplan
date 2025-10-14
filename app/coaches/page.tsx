@@ -483,7 +483,7 @@ export default function ContributorsPage() {
          </div>
         </div>
        </article>
-      </Link>
+      </div>
      ))}
     </div>
    </div>
