@@ -160,12 +160,12 @@ export default function AthleteDashboard() {
       }
 
       try {
-        // Check sessionStorage first to prevent re-showing modal after completion
-        const sessionCompleted = typeof window !== 'undefined' &&
-          sessionStorage.getItem(`onboarding_complete_${user.uid}`) === 'true'
+        // Check localStorage first to prevent re-showing modal after completion
+        const localCompleted = typeof window !== 'undefined' &&
+          localStorage.getItem(`onboarding_complete_${user.uid}`) === 'true'
 
-        if (sessionCompleted) {
-          console.log('✅ Onboarding marked as complete in session - skipping modal')
+        if (localCompleted) {
+          console.log('✅ Onboarding marked as complete in localStorage - skipping modal')
           setOnboardingComplete(true)
           setShowOnboarding(false)
           setIsCheckingOnboarding(false)
@@ -179,8 +179,22 @@ export default function AthleteDashboard() {
           const userData = userDoc.data()
           const completed = userData?.onboardingComplete === true
 
+          console.log('📋 Onboarding status check:', {
+            uid: user.uid,
+            email: user.email,
+            onboardingComplete: completed,
+            hasAthleteProfile: !!userData?.athleteProfile,
+            displayName: userData?.displayName
+          })
+
           setOnboardingComplete(completed)
           setShowOnboarding(!completed)
+
+          // If completed in Firestore, save to localStorage for faster future checks
+          if (completed && typeof window !== 'undefined') {
+            localStorage.setItem(`onboarding_complete_${user.uid}`, 'true')
+            console.log('💾 Saved onboarding completion to localStorage')
+          }
 
           // Check if user also has coach role
           const userRole = userData?.role
