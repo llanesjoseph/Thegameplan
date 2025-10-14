@@ -268,7 +268,14 @@ export default function CoachUnifiedDashboard() {
                 return (
                   <button
                     key={card.id}
-                    onClick={() => setActiveSection(card.id)}
+                    onClick={() => {
+                      // Open invite page directly (not in iframe) to fix auth issues
+                      if (card.id === 'invite') {
+                        router.push('/dashboard/coach/invite')
+                      } else {
+                        setActiveSection(card.id)
+                      }
+                    }}
                     className={`w-full text-left transition-all rounded-lg touch-manipulation active:scale-95 ${
                       isActive
                         ? 'bg-black/10 shadow-md'
