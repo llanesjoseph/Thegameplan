@@ -21,14 +21,15 @@ import {
   UserCheck,
   ChevronRight,
   ShoppingBag,
-  Calendar
+  Calendar,
+  Home
 } from 'lucide-react'
 
 export default function CoachUnifiedDashboard() {
   const { user } = useAuth()
   const router = useRouter()
   const [showWelcome, setShowWelcome] = useState(false)
-  const [activeSection, setActiveSection] = useState<string | null>(null)
+  const [activeSection, setActiveSection] = useState<string | null>('home') // Default to Home
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
   const [pendingRequestsCount, setPendingRequestsCount] = useState(0)
 
@@ -99,6 +100,13 @@ export default function CoachUnifiedDashboard() {
   }, [user])
 
   const coachCards = [
+    {
+      id: 'home',
+      title: 'Home',
+      description: 'Today\'s overview and quick actions',
+      icon: Home,
+      color: '#20B2AA'
+    },
     {
       id: 'athletes',
       title: 'My Athletes',
@@ -195,6 +203,7 @@ export default function CoachUnifiedDashboard() {
 
   const getSectionPath = (sectionId: string) => {
     const pathMap: Record<string, string> = {
+      'home': '/dashboard/coach/home?embedded=true',
       'athletes': '/dashboard/coach/athletes?embedded=true',
       'create-lesson': '/dashboard/coach/lessons/create?embedded=true',
       'live-sessions': '/dashboard/coach/live-sessions?embedded=true',
@@ -246,7 +255,7 @@ export default function CoachUnifiedDashboard() {
                 </h2>
               )}
               <p className={`text-xs ${isSidebarCollapsed ? 'text-center' : ''}`} style={{ color: '#666' }}>
-                {isSidebarCollapsed ? '13' : '13 tools available'}
+                {isSidebarCollapsed ? '14' : '14 tools available'}
               </p>
             </div>
 
