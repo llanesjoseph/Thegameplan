@@ -222,7 +222,8 @@ function CoachFeedPageContent() {
       linkUrl: '',
       linkTitle: '',
       linkDescription: '',
-      pinned: false
+      pinned: false,
+      audience: 'assigned'
     })
   }
 
