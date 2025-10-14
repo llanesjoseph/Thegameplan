@@ -95,8 +95,8 @@ export default function MyCoachPanel({ coachId, isOpen, onClose }: MyCoachPanelP
       if (!sessionsSnap.empty) {
         const sessionData = sessionsSnap.docs[0].data() as NextSession
         setNextSession({
-          id: sessionsSnap.docs[0].id,
-          ...sessionData
+          ...sessionData,
+          id: sessionsSnap.docs[0].id
         })
       }
     } catch (error) {
