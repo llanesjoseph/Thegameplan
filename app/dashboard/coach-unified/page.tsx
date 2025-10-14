@@ -20,7 +20,8 @@ import {
   X,
   UserCheck,
   ChevronRight,
-  ShoppingBag
+  ShoppingBag,
+  Calendar
 } from 'lucide-react'
 
 export default function CoachUnifiedDashboard() {
@@ -29,6 +30,7 @@ export default function CoachUnifiedDashboard() {
   const [showWelcome, setShowWelcome] = useState(false)
   const [activeSection, setActiveSection] = useState<string | null>(null)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
+  const [pendingRequestsCount, setPendingRequestsCount] = useState(0)
 
   // Role-based redirect - prevent admins from accessing coach dashboard
   useEffect(() => {
@@ -68,6 +70,34 @@ export default function CoachUnifiedDashboard() {
     }
   }, [])
 
+  // Load pending live session requests count
+  useEffect(() => {
+    if (!user?.uid) return
+
+    const loadPendingRequests = async () => {
+      try {
+        const token = await user.getIdToken()
+        const response = await fetch('/api/coach/live-sessions/count', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          setPendingRequestsCount(data.pendingCount || 0)
+        }
+      } catch (error) {
+        console.error('Error loading pending requests count:', error)
+      }
+    }
+
+    loadPendingRequests()
+    // Refresh count every 30 seconds
+    const interval = setInterval(loadPendingRequests, 30000)
+    return () => clearInterval(interval)
+  }, [user])
+
   const coachCards = [
     {
       id: 'athletes',
@@ -82,6 +112,14 @@ export default function CoachUnifiedDashboard() {
       description: 'Build comprehensive training lessons',
       icon: GraduationCap,
       color: '#20B2AA'
+    },
+    {
+      id: 'live-sessions',
+      title: 'Live 1-on-1 Sessions',
+      description: 'Manage session requests',
+      icon: Calendar,
+      color: '#16A34A',
+      badge: pendingRequestsCount
     },
     {
       id: 'lesson-library',
@@ -159,6 +197,7 @@ export default function CoachUnifiedDashboard() {
     const pathMap: Record<string, string> = {
       'athletes': '/dashboard/coach/athletes?embedded=true',
       'create-lesson': '/dashboard/coach/lessons/create?embedded=true',
+      'live-sessions': '/dashboard/coach/live-sessions?embedded=true',
       'lesson-library': '/dashboard/coach/lessons/library?embedded=true',
       'videos': '/dashboard/coach/videos?embedded=true',
       'resources': '/dashboard/coach/resources?embedded=true',
@@ -207,7 +246,7 @@ export default function CoachUnifiedDashboard() {
                 </h2>
               )}
               <p className={`text-xs ${isSidebarCollapsed ? 'text-center' : ''}`} style={{ color: '#666' }}>
-                {isSidebarCollapsed ? '12' : '12 tools available'}
+                {isSidebarCollapsed ? '13' : '13 tools available'}
               </p>
             </div>
 
@@ -230,21 +269,37 @@ export default function CoachUnifiedDashboard() {
                     title={isSidebarCollapsed ? card.title : undefined}
                   >
                     <div className={`flex items-center gap-3 p-3 ${isSidebarCollapsed ? 'justify-center' : ''}`}>
-                      {/* Icon */}
-                      <div
-                        className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                        style={{ backgroundColor: card.color }}
-                      >
-                        <Icon className="w-4 h-4 text-white" />
+                      {/* Icon with badge */}
+                      <div className="relative flex-shrink-0">
+                        <div
+                          className="w-8 h-8 rounded-lg flex items-center justify-center"
+                          style={{ backgroundColor: card.color }}
+                        >
+                          <Icon className="w-4 h-4 text-white" />
+                        </div>
+                        {/* Notification Badge */}
+                        {(card as any).badge && (card as any).badge > 0 && (
+                          <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-white">
+                            {(card as any).badge}
+                          </div>
+                        )}
                       </div>
 
                       {/* Text content - hidden when collapsed */}
                       {!isSidebarCollapsed && (
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between">
-                            <h3 className="text-sm font-medium truncate" style={{ color: '#000000' }}>
-                              {card.title}
-                            </h3>
+                            <div className="flex items-center gap-2">
+                              <h3 className="text-sm font-medium truncate" style={{ color: '#000000' }}>
+                                {card.title}
+                              </h3>
+                              {/* Badge in title area */}
+                              {(card as any).badge && (card as any).badge > 0 && (
+                                <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                                  {(card as any).badge}
+                                </span>
+                              )}
+                            </div>
                             <ChevronRight
                               className={`w-4 h-4 flex-shrink-0 transition-transform ${
                                 isActive ? 'rotate-90' : ''
