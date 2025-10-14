@@ -190,7 +190,7 @@ export default function AppHeader({ className = '', title, subtitle }: AppHeader
         router.push('/dashboard/coaching')
         break
       case 'athlete':
-        router.push('/dashboard/athlete')
+        router.push('/athletes')
         break
       case 'user':
         router.push('/dashboard')
@@ -290,13 +290,20 @@ export default function AppHeader({ className = '', title, subtitle }: AppHeader
 
         {/* Right Side Navigation */}
         <nav className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto justify-between sm:justify-end" aria-label="Primary">
-          {/* Browse Coaches Link - Hidden on mobile, shown on tablet+ */}
+          {/* Browse Links - Hidden on mobile, shown on tablet+ */}
           <Link
             href="/coaches"
             className="hidden md:block text-black hover:text-blue-600 touch-manipulation"
             style={{ minHeight: '44px', display: 'flex', alignItems: 'center' }}
           >
             Browse Coaches
+          </Link>
+          <Link
+            href="/athletes"
+            className="hidden md:block text-black hover:text-blue-600 touch-manipulation"
+            style={{ minHeight: '44px', display: 'flex', alignItems: 'center' }}
+          >
+            Browse Athletes
           </Link>
 
           {/* Role Badge - Compact on mobile */}
