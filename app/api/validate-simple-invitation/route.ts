@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
           success: false,
           alreadyUsed: true,
           shouldRedirect: true,
-          redirectTo: '/sign-in',
+          redirectTo: '/dashboard',
           message: 'This invitation has already been used. Your account was created successfully. Redirecting to sign in...',
           userEmail: invitationData?.email
         })

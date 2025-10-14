@@ -41,12 +41,12 @@ export async function GET(request: NextRequest) {
 
     // Check if invitation has already been used
     if (invitationData?.used) {
-      // Instead of erroring, redirect to sign-in with a helpful message
+      // Instead of erroring, redirect to dashboard with a helpful message
       return NextResponse.json({
         success: false,
         alreadyUsed: true,
         shouldRedirect: true,
-        redirectTo: '/sign-in',
+        redirectTo: '/dashboard',
         message: 'This invitation has already been used. Your account was created successfully. Redirecting to sign in...',
         userEmail: invitationData?.athleteEmail || invitationData?.email
       })

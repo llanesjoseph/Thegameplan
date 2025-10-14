@@ -125,10 +125,10 @@ export default function AthleteOnboardingPage() {
 
       // Check if invitation was already used and should redirect
       if (data.alreadyUsed && data.shouldRedirect) {
-        // Show friendly message and redirect to sign-in
+        // Show friendly message and redirect to dashboard
         alert(data.message || 'This invitation has already been used. Your account was created successfully. Redirecting to sign in...')
         setTimeout(() => {
-          router.push(data.redirectTo || '/sign-in')
+          router.push(data.redirectTo || '/dashboard')
         }, 2000)
         return
       }

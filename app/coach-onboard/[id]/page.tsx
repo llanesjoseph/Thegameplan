@@ -113,7 +113,7 @@ export default function CoachOnboardPage() {
         if (result.alreadyUsed && result.shouldRedirect) {
           alert(result.message || 'This invitation has already been used. Your account was created successfully. Redirecting to sign in...')
           setTimeout(() => {
-            router.push(result.redirectTo || '/sign-in')
+            router.push(result.redirectTo || '/dashboard')
           }, 2000)
           return
         }
