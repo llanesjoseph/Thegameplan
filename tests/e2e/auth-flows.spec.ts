@@ -17,17 +17,17 @@ test.describe('Public Access & Routing', () => {
   test('unauthenticated users can access home page', async ({ page }) => {
     await page.goto('/')
 
-    await expect(page).toHaveTitle(/PLAYBOOKD|GAMEPLAN/i)
+    await expect(page).toHaveTitle(/AthLeap|PLAYBOOKD/i)
     await page.waitForLoadState('networkidle')
 
     // Should see marketing/landing page content
     await expect(page).toBeTruthy()
   })
 
-  test('unauthenticated users can access contributors page', async ({ page }) => {
-    await page.goto('/contributors')
+  test('unauthenticated users can access coaches page', async ({ page }) => {
+    await page.goto('/coaches')
 
-    await expect(page).toHaveURL('/contributors')
+    await expect(page).toHaveURL('/coaches')
     await page.waitForLoadState('networkidle')
 
     // Should see list of coaches/creators
@@ -74,16 +74,16 @@ test.describe('Dashboard Access Control', () => {
     expect(is404).toBe(false)
   })
 
-  test('creator dashboard route exists', async ({ page }) => {
-    await page.goto('/dashboard/creator')
+  test('coach dashboard route exists', async ({ page }) => {
+    await page.goto('/dashboard/coach-unified')
 
     // Should not show 404
     const is404 = await page.getByText(/404|not found/i).count() > 0
     expect(is404).toBe(false)
   })
 
-  test('progress dashboard route exists', async ({ page }) => {
-    await page.goto('/dashboard/progress')
+  test('athlete dashboard route exists', async ({ page }) => {
+    await page.goto('/dashboard/athlete')
 
     // Should not show 404
     const is404 = await page.getByText(/404|not found/i).count() > 0
@@ -104,7 +104,7 @@ test.describe('Navigation & UI', () => {
     await page.goto('/')
     await page.waitForLoadState('networkidle')
 
-    const logo = page.locator('text=/PLAYBOOKD|GAMEPLAN/i').first()
+    const logo = page.locator('text=/PLAYBOOKD|AthLeap/i').first()
     await expect(logo).toBeVisible()
   })
 

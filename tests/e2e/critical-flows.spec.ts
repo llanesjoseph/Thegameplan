@@ -21,9 +21,9 @@ test.describe('Admin Dashboard Access', () => {
     // (This test assumes you have a test admin account set up)
   })
 
-  test('admin trying to access creator dashboard should be redirected', async ({ page }) => {
-    // Navigate directly to creator dashboard
-    await page.goto('/dashboard/creator')
+  test('admin trying to access coach dashboard should be redirected', async ({ page }) => {
+    // Navigate directly to coach dashboard
+    await page.goto('/dashboard/coach-unified')
 
     // Should be redirected to admin dashboard
     // NOTE: This will only work if you're signed in as admin in the test
@@ -52,12 +52,12 @@ test.describe('Athlete Profile Visibility', () => {
 test.describe('Public Pages', () => {
   test('home page should load', async ({ page }) => {
     await page.goto('/')
-    await expect(page).toHaveTitle(/PLAYBOOKD|GAMEPLAN/i)
+    await expect(page).toHaveTitle(/AthLeap|PLAYBOOKD/i)
   })
 
   test('browse coaches page should load', async ({ page }) => {
-    await page.goto('/contributors')
-    await expect(page).toHaveURL('/contributors')
+    await page.goto('/coaches')
+    await expect(page).toHaveURL('/coaches')
 
     // Should show coach browsing interface
     const heading = page.getByRole('heading', { level: 1 })
@@ -75,7 +75,7 @@ test.describe('Navigation', () => {
     await page.goto('/dashboard')
 
     // Look for app header/logo
-    const logo = page.locator('text=/PLAYBOOKD|GAMEPLAN/i').first()
+    const logo = page.locator('text=/AthLeap|PLAYBOOKD/i').first()
     await expect(logo).toBeVisible()
   })
 
@@ -86,7 +86,7 @@ test.describe('Navigation', () => {
     const browseLink = page.getByRole('link', { name: /browse coaches/i })
     if (await browseLink.isVisible()) {
       await browseLink.click()
-      await expect(page).toHaveURL(/\/contributors/)
+      await expect(page).toHaveURL(/\/coaches/)
     }
   })
 })

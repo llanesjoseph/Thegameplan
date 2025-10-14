@@ -1,8 +1,8 @@
 {
   "violations": [],
   "incomplete": [],
-  "passes": 19,
-  "inapplicable": 41,
-  "timestamp": "2025-10-14T20:07:58.394Z",
+  "passes": 20,
+  "inapplicable": 40,
+  "timestamp": "2025-10-14T21:02:03.885Z",
   "url": "http://localhost:3000/gear"
 }
