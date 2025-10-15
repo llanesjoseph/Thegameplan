@@ -36,9 +36,17 @@ export async function GET(request: NextRequest) {
 
     // Check if invitation exists in Firestore and has been used
     const invitationDoc = await adminDb.collection('invitations').doc(invitationId).get()
+    let invitationEmail = ''
+    let invitationSport = 'Coaching'
+    let invitationRole = 'coach'
 
     if (invitationDoc.exists) {
       const invitationData = invitationDoc.data()
+
+      // Extract email, sport, and role from invitation
+      invitationEmail = invitationData?.email || ''
+      invitationSport = invitationData?.sport || 'Coaching'
+      invitationRole = invitationData?.role || 'coach'
 
       // CRITICAL: Verify this is a coach/assistant/creator invitation
       const targetRole = invitationData?.role
@@ -84,7 +92,9 @@ export async function GET(request: NextRequest) {
       data: {
         organizationName: 'PLAYBOOKD Coaching Network',
         inviterName: 'PLAYBOOKD Team',
-        sport: 'Coaching', // Generic since we don't store this in the simple ID
+        sport: invitationSport,
+        coachEmail: invitationEmail, // CRITICAL: This field is needed by the onboarding page
+        role: invitationRole,
         description: 'Join our coaching platform',
         customMessage: 'Welcome to PLAYBOOKD! Complete your profile to get started.',
         autoApprove: true, // Simple invitations are auto-approved
