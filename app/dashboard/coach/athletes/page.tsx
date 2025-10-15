@@ -11,13 +11,10 @@ import {
   Mail,
   Trash2,
   Send,
-  UserPlus,
   CheckCircle,
   Clock,
   AlertCircle,
-  X,
-  Download,
-  Upload
+  X
 } from 'lucide-react'
 
 interface AthleteInvitation {
@@ -256,34 +253,6 @@ function CoachAthletesContent() {
     // TODO: Implement remove invitation API endpoint
   }
 
-  const importFromCSV = () => {
-    const input = document.createElement('input')
-    input.type = 'file'
-    input.accept = '.csv'
-    input.onchange = (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0]
-      if (file) {
-        const reader = new FileReader()
-        reader.onload = (e) => {
-          const text = e.target?.result as string
-          const lines = text.split('\n').slice(1) // Skip header
-          const athletes = lines
-            .filter(line => line.trim())
-            .map(line => {
-              const [email, name] = line.split(',').map(s => s.trim().replace(/"/g, ''))
-              return { email, name }
-            })
-
-          setBulkForm(prev => ({
-            ...prev,
-            athletes: athletes.length > 0 ? athletes : [{ email: '', name: '' }]
-          }))
-        }
-        reader.readAsText(file)
-      }
-    }
-    input.click()
-  }
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -372,24 +341,6 @@ function CoachAthletesContent() {
           </div>
         )}
 
-        {/* Action Buttons */}
-        <div className="flex flex-wrap gap-3">
-          <button
-            onClick={importFromCSV}
-            className="px-5 py-2.5 bg-white/90 backdrop-blur-sm border border-gray-300/50 rounded-lg hover:bg-white transition-colors flex items-center gap-2"
-            style={{ color: '#000000' }}
-          >
-            <Upload className="w-5 h-5" />
-            Import CSV
-          </button>
-
-          <button className="px-5 py-2.5 bg-white/90 backdrop-blur-sm border border-gray-300/50 rounded-lg hover:bg-white transition-colors flex items-center gap-2"
-            style={{ color: '#000000' }}
-          >
-            <Download className="w-5 h-5" />
-            Export List
-          </button>
-        </div>
 
         {/* Bulk Invite Form */}
         {showBulkInvite && (
@@ -572,16 +523,9 @@ function CoachAthletesContent() {
                 <h3 className="text-xl mb-2" style={{ color: '#000000' }}>
                   No invitations yet
                 </h3>
-                <p className="mb-6" style={{ color: '#000000', opacity: 0.7 }}>
-                  Start by inviting your first athletes
+                <p style={{ color: '#000000', opacity: 0.7 }}>
+                  Use the sidebar to invite your first athletes
                 </p>
-                <button
-                  onClick={() => setShowBulkInvite(true)}
-                  className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2 mx-auto"
-                >
-                  <UserPlus className="w-5 h-5" />
-                  Invite Athletes
-                </button>
               </div>
             ) : (
               <div className="space-y-4">
