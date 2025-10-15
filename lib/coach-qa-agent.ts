@@ -327,15 +327,12 @@ export async function processCoachQuestion(
     // ==================================================================
     // STAGE 8: Safety Post-Check
     // ==================================================================
-    pipelineStages.push('safety_postcheck')
+    // NOTE: We already did a pre-check on the user's question (Stage 3).
+    // No need to analyze the COACH's response for medical content - the coach
+    // persona (like Dory mentioning "memory loss") shouldn't trigger warnings.
+    pipelineStages.push('safety_postcheck_skipped')
 
-    const postSafetyAnalysis = analyzeMedicalSafety(voiceRefined)
-
-    // Prepend safety notice if medium risk
     let finalText = voiceRefined
-    if (postSafetyAnalysis.riskLevel === 'medium') {
-      finalText = postSafetyAnalysis.safetyResponse + '\n\n---\n\n' + voiceRefined
-    }
 
     // ==================================================================
     // STAGE 9: Package Response
@@ -372,7 +369,7 @@ export async function processCoachQuestion(
       metadata: {
         mode: ensembleMode,
         safety_checked: true,
-        safety_level: postSafetyAnalysis.riskLevel,
+        safety_level: safetyAnalysis.riskLevel, // Use pre-check result (user's question)
         voice_refined: true,
         latencyMs: totalLatency,
         pipeline_stages: pipelineStages
