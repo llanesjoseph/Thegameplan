@@ -43,6 +43,7 @@ const navigationItems = {
   { title: 'Coach Network', icon: UserPlus, href: '/dashboard/coach-unified?section=invitations', color: 'text-violet-600' },
   { title: 'Athletes', icon: Users, href: '/dashboard/coach-unified/athletes', color: 'text-cyan-600' },
   { title: 'Coaching Requests', icon: MessageSquare, href: '/dashboard/coach-unified/requests', color: 'text-purple-600' },
+  { title: 'Video Reviews', icon: FileVideo, href: '/dashboard/coach/video-reviews', color: 'text-indigo-600' },
   { title: 'Social Media', icon: Share2, href: '/dashboard/coach/social-media', color: 'text-pink-600' },
   { title: 'My Schedule', icon: Calendar, href: '/dashboard/coach-unified/schedule', color: 'text-orange-600' },
   { title: 'Analytics', icon: BarChart3, href: '/dashboard/coach-unified/analytics', color: 'text-purple-600' },

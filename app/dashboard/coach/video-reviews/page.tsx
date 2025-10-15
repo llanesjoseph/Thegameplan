@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { db } from '@/lib/firebase.client'
 import { collection, query, where, orderBy, getDocs, doc, updateDoc } from 'firebase/firestore'
-import { Video, ExternalLink, MessageSquare, Clock, Check } from 'lucide-react'
+import { Video, ExternalLink, MessageSquare, Clock, Check, Star, Play } from 'lucide-react'
 
 interface VideoReviewRequest {
   id: string
@@ -24,6 +24,7 @@ interface VideoReviewRequest {
   createdAt: any
   coachResponse?: string
   viewedByCoach: boolean
+  rating?: number
 }
 
 export default function VideoReviewsPage() {
@@ -32,6 +33,7 @@ export default function VideoReviewsPage() {
   const [loading, setLoading] = useState(true)
   const [selectedRequest, setSelectedRequest] = useState<VideoReviewRequest | null>(null)
   const [response, setResponse] = useState('')
+  const [rating, setRating] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
@@ -84,12 +86,14 @@ export default function VideoReviewsPage() {
       setIsSubmitting(true)
       await updateDoc(doc(db, 'videoReviewRequests', selectedRequest.id), {
         coachResponse: response.trim(),
+        rating: rating > 0 ? rating : null,
         status: 'completed',
         completedAt: new Date()
       })
 
       alert('✅ Video review response submitted successfully!')
       setResponse('')
+      setRating(0)
       setSelectedRequest(null)
       await loadReviewRequests()
     } catch (error) {
@@ -107,6 +111,28 @@ export default function VideoReviewsPage() {
       case 'completed': return 'bg-green-100 text-green-800'
       default: return 'bg-gray-100 text-gray-800'
     }
+  }
+
+  const getVideoEmbedUrl = (url: string): { type: 'vimeo' | 'youtube' | 'direct', embedUrl: string } => {
+    // Vimeo
+    if (url.includes('vimeo.com')) {
+      const vimeoId = url.split('/').pop()?.split('?')[0]
+      return { type: 'vimeo', embedUrl: `https://player.vimeo.com/video/${vimeoId}` }
+    }
+
+    // YouTube
+    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+      let videoId = ''
+      if (url.includes('youtube.com/watch')) {
+        videoId = new URL(url).searchParams.get('v') || ''
+      } else if (url.includes('youtu.be')) {
+        videoId = url.split('/').pop()?.split('?')[0] || ''
+      }
+      return { type: 'youtube', embedUrl: `https://www.youtube.com/embed/${videoId}` }
+    }
+
+    // Direct video URL
+    return { type: 'direct', embedUrl: url }
   }
 
   if (loading) {
@@ -244,11 +270,15 @@ export default function VideoReviewsPage() {
                         onClick={() => {
                           setSelectedRequest(request)
                           setResponse(request.coachResponse || '')
+                          setRating(request.rating || 0)
+                          if (!request.viewedByCoach) {
+                            markAsViewed(request.id)
+                          }
                         }}
                         className="flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                       >
-                        <MessageSquare className="w-4 h-4" />
-                        Add Response
+                        <Play className="w-4 h-4" />
+                        Review Video
                       </button>
                     )}
                   </div>
@@ -258,43 +288,139 @@ export default function VideoReviewsPage() {
           </div>
         )}
 
-        {/* Response Modal */}
+        {/* Video Review Modal */}
         {selectedRequest && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-2xl shadow-2xl max-w-7xl w-full h-[90vh] flex flex-col">
+              {/* Header */}
               <div className="p-6 border-b border-gray-200">
-                <h3 className="text-2xl font-bold text-gray-900">Provide Video Feedback</h3>
-                <p className="text-sm text-gray-600 mt-1">For: {selectedRequest.title} by {selectedRequest.athleteName}</p>
+                <h3 className="text-2xl font-bold text-gray-900">{selectedRequest.title}</h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  By {selectedRequest.athleteName} • Submitted {selectedRequest.createdAt?.toDate?.()?.toLocaleDateString?.() || 'Unknown'}
+                </p>
               </div>
 
-              <div className="p-6">
-                <textarea
-                  value={response}
-                  onChange={(e) => setResponse(e.target.value)}
-                  placeholder="Write your detailed feedback here..."
-                  rows={10}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition-colors resize-none"
-                />
-              </div>
+              {/* Content - Video and Review Form */}
+              <div className="flex-1 overflow-hidden flex flex-col lg:flex-row">
+                {/* Video Player Section */}
+                <div className="lg:w-3/5 bg-black p-6 flex flex-col">
+                  <div className="flex-1 flex items-center justify-center">
+                    {(() => {
+                      const { type, embedUrl } = getVideoEmbedUrl(selectedRequest.videoUrl)
 
-              <div className="p-6 border-t border-gray-200 flex gap-3">
-                <button
-                  onClick={() => {
-                    setSelectedRequest(null)
-                    setResponse('')
-                  }}
-                  disabled={isSubmitting}
-                  className="flex-1 py-3 px-6 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={submitResponse}
-                  disabled={!response.trim() || isSubmitting}
-                  className="flex-1 py-3 px-6 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 font-semibold"
-                >
-                  {isSubmitting ? 'Submitting...' : 'Submit Feedback'}
-                </button>
+                      if (type === 'vimeo' || type === 'youtube') {
+                        return (
+                          <iframe
+                            src={embedUrl}
+                            className="w-full h-full rounded-lg"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                          />
+                        )
+                      } else {
+                        return (
+                          <video
+                            src={embedUrl}
+                            controls
+                            className="w-full h-full rounded-lg"
+                          />
+                        )
+                      }
+                    })()}
+                  </div>
+
+                  {/* Video Info */}
+                  <div className="mt-4 text-white">
+                    <p className="text-sm opacity-90">{selectedRequest.description}</p>
+                    {selectedRequest.specificQuestions && (
+                      <div className="mt-3 bg-white/10 rounded-lg p-3">
+                        <p className="text-xs font-semibold opacity-75 mb-1">Athlete's Questions:</p>
+                        <p className="text-sm">{selectedRequest.specificQuestions}</p>
+                      </div>
+                    )}
+                    <a
+                      href={selectedRequest.videoUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 mt-3 text-sm text-blue-300 hover:text-blue-200"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                      Open in new tab
+                    </a>
+                  </div>
+                </div>
+
+                {/* Review Form Section */}
+                <div className="lg:w-2/5 bg-gray-50 p-6 flex flex-col overflow-y-auto">
+                  <h4 className="text-lg font-semibold text-gray-900 mb-4">Your Feedback</h4>
+
+                  {/* Rating */}
+                  <div className="mb-6">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Rate this performance (optional)
+                    </label>
+                    <div className="flex gap-2">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          onClick={() => setRating(star)}
+                          className="transition-transform hover:scale-110"
+                        >
+                          <Star
+                            className={`w-8 h-8 ${
+                              star <= rating
+                                ? 'fill-yellow-400 text-yellow-400'
+                                : 'text-gray-300'
+                            }`}
+                          />
+                        </button>
+                      ))}
+                    </div>
+                    {rating > 0 && (
+                      <button
+                        onClick={() => setRating(0)}
+                        className="text-xs text-gray-500 hover:text-gray-700 mt-1"
+                      >
+                        Clear rating
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Feedback Textarea */}
+                  <div className="flex-1 flex flex-col">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Detailed Feedback *
+                    </label>
+                    <textarea
+                      value={response}
+                      onChange={(e) => setResponse(e.target.value)}
+                      placeholder="Provide specific, actionable feedback on technique, form, strategy, or areas for improvement..."
+                      className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition-colors resize-none min-h-[300px]"
+                    />
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="mt-6 flex gap-3">
+                    <button
+                      onClick={() => {
+                        setSelectedRequest(null)
+                        setResponse('')
+                        setRating(0)
+                      }}
+                      disabled={isSubmitting}
+                      className="flex-1 py-3 px-6 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50 font-medium"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={submitResponse}
+                      disabled={!response.trim() || isSubmitting}
+                      className="flex-1 py-3 px-6 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 font-semibold"
+                    >
+                      {isSubmitting ? 'Submitting...' : 'Submit Review'}
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
