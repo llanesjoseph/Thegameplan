@@ -130,13 +130,17 @@
       }
       
       // Gear images - Equipment photos and demonstrations
-      match /gear/{gearId}/{allPaths=**} {
+      // Coaches upload to gear/{userId}/... where userId is their UID
+      match /gear/{userId}/{allPaths=**} {
         allow read: if true; // Public for gear images
-        allow write: if isCreatorOrHigher() && 
-                        (isValidImageType() || isValidVideoType()) && 
+        // Allow authenticated users to write to their own folder
+        // This supports coaches who may not have custom claims set yet
+        allow write: if isAuthenticated() &&
+                        request.auth.uid == userId &&
+                        (isValidImageType() || isValidVideoType()) &&
                         isValidFileSize(50) && // 50MB limit for gear images
                         isValidFileName();
-        allow delete: if isCreatorOrHigher();
+        allow delete: if isAuthenticated() && request.auth.uid == userId;
       }
       
       // Public assets - Logos, marketing materials, static content
