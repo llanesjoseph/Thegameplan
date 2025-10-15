@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
         .where('participants', 'array-contains', userId)
         .get()
 
-      let existingConversation = null
+      let existingConversation: FirebaseFirestore.QueryDocumentSnapshot | null = null
       existingConversations.docs.forEach(doc => {
         const data = doc.data()
         if (data.participants.length === 2 && data.participants.includes(recipientId)) {
