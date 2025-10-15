@@ -136,8 +136,13 @@ export async function POST(request: NextRequest) {
     }
 
     if (!creatorId) {
+      logger.warn('[API] Missing creatorId in AI coaching request', { userId: requestUserId })
       return NextResponse.json(
-        { success: false, error: 'creatorId (coach ID) is required' },
+        {
+          success: false,
+          error: 'You need to be assigned to a coach to use the AI assistant. Please contact your administrator.',
+          errorCode: 'NO_COACH_ASSIGNED'
+        },
         { status: 400 }
       )
     }
