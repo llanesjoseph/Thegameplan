@@ -20,7 +20,6 @@ import {
   Rss
 } from 'lucide-react'
 import AppHeader from '@/components/ui/AppHeader'
-import AthleteOnboardingModal from '@/components/athlete/AthleteOnboardingModal'
 import VideoReviewRequestModal from '@/components/athlete/VideoReviewRequestModal'
 import Live1on1RequestModal from '@/components/athlete/Live1on1RequestModal'
 import MyCoachPanel from '@/components/athlete/MyCoachPanel'
@@ -32,9 +31,6 @@ export default function AthleteDashboard() {
   const { user } = useAuth()
   const router = useRouter()
 
-  const [showOnboarding, setShowOnboarding] = useState(false)
-  const [onboardingComplete, setOnboardingComplete] = useState(false)
-  const [isCheckingOnboarding, setIsCheckingOnboarding] = useState(true)
   const [showVideoReviewModal, setShowVideoReviewModal] = useState(false)
   const [showLive1on1Modal, setShowLive1on1Modal] = useState(false)
   const [showCoachPanel, setShowCoachPanel] = useState(false)
@@ -151,53 +147,33 @@ export default function AthleteDashboard() {
     }] : [])
   ]
 
-  // Check onboarding status
+  // Load user data and check if they should be here
   useEffect(() => {
-    const checkOnboardingStatus = async () => {
-      if (!user) {
-        setIsCheckingOnboarding(false)
-        return
-      }
+    const loadUserData = async () => {
+      if (!user) return
 
       try {
-        // Check localStorage first to prevent re-showing modal after completion
-        const localCompleted = typeof window !== 'undefined' &&
-          localStorage.getItem(`onboarding_complete_${user.uid}`) === 'true'
-
-        if (localCompleted) {
-          console.log('✅ Onboarding marked as complete in localStorage - skipping modal')
-          setOnboardingComplete(true)
-          setShowOnboarding(false)
-          setIsCheckingOnboarding(false)
-          return
-        }
-
         const userRef = doc(db, 'users', user.uid)
         const userDoc = await getDoc(userRef)
 
         if (userDoc.exists()) {
           const userData = userDoc.data()
-          const completed = userData?.onboardingComplete === true
+          const userRole = userData?.role
 
-          console.log('📋 Onboarding status check:', {
-            uid: user.uid,
+          console.log('👤 User loaded:', {
             email: user.email,
-            onboardingComplete: completed,
-            hasAthleteProfile: !!userData?.athleteProfile,
+            role: userRole,
             displayName: userData?.displayName
           })
 
-          setOnboardingComplete(completed)
-          setShowOnboarding(!completed)
-
-          // If completed in Firestore, save to localStorage for faster future checks
-          if (completed && typeof window !== 'undefined') {
-            localStorage.setItem(`onboarding_complete_${user.uid}`, 'true')
-            console.log('💾 Saved onboarding completion to localStorage')
+          // SAFETY CHECK: If user is NOT an athlete, redirect them
+          if (userRole && ['coach', 'admin', 'superadmin', 'assistant_coach'].includes(userRole)) {
+            console.log(`⚠️ User has role '${userRole}' - redirecting to correct dashboard`)
+            router.push(userRole === 'admin' || userRole === 'superadmin' ? '/dashboard/admin' : '/dashboard/coach-unified')
+            return
           }
 
-          // Check if user also has coach role
-          const userRole = userData?.role
+          // Check if user also has coach role (dual role: athlete who is also a coach)
           const userRoles = userData?.roles || []
           setHasCoachRole(
             userRole === 'coach' ||
@@ -206,12 +182,11 @@ export default function AthleteDashboard() {
             userRoles.includes('assistant_coach')
           )
 
+          // Load coach assignment
           setCoachId(userData?.coachId || userData?.assignedCoachId || null)
-        } else {
-          setShowOnboarding(true)
         }
       } catch (error: any) {
-        console.error('Error checking onboarding status:', error)
+        console.error('Error loading user data:', error)
         if (error?.code === 'permission-denied' || error?.message?.includes('Missing or insufficient permissions')) {
           setLoadError('permission')
         } else if (error?.code === 'not-found') {
@@ -219,13 +194,11 @@ export default function AthleteDashboard() {
         } else {
           setLoadError('unknown')
         }
-      } finally {
-        setIsCheckingOnboarding(false)
       }
     }
 
-    checkOnboardingStatus()
-  }, [user])
+    loadUserData()
+  }, [user, router])
 
   // Fetch coach data
   useEffect(() => {
@@ -421,55 +394,8 @@ export default function AthleteDashboard() {
     )
   }
 
-  if (isCheckingOnboarding) {
-    return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#E8E6D8' }}>
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-black mx-auto"></div>
-          <p className="mt-4" style={{ color: '#000000' }}>Loading your dashboard...</p>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <>
-      {/* Onboarding Modal */}
-      {showOnboarding && user && (
-        <AthleteOnboardingModal
-          userId={user.uid}
-          userEmail={user.email || ''}
-          onComplete={async () => {
-            console.log('🎯 Onboarding complete - refreshing user data')
-            setOnboardingComplete(true)
-            setShowOnboarding(false)
-
-            // Refetch user data to get coach assignment and other details
-            try {
-              const userRef = doc(db, 'users', user.uid)
-              const userDoc = await getDoc(userRef)
-
-              if (userDoc.exists()) {
-                const userData = userDoc.data()
-                setCoachId(userData?.coachId || userData?.assignedCoachId || null)
-
-                // Check if user also has coach role
-                const userRole = userData?.role
-                const userRoles = userData?.roles || []
-                setHasCoachRole(
-                  userRole === 'coach' ||
-                  userRole === 'assistant_coach' ||
-                  userRoles.includes('coach') ||
-                  userRoles.includes('assistant_coach')
-                )
-              }
-            } catch (error) {
-              console.error('Error refreshing user data after onboarding:', error)
-            }
-          }}
-        />
-      )}
-
       {/* Video Review Modal */}
       {showVideoReviewModal && user && (
         <VideoReviewRequestModal
