@@ -34,6 +34,7 @@ const navigationItems = {
   { title: 'Dashboard', icon: LayoutDashboard, href: '/dashboard/athlete', color: 'text-blue-600' },
   { title: 'Progress', icon: TrendingUp, href: '/dashboard/athlete', color: 'text-green-600' },
   { title: 'Request Coaching', icon: MessageCircle, href: '/dashboard/coaching', color: 'text-purple-600' },
+  { title: 'Video Reviews', icon: FileVideo, href: '/dashboard/athlete/video-reviews', color: 'text-indigo-600' },
   { title: 'Curated Gear', icon: ShoppingBag, href: '/gear', color: 'text-emerald-600' },
  ],
  creator: [
