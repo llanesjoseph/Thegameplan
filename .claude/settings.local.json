@@ -32,7 +32,9 @@
       "Bash(timeout 30 tail -f nul)",
       "Bash(npx playwright test:*)",
       "Bash(if [ -d \".next\" ])",
-      "Bash(then rm -rf .next)"
+      "Bash(then rm -rf .next)",
+      "Bash(if [ -d \"app/api/admin\" ])",
+      "Bash(mkdir:*)"
     ],
     "deny": [],
     "ask": []

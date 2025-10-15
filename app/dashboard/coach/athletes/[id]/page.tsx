@@ -61,7 +61,47 @@ export default function AthleteDetailPage() {
     try {
       setLoading(true)
 
-      // Fetch athlete document from Firestore
+      // Try to fetch from API first (provides richer data)
+      try {
+        const token = await user!.getIdToken()
+        const response = await fetch(`/api/coach/athletes/${athleteId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          if (data.success && data.athlete) {
+            // Use API data and fetch additional Firestore fields
+            const athleteDoc = await getDoc(doc(db, 'users', athleteId))
+            const firestoreData = athleteDoc.exists() ? athleteDoc.data() : {}
+
+            setAthlete({
+              id: data.athlete.id,
+              email: data.athlete.email,
+              displayName: data.athlete.displayName,
+              firstName: firestoreData.firstName,
+              lastName: firestoreData.lastName,
+              sport: data.athlete.sport,
+              primarySport: firestoreData.primarySport,
+              skillLevel: firestoreData.skillLevel,
+              trainingGoals: firestoreData.trainingGoals,
+              achievements: firestoreData.achievements,
+              learningStyle: firestoreData.learningStyle,
+              availability: firestoreData.availability,
+              specialNotes: firestoreData.specialNotes,
+              createdAt: data.athlete.createdAt,
+              status: 'active'
+            })
+            return
+          }
+        }
+      } catch (apiError) {
+        console.warn('API fetch failed, falling back to Firestore:', apiError)
+      }
+
+      // Fallback to Firestore
       const athleteDoc = await getDoc(doc(db, 'users', athleteId))
 
       if (!athleteDoc.exists()) {
