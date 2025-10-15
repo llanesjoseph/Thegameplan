@@ -88,33 +88,43 @@ export async function GET(
       }
     }
 
-    // Get video review requests
-    const videoReviewsSnapshot = await adminDb
-      .collection('videoReviews')
-      .where('athleteId', '==', athleteId)
-      .orderBy('createdAt', 'desc')
-      .limit(5)
-      .get()
+    // Get video review requests (with error handling)
+    let videoReviews = []
+    try {
+      const videoReviewsSnapshot = await adminDb
+        .collection('videoReviews')
+        .where('athleteId', '==', athleteId)
+        .orderBy('createdAt', 'desc')
+        .limit(5)
+        .get()
 
-    const videoReviews = videoReviewsSnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-      createdAt: doc.data().createdAt?.toDate?.()?.toISOString() || null
-    }))
+      videoReviews = videoReviewsSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        createdAt: doc.data().createdAt?.toDate?.()?.toISOString() || null
+      }))
+    } catch (error) {
+      console.warn('Could not fetch video reviews (collection may not exist or index missing):', error)
+    }
 
-    // Get live session requests
-    const liveSessionsSnapshot = await adminDb
-      .collection('liveSessionRequests')
-      .where('athleteId', '==', athleteId)
-      .orderBy('createdAt', 'desc')
-      .limit(5)
-      .get()
+    // Get live session requests (with error handling)
+    let liveSessions = []
+    try {
+      const liveSessionsSnapshot = await adminDb
+        .collection('liveSessionRequests')
+        .where('athleteId', '==', athleteId)
+        .orderBy('createdAt', 'desc')
+        .limit(5)
+        .get()
 
-    const liveSessions = liveSessionsSnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-      createdAt: doc.data().createdAt?.toDate?.()?.toISOString() || null
-    }))
+      liveSessions = liveSessionsSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        createdAt: doc.data().createdAt?.toDate?.()?.toISOString() || null
+      }))
+    } catch (error) {
+      console.warn('Could not fetch live sessions (collection may not exist or index missing):', error)
+    }
 
     // Calculate stats
     const completionRate = availableLessons.length > 0
