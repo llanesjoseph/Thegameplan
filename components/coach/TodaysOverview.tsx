@@ -30,28 +30,65 @@ export default function TodaysOverview({ onQuickAction }: TodaysOverviewProps) {
       const token = await user?.getIdToken()
 
       // Load various stats in parallel
-      const [sessionsRes] = await Promise.all([
+      const [sessionsRes, athletesRes, lessonsRes, scheduleRes] = await Promise.all([
         fetch('/api/coach/live-sessions/count', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }).catch(() => null),
+        fetch('/api/coach/athletes', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }).catch(() => null),
+        fetch('/api/coach/lessons/list', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }).catch(() => null),
+        fetch('/api/coach/schedule', {
           headers: { 'Authorization': `Bearer ${token}` }
         }).catch(() => null)
       ])
 
-      if (sessionsRes?.ok) {
-        const sessionsData = await sessionsRes.json()
-        setStats(prev => ({
-          ...prev,
-          pendingRequests: sessionsData.pendingCount || 0
-        }))
+      let totalAthletes = 0
+      let activeLessons = 0
+      let upcomingSessions = 0
+      let pendingRequests = 0
+
+      // Load athletes count
+      if (athletesRes?.ok) {
+        const athletesData = await athletesRes.json()
+        totalAthletes = athletesData.athletes?.length || 0
       }
 
-      // TODO: Load other stats from respective APIs
-      // For now, using placeholder values
-      setStats(prev => ({
-        ...prev,
-        totalAthletes: 0, // Will be loaded from API
-        activeLessons: 0, // Will be loaded from API
-        upcomingSessions: 0 // Will be loaded from API
-      }))
+      // Load lessons count
+      if (lessonsRes?.ok) {
+        const lessonsData = await lessonsRes.json()
+        activeLessons = lessonsData.count || 0
+      }
+
+      // Load today's sessions count
+      if (scheduleRes?.ok) {
+        const scheduleData = await scheduleRes.json()
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        const tomorrow = new Date(today)
+        tomorrow.setDate(tomorrow.getDate() + 1)
+
+        upcomingSessions = (scheduleData.events || []).filter((event: any) => {
+          const eventDate = new Date(event.eventDateTime || event.eventDate)
+          return eventDate >= today && eventDate < tomorrow
+        }).length
+      }
+
+      // Load pending requests
+      if (sessionsRes?.ok) {
+        const sessionsData = await sessionsRes.json()
+        pendingRequests = sessionsData.pendingCount || 0
+      }
+
+      // Update stats
+      setStats({
+        totalAthletes,
+        activeLessons,
+        upcomingSessions,
+        pendingRequests
+      })
     } catch (error) {
       console.error('Error loading stats:', error)
     } finally {
