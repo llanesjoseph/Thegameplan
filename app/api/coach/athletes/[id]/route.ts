@@ -89,7 +89,7 @@ export async function GET(
     }
 
     // Get video review requests (with error handling)
-    let videoReviews = []
+    let videoReviews: any[] = []
     try {
       const videoReviewsSnapshot = await adminDb
         .collection('videoReviews')
@@ -108,7 +108,7 @@ export async function GET(
     }
 
     // Get live session requests (with error handling)
-    let liveSessions = []
+    let liveSessions: any[] = []
     try {
       const liveSessionsSnapshot = await adminDb
         .collection('liveSessionRequests')
