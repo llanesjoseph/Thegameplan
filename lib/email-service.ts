@@ -999,17 +999,6 @@ export async function sendAthleteWelcomeEmail({
   }
 }
 
-// Announcement email to athletes
-interface AnnouncementEmailProps {
-  to: string
-  athleteName: string
-  coachName: string
-  announcementTitle: string
-  announcementMessage: string
-  isUrgent: boolean
-  dashboardUrl?: string
-}
-
 /**
  * Fetch all admin emails from Firestore
  * Returns emails of users with 'admin' or 'superadmin' role
@@ -1257,100 +1246,6 @@ export async function sendScheduleEventNotificationEmail({
     return { success: true, data }
   } catch (error) {
     console.error('Schedule event notification email service error:', error)
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    }
-  }
-}
-
-export async function sendAnnouncementEmail({
-  to,
-  athleteName,
-  coachName,
-  announcementTitle,
-  announcementMessage,
-  isUrgent,
-  dashboardUrl = `${APP_URL}/dashboard/progress`
-}: AnnouncementEmailProps) {
-  try {
-    const { data, error } = await resend.emails.send({
-      from: 'AthLeap <noreply@mail.crucibleanalytics.dev>',
-      to: [to],
-      subject: isUrgent
-        ? `🚨 URGENT: ${announcementTitle} - ${coachName}`
-        : `📢 ${announcementTitle} - ${coachName}`,
-      html: `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta charset="utf-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>${announcementTitle}</title>
-        </head>
-        <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8fafc;">
-          <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-            <div style="text-align: center; margin-bottom: 30px;">
-              <h1 style="font-family: 'Permanent Marker', cursive; color: #13367A; font-size: 32px; margin: 0;">AthLeap</h1>
-              <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">THE WORK BEFORE THE WIN</p>
-            </div>
-
-            ${isUrgent ? `
-              <div style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); border: 2px solid #dc2626; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
-                <h2 style="color: #dc2626; margin: 0;">🚨 URGENT ANNOUNCEMENT</h2>
-              </div>
-            ` : `
-              <div style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border: 2px solid #2563eb; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
-                <h2 style="color: #1e40af; margin: 0;">📢 New Announcement</h2>
-              </div>
-            `}
-
-            <p>Hi ${athleteName},</p>
-
-            <p><strong>${coachName}</strong> has sent you an important announcement:</p>
-
-            <div style="background: #f0f9ff; border-left: 4px solid #0284c7; padding: 20px; margin: 20px 0;">
-              <h3 style="color: #0369a1; margin-top: 0; margin-bottom: 15px;">${announcementTitle}</h3>
-              <div style="color: #374151; white-space: pre-wrap; line-height: 1.8;">${announcementMessage}</div>
-            </div>
-
-            ${isUrgent ? `
-              <div style="background: #fef3c7; border: 1px solid #f59e0b; padding: 15px; border-radius: 8px; margin: 20px 0; text-align: center;">
-                <p style="margin: 0; color: #92400e; font-size: 14px;">
-                  <strong>⏰ Urgent:</strong> Please review this announcement as soon as possible.
-                </p>
-              </div>
-            ` : ''}
-
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="${dashboardUrl}" style="background-color: #A01C21; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">View Dashboard</a>
-            </div>
-
-            <div style="background: #f9fafb; border-radius: 8px; padding: 15px; margin: 20px 0;">
-              <p style="margin: 0; color: #6b7280; font-size: 14px; text-align: center;">
-                Sent by <strong>${coachName}</strong> via AthLeap
-              </p>
-            </div>
-
-            <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 14px;">
-              <p><strong>AthLeap</strong> - The Work Before the Win</p>
-              <p style="font-size: 12px;">This announcement was sent from your coach. For questions, please contact ${coachName} directly.</p>
-            </div>
-          </div>
-        </body>
-        </html>
-      `
-    })
-
-    if (error) {
-      console.error('Failed to send announcement email:', error)
-      return { success: false, error: error.message }
-    }
-
-    console.log(`✅ Announcement email sent to ${to}`)
-    return { success: true, data }
-  } catch (error) {
-    console.error('Announcement email service error:', error)
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error'

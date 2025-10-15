@@ -151,13 +151,6 @@ export default function CoachUnifiedDashboard() {
       color: '#C4886A'
     },
     {
-      id: 'resources',
-      title: 'Resource Library',
-      description: 'PDFs, links, and training materials',
-      icon: FileText,
-      color: '#7B92C4'
-    },
-    {
       id: 'analytics',
       title: 'Analytics',
       description: 'Track engagement and progress',
@@ -170,13 +163,6 @@ export default function CoachUnifiedDashboard() {
       description: 'Edit your coach profile',
       icon: Settings,
       color: '#C4886A'
-    },
-    {
-      id: 'announcements',
-      title: 'Announcements',
-      description: 'Send updates to all athletes',
-      icon: Bell,
-      color: '#7B92C4'
     },
     {
       id: 'assistants',
@@ -209,12 +195,10 @@ export default function CoachUnifiedDashboard() {
       'live-sessions': '/dashboard/coach/live-sessions?embedded=true',
       'lesson-library': '/dashboard/coach/lessons/library?embedded=true',
       'videos': '/dashboard/coach/videos?embedded=true',
-      'resources': '/dashboard/coach/resources?embedded=true',
       'analytics': '/dashboard/coach/analytics?embedded=true',
       'invite': '/dashboard/coach/invite?embedded=true',
       'recruit-coach': '/dashboard/coach/recruit?embedded=true',
       'profile': '/dashboard/profile?embedded=true',
-      'announcements': '/dashboard/coach/announcements?embedded=true',
       'assistants': '/dashboard/coach/assistants?embedded=true',
       'gear': '/dashboard/coach/gear?embedded=true'
     }
@@ -255,7 +239,7 @@ export default function CoachUnifiedDashboard() {
                 </h2>
               )}
               <p className={`text-xs ${isSidebarCollapsed ? 'text-center' : ''}`} style={{ color: '#666' }}>
-                {isSidebarCollapsed ? '14' : '14 tools available'}
+                {isSidebarCollapsed ? '12' : '12 tools available'}
               </p>
             </div>
 

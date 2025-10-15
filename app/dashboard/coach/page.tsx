@@ -132,27 +132,11 @@ export default function CoachDashboard() {
       inline: true
     },
     {
-      id: 'resources',
-      title: 'Resource Library',
-      description: 'PDFs, links, and training materials',
-      icon: FileText,
-      color: '#FF6B35',
-      inline: true
-    },
-    {
       id: 'analytics',
       title: 'Analytics',
       description: 'Track engagement and performance',
       icon: BarChart3,
       color: '#20B2AA',
-      inline: true
-    },
-    {
-      id: 'announcements',
-      title: 'Announcements',
-      description: 'Broadcast updates to athletes',
-      icon: Bell,
-      color: '#91A6EB',
       inline: true
     },
     {
@@ -198,9 +182,7 @@ export default function CoachDashboard() {
       'create-lesson': '/dashboard/coach/lessons/create?embedded=true',
       'invite': '/dashboard/coach/invite?embedded=true',
       'videos': '/dashboard/coach/videos?embedded=true',
-      'resources': '/dashboard/coach/resources?embedded=true',
       'analytics': '/dashboard/coach/analytics?embedded=true',
-      'announcements': '/dashboard/coach/announcements?embedded=true',
       'feed': '/dashboard/coach/feed?embedded=true',
       'schedule': '/dashboard/coach/schedule?embedded=true',
       'assistants': '/dashboard/coach/assistants?embedded=true',
