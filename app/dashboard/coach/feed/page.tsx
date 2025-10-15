@@ -1,9 +1,11 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, Suspense, useRef } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { useSearchParams, useRouter } from 'next/navigation'
 import AppHeader from '@/components/ui/AppHeader'
+import { storage } from '@/lib/firebase.client'
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import {
   MessageSquare,
   Plus,
@@ -17,7 +19,8 @@ import {
   X,
   Heart,
   MessageCircle,
-  AlertCircle
+  AlertCircle,
+  Upload
 } from 'lucide-react'
 
 interface Post {
@@ -46,6 +49,9 @@ function CoachFeedPageContent() {
   const [loading, setLoading] = useState(true)
   const [showComposer, setShowComposer] = useState(false)
   const [editingPost, setEditingPost] = useState<Post | null>(null)
+  const [uploadingImage, setUploadingImage] = useState(false)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Composer form state
   const [newPost, setNewPost] = useState({
@@ -209,12 +215,60 @@ function CoachFeedPageContent() {
       pinned: post.pinned,
       audience: post.audience || 'assigned'
     })
+    // Set image preview if editing a post with an image
+    if (post.mediaType === 'image' && post.mediaUrl) {
+      setImagePreview(post.mediaUrl)
+    }
     setShowComposer(true)
+  }
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file')
+      return
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image must be less than 5MB')
+      return
+    }
+
+    try {
+      setUploadingImage(true)
+
+      // Create storage reference
+      const timestamp = Date.now()
+      const fileName = `${timestamp}_${file.name}`
+      const storageRef = ref(storage, `coach-posts/${user?.uid}/${fileName}`)
+
+      // Upload file
+      await uploadBytes(storageRef, file)
+
+      // Get download URL
+      const downloadURL = await getDownloadURL(storageRef)
+
+      // Update state
+      setNewPost({ ...newPost, mediaUrl: downloadURL })
+      setImagePreview(downloadURL)
+
+      alert('✅ Image uploaded successfully!')
+    } catch (error) {
+      console.error('Error uploading image:', error)
+      alert('❌ Failed to upload image. Please try again.')
+    } finally {
+      setUploadingImage(false)
+    }
   }
 
   const handleCancelComposer = () => {
     setShowComposer(false)
     setEditingPost(null)
+    setImagePreview(null)
     setNewPost({
       content: '',
       mediaType: '',
@@ -383,21 +437,107 @@ function CoachFeedPageContent() {
                   </div>
                 </div>
 
-                {/* Media URL Input (for image/video) */}
-                {(newPost.mediaType === 'image' || newPost.mediaType === 'video') && (
+                {/* Image Upload / URL Input */}
+                {newPost.mediaType === 'image' && (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm mb-2 font-semibold" style={{ color: '#000000' }}>
+                        Upload Photo
+                      </label>
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={uploadingImage}
+                        className="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-teal-500 hover:bg-teal-50 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {uploadingImage ? (
+                          <>
+                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-teal-600"></div>
+                            <span>Uploading...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="w-5 h-5 text-teal-600" />
+                            <span className="font-medium">Click to upload photo</span>
+                          </>
+                        )}
+                      </button>
+                      <p className="text-xs mt-2 text-center" style={{ color: '#666' }}>
+                        JPG, PNG, GIF up to 5MB
+                      </p>
+                    </div>
+
+                    {/* Image Preview */}
+                    {imagePreview && (
+                      <div className="relative">
+                        <img
+                          src={imagePreview}
+                          alt="Preview"
+                          className="w-full rounded-lg max-h-64 object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setImagePreview(null)
+                            setNewPost({ ...newPost, mediaUrl: '' })
+                          }}
+                          className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+
+                    <div className="relative">
+                      <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t border-gray-300"></div>
+                      </div>
+                      <div className="relative flex justify-center text-xs">
+                        <span className="bg-white px-2" style={{ color: '#666' }}>OR</span>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm mb-2" style={{ color: '#000000' }}>
+                        Image URL (alternative)
+                      </label>
+                      <input
+                        type="url"
+                        value={newPost.mediaUrl}
+                        onChange={(e) => {
+                          setNewPost({ ...newPost, mediaUrl: e.target.value })
+                          setImagePreview(e.target.value)
+                        }}
+                        placeholder="https://example.com/image.jpg"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                        disabled={uploadingImage}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Video URL Input */}
+                {newPost.mediaType === 'video' && (
                   <div>
                     <label className="block text-sm mb-2" style={{ color: '#000000' }}>
-                      {newPost.mediaType === 'image' ? 'Image' : 'Video'} URL
+                      Video URL
                     </label>
                     <input
                       type="url"
                       value={newPost.mediaUrl}
                       onChange={(e) => setNewPost({ ...newPost, mediaUrl: e.target.value })}
-                      placeholder={`Enter ${newPost.mediaType} URL (e.g., YouTube link)`}
+                      placeholder="Enter video URL (e.g., YouTube link)"
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
                     />
                     <p className="text-xs mt-1" style={{ color: '#666' }}>
-                      💡 Upload your media to a hosting service and paste the URL here
+                      💡 Paste a YouTube, Vimeo, or other video URL
                     </p>
                   </div>
                 )}
