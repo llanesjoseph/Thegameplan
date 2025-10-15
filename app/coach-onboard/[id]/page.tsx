@@ -104,6 +104,24 @@ export default function CoachOnboardPage() {
   const [isCreatingAccount, setIsCreatingAccount] = useState(false)
 
   useEffect(() => {
+    // Parse URL parameters first
+    const urlParams = new URLSearchParams(window.location.search)
+    const emailParam = urlParams.get('email')
+    const sportParam = urlParams.get('sport')
+    const nameParam = urlParams.get('name')
+
+    // Pre-populate from URL params if available
+    if (emailParam) {
+      setUserInfo(prev => ({ ...prev, email: decodeURIComponent(emailParam) }))
+    }
+    if (sportParam) {
+      setCoachData(prev => ({ ...prev, sport: decodeURIComponent(sportParam) }))
+    }
+    if (nameParam) {
+      const decodedName = decodeURIComponent(nameParam)
+      setUserInfo(prev => ({ ...prev, displayName: decodedName }))
+    }
+
     validateIngestionLink()
   }, [ingestionId])
 
