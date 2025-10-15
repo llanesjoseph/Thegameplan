@@ -185,6 +185,16 @@
         allow delete: if request.auth.uid == userId || isAdmin();
       }
 
+      // Coach posts - Photos and media for coach feed posts
+      match /coach-posts/{userId}/{allPaths=**} {
+        allow read: if true; // Public for coach posts (followers can see)
+        allow write: if isAuthenticated() && request.auth.uid == userId &&
+                        isValidImageType() &&
+                        isValidFileSize(5) && // 5MB limit for post images
+                        isValidFileName();
+        allow delete: if request.auth.uid == userId || isAdmin();
+      }
+
       // Coaching session recordings - Private session recordings
       match /sessions/{sessionId}/{allPaths=**} {
         allow read: if isAuthenticated() &&
