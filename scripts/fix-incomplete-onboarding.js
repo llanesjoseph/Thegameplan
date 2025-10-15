@@ -81,11 +81,18 @@ async function fixIncompleteOnboarding() {
               updateData.roleLockedByInvitation = true
             }
 
-            // Add coach assignment if missing
-            if (needsCoachAssignment && invitationData.creatorUid) {
+            // Add or CORRECT coach assignment to match invitation
+            if (invitationData.creatorUid) {
+              // Always set to match the invitation, even if coach was previously assigned incorrectly
               updateData.coachId = invitationData.creatorUid
               updateData.assignedCoachId = invitationData.creatorUid
               updateData.creatorUid = invitationData.creatorUid
+
+              if (needsCoachAssignment) {
+                console.log(`   → Adding coach assignment: ${invitationData.creatorUid}`)
+              } else if (userData.coachId !== invitationData.creatorUid) {
+                console.log(`   → Correcting coach assignment from ${userData.coachId} to ${invitationData.creatorUid}`)
+              }
             }
 
             await db.collection('users').doc(userId).update(updateData)
