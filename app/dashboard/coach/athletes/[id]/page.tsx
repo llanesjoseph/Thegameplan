@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
-import { doc, getDoc } from 'firebase/firestore'
+import { doc, getDoc, collection, query, where, getDocs, orderBy, limit } from 'firebase/firestore'
 import { db } from '@/lib/firebase.client'
 import {
   User,
@@ -18,7 +18,13 @@ import {
   BookOpen,
   Award,
   Star,
-  MessageCircle
+  MessageCircle,
+  Send,
+  X,
+  BarChart3,
+  Zap,
+  CheckCircle2,
+  AlertCircle
 } from 'lucide-react'
 
 interface AthleteDetails {
@@ -39,6 +45,24 @@ interface AthleteDetails {
   status?: string
 }
 
+interface AnalyticsData {
+  totalLessons: number
+  completedLessons: number
+  completionRate: number
+  lastActivity: string | null
+  aiQuestionsAsked: number
+  averageEngagement: number
+}
+
+interface Message {
+  id: string
+  content: string
+  senderId: string
+  recipientId: string
+  createdAt: any
+  read: boolean
+}
+
 export default function AthleteDetailPage() {
   const params = useParams()
   const router = useRouter()
@@ -48,12 +72,19 @@ export default function AthleteDetailPage() {
   const embedded = searchParams.get('embedded') === 'true'
 
   const [athlete, setAthlete] = useState<AthleteDetails | null>(null)
+  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
+  const [messages, setMessages] = useState<Message[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [showMessageModal, setShowMessageModal] = useState(false)
+  const [messageText, setMessageText] = useState('')
+  const [sending, setSending] = useState(false)
 
   useEffect(() => {
     if (athleteId && user) {
       loadAthleteDetails()
+      loadAnalytics()
+      loadMessages()
     }
   }, [athleteId, user])
 
@@ -136,6 +167,107 @@ export default function AthleteDetailPage() {
     }
   }
 
+  const loadAnalytics = async () => {
+    try {
+      // Check athlete_feed for completion data
+      const feedDoc = await getDoc(doc(db, 'athlete_feed', athleteId))
+      const feedData = feedDoc.exists() ? feedDoc.data() : null
+
+      // Check AI sessions for engagement
+      const aiSessionsQuery = query(
+        collection(db, 'ai_sessions'),
+        where('userId', '==', athleteId),
+        orderBy('createdAt', 'desc'),
+        limit(50)
+      )
+      const aiSessionsSnap = await getDocs(aiSessionsQuery)
+
+      // Check chat conversations for AI questions
+      const chatQuery = query(
+        collection(db, 'chatConversations'),
+        where('userId', '==', athleteId)
+      )
+      const chatSnap = await getDocs(chatQuery)
+      let totalQuestions = 0
+      for (const chatDoc of chatSnap.docs) {
+        const messagesQuery = query(
+          collection(db, 'chatConversations', chatDoc.id, 'messages'),
+          where('role', '==', 'user')
+        )
+        const messagesSnap = await getDocs(messagesQuery)
+        totalQuestions += messagesSnap.size
+      }
+
+      const completedLessons = feedData?.completedLessons?.length || 0
+      const totalLessons = feedData?.assignedLessons?.length || 0
+      const completionRate = totalLessons > 0 ? (completedLessons / totalLessons) * 100 : 0
+
+      setAnalytics({
+        totalLessons,
+        completedLessons,
+        completionRate: Math.round(completionRate),
+        lastActivity: feedData?.lastActivity || aiSessionsSnap.docs[0]?.data()?.createdAt || null,
+        aiQuestionsAsked: totalQuestions,
+        averageEngagement: aiSessionsSnap.size > 0 ? Math.min(100, aiSessionsSnap.size * 5) : 0
+      })
+    } catch (err) {
+      console.error('Error loading analytics:', err)
+    }
+  }
+
+  const loadMessages = async () => {
+    try {
+      const messagesQuery = query(
+        collection(db, 'messages'),
+        where('participants', 'array-contains', athleteId),
+        orderBy('createdAt', 'desc'),
+        limit(10)
+      )
+      const messagesSnap = await getDocs(messagesQuery)
+      const messagesList = messagesSnap.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      } as Message))
+      setMessages(messagesList)
+    } catch (err) {
+      console.error('Error loading messages:', err)
+    }
+  }
+
+  const handleSendMessage = async () => {
+    if (!messageText.trim() || !user) return
+
+    try {
+      setSending(true)
+      const token = await user.getIdToken()
+      const response = await fetch('/api/messages/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          recipientId: athleteId,
+          content: messageText.trim()
+        })
+      })
+
+      if (response.ok) {
+        setMessageText('')
+        setShowMessageModal(false)
+        loadMessages() // Reload messages
+        alert('✅ Message sent successfully!')
+      } else {
+        throw new Error('Failed to send message')
+      }
+    } catch (err) {
+      console.error('Error sending message:', err)
+      alert('❌ Failed to send message. Please try again.')
+    } finally {
+      setSending(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className={`${embedded ? 'p-12' : 'min-h-screen'} flex items-center justify-center`} style={{ backgroundColor: embedded ? 'transparent' : '#E8E6D8' }}>
@@ -168,6 +300,73 @@ export default function AthleteDetailPage() {
 
   return (
     <div className={embedded ? '' : 'min-h-screen'} style={{ backgroundColor: embedded ? 'transparent' : '#E8E6D8' }}>
+      {/* Message Modal */}
+      {showMessageModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl max-w-2xl w-full p-6 shadow-2xl">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold" style={{ color: '#000000' }}>
+                Send Message to {athlete.displayName}
+              </h2>
+              <button
+                onClick={() => setShowMessageModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Recent Messages */}
+            {messages.length > 0 && (
+              <div className="mb-4">
+                <h3 className="text-sm font-semibold text-gray-600 mb-2">Recent Conversation</h3>
+                <div className="bg-gray-50 rounded-lg p-4 max-h-60 overflow-y-auto space-y-2">
+                  {messages.map((msg) => {
+                    const isSentByMe = msg.senderId === user?.uid
+                    return (
+                      <div key={msg.id} className={`flex ${isSentByMe ? 'justify-end' : 'justify-start'}`}>
+                        <div className={`max-w-[80%] rounded-lg p-3 ${
+                          isSentByMe ? 'bg-black text-white' : 'bg-white border border-gray-200'
+                        }`}>
+                          <p className="text-sm">{msg.content}</p>
+                          <p className={`text-xs mt-1 ${isSentByMe ? 'text-gray-300' : 'text-gray-500'}`}>
+                            {msg.createdAt?.toDate?.()?.toLocaleDateString() || 'Recently'}
+                          </p>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
+            <textarea
+              value={messageText}
+              onChange={(e) => setMessageText(e.target.value)}
+              placeholder="Type your message here..."
+              className="w-full p-4 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-black focus:border-transparent"
+              rows={6}
+            />
+            <div className="flex gap-3 mt-4">
+              <button
+                onClick={() => setShowMessageModal(false)}
+                className="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSendMessage}
+                disabled={!messageText.trim() || sending}
+                className="flex-1 px-4 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Send className="w-5 h-5" />
+                {sending ? 'Sending...' : 'Send Message'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       {!embedded && (
         <div className="bg-white border-b border-gray-200">
@@ -223,38 +422,72 @@ export default function AthleteDetailPage() {
       </div>
       )}
 
-      {/* Embedded Header - Compact version */}
-      {embedded && (
-        <div className="bg-white border-b border-gray-200 p-4">
-          <button
-            onClick={() => router.back()}
-            className="flex items-center gap-2 text-gray-600 hover:text-black mb-3 transition-colors text-sm"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Athletes
-          </button>
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0"
-              style={{ background: 'linear-gradient(135deg, #91A6EB 0%, #000000 100%)' }}>
-              <User className="w-8 h-8 text-white" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <h1 className="text-xl font-bold truncate" style={{ color: '#000000' }}>
-                {athlete.displayName}
-              </h1>
-              <p className="text-sm truncate" style={{ color: '#000000', opacity: 0.7 }}>
-                {athlete.email}
-              </p>
-            </div>
-            <div className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
-              {athlete.status || 'Active'}
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Main Content */}
       <div className={`${embedded ? 'px-4 py-6' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'}`}>
+        {/* Analytics Dashboard */}
+        {analytics && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {/* Total Lessons */}
+            <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
+              <div className="flex items-center justify-between mb-2">
+                <BookOpen className="w-8 h-8 text-blue-600" />
+                <span className="text-3xl font-bold" style={{ color: '#000000' }}>
+                  {analytics.totalLessons}
+                </span>
+              </div>
+              <h3 className="text-sm font-medium text-gray-600">Total Lessons</h3>
+              <p className="text-xs text-gray-500 mt-1">
+                {analytics.completedLessons} completed
+              </p>
+            </div>
+
+            {/* Completion Rate */}
+            <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
+              <div className="flex items-center justify-between mb-2">
+                <CheckCircle2 className="w-8 h-8 text-green-600" />
+                <span className="text-3xl font-bold" style={{ color: '#000000' }}>
+                  {analytics.completionRate}%
+                </span>
+              </div>
+              <h3 className="text-sm font-medium text-gray-600">Completion Rate</h3>
+              <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                <div
+                  className="bg-green-600 h-2 rounded-full transition-all"
+                  style={{ width: `${analytics.completionRate}%` }}
+                />
+              </div>
+            </div>
+
+            {/* AI Engagement */}
+            <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
+              <div className="flex items-center justify-between mb-2">
+                <Zap className="w-8 h-8 text-purple-600" />
+                <span className="text-3xl font-bold" style={{ color: '#000000' }}>
+                  {analytics.aiQuestionsAsked}
+                </span>
+              </div>
+              <h3 className="text-sm font-medium text-gray-600">AI Questions</h3>
+              <p className="text-xs text-gray-500 mt-1">
+                {analytics.averageEngagement}% engagement
+              </p>
+            </div>
+
+            {/* Last Activity */}
+            <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
+              <div className="flex items-center justify-between mb-2">
+                <Activity className="w-8 h-8 text-orange-600" />
+                <AlertCircle className="w-6 h-6 text-gray-400" />
+              </div>
+              <h3 className="text-sm font-medium text-gray-600">Last Activity</h3>
+              <p className="text-xs text-gray-900 mt-1 font-medium">
+                {analytics.lastActivity
+                  ? new Date(analytics.lastActivity).toLocaleDateString()
+                  : 'No recent activity'}
+              </p>
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column - Athletic Profile */}
           <div className="lg:col-span-2 space-y-6">
@@ -350,17 +583,26 @@ export default function AthleteDetailPage() {
             <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
               <h3 className="font-semibold mb-4" style={{ color: '#000000' }}>Quick Actions</h3>
               <div className="space-y-3">
-                <button className="w-full px-4 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center gap-2">
+                <button
+                  onClick={() => setShowMessageModal(true)}
+                  className="w-full px-4 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
+                >
                   <MessageCircle className="w-5 h-5" />
                   Send Message
                 </button>
-                <button className="w-full px-4 py-3 bg-blue-100 text-blue-800 rounded-lg hover:bg-blue-200 transition-colors flex items-center justify-center gap-2">
+                <button
+                  onClick={() => router.push(`/dashboard/coach/lesson-library?assignTo=${athleteId}`)}
+                  className="w-full px-4 py-3 bg-blue-100 text-blue-800 rounded-lg hover:bg-blue-200 transition-colors flex items-center justify-center gap-2"
+                >
                   <BookOpen className="w-5 h-5" />
                   Assign Lesson
                 </button>
-                <button className="w-full px-4 py-3 bg-green-100 text-green-800 rounded-lg hover:bg-green-200 transition-colors flex items-center justify-center gap-2">
-                  <TrendingUp className="w-5 h-5" />
-                  View Progress
+                <button
+                  onClick={() => router.push(`/dashboard/coach/analytics?athlete=${athleteId}`)}
+                  className="w-full px-4 py-3 bg-green-100 text-green-800 rounded-lg hover:bg-green-200 transition-colors flex items-center justify-center gap-2"
+                >
+                  <BarChart3 className="w-5 h-5" />
+                  View Full Analytics
                 </button>
               </div>
             </div>
