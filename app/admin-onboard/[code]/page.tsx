@@ -117,10 +117,15 @@ export default function AdminOnboardingPage({ params }: { params: { code: string
         throw new Error(result.error || 'Failed to complete onboarding')
       }
 
-      // Success - force a full page reload to clear any cached role data
-      alert('✅ Welcome to the PLAYBOOKD admin team! Redirecting to your dashboard...')
-      // Use window.location.href for full page reload to ensure role is re-fetched
-      window.location.href = '/dashboard/admin'
+      console.log('✅ Admin profile completed successfully')
+
+      // Sign them out immediately to force fresh sign-in with correct role/claims
+      await signOut(auth)
+      console.log('🔓 Signed out - redirecting to sign-in page')
+
+      // Show success and redirect to sign-in
+      alert('✅ Admin account created successfully! Please sign in to continue.')
+      router.push('/')
     } catch (err: any) {
       console.error('Google sign-in error:', err)
       if (err.code === 'auth/popup-closed-by-user') {
@@ -185,10 +190,15 @@ export default function AdminOnboardingPage({ params }: { params: { code: string
         throw new Error(result.error || 'Failed to complete onboarding')
       }
 
-      // Success - force a full page reload to clear any cached role data
-      alert('✅ Welcome to the PLAYBOOKD admin team! Redirecting to your dashboard...')
-      // Use window.location.href for full page reload to ensure role is re-fetched
-      window.location.href = '/dashboard/admin'
+      console.log('✅ Admin profile completed successfully')
+
+      // Sign them out immediately to force fresh sign-in with correct role/claims
+      await signOut(auth)
+      console.log('🔓 Signed out - redirecting to sign-in page')
+
+      // Show success and redirect to sign-in
+      alert('✅ Admin account created successfully! Please sign in with your new password.')
+      router.push('/')
     } catch (err: any) {
       console.error('Onboarding error:', err)
       if (err.code === 'auth/email-already-in-use') {

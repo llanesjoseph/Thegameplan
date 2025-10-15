@@ -8,9 +8,16 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
-import { Loader2, CheckCircle, AlertCircle, User, Award, Target, MessageSquare, Mic } from 'lucide-react'
+import { Loader2, CheckCircle, AlertCircle, User, Award, Target, MessageSquare, Mic, Key, Mail, Lock, ArrowRight } from 'lucide-react'
 import VoiceCaptureIntake from '@/components/coach/VoiceCaptureIntake'
 import StreamlinedVoiceCapture from '@/components/coach/StreamlinedVoiceCapture'
+import { auth } from '@/lib/firebase.client'
+import {
+  signInWithPopup,
+  GoogleAuthProvider,
+  createUserWithEmailAndPassword,
+  signOut
+} from 'firebase/auth'
 
 interface IngestionData {
   organizationName: string
@@ -88,6 +95,13 @@ export default function CoachOnboardPage() {
   const [achievement, setAchievement] = useState('')
   const [reference, setReference] = useState('')
   const [sampleQuestion, setSampleQuestion] = useState('')
+
+  // Authentication state
+  const [hasGoogleAccount, setHasGoogleAccount] = useState<boolean | null>(null)
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [authError, setAuthError] = useState('')
+  const [isCreatingAccount, setIsCreatingAccount] = useState(false)
 
   useEffect(() => {
     validateIngestionLink()
@@ -304,12 +318,122 @@ export default function CoachOnboardPage() {
         return
       }
 
-      // Redirect to coach unified dashboard
-      router.push('/dashboard/coach-unified')
+      console.log('✅ Coach profile submitted successfully')
+      // Move to success step (step 7)
+      setCurrentStep(7)
       setSubmitting(false)
     } catch (err) {
       setError('Failed to submit application')
       setSubmitting(false)
+    }
+  }
+
+  // Auth handlers (matching athlete onboarding pattern)
+  const handleGoogleSignIn = async () => {
+    setAuthError('')
+    setIsCreatingAccount(true)
+    try {
+      const provider = new GoogleAuthProvider()
+      provider.setCustomParameters({
+        login_hint: userInfo.email,
+        prompt: 'select_account'
+      })
+
+      const result = await signInWithPopup(auth, provider)
+      console.log('✅ Google account created:', result.user.email)
+
+      // Complete the coach profile (links profile data to the account)
+      console.log('🔗 Completing coach profile...')
+      const completeResponse = await fetch('/api/complete-coach-profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          invitationId: ingestionId,
+          email: userInfo.email
+        })
+      })
+
+      const completeResult = await completeResponse.json()
+
+      if (!completeResult.success) {
+        throw new Error(completeResult.error || 'Failed to complete profile')
+      }
+
+      console.log('✅ Profile completed successfully')
+
+      // Sign them out immediately
+      await signOut(auth)
+      console.log('🔓 Signed out - redirecting to sign-in page')
+
+      // Show success and redirect to sign-in
+      alert('Account created successfully! Please sign in to continue.')
+      router.push('/')
+    } catch (error: any) {
+      console.error('❌ Google sign-in error:', error)
+      setAuthError(error.message || 'Failed to create account with Google. Please try again.')
+    } finally {
+      setIsCreatingAccount(false)
+    }
+  }
+
+  const handlePasswordSignUp = async () => {
+    setAuthError('')
+
+    // Validation
+    if (!password || password.length < 6) {
+      setAuthError('Password must be at least 6 characters long')
+      return
+    }
+
+    if (password !== confirmPassword) {
+      setAuthError('Passwords do not match')
+      return
+    }
+
+    setIsCreatingAccount(true)
+    try {
+      const result = await createUserWithEmailAndPassword(auth, userInfo.email, password)
+      console.log('✅ Email/password account created:', result.user.email)
+
+      // Complete the coach profile (links profile data to the account)
+      console.log('🔗 Completing coach profile...')
+      const completeResponse = await fetch('/api/complete-coach-profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          invitationId: ingestionId,
+          email: userInfo.email
+        })
+      })
+
+      const completeResult = await completeResponse.json()
+
+      if (!completeResult.success) {
+        throw new Error(completeResult.error || 'Failed to complete profile')
+      }
+
+      console.log('✅ Profile completed successfully')
+
+      // Sign them out immediately
+      await signOut(auth)
+      console.log('🔓 Signed out - redirecting to sign-in page')
+
+      // Show success and redirect to sign-in
+      alert('Account created successfully! Please sign in with your new password.')
+      router.push('/')
+    } catch (error: any) {
+      console.error('❌ Password sign-up error:', error)
+      let errorMessage = 'Failed to create account. Please try again.'
+
+      if (error.code === 'auth/email-already-in-use') {
+        errorMessage = 'An account with this email already exists. Please sign in instead.'
+      } else if (error.code === 'auth/weak-password') {
+        errorMessage = 'Password is too weak. Please use a stronger password.'
+      }
+
+      setAuthError(errorMessage)
+    } finally {
+      setIsCreatingAccount(false)
     }
   }
 
@@ -436,12 +560,20 @@ export default function CoachOnboardPage() {
               {currentStep === 2 && 'Coaching Experience'}
               {currentStep === 3 && 'Profile Details'}
               {currentStep === 4 && 'Voice & Personality Capture (Optional)'}
+              {currentStep === 5 && 'Quick Voice Capture'}
+              {currentStep === 6 && 'Detailed Voice Capture'}
+              {currentStep === 7 && 'Profile Complete!'}
+              {currentStep === 8 && 'Create Your Account'}
             </CardTitle>
             <CardDescription>
               {currentStep === 1 && 'Tell us about yourself'}
               {currentStep === 2 && 'Share your coaching background'}
               {currentStep === 3 && 'Complete your coach profile'}
               {currentStep === 4 && 'Optional: Help us capture your authentic coaching voice for enhanced AI responses'}
+              {currentStep === 5 && 'Streamlined voice capture - takes 5-7 minutes'}
+              {currentStep === 6 && 'In-depth voice capture - takes 12-15 minutes'}
+              {currentStep === 7 && 'Your profile is ready - now create your account'}
+              {currentStep === 8 && 'Set up your login credentials to access the platform'}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -750,6 +882,209 @@ export default function CoachOnboardPage() {
                     }
                   } : undefined}
                 />
+              </div>
+            )}
+
+            {/* Step 7: Success Screen */}
+            {currentStep === 7 && (
+              <div className="text-center py-8">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="w-8 h-8 text-green-600" />
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">Profile Created Successfully!</h2>
+                <p className="text-gray-600 mb-6">
+                  Your coach profile has been submitted. Now let's set up your account so you can sign in.
+                </p>
+                <Button className="w-full max-w-sm" onClick={() => setCurrentStep(8)}>
+                  Continue to Account Setup <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </div>
+            )}
+
+            {/* Step 8: Authentication Step */}
+            {currentStep === 8 && (
+              <div className="space-y-6">
+                <div className="text-center mb-6">
+                  <Key className="w-12 h-12 text-blue-600 mx-auto mb-3" />
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">Create Your Account</h3>
+                  <p className="text-gray-600">Set up your login credentials to access your coach dashboard</p>
+                </div>
+
+                {/* Step 1: Ask about Google account */}
+                {hasGoogleAccount === null && (
+                  <div className="space-y-4">
+                    <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                      <p className="font-medium text-gray-900 mb-1">
+                        Do you have a Google account with this email?
+                      </p>
+                      <p className="text-sm text-gray-600">{userInfo.email}</p>
+                    </div>
+
+                    <div className="grid gap-3">
+                      <Button
+                        variant="outline"
+                        className="w-full h-auto py-4 flex items-start gap-3"
+                        onClick={() => setHasGoogleAccount(true)}
+                      >
+                        <Mail className="w-5 h-5 mt-1 flex-shrink-0" />
+                        <div className="text-left">
+                          <div className="font-medium">Yes, I have a Google account</div>
+                          <div className="text-sm text-gray-500">
+                            Sign in with your existing Google account
+                          </div>
+                        </div>
+                      </Button>
+
+                      <Button
+                        variant="outline"
+                        className="w-full h-auto py-4 flex items-start gap-3"
+                        onClick={() => setHasGoogleAccount(false)}
+                      >
+                        <Lock className="w-5 h-5 mt-1 flex-shrink-0" />
+                        <div className="text-left">
+                          <div className="font-medium">No, I don't have a Google account</div>
+                          <div className="text-sm text-gray-500">
+                            Create a password for your account
+                          </div>
+                        </div>
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 2a: Google Sign-In */}
+                {hasGoogleAccount === true && (
+                  <div className="space-y-4">
+                    <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                      <p className="text-sm text-gray-700">
+                        Click the button below to sign in with your Google account.
+                        After creating your account, you'll be asked to sign in again to confirm.
+                      </p>
+                    </div>
+
+                    {authError && (
+                      <div className="p-4 bg-red-50 rounded-lg border border-red-200">
+                        <p className="text-sm text-red-700">{authError}</p>
+                      </div>
+                    )}
+
+                    <Button
+                      className="w-full"
+                      onClick={handleGoogleSignIn}
+                      disabled={isCreatingAccount}
+                    >
+                      {isCreatingAccount ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Creating Account...
+                        </>
+                      ) : (
+                        <>
+                          <Mail className="w-4 h-4 mr-2" />
+                          Sign in with Google
+                        </>
+                      )}
+                    </Button>
+
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => {
+                        setHasGoogleAccount(null)
+                        setAuthError('')
+                      }}
+                    >
+                      Back
+                    </Button>
+                  </div>
+                )}
+
+                {/* Step 2b: Password Creation */}
+                {hasGoogleAccount === false && (
+                  <div className="space-y-4">
+                    <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                      <p className="text-sm text-gray-700">
+                        Create a password for your account. You'll use this email and password to sign in.
+                      </p>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="auth-email">Email</Label>
+                      <Input
+                        id="auth-email"
+                        type="email"
+                        value={userInfo.email}
+                        disabled
+                        className="bg-gray-50 text-gray-600"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="auth-password">
+                        Password <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        id="auth-password"
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="At least 6 characters"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="auth-confirm-password">
+                        Confirm Password <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        id="auth-confirm-password"
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder="Re-enter your password"
+                        required
+                      />
+                    </div>
+
+                    {authError && (
+                      <div className="p-4 bg-red-50 rounded-lg border border-red-200">
+                        <p className="text-sm text-red-700">{authError}</p>
+                      </div>
+                    )}
+
+                    <Button
+                      className="w-full"
+                      onClick={handlePasswordSignUp}
+                      disabled={isCreatingAccount || !password || !confirmPassword}
+                    >
+                      {isCreatingAccount ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Creating Account...
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle className="w-4 h-4 mr-2" />
+                          Create Account
+                        </>
+                      )}
+                    </Button>
+
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => {
+                        setHasGoogleAccount(null)
+                        setPassword('')
+                        setConfirmPassword('')
+                        setAuthError('')
+                      }}
+                    >
+                      Back
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
 

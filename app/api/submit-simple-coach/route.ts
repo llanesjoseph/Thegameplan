@@ -169,23 +169,12 @@ export async function POST(request: NextRequest) {
 
     // Get the target role from the invitation
     const targetRole = invitationData?.role || 'coach'
-    console.log(`🎯 Processing ${targetRole} application for ${userInfo.email}`)
+    console.log(`🎯 Storing ${targetRole} profile for ${userInfo.email}`)
 
-    // Generate application ID
-    const applicationId = nanoid()
     const now = new Date()
 
-    // Create a simplified coach/assistant application data structure
-    const applicationData = {
-      id: applicationId,
-      invitationId: ingestionId,
-      invitationType: 'simple',
-      role: targetRole, // Store the target role
-      // Invitation context
-      organizationName: invitationData?.organizationName || 'PLAYBOOKD',
-      inviterName: invitationData?.inviterName || 'PLAYBOOKD Team',
-      sport: invitationData?.sport || coachData.sport,
-      autoApprove: invitationData?.autoApprove || false, // Respect invitation settings
+    // Combine user info and coach data into complete profile
+    const coachProfile = {
       // User info
       email: userInfo.email?.toLowerCase(),
       displayName: userInfo.displayName || `${userInfo.firstName} ${userInfo.lastName}`,
@@ -193,6 +182,7 @@ export async function POST(request: NextRequest) {
       lastName: userInfo.lastName,
       phone: userInfo.phone || '',
       // Coach profile data
+      sport: coachData.sport || invitationData?.sport || '',
       experience: coachData.experience || '',
       credentials: coachData.credentials || '',
       tagline: coachData.tagline || '',
@@ -202,49 +192,36 @@ export async function POST(request: NextRequest) {
       references: coachData.references || [],
       sampleQuestions: coachData.sampleQuestions || [],
       bio: coachData.bio || '',
-      voiceCaptureData: coachData.voiceCaptureData || null,
-      // Application metadata
-      status: invitationData?.autoApprove ? 'approved' : 'pending',
-      submittedAt: now,
-      submittedVia: 'simple_invitation',
-      source: 'simple_coach_invitation',
-      createdAt: now,
-      updatedAt: now
+      voiceCaptureData: coachData.voiceCaptureData || null
     }
 
-    // Save application to Firestore
-    await adminDb.collection('coach_applications').doc(applicationId).set(applicationData)
-    console.log(`💾 Saved ${targetRole} application to Firestore:`, applicationId)
-
-    // Update invitation status to show it's been completed (ready for admin approval)
+    // Store profile temporarily in the invitation document
+    // The account will be created during the authentication step
     await adminDb.collection('invitations').doc(ingestionId).update({
-      status: 'completed', // Changed from 'pending' to 'completed'
-      completedAt: now,
-      applicationId
+      coachProfile: coachProfile,
+      profileSubmittedAt: now,
+      status: 'profile_submitted'
+    })
+    console.log(`✅ Saved ${targetRole} profile to invitation: ${ingestionId}`)
+
+    console.log(`✅ Profile submitted successfully - ready for authentication step`)
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        invitationId: ingestionId,
+        email: userInfo.email,
+        displayName: coachProfile.displayName,
+        role: targetRole,
+        message: `Profile submitted successfully! Please complete the authentication step to create your ${targetRole} account.`
+      }
     })
 
-    // IMPORTANT: Don't create Firebase account here
-    // Let admin approve first, then coach can sign in with Google/Apple/Email
-    // This prevents the "can't login" issue
+    // OLD CODE BELOW - Everything below this comment is removed
+    // We no longer create applications, send notifications, or create user accounts here
+    // That all happens in the complete-coach-profile API after auth creation
 
-    // Notify all admins about new application (don't wait for this)
-    notifyAdminsOfNewApplication({
-      applicationId,
-      applicantName: applicationData.displayName,
-      applicantEmail: applicationData.email,
-      role: targetRole,
-      sport: applicationData.sport,
-      submittedAt: now
-    }).catch(error => {
-      console.error('Failed to notify admins:', error)
-      // Don't fail the whole request if notification fails
-    })
-
-    // Only create user account and profiles if auto-approve is enabled
-    let userRecord = null
-    const shouldAutoApprove = false // DISABLED: Always require admin approval
-
-    if (shouldAutoApprove) {
+    if (false) { // Keep old code for reference but never execute
       // Create Firebase user account with temporary password
       const temporaryPassword = Math.random().toString(36).slice(-12) + 'A1!' // Meets Firebase requirements
 
