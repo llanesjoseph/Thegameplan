@@ -288,11 +288,14 @@ export function analyzeMedicalSafety(userInput: string): MedicalSafetyResult {
   // Higher risk for urgent language - but ONLY if there's already medical content detected
   const urgentLanguage = [
     'call 911', 'need ambulance', 'emergency room', 'am i dying',
-    'is this life threatening', 'should i go to hospital'
+    'is this life threatening', 'should i go to hospital',
+    'worried', 'scared', 'frightened', 'terrified'
   ]
   const hasUrgentLanguage = urgentLanguage.some(urgent => input.includes(urgent))
 
   // Only escalate if there's ACTUAL medical content AND urgent language
+  // This prevents false positives: "I'm worried about motivation" = no warning
+  // But: "I'm worried about this chest pain" = escalates to high risk
   if (hasUrgentLanguage && !isPastTense && riskLevel >= 'medium' && detectedConcerns.length > 0) {
     if (riskLevel === 'medium') riskLevel = 'high'
     else if (riskLevel === 'high') riskLevel = 'critical'
