@@ -15,7 +15,6 @@ import {
   X,
   Clock,
   TrendingUp,
-  Megaphone,
   ShoppingBag,
   Rss
 } from 'lucide-react'
@@ -42,42 +41,6 @@ export default function AthleteDashboard() {
   const [loadError, setLoadError] = useState<string | null>(null)
   const [lessonCount, setLessonCount] = useState<number>(0)
   const [videoCount, setVideoCount] = useState<number>(0)
-  const [announcements, setAnnouncements] = useState<any[]>([])
-  const [unreadAnnouncements, setUnreadAnnouncements] = useState<number>(0)
-  const [dismissedAnnouncements, setDismissedAnnouncements] = useState<Set<string>>(new Set())
-
-  // Load dismissed announcements from localStorage
-  useEffect(() => {
-    const loadDismissedAnnouncements = () => {
-      try {
-        const dismissed = localStorage.getItem('dismissedAnnouncements')
-        if (dismissed) {
-          setDismissedAnnouncements(new Set(JSON.parse(dismissed)))
-        }
-      } catch (error) {
-        console.error('Error loading dismissed announcements:', error)
-      }
-    }
-
-    loadDismissedAnnouncements()
-  }, [])
-
-  // Handle dismissing an announcement
-  const handleDismissAnnouncement = (announcementId: string) => {
-    const newDismissed = new Set(dismissedAnnouncements)
-    newDismissed.add(announcementId)
-    setDismissedAnnouncements(newDismissed)
-
-    // Save to localStorage
-    try {
-      localStorage.setItem('dismissedAnnouncements', JSON.stringify(Array.from(newDismissed)))
-    } catch (error) {
-      console.error('Error saving dismissed announcements:', error)
-    }
-  }
-
-  // Filter visible announcements (exclude dismissed ones)
-  const visibleAnnouncements = announcements.filter(a => !dismissedAnnouncements.has(a.id))
 
   // Athlete tools - simplified for sidebar
   const athleteTools = [
@@ -101,14 +64,6 @@ export default function AthleteDashboard() {
       description: 'View upcoming events and sessions',
       icon: Calendar,
       color: '#5A9A70'
-    },
-    {
-      id: 'announcements',
-      title: 'Announcements',
-      description: `${unreadAnnouncements > 0 ? `${unreadAnnouncements} new` : 'View updates from your coach'}`,
-      icon: Megaphone,
-      color: '#A01C21',
-      badge: unreadAnnouncements
     },
     {
       id: 'lessons',
@@ -289,65 +244,6 @@ export default function AthleteDashboard() {
 
     fetchCoachContent()
   }, [coachId])
-
-  // Fetch announcements
-  useEffect(() => {
-    const fetchAnnouncements = async () => {
-      if (!coachId || !user) {
-        setAnnouncements([])
-        setUnreadAnnouncements(0)
-        return
-      }
-
-      try {
-        const announcementsRef = collection(db, 'announcements')
-        const announcementsQuery = query(
-          announcementsRef,
-          where('creatorUid', '==', coachId)
-        )
-        const announcementsSnap = await getDocs(announcementsQuery)
-
-        const announcementsList = announcementsSnap.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        })).sort((a: any, b: any) => {
-          const dateA = a.sentAt?.toDate?.()?.getTime() || 0
-          const dateB = b.sentAt?.toDate?.()?.getTime() || 0
-          return dateB - dateA
-        })
-
-        setAnnouncements(announcementsList)
-
-        // Count unread (announcements from last 7 days that haven't been dismissed)
-        const sevenDaysAgo = new Date()
-        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
-
-        // Get dismissed IDs from localStorage
-        let dismissedIds: string[] = []
-        try {
-          const dismissed = localStorage.getItem('dismissedAnnouncements')
-          if (dismissed) {
-            dismissedIds = JSON.parse(dismissed)
-          }
-        } catch (error) {
-          console.error('Error loading dismissed announcements:', error)
-        }
-
-        const unread = announcementsList.filter((announcement: any) => {
-          const sentAt = announcement.sentAt?.toDate?.()
-          return sentAt && sentAt > sevenDaysAgo && !dismissedIds.includes(announcement.id)
-        }).length
-
-        setUnreadAnnouncements(unread)
-      } catch (error) {
-        console.error('Error fetching announcements:', error)
-        setAnnouncements([])
-        setUnreadAnnouncements(0)
-      }
-    }
-
-    fetchAnnouncements()
-  }, [coachId, user])
 
   const handleToolClick = (toolId: string) => {
     if (toolId === 'video-review') {
@@ -610,112 +506,6 @@ export default function AthleteDashboard() {
                     {activeSection === 'coach-schedule' && user && (
                       <div className="h-full overflow-y-auto">
                         <CoachScheduleView />
-                      </div>
-                    )}
-
-                    {activeSection === 'announcements' && (
-                      <div className="h-full overflow-y-auto p-6">
-                        {visibleAnnouncements.length === 0 ? (
-                          <div className="flex flex-col items-center justify-center h-full text-center">
-                            <Megaphone className="w-16 h-16 mb-4" style={{ color: '#A01C21' }} />
-                            <h3 className="text-xl font-semibold mb-2" style={{ color: '#000000' }}>
-                              No announcements
-                            </h3>
-                            <p style={{ color: '#666' }}>
-                              {announcements.length > 0
-                                ? 'All announcements have been dismissed.'
-                                : 'Your coach hasn\'t sent any announcements. Check back later!'}
-                            </p>
-                          </div>
-                        ) : (
-                          <div className="max-w-4xl mx-auto space-y-4">
-                            {visibleAnnouncements.map((announcement: any) => {
-                              const sentAt = announcement.sentAt?.toDate?.()
-                              const isRecent = sentAt && sentAt > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-                              const isUrgent = announcement.urgent
-
-                              return (
-                                <div
-                                  key={announcement.id}
-                                  className={`rounded-lg p-6 shadow-md border-2 transition-all ${
-                                    isUrgent
-                                      ? 'bg-gradient-to-br from-red-50 to-red-100 border-red-300'
-                                      : 'bg-white border-gray-200'
-                                  }`}
-                                >
-                                  {/* Header */}
-                                  <div className="flex items-start justify-between mb-3">
-                                    <div className="flex items-center gap-3">
-                                      {isUrgent && (
-                                        <span className="px-3 py-1 bg-red-500 text-white text-xs font-bold rounded-full">
-                                          🚨 URGENT
-                                        </span>
-                                      )}
-                                      {isRecent && !isUrgent && (
-                                        <span className="px-3 py-1 bg-blue-500 text-white text-xs font-bold rounded-full">
-                                          NEW
-                                        </span>
-                                      )}
-                                    </div>
-                                    <div className="flex items-center gap-3">
-                                      {sentAt && (
-                                        <span className="text-xs" style={{ color: '#666' }}>
-                                          {sentAt.toLocaleDateString('en-US', {
-                                            month: 'short',
-                                            day: 'numeric',
-                                            year: 'numeric',
-                                            hour: 'numeric',
-                                            minute: '2-digit'
-                                          })}
-                                        </span>
-                                      )}
-                                      <button
-                                        onClick={() => handleDismissAnnouncement(announcement.id)}
-                                        className="p-1 hover:bg-gray-200 rounded-full transition-colors"
-                                        title="Dismiss announcement"
-                                      >
-                                        <X className="w-4 h-4" style={{ color: '#666' }} />
-                                      </button>
-                                    </div>
-                                  </div>
-
-                                  {/* Title */}
-                                  <h3
-                                    className="text-xl font-bold mb-3"
-                                    style={{ color: isUrgent ? '#DC2626' : '#000000' }}
-                                  >
-                                    {announcement.title}
-                                  </h3>
-
-                                  {/* Message */}
-                                  <p
-                                    className="whitespace-pre-wrap leading-relaxed"
-                                    style={{ color: '#374151' }}
-                                  >
-                                    {announcement.message}
-                                  </p>
-
-                                  {/* Footer */}
-                                  <div className="mt-4 pt-4 border-t border-gray-300 flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                      <span className="text-sm font-medium" style={{ color: '#666' }}>
-                                        From: {coachName}
-                                      </span>
-                                    </div>
-                                    {announcement.sport && (
-                                      <span
-                                        className="px-3 py-1 bg-gray-100 text-xs font-semibold rounded-full"
-                                        style={{ color: '#666' }}
-                                      >
-                                        {announcement.sport}
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-                              )
-                            })}
-                          </div>
-                        )}
                       </div>
                     )}
 
