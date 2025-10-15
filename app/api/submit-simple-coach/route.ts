@@ -224,6 +224,7 @@ export async function POST(request: NextRequest) {
     if (false) { // Keep old code for reference but never execute
       // Create Firebase user account with temporary password
       const temporaryPassword = Math.random().toString(36).slice(-12) + 'A1!' // Meets Firebase requirements
+      const applicationId = nanoid() // Generate unique ID for dead code
       let userRecord
 
       try {
