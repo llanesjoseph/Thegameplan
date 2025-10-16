@@ -41,7 +41,7 @@ export default function CreatorAccessGate({
  // Redirect athletes to their dashboard
  useEffect(() => {
   if (!loading && role === 'athlete') {
-   router.replace('/dashboard/progress')
+   router.replace('/dashboard/athlete')
   }
  }, [role, loading, router])
 

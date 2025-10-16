@@ -58,8 +58,8 @@ export default function CoachUnifiedDashboard() {
           }
           // Redirect athletes to their dashboard
           else if (role === 'athlete') {
-            console.log('🏃 Athlete detected on coach page - redirecting to progress dashboard')
-            router.replace('/dashboard/progress')
+            console.log('🏃 Athlete detected on coach page - redirecting to athlete dashboard')
+            router.replace('/dashboard/athlete')
             return
           }
         }
