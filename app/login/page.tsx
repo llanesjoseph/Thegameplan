@@ -24,7 +24,10 @@ export default function LoginPage() {
         const params = new URLSearchParams(window.location.search)
         const redirect = params.get('redirect') || '/dashboard/coach-unified'
 
-        router.push(redirect)
+        console.log('[Login] Redirecting to:', redirect)
+
+        // Use window.location.href for hard redirect (router.push can fail)
+        window.location.href = redirect
       }
     })
 
