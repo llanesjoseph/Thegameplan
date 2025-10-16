@@ -166,31 +166,31 @@ export default function TodaysOverview({ onQuickAction }: TodaysOverviewProps) {
   ]
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header with Greeting */}
-      <div className="bg-gradient-to-r from-teal-500 to-teal-600 rounded-xl p-6 sm:p-8 text-white shadow-lg">
+      <div className="bg-gradient-to-r from-teal-500 to-teal-600 rounded-xl p-5 sm:p-6 text-white shadow-lg">
         <h1 className="text-2xl sm:text-3xl font-bold mb-1">
           {greeting()}, {user?.displayName?.split(' ')[0] || 'Coach'}! 👋
         </h1>
         <p className="text-teal-50 text-sm sm:text-base">{formattedDate}</p>
 
         {/* Expanded Quick Actions Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mt-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 mt-4">
           {quickActions.map((action) => {
             const Icon = action.icon
             return (
               <button
                 key={action.id}
                 onClick={() => onQuickAction?.(action.id)}
-                className="group bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-lg p-4 transition-all hover:scale-105 active:scale-95 touch-manipulation border border-white/20 hover:border-white/40 text-left"
-                style={{ minHeight: '100px' }}
+                className="group bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-lg p-3 transition-all hover:scale-105 active:scale-95 touch-manipulation border border-white/20 hover:border-white/40 text-left"
+                style={{ minHeight: '85px' }}
               >
                 <div className="flex flex-col h-full justify-between">
                   <div>
-                    <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center mb-3">
-                      <Icon className="w-5 h-5 text-white" />
+                    <div className="w-9 h-9 rounded-lg bg-white/20 flex items-center justify-center mb-2">
+                      <Icon className="w-4.5 h-4.5 text-white" />
                     </div>
-                    <h3 className="text-white font-semibold text-sm mb-1">
+                    <h3 className="text-white font-semibold text-sm mb-0.5">
                       {action.label}
                     </h3>
                     <p className="text-teal-50 text-xs opacity-90">
@@ -198,7 +198,7 @@ export default function TodaysOverview({ onQuickAction }: TodaysOverviewProps) {
                     </p>
                   </div>
                   {action.metric && (
-                    <p className="text-white/70 text-xs mt-2 pt-2 border-t border-white/20 font-medium">
+                    <p className="text-white/70 text-xs mt-1.5 pt-1.5 border-t border-white/20 font-medium">
                       {action.metric}
                     </p>
                   )}

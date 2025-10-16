@@ -56,12 +56,12 @@ export default function CoachHomePage() {
 
   return (
     <div className="min-h-screen p-4 sm:p-6 lg:p-8" style={{ backgroundColor: isEmbedded ? 'white' : '#E8E6D8' }}>
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="max-w-7xl mx-auto space-y-4">
         {/* Header Overview with Integrated Quick Actions */}
         <TodaysOverview onQuickAction={handleQuickAction} />
 
         {/* Two Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Pending Items */}
           <PendingItemsWidget onViewItem={handleViewPendingItem} />
 
