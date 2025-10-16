@@ -26,19 +26,26 @@ import {
 } from 'lucide-react'
 
 export default function CoachUnifiedDashboard() {
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const router = useRouter()
   const [showWelcome, setShowWelcome] = useState(false)
   const [activeSection, setActiveSection] = useState<string | null>('home') // Default to Home
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
   const [pendingRequestsCount, setPendingRequestsCount] = useState(0)
+  const [isInitializing, setIsInitializing] = useState(true)
 
   // Role-based redirect - prevent admins from accessing coach dashboard
   useEffect(() => {
-    if (!user?.uid) return
+    if (authLoading || !user?.uid) {
+      setIsInitializing(true)
+      return
+    }
 
     const checkRoleAndRedirect = async () => {
       try {
+        // Small delay to ensure Firestore is fully initialized after auth
+        await new Promise(resolve => setTimeout(resolve, 500))
+
         const userDoc = await getDoc(doc(db, 'users', user.uid))
         if (userDoc.exists()) {
           const role = userDoc.data()?.role
@@ -47,20 +54,27 @@ export default function CoachUnifiedDashboard() {
           if (role === 'admin' || role === 'superadmin') {
             console.log('🛡️ Admin detected on coach page - redirecting to admin dashboard')
             router.replace('/dashboard/admin')
+            return
           }
           // Redirect athletes to their dashboard
           else if (role === 'athlete') {
             console.log('🏃 Athlete detected on coach page - redirecting to progress dashboard')
             router.replace('/dashboard/progress')
+            return
           }
         }
+
+        // If no redirect needed, mark as initialized
+        setIsInitializing(false)
       } catch (error) {
         console.error('Error checking role:', error)
+        // Even on error, allow the page to load
+        setIsInitializing(false)
       }
     }
 
     checkRoleAndRedirect()
-  }, [user?.uid, router])
+  }, [user?.uid, authLoading, router])
 
   // Show welcome only once per session
   useEffect(() => {
@@ -203,6 +217,19 @@ export default function CoachUnifiedDashboard() {
       'gear': '/dashboard/coach/gear?embedded=true'
     }
     return pathMap[sectionId]
+  }
+
+  // Show loading screen while auth or Firebase initializes
+  if (authLoading || isInitializing) {
+    return (
+      <div style={{ backgroundColor: '#E8E6D8' }} className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-16 w-16 border-b-4 border-gray-900 mb-4"></div>
+          <p className="text-xl font-semibold text-gray-900">Loading your dashboard...</p>
+          <p className="text-sm text-gray-600 mt-2">Please wait while we set things up</p>
+        </div>
+      </div>
+    )
   }
 
   return (
