@@ -25,6 +25,7 @@ import MyCoachPanel from '@/components/athlete/MyCoachPanel'
 import CoachFeedView from '@/components/athlete/CoachFeedView'
 import CoachScheduleView from '@/components/athlete/CoachScheduleView'
 import AIAssistant from '@/components/AIAssistant'
+import AskCoachAI from '@/components/athlete/AskCoachAI'
 
 export default function AthleteDashboard() {
   const { user } = useAuth()
@@ -209,6 +210,22 @@ export default function AthleteDashboard() {
 
     fetchCoachData()
   }, [coachId])
+
+  // Listen for postMessage from embedded iframe
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      // Security check: only accept messages from our own origin
+      if (event.origin !== window.location.origin) return
+
+      if (event.data.type === 'CHANGE_SECTION' && event.data.section) {
+        console.log('📨 Received section change request:', event.data.section)
+        handleToolClick(event.data.section)
+      }
+    }
+
+    window.addEventListener('message', handleMessage)
+    return () => window.removeEventListener('message', handleMessage)
+  }, [])
 
   // Fetch lesson counts
   useEffect(() => {
@@ -604,6 +621,14 @@ export default function AthleteDashboard() {
           </div>
         </main>
       </div>
+
+      {/* Floating AI Chat Widget */}
+      {coachId && (
+        <AskCoachAI
+          coachId={coachId}
+          coachName={coachName}
+        />
+      )}
     </>
   )
 }

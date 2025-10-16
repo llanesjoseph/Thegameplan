@@ -1,7 +1,7 @@
 'use client'
 
 import { BookOpen, Video, Calendar, MessageCircle, Sparkles, Rss } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 interface QuickAction {
   id: string
@@ -62,25 +62,51 @@ interface AthleteQuickActionsProps {
 
 export default function AthleteQuickActions({ onAction }: AthleteQuickActionsProps) {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const isEmbedded = searchParams.get('embedded') === 'true'
 
   const handleAction = (actionId: string) => {
     if (onAction) {
       onAction(actionId)
-    } else {
-      // Default navigation
-      const routes: Record<string, string> = {
-        'lessons': '/dashboard/athlete-lessons',
-        'ask-coach': '/dashboard/athlete?section=ai-assistant',
-        'video-review': '/dashboard/athlete?section=video-review',
-        'schedule-session': '/dashboard/athlete?section=live-session',
-        'coach-feed': '/dashboard/athlete?section=coach-feed',
-        'coach-schedule': '/dashboard/athlete?section=coach-schedule'
+      return
+    }
+
+    // If embedded in iframe, send message to parent to change section
+    if (isEmbedded && window.parent !== window) {
+      // Map action IDs to section IDs that the parent dashboard understands
+      const sectionMap: Record<string, string> = {
+        'lessons': 'lessons',
+        'ask-coach': 'ai-assistant',
+        'video-review': 'video-review',
+        'schedule-session': 'live-session',
+        'coach-feed': 'coach-feed',
+        'coach-schedule': 'coach-schedule'
       }
 
-      const route = routes[actionId]
-      if (route) {
-        router.push(route)
+      const sectionId = sectionMap[actionId]
+      if (sectionId) {
+        // Send message to parent to change the active section
+        window.parent.postMessage(
+          { type: 'CHANGE_SECTION', section: sectionId },
+          window.location.origin
+        )
       }
+      return
+    }
+
+    // Not embedded - do regular navigation
+    const routes: Record<string, string> = {
+      'lessons': '/dashboard/athlete-lessons',
+      'ask-coach': '/dashboard/athlete',
+      'video-review': '/dashboard/athlete',
+      'schedule-session': '/dashboard/athlete',
+      'coach-feed': '/dashboard/athlete',
+      'coach-schedule': '/dashboard/athlete'
+    }
+
+    const route = routes[actionId]
+    if (route) {
+      router.push(route)
     }
   }
 
