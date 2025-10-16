@@ -840,10 +840,6 @@ function CoachFeedPageContent() {
                     <Heart className="w-4 h-4" style={{ color: '#FF6B35' }} />
                     <span className="text-sm" style={{ color: '#666' }}>{post.likes} likes</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <MessageCircle className="w-4 h-4" style={{ color: '#20B2AA' }} />
-                    <span className="text-sm" style={{ color: '#666' }}>{post.comments} comments</span>
-                  </div>
                 </div>
               </div>
             ))}
