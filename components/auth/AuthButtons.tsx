@@ -22,8 +22,13 @@ export default function AuthButtons() {
         prompt: 'select_account'
       })
 
-      await signInWithPopup(auth, provider)
+      const result = await signInWithPopup(auth, provider)
       console.log('[AuthButtons] Google sign-in successful')
+
+      // Wait for token to be generated
+      const token = await result.user.getIdToken()
+      console.log('[AuthButtons] Token received, auth complete')
+
       // onAuthStateChanged in login page will handle redirect
     } catch (error: any) {
       console.error('[AuthButtons] Google sign-in error:', error)

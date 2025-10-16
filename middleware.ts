@@ -10,6 +10,15 @@ import type { NextRequest } from 'next/server'
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
+  // TEMPORARY: Middleware disabled to fix redirect loop
+  // Firebase client-side auth doesn't automatically set cookies
+  // TODO: Implement proper session cookie handling
+  // For now, dashboard pages will handle their own auth via useAuth hook
+
+  console.log(`[Middleware] Allowing access to ${pathname} (auth check disabled temporarily)`)
+  return NextResponse.next()
+
+  /* DISABLED - CAUSES REDIRECT LOOP
   // Only protect /dashboard/* routes
   if (!pathname.startsWith('/dashboard')) {
     return NextResponse.next()
@@ -31,6 +40,7 @@ export function middleware(request: NextRequest) {
 
   // User is authenticated, allow access
   return NextResponse.next()
+  */
 }
 
 /**

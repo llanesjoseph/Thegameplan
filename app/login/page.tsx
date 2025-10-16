@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { auth } from '@/lib/firebase.client'
 import { onAuthStateChanged } from 'firebase/auth'
@@ -12,27 +12,59 @@ export const runtime = 'nodejs'
 
 export default function LoginPage() {
   const router = useRouter()
+  const [isChecking, setIsChecking] = useState(true)
+  const hasRedirected = useRef(false)
 
   // Listen for auth state changes
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      // Prevent multiple redirects
+      if (hasRedirected.current) {
+        return
+      }
+
       if (user) {
-        // User is signed in, redirect to dashboard
-        console.log('[Login] User authenticated, redirecting to dashboard')
+        // Verify user has a valid token before redirecting
+        try {
+          const token = await user.getIdToken()
+          if (token) {
+            hasRedirected.current = true
 
-        // Get redirect param from URL
-        const params = new URLSearchParams(window.location.search)
-        const redirect = params.get('redirect') || '/dashboard/coach-unified'
+            console.log('[Login] User authenticated, redirecting to dashboard')
 
-        console.log('[Login] Redirecting to:', redirect)
+            // Get redirect param from URL
+            const params = new URLSearchParams(window.location.search)
+            const redirect = params.get('redirect') || '/dashboard/coach-unified'
 
-        // Use window.location.href for hard redirect (router.push can fail)
-        window.location.href = redirect
+            console.log('[Login] Redirecting to:', redirect)
+
+            // Use window.location.href for hard redirect
+            window.location.href = redirect
+          }
+        } catch (error) {
+          console.error('[Login] Token verification failed:', error)
+          setIsChecking(false)
+        }
+      } else {
+        // No user, show login form
+        setIsChecking(false)
       }
     })
 
     return () => unsubscribe()
   }, [router])
+
+  // Show loading while checking auth
+  if (isChecking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#E8E6D8' }}>
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mb-4"></div>
+          <p className="text-gray-700">Loading...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#E8E6D8' }}>
