@@ -1,50 +1,35 @@
 'use client'
 
-import { useEffect, useState, Suspense } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { useAuth } from '@/hooks/use-auth'
-import SimpleAuth from '@/components/auth/SimpleAuth'
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { auth } from '@/lib/firebase.client'
+import { onAuthStateChanged } from 'firebase/auth'
+import AuthButtons from '@/components/auth/AuthButtons'
 
-// Force dynamic rendering
+// FORCE DYNAMIC - NO STATIC GENERATION
 export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
 
-function LoginPageContent() {
+export default function LoginPage() {
   const router = useRouter()
-  const searchParams = useSearchParams()
-  const { user, loading } = useAuth()
-  const [redirectPath, setRedirectPath] = useState('/dashboard/coach-unified')
 
+  // Listen for auth state changes
   useEffect(() => {
-    // Get the redirect parameter from URL
-    const redirect = searchParams.get('redirect')
-    if (redirect) {
-      setRedirectPath(redirect)
-    }
-  }, [searchParams])
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // User is signed in, redirect to dashboard
+        console.log('[Login] User authenticated, redirecting to dashboard')
 
-  useEffect(() => {
-    // If user is already logged in, redirect them
-    if (!loading && user) {
-      router.push(redirectPath)
-    }
-  }, [user, loading, router, redirectPath])
+        // Get redirect param from URL
+        const params = new URLSearchParams(window.location.search)
+        const redirect = params.get('redirect') || '/dashboard/coach-unified'
 
-  // Show loading while checking auth
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#E8E6D8' }}>
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mb-4"></div>
-          <p className="text-gray-700">Loading...</p>
-        </div>
-      </div>
-    )
-  }
+        router.push(redirect)
+      }
+    })
 
-  // If user is logged in, don't show the form (will redirect via useEffect)
-  if (user) {
-    return null
-  }
+    return () => unsubscribe()
+  }, [router])
 
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#E8E6D8' }}>
@@ -85,8 +70,8 @@ function LoginPageContent() {
               </p>
             </div>
 
-            {/* Use the existing SimpleAuth component */}
-            <SimpleAuth />
+            {/* Auth Buttons */}
+            <AuthButtons />
 
             {/* Terms */}
             <div className="mt-6 text-center">
@@ -115,20 +100,5 @@ function LoginPageContent() {
         </div>
       </main>
     </div>
-  )
-}
-
-export default function LoginPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#E8E6D8' }}>
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mb-4"></div>
-          <p className="text-gray-700">Loading...</p>
-        </div>
-      </div>
-    }>
-      <LoginPageContent />
-    </Suspense>
   )
 }
