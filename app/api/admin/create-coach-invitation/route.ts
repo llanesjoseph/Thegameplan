@@ -62,10 +62,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Generate unique invitation code
+    // Generate unique invitation code (using inv_ prefix for compatibility with validation system)
     const timestamp = Date.now()
     const randomSuffix = Math.random().toString(36).substring(2, 15)
-    const invitationCode = `coach-${timestamp}-${randomSuffix}`
+    const invitationCode = `inv_${timestamp}_${randomSuffix}`
 
     // Calculate expiration
     const expiresAt = new Date()
