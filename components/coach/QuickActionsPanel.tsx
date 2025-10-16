@@ -1,6 +1,6 @@
 'use client'
 
-import { GraduationCap, Calendar, MessageSquare, Bell, Users, Video } from 'lucide-react'
+import { GraduationCap, Calendar, MessageSquare, Users, Video } from 'lucide-react'
 
 interface QuickActionsPanelProps {
   onAction: (action: string) => void
@@ -28,13 +28,6 @@ export default function QuickActionsPanel({ onAction }: QuickActionsPanelProps) 
       icon: MessageSquare,
       color: '#91A6EB',
       description: 'Share with athletes'
-    },
-    {
-      id: 'send-announcement',
-      label: 'Announcement',
-      icon: Bell,
-      color: '#FF6B35',
-      description: 'Notify all athletes'
     },
     {
       id: 'view-athletes',
