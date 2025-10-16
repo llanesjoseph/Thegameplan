@@ -25,6 +25,7 @@ export default function CoachFeedView() {
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
   const [coachName, setCoachName] = useState('Your Coach')
+  const [userReactions, setUserReactions] = useState<Record<string, string>>({}) // postId -> emoji
 
   useEffect(() => {
     if (user) {
@@ -59,6 +60,25 @@ export default function CoachFeedView() {
     }
   }
 
+  const handleReaction = (postId: string, emoji: string) => {
+    // Toggle reaction - if clicking same emoji, remove it
+    setUserReactions(prev => {
+      const current = prev[postId]
+      if (current === emoji) {
+        // Remove reaction
+        const newReactions = { ...prev }
+        delete newReactions[postId]
+        return newReactions
+      } else {
+        // Add/change reaction
+        return { ...prev, [postId]: emoji }
+      }
+    })
+
+    // TODO: Save reaction to Firestore
+    console.log(`User reacted to post ${postId} with ${emoji}`)
+  }
+
   const formatDate = (dateString: string) => {
     try {
       const date = new Date(dateString)
@@ -85,6 +105,15 @@ export default function CoachFeedView() {
       return 'Recently'
     }
   }
+
+  // Available emoji reactions
+  const reactions = [
+    { emoji: '❤️', label: 'Love' },
+    { emoji: '👍', label: 'Like' },
+    { emoji: '🔥', label: 'Fire' },
+    { emoji: '💪', label: 'Strong' },
+    { emoji: '🙌', label: 'Celebrate' }
+  ]
 
   if (loading) {
     return (
@@ -211,16 +240,38 @@ export default function CoachFeedView() {
             </a>
           )}
 
-          {/* Engagement Stats */}
-          <div className="flex items-center gap-6 pt-4 border-t border-gray-200">
-            <button className="flex items-center gap-2 hover:text-red-500 transition-colors group">
-              <Heart className="w-5 h-5 group-hover:fill-red-500" style={{ color: '#666' }} />
-              <span className="text-sm" style={{ color: '#666' }}>{post.likes}</span>
-            </button>
-            <button className="flex items-center gap-2 hover:text-teal-500 transition-colors group">
-              <MessageCircle className="w-5 h-5" style={{ color: '#666' }} />
-              <span className="text-sm" style={{ color: '#666' }}>{post.comments}</span>
-            </button>
+          {/* Emoji Reactions */}
+          <div className="pt-4 border-t border-gray-200">
+            <div className="flex items-center gap-2 flex-wrap">
+              {reactions.map((reaction) => {
+                const isActive = userReactions[post.id] === reaction.emoji
+                return (
+                  <button
+                    key={reaction.emoji}
+                    onClick={() => handleReaction(post.id, reaction.emoji)}
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-full transition-all hover:scale-110 active:scale-95 ${
+                      isActive
+                        ? 'bg-teal-100 border-2 border-teal-500 shadow-md'
+                        : 'bg-gray-100 border-2 border-transparent hover:bg-gray-200'
+                    }`}
+                    title={reaction.label}
+                  >
+                    <span className="text-lg">{reaction.emoji}</span>
+                    {isActive && (
+                      <span className="text-xs font-semibold" style={{ color: '#20B2AA' }}>
+                        You
+                      </span>
+                    )}
+                  </button>
+                )
+              })}
+
+              {/* Comments button */}
+              <button className="flex items-center gap-2 px-3 py-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-all ml-auto">
+                <MessageCircle className="w-4 h-4" style={{ color: '#666' }} />
+                <span className="text-sm" style={{ color: '#666' }}>{post.comments}</span>
+              </button>
+            </div>
           </div>
         </div>
       ))}
