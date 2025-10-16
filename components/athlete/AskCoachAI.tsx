@@ -2,7 +2,9 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { useAuth } from '@/hooks/use-auth'
-import { Send, Loader2, Bot, User, Sparkles, MessageCircle, X } from 'lucide-react'
+import { db } from '@/lib/firebase.client'
+import { collection, addDoc, query, where, orderBy, onSnapshot, deleteDoc, getDocs, Timestamp } from 'firebase/firestore'
+import { Send, Loader2, Bot, User, Sparkles, MessageCircle, X, Trash2 } from 'lucide-react'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -28,31 +30,91 @@ export default function AskCoachAI({ coachId, coachName, sport }: AskCoachAIProp
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
+  // Load messages from Firestore in real-time
+  useEffect(() => {
+    if (!user || !coachId) return
+
+    console.log('📡 Setting up real-time chat listener for user:', user.uid, 'coach:', coachId)
+
+    const chatQuery = query(
+      collection(db, 'chat_messages'),
+      where('userId', '==', user.uid),
+      where('coachId', '==', coachId),
+      orderBy('timestamp', 'asc')
+    )
+
+    const unsubscribe = onSnapshot(chatQuery, (snapshot) => {
+      const loadedMessages: Message[] = snapshot.docs.map(doc => {
+        const data = doc.data()
+        return {
+          role: data.role,
+          content: data.content,
+          timestamp: data.timestamp?.toDate() || new Date()
+        }
+      })
+
+      setMessages(loadedMessages)
+      console.log('✅ Loaded', loadedMessages.length, 'messages from Firestore')
+    }, (error) => {
+      console.error('Error loading chat messages:', error)
+    })
+
+    return () => unsubscribe()
+  }, [user, coachId])
+
   useEffect(() => {
     scrollToBottom()
   }, [messages])
 
+  const handleClearChat = async () => {
+    if (!confirm('Are you sure you want to clear this conversation? This cannot be undone.')) return
+
+    if (!user || !coachId) return
+
+    try {
+      // Delete all messages for this conversation from Firestore
+      const chatQuery = query(
+        collection(db, 'chat_messages'),
+        where('userId', '==', user.uid),
+        where('coachId', '==', coachId)
+      )
+
+      const snapshot = await getDocs(chatQuery)
+      const deletePromises = snapshot.docs.map(doc => deleteDoc(doc.ref))
+      await Promise.all(deletePromises)
+
+      console.log('🗑️ Cleared', snapshot.docs.length, 'messages from Firestore')
+    } catch (error) {
+      console.error('Error clearing chat:', error)
+      alert('Failed to clear chat. Please try again.')
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!question.trim() || isLoading) return
+    if (!question.trim() || isLoading || !user || !coachId) return
 
-    const userMessage: Message = {
-      role: 'user',
-      content: question.trim(),
-      timestamp: new Date()
-    }
-
-    setMessages(prev => [...prev, userMessage])
+    const questionText = question.trim()
     setQuestion('')
     setIsLoading(true)
 
     try {
+      // Save user message to Firestore
+      await addDoc(collection(db, 'chat_messages'), {
+        userId: user.uid,
+        coachId,
+        role: 'user',
+        content: questionText,
+        timestamp: Timestamp.now()
+      })
+
+      // Get AI response
       const response = await fetch('/api/ai-coaching', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          question: userMessage.content,
-          userId: user?.uid,
+          question: questionText,
+          userId: user.uid,
           creatorId: coachId,
           creatorName: coachName,
           sport: sport
@@ -61,24 +123,29 @@ export default function AskCoachAI({ coachId, coachName, sport }: AskCoachAIProp
 
       const data = await response.json()
 
-      if (data.success && data.answer) {
-        const assistantMessage: Message = {
+      if (data.success && data.response) {
+        // Save assistant response to Firestore
+        await addDoc(collection(db, 'chat_messages'), {
+          userId: user.uid,
+          coachId,
           role: 'assistant',
-          content: data.answer,
-          timestamp: new Date()
-        }
-        setMessages(prev => [...prev, assistantMessage])
+          content: data.response,
+          timestamp: Timestamp.now()
+        })
       } else {
         throw new Error(data.error || 'Failed to get response')
       }
     } catch (error) {
       console.error('Error asking coach:', error)
-      const errorMessage: Message = {
+
+      // Save error message to Firestore
+      await addDoc(collection(db, 'chat_messages'), {
+        userId: user.uid,
+        coachId,
         role: 'assistant',
         content: 'Sorry, I encountered an error. Please try again later.',
-        timestamp: new Date()
-      }
-      setMessages(prev => [...prev, errorMessage])
+        timestamp: Timestamp.now()
+      })
     } finally {
       setIsLoading(false)
     }
@@ -114,12 +181,23 @@ export default function AskCoachAI({ coachId, coachName, sport }: AskCoachAIProp
             </p>
           </div>
         </div>
-        <button
-          onClick={() => setIsOpen(false)}
-          className="p-1 hover:bg-white/20 rounded-lg transition-colors"
-        >
-          <X className="w-5 h-5 text-white" />
-        </button>
+        <div className="flex items-center gap-1">
+          {messages.length > 0 && (
+            <button
+              onClick={handleClearChat}
+              className="p-1 hover:bg-white/20 rounded-lg transition-colors"
+              title="Clear conversation"
+            >
+              <Trash2 className="w-4 h-4 text-white" />
+            </button>
+          )}
+          <button
+            onClick={() => setIsOpen(false)}
+            className="p-1 hover:bg-white/20 rounded-lg transition-colors"
+          >
+            <X className="w-5 h-5 text-white" />
+          </button>
+        </div>
       </div>
 
       {/* Messages */}

@@ -718,6 +718,40 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
+    // ============================================================================
+    // AI CHAT MESSAGES - Athlete-coach AI chat persistence
+    // ============================================================================
+
+    // Chat Messages - AI coaching conversation history
+    match /chat_messages/{messageId} {
+      // Athletes can read their own chat messages
+      allow read: if isAuthenticated() &&
+                     resource.data.userId == request.auth.uid;
+
+      // Coaches can read messages from their athletes (for accountability and oversight)
+      allow read: if isAuthenticated() &&
+                     resource.data.coachId == request.auth.uid;
+
+      // Admins can read all messages (for safety and moderation)
+      allow read: if isAdmin();
+
+      // Athletes can create their own messages
+      allow create: if isAuthenticated() &&
+                       request.resource.data.userId == request.auth.uid &&
+                       request.resource.data.keys().hasAll(['userId', 'coachId', 'role', 'content', 'timestamp']) &&
+                       request.resource.data.role in ['user', 'assistant'] &&
+                       request.resource.data.content is string &&
+                       request.resource.data.content.size() > 0 &&
+                       request.resource.data.content.size() <= 10000;
+
+      // Athletes can delete their own messages (for clear chat functionality)
+      allow delete: if isAuthenticated() &&
+                       resource.data.userId == request.auth.uid;
+
+      // Messages cannot be updated (immutable for audit trail)
+      allow update: if false;
+    }
+
     // ===== DEFAULT DENY =====
     match /{document=**} {
       allow read, write: if false;
