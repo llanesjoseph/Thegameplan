@@ -22,6 +22,39 @@ function CoachProfileContent() {
 
   const [activeTab, setActiveTab] = useState('images')
   const [isEditingVoice, setIsEditingVoice] = useState(false)
+  const [isSavingVoice, setIsSavingVoice] = useState(false)
+
+  const handleVoiceCaptureComplete = async (voiceCaptureData: any) => {
+    if (!user) return
+
+    setIsSavingVoice(true)
+    try {
+      const response = await fetch('/api/update-voice-traits', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.uid,
+          voiceCaptureData
+        })
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        alert(`✅ Voice traits updated successfully!\n\n${data.voiceTraits.length} voice characteristics saved.`)
+        setIsEditingVoice(false)
+        // Refresh the page to show updated traits
+        window.location.reload()
+      } else {
+        throw new Error(data.error || 'Failed to update voice traits')
+      }
+    } catch (error) {
+      console.error('Error saving voice traits:', error)
+      alert('❌ Failed to save voice traits. Please try again.')
+    } finally {
+      setIsSavingVoice(false)
+    }
+  }
 
   // Only allow coaches to access this page (includes legacy 'creator' role)
   if (role !== 'coach' && role !== 'creator' && role !== 'admin' && role !== 'superadmin') {
@@ -274,15 +307,24 @@ function CoachProfileContent() {
                     </button>
                   </div>
                   <StreamlinedVoiceCapture
-                    onComplete={(data) => {
-                      console.log('Voice capture completed:', data)
-                      alert('Voice capture saved successfully! Your AI coaching voice is now configured.')
-                      setIsEditingVoice(false)
-                    }}
+                    onComplete={handleVoiceCaptureComplete}
                     onProgress={(progress) => {
-                      console.log('Progress:', progress)
+                      console.log('Voice capture progress:', progress)
                     }}
                   />
+                  {isSavingVoice && (
+                    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+                      <div className="bg-white rounded-xl shadow-xl p-8 max-w-md text-center">
+                        <div className="w-16 h-16 border-4 border-black border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                        <h3 className="text-xl mb-2" style={{ color: '#000000' }}>
+                          Saving Your Voice Profile...
+                        </h3>
+                        <p style={{ color: '#000000', opacity: 0.7 }}>
+                          Processing your voice traits for AI coaching
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </>
               )}
             </div>

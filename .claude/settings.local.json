@@ -34,7 +34,17 @@
       "Bash(if [ -d \".next\" ])",
       "Bash(then rm -rf .next)",
       "Bash(if [ -d \"app/api/admin\" ])",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(firebase use:*)",
+      "Bash(npx firebase functions:log:*)",
+      "Bash(firebase projects:list:*)",
+      "Bash(firebase hosting:sites:list:*)",
+      "Bash(firebase hosting:channel:list:*)",
+      "Bash(git rm:*)",
+      "Bash(if [ -f storage.rules ])",
+      "Bash(then cat storage.rules)",
+      "Bash(else echo \"storage.rules file not found\")",
+      "Bash(git restore:*)"
     ],
     "deny": [],
     "ask": []
