@@ -37,13 +37,20 @@ export default function AthleteDashboard() {
   const [coachId, setCoachId] = useState<string | null>(null)
   const [coachName, setCoachName] = useState<string>('')
   const [coachPhotoURL, setCoachPhotoURL] = useState<string>('')
-  const [activeSection, setActiveSection] = useState<string | null>(null)
+  const [activeSection, setActiveSection] = useState<string | null>('home') // Default to Home
   const [loadError, setLoadError] = useState<string | null>(null)
   const [lessonCount, setLessonCount] = useState<number>(0)
   const [videoCount, setVideoCount] = useState<number>(0)
 
   // Athlete tools - simplified for sidebar
   const athleteTools = [
+    {
+      id: 'home',
+      title: 'Home',
+      description: 'Today\'s overview and quick actions',
+      icon: LayoutDashboard,
+      color: '#5A9B9B'
+    },
     {
       id: 'ai-assistant',
       title: coachName ? `Ask ${coachName.split(' ')[0]}` : 'Ask Your Coach',
@@ -478,6 +485,14 @@ export default function AthleteDashboard() {
 
                   {/* Content */}
                   <div className="h-full lg:h-[calc(100%-73px)]">
+                    {activeSection === 'home' && (
+                      <iframe
+                        src="/dashboard/athlete/home?embedded=true"
+                        className="w-full h-full border-0"
+                        title="Home"
+                      />
+                    )}
+
                     {activeSection === 'ai-assistant' && user && (
                       <div className="h-full p-6 overflow-y-auto">
                         <AIAssistant

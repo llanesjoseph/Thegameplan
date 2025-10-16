@@ -1,0 +1,160 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { BookOpen, Video, Calendar, Trophy } from 'lucide-react'
+import { useAuth } from '@/hooks/use-auth'
+import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore'
+import { db } from '@/lib/firebase.client'
+
+export default function AthleteOverview() {
+  const { user } = useAuth()
+  const [stats, setStats] = useState({
+    lessonsCompleted: 0,
+    lessonsTotal: 0,
+    upcomingEvents: 0,
+    trainingStreak: 0
+  })
+  const [loading, setLoading] = useState(true)
+  const [coachId, setCoachId] = useState<string | null>(null)
+
+  useEffect(() => {
+    const loadCoachId = async () => {
+      if (!user?.uid) return
+
+      try {
+        const userDoc = await getDoc(doc(db, 'users', user.uid))
+        if (userDoc.exists()) {
+          const userData = userDoc.data()
+          setCoachId(userData?.coachId || userData?.assignedCoachId || null)
+        }
+      } catch (error) {
+        console.error('Error loading coach ID:', error)
+      }
+    }
+
+    loadCoachId()
+  }, [user])
+
+  useEffect(() => {
+    if (user?.uid && coachId) {
+      loadStats()
+    }
+  }, [user, coachId])
+
+  const loadStats = async () => {
+    try {
+      setLoading(true)
+
+      // Count total lessons from coach
+      const contentQuery = query(
+        collection(db, 'content'),
+        where('creatorUid', '==', coachId),
+        where('status', '==', 'published')
+      )
+      const contentSnap = await getDocs(contentQuery)
+      const totalLessons = contentSnap.size
+
+      // Get today's date for upcoming events (simplified - would need actual event tracking)
+      const upcomingEvents = 0 // Placeholder - would fetch from schedule
+
+      setStats({
+        lessonsCompleted: 0, // Placeholder - would track completion
+        lessonsTotal: totalLessons,
+        upcomingEvents,
+        trainingStreak: 0 // Placeholder - would calculate streak
+      })
+    } catch (error) {
+      console.error('Error loading stats:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const today = new Date()
+  const formattedDate = today.toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
+
+  const greeting = () => {
+    const hour = today.getHours()
+    if (hour < 12) return 'Good Morning'
+    if (hour < 18) return 'Good Afternoon'
+    return 'Good Evening'
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-teal-500 to-teal-600 rounded-xl p-6 sm:p-8 text-white shadow-lg">
+        <div className="flex items-center justify-between mb-2">
+          <h1 className="text-2xl sm:text-3xl font-bold">
+            {greeting()}, {user?.displayName?.split(' ')[0] || 'Athlete'}! 👋
+          </h1>
+        </div>
+        <p className="text-teal-50 text-sm sm:text-base">{formattedDate}</p>
+      </div>
+
+      {/* Quick Stats Grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Total Lessons */}
+        <div className="bg-white rounded-xl p-5 shadow-sm border-2 border-gray-100 hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-10 h-10 rounded-lg bg-sky-blue/10 flex items-center justify-center">
+              <BookOpen className="w-5 h-5" style={{ color: '#7B92C4' }} />
+            </div>
+            {loading && (
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400"></div>
+            )}
+          </div>
+          <p className="text-2xl font-bold text-gray-900">{stats.lessonsTotal}</p>
+          <p className="text-xs text-gray-600 mt-1">Available Lessons</p>
+        </div>
+
+        {/* Lessons Completed */}
+        <div className="bg-white rounded-xl p-5 shadow-sm border-2 border-gray-100 hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center">
+              <Trophy className="w-5 h-5 text-green-600" />
+            </div>
+            {loading && (
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400"></div>
+            )}
+          </div>
+          <p className="text-2xl font-bold text-gray-900">{stats.lessonsCompleted}</p>
+          <p className="text-xs text-gray-600 mt-1">Completed</p>
+        </div>
+
+        {/* Upcoming Events */}
+        <div className="bg-white rounded-xl p-5 shadow-sm border-2 border-gray-100 hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-10 h-10 rounded-lg bg-teal/10 flex items-center justify-center">
+              <Calendar className="w-5 h-5" style={{ color: '#5A9A70' }} />
+            </div>
+            {loading && (
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400"></div>
+            )}
+          </div>
+          <p className="text-2xl font-bold text-gray-900">{stats.upcomingEvents}</p>
+          <p className="text-xs text-gray-600 mt-1">Upcoming Events</p>
+        </div>
+
+        {/* Training Streak */}
+        <div className="bg-white rounded-xl p-5 shadow-sm border-2 border-gray-100 hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-10 h-10 rounded-lg bg-orange/10 flex items-center justify-center">
+              <Video className="w-5 h-5" style={{ color: '#FF6B35' }} />
+            </div>
+            {loading && (
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400"></div>
+            )}
+          </div>
+          <p className="text-2xl font-bold text-gray-900">{stats.trainingStreak}</p>
+          <p className="text-xs text-gray-600 mt-1">Day Streak 🔥</p>
+        </div>
+      </div>
+    </div>
+  )
+}
