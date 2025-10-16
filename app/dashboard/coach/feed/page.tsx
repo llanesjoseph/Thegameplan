@@ -241,9 +241,11 @@ function CoachFeedPageContent() {
     try {
       setUploadingImage(true)
 
-      // Create storage reference
+      // Create storage reference with sanitized filename
       const timestamp = Date.now()
-      const fileName = `${timestamp}_${file.name}`
+      // Sanitize filename: remove spaces and special chars, keep only alphanumeric, dots, underscores, hyphens
+      const sanitizedName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
+      const fileName = `${timestamp}_${sanitizedName}`
       const storageRef = ref(storage, `coach-posts/${user?.uid}/${fileName}`)
 
       // Upload file
@@ -252,14 +254,29 @@ function CoachFeedPageContent() {
       // Get download URL
       const downloadURL = await getDownloadURL(storageRef)
 
-      // Update state
-      setNewPost({ ...newPost, mediaUrl: downloadURL })
+      // Update state - ensure mediaType is set to 'image' when image is uploaded
+      setNewPost({ ...newPost, mediaType: 'image', mediaUrl: downloadURL })
       setImagePreview(downloadURL)
 
       alert('✅ Image uploaded successfully!')
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error uploading image:', error)
-      alert('❌ Failed to upload image. Please try again.')
+
+      // Provide specific error messages based on error type
+      let errorMessage = '❌ Failed to upload image. '
+      if (error?.code === 'storage/unauthorized') {
+        errorMessage += 'Permission denied. Please check your authentication.'
+      } else if (error?.code === 'storage/canceled') {
+        errorMessage += 'Upload was canceled.'
+      } else if (error?.code === 'storage/unknown') {
+        errorMessage += 'An unknown error occurred. Please try again.'
+      } else if (error?.code === 'storage/invalid-checksum') {
+        errorMessage += 'File integrity check failed. Please try again.'
+      } else {
+        errorMessage += 'Please try again or contact support if the issue persists.'
+      }
+
+      alert(errorMessage)
     } finally {
       setUploadingImage(false)
     }
