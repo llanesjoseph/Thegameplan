@@ -4,6 +4,10 @@ import { auditLog } from '@/lib/audit-logger'
 import { FieldValue } from 'firebase-admin/firestore'
 import { sendScheduleEventNotificationEmail } from '@/lib/email-service'
 
+// Force this route to be dynamic
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 /**
  * GET /api/coach/schedule
  * Fetch all schedule events for a specific coach

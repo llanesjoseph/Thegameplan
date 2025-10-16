@@ -3,6 +3,10 @@ import { auth as adminAuth, adminDb } from '@/lib/firebase.admin'
 import { auditLog } from '@/lib/audit-logger'
 import { FieldValue } from 'firebase-admin/firestore'
 
+// Force this route to be dynamic
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 /**
  * GET /api/coach/posts
  * Fetch all posts for a specific coach
