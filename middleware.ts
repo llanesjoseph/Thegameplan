@@ -19,12 +19,12 @@ export function middleware(request: NextRequest) {
   const sessionCookie = request.cookies.get('session')?.value
   const authToken = request.cookies.get('authToken')?.value
 
-  // If no auth cookie found, redirect to login
+  // If no auth cookie found, redirect to login page
   if (!sessionCookie && !authToken) {
-    const loginUrl = new URL('/', request.url)
+    const loginUrl = new URL('/login', request.url)
     loginUrl.searchParams.set('redirect', pathname)
 
-    console.log(`[Middleware] Redirecting unauthenticated user from ${pathname} to login`)
+    console.log(`[Middleware] Redirecting unauthenticated user from ${pathname} to /login`)
 
     return NextResponse.redirect(loginUrl)
   }

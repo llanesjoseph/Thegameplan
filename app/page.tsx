@@ -39,12 +39,12 @@ export default function LandingPage() {
 
       {/* Right side buttons */}
       <div className="flex items-center gap-4">
-       <Link href="/dashboard">
+       <Link href="/login">
         <ClarityButton variant="ghost" size="sm" className="text-dark hover:text-sky-blue">
          Sign In
         </ClarityButton>
        </Link>
-       <Link href="/dashboard">
+       <Link href="/login">
         <ClarityButton
          size="sm"
          className="bg-orange text-white hover:bg-orange/90 "
@@ -94,9 +94,9 @@ export default function LandingPage() {
      </p>
 
     <Link
-     href="/dashboard"
+     href="/login"
      className="inline-block"
-     aria-label="Go to dashboard to sign up"
+     aria-label="Sign in or sign up"
     >
      <ClarityButton
       size="lg"
