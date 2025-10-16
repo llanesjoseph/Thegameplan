@@ -106,7 +106,7 @@ export default function AthleteLessonsPage() {
   // Real-time listener for athlete_feed updates
   // Automatically refetches lessons when coach assigns new content
   useEffect(() => {
-    if (!user?.uid) return
+    if (!user?.uid || loading) return
 
     console.log('🔥 Setting up real-time listener for athlete feed:', user.uid)
 
@@ -115,8 +115,8 @@ export default function AthleteLessonsPage() {
     const unsubscribe = onSnapshot(
       feedDocRef,
       async (snapshot) => {
-        if (snapshot.exists()) {
-          const feedData = snapshot.data()
+        // Only refetch if document exists AND has been modified (not on initial load)
+        if (snapshot.exists() && !snapshot.metadata.hasPendingWrites) {
           console.log('🔄 Athlete feed updated, refetching lessons...')
 
           // Refetch full feed with lesson details
@@ -142,7 +142,10 @@ export default function AthleteLessonsPage() {
         }
       },
       (error) => {
-        console.error('Error listening to athlete feed:', error)
+        // Silently handle permission errors for non-existent documents
+        if (error.code !== 'permission-denied') {
+          console.error('Error listening to athlete feed:', error)
+        }
       }
     )
 
@@ -151,7 +154,7 @@ export default function AthleteLessonsPage() {
       console.log('🔥 Cleaning up real-time listener')
       unsubscribe()
     }
-  }, [user])
+  }, [user, loading])
 
   // Toggle lesson completion
   const toggleCompletion = async (lessonId: string, isCurrentlyCompleted: boolean) => {

@@ -786,7 +786,9 @@ function CoachFeedPageContent() {
                     <img
                       src={post.mediaUrl}
                       alt="Post media"
-                      className="rounded-lg w-full max-h-96 object-cover"
+                      className="rounded-lg w-full max-h-64 object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                      onClick={() => window.open(post.mediaUrl, '_blank')}
+                      title="Click to view full size"
                     />
                   </div>
                 )}
