@@ -7,7 +7,6 @@
 
 import { useRouter, useSearchParams } from 'next/navigation'
 import TodaysOverview from '@/components/coach/TodaysOverview'
-import QuickActionsPanel from '@/components/coach/QuickActionsPanel'
 import PendingItemsWidget from '@/components/coach/PendingItemsWidget'
 import TodaysSchedule from '@/components/coach/TodaysSchedule'
 
@@ -58,11 +57,8 @@ export default function CoachHomePage() {
   return (
     <div className="min-h-screen p-4 sm:p-6 lg:p-8" style={{ backgroundColor: isEmbedded ? 'white' : '#E8E6D8' }}>
       <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header Overview */}
+        {/* Header Overview with Integrated Quick Actions */}
         <TodaysOverview onQuickAction={handleQuickAction} />
-
-        {/* Quick Actions */}
-        <QuickActionsPanel onAction={handleQuickAction} />
 
         {/* Two Column Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -80,7 +76,7 @@ export default function CoachHomePage() {
         <div className="bg-gradient-to-r from-slate-600 to-slate-700 rounded-xl p-6 text-white shadow-lg">
           <h3 className="font-bold text-lg mb-2">💡 Quick Tip</h3>
           <p className="text-slate-200 text-sm">
-            Use the sidebar to access all your coaching tools. Click any tool to open it, and use the Quick Actions above for common tasks.
+            Use the sidebar to access all your coaching tools. The quick action buttons in the header banner provide fast access to common tasks.
             Your pending items and today's schedule will keep you organized throughout the day.
           </p>
         </div>

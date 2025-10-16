@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Users, BookOpen, Calendar, TrendingUp } from 'lucide-react'
+import { Users, BookOpen, Calendar, TrendingUp, GraduationCap, MessageSquare, Video } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 
 interface TodaysOverviewProps {
@@ -111,16 +111,73 @@ export default function TodaysOverview({ onQuickAction }: TodaysOverviewProps) {
     return 'Good Evening'
   }
 
+  const quickActions = [
+    {
+      id: 'create-lesson',
+      label: 'Create Lesson',
+      icon: GraduationCap,
+      description: 'Build new training'
+    },
+    {
+      id: 'schedule-session',
+      label: 'Schedule Session',
+      icon: Calendar,
+      description: 'Add to calendar'
+    },
+    {
+      id: 'post-update',
+      label: 'Post Update',
+      icon: MessageSquare,
+      description: 'Share with athletes'
+    },
+    {
+      id: 'view-athletes',
+      label: 'My Athletes',
+      icon: Users,
+      description: 'Manage athletes'
+    },
+    {
+      id: 'add-video',
+      label: 'Add Video',
+      icon: Video,
+      description: 'Upload content'
+    }
+  ]
+
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Header with Integrated Quick Actions */}
       <div className="bg-gradient-to-r from-teal-500 to-teal-600 rounded-xl p-6 sm:p-8 text-white shadow-lg">
-        <div className="flex items-center justify-between mb-2">
-          <h1 className="text-2xl sm:text-3xl font-bold">
-            {greeting()}, {user?.displayName?.split(' ')[0] || 'Coach'}! 👋
-          </h1>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-2">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold mb-1">
+              {greeting()}, {user?.displayName?.split(' ')[0] || 'Coach'}! 👋
+            </h1>
+            <p className="text-teal-50 text-sm sm:text-base">{formattedDate}</p>
+          </div>
+
+          {/* Quick Actions - Compact Icon Buttons */}
+          <div className="flex items-center gap-2 flex-wrap">
+            {quickActions.map((action) => {
+              const Icon = action.icon
+              return (
+                <button
+                  key={action.id}
+                  onClick={() => onQuickAction?.(action.id)}
+                  className="group relative bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg p-3 transition-all hover:scale-105 active:scale-95 touch-manipulation"
+                  title={action.label}
+                  style={{ minHeight: '44px', minWidth: '44px' }}
+                >
+                  <Icon className="w-5 h-5 text-white" />
+                  {/* Tooltip */}
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                    {action.label}
+                  </div>
+                </button>
+              )
+            })}
+          </div>
         </div>
-        <p className="text-teal-50 text-sm sm:text-base">{formattedDate}</p>
       </div>
 
       {/* Quick Stats Grid */}
