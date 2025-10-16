@@ -62,8 +62,13 @@
       
       // Check for malicious file names
       function isValidFileName() {
-        return request.resource.name.matches('^[a-zA-Z0-9._-]+$') &&
-              !request.resource.name.matches('.*\\.(exe|bat|cmd|scr|com|pif|vbs|js|jar|sh|php|asp|jsp).*');
+        // Get just the filename from the full path by splitting on / and taking the last element
+        let fileName = request.resource.name;
+        let pathParts = fileName.split('/');
+        let actualFileName = pathParts[pathParts.size() - 1];
+
+        return actualFileName.matches('^[a-zA-Z0-9._-]+$') &&
+              !actualFileName.matches('.*\\.(exe|bat|cmd|scr|com|pif|vbs|js|jar|sh|php|asp|jsp).*');
       }
       
       // ===== STORAGE RULES =====

@@ -11,6 +11,8 @@ import { useAuth } from '@/hooks/use-auth'
 import { BookOpen, CheckCircle2, Circle, Clock, User, RefreshCw } from 'lucide-react'
 import AppHeader from '@/components/ui/AppHeader'
 import LessonOverlay from '@/components/LessonOverlay'
+import { doc, onSnapshot } from 'firebase/firestore'
+import { db } from '@/lib/firebase.client'
 
 interface Lesson {
   id: string
@@ -99,6 +101,56 @@ export default function AthleteLessonsPage() {
     }
 
     fetchFeed()
+  }, [user])
+
+  // Real-time listener for athlete_feed updates
+  // Automatically refetches lessons when coach assigns new content
+  useEffect(() => {
+    if (!user?.uid) return
+
+    console.log('🔥 Setting up real-time listener for athlete feed:', user.uid)
+
+    const feedDocRef = doc(db, 'athlete_feed', user.uid)
+
+    const unsubscribe = onSnapshot(
+      feedDocRef,
+      async (snapshot) => {
+        if (snapshot.exists()) {
+          const feedData = snapshot.data()
+          console.log('🔄 Athlete feed updated, refetching lessons...')
+
+          // Refetch full feed with lesson details
+          try {
+            const token = await user.getIdToken()
+            const response = await fetch('/api/athlete/feed', {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            })
+
+            if (response.ok) {
+              const data = await response.json()
+              if (data.success) {
+                setFeed(data.feed)
+                setLessons(data.lessons || [])
+                console.log('✅ Lessons auto-refreshed:', data.lessons?.length || 0)
+              }
+            }
+          } catch (err) {
+            console.error('Error auto-refreshing feed:', err)
+          }
+        }
+      },
+      (error) => {
+        console.error('Error listening to athlete feed:', error)
+      }
+    )
+
+    // Cleanup listener on unmount
+    return () => {
+      console.log('🔥 Cleaning up real-time listener')
+      unsubscribe()
+    }
   }, [user])
 
   // Toggle lesson completion
