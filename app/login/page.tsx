@@ -77,7 +77,7 @@ export default function LoginPage() {
               className="text-2xl tracking-wider uppercase font-bold"
               style={{ color: '#624A41' }}
             >
-              PLAYBOOKD
+              ATHLEAP
             </button>
             <p className="text-sm text-gray-600">
               New here?{' '}

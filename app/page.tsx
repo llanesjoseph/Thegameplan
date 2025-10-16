@@ -32,7 +32,7 @@ export default function LandingPage() {
           color: '#624A41' // Dark color from palette
          }}
         >
-         PLAYBOOKD
+         ATHLEAP
         </p>
        </div>
       </div>
@@ -83,7 +83,7 @@ export default function LandingPage() {
        lineHeight: '0.9'
       }}
      >
-      PLAYBOOKD
+      ATHLEAP
      </h1>
 
      <p
@@ -112,7 +112,7 @@ export default function LandingPage() {
    <section className="py-16 bg-cream">
     <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
      <p className="text-lg sm:text-xl text-dark leading-relaxed">
-      PlayBookd is blending the power of AI with the thrill of sports,
+      AthLeap is blending the power of AI with the thrill of sports,
       creating unforgettable fan experiences and coaching next-generation athletes.
       Whether you're in the stands or on the field, this is the future of sports.
      </p>
@@ -178,13 +178,13 @@ export default function LandingPage() {
 
       {/* Right side - Social Links */}
       <div className="flex items-center gap-4">
-       <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-dark hover:text-sky-blue" aria-label="PlayBookd on Facebook">
+       <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-dark hover:text-sky-blue" aria-label="AthLeap on Facebook">
         <Facebook className="w-5 h-5" />
        </a>
-       <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-dark hover:text-sky-blue" aria-label="PlayBookd on Instagram">
+       <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-dark hover:text-sky-blue" aria-label="AthLeap on Instagram">
         <Instagram className="w-5 h-5" />
        </a>
-       <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="text-dark hover:text-sky-blue" aria-label="PlayBookd on Twitter">
+       <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="text-dark hover:text-sky-blue" aria-label="AthLeap on Twitter">
         <Twitter className="w-5 h-5" />
        </a>
       </div>

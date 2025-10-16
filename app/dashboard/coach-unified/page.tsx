@@ -122,6 +122,13 @@ export default function CoachUnifiedDashboard() {
       color: '#5A9B9B'
     },
     {
+      id: 'profile',
+      title: 'My Profile',
+      description: 'Edit your coach profile',
+      icon: Settings,
+      color: '#C4886A'
+    },
+    {
       id: 'athletes',
       title: 'My Athletes',
       description: 'View and manage your athletes',
@@ -170,13 +177,6 @@ export default function CoachUnifiedDashboard() {
       description: 'Track engagement and progress',
       icon: BarChart3,
       color: '#5A9B9B'
-    },
-    {
-      id: 'profile',
-      title: 'My Profile',
-      description: 'Edit your coach profile',
-      icon: Settings,
-      color: '#C4886A'
     },
     {
       id: 'assistants',
