@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/use-auth'
 import { db, storage } from '@/lib/firebase.client'
 import { collection, addDoc, serverTimestamp, doc, updateDoc, deleteDoc } from 'firebase/firestore'
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
-import { Plus, Upload, X, Save, Trash2, ExternalLink, Image as ImageIcon } from 'lucide-react'
+import { Plus, Upload, X, Save, Trash2, ExternalLink, Image as ImageIcon, Link2, Sparkles, Loader2 } from 'lucide-react'
 
 interface GearFormData {
  name: string
@@ -28,7 +28,10 @@ export default function CreatorGearManager({ onItemAdded }: CreatorGearManagerPr
  const [loading, setLoading] = useState(false)
  const [imageFile, setImageFile] = useState<File | null>(null)
  const [imagePreview, setImagePreview] = useState<string | null>(null)
- 
+ const [productUrl, setProductUrl] = useState('')
+ const [parsing, setParsing] = useState(false)
+ const [parseError, setParseError] = useState('')
+
  const [formData, setFormData] = useState<GearFormData>({
   name: '',
   category: '',
@@ -139,10 +142,62 @@ export default function CreatorGearManager({ onItemAdded }: CreatorGearManagerPr
  }
 
  const removeTag = (tagToRemove: string) => {
-  setFormData(prev => ({ 
-   ...prev, 
-   tags: prev.tags.filter(tag => tag !== tagToRemove) 
+  setFormData(prev => ({
+   ...prev,
+   tags: prev.tags.filter(tag => tag !== tagToRemove)
   }))
+ }
+
+ const handleParseLink = async () => {
+  if (!productUrl.trim()) {
+   setParseError('Please enter a product URL')
+   return
+  }
+
+  setParsing(true)
+  setParseError('')
+
+  try {
+   const response = await fetch('/api/parse-product', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ productUrl: productUrl.trim() })
+   })
+
+   const data = await response.json()
+
+   if (!data.success) {
+    setParseError(data.error || 'Failed to parse product link')
+    return
+   }
+
+   // Auto-fill the form with parsed data
+   const product = data.product
+   setFormData({
+    name: product.name || '',
+    category: product.category || '',
+    sport: formData.sport, // Keep current sport selection
+    description: product.description || '',
+    price: product.price || '',
+    affiliateLink: product.affiliateLink || productUrl,
+    level: 'all',
+    tags: product.tags || []
+   })
+
+   // Set image preview from parsed image URL
+   if (product.imageUrl) {
+    setImagePreview(product.imageUrl)
+   }
+
+   console.log('✅ Product parsed successfully:', product.name)
+   setProductUrl('') // Clear the input
+
+  } catch (error) {
+   console.error('Error parsing product link:', error)
+   setParseError('Failed to parse product link. Please try again.')
+  } finally {
+   setParsing(false)
+  }
  }
 
  if (!isOpen) {
@@ -173,6 +228,65 @@ export default function CreatorGearManager({ onItemAdded }: CreatorGearManagerPr
 
     {/* Form */}
     <form onSubmit={handleSubmit} className="p-6 space-y-6">
+     {/* AI Link Parser */}
+     <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-4 space-y-3">
+      <div className="flex items-center gap-2 mb-2">
+       <Sparkles className="w-5 h-5 text-blue-600" />
+       <h3 className="font-semibold text-gray-800">Quick Add from Product Link</h3>
+      </div>
+      <p className="text-sm text-gray-600">
+       Paste any product URL and our AI will automatically extract the details for you
+      </p>
+      <div className="flex gap-2">
+       <div className="flex-1">
+        <input
+         type="url"
+         value={productUrl}
+         onChange={(e) => {
+          setProductUrl(e.target.value)
+          setParseError('')
+         }}
+         placeholder="https://amazon.com/product-name or https://nike.com/shoes..."
+         className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+         disabled={parsing}
+        />
+       </div>
+       <button
+        type="button"
+        onClick={handleParseLink}
+        disabled={parsing || !productUrl.trim()}
+        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+       >
+        {parsing ? (
+         <>
+          <Loader2 className="w-4 h-4 animate-spin" />
+          Parsing...
+         </>
+        ) : (
+         <>
+          <Link2 className="w-4 h-4" />
+          Parse Link
+         </>
+        )}
+       </button>
+      </div>
+      {parseError && (
+       <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-2">
+        {parseError}
+       </div>
+      )}
+     </div>
+
+     {/* Divider */}
+     <div className="relative">
+      <div className="absolute inset-0 flex items-center">
+       <div className="w-full border-t border-gray-300"></div>
+      </div>
+      <div className="relative flex justify-center text-sm">
+       <span className="px-2 bg-white text-gray-500">Or enter manually</span>
+      </div>
+     </div>
+
      {/* Image Upload */}
      <div className="space-y-2">
       <label className="block text-sm  text-gray-700">Product Image</label>
