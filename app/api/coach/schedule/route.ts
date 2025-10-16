@@ -30,10 +30,10 @@ export async function GET(request: NextRequest) {
     console.log('[Schedule API] Token verified for user:', userId)
 
     // Fetch all schedule events created by this coach
+    // Removed orderBy to avoid index requirement - will sort client-side
     const eventsSnapshot = await adminDb
       .collection('coach_schedule')
       .where('coachId', '==', userId)
-      .orderBy('eventDate', 'asc')
       .get()
 
     const events = eventsSnapshot.docs.map(doc => ({
@@ -43,6 +43,13 @@ export async function GET(request: NextRequest) {
       createdAt: doc.data().createdAt?.toDate?.()?.toISOString() || null,
       updatedAt: doc.data().updatedAt?.toDate?.()?.toISOString() || null
     }))
+
+    // Sort by eventDateTime on the server (since we can't use orderBy without index)
+    events.sort((a: any, b: any) => {
+      const dateA = new Date(a.eventDateTime || a.eventDate || 0).getTime()
+      const dateB = new Date(b.eventDateTime || b.eventDate || 0).getTime()
+      return dateA - dateB
+    })
 
     return NextResponse.json({
       success: true,
