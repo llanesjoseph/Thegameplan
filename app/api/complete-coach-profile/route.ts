@@ -70,6 +70,22 @@ export async function POST(request: NextRequest) {
 
     const finalRole = shouldPreserveRole ? existingUserData.role : targetRole
 
+    // Process voice capture data into voice traits for AI
+    let voiceTraits: string[] = []
+    if (coachProfile.voiceCaptureData) {
+      const vcData = coachProfile.voiceCaptureData
+      // Extract key traits from voice capture data
+      if (vcData.communicationStyle) voiceTraits.push(vcData.communicationStyle)
+      if (vcData.motivationApproach) voiceTraits.push(vcData.motivationApproach)
+      if (vcData.catchphrases && Array.isArray(vcData.catchphrases)) {
+        voiceTraits = voiceTraits.concat(vcData.catchphrases)
+      }
+      if (vcData.personalityTraits && Array.isArray(vcData.personalityTraits)) {
+        voiceTraits = voiceTraits.concat(vcData.personalityTraits)
+      }
+      console.log(`✅ [COMPLETE-COACH-PROFILE] Processed ${voiceTraits.length} voice traits for AI`)
+    }
+
     // Create/update user document
     const userDocData: any = {
       uid: userRecord.uid,
@@ -79,6 +95,7 @@ export async function POST(request: NextRequest) {
       firstName: coachProfile.firstName,
       lastName: coachProfile.lastName,
       phone: coachProfile.phone || '',
+      sport: coachProfile.sport || '',  // Add sport to user document for AI
       lastLoginAt: now,
       invitationId,
       invitationRole: targetRole,
@@ -86,7 +103,8 @@ export async function POST(request: NextRequest) {
       manuallySetRole: true,
       roleProtected: true,
       roleSource: 'invitation',
-      roleLockedByInvitation: true
+      roleLockedByInvitation: true,
+      voiceTraits: voiceTraits  // Add processed voice traits for AI
     }
 
     if (!existingUserDoc.exists || !existingUserData?.createdAt) {
