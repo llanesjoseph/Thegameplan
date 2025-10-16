@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { isJasmineAikey, createJasmineOnboardingInvitation, checkJasmineProvisioningStatus } from '@/lib/jasmine-provisioning'
 import { auditLog } from '@/lib/audit-logger'
 
+// Force dynamic rendering for API route
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()

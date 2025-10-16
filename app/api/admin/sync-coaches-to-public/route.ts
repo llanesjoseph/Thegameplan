@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { adminDb } from '@/lib/firebase.admin'
 
+// Force dynamic rendering for API route
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 /**
  * Sync existing coach profiles to creatorPublic collection
  * This ensures coaches appear on the /coaches page

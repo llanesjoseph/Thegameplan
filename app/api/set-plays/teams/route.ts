@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth, adminDb } from '@/lib/firebase.admin'
 import type { Team, TeamCreateInput, SetPlaysAPIResponse, TeamListResponse } from '@/types/set-plays'
 
+// Force dynamic rendering for API route
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 /**
  * GET /api/set-plays/teams
  * List all teams for the authenticated coach

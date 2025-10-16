@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth, adminDb } from '@/lib/firebase.admin'
 
+// Force dynamic rendering for API route
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 // One-time fix endpoint to add createdAt to users who don't have it
 export async function POST(request: NextRequest) {
   try {

@@ -3,6 +3,10 @@ import { requireAuth } from '@/lib/auth-utils'
 import { adminDb as db } from '@/lib/firebase.admin'
 import { auditLog } from '@/lib/audit-logger'
 
+// Force dynamic rendering for API route
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 interface UpdateImagesRequest {
   headshotUrl?: string
   heroImageUrl?: string

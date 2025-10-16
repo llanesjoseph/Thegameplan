@@ -3,6 +3,10 @@ import { auth, adminDb } from '@/lib/firebase.admin'
 import { logMessage } from '@/lib/message-audit-logger'
 import { FieldValue } from 'firebase-admin/firestore'
 
+// Force dynamic rendering for API route
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 /**
  * Send Message API with Audit Logging and Conversations
  *

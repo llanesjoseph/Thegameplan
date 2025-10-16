@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth as adminAuth, adminDb } from '@/lib/firebase.admin'
 
+// Force dynamic rendering for API route
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 /**
  * GET /api/athlete/coach-feed
  * Fetch aggregated feed from assigned coach + followed coaches

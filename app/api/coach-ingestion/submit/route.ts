@@ -3,6 +3,10 @@ import { adminDb as db } from '@/lib/firebase.admin'
 import { auditLog } from '@/lib/audit-logger'
 import { nanoid } from 'nanoid'
 
+// Force dynamic rendering for API route
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()

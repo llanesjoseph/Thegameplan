@@ -3,6 +3,10 @@ import { requireAuth } from '@/lib/auth-utils'
 import { approveCoachApplicationAndCreateProfile } from '@/lib/coach-profile-auto-population'
 import { auditLog } from '@/lib/audit-logger'
 
+// Force dynamic rendering for API route
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 export async function POST(request: NextRequest) {
   try {
     // Require admin or superadmin role to approve applications

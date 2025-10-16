@@ -12,6 +12,10 @@ import { auth, adminDb } from '@/lib/firebase.admin'
 import { sendAthleteInvitationEmail, sendCoachNotificationEmail } from '@/lib/email-service'
 import { auditLog } from '@/lib/audit-logger'
 
+// Force dynamic rendering for API route
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 // Rate limiting store for invitation resends
 const resendAttempts = new Map<string, { count: number; lastAttempt: number }>()
 

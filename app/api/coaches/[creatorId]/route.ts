@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { adminDb as db } from '@/lib/firebase.admin'
 
+// Force dynamic rendering for API route
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { creatorId: string } }

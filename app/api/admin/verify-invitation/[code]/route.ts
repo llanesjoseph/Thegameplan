@@ -6,6 +6,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { adminDb } from '@/lib/firebase.admin'
 import { Timestamp } from 'firebase-admin/firestore'
 
+// Force dynamic rendering for API route
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { code: string } }

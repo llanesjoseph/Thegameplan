@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { adminDb } from '@/lib/firebase.admin'
 import { sendCoachNotificationEmail } from '@/lib/email-service'
 
+// Force dynamic rendering for API route
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 /**
  * Cron job endpoint to check for expired invitations
  * This should be called periodically (e.g., daily) via Vercel Cron or external scheduler

@@ -3,6 +3,10 @@ import { GeminiLessonService } from '@/lib/gemini-lesson-service'
 import { requireAuth } from '@/lib/auth-utils'
 import { auditExternalAPI } from '@/lib/audit-logger'
 
+// Force dynamic rendering for API route
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 export async function POST(request: NextRequest) {
   try {
     // Simplified authentication - just verify user is logged in

@@ -3,6 +3,10 @@ import { requireAuth } from '@/lib/auth-utils'
 import { sendCoachInvitationEmail } from '@/lib/email-service'
 import { auditLog } from '@/lib/audit-logger'
 
+// Force dynamic rendering for API route
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 export async function POST(request: NextRequest) {
   try {
     // Require creator, coach, admin, or superadmin role to send invitation emails

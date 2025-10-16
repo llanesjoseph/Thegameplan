@@ -7,6 +7,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth, adminDb } from '@/lib/firebase.admin'
 import { getFeatureFlags, updateFeatureFlag, FeatureFlags } from '@/lib/feature-flags'
 
+// Force dynamic rendering for API route
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 /**
  * GET - Fetch all feature flags
  */

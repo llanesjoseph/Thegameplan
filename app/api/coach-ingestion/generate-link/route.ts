@@ -5,6 +5,10 @@ import { auditLog } from '@/lib/audit-logger'
 import { sendCoachInvitationEmail } from '@/lib/email-service'
 import { nanoid } from 'nanoid'
 
+// Force dynamic rendering for API route
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 export async function POST(request: NextRequest) {
   try {
     // Simplified authentication - just require authenticated user

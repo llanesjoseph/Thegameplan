@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { adminDb } from '@/lib/firebase.admin'
 
+// Force dynamic rendering for API route
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 /**
  * Fix invalid sport values in creatorPublic collection
  * Maps invalid sports like "Coaching", "N/A" to valid values

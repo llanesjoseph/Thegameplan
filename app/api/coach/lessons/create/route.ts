@@ -12,6 +12,10 @@ import { auth, adminDb } from '@/lib/firebase.admin'
 import { auditLog } from '@/lib/audit-logger'
 import { FieldValue } from 'firebase-admin/firestore'
 
+// Force dynamic rendering for API route
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 // Validation constants
 const MAX_TITLE_LENGTH = 200
 const MIN_TITLE_LENGTH = 1

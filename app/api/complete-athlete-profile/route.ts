@@ -3,6 +3,10 @@ import { nanoid } from 'nanoid'
 import { auth, adminDb } from '@/lib/firebase.admin'
 import { sendCoachNotificationEmail, sendAthleteWelcomeEmail } from '@/lib/email-service'
 
+// Force dynamic rendering for API route
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 /**
  * COMPLETE ATHLETE PROFILE
  * Called after athlete creates their Firebase Auth account

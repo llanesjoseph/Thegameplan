@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { reportMessage } from '@/lib/message-audit-logger'
 import { requireAuth } from '@/lib/auth-utils'
 
+// Force dynamic rendering for API route
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 /**
  * Report Message API
  *

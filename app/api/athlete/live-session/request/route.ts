@@ -9,6 +9,10 @@ import { FieldValue } from 'firebase-admin/firestore'
 import { auditLog } from '@/lib/audit-logger'
 import { sendLiveSessionRequestEmail } from '@/lib/email-service'
 
+// Force dynamic rendering for API route
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 export async function POST(request: NextRequest) {
   const requestId = `live-session-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
 

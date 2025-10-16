@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { autoProvisionSuperadmin, isSuperadminEmail } from '@/lib/auto-superadmin-setup'
 import { auth } from '@/lib/firebase.admin'
 
+// Force dynamic rendering for API route
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 export async function POST(request: NextRequest) {
   try {
     const { email, uid } = await request.json()

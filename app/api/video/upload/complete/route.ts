@@ -9,6 +9,10 @@ import { TranscoderServiceClient } from '@google-cloud/video-transcoder'
 import { db } from '@/lib/firebase.client'
 import { doc, updateDoc, getDoc } from 'firebase/firestore'
 
+// Force dynamic rendering for API route
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 const storage = new Storage({
   projectId: process.env.NEXT_PUBLIC_GCP_PROJECT_ID
 })

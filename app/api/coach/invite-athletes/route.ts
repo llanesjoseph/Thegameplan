@@ -3,6 +3,10 @@ import { sendAthleteInvitationEmail, sendCoachNotificationEmail, getAdminEmails,
 import { auth, adminDb } from '@/lib/firebase.admin'
 import { Timestamp } from 'firebase-admin/firestore'
 
+// Force dynamic rendering for API route
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 interface AthleteInvite {
   email: string
   name: string

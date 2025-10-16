@@ -11,6 +11,10 @@ import { doc, setDoc, getDoc } from 'firebase/firestore'
 import { verifyIdToken } from '@/lib/auth-utils'
 import { auditLog } from '@/lib/audit-logger'
 
+// Force dynamic rendering for API route
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 const storage = new Storage({
   projectId: process.env.NEXT_PUBLIC_GCP_PROJECT_ID
 })

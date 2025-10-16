@@ -9,6 +9,10 @@ import { Timestamp } from 'firebase-admin/firestore'
 import { Resend } from 'resend'
 import { getAdminEmails, sendAdminNotificationEmail } from '@/lib/email-service'
 
+// Force dynamic rendering for API route
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 const resend = new Resend(process.env.RESEND_API_KEY)
 
 /**
