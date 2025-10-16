@@ -1,13 +1,9 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-// Protected route patterns
+// Protected route patterns (dashboard pages only - API routes handle their own auth)
 const protectedPaths = [
-  '/dashboard',
-  '/api/coach',
-  '/api/athlete',
-  '/api/admin',
-  '/api/assistant'
+  '/dashboard'
 ]
 
 // Public paths that don't require authentication
