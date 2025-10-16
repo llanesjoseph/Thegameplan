@@ -29,10 +29,10 @@ export async function GET(request: NextRequest) {
     console.log('[Posts API] Token verified for user:', userId)
 
     // Fetch all posts created by this coach
+    // Removed orderBy to avoid index requirement - will sort client-side
     const postsSnapshot = await adminDb
       .collection('coach_posts')
       .where('coachId', '==', userId)
-      .orderBy('createdAt', 'desc')
       .get()
 
     const posts = postsSnapshot.docs.map(doc => ({
@@ -41,6 +41,13 @@ export async function GET(request: NextRequest) {
       createdAt: doc.data().createdAt?.toDate?.()?.toISOString() || null,
       updatedAt: doc.data().updatedAt?.toDate?.()?.toISOString() || null
     }))
+
+    // Sort by createdAt on the server (since we can't use orderBy without index)
+    posts.sort((a: any, b: any) => {
+      const dateA = new Date(a.createdAt || 0).getTime()
+      const dateB = new Date(b.createdAt || 0).getTime()
+      return dateB - dateA  // descending order (newest first)
+    })
 
     return NextResponse.json({
       success: true,
