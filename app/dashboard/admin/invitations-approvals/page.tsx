@@ -401,7 +401,14 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${idToken}`
         },
-        body: JSON.stringify(athleteInviteForm)
+        body: JSON.stringify({
+          athleteEmail: athleteInviteForm.athleteEmail,
+          athleteName: athleteInviteForm.athleteName,
+          sport: athleteInviteForm.sport,
+          creatorUid: athleteInviteForm.coachId, // API expects creatorUid, form has coachId
+          customMessage: athleteInviteForm.customMessage,
+          expiresInDays: athleteInviteForm.expiresInDays
+        })
       })
 
       const result = await response.json()
