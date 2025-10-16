@@ -10,14 +10,20 @@ import { sendScheduleEventNotificationEmail } from '@/lib/email-service'
  */
 export async function GET(request: NextRequest) {
   try {
+    console.log('[Schedule API] GET request received')
+
     const authHeader = request.headers.get('Authorization')
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.log('[Schedule API] No auth header found')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const token = authHeader.split('Bearer ')[1]
+    console.log('[Schedule API] Verifying token...')
+
     const decodedToken = await adminAuth.verifyIdToken(token)
     const userId = decodedToken.uid
+    console.log('[Schedule API] Token verified for user:', userId)
 
     // Fetch all schedule events created by this coach
     const eventsSnapshot = await adminDb

@@ -9,14 +9,20 @@ import { FieldValue } from 'firebase-admin/firestore'
  */
 export async function GET(request: NextRequest) {
   try {
+    console.log('[Posts API] GET request received')
+
     const authHeader = request.headers.get('Authorization')
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.log('[Posts API] No auth header found')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const token = authHeader.split('Bearer ')[1]
+    console.log('[Posts API] Verifying token...')
+
     const decodedToken = await adminAuth.verifyIdToken(token)
     const userId = decodedToken.uid
+    console.log('[Posts API] Token verified for user:', userId)
 
     // Fetch all posts created by this coach
     const postsSnapshot = await adminDb
