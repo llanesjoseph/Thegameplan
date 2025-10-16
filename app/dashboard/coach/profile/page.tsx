@@ -7,6 +7,7 @@ import { User, Image as ImageIcon, Settings, ArrowLeft, Mic ,
 import AppHeader from '@/components/ui/AppHeader'
 import CoachImageManager from '@/components/coach/CoachImageManager'
 import StreamlinedVoiceCapture from '@/components/coach/StreamlinedVoiceCapture'
+import VoiceTraitsDisplay from '@/components/coach/VoiceTraitsDisplay'
 import { useAuth } from '@/hooks/use-auth'
 import { useEnhancedRole } from '@/hooks/use-role-switcher'
 import { useSearchParams, useRouter } from 'next/navigation'
@@ -20,6 +21,7 @@ function CoachProfileContent() {
   const embedded = searchParams.get('embedded') === 'true'
 
   const [activeTab, setActiveTab] = useState('images')
+  const [isEditingVoice, setIsEditingVoice] = useState(false)
 
   // Only allow coaches to access this page (includes legacy 'creator' role)
   if (role !== 'coach' && role !== 'creator' && role !== 'admin' && role !== 'superadmin') {
@@ -250,23 +252,39 @@ function CoachProfileContent() {
 
           {activeTab === 'voice' && (
             <div className="p-8">
-              <div className="mb-6">
-                <h3 className="text-2xl mb-2" style={{ color: '#000000' }}>
-                  AI Voice Capture
-                </h3>
-                <p style={{ color: '#000000', opacity: 0.7 }}>
-                  Train your AI coaching assistant to sound authentically like you. Share your coaching philosophy, stories, and communication style.
-                </p>
-              </div>
-              <StreamlinedVoiceCapture
-                onComplete={(data) => {
-                  console.log('Voice capture completed:', data)
-                  alert('Voice capture saved successfully! Your AI coaching voice is now configured.')
-                }}
-                onProgress={(progress) => {
-                  console.log('Progress:', progress)
-                }}
-              />
+              {!isEditingVoice ? (
+                <VoiceTraitsDisplay
+                  onRequestEdit={() => setIsEditingVoice(true)}
+                />
+              ) : (
+                <>
+                  <div className="mb-6">
+                    <h3 className="text-2xl mb-2" style={{ color: '#000000' }}>
+                      Update AI Voice Capture
+                    </h3>
+                    <p style={{ color: '#000000', opacity: 0.7 }}>
+                      Train your AI coaching assistant to sound authentically like you. Share your coaching philosophy, stories, and communication style.
+                    </p>
+                    <button
+                      onClick={() => setIsEditingVoice(false)}
+                      className="mt-4 text-sm underline hover:no-underline"
+                      style={{ color: '#91A6EB' }}
+                    >
+                      ← Back to Voice Profile
+                    </button>
+                  </div>
+                  <StreamlinedVoiceCapture
+                    onComplete={(data) => {
+                      console.log('Voice capture completed:', data)
+                      alert('Voice capture saved successfully! Your AI coaching voice is now configured.')
+                      setIsEditingVoice(false)
+                    }}
+                    onProgress={(progress) => {
+                      console.log('Progress:', progress)
+                    }}
+                  />
+                </>
+              )}
             </div>
           )}
 
