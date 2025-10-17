@@ -35,6 +35,11 @@ export default function MigrateVoicePage() {
       return
     }
 
+    if (!user) {
+      setError('You must be logged in to run this migration')
+      return
+    }
+
     setIsRunning(true)
     setError(null)
     setResult(null)
