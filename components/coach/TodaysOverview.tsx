@@ -14,6 +14,12 @@ interface QuickMetrics {
   feedLikes: number
   feedViews: number
   athleteCount: number
+  activeAthletes: Array<{
+    id: string
+    displayName: string
+    email: string
+    photoURL?: string
+  }>
 }
 
 export default function TodaysOverview({ onQuickAction }: TodaysOverviewProps) {
@@ -23,7 +29,8 @@ export default function TodaysOverview({ onQuickAction }: TodaysOverviewProps) {
     lessonViews: 0,
     feedLikes: 0,
     feedViews: 0,
-    athleteCount: 0
+    athleteCount: 0,
+    activeAthletes: []
   })
   const [loading, setLoading] = useState(true)
 
@@ -56,6 +63,12 @@ export default function TodaysOverview({ onQuickAction }: TodaysOverviewProps) {
       let feedLikes = 0
       let feedViews = 0
       let athleteCount = 0
+      let activeAthletes: Array<{
+        id: string
+        displayName: string
+        email: string
+        photoURL?: string
+      }> = []
 
       // Load lessons stats
       if (lessonsRes?.ok) {
@@ -76,10 +89,35 @@ export default function TodaysOverview({ onQuickAction }: TodaysOverviewProps) {
         }
       }
 
-      // Load athlete count
+      // Load athlete data and filter for active ones
       if (athletesRes?.ok) {
         const athletesData = await athletesRes.json()
-        athleteCount = athletesData.count || athletesData.athletes?.length || 0
+        const allAthletes = athletesData.athletes || []
+        athleteCount = allAthletes.length
+
+        // Filter for active athletes (logged in within last 30 days)
+        const thirtyDaysAgo = new Date()
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+
+        activeAthletes = allAthletes
+          .filter((athlete: any) => {
+            if (!athlete.lastLoginAt) return false
+            const lastLogin = new Date(athlete.lastLoginAt)
+            return lastLogin >= thirtyDaysAgo
+          })
+          .sort((a: any, b: any) => {
+            // Sort by most recent login
+            const aTime = a.lastLoginAt ? new Date(a.lastLoginAt).getTime() : 0
+            const bTime = b.lastLoginAt ? new Date(b.lastLoginAt).getTime() : 0
+            return bTime - aTime
+          })
+          .slice(0, 5) // Show max 5 profile pictures
+          .map((athlete: any) => ({
+            id: athlete.id,
+            displayName: athlete.displayName || athlete.email || 'Athlete',
+            email: athlete.email || '',
+            photoURL: athlete.photoURL || ''
+          }))
       }
 
       setMetrics({
@@ -87,7 +125,8 @@ export default function TodaysOverview({ onQuickAction }: TodaysOverviewProps) {
         lessonViews,
         feedLikes,
         feedViews,
-        athleteCount
+        athleteCount,
+        activeAthletes
       })
     } catch (error) {
       console.error('Error loading metrics:', error)
@@ -147,10 +186,13 @@ export default function TodaysOverview({ onQuickAction }: TodaysOverviewProps) {
       icon: Users,
       description: 'Manage athletes',
       metric: loading ? '...' : (
-        metrics.athleteCount > 0
-          ? `${metrics.athleteCount} athlete${metrics.athleteCount === 1 ? '' : 's'}`
+        metrics.activeAthletes.length > 0
+          ? `${metrics.activeAthletes.length} active`
+          : metrics.athleteCount > 0
+          ? `${metrics.athleteCount} total`
           : 'No athletes yet'
-      )
+      ),
+      athletes: metrics.activeAthletes
     },
     {
       id: 'add-video',
@@ -194,6 +236,32 @@ export default function TodaysOverview({ onQuickAction }: TodaysOverviewProps) {
                     <p className="text-white/70 text-xs mt-1.5 pt-1.5 border-t border-white/20 font-medium">
                       {action.metric}
                     </p>
+                  )}
+                  {action.athletes && action.athletes.length > 0 && (
+                    <div className="flex items-center mt-2 pt-2 border-t border-white/20">
+                      <div className="flex -space-x-2">
+                        {action.athletes.slice(0, 3).map((athlete, idx) => (
+                          <div
+                            key={athlete.id}
+                            className="w-6 h-6 rounded-full border-2 border-white/40 overflow-hidden bg-white/20 flex items-center justify-center"
+                            title={athlete.displayName}
+                            style={{ zIndex: 3 - idx }}
+                          >
+                            {athlete.photoURL ? (
+                              <img
+                                src={athlete.photoURL}
+                                alt={athlete.displayName}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <span className="text-white text-xs font-semibold">
+                                {athlete.displayName.charAt(0).toUpperCase()}
+                              </span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   )}
                 </div>
               </button>
