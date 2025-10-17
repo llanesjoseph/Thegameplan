@@ -5,8 +5,11 @@ import { BookOpen, Video, Calendar, Trophy } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore'
 import { db } from '@/lib/firebase.client'
+import { useSearchParams } from 'next/navigation'
 
 export default function AthleteOverview() {
+  const searchParams = useSearchParams()
+  const isEmbedded = searchParams.get('embedded') === 'true'
   const { user } = useAuth()
   const [stats, setStats] = useState({
     lessonsCompleted: 0,
@@ -85,6 +88,16 @@ export default function AthleteOverview() {
     return 'Good Evening'
   }
 
+  const handleMetricClick = (section: string) => {
+    // If embedded in iframe, send message to parent to change section
+    if (isEmbedded && window.parent !== window) {
+      window.parent.postMessage(
+        { type: 'CHANGE_SECTION', section },
+        window.location.origin
+      )
+    }
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -97,12 +110,16 @@ export default function AthleteOverview() {
         <p className="text-teal-50 text-sm sm:text-base">{formattedDate}</p>
       </div>
 
-      {/* Quick Stats Grid */}
+      {/* Quick Stats Grid - Now Clickable */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Lessons */}
-        <div className="bg-white rounded-xl p-5 shadow-sm border-2 border-gray-100 hover:shadow-md transition-shadow">
+        <button
+          onClick={() => handleMetricClick('lessons')}
+          className="bg-white rounded-xl p-5 shadow-sm border-2 border-gray-100 hover:shadow-lg hover:border-sky-blue/50 transition-all text-left cursor-pointer active:scale-95 group"
+          style={{ minHeight: '44px' }}
+        >
           <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 rounded-lg bg-sky-blue/10 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-lg bg-sky-blue/10 flex items-center justify-center group-hover:bg-sky-blue/20 transition-colors">
               <BookOpen className="w-5 h-5" style={{ color: '#7B92C4' }} />
             </div>
             {loading && (
@@ -111,12 +128,16 @@ export default function AthleteOverview() {
           </div>
           <p className="text-2xl font-bold text-gray-900">{stats.lessonsTotal}</p>
           <p className="text-xs text-gray-600 mt-1">Available Lessons</p>
-        </div>
+        </button>
 
         {/* Lessons Completed */}
-        <div className="bg-white rounded-xl p-5 shadow-sm border-2 border-gray-100 hover:shadow-md transition-shadow">
+        <button
+          onClick={() => handleMetricClick('lessons')}
+          className="bg-white rounded-xl p-5 shadow-sm border-2 border-gray-100 hover:shadow-lg hover:border-green-500/50 transition-all text-left cursor-pointer active:scale-95 group"
+          style={{ minHeight: '44px' }}
+        >
           <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center group-hover:bg-green-500/20 transition-colors">
               <Trophy className="w-5 h-5 text-green-600" />
             </div>
             {loading && (
@@ -125,12 +146,16 @@ export default function AthleteOverview() {
           </div>
           <p className="text-2xl font-bold text-gray-900">{stats.lessonsCompleted}</p>
           <p className="text-xs text-gray-600 mt-1">Completed</p>
-        </div>
+        </button>
 
         {/* Upcoming Events */}
-        <div className="bg-white rounded-xl p-5 shadow-sm border-2 border-gray-100 hover:shadow-md transition-shadow">
+        <button
+          onClick={() => handleMetricClick('coach-schedule')}
+          className="bg-white rounded-xl p-5 shadow-sm border-2 border-gray-100 hover:shadow-lg hover:border-teal/50 transition-all text-left cursor-pointer active:scale-95 group"
+          style={{ minHeight: '44px' }}
+        >
           <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 rounded-lg bg-teal/10 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-lg bg-teal/10 flex items-center justify-center group-hover:bg-teal/20 transition-colors">
               <Calendar className="w-5 h-5" style={{ color: '#5A9A70' }} />
             </div>
             {loading && (
@@ -139,12 +164,16 @@ export default function AthleteOverview() {
           </div>
           <p className="text-2xl font-bold text-gray-900">{stats.upcomingEvents}</p>
           <p className="text-xs text-gray-600 mt-1">Upcoming Events</p>
-        </div>
+        </button>
 
         {/* Training Streak */}
-        <div className="bg-white rounded-xl p-5 shadow-sm border-2 border-gray-100 hover:shadow-md transition-shadow">
+        <button
+          onClick={() => handleMetricClick('lessons')}
+          className="bg-white rounded-xl p-5 shadow-sm border-2 border-gray-100 hover:shadow-lg hover:border-orange/50 transition-all text-left cursor-pointer active:scale-95 group"
+          style={{ minHeight: '44px' }}
+        >
           <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 rounded-lg bg-orange/10 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-lg bg-orange/10 flex items-center justify-center group-hover:bg-orange/20 transition-colors">
               <Video className="w-5 h-5" style={{ color: '#FF6B35' }} />
             </div>
             {loading && (
@@ -153,7 +182,7 @@ export default function AthleteOverview() {
           </div>
           <p className="text-2xl font-bold text-gray-900">{stats.trainingStreak}</p>
           <p className="text-xs text-gray-600 mt-1">Day Streak 🔥</p>
-        </div>
+        </button>
       </div>
     </div>
   )

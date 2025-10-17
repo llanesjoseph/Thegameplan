@@ -44,7 +44,11 @@
       "Bash(if [ -f storage.rules ])",
       "Bash(then cat storage.rules)",
       "Bash(else echo \"storage.rules file not found\")",
-      "Bash(git restore:*)"
+      "Bash(git restore:*)",
+      "Bash(npx vercel:*)",
+      "Bash(npm run test:unit:*)",
+      "Bash(npm run test:integration:*)",
+      "Bash(npx vitest run:*)"
     ],
     "deny": [],
     "ask": []

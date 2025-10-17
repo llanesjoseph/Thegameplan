@@ -16,7 +16,7 @@ export default function AthleteHomePage() {
 
   return (
     <div className="min-h-screen p-4 sm:p-6 lg:p-8" style={{ backgroundColor: isEmbedded ? 'white' : '#E8E6D8' }}>
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="w-full mx-auto space-y-6">
         {/* Header Overview */}
         <AthleteOverview />
 
