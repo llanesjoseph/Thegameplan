@@ -104,13 +104,24 @@ service firebase.storage {
     // Lesson content - Educational videos and materials
     match /lessons/{lessonId}/{allPaths=**} {
       allow read: if isAuthenticated(); // Authenticated users can access lessons
-      allow write: if isCreatorOrHigher() && 
-                      (isValidImageType() || isValidVideoType() || isValidAudioType() || isValidDocumentType()) && 
+      allow write: if isCreatorOrHigher() &&
+                      (isValidImageType() || isValidVideoType() || isValidAudioType() || isValidDocumentType()) &&
                       isValidFileSize(2000) && // 2GB limit for lesson content
                       isValidFileName();
       allow delete: if isCreatorOrHigher();
     }
-    
+
+    // Lesson videos - Videos uploaded directly to lessons during creation
+    match /lesson-videos/{userId}/{allPaths=**} {
+      allow read: if isAuthenticated(); // Authenticated users can view lesson videos
+      allow write: if isAuthenticated() &&
+                      request.auth.uid == userId &&
+                      isValidVideoType() &&
+                      isValidFileSize(500) && // 500MB limit for lesson videos
+                      isValidFileName();
+      allow delete: if request.auth.uid == userId || isAdmin();
+    }
+
     // Gear images - Equipment photos and demonstrations
     match /gear/{gearId}/{allPaths=**} {
       allow read: if true; // Public for gear images
