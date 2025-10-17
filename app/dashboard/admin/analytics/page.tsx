@@ -105,9 +105,9 @@ export default function AdminAnalytics() {
 
    contentSnapshot.docs.forEach(doc => {
     const data = doc.data()
-    totalViews += data.views || 0
+    totalViews += data.views || data.viewCount || 0
     totalWatchTimeMinutes += data.totalWatchTime || 0
-    totalCompletions += data.completions || 0
+    totalCompletions += data.completions || data.completionCount || 0
    })
 
    // Convert watch time to hours
@@ -160,7 +160,7 @@ export default function AdminAnalytics() {
    // Get top content (sorted by views)
    const topContentQuery = query(
     collection(db, 'content'),
-    orderBy('views', 'desc'),
+    orderBy('viewCount', 'desc'),
     limit(3)
    )
    const topContentSnapshot = await getDocs(topContentQuery)
@@ -184,9 +184,9 @@ export default function AdminAnalytics() {
       id: doc.id,
       title: data.title || 'Untitled',
       creatorName,
-      views: data.views || 0,
+      views: data.views || data.viewCount || 0,
       watchTime: (data.totalWatchTime || 0) / 60, // Convert to hours
-      completionRate: data.views > 0 ? Math.round(((data.completions || 0) / data.views) * 100) : 0
+      completionRate: (data.views || data.viewCount || 0) > 0 ? Math.round(((data.completions || data.completionCount || 0) / (data.views || data.viewCount || 1)) * 100) : 0
      }
     })
    )
@@ -212,9 +212,9 @@ export default function AdminAnalytics() {
 
      creatorContentSnapshot.docs.forEach(contentDoc => {
       const contentData = contentDoc.data()
-      creatorTotalViews += contentData.views || 0
-      if (contentData.rating) {
-       totalRating += contentData.rating
+      creatorTotalViews += contentData.views || contentData.viewCount || 0
+      if (contentData.rating || contentData.averageRating) {
+       totalRating += contentData.rating || contentData.averageRating || 0
        ratingCount++
       }
      })

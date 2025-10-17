@@ -71,10 +71,14 @@ export default function CuratedGear() {
       const gearQuery = query(collection(db, 'gear'), orderBy('createdAt', 'desc'))
       const snapshot = await getDocs(gearQuery)
 
-      const items = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data()
-      })) as GearItem[]
+      const items = snapshot.docs.map((doc) => {
+        const data = doc.data()
+        return {
+          id: doc.id,
+          ...data,
+          price: typeof data.price === 'number' ? data.price : parseFloat(data.price?.toString() || '0')
+        }
+      }) as GearItem[]
 
       setGearItems(items)
     } catch (error) {
@@ -131,7 +135,7 @@ export default function CuratedGear() {
       name: item.name,
       description: item.description,
       category: item.category,
-      price: item.price,
+      price: typeof item.price === 'number' ? item.price : parseFloat(item.price?.toString() || '0'),
       imageUrl: item.imageUrl,
       affiliateUrl: item.affiliateUrl,
       rating: item.rating || 5,
@@ -245,7 +249,7 @@ export default function CuratedGear() {
                   <span className="text-sm" style={{ color: '#20B2AA' }}>{item.category}</span>
                 </div>
                 <div className="text-2xl mb-4" style={{ color: '#000000' }}>
-                  ${item.price.toFixed(2)}
+                  ${typeof item.price === 'number' ? item.price.toFixed(2) : parseFloat(item.price?.toString() || '0').toFixed(2)}
                 </div>
                 <div className="flex gap-2">
                   <button
