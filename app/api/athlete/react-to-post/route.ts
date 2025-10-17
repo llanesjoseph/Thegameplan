@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
 
     let action = 'added'
 
-    if (reactionDoc.exists()) {
+    if (reactionDoc.exists) {
       const existingEmoji = reactionDoc.data()?.emoji
 
       if (existingEmoji === emoji) {
