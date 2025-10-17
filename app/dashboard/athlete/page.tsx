@@ -621,14 +621,6 @@ export default function AthleteDashboard() {
           </div>
         </main>
       </div>
-
-      {/* Floating AI Chat Widget */}
-      {coachId && (
-        <AskCoachAI
-          coachId={coachId}
-          coachName={coachName}
-        />
-      )}
     </>
   )
 }
