@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
       const invitationData = invitationDoc.data()
 
       // Extract email, sport, and role from invitation
-      invitationEmail = invitationData?.email || ''
+      invitationEmail = invitationData?.coachEmail || invitationData?.email || ''
       invitationSport = invitationData?.sport || 'Coaching'
       invitationRole = invitationData?.role || 'coach'
 
@@ -67,7 +67,7 @@ export async function GET(request: NextRequest) {
           shouldRedirect: true,
           redirectTo: '/dashboard',
           message: 'This invitation has already been used. Your account was created successfully. Redirecting to sign in...',
-          userEmail: invitationData?.email
+          userEmail: invitationData?.coachEmail || invitationData?.email
         })
       }
     }
