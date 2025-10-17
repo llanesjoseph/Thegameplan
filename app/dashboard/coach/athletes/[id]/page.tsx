@@ -52,6 +52,19 @@ interface AnalyticsData {
   lastActivity: string | null
   aiQuestionsAsked: number
   averageEngagement: number
+  videoReviewsPending: number
+  videoReviewsCompleted: number
+  sessionRequestsPending: number
+  sessionRequestsCompleted: number
+  totalMessages: number
+  messagesLastWeek: number
+  contentByType: {
+    lessons: number
+    videos: number
+    articles: number
+  }
+  engagementTrend: 'up' | 'down' | 'stable'
+  weeklyActivity: number[]
 }
 
 interface Message {
@@ -198,6 +211,75 @@ export default function AthleteDetailPage() {
         totalQuestions += messagesSnap.size
       }
 
+      // Check video review requests
+      const videoReviewsQuery = query(
+        collection(db, 'videoReviews'),
+        where('athleteId', '==', athleteId)
+      )
+      const videoReviewsSnap = await getDocs(videoReviewsQuery)
+      const videoReviewsPending = videoReviewsSnap.docs.filter(doc => doc.data().status === 'pending').length
+      const videoReviewsCompleted = videoReviewsSnap.docs.filter(doc => doc.data().status === 'completed' || doc.data().status === 'reviewed').length
+
+      // Check session requests
+      const sessionRequestsQuery = query(
+        collection(db, 'liveSessionRequests'),
+        where('athleteId', '==', athleteId)
+      )
+      const sessionRequestsSnap = await getDocs(sessionRequestsQuery)
+      const sessionRequestsPending = sessionRequestsSnap.docs.filter(doc => doc.data().status === 'pending').length
+      const sessionRequestsCompleted = sessionRequestsSnap.docs.filter(doc => doc.data().status === 'accepted' || doc.data().status === 'completed').length
+
+      // Check messages
+      const messagesQuery = query(
+        collection(db, 'messages'),
+        where('participants', 'array-contains', athleteId)
+      )
+      const messagesSnap = await getDocs(messagesQuery)
+      const totalMessages = messagesSnap.size
+
+      // Messages in last week
+      const oneWeekAgo = new Date()
+      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
+      const recentMessagesQuery = query(
+        collection(db, 'messages'),
+        where('participants', 'array-contains', athleteId),
+        where('createdAt', '>=', oneWeekAgo)
+      )
+      const recentMessagesSnap = await getDocs(recentMessagesQuery)
+      const messagesLastWeek = recentMessagesSnap.size
+
+      // Content engagement by type
+      const contentByType = {
+        lessons: feedData?.completedLessons?.filter((l: any) => l.type === 'lesson' || !l.type).length || 0,
+        videos: feedData?.completedLessons?.filter((l: any) => l.type === 'video').length || 0,
+        articles: feedData?.completedLessons?.filter((l: any) => l.type === 'article').length || 0
+      }
+
+      // Weekly activity trend (last 7 days)
+      const weeklyActivity: number[] = []
+      for (let i = 6; i >= 0; i--) {
+        const dayStart = new Date()
+        dayStart.setDate(dayStart.getDate() - i)
+        dayStart.setHours(0, 0, 0, 0)
+
+        const dayEnd = new Date(dayStart)
+        dayEnd.setHours(23, 59, 59, 999)
+
+        const dayActivityQuery = query(
+          collection(db, 'ai_sessions'),
+          where('userId', '==', athleteId),
+          where('createdAt', '>=', dayStart),
+          where('createdAt', '<=', dayEnd)
+        )
+        const dayActivitySnap = await getDocs(dayActivityQuery)
+        weeklyActivity.push(dayActivitySnap.size)
+      }
+
+      // Calculate engagement trend
+      const firstHalf = weeklyActivity.slice(0, 3).reduce((a, b) => a + b, 0)
+      const secondHalf = weeklyActivity.slice(4, 7).reduce((a, b) => a + b, 0)
+      const engagementTrend = secondHalf > firstHalf ? 'up' : secondHalf < firstHalf ? 'down' : 'stable'
+
       const completedLessons = feedData?.completedLessons?.length || 0
       const totalLessons = feedData?.assignedLessons?.length || 0
       const completionRate = totalLessons > 0 ? (completedLessons / totalLessons) * 100 : 0
@@ -208,7 +290,16 @@ export default function AthleteDetailPage() {
         completionRate: Math.round(completionRate),
         lastActivity: feedData?.lastActivity || aiSessionsSnap.docs[0]?.data()?.createdAt || null,
         aiQuestionsAsked: totalQuestions,
-        averageEngagement: aiSessionsSnap.size > 0 ? Math.min(100, aiSessionsSnap.size * 5) : 0
+        averageEngagement: aiSessionsSnap.size > 0 ? Math.min(100, aiSessionsSnap.size * 5) : 0,
+        videoReviewsPending,
+        videoReviewsCompleted,
+        sessionRequestsPending,
+        sessionRequestsCompleted,
+        totalMessages,
+        messagesLastWeek,
+        contentByType,
+        engagementTrend,
+        weeklyActivity
       })
     } catch (err) {
       console.error('Error loading analytics:', err)
@@ -426,66 +517,233 @@ export default function AthleteDetailPage() {
       <div className={`${embedded ? 'px-4 py-6' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'}`}>
         {/* Analytics Dashboard */}
         {analytics && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {/* Total Lessons */}
-            <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
-              <div className="flex items-center justify-between mb-2">
-                <BookOpen className="w-8 h-8 text-blue-600" />
-                <span className="text-3xl font-bold" style={{ color: '#000000' }}>
-                  {analytics.totalLessons}
-                </span>
+          <>
+            {/* Primary Metrics - 4 columns */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+              {/* Total Lessons */}
+              <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
+                <div className="flex items-center justify-between mb-2">
+                  <BookOpen className="w-8 h-8 text-blue-600" />
+                  <span className="text-3xl font-bold" style={{ color: '#000000' }}>
+                    {analytics.totalLessons}
+                  </span>
+                </div>
+                <h3 className="text-sm font-medium text-gray-600">Total Lessons</h3>
+                <p className="text-xs text-gray-500 mt-1">
+                  {analytics.completedLessons} completed
+                </p>
               </div>
-              <h3 className="text-sm font-medium text-gray-600">Total Lessons</h3>
-              <p className="text-xs text-gray-500 mt-1">
-                {analytics.completedLessons} completed
-              </p>
+
+              {/* Completion Rate */}
+              <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
+                <div className="flex items-center justify-between mb-2">
+                  <CheckCircle2 className="w-8 h-8 text-green-600" />
+                  <span className="text-3xl font-bold" style={{ color: '#000000' }}>
+                    {analytics.completionRate}%
+                  </span>
+                </div>
+                <h3 className="text-sm font-medium text-gray-600">Completion Rate</h3>
+                <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                  <div
+                    className="bg-green-600 h-2 rounded-full transition-all"
+                    style={{ width: `${analytics.completionRate}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* AI Engagement */}
+              <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
+                <div className="flex items-center justify-between mb-2">
+                  <Zap className="w-8 h-8 text-purple-600" />
+                  <span className="text-3xl font-bold" style={{ color: '#000000' }}>
+                    {analytics.aiQuestionsAsked}
+                  </span>
+                </div>
+                <h3 className="text-sm font-medium text-gray-600">AI Questions</h3>
+                <p className="text-xs text-gray-500 mt-1">
+                  {analytics.averageEngagement}% engagement
+                </p>
+              </div>
+
+              {/* Engagement Trend */}
+              <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
+                <div className="flex items-center justify-between mb-2">
+                  <TrendingUp className={`w-8 h-8 ${
+                    analytics.engagementTrend === 'up' ? 'text-green-600' :
+                    analytics.engagementTrend === 'down' ? 'text-red-600' : 'text-gray-600'
+                  }`} />
+                  <div className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                    analytics.engagementTrend === 'up' ? 'bg-green-100 text-green-800' :
+                    analytics.engagementTrend === 'down' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'
+                  }`}>
+                    {analytics.engagementTrend === 'up' ? '↑ Increasing' :
+                     analytics.engagementTrend === 'down' ? '↓ Decreasing' : '→ Stable'}
+                  </div>
+                </div>
+                <h3 className="text-sm font-medium text-gray-600">Engagement Trend</h3>
+                <p className="text-xs text-gray-500 mt-1">Last 7 days</p>
+              </div>
             </div>
 
-            {/* Completion Rate */}
-            <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
-              <div className="flex items-center justify-between mb-2">
-                <CheckCircle2 className="w-8 h-8 text-green-600" />
-                <span className="text-3xl font-bold" style={{ color: '#000000' }}>
-                  {analytics.completionRate}%
-                </span>
+            {/* Secondary Metrics - 6 columns for more detail */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+              {/* Video Reviews Pending */}
+              <div className="bg-white rounded-lg p-4 shadow border border-gray-200">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center">
+                    <svg className="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <span className="text-2xl font-bold text-orange-600">{analytics.videoReviewsPending}</span>
+                </div>
+                <p className="text-xs font-medium text-gray-600">Videos Pending</p>
               </div>
-              <h3 className="text-sm font-medium text-gray-600">Completion Rate</h3>
-              <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-                <div
-                  className="bg-green-600 h-2 rounded-full transition-all"
-                  style={{ width: `${analytics.completionRate}%` }}
-                />
+
+              {/* Video Reviews Completed */}
+              <div className="bg-white rounded-lg p-4 shadow border border-gray-200">
+                <div className="flex items-center gap-2 mb-1">
+                  <CheckCircle2 className="w-8 h-8 text-green-600" />
+                  <span className="text-2xl font-bold text-green-600">{analytics.videoReviewsCompleted}</span>
+                </div>
+                <p className="text-xs font-medium text-gray-600">Videos Reviewed</p>
+              </div>
+
+              {/* Session Requests Pending */}
+              <div className="bg-white rounded-lg p-4 shadow border border-gray-200">
+                <div className="flex items-center gap-2 mb-1">
+                  <Clock className="w-8 h-8 text-yellow-600" />
+                  <span className="text-2xl font-bold text-yellow-600">{analytics.sessionRequestsPending}</span>
+                </div>
+                <p className="text-xs font-medium text-gray-600">Sessions Pending</p>
+              </div>
+
+              {/* Session Requests Completed */}
+              <div className="bg-white rounded-lg p-4 shadow border border-gray-200">
+                <div className="flex items-center gap-2 mb-1">
+                  <Calendar className="w-8 h-8 text-blue-600" />
+                  <span className="text-2xl font-bold text-blue-600">{analytics.sessionRequestsCompleted}</span>
+                </div>
+                <p className="text-xs font-medium text-gray-600">Sessions Done</p>
+              </div>
+
+              {/* Total Messages */}
+              <div className="bg-white rounded-lg p-4 shadow border border-gray-200">
+                <div className="flex items-center gap-2 mb-1">
+                  <MessageCircle className="w-8 h-8 text-purple-600" />
+                  <span className="text-2xl font-bold text-purple-600">{analytics.totalMessages}</span>
+                </div>
+                <p className="text-xs font-medium text-gray-600">Total Messages</p>
+              </div>
+
+              {/* Messages This Week */}
+              <div className="bg-white rounded-lg p-4 shadow border border-gray-200">
+                <div className="flex items-center gap-2 mb-1">
+                  <Send className="w-8 h-8 text-indigo-600" />
+                  <span className="text-2xl font-bold text-indigo-600">{analytics.messagesLastWeek}</span>
+                </div>
+                <p className="text-xs font-medium text-gray-600">This Week</p>
               </div>
             </div>
 
-            {/* AI Engagement */}
-            <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
-              <div className="flex items-center justify-between mb-2">
-                <Zap className="w-8 h-8 text-purple-600" />
-                <span className="text-3xl font-bold" style={{ color: '#000000' }}>
-                  {analytics.aiQuestionsAsked}
-                </span>
+            {/* Content Breakdown & Weekly Activity */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+              {/* Content Type Breakdown */}
+              <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
+                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <BarChart3 className="w-5 h-5 text-blue-600" />
+                  Content by Type
+                </h3>
+                <div className="space-y-3">
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-sm font-medium text-gray-600">Lessons</span>
+                      <span className="text-sm font-bold text-blue-600">{analytics.contentByType.lessons}</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div
+                        className="bg-blue-600 h-2 rounded-full transition-all"
+                        style={{
+                          width: `${
+                            (analytics.contentByType.lessons + analytics.contentByType.videos + analytics.contentByType.articles) > 0
+                              ? (analytics.contentByType.lessons / (analytics.contentByType.lessons + analytics.contentByType.videos + analytics.contentByType.articles)) * 100
+                              : 0
+                          }%`
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-sm font-medium text-gray-600">Videos</span>
+                      <span className="text-sm font-bold text-purple-600">{analytics.contentByType.videos}</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div
+                        className="bg-purple-600 h-2 rounded-full transition-all"
+                        style={{
+                          width: `${
+                            (analytics.contentByType.lessons + analytics.contentByType.videos + analytics.contentByType.articles) > 0
+                              ? (analytics.contentByType.videos / (analytics.contentByType.lessons + analytics.contentByType.videos + analytics.contentByType.articles)) * 100
+                              : 0
+                          }%`
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-sm font-medium text-gray-600">Articles</span>
+                      <span className="text-sm font-bold text-green-600">{analytics.contentByType.articles}</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div
+                        className="bg-green-600 h-2 rounded-full transition-all"
+                        style={{
+                          width: `${
+                            (analytics.contentByType.lessons + analytics.contentByType.videos + analytics.contentByType.articles) > 0
+                              ? (analytics.contentByType.articles / (analytics.contentByType.lessons + analytics.contentByType.videos + analytics.contentByType.articles)) * 100
+                              : 0
+                          }%`
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
-              <h3 className="text-sm font-medium text-gray-600">AI Questions</h3>
-              <p className="text-xs text-gray-500 mt-1">
-                {analytics.averageEngagement}% engagement
-              </p>
-            </div>
 
-            {/* Last Activity */}
-            <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
-              <div className="flex items-center justify-between mb-2">
-                <Activity className="w-8 h-8 text-orange-600" />
-                <AlertCircle className="w-6 h-6 text-gray-400" />
+              {/* Weekly Activity Chart */}
+              <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
+                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <Activity className="w-5 h-5 text-green-600" />
+                  Weekly Activity
+                </h3>
+                <div className="flex items-end justify-between h-32 gap-2">
+                  {analytics.weeklyActivity.map((count, index) => {
+                    const maxActivity = Math.max(...analytics.weeklyActivity, 1)
+                    const heightPercent = (count / maxActivity) * 100
+                    const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+                    const today = new Date().getDay()
+                    const dayIndex = (today - 6 + index + 7) % 7
+
+                    return (
+                      <div key={index} className="flex-1 flex flex-col items-center gap-1">
+                        <div className="relative w-full bg-gray-200 rounded-t-lg" style={{ height: '100%' }}>
+                          <div
+                            className="absolute bottom-0 w-full bg-gradient-to-t from-blue-600 to-blue-400 rounded-t-lg transition-all"
+                            style={{ height: `${heightPercent}%` }}
+                            title={`${count} activities`}
+                          />
+                        </div>
+                        <span className="text-xs font-medium text-gray-600">{dayLabels[dayIndex]}</span>
+                        <span className="text-xs font-bold text-gray-900">{count}</span>
+                      </div>
+                    )
+                  })}
+                </div>
               </div>
-              <h3 className="text-sm font-medium text-gray-600">Last Activity</h3>
-              <p className="text-xs text-gray-900 mt-1 font-medium">
-                {analytics.lastActivity
-                  ? new Date(analytics.lastActivity).toLocaleDateString()
-                  : 'No recent activity'}
-              </p>
             </div>
-          </div>
+          </>
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
