@@ -88,14 +88,17 @@ export async function trackNewUser(userData: Omit<NewUserData, 'timestamp'>): Pr
       // Update platform statistics
       await updatePlatformStats('newSignups')
     } else {
-      // DISABLED: lastLoginAt updates cause permission errors in production
-      // Athletes don't have permission to update their own user documents
-      // This was causing Firestore 400 errors on every login
-      // await updateDoc(doc(db, 'users', uid), {
-      //   lastLoginAt: serverTimestamp(),
-      //   'stats.loginCount': increment(1)
-      // })
-      console.log(`🔄 Returning user login tracked for ${email}`)
+      // Track returning user logins - security rules now allow lastLoginAt updates
+      try {
+        await updateDoc(doc(db, 'users', uid), {
+          lastLoginAt: serverTimestamp(),
+          'stats.loginCount': increment(1)
+        })
+        console.log(`🔄 Returning user login tracked for ${email}`)
+      } catch (error) {
+        console.error('⚠️ Error updating lastLoginAt (non-critical):', error)
+        // Non-critical error - don't fail the login
+      }
     }
 
     return true

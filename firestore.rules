@@ -164,8 +164,12 @@ service cloud.firestore {
                        request.auth.uid == userId &&
                        isValidUserData();
       // Allow users to update their own profile (except role changes)
+      // Users can always update lastLoginAt and stats.loginCount for login tracking
       // Only admins can change roles
-      allow update: if (isOwner(userId) && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role']) && isValidUserUpdate()) ||
+      allow update: if (isOwner(userId) &&
+                       (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['role']) ||
+                        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['lastLoginAt', 'stats'])) &&
+                       isValidUserUpdate()) ||
                        (isAuthenticated() &&
                         exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
                         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'superadmin'] &&
