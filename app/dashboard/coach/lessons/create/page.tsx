@@ -17,7 +17,10 @@ import {
   BookOpen,
   Plus,
   Trash2,
-  X
+  X,
+  Video,
+  Upload,
+  Link2
 } from 'lucide-react'
 
 interface LessonForm {
@@ -29,6 +32,8 @@ interface LessonForm {
   content: string // Single long-form content field
   tags: string[]
   visibility: 'public' | 'athletes_only' | 'specific_athletes'
+  videoUrl?: string // YouTube, Vimeo, or other video links
+  videoFile?: File | null // Uploaded video file
 }
 
 function CreateLessonPageContent() {
@@ -55,8 +60,12 @@ function CreateLessonPageContent() {
     objectives: [],
     content: '', // Single long-form content field
     tags: [],
-    visibility: 'athletes_only'
+    visibility: 'athletes_only',
+    videoUrl: '',
+    videoFile: null
   })
+
+  const [videoFileName, setVideoFileName] = useState('')
 
   // Add objective
   const addObjective = () => {
@@ -94,6 +103,35 @@ function CreateLessonPageContent() {
       ...prev,
       tags: prev.tags.filter((_, idx) => idx !== index)
     }))
+  }
+
+  // Handle video file selection
+  const handleVideoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      // Validate file type
+      const validTypes = ['video/mp4', 'video/quicktime', 'video/x-msvideo', 'video/webm']
+      if (!validTypes.includes(file.type)) {
+        alert('Please select a valid video file (MP4, MOV, AVI, or WebM)')
+        return
+      }
+
+      // Validate file size (max 500MB)
+      const maxSize = 500 * 1024 * 1024 // 500MB in bytes
+      if (file.size > maxSize) {
+        alert('Video file is too large. Maximum size is 500MB.')
+        return
+      }
+
+      setLesson(prev => ({ ...prev, videoFile: file }))
+      setVideoFileName(file.name)
+    }
+  }
+
+  // Remove video file
+  const removeVideoFile = () => {
+    setLesson(prev => ({ ...prev, videoFile: null }))
+    setVideoFileName('')
   }
 
   // Generate lesson with AI
@@ -645,6 +683,100 @@ function CreateLessonPageContent() {
                     ))}
                   </div>
                 )}
+              </div>
+            </div>
+
+            {/* Video Section */}
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+              <h2 className="text-xl font-medium mb-4 flex items-center gap-2" style={{ color: '#000000' }}>
+                <Video className="w-6 h-6" style={{ color: '#FF6B35' }} />
+                Video (Optional)
+              </h2>
+
+              <p className="text-sm mb-4" style={{ color: '#000000', opacity: 0.6 }}>
+                Add a video to your lesson. You can either paste a video link (YouTube, Vimeo, etc.) or upload a video file.
+              </p>
+
+              <div className="space-y-4">
+                {/* Video URL Input */}
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
+                    <div className="flex items-center gap-2">
+                      <Link2 className="w-4 h-4" />
+                      Video Link (YouTube, Vimeo, etc.)
+                    </div>
+                  </label>
+                  <input
+                    type="url"
+                    value={lesson.videoUrl}
+                    onChange={(e) => setLesson(prev => ({ ...prev, videoUrl: e.target.value }))}
+                    placeholder="https://www.youtube.com/watch?v=..."
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                  />
+                  <p className="text-xs mt-1" style={{ color: '#000000', opacity: 0.5 }}>
+                    Paste a YouTube, Vimeo, or other video URL
+                  </p>
+                </div>
+
+                {/* Divider */}
+                <div className="flex items-center gap-4">
+                  <div className="flex-1 h-px bg-gray-300"></div>
+                  <span className="text-sm" style={{ color: '#000000', opacity: 0.5 }}>OR</span>
+                  <div className="flex-1 h-px bg-gray-300"></div>
+                </div>
+
+                {/* Video File Upload */}
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
+                    <div className="flex items-center gap-2">
+                      <Upload className="w-4 h-4" />
+                      Upload Video File
+                    </div>
+                  </label>
+
+                  {!lesson.videoFile ? (
+                    <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-black hover:bg-gray-50 transition-colors">
+                      <div className="flex flex-col items-center justify-center py-4">
+                        <Upload className="w-10 h-10 mb-2" style={{ color: '#000000', opacity: 0.4 }} />
+                        <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>
+                          <span className="font-medium">Click to upload</span> or drag and drop
+                        </p>
+                        <p className="text-xs mt-1" style={{ color: '#000000', opacity: 0.5 }}>
+                          MP4, MOV, AVI, or WebM (max 500MB)
+                        </p>
+                      </div>
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept="video/mp4,video/quicktime,video/x-msvideo,video/webm"
+                        onChange={handleVideoFileChange}
+                      />
+                    </label>
+                  ) : (
+                    <div className="flex items-center justify-between px-4 py-3 bg-orange-50 border-2 border-orange-200 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <Video className="w-6 h-6 text-orange-600 flex-shrink-0" />
+                        <div>
+                          <p className="text-sm font-medium" style={{ color: '#000000' }}>{videoFileName}</p>
+                          <p className="text-xs" style={{ color: '#000000', opacity: 0.6 }}>
+                            {lesson.videoFile && `${(lesson.videoFile.size / (1024 * 1024)).toFixed(2)} MB`}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={removeVideoFile}
+                        className="p-2 hover:bg-red-100 rounded-full transition-colors"
+                        type="button"
+                      >
+                        <Trash2 className="w-5 h-5 text-red-600" />
+                      </button>
+                    </div>
+                  )}
+
+                  <p className="text-xs mt-2" style={{ color: '#000000', opacity: 0.5 }}>
+                    Note: Video files will be uploaded to cloud storage when you save the lesson
+                  </p>
+                </div>
               </div>
             </div>
 
