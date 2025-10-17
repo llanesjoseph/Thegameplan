@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Alert, AlertDescription } from '@/components/ui/alert'
 import { CheckCircle, XCircle, AlertTriangle, Loader2 } from 'lucide-react'
 
 interface MigrationResult {
@@ -65,10 +64,10 @@ export default function MigrateVoicePage() {
   if (!user) {
     return (
       <div className="p-8">
-        <Alert>
-          <AlertTriangle className="h-4 w-4" />
-          <AlertDescription>You must be logged in to access this page.</AlertDescription>
-        </Alert>
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 flex items-center gap-3">
+          <AlertTriangle className="h-5 w-5 text-yellow-600" />
+          <p className="text-yellow-800">You must be logged in to access this page.</p>
+        </div>
       </div>
     )
   }
@@ -128,10 +127,10 @@ export default function MigrateVoicePage() {
       </Card>
 
       {error && (
-        <Alert variant="destructive" className="mb-6">
-          <XCircle className="h-4 w-4" />
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-3 mb-6">
+          <XCircle className="h-5 w-5 text-red-600" />
+          <p className="text-red-800">{error}</p>
+        </div>
       )}
 
       {result && (
