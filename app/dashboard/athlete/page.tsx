@@ -479,29 +479,9 @@ export default function AthleteDashboard() {
             {/* Main Content Area */}
             <div className={`flex-1 overflow-hidden relative ${!activeSection ? 'hidden lg:block' : ''}`}>
               {activeSection ? (
-                <div className="h-full bg-white/90 backdrop-blur-sm">
-                  {/* Content Header - Hidden on mobile to save space */}
-                  <div className="hidden lg:flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white/95 backdrop-blur-sm">
-                    <div>
-                      <h2 className="text-xl font-semibold" style={{ color: '#000000' }}>
-                        {athleteTools.find(t => t.id === activeSection)?.title}
-                      </h2>
-                      <p className="text-sm mt-0.5" style={{ color: '#666' }}>
-                        {athleteTools.find(t => t.id === activeSection)?.description}
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => setActiveSection(null)}
-                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors touch-manipulation"
-                      style={{ minHeight: '44px', minWidth: '44px' }}
-                      title="Close"
-                    >
-                      <X className="w-5 h-5" style={{ color: '#000000' }} />
-                    </button>
-                  </div>
-
-                  {/* Content */}
-                  <div className="h-full lg:h-[calc(100%-73px)]">
+                <div className="h-full">
+                  {/* Content - Full Height */}
+                  <div className="h-full">
                     {activeSection === 'home' && (
                       <iframe
                         src="/dashboard/athlete/home?embedded=true"
