@@ -24,7 +24,7 @@ interface GearItem {
   name: string
   description: string
   category: string
-  price: number
+  price: number | string
   imageUrl: string
   affiliateUrl: string
   rating?: number
