@@ -48,7 +48,8 @@
       "Bash(npx vercel:*)",
       "Bash(npm run test:unit:*)",
       "Bash(npm run test:integration:*)",
-      "Bash(npx vitest run:*)"
+      "Bash(npx vitest run:*)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []

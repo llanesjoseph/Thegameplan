@@ -118,13 +118,28 @@ function ProfilePageContent() {
             const savedProfile = docSnap.data()
             console.log('Loaded profile from Firestore:', savedProfile)
 
+            // Intelligently detect voice capture completeness
+            let completeness: 'none' | 'quick' | 'detailed' = 'none'
+            if (savedProfile.voiceCaptureCompleteness) {
+              completeness = savedProfile.voiceCaptureCompleteness
+            } else if (savedProfile.voiceCaptureData) {
+              // Check if there's a captureMode field in the voice data
+              if (savedProfile.voiceCaptureData.captureMode) {
+                completeness = savedProfile.voiceCaptureData.captureMode
+              } else {
+                // Old voice capture data without captureMode - assume detailed
+                completeness = 'detailed'
+              }
+            }
+
             setProfileData(prev => ({
               ...prev,
               ...savedProfile,
               displayName: savedProfile.displayName || user.displayName || prev.displayName,
               email: user.email || savedProfile.email || prev.email,
               // Map photoURL to profileImageUrl for consistency
-              profileImageUrl: savedProfile.photoURL || savedProfile.profileImageUrl || prev.profileImageUrl
+              profileImageUrl: savedProfile.photoURL || savedProfile.profileImageUrl || prev.profileImageUrl,
+              voiceCaptureCompleteness: completeness
             }))
             return
           }
@@ -817,46 +832,71 @@ function ProfilePageContent() {
               Enhance your AI coaching with personalized voice capture. Help our AI understand your unique coaching style.
             </p>
 
-            {profileData.voiceCaptureCompleteness === 'none' ? (
-              <div className="flex flex-col gap-3">
-                <button
-                  onClick={() => {
-                    setVoiceCaptureMode('quick')
-                    setShowVoiceCapture(true)
-                  }}
-                  className="flex items-center gap-2 px-6 py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg"
-                >
-                  <Mic className="w-5 h-5" />
-                  ⚡ Quick Voice Capture (5-7 min)
-                </button>
-                <button
-                  onClick={() => {
-                    setVoiceCaptureMode('detailed')
-                    setShowVoiceCapture(true)
-                  }}
-                  className="flex items-center gap-2 px-6 py-4 border-2 border-purple-600 text-purple-600 rounded-xl hover:bg-purple-50 transition-all"
-                >
-                  <MessageSquare className="w-5 h-5" />
-                  📚 Detailed Voice Capture (12-15 min)
-                </button>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-3">
-                <div className="flex items-center gap-2 px-4 py-3 bg-green-50 text-green-700 rounded-xl border border-green-200">
-                  <CheckCircle className="w-5 h-5" />
-                  Voice capture completed ({profileData.voiceCaptureCompleteness})
+            <div className="flex flex-col gap-3">
+              {/* Quick Voice Capture */}
+              <button
+                onClick={() => {
+                  setVoiceCaptureMode('quick')
+                  setShowVoiceCapture(true)
+                }}
+                className={`flex items-center justify-between px-6 py-4 rounded-xl transition-all shadow-lg ${
+                  profileData.voiceCaptureCompleteness === 'quick'
+                    ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white cursor-default'
+                    : profileData.voiceCaptureCompleteness === 'detailed'
+                    ? 'border-2 border-blue-200 text-blue-600 opacity-50 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800'
+                }`}
+                disabled={profileData.voiceCaptureCompleteness === 'detailed'}
+              >
+                <div className="flex items-center gap-2">
+                  {profileData.voiceCaptureCompleteness === 'quick' ? (
+                    <CheckCircle className="w-5 h-5" />
+                  ) : (
+                    <Mic className="w-5 h-5" />
+                  )}
+                  <span>⚡ Quick Voice Capture (5-7 min)</span>
                 </div>
-                <button
-                  onClick={() => {
-                    setVoiceCaptureMode('detailed')
-                    setShowVoiceCapture(true)
-                  }}
-                  className="flex items-center gap-2 px-6 py-4 border-2 text-sky-blue rounded-xl hover:bg-sky-blue/5 transition-all"
-                  style={{ borderColor: '#20B2AA' }}
-                >
-                  <Upload className="w-5 h-5" />
-                  Enhance Voice Profile
-                </button>
+                {profileData.voiceCaptureCompleteness === 'quick' && (
+                  <span className="text-sm opacity-90">Completed ✓</span>
+                )}
+              </button>
+
+              {/* Detailed Voice Capture */}
+              <button
+                onClick={() => {
+                  setVoiceCaptureMode('detailed')
+                  setShowVoiceCapture(true)
+                }}
+                className={`flex items-center justify-between px-6 py-4 rounded-xl transition-all ${
+                  profileData.voiceCaptureCompleteness === 'detailed'
+                    ? 'border-2 border-purple-600 bg-purple-50 text-purple-600'
+                    : profileData.voiceCaptureCompleteness === 'quick'
+                    ? 'border-2 border-purple-300 text-purple-600 hover:bg-purple-50'
+                    : 'border-2 border-purple-600 text-purple-600 hover:bg-purple-50'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  {profileData.voiceCaptureCompleteness === 'detailed' ? (
+                    <CheckCircle className="w-5 h-5" />
+                  ) : (
+                    <MessageSquare className="w-5 h-5" />
+                  )}
+                  <span>📚 Detailed Voice Capture (12-15 min)</span>
+                </div>
+                {profileData.voiceCaptureCompleteness === 'detailed' ? (
+                  <span className="text-sm opacity-90">Completed ✓ (Click to edit)</span>
+                ) : profileData.voiceCaptureCompleteness === 'quick' ? (
+                  <span className="text-sm opacity-70">Enhance your capture</span>
+                ) : null}
+              </button>
+            </div>
+
+            {profileData.voiceCaptureCompleteness !== 'none' && (
+              <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-xl">
+                <p className="text-sm text-green-800">
+                  ✓ Your voice capture is complete! The AI will use your {profileData.voiceCaptureCompleteness} profile to personalize responses.
+                  {profileData.voiceCaptureCompleteness === 'quick' && ' You can still complete the detailed capture for even better personalization.'}
+                </p>
               </div>
             )}
           </div>

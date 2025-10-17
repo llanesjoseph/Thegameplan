@@ -185,6 +185,7 @@ export async function POST(request: NextRequest) {
       firstName: userInfo.firstName,
       lastName: userInfo.lastName,
       phone: userInfo.phone || '',
+      location: userInfo.location || '',
       // Coach profile data
       sport: coachData.sport || invitationData?.sport || '',
       experience: coachData.experience || '',
@@ -196,7 +197,8 @@ export async function POST(request: NextRequest) {
       references: coachData.references || [],
       sampleQuestions: coachData.sampleQuestions || [],
       bio: coachData.bio || '',
-      voiceCaptureData: coachData.voiceCaptureData || null
+      voiceCaptureData: coachData.voiceCaptureData || null,
+      voiceCaptureCompleteness: coachData.voiceCaptureData?.captureMode || 'none'
     }
 
     // Store profile temporarily in the invitation document

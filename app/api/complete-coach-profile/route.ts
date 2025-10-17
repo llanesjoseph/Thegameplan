@@ -95,6 +95,7 @@ export async function POST(request: NextRequest) {
       firstName: coachProfile.firstName,
       lastName: coachProfile.lastName,
       phone: coachProfile.phone || '',
+      location: coachProfile.location || '',
       sport: coachProfile.sport || '',  // Add sport to user document for AI
       lastLoginAt: now,
       invitationId,
@@ -129,6 +130,7 @@ export async function POST(request: NextRequest) {
       firstName: coachProfile.firstName,
       lastName: coachProfile.lastName,
       phone: coachProfile.phone || '',
+      location: coachProfile.location || '',
       sport: coachProfile.sport || '',
       experience: coachProfile.experience || '',
       credentials: coachProfile.credentials || '',
@@ -140,6 +142,7 @@ export async function POST(request: NextRequest) {
       sampleQuestions: coachProfile.sampleQuestions || [],
       bio: coachProfile.bio || '',
       voiceCaptureData: coachProfile.voiceCaptureData || null,
+      voiceCaptureCompleteness: coachProfile.voiceCaptureCompleteness || 'none',
       isActive: true,
       profileCompleteness: 60,
       createdAt: now,
