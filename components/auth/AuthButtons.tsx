@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
+import { signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth'
 import { auth } from '@/lib/firebase.client'
 
 export default function AuthButtons() {
@@ -9,6 +9,8 @@ export default function AuthButtons() {
   const [error, setError] = useState<string | null>(null)
   const [showEmailForm, setShowEmailForm] = useState(false)
   const [isSignUp, setIsSignUp] = useState(false)
+  const [showForgotPassword, setShowForgotPassword] = useState(false)
+  const [resetEmailSent, setResetEmailSent] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
@@ -58,6 +60,104 @@ export default function AuthButtons() {
     }
   }
 
+  const handlePasswordReset = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      await sendPasswordResetEmail(auth, email)
+      console.log('[AuthButtons] Password reset email sent to:', email)
+      setResetEmailSent(true)
+      setIsLoading(false)
+    } catch (error: any) {
+      console.error('[AuthButtons] Password reset error:', error)
+      let errorMessage = 'Failed to send password reset email'
+
+      if (error.code === 'auth/user-not-found') {
+        errorMessage = 'No account found with this email address'
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = 'Invalid email address'
+      } else if (error.code === 'auth/too-many-requests') {
+        errorMessage = 'Too many requests. Please try again later'
+      }
+
+      setError(errorMessage)
+      setIsLoading(false)
+    }
+  }
+
+  if (showForgotPassword) {
+    return (
+      <div className="space-y-4">
+        {resetEmailSent ? (
+          <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+            <h3 className="text-lg font-semibold text-green-800 mb-2">Check Your Email</h3>
+            <p className="text-sm text-green-700 mb-4">
+              We've sent a password reset link to <strong>{email}</strong>.
+              Click the link in the email to reset your password.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setShowForgotPassword(false)
+                setResetEmailSent(false)
+                setEmail('')
+              }}
+              className="w-full bg-teal-600 hover:bg-teal-700 text-white py-2 px-4 rounded-lg"
+            >
+              ← Back to Sign In
+            </button>
+          </div>
+        ) : (
+          <form onSubmit={handlePasswordReset} className="space-y-4">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">Reset Password</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                Enter your email address and we'll send you a link to reset your password.
+              </p>
+              <label className="block text-sm text-gray-700 mb-2">
+                Email
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                required
+              />
+            </div>
+
+            {error && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+                {error}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-teal-600 hover:bg-teal-700 text-white py-2 px-4 rounded-lg disabled:opacity-50"
+            >
+              {isLoading ? 'Sending...' : 'Send Reset Link'}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setShowForgotPassword(false)
+                setError(null)
+              }}
+              className="w-full text-sm text-gray-600 hover:text-teal-600"
+            >
+              ← Back to Sign In
+            </button>
+          </form>
+        )}
+      </div>
+    )
+  }
+
   if (showEmailForm) {
     return (
       <div className="space-y-4">
@@ -103,21 +203,36 @@ export default function AuthButtons() {
             {isLoading ? 'Processing...' : (isSignUp ? 'Create Account' : 'Sign In')}
           </button>
 
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => setIsSignUp(!isSignUp)}
-              className="flex-1 text-sm text-gray-600 hover:text-teal-600"
-            >
-              {isSignUp ? 'Already have an account?' : 'Need an account?'}
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowEmailForm(false)}
-              className="flex-1 text-sm text-gray-600 hover:text-teal-600"
-            >
-              ← Back to options
-            </button>
+          <div className="flex flex-col gap-2">
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setIsSignUp(!isSignUp)}
+                className="flex-1 text-sm text-gray-600 hover:text-teal-600"
+              >
+                {isSignUp ? 'Already have an account?' : 'Need an account?'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowEmailForm(false)}
+                className="flex-1 text-sm text-gray-600 hover:text-teal-600"
+              >
+                ← Back to options
+              </button>
+            </div>
+            {!isSignUp && (
+              <button
+                type="button"
+                onClick={() => {
+                  setShowForgotPassword(true)
+                  setShowEmailForm(false)
+                  setError(null)
+                }}
+                className="text-sm text-teal-600 hover:text-teal-700 font-medium"
+              >
+                Forgot Password?
+              </button>
+            )}
           </div>
         </form>
       </div>
