@@ -645,15 +645,15 @@ export default function CoachOnboardPage() {
                     placeholder="Your phone number"
                   />
                 </div>
-              </div>
-              <div className="md:col-span-2">
-                <Label htmlFor="location">Location</Label>
-                <Input
-                  id="location"
-                  value={userInfo.location || ''}
-                  onChange={(e) => setUserInfo(prev => ({ ...prev, location: e.target.value }))}
-                  placeholder="City, State (e.g., Los Angeles, CA)"
-                />
+                <div className="md:col-span-2">
+                  <Label htmlFor="location">Location</Label>
+                  <Input
+                    id="location"
+                    value={userInfo.location || ''}
+                    onChange={(e) => setUserInfo(prev => ({ ...prev, location: e.target.value }))}
+                    placeholder="City, State (e.g., Los Angeles, CA)"
+                  />
+                </div>
               </div>
             )}
 
