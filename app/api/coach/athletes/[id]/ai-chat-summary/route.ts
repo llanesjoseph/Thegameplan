@@ -6,9 +6,13 @@ export const runtime = 'nodejs'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
+    // Await params if it's a Promise (Next.js 15+)
+    const resolvedParams = params instanceof Promise ? await params : params
+    const athleteId = resolvedParams.id
+
     // Get auth token
     const authHeader = request.headers.get('authorization')
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -21,7 +25,6 @@ export async function GET(
     const token = authHeader.split('Bearer ')[1]
     const decodedToken = await auth.verifyIdToken(token)
     const userId = decodedToken.uid
-    const athleteId = params.id
 
     // Verify coach access
     const userDoc = await adminDb.collection('users').doc(userId).get()
@@ -54,13 +57,25 @@ export async function GET(
       )
     }
 
-    // Fetch AI chat conversations
-    const conversationsSnapshot = await adminDb
-      .collection('chatConversations')
-      .where('userId', '==', athleteId)
-      .orderBy('createdAt', 'desc')
-      .limit(50)
-      .get()
+    // Fetch AI chat conversations with error handling
+    let conversationsSnapshot
+    try {
+      // Try with orderBy first
+      conversationsSnapshot = await adminDb
+        .collection('chatConversations')
+        .where('userId', '==', athleteId)
+        .orderBy('createdAt', 'desc')
+        .limit(50)
+        .get()
+    } catch (indexError: any) {
+      // If index error, try without orderBy
+      console.log('Index not found, fetching without orderBy:', indexError.message)
+      conversationsSnapshot = await adminDb
+        .collection('chatConversations')
+        .where('userId', '==', athleteId)
+        .limit(50)
+        .get()
+    }
 
     const conversations = []
     let totalQuestions = 0
@@ -71,13 +86,24 @@ export async function GET(
     for (const convDoc of conversationsSnapshot.docs) {
       const convData = convDoc.data()
 
-      // Get messages from this conversation
-      const messagesSnapshot = await adminDb
-        .collection('chatConversations')
-        .doc(convDoc.id)
-        .collection('messages')
-        .orderBy('createdAt', 'asc')
-        .get()
+      // Get messages from this conversation with error handling
+      let messagesSnapshot
+      try {
+        messagesSnapshot = await adminDb
+          .collection('chatConversations')
+          .doc(convDoc.id)
+          .collection('messages')
+          .orderBy('createdAt', 'asc')
+          .get()
+      } catch (msgError: any) {
+        console.log('Error fetching messages for conversation', convDoc.id, ':', msgError.message)
+        // Try without orderBy
+        messagesSnapshot = await adminDb
+          .collection('chatConversations')
+          .doc(convDoc.id)
+          .collection('messages')
+          .get()
+      }
 
       const messages = messagesSnapshot.docs.map(msgDoc => ({
         role: msgDoc.data().role,
@@ -172,8 +198,26 @@ export async function GET(
 
   } catch (error: any) {
     console.error('Error fetching AI chat summary:', error)
+
+    // Try to get athleteId for logging (params might not be available in catch)
+    let athleteIdForLog = 'unknown'
+    try {
+      const resolvedParams = params instanceof Promise ? await params : params
+      athleteIdForLog = resolvedParams.id
+    } catch {}
+
+    console.error('Error details:', {
+      message: error.message,
+      code: error.code,
+      stack: error.stack,
+      athleteId: athleteIdForLog
+    })
+
     return NextResponse.json(
-      { error: error.message || 'Failed to fetch AI chat summary' },
+      {
+        error: error.message || 'Failed to fetch AI chat summary',
+        details: error.code || 'Unknown error'
+      },
       { status: 500 }
     )
   }
