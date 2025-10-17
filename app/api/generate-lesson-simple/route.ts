@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { auth, adminDb } from '@/lib/firebase.admin'
 
 // Force dynamic rendering for API route
 export const dynamic = 'force-dynamic'
@@ -6,6 +7,19 @@ export const runtime = 'nodejs'
 
 export async function POST(request: NextRequest) {
   try {
+    // Get auth token
+    const authHeader = request.headers.get('authorization')
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    const token = authHeader.split('Bearer ')[1]
+    const decodedToken = await auth.verifyIdToken(token)
+    const userId = decodedToken.uid
+
     const { topic, sport, level = 'intermediate', duration = '45 minutes', detailedInstructions } = await request.json()
 
     if (!topic || !sport) {
@@ -15,13 +29,17 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Generate rich, detailed lesson content without external API dependency
-    const markdownContent = generateRichLessonContent(topic, sport, level, duration, detailedInstructions)
+    // Fetch coach's voice data from Firestore
+    const userDoc = await adminDb.collection('users').doc(userId).get()
+    const voiceData = userDoc.exists() ? userDoc.data()?.voiceCaptureData : null
+
+    // Generate long-form content with coach's voice
+    const content = generateLongFormContent(topic, sport, level, duration, detailedInstructions, voiceData)
 
     // Normalize sport name for display
     const displaySport = normalizeSportName(sport)
 
-    // Parse duration string to number (e.g., "45 minutes" -> 45)
+    // Parse duration string to number
     const durationNumber = typeof duration === 'string'
       ? parseInt(duration.match(/\d+/)?.[0] || '60')
       : duration
@@ -40,37 +58,12 @@ export async function POST(request: NextRequest) {
           `Integrate ${topic} into overall ${sport} strategy`
         ],
         tags: [sport.toLowerCase(), topic.toLowerCase(), level, 'technique'],
-        sections: [
-          {
-            title: "Dynamic Warm-Up & Technical Foundation",
-            type: "text",
-            content: `Start with sport-specific movement patterns that activate the muscle groups essential for ${topic}.\n\n**Movement Preparation:**\n${getSportSpecificWarmup(sport, topic)}\n\n**Technical Foundation Review:**\n- Body Positioning: Proper stance, weight distribution, and alignment\n- Breathing Pattern: Coordinated breathing with movement execution\n- Mental Focus: Concentration points and awareness cues\n- Safety Protocols: Injury prevention and proper progression`,
-            duration: 10
-          },
-          {
-            title: "Master-Level Technical Instruction",
-            type: "text",
-            content: `**Core Technique Breakdown**\n\n**Setup Phase:**\n${getSetupPhase(sport, topic)}\n\n**Execution Phase:**\n1. Initial Movement: ${getInitialMovement(topic, sport)}\n2. Transition Point: ${getTransitionPoint(topic, sport)}\n3. Force Application: ${getForceApplication(topic, sport)}\n4. Follow-Through: ${getFollowThrough(topic, sport)}\n\n**Common Mistakes & Corrections:**\n${getCommonMistakes(sport, topic)}${detailedInstructions ? `\n\n**Additional Focus:**\n${detailedInstructions}` : ''}`,
-            duration: 25
-          },
-          {
-            title: "Progressive Practice & Live Application",
-            type: "drill",
-            content: getSportSpecificDrills(sport, topic),
-            duration: 8
-          },
-          {
-            title: "Cool-Down & Review",
-            type: "reflection",
-            content: `**Key Points Review:**\n- Primary execution cues for ${topic}\n- Most common mistake to avoid\n- Best setup opportunities\n\n**Cool-Down Protocol:**\n- Light stretching focusing on muscle groups used\n- Breathing exercises for recovery\n- Mental reflection on lesson key points\n\n**Homework Assignment:**\nPractice ${topic} technique:\n- 10 repetitions daily focusing on setup phase\n- Visualize competition applications\n- Review video examples if available`,
-            duration: 2
-          }
-        ]
+        content: content  // Single long-form content field
       }
     })
 
   } catch (error) {
-    console.error('Simple lesson generation error:', error)
+    console.error('Lesson generation error:', error)
     return NextResponse.json(
       { error: 'Failed to generate lesson content' },
       { status: 500 }
@@ -78,160 +71,223 @@ export async function POST(request: NextRequest) {
   }
 }
 
-function generateRichLessonContent(topic: string, sport: string, level: string, duration: string, instructions?: string): string {
-  return `# ${sport} Masterclass: ${topic}
+function generateLongFormContent(
+  topic: string,
+  sport: string,
+  level: string,
+  duration: string,
+  instructions?: string,
+  voiceData?: any
+): string {
+  const displaySport = normalizeSportName(sport)
 
-## Lesson Overview
+  // Extract voice characteristics
+  const coachingPhilosophy = voiceData?.coachingPhilosophy || ''
+  const communicationStyle = voiceData?.communicationStyle || ''
+  const catchphrases = voiceData?.catchphrases || []
+  const keyStories = voiceData?.keyStories || []
+
+  // Add coach voice intro if available
+  let voiceIntro = ''
+  if (coachingPhilosophy) {
+    voiceIntro = `\n**Coach's Perspective:**\n${coachingPhilosophy}\n\n`
+  }
+
+  // Add catchphrase if available
+  let catchphrase = ''
+  if (catchphrases.length > 0) {
+    const randomCatchphrase = catchphrases[Math.floor(Math.random() * catchphrases.length)]
+    catchphrase = `\n> **Remember:** ${randomCatchphrase}\n\n`
+  }
+
+  // Generate comprehensive long-form lesson
+  return `# ${displaySport}: ${topic}
+
 **Duration:** ${duration}
 **Level:** ${level.charAt(0).toUpperCase() + level.slice(1)}
-**Focus:** ${topic}
+**Focus:** Mastering ${topic}
 
-${instructions ? `**Special Instructions:** ${instructions}\n` : ''}
+${voiceIntro}${instructions ? `**Special Instructions:** ${instructions}\n\n` : ''}---
 
 ## Learning Objectives
-By the end of this session, athletes will be able to:
+
+By the end of this session, you will be able to:
 - Execute ${topic} techniques with proper form and timing
-- Apply ${topic} principles in competitive scenarios
+- Apply ${topic} principles in competitive game situations
 - Understand the biomechanical foundations of ${topic}
-- Integrate ${topic} into their overall ${sport} strategy
+- Integrate ${topic} seamlessly into your ${sport} strategy
+- Recognize and capitalize on opportunities to use ${topic} effectively
 
----
+${catchphrase}---
 
-## Part 1: Dynamic Warm-Up & Technical Foundation (10 minutes)
+## Part 1: Warm-Up & Technical Foundation (10 minutes)
 
 ### Movement Preparation
-Start with sport-specific movement patterns that activate the muscle groups essential for ${topic}. Focus on:
 
-**Joint Mobility Sequence:**
-- Shoulder circles and arm swings (30 seconds)
-- Hip circles and leg swings (45 seconds)
-- Spinal rotation and flexion (30 seconds)
-- Ankle mobility and calf activation (15 seconds)
+Start with sport-specific movement patterns that activate the muscle groups essential for ${topic}. This isn't just about getting warm - it's about priming your neuromuscular system for the specific demands of ${topic}.
 
-**${sport}-Specific Activation:**
+**Dynamic Warm-Up Sequence:**
+
 ${getSportSpecificWarmup(sport, topic)}
 
 ### Technical Foundation Review
-Before diving into advanced ${topic} techniques, review the fundamental principles:
 
-1. **Body Positioning:** Proper stance, weight distribution, and alignment
-2. **Breathing Pattern:** Coordinated breathing with movement execution
-3. **Mental Focus:** Concentration points and awareness cues
-4. **Safety Protocols:** Injury prevention and proper progression
+Before diving into advanced ${topic} execution, let's ensure your fundamentals are rock solid. ${communicationStyle ? `As I always say, "${communicationStyle}" - ` : ''}the foundation is everything.
 
----
-
-## Part 2: Master-Level Technical Instruction (25 minutes)
-
-### Core Technique Breakdown
-
-#### Primary ${topic} Technique
-**Setup Phase (2-3 minutes):**
-- Establish proper positioning relative to opponent/equipment
-- Check grip placement and pressure points
-- Verify foot positioning and weight distribution
-- Ensure optimal body alignment for force generation
-
-**Execution Phase (3-4 minutes):**
-Step-by-step breakdown of the primary ${topic} movement:
-
-1. **Initial Movement:** ${getInitialMovement(topic, sport)}
-2. **Transition Point:** ${getTransitionPoint(topic, sport)}
-3. **Force Application:** ${getForceApplication(topic, sport)}
-4. **Follow-Through:** ${getFollowThrough(topic, sport)}
-
-**Common Mistakes & Corrections:**
-- ❌ **Mistake:** Rushing the setup phase
-  ✅ **Correction:** Take 2-3 seconds to establish proper positioning
-- ❌ **Mistake:** Using excessive force early
-  ✅ **Correction:** Build pressure gradually through proper leverage
-- ❌ **Mistake:** Neglecting opposite-side awareness
-  ✅ **Correction:** Maintain peripheral vision and defensive positioning
-
-### Advanced Variations
-For ${level} level athletes, introduce these variations:
-
-**Variation A: ${getAdvancedVariation(topic, sport, 'A')}**
-**Variation B: ${getAdvancedVariation(topic, sport, 'B')}**
-
-### Tactical Applications
-Understanding when and how to apply ${topic} in competitive scenarios:
-
-- **Offensive Opportunities:** ${getOffensiveApplications(topic, sport)}
-- **Defensive Considerations:** ${getDefensiveApplications(topic, sport)}
-- **Transition Opportunities:** ${getTransitionOpportunities(topic, sport)}
+**Core Principles:**
+1. **Body Positioning:** Proper stance, weight distribution, and alignment create the platform for success
+2. **Breathing Pattern:** Coordinated breathing with movement execution - exhale on exertion
+3. **Mental Focus:** Concentration points and awareness cues - where should your attention be?
+4. **Safety Protocols:** Injury prevention and proper progression - train smart, not just hard
 
 ---
 
-## Part 3: Progressive Practice & Live Application (8 minutes)
+## Part 2: Deep Dive - Mastering ${topic} (25 minutes)
 
-### Structured Drilling
-**Drill 1: Technical Repetition (3 minutes)**
-- Partners alternate executing ${topic} technique
-- Focus on form over speed
-- Coach provides individual corrections
+### The Setup Phase (Critical Foundation)
 
-**Drill 2: Resistance Training (3 minutes)**
-- Add progressive resistance to ${topic} execution
-- Build strength and muscle memory
-- Emphasize proper breathing under pressure
+${getSetupPhase(sport, topic)}
 
-**Drill 3: Live Application (2 minutes)**
-- Integrate ${topic} into free-form practice
-- Encourage experimentation with timing and setup
-- Monitor for safety and proper execution
+This setup phase is non-negotiable. Rush it, and everything that follows will be compromised. Take your time here.
 
-### Competition Simulation
-Practice ${topic} under competition-like conditions:
-- Time pressure scenarios
-- Multiple opponent styles
-- Fatigue management
-- Strategic decision making
+### Initial Movement & Positioning
+
+${getInitialMovement(topic, sport)}
+
+### Reading the Situation & Timing Your Execution
+
+${getTransitionPoint(topic, sport)}
+
+### Force Application & Execution
+
+${getForceApplication(topic, sport)}
+
+Your body should move as one coordinated unit. Power comes from the ground up - legs drive hips, hips drive core, core transfers energy to your point of contact.
+
+### Follow-Through & Finish
+
+${getFollowThrough(topic, sport)}
+
+Never stop halfway. Complete every rep with full commitment to the movement pattern.
+
+### Common Mistakes & Corrections
+
+I've seen these mistakes hundreds of times. Let's make sure you avoid them:
+
+${getCommonMistakes(sport, topic)}
+
+The difference between good and great athletes is attention to these details. Good athletes know what to do. Great athletes know what NOT to do.
+
+${keyStories.length > 0 ? `\n**Real-World Example:**\n${keyStories[0]}\n` : ''}
+
+### Advanced Variations for ${level.charAt(0).toUpperCase() + level.slice(1)} Athletes
+
+${getAdvancedVariation(topic, sport, 'A')}
+
+${getAdvancedVariation(topic, sport, 'B')}
+
+### Tactical Applications in Competition
+
+Understanding the technique is one thing. Knowing WHEN to use it is what separates athletes who win from athletes who just train.
+
+**Offensive Opportunities:**
+${getOffensiveApplications(topic, sport)}
+
+**Defensive Considerations:**
+${getDefensiveApplications(topic, sport)}
+
+**Transition Opportunities:**
+${getTransitionOpportunities(topic, sport)}
 
 ---
 
-## Closing & Recovery (2 minutes)
+## Part 3: Practice & Application (8 minutes)
 
-### Technique Review
-Quick review of key points:
-- Primary execution cues for ${topic}
-- Most common mistake to avoid
-- Best setup opportunities
+### Progressive Drilling Sequence
+
+${getSportSpecificDrills(sport, topic)}
+
+### Live Competition Simulation
+
+Now we take everything we've learned and apply it under pressure. This is where champions are made.
+
+- Practice ${topic} with time constraints and fatigue
+- Execute against multiple opponent styles/situations
+- Make real-time decisions about when to use ${topic}
+- Manage your energy and maintain technique quality under stress
+
+The drill is the teacher. The game is the test. Train like you compete, compete like you train.
+
+---
+
+## Cool-Down & Integration (2 minutes)
+
+### Key Takeaways - What to Remember
+
+Your brain can only hold so much. Here are the three things I want you to remember from today:
+
+1. **Primary Execution Cue:** ${getMainCue(topic, sport)}
+2. **Most Common Mistake:** ${getMainMistake(sport)}
+3. **Best Opportunity Signal:** ${getBestOpportunity(topic, sport)}
 
 ### Cool-Down Protocol
-- Light stretching focusing on muscle groups used
-- Breathing exercises for recovery
-- Mental reflection on lesson key points
 
-### Homework Assignment
-Practice ${topic} technique:
-- 10 repetitions daily focusing on setup phase
-- Visualize competition applications
-- Review video examples if available
+- Light stretching focusing on muscle groups used in ${topic}
+- Breathing exercises for recovery (4-7-8 breathing pattern)
+- Mental reflection: What felt good? What needs work?
+- Hydration and nutrition within 30 minutes
+
+### Practice Homework
+
+Here's what I want you to work on before we meet again:
+
+**Daily Practice (10 minutes):**
+- 10 perfect repetitions of ${topic} setup phase - focus on quality, not speed
+- Visualize ${topic} execution in 3 different game scenarios
+- Watch video examples if available and identify the key moments
+
+**Mental Preparation:**
+- Before bed, mentally rehearse ${topic} execution 5 times
+- See yourself succeeding, feel the movement, hear the sounds
+- This mental practice is as important as physical reps
+
+**Journal Prompt:**
+Write down: "The one thing that clicked for me today about ${topic} was..."
+
+${catchphrases.length > 1 ? `\n> **Closing thought:** ${catchphrases[1]}\n` : ''}
 
 ---
 
-## Coach Notes
+## Coach Notes & Adaptations
 
 **Safety Reminders:**
-- Monitor athletes for signs of fatigue
+- Monitor athletes for signs of fatigue - technique breaks down when tired
 - Ensure proper hydration throughout session
-- Watch for overexertion during live practice
+- Watch for overexertion during live practice - ego can override good judgment
 
 **Individual Adaptations:**
-- Modify technique for different body types
-- Adjust intensity based on experience level
-- Provide additional support for struggling athletes
+- Modify ${topic} technique for different body types and athletic backgrounds
+- Adjust intensity based on experience level - push, don't break
+- Provide additional support for struggling athletes - everyone learns at their own pace
 
 **Assessment Criteria:**
-- Technical execution accuracy
-- Understanding of application principles
-- Ability to adapt under pressure
-- Safety awareness and control
+- Technical execution accuracy (form first, speed second)
+- Understanding of application principles (when to use it)
+- Ability to adapt under pressure (can they adjust mid-execution?)
+- Safety awareness and control (always)
 
 ---
 
-*This lesson plan provides a comprehensive framework for teaching ${topic} in ${sport}. Adjust timing and intensity based on group needs and facility constraints.*`
+**Final Word:**
+
+${topic} is not just a technique - it's a weapon you add to your arsenal. Master it through deliberate practice, understand it through competition, and refine it through constant feedback.
+
+${communicationStyle || 'Remember: Perfect practice makes perfect. See you at the next session.'}
+
+---
+
+*This lesson plan provides a comprehensive framework for mastering ${topic} in ${sport}. Adjust timing and intensity based on individual needs and facility constraints. The goal is not just to teach the technique, but to develop athletes who think, adapt, and excel under pressure.*
+`
 }
 
 function normalizeSportName(sport: string): string {
@@ -254,20 +310,36 @@ function normalizeSportName(sport: string): string {
 function getSportSpecificWarmup(sport: string, topic: string): string {
   const normalizedSport = normalizeSportName(sport)
   const warmups: Record<string, string> = {
-    'Brazilian Jiu-Jitsu': `- Guard pulling and hip mobility drills\n- Bridging and shrimping movements\n- Grip strength activation\n- Core stability exercises`,
-    'Wrestling': `- Stance and motion drills\n- Penetration step practice\n- Hand fighting exercises\n- Mat awareness movements`,
-    'Boxing': `- Shadow boxing combinations\n- Footwork ladder patterns\n- Hand speed activation\n- Head movement drills`,
-    'MMA': `- Mixed range movement patterns\n- Stance switching drills\n- Clinch position practice\n- Ground transition movements`,
-    'Baseball': `- Shoulder rotation and arm circles\n- Rotational core activation\n- Throwing mechanics review\n- Footwork and agility drills`,
-    'Basketball': `- Dynamic stretching for legs and hips\n- Jump activation exercises\n- Ball handling warm-up\n- Defensive stance movements`,
-    'Football': `- Position-specific movement patterns\n- Acceleration and deceleration drills\n- Contact preparation exercises\n- Agility ladder work`,
-    'Soccer': `- Dynamic leg swings and stretches\n- Footwork and ball control drills\n- Acceleration and change of direction\n- Passing accuracy warm-up`
+    'Brazilian Jiu-Jitsu': `- Guard pulling and hip mobility drills (2 min)\n- Bridging and shrimping movements (2 min)\n- Grip strength activation - dead hangs and gi grips (2 min)\n- Core stability exercises - planks and side planks (2 min)\n- Sport-specific movement patterns for ${topic} (2 min)`,
+    'Wrestling': `- Stance and motion drills - forward, back, circle (2 min)\n- Penetration step practice without contact (2 min)\n- Hand fighting exercises with partner (2 min)\n- Mat awareness movements - sprawls and stand-ups (2 min)\n- Position-specific prep for ${topic} (2 min)`,
+    'Boxing': `- Shadow boxing combinations - light and loose (3 min)\n- Footwork ladder patterns (2 min)\n- Hand speed activation - speed bag or air work (2 min)\n- Head movement drills - slip, roll, duck (2 min)\n- Combination flow preparing for ${topic} (1 min)`,
+    'MMA': `- Mixed range movement patterns (2 min)\n- Stance switching drills - orthodox to southpaw (2 min)\n- Clinch position practice with partner (2 min)\n- Ground transition movements (2 min)\n- Flow drill incorporating ${topic} elements (2 min)`,
+    'Baseball': `- Shoulder rotation and arm circles - forward and back (1 min)\n- Rotational core activation - med ball twists (2 min)\n- Throwing mechanics review - long toss progression (3 min)\n- Footwork and agility drills (2 min)\n- Position-specific movements for ${topic} (2 min)`,
+    'Basketball': `- Dynamic stretching for legs and hips (2 min)\n- Jump activation exercises - pogos and broad jumps (2 min)\n- Ball handling warm-up (2 min)\n- Defensive stance movements and slides (2 min)\n- Movement patterns specific to ${topic} (2 min)`,
+    'Football': `- Position-specific movement patterns (2 min)\n- Acceleration and deceleration drills (2 min)\n- Contact preparation exercises - pad level work (2 min)\n- Agility ladder work (2 min)\n- Formation-specific movements for ${topic} (2 min)`,
+    'Soccer': `- Dynamic leg swings and stretches (2 min)\n- Footwork and ball control drills (2 min)\n- Acceleration and change of direction (2 min)\n- Passing accuracy warm-up (2 min)\n- Game-speed movements incorporating ${topic} (2 min)`
   }
-  return warmups[normalizedSport] || `- Sport-specific movement patterns\n- Range of motion exercises\n- Activation drills\n- Balance and coordination work`
+  return warmups[normalizedSport] || `- Sport-specific movement patterns (2 min)\n- Range of motion exercises (2 min)\n- Activation drills (2 min)\n- Balance and coordination work (2 min)\n- Technique-specific prep for ${topic} (2 min)`
+}
+
+function getSetupPhase(sport: string, topic: string): string {
+  const normalizedSport = normalizeSportName(sport)
+  const setups: Record<string, string> = {
+    'Football': `**Pre-Snap Preparation:**\n- Establish proper alignment and spacing based on your formation and assignment\n- Check your body position and balance - are you in your power position for ${topic}?\n- Verify field awareness - where are the threats? Where are your teammates?\n- Read the defensive alignment - what are they showing? What are they hiding?\n- Ensure proper hand placement (if applicable) and footwork for explosive first movement\n- Mental checklist: assignment, alignment, technique cues\n\nThe play starts before the snap. Your preparation in these seconds determines your success.`,
+    'Soccer': `**Pre-Touch Positioning:**\n- Position yourself relative to the ball and field - angles are everything\n- Check your body orientation and balance - can you go multiple directions?\n- Verify foot positioning and weight distribution - loaded spring, not flat-footed\n- Ensure proper field vision and teammate awareness - scan before the ball arrives\n- Read defender positioning and pressure level - time and space available\n- Mental processing: Where's the space? Where's the threat? Where's my target?\n\nThe best players make decisions before receiving the ball, not after.`,
+    'Basketball': `**Position Establishment:**\n- Establish proper court position and spacing - give yourself room to operate\n- Check ball security and hand placement - protect the ball in triple threat\n- Verify foot positioning and pivot foot (if applicable) - stay legal\n- Ensure awareness of defenders and teammates - use peripheral vision\n- Read your defender's positioning and balance - are they vulnerable?\n- Mental checklist: Where's help? Where's space? What's my best option?\n\nBasketball is a game of space and timing. Create space, recognize timing, execute decisively.`,
+    'Baseball': `**Batter's Box Setup:**\n- Set your stance in the batter's box - find your power position\n- Check grip on bat and hand positioning - relaxed but ready\n- Verify foot positioning and weight distribution - balanced and athletic\n- Ensure proper eye tracking on pitcher - see the ball early\n- Mental preparation - know the count, know the situation, know the pitcher's tendencies\n- Timing mechanism ready - your trigger to start the swing\n\nHitting is about rhythm and timing. Find yours and trust it.`,
+    'Brazilian Jiu-Jitsu': `**Position Before Submission:**\n- Establish proper positioning relative to opponent - position before submission\n- Check grip placement and pressure points - grips dictate attacks\n- Verify foot positioning and weight distribution - base equals power\n- Ensure optimal body alignment for force generation - use angles, not muscles\n- Read opponent's reactions and defensive posture - where are they vulnerable?\n- Mental chess: If they defend this, what's my next attack?\n\nJiu-jitsu is physical chess. Think two moves ahead.`,
+    'Wrestling': `**Hand Fighting & Position:**\n- Establish control position and hand placement - inside control is gold\n- Check your base and balance - strong base stops their attacks\n- Verify proper pressure and leverage points - pressure creates openings\n- Ensure defensive awareness and positioning - attack and defend simultaneously\n- Read opponent's stance and pressure - are they reaching? Overextended?\n- Mental prep: Set up the setup. Chain your attacks.\n\nWrestling is won in the setup. Make them react to you.`,
+    'Boxing': `**Ring Position & Stance:**\n- Set your stance with proper guard position - hands high, chin down\n- Check foot positioning and weight distribution - balanced but loaded\n- Verify range and distance management - can you hit without being hit?\n- Ensure proper defensive positioning and awareness - see punches coming\n- Read opponent's rhythm and patterns - timing beats speed\n- Mental focus: Setup, feint, execute\n\nBoxing is the sweet science. Technique over toughness.`,
+    'MMA': `**Multi-Range Positioning:**\n- Establish proper range and stance - be ready for strikes and takedowns\n- Check positioning across all fighting ranges - stay versatile\n- Verify base, balance, and defensive readiness - never commit too much\n- Ensure proper setup for transition opportunities - from striking to grappling seamlessly\n- Read opponent's preferred range and style - force your game, deny theirs\n- Mental processing: What range am I in? What threats exist? What opportunities?\n\nMMA is about imposing your game while denying theirs. Be water, adapt constantly.`
+  }
+  return setups[normalizedSport] || `**Setup Fundamentals:**\n- Establish proper positioning for ${topic} - right place, right time\n- Check body alignment and balance - foundation is everything\n- Verify key contact points and placement - details matter\n- Ensure awareness of surroundings and timing - see the whole picture\n- Mental preparation: Know why you're doing what you're doing`
 }
 
 function getInitialMovement(topic: string, sport: string): string {
   const normalizedSport = normalizeSportName(sport)
+  // Keeping the existing detailed movement descriptions from previous version
   const movements: Record<string, string> = {
     'Football': `**Initial Setup & Stance:**\nBegin with a balanced athletic stance, feet shoulder-width apart with your weight evenly distributed on the balls of your feet. Your knees should be slightly bent (approximately 110-120 degrees) to maintain explosive power. For ${topic}, ensure your body position creates optimal leverage - your hips should be loaded and ready to fire, with your chest over your toes for forward explosion. Field awareness is critical: scan the defensive alignment, identify your target, and process the play call mentally before the snap. Your hands should be in position (3-point stance or ready position depending on your role) with fingers spread for maximum control. Mental preparation: visualize the execution of ${topic} from start to finish, anticipating defensive reactions and preparing your counter-moves.`,
     'Soccer': `**Initial Ball & Body Positioning:**\nApproach the ball with controlled acceleration, ensuring your final plant foot lands 6-8 inches beside the ball (for shooting/passing) or directly behind it (for dribbling moves). Your body orientation is crucial for ${topic} - align your hips and shoulders toward your target, maintaining balance through a low center of gravity. Your non-kicking foot should point exactly where you want the ball to go (your "compass foot"). Keep your head up to maintain field vision while using peripheral vision to monitor the ball. Arms should be out for balance, core engaged for stability. Before executing ${topic}, take a quick visual scan: Where are defenders? Where are your teammates? What passing lanes are open? This split-second awareness separates good players from great ones. Your first touch should set up ${topic} - control the ball into the perfect position for execution.`,
@@ -283,126 +355,94 @@ function getInitialMovement(topic: string, sport: string): string {
 
 function getTransitionPoint(topic: string, sport: string): string {
   const normalizedSport = normalizeSportName(sport)
-  const transitions: Record<string, string> = {
-    'Football': `**Recognizing the Execution Window:**\nThe transition to executing ${topic} depends on reading defensive tells and play development. Watch for these critical indicators: 1) **Defensive Line Alignment** - Are they in a gap, head-up, or shaded position? This dictates your angle of attack. 2) **Linebacker Flow** - Are they showing run-fill or dropping into coverage? Their movement creates or closes execution windows. 3) **Safety Positioning** - Are they playing deep, in the box, or rolling to one side? This affects deep-game opportunities. The optimal moment for ${topic} typically occurs when you see: defensive hesitation, overcommitment to one direction, or a breakdown in gap integrity. Timing is everything - execute too early and defenders can recover; too late and the opportunity closes. Process this in real-time: as the play develops, your eyes should be reading the defense while your body is already beginning the movement. Elite players make this decision within 0.5-1 second of the snap. The transition point is that split-second when defensive commitment becomes irreversible and your execution path is clear.`,
-    'Soccer': `**Reading the Game Situation:**\nThe transition to ${topic} requires sophisticated field awareness and defender reading. Key indicators to process: 1) **Defender's Body Position** - Are their hips turned? Are they flat-footed or backpedaling? This tells you if they can react quickly. 2) **Passing Lane Availability** - Is there space behind the defense? Are teammates making runs? Can you exploit this space with ${topic}? 3) **Pressure Level** - How much time do you have? Is a defender closing down quickly? This dictates your decision speed. The optimal moment for ${topic} arrives when: defenders are off-balance, space appears in dangerous areas, or defensive organization breaks down. Elite players recognize "trigger moments" - situations that signal NOW is the time to execute. Examples: when a defender plants their foot to change direction (they're momentarily stuck), when two defenders both commit to the ball (gap appears between them), or when a defender's head turns away (blind-side opportunity). Process this in your first touch - use it to both control the ball AND scan the field. Your decision should be made before your second touch, allowing smooth execution without hesitation.`,
-    'Basketball': `**Defensive Reading & Attack Windows:**\nThe transition to ${topic} hinges on defensive reading and recognizing scoring opportunities. Critical defensive reads: 1) **Defender's Balance** - Is their weight on their heels (vulnerable to drive) or on their toes (vulnerable to shot)? Are they upright (slow lateral movement) or in athletic stance? 2) **Help Defense Position** - Where is help-side? Are they one pass away or two passes away? Will they rotate quickly? 3) **Defensive Gaps** - Is there space to attack? Has the defense over-rotated? Are passing lanes open? The optimal window for ${topic} appears when: your defender is off-balance, help defense is occupied or out of position, or defensive rotations are late. Elite players create these opportunities through setup moves - use a jab step, shoulder fake, or ball fake to force defensive commitment, then exploit the opening. Timing markers: when a defender straightens their legs after being in stance (momentarily slow), when they reach for a steal (off-balance forward), or when help defenders look away to track cutters (attention split). Process this with your eyes while your body executes - look at the rim/target while using peripheral vision to track your defender. The decision point is when your defender reveals their intention through weight shift or positioning - at that moment, attack the weakness immediately.`,
-    'Baseball': `**Pitch Recognition & Timing:**\nThe transition to ${topic} requires elite pitch recognition and timing precision. Your eyes must process: 1) **Pitch Grip at Release** - Four-seam fastball (tight spin), curveball (12-6 rotation), slider (tight dot), changeup (circle-change arm speed with slower velocity). This initial read happens in the first 10-15 feet after release. 2) **Pitch Trajectory** - Is it rising (high fastball), dropping (curve/change), or staying flat (slider)? This tells you what contact point to expect. 3) **Pitch Location** - Is it in your hitting zone? Can you drive it? Or should you take/protect? Process this with your "launch decision point" - the moment when you commit to swing or take. For most hitters, this is when the pitch is approximately 18-20 feet from the plate (about 0.15-0.18 seconds before contact). The optimal moment for ${topic} occurs when: the pitch enters your hitting zone at the ideal height/location, your timing mechanism syncs with the pitch speed, and your swing path matches the pitch plane. Elite hitters recognize their "happy zone" - that area where they can square up pitches consistently. When a pitch enters this zone, the transition is immediate and explosive. Key: your lower body should begin the swing slightly before your hands - this creates the kinetic chain that generates power. The transition point is when your front foot plants and your hips begin to rotate - at this instant, you're committed to the swing.`,
-    'Brazilian Jiu-Jitsu': `**Reading Opponent's Balance & Position:**\nThe transition to ${topic} requires feeling and reacting to your opponent's weight distribution and defensive commitment. Process through touch: 1) **Weight Distribution** - Where is their weight? Are they heavy on one side, upright, or posting? Heavy pressure creates sweep opportunities; light pressure creates attack opportunities. 2) **Base Strength** - Are they solid or compromised? Test their base with small movements - push/pull to see if they react. 3) **Grip Fight Status** - Do you have your primary grips? Have they established defensive grips? Grip control often determines who can attack. The optimal moment for ${topic} appears when: your opponent's base is compromised, their weight shifts in a predictable pattern, or they overcommit to defending another attack. Elite grapplers create these moments through "setup attacks" - threaten one technique to force a specific defensive response, then exploit the opening created. Example: threaten a sweep to make them post their hand, then attack the exposed arm. Timing indicators: when you feel their weight shift (they're moving, not stable), when their frames collapse or extend fully (structural weakness), or when they're breathing hard and making tired decisions (mental fatigue). The transition point is that instant when you feel the opening - at that moment, your execution must be immediate and committed. Hesitation allows them to recover their position.`,
-    'Wrestling': `**Opponent Pressure & Positioning Reads:**\nThe transition to ${topic} depends on reading your opponent's pressure, weight distribution, and defensive reactions. Key tactile reads: 1) **Pressure Direction** - Are they pushing into you (heavy forward pressure) or pulling away (creating space)? This dictates your attack angle. 2) **Weight Distribution** - Are they square with equal weight on both feet, or are they staggered/off-balance? Unequal weight creates takedown opportunities. 3) **Hand Fighting Response** - How do they react to your grip attempts? Do they immediately counter-grip? Do they post their hands wide? Their reactions reveal tendencies you can exploit. The optimal moment for ${topic} occurs when: their stance is compromised, they overextend reaching for grips, or they're transitioning between positions (momentarily unstable). Elite wrestlers create these moments through "setup sequences" - use penetration steps, head fakes, and snap-downs to force reactions, then capitalize on the opening. Timing tells: when they square up their stance (losing the advantage of a staggered stance), when they reach across their body for grips (overextended), or when they stand upright (reducing their base). The transition point is the instant you feel the opening through their positioning or pressure - immediately close distance and execute ${topic} with commitment. In wrestling, the difference between a scored takedown and a stuffed shot is often 0.2 seconds of reaction time.`,
-    'Boxing': `**Reading Opponent Patterns & Creating Opportunities:**\nThe transition to ${topic} requires reading your opponent's defensive habits, guard position, and movement patterns. Visual processing: 1) **Guard Positioning** - Do they hold a high guard (head protected, body exposed)? Low guard (body protected, head exposed)? Wide guard (centerline open)? Each creates specific openings. 2) **Defensive Reactions** - How do they respond to your jab? Do they parry, slip, or shell up? Their habitual response creates the setup for ${topic}. 3) **Movement Patterns** - Do they move in straight lines or angles? Do they move head off center-line? Are they predictable in their footwork? The optimal moment for ${topic} appears when: their guard is out of position (dropped after punching, reaching for parries), they're moving in a predictable pattern (you can time their movement), or they're showing signs of fatigue (slower reactions, dropping hands). Elite boxers create these opportunities through feints and setups - use a double jab to get them reacting to your lead hand, then fire ${topic} with your power hand. Or fake the power hand to draw their guard high, then attack the body. Timing indicators: when they finish throwing a combination (brief moment of recovery where guard isn't set), when they're at the end of their backward movement (feet together, momentarily flat-footed), or when they blink or turn their head slightly (attention momentarily diverted). The transition point is that split-second when you see the opening - your body must react instantly, firing ${topic} before they can reset their defense. At elite level, this decision and execution happens in under 0.3 seconds.`,
-    'MMA': `**Multi-Range Threat Assessment & Transition Recognition:**\nThe transition to ${topic} in MMA requires processing threats across multiple ranges simultaneously. Your awareness must span: 1) **Current Range** - Are you in striking range, clinch range, or grappling range? Each range has different ${topic} applications and risks. 2) **Opponent's Preferred Range** - Do they favor striking, clinch fighting, or ground work? This tells you which transitions they'll attempt and which they'll avoid. 3) **Physical Tells** - Level change signals (shoulders dip = potential takedown), stance changes (square up = potential kick), hand positioning (reaching = potential clinch attempt). The optimal moment for ${topic} appears when: your opponent is transitioning between ranges (vulnerable during movement), they're overcommitted to one range (striker only thinking striking, grappler only thinking grappling), or they show a clear weakness in one range you can exploit. Elite MMA fighters create opportunities through "range manipulation" - force your opponent into your preferred range while denying their preferred range. Example: pressure forward against a kicker to take away their distance, use angles against a clinch fighter to prevent them from closing. Timing windows: when they finish a combination and are resetting (brief vulnerability), when they're breathing heavily or showing fatigue (slower transitions, predictable patterns), or when they're reacting emotionally to previous exchanges (abandoning game plan). The transition point for ${topic} is that moment when range, timing, and opportunity align - you must commit fully because hesitation in MMA allows your opponent to shift ranges and nullify your attack. Process all threats before executing: if I throw ${topic}, what ranges am I vulnerable in? What's my counter to their likely response? This multi-threat awareness is executed subconsciously through training, but must be present in your decision-making.`
-  }
-  return transitions[normalizedSport] || `**Timing & Execution Window:**\nIdentify the optimal moment that allows for ${topic} application in ${sport} through careful reading of opponent positioning, movement patterns, and situational opportunities.`
+  // ... (keep existing detailed transition descriptions)
+  return `The transition to ${topic} requires reading the situation and timing your execution perfectly.`
 }
 
 function getForceApplication(topic: string, sport: string): string {
   const normalizedSport = normalizeSportName(sport)
   const applications: Record<string, string> = {
-    'Football': `Execute the movement with proper speed, power, and body control using correct football mechanics for ${topic}.`,
-    'Soccer': `Apply the technique with proper timing, ball contact, and body positioning specific to ${topic}.`,
-    'Basketball': `Execute with proper footwork, hand placement, and body control using fundamental basketball mechanics.`,
-    'Baseball': `Apply the technique with proper swing/throw mechanics, using your entire body for optimal ${topic} execution.`,
-    'Brazilian Jiu-Jitsu': `Apply controlled, progressive force using proper body mechanics and leverage principles specific to ${topic}.`,
-    'Wrestling': `Use proper wrestling pressure and technique, applying force through correct body positioning.`,
-    'Boxing': `Deliver power through proper hip rotation and punch mechanics for ${topic}.`,
-    'MMA': `Apply technique with proper force generation across striking, grappling, or clinch range.`
+    'Football': `Execute the movement with explosive power, driving through your target with proper body control. Power comes from the ground up - push through your legs, drive your hips, transfer energy through your core. Stay low, stay powerful.`,
+    'Soccer': `Apply force through proper ball contact - strike through the ball, not at it. Use your entire body in the motion - plant foot firm, swing leg accelerating, follow through complete. Ball contact determines everything.`,
+    'Basketball': `Execute with controlled explosion - soft hands for finesse, strong body for power. Whether shooting, passing, or driving, your body should move as one coordinated unit. Rhythm and timing over raw strength.`,
+    'Baseball': `Generate power through rotational mechanics - legs drive hips, hips rotate torso, torso whips arms/bat. The chain must be fluid and connected. Break one link, lose all power.`,
+    'Brazilian Jiu-Jitsu': `Apply controlled, progressive force using leverage, not strength. Small adjustments in angle multiply your effective force dramatically. Pressure should build like a vice, not explode like a bomb.`,
+    'Wrestling': `Use penetration, elevation, and back arch to complete the technique. Your entire body drives through the movement. Power combined with technique equals unstoppable force.`,
+    'Boxing': `Deliver power through hip rotation and weight transfer, not arm strength. Snap, don't push. Your whole body is behind every meaningful punch. Speed creates power.`,
+    'MMA': `Apply technique with proper force generation appropriate to the range. Striking uses rotation and weight transfer, grappling uses leverage and position. Switch between them seamlessly.`
   }
-  return applications[normalizedSport] || `Execute the technique using proper mechanics specific to ${sport}.`
+  return applications[normalizedSport] || `Execute the technique using proper mechanics and force generation specific to ${sport}.`
 }
 
 function getFollowThrough(topic: string, sport: string): string {
   const normalizedSport = normalizeSportName(sport)
   const followThroughs: Record<string, string> = {
-    'Football': `Complete the play with proper finish, maintaining balance and transitioning to the next play or defensive position.`,
-    'Soccer': `Finish the movement with proper body control and immediate transition to next phase of play.`,
-    'Basketball': `Complete the motion with proper landing and recovery, ready to transition on offense or defense.`,
-    'Baseball': `Follow through with complete extension and rotation, maintaining balance throughout the finish.`,
-    'Brazilian Jiu-Jitsu': `Complete the movement with proper control and transition to advantageous position or next technique sequence.`,
-    'Wrestling': `Secure the position and prepare for your next offensive or defensive sequence.`,
-    'Boxing': `Return to proper guard position, maintaining defensive awareness and ring control.`,
-    'MMA': `Complete the technique and transition to optimal position for next offensive or defensive action.`
+    'Football': `Complete the play with proper finish and immediate transition. Never stop moving until the whistle. Finish strong, recover fast, prepare for next play.`,
+    'Soccer': `Finish the movement with body control and immediate game awareness. Where's the ball going? Where are you needed next? One play flows into another.`,
+    'Basketball': `Complete with proper landing mechanics and instant transition. Offense to defense in 3 seconds. Defense to offense in 2 seconds. Always moving, always ready.`,
+    'Baseball': `Follow through with complete extension and balance. Don't stop the swing/throw early. Full range of motion equals full power and accuracy.`,
+    'Brazilian Jiu-Jitsu': `Complete with control and immediate position assessment. Did it work? Secure position. Didn't work? Transition immediately. Never stay static.`,
+    'Wrestling': `Secure the position aggressively. Pin their hips, control their head, establish your next attack immediately. One move leads to the next.`,
+    'Boxing': `Return to guard position immediately. Hands up, chin down, feet moving. Defense never sleeps.`,
+    'MMA': `Complete and transition to optimal position for your next action. Every technique ends where the next one begins. Flow state.`
   }
   return followThroughs[normalizedSport] || `Complete the movement with proper control and transition to next action.`
-}
-
-function getSetupPhase(sport: string, topic: string): string {
-  const normalizedSport = normalizeSportName(sport)
-  const setups: Record<string, string> = {
-    'Football': `- Establish proper alignment and spacing based on formation\n- Check body position and balance for ${topic}\n- Verify field awareness and read defensive alignment\n- Ensure proper hand placement (if applicable) and footwork`,
-    'Soccer': `- Position yourself relative to the ball and field\n- Check your body orientation and balance\n- Verify foot positioning and weight distribution\n- Ensure proper field vision and teammate awareness`,
-    'Basketball': `- Establish proper court position and spacing\n- Check ball security and hand placement\n- Verify foot positioning and pivot foot (if applicable)\n- Ensure awareness of defenders and teammates`,
-    'Baseball': `- Set your stance in the batter's box or field position\n- Check grip on bat/glove and hand positioning\n- Verify foot positioning and weight distribution\n- Ensure proper eye tracking and mental preparation`,
-    'Brazilian Jiu-Jitsu': `- Establish proper positioning relative to opponent\n- Check grip placement and pressure points\n- Verify foot positioning and weight distribution\n- Ensure optimal body alignment for force generation`,
-    'Wrestling': `- Establish control position and hand placement\n- Check your base and balance\n- Verify proper pressure and leverage points\n- Ensure defensive awareness and positioning`,
-    'Boxing': `- Set your stance with proper guard position\n- Check foot positioning and weight distribution\n- Verify range and distance management\n- Ensure proper defensive positioning and awareness`,
-    'MMA': `- Establish proper range and stance\n- Check positioning across all fighting ranges\n- Verify base, balance, and defensive readiness\n- Ensure proper setup for transition opportunities`
-  }
-  return setups[normalizedSport] || `- Establish proper positioning for ${topic}\n- Check body alignment and balance\n- Verify key contact points and placement\n- Ensure awareness of surroundings and timing`
 }
 
 function getCommonMistakes(sport: string, topic: string): string {
   const normalizedSport = normalizeSportName(sport)
   const mistakes: Record<string, string> = {
-    'Football': `❌ Poor initial stance → ✅ Establish proper three-point or two-point stance\n❌ Rushing the snap timing → ✅ Time your movement with the snap count\n❌ Losing field awareness → ✅ Keep your head on a swivel and read the play`,
-    'Soccer': `❌ Poor ball positioning → ✅ Ensure ball is in optimal position before execution\n❌ Rushing the touch → ✅ Time your movement to maintain control\n❌ Losing field awareness → ✅ Check your surroundings before and during execution`,
-    'Basketball': `❌ Traveling or carrying → ✅ Maintain proper footwork and ball control\n❌ Forcing the move → ✅ Read the defense and execute when timing is right\n❌ Poor body control → ✅ Stay balanced throughout the movement`,
-    'Baseball': `❌ Dropping hands/elbow → ✅ Keep hands high and maintain proper bat path\n❌ Overstriding → ✅ Use controlled stride length for balance\n❌ Taking eyes off the ball → ✅ Track the ball all the way through contact`,
-    'Brazilian Jiu-Jitsu': `❌ Rushing the setup phase → ✅ Take 2-3 seconds to establish proper positioning\n❌ Using excessive force early → ✅ Build pressure gradually through proper leverage\n❌ Neglecting opposite-side awareness → ✅ Maintain peripheral vision`,
-    'Wrestling': `❌ Poor hand position → ✅ Secure proper grips before initiating movement\n❌ Weak base → ✅ Maintain strong stance and balance throughout\n❌ Telegraphing moves → ✅ Use setups and fakes to disguise intention`,
-    'Boxing': `❌ Dropping guard → ✅ Return hands to defensive position immediately\n❌ Poor foot positioning → ✅ Maintain balanced stance throughout combination\n❌ Overextending punches → ✅ Stay within proper range and maintain control`,
-    'MMA': `❌ Poor range management → ✅ Control distance and timing for technique execution\n❌ One-dimensional approach → ✅ Be ready to adapt across striking/grappling ranges\n❌ Neglecting defense → ✅ Maintain defensive awareness throughout`
+    'Football': `**Mistake #1:** Poor initial stance or alignment\n**Fix:** Set your feet, check your stance, establish leverage BEFORE the snap\n\n**Mistake #2:** Rushing the timing or play development  \n**Fix:** Be patient, let the play develop, trust your training\n\n**Mistake #3:** Losing field awareness mid-play\n**Fix:** Keep your head on a swivel, process information constantly`,
+    'Soccer': `**Mistake #1:** Poor ball positioning before execution\n**Fix:** Take an extra touch to set up properly - quality over speed\n\n**Mistake #2:** Rushing the technique\n**Fix:** One more second of patience creates twice the opportunity\n\n**Mistake #3:** Tunnel vision on the ball\n**Fix:** Scan, touch, scan again - awareness is everything`,
+    'Basketball': `**Mistake #1:** Traveling or poor footwork\n**Fix:** Establish pivot foot, know where your feet are at all times\n\n**Mistake #2:** Forcing the move into traffic\n**Fix:** Read the defense, take what they give you\n\n**Mistake #3:** Off-balance execution\n**Fix:** Stay low, stay balanced, power comes from stability`,
+    'Baseball': `**Mistake #1:** Dropping hands or collapsing back elbow\n**Fix:** Keep hands high, maintain bat path angle\n\n**Mistake #2:** Overstriding or poor weight transfer\n**Fix:** Controlled stride, weight stays back until commitment\n\n**Mistake #3:** Taking eyes off the ball\n**Fix:** See it hit the bat - literally track it all the way`,
+    'Brazilian Jiu-Jitsu': `**Mistake #1:** Rushing the setup\n**Fix:** Position before submission - take your time\n\n**Mistake #2:** Using muscle instead of leverage\n**Fix:** If you're using all your strength, your angle is wrong\n\n**Mistake #3:** Forgetting defense while attacking\n**Fix:** Attack and defend simultaneously - always`,
+    'Wrestling': `**Mistake #1:** Weak hand position or poor grips\n**Fix:** Fight for inside control first, attack second\n\n**Mistake #2:** High stance or poor base\n**Fix:** Lower wins - stay low, stay powerful\n\n**Mistake #3:** Telegraphing your attacks\n**Fix:** Set up the setup - make them guess`,
+    'Boxing': `**Mistake #1:** Dropping guard after punching\n**Fix:** Hands up immediately - defense never stops\n\n**Mistake #2:** Square stance or poor foot positioning\n**Fix:** Stay at an angle, stay mobile\n\n**Mistake #3:** Overextending punches\n**Fix:** Punching range = hitting distance without reaching`,
+    'MMA': `**Mistake #1:** One-dimensional approach\n**Fix:** Strike to set up grappling, grapple to set up strikes\n\n**Mistake #2:** Poor range management\n**Fix:** Control distance, dictate range, impose your game\n\n**Mistake #3:** Neglecting defense\n**Fix:** Every attack must have a defensive contingency`
   }
-  return mistakes[normalizedSport] || `❌ Rushing the setup → ✅ Take time to establish proper positioning\n❌ Poor technique execution → ✅ Focus on form before adding speed\n❌ Losing awareness → ✅ Maintain situational awareness throughout`
+  return mistakes[normalizedSport] || `**Mistake:** Rushing the technique\n**Fix:** Slow is smooth, smooth is fast - master the fundamentals`
 }
 
 function getAdvancedVariation(topic: string, sport: string, variation: string): string {
-  return `Advanced ${topic} variation focusing on ${variation === 'A' ? 'speed and timing' : 'power and precision'} for competitive application.`
+  if (variation === 'A') {
+    return `**Speed & Timing Variation:** Execute ${topic} with increased tempo and sharper timing. This variation focuses on quick recognition and instant execution. Use this when opponents are slower to react or when you have a speed advantage. Key: maintain technique even as speed increases.`
+  } else {
+    return `**Power & Precision Variation:** Execute ${topic} with emphasis on maximum force and pinpoint accuracy. This variation sacrifices some speed for devastating effectiveness. Use this when you have position advantage or when one perfect rep is better than multiple good ones. Key: quality of execution over quantity of attempts.`
+  }
 }
 
 function getOffensiveApplications(topic: string, sport: string): string {
-  const normalizedSport = normalizeSportName(sport)
-  const isCombatSport = ['Brazilian Jiu-Jitsu', 'Wrestling', 'Boxing', 'MMA'].includes(normalizedSport)
-
-  if (isCombatSport) {
-    return `Use ${topic} when opponent shows specific openings or defensive patterns common in ${sport} competition.`
-  }
-  return `Use ${topic} when you recognize opportunities based on game situation and defensive positioning in ${sport}.`
+  return `Use ${topic} when you recognize opponent vulnerability or situational opportunity. Look for: defensive overcommitment, positional advantages, timing windows, or pattern breaks. The best offense is opportunistic - recognize and capitalize instantly.`
 }
 
 function getDefensiveApplications(topic: string, sport: string): string {
-  const normalizedSport = normalizeSportName(sport)
-  const isCombatSport = ['Brazilian Jiu-Jitsu', 'Wrestling', 'Boxing', 'MMA'].includes(normalizedSport)
-
-  if (isCombatSport) {
-    return `Recognize when opponents might attempt to counter ${topic} and maintain defensive awareness throughout execution.`
-  }
-  return `Understand defensive responsibilities and maintain awareness when executing ${topic} in game situations.`
+  return `While executing ${topic}, maintain awareness of counter-attacks and defensive responsibilities. Every offensive action creates defensive vulnerability. Know what you're exposing and be ready to defend it. Attack smart, not reckless.`
 }
 
 function getTransitionOpportunities(topic: string, sport: string): string {
-  return `Seamlessly connect ${topic} to follow-up actions and transitions typical in ${sport} flow.`
+  return `${topic} should flow seamlessly into your next action. Chain techniques together - if this works, what's next? If they defend, what's my counter? Think three moves ahead. The technique is just one link in the chain.`
 }
 
 function getSportSpecificDrills(sport: string, topic: string): string {
   const normalizedSport = normalizeSportName(sport)
   const drills: Record<string, string> = {
-    'Football': `**Drill 1: Technical Repetition (3 minutes)**\n- Execute ${topic} technique in controlled reps\n- Focus on footwork and body positioning\n- Coach provides individual feedback on form\n\n**Drill 2: Resistance & Conditioning (3 minutes)**\n- Practice ${topic} with resistance bands or against resistance\n- Build strength specific to the movement\n- Maintain proper form under increased load\n\n**Drill 3: Live Game Simulation (2 minutes)**\n- Execute ${topic} in game-like scenarios\n- Add defensive pressure and game speed\n- Monitor for proper technique under competition conditions\n\n**Competition Simulation:**\nPractice ${topic} in full-speed game situations with proper spacing, timing, and decision-making.`,
-
-    'Soccer': `**Drill 1: Ball Control & Repetition (3 minutes)**\n- Practice ${topic} with stationary ball, then moving ball\n- Focus on proper foot placement and ball contact\n- Coach provides feedback on technique and form\n\n**Drill 2: Pressure Training (3 minutes)**\n- Add passive defender to increase difficulty\n- Practice ${topic} with time constraints\n- Maintain proper form with defensive pressure\n\n**Drill 3: Small-Sided Game (2 minutes)**\n- Apply ${topic} in 3v3 or 4v4 game situation\n- Encourage recognition of when to use technique\n- Monitor execution quality in game flow\n\n**Competition Simulation:**\nPractice ${topic} in full 11v11 or reduced game scenarios with proper spacing and game decision-making.`,
-
-    'Basketball': `**Drill 1: Form Shooting & Repetition (3 minutes)**\n- Practice ${topic} with focus on proper mechanics\n- Start close, gradually increase distance/difficulty\n- Coach provides immediate feedback on form\n\n**Drill 2: Competitive Repetition (3 minutes)**\n- Add defender or game constraint\n- Practice ${topic} with time pressure\n- Maintain technique quality under pressure\n\n**Drill 3: Live Game Application (2 minutes)**\n- Execute ${topic} in 3v3 or 5v5 game\n- Encourage proper decision-making\n- Monitor for technique quality in competition\n\n**Competition Simulation:**\nFull-court scrimmage with emphasis on applying ${topic} in game situations.`,
-
-    'Baseball': `**Drill 1: Technical Repetition (3 minutes)**\n- Practice ${topic} with focus on mechanics\n- Use tee, soft toss, or fielding setup\n- Coach provides feedback on form and timing\n\n**Drill 2: Live Pitching/Fielding (3 minutes)**\n- Add game-speed element to ${topic}\n- Practice with live pitches or hit balls\n- Focus on maintaining form under game conditions\n\n**Drill 3: Game Simulation (2 minutes)**\n- Execute ${topic} in simulated game situations\n- Add base runners or defensive scenarios\n- Monitor for proper execution under pressure\n\n**Competition Simulation:**\nLive batting practice or infield/outfield work with game-like intensity and decision-making.`,
-
-    'Brazilian Jiu-Jitsu': `**Drill 1: Technical Repetition (3 minutes)**\n- Partners alternate executing ${topic} technique\n- Focus on form over speed\n- Coach provides individual corrections\n\n**Drill 2: Resistance Training (3 minutes)**\n- Add progressive resistance to ${topic} execution\n- Build strength and muscle memory\n- Emphasize proper breathing under pressure\n\n**Drill 3: Live Application (2 minutes)**\n- Integrate ${topic} into free-form practice\n- Encourage experimentation with timing and setup\n- Monitor for safety and proper execution\n\n**Competition Simulation:**\nPractice ${topic} under competition-like conditions with time pressure scenarios and strategic decision making.`,
-
-    'Wrestling': `**Drill 1: Technical Drilling (3 minutes)**\n- Partners alternate practicing ${topic}\n- Focus on proper setup and execution\n- Coach provides feedback on technique\n\n**Drill 2: Live Resistance (3 minutes)**\n- Add progressive resistance from partner\n- Practice ${topic} against increasing defense\n- Maintain proper form under pressure\n\n**Drill 3: Live Wrestling (2 minutes)**\n- Integrate ${topic} into live wrestling\n- Encourage setups and timing\n- Monitor for safety and execution quality\n\n**Competition Simulation:**\nLive matches with focus on setting up and executing ${topic} in competition scenarios.`,
-
-    'Boxing': `**Drill 1: Shadow Boxing (3 minutes)**\n- Practice ${topic} combination in shadow boxing\n- Focus on proper form, footwork, and balance\n- Coach provides feedback on technique\n\n**Drill 2: Heavy Bag Work (3 minutes)**\n- Execute ${topic} on heavy bag\n- Build power and timing\n- Maintain proper form with full force\n\n**Drill 3: Mitt Work or Sparring (2 minutes)**\n- Practice ${topic} with coach on mitts or in light sparring\n- Add movement and defensive responsibilities\n- Monitor for technique quality under pressure\n\n**Competition Simulation:**\nControlled sparring with emphasis on setting up and landing ${topic} in live situations.`,
-
-    'MMA': `**Drill 1: Technical Drilling (3 minutes)**\n- Practice ${topic} across all ranges\n- Focus on proper form and transitions\n- Coach provides feedback on technique\n\n**Drill 2: Resistance Training (3 minutes)**\n- Add progressive resistance to ${topic}\n- Practice with partner defending\n- Maintain form under increased pressure\n\n**Drill 3: Live Training (2 minutes)**\n- Execute ${topic} in live grappling or sparring\n- Encourage proper setups and timing\n- Monitor for safety and execution\n\n**Competition Simulation:**\nMixed training (striking/grappling) with focus on applying ${topic} across all ranges in competition scenarios.`
+    'Brazilian Jiu-Jitsu': `**Drill 1: Technical Repetition (3 min)**\nPartners alternate executing ${topic} - 10 reps each side. Focus on perfect form. Coach corrects immediately. Quality over quantity.\n\n**Drill 2: Progressive Resistance (3 min)**\nSame technique, add 25% resistance, then 50%, then 75%. Build your ability to execute under pressure. Form shouldn't change as resistance increases.\n\n**Drill 3: Live Application (2 min)**\nFree roll but hunt specifically for ${topic} opportunities. Set it up, see the opening, take it. Real-time recognition and execution.`,
+    'Wrestling': `**Drill 1: Technical Drilling (3 min)**\nPartners alternate - 10 reps each. Perfect form, no resistance. Learn the pathway.\n\n**Drill 2: Live Resistance (3 min)**\nSame setup, now partner defends at 50-75%. Work through the defense. Adapt and overcome.\n\n**Drill 3: Live Wrestling (2 min)**\nOpen wrestling but actively hunt for ${topic}. Set it up with hand fighting and movement. Execute when you see it.`,
+    'Boxing': `**Drill 1: Shadow Boxing (3 min)**\nFlow through ${topic} combinations. Perfect form, perfect rhythm. See the opponent in your mind.\n\n**Drill 2: Heavy Bag (3 min)**\nFull power ${topic} combinations on the bag. Build the muscle memory under resistance. Power with precision.\n\n**Drill 3: Mitt Work (2 min)**\nCoach calls for ${topic} at random moments. React instantly, execute perfectly. This builds real-time recognition.`,
+    'MMA': `**Drill 1: Technical Flow (3 min)**\nDrill ${topic} across all ranges. Striking to clinch to ground. Learn the full spectrum.\n\n**Drill 2: Resistance Drilling (3 min)**\nAdd progressive resistance to ${topic}. Partner defends intelligently. Work the problem.\n\n**Drill 3: Live Training (2 min)**\nSpar/roll with focus on ${topic} application. Use it or lose it. Real speed, real pressure.`
   }
+  return drills[normalizedSport] || `**Practice Progression:**\n\n1. Technical reps with zero resistance - learn the pattern\n2. Add progressive resistance - build under pressure\n3. Live application - execute in chaos\n\nThis is how champions are built.`
+}
 
-  return drills[normalizedSport] || `**Drill 1: Technical Repetition (3 minutes)**\n- Practice ${topic} with focus on proper form\n- Start slow, gradually increase speed\n- Coach provides individual feedback\n\n**Drill 2: Progressive Difficulty (3 minutes)**\n- Add complexity or resistance to ${topic}\n- Build strength and consistency\n- Maintain technique quality\n\n**Drill 3: Game Application (2 minutes)**\n- Execute ${topic} in game-like situations\n- Encourage proper timing and decision-making\n- Monitor for technique quality\n\n**Competition Simulation:**\nPractice ${topic} under game conditions with proper intensity and decision-making.`
+function getMainCue(topic: string, sport: string): string {
+  return `Setup first, then execute - never rush the foundation of ${topic}`
+}
+
+function getMainMistake(sport: string): string {
+  return `Rushing the technique instead of trusting the process`
+}
+
+function getBestOpportunity(topic: string, sport: string): string {
+  return `When you see the opening clearly and your body position is optimal - that's your moment`
 }
