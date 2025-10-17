@@ -243,7 +243,7 @@ export default function AthleteDetailPage() {
       if (response.ok) {
         setMessageText('')
         setShowMessageModal(false)
-        loadMessages() // Reload messages
+        // Messages will be reloaded when message API is fully implemented
         alert('✅ Message sent successfully!')
       } else {
         throw new Error('Failed to send message')
