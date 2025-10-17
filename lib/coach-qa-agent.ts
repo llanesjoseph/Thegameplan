@@ -479,14 +479,16 @@ async function getCoachProfile(coach_id: string): Promise<{
     const userData = userDoc.data()
 
     // Extract voice traits from voiceCaptureData
+    // SUPPORTS BOTH OLD AND NEW FORMATS FOR MAXIMUM COMPATIBILITY
     const voiceTraits: string[] = []
 
     if (userData?.voiceCaptureData) {
       const voiceData = userData.voiceCaptureData
 
-      // Add coaching philosophy if present
-      if (voiceData.coachingPhilosophy) {
-        voiceTraits.push(`Philosophy: ${voiceData.coachingPhilosophy}`)
+      // Add coaching philosophy (new: coachingPhilosophy, old: corePhilosophy)
+      const philosophy = voiceData.coachingPhilosophy || voiceData.corePhilosophy
+      if (philosophy) {
+        voiceTraits.push(`Philosophy: ${philosophy}`)
       }
 
       // Add communication style
@@ -499,34 +501,59 @@ async function getCoachProfile(coach_id: string): Promise<{
         voiceTraits.push(`Motivation: ${voiceData.motivationApproach}`)
       }
 
-      // Add catchphrases
-      if (voiceData.catchphrases && voiceData.catchphrases.length > 0) {
-        voiceTraits.push(`Catchphrases: ${voiceData.catchphrases.join(', ')}`)
+      // Add catchphrases (new: catchphrases, old: favoriteSayings)
+      const phrases = voiceData.catchphrases || voiceData.favoriteSayings || []
+      if (phrases.length > 0) {
+        voiceTraits.push(`Catchphrases: ${phrases.join(', ')}`)
       }
 
-      // Add key stories
-      if (voiceData.keyStories && voiceData.keyStories.length > 0) {
-        voiceTraits.push(`Key Stories: ${voiceData.keyStories.join(' | ')}`)
+      // Add key stories (new: keyStories, old: stories)
+      const stories = voiceData.keyStories || voiceData.stories || []
+      if (stories.length > 0) {
+        // Handle both string arrays and object arrays
+        const storyStrings = stories.map((s: any) => {
+          if (typeof s === 'string') return s
+          return `${s.title || 'Story'}: ${s.story || s.lesson || ''}`
+        }).filter((s: string) => s.length > 0)
+
+        if (storyStrings.length > 0) {
+          voiceTraits.push(`Key Stories: ${storyStrings.join(' | ')}`)
+        }
       }
 
-      // Add personality traits
-      if (voiceData.personalityTraits && voiceData.personalityTraits.length > 0) {
-        voiceTraits.push(`Personality: ${voiceData.personalityTraits.join(', ')}`)
+      // Add personality traits (new: personalityTraits, old: personality.traits)
+      const traits = voiceData.personalityTraits || voiceData.personality?.traits || []
+      if (traits.length > 0) {
+        voiceTraits.push(`Personality: ${traits.join(', ')}`)
       }
 
-      // Add current context
-      if (voiceData.currentContext) {
-        voiceTraits.push(`Context: ${voiceData.currentContext}`)
+      // Add current context (new: currentContext, old: currentTeam)
+      const context = voiceData.currentContext || voiceData.currentTeam
+      if (context) {
+        voiceTraits.push(`Context: ${context}`)
       }
 
       // Add technical focus
       if (voiceData.technicalFocus) {
-        voiceTraits.push(`Technical Focus: ${voiceData.technicalFocus}`)
+        // Handle both string and array formats
+        const techFocus = Array.isArray(voiceData.technicalFocus)
+          ? voiceData.technicalFocus.map((t: any) => {
+              if (typeof t === 'string') return t
+              return `${t.area || 'Focus'}: ${t.description || ''}`
+            }).join(' | ')
+          : voiceData.technicalFocus
+
+        if (techFocus) {
+          voiceTraits.push(`Technical Focus: ${techFocus}`)
+        }
       }
 
       logger.info('[QA-Agent] Extracted voice traits from voiceCaptureData', {
         coach_id,
-        traits_count: voiceTraits.length
+        traits_count: voiceTraits.length,
+        has_philosophy: !!philosophy,
+        has_catchphrases: phrases.length > 0,
+        has_stories: stories.length > 0
       })
     } else {
       logger.warn('[QA-Agent] No voiceCaptureData found for coach', { coach_id })
