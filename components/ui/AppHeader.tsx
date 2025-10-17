@@ -178,19 +178,39 @@ export default function AppHeader({ className = '', title, subtitle }: AppHeader
     switch (role) {
       case 'superadmin':
       case 'admin':
-        router.push('/dashboard/coach-unified')
+        // Force reload to reset state if already on coach-unified page
+        if (window.location.pathname === '/dashboard/coach-unified') {
+          window.location.href = '/dashboard/coach-unified'
+        } else {
+          router.push('/dashboard/coach-unified')
+        }
         break
       case 'coach':
-        router.push('/dashboard/coach-unified')
+        // Force reload to reset state if already on coach-unified page
+        if (window.location.pathname === '/dashboard/coach-unified') {
+          window.location.href = '/dashboard/coach-unified'
+        } else {
+          router.push('/dashboard/coach-unified')
+        }
         break
       case 'creator':
-        router.push('/dashboard/coach-unified')
+        // Force reload to reset state if already on coach-unified page
+        if (window.location.pathname === '/dashboard/coach-unified') {
+          window.location.href = '/dashboard/coach-unified'
+        } else {
+          router.push('/dashboard/coach-unified')
+        }
         break
       case 'assistant':
         router.push('/dashboard/coaching')
         break
       case 'athlete':
-        router.push('/dashboard/athlete')
+        // Force reload to reset state if already on athlete page
+        if (window.location.pathname === '/dashboard/athlete') {
+          window.location.href = '/dashboard/athlete'
+        } else {
+          router.push('/dashboard/athlete')
+        }
         break
       case 'user':
         router.push('/dashboard')
