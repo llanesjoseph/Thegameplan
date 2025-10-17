@@ -124,8 +124,8 @@ export async function autoPopulateCoachProfile(applicationId: string): Promise<b
       } : undefined
     }
 
-    // Save coach profile
-    await db.collection('coach_profiles').doc(userId).set(coachProfile)
+    // Save coach profile to creator_profiles (used by profile page)
+    await db.collection('creator_profiles').doc(userId).set(coachProfile)
 
     // Update user role
     await db.collection('users').doc(userId).update({
@@ -299,7 +299,7 @@ export async function getCoachProfiles(filters?: {
   limit?: number
 }) {
   try {
-    let query = db.collection('coach_profiles').orderBy('createdAt', 'desc')
+    let query = db.collection('creator_profiles').orderBy('createdAt', 'desc')
 
     if (filters?.sport) {
       query = query.where('sport', '==', filters.sport)
