@@ -1,8 +1,9 @@
-name: Deploy to Firebase
-on:
-  push:
-    branches: [ master ]
-  workflow_dispatch:
+# DISABLED: Using Vercel for deployments, not Firebase
+# name: Deploy to Firebase
+# on:
+#   push:
+#     branches: [ master ]
+#   workflow_dispatch:
 
 jobs:
   deploy:
