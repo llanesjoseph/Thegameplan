@@ -356,6 +356,86 @@ function CreateLessonPageContent() {
     }
   }
 
+  // Polish all content - enhance all sections at once
+  const polishAllContent = async () => {
+    if (lesson.sections.length === 0) {
+      alert('No sections to polish. Add some content first!')
+      return
+    }
+
+    if (!lesson.sport || !lesson.level) {
+      alert('Please select sport and skill level first')
+      return
+    }
+
+    if (!user) {
+      alert('Please log in to use AI polish')
+      return
+    }
+
+    const sectionsWithContent = lesson.sections.filter(s => s.content.trim().length > 0)
+    if (sectionsWithContent.length === 0) {
+      alert('No section content to polish. Write some content first!')
+      return
+    }
+
+    const confirmMessage = `This will enhance ${sectionsWithContent.length} section${sectionsWithContent.length > 1 ? 's' : ''} with AI to add more detail and coaching insights. This may take a minute. Continue?`
+    if (!confirm(confirmMessage)) {
+      return
+    }
+
+    setGenerating(true)
+    try {
+      const token = await user.getIdToken()
+      let successCount = 0
+      let errorCount = 0
+
+      // Enhance each section sequentially
+      for (const section of sectionsWithContent) {
+        try {
+          const response = await fetch('/api/generate-lesson-content', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              contentType: section.type,
+              sport: lesson.sport,
+              level: lesson.level,
+              topic: section.title || lesson.title,
+              existingContent: section.content
+            })
+          })
+
+          if (response.ok) {
+            const data = await response.json()
+            if (data.content) {
+              updateSection(section.id, { content: data.content })
+              successCount++
+            }
+          } else {
+            errorCount++
+          }
+        } catch (error) {
+          console.error(`Error enhancing section ${section.id}:`, error)
+          errorCount++
+        }
+      }
+
+      if (successCount > 0) {
+        alert(`✨ Polished ${successCount} section${successCount > 1 ? 's' : ''} successfully!${errorCount > 0 ? ` (${errorCount} failed)` : ''}`)
+      } else {
+        alert('Failed to polish sections. Please try again.')
+      }
+    } catch (error: any) {
+      console.error('Error polishing content:', error)
+      alert('Failed to polish content. Please try again.')
+    } finally {
+      setGenerating(false)
+    }
+  }
+
   // Browse existing content suggestions
   const browseExistingContent = async () => {
     if (!lesson.sport) {
@@ -1181,12 +1261,26 @@ function CreateLessonPageContent() {
               <button
                 onClick={browseExistingContent}
                 disabled={!lesson.sport}
-                className="w-full mb-6 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl p-4 hover:from-green-600 hover:to-emerald-700 transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-3 shadow-lg"
+                className="w-full mb-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl p-4 hover:from-green-600 hover:to-emerald-700 transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-3 shadow-lg"
               >
                 <BookOpen className="w-6 h-6" />
                 <div className="text-left flex-1">
                   <h3 className="font-medium text-base">Browse Existing Content</h3>
                   <p className="text-xs text-white/80">Use previous lessons or get AI suggestions</p>
+                </div>
+                <ChevronRight className="w-5 h-5" />
+              </button>
+
+              {/* Polish All Content Button */}
+              <button
+                onClick={polishAllContent}
+                disabled={generating || !lesson.sport || !lesson.level || lesson.sections.length === 0}
+                className="w-full mb-6 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-xl p-4 hover:from-amber-600 hover:to-orange-700 transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-3 shadow-lg"
+              >
+                <Sparkles className="w-6 h-6" />
+                <div className="text-left flex-1">
+                  <h3 className="font-medium text-base">Polish All Content</h3>
+                  <p className="text-xs text-white/80">Enhance all sections with AI for deeper detail and insight</p>
                 </div>
                 <ChevronRight className="w-5 h-5" />
               </button>
