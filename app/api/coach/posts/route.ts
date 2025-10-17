@@ -42,8 +42,25 @@ export async function GET(request: NextRequest) {
       updatedAt: doc.data().updatedAt?.toDate?.()?.toISOString() || null
     }))
 
+    // For each post, count reactions from post_reactions collection
+    const postsWithReactionCounts = await Promise.all(
+      posts.map(async (post: any) => {
+        const reactionsSnap = await adminDb
+          .collection('post_reactions')
+          .where('postId', '==', post.id)
+          .get()
+
+        const reactionCount = reactionsSnap.size
+
+        return {
+          ...post,
+          likes: reactionCount  // Override the static likes field with actual reaction count
+        }
+      })
+    )
+
     // Sort by createdAt on the server (since we can't use orderBy without index)
-    posts.sort((a: any, b: any) => {
+    postsWithReactionCounts.sort((a: any, b: any) => {
       const dateA = new Date(a.createdAt || 0).getTime()
       const dateB = new Date(b.createdAt || 0).getTime()
       return dateB - dateA  // descending order (newest first)
@@ -51,7 +68,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      posts
+      posts: postsWithReactionCounts
     })
   } catch (error) {
     console.error('Error fetching coach posts:', error)
