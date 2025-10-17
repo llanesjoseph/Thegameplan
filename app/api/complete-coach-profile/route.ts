@@ -105,7 +105,9 @@ export async function POST(request: NextRequest) {
       roleProtected: true,
       roleSource: 'invitation',
       roleLockedByInvitation: true,
-      voiceTraits: voiceTraits  // Add processed voice traits for AI
+      voiceTraits: voiceTraits,  // Add processed voice traits for AI (legacy support)
+      voiceCaptureData: coachProfile.voiceCaptureData || null,  // CRITICAL: Store full voice capture data for AI
+      voiceCaptureCompleteness: coachProfile.voiceCaptureCompleteness || 'none'
     }
 
     if (!existingUserDoc.exists || !existingUserData?.createdAt) {

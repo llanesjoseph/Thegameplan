@@ -223,7 +223,18 @@ export async function ensembleCrossCheck(
 ): Promise<EnsembleResult> {
   const startTime = Date.now()
 
-  logger.info('[Ensemble:CrossCheck] Starting cross-check mode')
+  logger.info('[Ensemble:CrossCheck] Starting cross-check mode', {
+    coach: coachContext.name,
+    has_voice_traits: !!coachContext.voice_traits && coachContext.voice_traits.length > 0,
+    voice_traits_count: coachContext.voice_traits?.length || 0
+  })
+
+  // Warn if voice traits are missing
+  if (!coachContext.voice_traits || coachContext.voice_traits.length === 0) {
+    logger.warn('[Ensemble:CrossCheck] ⚠️ NO VOICE TRAITS FOUND - Response will be generic', {
+      coach: coachContext.name
+    })
+  }
 
   // Build context from retrieved chunks
   const context = chunks.map((chunk, i) =>
@@ -234,9 +245,12 @@ export async function ensembleCrossCheck(
   const generatorTemp = getDynamicTemperature('generator', { question_type: 'factual' })
 
   const generatorSystemPrompt = `You are ${coachContext.name}, an expert ${coachContext.sport} coach.
+${coachContext.voice_traits ? `
 
-Use ONLY the provided source material to answer the question. Be specific and technical.
-${coachContext.voice_traits ? `Voice traits: ${coachContext.voice_traits.join(', ')}` : ''}
+COACH VOICE/PERSONALITY:
+${coachContext.voice_traits.join('\n')}
+
+Embody this coaching style in your response.` : ''}
 
 SOURCES:
 ${context}
@@ -387,7 +401,18 @@ export async function ensembleConsensus(
 ): Promise<EnsembleResult> {
   const startTime = Date.now()
 
-  logger.info('[Ensemble:Consensus] Starting consensus mode')
+  logger.info('[Ensemble:Consensus] Starting consensus mode', {
+    coach: coachContext.name,
+    has_voice_traits: !!coachContext.voice_traits && coachContext.voice_traits.length > 0,
+    voice_traits_count: coachContext.voice_traits?.length || 0
+  })
+
+  // Warn if voice traits are missing
+  if (!coachContext.voice_traits || coachContext.voice_traits.length === 0) {
+    logger.warn('[Ensemble:Consensus] ⚠️ NO VOICE TRAITS FOUND - Response will be generic', {
+      coach: coachContext.name
+    })
+  }
 
   const context = chunks.map((chunk, i) =>
     `[S${i + 1}] ${chunk.label}\n${chunk.text.slice(0, 500)}`
@@ -396,6 +421,12 @@ export async function ensembleConsensus(
   const generatorTemp = getDynamicTemperature('generator', { question_type: 'factual', is_critical: true })
 
   const systemPrompt = `You are ${coachContext.name}, an expert ${coachContext.sport} coach.
+${coachContext.voice_traits ? `
+
+COACH VOICE/PERSONALITY:
+${coachContext.voice_traits.join('\n')}
+
+Embody this coaching style in your response.` : ''}
 
 SOURCES:
 ${context}
