@@ -119,8 +119,6 @@ export default function AthleteDetailPage() {
   useEffect(() => {
     if (athleteId && user) {
       loadAthleteDetails()
-      loadAnalytics()
-      loadMessages()
       loadAIChatSummary()
     }
   }, [athleteId, user])
@@ -129,239 +127,75 @@ export default function AthleteDetailPage() {
     try {
       setLoading(true)
 
-      // Try to fetch from API first (provides richer data)
-      try {
-        const token = await user!.getIdToken()
-        const response = await fetch(`/api/coach/athletes/${athleteId}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        })
-
-        if (response.ok) {
-          const data = await response.json()
-          if (data.success && data.athlete) {
-            // Use API data and fetch additional Firestore fields
-            const athleteDoc = await getDoc(doc(db, 'users', athleteId))
-            const firestoreData = athleteDoc.exists() ? athleteDoc.data() : {}
-
-            setAthlete({
-              id: data.athlete.id,
-              email: data.athlete.email,
-              displayName: data.athlete.displayName,
-              firstName: firestoreData.firstName,
-              lastName: firestoreData.lastName,
-              sport: data.athlete.sport,
-              primarySport: firestoreData.primarySport,
-              skillLevel: firestoreData.skillLevel,
-              trainingGoals: firestoreData.trainingGoals,
-              achievements: firestoreData.achievements,
-              learningStyle: firestoreData.learningStyle,
-              availability: firestoreData.availability,
-              specialNotes: firestoreData.specialNotes,
-              createdAt: data.athlete.createdAt,
-              status: 'active'
-            })
-            return
-          }
+      const token = await user!.getIdToken()
+      const response = await fetch(`/api/coach/athletes/${athleteId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
         }
-      } catch (apiError) {
-        console.warn('API fetch failed, falling back to Firestore:', apiError)
-      }
-
-      // Fallback to Firestore
-      const athleteDoc = await getDoc(doc(db, 'users', athleteId))
-
-      if (!athleteDoc.exists()) {
-        setError('Athlete not found')
-        return
-      }
-
-      const data = athleteDoc.data()
-
-      setAthlete({
-        id: athleteDoc.id,
-        email: data.email || '',
-        displayName: data.displayName || `${data.firstName || ''} ${data.lastName || ''}`.trim() || 'Unknown Athlete',
-        firstName: data.firstName,
-        lastName: data.lastName,
-        sport: data.sport || data.primarySport || 'Unknown',
-        primarySport: data.primarySport,
-        skillLevel: data.skillLevel,
-        trainingGoals: data.trainingGoals,
-        achievements: data.achievements,
-        learningStyle: data.learningStyle,
-        availability: data.availability,
-        specialNotes: data.specialNotes,
-        createdAt: data.createdAt,
-        status: data.status || 'active'
       })
+
+      if (!response.ok) {
+        throw new Error('Failed to load athlete details')
+      }
+
+      const data = await response.json()
+      if (!data.success || !data.athlete) {
+        throw new Error('Invalid athlete data')
+      }
+
+      // Use API data directly - it includes everything we need
+      const apiAthlete = data.athlete
+      setAthlete({
+        id: apiAthlete.id,
+        email: apiAthlete.email,
+        displayName: apiAthlete.displayName,
+        firstName: apiAthlete.firstName,
+        lastName: apiAthlete.lastName,
+        sport: apiAthlete.sport,
+        primarySport: apiAthlete.primarySport,
+        skillLevel: apiAthlete.skillLevel,
+        trainingGoals: apiAthlete.trainingGoals,
+        achievements: apiAthlete.achievements,
+        learningStyle: apiAthlete.learningStyle,
+        availability: apiAthlete.availability,
+        specialNotes: apiAthlete.specialNotes,
+        createdAt: apiAthlete.createdAt,
+        status: apiAthlete.status || 'active'
+      })
+
+      // Set analytics from API data
+      if (apiAthlete.stats) {
+        setAnalytics({
+          totalLessons: apiAthlete.stats.totalLessons || 0,
+          completedLessons: apiAthlete.stats.completedLessons || 0,
+          completionRate: apiAthlete.stats.completionRate || 0,
+          lastActivity: apiAthlete.lastLoginAt || null,
+          aiQuestionsAsked: 0,
+          averageEngagement: 0,
+          videoReviewsPending: 0,
+          videoReviewsCompleted: apiAthlete.stats.videoReviews || 0,
+          sessionRequestsPending: 0,
+          sessionRequestsCompleted: apiAthlete.stats.liveSessions || 0,
+          totalMessages: 0,
+          messagesLastWeek: 0,
+          contentByType: {
+            lessons: apiAthlete.stats.totalLessons || 0,
+            videos: 0,
+            articles: 0
+          },
+          engagementTrend: 'stable',
+          weeklyActivity: [0, 0, 0, 0, 0, 0, 0]
+        })
+      }
+
+      // Messages will remain empty - we don't expose messages via API yet
+      setMessages([])
+
     } catch (err) {
       console.error('Error loading athlete details:', err)
       setError('Failed to load athlete details')
     } finally {
       setLoading(false)
-    }
-  }
-
-  const loadAnalytics = async () => {
-    try {
-      // Check athlete_feed for completion data
-      const feedDoc = await getDoc(doc(db, 'athlete_feed', athleteId))
-      const feedData = feedDoc.exists() ? feedDoc.data() : null
-
-      // Check AI sessions for engagement
-      let aiSessionsSnap: any = { docs: [], size: 0 }
-      try {
-        const aiSessionsQuery = query(
-          collection(db, 'ai_sessions'),
-          where('userId', '==', athleteId),
-          orderBy('createdAt', 'desc'),
-          limit(50)
-        )
-        aiSessionsSnap = await getDocs(aiSessionsQuery)
-      } catch (error) {
-        console.warn('Could not fetch AI sessions:', error)
-      }
-
-      // Check chat conversations for AI questions
-      let totalQuestions = 0
-      try {
-        const chatQuery = query(
-          collection(db, 'chatConversations'),
-          where('userId', '==', athleteId)
-        )
-        const chatSnap = await getDocs(chatQuery)
-        for (const chatDoc of chatSnap.docs) {
-          const messagesQuery = query(
-            collection(db, 'chatConversations', chatDoc.id, 'messages'),
-            where('role', '==', 'user')
-          )
-          const messagesSnap = await getDocs(messagesQuery)
-          totalQuestions += messagesSnap.size
-        }
-      } catch (error) {
-        console.warn('Could not fetch chat conversations:', error)
-      }
-
-      // Check video review requests
-      const videoReviewsQuery = query(
-        collection(db, 'videoReviews'),
-        where('athleteId', '==', athleteId)
-      )
-      const videoReviewsSnap = await getDocs(videoReviewsQuery)
-      const videoReviewsPending = videoReviewsSnap.docs.filter(doc => doc.data().status === 'pending').length
-      const videoReviewsCompleted = videoReviewsSnap.docs.filter(doc => doc.data().status === 'completed' || doc.data().status === 'reviewed').length
-
-      // Check session requests
-      const sessionRequestsQuery = query(
-        collection(db, 'liveSessionRequests'),
-        where('athleteId', '==', athleteId)
-      )
-      const sessionRequestsSnap = await getDocs(sessionRequestsQuery)
-      const sessionRequestsPending = sessionRequestsSnap.docs.filter(doc => doc.data().status === 'pending').length
-      const sessionRequestsCompleted = sessionRequestsSnap.docs.filter(doc => doc.data().status === 'accepted' || doc.data().status === 'completed').length
-
-      // Check messages
-      let totalMessages = 0
-      let messagesLastWeek = 0
-      try {
-        const messagesQuery = query(
-          collection(db, 'messages'),
-          where('participants', 'array-contains', athleteId)
-        )
-        const messagesSnap = await getDocs(messagesQuery)
-        totalMessages = messagesSnap.size
-
-        // Messages in last week
-        const oneWeekAgo = new Date()
-        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
-        const recentMessagesQuery = query(
-          collection(db, 'messages'),
-          where('participants', 'array-contains', athleteId),
-          where('createdAt', '>=', oneWeekAgo)
-        )
-        const recentMessagesSnap = await getDocs(recentMessagesQuery)
-        messagesLastWeek = recentMessagesSnap.size
-      } catch (error) {
-        console.warn('Could not fetch messages:', error)
-      }
-
-      // Content engagement by type
-      const contentByType = {
-        lessons: feedData?.completedLessons?.filter((l: any) => l.type === 'lesson' || !l.type).length || 0,
-        videos: feedData?.completedLessons?.filter((l: any) => l.type === 'video').length || 0,
-        articles: feedData?.completedLessons?.filter((l: any) => l.type === 'article').length || 0
-      }
-
-      // Weekly activity trend (last 7 days)
-      const weeklyActivity: number[] = []
-      for (let i = 6; i >= 0; i--) {
-        const dayStart = new Date()
-        dayStart.setDate(dayStart.getDate() - i)
-        dayStart.setHours(0, 0, 0, 0)
-
-        const dayEnd = new Date(dayStart)
-        dayEnd.setHours(23, 59, 59, 999)
-
-        const dayActivityQuery = query(
-          collection(db, 'ai_sessions'),
-          where('userId', '==', athleteId),
-          where('createdAt', '>=', dayStart),
-          where('createdAt', '<=', dayEnd)
-        )
-        const dayActivitySnap = await getDocs(dayActivityQuery)
-        weeklyActivity.push(dayActivitySnap.size)
-      }
-
-      // Calculate engagement trend
-      const firstHalf = weeklyActivity.slice(0, 3).reduce((a, b) => a + b, 0)
-      const secondHalf = weeklyActivity.slice(4, 7).reduce((a, b) => a + b, 0)
-      const engagementTrend = secondHalf > firstHalf ? 'up' : secondHalf < firstHalf ? 'down' : 'stable'
-
-      const completedLessons = feedData?.completedLessons?.length || 0
-      const totalLessons = feedData?.assignedLessons?.length || 0
-      const completionRate = totalLessons > 0 ? (completedLessons / totalLessons) * 100 : 0
-
-      setAnalytics({
-        totalLessons,
-        completedLessons,
-        completionRate: Math.round(completionRate),
-        lastActivity: feedData?.lastActivity || aiSessionsSnap.docs[0]?.data()?.createdAt || null,
-        aiQuestionsAsked: totalQuestions,
-        averageEngagement: aiSessionsSnap.size > 0 ? Math.min(100, aiSessionsSnap.size * 5) : 0,
-        videoReviewsPending,
-        videoReviewsCompleted,
-        sessionRequestsPending,
-        sessionRequestsCompleted,
-        totalMessages,
-        messagesLastWeek,
-        contentByType,
-        engagementTrend,
-        weeklyActivity
-      })
-    } catch (err) {
-      console.error('Error loading analytics:', err)
-    }
-  }
-
-  const loadMessages = async () => {
-    try {
-      const messagesQuery = query(
-        collection(db, 'messages'),
-        where('participants', 'array-contains', athleteId),
-        orderBy('createdAt', 'desc'),
-        limit(10)
-      )
-      const messagesSnap = await getDocs(messagesQuery)
-      const messagesList = messagesSnap.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      } as Message))
-      setMessages(messagesList)
-    } catch (err) {
-      console.warn('Could not load messages (permissions or collection not found):', err)
-      setMessages([]) // Set empty array on error
     }
   }
 
