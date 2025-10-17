@@ -183,20 +183,17 @@ export default function TodaysOverview({ onQuickAction }: TodaysOverviewProps) {
                 key={action.id}
                 onClick={() => onQuickAction?.(action.id)}
                 className="group bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-lg p-3 transition-all hover:scale-105 active:scale-95 touch-manipulation border border-white/20 hover:border-white/40 text-left"
-                style={{ minHeight: '85px' }}
               >
-                <div className="flex flex-col h-full justify-between">
-                  <div>
-                    <div className="w-9 h-9 rounded-lg bg-white/20 flex items-center justify-center mb-2">
-                      <Icon className="w-4.5 h-4.5 text-white" />
-                    </div>
-                    <h3 className="text-white font-semibold text-sm mb-0.5">
-                      {action.label}
-                    </h3>
-                    <p className="text-teal-50 text-xs opacity-90">
-                      {action.description}
-                    </p>
+                <div className="flex flex-col">
+                  <div className="w-9 h-9 rounded-lg bg-white/20 flex items-center justify-center mb-2">
+                    <Icon className="w-4.5 h-4.5 text-white" />
                   </div>
+                  <h3 className="text-white font-semibold text-sm mb-0.5">
+                    {action.label}
+                  </h3>
+                  <p className="text-teal-50 text-xs opacity-90">
+                    {action.description}
+                  </p>
                   {action.metric && (
                     <p className="text-white/70 text-xs mt-1.5 pt-1.5 border-t border-white/20 font-medium">
                       {action.metric}
