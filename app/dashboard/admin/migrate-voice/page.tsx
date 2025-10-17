@@ -40,10 +40,14 @@ export default function MigrateVoicePage() {
     setResult(null)
 
     try {
+      // Get the Firebase ID token
+      const idToken = await user.getIdToken()
+
       const response = await fetch('/api/admin/migrate-voice-data', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`
         }
       })
 
