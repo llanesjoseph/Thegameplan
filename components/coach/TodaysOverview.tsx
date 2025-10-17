@@ -13,7 +13,7 @@ interface QuickMetrics {
   lessonViews: number
   feedLikes: number
   feedViews: number
-  recentAthlete: string | null
+  athleteCount: number
 }
 
 export default function TodaysOverview({ onQuickAction }: TodaysOverviewProps) {
@@ -23,7 +23,7 @@ export default function TodaysOverview({ onQuickAction }: TodaysOverviewProps) {
     lessonViews: 0,
     feedLikes: 0,
     feedViews: 0,
-    recentAthlete: null
+    athleteCount: 0
   })
   const [loading, setLoading] = useState(true)
 
@@ -55,7 +55,7 @@ export default function TodaysOverview({ onQuickAction }: TodaysOverviewProps) {
       let lessonViews = 0
       let feedLikes = 0
       let feedViews = 0
-      let recentAthlete: string | null = null
+      let athleteCount = 0
 
       // Load lessons stats
       if (lessonsRes?.ok) {
@@ -76,18 +76,10 @@ export default function TodaysOverview({ onQuickAction }: TodaysOverviewProps) {
         }
       }
 
-      // Load recent athlete
+      // Load athlete count
       if (athletesRes?.ok) {
         const athletesData = await athletesRes.json()
-        if (athletesData.athletes && athletesData.athletes.length > 0) {
-          // Find most recently active athlete
-          const sortedAthletes = athletesData.athletes.sort((a: any, b: any) => {
-            const aTime = a.lastActive ? new Date(a.lastActive).getTime() : 0
-            const bTime = b.lastActive ? new Date(b.lastActive).getTime() : 0
-            return bTime - aTime
-          })
-          recentAthlete = sortedAthletes[0]?.displayName || sortedAthletes[0]?.email || null
-        }
+        athleteCount = athletesData.count || athletesData.athletes?.length || 0
       }
 
       setMetrics({
@@ -95,7 +87,7 @@ export default function TodaysOverview({ onQuickAction }: TodaysOverviewProps) {
         lessonViews,
         feedLikes,
         feedViews,
-        recentAthlete
+        athleteCount
       })
     } catch (error) {
       console.error('Error loading metrics:', error)
@@ -154,7 +146,11 @@ export default function TodaysOverview({ onQuickAction }: TodaysOverviewProps) {
       label: 'My Athletes',
       icon: Users,
       description: 'Manage athletes',
-      metric: loading ? '...' : (metrics.recentAthlete ? `Recent: ${metrics.recentAthlete}` : 'No athletes yet')
+      metric: loading ? '...' : (
+        metrics.athleteCount > 0
+          ? `${metrics.athleteCount} athlete${metrics.athleteCount === 1 ? '' : 's'}`
+          : 'No athletes yet'
+      )
     },
     {
       id: 'add-video',
