@@ -478,10 +478,64 @@ async function getCoachProfile(coach_id: string): Promise<{
 
     const userData = userDoc.data()
 
+    // Extract voice traits from voiceCaptureData
+    const voiceTraits: string[] = []
+
+    if (userData?.voiceCaptureData) {
+      const voiceData = userData.voiceCaptureData
+
+      // Add coaching philosophy if present
+      if (voiceData.coachingPhilosophy) {
+        voiceTraits.push(`Philosophy: ${voiceData.coachingPhilosophy}`)
+      }
+
+      // Add communication style
+      if (voiceData.communicationStyle) {
+        voiceTraits.push(`Communication Style: ${voiceData.communicationStyle}`)
+      }
+
+      // Add motivation approach
+      if (voiceData.motivationApproach) {
+        voiceTraits.push(`Motivation: ${voiceData.motivationApproach}`)
+      }
+
+      // Add catchphrases
+      if (voiceData.catchphrases && voiceData.catchphrases.length > 0) {
+        voiceTraits.push(`Catchphrases: ${voiceData.catchphrases.join(', ')}`)
+      }
+
+      // Add key stories
+      if (voiceData.keyStories && voiceData.keyStories.length > 0) {
+        voiceTraits.push(`Key Stories: ${voiceData.keyStories.join(' | ')}`)
+      }
+
+      // Add personality traits
+      if (voiceData.personalityTraits && voiceData.personalityTraits.length > 0) {
+        voiceTraits.push(`Personality: ${voiceData.personalityTraits.join(', ')}`)
+      }
+
+      // Add current context
+      if (voiceData.currentContext) {
+        voiceTraits.push(`Context: ${voiceData.currentContext}`)
+      }
+
+      // Add technical focus
+      if (voiceData.technicalFocus) {
+        voiceTraits.push(`Technical Focus: ${voiceData.technicalFocus}`)
+      }
+
+      logger.info('[QA-Agent] Extracted voice traits from voiceCaptureData', {
+        coach_id,
+        traits_count: voiceTraits.length
+      })
+    } else {
+      logger.warn('[QA-Agent] No voiceCaptureData found for coach', { coach_id })
+    }
+
     return {
       name: userData?.displayName || 'Coach',
       sport: userData?.sport || 'Sports',
-      voice_traits: userData?.voiceTraits || []
+      voice_traits: voiceTraits.length > 0 ? voiceTraits : undefined
     }
 
   } catch (error) {

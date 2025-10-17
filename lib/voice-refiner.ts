@@ -117,6 +117,7 @@ export async function refineToCoachVoice(
     name: string
     sport: string
     coach_id: string
+    voice_traits?: string[]
   }
 ): Promise<string> {
   const client = getOpenAIClient()
@@ -138,17 +139,34 @@ export async function refineToCoachVoice(
       } as CoachVoiceProfile
     }
 
-    logger.info('[VoiceRefiner] Refining answer to coach voice')
+    logger.info('[VoiceRefiner] Refining answer to coach voice', {
+      has_voice_traits: !!coachContext.voice_traits && coachContext.voice_traits.length > 0,
+      traits_count: coachContext.voice_traits?.length || 0
+    })
 
-    // Build voice refinement prompt
+    // Build voice refinement prompt - prioritize voice_traits from voiceCaptureData
+    const hasVoiceTraits = coachContext.voice_traits && coachContext.voice_traits.length > 0
+
     const systemPrompt = `You are a voice refinement specialist. Rewrite the answer to match ${coachContext.name}'s coaching voice.
 
-VOICE CHARACTERISTICS:
+${hasVoiceTraits ? `
+COACH'S VOICE PROFILE (From Voice Capture):
+${coachContext.voice_traits!.map(trait => `• ${trait}`).join('\n')}
+
+CRITICAL: Embody this coach's unique personality and communication style in EVERY response. This is not generic coaching advice - this is ${coachContext.name} speaking directly to their athlete.
+` : `
+VOICE CHARACTERISTICS (Default Profile):
 - Tone: ${profile.tone || 'encouraging but direct'}
 - Catchphrases: ${profile.catchphrases?.slice(0, 5).join(', ') || 'None specified'}
 - Preferred terms: ${profile.preferred_terms?.slice(0, 10).join(', ') || 'None specified'}
 - Avoid: ${profile.banned_terms?.join(', ') || 'vague language'}
 - Sentence style: ${profile.sentence_structure ? `Average ${profile.sentence_structure.mean_length} words, ${Math.round(profile.sentence_structure.imperative_ratio * 100)}% imperatives` : 'conversational'}
+
+${profile.style_snippets && profile.style_snippets.length > 0 ? `
+EXAMPLE COACH PHRASES:
+${profile.style_snippets.slice(0, 3).map(s => `- "${s.text}"`).join('\n')}
+` : ''}
+`}
 
 CRITICAL RULES:
 1. Preserve ALL factual information
@@ -156,11 +174,8 @@ CRITICAL RULES:
 3. DO NOT add new information
 4. DO NOT remove technical details
 5. ONLY adjust phrasing, tone, and style to match the coach's voice
-
-${profile.style_snippets && profile.style_snippets.length > 0 ? `
-EXAMPLE COACH PHRASES:
-${profile.style_snippets.slice(0, 3).map(s => `- "${s.text}"`).join('\n')}
-` : ''}`
+6. Use the coach's catchphrases, stories, and communication style naturally
+7. Make it sound like ${coachContext.name} is personally speaking to the athlete`
 
     const userPrompt = `Rewrite this answer in ${coachContext.name}'s voice:
 
