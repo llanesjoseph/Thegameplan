@@ -105,7 +105,9 @@ export async function POST(request: NextRequest) {
       objectives,
       sections,
       tags,
-      visibility
+      visibility,
+      content,
+      videoUrl
     } = body
 
     // 4. SERVER-SIDE VALIDATION - CRITICAL
@@ -171,6 +173,26 @@ export async function POST(request: NextRequest) {
       validationErrors.push(`Visibility must be one of: ${VALID_VISIBILITY.join(', ')}`)
     }
 
+    // Video URL validation (optional field)
+    if (videoUrl !== undefined && videoUrl !== null && videoUrl !== '') {
+      if (typeof videoUrl !== 'string') {
+        validationErrors.push('Video URL must be a string')
+      } else if (videoUrl.length > 2048) {
+        validationErrors.push('Video URL must not exceed 2048 characters')
+      }
+      // Basic URL format validation
+      try {
+        new URL(videoUrl)
+      } catch {
+        validationErrors.push('Video URL must be a valid URL')
+      }
+    }
+
+    // Content validation (optional field for long-form content)
+    if (content !== undefined && typeof content !== 'string') {
+      validationErrors.push('Content must be a string')
+    }
+
     if (validationErrors.length > 0) {
       await auditLog('lesson_create_validation_failed', {
         requestId,
@@ -186,7 +208,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 5. Create lesson document with IMMUTABLE creatorUid
-    const lessonData = {
+    const lessonData: any = {
       // Basic info
       title: title.trim(),
       sport: sport.toLowerCase().trim(),
@@ -217,6 +239,15 @@ export async function POST(request: NextRequest) {
       completionCount: 0,
       averageRating: 0,
       ratingCount: 0
+    }
+
+    // Add optional fields only if they are provided
+    if (content !== undefined && content !== null && content !== '') {
+      lessonData.content = content
+    }
+
+    if (videoUrl !== undefined && videoUrl !== null && videoUrl !== '') {
+      lessonData.videoUrl = videoUrl
     }
 
     // 6. ATOMIC TRANSACTION - Save lesson and update coach count

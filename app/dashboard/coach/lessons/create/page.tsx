@@ -4,6 +4,8 @@ import { useState, useEffect, Suspense} from 'react'
 import AppHeader from '@/components/ui/AppHeader'
 import { useAuth } from '@/hooks/use-auth'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { storage } from '@/lib/firebase.client'
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
 import {
   GraduationCap,
   Save,
@@ -51,6 +53,8 @@ function CreateLessonPageContent() {
   const [aiLevel, setAiLevel] = useState<'beginner' | 'intermediate' | 'advanced' | ''>('')
   const [currentObjective, setCurrentObjective] = useState('')
   const [currentTag, setCurrentTag] = useState('')
+  const [uploadingVideo, setUploadingVideo] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
 
   const [lesson, setLesson] = useState<LessonForm>({
     title: '',
@@ -132,6 +136,55 @@ function CreateLessonPageContent() {
   const removeVideoFile = () => {
     setLesson(prev => ({ ...prev, videoFile: null }))
     setVideoFileName('')
+  }
+
+  // Upload video to Firebase Storage
+  const uploadVideoToStorage = async (videoFile: File, userId: string): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      try {
+        // Create a unique file path
+        const timestamp = Date.now()
+        const sanitizedFileName = videoFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')
+        const storageRef = ref(storage, `lesson-videos/${userId}/${timestamp}_${sanitizedFileName}`)
+
+        // Create upload task
+        const uploadTask = uploadBytesResumable(storageRef, videoFile)
+
+        // Monitor upload progress
+        uploadTask.on(
+          'state_changed',
+          (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+            setUploadProgress(Math.round(progress))
+          },
+          (error) => {
+            console.error('Video upload error:', error)
+            setUploadingVideo(false)
+            setUploadProgress(0)
+            reject(new Error(`Upload failed: ${error.message}`))
+          },
+          async () => {
+            // Upload completed successfully, get download URL
+            try {
+              const downloadURL = await getDownloadURL(uploadTask.snapshot.ref)
+              setUploadingVideo(false)
+              setUploadProgress(0)
+              resolve(downloadURL)
+            } catch (error) {
+              console.error('Error getting download URL:', error)
+              setUploadingVideo(false)
+              setUploadProgress(0)
+              reject(new Error('Failed to get download URL'))
+            }
+          }
+        )
+      } catch (error) {
+        console.error('Error setting up upload:', error)
+        setUploadingVideo(false)
+        setUploadProgress(0)
+        reject(error)
+      }
+    })
   }
 
   // Generate lesson with AI
@@ -224,7 +277,30 @@ function CreateLessonPageContent() {
         return
       }
 
+      let uploadedVideoUrl = lesson.videoUrl || ''
+
+      // Upload video file if present
+      if (lesson.videoFile) {
+        setUploadingVideo(true)
+        try {
+          uploadedVideoUrl = await uploadVideoToStorage(lesson.videoFile, user.uid)
+          console.log('Video uploaded successfully:', uploadedVideoUrl)
+        } catch (uploadError: any) {
+          console.error('Video upload failed:', uploadError)
+          alert(`Failed to upload video: ${uploadError.message}. Please try again or continue without the video.`)
+          setSaving(false)
+          return
+        }
+      }
+
       const token = await user.getIdToken()
+
+      // Prepare lesson data with video URL (either from upload or URL input)
+      const lessonData = {
+        ...lesson,
+        videoUrl: uploadedVideoUrl,
+        videoFile: undefined // Remove file object before sending
+      }
 
       const response = await fetch('/api/coach/lessons/create', {
         method: 'POST',
@@ -232,7 +308,7 @@ function CreateLessonPageContent() {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(lesson)
+        body: JSON.stringify(lessonData)
       })
 
       if (!response.ok) {
@@ -259,6 +335,8 @@ function CreateLessonPageContent() {
       alert(`Error creating lesson: ${error.message}`)
     } finally {
       setSaving(false)
+      setUploadingVideo(false)
+      setUploadProgress(0)
     }
   }
 
@@ -807,14 +885,24 @@ Write detailed explanations, instructions, and guidance for your athletes."
 
             {/* Action Buttons */}
             <div className="flex gap-4">
-              <button
-                onClick={handleSave}
-                disabled={saving || !lesson.title || !lesson.sport || !lesson.level}
-                className="flex-1 px-8 py-4 bg-black text-white rounded-xl hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-medium text-lg shadow-lg"
-              >
-                <Save className="w-6 h-6" />
-                {saving ? 'Saving...' : 'Save Lesson'}
-              </button>
+              <div className="flex-1">
+                <button
+                  onClick={handleSave}
+                  disabled={saving || uploadingVideo || !lesson.title || !lesson.sport || !lesson.level}
+                  className="w-full px-8 py-4 bg-black text-white rounded-xl hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-medium text-lg shadow-lg"
+                >
+                  <Save className="w-6 h-6" />
+                  {uploadingVideo ? `Uploading Video... ${uploadProgress}%` : saving ? 'Saving...' : 'Save Lesson'}
+                </button>
+                {uploadingVideo && (
+                  <div className="mt-2 bg-gray-200 rounded-full h-2 overflow-hidden">
+                    <div
+                      className="bg-gradient-to-r from-blue-500 to-purple-600 h-full transition-all duration-300"
+                      style={{ width: `${uploadProgress}%` }}
+                    />
+                  </div>
+                )}
+              </div>
               <button
                 onClick={() => {
                   if (lesson.title || lesson.content) {
@@ -825,7 +913,8 @@ Write detailed explanations, instructions, and guidance for your athletes."
                     router.back()
                   }
                 }}
-                className="px-8 py-4 bg-white border-2 border-gray-300 text-black rounded-xl hover:bg-gray-50 transition-colors font-medium"
+                disabled={saving || uploadingVideo}
+                className="px-8 py-4 bg-white border-2 border-gray-300 text-black rounded-xl hover:bg-gray-50 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cancel
               </button>
