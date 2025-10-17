@@ -68,32 +68,41 @@ export async function GET(request: NextRequest) {
     const athleteMap = new Map()
 
     athletesSnapshot1.docs.forEach(doc => {
+      const data = doc.data()
       athleteMap.set(doc.id, {
         id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt?.toDate?.()?.toISOString() || null,
-        updatedAt: doc.data().updatedAt?.toDate?.()?.toISOString() || null,
-        lastLoginAt: doc.data().lastLoginAt?.toDate?.()?.toISOString() || null
+        ...data,
+        // Ensure availability is always an array
+        availability: Array.isArray(data.availability) ? data.availability : [],
+        createdAt: data.createdAt?.toDate?.()?.toISOString() || null,
+        updatedAt: data.updatedAt?.toDate?.()?.toISOString() || null,
+        lastLoginAt: data.lastLoginAt?.toDate?.()?.toISOString() || null
       })
     })
 
     athletesSnapshot2.docs.forEach(doc => {
+      const data = doc.data()
       athleteMap.set(doc.id, {
         id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt?.toDate?.()?.toISOString() || null,
-        updatedAt: doc.data().updatedAt?.toDate?.()?.toISOString() || null,
-        lastLoginAt: doc.data().lastLoginAt?.toDate?.()?.toISOString() || null
+        ...data,
+        // Ensure availability is always an array
+        availability: Array.isArray(data.availability) ? data.availability : [],
+        createdAt: data.createdAt?.toDate?.()?.toISOString() || null,
+        updatedAt: data.updatedAt?.toDate?.()?.toISOString() || null,
+        lastLoginAt: data.lastLoginAt?.toDate?.()?.toISOString() || null
       })
     })
 
     athletesSnapshot3.docs.forEach(doc => {
+      const data = doc.data()
       athleteMap.set(doc.id, {
         id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt?.toDate?.()?.toISOString() || null,
-        updatedAt: doc.data().updatedAt?.toDate?.()?.toISOString() || null,
-        lastLoginAt: doc.data().lastLoginAt?.toDate?.()?.toISOString() || null
+        ...data,
+        // Ensure availability is always an array
+        availability: Array.isArray(data.availability) ? data.availability : [],
+        createdAt: data.createdAt?.toDate?.()?.toISOString() || null,
+        updatedAt: data.updatedAt?.toDate?.()?.toISOString() || null,
+        lastLoginAt: data.lastLoginAt?.toDate?.()?.toISOString() || null
       })
     })
 
