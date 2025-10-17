@@ -752,6 +752,58 @@ service cloud.firestore {
       allow update: if false;
     }
 
+    // ============================================================================
+    // COACH POST REACTIONS - Athlete engagement with coach feed posts
+    // ============================================================================
+
+    // Post Reactions - Athletes react to coach feed posts with emojis
+    match /post_reactions/{reactionId} {
+      // All authenticated users can read reactions (to see counts)
+      allow read: if isAuthenticated();
+
+      // Athletes can create their own reactions
+      // Document ID format: {postId}_{userId}
+      allow create: if isAuthenticated() &&
+                       request.resource.data.userId == request.auth.uid &&
+                       request.resource.data.keys().hasAll(['postId', 'userId', 'emoji']) &&
+                       request.resource.data.emoji is string &&
+                       request.resource.data.emoji.size() > 0 &&
+                       request.resource.data.emoji.size() <= 10;
+
+      // Users can update their own reactions (change emoji)
+      allow update: if isAuthenticated() &&
+                       resource.data.userId == request.auth.uid &&
+                       request.resource.data.userId == resource.data.userId;
+
+      // Users can delete their own reactions
+      allow delete: if isAuthenticated() &&
+                       resource.data.userId == request.auth.uid;
+
+      // Admins can manage all reactions
+      allow read, write: if isAdmin();
+    }
+
+    // Coach Posts - Feed posts from coaches to their athletes
+    match /coach_posts/{postId} {
+      // All authenticated users can read posts
+      allow read: if isAuthenticated();
+
+      // Coaches can create posts
+      allow create: if isCreatorOrHigher() &&
+                       request.resource.data.coachId == request.auth.uid;
+
+      // Coaches can update their own posts
+      allow update: if isCreatorOrHigher() &&
+                       resource.data.coachId == request.auth.uid;
+
+      // Coaches can delete their own posts
+      allow delete: if isCreatorOrHigher() &&
+                       resource.data.coachId == request.auth.uid;
+
+      // Admins can manage all posts
+      allow read, write: if isAdmin();
+    }
+
     // ===== DEFAULT DENY =====
     match /{document=**} {
       allow read, write: if false;

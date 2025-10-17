@@ -52,6 +52,30 @@ export default function CoachFeedView() {
       if (data.posts && data.posts.length > 0) {
         setCoachName(data.posts[0].coachName)
       }
+
+      // Load user's reactions for all posts
+      if (data.posts && data.posts.length > 0) {
+        const reactions: Record<string, string> = {}
+
+        for (const post of data.posts) {
+          try {
+            const reactResponse = await fetch(`/api/athlete/react-to-post?postId=${post.id}`, {
+              headers: { 'Authorization': `Bearer ${token}` }
+            })
+
+            if (reactResponse.ok) {
+              const reactData = await reactResponse.json()
+              if (reactData.userReaction) {
+                reactions[post.id] = reactData.userReaction
+              }
+            }
+          } catch (err) {
+            console.warn(`Failed to load reaction for post ${post.id}:`, err)
+          }
+        }
+
+        setUserReactions(reactions)
+      }
     } catch (error) {
       console.error('Error loading coach feed:', error)
       setPosts([])
@@ -60,8 +84,10 @@ export default function CoachFeedView() {
     }
   }
 
-  const handleReaction = (postId: string, emoji: string) => {
-    // Toggle reaction - if clicking same emoji, remove it
+  const handleReaction = async (postId: string, emoji: string) => {
+    if (!user) return
+
+    // Optimistically update UI
     setUserReactions(prev => {
       const current = prev[postId]
       if (current === emoji) {
@@ -75,8 +101,33 @@ export default function CoachFeedView() {
       }
     })
 
-    // TODO: Save reaction to Firestore
-    console.log(`User reacted to post ${postId} with ${emoji}`)
+    // Save reaction to database
+    try {
+      const token = await user.getIdToken()
+      const response = await fetch('/api/athlete/react-to-post', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ postId, emoji })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to save reaction')
+      }
+
+      const data = await response.json()
+      console.log(`Reaction ${data.action}:`, emoji, 'for post', postId)
+    } catch (error) {
+      console.error('Error saving reaction:', error)
+      // Revert optimistic update on error
+      setUserReactions(prev => {
+        const newReactions = { ...prev }
+        delete newReactions[postId]
+        return newReactions
+      })
+    }
   }
 
   const formatDate = (dateString: string) => {
