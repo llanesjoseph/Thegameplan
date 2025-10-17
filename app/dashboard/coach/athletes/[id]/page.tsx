@@ -829,34 +829,6 @@ export default function AthleteDetailPage() {
                 </div>
               </div>
             )}
-
-            {/* Quick Actions */}
-            <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
-              <h3 className="font-semibold mb-4" style={{ color: '#000000' }}>Quick Actions</h3>
-              <div className="space-y-3">
-                <button
-                  onClick={() => setShowMessageModal(true)}
-                  className="w-full px-4 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
-                >
-                  <MessageCircle className="w-5 h-5" />
-                  Send Message
-                </button>
-                <button
-                  onClick={() => router.push(`/dashboard/coach/lesson-library?assignTo=${athleteId}`)}
-                  className="w-full px-4 py-3 bg-blue-100 text-blue-800 rounded-lg hover:bg-blue-200 transition-colors flex items-center justify-center gap-2"
-                >
-                  <BookOpen className="w-5 h-5" />
-                  Assign Lesson
-                </button>
-                <button
-                  onClick={() => router.push(`/dashboard/coach/analytics?athlete=${athleteId}`)}
-                  className="w-full px-4 py-3 bg-green-100 text-green-800 rounded-lg hover:bg-green-200 transition-colors flex items-center justify-center gap-2"
-                >
-                  <BarChart3 className="w-5 h-5" />
-                  View Full Analytics
-                </button>
-              </div>
-            </div>
           </div>
         </div>
       </div>
