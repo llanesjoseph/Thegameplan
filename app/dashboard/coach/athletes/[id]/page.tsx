@@ -214,6 +214,13 @@ export default function AthleteDetailPage() {
         const data = await response.json()
         if (data.success && data.summary) {
           setAiChatSummary(data.summary)
+
+          // Update analytics with AI chat data
+          setAnalytics(prev => prev ? {
+            ...prev,
+            aiQuestionsAsked: data.summary.totalQuestions || 0,
+            averageEngagement: data.summary.avgQuestionsPerConversation || 0
+          } : null)
         }
       }
     } catch (err) {
@@ -643,20 +650,20 @@ export default function AthleteDetailPage() {
           </>
         )}
 
-        {/* AI Chat Summary Section */}
-        {aiChatSummary && aiChatSummary.totalConversations > 0 && (
-          <div className="mb-8">
-            <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-xl p-6 shadow-lg border border-purple-200">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center shadow-lg">
-                    <Brain className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h2 className="text-2xl font-bold" style={{ color: '#000000' }}>AI Chat Summary</h2>
-                    <p className="text-sm text-gray-600">What {athlete.displayName} has been asking the AI</p>
-                  </div>
+        {/* AI Chat Summary Section - Always visible */}
+        <div className="mb-8">
+          <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-xl p-6 shadow-lg border border-purple-200">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center shadow-lg">
+                  <Brain className="w-6 h-6 text-white" />
                 </div>
+                <div>
+                  <h2 className="text-2xl font-bold" style={{ color: '#000000' }}>AI Chat Summary</h2>
+                  <p className="text-sm text-gray-600">What {athlete.displayName} has been asking the AI</p>
+                </div>
+              </div>
+              {aiChatSummary && (
                 <div className={`px-4 py-2 rounded-full font-semibold ${
                   aiChatSummary.engagementLevel === 'High' ? 'bg-green-100 text-green-800' :
                   aiChatSummary.engagementLevel === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
@@ -665,79 +672,94 @@ export default function AthleteDetailPage() {
                 }`}>
                   {aiChatSummary.engagementLevel} Engagement
                 </div>
-              </div>
-
-              {/* Quick Stats */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="text-3xl font-bold text-purple-600 mb-1">{aiChatSummary.totalConversations}</div>
-                  <div className="text-xs font-medium text-gray-600">Conversations</div>
-                </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="text-3xl font-bold text-blue-600 mb-1">{aiChatSummary.totalQuestions}</div>
-                  <div className="text-xs font-medium text-gray-600">Questions Asked</div>
-                </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="text-3xl font-bold text-indigo-600 mb-1">{aiChatSummary.avgQuestionsPerConversation}</div>
-                  <div className="text-xs font-medium text-gray-600">Avg per Chat</div>
-                </div>
-                <div className="bg-white rounded-lg p-4 shadow">
-                  <div className="text-sm font-bold text-gray-800 mb-1">{aiChatSummary.lastActivity}</div>
-                  <div className="text-xs font-medium text-gray-600">Last Activity</div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Top Topics */}
-                {aiChatSummary.topTopics.length > 0 && (
-                  <div className="bg-white rounded-lg p-5 shadow">
-                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                      <Sparkles className="w-5 h-5 text-purple-600" />
-                      Top Discussion Topics
-                    </h3>
-                    <div className="space-y-3">
-                      {aiChatSummary.topTopics.map((topic, idx) => (
-                        <div key={idx} className="flex items-center justify-between">
-                          <div className="flex items-center gap-3 flex-1">
-                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold ${
-                              idx === 0 ? 'bg-purple-100 text-purple-700' :
-                              idx === 1 ? 'bg-blue-100 text-blue-700' :
-                              idx === 2 ? 'bg-indigo-100 text-indigo-700' :
-                              'bg-gray-100 text-gray-700'
-                            }`}>
-                              #{idx + 1}
-                            </div>
-                            <span className="font-medium text-gray-800">{topic.topic}</span>
-                          </div>
-                          <div className="px-3 py-1 bg-gray-100 rounded-full text-sm font-semibold text-gray-700">
-                            {topic.count}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Recent Questions */}
-                {aiChatSummary.recentQuestions.length > 0 && (
-                  <div className="bg-white rounded-lg p-5 shadow">
-                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                      <MessageCircle className="w-5 h-5 text-blue-600" />
-                      Recent Questions
-                    </h3>
-                    <div className="space-y-3 max-h-64 overflow-y-auto">
-                      {aiChatSummary.recentQuestions.slice(0, 5).map((question, idx) => (
-                        <div key={idx} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-                          <p className="text-sm text-gray-700 line-clamp-2">{question}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
+              )}
             </div>
+
+            {aiChatSummary && aiChatSummary.totalConversations > 0 ? (
+              <>
+                {/* Quick Stats */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                  <div className="bg-white rounded-lg p-4 shadow">
+                    <div className="text-3xl font-bold text-purple-600 mb-1">{aiChatSummary.totalConversations}</div>
+                    <div className="text-xs font-medium text-gray-600">Conversations</div>
+                  </div>
+                  <div className="bg-white rounded-lg p-4 shadow">
+                    <div className="text-3xl font-bold text-blue-600 mb-1">{aiChatSummary.totalQuestions}</div>
+                    <div className="text-xs font-medium text-gray-600">Questions Asked</div>
+                  </div>
+                  <div className="bg-white rounded-lg p-4 shadow">
+                    <div className="text-3xl font-bold text-indigo-600 mb-1">{aiChatSummary.avgQuestionsPerConversation}</div>
+                    <div className="text-xs font-medium text-gray-600">Avg per Chat</div>
+                  </div>
+                  <div className="bg-white rounded-lg p-4 shadow">
+                    <div className="text-sm font-bold text-gray-800 mb-1">{aiChatSummary.lastActivity}</div>
+                    <div className="text-xs font-medium text-gray-600">Last Activity</div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Top Topics */}
+                  {aiChatSummary.topTopics.length > 0 && (
+                    <div className="bg-white rounded-lg p-5 shadow">
+                      <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                        <Sparkles className="w-5 h-5 text-purple-600" />
+                        Top Discussion Topics
+                      </h3>
+                      <div className="space-y-3">
+                        {aiChatSummary.topTopics.map((topic, idx) => (
+                          <div key={idx} className="flex items-center justify-between">
+                            <div className="flex items-center gap-3 flex-1">
+                              <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold ${
+                                idx === 0 ? 'bg-purple-100 text-purple-700' :
+                                idx === 1 ? 'bg-blue-100 text-blue-700' :
+                                idx === 2 ? 'bg-indigo-100 text-indigo-700' :
+                                'bg-gray-100 text-gray-700'
+                              }`}>
+                                #{idx + 1}
+                              </div>
+                              <span className="font-medium text-gray-800">{topic.topic}</span>
+                            </div>
+                            <div className="px-3 py-1 bg-gray-100 rounded-full text-sm font-semibold text-gray-700">
+                              {topic.count}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Recent Questions */}
+                  {aiChatSummary.recentQuestions.length > 0 && (
+                    <div className="bg-white rounded-lg p-5 shadow">
+                      <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                        <MessageCircle className="w-5 h-5 text-blue-600" />
+                        Recent Questions
+                      </h3>
+                      <div className="space-y-3 max-h-64 overflow-y-auto">
+                        {aiChatSummary.recentQuestions.slice(0, 5).map((question, idx) => (
+                          <div key={idx} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                            <p className="text-sm text-gray-700 line-clamp-2">{question}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              /* Empty State */
+              <div className="bg-white rounded-lg p-12 text-center">
+                <Brain className="w-16 h-16 mx-auto mb-4 text-purple-400" />
+                <h3 className="text-xl font-semibold mb-2" style={{ color: '#000000' }}>
+                  No AI Conversations Yet
+                </h3>
+                <p className="text-gray-600 max-w-md mx-auto">
+                  {athlete.displayName} hasn't started any AI coaching conversations yet. Once they begin asking questions, you'll see their interaction patterns, top topics, and recent questions here.
+                </p>
+              </div>
+            )}
           </div>
-        )}
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column - Athletic Profile */}
