@@ -6,41 +6,19 @@ import { useAuth } from '@/hooks/use-auth'
 import { useRouter, useSearchParams } from 'next/navigation'
 import {
   GraduationCap,
-  Video,
-  FileText,
-  Plus,
-  Trash2,
-  MoveUp,
-  MoveDown,
   Save,
   Eye,
-  Link as LinkIcon,
-  Upload,
   Sparkles,
   Wand2,
   Lightbulb,
   AlertCircle,
-  Zap,
-  Edit3,
   ChevronRight,
   CheckCircle2,
-  Target,
   BookOpen,
-  Users,
-  User as UserIcon,
+  Plus,
+  Trash2,
   X
 } from 'lucide-react'
-
-interface LessonSection {
-  id: string
-  title: string
-  type: 'text' | 'video' | 'drill' | 'reflection'
-  content: string
-  videoUrl?: string
-  videoSource?: 'youtube' | 'vimeo' | 'direct'
-  duration?: number
-  order: number
-}
 
 interface LessonForm {
   title: string
@@ -48,7 +26,7 @@ interface LessonForm {
   level: 'beginner' | 'intermediate' | 'advanced' | ''
   duration: number
   objectives: string[]
-  sections: LessonSection[]
+  content: string // Single long-form content field
   tags: string[]
   visibility: 'public' | 'athletes_only' | 'specific_athletes'
 }
@@ -68,9 +46,6 @@ function CreateLessonPageContent() {
   const [aiLevel, setAiLevel] = useState<'beginner' | 'intermediate' | 'advanced' | ''>('')
   const [currentObjective, setCurrentObjective] = useState('')
   const [currentTag, setCurrentTag] = useState('')
-  const [showContentSuggestionsModal, setShowContentSuggestionsModal] = useState(false)
-  const [contentSuggestions, setContentSuggestions] = useState<any>(null)
-  const [loadingSuggestions, setLoadingSuggestions] = useState(false)
 
   const [lesson, setLesson] = useState<LessonForm>({
     title: '',
@@ -78,63 +53,10 @@ function CreateLessonPageContent() {
     level: '',
     duration: 60,
     objectives: [],
-    sections: [],
+    content: '', // Single long-form content field
     tags: [],
     visibility: 'athletes_only'
   })
-
-  // Add a new section
-  const addSection = (type: LessonSection['type']) => {
-    const newSection: LessonSection = {
-      id: `section-${Date.now()}`,
-      title: '',
-      type,
-      content: '',
-      order: lesson.sections.length,
-      duration: 0
-    }
-    setLesson(prev => ({
-      ...prev,
-      sections: [...prev.sections, newSection]
-    }))
-  }
-
-  // Update section
-  const updateSection = (sectionId: string, updates: Partial<LessonSection>) => {
-    setLesson(prev => ({
-      ...prev,
-      sections: prev.sections.map(section =>
-        section.id === sectionId ? { ...section, ...updates } : section
-      )
-    }))
-  }
-
-  // Delete section
-  const deleteSection = (sectionId: string) => {
-    setLesson(prev => ({
-      ...prev,
-      sections: prev.sections.filter(s => s.id !== sectionId)
-        .map((s, idx) => ({ ...s, order: idx }))
-    }))
-  }
-
-  // Move section up/down
-  const moveSection = (sectionId: string, direction: 'up' | 'down') => {
-    const currentIndex = lesson.sections.findIndex(s => s.id === sectionId)
-    if (currentIndex === -1) return
-
-    const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1
-    if (newIndex < 0 || newIndex >= lesson.sections.length) return
-
-    const newSections = [...lesson.sections]
-    const temp = newSections[currentIndex]
-    newSections[currentIndex] = newSections[newIndex]
-    newSections[newIndex] = temp
-
-    // Update order numbers
-    const reorderedSections = newSections.map((s, idx) => ({ ...s, order: idx }))
-    setLesson(prev => ({ ...prev, sections: reorderedSections }))
-  }
 
   // Add objective
   const addObjective = () => {
@@ -232,16 +154,7 @@ function CreateLessonPageContent() {
           duration: data.lesson.duration || prev.duration,
           objectives: data.lesson.objectives || prev.objectives,
           tags: data.lesson.tags || prev.tags,
-          sections: (data.lesson.sections || []).map((s: any, idx: number) => ({
-            id: `section-${Date.now()}-${idx}`,
-            title: s.title || '',
-            type: s.type || 'text',
-            content: s.content || '',
-            order: idx,
-            duration: s.duration || 0,
-            videoUrl: s.videoUrl,
-            videoSource: s.videoSource
-          }))
+          content: data.lesson.content || prev.content // Single long-form content
         }))
 
         setShowAIModal(false)
@@ -257,253 +170,6 @@ function CreateLessonPageContent() {
     } finally {
       setGenerating(false)
     }
-  }
-
-  // Quick-fill objectives with AI suggestions
-  const suggestObjectives = async () => {
-    if (!lesson.sport || !lesson.level) {
-      alert('Please select sport and skill level first')
-      return
-    }
-
-    if (!user) {
-      alert('Please log in to use AI suggestions')
-      return
-    }
-
-    setGenerating(true)
-    try {
-      const token = await user.getIdToken()
-
-      const response = await fetch('/api/generate-lesson-content', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          contentType: 'objectives',
-          sport: lesson.sport,
-          level: lesson.level,
-          topic: lesson.title || 'general training'
-        })
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}))
-        throw new Error(errorData.error || 'Failed to generate suggestions')
-      }
-
-      const data = await response.json()
-      if (data.objectives) {
-        setLesson(prev => ({
-          ...prev,
-          objectives: [...prev.objectives, ...data.objectives]
-        }))
-      }
-    } catch (error: any) {
-      console.error('Error suggesting objectives:', error)
-      alert(error instanceof Error ? error.message : 'Failed to suggest objectives. Please try again.')
-    } finally {
-      setGenerating(false)
-    }
-  }
-
-  // AI-enhance a section
-  const enhanceSection = async (sectionId: string) => {
-    const section = lesson.sections.find(s => s.id === sectionId)
-    if (!section) return
-
-    if (!user) {
-      alert('Please log in to use AI enhancement')
-      return
-    }
-
-    setGenerating(true)
-    try {
-      const token = await user.getIdToken()
-
-      const response = await fetch('/api/generate-lesson-content', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          contentType: section.type,
-          sport: lesson.sport,
-          level: lesson.level,
-          topic: section.title || lesson.title,
-          existingContent: section.content
-        })
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}))
-        throw new Error(errorData.error || 'Failed to enhance section')
-      }
-
-      const data = await response.json()
-      if (data.content) {
-        updateSection(sectionId, { content: data.content })
-        alert('Section enhanced with AI!')
-      }
-    } catch (error: any) {
-      console.error('Error enhancing section:', error)
-      alert(error instanceof Error ? error.message : 'Failed to enhance section. Please try again.')
-    } finally {
-      setGenerating(false)
-    }
-  }
-
-  // Polish all content - enhance all sections at once
-  const polishAllContent = async () => {
-    if (lesson.sections.length === 0) {
-      alert('No sections to polish. Add some content first!')
-      return
-    }
-
-    if (!lesson.sport || !lesson.level) {
-      alert('Please select sport and skill level first')
-      return
-    }
-
-    if (!user) {
-      alert('Please log in to use AI polish')
-      return
-    }
-
-    const sectionsWithContent = lesson.sections.filter(s => s.content.trim().length > 0)
-    if (sectionsWithContent.length === 0) {
-      alert('No section content to polish. Write some content first!')
-      return
-    }
-
-    const confirmMessage = `This will enhance ${sectionsWithContent.length} section${sectionsWithContent.length > 1 ? 's' : ''} with AI to add more detail and coaching insights. This may take a minute. Continue?`
-    if (!confirm(confirmMessage)) {
-      return
-    }
-
-    setGenerating(true)
-    try {
-      const token = await user.getIdToken()
-      let successCount = 0
-      let errorCount = 0
-
-      // Enhance each section sequentially
-      for (const section of sectionsWithContent) {
-        try {
-          const response = await fetch('/api/generate-lesson-content', {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              contentType: section.type,
-              sport: lesson.sport,
-              level: lesson.level,
-              topic: section.title || lesson.title,
-              existingContent: section.content
-            })
-          })
-
-          if (response.ok) {
-            const data = await response.json()
-            if (data.content) {
-              updateSection(section.id, { content: data.content })
-              successCount++
-            }
-          } else {
-            errorCount++
-          }
-        } catch (error) {
-          console.error(`Error enhancing section ${section.id}:`, error)
-          errorCount++
-        }
-      }
-
-      if (successCount > 0) {
-        alert(`✨ Polished ${successCount} section${successCount > 1 ? 's' : ''} successfully!${errorCount > 0 ? ` (${errorCount} failed)` : ''}`)
-      } else {
-        alert('Failed to polish sections. Please try again.')
-      }
-    } catch (error: any) {
-      console.error('Error polishing content:', error)
-      alert('Failed to polish content. Please try again.')
-    } finally {
-      setGenerating(false)
-    }
-  }
-
-  // Browse existing content suggestions
-  const browseExistingContent = async () => {
-    if (!lesson.sport) {
-      alert('Please select a sport first')
-      return
-    }
-
-    if (!user) {
-      alert('Please log in to browse content')
-      return
-    }
-
-    setLoadingSuggestions(true)
-    setShowContentSuggestionsModal(true)
-
-    try {
-      const token = await user.getIdToken()
-
-      const response = await fetch('/api/coach/suggest-content', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          sport: lesson.sport,
-          topic: lesson.title || 'training',
-          level: lesson.level || 'intermediate',
-          contentType: undefined // Get all types
-        })
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}))
-        throw new Error(errorData.error || 'Failed to fetch content suggestions')
-      }
-
-      const data = await response.json()
-      setContentSuggestions(data.suggestions)
-    } catch (error: any) {
-      console.error('Error fetching content suggestions:', error)
-      alert(error instanceof Error ? error.message : 'Failed to fetch content suggestions')
-      setShowContentSuggestionsModal(false)
-    } finally {
-      setLoadingSuggestions(false)
-    }
-  }
-
-  // Insert suggested content as a new section
-  const insertSuggestedContent = (suggestion: any) => {
-    const newSection: LessonSection = {
-      id: `section-${Date.now()}`,
-      title: suggestion.title || '',
-      type: suggestion.type || 'text',
-      content: suggestion.content || '',
-      order: lesson.sections.length,
-      duration: suggestion.duration || 0,
-      videoUrl: suggestion.videoUrl,
-      videoSource: suggestion.videoSource
-    }
-
-    setLesson(prev => ({
-      ...prev,
-      sections: [...prev.sections, newSection]
-    }))
-
-    setShowContentSuggestionsModal(false)
-    alert('Content added to your lesson!')
   }
 
   // Save lesson
@@ -556,55 +222,6 @@ function CreateLessonPageContent() {
     } finally {
       setSaving(false)
     }
-  }
-
-  // Extract video ID from URL
-  const extractVideoId = (url: string, source: 'youtube' | 'vimeo'): string | null => {
-    if (source === 'youtube') {
-      const match = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i)
-      return match ? match[1] : null
-    } else if (source === 'vimeo') {
-      const match = url.match(/vimeo\.com\/(\d+)/i)
-      return match ? match[1] : null
-    }
-    return null
-  }
-
-  // Render video preview
-  const renderVideoPreview = (section: LessonSection) => {
-    if (!section.videoUrl) return null
-
-    if (section.videoSource === 'youtube') {
-      const videoId = extractVideoId(section.videoUrl, 'youtube')
-      if (videoId) {
-        return (
-          <div className="mt-2 aspect-video w-full bg-black rounded-lg overflow-hidden">
-            <iframe
-              src={`https://www.youtube.com/embed/${videoId}`}
-              className="w-full h-full"
-              allowFullScreen
-              title="YouTube Preview"
-            />
-          </div>
-        )
-      }
-    } else if (section.videoSource === 'vimeo') {
-      const videoId = extractVideoId(section.videoUrl, 'vimeo')
-      if (videoId) {
-        return (
-          <div className="mt-2 aspect-video w-full bg-black rounded-lg overflow-hidden">
-            <iframe
-              src={`https://player.vimeo.com/video/${videoId}`}
-              className="w-full h-full"
-              allowFullScreen
-              title="Vimeo Preview"
-            />
-          </div>
-        )
-      }
-    }
-
-    return null
   }
 
   // Authentication check
@@ -836,216 +453,6 @@ function CreateLessonPageContent() {
           </div>
         )}
 
-        {/* Content Suggestions Modal */}
-        {showContentSuggestionsModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-            <div className="bg-white rounded-xl shadow-2xl max-w-5xl w-full p-6 sm:p-8 my-8 max-h-[90vh] overflow-y-auto">
-              <div className="flex items-center justify-between mb-6 sticky top-0 bg-white pb-4 border-b">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
-                    <BookOpen className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h2 className="text-2xl font-medium" style={{ color: '#000000' }}>Browse Existing Content</h2>
-                    <p className="text-sm" style={{ color: '#000000', opacity: 0.6 }}>
-                      {lesson.sport ? `${lesson.sport.charAt(0).toUpperCase() + lesson.sport.slice(1)} training content` : 'Training content'}
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setShowContentSuggestionsModal(false)}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                  disabled={loadingSuggestions}
-                >
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
-
-              {loadingSuggestions ? (
-                <div className="text-center py-12">
-                  <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mb-4"></div>
-                  <p style={{ color: '#000000', opacity: 0.7 }}>Searching for relevant content...</p>
-                </div>
-              ) : contentSuggestions ? (
-                <div className="space-y-6">
-                  {/* My Content Section */}
-                  {contentSuggestions.myContent && contentSuggestions.myContent.length > 0 && (
-                    <div>
-                      <div className="flex items-center gap-2 mb-4">
-                        <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                          <UserIcon className="w-5 h-5 text-blue-600" />
-                        </div>
-                        <h3 className="text-lg font-medium" style={{ color: '#000000' }}>
-                          Your Previous Content ({contentSuggestions.myContent.length})
-                        </h3>
-                      </div>
-                      <div className="grid grid-cols-1 gap-3">
-                        {contentSuggestions.myContent.map((item: any, idx: number) => (
-                          <div key={idx} className="bg-blue-50 border border-blue-200 rounded-lg p-4 hover:bg-blue-100 transition-colors">
-                            <div className="flex items-start justify-between gap-3">
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-2">
-                                  <span className="text-xs px-2 py-1 bg-blue-200 text-blue-800 rounded-full font-medium capitalize">
-                                    {item.type}
-                                  </span>
-                                  {item.source === 'previous_lesson' && (
-                                    <span className="text-xs text-blue-600">From: {item.lessonTitle}</span>
-                                  )}
-                                </div>
-                                <h4 className="font-medium mb-1" style={{ color: '#000000' }}>{item.title}</h4>
-                                <p className="text-sm line-clamp-2" style={{ color: '#000000', opacity: 0.7 }}>
-                                  {item.content?.substring(0, 150)}...
-                                </p>
-                              </div>
-                              <button
-                                onClick={() => insertSuggestedContent(item)}
-                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium whitespace-nowrap"
-                              >
-                                Insert
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Platform Content Section */}
-                  {contentSuggestions.platformContent && contentSuggestions.platformContent.length > 0 && (
-                    <div>
-                      <div className="flex items-center gap-2 mb-4">
-                        <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                          <Users className="w-5 h-5 text-purple-600" />
-                        </div>
-                        <h3 className="text-lg font-medium" style={{ color: '#000000' }}>
-                          From Other Coaches ({contentSuggestions.platformContent.length})
-                        </h3>
-                      </div>
-                      <div className="grid grid-cols-1 gap-3">
-                        {contentSuggestions.platformContent.map((item: any, idx: number) => (
-                          <div key={idx} className="bg-purple-50 border border-purple-200 rounded-lg p-4 hover:bg-purple-100 transition-colors">
-                            <div className="flex items-start justify-between gap-3">
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-2">
-                                  <span className="text-xs px-2 py-1 bg-purple-200 text-purple-800 rounded-full font-medium capitalize">
-                                    {item.type}
-                                  </span>
-                                  <span className="text-xs text-purple-600">By: {item.creatorName}</span>
-                                </div>
-                                <h4 className="font-medium mb-1" style={{ color: '#000000' }}>{item.title}</h4>
-                                <p className="text-sm line-clamp-2" style={{ color: '#000000', opacity: 0.7 }}>
-                                  {item.content?.substring(0, 150)}...
-                                </p>
-                              </div>
-                              <button
-                                onClick={() => insertSuggestedContent(item)}
-                                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium whitespace-nowrap"
-                              >
-                                Insert
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* AI Generated Suggestions */}
-                  {contentSuggestions.aiGenerated && contentSuggestions.aiGenerated.length > 0 && (
-                    <div>
-                      <div className="flex items-center gap-2 mb-4">
-                        <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-blue-600 rounded-xl flex items-center justify-center">
-                          <Sparkles className="w-5 h-5 text-white" />
-                        </div>
-                        <h3 className="text-lg font-medium" style={{ color: '#000000' }}>
-                          AI Suggestions ({contentSuggestions.aiGenerated.length})
-                        </h3>
-                      </div>
-                      <div className="grid grid-cols-1 gap-3">
-                        {contentSuggestions.aiGenerated.map((item: any, idx: number) => (
-                          <div key={idx} className="bg-gradient-to-br from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-4 hover:from-purple-100 hover:to-blue-100 transition-colors">
-                            <div className="flex items-start justify-between gap-3">
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-2">
-                                  <span className="text-xs px-2 py-1 bg-purple-200 text-purple-800 rounded-full font-medium capitalize">
-                                    {item.type}
-                                  </span>
-                                  <span className="text-xs text-purple-600">AI Generated</span>
-                                </div>
-                                <h4 className="font-medium mb-1" style={{ color: '#000000' }}>{item.title}</h4>
-                                <p className="text-sm line-clamp-2" style={{ color: '#000000', opacity: 0.7 }}>
-                                  {item.content?.substring(0, 150)}...
-                                </p>
-                              </div>
-                              <button
-                                onClick={() => insertSuggestedContent(item)}
-                                className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-colors text-sm font-medium whitespace-nowrap"
-                              >
-                                Insert
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* External Resources */}
-                  {contentSuggestions.externalLinks && contentSuggestions.externalLinks.length > 0 && (
-                    <div>
-                      <div className="flex items-center gap-2 mb-4">
-                        <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
-                          <LinkIcon className="w-5 h-5 text-orange-600" />
-                        </div>
-                        <h3 className="text-lg font-medium" style={{ color: '#000000' }}>
-                          External Resources ({contentSuggestions.externalLinks.length})
-                        </h3>
-                      </div>
-                      <div className="grid grid-cols-1 gap-3">
-                        {contentSuggestions.externalLinks.map((link: any, idx: number) => (
-                          <a
-                            key={idx}
-                            href={link.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="bg-orange-50 border border-orange-200 rounded-lg p-4 hover:bg-orange-100 transition-colors block"
-                          >
-                            <div className="flex items-center justify-between gap-3">
-                              <div className="flex-1">
-                                <h4 className="font-medium mb-1 flex items-center gap-2" style={{ color: '#000000' }}>
-                                  {link.title}
-                                  <ChevronRight className="w-4 h-4" />
-                                </h4>
-                                <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>
-                                  {link.description}
-                                </p>
-                              </div>
-                            </div>
-                          </a>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Empty State */}
-                  {(!contentSuggestions.myContent || contentSuggestions.myContent.length === 0) &&
-                   (!contentSuggestions.platformContent || contentSuggestions.platformContent.length === 0) &&
-                   (!contentSuggestions.aiGenerated || contentSuggestions.aiGenerated.length === 0) &&
-                   (!contentSuggestions.externalLinks || contentSuggestions.externalLinks.length === 0) && (
-                    <div className="text-center py-12">
-                      <BookOpen className="w-16 h-16 mx-auto mb-4" style={{ color: '#000000', opacity: 0.3 }} />
-                      <p className="text-lg mb-2" style={{ color: '#000000', opacity: 0.5 }}>No content found</p>
-                      <p className="text-sm" style={{ color: '#000000', opacity: 0.4 }}>
-                        Try creating content manually or use AI generation
-                      </p>
-                    </div>
-                  )}
-                </div>
-              ) : null}
-            </div>
-          </div>
-        )}
-
         {/* Two-Column Layout: Form + Live Preview */}
         <div className="grid lg:grid-cols-[1fr,500px] gap-6">
           {/* LEFT COLUMN: FORM */}
@@ -1162,19 +569,9 @@ function CreateLessonPageContent() {
 
             {/* Learning Objectives */}
             <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-medium" style={{ color: '#000000' }}>
-                  Learning Objectives
-                </h2>
-                <button
-                  onClick={suggestObjectives}
-                  disabled={generating || !lesson.sport || !lesson.level}
-                  className="px-3 py-2 text-sm bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <Lightbulb className="w-4 h-4" />
-                  AI Suggest
-                </button>
-              </div>
+              <h2 className="text-xl font-medium mb-4" style={{ color: '#000000' }}>
+                Learning Objectives
+              </h2>
 
               <div className="space-y-3">
                 <div className="flex gap-2">
@@ -1257,184 +654,23 @@ function CreateLessonPageContent() {
                 Lesson Content
               </h2>
 
-              {/* Browse Existing Content Button */}
-              <button
-                onClick={browseExistingContent}
-                disabled={!lesson.sport}
-                className="w-full mb-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl p-4 hover:from-green-600 hover:to-emerald-700 transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-3 shadow-lg"
-              >
-                <BookOpen className="w-6 h-6" />
-                <div className="text-left flex-1">
-                  <h3 className="font-medium text-base">Browse Existing Content</h3>
-                  <p className="text-xs text-white/80">Use previous lessons or get AI suggestions</p>
-                </div>
-                <ChevronRight className="w-5 h-5" />
-              </button>
+              <p className="text-sm mb-4" style={{ color: '#000000', opacity: 0.6 }}>
+                Write your lesson content using Markdown formatting. You can include headings, lists, bold/italic text, and more.
+              </p>
 
-              {/* Polish All Content Button */}
-              <button
-                onClick={polishAllContent}
-                disabled={generating || !lesson.sport || !lesson.level || lesson.sections.length === 0}
-                className="w-full mb-6 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-xl p-4 hover:from-amber-600 hover:to-orange-700 transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-3 shadow-lg"
-              >
-                <Sparkles className="w-6 h-6" />
-                <div className="text-left flex-1">
-                  <h3 className="font-medium text-base">Polish All Content</h3>
-                  <p className="text-xs text-white/80">Enhance all sections with AI for deeper detail and insight</p>
-                </div>
-                <ChevronRight className="w-5 h-5" />
-              </button>
+              <textarea
+                value={lesson.content}
+                onChange={(e) => setLesson(prev => ({ ...prev, content: e.target.value }))}
+                placeholder="# Introduction
 
-              {/* Section Type Buttons */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-                <button
-                  onClick={() => addSection('text')}
-                  className="bg-gradient-to-br from-sky-blue/20 to-sky-blue/10 border-2 border-sky-blue/30 rounded-xl p-4 hover:from-sky-blue/30 hover:to-sky-blue/20 transition-all hover:scale-105"
-                >
-                  <FileText className="w-8 h-8 mx-auto mb-2" style={{ color: '#91A6EB' }} />
-                  <h3 className="text-sm font-medium" style={{ color: '#000000' }}>Text</h3>
-                </button>
+Start writing your lesson content here...
 
-                <button
-                  onClick={() => addSection('video')}
-                  className="bg-gradient-to-br from-teal/20 to-teal/10 border-2 border-teal/30 rounded-xl p-4 hover:from-teal/30 hover:to-teal/20 transition-all hover:scale-105"
-                >
-                  <Video className="w-8 h-8 mx-auto mb-2" style={{ color: '#20B2AA' }} />
-                  <h3 className="text-sm font-medium" style={{ color: '#000000' }}>Video</h3>
-                </button>
+## Section 1
 
-                <button
-                  onClick={() => addSection('drill')}
-                  className="bg-gradient-to-br from-orange/20 to-orange/10 border-2 border-orange/30 rounded-xl p-4 hover:from-orange/30 hover:to-orange/20 transition-all hover:scale-105"
-                >
-                  <Target className="w-8 h-8 mx-auto mb-2" style={{ color: '#FF6B35' }} />
-                  <h3 className="text-sm font-medium" style={{ color: '#000000' }}>Drill</h3>
-                </button>
-
-                <button
-                  onClick={() => addSection('reflection')}
-                  className="bg-gradient-to-br from-black/10 to-black/5 border-2 border-black/20 rounded-xl p-4 hover:from-black/20 hover:to-black/10 transition-all hover:scale-105"
-                >
-                  <Lightbulb className="w-8 h-8 mx-auto mb-2" style={{ color: '#000000' }} />
-                  <h3 className="text-sm font-medium" style={{ color: '#000000' }}>Reflection</h3>
-                </button>
-              </div>
-
-              {/* Sections List */}
-              {lesson.sections.length === 0 ? (
-                <div className="text-center py-12 border-2 border-dashed border-gray-200 rounded-xl">
-                  <BookOpen className="w-16 h-16 mx-auto mb-4" style={{ color: '#000000', opacity: 0.3 }} />
-                  <p className="text-lg mb-2" style={{ color: '#000000', opacity: 0.5 }}>No content sections yet</p>
-                  <p className="text-sm" style={{ color: '#000000', opacity: 0.4 }}>
-                    Click a section type above to start building
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {lesson.sections.map((section, idx) => (
-                    <div key={section.id} className="border-2 border-gray-200 rounded-xl p-5 hover:border-gray-300 transition-colors">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm px-3 py-1.5 bg-black text-white rounded-lg font-medium">
-                            {idx + 1}
-                          </span>
-                          <span className="text-xs px-3 py-1.5 bg-gray-100 rounded-lg capitalize font-medium">
-                            {section.type}
-                          </span>
-                          <button
-                            onClick={() => enhanceSection(section.id)}
-                            disabled={generating || !lesson.sport || !lesson.level}
-                            className="text-xs px-3 py-1.5 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
-                            title="Enhance with AI"
-                          >
-                            <Wand2 className="w-3 h-3" />
-                            AI
-                          </button>
-                        </div>
-                        <div className="flex gap-1">
-                          <button
-                            onClick={() => moveSection(section.id, 'up')}
-                            disabled={idx === 0}
-                            className="p-2 hover:bg-gray-100 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                          >
-                            <MoveUp className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => moveSection(section.id, 'down')}
-                            disabled={idx === lesson.sections.length - 1}
-                            className="p-2 hover:bg-gray-100 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                          >
-                            <MoveDown className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => deleteSection(section.id)}
-                            className="p-2 hover:bg-red-100 rounded-lg transition-colors"
-                          >
-                            <Trash2 className="w-4 h-4 text-red-600" />
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Section Title */}
-                      <input
-                        type="text"
-                        value={section.title}
-                        onChange={(e) => updateSection(section.id, { title: e.target.value })}
-                        placeholder="Section title"
-                        className="w-full px-4 py-3 mb-4 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent font-medium"
-                      />
-
-                      {/* Video Section */}
-                      {section.type === 'video' && (
-                        <div className="space-y-3 mb-4">
-                          <div className="grid grid-cols-2 gap-3">
-                            <select
-                              value={section.videoSource || ''}
-                              onChange={(e) => updateSection(section.id, { videoSource: e.target.value as any })}
-                              className="px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
-                            >
-                              <option value="">Video source...</option>
-                              <option value="youtube">YouTube</option>
-                              <option value="vimeo">Vimeo</option>
-                            </select>
-                            <input
-                              type="number"
-                              value={section.duration || 0}
-                              onChange={(e) => updateSection(section.id, { duration: parseInt(e.target.value) || 0 })}
-                              placeholder="Duration (min)"
-                              className="px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
-                            />
-                          </div>
-                          {section.videoSource && (
-                            <input
-                              type="url"
-                              value={section.videoUrl || ''}
-                              onChange={(e) => updateSection(section.id, { videoUrl: e.target.value })}
-                              placeholder={`Paste ${section.videoSource} URL`}
-                              className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
-                            />
-                          )}
-                          {renderVideoPreview(section)}
-                        </div>
-                      )}
-
-                      {/* Content */}
-                      <textarea
-                        value={section.content}
-                        onChange={(e) => updateSection(section.id, { content: e.target.value })}
-                        placeholder={
-                          section.type === 'text' ? 'Write detailed explanations and instructions...' :
-                          section.type === 'video' ? 'Describe what athletes will learn from this video...' :
-                          section.type === 'drill' ? 'Step-by-step drill instructions...' :
-                          'Reflection questions or key takeaways...'
-                        }
-                        rows={5}
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent resize-y"
-                      />
-                    </div>
-                  ))}
-                </div>
-              )}
+Write detailed explanations, instructions, and guidance for your athletes."
+                rows={20}
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent resize-y font-mono text-sm"
+              />
             </div>
 
             {/* Action Buttons */}
@@ -1449,7 +685,7 @@ function CreateLessonPageContent() {
               </button>
               <button
                 onClick={() => {
-                  if (lesson.title || lesson.sections.length > 0) {
+                  if (lesson.title || lesson.content) {
                     if (confirm('Are you sure? Your changes will be lost.')) {
                       router.back()
                     }
@@ -1519,38 +755,15 @@ function CreateLessonPageContent() {
                     </div>
                   )}
 
-                  {/* Sections Preview */}
-                  {lesson.sections.length > 0 && (
+                  {/* Content Preview */}
+                  {lesson.content && (
                     <div className="space-y-4">
                       <h4 className="font-medium" style={{ color: '#000000' }}>Lesson Content</h4>
-                      {lesson.sections.map((section, idx) => (
-                        <div key={section.id} className="border-l-4 border-gray-300 pl-4">
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="text-xs px-2 py-1 bg-gray-100 rounded font-medium">
-                              {idx + 1}
-                            </span>
-                            <span className="text-xs px-2 py-1 bg-gray-100 rounded capitalize">
-                              {section.type}
-                            </span>
-                          </div>
-                          {section.title && (
-                            <h5 className="font-medium mb-2" style={{ color: '#000000' }}>
-                              {section.title}
-                            </h5>
-                          )}
-                          {section.content && (
-                            <p className="text-sm whitespace-pre-wrap" style={{ color: '#000000', opacity: 0.7 }}>
-                              {section.content.length > 200 ? `${section.content.substring(0, 200)}...` : section.content}
-                            </p>
-                          )}
-                          {section.type === 'video' && section.videoUrl && (
-                            <div className="mt-2 text-xs text-blue-600 flex items-center gap-1">
-                              <Video className="w-3 h-3" />
-                              Video embedded
-                            </div>
-                          )}
-                        </div>
-                      ))}
+                      <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                        <p className="text-sm whitespace-pre-wrap" style={{ color: '#000000', opacity: 0.7 }}>
+                          {lesson.content.length > 500 ? `${lesson.content.substring(0, 500)}...` : lesson.content}
+                        </p>
+                      </div>
                     </div>
                   )}
                 </div>

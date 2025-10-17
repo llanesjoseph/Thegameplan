@@ -24,7 +24,9 @@ import {
   BarChart3,
   Zap,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Brain,
+  Sparkles
 } from 'lucide-react'
 
 interface AthleteDetails {
@@ -76,6 +78,26 @@ interface Message {
   read: boolean
 }
 
+interface AIChatSummary {
+  totalConversations: number
+  totalQuestions: number
+  totalResponses: number
+  avgQuestionsPerConversation: number
+  lastActivity: string
+  topTopics: Array<{ topic: string; count: number }>
+  recentQuestions: string[]
+  conversations: Array<{
+    id: string
+    title: string
+    createdAt: string | null
+    messageCount: number
+    userQuestions: number
+    aiResponses: number
+    lastActivity: string | null
+  }>
+  engagementLevel: 'High' | 'Medium' | 'Low' | 'None'
+}
+
 export default function AthleteDetailPage() {
   const params = useParams()
   const router = useRouter()
@@ -86,6 +108,7 @@ export default function AthleteDetailPage() {
 
   const [athlete, setAthlete] = useState<AthleteDetails | null>(null)
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
+  const [aiChatSummary, setAiChatSummary] = useState<AIChatSummary | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -98,6 +121,7 @@ export default function AthleteDetailPage() {
       loadAthleteDetails()
       loadAnalytics()
       loadMessages()
+      loadAIChatSummary()
     }
   }, [athleteId, user])
 
@@ -187,28 +211,37 @@ export default function AthleteDetailPage() {
       const feedData = feedDoc.exists() ? feedDoc.data() : null
 
       // Check AI sessions for engagement
-      const aiSessionsQuery = query(
-        collection(db, 'ai_sessions'),
-        where('userId', '==', athleteId),
-        orderBy('createdAt', 'desc'),
-        limit(50)
-      )
-      const aiSessionsSnap = await getDocs(aiSessionsQuery)
+      let aiSessionsSnap: any = { docs: [], size: 0 }
+      try {
+        const aiSessionsQuery = query(
+          collection(db, 'ai_sessions'),
+          where('userId', '==', athleteId),
+          orderBy('createdAt', 'desc'),
+          limit(50)
+        )
+        aiSessionsSnap = await getDocs(aiSessionsQuery)
+      } catch (error) {
+        console.warn('Could not fetch AI sessions:', error)
+      }
 
       // Check chat conversations for AI questions
-      const chatQuery = query(
-        collection(db, 'chatConversations'),
-        where('userId', '==', athleteId)
-      )
-      const chatSnap = await getDocs(chatQuery)
       let totalQuestions = 0
-      for (const chatDoc of chatSnap.docs) {
-        const messagesQuery = query(
-          collection(db, 'chatConversations', chatDoc.id, 'messages'),
-          where('role', '==', 'user')
+      try {
+        const chatQuery = query(
+          collection(db, 'chatConversations'),
+          where('userId', '==', athleteId)
         )
-        const messagesSnap = await getDocs(messagesQuery)
-        totalQuestions += messagesSnap.size
+        const chatSnap = await getDocs(chatQuery)
+        for (const chatDoc of chatSnap.docs) {
+          const messagesQuery = query(
+            collection(db, 'chatConversations', chatDoc.id, 'messages'),
+            where('role', '==', 'user')
+          )
+          const messagesSnap = await getDocs(messagesQuery)
+          totalQuestions += messagesSnap.size
+        }
+      } catch (error) {
+        console.warn('Could not fetch chat conversations:', error)
       }
 
       // Check video review requests
@@ -230,23 +263,29 @@ export default function AthleteDetailPage() {
       const sessionRequestsCompleted = sessionRequestsSnap.docs.filter(doc => doc.data().status === 'accepted' || doc.data().status === 'completed').length
 
       // Check messages
-      const messagesQuery = query(
-        collection(db, 'messages'),
-        where('participants', 'array-contains', athleteId)
-      )
-      const messagesSnap = await getDocs(messagesQuery)
-      const totalMessages = messagesSnap.size
+      let totalMessages = 0
+      let messagesLastWeek = 0
+      try {
+        const messagesQuery = query(
+          collection(db, 'messages'),
+          where('participants', 'array-contains', athleteId)
+        )
+        const messagesSnap = await getDocs(messagesQuery)
+        totalMessages = messagesSnap.size
 
-      // Messages in last week
-      const oneWeekAgo = new Date()
-      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
-      const recentMessagesQuery = query(
-        collection(db, 'messages'),
-        where('participants', 'array-contains', athleteId),
-        where('createdAt', '>=', oneWeekAgo)
-      )
-      const recentMessagesSnap = await getDocs(recentMessagesQuery)
-      const messagesLastWeek = recentMessagesSnap.size
+        // Messages in last week
+        const oneWeekAgo = new Date()
+        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
+        const recentMessagesQuery = query(
+          collection(db, 'messages'),
+          where('participants', 'array-contains', athleteId),
+          where('createdAt', '>=', oneWeekAgo)
+        )
+        const recentMessagesSnap = await getDocs(recentMessagesQuery)
+        messagesLastWeek = recentMessagesSnap.size
+      } catch (error) {
+        console.warn('Could not fetch messages:', error)
+      }
 
       // Content engagement by type
       const contentByType = {
@@ -321,7 +360,31 @@ export default function AthleteDetailPage() {
       } as Message))
       setMessages(messagesList)
     } catch (err) {
-      console.error('Error loading messages:', err)
+      console.warn('Could not load messages (permissions or collection not found):', err)
+      setMessages([]) // Set empty array on error
+    }
+  }
+
+  const loadAIChatSummary = async () => {
+    try {
+      if (!user) return
+
+      const token = await user.getIdToken()
+      const response = await fetch(`/api/coach/athletes/${athleteId}/ai-chat-summary`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success && data.summary) {
+          setAiChatSummary(data.summary)
+        }
+      }
+    } catch (err) {
+      console.warn('Could not load AI chat summary:', err)
+      setAiChatSummary(null)
     }
   }
 
@@ -746,6 +809,102 @@ export default function AthleteDetailPage() {
           </>
         )}
 
+        {/* AI Chat Summary Section */}
+        {aiChatSummary && aiChatSummary.totalConversations > 0 && (
+          <div className="mb-8">
+            <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-xl p-6 shadow-lg border border-purple-200">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center shadow-lg">
+                    <Brain className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold" style={{ color: '#000000' }}>AI Chat Summary</h2>
+                    <p className="text-sm text-gray-600">What {athlete.displayName} has been asking the AI</p>
+                  </div>
+                </div>
+                <div className={`px-4 py-2 rounded-full font-semibold ${
+                  aiChatSummary.engagementLevel === 'High' ? 'bg-green-100 text-green-800' :
+                  aiChatSummary.engagementLevel === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
+                  aiChatSummary.engagementLevel === 'Low' ? 'bg-orange-100 text-orange-800' :
+                  'bg-gray-100 text-gray-800'
+                }`}>
+                  {aiChatSummary.engagementLevel} Engagement
+                </div>
+              </div>
+
+              {/* Quick Stats */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div className="bg-white rounded-lg p-4 shadow">
+                  <div className="text-3xl font-bold text-purple-600 mb-1">{aiChatSummary.totalConversations}</div>
+                  <div className="text-xs font-medium text-gray-600">Conversations</div>
+                </div>
+                <div className="bg-white rounded-lg p-4 shadow">
+                  <div className="text-3xl font-bold text-blue-600 mb-1">{aiChatSummary.totalQuestions}</div>
+                  <div className="text-xs font-medium text-gray-600">Questions Asked</div>
+                </div>
+                <div className="bg-white rounded-lg p-4 shadow">
+                  <div className="text-3xl font-bold text-indigo-600 mb-1">{aiChatSummary.avgQuestionsPerConversation}</div>
+                  <div className="text-xs font-medium text-gray-600">Avg per Chat</div>
+                </div>
+                <div className="bg-white rounded-lg p-4 shadow">
+                  <div className="text-sm font-bold text-gray-800 mb-1">{aiChatSummary.lastActivity}</div>
+                  <div className="text-xs font-medium text-gray-600">Last Activity</div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Top Topics */}
+                {aiChatSummary.topTopics.length > 0 && (
+                  <div className="bg-white rounded-lg p-5 shadow">
+                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                      <Sparkles className="w-5 h-5 text-purple-600" />
+                      Top Discussion Topics
+                    </h3>
+                    <div className="space-y-3">
+                      {aiChatSummary.topTopics.map((topic, idx) => (
+                        <div key={idx} className="flex items-center justify-between">
+                          <div className="flex items-center gap-3 flex-1">
+                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold ${
+                              idx === 0 ? 'bg-purple-100 text-purple-700' :
+                              idx === 1 ? 'bg-blue-100 text-blue-700' :
+                              idx === 2 ? 'bg-indigo-100 text-indigo-700' :
+                              'bg-gray-100 text-gray-700'
+                            }`}>
+                              #{idx + 1}
+                            </div>
+                            <span className="font-medium text-gray-800">{topic.topic}</span>
+                          </div>
+                          <div className="px-3 py-1 bg-gray-100 rounded-full text-sm font-semibold text-gray-700">
+                            {topic.count}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Recent Questions */}
+                {aiChatSummary.recentQuestions.length > 0 && (
+                  <div className="bg-white rounded-lg p-5 shadow">
+                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                      <MessageCircle className="w-5 h-5 text-blue-600" />
+                      Recent Questions
+                    </h3>
+                    <div className="space-y-3 max-h-64 overflow-y-auto">
+                      {aiChatSummary.recentQuestions.slice(0, 5).map((question, idx) => (
+                        <div key={idx} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                          <p className="text-sm text-gray-700 line-clamp-2">{question}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column - Athletic Profile */}
           <div className="lg:col-span-2 space-y-6">
@@ -789,7 +948,7 @@ export default function AthleteDetailPage() {
             )}
 
             {/* Availability */}
-            {athlete.availability && athlete.availability.length > 0 && (
+            {athlete.availability && Array.isArray(athlete.availability) && athlete.availability.length > 0 && (
               <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">

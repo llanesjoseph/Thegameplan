@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
 
     // Fetch coach's voice data from Firestore
     const userDoc = await adminDb.collection('users').doc(userId).get()
-    const voiceData = userDoc.exists() ? userDoc.data()?.voiceCaptureData : null
+    const voiceData = userDoc.exists ? userDoc.data()?.voiceCaptureData : null
 
     // Generate long-form content with coach's voice
     const content = generateLongFormContent(topic, sport, level, duration, detailedInstructions, voiceData)
