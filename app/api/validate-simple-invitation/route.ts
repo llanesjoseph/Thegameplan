@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
 
     // For simple invitations, we'll validate the format and return basic data
     // In a full implementation, you'd check this against a database
-    const isValidFormat = /^inv_\d{13}_[a-z0-9]{9}$/.test(invitationId)
+    const isValidFormat = /^inv_\d{13}_[a-z0-9]+$/.test(invitationId)
 
     if (!isValidFormat) {
       return NextResponse.json(
