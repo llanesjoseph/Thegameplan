@@ -115,7 +115,7 @@ export default function VideoReviewRequestModal({
         },
         body: JSON.stringify({
           athleteId: userId,
-          coachId,
+          assignedCoachUid: coachId,
           videoUrl,
           title: formData.title.trim(),
           description: formData.description.trim(),
