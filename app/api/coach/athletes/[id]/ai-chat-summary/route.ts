@@ -78,10 +78,12 @@ export async function GET(
     }
 
     const conversations = []
+    const detailedConversations = []
     let totalQuestions = 0
     let totalResponses = 0
     const topicsMap = new Map<string, number>()
     const recentQuestions: string[] = []
+    const allQuestions: Array<{question: string, timestamp: string, conversationTitle: string}> = []
 
     for (const convDoc of conversationsSnapshot.docs) {
       const convData = convDoc.data()
@@ -118,6 +120,8 @@ export async function GET(
       totalQuestions += userMessages.length
       totalResponses += assistantMessages.length
 
+      const conversationTitle = convData.title || 'Untitled Conversation'
+
       // Extract topics from user questions (simple keyword extraction)
       userMessages.forEach(msg => {
         const content = msg.content.toLowerCase()
@@ -126,6 +130,13 @@ export async function GET(
         if (recentQuestions.length < 10) {
           recentQuestions.push(msg.content)
         }
+
+        // Add to all questions with metadata
+        allQuestions.push({
+          question: msg.content,
+          timestamp: msg.createdAt || '',
+          conversationTitle
+        })
 
         // Simple topic detection based on keywords
         if (content.includes('technique') || content.includes('form') || content.includes('how to')) {
@@ -152,11 +163,33 @@ export async function GET(
         if (content.includes('video') || content.includes('watch') || content.includes('review')) {
           topicsMap.set('Video Analysis', (topicsMap.get('Video Analysis') || 0) + 1)
         }
+
+        // More specific technique keywords
+        if (content.includes('choke') || content.includes('submission') || content.includes('guard') ||
+            content.includes('pass') || content.includes('sweep') || content.includes('escape')) {
+          topicsMap.set('BJJ/Grappling Techniques', (topicsMap.get('BJJ/Grappling Techniques') || 0) + 1)
+        }
+      })
+
+      // Store detailed conversation info
+      detailedConversations.push({
+        id: convDoc.id,
+        title: conversationTitle,
+        createdAt: convData.createdAt?.toDate?.()?.toISOString() || null,
+        lastActivity: convData.updatedAt?.toDate?.()?.toISOString() || convData.createdAt?.toDate?.()?.toISOString() || null,
+        messageCount: messages.length,
+        userQuestions: userMessages.length,
+        aiResponses: assistantMessages.length,
+        messages: messages.slice(0, 10).map(m => ({
+          role: m.role,
+          content: m.content.length > 200 ? m.content.substring(0, 200) + '...' : m.content,
+          timestamp: m.createdAt
+        }))
       })
 
       conversations.push({
         id: convDoc.id,
-        title: convData.title || 'Untitled Conversation',
+        title: conversationTitle,
         createdAt: convData.createdAt?.toDate?.()?.toISOString() || null,
         messageCount: messages.length,
         userQuestions: userMessages.length,
@@ -179,6 +212,34 @@ export async function GET(
       ? new Date(conversations[0].lastActivity).toLocaleDateString()
       : 'No activity yet'
 
+    // Generate verbal summary for coach
+    let verbalSummary = ''
+    if (totalQuestions === 0) {
+      verbalSummary = `${athleteData?.displayName || 'This athlete'} hasn't asked the AI assistant any questions yet. Encourage them to use the AI chat for technique questions, training advice, and personalized guidance between coaching sessions.`
+    } else {
+      const topTopic = topics[0]
+      const engagementLevel = totalQuestions > 50 ? 'very actively' : totalQuestions > 20 ? 'regularly' : totalQuestions > 10 ? 'occasionally' : 'a few times'
+
+      verbalSummary = `${athleteData?.displayName || 'This athlete'} has been ${engagementLevel} engaging with the AI assistant, asking ${totalQuestions} question${totalQuestions !== 1 ? 's' : ''} across ${conversations.length} conversation${conversations.length !== 1 ? 's' : ''}.`
+
+      if (topTopic) {
+        verbalSummary += ` Their primary focus has been on "${topTopic.topic}" (${topTopic.count} question${topTopic.count !== 1 ? 's' : ''}).`
+      }
+
+      if (topics.length > 1) {
+        const otherTopics = topics.slice(1, 3).map(t => t.topic)
+        if (otherTopics.length > 0) {
+          verbalSummary += ` They've also shown interest in ${otherTopics.join(' and ')}.`
+        }
+      }
+
+      if (recentQuestions.length > 0) {
+        verbalSummary += ` Recent questions include topics like: "${recentQuestions[0].substring(0, 100)}${recentQuestions[0].length > 100 ? '...' : ''}"`
+      }
+
+      verbalSummary += ` Last activity was on ${lastActivityDate}. Consider reviewing their questions to identify areas where you might provide additional personalized coaching or create targeted lessons.`
+    }
+
     const summary = {
       totalConversations: conversations.length,
       totalQuestions,
@@ -188,6 +249,9 @@ export async function GET(
       topTopics: topics.slice(0, 5),
       recentQuestions: recentQuestions.slice(0, 10),
       conversations: conversations.slice(0, 10),
+      detailedConversations: detailedConversations.slice(0, 5),
+      allQuestions: allQuestions.slice(0, 50),
+      verbalSummary,
       engagementLevel: totalQuestions > 50 ? 'High' : totalQuestions > 20 ? 'Medium' : totalQuestions > 0 ? 'Low' : 'None'
     }
 

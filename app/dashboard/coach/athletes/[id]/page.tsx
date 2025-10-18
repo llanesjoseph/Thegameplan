@@ -677,6 +677,21 @@ export default function AthleteDetailPage() {
 
             {aiChatSummary && aiChatSummary.totalConversations > 0 ? (
               <>
+                {/* Verbal Summary - Coach-Friendly Overview */}
+                {(aiChatSummary as any).verbalSummary && (
+                  <div className="bg-white rounded-lg p-6 shadow-md mb-6 border-l-4 border-purple-600">
+                    <div className="flex items-start gap-3">
+                      <MessageCircle className="w-6 h-6 text-purple-600 flex-shrink-0 mt-1" />
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">Summary</h3>
+                        <p className="text-gray-700 leading-relaxed">
+                          {(aiChatSummary as any).verbalSummary}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Quick Stats */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                   <div className="bg-white rounded-lg p-4 shadow">
