@@ -8,7 +8,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
-import { BookOpen, CheckCircle2, Circle, Clock, User, RefreshCw } from 'lucide-react'
+import { BookOpen, CheckCircle2, Circle, Clock, User, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react'
 import AppHeader from '@/components/ui/AppHeader'
 import LessonOverlay from '@/components/LessonOverlay'
 import { doc, onSnapshot } from 'firebase/firestore'
@@ -54,6 +54,8 @@ export default function AthleteLessonsPage() {
   const [isInIframe, setIsInIframe] = useState(false)
   const [selectedLessonId, setSelectedLessonId] = useState<string | null>(null)
   const [syncing, setSyncing] = useState(false)
+  const [showCompleted, setShowCompleted] = useState(false)
+  const [showOlder, setShowOlder] = useState(false)
 
   // Detect if page is loaded in iframe (check URL param or window)
   useEffect(() => {
@@ -296,6 +298,121 @@ export default function AthleteLessonsPage() {
   const totalCount = lessons.length
   const completionPercentage = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0
 
+  // Categorize lessons
+  const now = new Date()
+  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
+
+  const activeLessons = lessons.filter(lesson => !lesson.isCompleted)
+  const completedLessons = lessons.filter(lesson => lesson.isCompleted)
+
+  // Split active lessons into recent and older
+  const recentActiveLessons = activeLessons.filter(lesson => {
+    if (!lesson.createdAt) return true // If no date, consider recent
+    return new Date(lesson.createdAt) >= thirtyDaysAgo
+  })
+
+  const olderActiveLessons = activeLessons.filter(lesson => {
+    if (!lesson.createdAt) return false
+    return new Date(lesson.createdAt) < thirtyDaysAgo
+  })
+
+  // Lesson Card Component
+  const LessonCard = ({
+    lesson,
+    processingLesson,
+    onView,
+    onToggleCompletion
+  }: {
+    lesson: Lesson
+    processingLesson: string | null
+    onView: () => void
+    onToggleCompletion: () => void
+  }) => (
+    <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 overflow-hidden hover:shadow-2xl transition-all">
+      <div className="p-6">
+        <div className="flex flex-col gap-4">
+          {/* Lesson Header with Title and Description */}
+          <div className="flex-grow">
+            <h3
+              className={`text-xl mb-2 ${lesson.isCompleted ? 'opacity-60 line-through' : ''}`}
+              style={{ color: '#000000' }}
+            >
+              {lesson.title}
+            </h3>
+            {lesson.description && (
+              <p
+                className={`text-sm mb-3 ${lesson.isCompleted ? 'opacity-40' : 'opacity-70'}`}
+                style={{ color: '#000000' }}
+              >
+                {lesson.description}
+              </p>
+            )}
+            <div className="flex flex-wrap gap-2">
+              {lesson.sport && (
+                <span className="px-3 py-1 rounded-full text-xs" style={{ backgroundColor: '#3B82F6', color: 'white' }}>
+                  {lesson.sport}
+                </span>
+              )}
+              {lesson.level && (
+                <span className="px-3 py-1 rounded-full text-xs" style={{ backgroundColor: '#8D9440', color: 'white' }}>
+                  {lesson.level}
+                </span>
+              )}
+              {lesson.createdAt && (
+                <span className="px-3 py-1 rounded-full text-xs flex items-center gap-1" style={{ backgroundColor: '#E8E6D8', color: '#000000' }}>
+                  <Clock className="w-3 h-3" />
+                  {new Date(lesson.createdAt).toLocaleDateString()}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Action Buttons Row */}
+          <div className="flex flex-wrap gap-3">
+            <button
+              onClick={onView}
+              className="flex-1 min-w-[140px] px-5 py-3 rounded-lg text-sm font-medium transition-all hover:shadow-lg active:scale-95 flex items-center justify-center gap-2"
+              style={{ backgroundColor: '#3B82F6', color: 'white' }}
+            >
+              <BookOpen className="w-4 h-4" />
+              View Lesson
+            </button>
+
+            <button
+              onClick={onToggleCompletion}
+              disabled={processingLesson === lesson.id}
+              className={`flex-1 min-w-[140px] px-5 py-3 rounded-lg text-sm font-semibold transition-all hover:shadow-lg active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${
+                lesson.isCompleted ? 'border-2' : ''
+              }`}
+              style={{
+                backgroundColor: lesson.isCompleted ? '#ffffff' : '#20B2AA',
+                color: lesson.isCompleted ? '#20B2AA' : '#ffffff',
+                borderColor: lesson.isCompleted ? '#20B2AA' : 'transparent'
+              }}
+            >
+              {processingLesson === lesson.id ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2" style={{ borderColor: lesson.isCompleted ? '#20B2AA' : '#ffffff' }}></div>
+                  Saving...
+                </>
+              ) : lesson.isCompleted ? (
+                <>
+                  <CheckCircle2 className="w-5 h-5" />
+                  Completed ✓
+                </>
+              ) : (
+                <>
+                  <Circle className="w-5 h-5" />
+                  Mark Complete
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+
   return (
     <div style={{ backgroundColor: isInIframe ? 'transparent' : '#E8E6D8' }} className="min-h-screen">
       {!isInIframe && (
@@ -359,97 +476,102 @@ export default function AthleteLessonsPage() {
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
-            {lessons.map((lesson) => (
-              <div
-                key={lesson.id}
-                className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 overflow-hidden hover:shadow-2xl transition-all"
-              >
-                <div className="p-6">
-                  <div className="flex flex-col gap-4">
-                    {/* Lesson Header with Title and Description */}
-                    <div className="flex-grow">
-                      <h3
-                        className={`text-xl mb-2 ${lesson.isCompleted ? 'opacity-60 line-through' : ''}`}
-                        style={{ color: '#000000' }}
-                      >
-                        {lesson.title}
-                      </h3>
-                      {lesson.description && (
-                        <p
-                          className={`text-sm mb-3 ${lesson.isCompleted ? 'opacity-40' : 'opacity-70'}`}
-                          style={{ color: '#000000' }}
-                        >
-                          {lesson.description}
-                        </p>
-                      )}
-                      <div className="flex flex-wrap gap-2">
-                        {lesson.sport && (
-                          <span className="px-3 py-1 rounded-full text-xs" style={{ backgroundColor: '#3B82F6', color: 'white' }}>
-                            {lesson.sport}
-                          </span>
-                        )}
-                        {lesson.level && (
-                          <span className="px-3 py-1 rounded-full text-xs" style={{ backgroundColor: '#8D9440', color: 'white' }}>
-                            {lesson.level}
-                          </span>
-                        )}
-                        {lesson.createdAt && (
-                          <span className="px-3 py-1 rounded-full text-xs flex items-center gap-1" style={{ backgroundColor: '#E8E6D8', color: '#000000' }}>
-                            <Clock className="w-3 h-3" />
-                            {new Date(lesson.createdAt).toLocaleDateString()}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Action Buttons Row */}
-                    <div className="flex flex-wrap gap-3">
-                      <button
-                        onClick={() => setSelectedLessonId(lesson.id)}
-                        className="flex-1 min-w-[140px] px-5 py-3 rounded-lg text-sm font-medium transition-all hover:shadow-lg active:scale-95 flex items-center justify-center gap-2"
-                        style={{ backgroundColor: '#3B82F6', color: 'white' }}
-                      >
-                        <BookOpen className="w-4 h-4" />
-                        View Lesson
-                      </button>
-
-                      <button
-                        onClick={() => toggleCompletion(lesson.id, lesson.isCompleted)}
-                        disabled={processingLesson === lesson.id}
-                        className={`flex-1 min-w-[140px] px-5 py-3 rounded-lg text-sm font-semibold transition-all hover:shadow-lg active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${
-                          lesson.isCompleted
-                            ? 'border-2'
-                            : ''
-                        }`}
-                        style={{
-                          backgroundColor: lesson.isCompleted ? '#ffffff' : '#20B2AA',
-                          color: lesson.isCompleted ? '#20B2AA' : '#ffffff',
-                          borderColor: lesson.isCompleted ? '#20B2AA' : 'transparent'
-                        }}
-                      >
-                        {processingLesson === lesson.id ? (
-                          <>
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2" style={{ borderColor: lesson.isCompleted ? '#20B2AA' : '#ffffff' }}></div>
-                            Saving...
-                          </>
-                        ) : lesson.isCompleted ? (
-                          <>
-                            <CheckCircle2 className="w-5 h-5" />
-                            Completed ✓
-                          </>
-                        ) : (
-                          <>
-                            <Circle className="w-5 h-5" />
-                            Mark Complete
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                </div>
+          <div className="space-y-6">
+            {/* Recent Active Lessons (always visible) */}
+            {recentActiveLessons.length > 0 && (
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold px-2" style={{ color: '#000000' }}>
+                  Active Lessons ({recentActiveLessons.length})
+                </h3>
+                {recentActiveLessons.map((lesson) => (
+                  <LessonCard
+                    key={lesson.id}
+                    lesson={lesson}
+                    processingLesson={processingLesson}
+                    onView={() => setSelectedLessonId(lesson.id)}
+                    onToggleCompletion={() => toggleCompletion(lesson.id, lesson.isCompleted)}
+                  />
+                ))}
               </div>
-            ))}
+            )}
+
+            {/* Older Active Lessons (collapsible) */}
+            {olderActiveLessons.length > 0 && (
+              <div className="space-y-4">
+                <button
+                  onClick={() => setShowOlder(!showOlder)}
+                  className="w-full flex items-center justify-between px-4 py-3 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                >
+                  <span className="text-lg font-semibold" style={{ color: '#000000' }}>
+                    Older Lessons ({olderActiveLessons.length})
+                  </span>
+                  {showOlder ? (
+                    <ChevronUp className="w-5 h-5" style={{ color: '#666' }} />
+                  ) : (
+                    <ChevronDown className="w-5 h-5" style={{ color: '#666' }} />
+                  )}
+                </button>
+
+                {showOlder && (
+                  <div className="space-y-4">
+                    {olderActiveLessons.map((lesson) => (
+                      <LessonCard
+                        key={lesson.id}
+                        lesson={lesson}
+                        processingLesson={processingLesson}
+                        onView={() => setSelectedLessonId(lesson.id)}
+                        onToggleCompletion={() => toggleCompletion(lesson.id, lesson.isCompleted)}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Completed Lessons (collapsible) */}
+            {completedLessons.length > 0 && (
+              <div className="space-y-4">
+                <button
+                  onClick={() => setShowCompleted(!showCompleted)}
+                  className="w-full flex items-center justify-between px-4 py-3 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
+                >
+                  <span className="text-lg font-semibold flex items-center gap-2" style={{ color: '#000000' }}>
+                    <CheckCircle2 className="w-5 h-5 text-green-600" />
+                    Completed Lessons ({completedLessons.length})
+                  </span>
+                  {showCompleted ? (
+                    <ChevronUp className="w-5 h-5" style={{ color: '#666' }} />
+                  ) : (
+                    <ChevronDown className="w-5 h-5" style={{ color: '#666' }} />
+                  )}
+                </button>
+
+                {showCompleted && (
+                  <div className="space-y-4">
+                    {completedLessons.map((lesson) => (
+                      <LessonCard
+                        key={lesson.id}
+                        lesson={lesson}
+                        processingLesson={processingLesson}
+                        onView={() => setSelectedLessonId(lesson.id)}
+                        onToggleCompletion={() => toggleCompletion(lesson.id, lesson.isCompleted)}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Message when all lessons are complete */}
+            {recentActiveLessons.length === 0 && olderActiveLessons.length === 0 && completedLessons.length > 0 && (
+              <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-8 text-white text-center shadow-lg">
+                <CheckCircle2 className="w-16 h-16 mx-auto mb-4" />
+                <h3 className="text-2xl font-bold mb-2">All Caught Up! 🎉</h3>
+                <p className="text-green-50">
+                  You've completed all your lessons. Great work! Check back for new content from your coach.
+                </p>
+              </div>
+            )}
           </div>
         )}
       </main>

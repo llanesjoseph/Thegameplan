@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { BookOpen, Video, Calendar, Trophy } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
-import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore'
+import { doc, getDoc, collection, query, where, getDocs, onSnapshot } from 'firebase/firestore'
 import { db } from '@/lib/firebase.client'
 import { useSearchParams } from 'next/navigation'
 
@@ -44,9 +44,49 @@ export default function AthleteOverview() {
     }
   }, [user, coachId])
 
+  // Real-time listener for athlete feed updates
+  useEffect(() => {
+    if (!user?.uid) return
+
+    const feedDocRef = doc(db, 'athlete_feed', user.uid)
+
+    const unsubscribe = onSnapshot(
+      feedDocRef,
+      (snapshot) => {
+        if (snapshot.exists() && !snapshot.metadata.hasPendingWrites) {
+          console.log('🔄 Athlete feed updated, refreshing stats...')
+          // Reload stats when feed changes (new lessons or completion changes)
+          loadStats()
+        }
+      },
+      (error) => {
+        // Silently handle permission errors for non-existent documents
+        if (error.code !== 'permission-denied') {
+          console.error('Error listening to athlete feed:', error)
+        }
+      }
+    )
+
+    return () => unsubscribe()
+  }, [user])
+
   const loadStats = async () => {
+    if (!user?.uid || !coachId) return
+
     try {
       setLoading(true)
+
+      // Fetch athlete feed to get accurate completion data
+      let lessonsCompletedCount = 0
+      try {
+        const feedDoc = await getDoc(doc(db, 'athlete_feed', user.uid))
+        if (feedDoc.exists()) {
+          const feedData = feedDoc.data()
+          lessonsCompletedCount = feedData?.completedLessons?.length || 0
+        }
+      } catch (error) {
+        console.warn('Could not fetch athlete feed for completion count:', error)
+      }
 
       // Count total lessons from coach
       const contentQuery = query(
@@ -61,7 +101,7 @@ export default function AthleteOverview() {
       const upcomingEvents = 0 // Placeholder - would fetch from schedule
 
       setStats({
-        lessonsCompleted: 0, // Placeholder - would track completion
+        lessonsCompleted: lessonsCompletedCount,
         lessonsTotal: totalLessons,
         upcomingEvents,
         trainingStreak: 0 // Placeholder - would calculate streak
