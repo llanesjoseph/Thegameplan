@@ -139,7 +139,7 @@ export default function VideoReviewRequestPage() {
         },
         body: JSON.stringify({
           athleteId: user.uid,
-          coachId,
+          assignedCoachUid: coachId,
           videoUrl,
           title: formData.title.trim(),
           description: formData.description.trim(),

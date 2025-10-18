@@ -156,6 +156,20 @@ export default function AthleteVideoReviewsPage() {
           </div>
         )}
 
+        {/* Floating Action Button for Embedded Mode */}
+        {isEmbedded && (
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold text-gray-900">My Video Reviews</h2>
+            <button
+              onClick={() => router.push('/dashboard/athlete/video-review/request')}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-md"
+            >
+              <Plus className="w-4 h-4" />
+              Request New Review
+            </button>
+          </div>
+        )}
+
         {/* Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-8">
           <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">

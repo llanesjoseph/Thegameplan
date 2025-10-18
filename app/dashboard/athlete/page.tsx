@@ -270,10 +270,6 @@ export default function AthleteDashboard() {
   }, [coachId])
 
   const handleToolClick = (toolId: string) => {
-    if (toolId === 'video-review') {
-      router.push('/dashboard/athlete/video-reviews')
-      return
-    }
     if (toolId === 'live-session') {
       setShowLive1on1Modal(true)
       return
@@ -526,6 +522,14 @@ export default function AthleteDashboard() {
                         src="/dashboard/athlete-lessons?embedded=true"
                         className="w-full h-full border-0"
                         title="Your Lessons"
+                      />
+                    )}
+
+                    {activeSection === 'video-review' && (
+                      <iframe
+                        src="/dashboard/athlete/video-reviews?embedded=true"
+                        className="w-full h-full border-0"
+                        title="Video Reviews"
                       />
                     )}
 
