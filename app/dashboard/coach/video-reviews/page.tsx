@@ -7,9 +7,7 @@
 
 import { useEffect, useState } from 'react'
 import { useAuth } from '@/hooks/use-auth'
-import { db } from '@/lib/firebase.client'
-import { collection, query, where, orderBy, getDocs, doc, updateDoc } from 'firebase/firestore'
-import { Video, ExternalLink, MessageSquare, Clock, Check, Star, Play } from 'lucide-react'
+import { Video, ExternalLink, MessageSquare, Clock, Check, Star, Play, Eye, Send, User, Search, Filter } from 'lucide-react'
 
 interface VideoReviewRequest {
   id: string
@@ -35,6 +33,8 @@ export default function VideoReviewsPage() {
   const [response, setResponse] = useState('')
   const [rating, setRating] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'in_review' | 'completed'>('all')
+  const [searchQuery, setSearchQuery] = useState('')
 
   useEffect(() => {
     if (user?.uid) {
@@ -47,19 +47,37 @@ export default function VideoReviewsPage() {
 
     try {
       setLoading(true)
-      const reviewsQuery = query(
-        collection(db, 'videoReviewRequests'),
-        where('assignedCoachUid', '==', user.uid),
-        orderBy('createdAt', 'desc')
-      )
+      const token = await user.getIdToken()
+      const response = await fetch('/api/coach/video-reviews/list', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
 
-      const snapshot = await getDocs(reviewsQuery)
-      const reviewData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      } as VideoReviewRequest))
+      const data = await response.json()
 
-      setRequests(reviewData)
+      if (data.success) {
+        const reviewData = data.requests.map((req: any) => ({
+          id: req.id,
+          athleteId: req.athleteId,
+          athleteName: req.athleteName,
+          athleteEmail: req.athleteEmail,
+          videoUrl: req.videoUrl,
+          title: req.title,
+          description: req.description,
+          specificQuestions: req.specificQuestions,
+          status: req.status,
+          createdAt: req.createdAt ? { toDate: () => new Date(req.createdAt) } : null,
+          updatedAt: req.updatedAt ? { toDate: () => new Date(req.updatedAt) } : null,
+          completedAt: req.completedAt ? { toDate: () => new Date(req.completedAt) } : null,
+          coachResponse: req.coachResponse,
+          viewedByCoach: req.viewedByCoach,
+          rating: req.rating
+        }))
+        setRequests(reviewData)
+      } else {
+        console.error('Failed to load video review requests:', data.error)
+      }
     } catch (error) {
       console.error('Error loading video review requests:', error)
     } finally {
@@ -68,28 +86,52 @@ export default function VideoReviewsPage() {
   }
 
   const markAsViewed = async (requestId: string) => {
+    if (!user) return
+
     try {
-      await updateDoc(doc(db, 'videoReviewRequests', requestId), {
-        viewedByCoach: true,
-        status: 'in_review'
+      const token = await user.getIdToken()
+      await fetch('/api/coach/video-reviews/mark-viewed', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ requestId })
       })
-      await loadReviewRequests()
+
+      // Update local state
+      setRequests(prev => prev.map(r =>
+        r.id === requestId ? { ...r, viewedByCoach: true, status: 'in_review' } : r
+      ))
     } catch (error) {
       console.error('Error marking as viewed:', error)
     }
   }
 
   const submitResponse = async () => {
-    if (!selectedRequest || !response.trim()) return
+    if (!selectedRequest || !response.trim() || !user) return
 
     try {
       setIsSubmitting(true)
-      await updateDoc(doc(db, 'videoReviewRequests', selectedRequest.id), {
-        coachResponse: response.trim(),
-        rating: rating > 0 ? rating : null,
-        status: 'completed',
-        completedAt: new Date()
+      const token = await user.getIdToken()
+      const apiResponse = await fetch('/api/coach/video-reviews/submit-feedback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          requestId: selectedRequest.id,
+          coachResponse: response.trim(),
+          rating: rating > 0 ? rating : undefined
+        })
       })
+
+      const result = await apiResponse.json()
+
+      if (!apiResponse.ok) {
+        throw new Error(result.error || 'Failed to submit feedback')
+      }
 
       alert('✅ Video review response submitted successfully!')
       setResponse('')
@@ -135,6 +177,25 @@ export default function VideoReviewsPage() {
     return { type: 'direct', embedUrl: url }
   }
 
+  // Filter and search logic
+  const filteredRequests = requests
+    .filter(req => {
+      if (filterStatus === 'all') return true
+      if (filterStatus === 'pending') return req.status === 'pending' && !req.viewedByCoach
+      if (filterStatus === 'in_review') return req.status === 'in_review' || (req.viewedByCoach && req.status !== 'completed')
+      if (filterStatus === 'completed') return req.status === 'completed'
+      return true
+    })
+    .filter(req => {
+      if (!searchQuery) return true
+      const query = searchQuery.toLowerCase()
+      return (
+        req.title.toLowerCase().includes(query) ||
+        req.athleteName.toLowerCase().includes(query) ||
+        req.description.toLowerCase().includes(query)
+      )
+    })
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 p-8">
@@ -148,16 +209,87 @@ export default function VideoReviewsPage() {
     )
   }
 
+  const pendingCount = requests.filter(r => r.status === 'pending' && !r.viewedByCoach).length
+  const inReviewCount = requests.filter(r => r.status === 'in_review' || (r.viewedByCoach && r.status !== 'completed')).length
+  const completedCount = requests.filter(r => r.status === 'completed').length
+
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-            <Video className="w-8 h-8 text-blue-600" />
-            Video Review Requests
-          </h1>
-          <p className="text-gray-600 mt-2">Review and provide feedback on athlete submitted videos</p>
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+                <Video className="w-8 h-8 text-blue-600" />
+                Video Review Requests
+              </h1>
+              <p className="text-gray-600 mt-2">Review and provide feedback on athlete submitted videos</p>
+            </div>
+            {pendingCount > 0 && (
+              <div className="bg-yellow-100 border-2 border-yellow-300 rounded-lg px-4 py-2 animate-pulse">
+                <p className="text-yellow-800 font-semibold">
+                  {pendingCount} new request{pendingCount !== 1 ? 's' : ''} waiting
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Search and Filter Bar */}
+          <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 flex flex-col sm:flex-row gap-4">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search by athlete name, title, or description..."
+                className="w-full pl-10 pr-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 transition-colors"
+              />
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setFilterStatus('all')}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  filterStatus === 'all'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                All ({requests.length})
+              </button>
+              <button
+                onClick={() => setFilterStatus('pending')}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  filterStatus === 'pending'
+                    ? 'bg-yellow-100 text-yellow-800 border-2 border-yellow-300'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                Pending ({pendingCount})
+              </button>
+              <button
+                onClick={() => setFilterStatus('in_review')}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  filterStatus === 'in_review'
+                    ? 'bg-blue-100 text-blue-800 border-2 border-blue-300'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                In Progress ({inReviewCount})
+              </button>
+              <button
+                onClick={() => setFilterStatus('completed')}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  filterStatus === 'completed'
+                    ? 'bg-green-100 text-green-800 border-2 border-green-300'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                Completed ({completedCount})
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Stats */}
@@ -165,10 +297,17 @@ export default function VideoReviewsPage() {
           <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Pending</p>
-                <p className="text-2xl font-bold text-yellow-600">
-                  {requests.filter(r => r.status === 'pending').length}
-                </p>
+                <p className="text-sm text-gray-600">Total Requests</p>
+                <p className="text-2xl font-bold text-gray-900">{requests.length}</p>
+              </div>
+              <Video className="w-8 h-8 text-gray-400" />
+            </div>
+          </div>
+          <div className="bg-white rounded-lg p-6 shadow-sm border-2 border-yellow-300 bg-yellow-50">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-yellow-700 font-medium">Needs Review</p>
+                <p className="text-2xl font-bold text-yellow-800">{pendingCount}</p>
               </div>
               <Clock className="w-8 h-8 text-yellow-600" />
             </div>
@@ -176,21 +315,17 @@ export default function VideoReviewsPage() {
           <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">In Review</p>
-                <p className="text-2xl font-bold text-blue-600">
-                  {requests.filter(r => r.status === 'in_review').length}
-                </p>
+                <p className="text-sm text-gray-600">In Progress</p>
+                <p className="text-2xl font-bold text-blue-600">{inReviewCount}</p>
               </div>
-              <MessageSquare className="w-8 h-8 text-blue-600" />
+              <Eye className="w-8 h-8 text-blue-600" />
             </div>
           </div>
           <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Completed</p>
-                <p className="text-2xl font-bold text-green-600">
-                  {requests.filter(r => r.status === 'completed').length}
-                </p>
+                <p className="text-2xl font-bold text-green-600">{completedCount}</p>
               </div>
               <Check className="w-8 h-8 text-green-600" />
             </div>
@@ -198,37 +333,63 @@ export default function VideoReviewsPage() {
         </div>
 
         {/* Requests List */}
-        {requests.length === 0 ? (
+        {filteredRequests.length === 0 ? (
           <div className="bg-white rounded-lg p-12 text-center shadow-sm border border-gray-200">
             <Video className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <p className="text-xl text-gray-600">No video review requests yet</p>
-            <p className="text-sm text-gray-500 mt-2">Athletes can submit videos for your review from their dashboard</p>
+            <p className="text-xl text-gray-600">
+              {searchQuery || filterStatus !== 'all'
+                ? 'No requests match your filters'
+                : 'No video review requests yet'}
+            </p>
+            {(searchQuery || filterStatus !== 'all') ? (
+              <button
+                onClick={() => {
+                  setSearchQuery('')
+                  setFilterStatus('all')
+                }}
+                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Clear Filters
+              </button>
+            ) : (
+              <p className="text-sm text-gray-500 mt-2">Athletes can submit videos for your review from their dashboard</p>
+            )}
           </div>
         ) : (
           <div className="space-y-4">
-            {requests.map((request) => (
-              <div key={request.id} className="bg-white rounded-lg p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+            {filteredRequests.map((request) => (
+              <div
+                key={request.id}
+                className={`bg-white rounded-lg p-6 shadow-sm border-2 hover:shadow-md transition-all ${
+                  request.status === 'pending' && !request.viewedByCoach
+                    ? 'border-yellow-300 bg-yellow-50/30'
+                    : 'border-gray-200'
+                }`}
+              >
                 <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                   <div className="flex-1">
                     {/* Header */}
                     <div className="flex items-start gap-4 mb-4">
-                      <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                        <span className="text-blue-600 font-bold">
-                          {request.athleteName.charAt(0).toUpperCase()}
-                        </span>
+                      <div className="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+                        <User className="w-6 h-6 text-blue-600" />
                       </div>
                       <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-1">
+                        <div className="flex items-center gap-3 mb-1 flex-wrap">
                           <h3 className="text-lg font-semibold text-gray-900">{request.title}</h3>
                           <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(request.status)}`}>
                             {request.status.replace('_', ' ').toUpperCase()}
                           </span>
+                          {!request.viewedByCoach && request.status !== 'completed' && (
+                            <span className="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-bold">
+                              NEW
+                            </span>
+                          )}
                         </div>
                         <p className="text-sm text-gray-600">
-                          From: <span className="font-medium">{request.athleteName}</span> ({request.athleteEmail})
-                        </p>
-                        <p className="text-xs text-gray-500 mt-1">
+                          <span className="font-medium">{request.athleteName}</span>
+                          {' • '}
                           Submitted: {request.createdAt?.toDate?.()?.toLocaleDateString?.() || 'Unknown'}
+                          {request.completedAt && ` • Reviewed: ${request.completedAt?.toDate?.()?.toLocaleDateString?.()}`}
                         </p>
                       </div>
                     </div>
