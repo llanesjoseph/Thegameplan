@@ -6,7 +6,7 @@
  */
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import { db } from '@/lib/firebase.client'
 import { collection, query, where, orderBy, getDocs, addDoc, Timestamp } from 'firebase/firestore'
@@ -34,6 +34,8 @@ interface VideoReview {
 export default function AthleteVideoReviewsPage() {
   const { user } = useAuth()
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const isEmbedded = searchParams.get('embedded') === 'true'
   const [reviews, setReviews] = useState<VideoReview[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedReview, setSelectedReview] = useState<VideoReview | null>(null)
@@ -120,8 +122,8 @@ export default function AthleteVideoReviewsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-8">
-        <div className="max-w-7xl mx-auto">
+      <div className={isEmbedded ? "bg-transparent p-4" : "min-h-screen bg-gray-50 p-8"}>
+        <div className={isEmbedded ? "" : "max-w-7xl mx-auto"}>
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
             <p className="mt-4 text-gray-600">Loading your video reviews...</p>
@@ -132,25 +134,27 @@ export default function AthleteVideoReviewsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 sm:p-8">
-      <div className="max-w-7xl mx-auto">
+    <div className={isEmbedded ? "bg-transparent p-4" : "min-h-screen bg-gray-50 p-4 sm:p-8"}>
+      <div className={isEmbedded ? "" : "max-w-7xl mx-auto"}>
         {/* Header */}
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-              <Video className="w-8 h-8 text-blue-600" />
-              My Video Reviews
-            </h1>
-            <p className="text-gray-600 mt-2">Submit videos and get personalized feedback from your coach</p>
+        {!isEmbedded && (
+          <div className="mb-8 flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+                <Video className="w-8 h-8 text-blue-600" />
+                My Video Reviews
+              </h1>
+              <p className="text-gray-600 mt-2">Submit videos and get personalized feedback from your coach</p>
+            </div>
+            <button
+              onClick={() => router.push('/dashboard/athlete/video-review/request')}
+              className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-md"
+            >
+              <Plus className="w-5 h-5" />
+              Request New Review
+            </button>
           </div>
-          <button
-            onClick={() => router.push('/dashboard/athlete/video-review/request')}
-            className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-md"
-          >
-            <Plus className="w-5 h-5" />
-            Request New Review
-          </button>
-        </div>
+        )}
 
         {/* Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-8">

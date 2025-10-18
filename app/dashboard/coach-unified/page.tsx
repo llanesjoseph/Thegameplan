@@ -151,6 +151,13 @@ export default function CoachUnifiedDashboard() {
       badge: pendingRequestsCount
     },
     {
+      id: 'video-reviews',
+      title: 'Video Reviews',
+      description: 'Review athlete submitted videos',
+      icon: Video,
+      color: '#7B92C4'
+    },
+    {
       id: 'lesson-library',
       title: 'Lesson Library',
       description: 'View and edit all your lessons',
@@ -207,6 +214,7 @@ export default function CoachUnifiedDashboard() {
       'athletes': '/dashboard/coach/athletes?embedded=true',
       'create-lesson': '/dashboard/coach/lessons/create?embedded=true',
       'live-sessions': '/dashboard/coach/live-sessions?embedded=true',
+      'video-reviews': '/dashboard/coach/video-reviews?embedded=true',
       'lesson-library': '/dashboard/coach/lessons/library?embedded=true',
       'videos': '/dashboard/coach/videos?embedded=true',
       'analytics': '/dashboard/coach/analytics?embedded=true',

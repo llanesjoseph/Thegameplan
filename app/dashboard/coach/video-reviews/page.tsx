@@ -6,6 +6,7 @@
  */
 
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import { Video, ExternalLink, MessageSquare, Clock, Check, Star, Play, Eye, Send, User, Search, Filter } from 'lucide-react'
 
@@ -29,6 +30,8 @@ interface VideoReviewRequest {
 
 export default function VideoReviewsPage() {
   const { user } = useAuth()
+  const searchParams = useSearchParams()
+  const isEmbedded = searchParams.get('embedded') === 'true'
   const [requests, setRequests] = useState<VideoReviewRequest[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedRequest, setSelectedRequest] = useState<VideoReviewRequest | null>(null)
@@ -200,8 +203,8 @@ export default function VideoReviewsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-8">
-        <div className="max-w-7xl mx-auto">
+      <div className={isEmbedded ? "bg-transparent p-4" : "min-h-screen bg-gray-50 p-8"}>
+        <div className={isEmbedded ? "" : "max-w-7xl mx-auto"}>
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
             <p className="mt-4 text-gray-600">Loading video review requests...</p>
@@ -216,86 +219,88 @@ export default function VideoReviewsPage() {
   const completedCount = requests.filter(r => r.status === 'completed').length
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 sm:p-8">
-      <div className="max-w-7xl mx-auto">
+    <div className={isEmbedded ? "bg-transparent p-4" : "min-h-screen bg-gray-50 p-4 sm:p-8"}>
+      <div className={isEmbedded ? "" : "max-w-7xl mx-auto"}>
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-                <Video className="w-8 h-8 text-blue-600" />
-                Video Review Requests
-              </h1>
-              <p className="text-gray-600 mt-2">Review and provide feedback on athlete submitted videos</p>
-            </div>
-            {pendingCount > 0 && (
-              <div className="bg-yellow-100 border-2 border-yellow-300 rounded-lg px-4 py-2 animate-pulse">
-                <p className="text-yellow-800 font-semibold">
-                  {pendingCount} new request{pendingCount !== 1 ? 's' : ''} waiting
-                </p>
+        {!isEmbedded && (
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+                  <Video className="w-8 h-8 text-blue-600" />
+                  Video Review Requests
+                </h1>
+                <p className="text-gray-600 mt-2">Review and provide feedback on athlete submitted videos</p>
               </div>
-            )}
+              {pendingCount > 0 && (
+                <div className="bg-yellow-100 border-2 border-yellow-300 rounded-lg px-4 py-2 animate-pulse">
+                  <p className="text-yellow-800 font-semibold">
+                    {pendingCount} new request{pendingCount !== 1 ? 's' : ''} waiting
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
+        )}
 
-          {/* Search and Filter Bar */}
-          <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 flex flex-col sm:flex-row gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search by athlete name, title, or description..."
-                className="w-full pl-10 pr-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 transition-colors"
-              />
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setFilterStatus('all')}
-                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                  filterStatus === 'all'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                All ({requests.length})
-              </button>
-              <button
-                onClick={() => setFilterStatus('pending')}
-                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                  filterStatus === 'pending'
-                    ? 'bg-yellow-100 text-yellow-800 border-2 border-yellow-300'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                Pending ({pendingCount})
-              </button>
-              <button
-                onClick={() => setFilterStatus('in_review')}
-                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                  filterStatus === 'in_review'
-                    ? 'bg-blue-100 text-blue-800 border-2 border-blue-300'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                In Progress ({inReviewCount})
-              </button>
-              <button
-                onClick={() => setFilterStatus('completed')}
-                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                  filterStatus === 'completed'
-                    ? 'bg-green-100 text-green-800 border-2 border-green-300'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                Completed ({completedCount})
-              </button>
-            </div>
+        {/* Search and Filter Bar - Always show */}
+        <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 flex flex-col sm:flex-row gap-4 mb-6">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by athlete name, title, or description..."
+              className="w-full pl-10 pr-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 transition-colors"
+            />
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setFilterStatus('all')}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                filterStatus === 'all'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              All ({requests.length})
+            </button>
+            <button
+              onClick={() => setFilterStatus('pending')}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                filterStatus === 'pending'
+                  ? 'bg-yellow-100 text-yellow-800 border-2 border-yellow-300'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              Pending ({pendingCount})
+            </button>
+            <button
+              onClick={() => setFilterStatus('in_review')}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                filterStatus === 'in_review'
+                  ? 'bg-blue-100 text-blue-800 border-2 border-blue-300'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              In Progress ({inReviewCount})
+            </button>
+            <button
+              onClick={() => setFilterStatus('completed')}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                filterStatus === 'completed'
+                  ? 'bg-green-100 text-green-800 border-2 border-green-300'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              Completed ({completedCount})
+            </button>
           </div>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-8">
           <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
