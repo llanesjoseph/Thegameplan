@@ -20,6 +20,8 @@ interface VideoReviewRequest {
   specificQuestions?: string
   status: 'pending' | 'in_review' | 'completed'
   createdAt: any
+  updatedAt?: any
+  completedAt?: any
   coachResponse?: string
   viewedByCoach: boolean
   rating?: number
