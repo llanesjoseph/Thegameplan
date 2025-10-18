@@ -6,7 +6,8 @@
       "Bash(npm install:*)",
       "Bash(git commit -m \"$(cat <<''EOF''\nfix: Fix analytics data field mapping and curated gear price display\n\n- Fix analytics dashboard to support both field naming conventions (views/viewCount, completions/completionCount)\n- Change analytics query to use viewCount field for proper sorting\n- Add diagnostic script to check Firestore data structure\n- Fix curated gear page price type error that prevented page from loading\n- Add type checking for price field to handle string/number conversion\n- Install dotenv package for diagnostic scripts\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
       "Bash(git commit:*)",
-      "Bash(firebase:*)"
+      "Bash(firebase:*)",
+      "Bash(npm run build:*)"
     ],
     "deny": [],
     "ask": []
