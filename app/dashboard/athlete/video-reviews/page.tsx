@@ -57,19 +57,34 @@ export default function AthleteVideoReviewsPage() {
 
     try {
       setLoading(true)
-      const reviewsQuery = query(
-        collection(db, 'videoReviewRequests'),
-        where('athleteId', '==', user.uid),
-        orderBy('createdAt', 'desc')
-      )
+      // Use API endpoint instead of direct Firestore access
+      const response = await fetch(`/api/athlete/video-review/list?athleteId=${user.uid}`)
+      const data = await response.json()
 
-      const snapshot = await getDocs(reviewsQuery)
-      const reviewData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      } as VideoReview))
-
-      setReviews(reviewData)
+      if (data.success) {
+        // Transform API response to match component interface
+        const reviewData = data.requests.map((req: any) => ({
+          id: req.id,
+          athleteId: user.uid,
+          athleteName: req.athleteName,
+          athleteEmail: req.athleteEmail,
+          coachId: req.assignedCoachUid,
+          assignedCoachUid: req.assignedCoachUid,
+          videoUrl: req.videoUrl,
+          title: req.title,
+          description: req.description,
+          specificQuestions: req.specificQuestions,
+          status: req.status,
+          createdAt: req.createdAt ? { toDate: () => new Date(req.createdAt) } : null,
+          completedAt: req.completedAt ? { toDate: () => new Date(req.completedAt) } : null,
+          coachResponse: req.coachResponse,
+          viewedByCoach: req.viewedByCoach,
+          rating: req.rating
+        }))
+        setReviews(reviewData)
+      } else {
+        console.error('Failed to load video reviews:', data.error)
+      }
     } catch (error) {
       console.error('Error loading video reviews:', error)
     } finally {
