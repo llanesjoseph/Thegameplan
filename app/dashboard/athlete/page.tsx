@@ -271,7 +271,7 @@ export default function AthleteDashboard() {
 
   const handleToolClick = (toolId: string) => {
     if (toolId === 'video-review') {
-      setShowVideoReviewModal(true)
+      router.push('/dashboard/athlete/video-reviews')
       return
     }
     if (toolId === 'live-session') {

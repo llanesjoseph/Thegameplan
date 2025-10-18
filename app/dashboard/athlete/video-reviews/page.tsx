@@ -6,6 +6,7 @@
  */
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import { db } from '@/lib/firebase.client'
 import { collection, query, where, orderBy, getDocs, addDoc, Timestamp } from 'firebase/firestore'
@@ -32,19 +33,11 @@ interface VideoReview {
 
 export default function AthleteVideoReviewsPage() {
   const { user } = useAuth()
+  const router = useRouter()
   const [reviews, setReviews] = useState<VideoReview[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedReview, setSelectedReview] = useState<VideoReview | null>(null)
-  const [showSubmitForm, setShowSubmitForm] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // Form state
-  const [formData, setFormData] = useState({
-    videoUrl: '',
-    title: '',
-    description: '',
-    specificQuestions: ''
-  })
 
   useEffect(() => {
     if (user?.uid) {
@@ -92,57 +85,6 @@ export default function AthleteVideoReviewsPage() {
     }
   }
 
-  const handleSubmitReview = async () => {
-    if (!user?.uid || !formData.videoUrl.trim() || !formData.title.trim()) {
-      alert('Please provide a video URL and title')
-      return
-    }
-
-    try {
-      setIsSubmitting(true)
-
-      // Get athlete's coach
-      const athleteDoc = await getDocs(query(collection(db, 'users'), where('uid', '==', user.uid)))
-      const athleteData = athleteDoc.docs[0]?.data()
-      const coachId = athleteData?.coachId || athleteData?.assignedCoachId
-
-      if (!coachId) {
-        alert('You need to be assigned a coach before submitting video reviews')
-        return
-      }
-
-      // Create video review request
-      await addDoc(collection(db, 'videoReviewRequests'), {
-        athleteId: user.uid,
-        athleteName: user.displayName || 'Athlete',
-        athleteEmail: user.email || '',
-        coachId: coachId,
-        assignedCoachUid: coachId,
-        videoUrl: formData.videoUrl.trim(),
-        title: formData.title.trim(),
-        description: formData.description.trim(),
-        specificQuestions: formData.specificQuestions.trim(),
-        status: 'pending',
-        viewedByCoach: false,
-        createdAt: Timestamp.now()
-      })
-
-      alert('✅ Video review request submitted successfully!')
-      setShowSubmitForm(false)
-      setFormData({
-        videoUrl: '',
-        title: '',
-        description: '',
-        specificQuestions: ''
-      })
-      await loadVideoReviews()
-    } catch (error) {
-      console.error('Error submitting video review:', error)
-      alert('❌ Failed to submit video review. Please try again.')
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -202,11 +144,11 @@ export default function AthleteVideoReviewsPage() {
             <p className="text-gray-600 mt-2">Submit videos and get personalized feedback from your coach</p>
           </div>
           <button
-            onClick={() => setShowSubmitForm(true)}
+            onClick={() => router.push('/dashboard/athlete/video-review/request')}
             className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-md"
           >
             <Plus className="w-5 h-5" />
-            Submit New Video
+            Request New Review
           </button>
         </div>
 
@@ -261,7 +203,14 @@ export default function AthleteVideoReviewsPage() {
           <div className="bg-white rounded-lg p-12 text-center shadow-sm border border-gray-200">
             <Video className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <p className="text-xl text-gray-600">No video reviews submitted yet</p>
-            <p className="text-sm text-gray-500 mt-2">Click "Submit New Video" above to get started</p>
+            <p className="text-sm text-gray-500 mt-2 mb-4">Get personalized feedback from your coach</p>
+            <button
+              onClick={() => router.push('/dashboard/athlete/video-review/request')}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-md mx-auto"
+            >
+              <Plus className="w-5 h-5" />
+              Request Your First Review
+            </button>
           </div>
         ) : (
           <div className="space-y-4">
@@ -346,106 +295,6 @@ export default function AthleteVideoReviewsPage() {
                 </div>
               </div>
             ))}
-          </div>
-        )}
-
-        {/* Submit Form Modal */}
-        {showSubmitForm && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full">
-              <div className="p-6 border-b border-gray-200">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-2xl font-bold text-gray-900">Submit Video for Review</h3>
-                  <button
-                    onClick={() => setShowSubmitForm(false)}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
-
-              <div className="p-6 space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Video URL * (YouTube, Vimeo, Google Drive, etc.)
-                  </label>
-                  <input
-                    type="url"
-                    value={formData.videoUrl}
-                    onChange={(e) => setFormData(prev => ({ ...prev, videoUrl: e.target.value }))}
-                    placeholder="https://youtube.com/watch?v=..."
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition-colors"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Video Title *
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.title}
-                    onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                    placeholder="e.g., Match Footage - vs John Doe"
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition-colors"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Description
-                  </label>
-                  <textarea
-                    value={formData.description}
-                    onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                    placeholder="Describe what's in the video and what you want feedback on..."
-                    rows={3}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition-colors resize-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Specific Questions (Optional)
-                  </label>
-                  <textarea
-                    value={formData.specificQuestions}
-                    onChange={(e) => setFormData(prev => ({ ...prev, specificQuestions: e.target.value }))}
-                    placeholder="What specific aspects would you like your coach to focus on?"
-                    rows={3}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition-colors resize-none"
-                  />
-                </div>
-              </div>
-
-              <div className="p-6 border-t border-gray-200 flex gap-3">
-                <button
-                  onClick={() => setShowSubmitForm(false)}
-                  disabled={isSubmitting}
-                  className="flex-1 py-3 px-6 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50 font-medium"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSubmitReview}
-                  disabled={!formData.videoUrl.trim() || !formData.title.trim() || isSubmitting}
-                  className="flex-1 py-3 px-6 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 font-semibold flex items-center justify-center gap-2"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                      Submitting...
-                    </>
-                  ) : (
-                    <>
-                      <Upload className="w-5 h-5" />
-                      Submit for Review
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
           </div>
         )}
 
