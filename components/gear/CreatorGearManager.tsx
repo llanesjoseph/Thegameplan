@@ -28,6 +28,7 @@ export default function CreatorGearManager({ onItemAdded }: CreatorGearManagerPr
  const [loading, setLoading] = useState(false)
  const [imageFile, setImageFile] = useState<File | null>(null)
  const [imagePreview, setImagePreview] = useState<string | null>(null)
+ const [parsedImageUrl, setParsedImageUrl] = useState<string | null>(null)
  const [productUrl, setProductUrl] = useState('')
  const [parsing, setParsing] = useState(false)
  const [parseError, setParseError] = useState('')
@@ -57,6 +58,7 @@ export default function CreatorGearManager({ onItemAdded }: CreatorGearManagerPr
   const file = e.target.files?.[0]
   if (file && file.type.startsWith('image/')) {
    setImageFile(file)
+   setParsedImageUrl(null) // Clear parsed URL when manually uploading
    const reader = new FileReader()
    reader.onload = (e) => {
     setImagePreview(e.target?.result as string)
@@ -84,10 +86,12 @@ export default function CreatorGearManager({ onItemAdded }: CreatorGearManagerPr
 
   setLoading(true)
   try {
-   // Upload image if provided
+   // Upload image if provided, otherwise use parsed image URL
    let imageUrl = null
    if (imageFile) {
     imageUrl = await uploadImage()
+   } else if (parsedImageUrl) {
+    imageUrl = parsedImageUrl
    }
 
    // Create gear item
@@ -104,7 +108,7 @@ export default function CreatorGearManager({ onItemAdded }: CreatorGearManagerPr
    }
 
    await addDoc(collection(db, 'gear'), gearData)
-   
+
    // Reset form
    setFormData({
     name: '',
@@ -118,10 +122,11 @@ export default function CreatorGearManager({ onItemAdded }: CreatorGearManagerPr
    })
    setImageFile(null)
    setImagePreview(null)
+   setParsedImageUrl(null)
    setIsOpen(false)
-   
+
    onItemAdded?.()
-   
+
   } catch (error) {
    console.error('Failed to add gear item:', error)
   } finally {
@@ -184,9 +189,10 @@ export default function CreatorGearManager({ onItemAdded }: CreatorGearManagerPr
     tags: product.tags || []
    })
 
-   // Set image preview from parsed image URL
+   // Set image preview and URL from parsed image URL
    if (product.imageUrl) {
     setImagePreview(product.imageUrl)
+    setParsedImageUrl(product.imageUrl)
    }
 
    console.log('✅ Product parsed successfully:', product.name)
