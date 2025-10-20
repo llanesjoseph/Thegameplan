@@ -211,6 +211,16 @@
         allow delete: if request.auth.uid == userId || isAdmin();
       }
 
+      // Coach videos - Training videos uploaded by coaches
+      match /coach-videos/{userId}/{allPaths=**} {
+        allow read: if isAuthenticated(); // Authenticated users (athletes) can watch
+        allow write: if isAuthenticated() && request.auth.uid == userId &&
+                        isValidVideoType() &&
+                        isValidFileSize(500) && // 500MB limit for coach videos
+                        isValidFileName();
+        allow delete: if request.auth.uid == userId || isAdmin();
+      }
+
       // Coaching session recordings - Private session recordings
       match /sessions/{sessionId}/{allPaths=**} {
         allow read: if isAuthenticated() &&
