@@ -4,6 +4,8 @@ import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import AppHeader from '@/components/ui/AppHeader'
+import { storage } from '@/lib/firebase.client'
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
 import {
   Video,
   Plus,
@@ -24,7 +26,7 @@ interface VideoItem {
   id: string
   title: string
   description: string
-  source: 'youtube' | 'vimeo' | 'direct'
+  source: 'youtube' | 'vimeo' | 'direct' | 'upload'
   url: string
   thumbnail: string
   duration: number
@@ -37,10 +39,13 @@ interface VideoItem {
 function AddVideoModal({ onClose }: { onClose: () => void }) {
   const { user } = useAuth()
   const [loading, setLoading] = useState(false)
+  const [videoFile, setVideoFile] = useState<File | null>(null)
+  const [uploadProgress, setUploadProgress] = useState(0)
+  const [uploading, setUploading] = useState(false)
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    source: 'youtube' as 'youtube' | 'vimeo' | 'direct',
+    source: 'youtube' as 'youtube' | 'vimeo' | 'direct' | 'upload',
     url: '',
     thumbnail: '',
     duration: '' as string | number,
@@ -48,12 +53,89 @@ function AddVideoModal({ onClose }: { onClose: () => void }) {
     tags: ''
   })
 
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('video/')) {
+        alert('Please select a valid video file')
+        return
+      }
+
+      // Check file size (max 500MB)
+      const maxSize = 500 * 1024 * 1024 // 500MB in bytes
+      if (file.size > maxSize) {
+        alert('File size must be less than 500MB')
+        return
+      }
+
+      setVideoFile(file)
+
+      // Auto-fill title if empty
+      if (!formData.title) {
+        const fileName = file.name.replace(/\.[^/.]+$/, '') // Remove extension
+        setFormData({ ...formData, title: fileName })
+      }
+    }
+  }
+
+  const uploadVideoFile = async (): Promise<string | null> => {
+    if (!videoFile || !user) return null
+
+    setUploading(true)
+    setUploadProgress(0)
+
+    try {
+      const timestamp = Date.now()
+      const fileName = `${timestamp}-${videoFile.name}`
+      const storageRef = ref(storage, `coach-videos/${user.uid}/${fileName}`)
+
+      const uploadTask = uploadBytesResumable(storageRef, videoFile)
+
+      return new Promise((resolve, reject) => {
+        uploadTask.on(
+          'state_changed',
+          (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+            setUploadProgress(Math.round(progress))
+          },
+          (error) => {
+            console.error('Upload error:', error)
+            setUploading(false)
+            reject(error)
+          },
+          async () => {
+            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref)
+            setUploading(false)
+            resolve(downloadURL)
+          }
+        )
+      })
+    } catch (error) {
+      setUploading(false)
+      throw error
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
 
     try {
       if (!user) throw new Error('Not authenticated')
+
+      let videoUrl = formData.url
+
+      // If upload source, upload the file first
+      if (formData.source === 'upload') {
+        if (!videoFile) {
+          throw new Error('Please select a video file to upload')
+        }
+        videoUrl = await uploadVideoFile() || ''
+        if (!videoUrl) {
+          throw new Error('Failed to upload video file')
+        }
+      }
 
       const token = await user.getIdToken()
       const response = await fetch('/api/coach/videos', {
@@ -64,6 +146,7 @@ function AddVideoModal({ onClose }: { onClose: () => void }) {
         },
         body: JSON.stringify({
           ...formData,
+          url: videoUrl,
           duration: formData.duration === '' ? 0 : typeof formData.duration === 'string' ? parseInt(formData.duration) || 0 : formData.duration,
           tags: formData.tags.split(',').map(t => t.trim()).filter(t => t)
         })
@@ -81,6 +164,8 @@ function AddVideoModal({ onClose }: { onClose: () => void }) {
       alert(error instanceof Error ? error.message : 'Failed to add video')
     } finally {
       setLoading(false)
+      setUploading(false)
+      setUploadProgress(0)
     }
   }
 
@@ -133,8 +218,8 @@ function AddVideoModal({ onClose }: { onClose: () => void }) {
             <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
               Video Source *
             </label>
-            <div className="flex gap-4">
-              <label className="flex items-center gap-2 cursor-pointer">
+            <div className="grid grid-cols-2 gap-3">
+              <label className="flex items-center gap-2 cursor-pointer p-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                 <input
                   type="radio"
                   name="source"
@@ -146,7 +231,7 @@ function AddVideoModal({ onClose }: { onClose: () => void }) {
                 <Youtube className="w-5 h-5 text-red-600" />
                 <span>YouTube</span>
               </label>
-              <label className="flex items-center gap-2 cursor-pointer">
+              <label className="flex items-center gap-2 cursor-pointer p-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                 <input
                   type="radio"
                   name="source"
@@ -158,7 +243,7 @@ function AddVideoModal({ onClose }: { onClose: () => void }) {
                 <Video className="w-5 h-5" style={{ color: '#1ab7ea' }} />
                 <span>Vimeo</span>
               </label>
-              <label className="flex items-center gap-2 cursor-pointer">
+              <label className="flex items-center gap-2 cursor-pointer p-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                 <input
                   type="radio"
                   name="source"
@@ -170,27 +255,80 @@ function AddVideoModal({ onClose }: { onClose: () => void }) {
                 <LinkIcon className="w-5 h-5" />
                 <span>Direct Link</span>
               </label>
+              <label className="flex items-center gap-2 cursor-pointer p-3 border-2 border-black rounded-lg hover:bg-gray-50 transition-colors">
+                <input
+                  type="radio"
+                  name="source"
+                  value="upload"
+                  checked={formData.source === 'upload'}
+                  onChange={(e) => setFormData({ ...formData, source: e.target.value as 'upload' })}
+                  className="w-4 h-4"
+                />
+                <Upload className="w-5 h-5" />
+                <span className="font-semibold">Upload File</span>
+              </label>
             </div>
           </div>
 
-          {/* URL */}
-          <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
-              Video URL *
-            </label>
-            <input
-              type="url"
-              value={formData.url}
-              onChange={(e) => setFormData({ ...formData, url: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-              placeholder={
-                formData.source === 'youtube' ? 'https://www.youtube.com/watch?v=...' :
-                formData.source === 'vimeo' ? 'https://vimeo.com/...' :
-                'https://example.com/video.mp4'
-              }
-              required
-            />
-          </div>
+          {/* File Upload (when source is 'upload') */}
+          {formData.source === 'upload' && (
+            <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 space-y-3">
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
+                  Select Video File * <span className="text-xs text-gray-600">(Max 500MB)</span>
+                </label>
+                <input
+                  type="file"
+                  accept="video/*"
+                  onChange={handleFileSelect}
+                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-black file:text-white hover:file:bg-gray-800 cursor-pointer"
+                  required
+                />
+                {videoFile && (
+                  <div className="mt-2 text-sm text-gray-700">
+                    <p><strong>Selected:</strong> {videoFile.name}</p>
+                    <p><strong>Size:</strong> {(videoFile.size / (1024 * 1024)).toFixed(2)} MB</p>
+                  </div>
+                )}
+              </div>
+
+              {uploading && (
+                <div>
+                  <div className="flex items-center justify-between text-sm mb-2">
+                    <span style={{ color: '#000000' }}>Uploading video...</span>
+                    <span style={{ color: '#000000' }} className="font-semibold">{uploadProgress}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                    <div
+                      className="h-full bg-black transition-all duration-300 rounded-full"
+                      style={{ width: `${uploadProgress}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* URL (hidden when uploading file) */}
+          {formData.source !== 'upload' && (
+            <div>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
+                Video URL *
+              </label>
+              <input
+                type="url"
+                value={formData.url}
+                onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                placeholder={
+                  formData.source === 'youtube' ? 'https://www.youtube.com/watch?v=...' :
+                  formData.source === 'vimeo' ? 'https://vimeo.com/...' :
+                  'https://example.com/video.mp4'
+                }
+                required
+              />
+            </div>
+          )}
 
           {/* Sport */}
           <div>
@@ -260,16 +398,28 @@ function AddVideoModal({ onClose }: { onClose: () => void }) {
               type="button"
               onClick={onClose}
               className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-              disabled={loading}
+              disabled={loading || uploading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex-1 px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={loading}
+              className="flex-1 px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              disabled={loading || uploading}
             >
-              {loading ? 'Adding...' : 'Add Video'}
+              {uploading ? (
+                <>
+                  <Upload className="w-4 h-4 animate-pulse" />
+                  Uploading {uploadProgress}%
+                </>
+              ) : loading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Adding...
+                </>
+              ) : (
+                'Add Video'
+              )}
             </button>
           </div>
         </form>
