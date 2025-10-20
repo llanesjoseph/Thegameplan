@@ -17,7 +17,6 @@ interface VideoReview {
   athleteId: string
   athleteName: string
   athleteEmail: string
-  coachId: string
   assignedCoachUid: string
   videoUrl: string
   title: string
@@ -63,7 +62,6 @@ export default function AthleteVideoReviewsPage() {
           athleteId: user.uid,
           athleteName: req.athleteName,
           athleteEmail: req.athleteEmail,
-          coachId: req.assignedCoachUid,
           assignedCoachUid: req.assignedCoachUid,
           videoUrl: req.videoUrl,
           title: req.title,

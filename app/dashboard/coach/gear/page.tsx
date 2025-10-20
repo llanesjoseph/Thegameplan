@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/use-auth'
 import AppHeader from '@/components/ui/AppHeader'
 import CreatorGearManager from '@/components/gear/CreatorGearManager'
 import { db } from '@/lib/firebase.client'
-import { collection, query, getDocs, orderBy, where, deleteDoc, doc } from 'firebase/firestore'
+import { collection, query, getDocs, where, deleteDoc, doc } from 'firebase/firestore'
 import { ShoppingBag, Trash2, Edit, ExternalLink, Image as ImageIcon, Star, Tag } from 'lucide-react'
 
 interface GearItem {
@@ -43,8 +43,7 @@ export default function CoachGearPage({ searchParams }: { searchParams: { embedd
       setLoading(true)
       const gearQuery = query(
         collection(db, 'gear'),
-        where('createdBy', '==', user.uid),
-        orderBy('createdAt', 'desc')
+        where('createdBy', '==', user.uid)
       )
       const snapshot = await getDocs(gearQuery)
 
@@ -52,6 +51,13 @@ export default function CoachGearPage({ searchParams }: { searchParams: { embedd
         id: doc.id,
         ...doc.data()
       })) as GearItem[]
+
+      // Sort by createdAt in JavaScript to avoid needing a composite index
+      items.sort((a, b) => {
+        const aTime = a.createdAt?.toMillis?.() || 0
+        const bTime = b.createdAt?.toMillis?.() || 0
+        return bTime - aTime // desc order
+      })
 
       setGearItems(items)
     } catch (error) {
