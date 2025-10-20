@@ -56,9 +56,55 @@ export async function GET(request: NextRequest) {
       .get()
     console.log(`✅ Query successful: Found ${lessonsSnapshot.docs.length} lessons`)
 
-    const lessons = lessonsSnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
+    // 4. Fetch analytics data for each lesson to get viewCount, completionCount, averageRating
+    const lessons = await Promise.all(lessonsSnapshot.docs.map(async (doc) => {
+      const lessonData = doc.data()
+
+      // Get analytics data for this lesson
+      let viewCount = 0
+      let completionCount = 0
+      let averageRating = 0
+
+      try {
+        // Query analytics collection for views
+        const analyticsSnapshot = await adminDb
+          .collection('analytics')
+          .where('contentId', '==', doc.id)
+          .where('eventType', '==', 'view')
+          .get()
+        viewCount = analyticsSnapshot.size
+
+        // Query analytics collection for completions
+        const completionsSnapshot = await adminDb
+          .collection('analytics')
+          .where('contentId', '==', doc.id)
+          .where('eventType', '==', 'completion')
+          .get()
+        completionCount = completionsSnapshot.size
+
+        // Query ratings collection for average rating
+        const ratingsSnapshot = await adminDb
+          .collection('ratings')
+          .where('contentId', '==', doc.id)
+          .get()
+
+        if (ratingsSnapshot.size > 0) {
+          const totalRating = ratingsSnapshot.docs.reduce((sum, ratingDoc) => {
+            return sum + (ratingDoc.data().rating || 0)
+          }, 0)
+          averageRating = totalRating / ratingsSnapshot.size
+        }
+      } catch (error) {
+        console.warn(`Could not fetch analytics for lesson ${doc.id}:`, error)
+      }
+
+      return {
+        id: doc.id,
+        ...lessonData,
+        viewCount,
+        completionCount,
+        averageRating
+      }
     }))
 
     return NextResponse.json({
