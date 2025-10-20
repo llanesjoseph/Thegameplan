@@ -982,7 +982,7 @@ Write detailed explanations, instructions, and guidance for your athletes."
                       <h4 className="font-medium" style={{ color: '#000000' }}>Lesson Content</h4>
                       <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                         <p className="text-sm whitespace-pre-wrap" style={{ color: '#000000', opacity: 0.7 }}>
-                          {lesson.content.length > 500 ? `${lesson.content.substring(0, 500)}...` : lesson.content}
+                          {lesson.content}
                         </p>
                       </div>
                     </div>
