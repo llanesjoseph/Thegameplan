@@ -1,10 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import { requireAuth } from '@/lib/auth-client'
+import { useAuth } from '@/hooks/use-auth'
+import AppHeader from '@/components/ui/AppHeader'
 import { UserCog, Loader2, CheckCircle, AlertCircle } from 'lucide-react'
 
 export default function FixSingleAthletePage() {
+  const { user } = useAuth()
   const [athleteEmail, setAthleteEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<any>(null)
@@ -23,10 +25,13 @@ export default function FixSingleAthletePage() {
     setResult(null)
 
     try {
+      const token = await user?.getIdToken()
+
       const response = await fetch('/api/admin/fix-single-athlete-coach', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ athleteEmail: athleteEmail.trim() })
       })
@@ -48,21 +53,13 @@ export default function FixSingleAthletePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 p-6">
-      <div className="max-w-2xl mx-auto">
-        {/* Header */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-          <div className="flex items-center gap-3 mb-2">
-            <UserCog className="w-8 h-8 text-purple-600" />
-            <h1 className="text-2xl font-bold text-gray-900">Fix Single Athlete Coach Assignment</h1>
-          </div>
-          <p className="text-gray-600">
-            Use this tool to fix coach assignment for a specific athlete by email address.
-          </p>
-        </div>
+    <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
+      <AppHeader title="Fix Single Athlete Coach Assignment" subtitle="Fix coach assignment for a specific athlete by email" />
 
-        {/* Form */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+      <main className="max-w-4xl mx-auto px-6 py-8">
+        <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8">
+          {/* Form */}
+          <div className="border border-gray-300/50 rounded-lg p-6 mb-6">
           <form onSubmit={handleFix} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
