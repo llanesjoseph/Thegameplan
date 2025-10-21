@@ -7,18 +7,14 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
-    // Verify authentication
-    const authHeader = request.headers.get('cookie');
-    const sessionCookie = authHeader
-      ?.split('; ')
-      .find((row) => row.startsWith('session='))
-      ?.split('=')[1];
-
-    if (!sessionCookie) {
+    // Verify authentication using Bearer token
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const decodedToken = await auth.verifyIdToken(sessionCookie);
+    const idToken = authHeader.split('Bearer ')[1];
+    const decodedToken = await auth.verifyIdToken(idToken);
     const coachId = decodedToken.uid;
     const coachName = decodedToken.name || decodedToken.email?.split('@')[0] || 'Coach';
 
