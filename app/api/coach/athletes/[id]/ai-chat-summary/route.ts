@@ -95,7 +95,7 @@ export async function GET(
           .collection('chatConversations')
           .doc(convDoc.id)
           .collection('messages')
-          .orderBy('createdAt', 'asc')
+          .orderBy('timestamp', 'asc')
           .get()
       } catch (msgError: any) {
         console.log('Error fetching messages for conversation', convDoc.id, ':', msgError.message)
@@ -108,9 +108,9 @@ export async function GET(
       }
 
       const messages = messagesSnapshot.docs.map(msgDoc => ({
-        role: msgDoc.data().role,
+        role: msgDoc.data().type,  // Messages stored with 'type' field, map to 'role' for consistency
         content: msgDoc.data().content,
-        createdAt: msgDoc.data().createdAt?.toDate?.()?.toISOString() || null
+        createdAt: msgDoc.data().timestamp?.toDate?.()?.toISOString() || null
       }))
 
       // Count questions and responses
