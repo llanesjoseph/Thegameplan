@@ -266,23 +266,24 @@ export default function AthleteDashboard() {
       }
 
       try {
+        // BYPASS INDEX REQUIREMENT: Fetch all content and filter client-side
         const contentRef = collection(db, 'content')
-        const contentQuery = query(
-          contentRef,
-          where('creatorUid', '==', coachId),
-          where('status', '==', 'published')
-        )
+        const contentQuery = query(contentRef)  // No where clauses = no index needed
         const contentSnap = await getDocs(contentQuery)
 
         let lessons = 0
         let videos = 0
 
+        // Filter for coach's published content in JavaScript
         contentSnap.forEach(doc => {
           const data = doc.data()
-          if (data.type === 'video') {
-            videos++
-          } else {
-            lessons++
+          // Check if content belongs to coach and is published
+          if (data.creatorUid === coachId && data.status === 'published') {
+            if (data.type === 'video') {
+              videos++
+            } else {
+              lessons++
+            }
           }
         })
 

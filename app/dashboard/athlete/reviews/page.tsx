@@ -30,12 +30,37 @@ export default function AthleteReviewsPage() {
 
     if (!user) return;
 
-    // Fetch submissions
+    // Fetch submissions WITHOUT INDEXES - fetch all and filter in JavaScript
     const fetchSubmissions = async () => {
       try {
-        const { getMySubmissions } = await import('@/lib/data/video-critique');
-        const { items } = await getMySubmissions(user.uid);
-        setSubmissions(items);
+        // BYPASS INDEX REQUIREMENT: Fetch all submissions and filter client-side
+        const { collection, getDocs, query } = await import('firebase/firestore');
+        const { db } = await import('@/lib/firebase.client');
+
+        // Get ALL submissions (no where clauses = no index needed)
+        const q = query(collection(db, 'submissions'));
+        const querySnapshot = await getDocs(q);
+
+        // Filter for this athlete's submissions in JavaScript
+        const mySubmissions: any[] = [];
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          if (data.athleteUid === user.uid) {
+            mySubmissions.push({
+              id: doc.id,
+              ...data
+            });
+          }
+        });
+
+        // Sort by createdAt (newest first)
+        mySubmissions.sort((a, b) => {
+          const aDate = a.createdAt?.toDate?.() || new Date(a.createdAt || 0);
+          const bDate = b.createdAt?.toDate?.() || new Date(b.createdAt || 0);
+          return bDate.getTime() - aDate.getTime();
+        });
+
+        setSubmissions(mySubmissions);
       } catch (error) {
         console.error('Error fetching submissions:', error);
       } finally {
