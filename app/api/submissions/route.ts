@@ -34,6 +34,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // CRITICAL: Verify coach exists and is active
+    const coachDoc = await adminDb.collection('users').doc(coachId).get();
+    if (!coachDoc.exists) {
+      return NextResponse.json(
+        { error: 'Assigned coach not found. Please contact support.' },
+        { status: 400 }
+      );
+    }
+
+    const coachData = coachDoc.data();
+    if (coachData?.role !== 'coach' && coachData?.role !== 'creator') {
+      return NextResponse.json(
+        { error: 'Assigned coach is not active. Please contact support.' },
+        { status: 400 }
+      );
+    }
+
     // Parse request body
     const body: CreateSubmissionRequest & {
       videoFileName: string;

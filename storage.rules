@@ -233,7 +233,24 @@
       match /backups/{allPaths=**} {
         allow read, write, delete: if isAdmin();
       }
-      
+
+      // Video submissions - Athletes submit videos for coach review
+      match /videos/submissions/{teamId}/{submissionId}/{fileName} {
+        // Athletes can upload to their own path, coaches and admins can read
+        allow read: if isAuthenticated() &&
+                      (request.auth.uid == teamId ||
+                       isCoach() ||
+                       isAdmin());
+        // Athletes can upload videos to their own submissions
+        allow write: if isAuthenticated() &&
+                        request.auth.uid == teamId &&
+                        isValidVideoType() &&
+                        isValidFileSize(500) && // 500MB limit for video submissions
+                        isValidFileName();
+        allow delete: if isAuthenticated() &&
+                         (request.auth.uid == teamId || isCoach() || isAdmin());
+      }
+
       // ===== DEFAULT DENY =====
       // Any path not explicitly defined above is denied by default
       match /{allPaths=**} {

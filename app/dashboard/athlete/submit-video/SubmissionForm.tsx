@@ -85,6 +85,7 @@ export default function SubmissionForm({ user }: SubmissionFormProps) {
         // Create submission in database first
         const response = await fetch('/api/submissions', {
           method: 'POST',
+          credentials: 'include', // CRITICAL: Include session cookie for authentication
           headers: {
             'Content-Type': 'application/json',
           },
@@ -122,6 +123,7 @@ export default function SubmissionForm({ user }: SubmissionFormProps) {
             // Update submission with video URL
             await fetch(`/api/submissions/${submissionId}`, {
               method: 'PATCH',
+              credentials: 'include', // CRITICAL: Include session cookie for authentication
               headers: {
                 'Content-Type': 'application/json',
               },

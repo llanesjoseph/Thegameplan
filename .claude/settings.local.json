@@ -48,7 +48,8 @@
       "Bash(gh repo view:*)",
       "Bash(gh api:*)",
       "Bash(git show:*)",
-      "Bash(node -e \"const fs = require(''fs''); fs.writeFileSync(''C:\\\\Users\\\\bigpe\\\\OneDrive\\\\Desktop\\\\Crucible\\\\GAMEPLAN-SOURCE-ONLY\\\\app\\\\dashboard\\\\athlete\\\\reviews\\\\[submissionId]\\\\page.tsx'', '''');\")"
+      "Bash(node -e \"const fs = require(''fs''); fs.writeFileSync(''C:\\\\Users\\\\bigpe\\\\OneDrive\\\\Desktop\\\\Crucible\\\\GAMEPLAN-SOURCE-ONLY\\\\app\\\\dashboard\\\\athlete\\\\reviews\\\\[submissionId]\\\\page.tsx'', '''');\")",
+      "mcp__ide__getDiagnostics"
     ],
     "deny": [],
     "ask": []

@@ -124,8 +124,18 @@ export function generateVideoStoragePath(
   submissionId: string,
   fileName: string
 ): string {
-  // Sanitize file name
-  const sanitizedFileName = fileName.replace(/[^a-zA-Z0-9._-]/g, '_');
+  // Enhanced sanitization: remove path traversal, limit to filename only
+  const baseName = fileName.split('/').pop() || 'video'; // Take only filename, no paths
+  const sanitizedFileName = baseName
+    .replace(/\.\./g, '') // Remove .. sequences
+    .replace(/[^a-zA-Z0-9._-]/g, '_') // Replace invalid chars
+    .slice(0, 255); // Limit length
+
+  // Validate sanitized result
+  if (!sanitizedFileName || sanitizedFileName === '_') {
+    throw new Error('Invalid file name');
+  }
+
   const timestamp = Date.now();
   return `videos/submissions/${teamId}/${submissionId}/${timestamp}_${sanitizedFileName}`;
 }
@@ -172,6 +182,14 @@ export async function getVideoMetadata(file: File): Promise<{
     video.preload = 'metadata';
 
     video.onloadedmetadata = () => {
+      // CRITICAL: Enforce maximum duration (10 minutes = 600 seconds)
+      const MAX_DURATION = 600;
+      if (video.duration > MAX_DURATION) {
+        reject(new Error(`Video too long. Maximum duration is ${MAX_DURATION / 60} minutes.`));
+        URL.revokeObjectURL(video.src);
+        return;
+      }
+
       // Get thumbnail from first frame
       const canvas = document.createElement('canvas');
       canvas.width = video.videoWidth;
