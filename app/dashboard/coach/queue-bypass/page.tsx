@@ -14,19 +14,28 @@ export default function QueueBypassPage() {
   useEffect(() => {
     if (!user) return;
 
-    // Listen to submissions in real-time - just get all awaiting_coach submissions
-    // Remove the orderBy to avoid index requirements initially
+    // Listen to ALL submissions without filters to avoid index requirements
+    // We'll filter in JavaScript instead
     const q = query(
-      collection(db, 'submissions'),
-      where('status', '==', 'awaiting_coach')
+      collection(db, 'submissions')
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const subs = snapshot.docs.map(doc => ({
+      const allSubs = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
-      setSubmissions(subs);
+      // Filter in JavaScript to avoid index requirements
+      const awaitingCoach = allSubs.filter((sub: any) =>
+        sub.status === 'awaiting_coach' || sub.status === 'uploading'
+      );
+      // Sort by createdAt in JavaScript
+      awaitingCoach.sort((a: any, b: any) => {
+        const aTime = a.createdAt?.seconds || 0;
+        const bTime = b.createdAt?.seconds || 0;
+        return bTime - aTime; // Newest first
+      });
+      setSubmissions(awaitingCoach);
       setLoading(false);
     });
 

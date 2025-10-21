@@ -6,7 +6,8 @@
       "Bash(git commit -m \"$(cat <<''EOF''\nfix: Fix video submission permissions - athleteId to athleteUid\n\nFixed field name mismatch in Firestore security rules that was blocking all video submissions. Rules were checking for ''athleteId'' but code uses ''athleteUid''.\n\nThis was causing \"Missing or insufficient permissions\" errors on every video upload attempt.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
       "Bash(git reset:*)",
       "Bash(git commit:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(start:*)"
     ],
     "deny": [],
     "ask": []
