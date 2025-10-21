@@ -13,6 +13,15 @@ export default function SubmitVideoPage() {
   const [teams, setTeams] = useState<any[]>([]);
   const [skills, setSkills] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isEmbedded, setIsEmbedded] = useState(false);
+
+  // Detect if page is loaded in iframe
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const embeddedParam = params.get('embedded') === 'true';
+    const windowCheck = window.self !== window.top;
+    setIsEmbedded(embeddedParam || windowCheck);
+  }, []);
 
   useEffect(() => {
     if (!user && !loading) {
@@ -63,15 +72,17 @@ export default function SubmitVideoPage() {
 
   if (!teams || teams.length === 0) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className={`${isEmbedded ? 'p-4' : 'container mx-auto px-4 py-8'}`}>
         <div className="max-w-2xl mx-auto">
-          <Link
-            href="/dashboard/athlete"
-            className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-4"
-          >
-            <ArrowLeft className="w-4 h-4 mr-1" />
-            Back to Dashboard
-          </Link>
+          {!isEmbedded && (
+            <Link
+              href="/dashboard/athlete"
+              className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-4"
+            >
+              <ArrowLeft className="w-4 h-4 mr-1" />
+              Back to Dashboard
+            </Link>
+          )}
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
             <h2 className="text-lg font-semibold text-yellow-900 mb-2">
               No Team Assigned
@@ -91,10 +102,10 @@ export default function SubmitVideoPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className={`${isEmbedded ? 'p-4' : 'container mx-auto px-4 py-8'}`}>
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Submit Video for Review</h1>
+          <h1 className={`${isEmbedded ? 'text-2xl' : 'text-3xl'} font-bold text-gray-900`}>Submit Video for Review</h1>
           <p className="mt-2 text-gray-600">
             Upload a video of your performance to receive personalized feedback from your coach.
           </p>

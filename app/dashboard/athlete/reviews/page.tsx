@@ -11,6 +11,15 @@ export default function AthleteReviewsPage() {
   const router = useRouter();
   const [submissions, setSubmissions] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isEmbedded, setIsEmbedded] = useState(false);
+
+  // Detect if page is loaded in iframe
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const embeddedParam = params.get('embedded') === 'true';
+    const windowCheck = window.self !== window.top;
+    setIsEmbedded(embeddedParam || windowCheck);
+  }, []);
 
   useEffect(() => {
     if (!user && !loading) {
@@ -90,18 +99,20 @@ export default function AthleteReviewsPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className={`${isEmbedded ? 'p-4' : 'container mx-auto px-4 py-8'}`}>
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <Link
-            href="/dashboard/athlete"
-            className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-4"
-          >
-            <ArrowLeft className="w-4 h-4 mr-1" />
-            Back to Dashboard
-          </Link>
-          <h1 className="text-3xl font-bold text-gray-900">My Video Reviews</h1>
+          {!isEmbedded && (
+            <Link
+              href="/dashboard/athlete"
+              className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-4"
+            >
+              <ArrowLeft className="w-4 h-4 mr-1" />
+              Back to Dashboard
+            </Link>
+          )}
+          <h1 className={`${isEmbedded ? 'text-2xl' : 'text-3xl'} font-bold text-gray-900`}>My Video Reviews</h1>
           <p className="mt-2 text-gray-600">
             Track your submitted videos and coach feedback
           </p>

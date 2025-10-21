@@ -244,14 +244,6 @@ export default function AthleteDashboard() {
       router.push('/dashboard/coach-unified')
       return
     }
-    if (toolId === 'video-reviews') {
-      router.push('/dashboard/athlete/reviews')
-      return
-    }
-    if (toolId === 'submit-video') {
-      router.push('/dashboard/athlete/submit-video')
-      return
-    }
     setActiveSection(toolId)
   }, [router])
 
@@ -536,6 +528,22 @@ export default function AthleteDashboard() {
                       <div className="h-full overflow-y-auto">
                         <CoachScheduleView />
                       </div>
+                    )}
+
+                    {activeSection === 'video-reviews' && (
+                      <iframe
+                        src="/dashboard/athlete/reviews?embedded=true"
+                        className="w-full h-full border-0"
+                        title="Video Reviews"
+                      />
+                    )}
+
+                    {activeSection === 'submit-video' && (
+                      <iframe
+                        src="/dashboard/athlete/submit-video?embedded=true"
+                        className="w-full h-full border-0"
+                        title="Submit Video"
+                      />
                     )}
 
                     {activeSection === 'lessons' && (
