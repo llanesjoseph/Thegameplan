@@ -301,7 +301,7 @@ export default function CoachUnifiedDashboard() {
                       if (card.id === 'invite') {
                         router.push('/dashboard/coach/invite')
                       } else if (card.id === 'video-queue') {
-                        router.push('/dashboard/coach/queue')
+                        router.push('/dashboard/coach/queue-bypass')
                       } else if (card.id === 'video-analytics') {
                         router.push('/dashboard/coach/analytics/video-critique')
                       } else {
