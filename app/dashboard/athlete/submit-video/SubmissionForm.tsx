@@ -146,6 +146,7 @@ export default function SubmissionForm({ user }: SubmissionFormProps) {
         }
 
         const { submissionId } = await response.json();
+        console.log('Submission created with ID:', submissionId);
 
         // Generate storage path (using user ID as team identifier)
         const storagePath = generateVideoStoragePath(
@@ -153,6 +154,8 @@ export default function SubmissionForm({ user }: SubmissionFormProps) {
           submissionId,
           videoFile.name
         );
+        console.log('Storage path:', storagePath);
+        console.log('Starting video upload...');
 
         // Upload video to Firebase Storage
         const uploadTask = uploadToFirebaseStorage(
@@ -162,27 +165,10 @@ export default function SubmissionForm({ user }: SubmissionFormProps) {
             setUploadProgress(progress);
           },
           async (downloadUrl) => {
-            // Update submission with video URL
-            const updateResponse = await fetch(`/api/submissions/${submissionId}`, {
-              method: 'PATCH',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${authToken}`,
-              },
-              body: JSON.stringify({
-                videoDownloadUrl: downloadUrl,
-                thumbnailUrl: videoMetadata?.thumbnail,
-                status: 'awaiting_coach',
-                uploadProgress: 100,
-              }),
-            });
+            console.log('Upload complete! Download URL:', downloadUrl);
 
-            if (!updateResponse.ok) {
-              console.error('Failed to update submission with video URL');
-            }
-
-            // Show multiple success indicators
-            toast.success('✅ Video submitted successfully!', {
+            // Show immediate success for upload completion
+            toast.success('✅ Video uploaded successfully!', {
               duration: 5000,
               position: 'top-center',
               style: {
@@ -193,8 +179,42 @@ export default function SubmissionForm({ user }: SubmissionFormProps) {
               },
             });
 
-            // Also show alert as backup
-            alert('SUCCESS! Your video has been submitted for review.');
+            // Try to update submission with video URL
+            try {
+              const updateResponse = await fetch(`/api/submissions/${submissionId}`, {
+                method: 'PATCH',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${authToken}`,
+                },
+                body: JSON.stringify({
+                  videoDownloadUrl: downloadUrl,
+                  thumbnailUrl: videoMetadata?.thumbnail,
+                  status: 'awaiting_coach',
+                  uploadProgress: 100,
+                }),
+              });
+
+              if (!updateResponse.ok) {
+                console.error('Failed to update submission with video URL');
+                toast.error('Warning: Video uploaded but submission update failed. Contact support if needed.', {
+                  duration: 7000,
+                });
+              } else {
+                // Show final success message
+                toast.success('📋 Submission complete! Your coach will review it soon.', {
+                  duration: 5000,
+                });
+              }
+            } catch (updateError) {
+              console.error('Error updating submission:', updateError);
+              toast.error('Warning: Video uploaded but submission update failed. Contact support if needed.', {
+                duration: 7000,
+              });
+            }
+
+            // Always show alert as final confirmation
+            alert('SUCCESS! Your video has been uploaded and submitted for review.');
 
             // Reset form
             setTimeout(() => {
