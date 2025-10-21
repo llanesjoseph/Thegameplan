@@ -16,7 +16,7 @@ interface SubmissionFormProps {
   user: {
     uid: string;
     email: string | null;
-    displayName: string;
+    displayName: string | null;
     photoURL?: string | null;
   };
   teams: Array<{
