@@ -5,9 +5,15 @@
 
   service firebase.storage {
     match /b/{bucket}/o {
-      
+
+      // TEMPORARY: COMPLETELY OPEN FOR URGENT TESTING
+      // TODO: REVERT THIS AFTER FIXING THE ISSUE
+      match /{allPaths=**} {
+        allow read, write: if request.auth != null;
+      }
+
       // ===== HELPER FUNCTIONS =====
-      
+
       function isAuthenticated() {
         return request.auth != null;
       }
