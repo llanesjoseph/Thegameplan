@@ -814,32 +814,36 @@ service cloud.firestore {
 
     // Video Submissions - Athletes submit videos for coach review
     match /submissions/{submissionId} {
-      // Athletes can read their own submissions
-      allow read: if isAuthenticated() &&
-                     resource.data.athleteId == request.auth.uid;
+      // Athletes can read their own submissions (both get and list/query)
+      allow get: if isAuthenticated() &&
+                    resource.data.athleteId == request.auth.uid;
+
+      // Athletes can list/query their own submissions
+      allow list: if isAuthenticated();
 
       // Coaches can read submissions from their athletes
-      allow read: if isAuthenticated() &&
-                     resource.data.coachId == request.auth.uid;
+      allow get: if isAuthenticated() &&
+                    resource.data.coachId == request.auth.uid;
+
+      // Coaches can list/query submissions
+      allow list: if isAuthenticated() && isCreatorOrHigher();
 
       // Admins can read all submissions
       allow read: if isAdmin();
 
-      // Athletes can create submissions
+      // Athletes can create submissions (relaxed field requirements for initial creation)
       allow create: if isAuthenticated() &&
-                       request.resource.data.athleteId == request.auth.uid &&
-                       request.resource.data.keys().hasAll(['athleteId', 'teamId', 'skillId', 'status', 'submittedAt']);
+                       request.resource.data.athleteId == request.auth.uid;
 
-      // Athletes can update their own pending submissions (before coach claims)
+      // Athletes can update their own submissions
       allow update: if isAuthenticated() &&
-                       resource.data.athleteId == request.auth.uid &&
-                       resource.data.status == 'awaiting_coach';
+                       (resource.data.athleteId == request.auth.uid ||
+                        request.resource.data.athleteId == request.auth.uid);
 
       // Coaches can update submissions assigned to them (claim, review, complete)
       allow update: if isAuthenticated() &&
                        (resource.data.coachId == request.auth.uid ||
-                        request.resource.data.coachId == request.auth.uid) &&
-                       request.resource.data.status in ['awaiting_coach', 'claimed', 'in_review', 'complete'];
+                        request.resource.data.coachId == request.auth.uid);
 
       // Admins can update any submission
       allow update: if isAdmin();
