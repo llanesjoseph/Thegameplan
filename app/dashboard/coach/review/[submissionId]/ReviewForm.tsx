@@ -24,7 +24,7 @@ import { createNotification } from '@/lib/data/notifications';
 
 interface ReviewFormProps {
   submission: Submission;
-  rubric: Rubric;
+  rubric: Rubric | null;
   existingReview: Review | null;
   coachId: string;
   coachName: string;
@@ -73,8 +73,8 @@ export default function ReviewForm({
             coachUid: coachId,
             coachName: coachName,
             coachPhotoUrl: coachPhotoUrl,
-            teamId: submission.teamId,
-            skillId: submission.skillId,
+            teamId: submission.teamId || '',
+            skillId: submission.skillId || '',
             rubricScores: [],
             timecodes: [],
             drillRecommendations: [],
@@ -253,18 +253,21 @@ export default function ReviewForm({
       return;
     }
 
-    if (rubricScores.length === 0) {
-      toast.error('Please score all rubric criteria');
-      return;
-    }
+    // Only validate rubric scores if rubric is provided
+    if (rubric) {
+      if (rubricScores.length === 0) {
+        toast.error('Please score all rubric criteria');
+        return;
+      }
 
-    // Check if all criteria have been scored
-    const scoredCriteriaIds = new Set(rubricScores.map(s => s.criteriaId));
-    const allCriteriaScored = rubric.criteria.every(c => scoredCriteriaIds.has(c.id));
+      // Check if all criteria have been scored
+      const scoredCriteriaIds = new Set(rubricScores.map(s => s.criteriaId));
+      const allCriteriaScored = rubric.criteria.every(c => scoredCriteriaIds.has(c.id));
 
-    if (!allCriteriaScored) {
-      toast.error('Please score all rubric criteria');
-      return;
+      if (!allCriteriaScored) {
+        toast.error('Please score all rubric criteria');
+        return;
+      }
     }
 
     setLoading(true);
@@ -356,27 +359,29 @@ export default function ReviewForm({
         </div>
       )}
 
-      {/* Rubric Scoring Section */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">Rubric Assessment</h2>
-          <div className="text-lg font-medium">
-            Average Score: <span className="text-blue-600">{averageScore}/5</span>
+      {/* Rubric Scoring Section - Only show if rubric is available */}
+      {rubric && (
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold">Rubric Assessment</h2>
+            <div className="text-lg font-medium">
+              Average Score: <span className="text-blue-600">{averageScore}/5</span>
+            </div>
           </div>
+          <RubricScoring
+            rubric={rubric}
+            scores={rubricScores}
+            onChange={setRubricScores}
+            readOnly={false}
+          />
         </div>
-        <RubricScoring
-          rubric={rubric}
-          scores={rubricScores}
-          onChange={setRubricScores}
-          readOnly={false}
-        />
-      </div>
+      )}
 
       {/* Drill Recommendations Section */}
       <div className="bg-white rounded-lg shadow-sm p-6">
         <h2 className="text-xl font-semibold mb-4">Drill Recommendations</h2>
         <DrillSelector
-          sport={submission.skillName.split(' ')[0]} // Extract sport from skill name
+          sport={submission.skillName?.split(' ')[0] || 'General'} // Extract sport from skill name or use 'General'
           recommendations={drillRecommendations}
           onAdd={handleAddDrill}
           onUpdate={handleUpdateDrill}

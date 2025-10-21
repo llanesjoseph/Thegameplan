@@ -33,7 +33,7 @@ export default function AthleteReviewDetailPage({
         const { getSubmission, getReviewBySubmission, getCommentsByReview } = await import('@/lib/data/video-critique');
 
         const submissionData = await getSubmission(params.submissionId);
-        if (!submissionData || submissionData.athleteId !== user.uid) {
+        if (!submissionData || submissionData.athleteUid !== user.uid) {
           throw new Error('Unauthorized');
         }
 
@@ -60,15 +60,17 @@ export default function AthleteReviewDetailPage({
 
   const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newComment.trim() || !review || !user) return;
+    if (!newComment.trim() || !review || !user || !submission) return;
 
     setIsSubmittingComment(true);
     try {
       const { addComment, getCommentsByReview } = await import('@/lib/data/video-critique');
-      await addComment({
-        reviewId: review.id,
-        content: newComment.trim(),
+      await addComment(submission.id, {
+        authorUid: user.uid,
+        authorName: user.displayName || user.email || 'Athlete',
+        authorPhotoUrl: user.photoURL || undefined,
         authorRole: 'athlete',
+        content: newComment.trim(),
       });
 
       setNewComment('');

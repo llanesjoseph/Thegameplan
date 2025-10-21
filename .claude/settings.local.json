@@ -40,7 +40,15 @@
       "Bash(git add components/athlete/AthleteOverview.tsx)",
       "Bash(git add app/dashboard/athlete/video-reviews/page.tsx components/athlete/AthleteQuickActions.tsx components/athlete/AthleteOverview.tsx components/athlete/UpcomingActivities.tsx)",
       "Bash(git add app/dashboard/coach/video-reviews/page.tsx)",
-      "Bash(xargs rm -f)"
+      "Bash(xargs rm -f)",
+      "Bash(git push:*)",
+      "Bash(git add:*)",
+      "Bash(git fetch:*)",
+      "Bash(cat:*)",
+      "Bash(gh repo view:*)",
+      "Bash(gh api:*)",
+      "Bash(git show:*)",
+      "Bash(node -e \"const fs = require(''fs''); fs.writeFileSync(''C:\\\\Users\\\\bigpe\\\\OneDrive\\\\Desktop\\\\Crucible\\\\GAMEPLAN-SOURCE-ONLY\\\\app\\\\dashboard\\\\athlete\\\\reviews\\\\[submissionId]\\\\page.tsx'', '''');\")"
     ],
     "deny": [],
     "ask": []

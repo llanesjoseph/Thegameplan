@@ -107,15 +107,15 @@ export async function createSubmission(
     videoFileName: string;
     videoFileSize: number;
     videoStoragePath: string;
+    coachId?: string;
   }
 ): Promise<string> {
   try {
-    // Get skill details
-    const skillDoc = await getDoc(doc(db, 'skills', data.skillId));
-    const skill = convertFirestoreDoc<Skill>(skillDoc);
-
-    if (!skill) {
-      throw new Error('Skill not found');
+    // Get skill details if skillId provided
+    let skill: Skill | null = null;
+    if (data.skillId) {
+      const skillDoc = await getDoc(doc(db, 'skills', data.skillId));
+      skill = convertFirestoreDoc<Skill>(skillDoc);
     }
 
     const now = new Date();
@@ -127,10 +127,11 @@ export async function createSubmission(
       athleteName: data.athleteName,
       athletePhotoUrl: data.athletePhotoUrl,
       teamId: data.teamId,
+      coachId: data.coachId,
 
-      // Skill context
+      // Skill context (optional)
       skillId: data.skillId,
-      skillName: skill.name,
+      skillName: skill?.name,
 
       // Video info
       videoFileName: data.videoFileName,
@@ -204,6 +205,9 @@ export async function getSubmissions(
     }
     if (filters.coachUid) {
       q = query(q, where('claimedBy', '==', filters.coachUid));
+    }
+    if (filters.coachId) {
+      q = query(q, where('coachId', '==', filters.coachId));
     }
     if (filters.slaBreach !== undefined) {
       q = query(q, where('slaBreach', '==', filters.slaBreach));
@@ -508,6 +512,21 @@ export async function getReviewsForSubmission(
   }
 }
 
+/**
+ * Get single review for a submission (most recent)
+ */
+export async function getReviewBySubmission(
+  submissionId: string
+): Promise<Review | null> {
+  try {
+    const reviews = await getReviewsForSubmission(submissionId);
+    return reviews.length > 0 ? reviews[0] : null;
+  } catch (error) {
+    console.error('Error fetching review:', error);
+    throw new Error('Failed to fetch review');
+  }
+}
+
 // ============================================================================
 // COMMENT OPERATIONS
 // ============================================================================
@@ -580,6 +599,25 @@ export async function getComments(submissionId: string): Promise<Comment[]> {
     return comments;
   } catch (error) {
     console.error('Error fetching comments:', error);
+    throw new Error('Failed to fetch comments');
+  }
+}
+
+/**
+ * Get comments for a review (wrapper for getComments using submissionId)
+ */
+export async function getCommentsByReview(reviewId: string): Promise<Comment[]> {
+  try {
+    // Get the review to find its submissionId
+    const review = await getReview(reviewId);
+    if (!review) {
+      return [];
+    }
+
+    // Get comments by submissionId
+    return await getComments(review.submissionId);
+  } catch (error) {
+    console.error('Error fetching comments for review:', error);
     throw new Error('Failed to fetch comments');
   }
 }

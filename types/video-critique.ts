@@ -100,11 +100,12 @@ export interface Submission {
   athleteUid: string;
   athleteName: string;
   athletePhotoUrl?: string;
-  teamId: string;
+  teamId?: string; // Optional - for team-based filtering if needed
+  coachId?: string; // Assigned coach for direct routing
 
   // Skill context
-  skillId: string;
-  skillName: string;
+  skillId?: string; // Optional - simplified UX
+  skillName?: string; // Optional - simplified UX
 
   // Video info
   videoFileName: string;
@@ -133,7 +134,7 @@ export interface Submission {
   athleteContext: string;
   athleteGoals?: string;
   specificQuestions?: string;
-  privacyLevel: PrivacyLevel;
+  privacyLevel?: PrivacyLevel; // Optional - simplified UX
 
   // Follow-up tracking
   followupRequested?: boolean;
@@ -271,12 +272,13 @@ export interface AuditEvent {
 // ============================================================================
 
 export interface CreateSubmissionRequest {
-  skillId: string;
   athleteContext: string;
   athleteGoals?: string;
   specificQuestions?: string;
-  privacyLevel: PrivacyLevel;
-  teamId: string;
+  // Optional fields for backwards compatibility
+  skillId?: string;
+  teamId?: string;
+  privacyLevel?: PrivacyLevel;
 }
 
 export interface CreateSubmissionResponse {
@@ -318,7 +320,8 @@ export interface SubmissionListFilters {
   status?: SubmissionStatus;
   teamId?: string;
   athleteUid?: string;
-  coachUid?: string;
+  coachUid?: string; // Filter by claimed coach
+  coachId?: string; // Filter by assigned coach
   slaBreach?: boolean;
 }
 
