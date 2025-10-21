@@ -12,6 +12,7 @@ export default function AthleteReviewsPage() {
   const [submissions, setSubmissions] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isEmbedded, setIsEmbedded] = useState(false);
+  const [showSubmitForm, setShowSubmitForm] = useState(false);
 
   // Detect if page is loaded in iframe
   useEffect(() => {
@@ -112,14 +113,50 @@ export default function AthleteReviewsPage() {
               Back to Dashboard
             </Link>
           )}
-          <h1 className={`${isEmbedded ? 'text-2xl' : 'text-3xl'} font-bold text-gray-900`}>My Video Reviews</h1>
-          <p className="mt-2 text-gray-600">
-            Track your submitted videos and coach feedback
-          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className={`${isEmbedded ? 'text-2xl' : 'text-3xl'} font-bold text-gray-900`}>
+                {showSubmitForm ? 'Submit Video for Review' : 'My Video Reviews'}
+              </h1>
+              <p className="mt-2 text-gray-600">
+                {showSubmitForm
+                  ? 'Upload a video of your performance to receive personalized feedback from your coach'
+                  : 'Track your submitted videos and coach feedback'
+                }
+              </p>
+            </div>
+            <button
+              onClick={() => setShowSubmitForm(!showSubmitForm)}
+              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              {showSubmitForm ? (
+                <>
+                  <Eye className="w-5 h-5 mr-2" />
+                  View Reviews
+                </>
+              ) : (
+                <>
+                  <Video className="w-5 h-5 mr-2" />
+                  Submit Video
+                </>
+              )}
+            </button>
+          </div>
         </div>
 
-        {/* Empty State */}
-        {submissions.length === 0 && (
+        {/* Submit Form View */}
+        {showSubmitForm && (
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden" style={{ height: 'calc(100vh - 300px)' }}>
+            <iframe
+              src="/dashboard/athlete/submit-video?embedded=true"
+              className="w-full h-full border-0"
+              title="Submit Video"
+            />
+          </div>
+        )}
+
+        {/* Reviews List View */}
+        {!showSubmitForm && submissions.length === 0 && (
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
             <Video className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-gray-900 mb-2">
@@ -128,18 +165,18 @@ export default function AthleteReviewsPage() {
             <p className="text-gray-600 mb-6">
               Submit your first video to get personalized feedback from your coach
             </p>
-            <Link
-              href="/dashboard/athlete/submit-video"
+            <button
+              onClick={() => setShowSubmitForm(true)}
               className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               <Video className="w-5 h-5 mr-2" />
               Submit Video
-            </Link>
+            </button>
           </div>
         )}
 
         {/* Submissions Grid */}
-        {submissions.length > 0 && (
+        {!showSubmitForm && submissions.length > 0 && (
           <div className="grid gap-4">
             {submissions.map((submission: any) => (
               <Link
@@ -207,15 +244,15 @@ export default function AthleteReviewsPage() {
         )}
 
         {/* Quick Action */}
-        {submissions.length > 0 && (
+        {!showSubmitForm && submissions.length > 0 && (
           <div className="mt-8 text-center">
-            <Link
-              href="/dashboard/athlete/submit-video"
+            <button
+              onClick={() => setShowSubmitForm(true)}
               className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               <Video className="w-5 h-5 mr-2" />
               Submit Another Video
-            </Link>
+            </button>
           </div>
         )}
       </div>

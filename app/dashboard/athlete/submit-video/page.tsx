@@ -10,8 +10,6 @@ import SubmissionForm from './SubmissionForm';
 export default function SubmitVideoPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const [teams, setTeams] = useState<any[]>([]);
-  const [skills, setSkills] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isEmbedded, setIsEmbedded] = useState(false);
 
@@ -31,32 +29,8 @@ export default function SubmitVideoPage() {
 
     if (!user) return;
 
-    // Fetch user's teams and skills
-    const fetchData = async () => {
-      try {
-        // For now, use a default team
-        // TODO: Implement proper team fetching from Firestore
-        const userTeams = [
-          {
-            id: 'default-team',
-            name: 'My Team',
-            sport: 'Basketball'
-          }
-        ];
-        setTeams(userTeams);
-
-        // Fetch skills for the team
-        const { getTeamSkills } = await import('@/lib/data/video-critique');
-        const teamSkills = await getTeamSkills(userTeams[0].id);
-        setSkills(teamSkills);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
+    // Simple loading complete - no data fetching needed
+    setIsLoading(false);
   }, [user, loading, router]);
 
   if (loading || isLoading) {
@@ -65,33 +39,6 @@ export default function SubmitVideoPage() {
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mb-4"></div>
           <p className="text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!teams || teams.length === 0) {
-    return (
-      <div className={`${isEmbedded ? 'p-4' : 'container mx-auto px-4 py-8'}`}>
-        <div className="max-w-2xl mx-auto">
-          {!isEmbedded && (
-            <Link
-              href="/dashboard/athlete"
-              className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-4"
-            >
-              <ArrowLeft className="w-4 h-4 mr-1" />
-              Back to Dashboard
-            </Link>
-          )}
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-            <h2 className="text-lg font-semibold text-yellow-900 mb-2">
-              No Team Assigned
-            </h2>
-            <p className="text-yellow-800">
-              You need to be part of a team to submit videos for review.
-              Please contact your coach to be added to a team.
-            </p>
-          </div>
         </div>
       </div>
     );
@@ -111,11 +58,7 @@ export default function SubmitVideoPage() {
           </p>
         </div>
 
-        <SubmissionForm
-          user={user}
-          teams={teams}
-          skills={skills}
-        />
+        <SubmissionForm user={user} />
       </div>
     </div>
   );

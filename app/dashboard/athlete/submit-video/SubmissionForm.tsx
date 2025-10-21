@@ -19,18 +19,10 @@ interface SubmissionFormProps {
     displayName: string | null;
     photoURL?: string | null;
   };
-  teams: Array<{
-    id: string;
-    name: string;
-    sport: string;
-  }>;
-  skills: Skill[];
 }
 
-export default function SubmissionForm({ user, teams, skills }: SubmissionFormProps) {
+export default function SubmissionForm({ user }: SubmissionFormProps) {
   const router = useRouter();
-  const [selectedTeam, setSelectedTeam] = useState(teams[0]?.id || '');
-  const [selectedSkill, setSelectedSkill] = useState('');
   const [athleteContext, setAthleteContext] = useState('');
   const [athleteGoals, setAthleteGoals] = useState('');
   const [specificQuestions, setSpecificQuestions] = useState('');
@@ -84,11 +76,6 @@ export default function SubmissionForm({ user, teams, skills }: SubmissionFormPr
         return;
       }
 
-      if (!selectedSkill) {
-        toast.error('Please select a skill');
-        return;
-      }
-
       if (!athleteContext.trim()) {
         toast.error('Please provide context about your performance');
         return;
@@ -104,12 +91,10 @@ export default function SubmissionForm({ user, teams, skills }: SubmissionFormPr
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            skillId: selectedSkill,
             athleteContext: athleteContext.trim(),
             athleteGoals: athleteGoals.trim(),
             specificQuestions: specificQuestions.trim(),
             privacyLevel,
-            teamId: selectedTeam,
             videoFileName: videoFile.name,
             videoFileSize: videoFile.size,
             videoDuration: videoMetadata?.duration || 0,
@@ -122,9 +107,9 @@ export default function SubmissionForm({ user, teams, skills }: SubmissionFormPr
 
         const { submissionId } = await response.json();
 
-        // Generate storage path
+        // Generate storage path (using user ID as team identifier)
         const storagePath = generateVideoStoragePath(
-          selectedTeam,
+          user.uid,
           submissionId,
           videoFile.name
         );
@@ -170,12 +155,10 @@ export default function SubmissionForm({ user, teams, skills }: SubmissionFormPr
     },
     [
       videoFile,
-      selectedSkill,
       athleteContext,
       athleteGoals,
       specificQuestions,
       privacyLevel,
-      selectedTeam,
       videoMetadata,
       router,
     ]
@@ -195,48 +178,6 @@ export default function SubmissionForm({ user, teams, skills }: SubmissionFormPr
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="bg-white shadow rounded-lg p-6">
         <h2 className="text-xl font-semibold mb-4">Submission Details</h2>
-
-        {/* Team Selection (if multiple teams) */}
-        {teams.length > 1 && (
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Team
-            </label>
-            <select
-              value={selectedTeam}
-              onChange={(e) => setSelectedTeam(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              required
-            >
-              <option value="">Select a team</option>
-              {teams.map((team) => (
-                <option key={team.id} value={team.id}>
-                  {team.name} ({team.sport})
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
-
-        {/* Skill Selection */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Skill <span className="text-red-500">*</span>
-          </label>
-          <select
-            value={selectedSkill}
-            onChange={(e) => setSelectedSkill(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-            required
-          >
-            <option value="">Select a skill</option>
-            {skills.map((skill) => (
-              <option key={skill.id} value={skill.id}>
-                {skill.name} - {skill.category}
-              </option>
-            ))}
-          </select>
-        </div>
 
         {/* Context */}
         <div className="mb-4">

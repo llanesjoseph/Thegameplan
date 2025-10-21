@@ -55,16 +55,9 @@ export default function AthleteDashboard() {
     {
       id: 'video-reviews',
       title: 'Video Reviews',
-      description: 'View submitted videos and feedback',
+      description: 'View and submit videos for feedback',
       icon: Video,
       color: '#E53E3E'
-    },
-    {
-      id: 'submit-video',
-      title: 'Submit Video',
-      description: 'Upload a video for coach review',
-      icon: FileVideo,
-      color: '#DD6B20'
     },
     {
       id: 'ai-assistant',
@@ -413,7 +406,7 @@ export default function AthleteDashboard() {
                   </div>
                 )}
                 <p className="text-xs" style={{ color: '#666' }}>
-                  {athleteTools.length} tools available
+                  {athleteTools.filter(t => !t.id.includes('coach-dashboard')).length} tools available
                 </p>
               </div>
 
@@ -535,14 +528,6 @@ export default function AthleteDashboard() {
                         src="/dashboard/athlete/reviews?embedded=true"
                         className="w-full h-full border-0"
                         title="Video Reviews"
-                      />
-                    )}
-
-                    {activeSection === 'submit-video' && (
-                      <iframe
-                        src="/dashboard/athlete/submit-video?embedded=true"
-                        className="w-full h-full border-0"
-                        title="Submit Video"
                       />
                     )}
 
