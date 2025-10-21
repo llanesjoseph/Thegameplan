@@ -21,7 +21,7 @@ export default function BugReportButton() {
   const consoleLogsRef = useRef<ConsoleLog[]>([])
 
   // Don't render in embedded iframes
-  const isEmbedded = searchParams.get('embedded') === 'true'
+  const isEmbedded = searchParams?.get('embedded') === 'true'
   if (isEmbedded) {
     return null
   }

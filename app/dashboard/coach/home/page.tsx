@@ -13,7 +13,7 @@ import TodaysSchedule from '@/components/coach/TodaysSchedule'
 export default function CoachHomePage() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const isEmbedded = searchParams.get('embedded') === 'true'
+  const isEmbedded = searchParams?.get('embedded') === 'true'
 
   // Handle navigation to different sections
   const handleQuickAction = (action: string) => {
