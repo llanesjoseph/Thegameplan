@@ -229,11 +229,6 @@ export default function MyCoachPanel({ coachId, isOpen, onClose }: MyCoachPanelP
                       </span>
                     </p>
                   )}
-                  {coachData.email && (
-                    <p className="text-xs truncate" style={{ color: '#666' }}>
-                      {coachData.email}
-                    </p>
-                  )}
                 </div>
               </div>
 
