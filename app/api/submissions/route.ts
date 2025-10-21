@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth, db as adminDb } from '@/lib/firebase.admin';
+import { auth, adminDb } from '@/lib/firebase.admin';
 import { createSubmission, getSubmissions } from '@/lib/data/video-critique';
 import { CreateSubmissionRequest } from '@/types/video-critique';
 import { generateVideoStoragePath } from '@/lib/upload/uppy-config';
