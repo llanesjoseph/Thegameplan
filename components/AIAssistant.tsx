@@ -95,20 +95,24 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
   }
  }, [userId, hasAcceptedTerms])
 
- const generateConversationId = (userId: string, context: string, sport?: string): string => {
-  const contextHash = context.slice(0, 20).replace(/\s+/g, '-').toLowerCase()
+ const generateConversationId = (userId: string, creatorId?: string, sport?: string): string => {
+  // Use stable IDs: userId + creatorId (if available) + sport
+  // This ensures the same conversation ID across sessions, regardless of context changes
+  const coachPart = creatorId ? `-${creatorId}` : '-general'
   const sportSuffix = sport ? `-${sport}` : ''
-  return `${userId}-${contextHash}${sportSuffix}`
+  return `${userId}${coachPart}${sportSuffix}`
  }
 
  const loadChatHistory = async () => {
   if (!userId) return
 
+  // ALWAYS set conversationId, even if no history exists yet
+  // This ensures new messages can be saved to the correct conversation
+  const convId = generateConversationId(userId, creatorId, sport)
+  setConversationId(convId)
+
   setIsLoadingHistory(true)
   try {
-   const convId = generateConversationId(userId, context, sport)
-   setConversationId(convId)
-
    const messagesQuery = query(
     collection(db, 'chatConversations', convId, 'messages'),
     orderBy('timestamp', 'asc')
@@ -126,6 +130,12 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
      timestamp: data.timestamp?.toDate() || new Date()
     })
    })
+
+   if (historicalMessages.length > 0) {
+    console.log(`✅ Loaded ${historicalMessages.length} messages from conversation: ${convId}`)
+   } else {
+    console.log(`📭 No chat history found for conversation: ${convId}`)
+   }
 
    setMessages(historicalMessages)
   } catch (error) {
