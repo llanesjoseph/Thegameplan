@@ -177,6 +177,21 @@ export default function SubmissionForm({ user }: SubmissionFormProps) {
           videoFile.name
         );
         console.log('Storage path:', storagePath);
+
+        // CRITICAL: Verify authentication before upload
+        const currentUser = auth.currentUser;
+        console.log('🔐 Pre-upload auth check:', {
+          isAuthenticated: !!currentUser,
+          uid: currentUser?.uid,
+          email: currentUser?.email,
+          emailVerified: currentUser?.emailVerified,
+          tokenAvailable: !!authToken,
+        });
+
+        if (!currentUser) {
+          throw new Error('Not authenticated! Please refresh the page and sign in again.');
+        }
+
         console.log('Starting video upload...');
 
         // Upload video to Firebase Storage
@@ -254,8 +269,28 @@ export default function SubmissionForm({ user }: SubmissionFormProps) {
             }, 2000);
           },
           (error) => {
-            console.error('Upload error:', error);
-            toast.error('Failed to upload video');
+            console.error('❌ UPLOAD ERROR - Full details:', {
+              error,
+              errorCode: error.code,
+              errorMessage: error.message,
+              errorName: error.name,
+              serverResponse: error.serverResponse,
+              customData: error.customData,
+            });
+
+            // More specific error message based on error code
+            let errorMsg = 'Failed to upload video';
+            if (error.code === 'storage/unauthorized') {
+              errorMsg = 'Permission denied. Please sign out and sign in again.';
+            } else if (error.code === 'storage/unauthenticated') {
+              errorMsg = 'Not authenticated. Please refresh the page and try again.';
+            } else if (error.code === 'storage/retry-limit-exceeded') {
+              errorMsg = 'Upload timeout. Check your internet connection.';
+            } else if (error.message) {
+              errorMsg = `Upload failed: ${error.message}`;
+            }
+
+            toast.error(errorMsg, { duration: 5000 });
             setIsSubmitting(false);
           }
         );
@@ -273,6 +308,8 @@ export default function SubmissionForm({ user }: SubmissionFormProps) {
       athleteGoals,
       specificQuestions,
       videoMetadata,
+      authToken,
+      user,
       router,
     ]
   );
