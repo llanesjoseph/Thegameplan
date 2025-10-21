@@ -8,22 +8,7 @@ import { doc, setDoc, getDoc } from 'firebase/firestore'
 import { ArrowLeft, Upload, Star, Trophy, Target, Users, CheckCircle, AlertTriangle } from 'lucide-react'
 import Link from 'next/link'
 import AppHeader from '@/components/ui/AppHeader'
-
-// Sports list - matches database
-const SPORTS_OPTIONS = [
- 'Soccer',
- 'Basketball',
- 'Baseball',
- 'Tennis',
- 'Brazilian Jiu-Jitsu',
- 'Running',
- 'Volleyball',
- 'Swimming',
- 'American Football',
- 'Golf',
- 'Boxing',
- 'Track & Field'
-]
+import { SPORTS } from '@/lib/constants/sports'
 
 interface ApplicationData {
  sport: string
@@ -279,7 +264,7 @@ export default function ApplyCoachPage() {
          required
         >
          <option value="">Select your primary sport...</option>
-         {SPORTS_OPTIONS.map(sport => (
+         {SPORTS.map(sport => (
           <option key={sport} value={sport}>{sport}</option>
          ))}
         </select>

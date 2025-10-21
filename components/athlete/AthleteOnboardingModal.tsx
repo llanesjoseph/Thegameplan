@@ -10,31 +10,13 @@ import { useState } from 'react'
 import { doc, updateDoc, serverTimestamp, getDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase.client'
 import { X, UserCircle, Trophy, Calendar, FileText } from 'lucide-react'
+import { SPORTS } from '@/lib/constants/sports'
 
 interface AthleteOnboardingModalProps {
   userId: string
   userEmail: string
   onComplete: () => void
 }
-
-const SPORTS_LIST = [
-  'Brazilian Jiu-Jitsu',
-  'Mixed Martial Arts',
-  'Boxing',
-  'Wrestling',
-  'Soccer',
-  'American Football',
-  'Basketball',
-  'Baseball',
-  'Tennis',
-  'Golf',
-  'Track & Field',
-  'Swimming',
-  'Volleyball',
-  'Hockey',
-  'Gymnastics',
-  'Other'
-]
 
 export default function AthleteOnboardingModal({ userId, userEmail, onComplete }: AthleteOnboardingModalProps) {
   const [formData, setFormData] = useState({
@@ -224,7 +206,7 @@ export default function AthleteOnboardingModal({ userId, userEmail, onComplete }
               disabled={isSubmitting}
             >
               <option value="">Select your primary sport</option>
-              {SPORTS_LIST.map(sport => (
+              {SPORTS.map(sport => (
                 <option key={sport} value={sport}>{sport}</option>
               ))}
             </select>

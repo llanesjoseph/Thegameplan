@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Switch } from '@/components/ui/switch'
+import { SPORTS } from '@/lib/constants/sports'
 import {
   Plus,
   QrCode,
@@ -53,12 +54,6 @@ interface CreateLinkForm {
   recipientEmail: string
   recipientName: string
 }
-
-const sports = [
-  'Soccer', 'Basketball', 'Baseball', 'Tennis', 'Brazilian Jiu-Jitsu',
-  'Running', 'Volleyball', 'Swimming', 'American Football', 'Golf',
-  'Boxing', 'Track & Field'
-]
 
 export default function CoachIngestionManager() {
   const [activeTab, setActiveTab] = useState('quick')
@@ -363,7 +358,7 @@ export default function CoachIngestionManager() {
                     className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     <option value="">Select sport</option>
-                    {sports.map(sport => (
+                    {SPORTS.map(sport => (
                       <option key={sport} value={sport}>{sport}</option>
                     ))}
                   </select>

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { adminDb } from '@/lib/firebase.admin'
+import { SPORTS } from '@/lib/constants/sports'
 
 // Force dynamic rendering for API route
 export const dynamic = 'force-dynamic'
@@ -13,12 +14,8 @@ export async function POST(request: NextRequest) {
   try {
     console.log('🔍 Checking creatorPublic collection for invalid sports...')
 
-    // Valid sports from the contributors page
-    const VALID_SPORTS = [
-      'soccer', 'basketball', 'football', 'baseball', 'tennis', 'volleyball',
-      'hockey', 'lacrosse', 'rugby', 'cricket', 'golf', 'swimming',
-      'track', 'cross-country', 'wrestling', 'boxing', 'mma', 'other'
-    ]
+    // Valid sports (lowercased for comparison)
+    const VALID_SPORTS = SPORTS.map(s => s.toLowerCase())
 
     // Mapping for common invalid values
     const SPORT_MAPPING: Record<string, string> = {

@@ -9,6 +9,7 @@ import Image from 'next/image'
 import { Search, Filter, Star, CheckCircle, Users, Trophy, User, Facebook, Instagram, Twitter } from 'lucide-react'
 import AppHeader from '@/components/ui/AppHeader'
 import FollowButton from '@/components/coach/FollowButton'
+import { SPORTS } from '@/lib/constants/sports'
 
 type Contributor = {
  id: string
@@ -34,12 +35,6 @@ type FilterState = {
  verified: boolean
  featured: boolean
 }
-
-const SPORTS = [
- 'soccer', 'basketball', 'football', 'baseball', 'tennis', 'volleyball',
- 'hockey', 'lacrosse', 'rugby', 'cricket', 'golf', 'swimming',
- 'track', 'cross-country', 'wrestling', 'boxing', 'mma', 'BJJ', 'other'
-]
 
 const EXPERIENCES = [
  'college', 'pro', 'olympic', 'coach', 'analyst'
@@ -328,7 +323,7 @@ export default function ContributorsPage() {
         style={{ color: '#000000' }}
        >
         <option value="">All Sports</option>
-        {SPORTS.map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
+        {SPORTS.map(s => <option key={s} value={s}>{s}</option>)}
        </select>
       </div>
       <div>

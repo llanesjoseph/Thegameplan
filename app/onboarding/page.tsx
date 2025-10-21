@@ -16,6 +16,7 @@ import {
  Sparkles
 } from 'lucide-react'
 import ClarityButton from '@/components/ui/NexusButton'
+import { SPORTS } from '@/lib/constants/sports'
 
 interface OnboardingData {
  firstName: string
@@ -28,21 +29,6 @@ interface OnboardingData {
  interests: string[]
  coachingInterest: boolean
 }
-
-const SPORTS_OPTIONS = [
- 'Soccer',
- 'Basketball',
- 'Baseball',
- 'Tennis',
- 'Brazilian Jiu-Jitsu',
- 'Running',
- 'Volleyball',
- 'Swimming',
- 'American Football',
- 'Golf',
- 'Boxing',
- 'Track & Field'
-]
 
 const GOALS_OPTIONS = [
  'Improve technique',
@@ -278,7 +264,7 @@ export default function OnboardingPage() {
          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-blue focus:border-sky-blue"
         >
          <option value="">Select your primary sport</option>
-         {SPORTS_OPTIONS.map(sport => (
+         {SPORTS.map(sport => (
           <option key={sport} value={sport}>{sport}</option>
          ))}
         </select>

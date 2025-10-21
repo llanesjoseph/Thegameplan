@@ -2,13 +2,10 @@
 // Run with: npx tsx scripts/fix-coach-sports.ts
 
 import { adminDb } from '../lib/firebase.admin'
+import { SPORTS } from '../lib/constants/sports'
 
-// Valid sports from the contributors page
-const VALID_SPORTS = [
-  'soccer', 'basketball', 'football', 'baseball', 'tennis', 'volleyball',
-  'hockey', 'lacrosse', 'rugby', 'cricket', 'golf', 'swimming',
-  'track', 'cross-country', 'wrestling', 'boxing', 'mma', 'other'
-]
+// Valid sports (lowercased for comparison)
+const VALID_SPORTS = SPORTS.map(s => s.toLowerCase())
 
 // Mapping for common invalid values
 const SPORT_MAPPING: Record<string, string> = {

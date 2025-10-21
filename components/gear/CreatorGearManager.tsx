@@ -6,6 +6,7 @@ import { db, storage } from '@/lib/firebase.client'
 import { collection, addDoc, serverTimestamp, doc, updateDoc, deleteDoc } from 'firebase/firestore'
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { Plus, Upload, X, Save, Trash2, ExternalLink, Image as ImageIcon, Link2, Sparkles, Loader2 } from 'lucide-react'
+import { SPORTS } from '@/lib/constants/sports'
 
 interface GearFormData {
  name: string
@@ -45,13 +46,8 @@ export default function CreatorGearManager({ onItemAdded }: CreatorGearManagerPr
  })
 
  const categories = [
-  'Cleats', 'Shoes', 'Apparel', 'Protective Gear', 'Equipment', 
+  'Cleats', 'Shoes', 'Apparel', 'Protective Gear', 'Equipment',
   'Accessories', 'Training Aids', 'Recovery', 'Nutrition', 'Technology'
- ]
-
- const sports = [
-  'soccer', 'basketball', 'tennis', 'baseball', 'football', 
-  'volleyball', 'track', 'swimming', 'golf', 'bjj', 'boxing', 'other'
  ]
 
  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -361,9 +357,9 @@ export default function CreatorGearManager({ onItemAdded }: CreatorGearManagerPr
         className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-cardinal focus:border-cardinal"
        >
         <option value="">Select sport</option>
-        {sports.map(sport => (
+        {SPORTS.map(sport => (
          <option key={sport} value={sport}>
-          {sport.charAt(0).toUpperCase() + sport.slice(1)}
+          {sport}
          </option>
         ))}
        </select>

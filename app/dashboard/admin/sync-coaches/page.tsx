@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/use-auth'
 import { useRouter } from 'next/navigation'
 import { CheckCircle, XCircle, RefreshCw, Users, ArrowRight } from 'lucide-react'
 import AppHeader from '@/components/ui/AppHeader'
+import { SPORTS } from '@/lib/constants/sports'
 
 export const dynamic = 'force-dynamic'
 
@@ -90,11 +91,8 @@ export default function SyncCoachesPage() {
   }
 
   const normalizeSport = (sport: string): string => {
-    const VALID_SPORTS = [
-      'soccer', 'basketball', 'football', 'baseball', 'tennis', 'volleyball',
-      'hockey', 'lacrosse', 'rugby', 'cricket', 'golf', 'swimming',
-      'track', 'cross-country', 'wrestling', 'boxing', 'mma', 'other'
-    ]
+    // Valid sports (lowercased for comparison)
+    const VALID_SPORTS = SPORTS.map(s => s.toLowerCase())
 
     const SPORT_MAPPING: Record<string, string> = {
       'coaching': 'other',

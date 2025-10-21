@@ -6,6 +6,7 @@ import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { useAuth } from '@/hooks/use-auth'
 import { applyForCreatorRole } from '@/lib/role-management'
+import { SPORTS } from '@/lib/constants/sports'
 
 type ApplicationStep = 'basic' | 'credentials' | 'content' | 'media' | 'schedule' | 'review'
 
@@ -57,7 +58,6 @@ type ContributorApplication = {
  reviewerNotes?: string
 }
 
-const SPORTS = ['Soccer','Basketball','Baseball','Tennis','Brazilian Jiu-Jitsu','Running','Volleyball','Swimming','American Football','Golf','Boxing','Track & Field']
 const EXPERIENCES = ['college','pro','olympic','coach','analyst','other']
 
 // Schedule & Availability Options
@@ -273,7 +273,7 @@ export default function ContributorApplicationPage() {
     {currentStep === 'credentials' && (
      <div className="space-y-6">
       <div className="grid sm:grid-cols-2 gap-6">
-       <div><label className="block text-sm mb-2 text-gray-800">Primary Sport *</label><select value={application.primarySport} onChange={e=>handleSportChange(e.target.value)} className="w-full bg-white p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cardinal"><option value="">Select</option>{SPORTS.map(s=><option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}</select></div>
+       <div><label className="block text-sm mb-2 text-gray-800">Primary Sport *</label><select value={application.primarySport} onChange={e=>handleSportChange(e.target.value)} className="w-full bg-white p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cardinal"><option value="">Select</option>{SPORTS.map(s=><option key={s} value={s}>{s}</option>)}</select></div>
        <div><label className="block text-sm mb-2 text-gray-800">Experience Level *</label><select value={application.experience} onChange={e=>updateField('experience',e.target.value as any)} className="w-full bg-white p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cardinal">{EXPERIENCES.map(x=><option key={x} value={x}>{x}</option>)}</select></div>
        <div className="sm:col-span-2"><label className="block text-sm mb-2 text-gray-800">Experience Details *</label><textarea value={application.experienceDetails} onChange={e=>updateField('experienceDetails',e.target.value)} rows={4} className="w-full bg-white p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cardinal" /></div>
        <div><label className="block text-sm mb-2 text-gray-800">Years Active</label><input type="number" value={application.yearsActive} onChange={e=>updateField('yearsActive',parseInt(e.target.value)||0)} className="w-full bg-white p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cardinal" /></div>
