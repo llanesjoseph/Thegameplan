@@ -1,52 +1,77 @@
-import { Suspense } from 'react';
-import { redirect } from 'next/navigation';
-import { auth } from '@/lib/firebase.admin';
-import { cookies } from 'next/headers';
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/use-auth';
+import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
 import SubmissionForm from './SubmissionForm';
-import { getTeamSkills } from '@/lib/data/video-critique';
 
-async function getUserTeams(userId: string) {
-  // For now, return a default team
-  // TODO: Implement proper team fetching
-  return [
-    {
-      id: 'default-team',
-      name: 'My Team',
-      sport: 'Basketball'
+export default function SubmitVideoPage() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+  const [teams, setTeams] = useState<any[]>([]);
+  const [skills, setSkills] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user && !loading) {
+      router.push('/login');
+      return;
     }
-  ];
-}
 
-export default async function SubmitVideoPage() {
-  // Get auth token from cookies
-  const cookieStore = cookies();
-  const token = cookieStore.get('session')?.value;
+    if (!user) return;
 
-  if (!token) {
-    redirect('/login');
-  }
+    // Fetch user's teams and skills
+    const fetchData = async () => {
+      try {
+        // For now, use a default team
+        // TODO: Implement proper team fetching from Firestore
+        const userTeams = [
+          {
+            id: 'default-team',
+            name: 'My Team',
+            sport: 'Basketball'
+          }
+        ];
+        setTeams(userTeams);
 
-  let user;
-  try {
-    const decodedToken = await auth.verifyIdToken(token);
-    user = {
-      uid: decodedToken.uid,
-      email: decodedToken.email || '',
-      displayName: decodedToken.name || decodedToken.email?.split('@')[0] || 'Athlete',
-      photoURL: decodedToken.picture,
+        // Fetch skills for the team
+        const { getTeamSkills } = await import('@/lib/data/video-critique');
+        const teamSkills = await getTeamSkills(userTeams[0].id);
+        setSkills(teamSkills);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setIsLoading(false);
+      }
     };
-  } catch (error) {
-    console.error('Invalid session token:', error);
-    redirect('/login');
-  }
 
-  // Fetch user's teams
-  const teams = await getUserTeams(user.uid);
+    fetchData();
+  }, [user, loading, router]);
+
+  if (loading || isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!teams || teams.length === 0) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
+          <Link
+            href="/dashboard/athlete"
+            className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-4"
+          >
+            <ArrowLeft className="w-4 h-4 mr-1" />
+            Back to Dashboard
+          </Link>
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
             <h2 className="text-lg font-semibold text-yellow-900 mb-2">
               No Team Assigned
@@ -61,8 +86,9 @@ export default async function SubmitVideoPage() {
     );
   }
 
-  // Fetch available skills for the first team
-  const skills = await getTeamSkills(teams[0].id);
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -74,24 +100,11 @@ export default async function SubmitVideoPage() {
           </p>
         </div>
 
-        <Suspense
-          fallback={
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="animate-pulse">
-                <div className="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
-                <div className="h-10 bg-gray-200 rounded mb-4"></div>
-                <div className="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
-                <div className="h-32 bg-gray-200 rounded mb-4"></div>
-              </div>
-            </div>
-          }
-        >
-          <SubmissionForm
-            user={user}
-            teams={teams}
-            skills={skills}
-          />
-        </Suspense>
+        <SubmissionForm
+          user={user}
+          teams={teams}
+          skills={skills}
+        />
       </div>
     </div>
   );

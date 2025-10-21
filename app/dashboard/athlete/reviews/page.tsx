@@ -1,40 +1,40 @@
-import { Suspense } from 'react';
-import { redirect } from 'next/navigation';
-import { cookies } from 'next/headers';
-import { auth } from '@/lib/firebase.admin';
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/use-auth';
 import Link from 'next/link';
-import { Video, Clock, CheckCircle, AlertCircle, Eye } from 'lucide-react';
+import { Video, Clock, CheckCircle, AlertCircle, Eye, ArrowLeft } from 'lucide-react';
 
-async function getMySubmissions(userId: string) {
-  // Import dynamically to avoid issues
-  const { getMySubmissions } = await import('@/lib/data/video-critique');
-  return getMySubmissions(userId);
-}
+export default function AthleteReviewsPage() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+  const [submissions, setSubmissions] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-export default async function AthleteReviewsPage() {
-  // Get auth token from cookies
-  const cookieStore = cookies();
-  const token = cookieStore.get('session')?.value;
+  useEffect(() => {
+    if (!user && !loading) {
+      router.push('/login');
+      return;
+    }
 
-  if (!token) {
-    redirect('/login');
-  }
+    if (!user) return;
 
-  let user;
-  try {
-    const decodedToken = await auth.verifyIdToken(token);
-    user = {
-      uid: decodedToken.uid,
-      email: decodedToken.email || '',
-      displayName: decodedToken.name || decodedToken.email?.split('@')[0] || 'Athlete',
+    // Fetch submissions
+    const fetchSubmissions = async () => {
+      try {
+        const { getMySubmissions } = await import('@/lib/data/video-critique');
+        const { items } = await getMySubmissions(user.uid);
+        setSubmissions(items);
+      } catch (error) {
+        console.error('Error fetching submissions:', error);
+      } finally {
+        setIsLoading(false);
+      }
     };
-  } catch (error) {
-    console.error('Invalid session token:', error);
-    redirect('/login');
-  }
 
-  // Fetch user's submissions
-  const { items: submissions } = await getMySubmissions(user.uid);
+    fetchSubmissions();
+  }, [user, loading, router]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -78,11 +78,29 @@ export default async function AthleteReviewsPage() {
     });
   };
 
+  if (loading || isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mb-4"></div>
+          <p className="text-gray-600">Loading your submissions...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8">
+          <Link
+            href="/dashboard/athlete"
+            className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-4"
+          >
+            <ArrowLeft className="w-4 h-4 mr-1" />
+            Back to Dashboard
+          </Link>
           <h1 className="text-3xl font-bold text-gray-900">My Video Reviews</h1>
           <p className="mt-2 text-gray-600">
             Track your submitted videos and coach feedback
