@@ -816,7 +816,7 @@ service cloud.firestore {
     match /submissions/{submissionId} {
       // Athletes can read their own submissions (both get and list/query)
       allow get: if isAuthenticated() &&
-                    resource.data.athleteId == request.auth.uid;
+                    resource.data.athleteUid == request.auth.uid;
 
       // Athletes can list/query their own submissions
       allow list: if isAuthenticated();
@@ -833,12 +833,12 @@ service cloud.firestore {
 
       // Athletes can create submissions (relaxed field requirements for initial creation)
       allow create: if isAuthenticated() &&
-                       request.resource.data.athleteId == request.auth.uid;
+                       request.resource.data.athleteUid == request.auth.uid;
 
       // Athletes can update their own submissions
       allow update: if isAuthenticated() &&
-                       (resource.data.athleteId == request.auth.uid ||
-                        request.resource.data.athleteId == request.auth.uid);
+                       (resource.data.athleteUid == request.auth.uid ||
+                        request.resource.data.athleteUid == request.auth.uid);
 
       // Coaches can update submissions assigned to them (claim, review, complete)
       allow update: if isAuthenticated() &&
