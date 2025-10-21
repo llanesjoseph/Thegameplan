@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { storage, db } from '@/lib/firebase.client';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { collection, addDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, updateDoc, serverTimestamp, doc, getDoc } from 'firebase/firestore';
 import { ArrowLeft, Upload, Video, Check } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -127,6 +127,51 @@ export default function GetFeedbackPage() {
         });
 
         setUploadProgress(100);
+
+        // Step 4: Create corresponding item in submissions collection
+        try {
+          // Try to fetch assigned coach to route into the coach queue
+          let coachId: string | null = null;
+          try {
+            const userSnap = await getDoc(doc(db, 'users', user.uid));
+            const udata: any = userSnap.data();
+            coachId = udata?.coachId || udata?.assignedCoachId || null;
+          } catch {
+            coachId = null;
+          }
+
+          await addDoc(collection(db, 'submissions'), {
+            // Owner
+            athleteUid: user.uid,
+            athleteName: user.displayName || user.email,
+            athletePhotoUrl: user.photoURL || null,
+            teamId: user.uid,
+            coachId: coachId || null,
+
+            // Video
+            videoFileName: videoFile.name,
+            videoFileSize: videoFile.size,
+            videoStoragePath: storagePath,
+            videoDuration: 0,
+            thumbnailUrl: null,
+
+            // Context
+            athleteContext: context.trim(),
+            athleteGoals: goals.trim(),
+            specificQuestions: questions.trim(),
+
+            // Workflow state
+            status: 'awaiting_coach',
+            uploadProgress: 100,
+
+            // Timestamps/metadata
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+            submittedAt: serverTimestamp(),
+          });
+        } catch (subErr) {
+          console.warn('Created feedback request but could not mirror to submissions:', subErr);
+        }
 
         // Success UI (avoid throwing / global error)
         toast.success('Video uploaded successfully! Your coach will review it soon.');

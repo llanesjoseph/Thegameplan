@@ -88,12 +88,14 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
   }
  }, [initialPrompt, userId, userEmail, requireLegalConsent])
 
- // Load chat history when component mounts
- useEffect(() => {
-  if (userId && hasAcceptedTerms) {
-   loadChatHistory()
-  }
- }, [userId, hasAcceptedTerms])
+// Load chat history when component mounts or user changes
+// We load regardless of legal consent so users can still see prior history
+// (sending messages still requires consent)
+useEffect(() => {
+ if (userId) {
+  loadChatHistory()
+ }
+}, [userId])
 
  const generateConversationId = (userId: string, creatorId?: string, sport?: string): string => {
   // Use stable IDs: userId + creatorId (if available) + sport
@@ -174,7 +176,56 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
       console.log(`✅ Loaded ${legacyMessages.length} messages from legacy chat_messages`)
       historicalMessages = legacyMessages
      } else {
-      console.log(`📭 No chat history found in either store for conversation: ${convId}`)
+      // Third fallback: reconstruct from ai_interaction_logs (question/response pairs)
+      try {
+       let logsSnapshot
+       try {
+        logsSnapshot = await getDocs(
+         query(
+          collection(db, 'ai_interaction_logs'),
+          where('userId', '==', userId),
+          orderBy('timestamp', 'asc')
+         )
+        )
+       } catch (logIndexErr) {
+        logsSnapshot = await getDocs(
+         query(
+          collection(db, 'ai_interaction_logs'),
+          where('userId', '==', userId)
+         )
+        )
+       }
+
+       const logPairs: Message[] = []
+       logsSnapshot.docs.forEach((d) => {
+        const data: any = d.data()
+        if (data?.question) {
+         logPairs.push({
+          id: `${d.id}-q`,
+          type: 'user',
+          content: data.question,
+          timestamp: data.timestamp?.toDate?.() || new Date()
+         })
+        }
+        if (data?.aiResponse) {
+         logPairs.push({
+          id: `${d.id}-a`,
+          type: 'assistant',
+          content: data.aiResponse,
+          timestamp: data.timestamp?.toDate?.() || new Date()
+         })
+        }
+       })
+
+       if (logPairs.length > 0) {
+        console.log(`✅ Reconstructed ${logPairs.length} messages from ai_interaction_logs`)
+        historicalMessages = logPairs
+       } else {
+        console.log(`📭 No chat history found in any store for conversation: ${convId}`)
+       }
+      } catch (logsErr) {
+       console.error('Failed to load history from ai_interaction_logs:', logsErr)
+      }
      }
     } catch (fallbackErr) {
      console.error('Fallback history load failed:', fallbackErr)
