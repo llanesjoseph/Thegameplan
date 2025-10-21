@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { collection, query, where, orderBy, onSnapshot, updateDoc, doc } from 'firebase/firestore';
+import { auth as clientAuth } from '@/lib/firebase.client';
 import { db } from '@/lib/firebase.client';
 import { useAuth } from '@/hooks/use-auth';
 import { Play, Clock, User, FileText } from 'lucide-react';
@@ -44,11 +45,20 @@ export default function QueueBypassPage() {
 
   const handleClaim = async (submissionId: string) => {
     try {
-      await updateDoc(doc(db, 'submissions', submissionId), {
-        status: 'in_review',
-        claimedBy: user?.uid,
-        claimedAt: new Date()
+      // Prefer secure API path which uses Admin SDK and enforces permissions
+      const currentUser = clientAuth.currentUser;
+      const token = currentUser ? await currentUser.getIdToken() : null;
+      if (!token) throw new Error('Not authenticated');
+
+      const resp = await fetch(`/api/submissions/${submissionId}/claim`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
       });
+
+      if (!resp.ok) {
+        const data = await resp.json().catch(() => ({}));
+        throw new Error(data.error || 'Failed to claim submission');
+      }
     } catch (error) {
       console.error('Error claiming submission:', error);
     }
