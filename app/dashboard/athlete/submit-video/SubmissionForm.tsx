@@ -34,16 +34,36 @@ export default function SubmissionForm({ user }: SubmissionFormProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [authToken, setAuthToken] = useState<string | null>(null);
 
-  // Get auth token on mount
+  // Get auth token on mount and fix custom claims
   useEffect(() => {
-    const getToken = async () => {
+    const setupAuth = async () => {
       const currentUser = auth.currentUser;
       if (currentUser) {
         const token = await currentUser.getIdToken();
         setAuthToken(token);
+
+        // Proactively fix custom claims to ensure Storage access works
+        try {
+          const response = await fetch('/api/fix-my-claims', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+          });
+          if (response.ok) {
+            const data = await response.json();
+            console.log('Custom claims fixed:', data);
+            // Force token refresh to get new claims
+            await currentUser.getIdToken(true);
+            const newToken = await currentUser.getIdToken();
+            setAuthToken(newToken);
+          }
+        } catch (error) {
+          console.warn('Could not fix custom claims:', error);
+        }
       }
     };
-    getToken();
+    setupAuth();
   }, []);
 
   // Handle file selection
