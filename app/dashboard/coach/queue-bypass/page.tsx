@@ -14,11 +14,11 @@ export default function QueueBypassPage() {
   useEffect(() => {
     if (!user) return;
 
-    // Listen to submissions in real-time
+    // Listen to submissions in real-time - just get all awaiting_coach submissions
+    // Remove the orderBy to avoid index requirements initially
     const q = query(
       collection(db, 'submissions'),
-      where('status', '==', 'awaiting_coach'),
-      orderBy('createdAt', 'desc')
+      where('status', '==', 'awaiting_coach')
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {

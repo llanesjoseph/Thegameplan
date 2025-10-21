@@ -107,6 +107,7 @@ export async function createSubmission(
     videoFileName: string;
     videoFileSize: number;
     videoStoragePath: string;
+    videoDuration?: number;
     coachId?: string;
     skillId?: string;
     teamId?: string;
@@ -127,9 +128,9 @@ export async function createSubmission(
       // Owner info
       athleteUid: data.athleteUid,
       athleteName: data.athleteName,
-      athletePhotoUrl: data.athletePhotoUrl,
-      teamId: data.teamId,
-      coachId: data.coachId,
+      athletePhotoUrl: data.athletePhotoUrl || null,
+      teamId: data.teamId || data.athleteUid, // Use athleteUid as teamId if not provided
+      coachId: data.coachId || null, // Coach is optional
 
       // Skill context (optional)
       skillId: data.skillId,
@@ -139,7 +140,7 @@ export async function createSubmission(
       videoFileName: data.videoFileName,
       videoFileSize: data.videoFileSize,
       videoStoragePath: data.videoStoragePath,
-      videoDuration: 0, // Will be updated after processing
+      videoDuration: data.videoDuration || 0, // Accept duration from client if provided
 
       // Workflow state
       status: 'uploading',

@@ -102,11 +102,12 @@ export default function SubmissionForm({ user }: SubmissionFormProps) {
           return;
         }
 
-        // BYPASS: Using simplified endpoint to skip all auth/database issues
-        const response = await fetch('/api/submissions-bypass', {
+        // Create submission in database
+        const response = await fetch('/api/submissions', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`,
           },
           body: JSON.stringify({
             athleteContext: athleteContext.trim(),
@@ -125,71 +126,60 @@ export default function SubmissionForm({ user }: SubmissionFormProps) {
 
         const { submissionId } = await response.json();
 
-        // BYPASS: Skip actual upload for now - just show success
-        toast.success('Video submission received! (Demo mode - upload bypassed)');
+        // Generate storage path (using user ID as team identifier)
+        const storagePath = generateVideoStoragePath(
+          user.uid,
+          submissionId,
+          videoFile.name
+        );
 
-        // Simulate upload progress
-        let progress = 0;
-        const interval = setInterval(() => {
-          progress += 20;
-          setUploadProgress(progress);
-          if (progress >= 100) {
-            clearInterval(interval);
+        // Upload video to Firebase Storage
+        const uploadTask = uploadToFirebaseStorage(
+          videoFile,
+          storagePath,
+          (progress) => {
+            setUploadProgress(progress);
+          },
+          async (downloadUrl) => {
+            // Update submission with video URL
+            const updateResponse = await fetch(`/api/submissions/${submissionId}`, {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`,
+              },
+              body: JSON.stringify({
+                videoDownloadUrl: downloadUrl,
+                thumbnailUrl: videoMetadata?.thumbnail,
+                status: 'awaiting_coach',
+                uploadProgress: 100,
+              }),
+            });
+
+            if (!updateResponse.ok) {
+              console.error('Failed to update submission with video URL');
+            }
+
+            toast.success('Video submitted successfully!');
+
+            // Reset form
             setTimeout(() => {
               setIsSubmitting(false);
               setUploadProgress(0);
-              clearFile(); // Clear the form
-              toast.success('✅ Submission complete! Video received successfully.');
-              // Reset form fields
+              clearFile();
               setAthleteContext('');
               setAthleteGoals('');
               setSpecificQuestions('');
             }, 1000);
+          },
+          (error) => {
+            console.error('Upload error:', error);
+            toast.error('Failed to upload video');
+            setIsSubmitting(false);
           }
-        }, 500);
+        );
 
-        // COMMENTED OUT FOR BYPASS:
-        // // Generate storage path (using user ID as team identifier)
-        // const storagePath = generateVideoStoragePath(
-        //   user.uid,
-        //   submissionId,
-        //   videoFile.name
-        // );
-
-        // // Upload video to Firebase Storage
-        // const uploadTask = uploadToFirebaseStorage(
-        //   videoFile,
-        //   storagePath,
-        //   (progress) => {
-        //     setUploadProgress(progress);
-        //   },
-        //   async (downloadUrl) => {
-        //     // Update submission with video URL
-        //     await fetch(`/api/submissions/${submissionId}`, {
-        //       method: 'PATCH',
-        //       headers: {
-        //         'Content-Type': 'application/json',
-        //         'Authorization': `Bearer ${authToken}`,
-        //       },
-        //       body: JSON.stringify({
-        //         videoDownloadUrl: downloadUrl,
-        //         thumbnailUrl: videoMetadata?.thumbnail,
-        //         status: 'awaiting_coach',
-        //         uploadProgress: 100,
-        //       }),
-        //     });
-
-        //     toast.success('Video submitted successfully!');
-        //     router.push(`/dashboard/submissions/${submissionId}`);
-        //   },
-        //   (error) => {
-        //     console.error('Upload error:', error);
-        //     toast.error('Failed to upload video');
-        //     setIsSubmitting(false);
-        //   }
-        // );
-
-        // uploadTaskRef.current = uploadTask;
+        uploadTaskRef.current = uploadTask;
       } catch (error) {
         console.error('Submission error:', error);
         toast.error('Failed to submit video');
