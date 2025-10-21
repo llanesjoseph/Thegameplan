@@ -8,17 +8,13 @@ export async function GET(
 ) {
   try {
     // Verify authentication
-    const authHeader = request.headers.get('cookie');
-    const sessionCookie = authHeader
-      ?.split('; ')
-      .find((row) => row.startsWith('session='))
-      ?.split('=')[1];
-
-    if (!sessionCookie) {
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    await auth.verifyIdToken(sessionCookie);
+    const idToken = authHeader.split('Bearer ')[1];
+    await auth.verifyIdToken(idToken);
 
     // Fetch submission
     const submission = await getSubmission(params.id);
@@ -46,17 +42,13 @@ export async function PATCH(
 ) {
   try {
     // Verify authentication
-    const authHeader = request.headers.get('cookie');
-    const sessionCookie = authHeader
-      ?.split('; ')
-      .find((row) => row.startsWith('session='))
-      ?.split('=')[1];
-
-    if (!sessionCookie) {
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const decodedToken = await auth.verifyIdToken(sessionCookie);
+    const idToken = authHeader.split('Bearer ')[1];
+    const decodedToken = await auth.verifyIdToken(idToken);
     const userId = decodedToken.uid;
 
     // Parse request body

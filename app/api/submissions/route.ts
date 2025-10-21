@@ -7,17 +7,13 @@ import { generateVideoStoragePath } from '@/lib/upload/uppy-config';
 export async function POST(request: NextRequest) {
   try {
     // Verify authentication
-    const authHeader = request.headers.get('cookie');
-    const sessionCookie = authHeader
-      ?.split('; ')
-      .find((row) => row.startsWith('session='))
-      ?.split('=')[1];
-
-    if (!sessionCookie) {
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const decodedToken = await auth.verifyIdToken(sessionCookie);
+    const idToken = authHeader.split('Bearer ')[1];
+    const decodedToken = await auth.verifyIdToken(idToken);
     const userId = decodedToken.uid;
     const userName = decodedToken.name || decodedToken.email?.split('@')[0] || 'Athlete';
     const userPhoto = decodedToken.picture;
@@ -102,17 +98,13 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     // Verify authentication
-    const authHeader = request.headers.get('cookie');
-    const sessionCookie = authHeader
-      ?.split('; ')
-      .find((row) => row.startsWith('session='))
-      ?.split('=')[1];
-
-    if (!sessionCookie) {
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const decodedToken = await auth.verifyIdToken(sessionCookie);
+    const idToken = authHeader.split('Bearer ')[1];
+    const decodedToken = await auth.verifyIdToken(idToken);
     const userId = decodedToken.uid;
 
     // Parse query parameters

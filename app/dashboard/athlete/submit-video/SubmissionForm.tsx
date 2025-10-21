@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { auth } from '@/lib/firebase.client';
 import {
   uploadToFirebaseStorage,
   generateVideoStoragePath,
@@ -31,6 +32,19 @@ export default function SubmissionForm({ user }: SubmissionFormProps) {
   const [videoMetadata, setVideoMetadata] = useState<any>(null);
   const uploadTaskRef = useRef<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [authToken, setAuthToken] = useState<string | null>(null);
+
+  // Get auth token on mount
+  useEffect(() => {
+    const getToken = async () => {
+      const currentUser = auth.currentUser;
+      if (currentUser) {
+        const token = await currentUser.getIdToken();
+        setAuthToken(token);
+      }
+    };
+    getToken();
+  }, []);
 
   // Handle file selection
   const handleFileSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -82,12 +96,18 @@ export default function SubmissionForm({ user }: SubmissionFormProps) {
       setIsSubmitting(true);
 
       try {
+        if (!authToken) {
+          toast.error('Authentication required. Please refresh the page.');
+          setIsSubmitting(false);
+          return;
+        }
+
         // Create submission in database first
         const response = await fetch('/api/submissions', {
           method: 'POST',
-          credentials: 'include', // CRITICAL: Include session cookie for authentication
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`,
           },
           body: JSON.stringify({
             athleteContext: athleteContext.trim(),
@@ -100,7 +120,8 @@ export default function SubmissionForm({ user }: SubmissionFormProps) {
         });
 
         if (!response.ok) {
-          throw new Error('Failed to create submission');
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error || 'Failed to create submission');
         }
 
         const { submissionId } = await response.json();
@@ -123,9 +144,9 @@ export default function SubmissionForm({ user }: SubmissionFormProps) {
             // Update submission with video URL
             await fetch(`/api/submissions/${submissionId}`, {
               method: 'PATCH',
-              credentials: 'include', // CRITICAL: Include session cookie for authentication
               headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`,
               },
               body: JSON.stringify({
                 videoDownloadUrl: downloadUrl,
