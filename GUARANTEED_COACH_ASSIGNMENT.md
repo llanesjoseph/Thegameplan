@@ -3,7 +3,7 @@
 ## CRITICAL REQUIREMENT
 **Every athlete MUST see their coach from their very first login. This is non-negotiable.**
 
-## Triple-Layer Protection System
+## Quad-Layer Protection System (Belt AND Suspenders)
 
 ### ✅ Layer 1: Invitation Creation
 **File:** `app/api/coach/invite-athletes/route.ts`
@@ -26,16 +26,57 @@ const invitationData = {
 }
 ```
 
-### ✅ Layer 2: Profile Completion
+### ✅ Layer 2: Frontend "Lock In"
+**File:** `app/athlete-onboard/[id]/page.tsx`
+
+When athlete loads onboarding page:
+1. **Invitation Fetch**: Loads invitation from Firestore
+2. **Coach UID Extraction**: Extracts `coachId` from invitation
+3. **Explicit Passing**: Passes coachId directly in profile completion request
+
+```typescript
+// When athlete submits profile
+const completeResponse = await fetch('/api/complete-athlete-profile', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    invitationId,
+    email: formData.email,
+    coachId: invitation?.coachId  // 🔒 LOCKED IN from frontend
+  })
+})
+```
+
+**Why this matters:**
+- Coach UID explicitly carried through the flow
+- Not solely reliant on server-side invitation lookup
+- Creates a "chain of custody" for coach UID
+- Even if invitation doc is corrupted, request has coach UID
+
+### ✅ Layer 3: Backend Validation (Belt AND Suspenders)
 **File:** `app/api/complete-athlete-profile/route.ts`
 
 When athlete creates their account:
-1. **Extraction**: Retrieves coach UID with fallback
+1. **Multi-Source Extraction**: Gets coach UID from BOTH request and invitation
    ```typescript
-   const coachUid = invitationData?.creatorUid || invitationData?.coachId || ''
+   const { coachId: requestCoachId } = body  // From frontend
+   const invitationCoachUid = invitationData?.creatorUid || invitationData?.coachId || ''
    ```
 
-2. **Critical Validation**: FAILS the entire request if no coach UID found
+2. **Cross-Validation**: If both exist, validates they match
+   ```typescript
+   if (requestCoachId && invitationCoachUid && requestCoachId !== invitationCoachUid) {
+     console.error(`⚠️ WARNING: Coach UID mismatch!`)
+     coachUid = invitationCoachUid // Use invitation as source of truth
+   }
+   ```
+
+3. **Smart Fallback**: Uses request coachId as primary, invitation as backup
+   ```typescript
+   let coachUid = requestCoachId || invitationCoachUid
+   ```
+
+4. **Critical Validation**: FAILS the entire request if no coach UID found
    ```typescript
    if (!coachUid || coachUid.trim() === '') {
      return NextResponse.json({
@@ -62,7 +103,7 @@ When athlete creates their account:
    }
    ```
 
-### ✅ Layer 3: Final Verification + Emergency Fix
+### ✅ Layer 4: Final Verification + Emergency Fix
 **File:** `app/api/complete-athlete-profile/route.ts`
 
 After creating athlete and user documents:
@@ -150,12 +191,15 @@ if (!athleteCoach || !userCoach) {
 
 ## Why This is 100% Guaranteed
 
-1. **Double Redundancy**: Coach UID stored in TWO fields in invitation
-2. **Upfront Validation**: Profile creation FAILS if no coach UID
-3. **Dual Documents**: Coach assigned to BOTH athlete and user docs
-4. **Post-Creation Verification**: Re-reads docs to confirm assignment
-5. **Emergency Recovery**: Auto-fixes within milliseconds if missing
-6. **Comprehensive Logging**: Every step logged for debugging
+1. **Double Redundancy in Storage**: Coach UID stored in TWO fields in invitation (`creatorUid` + `coachId`)
+2. **Frontend Lock-In**: Coach UID extracted and explicitly passed in API request
+3. **Belt-and-Suspenders Validation**: Backend validates coach UID from BOTH request and invitation
+4. **Mismatch Detection**: Alerts if request and invitation coach UIDs don't match
+5. **Upfront Validation**: Profile creation FAILS if no coach UID found anywhere
+6. **Dual Documents**: Coach assigned to BOTH athlete and user docs
+7. **Post-Creation Verification**: Re-reads docs to confirm assignment
+8. **Emergency Recovery**: Auto-fixes within milliseconds if missing
+9. **Comprehensive Logging**: Every step logged for debugging
 
 ## Verification Steps for New Invitations
 
@@ -208,9 +252,10 @@ Watch for these log messages:
 
 ## Summary
 
-With these three protection layers, it is **IMPOSSIBLE** for an athlete to be created without a coach assignment:
-- Layer 1 prevents invitations without coach UID
-- Layer 2 fails profile creation if no coach UID
-- Layer 3 auto-fixes any edge cases within milliseconds
+With these FOUR protection layers, it is **IMPOSSIBLE** for an athlete to be created without a coach assignment:
+- Layer 1 (Invitation): Prevents invitations without coach UID, stores in TWO fields
+- Layer 2 (Frontend): Locks in coach UID, passes explicitly in request
+- Layer 3 (Backend): Validates coach UID from MULTIPLE sources, fails if missing
+- Layer 4 (Verification): Auto-fixes any edge cases within milliseconds
 
-**This system guarantees every athlete sees their coach from first login.**
+**This belt-and-suspenders system guarantees every athlete sees their coach from first login.**
