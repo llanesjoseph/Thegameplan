@@ -40,28 +40,50 @@ export default function SubmissionForm({ user }: SubmissionFormProps) {
     const setupAuth = async () => {
       const currentUser = auth.currentUser;
       if (currentUser) {
-        const token = await currentUser.getIdToken();
-        setAuthToken(token);
-
-        // Proactively fix custom claims to ensure Storage access works
         try {
-          const response = await fetch('/api/fix-my-claims', {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-            },
+          // FORCE complete token refresh for Storage access
+          console.log('🔄 Forcing token refresh for Storage access...');
+          await currentUser.reload(); // Reload user data
+          const freshToken = await currentUser.getIdToken(true); // Force refresh
+          setAuthToken(freshToken);
+          console.log('✅ Token refreshed successfully');
+
+          // Log auth state for debugging
+          console.log('Auth state:', {
+            uid: currentUser.uid,
+            email: currentUser.email,
+            emailVerified: currentUser.emailVerified,
+            tokenLength: freshToken.length,
+            timestamp: new Date().toISOString()
           });
-          if (response.ok) {
-            const data = await response.json();
-            console.log('Custom claims fixed:', data);
-            // Force token refresh to get new claims
-            await currentUser.getIdToken(true);
-            const newToken = await currentUser.getIdToken();
-            setAuthToken(newToken);
+
+          // Try fixing custom claims
+          try {
+            const response = await fetch('/api/fix-my-claims', {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${freshToken}`,
+              },
+            });
+            if (response.ok) {
+              const data = await response.json();
+              console.log('Custom claims fixed:', data);
+              // Get token again after claims update
+              const finalToken = await currentUser.getIdToken(true);
+              setAuthToken(finalToken);
+              console.log('✅ Final token set after claims fix');
+            }
+          } catch (error) {
+            console.warn('Could not fix custom claims:', error);
           }
         } catch (error) {
-          console.warn('Could not fix custom claims:', error);
+          console.error('❌ Token refresh failed:', error);
+          // Try to re-authenticate
+          toast.error('Authentication issue. Please refresh the page or sign in again.');
         }
+      } else {
+        console.error('❌ No current user found!');
+        toast.error('Not authenticated. Please sign in.');
       }
     };
     setupAuth();
