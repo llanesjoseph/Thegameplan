@@ -161,6 +161,18 @@ export async function POST(request: NextRequest) {
     await adminDb.collection('users').doc(userRecord.uid).set(userDocData, { merge: true })
     console.log(`✅ [COMPLETE-PROFILE] Created user document - role: ${finalRole}, coachId: ${coachUid}, assignedCoachId: ${coachUid}`)
 
+    // CRITICAL: Set custom claims for Firebase Auth so Storage rules work
+    try {
+      await auth.setCustomUserClaims(userRecord.uid, {
+        role: finalRole,
+        athleteId: athleteId,
+      })
+      console.log(`✅ [COMPLETE-PROFILE] Set custom claims - role: ${finalRole}`)
+    } catch (error) {
+      console.error(`❌ [COMPLETE-PROFILE] Failed to set custom claims:`, error)
+      // Don't fail the whole request if custom claims fail - we can fix manually
+    }
+
     // Mark invitation as used
     await adminDb.collection('invitations').doc(invitationId).update({
       used: true,
