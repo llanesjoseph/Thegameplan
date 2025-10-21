@@ -34,7 +34,7 @@ export default function AthleteVideoReviewsPage() {
   const { user } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const isEmbedded = searchParams.get('embedded') === 'true'
+  const isEmbedded = searchParams?.get('embedded') === 'true'
   const [reviews, setReviews] = useState<VideoReview[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedReview, setSelectedReview] = useState<VideoReview | null>(null)

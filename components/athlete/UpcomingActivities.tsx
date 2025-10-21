@@ -19,7 +19,7 @@ export default function UpcomingActivities() {
 
     setLoading(false)
     setActivities([])
-  }, [user])
+  }, [user?.uid])
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

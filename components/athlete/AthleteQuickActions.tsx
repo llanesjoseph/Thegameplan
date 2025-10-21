@@ -63,7 +63,7 @@ interface AthleteQuickActionsProps {
 export default function AthleteQuickActions({ onAction }: AthleteQuickActionsProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const isEmbedded = searchParams.get('embedded') === 'true'
+  const isEmbedded = searchParams?.get('embedded') === 'true'
 
   const handleAction = (actionId: string) => {
     if (onAction) {

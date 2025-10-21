@@ -9,7 +9,7 @@ import { useSearchParams } from 'next/navigation'
 
 export default function AthleteOverview() {
   const searchParams = useSearchParams()
-  const isEmbedded = searchParams.get('embedded') === 'true'
+  const isEmbedded = searchParams?.get('embedded') === 'true'
   const { user } = useAuth()
   const [stats, setStats] = useState({
     lessonsCompleted: 0,
