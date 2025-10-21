@@ -15,7 +15,7 @@ export const runtime = 'nodejs'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { invitationId, email } = body
+    const { invitationId, email, coachId: requestCoachId } = body
 
     if (!invitationId || !email) {
       return NextResponse.json(
@@ -25,6 +25,7 @@ export async function POST(request: NextRequest) {
     }
 
     console.log(`🔗 [COMPLETE-PROFILE] Completing profile for ${email}`)
+    console.log(`🔒 [COMPLETE-PROFILE] Coach ID from request: ${requestCoachId || 'NOT PROVIDED'}`)
 
     // Get the invitation with the stored profile data
     const invitationDoc = await adminDb.collection('invitations').doc(invitationId).get()
@@ -62,9 +63,23 @@ export async function POST(request: NextRequest) {
     const athleteId = nanoid()
     const targetRole = invitationData?.role || 'athlete'
 
-    // Get coach ID from invitation
-    const coachUid = invitationData?.creatorUid || invitationData?.coachId || ''
-    console.log(`🏃 [COMPLETE-PROFILE] Coach UID from invitation: ${coachUid}`)
+    // 🔒 MULTI-SOURCE COACH UID EXTRACTION with validation
+    const invitationCoachUid = invitationData?.creatorUid || invitationData?.coachId || ''
+    console.log(`🏃 [COMPLETE-PROFILE] Coach UID from invitation: ${invitationCoachUid}`)
+
+    // Use request coach ID if provided, otherwise fall back to invitation
+    let coachUid = requestCoachId || invitationCoachUid
+
+    // 🛡️ BELT AND SUSPENDERS: If both exist, validate they match
+    if (requestCoachId && invitationCoachUid && requestCoachId !== invitationCoachUid) {
+      console.error(`⚠️ [COMPLETE-PROFILE] WARNING: Coach UID mismatch!`)
+      console.error(`   - Request coachId: ${requestCoachId}`)
+      console.error(`   - Invitation coachId: ${invitationCoachUid}`)
+      console.error(`   - Using invitation coachId for safety`)
+      coachUid = invitationCoachUid // Use invitation as source of truth
+    }
+
+    console.log(`✅ [COMPLETE-PROFILE] FINAL Coach UID: ${coachUid}`)
 
     // CRITICAL: Validate coach UID exists - every athlete MUST have a coach
     if (!coachUid || coachUid.trim() === '') {

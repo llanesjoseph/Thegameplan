@@ -282,7 +282,8 @@ export default function AthleteOnboardingPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           invitationId,
-          email: formData.email
+          email: formData.email,
+          coachId: invitation?.coachId // 🔒 LOCKED IN: Pass coach UID directly from invitation
         })
       })
 
@@ -335,7 +336,8 @@ export default function AthleteOnboardingPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           invitationId,
-          email: formData.email
+          email: formData.email,
+          coachId: invitation?.coachId // 🔒 LOCKED IN: Pass coach UID directly from invitation
         })
       })
 
