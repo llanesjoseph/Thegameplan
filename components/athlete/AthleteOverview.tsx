@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { BookOpen, Video, Calendar, Trophy } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { doc, getDoc, collection, query, where, getDocs, onSnapshot } from 'firebase/firestore'
@@ -38,39 +38,8 @@ export default function AthleteOverview() {
     loadCoachId()
   }, [user])
 
-  useEffect(() => {
-    if (user?.uid && coachId) {
-      loadStats()
-    }
-  }, [user, coachId])
-
-  // Real-time listener for athlete feed updates
-  useEffect(() => {
-    if (!user?.uid) return
-
-    const feedDocRef = doc(db, 'athlete_feed', user.uid)
-
-    const unsubscribe = onSnapshot(
-      feedDocRef,
-      (snapshot) => {
-        if (snapshot.exists() && !snapshot.metadata.hasPendingWrites) {
-          console.log('🔄 Athlete feed updated, refreshing stats...')
-          // Reload stats when feed changes (new lessons or completion changes)
-          loadStats()
-        }
-      },
-      (error) => {
-        // Silently handle permission errors for non-existent documents
-        if (error.code !== 'permission-denied') {
-          console.error('Error listening to athlete feed:', error)
-        }
-      }
-    )
-
-    return () => unsubscribe()
-  }, [user])
-
-  const loadStats = async () => {
+  // Memoize loadStats to prevent recreation on every render
+  const loadStats = useCallback(async () => {
     if (!user?.uid || !coachId) return
 
     try {
@@ -111,7 +80,39 @@ export default function AthleteOverview() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [user?.uid, coachId])  // Only recreate if user.uid or coachId changes
+
+  useEffect(() => {
+    if (user?.uid && coachId) {
+      loadStats()
+    }
+  }, [user?.uid, coachId, loadStats])  // Include loadStats in dependencies
+
+  // Real-time listener for athlete feed updates
+  useEffect(() => {
+    if (!user?.uid) return
+
+    const feedDocRef = doc(db, 'athlete_feed', user.uid)
+
+    const unsubscribe = onSnapshot(
+      feedDocRef,
+      (snapshot) => {
+        if (snapshot.exists() && !snapshot.metadata.hasPendingWrites) {
+          console.log('🔄 Athlete feed updated, refreshing stats...')
+          // Reload stats when feed changes (new lessons or completion changes)
+          loadStats()
+        }
+      },
+      (error) => {
+        // Silently handle permission errors for non-existent documents
+        if (error.code !== 'permission-denied') {
+          console.error('Error listening to athlete feed:', error)
+        }
+      }
+    )
+
+    return () => unsubscribe()
+  }, [user?.uid, loadStats])  // Include loadStats in dependencies
 
   const today = new Date()
   const formattedDate = today.toLocaleDateString('en-US', {
