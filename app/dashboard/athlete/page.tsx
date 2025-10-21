@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore'
@@ -227,6 +227,19 @@ export default function AthleteDashboard() {
     fetchCoachData()
   }, [coachId])
 
+  // Memoize handleToolClick to prevent recreation on every render
+  const handleToolClick = useCallback((toolId: string) => {
+    if (toolId === 'live-session') {
+      setShowLive1on1Modal(true)
+      return
+    }
+    if (toolId === 'coach-dashboard') {
+      router.push('/dashboard/coach-unified')
+      return
+    }
+    setActiveSection(toolId)
+  }, [router])
+
   // Listen for postMessage from embedded iframe
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
@@ -241,7 +254,7 @@ export default function AthleteDashboard() {
 
     window.addEventListener('message', handleMessage)
     return () => window.removeEventListener('message', handleMessage)
-  }, [])
+  }, [handleToolClick])
 
   // Fetch lesson counts
   useEffect(() => {
@@ -284,18 +297,6 @@ export default function AthleteDashboard() {
 
     fetchCoachContent()
   }, [coachId])
-
-  const handleToolClick = (toolId: string) => {
-    if (toolId === 'live-session') {
-      setShowLive1on1Modal(true)
-      return
-    }
-    if (toolId === 'coach-dashboard') {
-      router.push('/dashboard/coach-unified')
-      return
-    }
-    setActiveSection(toolId)
-  }
 
   if (loadError) {
     return (
