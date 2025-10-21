@@ -16,7 +16,8 @@ import {
   Clock,
   TrendingUp,
   ShoppingBag,
-  Rss
+  Rss,
+  User
 } from 'lucide-react'
 import AppHeader from '@/components/ui/AppHeader'
 import VideoReviewRequestModal from '@/components/athlete/VideoReviewRequestModal'
