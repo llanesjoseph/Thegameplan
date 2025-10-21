@@ -5,7 +5,7 @@
  * Track submitted video reviews and view coach feedback
  */
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import { db } from '@/lib/firebase.client'
@@ -39,14 +39,8 @@ export default function AthleteVideoReviewsPage() {
   const [loading, setLoading] = useState(true)
   const [selectedReview, setSelectedReview] = useState<VideoReview | null>(null)
 
-
-  useEffect(() => {
-    if (user?.uid) {
-      loadVideoReviews()
-    }
-  }, [user])
-
-  const loadVideoReviews = async () => {
+  // Memoize loadVideoReviews to prevent recreation on every render
+  const loadVideoReviews = useCallback(async () => {
     if (!user?.uid) return
 
     try {
@@ -83,10 +77,17 @@ export default function AthleteVideoReviewsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [user?.uid])  // Only recreate if user.uid changes
+
+  useEffect(() => {
+    if (user?.uid) {
+      loadVideoReviews()
+    }
+  }, [user?.uid, loadVideoReviews])  // Include loadVideoReviews in dependency array
 
 
-  const getStatusBadge = (status: string) => {
+  // Memoize status badge to prevent recreation
+  const getStatusBadge = useCallback((status: string) => {
     switch (status) {
       case 'pending':
         return (
@@ -116,7 +117,7 @@ export default function AthleteVideoReviewsPage() {
           </span>
         )
     }
-  }
+  }, [])  // No dependencies - function is stable
 
   if (loading) {
     return (
