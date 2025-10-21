@@ -211,12 +211,51 @@ export async function POST(request: NextRequest) {
 
     console.log(`✅ [COMPLETE-PROFILE] Profile complete for ${email}`)
 
+    // 🛡️ FINAL VERIFICATION: Confirm coach assignment was successful
+    console.log(`🔍 [COMPLETE-PROFILE] FINAL VERIFICATION - Confirming coach assignment...`)
+    const verifyAthleteDoc = await adminDb.collection('athletes').doc(athleteId).get()
+    const verifyUserDoc = await adminDb.collection('users').doc(userRecord.uid).get()
+
+    const athleteCoach = verifyAthleteDoc.data()?.coachId || verifyAthleteDoc.data()?.assignedCoachId
+    const userCoach = verifyUserDoc.data()?.coachId || verifyUserDoc.data()?.assignedCoachId
+
+    if (!athleteCoach || !userCoach) {
+      console.error(`❌ [COMPLETE-PROFILE] VERIFICATION FAILED! Coach assignment missing!`)
+      console.error(`   - Athlete doc coachId: ${athleteCoach}`)
+      console.error(`   - User doc coachId: ${userCoach}`)
+      console.error(`   - Expected coachId: ${coachUid}`)
+
+      // EMERGENCY FIX: Try to assign coach one more time
+      if (!athleteCoach) {
+        await adminDb.collection('athletes').doc(athleteId).update({
+          coachId: coachUid,
+          assignedCoachId: coachUid,
+          updatedAt: new Date()
+        })
+        console.log(`🔧 [COMPLETE-PROFILE] EMERGENCY: Fixed athlete coach assignment`)
+      }
+
+      if (!userCoach) {
+        await adminDb.collection('users').doc(userRecord.uid).update({
+          coachId: coachUid,
+          assignedCoachId: coachUid,
+          updatedAt: new Date()
+        })
+        console.log(`🔧 [COMPLETE-PROFILE] EMERGENCY: Fixed user coach assignment`)
+      }
+    } else {
+      console.log(`✅ [COMPLETE-PROFILE] VERIFICATION PASSED!`)
+      console.log(`   - Athlete ${athleteId} has coachId: ${athleteCoach}`)
+      console.log(`   - User ${userRecord.uid} has coachId: ${userCoach}`)
+    }
+
     return NextResponse.json({
       success: true,
       data: {
         athleteId,
         userId: userRecord.uid,
         role: finalRole,
+        coachId: coachUid,
         message: 'Profile completed successfully!'
       }
     })

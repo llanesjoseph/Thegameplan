@@ -174,6 +174,7 @@ export async function POST(request: NextRequest) {
         const invitationData = {
           id: invitationId,
           creatorUid,
+          coachId: creatorUid, // CRITICAL: Duplicate as coachId for absolute certainty
           athleteEmail: athlete.email.toLowerCase(),
           athleteName: athlete.name,
           sport,
