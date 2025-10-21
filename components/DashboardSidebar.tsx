@@ -32,12 +32,16 @@ import {
 const navigationItems = {
  user: [
   { title: 'Dashboard', icon: LayoutDashboard, href: '/dashboard/athlete', color: 'text-blue-600' },
+  { title: 'Video Reviews', icon: Video, href: '/dashboard/athlete/reviews', color: 'text-red-600' },
+  { title: 'Submit Video', icon: FileVideo, href: '/dashboard/athlete/submit-video', color: 'text-orange-600' },
   { title: 'Progress', icon: TrendingUp, href: '/dashboard/athlete', color: 'text-green-600' },
   { title: 'Request Coaching', icon: MessageCircle, href: '/dashboard/coaching', color: 'text-purple-600' },
   { title: 'Curated Gear', icon: ShoppingBag, href: '/gear', color: 'text-emerald-600' },
  ],
  creator: [
   { title: '🏟️ Coaches Locker Room', icon: LayoutDashboard, href: '/dashboard/coach-unified', color: 'text-blue-600' },
+  { title: 'Video Review Queue', icon: FileVideo, href: '/dashboard/coach/queue', color: 'text-red-600' },
+  { title: 'Video Analytics', icon: BarChart3, href: '/dashboard/coach/analytics/video-critique', color: 'text-indigo-600' },
   { title: 'Create Content', icon: Video, href: '/dashboard/coach-unified?section=create', color: 'text-red-600' },
   { title: 'Manage Content', icon: FileVideo, href: '/dashboard/coach-unified?section=manage', color: 'text-green-600' },
   { title: 'Coach Network', icon: UserPlus, href: '/dashboard/coach-unified?section=invitations', color: 'text-violet-600' },
