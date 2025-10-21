@@ -3,17 +3,7 @@ import { redirect } from 'next/navigation';
 import { auth } from '@/lib/firebase.admin';
 import { cookies } from 'next/headers';
 import CoachQueueClient from './CoachQueueClient';
-import { getCoachQueue } from '@/lib/data/video-critique';
-
-async function getCoachTeam(coachUid: string) {
-  // For now, return a default team
-  // TODO: Implement proper team fetching for coach
-  return {
-    id: 'default-team',
-    name: 'My Team',
-    sport: 'Basketball'
-  };
-}
+import { getSubmissions } from '@/lib/data/video-critique';
 
 export default async function CoachQueuePage() {
   // Get auth token from cookies
@@ -38,29 +28,11 @@ export default async function CoachQueuePage() {
     redirect('/login');
   }
 
-  // Get coach's team
-  const team = await getCoachTeam(user.uid);
-
-  if (!team) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-2xl mx-auto">
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-            <h2 className="text-lg font-semibold text-yellow-900 mb-2">
-              No Team Assigned
-            </h2>
-            <p className="text-yellow-800">
-              You need to be assigned to a team to review video submissions.
-              Please contact an administrator.
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Fetch initial submissions for the team
-  const initialData = await getCoachQueue(team.id, { limit: 20 });
+  // Fetch initial submissions for this coach
+  const initialData = await getSubmissions(
+    { coachId: user.uid, status: 'awaiting_coach' },
+    { limit: 20 }
+  );
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -94,7 +66,6 @@ export default async function CoachQueuePage() {
         >
           <CoachQueueClient
             initialSubmissions={initialData.items}
-            teamId={team.id}
             coachId={user.uid}
             coachName={user.displayName}
           />

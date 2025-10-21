@@ -9,7 +9,6 @@ import toast from 'react-hot-toast';
 
 interface CoachQueueClientProps {
   initialSubmissions: Submission[];
-  teamId: string;
   coachId: string;
   coachName: string;
 }
@@ -19,7 +18,6 @@ type SortType = 'newest' | 'oldest' | 'deadline';
 
 export default function CoachQueueClient({
   initialSubmissions,
-  teamId,
   coachId,
   coachName,
 }: CoachQueueClientProps) {
@@ -32,12 +30,12 @@ export default function CoachQueueClient({
 
   // Set up real-time listener
   useEffect(() => {
-    const unsubscribe = listenToCoachQueue(teamId, (updatedSubmissions) => {
+    const unsubscribe = listenToCoachQueue(coachId, (updatedSubmissions) => {
       setSubmissions(updatedSubmissions);
     });
 
     return () => unsubscribe();
-  }, [teamId]);
+  }, [coachId]);
 
   // Filter submissions
   const filteredSubmissions = useMemo(() => {

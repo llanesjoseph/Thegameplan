@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/firebase.admin';
+import { auth, db as adminDb } from '@/lib/firebase.admin';
 import { createSubmission, getSubmissions } from '@/lib/data/video-critique';
 import { CreateSubmissionRequest } from '@/types/video-critique';
 import { generateVideoStoragePath } from '@/lib/upload/uppy-config';
@@ -22,6 +22,18 @@ export async function POST(request: NextRequest) {
     const userName = decodedToken.name || decodedToken.email?.split('@')[0] || 'Athlete';
     const userPhoto = decodedToken.picture;
 
+    // Get athlete's assigned coach from user document
+    const userDoc = await adminDb.collection('users').doc(userId).get();
+    const userData = userDoc.data();
+    const coachId = userData?.coachId || userData?.assignedCoachId;
+
+    if (!coachId) {
+      return NextResponse.json(
+        { error: 'No coach assigned. Please contact support.' },
+        { status: 400 }
+      );
+    }
+
     // Parse request body
     const body: CreateSubmissionRequest & {
       videoFileName: string;
@@ -30,7 +42,7 @@ export async function POST(request: NextRequest) {
     } = await request.json();
 
     // Validate required fields
-    if (!body.skillId || !body.teamId || !body.athleteContext) {
+    if (!body.athleteContext) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -40,9 +52,9 @@ export async function POST(request: NextRequest) {
     // Generate submission ID (Firestore will do this, but we need it for storage path)
     const tempSubmissionId = `submission_${Date.now()}_${userId.slice(0, 8)}`;
 
-    // Generate storage path
+    // Generate storage path (use athlete userId as identifier)
     const storagePath = generateVideoStoragePath(
-      body.teamId,
+      userId,
       tempSubmissionId,
       body.videoFileName
     );
@@ -53,6 +65,7 @@ export async function POST(request: NextRequest) {
       athleteUid: userId,
       athleteName: userName,
       athletePhotoUrl: userPhoto,
+      coachId: coachId, // Add assigned coach ID
       videoStoragePath: storagePath,
     });
 

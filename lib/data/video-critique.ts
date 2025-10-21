@@ -370,12 +370,12 @@ export function listenToSubmission(
  * Listen to coach queue changes (real-time)
  */
 export function listenToCoachQueue(
-  teamId: string,
+  coachId: string,
   callback: (submissions: Submission[]) => void
 ): Unsubscribe {
   const q = query(
     collection(db, 'submissions'),
-    where('teamId', '==', teamId),
+    where('coachId', '==', coachId),
     where('status', 'in', ['awaiting_coach', 'claimed']),
     orderBy('slaDeadline', 'asc')
   );
