@@ -56,7 +56,7 @@
       }
       
       function isValidVideoType() {
-        return request.resource.contentType.matches('video/(mp4|webm|mov|avi|mkv)');
+        return request.resource.contentType.matches('video/(mp4|webm|mov|quicktime|avi|x-msvideo|mkv)');
       }
       
       function isValidAudioType() {
