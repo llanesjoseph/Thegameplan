@@ -66,61 +66,58 @@ function generateCoachingResponse(question) {
     category = 'teamwork'
   }
 
+  // WORD LIMIT ENFORCEMENT: Keep responses concise (300 words max for initial, 350 for follow-ups)
+  // Each response is now significantly shortened to meet requirements
   const responses = {
     performance: {
-      mainAdvice: `Great question about "${question}"! Performance improvement comes from consistent, deliberate practice combined with smart recovery. Focus on breaking down your performance into measurable components and work on each systematically.`,
+      mainAdvice: `Regarding "${question.substring(0, 50)}..." - Performance improves through deliberate practice and smart recovery. Break down skills into measurable components and work on each systematically. Focus on quality reps over quantity.`,
       steps: [
-        'Identify your top 3 performance metrics to track',
-        'Set specific, measurable goals for each metric',
-        'Create a daily practice routine focusing on weak areas',
-        'Record and analyze your performance data weekly',
-        'Adjust your training based on data insights'
+        'Track your top 3 performance metrics',
+        'Set specific weekly goals',
+        'Practice weak areas daily for 20 minutes',
+        'Review performance data weekly'
       ],
-      focusAreas: ['Technical Skills', 'Physical Conditioning', 'Mental Preparation', 'Recovery & Nutrition']
+      focusAreas: ['Technical Skills', 'Conditioning', 'Recovery']
     },
     mental: {
-      mainAdvice: `Excellent question about "${question}"! Mental strength is the foundation of peak performance. Confidence is built through preparation, visualization, and positive self-talk.`,
+      mainAdvice: `About "${question.substring(0, 50)}..." - Mental strength drives peak performance. Build confidence through preparation, visualization, and positive self-talk. Control what you can control.`,
       steps: [
-        'Develop a pre-performance routine that calms your mind',
-        'Practice visualization of successful outcomes daily',
-        'Create positive affirmations specific to your sport',
-        'Learn breathing techniques for pressure situations',
-        'Build confidence through small, achievable wins'
+        'Create a 5-minute pre-performance routine',
+        'Visualize success for 10 minutes daily',
+        'Use 3 positive affirmations before competing',
+        'Practice box breathing under pressure'
       ],
-      focusAreas: ['Mindfulness', 'Visualization', 'Self-Talk', 'Pressure Management']
+      focusAreas: ['Mindfulness', 'Visualization', 'Self-Talk']
     },
     training: {
-      mainAdvice: `Smart question about "${question}"! Effective training is about quality over quantity. Structure your practice to maximize skill development while preventing burnout.`,
+      mainAdvice: `On "${question.substring(0, 50)}..." - Quality beats quantity in training. Structure practice with specific objectives. Balance skill work with conditioning and recovery.`,
       steps: [
-        'Design training sessions with specific objectives',
-        'Balance skill work with conditioning',
-        'Include deliberate practice of weak areas',
-        'Schedule adequate rest and recovery time',
-        'Track training intensity and adjust accordingly'
+        'Set one clear goal per session',
+        'Spend 60% on skills, 40% on conditioning',
+        'Focus on weak areas first when fresh',
+        'Take full rest days weekly'
       ],
-      focusAreas: ['Skill Development', 'Conditioning', 'Recovery', 'Progressive Overload']
+      focusAreas: ['Skill Development', 'Conditioning', 'Recovery']
     },
     teamwork: {
-      mainAdvice: `Important question about "${question}"! Great teams are built on trust, communication, and shared goals. Individual excellence supports team success.`,
+      mainAdvice: `Regarding "${question.substring(0, 50)}..." - Teams thrive on trust and communication. Support teammates while maintaining personal excellence. Lead by example.`,
       steps: [
-        'Develop clear communication protocols with teammates',
-        'Understand and embrace your role within the team',
-        'Practice active listening and constructive feedback',
-        'Support teammates through encouragement and accountability',
-        'Align personal goals with team objectives'
+        'Communicate clearly with teammates',
+        'Know and own your role',
+        'Give constructive feedback',
+        'Support team goals first'
       ],
-      focusAreas: ['Communication', 'Leadership', 'Trust Building', 'Collective Goals']
+      focusAreas: ['Communication', 'Leadership', 'Trust']
     },
     general: {
-      mainAdvice: `Great question about "${question}"! Success in any endeavor comes from consistent effort, smart preparation, and continuous learning. Focus on the process, and results will follow.`,
+      mainAdvice: `About "${question.substring(0, 50)}..." - Success comes from consistent effort and smart preparation. Focus on the process, and results follow.`,
       steps: [
-        'Set clear, specific goals with deadlines',
-        'Break down big goals into daily actionable steps',
-        'Create systems and routines that support your goals',
-        'Regularly review and adjust your approach',
-        'Celebrate progress and learn from setbacks'
+        'Set specific goals with deadlines',
+        'Create daily actionable steps',
+        'Build supportive routines',
+        'Review and adjust weekly'
       ],
-      focusAreas: ['Goal Setting', 'Process Focus', 'Consistency', 'Continuous Improvement']
+      focusAreas: ['Goal Setting', 'Consistency', 'Process']
     }
   }
 

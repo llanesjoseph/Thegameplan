@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore'
@@ -18,7 +18,8 @@ import {
   ShoppingBag,
   Rss,
   User,
-  FileVideo
+  FileVideo,
+  RefreshCw
 } from 'lucide-react'
 import AppHeader from '@/components/ui/AppHeader'
 import Live1on1RequestModal from '@/components/athlete/Live1on1RequestModal'
@@ -31,6 +32,7 @@ import AskCoachAI from '@/components/athlete/AskCoachAI'
 export default function AthleteDashboard() {
   const { user } = useAuth()
   const router = useRouter()
+  const iframeRef = useRef<HTMLIFrameElement>(null)
 
   const [showLive1on1Modal, setShowLive1on1Modal] = useState(false)
   const [showCoachPanel, setShowCoachPanel] = useState(false)
@@ -38,7 +40,16 @@ export default function AthleteDashboard() {
   const [coachId, setCoachId] = useState<string | null>(null)
   const [coachName, setCoachName] = useState<string>('')
   const [coachPhotoURL, setCoachPhotoURL] = useState<string>('')
-  const [activeSection, setActiveSection] = useState<string | null>('home') // Default to Home
+  // Initialize activeSection from URL hash or default to 'home'
+  const getInitialSection = () => {
+    if (typeof window !== 'undefined') {
+      const hash = window.location.hash.slice(1); // Remove #
+      return hash || 'home';
+    }
+    return 'home';
+  };
+
+  const [activeSection, setActiveSection] = useState<string | null>(getInitialSection())
   const [loadError, setLoadError] = useState<string | null>(null)
   const [lessonCount, setLessonCount] = useState<number>(0)
   const [videoCount, setVideoCount] = useState<number>(0)
@@ -238,7 +249,37 @@ export default function AthleteDashboard() {
       return
     }
     setActiveSection(toolId)
+    // Update URL hash for browser history
+    if (typeof window !== 'undefined') {
+      window.history.pushState(null, '', `#${toolId}`);
+    }
   }, [router])
+
+  // Handle iframe refresh
+  const refreshIframe = useCallback(() => {
+    if (iframeRef.current) {
+      const currentSrc = iframeRef.current.src;
+      iframeRef.current.src = currentSrc;
+    }
+  }, [])
+
+  // Handle browser back/forward navigation
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.slice(1);
+      if (hash) {
+        setActiveSection(hash);
+      }
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    window.addEventListener('popstate', handleHashChange);
+
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+      window.removeEventListener('popstate', handleHashChange);
+    };
+  }, []);
 
   // Listen for postMessage from embedded iframe
   useEffect(() => {
@@ -482,11 +523,23 @@ export default function AthleteDashboard() {
             {/* Main Content Area */}
             <div className={`flex-1 overflow-hidden relative ${!activeSection ? 'hidden lg:block' : ''}`}>
               {activeSection ? (
-                <div className="h-full">
+                <div className="h-full relative">
+                  {/* Refresh Button for iframe sections */}
+                  {['home', 'video-reviews', 'lessons', 'gear'].includes(activeSection) && (
+                    <button
+                      onClick={refreshIframe}
+                      className="absolute top-4 right-4 z-10 p-2 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow"
+                      title="Refresh content"
+                    >
+                      <RefreshCw className="w-5 h-5 text-gray-600" />
+                    </button>
+                  )}
+
                   {/* Content - Full Height */}
                   <div className="h-full">
                     {activeSection === 'home' && (
                       <iframe
+                        ref={activeSection === 'home' ? iframeRef : null}
                         src="/dashboard/athlete/home?embedded=true"
                         className="w-full h-full border-0"
                         title="Home"
@@ -526,6 +579,7 @@ export default function AthleteDashboard() {
 
                     {activeSection === 'video-reviews' && (
                       <iframe
+                        ref={activeSection === 'video-reviews' ? iframeRef : null}
                         src="/dashboard/athlete/reviews?embedded=true"
                         className="w-full h-full border-0"
                         title="Video Reviews"
@@ -534,6 +588,7 @@ export default function AthleteDashboard() {
 
                     {activeSection === 'lessons' && (
                       <iframe
+                        ref={activeSection === 'lessons' ? iframeRef : null}
                         src="/dashboard/athlete-lessons?embedded=true"
                         className="w-full h-full border-0"
                         title="Your Lessons"
@@ -542,6 +597,7 @@ export default function AthleteDashboard() {
 
                     {activeSection === 'gear' && (
                       <iframe
+                        ref={activeSection === 'gear' ? iframeRef : null}
                         src="/dashboard/gear?embedded=true"
                         className="w-full h-full border-0"
                         title="Gear Shop"
