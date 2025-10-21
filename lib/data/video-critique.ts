@@ -128,9 +128,9 @@ export async function createSubmission(
       // Owner info
       athleteUid: data.athleteUid,
       athleteName: data.athleteName,
-      athletePhotoUrl: data.athletePhotoUrl || null,
+      athletePhotoUrl: data.athletePhotoUrl || undefined,
       teamId: data.teamId || data.athleteUid, // Use athleteUid as teamId if not provided
-      coachId: data.coachId || null, // Coach is optional
+      coachId: data.coachId || undefined, // Coach is optional
 
       // Skill context (optional)
       skillId: data.skillId,

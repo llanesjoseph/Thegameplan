@@ -33,6 +33,7 @@ export default function SubmissionForm({ user }: SubmissionFormProps) {
   const uploadTaskRef = useRef<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [authToken, setAuthToken] = useState<string | null>(null);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   // Get auth token on mount and fix custom claims
   useEffect(() => {
@@ -180,7 +181,20 @@ export default function SubmissionForm({ user }: SubmissionFormProps) {
               console.error('Failed to update submission with video URL');
             }
 
-            toast.success('Video submitted successfully!');
+            // Show multiple success indicators
+            toast.success('✅ Video submitted successfully!', {
+              duration: 5000,
+              position: 'top-center',
+              style: {
+                background: '#10b981',
+                color: 'white',
+                fontSize: '16px',
+                fontWeight: 'bold',
+              },
+            });
+
+            // Also show alert as backup
+            alert('SUCCESS! Your video has been submitted for review.');
 
             // Reset form
             setTimeout(() => {
@@ -190,7 +204,12 @@ export default function SubmissionForm({ user }: SubmissionFormProps) {
               setAthleteContext('');
               setAthleteGoals('');
               setSpecificQuestions('');
-            }, 1000);
+
+              // Show another success message
+              toast.success('Form reset. You can submit another video.', {
+                duration: 3000,
+              });
+            }, 2000);
           },
           (error) => {
             console.error('Upload error:', error);
