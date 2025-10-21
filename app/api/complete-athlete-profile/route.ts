@@ -62,12 +62,18 @@ export async function POST(request: NextRequest) {
     const athleteId = nanoid()
     const targetRole = invitationData?.role || 'athlete'
 
+    // Get coach ID from invitation
+    const coachUid = invitationData?.creatorUid || invitationData?.coachId || ''
+    console.log(`🏃 [COMPLETE-PROFILE] Coach UID from invitation: ${coachUid}`)
+
     // Create the athlete document
     const athleteData = {
       id: athleteId,
       uid: userRecord.uid,
       invitationId,
       creatorUid: invitationData?.creatorUid || '',
+      coachId: coachUid, // Add coach ID to athlete document
+      assignedCoachId: coachUid, // Add assigned coach ID to athlete document
       status: 'active',
       createdAt: now,
       updatedAt: now,
@@ -88,7 +94,7 @@ export async function POST(request: NextRequest) {
     }
 
     await adminDb.collection('athletes').doc(athleteId).set(athleteData)
-    console.log(`✅ [COMPLETE-PROFILE] Created athlete document: ${athleteId}`)
+    console.log(`✅ [COMPLETE-PROFILE] Created athlete document: ${athleteId} with coach: ${coachUid}`)
 
     // Check if user document already exists (in case they're also a coach)
     const existingUserDoc = await adminDb.collection('users').doc(userRecord.uid).get()
@@ -109,8 +115,8 @@ export async function POST(request: NextRequest) {
       lastName: athleteProfile.lastName,
       athleteId,
       creatorUid: invitationData?.creatorUid || '',
-      coachId: invitationData?.creatorUid || invitationData?.coachId || '',
-      assignedCoachId: invitationData?.creatorUid || invitationData?.coachId || '',
+      coachId: coachUid, // Use the coach UID we extracted earlier
+      assignedCoachId: coachUid, // Use the coach UID we extracted earlier
       lastLoginAt: now,
       invitationId,
       invitationRole: targetRole,
@@ -126,7 +132,7 @@ export async function POST(request: NextRequest) {
     }
 
     await adminDb.collection('users').doc(userRecord.uid).set(userDocData, { merge: true })
-    console.log(`✅ [COMPLETE-PROFILE] Created user document - role: ${finalRole}`)
+    console.log(`✅ [COMPLETE-PROFILE] Created user document - role: ${finalRole}, coachId: ${coachUid}, assignedCoachId: ${coachUid}`)
 
     // Mark invitation as used
     await adminDb.collection('invitations').doc(invitationId).update({
