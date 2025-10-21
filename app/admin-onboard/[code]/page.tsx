@@ -42,11 +42,11 @@ export default function AdminOnboardingPage({ params }: { params: { code: string
       if (!result.success) {
         const errorMsg = result.error || 'Invalid invitation'
 
-        // If invitation was already used, redirect to dashboard after 3 seconds
+        // If invitation was already used, redirect to login after 3 seconds
         if (errorMsg.toLowerCase().includes('already been used')) {
           setError('This invitation has already been used. Redirecting you to sign in...')
           setTimeout(() => {
-            router.push('/dashboard')
+            router.push('/login')
           }, 3000)
           return
         }
@@ -239,10 +239,10 @@ export default function AdminOnboardingPage({ params }: { params: { code: string
             <div className="flex gap-3 justify-center">
               {(isAlreadyUsed || isExpired) && (
                 <button
-                  onClick={() => router.push('/dashboard')}
+                  onClick={() => router.push('/login')}
                   className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium"
                 >
-                  Sign In
+                  Go to Login
                 </button>
               )}
               <button
