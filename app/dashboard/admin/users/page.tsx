@@ -576,8 +576,8 @@ export default function AdminUserManagement() {
 
     {/* User Actions Modal */}
     {selectedUser && (
-     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-2xl border border-white/50 max-w-md w-full mx-4 p-6">
+     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+      <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-2xl border border-white/50 max-w-md w-full my-auto max-h-[calc(100vh-2rem)] overflow-y-auto p-6">
        <h3 className="text-2xl mb-6" style={{ color: '#000000' }}>User Actions</h3>
 
        <div className="space-y-3 mb-6">
