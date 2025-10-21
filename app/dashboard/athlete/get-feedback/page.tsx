@@ -63,6 +63,7 @@ export default function GetFeedbackPage() {
     try {
       // Step 1: Create a server-side Submission so it shows up immediately
       let submissionId: string | null = null;
+      let createClientSideSubmissionFallback = false;
       try {
         const token = (user as any)?.getIdToken ? await (user as any).getIdToken(true) : null;
         if (!token) throw new Error('Missing auth token');
@@ -92,7 +93,8 @@ export default function GetFeedbackPage() {
         submissionId = data.submissionId;
         setUploadProgress(15);
       } catch (apiErr) {
-        console.warn('Could not create submission via API; proceeding with feedback request only:', apiErr);
+        console.warn('Could not create submission via API; will create client-side after upload:', apiErr);
+        createClientSideSubmissionFallback = true;
       }
 
       // Step 2: Create feedback request record (kept for compatibility/UI)
@@ -187,6 +189,40 @@ export default function GetFeedbackPage() {
             }
           } catch (patchErr) {
             console.warn('Submission patch failed (upload succeeded):', patchErr);
+          }
+        } else if (createClientSideSubmissionFallback) {
+          // Create the submission document on the client as a fallback so coaches can see it
+          try {
+            let coachId: string | null = null;
+            try {
+              const userSnap = await getDoc(doc(db, 'users', user.uid));
+              const udata: any = userSnap.data();
+              coachId = udata?.coachId || udata?.assignedCoachId || null;
+            } catch {}
+
+            await addDoc(collection(db, 'submissions'), {
+              athleteUid: user.uid,
+              athleteName: user.displayName || user.email,
+              athletePhotoUrl: user.photoURL || null,
+              teamId: user.uid,
+              coachId: coachId || null,
+              videoFileName: videoFile.name,
+              videoFileSize: videoFile.size,
+              videoStoragePath: storagePath,
+              videoDuration: 0,
+              thumbnailUrl: null,
+              athleteContext: context.trim(),
+              athleteGoals: goals.trim(),
+              specificQuestions: questions.trim(),
+              status: 'awaiting_coach',
+              uploadProgress: 100,
+              createdAt: serverTimestamp(),
+              updatedAt: serverTimestamp(),
+              submittedAt: serverTimestamp(),
+            });
+            console.log('✅ Created client-side submission fallback');
+          } catch (subErr) {
+            console.warn('Client-side submission fallback failed:', subErr);
           }
         }
 
