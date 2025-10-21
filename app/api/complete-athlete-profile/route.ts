@@ -66,6 +66,18 @@ export async function POST(request: NextRequest) {
     const coachUid = invitationData?.creatorUid || invitationData?.coachId || ''
     console.log(`🏃 [COMPLETE-PROFILE] Coach UID from invitation: ${coachUid}`)
 
+    // CRITICAL: Validate coach UID exists - every athlete MUST have a coach
+    if (!coachUid || coachUid.trim() === '') {
+      console.error(`❌ [COMPLETE-PROFILE] CRITICAL ERROR: No coach UID in invitation ${invitationId}`)
+      return NextResponse.json(
+        {
+          error: 'Critical error: No coach found in invitation. Please contact support.',
+          details: 'Invitation is missing creatorUid - athlete cannot be assigned to coach'
+        },
+        { status: 500 }
+      )
+    }
+
     // Create the athlete document
     const athleteData = {
       id: athleteId,

@@ -81,6 +81,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // CRITICAL: Validate creatorUid is a valid UID (not empty string)
+    if (creatorUid.trim() === '') {
+      return NextResponse.json(
+        { error: 'creatorUid cannot be empty - coach UID is required for athlete assignment' },
+        { status: 400 }
+      )
+    }
+
     // Validate athletes array
     const validAthletes = athletes.filter(
       athlete => athlete.email?.trim() && athlete.name?.trim()

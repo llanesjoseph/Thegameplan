@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo, useCallback, Component, ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore'
@@ -16,24 +16,77 @@ import {
   Clock,
   TrendingUp,
   ShoppingBag,
-  Rss
+  Rss,
+  User
 } from 'lucide-react'
 import AppHeader from '@/components/ui/AppHeader'
 import VideoReviewRequestModal from '@/components/athlete/VideoReviewRequestModal'
 import Live1on1RequestModal from '@/components/athlete/Live1on1RequestModal'
-import MyCoachPanel from '@/components/athlete/MyCoachPanel'
 import CoachFeedView from '@/components/athlete/CoachFeedView'
 import CoachScheduleView from '@/components/athlete/CoachScheduleView'
 import AIAssistant from '@/components/AIAssistant'
 import AskCoachAI from '@/components/athlete/AskCoachAI'
 
-export default function AthleteDashboard() {
+// FORCE DYNAMIC RENDERING - NO SSR, NO STATIC GENERATION
+export const dynamic = 'force-dynamic'
+
+// Error Boundary for Athlete Dashboard
+class AthleteDashboardErrorBoundary extends Component<
+  { children: ReactNode },
+  { hasError: boolean; error: Error | null }
+> {
+  constructor(props: { children: ReactNode }) {
+    super(props)
+    this.state = { hasError: false, error: null }
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error }
+  }
+
+  componentDidCatch(error: Error, errorInfo: any) {
+    console.error('Athlete Dashboard Error:', error, errorInfo)
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#E8E6D8' }}>
+          <div className="max-w-md mx-auto px-4">
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8 text-center">
+              <div className="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ backgroundColor: '#FF6B35' }}>
+                <span className="text-3xl">⚠️</span>
+              </div>
+              <h2 className="text-2xl mb-3" style={{ color: '#000000' }}>
+                Something Went Wrong
+              </h2>
+              <p className="mb-6" style={{ color: '#666' }}>
+                {this.state.error?.message || 'An error occurred loading your dashboard'}
+              </p>
+              <button
+                onClick={() => window.location.reload()}
+                className="px-6 py-3 rounded-lg text-white transition-colors"
+                style={{ backgroundColor: '#7B92C4' }}
+              >
+                Reload Dashboard
+              </button>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    return this.props.children
+  }
+}
+
+function AthleteDashboardContent() {
   const { user } = useAuth()
   const router = useRouter()
 
+  const [mounted, setMounted] = useState(false)
   const [showVideoReviewModal, setShowVideoReviewModal] = useState(false)
   const [showLive1on1Modal, setShowLive1on1Modal] = useState(false)
-  const [showCoachPanel, setShowCoachPanel] = useState(false)
   const [hasCoachRole, setHasCoachRole] = useState(false)
   const [coachId, setCoachId] = useState<string | null>(null)
   const [coachName, setCoachName] = useState<string>('')
@@ -43,8 +96,13 @@ export default function AthleteDashboard() {
   const [lessonCount, setLessonCount] = useState<number>(0)
   const [videoCount, setVideoCount] = useState<number>(0)
 
+  // Prevent hydration mismatch - only render after mount
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
   // Athlete tools - simplified for sidebar
-  const athleteTools = [
+  const athleteTools = useMemo(() => [
     {
       id: 'home',
       title: 'Home',
@@ -72,6 +130,13 @@ export default function AthleteDashboard() {
       description: 'View upcoming events and sessions',
       icon: Calendar,
       color: '#5A9A70'
+    },
+    {
+      id: 'my-coach',
+      title: 'My Coach',
+      description: 'View coach profile and contact info',
+      icon: User,
+      color: '#20B2AA'
     },
     {
       id: 'lessons',
@@ -108,7 +173,7 @@ export default function AthleteDashboard() {
       icon: LayoutDashboard,
       color: '#000000'
     }] : [])
-  ]
+  ], [coachName, hasCoachRole])
 
   // Load user data and check if they should be here
   useEffect(() => {
@@ -146,23 +211,7 @@ export default function AthleteDashboard() {
           )
 
           // Load coach assignment
-          const extractedCoachId = userData?.coachId || userData?.assignedCoachId || null
-          setCoachId(extractedCoachId)
-
-          // CRITICAL: Log if coach assignment is missing
-          if (!extractedCoachId) {
-            console.error('⚠️ [ATHLETE-DASHBOARD] WARNING: No coach assignment found for athlete', {
-              athleteUid: user?.uid,
-              athleteEmail: user?.email,
-              userData: {
-                coachId: userData?.coachId,
-                assignedCoachId: userData?.assignedCoachId,
-                creatorUid: userData?.creatorUid
-              }
-            })
-          } else {
-            console.log('✅ [ATHLETE-DASHBOARD] Coach ID loaded:', extractedCoachId)
-          }
+          setCoachId(userData?.coachId || userData?.assignedCoachId || null)
         }
       } catch (error: any) {
         console.error('Error loading user data:', error)
@@ -285,7 +334,7 @@ export default function AthleteDashboard() {
     fetchCoachContent()
   }, [coachId])
 
-  const handleToolClick = (toolId: string) => {
+  const handleToolClick = useCallback((toolId: string) => {
     if (toolId === 'live-session') {
       setShowLive1on1Modal(true)
       return
@@ -295,6 +344,36 @@ export default function AthleteDashboard() {
       return
     }
     setActiveSection(toolId)
+  }, [router])
+
+  const handleCloseVideoReviewModal = useCallback(() => {
+    setShowVideoReviewModal(false)
+  }, [])
+
+  const handleVideoReviewSuccess = useCallback(() => {
+    console.log('✅ Video review request submitted!')
+    setShowVideoReviewModal(false)
+  }, [])
+
+  const handleCloseLive1on1Modal = useCallback(() => {
+    setShowLive1on1Modal(false)
+  }, [])
+
+  const handleLive1on1Success = useCallback(() => {
+    console.log('✅ Live session request submitted! Your coach will respond soon.')
+    setShowLive1on1Modal(false)
+  }, [])
+
+  // Prevent hydration mismatch - show loading state during SSR
+  if (!mounted) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#E8E6D8' }}>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading dashboard...</p>
+        </div>
+      </div>
+    )
   }
 
   if (loadError) {
@@ -334,8 +413,8 @@ export default function AthleteDashboard() {
           userId={user.uid}
           userEmail={user.email || ''}
           coachId={coachId || undefined}
-          onClose={() => setShowVideoReviewModal(false)}
-          onSuccess={() => alert('✅ Video review request submitted!')}
+          onClose={handleCloseVideoReviewModal}
+          onSuccess={handleVideoReviewSuccess}
         />
       )}
 
@@ -346,17 +425,8 @@ export default function AthleteDashboard() {
           userEmail={user.email || ''}
           coachId={coachId || undefined}
           coachName={coachName}
-          onClose={() => setShowLive1on1Modal(false)}
-          onSuccess={() => alert('✅ Live session request submitted! Your coach will respond soon.')}
-        />
-      )}
-
-      {/* My Coach Panel */}
-      {coachId && (
-        <MyCoachPanel
-          coachId={coachId}
-          isOpen={showCoachPanel}
-          onClose={() => setShowCoachPanel(false)}
+          onClose={handleCloseLive1on1Modal}
+          onSuccess={handleLive1on1Success}
         />
       )}
 
@@ -386,12 +456,14 @@ export default function AthleteDashboard() {
               <div className="sticky top-0 bg-white/95 backdrop-blur-sm z-10 border-b border-gray-200 p-4">
                 {coachId && coachName ? (
                   <button
-                    onClick={() => setShowCoachPanel(true)}
-                    className="flex items-center gap-3 mb-3 w-full p-2 rounded-lg hover:bg-gray-100 transition-all active:scale-95 touch-manipulation"
+                    onClick={() => handleToolClick('my-coach')}
+                    className={`flex items-center gap-3 mb-3 w-full p-2 rounded-lg transition-all active:scale-95 touch-manipulation ${
+                      activeSection === 'my-coach' ? 'bg-teal-50 border-2 border-teal-500' : 'hover:bg-gray-100'
+                    }`}
                     style={{ minHeight: '44px' }}
                     title="View coach information"
                   >
-                    <div className="w-12 h-12 rounded-full overflow-hidden shadow-md flex-shrink-0" style={{ backgroundColor: '#5A9B9B' }}>
+                    <div className="w-12 h-12 rounded-full overflow-hidden shadow-md flex-shrink-0" style={{ backgroundColor: '#20B2AA' }}>
                       {coachPhotoURL ? (
                         <img src={coachPhotoURL} alt={coachName} className="w-full h-full object-cover" />
                       ) : (
@@ -401,11 +473,11 @@ export default function AthleteDashboard() {
                       )}
                     </div>
                     <div className="flex-1 min-w-0 text-left">
-                      <p className="text-xs" style={{ color: '#666' }}>My Coach: Quick View</p>
+                      <p className="text-xs" style={{ color: '#666' }}>My Coach</p>
                       <p className="text-sm font-semibold truncate" style={{ color: '#000000' }}>
                         {coachName.split(' ')[0]}
                       </p>
-                      <p className="text-[10px]" style={{ color: '#5A9B9B' }}>Tap to view →</p>
+                      <p className="text-[10px]" style={{ color: '#20B2AA' }}>Click to view →</p>
                     </div>
                   </button>
                 ) : (
@@ -533,6 +605,14 @@ export default function AthleteDashboard() {
                       </div>
                     )}
 
+                    {activeSection === 'my-coach' && (
+                      <iframe
+                        src="/dashboard/athlete/my-coach?embedded=true"
+                        className="w-full h-full border-0"
+                        title="My Coach"
+                      />
+                    )}
+
                     {activeSection === 'lessons' && (
                       <iframe
                         src="/dashboard/athlete-lessons?embedded=true"
@@ -622,5 +702,13 @@ export default function AthleteDashboard() {
         </main>
       </div>
     </>
+  )
+}
+
+export default function AthleteDashboard() {
+  return (
+    <AthleteDashboardErrorBoundary>
+      <AthleteDashboardContent />
+    </AthleteDashboardErrorBoundary>
   )
 }

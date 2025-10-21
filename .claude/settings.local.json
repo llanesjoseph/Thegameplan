@@ -7,7 +7,14 @@
       "Bash(git commit -m \"$(cat <<''EOF''\nfix: Fix analytics data field mapping and curated gear price display\n\n- Fix analytics dashboard to support both field naming conventions (views/viewCount, completions/completionCount)\n- Change analytics query to use viewCount field for proper sorting\n- Add diagnostic script to check Firestore data structure\n- Fix curated gear page price type error that prevented page from loading\n- Add type checking for price field to handle string/number conversion\n- Install dotenv package for diagnostic scripts\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
       "Bash(git commit:*)",
       "Bash(firebase:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(gh api repos/llanesjoseph/Thegameplan/deployments --jq '.[0] | {created_at, ref, sha: .sha[0:7], environment, state: .state}')",
+      "Bash(gh api repos/llanesjoseph/Thegameplan/deployments --jq '.[0:3] | .[] | {created_at, sha: .sha[0:7], environment}')",
+      "Bash(timeout 60 tail -100 .next/build.log)",
+      "Bash(git add app/api/complete-athlete-profile/route.ts)",
+      "Bash(gh api repos/llanesjoseph/Thegameplan/deployments --jq '.[0] | {created_at, ref, sha: .sha[0:7], environment}')",
+      "Bash(git add app/api/admin/fix-athlete-coach-assignment/route.ts app/dashboard/admin/fix-athlete-coaches/page.tsx)",
+      "Bash(git add .)"
     ],
     "deny": [],
     "ask": []
