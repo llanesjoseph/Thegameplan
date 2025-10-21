@@ -268,25 +268,25 @@ export default function SubmissionForm({ user }: SubmissionFormProps) {
               });
             }, 2000);
           },
-          (error) => {
+          (error: any) => {
             console.error('❌ UPLOAD ERROR - Full details:', {
               error,
-              errorCode: error.code,
-              errorMessage: error.message,
-              errorName: error.name,
-              serverResponse: error.serverResponse,
-              customData: error.customData,
+              errorCode: error?.code,
+              errorMessage: error?.message,
+              errorName: error?.name,
+              serverResponse: error?.serverResponse,
+              customData: error?.customData,
             });
 
             // More specific error message based on error code
             let errorMsg = 'Failed to upload video';
-            if (error.code === 'storage/unauthorized') {
+            if (error?.code === 'storage/unauthorized') {
               errorMsg = 'Permission denied. Please sign out and sign in again.';
-            } else if (error.code === 'storage/unauthenticated') {
+            } else if (error?.code === 'storage/unauthenticated') {
               errorMsg = 'Not authenticated. Please refresh the page and try again.';
-            } else if (error.code === 'storage/retry-limit-exceeded') {
+            } else if (error?.code === 'storage/retry-limit-exceeded') {
               errorMsg = 'Upload timeout. Check your internet connection.';
-            } else if (error.message) {
+            } else if (error?.message) {
               errorMsg = `Upload failed: ${error.message}`;
             }
 
