@@ -1,11 +1,11 @@
 'use client'
 
 /**
- * Video Review Request Page - Full Page Experience
- * Allows athletes to submit video clips for coach review with better UX than modal
+ * Video Review Request Page - Clean Implementation
+ * Complete rewrite to eliminate infinite re-render issues
  */
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import { X, Upload, Video, FileText, Send, Link as LinkIcon, Film, ArrowLeft, Check } from 'lucide-react'
@@ -14,19 +14,38 @@ import { storage, db } from '@/lib/firebase.client'
 import { doc, getDoc } from 'firebase/firestore'
 import AppHeader from '@/components/ui/AppHeader'
 
+type UploadMethod = 'url' | 'file'
+
+interface FormData {
+  videoUrl: string
+  title: string
+  description: string
+  specificQuestions: string
+}
+
+interface CoachInfo {
+  id: string | null
+  name: string
+}
+
+const INITIAL_FORM_DATA: FormData = {
+  videoUrl: '',
+  title: '',
+  description: '',
+  specificQuestions: ''
+}
+
+const VALID_VIDEO_TYPES = ['video/mp4', 'video/quicktime', 'video/x-msvideo', 'video/webm', 'video/x-matroska']
+const MAX_FILE_SIZE = 500 * 1024 * 1024 // 500MB
+
 export default function VideoReviewRequestPage() {
   const { user } = useAuth()
   const router = useRouter()
-  const [coachId, setCoachId] = useState<string | null>(null)
-  const [coachName, setCoachName] = useState<string>('Your Coach')
 
-  const [formData, setFormData] = useState({
-    videoUrl: '',
-    title: '',
-    description: '',
-    specificQuestions: ''
-  })
-  const [uploadMethod, setUploadMethod] = useState<'url' | 'file'>('url')
+  // State - organized by concern
+  const [coach, setCoach] = useState<CoachInfo>({ id: null, name: 'Your Coach' })
+  const [formData, setFormData] = useState<FormData>(INITIAL_FORM_DATA)
+  const [uploadMethod, setUploadMethod] = useState<UploadMethod>('url')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [isUploading, setIsUploading] = useState(false)
@@ -34,64 +53,95 @@ export default function VideoReviewRequestPage() {
   const [error, setError] = useState<string | null>(null)
   const [showSuccess, setShowSuccess] = useState(false)
 
-  // Load coach info
-  useEffect(() => {
-    const loadCoachInfo = async () => {
-      if (!user?.uid) return
+  // Load coach information - memoized to prevent infinite loops
+  const loadCoachInfo = useCallback(async (userId: string) => {
+    try {
+      const userDocRef = doc(db, 'users', userId)
+      const userDoc = await getDoc(userDocRef)
 
-      try {
-        const userDoc = await getDoc(doc(db, 'users', user.uid))
-        if (userDoc.exists()) {
-          const userData = userDoc.data()
-          const assignedCoachId = userData?.coachId || userData?.assignedCoachId || null
-          setCoachId(assignedCoachId)
-
-          if (assignedCoachId) {
-            const coachDoc = await getDoc(doc(db, 'users', assignedCoachId))
-            if (coachDoc.exists()) {
-              const coachData = coachDoc.data()
-              setCoachName(coachData?.displayName || 'Your Coach')
-            }
-          }
-        }
-      } catch (error) {
-        console.error('Error loading coach info:', error)
+      if (!userDoc.exists()) {
+        console.warn('User document not found')
+        return
       }
+
+      const userData = userDoc.data()
+      const coachId = userData?.coachId || userData?.assignedCoachId || null
+
+      if (!coachId) {
+        console.warn('No coach assigned to user')
+        setCoach({ id: null, name: 'Your Coach' })
+        return
+      }
+
+      // Load coach details
+      const coachDocRef = doc(db, 'users', coachId)
+      const coachDoc = await getDoc(coachDocRef)
+
+      if (coachDoc.exists()) {
+        const coachData = coachDoc.data()
+        setCoach({
+          id: coachId,
+          name: coachData?.displayName || 'Your Coach'
+        })
+      } else {
+        setCoach({ id: coachId, name: 'Your Coach' })
+      }
+    } catch (err) {
+      console.error('Error loading coach info:', err)
+      setCoach({ id: null, name: 'Your Coach' })
     }
+  }, []) // No dependencies - function is stable
 
-    loadCoachInfo()
-  }, [user?.uid])
+  // Effect to load coach info when user changes
+  useEffect(() => {
+    if (user?.uid) {
+      loadCoachInfo(user.uid)
+    }
+  }, [user?.uid, loadCoachInfo])
 
-  const isValid = uploadMethod === 'url'
-    ? formData.videoUrl.trim() !== '' && formData.title.trim() !== '' && formData.description.trim() !== ''
-    : selectedFile !== null && formData.title.trim() !== '' && formData.description.trim() !== ''
+  // Form validation - memoized to prevent recalculation
+  const isFormValid = useMemo(() => {
+    const hasTitle = formData.title.trim().length > 0
+    const hasDescription = formData.description.trim().length > 0
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (uploadMethod === 'url') {
+      return formData.videoUrl.trim().length > 0 && hasTitle && hasDescription
+    } else {
+      return selectedFile !== null && hasTitle && hasDescription
+    }
+  }, [uploadMethod, formData.videoUrl, formData.title, formData.description, selectedFile])
+
+  // File validation and selection - memoized
+  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (!file) return
-
-    // Validate file type
-    const validTypes = ['video/mp4', 'video/quicktime', 'video/x-msvideo', 'video/webm', 'video/x-matroska']
-    if (!validTypes.includes(file.type)) {
-      setError('Please select a valid video file (MP4, MOV, AVI, WebM, or MKV)')
+    if (!file) {
       return
     }
 
-    // Validate file size (max 500MB)
-    const maxSize = 500 * 1024 * 1024
-    if (file.size > maxSize) {
+    // Validate file type
+    if (!VALID_VIDEO_TYPES.includes(file.type)) {
+      setError('Please select a valid video file (MP4, MOV, AVI, WebM, or MKV)')
+      setSelectedFile(null)
+      return
+    }
+
+    // Validate file size
+    if (file.size > MAX_FILE_SIZE) {
       setError('Video file must be less than 500MB')
+      setSelectedFile(null)
       return
     }
 
     setSelectedFile(file)
     setError(null)
-  }
+  }, [])
 
-  const uploadFileToStorage = async (file: File): Promise<string> => {
+  // Upload file to Firebase Storage - memoized
+  const uploadFile = useCallback(async (file: File, userId: string): Promise<string> => {
     return new Promise((resolve, reject) => {
       const timestamp = Date.now()
-      const fileName = `video-reviews/${user!.uid}/${timestamp}_${file.name}`
+      const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_')
+      const fileName = `video-reviews/${userId}/${timestamp}_${sanitizedFileName}`
       const storageRef = ref(storage, fileName)
       const uploadTask = uploadBytesResumable(storageRef, file)
 
@@ -101,37 +151,46 @@ export default function VideoReviewRequestPage() {
           const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
           setUploadProgress(Math.round(progress))
         },
-        (error) => {
-          console.error('Upload error:', error)
-          reject(error)
+        (uploadError) => {
+          console.error('Upload error:', uploadError)
+          reject(new Error('Failed to upload video file'))
         },
         async () => {
-          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref)
-          resolve(downloadURL)
+          try {
+            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref)
+            resolve(downloadURL)
+          } catch (err) {
+            reject(new Error('Failed to get download URL'))
+          }
         }
       )
     })
-  }
+  }, [])
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Submit form - memoized
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!isValid || !user) return
+
+    if (!isFormValid || !user?.uid) {
+      return
+    }
 
     setIsSubmitting(true)
     setError(null)
 
     try {
-      let videoUrl = formData.videoUrl.trim()
+      let finalVideoUrl = formData.videoUrl.trim()
 
-      // If file upload method, upload file first
+      // Upload file if using file method
       if (uploadMethod === 'file' && selectedFile) {
         setIsUploading(true)
         console.log('📤 Uploading video file to Firebase Storage...')
-        videoUrl = await uploadFileToStorage(selectedFile)
-        console.log('✅ Video uploaded successfully:', videoUrl)
+        finalVideoUrl = await uploadFile(selectedFile, user.uid)
+        console.log('✅ Video uploaded successfully')
         setIsUploading(false)
       }
 
+      // Submit request to API
       const response = await fetch('/api/athlete/video-review/request', {
         method: 'POST',
         headers: {
@@ -139,8 +198,8 @@ export default function VideoReviewRequestPage() {
         },
         body: JSON.stringify({
           athleteId: user.uid,
-          assignedCoachUid: coachId,
-          videoUrl,
+          assignedCoachUid: coach.id,
+          videoUrl: finalVideoUrl,
           title: formData.title.trim(),
           description: formData.description.trim(),
           specificQuestions: formData.specificQuestions.trim()
@@ -155,21 +214,58 @@ export default function VideoReviewRequestPage() {
 
       console.log('✅ Video review request submitted successfully')
 
-      // Show success message
+      // Show success screen
       setShowSuccess(true)
 
-      // Redirect after a short delay
+      // Redirect after delay
       setTimeout(() => {
         router.push('/dashboard/athlete/video-reviews')
       }, 2000)
     } catch (err) {
       console.error('❌ Error submitting video review request:', err)
-      setError(err instanceof Error ? err.message : 'Failed to submit request. Please try again.')
+      const errorMessage = err instanceof Error ? err.message : 'Failed to submit request. Please try again.'
+      setError(errorMessage)
       setIsSubmitting(false)
       setIsUploading(false)
     }
-  }
+  }, [isFormValid, user?.uid, formData, uploadMethod, selectedFile, coach.id, uploadFile, router])
 
+  // Handle upload method change - memoized
+  const switchToUrlMethod = useCallback(() => {
+    setUploadMethod('url')
+    setSelectedFile(null)
+    setError(null)
+  }, [])
+
+  const switchToFileMethod = useCallback(() => {
+    setUploadMethod('file')
+    setFormData(prev => ({ ...prev, videoUrl: '' }))
+    setError(null)
+  }, [])
+
+  // Handle form field changes - memoized
+  const updateVideoUrl = useCallback((value: string) => {
+    setFormData(prev => ({ ...prev, videoUrl: value }))
+  }, [])
+
+  const updateTitle = useCallback((value: string) => {
+    setFormData(prev => ({ ...prev, title: value }))
+  }, [])
+
+  const updateDescription = useCallback((value: string) => {
+    setFormData(prev => ({ ...prev, description: value }))
+  }, [])
+
+  const updateSpecificQuestions = useCallback((value: string) => {
+    setFormData(prev => ({ ...prev, specificQuestions: value }))
+  }, [])
+
+  // Navigation handlers - memoized
+  const goBack = useCallback(() => {
+    router.back()
+  }, [router])
+
+  // Success screen
   if (showSuccess) {
     return (
       <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
@@ -183,7 +279,7 @@ export default function VideoReviewRequestPage() {
               Request Submitted Successfully!
             </h2>
             <p className="text-lg mb-6" style={{ color: '#666' }}>
-              {coachName} has been notified and will review your video soon.
+              {coach.name} has been notified and will review your video soon.
             </p>
             <p className="text-sm" style={{ color: '#999' }}>
               Redirecting to your video reviews...
@@ -194,19 +290,21 @@ export default function VideoReviewRequestPage() {
     )
   }
 
+  // Main form
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
       <AppHeader
         title="Request Video Review"
-        subtitle={`Get personalized feedback from ${coachName}`}
+        subtitle={`Get personalized feedback from ${coach.name}`}
       />
 
       <main className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Back Button */}
         <button
-          onClick={() => router.back()}
+          onClick={goBack}
           className="flex items-center gap-2 mb-6 px-4 py-2 rounded-lg hover:bg-white/50 transition-colors"
           style={{ color: '#000000' }}
+          type="button"
         >
           <ArrowLeft className="w-5 h-5" />
           Back
@@ -246,11 +344,7 @@ export default function VideoReviewRequestPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <button
                   type="button"
-                  onClick={() => {
-                    setUploadMethod('url')
-                    setSelectedFile(null)
-                    setError(null)
-                  }}
+                  onClick={switchToUrlMethod}
                   disabled={isSubmitting || isUploading}
                   className={`p-6 rounded-xl border-2 transition-all text-left ${
                     uploadMethod === 'url'
@@ -270,11 +364,7 @@ export default function VideoReviewRequestPage() {
 
                 <button
                   type="button"
-                  onClick={() => {
-                    setUploadMethod('file')
-                    setFormData({ ...formData, videoUrl: '' })
-                    setError(null)
-                  }}
+                  onClick={switchToFileMethod}
                   disabled={isSubmitting || isUploading}
                   className={`p-6 rounded-xl border-2 transition-all text-left ${
                     uploadMethod === 'file'
@@ -304,7 +394,7 @@ export default function VideoReviewRequestPage() {
                 <input
                   type="url"
                   value={formData.videoUrl}
-                  onChange={(e) => setFormData({ ...formData, videoUrl: e.target.value })}
+                  onChange={(e) => updateVideoUrl(e.target.value)}
                   placeholder="https://vimeo.com/... or https://drive.google.com/..."
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 transition-colors text-base"
                   required
@@ -388,7 +478,7 @@ export default function VideoReviewRequestPage() {
               <input
                 type="text"
                 value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                onChange={(e) => updateTitle(e.target.value)}
                 placeholder="e.g., Guard Pass Technique - Competition Footage"
                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 transition-colors text-base"
                 required
@@ -403,7 +493,7 @@ export default function VideoReviewRequestPage() {
               </label>
               <textarea
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(e) => updateDescription(e.target.value)}
                 placeholder="Describe what's in the video and what aspect of your performance you'd like reviewed. Be specific about what you want feedback on."
                 rows={5}
                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 transition-colors resize-none text-base"
@@ -422,7 +512,7 @@ export default function VideoReviewRequestPage() {
               </label>
               <textarea
                 value={formData.specificQuestions}
-                onChange={(e) => setFormData({ ...formData, specificQuestions: e.target.value })}
+                onChange={(e) => updateSpecificQuestions(e.target.value)}
                 placeholder="Any specific questions or areas you want your coach to focus on? For example: 'Am I keeping my elbows tight?' or 'How's my posture during the takedown?'"
                 rows={4}
                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 transition-colors resize-none text-base"
@@ -434,7 +524,7 @@ export default function VideoReviewRequestPage() {
             <div className="flex gap-4 pt-6 border-t border-gray-200">
               <button
                 type="button"
-                onClick={() => router.back()}
+                onClick={goBack}
                 disabled={isSubmitting || isUploading}
                 className="px-8 py-4 rounded-lg transition-colors font-medium text-base hover:bg-gray-100 disabled:opacity-50"
                 style={{ backgroundColor: '#E8E6D8', color: '#000000' }}
@@ -443,10 +533,10 @@ export default function VideoReviewRequestPage() {
               </button>
               <button
                 type="submit"
-                disabled={!isValid || isSubmitting || isUploading}
+                disabled={!isFormValid || isSubmitting || isUploading}
                 className="flex-1 py-4 px-8 rounded-lg flex items-center justify-center gap-3 transition-all disabled:opacity-50 font-semibold text-base shadow-lg hover:shadow-xl"
                 style={{
-                  backgroundColor: isValid && !isSubmitting && !isUploading ? '#16A34A' : '#9CA3AF',
+                  backgroundColor: isFormValid && !isSubmitting && !isUploading ? '#16A34A' : '#9CA3AF',
                   color: '#FFFFFF'
                 }}
               >
