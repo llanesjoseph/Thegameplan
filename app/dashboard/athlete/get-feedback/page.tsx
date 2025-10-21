@@ -227,9 +227,9 @@ export default function GetFeedbackPage() {
         }
 
         // Success UI (avoid throwing / global error)
-        toast.success('Video uploaded successfully! Your coach will review it soon.');
+        toast.success('✅ Submission complete! Your coach will review it soon.');
 
-        // Reset form safely without navigation that can trigger boundary in iframe
+        // Reset form safely and optionally redirect to reviews
         setTimeout(() => {
           setVideoFile(null);
           setContext('');
@@ -242,7 +242,7 @@ export default function GetFeedbackPage() {
           if (!isEmbedded) {
             router.push('/dashboard/athlete/reviews');
           }
-        }, 1200);
+        }, 800);
       });
       return;
 
