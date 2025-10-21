@@ -108,6 +108,8 @@ export async function createSubmission(
     videoFileSize: number;
     videoStoragePath: string;
     coachId?: string;
+    skillId?: string;
+    teamId?: string;
   }
 ): Promise<string> {
   try {
@@ -147,7 +149,6 @@ export async function createSubmission(
       athleteContext: data.athleteContext,
       athleteGoals: data.athleteGoals,
       specificQuestions: data.specificQuestions,
-      privacyLevel: data.privacyLevel,
 
       // Metrics
       viewCount: 0,

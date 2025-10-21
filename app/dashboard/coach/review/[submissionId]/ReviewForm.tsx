@@ -75,11 +75,7 @@ export default function ReviewForm({
             coachPhotoUrl: coachPhotoUrl,
             teamId: submission.teamId || '',
             skillId: submission.skillId || '',
-            rubricScores: [],
-            timecodes: [],
-            drillRecommendations: [],
             overallFeedback: '',
-            nextSteps: '',
             status: 'draft',
           });
           setReviewId(newReviewId);
@@ -95,16 +91,16 @@ export default function ReviewForm({
 
   // Auto-save functionality
   const performAutoSave = useCallback(async () => {
-    if (!reviewId) return;
+    if (!reviewId || !overallFeedback.trim()) return;
 
     setAutoSaving(true);
     try {
       await saveDraftReview(
         reviewId,
-        rubricScores,
-        timecodes,
-        drillRecommendations,
         overallFeedback,
+        undefined, // rubricScores
+        undefined, // timecodes
+        undefined, // drillRecommendations
         nextSteps,
         strengths,
         areasForImprovement
@@ -117,9 +113,6 @@ export default function ReviewForm({
     }
   }, [
     reviewId,
-    rubricScores,
-    timecodes,
-    drillRecommendations,
     overallFeedback,
     nextSteps,
     strengths,
@@ -222,10 +215,10 @@ export default function ReviewForm({
     try {
       await saveDraftReview(
         reviewId,
-        rubricScores,
-        timecodes,
-        drillRecommendations,
         overallFeedback,
+        undefined, // rubricScores
+        undefined, // timecodes
+        undefined, // drillRecommendations
         nextSteps,
         strengths.filter(s => s.trim()),
         areasForImprovement.filter(a => a.trim())
@@ -248,37 +241,15 @@ export default function ReviewForm({
       return;
     }
 
-    if (!nextSteps.trim()) {
-      toast.error('Next steps are required');
-      return;
-    }
-
-    // Only validate rubric scores if rubric is provided
-    if (rubric) {
-      if (rubricScores.length === 0) {
-        toast.error('Please score all rubric criteria');
-        return;
-      }
-
-      // Check if all criteria have been scored
-      const scoredCriteriaIds = new Set(rubricScores.map(s => s.criteriaId));
-      const allCriteriaScored = rubric.criteria.every(c => scoredCriteriaIds.has(c.id));
-
-      if (!allCriteriaScored) {
-        toast.error('Please score all rubric criteria');
-        return;
-      }
-    }
-
     setLoading(true);
     try {
       // Save final version
       await saveDraftReview(
         reviewId,
-        rubricScores,
-        timecodes,
-        drillRecommendations,
         overallFeedback,
+        undefined, // rubricScores
+        undefined, // timecodes
+        undefined, // drillRecommendations
         nextSteps,
         strengths.filter(s => s.trim()),
         areasForImprovement.filter(a => a.trim())
@@ -329,65 +300,8 @@ export default function ReviewForm({
           onDurationChange={setVideoDuration}
           timecodes={timecodes}
         />
-        <div className="mt-4 flex items-center justify-between">
-          <Button
-            onClick={handleAddTimecode}
-            variant="outline"
-            className="flex items-center gap-2"
-          >
-            <Clock className="h-4 w-4" />
-            Add Timecode at {Math.floor(currentTime / 60)}:
-            {String(Math.floor(currentTime % 60)).padStart(2, '0')}
-          </Button>
-          <span className="text-sm text-gray-600">
-            Duration: {Math.floor(videoDuration / 60)}:
-            {String(Math.floor(videoDuration % 60)).padStart(2, '0')}
-          </span>
-        </div>
       </div>
 
-      {/* Timecodes Section */}
-      {timecodes.length > 0 && (
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <h2 className="text-xl font-semibold mb-4">Timecoded Feedback</h2>
-          <TimecodeEditor
-            timecodes={timecodes}
-            onUpdate={handleUpdateTimecode}
-            onDelete={handleDeleteTimecode}
-            onSeek={handleSeekToTimecode}
-          />
-        </div>
-      )}
-
-      {/* Rubric Scoring Section - Only show if rubric is available */}
-      {rubric && (
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">Rubric Assessment</h2>
-            <div className="text-lg font-medium">
-              Average Score: <span className="text-blue-600">{averageScore}/5</span>
-            </div>
-          </div>
-          <RubricScoring
-            rubric={rubric}
-            scores={rubricScores}
-            onChange={setRubricScores}
-            readOnly={false}
-          />
-        </div>
-      )}
-
-      {/* Drill Recommendations Section */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <h2 className="text-xl font-semibold mb-4">Drill Recommendations</h2>
-        <DrillSelector
-          sport={submission.skillName?.split(' ')[0] || 'General'} // Extract sport from skill name or use 'General'
-          recommendations={drillRecommendations}
-          onAdd={handleAddDrill}
-          onUpdate={handleUpdateDrill}
-          onRemove={handleRemoveDrill}
-        />
-      </div>
 
       {/* Overall Feedback Section */}
       <div className="bg-white rounded-lg shadow-sm p-6">

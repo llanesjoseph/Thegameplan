@@ -60,8 +60,9 @@ export default function ReviewDetail({
     feedback: true,
   });
 
-  // Calculate average rubric score
+  // Calculate average rubric score (if rubric scores exist)
   const averageScore = useMemo(() => {
+    if (!review.rubricScores) return 0;
     return calculateAverageRubricScore(review.rubricScores);
   }, [review.rubricScores]);
 
@@ -229,7 +230,7 @@ export default function ReviewDetail({
       </div>
 
       {/* Timecoded Feedback */}
-      {review.timecodes.length > 0 && (
+      {review.timecodes && review.timecodes.length > 0 && (
         <div className="bg-white rounded-lg shadow-sm p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold">
@@ -261,7 +262,7 @@ export default function ReviewDetail({
       )}
 
       {/* Rubric Scores */}
-      {rubric && review.rubricScores.length > 0 && (
+      {rubric && review.rubricScores && review.rubricScores.length > 0 && (
         <div className="bg-white rounded-lg shadow-sm p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold">Skill Assessment</h2>
@@ -285,7 +286,7 @@ export default function ReviewDetail({
       )}
 
       {/* Drill Recommendations */}
-      {review.drillRecommendations.length > 0 && (
+      {review.drillRecommendations && review.drillRecommendations.length > 0 && (
         <div className="bg-white rounded-lg shadow-sm p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold flex items-center gap-2">

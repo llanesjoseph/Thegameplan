@@ -37,11 +37,11 @@ export async function GET(
       );
     }
 
-    // Check permissions
+    // Check permissions - only athlete or assigned/claimed coach can view
     const canView =
       submission.athleteUid === userId ||
       submission.claimedBy === userId ||
-      submission.privacyLevel === 'team_only'; // Team members can view
+      submission.coachId === userId;
 
     if (!canView) {
       return NextResponse.json(
@@ -110,11 +110,11 @@ export async function POST(
       );
     }
 
-    // Check permissions
+    // Check permissions - only athlete or assigned/claimed coach can comment
     const canComment =
       submission.athleteUid === userId ||
       submission.claimedBy === userId ||
-      submission.privacyLevel === 'team_only';
+      submission.coachId === userId;
 
     if (!canComment) {
       return NextResponse.json(

@@ -134,7 +134,6 @@ export interface Submission {
   athleteContext: string;
   athleteGoals?: string;
   specificQuestions?: string;
-  privacyLevel?: PrivacyLevel; // Optional - simplified UX
 
   // Follow-up tracking
   followupRequested?: boolean;
@@ -192,14 +191,14 @@ export interface Review {
   teamId: string;
   skillId: string;
 
-  // Structured feedback
-  rubricScores: RubricScore[];
-  timecodes: Timecode[];
-  drillRecommendations: DrillRecommendation[];
+  // Structured feedback (optional)
+  rubricScores?: RubricScore[];
+  timecodes?: Timecode[];
+  drillRecommendations?: DrillRecommendation[];
 
-  // Summary feedback
+  // Written critique (required)
   overallFeedback: string;
-  nextSteps: string;
+  nextSteps?: string;
   strengths?: string[];
   areasForImprovement?: string[];
 
@@ -275,10 +274,6 @@ export interface CreateSubmissionRequest {
   athleteContext: string;
   athleteGoals?: string;
   specificQuestions?: string;
-  // Optional fields for backwards compatibility
-  skillId?: string;
-  teamId?: string;
-  privacyLevel?: PrivacyLevel;
 }
 
 export interface CreateSubmissionResponse {
@@ -298,11 +293,12 @@ export interface ClaimSubmissionResponse {
 
 export interface PublishReviewRequest {
   submissionId: string;
-  rubricScores: RubricScore[];
-  timecodes: Timecode[];
-  drillRecommendations: DrillRecommendation[];
   overallFeedback: string;
-  nextSteps: string;
+  // Optional structured feedback
+  rubricScores?: RubricScore[];
+  timecodes?: Timecode[];
+  drillRecommendations?: DrillRecommendation[];
+  nextSteps?: string;
   strengths?: string[];
   areasForImprovement?: string[];
 }

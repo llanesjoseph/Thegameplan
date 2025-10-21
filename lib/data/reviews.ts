@@ -54,27 +54,31 @@ export async function updateReview(
 
 export async function saveDraftReview(
   reviewId: string,
-  rubricScores: RubricScore[],
-  timecodes: Timecode[],
-  drillRecommendations: DrillRecommendation[],
-  overallFeedback?: string,
+  overallFeedback: string,
+  rubricScores?: RubricScore[],
+  timecodes?: Timecode[],
+  drillRecommendations?: DrillRecommendation[],
   nextSteps?: string,
   strengths?: string[],
   areasForImprovement?: string[]
 ): Promise<void> {
   const reviewRef = doc(db, COLLECTION_NAME, reviewId);
 
-  await updateDoc(reviewRef, {
-    rubricScores,
-    timecodes,
-    drillRecommendations,
-    overallFeedback: overallFeedback || '',
-    nextSteps: nextSteps || '',
-    strengths: strengths || [],
-    areasForImprovement: areasForImprovement || [],
+  const updateData: any = {
+    overallFeedback,
     status: 'draft',
     updatedAt: serverTimestamp(),
-  });
+  };
+
+  // Only include optional fields if provided
+  if (rubricScores) updateData.rubricScores = rubricScores;
+  if (timecodes) updateData.timecodes = timecodes;
+  if (drillRecommendations) updateData.drillRecommendations = drillRecommendations;
+  if (nextSteps) updateData.nextSteps = nextSteps;
+  if (strengths) updateData.strengths = strengths;
+  if (areasForImprovement) updateData.areasForImprovement = areasForImprovement;
+
+  await updateDoc(reviewRef, updateData);
 }
 
 export async function publishReview(reviewId: string): Promise<void> {
@@ -89,12 +93,8 @@ export async function publishReview(reviewId: string): Promise<void> {
     const review = reviewDoc.data() as Review;
 
     // Validate required fields
-    if (!review.overallFeedback || !review.nextSteps) {
-      throw new Error('Overall feedback and next steps are required to publish');
-    }
-
-    if (!review.rubricScores || review.rubricScores.length === 0) {
-      throw new Error('Rubric scores are required to publish');
+    if (!review.overallFeedback) {
+      throw new Error('Overall feedback is required to publish');
     }
 
     // Update review status
