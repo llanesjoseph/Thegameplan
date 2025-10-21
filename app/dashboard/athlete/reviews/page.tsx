@@ -169,13 +169,13 @@ export default function AthleteReviewsPage() {
           </div>
         </div>
 
-        {/* Submit Form View */}
+        {/* Submit Form View - Using the new Get Feedback system that copies coach lesson upload pattern */}
         {showSubmitForm && (
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden" style={{ height: 'calc(100vh - 300px)' }}>
             <iframe
-              src="/dashboard/athlete/submit-video?embedded=true"
+              src="/dashboard/athlete/get-feedback?embedded=true"
               className="w-full h-full border-0"
-              title="Submit Video"
+              title="Get Feedback"
             />
           </div>
         )}

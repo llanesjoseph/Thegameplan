@@ -14,6 +14,11 @@ export default function GetFeedbackPage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Check if we're embedded in an iframe
+  const isEmbedded = typeof window !== 'undefined' &&
+    (new URLSearchParams(window.location.search).get('embedded') === 'true' ||
+     window.self !== window.top);
+
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [context, setContext] = useState('');
   const [goals, setGoals] = useState('');
@@ -124,18 +129,20 @@ export default function GetFeedbackPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className={`min-h-screen bg-gray-50 ${isEmbedded ? 'p-4' : 'p-6'}`}>
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <button
-            onClick={() => router.back()}
-            className="flex items-center text-gray-600 hover:text-gray-900 mb-4"
-          >
-            <ArrowLeft className="w-5 h-5 mr-2" />
-            Back
-          </button>
-          <h1 className="text-3xl font-bold text-gray-900">Get Feedback</h1>
+          {!isEmbedded && (
+            <button
+              onClick={() => router.back()}
+              className="flex items-center text-gray-600 hover:text-gray-900 mb-4"
+            >
+              <ArrowLeft className="w-5 h-5 mr-2" />
+              Back
+            </button>
+          )}
+          <h1 className={`${isEmbedded ? 'text-2xl' : 'text-3xl'} font-bold text-gray-900`}>Get Feedback</h1>
           <p className="mt-2 text-gray-600">
             Upload a video of your performance to receive personalized coaching feedback
           </p>
