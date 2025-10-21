@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { storage, db } from '@/lib/firebase.client';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { ArrowLeft, Upload, Video, Check } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -89,7 +89,7 @@ export default function GetFeedbackPage() {
       const downloadUrl = await getDownloadURL(snapshot.ref);
 
       // Step 3: Update feedback request with video URL
-      await docRef.update({
+      await updateDoc(docRef, {
         videoUrl: downloadUrl,
         videoStoragePath: storagePath,
         status: 'awaiting_review',
