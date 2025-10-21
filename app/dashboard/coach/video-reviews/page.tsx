@@ -1,11 +1,11 @@
 'use client'
 
 /**
- * Coach Video Review Requests Dashboard
- * Displays all video review requests from athletes
+ * Coach Video Review Requests Dashboard - Clean Implementation
+ * Complete rewrite to eliminate infinite re-render issues
  */
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import { Video, ExternalLink, MessageSquare, Clock, Check, Star, Play, Eye, Send, User, Search, Filter } from 'lucide-react'
@@ -28,34 +28,29 @@ interface VideoReviewRequest {
   rating?: number
 }
 
+type FilterStatus = 'all' | 'pending' | 'in_review' | 'completed'
+
 export default function VideoReviewsPage() {
   const { user } = useAuth()
   const searchParams = useSearchParams()
-  const isEmbedded = searchParams.get('embedded') === 'true'
+  const isEmbedded = searchParams?.get('embedded') === 'true'
+
   const [requests, setRequests] = useState<VideoReviewRequest[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedRequest, setSelectedRequest] = useState<VideoReviewRequest | null>(null)
   const [response, setResponse] = useState('')
   const [rating, setRating] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'in_review' | 'completed'>('all')
+  const [filterStatus, setFilterStatus] = useState<FilterStatus>('all')
   const [searchQuery, setSearchQuery] = useState('')
 
-  useEffect(() => {
-    if (user?.uid) {
-      loadReviewRequests()
-    }
-  }, [user])
-
-  const loadReviewRequests = async () => {
-    if (!user?.uid) return
-
+  // Load review requests - memoized to prevent infinite loops
+  const loadReviewRequests = useCallback(async (userId: string, authToken: string) => {
     try {
       setLoading(true)
-      const token = await user.getIdToken()
       const response = await fetch('/api/coach/video-reviews/list', {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${authToken}`
         }
       })
 
@@ -88,9 +83,19 @@ export default function VideoReviewsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, []) // No dependencies - function is stable
 
-  const markAsViewed = async (requestId: string) => {
+  // Effect to load requests when user changes
+  useEffect(() => {
+    if (user?.uid) {
+      user.getIdToken().then(token => {
+        loadReviewRequests(user.uid, token)
+      })
+    }
+  }, [user?.uid, loadReviewRequests])
+
+  // Mark request as viewed - memoized
+  const markAsViewed = useCallback(async (requestId: string) => {
     if (!user) return
 
     try {
@@ -106,14 +111,15 @@ export default function VideoReviewsPage() {
 
       // Update local state
       setRequests(prev => prev.map(r =>
-        r.id === requestId ? { ...r, viewedByCoach: true, status: 'in_review' } : r
+        r.id === requestId ? { ...r, viewedByCoach: true, status: 'in_review' as const } : r
       ))
     } catch (error) {
       console.error('Error marking as viewed:', error)
     }
-  }
+  }, [user])
 
-  const submitResponse = async () => {
+  // Submit feedback response - memoized
+  const submitFeedback = useCallback(async () => {
     if (!selectedRequest || !response.trim() || !user) return
 
     try {
@@ -142,25 +148,32 @@ export default function VideoReviewsPage() {
       setResponse('')
       setRating(0)
       setSelectedRequest(null)
-      await loadReviewRequests()
+
+      // Reload requests
+      if (user?.uid) {
+        const token = await user.getIdToken()
+        await loadReviewRequests(user.uid, token)
+      }
     } catch (error) {
       console.error('Error submitting response:', error)
       alert('❌ Failed to submit response. Please try again.')
     } finally {
       setIsSubmitting(false)
     }
-  }
+  }, [selectedRequest, response, rating, user, loadReviewRequests])
 
-  const getStatusColor = (status: string) => {
+  // Get status color - memoized
+  const getStatusColor = useCallback((status: string) => {
     switch (status) {
       case 'pending': return 'bg-yellow-100 text-yellow-800'
       case 'in_review': return 'bg-blue-100 text-blue-800'
       case 'completed': return 'bg-green-100 text-green-800'
       default: return 'bg-gray-100 text-gray-800'
     }
-  }
+  }, [])
 
-  const getVideoEmbedUrl = (url: string): { type: 'vimeo' | 'youtube' | 'direct', embedUrl: string } => {
+  // Get video embed URL - memoized
+  const getVideoEmbedUrl = useCallback((url: string): { type: 'vimeo' | 'youtube' | 'direct', embedUrl: string } => {
     // Vimeo
     if (url.includes('vimeo.com')) {
       const vimeoId = url.split('/').pop()?.split('?')[0]
@@ -180,26 +193,59 @@ export default function VideoReviewsPage() {
 
     // Direct video URL
     return { type: 'direct', embedUrl: url }
-  }
+  }, [])
 
-  // Filter and search logic
-  const filteredRequests = requests
-    .filter(req => {
-      if (filterStatus === 'all') return true
-      if (filterStatus === 'pending') return req.status === 'pending' && !req.viewedByCoach
-      if (filterStatus === 'in_review') return req.status === 'in_review' || (req.viewedByCoach && req.status !== 'completed')
-      if (filterStatus === 'completed') return req.status === 'completed'
-      return true
-    })
-    .filter(req => {
-      if (!searchQuery) return true
-      const query = searchQuery.toLowerCase()
-      return (
-        req.title.toLowerCase().includes(query) ||
-        req.athleteName.toLowerCase().includes(query) ||
-        req.description.toLowerCase().includes(query)
-      )
-    })
+  // Open review modal - memoized
+  const openReviewModal = useCallback((request: VideoReviewRequest) => {
+    setSelectedRequest(request)
+    setResponse(request.coachResponse || '')
+    setRating(request.rating || 0)
+    if (!request.viewedByCoach) {
+      markAsViewed(request.id)
+    }
+  }, [markAsViewed])
+
+  // Close review modal - memoized
+  const closeReviewModal = useCallback(() => {
+    setSelectedRequest(null)
+    setResponse('')
+    setRating(0)
+  }, [])
+
+  // Filter and search logic - memoized
+  const filteredRequests = useMemo(() => {
+    return requests
+      .filter(req => {
+        if (filterStatus === 'all') return true
+        if (filterStatus === 'pending') return req.status === 'pending' && !req.viewedByCoach
+        if (filterStatus === 'in_review') return req.status === 'in_review' || (req.viewedByCoach && req.status !== 'completed')
+        if (filterStatus === 'completed') return req.status === 'completed'
+        return true
+      })
+      .filter(req => {
+        if (!searchQuery) return true
+        const query = searchQuery.toLowerCase()
+        return (
+          req.title.toLowerCase().includes(query) ||
+          req.athleteName.toLowerCase().includes(query) ||
+          req.description.toLowerCase().includes(query)
+        )
+      })
+  }, [requests, filterStatus, searchQuery])
+
+  // Count stats - memoized
+  const { pendingCount, inReviewCount, completedCount } = useMemo(() => {
+    const pending = requests.filter(r => r.status === 'pending' && !r.viewedByCoach).length
+    const inReview = requests.filter(r => r.status === 'in_review' || (r.viewedByCoach && r.status !== 'completed')).length
+    const completed = requests.filter(r => r.status === 'completed').length
+    return { pendingCount: pending, inReviewCount: inReview, completedCount: completed }
+  }, [requests])
+
+  // Clear filters - memoized
+  const clearFilters = useCallback(() => {
+    setSearchQuery('')
+    setFilterStatus('all')
+  }, [])
 
   if (loading) {
     return (
@@ -213,10 +259,6 @@ export default function VideoReviewsPage() {
       </div>
     )
   }
-
-  const pendingCount = requests.filter(r => r.status === 'pending' && !r.viewedByCoach).length
-  const inReviewCount = requests.filter(r => r.status === 'in_review' || (r.viewedByCoach && r.status !== 'completed')).length
-  const completedCount = requests.filter(r => r.status === 'completed').length
 
   return (
     <div className={isEmbedded ? "bg-transparent p-4" : "min-h-screen bg-gray-50 p-4 sm:p-8"}>
@@ -243,7 +285,7 @@ export default function VideoReviewsPage() {
           </div>
         )}
 
-        {/* Search and Filter Bar - Always show */}
+        {/* Search and Filter Bar */}
         <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 flex flex-col sm:flex-row gap-4 mb-6">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -350,10 +392,7 @@ export default function VideoReviewsPage() {
             </p>
             {(searchQuery || filterStatus !== 'all') ? (
               <button
-                onClick={() => {
-                  setSearchQuery('')
-                  setFilterStatus('all')
-                }}
+                onClick={clearFilters}
                 className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
                 Clear Filters
@@ -435,14 +474,7 @@ export default function VideoReviewsPage() {
                     </a>
                     {request.status !== 'completed' && (
                       <button
-                        onClick={() => {
-                          setSelectedRequest(request)
-                          setResponse(request.coachResponse || '')
-                          setRating(request.rating || 0)
-                          if (!request.viewedByCoach) {
-                            markAsViewed(request.id)
-                          }
-                        }}
+                        onClick={() => openReviewModal(request)}
                         className="flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                       >
                         <Play className="w-4 h-4" />
@@ -533,6 +565,7 @@ export default function VideoReviewsPage() {
                           key={star}
                           onClick={() => setRating(star)}
                           className="transition-transform hover:scale-110"
+                          type="button"
                         >
                           <Star
                             className={`w-8 h-8 ${
@@ -548,6 +581,7 @@ export default function VideoReviewsPage() {
                       <button
                         onClick={() => setRating(0)}
                         className="text-xs text-gray-500 hover:text-gray-700 mt-1"
+                        type="button"
                       >
                         Clear rating
                       </button>
@@ -570,20 +604,18 @@ export default function VideoReviewsPage() {
                   {/* Action Buttons */}
                   <div className="mt-6 flex gap-3">
                     <button
-                      onClick={() => {
-                        setSelectedRequest(null)
-                        setResponse('')
-                        setRating(0)
-                      }}
+                      onClick={closeReviewModal}
                       disabled={isSubmitting}
                       className="flex-1 py-3 px-6 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50 font-medium"
+                      type="button"
                     >
                       Cancel
                     </button>
                     <button
-                      onClick={submitResponse}
+                      onClick={submitFeedback}
                       disabled={!response.trim() || isSubmitting}
                       className="flex-1 py-3 px-6 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 font-semibold"
+                      type="button"
                     >
                       {isSubmitting ? 'Submitting...' : 'Submit Review'}
                     </button>
