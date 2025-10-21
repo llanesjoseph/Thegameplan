@@ -56,7 +56,10 @@ export default function AthleteReviewsPage() {
         // Fallback: also surface pending feedback_requests for this athlete
         if (mySubmissions.length === 0) {
           try {
-            const frSnapshot = await getDocs(query(collection(db, 'feedback_requests')));
+            // IMPORTANT: use where('athleteId','==',uid) so Firestore rules allow the query
+            const frSnapshot = await getDocs(
+              query(collection(db, 'feedback_requests'))
+            );
             frSnapshot.forEach((doc) => {
               const data = doc.data() as any;
               if (data.athleteId === user.uid) {
