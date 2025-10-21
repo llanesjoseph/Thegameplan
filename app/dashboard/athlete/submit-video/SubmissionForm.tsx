@@ -135,8 +135,16 @@ export default function SubmissionForm({ user }: SubmissionFormProps) {
           setUploadProgress(progress);
           if (progress >= 100) {
             clearInterval(interval);
-            setIsSubmitting(false);
-            toast.success('Submission complete! You can close this window.');
+            setTimeout(() => {
+              setIsSubmitting(false);
+              setUploadProgress(0);
+              clearFile(); // Clear the form
+              toast.success('✅ Submission complete! Video received successfully.');
+              // Reset form fields
+              setAthleteContext('');
+              setAthleteGoals('');
+              setSpecificQuestions('');
+            }, 1000);
           }
         }, 500);
 
