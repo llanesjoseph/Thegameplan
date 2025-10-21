@@ -60,7 +60,7 @@ export default function VideoReviewRequestPage() {
     }
 
     loadCoachInfo()
-  }, [user])
+  }, [user?.uid])
 
   const isValid = uploadMethod === 'url'
     ? formData.videoUrl.trim() !== '' && formData.title.trim() !== '' && formData.description.trim() !== ''
