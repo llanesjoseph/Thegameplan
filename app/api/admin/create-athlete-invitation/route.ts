@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
     expiresAt.setDate(expiresAt.getDate() + (expiresInDays || 14)) // Athletes get 14 days by default
 
     // Create invitation URL
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://playbookd.crucibleanalytics.dev'
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://playbook.crucibleanalytics.dev'
     const invitationUrl = `${baseUrl}/athlete-onboard/${invitationCode}`
 
     // Generate QR code URL
@@ -130,9 +130,9 @@ export async function POST(request: NextRequest) {
 
     try {
       const emailResult = await resend.emails.send({
-        from: 'PLAYBOOKD Team <noreply@mail.crucibleanalytics.dev>',
+        from: 'Athleap Team <noreply@mail.crucibleanalytics.dev>',
         to: athleteEmail,
-        subject: `Invitation to Join ${coachName}'s ${sport} Team on PLAYBOOKD`,
+        subject: `Invitation to Join ${coachName}'s ${sport} Team on Athleap`,
         html: generateAthleteInvitationEmail(
           athleteName,
           coachName,
@@ -162,7 +162,7 @@ export async function POST(request: NextRequest) {
     if (coachEmail) {
       try {
         await resend.emails.send({
-          from: 'PLAYBOOKD Team <noreply@mail.crucibleanalytics.dev>',
+          from: 'Athleap Team <noreply@mail.crucibleanalytics.dev>',
           to: coachEmail,
           subject: `New Athlete Invitation Sent - ${athleteName}`,
           html: generateCoachNotificationEmail(coachName, athleteName, sport, userData.displayName || userData.email)
@@ -233,18 +233,18 @@ function generateAthleteInvitationEmail(
     <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Athlete Invitation - PLAYBOOKD</title>
+      <title>Athlete Invitation - Athleap</title>
     </head>
     <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
       <div style="background: linear-gradient(135deg, #91A6EB 0%, #20B2AA 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
-        <h1 style="color: white; margin: 0; font-size: 28px;">🏆 Join PLAYBOOKD</h1>
+        <h1 style="color: white; margin: 0; font-size: 28px;">🏆 Join Athleap</h1>
       </div>
 
       <div style="background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px;">
         <h2 style="color: #91A6EB; margin-top: 0;">Hello ${athleteName}!</h2>
 
         <p style="font-size: 16px;">
-          <strong>Coach ${coachName}</strong> has invited you to join their <strong>${sport}</strong> team on PLAYBOOKD!
+          <strong>Coach ${coachName}</strong> has invited you to join their <strong>${sport}</strong> team on Athleap!
         </p>
 
         ${customMessage ? `
@@ -254,7 +254,7 @@ function generateAthleteInvitationEmail(
         ` : ''}
 
         <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border: 2px solid #91A6EB;">
-          <h3 style="color: #91A6EB; margin-top: 0;">What You'll Get on PLAYBOOKD</h3>
+          <h3 style="color: #91A6EB; margin-top: 0;">What You'll Get on Athleap</h3>
           <ul style="color: #555; padding-left: 20px;">
             <li>Access to custom playbooks and training content</li>
             <li>Track your progress and performance metrics</li>
@@ -289,7 +289,7 @@ function generateAthleteInvitationEmail(
         <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
 
         <p style="font-size: 12px; color: #999; text-align: center;">
-          If you didn't expect this invitation or have questions, please contact your coach or the PLAYBOOKD team.<br>
+          If you didn't expect this invitation or have questions, please contact your coach or the Athleap team.<br>
           This invitation is personal and should not be shared.
         </p>
       </div>
@@ -313,7 +313,7 @@ function generateCoachNotificationEmail(
     <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>New Athlete Invitation Sent - PLAYBOOKD</title>
+      <title>New Athlete Invitation Sent - Athleap</title>
     </head>
     <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
       <div style="background: linear-gradient(135deg, #20B2AA 0%, #91A6EB 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
@@ -345,7 +345,7 @@ function generateCoachNotificationEmail(
         <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
 
         <p style="font-size: 12px; color: #999; text-align: center;">
-          This is an automated notification from PLAYBOOKD.
+          This is an automated notification from Athleap.
         </p>
       </div>
     </body>

@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
     const invitationRef = await adminDb.collection('admin_invitations').add(invitationData)
 
     // Generate invitation URL
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://playbookd.crucibleanalytics.dev'
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://playbook.crucibleanalytics.dev'
     const invitationUrl = `${baseUrl}/admin-onboard/${invitationCode}`
 
     // Send email invitation
@@ -120,9 +120,9 @@ export async function POST(request: NextRequest) {
       }
 
       const emailResult = await resend.emails.send({
-        from: 'PLAYBOOKD Team <noreply@mail.crucibleanalytics.dev>',
+        from: 'Athleap Team <noreply@mail.crucibleanalytics.dev>',
         to: recipientEmail,
-        subject: 'Invitation to Join PLAYBOOKD Admin Team',
+        subject: 'Invitation to Join Athleap Admin Team',
         html: generateAdminInvitationEmail(recipientName, role, invitationUrl, customMessage, userData.displayName || userData.email)
       })
 
@@ -205,18 +205,18 @@ function generateAdminInvitationEmail(
     <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Admin Invitation - PLAYBOOKD</title>
+      <title>Admin Invitation - Athleap</title>
     </head>
     <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
       <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
-        <h1 style="color: white; margin: 0; font-size: 28px;">🛡️ PLAYBOOKD Admin Team</h1>
+        <h1 style="color: white; margin: 0; font-size: 28px;">🛡️ Athleap Admin Team</h1>
       </div>
 
       <div style="background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px;">
         <h2 style="color: #667eea; margin-top: 0;">Hello ${recipientName}!</h2>
 
         <p style="font-size: 16px;">
-          You've been invited to join the PLAYBOOKD admin team as a <strong>${roleTitle}</strong>.
+          You've been invited to join the Athleap admin team as a <strong>${roleTitle}</strong>.
         </p>
 
         ${customMessage ? `
@@ -263,7 +263,7 @@ function generateAdminInvitationEmail(
         <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
 
         <p style="font-size: 12px; color: #999; text-align: center;">
-          If you didn't expect this invitation or have questions, please contact the PLAYBOOKD team.<br>
+          If you didn't expect this invitation or have questions, please contact the Athleap team.<br>
           This invitation is personal and should not be shared.
         </p>
       </div>

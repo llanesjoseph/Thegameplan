@@ -10,7 +10,7 @@ export function getAllowedOrigin(requestOrigin: string | null): string | null {
     'http://localhost:3000',
     'http://localhost:3001',
     'http://localhost:3002',
-    'https://playbookd.crucibleanalytics.dev',
+    'https://playbook.crucibleanalytics.dev',
     process.env.NEXT_PUBLIC_APP_URL || '',
     process.env.NEXT_PUBLIC_BASE_URL || '',
   ].filter(Boolean)

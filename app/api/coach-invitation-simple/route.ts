@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create invitation URL
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://playbookd.crucibleanalytics.dev'
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://playbook.crucibleanalytics.dev'
     const invitationUrl = `${baseUrl}/coach-onboard/${invitationId}?sport=${encodeURIComponent(sport)}&email=${encodeURIComponent(coachEmail)}&name=${encodeURIComponent(coachName)}&role=${targetRole}`
 
     // Create invitation data matching admin dashboard structure
@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
       used: false,
       // CRITICAL: Auto-approve coach-to-coach invitations to create account immediately
       autoApprove: true,
-      organizationName: 'PLAYBOOKD Coaching Network',
+      organizationName: 'Athleap Coaching Network',
       inviterName: inviterEmail
     }
 
@@ -104,8 +104,8 @@ export async function POST(request: NextRequest) {
     try {
       await sendCoachInvitationEmail({
         to: coachEmail,
-        organizationName: invitationType === 'assistant' ? 'PLAYBOOKD Team Network' : 'PLAYBOOKD Coaching Network',
-        inviterName: 'PLAYBOOKD Team',
+        organizationName: invitationType === 'assistant' ? 'Athleap Team Network' : 'Athleap Coaching Network',
+        inviterName: 'Athleap Team',
         sport,
         invitationUrl,
         qrCodeUrl: null, // No QR code needed

@@ -185,7 +185,7 @@ export default function OnboardingPage() {
     <div className="bg-gradient-to-r from-sky-blue to-green text-white p-6">
      <div className="flex items-center gap-3 mb-4">
       <Sparkles className="w-8 h-8" />
-      <h1 className="text-2xl ">Welcome to PLAYBOOKD!</h1>
+      <h1 className="text-2xl ">Welcome to Athleap!</h1>
      </div>
      <p className="text-sky-100">Let&apos;s set up your profile to personalize your experience</p>
 
@@ -212,7 +212,7 @@ export default function OnboardingPage() {
        <div className="text-center mb-8">
         <User className="w-16 h-16 text-sky-blue mx-auto mb-4" />
         <h2 className="text-2xl text-dark mb-2">Tell us about yourself</h2>
-        <p className="text-gray-600">We&apos;ll use this to personalize your PLAYBOOKD experience</p>
+        <p className="text-gray-600">We&apos;ll use this to personalize your Athleap experience</p>
        </div>
 
        <div className="grid md:grid-cols-2 gap-6">
@@ -399,7 +399,7 @@ export default function OnboardingPage() {
          <span>I&apos;m interested in creating coaching content and lessons</span>
         </label>
         <p className="text-sm text-gray-600 mt-2">
-         Check this if you&apos;d like to become a content creator on PLAYBOOKD
+         Check this if you&apos;d like to become a content creator on Athleap
         </p>
        </div>
       </div>

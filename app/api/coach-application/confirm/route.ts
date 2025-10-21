@@ -20,9 +20,9 @@ export async function POST(request: NextRequest) {
 
     // Send confirmation email
     const { data, error } = await resend.emails.send({
-      from: 'PLAYBOOKD <noreply@mail.crucibleanalytics.dev>',
+      from: 'Athleap <noreply@mail.crucibleanalytics.dev>',
       to: email,
-      subject: 'Coach Application Received - PLAYBOOKD',
+      subject: 'Coach Application Received - Athleap',
       html: `
         <!DOCTYPE html>
         <html>
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
                     <tr>
                       <td style="background: linear-gradient(135deg, #8D9440 0%, #624A41 100%); padding: 40px 20px; text-align: center;">
                         <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: bold; letter-spacing: 2px;">
-                          PLAYBOOKD
+                          Athleap
                         </h1>
                       </td>
                     </tr>
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
                         </p>
 
                         <p style="margin: 0 0 20px; color: #4b5563; font-size: 16px; line-height: 1.6;">
-                          Thank you for applying to become a coach on PLAYBOOKD! We're excited to review your application and learn more about your coaching expertise.
+                          Thank you for applying to become a coach on Athleap! We're excited to review your application and learn more about your coaching expertise.
                         </p>
 
                         <div style="background-color: #f3f4f6; border-left: 4px solid #8D9440; padding: 20px; margin: 30px 0; border-radius: 4px;">
@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
                         </p>
 
                         <div style="text-align: center; margin: 30px 0;">
-                          <a href="https://playbookd.com/dashboard"
+                          <a href="https://athleap.com/dashboard"
                              style="display: inline-block; padding: 14px 32px; background-color: #8D9440; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">
                             Go to Dashboard
                           </a>
@@ -116,10 +116,10 @@ export async function POST(request: NextRequest) {
                     <tr>
                       <td style="background-color: #f9fafb; padding: 30px; text-align: center; border-top: 1px solid #e5e7eb;">
                         <p style="margin: 0 0 10px; color: #6b7280; font-size: 14px;">
-                          Questions? Contact us at <a href="mailto:support@playbookd.com" style="color: #8D9440; text-decoration: none;">support@playbookd.com</a>
+                          Questions? Contact us at <a href="mailto:support@athleap.com" style="color: #8D9440; text-decoration: none;">support@athleap.com</a>
                         </p>
                         <p style="margin: 0; color: #9ca3af; font-size: 12px;">
-                          © 2024 PLAYBOOKD. All rights reserved.
+                          © 2024 Athleap. All rights reserved.
                         </p>
                       </td>
                     </tr>

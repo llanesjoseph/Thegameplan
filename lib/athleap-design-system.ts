@@ -1,9 +1,9 @@
 /**
- * PLAYBOOKD UNIFIED DESIGN SYSTEM
+ * Athleap UNIFIED DESIGN SYSTEM
  * Single source of truth for all colors, typography, and design tokens
  */
 
-// PLAYBOOKD Official Color Palette
+// Athleap Official Color Palette
 export const playbookdColors = {
   // Primary Brand Colors
   cream: '#E8E6D8',
@@ -85,10 +85,10 @@ export const playbookdColors = {
   info: '#0EA5E9'
 }
 
-// PLAYBOOKD Typography System
+// Athleap Typography System
 export const playbookdTypography = {
   fontFamily: {
-    brand: ['Sports World', 'Impact', 'Arial Black', 'sans-serif'], // PLAYBOOKD brand font
+    brand: ['Sports World', 'Impact', 'Arial Black', 'sans-serif'], // Athleap brand font
     heading: ['Oswald', 'Impact', 'Arial Black', 'sans-serif'],     // Sports-style headings
     body: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],    // Body text
     display: ['Sports World', 'Oswald', 'Impact', 'Arial Black', 'sans-serif'] // Large displays
@@ -235,7 +235,7 @@ export const generateCSSVariables = () => {
 }
 
 // Utility Functions
-export const getPlaybookdColor = (path: string): string => {
+export const getAthleapColor = (path: string): string => {
   const keys = path.split('.')
   let current: any = playbookdColors
 
@@ -247,7 +247,7 @@ export const getPlaybookdColor = (path: string): string => {
   return typeof current === 'string' ? current : '#000000'
 }
 
-export const getPlaybookdFont = (type: 'brand' | 'heading' | 'body' | 'display'): string => {
+export const getAthleapFont = (type: 'brand' | 'heading' | 'body' | 'display'): string => {
   return playbookdTypography.fontFamily[type].join(', ')
 }
 
@@ -259,6 +259,6 @@ export default {
   spacing: playbookdSpacing,
   breakpoints: playbookdBreakpoints,
   generateCSSVariables,
-  getPlaybookdColor,
-  getPlaybookdFont
+  getAthleapColor,
+  getAthleapFont
 }

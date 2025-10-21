@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
     expiresAt.setDate(expiresAt.getDate() + (expiresInDays || 7))
 
     // Create invitation URL
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://playbookd.crucibleanalytics.dev'
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://playbook.crucibleanalytics.dev'
     const invitationUrl = `${baseUrl}/coach-onboard/${invitationCode}`
 
     // Create invitation document in 'invitations' collection (same as athlete invites)

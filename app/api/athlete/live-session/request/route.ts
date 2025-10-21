@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
 
           if (coachEmail) {
             // Construct session dashboard URL
-            const sessionUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://playbookd.crucibleanalytics.dev'}/dashboard/coach/live-sessions`
+            const sessionUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://playbook.crucibleanalytics.dev'}/dashboard/coach/live-sessions`
 
             // Send email notification
             await sendLiveSessionRequestEmail({

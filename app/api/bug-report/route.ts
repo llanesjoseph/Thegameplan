@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
       <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Bug Report - PLAYBOOKD</title>
+        <title>Bug Report - Athleap</title>
       </head>
       <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 20px; background-color: #f8fafc;">
         <div style="max-width: 800px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden;">
@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
           <!-- Header -->
           <div style="background: linear-gradient(135deg, #13367A 0%, #A01C21 100%); padding: 30px; text-align: center;">
             <h1 style="color: white; margin: 0; font-size: 28px; letter-spacing: 2px;">🐛 BUG REPORT</h1>
-            <p style="color: #87ceeb; margin: 8px 0 0 0; font-size: 14px;">PLAYBOOKD Live Testing</p>
+            <p style="color: #87ceeb; margin: 8px 0 0 0; font-size: 14px;">Athleap Live Testing</p>
           </div>
 
           <!-- Content -->
@@ -124,7 +124,7 @@ export async function POST(request: NextRequest) {
 
           <!-- Footer -->
           <div style="background: #f9fafb; text-align: center; padding: 24px; border-top: 1px solid #e5e7eb;">
-            <p style="margin: 0; font-weight: 700; color: #13367A; font-size: 16px;">PLAYBOOKD</p>
+            <p style="margin: 0; font-weight: 700; color: #13367A; font-size: 16px;">Athleap</p>
             <p style="color: #6b7280; font-size: 14px; margin: 8px 0 0 0;">For The Future of Sports</p>
           </div>
 
@@ -135,10 +135,10 @@ export async function POST(request: NextRequest) {
 
     // Send email using Resend
     const { data, error } = await resend.emails.send({
-      from: 'PLAYBOOKD Bug Reports <noreply@mail.crucibleanalytics.dev>',
+      from: 'Athleap Bug Reports <noreply@mail.crucibleanalytics.dev>',
       to: ['joseph@crucibleanalytics.dev'], // Your email
       replyTo: pageInfo.userEmail !== 'anonymous' ? pageInfo.userEmail : undefined,
-      subject: `🐛 Bug Report - ${pageInfo.url.split('/').pop() || 'PLAYBOOKD'}`,
+      subject: `🐛 Bug Report - ${pageInfo.url.split('/').pop() || 'Athleap'}`,
       html: emailHtml
     })
 

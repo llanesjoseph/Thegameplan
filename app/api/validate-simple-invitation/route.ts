@@ -90,13 +90,13 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       data: {
-        organizationName: 'PLAYBOOKD Coaching Network',
-        inviterName: 'PLAYBOOKD Team',
+        organizationName: 'Athleap Coaching Network',
+        inviterName: 'Athleap Team',
         sport: invitationSport,
         coachEmail: invitationEmail, // CRITICAL: This field is needed by the onboarding page
         role: invitationRole,
         description: 'Join our coaching platform',
-        customMessage: 'Welcome to PLAYBOOKD! Complete your profile to get started.',
+        customMessage: 'Welcome to Athleap! Complete your profile to get started.',
         autoApprove: true, // Simple invitations are auto-approved
         expiresAt: expirationDate.toISOString(),
         usesRemaining: 1,

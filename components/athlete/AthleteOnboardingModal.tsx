@@ -151,7 +151,7 @@ export default function AthleteOnboardingModal({ userId, userEmail, onComplete }
             <Trophy className="w-8 h-8 text-white" />
           </div>
           <h2 className="text-3xl mb-2" style={{ color: '#000000' }}>
-            Welcome to PLAYBOOKD!
+            Welcome to Athleap!
           </h2>
           <p className="text-lg" style={{ color: '#000000', opacity: 0.7 }}>
             Let's set up your athlete profile to get started
@@ -179,7 +179,7 @@ export default function AthleteOnboardingModal({ userId, userEmail, onComplete }
             <div className="p-4 rounded-lg" style={{ backgroundColor: '#FEE2E2' }}>
               <p style={{ color: '#DC2626' }}>{error}</p>
               <a
-                href={`mailto:support@playbookd.com?subject=Onboarding%20Issue&body=User%20ID:%20${userId}%0AEmail:%20${userEmail}%0AError:%20${encodeURIComponent(error)}`}
+                href={`mailto:support@athleap.com?subject=Onboarding%20Issue&body=User%20ID:%20${userId}%0AEmail:%20${userEmail}%0AError:%20${encodeURIComponent(error)}`}
                 className="text-sm underline mt-2 inline-block"
                 style={{ color: '#DC2626' }}
               >

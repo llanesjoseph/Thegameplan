@@ -269,7 +269,7 @@ export default function AdminOnboardingPage({ params }: { params: { code: string
             <Shield className="w-16 h-16 text-white mx-auto mb-4" />
           )}
           <h1 className="text-3xl font-bold text-white mb-2">
-            Join PLAYBOOKD Admin Team
+            Join Athleap Admin Team
           </h1>
           <p className="text-purple-100">
             You've been invited as {invitation.role === 'superadmin' ? 'a Super Administrator' : 'an Administrator'}
@@ -284,7 +284,7 @@ export default function AdminOnboardingPage({ params }: { params: { code: string
               Welcome, {invitation.recipientName}!
             </h2>
             <p className="text-gray-600">
-              {invitation.createdByName} has invited you to help manage the PLAYBOOKD platform.
+              {invitation.createdByName} has invited you to help manage the Athleap platform.
             </p>
           </div>
 

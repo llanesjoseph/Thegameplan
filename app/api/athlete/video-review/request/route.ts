@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
 
           if (coachEmail) {
             // Construct review dashboard URL
-            const reviewUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://playbookd.crucibleanalytics.dev'}/dashboard/coach/video-reviews`
+            const reviewUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://playbook.crucibleanalytics.dev'}/dashboard/coach/video-reviews`
 
             // Send email notification
             await sendVideoReviewRequestEmail({

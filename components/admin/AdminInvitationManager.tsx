@@ -235,7 +235,7 @@ export default function AdminInvitationManager() {
                   id="customMessage"
                   value={form.customMessage}
                   onChange={(e) => setForm(prev => ({ ...prev, customMessage: e.target.value }))}
-                  placeholder="Welcome to the PLAYBOOKD admin team! We're excited to have you help us build the future of youth sports coaching..."
+                  placeholder="Welcome to the Athleap admin team! We're excited to have you help us build the future of youth sports coaching..."
                   rows={4}
                 />
               </div>

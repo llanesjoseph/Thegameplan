@@ -161,7 +161,7 @@ export default function ProfileCompletionBanner() {
        <div className="flex items-center gap-2 mb-1">
         <AlertCircle className="w-4 h-4" />
         <h3 className=" text-sm sm:text-base">
-         Complete Your PLAYBOOKD Profile
+         Complete Your Athleap Profile
         </h3>
        </div>
 

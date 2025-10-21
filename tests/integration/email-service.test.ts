@@ -28,7 +28,7 @@ function renderCoachInvitationEmail(props: {
   recipientName?: string
   templateType?: 'playbookd' | 'simple'
 }): { subject: string; html: string } {
-  const subject = `🏆 You're Invited to Join ${props.organizationName} - PLAYBOOKD`
+  const subject = `🏆 You're Invited to Join ${props.organizationName} - Athleap`
   const html = `<!DOCTYPE html><html><body>Welcome ${props.recipientName || 'Coach'}! Invitation: ${props.invitationUrl}</body></html>`
 
   return { subject, html }

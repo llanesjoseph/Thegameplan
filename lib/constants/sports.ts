@@ -1,7 +1,7 @@
 /**
  * Global Sports Constants
  *
- * This file contains the centralized list of sports supported across the PLAYBOOKD platform.
+ * This file contains the centralized list of sports supported across the Athleap platform.
  * All components should import from this file to ensure consistency.
  */
 

@@ -41,7 +41,7 @@ async function notifyAdminsOfNewApplication(data: {
     const { Resend } = await import('resend')
     const resend = new Resend(process.env.RESEND_API_KEY)
 
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://playbookd.crucibleanalytics.dev'
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://playbook.crucibleanalytics.dev'
     const reviewUrl = `${baseUrl}/dashboard/admin/invitations-approvals?tab=applications`
 
     // Send email to each admin
@@ -394,7 +394,7 @@ export async function POST(request: NextRequest) {
           status: 'approved',
           role: targetRole,
           autoApproved: true,
-          organizationName: invitationData?.organizationName || 'PLAYBOOKD',
+          organizationName: invitationData?.organizationName || 'Athleap',
           message: `Your ${targetRole} application has been automatically approved! Check your email for instructions to set your password.`
         }
       })
@@ -407,7 +407,7 @@ export async function POST(request: NextRequest) {
           status: 'pending',
           role: targetRole,
           autoApproved: false,
-          organizationName: invitationData?.organizationName || 'PLAYBOOKD',
+          organizationName: invitationData?.organizationName || 'Athleap',
           message: `Your ${targetRole} application has been submitted successfully! You will receive an email when it has been reviewed.`
         }
       })

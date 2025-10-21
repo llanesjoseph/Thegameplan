@@ -17,7 +17,7 @@ test.describe('Public Access & Routing', () => {
   test('unauthenticated users can access home page', async ({ page }) => {
     await page.goto('/')
 
-    await expect(page).toHaveTitle(/AthLeap|PLAYBOOKD/i)
+    await expect(page).toHaveTitle(/AthLeap|Athleap/i)
     await page.waitForLoadState('networkidle')
 
     // Should see marketing/landing page content
@@ -104,7 +104,7 @@ test.describe('Navigation & UI', () => {
     await page.goto('/')
     await page.waitForLoadState('networkidle')
 
-    const logo = page.locator('text=/PLAYBOOKD|AthLeap/i').first()
+    const logo = page.locator('text=/Athleap|AthLeap/i').first()
     await expect(logo).toBeVisible()
   })
 

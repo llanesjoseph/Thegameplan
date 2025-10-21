@@ -52,7 +52,7 @@ test.describe('Athlete Profile Visibility', () => {
 test.describe('Public Pages', () => {
   test('home page should load', async ({ page }) => {
     await page.goto('/')
-    await expect(page).toHaveTitle(/AthLeap|PLAYBOOKD/i)
+    await expect(page).toHaveTitle(/AthLeap|Athleap/i)
   })
 
   test('browse coaches page should load', async ({ page }) => {
@@ -75,7 +75,7 @@ test.describe('Navigation', () => {
     await page.goto('/dashboard')
 
     // Look for app header/logo
-    const logo = page.locator('text=/AthLeap|PLAYBOOKD/i').first()
+    const logo = page.locator('text=/AthLeap|Athleap/i').first()
     await expect(logo).toBeVisible()
   })
 

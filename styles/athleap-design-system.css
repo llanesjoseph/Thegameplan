@@ -1,10 +1,10 @@
-/* PLAYBOOKD UNIFIED DESIGN SYSTEM CSS */
+/* Athleap UNIFIED DESIGN SYSTEM CSS */
 /* Single source of truth for all styling */
 
 /* Import Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;500;600;700&display=swap');
 
-/* Sports World Font - PLAYBOOKD Brand Font */
+/* Sports World Font - Athleap Brand Font */
 @font-face {
   font-family: 'Sports World';
   src: url('/fonts/sports-world-regular.ttf') format('truetype');
@@ -15,7 +15,7 @@
 
 /* CSS Custom Properties */
 :root {
-  /* PLAYBOOKD Brand Colors */
+  /* Athleap Brand Colors */
   --playbookd-cream: #E8E6D8;
   --playbookd-sky-blue: #91A6EB;
   --playbookd-orange: #892F1A;
@@ -140,7 +140,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* PLAYBOOKD Typography Classes */
+/* Athleap Typography Classes */
 .font-brand {
   font-family: var(--playbookd-font-brand);
 }
@@ -190,7 +190,7 @@ body {
   font-family: var(--playbookd-font-brand);
 }
 
-/* PLAYBOOKD Color Classes */
+/* Athleap Color Classes */
 .bg-playbookd-cream { background-color: var(--playbookd-cream); }
 .bg-playbookd-sky-blue { background-color: var(--playbookd-sky-blue); }
 .bg-playbookd-orange { background-color: var(--playbookd-orange); }
@@ -214,7 +214,7 @@ body {
 .border-playbookd-dark { border-color: var(--playbookd-border-dark); }
 .border-playbookd-sky-blue { border-color: var(--playbookd-sky-blue); }
 
-/* PLAYBOOKD Component Styles */
+/* Athleap Component Styles */
 .playbookd-button-primary {
   background: linear-gradient(135deg, var(--playbookd-sky-blue) 0%, var(--playbookd-orange) 100%);
   color: var(--playbookd-text-inverse);

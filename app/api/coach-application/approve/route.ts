@@ -20,9 +20,9 @@ export async function POST(request: NextRequest) {
 
     // Send approval email
     const { data, error } = await resend.emails.send({
-      from: 'PLAYBOOKD <noreply@mail.crucibleanalytics.dev>',
+      from: 'Athleap <noreply@mail.crucibleanalytics.dev>',
       to: email,
-      subject: '🎉 Welcome to PLAYBOOKD - Your Coach Application is Approved!',
+      subject: '🎉 Welcome to Athleap - Your Coach Application is Approved!',
       html: `
         <!DOCTYPE html>
         <html>
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
                     <tr>
                       <td style="background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); padding: 40px 20px; text-align: center;">
                         <h1 style="margin: 0 0 10px; color: #ffffff; font-size: 32px; font-weight: bold; letter-spacing: 2px;">
-                          PLAYBOOKD
+                          Athleap
                         </h1>
                         <p style="margin: 0; color: rgba(255, 255, 255, 0.9); font-size: 18px;">
                           🎉 Congratulations!
@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
                         </p>
 
                         <p style="margin: 0 0 20px; color: #4b5563; font-size: 16px; line-height: 1.6;">
-                          We're thrilled to welcome you to the PLAYBOOKD coaching community! Your application has been approved, and you now have full access to your coach dashboard.
+                          We're thrilled to welcome you to the Athleap coaching community! Your application has been approved, and you now have full access to your coach dashboard.
                         </p>
 
                         <div style="background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); border-left: 4px solid #16a34a; padding: 25px; margin: 30px 0; border-radius: 8px;">
@@ -119,7 +119,7 @@ export async function POST(request: NextRequest) {
                         </div>
 
                         <div style="text-align: center; margin: 40px 0;">
-                          <a href="https://playbookd.com/dashboard/coach-unified"
+                          <a href="https://athleap.com/dashboard/coach-unified"
                              style="display: inline-block; padding: 16px 40px; background-color: #16a34a; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 18px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
                             Access Coach Dashboard →
                           </a>
@@ -134,7 +134,7 @@ export async function POST(request: NextRequest) {
                         </p>
 
                         <p style="margin: 15px 0 0; color: #4b5563; font-size: 16px; line-height: 1.6;">
-                          The PLAYBOOKD Team
+                          The Athleap Team
                         </p>
                       </td>
                     </tr>
@@ -143,17 +143,17 @@ export async function POST(request: NextRequest) {
                     <tr>
                       <td style="background-color: #f9fafb; padding: 30px; text-align: center; border-top: 1px solid #e5e7eb;">
                         <p style="margin: 0 0 15px; color: #6b7280; font-size: 14px;">
-                          Need help? Contact us at <a href="mailto:support@playbookd.com" style="color: #16a34a; text-decoration: none; font-weight: 600;">support@playbookd.com</a>
+                          Need help? Contact us at <a href="mailto:support@athleap.com" style="color: #16a34a; text-decoration: none; font-weight: 600;">support@athleap.com</a>
                         </p>
                         <div style="margin: 20px 0;">
-                          <a href="https://playbookd.com/coach/guide" style="margin: 0 10px; color: #6b7280; text-decoration: none; font-size: 14px;">Coach Guide</a>
+                          <a href="https://athleap.com/coach/guide" style="margin: 0 10px; color: #6b7280; text-decoration: none; font-size: 14px;">Coach Guide</a>
                           <span style="color: #d1d5db;">|</span>
-                          <a href="https://playbookd.com/help" style="margin: 0 10px; color: #6b7280; text-decoration: none; font-size: 14px;">Help Center</a>
+                          <a href="https://athleap.com/help" style="margin: 0 10px; color: #6b7280; text-decoration: none; font-size: 14px;">Help Center</a>
                           <span style="color: #d1d5db;">|</span>
-                          <a href="https://playbookd.com/community" style="margin: 0 10px; color: #6b7280; text-decoration: none; font-size: 14px;">Community</a>
+                          <a href="https://athleap.com/community" style="margin: 0 10px; color: #6b7280; text-decoration: none; font-size: 14px;">Community</a>
                         </div>
                         <p style="margin: 0; color: #9ca3af; font-size: 12px;">
-                          © 2024 PLAYBOOKD. All rights reserved.
+                          © 2024 Athleap. All rights reserved.
                         </p>
                       </td>
                     </tr>

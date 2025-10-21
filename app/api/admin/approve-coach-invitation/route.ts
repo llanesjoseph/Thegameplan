@@ -179,7 +179,7 @@ export async function POST(request: NextRequest) {
               </ul>
             </div>
             <div style="text-align: center; margin: 30px 0;">
-              <a href="https://playbookd.crucibleanalytics.dev"
+              <a href="https://playbook.crucibleanalytics.dev"
                  style="background: linear-gradient(to right, #20B2AA, #91A6EB);
                         color: white;
                         padding: 12px 30px;

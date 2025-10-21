@@ -14,7 +14,17 @@
       "Bash(git add app/api/complete-athlete-profile/route.ts)",
       "Bash(gh api repos/llanesjoseph/Thegameplan/deployments --jq '.[0] | {created_at, ref, sha: .sha[0:7], environment}')",
       "Bash(git add app/api/admin/fix-athlete-coach-assignment/route.ts app/dashboard/admin/fix-athlete-coaches/page.tsx)",
-      "Bash(git add .)"
+      "Bash(git add .)",
+      "Bash(git add app/dashboard/admin/users/page.tsx)",
+      "Bash(find . -type f ( -name \"*.ts\" -o -name \"*.tsx\" -o -name \"*.js\" -o -name \"*.jsx\" -o -name \"*.css\" ) )",
+      "Bash(find app components lib -type f ( -name \"*.ts\" -o -name \"*.tsx\" -o -name \"*.js\" -o -name \"*.jsx\" -o -name \"*.css\" ) -exec sed -i -e 's/PLAYBOOKD/Athleap/g' -e 's/Playbookd/Athleap/g' -e 's/playbookd\\.crucibleanalytics\\.dev/playbook.crucibleanalytics.dev/g' -e 's/playbookd\\.com/athleap.com/g' {} +)",
+      "Bash(if [ -f \"styles/playbookd-design-system.css\" ])",
+      "Bash(then)",
+      "Bash(else)",
+      "Bash(fi)",
+      "Bash(if [ -f \"lib/playbookd-design-system.ts\" ])",
+      "Bash(find . -type f ( -name \"*.ts\" -o -name \"*.tsx\" -o -name \"*.js\" ) -exec sed -i \"s/playbookd-design-system/athleap-design-system/g\" {} +)",
+      "Bash(git add -A)"
     ],
     "deny": [],
     "ask": []

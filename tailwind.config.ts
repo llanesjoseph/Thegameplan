@@ -4,7 +4,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // PLAYBOOKD Unified Color System
+        // Athleap Unified Color System
         'playbookd': {
           'cream': '#E8E6D8',
           'sky-blue': '#91A6EB',
@@ -70,7 +70,7 @@ const config: Config = {
           900: '#3d2e28',
         },
 
-        // Updated clarity system with new PLAYBOOKD colors + Plum accents
+        // Updated clarity system with new Athleap colors + Plum accents
         clarity: {
           background: '#E8E6D8', // Cream
           surface: '#FFFFFF',
@@ -96,8 +96,8 @@ const config: Config = {
         'background-light': '#FFFFFF',
       },
       fontFamily: {
-        // PLAYBOOKD Unified Typography System
-        'brand': ['Sports World', 'Impact', 'Arial Black', 'sans-serif'], // PLAYBOOKD brand font
+        // Athleap Unified Typography System
+        'brand': ['Sports World', 'Impact', 'Arial Black', 'sans-serif'], // Athleap brand font
         'heading': ['Oswald', 'Impact', 'Arial Black', 'sans-serif'],     // Sports-style headings
         'body': ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],    // Body text
         'display': ['Sports World', 'Oswald', 'Impact', 'Arial Black', 'sans-serif'], // Large displays

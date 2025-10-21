@@ -1,9 +1,9 @@
-/* Import PLAYBOOKD Design System */
-@import '../styles/playbookd-design-system.css';
+/* Import Athleap Design System */
+@import '../styles/athleap-design-system.css';
 
 @tailwind base;
 
-/* PLAYBOOKD Global Styles */
+/* Athleap Global Styles */
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
 body {
@@ -13,7 +13,7 @@ body {
   background-color: #E8E6D8; /* Cream background */
 }
 
-/* PLAYBOOKD Button Styles with New Color Palette */
+/* Athleap Button Styles with New Color Palette */
 .btn { display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, #91A6EB 0%, #892F1A 100%); color: white; text-decoration: none; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(145, 166, 235, 0.25); }
 .btn:hover { background: linear-gradient(135deg, #7b93e3 0%, #7a2717 100%); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(145, 166, 235, 0.35); }
 

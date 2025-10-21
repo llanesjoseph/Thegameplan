@@ -12,12 +12,12 @@ const https = require('https');
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
 const SUPER_ADMIN_EMAIL = 'joseph@crucibleanalytics.dev';
 
-console.log('🧪 PLAYBOOKD Invitation Email Test Script');
+console.log('🧪 Athleap Invitation Email Test Script');
 console.log('==========================================\n');
 
 // Instructions for getting Firebase token
 console.log('📋 INSTRUCTIONS:');
-console.log('1. Open your browser and login to PLAYBOOKD');
+console.log('1. Open your browser and login to Athleap');
 console.log('2. Open Developer Tools (F12)');
 console.log('3. Go to Console tab');
 console.log('4. Run this command:');
@@ -96,7 +96,7 @@ const req = httpModule.request(options, (res) => {
         console.log('\n📬 CHECK YOUR EMAIL:');
         console.log(`   Login to: ${SUPER_ADMIN_EMAIL}`);
         console.log('   Subject: "🏆 You\'re Invited to Train with..."');
-        console.log('   From: PLAYBOOKD <noreply@mail.crucibleanalytics.dev>\n');
+        console.log('   From: Athleap <noreply@mail.crucibleanalytics.dev>\n');
 
         if (response.results && response.results[0]) {
           const result = response.results[0];

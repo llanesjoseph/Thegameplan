@@ -58,7 +58,7 @@ export default function ApplicationSubmittedPage() {
           </h1>
 
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Thank you for applying to become a coach on PLAYBOOKD. We're excited to review your application!
+            Thank you for applying to become a coach on Athleap. We're excited to review your application!
           </p>
         </div>
 
