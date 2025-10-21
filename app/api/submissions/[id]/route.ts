@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/firebase.admin';
-import { getSubmission, updateSubmission } from '@/lib/data/video-critique';
+import { auth, adminDb } from '@/lib/firebase.admin';
+import { FieldValue } from 'firebase-admin/firestore';
 
 export async function GET(
   request: NextRequest,
@@ -16,16 +16,17 @@ export async function GET(
     const idToken = authHeader.split('Bearer ')[1];
     await auth.verifyIdToken(idToken);
 
-    // Fetch submission
-    const submission = await getSubmission(params.id);
+    // Fetch submission using Admin SDK
+    const submissionDoc = await adminDb.collection('submissions').doc(params.id).get();
 
-    if (!submission) {
+    if (!submissionDoc.exists) {
       return NextResponse.json(
         { error: 'Submission not found' },
         { status: 404 }
       );
     }
 
+    const submission = { id: submissionDoc.id, ...submissionDoc.data() };
     return NextResponse.json(submission);
   } catch (error) {
     console.error('Error fetching submission:', error);
@@ -54,20 +55,22 @@ export async function PATCH(
     // Parse request body
     const updates = await request.json();
 
-    // Fetch submission to verify ownership
-    const submission = await getSubmission(params.id);
+    // Fetch submission to verify ownership using Admin SDK
+    const submissionDoc = await adminDb.collection('submissions').doc(params.id).get();
 
-    if (!submission) {
+    if (!submissionDoc.exists) {
       return NextResponse.json(
         { error: 'Submission not found' },
         { status: 404 }
       );
     }
 
+    const submission = submissionDoc.data();
+
     // Check permissions - only athlete owner or assigned coach can update
     if (
-      submission.athleteUid !== userId &&
-      submission.claimedBy !== userId
+      submission?.athleteUid !== userId &&
+      submission?.claimedBy !== userId
     ) {
       return NextResponse.json(
         { error: 'Forbidden - You can only update your own submissions' },
@@ -75,8 +78,20 @@ export async function PATCH(
       );
     }
 
-    // Update submission
-    await updateSubmission(params.id, updates);
+    // Update submission using Admin SDK
+    const updateData = {
+      ...updates,
+      updatedAt: FieldValue.serverTimestamp(),
+    };
+
+    // Remove undefined values
+    Object.keys(updateData).forEach((key) => {
+      if (updateData[key] === undefined) {
+        delete updateData[key];
+      }
+    });
+
+    await adminDb.collection('submissions').doc(params.id).update(updateData);
 
     return NextResponse.json({ success: true });
   } catch (error) {
