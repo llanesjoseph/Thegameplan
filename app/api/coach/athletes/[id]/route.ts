@@ -92,25 +92,6 @@ export async function GET(
       }
     }
 
-    // Get video review requests (with error handling)
-    let videoReviews: any[] = []
-    try {
-      const videoReviewsSnapshot = await adminDb
-        .collection('videoReviews')
-        .where('athleteId', '==', athleteId)
-        .orderBy('createdAt', 'desc')
-        .limit(5)
-        .get()
-
-      videoReviews = videoReviewsSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt?.toDate?.()?.toISOString() || null
-      }))
-    } catch (error) {
-      console.warn('Could not fetch video reviews (collection may not exist or index missing):', error)
-    }
-
     // Get live session requests (with error handling)
     let liveSessions: any[] = []
     try {
@@ -158,11 +139,9 @@ export async function GET(
         totalLessons: availableLessons.length,
         completedLessons: completedLessons.length,
         completionRate,
-        videoReviews: videoReviews.length,
         liveSessions: liveSessions.length
       },
       lessons: lessonDetails,
-      recentVideoReviews: videoReviews,
       recentLiveSessions: liveSessions
     }
 

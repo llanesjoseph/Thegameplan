@@ -54,8 +54,6 @@ interface AnalyticsData {
   lastActivity: string | null
   aiQuestionsAsked: number
   averageEngagement: number
-  videoReviewsPending: number
-  videoReviewsCompleted: number
   sessionRequestsPending: number
   sessionRequestsCompleted: number
   totalMessages: number
@@ -172,8 +170,6 @@ export default function AthleteDetailPage() {
           lastActivity: apiAthlete.lastLoginAt || null,
           aiQuestionsAsked: 0,
           averageEngagement: 0,
-          videoReviewsPending: 0,
-          videoReviewsCompleted: apiAthlete.stats.videoReviews || 0,
           sessionRequestsPending: 0,
           sessionRequestsCompleted: apiAthlete.stats.liveSessions || 0,
           totalMessages: 0,
@@ -489,30 +485,8 @@ export default function AthleteDetailPage() {
               </div>
             </div>
 
-            {/* Secondary Metrics - 6 columns for more detail */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
-              {/* Video Reviews Pending */}
-              <div className="bg-white rounded-lg p-4 shadow border border-gray-200">
-                <div className="flex items-center gap-2 mb-1">
-                  <div className="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center">
-                    <svg className="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                    </svg>
-                  </div>
-                  <span className="text-2xl font-bold text-orange-600">{analytics.videoReviewsPending}</span>
-                </div>
-                <p className="text-xs font-medium text-gray-600">Videos Pending</p>
-              </div>
-
-              {/* Video Reviews Completed */}
-              <div className="bg-white rounded-lg p-4 shadow border border-gray-200">
-                <div className="flex items-center gap-2 mb-1">
-                  <CheckCircle2 className="w-8 h-8 text-green-600" />
-                  <span className="text-2xl font-bold text-green-600">{analytics.videoReviewsCompleted}</span>
-                </div>
-                <p className="text-xs font-medium text-gray-600">Videos Reviewed</p>
-              </div>
-
+            {/* Secondary Metrics - 4 columns for more detail */}
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
               {/* Session Requests Pending */}
               <div className="bg-white rounded-lg p-4 shadow border border-gray-200">
                 <div className="flex items-center gap-2 mb-1">

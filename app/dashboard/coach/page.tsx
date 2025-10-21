@@ -84,14 +84,6 @@ export default function CoachDashboard() {
       inline: true
     },
     {
-      id: 'video-reviews',
-      title: 'Video Reviews',
-      description: 'Review athlete submitted videos',
-      icon: MessageSquare,
-      color: '#20B2AA',
-      inline: true
-    },
-    {
       id: 'live-sessions',
       title: 'Live Sessions',
       description: 'Manage 1-on-1 coaching requests',
@@ -176,7 +168,6 @@ export default function CoachDashboard() {
   const getSectionPath = (sectionId: string) => {
     const pathMap: Record<string, string> = {
       'athletes': '/dashboard/coach/athletes?embedded=true',
-      'video-reviews': '/dashboard/coach/video-reviews?embedded=true',
       'live-sessions': '/dashboard/coach/live-sessions?embedded=true',
       'lessons': '/dashboard/coach/lessons/library?embedded=true',
       'create-lesson': '/dashboard/coach/lessons/create?embedded=true',

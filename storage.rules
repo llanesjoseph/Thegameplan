@@ -191,15 +191,6 @@
                         isValidFileSize(500); // 500MB limit
         allow delete: if request.auth.uid == userId || isAdmin();
       }
-      
-      // Video review submissions - Athletes upload videos for coach review
-      match /video-reviews/{userId}/{allPaths=**} {
-        allow read: if request.auth.uid == userId || isCreatorOrHigher(); // Athlete or any coach can read
-        allow write: if isAuthenticated() && request.auth.uid == userId &&
-                        isValidVideoType() &&
-                        isValidFileSize(500); // 500MB limit for video reviews
-        allow delete: if request.auth.uid == userId || isAdmin();
-      }
 
       // Coach posts - Photos and media for coach feed posts
       match /coach-posts/{userId}/{allPaths=**} {

@@ -20,7 +20,6 @@ import {
   User
 } from 'lucide-react'
 import AppHeader from '@/components/ui/AppHeader'
-import VideoReviewRequestModal from '@/components/athlete/VideoReviewRequestModal'
 import Live1on1RequestModal from '@/components/athlete/Live1on1RequestModal'
 import MyCoachPanel from '@/components/athlete/MyCoachPanel'
 import CoachFeedView from '@/components/athlete/CoachFeedView'
@@ -32,7 +31,6 @@ export default function AthleteDashboard() {
   const { user } = useAuth()
   const router = useRouter()
 
-  const [showVideoReviewModal, setShowVideoReviewModal] = useState(false)
   const [showLive1on1Modal, setShowLive1on1Modal] = useState(false)
   const [showCoachPanel, setShowCoachPanel] = useState(false)
   const [hasCoachRole, setHasCoachRole] = useState(false)
@@ -80,13 +78,6 @@ export default function AthleteDashboard() {
       description: 'View and complete training lessons',
       icon: BookOpen,
       color: '#7B92C4'
-    },
-    {
-      id: 'video-review',
-      title: 'Video Review',
-      description: 'Request coach feedback on your clips',
-      icon: Video,
-      color: '#C4886A'
     },
     {
       id: 'live-session',
@@ -330,17 +321,6 @@ export default function AthleteDashboard() {
 
   return (
     <>
-      {/* Video Review Modal */}
-      {showVideoReviewModal && user && (
-        <VideoReviewRequestModal
-          userId={user.uid}
-          userEmail={user.email || ''}
-          coachId={coachId || undefined}
-          onClose={() => setShowVideoReviewModal(false)}
-          onSuccess={() => alert('✅ Video review request submitted!')}
-        />
-      )}
-
       {/* Live 1-on-1 Session Modal */}
       {showLive1on1Modal && user && (
         <Live1on1RequestModal
@@ -540,14 +520,6 @@ export default function AthleteDashboard() {
                         src="/dashboard/athlete-lessons?embedded=true"
                         className="w-full h-full border-0"
                         title="Your Lessons"
-                      />
-                    )}
-
-                    {activeSection === 'video-review' && (
-                      <iframe
-                        src="/dashboard/athlete/video-reviews?embedded=true"
-                        className="w-full h-full border-0"
-                        title="Video Reviews"
                       />
                     )}
 

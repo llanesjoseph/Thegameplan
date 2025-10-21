@@ -1,6 +1,6 @@
 'use client'
 
-import { BookOpen, Video, Calendar, MessageCircle, Sparkles, Rss } from 'lucide-react'
+import { BookOpen, Calendar, MessageCircle, Sparkles, Rss } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 
 interface QuickAction {
@@ -25,13 +25,6 @@ const quickActions: QuickAction[] = [
     icon: Sparkles,
     color: '#5A9B9B',
     description: 'Get AI assistance'
-  },
-  {
-    id: 'video-review',
-    label: 'Video Review',
-    icon: Video,
-    color: '#C4886A',
-    description: 'Submit for feedback'
   },
   {
     id: 'schedule-session',
@@ -77,7 +70,6 @@ export default function AthleteQuickActions({ onAction }: AthleteQuickActionsPro
       const sectionMap: Record<string, string> = {
         'lessons': 'lessons',
         'ask-coach': 'ai-assistant',
-        'video-review': 'video-review',
         'schedule-session': 'live-session',
         'coach-feed': 'coach-feed',
         'coach-schedule': 'coach-schedule'
@@ -98,7 +90,6 @@ export default function AthleteQuickActions({ onAction }: AthleteQuickActionsPro
     const routes: Record<string, string> = {
       'lessons': '/dashboard/athlete-lessons',
       'ask-coach': '/dashboard/athlete',
-      'video-review': '/dashboard/athlete',
       'schedule-session': '/dashboard/athlete',
       'coach-feed': '/dashboard/athlete',
       'coach-schedule': '/dashboard/athlete'
