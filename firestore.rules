@@ -808,6 +808,203 @@ service cloud.firestore {
       allow read, write: if isAdmin();
     }
 
+    // ============================================================================
+    // VIDEO CRITIQUE SYSTEM - Athlete video submission and coach review workflow
+    // ============================================================================
+
+    // Video Submissions - Athletes submit videos for coach review
+    match /submissions/{submissionId} {
+      // Athletes can read their own submissions
+      allow read: if isAuthenticated() &&
+                     resource.data.athleteId == request.auth.uid;
+
+      // Coaches can read submissions from their athletes
+      allow read: if isAuthenticated() &&
+                     resource.data.coachId == request.auth.uid;
+
+      // Admins can read all submissions
+      allow read: if isAdmin();
+
+      // Athletes can create submissions
+      allow create: if isAuthenticated() &&
+                       request.resource.data.athleteId == request.auth.uid &&
+                       request.resource.data.keys().hasAll(['athleteId', 'teamId', 'skillId', 'status', 'submittedAt']);
+
+      // Athletes can update their own pending submissions (before coach claims)
+      allow update: if isAuthenticated() &&
+                       resource.data.athleteId == request.auth.uid &&
+                       resource.data.status == 'awaiting_coach';
+
+      // Coaches can update submissions assigned to them (claim, review, complete)
+      allow update: if isAuthenticated() &&
+                       (resource.data.coachId == request.auth.uid ||
+                        request.resource.data.coachId == request.auth.uid) &&
+                       request.resource.data.status in ['awaiting_coach', 'claimed', 'in_review', 'complete'];
+
+      // Admins can update any submission
+      allow update: if isAdmin();
+
+      // Only admins can delete submissions
+      allow delete: if isAdmin();
+    }
+
+    // Video Reviews - Coach feedback and analysis for video submissions
+    match /reviews/{reviewId} {
+      // Athletes can read reviews of their submissions
+      allow read: if isAuthenticated() &&
+                     resource.data.athleteId == request.auth.uid;
+
+      // Coaches can read their own reviews
+      allow read: if isAuthenticated() &&
+                     resource.data.coachId == request.auth.uid;
+
+      // Admins can read all reviews
+      allow read: if isAdmin();
+
+      // Only coaches can create reviews
+      allow create: if isCreatorOrHigher() &&
+                       request.resource.data.coachId == request.auth.uid &&
+                       request.resource.data.keys().hasAll(['submissionId', 'coachId', 'athleteId', 'createdAt']);
+
+      // Coaches can update their own reviews
+      allow update: if isCreatorOrHigher() &&
+                       resource.data.coachId == request.auth.uid;
+
+      // Only admins can delete reviews
+      allow delete: if isAdmin();
+    }
+
+    // Review Comments - Discussion threads on video reviews
+    match /comments/{commentId} {
+      // Athletes and coaches involved can read comments
+      allow read: if isAuthenticated() &&
+                     (resource.data.authorId == request.auth.uid ||
+                      resource.data.athleteId == request.auth.uid ||
+                      resource.data.coachId == request.auth.uid);
+
+      // Admins can read all comments
+      allow read: if isAdmin();
+
+      // Athletes and coaches can create comments
+      allow create: if isAuthenticated() &&
+                       request.resource.data.authorId == request.auth.uid &&
+                       request.resource.data.keys().hasAll(['reviewId', 'authorId', 'content', 'createdAt']);
+
+      // Users can update their own comments
+      allow update: if isAuthenticated() &&
+                       resource.data.authorId == request.auth.uid;
+
+      // Users can delete their own comments
+      allow delete: if isAuthenticated() &&
+                       resource.data.authorId == request.auth.uid;
+
+      // Admins can manage all comments
+      allow read, write: if isAdmin();
+    }
+
+    // Skills - Drill and skill catalog for video critique
+    match /skills/{skillId} {
+      // All authenticated users can read skills
+      allow read: if isAuthenticated();
+
+      // Coaches and admins can create skills
+      allow create: if isCreatorOrHigher();
+
+      // Coaches can update skills they created
+      allow update: if isCreatorOrHigher() &&
+                       resource.data.createdBy == request.auth.uid;
+
+      // Admins can update any skill
+      allow update: if isAdmin();
+
+      // Only admins can delete skills
+      allow delete: if isAdmin();
+    }
+
+    // Drills - Practice drills library
+    match /drills/{drillId} {
+      // All authenticated users can read drills
+      allow read: if isAuthenticated();
+
+      // Coaches and admins can create drills
+      allow create: if isCreatorOrHigher();
+
+      // Coaches can update drills they created
+      allow update: if isCreatorOrHigher() &&
+                       resource.data.createdBy == request.auth.uid;
+
+      // Admins can update any drill
+      allow update: if isAdmin();
+
+      // Only admins can delete drills
+      allow delete: if isAdmin();
+    }
+
+    // Rubrics - Scoring rubrics for video critique
+    match /rubrics/{rubricId} {
+      // All authenticated users can read rubrics
+      allow read: if isAuthenticated();
+
+      // Coaches and admins can create rubrics
+      allow create: if isCreatorOrHigher();
+
+      // Coaches can update rubrics they created
+      allow update: if isCreatorOrHigher() &&
+                       resource.data.createdBy == request.auth.uid;
+
+      // Admins can update any rubric
+      allow update: if isAdmin();
+
+      // Only admins can delete rubrics
+      allow delete: if isAdmin();
+    }
+
+    // Teams - Team management for video critique
+    match /teams/{teamId} {
+      // Coaches can read their own teams
+      allow read: if isAuthenticated() &&
+                     resource.data.coachId == request.auth.uid;
+
+      // Athletes can read teams they belong to
+      allow read: if isAuthenticated() &&
+                     request.auth.uid in resource.data.athleteIds;
+
+      // Admins can read all teams
+      allow read: if isAdmin();
+
+      // Coaches can create teams
+      allow create: if isCreatorOrHigher() &&
+                       request.resource.data.coachId == request.auth.uid;
+
+      // Coaches can update their own teams
+      allow update: if isCreatorOrHigher() &&
+                       resource.data.coachId == request.auth.uid;
+
+      // Only admins can delete teams
+      allow delete: if isAdmin();
+    }
+
+    // Video Critique Notifications - Submission status notifications
+    match /video_notifications/{notificationId} {
+      // Users can read their own notifications
+      allow read: if isAuthenticated() &&
+                     resource.data.userId == request.auth.uid;
+
+      // Admins can read all notifications
+      allow read: if isAdmin();
+
+      // System creates notifications
+      allow create: if isAuthenticated();
+
+      // Users can update their own notifications (mark as read)
+      allow update: if isAuthenticated() &&
+                       resource.data.userId == request.auth.uid;
+
+      // Users can delete their own notifications
+      allow delete: if isAuthenticated() &&
+                       resource.data.userId == request.auth.uid;
+    }
+
     // ===== DEFAULT DENY =====
     match /{document=**} {
       allow read, write: if false;
