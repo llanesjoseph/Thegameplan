@@ -12,6 +12,7 @@ export default function AthleteReviewsPage() {
   const [submissions, setSubmissions] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isEmbedded, setIsEmbedded] = useState(false);
+  const [justSubmitted, setJustSubmitted] = useState(false);
   const [showSubmitForm, setShowSubmitForm] = useState(false);
 
   // Detect if page is loaded in iframe
@@ -20,6 +21,7 @@ export default function AthleteReviewsPage() {
     const embeddedParam = params.get('embedded') === 'true';
     const windowCheck = window.self !== window.top;
     setIsEmbedded(embeddedParam || windowCheck);
+    setJustSubmitted(params.get('submitted') === '1');
   }, []);
 
   useEffect(() => {
@@ -195,6 +197,13 @@ export default function AthleteReviewsPage() {
             </button>
           </div>
         </div>
+
+        {/* Success Banner */}
+        {justSubmitted && (
+          <div className="mb-4 p-4 rounded-lg border border-green-200 bg-green-50 text-green-800">
+            ✅ Your video was submitted successfully. Your coach has been notified.
+          </div>
+        )}
 
         {/* Submit Form View - Using the new Get Feedback system that copies coach lesson upload pattern */}
         {showSubmitForm && (

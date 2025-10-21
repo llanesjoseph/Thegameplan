@@ -80,6 +80,9 @@ export default function QueueBypassPage() {
           <p className="mt-2 text-gray-600">
             {submissions.length} video{submissions.length !== 1 ? 's' : ''} awaiting review
           </p>
+          <div className="mt-3 p-3 rounded-md bg-blue-50 text-blue-800 border border-blue-200">
+            Tip: Click <strong>Start Review</strong> to claim the submission. The athlete will immediately see the status change to <strong>In Review</strong>.
+          </div>
         </div>
 
         {submissions.length === 0 ? (

@@ -240,7 +240,7 @@ export default function GetFeedbackPage() {
           if (fileInputRef.current) fileInputRef.current.value = '';
 
           if (!isEmbedded) {
-            router.push('/dashboard/athlete/reviews');
+            router.push('/dashboard/athlete/reviews?submitted=1');
           }
         }, 800);
       });
