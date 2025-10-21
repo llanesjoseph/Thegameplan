@@ -137,7 +137,9 @@ export function generateVideoStoragePath(
   }
 
   const timestamp = Date.now();
-  return `videos/submissions/${teamId}/${submissionId}/${timestamp}_${sanitizedFileName}`;
+  // CHANGED: Use uploads path which we KNOW works for coaches
+  // This matches the same path pattern that works for lesson videos
+  return `uploads/${teamId}/submissions/${submissionId}/${timestamp}_${sanitizedFileName}`;
 }
 
 /**
