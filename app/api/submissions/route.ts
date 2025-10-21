@@ -18,33 +18,23 @@ export async function POST(request: NextRequest) {
     const userName = decodedToken.name || decodedToken.email?.split('@')[0] || 'Athlete';
     const userPhoto = decodedToken.picture;
 
-    // Get athlete's assigned coach from user document
+    // Get athlete's assigned coach from user document (optional)
     const userDoc = await adminDb.collection('users').doc(userId).get();
     const userData = userDoc.data();
     const coachId = userData?.coachId || userData?.assignedCoachId;
 
-    if (!coachId) {
-      return NextResponse.json(
-        { error: 'No coach assigned. Please contact support.' },
-        { status: 400 }
-      );
-    }
-
-    // CRITICAL: Verify coach exists and is active
-    const coachDoc = await adminDb.collection('users').doc(coachId).get();
-    if (!coachDoc.exists) {
-      return NextResponse.json(
-        { error: 'Assigned coach not found. Please contact support.' },
-        { status: 400 }
-      );
-    }
-
-    const coachData = coachDoc.data();
-    if (coachData?.role !== 'coach' && coachData?.role !== 'creator') {
-      return NextResponse.json(
-        { error: 'Assigned coach is not active. Please contact support.' },
-        { status: 400 }
-      );
+    // Coach is optional - video can be submitted without one
+    if (coachId) {
+      // Verify coach exists and is active
+      const coachDoc = await adminDb.collection('users').doc(coachId).get();
+      if (!coachDoc.exists) {
+        console.warn(`Assigned coach ${coachId} not found for user ${userId}`);
+      } else {
+        const coachData = coachDoc.data();
+        if (coachData?.role !== 'coach' && coachData?.role !== 'creator') {
+          console.warn(`Assigned coach ${coachId} is not active for user ${userId}`);
+        }
+      }
     }
 
     // Parse request body
