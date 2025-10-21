@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth, adminDb } from '@/lib/firebase.admin';
-import { createSubmission, getSubmissions } from '@/lib/data/video-critique';
+import { getSubmissions } from '@/lib/data/video-critique';
 import { CreateSubmissionRequest } from '@/types/video-critique';
 import { generateVideoStoragePath } from '@/lib/upload/uppy-config';
+import { FieldValue } from 'firebase-admin/firestore';
 
 export async function POST(request: NextRequest) {
   try {
@@ -62,15 +63,52 @@ export async function POST(request: NextRequest) {
       body.videoFileName
     );
 
-    // Create submission in Firestore
-    const submissionId = await createSubmission({
-      ...body,
+    // Create submission in Firestore via Admin SDK (bypasses client rules)
+    const now = new Date();
+    const slaDeadline = new Date(now.getTime() + 48 * 60 * 60 * 1000);
+
+    const submissionData = {
+      // Owner info
       athleteUid: userId,
       athleteName: userName,
-      athletePhotoUrl: userPhoto,
-      coachId: coachId, // Add assigned coach ID
+      athletePhotoUrl: userPhoto || null,
+      teamId: userId,
+      coachId: coachId || null,
+
+      // Skill context (optional)
+      skillId: null,
+      skillName: null,
+
+      // Video info
+      videoFileName: body.videoFileName,
+      videoFileSize: body.videoFileSize,
       videoStoragePath: storagePath,
-    });
+      videoDuration: body.videoDuration || 0,
+
+      // Workflow state
+      status: 'uploading',
+      slaBreach: false,
+
+      // Context from athlete
+      athleteContext: body.athleteContext,
+      athleteGoals: body.athleteGoals,
+      specificQuestions: body.specificQuestions,
+
+      // Metrics
+      viewCount: 0,
+      commentCount: 0,
+      uploadProgress: 0,
+
+      // Metadata
+      createdAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
+      submittedAt: FieldValue.serverTimestamp(),
+      slaDeadline: slaDeadline,
+      version: 1,
+    } as any;
+
+    const docRef = await adminDb.collection('submissions').add(submissionData);
+    const submissionId = docRef.id;
 
     return NextResponse.json({
       submissionId,
