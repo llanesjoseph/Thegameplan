@@ -4,7 +4,7 @@ import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { storage, db } from '@/lib/firebase.client';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { collection, addDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { ArrowLeft, Upload, Video, Check } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -58,7 +58,7 @@ export default function GetFeedbackPage() {
     }
 
     setUploading(true);
-    setUploadProgress(10);
+    setUploadProgress(5);
 
     try {
       // Step 1: Create feedback request in Firestore (like lessons collection)
@@ -74,13 +74,13 @@ export default function GetFeedbackPage() {
         videoFileSize: videoFile.size,
       };
 
-      setUploadProgress(30);
+      setUploadProgress(20);
 
       const docRef = await addDoc(collection(db, 'feedback_requests'), feedbackData);
       const feedbackId = docRef.id;
 
       toast.success('Feedback request created');
-      setUploadProgress(50);
+      setUploadProgress(35);
 
       // Step 2: Upload video to Storage (using same pattern as lessons)
       const timestamp = Date.now();
@@ -88,41 +88,71 @@ export default function GetFeedbackPage() {
       const storagePath = `feedback/${user.uid}/${feedbackId}/${fileName}`;
 
       const storageRef = ref(storage, storagePath);
-      const snapshot = await uploadBytes(storageRef, videoFile);
+      // Use resumable upload for large files and real progress updates
+      await new Promise<string>((resolve, reject) => {
+        try {
+          const uploadTask = uploadBytesResumable(storageRef, videoFile);
 
-      setUploadProgress(80);
-      const downloadUrl = await getDownloadURL(snapshot.ref);
+          uploadTask.on(
+            'state_changed',
+            (snap) => {
+              const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
+              // Smooth progress steps mapped to UI checkpoints
+              const uiPct = Math.max(40, Math.min(95, pct));
+              setUploadProgress(uiPct);
+            },
+            (err) => {
+              reject(err);
+            },
+            async () => {
+              try {
+                const url = await getDownloadURL(uploadTask.snapshot.ref);
+                resolve(url);
+              } catch (e) {
+                reject(e);
+              }
+            }
+          );
+        } catch (err) {
+          reject(err);
+        }
+      }).then(async (downloadUrl) => {
+        setUploadProgress(97);
+        // Step 3: Update feedback request with video URL
+        await updateDoc(docRef, {
+          videoUrl: downloadUrl,
+          videoStoragePath: storagePath,
+          status: 'awaiting_review',
+          updatedAt: serverTimestamp(),
+        });
 
-      // Step 3: Update feedback request with video URL
-      await updateDoc(docRef, {
-        videoUrl: downloadUrl,
-        videoStoragePath: storagePath,
-        status: 'awaiting_review',
-        updatedAt: serverTimestamp(),
+        setUploadProgress(100);
+
+        // Success UI (avoid throwing / global error)
+        toast.success('Video uploaded successfully! Your coach will review it soon.');
+
+        // Reset form safely without navigation that can trigger boundary in iframe
+        setTimeout(() => {
+          setVideoFile(null);
+          setContext('');
+          setGoals('');
+          setQuestions('');
+          setUploadProgress(0);
+          setUploading(false);
+          if (fileInputRef.current) fileInputRef.current.value = '';
+
+          if (!isEmbedded) {
+            router.push('/dashboard/athlete/reviews');
+          }
+        }, 1200);
       });
-
-      setUploadProgress(100);
-
-      // Success!
-      toast.success('Video uploaded successfully! Your coach will review it soon.');
-
-      // Reset form
-      setTimeout(() => {
-        setVideoFile(null);
-        setContext('');
-        setGoals('');
-        setQuestions('');
-        setUploadProgress(0);
-        setUploading(false);
-        if (fileInputRef.current) fileInputRef.current.value = '';
-
-        // Navigate to success view
-        router.push('/dashboard/athlete');
-      }, 2000);
+      return;
 
     } catch (error: any) {
       console.error('Upload error:', error);
-      toast.error(`Failed to upload: ${error.message || 'Unknown error'}`);
+      const message = typeof error?.message === 'string' ? error.message : 'Unknown error';
+      toast.error(`Failed to upload: ${message}`);
+      // Do not rethrow; keep UI on the page and allow retry
       setUploading(false);
       setUploadProgress(0);
     }

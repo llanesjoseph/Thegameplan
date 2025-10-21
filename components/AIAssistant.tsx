@@ -119,7 +119,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
    )
 
    const snapshot = await getDocs(messagesQuery)
-   const historicalMessages: Message[] = []
+   let historicalMessages: Message[] = []
 
    snapshot.forEach((doc) => {
     const data = doc.data()
@@ -132,9 +132,53 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
    })
 
    if (historicalMessages.length > 0) {
-    console.log(`✅ Loaded ${historicalMessages.length} messages from conversation: ${convId}`)
+    console.log(`✅ Loaded ${historicalMessages.length} messages from chatConversations/${convId}`)
    } else {
-    console.log(`📭 No chat history found for conversation: ${convId}`)
+    // Fallback to legacy chat_messages collection (pre-conversations)
+    console.log('↩️ Falling back to legacy chat_messages for history')
+    try {
+     const constraints = [where('userId', '==', userId)] as any[]
+     if (creatorId) constraints.push(where('coachId', '==', creatorId))
+     let legacySnapshot
+     try {
+      legacySnapshot = await getDocs(
+       query(
+        collection(db, 'chat_messages'),
+        ...constraints,
+        orderBy('timestamp', 'asc')
+       )
+      )
+     } catch (indexErr) {
+      // If composite index is missing, retry without orderBy and sort client-side
+      legacySnapshot = await getDocs(
+       query(
+        collection(db, 'chat_messages'),
+        ...constraints
+       )
+      )
+     }
+
+     const legacyMessages: Message[] = legacySnapshot.docs
+      .map((d) => {
+       const data = d.data() as any
+       return {
+        id: d.id,
+        type: (data.role === 'user' || data.role === 'assistant') ? data.role : 'assistant',
+        content: data.content,
+        timestamp: data.timestamp?.toDate?.() || new Date()
+       } as Message
+      })
+      .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime())
+
+     if (legacyMessages.length > 0) {
+      console.log(`✅ Loaded ${legacyMessages.length} messages from legacy chat_messages`)
+      historicalMessages = legacyMessages
+     } else {
+      console.log(`📭 No chat history found in either store for conversation: ${convId}`)
+     }
+    } catch (fallbackErr) {
+     console.error('Fallback history load failed:', fallbackErr)
+    }
    }
 
    setMessages(historicalMessages)
@@ -177,6 +221,19 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
     collection(db, 'chatConversations', conversationId, 'messages'),
     messageData
    )
+
+   // Backward compatibility: dual-write to legacy chat_messages
+   try {
+    await addDoc(collection(db, 'chat_messages'), {
+     userId: userId,
+     coachId: creatorId || null,
+     role: message.type,
+     content: message.content,
+     timestamp: serverTimestamp()
+    })
+   } catch (legacyWriteErr) {
+    console.warn('Legacy chat_messages write failed (non-blocking):', legacyWriteErr)
+   }
 
   } catch (error) {
    console.error('Error saving message to Firestore:', error)
