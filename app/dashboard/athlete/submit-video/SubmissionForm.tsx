@@ -15,7 +15,7 @@ import toast from 'react-hot-toast';
 interface SubmissionFormProps {
   user: {
     uid: string;
-    email: string;
+    email: string | null;
     displayName: string;
     photoURL?: string | null;
   };
