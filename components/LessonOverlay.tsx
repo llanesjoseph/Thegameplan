@@ -144,31 +144,40 @@ export default function LessonOverlay({
         {/* Header */}
         <div className="sticky top-0 z-10 bg-gradient-to-r from-blue-500/10 to-teal-500/10 backdrop-blur-sm border-b border-blue-200/50 px-6 py-4">
           <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold" style={{ color: '#000000' }}>
+              Lesson Details
+            </h2>
             <div className="flex items-center gap-3">
               {onToggleCompletion && (
                 <button
                   onClick={onToggleCompletion}
-                  className="flex-shrink-0 hover:scale-110 transition-transform"
-                  title={isCompleted ? "Mark as incomplete" : "Mark as complete"}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+                    isCompleted
+                      ? 'bg-teal-500 hover:bg-teal-600 text-white'
+                      : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                  }`}
                 >
                   {isCompleted ? (
-                    <CheckCircle2 className="w-8 h-8" style={{ color: '#20B2AA' }} />
+                    <>
+                      <CheckCircle2 className="w-5 h-5" />
+                      <span>Completed</span>
+                    </>
                   ) : (
-                    <Circle className="w-8 h-8" style={{ color: '#000000', opacity: 0.3 }} />
+                    <>
+                      <Circle className="w-5 h-5" />
+                      <span>Mark as Complete</span>
+                    </>
                   )}
                 </button>
               )}
-              <h2 className="text-xl font-semibold" style={{ color: '#000000' }}>
-                Lesson Details
-              </h2>
+              <button
+                onClick={onClose}
+                className="p-2 hover:bg-blue-100 rounded-lg transition-colors"
+                title="Close (Esc)"
+              >
+                <X className="w-6 h-6" style={{ color: '#000000' }} />
+              </button>
             </div>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-blue-100 rounded-lg transition-colors"
-              title="Close (Esc)"
-            >
-              <X className="w-6 h-6" style={{ color: '#000000' }} />
-            </button>
           </div>
         </div>
 
