@@ -53,6 +53,30 @@ export default function AthleteReviewsPage() {
           }
         });
 
+        // Fallback: also surface pending feedback_requests for this athlete
+        if (mySubmissions.length === 0) {
+          try {
+            const frSnapshot = await getDocs(query(collection(db, 'feedback_requests')));
+            frSnapshot.forEach((doc) => {
+              const data = doc.data() as any;
+              if (data.athleteId === user.uid) {
+                mySubmissions.push({
+                  id: `fr_${doc.id}`,
+                  athleteUid: data.athleteId,
+                  skillName: data.title || 'Video Feedback Request',
+                  status: data.status || 'awaiting_review',
+                  submittedAt: data.createdAt,
+                  createdAt: data.createdAt,
+                  thumbnailUrl: null,
+                  notes: data.context || '',
+                });
+              }
+            });
+          } catch (frErr) {
+            console.warn('Could not load feedback_requests fallback:', frErr);
+          }
+        }
+
         // Sort by createdAt (newest first)
         mySubmissions.sort((a, b) => {
           const aDate = a.createdAt?.toDate?.() || new Date(a.createdAt || 0);

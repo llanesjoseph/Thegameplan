@@ -61,7 +61,41 @@ export default function GetFeedbackPage() {
     setUploadProgress(5);
 
     try {
-      // Step 1: Create feedback request in Firestore (like lessons collection)
+      // Step 1: Create a server-side Submission so it shows up immediately
+      let submissionId: string | null = null;
+      try {
+        const token = (user as any)?.getIdToken ? await (user as any).getIdToken(true) : null;
+        if (!token) throw new Error('Missing auth token');
+
+        const resp = await fetch('/api/submissions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            athleteContext: context.trim(),
+            athleteGoals: goals.trim(),
+            specificQuestions: questions.trim(),
+            videoFileName: videoFile.name,
+            videoFileSize: videoFile.size,
+            videoDuration: 0,
+          }),
+        });
+
+        if (!resp.ok) {
+          const data = await resp.json().catch(() => ({}));
+          throw new Error(data.error || 'Failed to create submission');
+        }
+
+        const data = await resp.json();
+        submissionId = data.submissionId;
+        setUploadProgress(15);
+      } catch (apiErr) {
+        console.warn('Could not create submission via API; proceeding with feedback request only:', apiErr);
+      }
+
+      // Step 2: Create feedback request record (kept for compatibility/UI)
       const feedbackData = {
         athleteId: user.uid,
         athleteName: user.displayName || user.email,
@@ -82,10 +116,14 @@ export default function GetFeedbackPage() {
       toast.success('Feedback request created');
       setUploadProgress(35);
 
-      // Step 2: Upload video to Storage (using same pattern as lessons)
+      // Step 3: Upload video to Storage (resumable)
       const timestamp = Date.now();
       const fileName = `${timestamp}_${videoFile.name}`;
-      const storagePath = `feedback/${user.uid}/${feedbackId}/${fileName}`;
+      // Prefer uploads path tied to submission when available, else fallback to feedback path
+      const sanitized = (name: string) => name.replace(/\.{2,}/g, '').replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 255);
+      const storagePath = submissionId
+        ? `uploads/${user.uid}/submissions/${submissionId}/${sanitized(fileName)}`
+        : `feedback/${user.uid}/${feedbackId}/${sanitized(fileName)}`;
 
       const storageRef = ref(storage, storagePath);
       // Use resumable upload for large files and real progress updates
@@ -118,7 +156,7 @@ export default function GetFeedbackPage() {
         }
       }).then(async (downloadUrl) => {
         setUploadProgress(97);
-        // Step 3: Update feedback request with video URL
+        // Step 4: Update feedback request with video URL
         await updateDoc(docRef, {
           videoUrl: downloadUrl,
           videoStoragePath: storagePath,
@@ -128,49 +166,28 @@ export default function GetFeedbackPage() {
 
         setUploadProgress(100);
 
-        // Step 4: Create corresponding item in submissions collection
-        try {
-          // Try to fetch assigned coach to route into the coach queue
-          let coachId: string | null = null;
+        // Step 5: If we created a server-side submission, patch it with the video URL
+        if (submissionId) {
           try {
-            const userSnap = await getDoc(doc(db, 'users', user.uid));
-            const udata: any = userSnap.data();
-            coachId = udata?.coachId || udata?.assignedCoachId || null;
-          } catch {
-            coachId = null;
+            const token = (user as any)?.getIdToken ? await (user as any).getIdToken(true) : null;
+            if (token) {
+              await fetch(`/api/submissions/${submissionId}`, {
+                method: 'PATCH',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                  videoDownloadUrl: downloadUrl,
+                  videoStoragePath: storagePath,
+                  status: 'awaiting_coach',
+                  uploadProgress: 100,
+                }),
+              });
+            }
+          } catch (patchErr) {
+            console.warn('Submission patch failed (upload succeeded):', patchErr);
           }
-
-          await addDoc(collection(db, 'submissions'), {
-            // Owner
-            athleteUid: user.uid,
-            athleteName: user.displayName || user.email,
-            athletePhotoUrl: user.photoURL || null,
-            teamId: user.uid,
-            coachId: coachId || null,
-
-            // Video
-            videoFileName: videoFile.name,
-            videoFileSize: videoFile.size,
-            videoStoragePath: storagePath,
-            videoDuration: 0,
-            thumbnailUrl: null,
-
-            // Context
-            athleteContext: context.trim(),
-            athleteGoals: goals.trim(),
-            specificQuestions: questions.trim(),
-
-            // Workflow state
-            status: 'awaiting_coach',
-            uploadProgress: 100,
-
-            // Timestamps/metadata
-            createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp(),
-            submittedAt: serverTimestamp(),
-          });
-        } catch (subErr) {
-          console.warn('Created feedback request but could not mirror to submissions:', subErr);
         }
 
         // Success UI (avoid throwing / global error)
