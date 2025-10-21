@@ -17,7 +17,8 @@ import {
   TrendingUp,
   ShoppingBag,
   Rss,
-  User
+  User,
+  FileVideo
 } from 'lucide-react'
 import AppHeader from '@/components/ui/AppHeader'
 import Live1on1RequestModal from '@/components/athlete/Live1on1RequestModal'
@@ -50,6 +51,20 @@ export default function AthleteDashboard() {
       description: 'Today\'s overview and quick actions',
       icon: LayoutDashboard,
       color: '#5A9B9B'
+    },
+    {
+      id: 'video-reviews',
+      title: 'Video Reviews',
+      description: 'View submitted videos and feedback',
+      icon: Video,
+      color: '#E53E3E'
+    },
+    {
+      id: 'submit-video',
+      title: 'Submit Video',
+      description: 'Upload a video for coach review',
+      icon: FileVideo,
+      color: '#DD6B20'
     },
     {
       id: 'ai-assistant',
@@ -227,6 +242,14 @@ export default function AthleteDashboard() {
     }
     if (toolId === 'coach-dashboard') {
       router.push('/dashboard/coach-unified')
+      return
+    }
+    if (toolId === 'video-reviews') {
+      router.push('/dashboard/athlete/reviews')
+      return
+    }
+    if (toolId === 'submit-video') {
+      router.push('/dashboard/athlete/submit-video')
       return
     }
     setActiveSection(toolId)
