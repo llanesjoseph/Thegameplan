@@ -22,7 +22,8 @@ import {
   ChevronRight,
   ShoppingBag,
   Calendar,
-  Home
+  Home,
+  FileVideo
 } from 'lucide-react'
 
 export default function CoachUnifiedDashboard() {
@@ -122,6 +123,20 @@ export default function CoachUnifiedDashboard() {
       color: '#5A9B9B'
     },
     {
+      id: 'video-queue',
+      title: 'Video Review Queue',
+      description: 'Review athlete video submissions',
+      icon: FileVideo,
+      color: '#E53E3E'
+    },
+    {
+      id: 'video-analytics',
+      title: 'Video Analytics',
+      description: 'Track review performance metrics',
+      icon: BarChart3,
+      color: '#5A52D5'
+    },
+    {
       id: 'profile',
       title: 'My Profile',
       description: 'Edit your coach profile',
@@ -204,6 +219,8 @@ export default function CoachUnifiedDashboard() {
   const getSectionPath = (sectionId: string) => {
     const pathMap: Record<string, string> = {
       'home': '/dashboard/coach/home?embedded=true',
+      'video-queue': '/dashboard/coach/queue',
+      'video-analytics': '/dashboard/coach/analytics/video-critique',
       'athletes': '/dashboard/coach/athletes?embedded=true',
       'create-lesson': '/dashboard/coach/lessons/create?embedded=true',
       'live-sessions': '/dashboard/coach/live-sessions?embedded=true',
@@ -266,7 +283,7 @@ export default function CoachUnifiedDashboard() {
                 </h2>
               )}
               <p className={`text-xs ${isSidebarCollapsed ? 'text-center' : ''}`} style={{ color: '#666' }}>
-                {isSidebarCollapsed ? '12' : '12 tools available'}
+                {isSidebarCollapsed ? '14' : '14 tools available'}
               </p>
             </div>
 
@@ -280,9 +297,13 @@ export default function CoachUnifiedDashboard() {
                   <button
                     key={card.id}
                     onClick={() => {
-                      // Open invite page directly (not in iframe) to fix auth issues
+                      // Open these pages directly (not in iframe)
                       if (card.id === 'invite') {
                         router.push('/dashboard/coach/invite')
+                      } else if (card.id === 'video-queue') {
+                        router.push('/dashboard/coach/queue')
+                      } else if (card.id === 'video-analytics') {
+                        router.push('/dashboard/coach/analytics/video-critique')
                       } else {
                         setActiveSection(card.id)
                       }
