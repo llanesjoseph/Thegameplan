@@ -9,7 +9,6 @@ import {
   getVideoMetadata,
   formatFileSize,
 } from '@/lib/upload/uppy-config';
-import { Skill, PrivacyLevel } from '@/types/video-critique';
 import toast from 'react-hot-toast';
 
 interface SubmissionFormProps {
@@ -26,7 +25,6 @@ export default function SubmissionForm({ user }: SubmissionFormProps) {
   const [athleteContext, setAthleteContext] = useState('');
   const [athleteGoals, setAthleteGoals] = useState('');
   const [specificQuestions, setSpecificQuestions] = useState('');
-  const [privacyLevel, setPrivacyLevel] = useState<PrivacyLevel>('team_only');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [videoFile, setVideoFile] = useState<File | null>(null);
@@ -94,7 +92,6 @@ export default function SubmissionForm({ user }: SubmissionFormProps) {
             athleteContext: athleteContext.trim(),
             athleteGoals: athleteGoals.trim(),
             specificQuestions: specificQuestions.trim(),
-            privacyLevel,
             videoFileName: videoFile.name,
             videoFileSize: videoFile.size,
             videoDuration: videoMetadata?.duration || 0,
@@ -158,7 +155,6 @@ export default function SubmissionForm({ user }: SubmissionFormProps) {
       athleteContext,
       athleteGoals,
       specificQuestions,
-      privacyLevel,
       videoMetadata,
       router,
     ]
@@ -220,22 +216,6 @@ export default function SubmissionForm({ user }: SubmissionFormProps) {
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
             rows={2}
           />
-        </div>
-
-        {/* Privacy Level */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Privacy Level
-          </label>
-          <select
-            value={privacyLevel}
-            onChange={(e) => setPrivacyLevel(e.target.value as PrivacyLevel)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-          >
-            <option value="team_only">Team Only</option>
-            <option value="coaches_only">Coaches Only</option>
-            <option value="parent_visible">Parent Visible</option>
-          </select>
         </div>
       </div>
 
