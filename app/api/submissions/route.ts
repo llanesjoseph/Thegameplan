@@ -142,7 +142,7 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '20');
 
     // Build query using Firebase Admin SDK
-    let query = adminDb.collection('submissions');
+    let query: any = adminDb.collection('submissions');
 
     // Apply filters
     if (athleteUid) {
