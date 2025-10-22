@@ -143,12 +143,16 @@ export default function QueueBypassPage() {
                     </div>
 
                     {/* Action */}
-                    <button
-                      onClick={() => handleClaim(submission.id)}
-                      className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
-                    >
-                      Start Review
-                    </button>
+                    <div className="flex flex-col items-end space-y-2">
+                      <span className="text-xs text-gray-500">ID: {submission.id}</span>
+                      <span className="text-xs text-gray-500">Status: {submission.status}</span>
+                      <button
+                        onClick={() => handleClaim(submission.id)}
+                        className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
+                      >
+                        Start Review
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

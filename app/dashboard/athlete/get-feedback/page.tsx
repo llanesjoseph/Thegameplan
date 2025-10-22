@@ -26,6 +26,29 @@ export default function GetFeedbackPage() {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
 
+  // Simple retry helper for fetch calls (exponential backoff)
+  const fetchWithRetry = async (
+    input: RequestInfo | URL,
+    init: RequestInit,
+    retries: number = 2,
+    backoffMs: number = 400
+  ): Promise<Response> => {
+    let lastErr: unknown = null;
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      try {
+        const resp = await fetch(input, init);
+        if (resp.ok) return resp;
+        lastErr = new Error(`HTTP ${resp.status}`);
+      } catch (e) {
+        lastErr = e;
+      }
+      if (attempt < retries) {
+        await new Promise(r => setTimeout(r, backoffMs * Math.pow(2, attempt)));
+      }
+    }
+    throw lastErr instanceof Error ? lastErr : new Error('request failed');
+  };
+
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -68,7 +91,7 @@ export default function GetFeedbackPage() {
         const token = (user as any)?.getIdToken ? await (user as any).getIdToken(true) : null;
         if (!token) throw new Error('Missing auth token');
 
-        const resp = await fetch('/api/submissions', {
+        const resp = await fetchWithRetry('/api/submissions', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -83,11 +106,6 @@ export default function GetFeedbackPage() {
             videoDuration: 0,
           }),
         });
-
-        if (!resp.ok) {
-          const data = await resp.json().catch(() => ({}));
-          throw new Error(data.error || 'Failed to create submission');
-        }
 
         const data = await resp.json();
         submissionId = data.submissionId;
@@ -112,10 +130,17 @@ export default function GetFeedbackPage() {
 
       setUploadProgress(20);
 
-      const docRef = await addDoc(collection(db, 'feedback_requests'), feedbackData);
-      const feedbackId = docRef.id;
-
-      toast.success('Feedback request created');
+      let docRef;
+      let feedbackId;
+      try {
+        docRef = await addDoc(collection(db, 'feedback_requests'), feedbackData);
+        feedbackId = docRef.id;
+        toast.success('Feedback request created');
+      } catch (frErr) {
+        console.warn('Feedback request create failed (continuing):', frErr);
+        // Continue without a feedback_request record (submission still created)
+        feedbackId = `fallback_${Date.now()}`;
+      }
       setUploadProgress(35);
 
       // Step 3: Upload video to Storage (resumable)
@@ -159,12 +184,14 @@ export default function GetFeedbackPage() {
       }).then(async (downloadUrl) => {
         setUploadProgress(97);
         // Step 4: Update feedback request with video URL
-        await updateDoc(docRef, {
-          videoUrl: downloadUrl,
-          videoStoragePath: storagePath,
-          status: 'awaiting_review',
-          updatedAt: serverTimestamp(),
-        });
+        if (docRef) {
+          await updateDoc(docRef, {
+            videoUrl: downloadUrl,
+            videoStoragePath: storagePath,
+            status: 'awaiting_review',
+            updatedAt: serverTimestamp(),
+          });
+        }
 
         setUploadProgress(100);
 
@@ -173,7 +200,7 @@ export default function GetFeedbackPage() {
           try {
             const token = (user as any)?.getIdToken ? await (user as any).getIdToken(true) : null;
             if (token) {
-              await fetch(`/api/submissions/${submissionId}`, {
+              await fetchWithRetry(`/api/submissions/${submissionId}`, {
                 method: 'PATCH',
                 headers: {
                   'Content-Type': 'application/json',
