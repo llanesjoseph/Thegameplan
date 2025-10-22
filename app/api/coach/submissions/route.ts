@@ -48,8 +48,11 @@ export async function GET(request: NextRequest) {
     }
 
     // 3. Fetch all submissions using Admin SDK
+    console.log('[API] Fetching submissions from Firestore...')
     const submissionsQuery = adminDb.collection('submissions').orderBy('createdAt', 'desc')
     const snapshot = await submissionsQuery.get()
+
+    console.log(`[API] Found ${snapshot.docs.length} submissions in 'submissions' collection`)
 
     const allSubmissions = snapshot.docs.map((doc) => {
       const data = doc.data()
@@ -63,22 +66,61 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    // 4. Filter submissions
-    const awaitingCoach = allSubmissions.filter((sub: any) =>
-      sub.status === 'awaiting_coach' || sub.status === 'uploading'
-    )
+    // 4. Also check feedback_requests collection as fallback
+    console.log('[API] Checking feedback_requests collection as fallback...')
+    const feedbackQuery = adminDb.collection('feedback_requests').orderBy('createdAt', 'desc')
+    const feedbackSnapshot = await feedbackQuery.get()
     
-    const completedByCoach = allSubmissions.filter((sub: any) =>
+    console.log(`[API] Found ${feedbackSnapshot.docs.length} items in 'feedback_requests' collection`)
+
+    const feedbackSubmissions = feedbackSnapshot.docs.map((doc) => {
+      const data = doc.data()
+      return {
+        id: `fr_${doc.id}`, // Prefix to distinguish from submissions
+        ...data,
+        // Convert Firestore timestamps to ISO strings for JSON serialization
+        createdAt: data.createdAt?.toDate?.()?.toISOString() || data.createdAt,
+        submittedAt: data.createdAt?.toDate?.()?.toISOString() || data.createdAt,
+        reviewedAt: data.reviewedAt?.toDate?.()?.toISOString() || data.reviewedAt,
+        // Map feedback_requests fields to submission format
+        status: data.status || 'awaiting_coach',
+        athleteName: data.athleteName || 'Unknown Athlete',
+        athleteContext: data.context || data.notes || '',
+        videoFileName: data.videoFileName || 'video.mp4',
+        thumbnailUrl: data.thumbnailUrl || null,
+        videoDuration: data.videoDuration || null,
+        videoFileSize: data.videoFileSize || null,
+      }
+    })
+
+    // Combine both collections
+    const combinedSubmissions = [...allSubmissions, ...feedbackSubmissions]
+    console.log(`[API] Combined total: ${combinedSubmissions.length} submissions`)
+
+    // 5. Filter submissions - let's be more inclusive to catch all possible statuses
+    const awaitingCoach = combinedSubmissions.filter((sub: any) => {
+      // Include any submission that's not completed/reviewed
+      const isNotCompleted = !['complete', 'reviewed'].includes(sub.status)
+      console.log(`[API] Submission ${sub.id}: status=${sub.status}, isNotCompleted=${isNotCompleted}`)
+      return isNotCompleted
+    })
+    
+    const completedByCoach = combinedSubmissions.filter((sub: any) =>
       (sub.status === 'complete' || sub.status === 'reviewed') && 
       sub.claimedBy === uid
     )
 
+    console.log(`[API] Total submissions: ${combinedSubmissions.length}`)
+    console.log(`[API] Awaiting coach: ${awaitingCoach.length}`)
+    console.log(`[API] Completed by coach: ${completedByCoach.length}`)
+    console.log(`[API] All statuses found:`, [...new Set(combinedSubmissions.map(s => s.status))])
+
     return NextResponse.json({
       success: true,
-      submissions: allSubmissions,
+      submissions: combinedSubmissions,
       awaitingCoach: awaitingCoach,
       completedByCoach: completedByCoach,
-      total: allSubmissions.length
+      total: combinedSubmissions.length
     })
 
   } catch (error) {

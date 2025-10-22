@@ -29,7 +29,12 @@ export default function QueueBypassPage() {
 
         if (response.ok) {
           const data = await response.json()
-          const allSubmissions = [...data.awaitingCoach, ...data.completedByCoach]
+          console.log('[COACH-QUEUE] API Response:', data)
+          console.log('[COACH-QUEUE] Awaiting coach:', data.awaitingCoach?.length || 0)
+          console.log('[COACH-QUEUE] Completed by coach:', data.completedByCoach?.length || 0)
+          console.log('[COACH-QUEUE] Total submissions:', data.submissions?.length || 0)
+          
+          const allSubmissions = [...(data.awaitingCoach || []), ...(data.completedByCoach || [])]
           
           // Sort by createdAt
           allSubmissions.sort((a: any, b: any) => {
@@ -39,9 +44,10 @@ export default function QueueBypassPage() {
           })
           
           setSubmissions(allSubmissions)
-          console.log('[COACH-QUEUE] Loaded submissions:', allSubmissions.length)
+          console.log('[COACH-QUEUE] Final submissions loaded:', allSubmissions.length)
         } else {
-          console.error('Failed to load submissions:', response.status)
+          const errorData = await response.json().catch(() => ({}))
+          console.error('Failed to load submissions:', response.status, errorData)
           setSubmissions([])
         }
       } catch (error) {
