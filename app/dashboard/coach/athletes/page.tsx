@@ -174,6 +174,7 @@ function CoachAthletesContent() {
 
       if (response.ok) {
         const result = await response.json()
+        console.log('Invitation response:', result)
 
         if (result.successCount === 0 && result.failCount > 0) {
           const failedDetails = result.results
@@ -191,9 +192,21 @@ function CoachAthletesContent() {
           })
           // Reload athlete data to show new invitations
           loadAthleteData()
+        } else {
+          // Handle case where successCount is 0 but no failures
+          alert(`Processed ${result.duplicateCount || 0} invitations (duplicates skipped)`)
+          setShowBulkInvite(false)
+          setBulkForm({
+            sport: 'Soccer',
+            customMessage: '',
+            athletes: [{ email: '', name: '' }]
+          })
+          loadAthleteData()
         }
       } else {
-        throw new Error('Failed to send invitations')
+        const errorResult = await response.json()
+        console.error('API Error:', errorResult)
+        throw new Error(`Failed to send invitations: ${errorResult.error || 'Unknown error'}`)
       }
     } catch (error) {
       console.error('Error sending invitations:', error)
