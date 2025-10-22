@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import AppHeader from '@/components/ui/AppHeader'
-import { db } from '@/lib/firebase.client'
-import { collection, query, getDocs, orderBy, where } from 'firebase/firestore'
+// Removed unused Firebase client import
+// Removed direct Firestore imports - now using secure APIs
 import { ShoppingBag, ExternalLink, Star, Tag, Filter, Search, Image as ImageIcon, User, Users } from 'lucide-react'
 
 interface GearItem {
@@ -54,10 +54,19 @@ export default function AthleteGearBrowsePage({ searchParams }: { searchParams: 
     if (!user?.uid) return
 
     try {
-      const userDoc = await getDocs(query(collection(db, 'users'), where('uid', '==', user.uid)))
-      if (!userDoc.empty) {
-        const userData = userDoc.docs[0].data()
-        setCoachId(userData?.coachId || userData?.assignedCoachId || null)
+      const token = await user.getIdToken()
+      const response = await fetch('/api/athlete/coach-id', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setCoachId(data.coachId)
+        console.log('[GEAR-SHOP] Coach ID loaded:', data.coachId)
+      } else {
+        console.error('Failed to load coach ID:', response.status)
       }
     } catch (error) {
       console.error('Error loading coach ID:', error)
@@ -67,20 +76,29 @@ export default function AthleteGearBrowsePage({ searchParams }: { searchParams: 
   const loadGearItems = async () => {
     try {
       setLoading(true)
-      const gearQuery = query(
-        collection(db, 'gear'),
-        orderBy('createdAt', 'desc')
-      )
-      const snapshot = await getDocs(gearQuery)
+      const token = await user?.getIdToken()
+      if (!token) {
+        console.error('No authentication token available')
+        return
+      }
 
-      const items = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data()
-      })) as GearItem[]
+      const response = await fetch('/api/gear', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      })
 
-      setGearItems(items)
+      if (response.ok) {
+        const data = await response.json()
+        setGearItems(data.gearItems || [])
+        console.log('[GEAR-SHOP] Loaded gear items:', data.gearItems?.length || 0)
+      } else {
+        console.error('Failed to load gear items:', response.status)
+        setGearItems([])
+      }
     } catch (error) {
       console.error('Error loading gear items:', error)
+      setGearItems([])
     } finally {
       setLoading(false)
     }
