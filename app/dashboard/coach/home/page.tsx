@@ -73,7 +73,7 @@ export default function CoachHomePage() {
         </div>
 
         {/* Helpful Tips */}
-        <div className="bg-gradient-to-r from-slate-600 to-slate-700 rounded-xl p-6 text-white shadow-lg">
+        <div className="bg-gradient-to-r from-slate-600 to-slate-700 rounded-sm p-6 text-white shadow-lg">
           <h3 className="font-bold text-lg mb-2">💡 Quick Tip</h3>
           <p className="text-slate-200 text-sm">
             Use the sidebar to access all your coaching tools. The quick action buttons in the header banner provide fast access to common tasks.

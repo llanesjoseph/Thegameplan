@@ -206,7 +206,7 @@ export default function TodaysOverview({ onQuickAction }: TodaysOverviewProps) {
   return (
     <div className="space-y-4">
       {/* Header with Greeting */}
-      <div className="bg-gradient-to-r from-teal-500 to-teal-600 rounded-xl p-5 sm:p-6 text-white shadow-lg">
+      <div className="bg-gradient-to-r from-teal-500 to-teal-600 rounded-sm p-5 sm:p-6 text-white shadow-lg">
         <h1 className="text-2xl sm:text-3xl font-bold mb-1">
           {greeting()}, {user?.displayName?.split(' ')[0] || 'Coach'}! 👋
         </h1>
@@ -220,10 +220,10 @@ export default function TodaysOverview({ onQuickAction }: TodaysOverviewProps) {
               <button
                 key={action.id}
                 onClick={() => onQuickAction?.(action.id)}
-                className="group bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-lg p-3 transition-all hover:scale-105 active:scale-95 touch-manipulation border border-white/20 hover:border-white/40 text-left"
+                className="group bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-sm p-3 transition-all hover:scale-105 active:scale-95 touch-manipulation border border-white/20 hover:border-white/40 text-left"
               >
                 <div className="flex flex-col">
-                  <div className="w-9 h-9 rounded-lg bg-white/20 flex items-center justify-center mb-2">
+                  <div className="w-9 h-9 rounded-sm bg-white/20 flex items-center justify-center mb-2">
                     <Icon className="w-4.5 h-4.5 text-white" />
                   </div>
                   <h3 className="text-white font-semibold text-sm mb-0.5">

@@ -307,7 +307,7 @@ export default function CoachUnifiedDashboard() {
                         setActiveSection(card.id)
                       }
                     }}
-                    className={`w-full text-left transition-all rounded-lg touch-manipulation active:scale-95 ${
+                    className={`w-full text-left transition-all rounded-sm touch-manipulation active:scale-95 ${
                       isActive
                         ? 'bg-black/10 shadow-md'
                         : 'hover:bg-gray-100/80'
@@ -319,7 +319,7 @@ export default function CoachUnifiedDashboard() {
                       {/* Icon with badge */}
                       <div className="relative flex-shrink-0">
                         <div
-                          className="w-8 h-8 rounded-lg flex items-center justify-center"
+                          className="w-8 h-8 rounded-sm flex items-center justify-center"
                           style={{ backgroundColor: card.color }}
                         >
                           <Icon className="w-4 h-4 text-white" />
