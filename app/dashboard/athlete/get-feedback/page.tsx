@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { storage, db } from '@/lib/firebase.client';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { collection, addDoc, updateDoc, serverTimestamp, doc, getDoc, type DocumentReference, type DocumentData } from 'firebase/firestore';
+import { collection, addDoc, updateDoc, serverTimestamp, doc, getDoc } from 'firebase/firestore';
 import { ArrowLeft, Upload, Video, Check } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -25,6 +25,8 @@ export default function GetFeedbackPage() {
   const [questions, setQuestions] = useState('');
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [submitDone, setSubmitDone] = useState(false);
+  const [createdSubmissionId, setCreatedSubmissionId] = useState<string | null>(null);
 
   // Simple retry helper for fetch calls (exponential backoff)
   const fetchWithRetry = async (
@@ -109,6 +111,7 @@ export default function GetFeedbackPage() {
 
         const data = await resp.json();
         submissionId = data.submissionId;
+        setCreatedSubmissionId(submissionId);
         setUploadProgress(15);
       } catch (apiErr) {
         console.warn('Could not create submission via API; will create client-side after upload:', apiErr);
@@ -130,8 +133,8 @@ export default function GetFeedbackPage() {
 
       setUploadProgress(20);
 
-      let docRef: DocumentReference<DocumentData> | null = null;
-      let feedbackId: string;
+      let docRef;
+      let feedbackId;
       try {
         docRef = await addDoc(collection(db, 'feedback_requests'), feedbackData);
         feedbackId = docRef.id;
@@ -227,7 +230,7 @@ export default function GetFeedbackPage() {
               coachId = udata?.coachId || udata?.assignedCoachId || null;
             } catch {}
 
-            await addDoc(collection(db, 'submissions'), {
+            const subRef = await addDoc(collection(db, 'submissions'), {
               athleteUid: user.uid,
               athleteName: user.displayName || user.email,
               athletePhotoUrl: user.photoURL || null,
@@ -247,6 +250,7 @@ export default function GetFeedbackPage() {
               updatedAt: serverTimestamp(),
               submittedAt: serverTimestamp(),
             });
+            setCreatedSubmissionId(subRef.id);
             console.log('✅ Created client-side submission fallback');
           } catch (subErr) {
             console.warn('Client-side submission fallback failed:', subErr);
@@ -256,20 +260,11 @@ export default function GetFeedbackPage() {
         // Success UI (avoid throwing / global error)
         toast.success('✅ Submission complete! Your coach will review it soon.');
 
-        // Reset form safely and optionally redirect to reviews
-        setTimeout(() => {
-          setVideoFile(null);
-          setContext('');
-          setGoals('');
-          setQuestions('');
-          setUploadProgress(0);
-          setUploading(false);
-          if (fileInputRef.current) fileInputRef.current.value = '';
-
-          if (!isEmbedded) {
-            router.push('/dashboard/athlete/reviews?submitted=1');
-          }
-        }, 800);
+        // Show explicit success confirmation with actions
+        setSubmitDone(true);
+        setUploading(false);
+        setUploadProgress(0);
+        if (fileInputRef.current) fileInputRef.current.value = '';
       });
       return;
 
@@ -303,8 +298,38 @@ export default function GetFeedbackPage() {
           </p>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-6">
+         {/* Success Callout */}
+         {submitDone && (
+           <div className="mb-6 p-4 border border-green-200 bg-green-50 rounded-lg text-green-900">
+             <div className="flex items-start justify-between">
+               <div>
+                 <p className="font-semibold">Submission received!</p>
+                 <p className="text-sm mt-1">Your coach has been notified and will begin the review soon.</p>
+                 {createdSubmissionId && (
+                   <p className="text-xs mt-2 opacity-80">Submission ID: {createdSubmissionId}</p>
+                 )}
+               </div>
+               <div className="flex gap-2">
+                 <button
+                   onClick={() => router.push('/dashboard/athlete/reviews?submitted=1')}
+                   className="px-3 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                 >
+                   View My Reviews
+                 </button>
+                 <button
+                   onClick={() => { setSubmitDone(false); setCreatedSubmissionId(null); }}
+                   className="px-3 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
+                 >
+                   Submit Another
+                 </button>
+               </div>
+             </div>
+           </div>
+         )}
+
+         {/* Form */}
+         {!submitDone && (
+         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Video Upload */}
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-xl font-semibold mb-4">Upload Your Video</h2>
@@ -440,7 +465,8 @@ export default function GetFeedbackPage() {
               {uploading ? `Uploading... ${uploadProgress}%` : 'Submit for Feedback'}
             </button>
           </div>
-        </form>
+         </form>
+         )}
       </div>
     </div>
   );
