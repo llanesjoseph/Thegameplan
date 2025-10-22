@@ -81,7 +81,12 @@ export default function QueueBypassPage() {
   console.log('[COACH-QUEUE] Sample submission:', submissions[0])
   
   const activeReviews = submissions.filter(submission => {
-    const isActive = submission.status === 'awaiting_coach' || submission.status === 'uploading'
+    // Include submissions that are awaiting review or in progress
+    const isActive = submission.status === 'awaiting_coach' || 
+                     submission.status === 'uploading' || 
+                     submission.status === 'awaiting_review' ||
+                     submission.status === 'claimed' ||
+                     submission.status === 'in_review'
     console.log(`[COACH-QUEUE] Submission ${submission.id}: status=${submission.status}, isActive=${isActive}`)
     return isActive
   });
