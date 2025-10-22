@@ -210,7 +210,7 @@ export default function VideoPlayer({
     <div
       ref={containerRef}
       className={`relative bg-black rounded-lg overflow-hidden group ${
-        isExpanded ? 'fixed inset-4 z-50' : 'w-full max-w-4xl mx-auto'
+        isExpanded ? 'fixed inset-4 z-50' : 'w-full max-w-5xl mx-auto'
       }`}
     >
       {/* Scale and Expand Controls */}

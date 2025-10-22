@@ -91,8 +91,8 @@ export default function QueueBypassPage() {
   }
 
   return (
-    <div className={`${isEmbedded ? 'h-full overflow-y-auto w-full flex justify-center' : 'container mx-auto px-4 py-8'}`} style={{ backgroundColor: isEmbedded ? 'white' : undefined }}>
-      <div className={`${isEmbedded ? 'w-full max-w-6xl px-4' : 'max-w-7xl mx-auto'}`}>
+    <div className={`${isEmbedded ? 'h-full overflow-y-auto w-full' : 'container mx-auto px-4 py-8'}`} style={{ backgroundColor: isEmbedded ? 'white' : undefined }}>
+      <div className={`${isEmbedded ? 'w-full max-w-7xl mx-auto px-6' : 'max-w-7xl mx-auto'}`}>
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Video Review Queue</h1>
           <p className="mt-2 text-gray-600">
