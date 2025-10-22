@@ -16,12 +16,13 @@ import {
   DrillRecommendation,
   TimecodeType,
 } from '@/types/video-critique';
-import { createReview, updateReview, saveDraftReview, publishReview } from '@/lib/data/reviews';
+// Removed client-side review functions - now using server-side APIs
 import VideoPlayer from '@/components/video-critique/VideoPlayer';
 import RubricScoring from '@/components/video-critique/RubricScoring';
 import TimecodeEditor from '@/components/video-critique/TimecodeEditor';
 import DrillSelector from '@/components/video-critique/DrillSelector';
 import { createNotification } from '@/lib/data/notifications';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface ReviewFormProps {
   submission: Submission;
@@ -42,8 +43,8 @@ export default function ReviewForm({
   coachPhotoUrl,
   isEmbedded = false,
 }: ReviewFormProps) {
-  const router = useRouter();
   const { user } = useAuth();
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [autoSaving, setAutoSaving] = useState(false);
   const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -69,20 +70,34 @@ export default function ReviewForm({
   // Create or load review on mount
   useEffect(() => {
     const initializeReview = async () => {
-      if (!existingReview) {
-        // Create new review
+      if (!existingReview && user) {
+        // Create new review using server-side API
         try {
-          const newReviewId = await createReview({
-            submissionId: submission.id,
-            coachUid: coachId,
-            coachName: coachName,
-            coachPhotoUrl: coachPhotoUrl,
-            teamId: submission.teamId || '',
-            skillId: submission.skillId || '',
-            overallFeedback: '',
-            status: 'draft',
+          const token = await user.getIdToken();
+          const response = await fetch('/api/reviews/create', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              submissionId: submission.id,
+              coachUid: coachId,
+              coachName: coachName,
+              coachPhotoUrl: coachPhotoUrl,
+              teamId: submission.teamId || '',
+              skillId: submission.skillId || '',
+              overallFeedback: '',
+              status: 'draft',
+            }),
           });
-          setReviewId(newReviewId);
+
+          if (!response.ok) {
+            throw new Error('Failed to create review');
+          }
+
+          const data = await response.json();
+          setReviewId(data.reviewId);
         } catch (error) {
           console.error('Error creating review:', error);
           toast.error('Failed to initialize review');
@@ -91,24 +106,34 @@ export default function ReviewForm({
     };
 
     initializeReview();
-  }, [existingReview, submission, coachId, coachName, coachPhotoUrl]);
+  }, [existingReview, submission, coachId, coachName, coachPhotoUrl, user]);
 
   // Auto-save functionality
   const performAutoSave = useCallback(async () => {
-    if (!reviewId || !overallFeedback.trim()) return;
+    if (!reviewId || !overallFeedback.trim() || !user) return;
 
     setAutoSaving(true);
     try {
-      await saveDraftReview(
-        reviewId,
-        overallFeedback,
-        undefined, // rubricScores
-        undefined, // timecodes
-        undefined, // drillRecommendations
-        nextSteps,
-        strengths,
-        areasForImprovement
-      );
+      const token = await user.getIdToken();
+      const response = await fetch(`/api/reviews/${reviewId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          overallFeedback,
+          nextSteps,
+          strengths: strengths.filter(s => s.trim()),
+          areasForImprovement: areasForImprovement.filter(a => a.trim()),
+          status: 'draft',
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to auto-save');
+      }
+
       console.log('Auto-saved review draft');
     } catch (error) {
       console.error('Error auto-saving:', error);
@@ -121,6 +146,7 @@ export default function ReviewForm({
     nextSteps,
     strengths,
     areasForImprovement,
+    user,
   ]);
 
   // Set up auto-save timer
