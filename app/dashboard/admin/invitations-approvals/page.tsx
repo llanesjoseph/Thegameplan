@@ -592,6 +592,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
       case 'rejected':
       case 'closed': return 'bg-red-100 text-red-800'
       case 'expired': return 'bg-gray-100 text-gray-800'
+      case 'revoked': return 'bg-red-100 text-red-800'
       case 'in_progress': return 'bg-blue-100 text-blue-800'
       default: return 'bg-gray-100 text-gray-800'
     }
@@ -711,6 +712,11 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
                 <div className="text-2xl" style={{ color: '#000000' }}>{invitations.filter(i => i.status === 'expired').length}</div>
                 <div className="text-xs" style={{ color: '#000000', opacity: 0.7 }}>Expired</div>
               </div>
+              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 text-center">
+                <XCircle className="w-6 h-6 mx-auto mb-1" style={{ color: '#DC2626' }} />
+                <div className="text-2xl" style={{ color: '#DC2626' }}>{invitations.filter(i => i.status === 'revoked').length}</div>
+                <div className="text-xs" style={{ color: '#000000', opacity: 0.7 }}>Revoked</div>
+              </div>
             </div>
 
             {/* Filters */}
@@ -727,7 +733,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
                   />
                 </div>
                 <div className="flex gap-2">
-                  {['all', 'pending', 'accepted', 'declined', 'expired'].map(status => (
+                  {['all', 'pending', 'accepted', 'declined', 'expired', 'revoked'].map(status => (
                     <button
                       key={status}
                       onClick={() => setInvitationFilter(status as any)}
@@ -1604,6 +1610,11 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
                 <div className="text-2xl" style={{ color: '#000000' }}>{invitations.filter(i => i.status === 'expired').length}</div>
                 <div className="text-xs" style={{ color: '#000000', opacity: 0.7 }}>Expired</div>
               </div>
+              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4 text-center">
+                <XCircle className="w-6 h-6 mx-auto mb-1" style={{ color: '#DC2626' }} />
+                <div className="text-2xl" style={{ color: '#DC2626' }}>{invitations.filter(i => i.status === 'revoked').length}</div>
+                <div className="text-xs" style={{ color: '#000000', opacity: 0.7 }}>Revoked</div>
+              </div>
             </div>
 
             {/* Filters */}
@@ -1620,7 +1631,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
                   />
                 </div>
                 <div className="flex gap-2">
-                  {['all', 'pending', 'accepted', 'declined', 'expired'].map(status => (
+                  {['all', 'pending', 'accepted', 'declined', 'expired', 'revoked'].map(status => (
                     <button
                       key={status}
                       onClick={() => setInvitationFilter(status as any)}
