@@ -4,6 +4,7 @@ import { getRubricBySkill } from '@/lib/data/rubrics';
 import { getReviewBySubmission } from '@/lib/data/reviews';
 import { getCurrentUser } from '@/lib/auth-server';
 import ReviewForm from './ReviewForm';
+import { adminDb } from '@/lib/firebase.admin';
 
 interface PageProps {
   params: {
@@ -23,6 +24,29 @@ export default async function CoachReviewPage({ params }: PageProps) {
 
   if (!submission) {
     return notFound();
+  }
+
+  // Auto-claim: if unclaimed and this coach is the assigned coach, claim server-side
+  if (!submission.claimedBy && submission.coachId === user.uid) {
+    try {
+      await adminDb
+        .collection('submissions')
+        .doc(params.submissionId)
+        .update({
+          claimedBy: user.uid,
+          claimedByName: user.displayName || user.email || 'Coach',
+          claimedAt: new Date(),
+          status: 'claimed',
+          updatedAt: new Date(),
+        });
+      // Reflect claimed state locally
+      (submission as any).claimedBy = user.uid;
+      (submission as any).claimedByName = user.displayName || user.email || 'Coach';
+      (submission as any).status = 'claimed';
+    } catch (e) {
+      // Ignore claim failure; page will still render access message below if not claimed
+      console.warn('Auto-claim failed:', e);
+    }
   }
 
   // Verify coach has claimed this submission
