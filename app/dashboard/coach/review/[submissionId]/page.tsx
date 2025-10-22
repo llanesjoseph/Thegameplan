@@ -47,9 +47,19 @@ export default function CoachReviewPage({ params }: { params: { submissionId: st
         }
 
         setSubmission(sub);
-        const { getReviewBySubmission } = await import('@/lib/data/video-critique');
-        const rev = await getReviewBySubmission(params.submissionId);
-        setExistingReview(rev);
+        // Fetch existing review via API to avoid client permission issues
+        try {
+          const reviewResp = await fetch(`/api/reviews?submissionId=${params.submissionId}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (reviewResp.ok) {
+            const reviewData = await reviewResp.json();
+            setExistingReview(reviewData.review || null);
+          }
+        } catch (reviewErr) {
+          console.warn('Failed to fetch existing review:', reviewErr);
+          setExistingReview(null);
+        }
       } finally {
         setInitializing(false);
       }
