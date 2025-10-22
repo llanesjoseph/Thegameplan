@@ -120,32 +120,9 @@ export default function GetFeedbackPage() {
         createClientSideSubmissionFallback = true;
       }
 
-      // Step 2: Create feedback request record (kept for compatibility/UI)
-      const feedbackData = {
-        athleteId: user.uid,
-        athleteName: user.displayName || user.email,
-        context: context.trim(),
-        goals: goals.trim(),
-        questions: questions.trim(),
-        status: 'pending_upload',
-        createdAt: serverTimestamp(),
-        videoFileName: videoFile.name,
-        videoFileSize: videoFile.size,
-      };
-
-      setUploadProgress(20);
-
-      let docRef: DocumentReference<DocumentData> | null = null;
-      let feedbackId: string;
-      try {
-        docRef = await addDoc(collection(db, 'feedback_requests'), feedbackData);
-        feedbackId = docRef.id;
-        toast.success('Feedback request created');
-      } catch (frErr) {
-        console.warn('Feedback request create failed (continuing):', frErr);
-        // Continue without a feedback_request record (submission still created)
-        feedbackId = `fallback_${Date.now()}`;
-      }
+      // Step 2: Skip feedback_requests creation to avoid duplicates
+      // We're using submissions collection as the primary source
+      let feedbackId = `fallback_${Date.now()}`;
       setUploadProgress(35);
 
       // Step 3: Upload video to Storage (resumable)
@@ -229,15 +206,7 @@ export default function GetFeedbackPage() {
         }
       }).then(async (downloadUrl) => {
         setUploadProgress(97);
-        // Step 4: Update feedback request with video URL
-        if (docRef) {
-          await updateDoc(docRef, {
-            videoUrl: downloadUrl,
-            videoStoragePath: storagePath,
-            status: 'awaiting_review',
-            updatedAt: serverTimestamp(),
-          });
-        }
+        // Step 4: Skip feedback_requests update (using submissions collection only)
 
         setUploadProgress(100);
 
