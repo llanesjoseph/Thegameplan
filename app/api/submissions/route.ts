@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth, adminDb } from '@/lib/firebase.admin';
-import { getSubmissions } from '@/lib/data/video-critique';
 import { CreateSubmissionRequest } from '@/types/video-critique';
 import { generateVideoStoragePath } from '@/lib/upload/uppy-config';
 import { FieldValue } from 'firebase-admin/firestore';
@@ -142,16 +141,46 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status');
     const limit = parseInt(searchParams.get('limit') || '20');
 
-    // Build filters
-    const filters: any = {};
-    if (athleteUid) filters.athleteUid = athleteUid;
-    if (teamId) filters.teamId = teamId;
-    if (status) filters.status = status;
+    // Build query using Firebase Admin SDK
+    let query = adminDb.collection('submissions');
 
-    // Fetch submissions
-    const result = await getSubmissions(filters, { limit });
+    // Apply filters
+    if (athleteUid) {
+      query = query.where('athleteUid', '==', athleteUid);
+    }
+    if (teamId) {
+      query = query.where('teamId', '==', teamId);
+    }
+    if (status) {
+      query = query.where('status', '==', status);
+    }
 
-    return NextResponse.json(result);
+    // Order by creation date (newest first) and limit
+    query = query.orderBy('createdAt', 'desc').limit(limit);
+
+    // Execute query
+    const snapshot = await query.get();
+    
+    // Convert documents to array
+    const submissions = snapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        // Convert Firestore timestamps to ISO strings for JSON serialization
+        createdAt: data.createdAt?.toDate?.()?.toISOString() || data.createdAt,
+        updatedAt: data.updatedAt?.toDate?.()?.toISOString() || data.updatedAt,
+        submittedAt: data.submittedAt?.toDate?.()?.toISOString() || data.submittedAt,
+        slaDeadline: data.slaDeadline?.toDate?.()?.toISOString() || data.slaDeadline,
+        reviewedAt: data.reviewedAt?.toDate?.()?.toISOString() || data.reviewedAt,
+      };
+    });
+
+    return NextResponse.json({
+      submissions,
+      total: submissions.length,
+      hasMore: submissions.length === limit,
+    });
   } catch (error) {
     console.error('Error fetching submissions:', error);
     return NextResponse.json(
