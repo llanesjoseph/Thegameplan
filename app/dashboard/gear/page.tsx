@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/use-auth'
 import AppHeader from '@/components/ui/AppHeader'
 import { db } from '@/lib/firebase.client'
 import { collection, query, getDocs, orderBy, where } from 'firebase/firestore'
-import { ShoppingBag, ExternalLink, Star, Tag, Filter, Search, Image as ImageIcon } from 'lucide-react'
+import { ShoppingBag, ExternalLink, Star, Tag, Filter, Search, Image as ImageIcon, User, Users } from 'lucide-react'
 
 interface GearItem {
   id: string
@@ -35,6 +35,7 @@ export default function AthleteGearBrowsePage({ searchParams }: { searchParams: 
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [selectedLevel, setSelectedLevel] = useState<string>('all')
   const [searchTerm, setSearchTerm] = useState('')
+  const [showOnlyCoachRecommendations, setShowOnlyCoachRecommendations] = useState(true)
 
   const categories = ['All Categories', 'Cleats', 'Shoes', 'Apparel', 'Protective Gear', 'Equipment', 'Accessories', 'Training Aids', 'Recovery', 'Nutrition', 'Technology']
   const levels = ['All Levels', 'beginner', 'intermediate', 'advanced', 'all']
@@ -93,9 +94,11 @@ export default function AthleteGearBrowsePage({ searchParams }: { searchParams: 
       item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+    
+    // Filter by coach recommendations if toggle is on
+    const matchesCoachFilter = !showOnlyCoachRecommendations || (coachId && item.createdBy === coachId)
 
-    // Prioritize gear from the athlete's coach
-    return matchesCategory && matchesLevel && matchesSearch
+    return matchesCategory && matchesLevel && matchesSearch && matchesCoachFilter
   }).sort((a, b) => {
     // Sort: Coach's gear first, then by date
     if (coachId) {
@@ -120,6 +123,43 @@ export default function AthleteGearBrowsePage({ searchParams }: { searchParams: 
         <h3 className="text-sm font-semibold mb-4 uppercase tracking-wide" style={{ color: '#000000' }}>
           Search & Filter
         </h3>
+        
+        {/* Coach Filter Toggle */}
+        {coachId && (
+          <div className="mb-6">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => setShowOnlyCoachRecommendations(true)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                  showOnlyCoachRecommendations 
+                    ? 'bg-gradient-to-r from-slate-600 to-slate-700 text-white shadow-md' 
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                <User className="w-4 h-4" />
+                My Coach's Recommendations
+              </button>
+              <button
+                onClick={() => setShowOnlyCoachRecommendations(false)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                  !showOnlyCoachRecommendations 
+                    ? 'bg-gradient-to-r from-slate-600 to-slate-700 text-white shadow-md' 
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                <Users className="w-4 h-4" />
+                All Coaches' Recommendations
+              </button>
+            </div>
+            <p className="text-xs mt-2" style={{ color: '#000000', opacity: 0.6 }}>
+              {showOnlyCoachRecommendations 
+                ? 'Showing only gear recommended by your assigned coach' 
+                : 'Showing gear from all coaches on the platform'
+              }
+            </p>
+          </div>
+        )}
+        
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Search */}
           <div className="relative">
@@ -159,14 +199,35 @@ export default function AthleteGearBrowsePage({ searchParams }: { searchParams: 
 
       {/* Stats */}
       <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#7B92C4' }}>
-            <ShoppingBag className="w-6 h-6 text-white" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#7B92C4' }}>
+              <ShoppingBag className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <div className="text-3xl font-bold" style={{ color: '#000000' }}>{filteredGear.length}</div>
+              <div className="text-sm" style={{ color: '#000000', opacity: 0.6 }}>
+                {showOnlyCoachRecommendations ? 'My Coach\'s Recommendations' : 'Available Gear Items'}
+              </div>
+            </div>
           </div>
-          <div>
-            <div className="text-3xl font-bold" style={{ color: '#000000' }}>{filteredGear.length}</div>
-            <div className="text-sm" style={{ color: '#000000', opacity: 0.6 }}>Available Gear Items</div>
-          </div>
+          
+          {/* Coach Filter Status */}
+          {coachId && (
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100">
+              {showOnlyCoachRecommendations ? (
+                <>
+                  <User className="w-4 h-4 text-slate-600" />
+                  <span className="text-sm font-medium text-slate-700">Coach's Picks</span>
+                </>
+              ) : (
+                <>
+                  <Users className="w-4 h-4 text-slate-600" />
+                  <span className="text-sm font-medium text-slate-700">All Coaches</span>
+                </>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -191,7 +252,11 @@ export default function AthleteGearBrowsePage({ searchParams }: { searchParams: 
             const isFromCoach = coachId && item.createdBy === coachId
 
             return (
-              <div key={item.id} className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 overflow-hidden transition-all hover:shadow-2xl hover:scale-[1.02]">
+              <div key={item.id} className={`bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border overflow-hidden transition-all hover:shadow-2xl hover:scale-[1.02] ${
+                isFromCoach 
+                  ? 'border-green-300 shadow-green-100' 
+                  : 'border-white/50'
+              }`}>
                 <div className="relative">
                   {item.imageUrl ? (
                     <img src={item.imageUrl} alt={item.name} className="w-full h-52 object-cover" />
@@ -201,7 +266,7 @@ export default function AthleteGearBrowsePage({ searchParams }: { searchParams: 
                     </div>
                   )}
                   {isFromCoach && (
-                    <div className="absolute top-3 left-3 bg-gradient-to-r from-slate-600 to-slate-700 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg">
+                    <div className="absolute top-3 left-3 bg-gradient-to-r from-green-600 to-green-700 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg">
                       ⭐ Your Coach
                     </div>
                   )}
