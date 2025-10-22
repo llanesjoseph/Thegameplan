@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { storage, db } from '@/lib/firebase.client';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { collection, addDoc, updateDoc, serverTimestamp, doc, getDoc } from 'firebase/firestore';
+import { collection, addDoc, updateDoc, serverTimestamp, doc, getDoc, type DocumentReference, type DocumentData } from 'firebase/firestore';
 import { ArrowLeft, Upload, Video, Check } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -130,8 +130,8 @@ export default function GetFeedbackPage() {
 
       setUploadProgress(20);
 
-      let docRef;
-      let feedbackId;
+      let docRef: DocumentReference<DocumentData> | null = null;
+      let feedbackId: string;
       try {
         docRef = await addDoc(collection(db, 'feedback_requests'), feedbackData);
         feedbackId = docRef.id;
