@@ -25,6 +25,7 @@ import AppHeader from '@/components/ui/AppHeader'
 import Link from 'next/link'
 import { useAuth } from '@/hooks/use-auth'
 import CoachProfilePlaceholder from '@/components/coach/CoachProfilePlaceholder'
+import { createJasmineCoachProfile, isJasmineAikey } from '@/lib/jasmine-provisioning'
 
 interface CoachProfile {
   uid: string
@@ -124,36 +125,58 @@ export default function CoachProfilePage() {
         return
       }
 
-      // Try to get extended profile from creator_profiles
-      let profileData: any = {}
-      try {
-        const profileQuery = query(
-          collection(db, 'creator_profiles'),
-          where('uid', '==', coachId)
-        )
-        const profileSnap = await getDocs(profileQuery)
-
-        if (!profileSnap.empty) {
-          profileData = profileSnap.docs[0].data()
+      // Check if this is Jasmine Aikey and use her comprehensive profile
+      let coachProfile: CoachProfile
+      
+      if (isJasmineAikey(userData.email)) {
+        // Use Jasmine's comprehensive profile data
+        const jasmineProfile = createJasmineCoachProfile(coachId, userData.email)
+        coachProfile = {
+          uid: coachId,
+          displayName: jasmineProfile.displayName,
+          email: userData.email || '',
+          bio: jasmineProfile.bio,
+          sport: jasmineProfile.sport,
+          yearsExperience: 4, // From her profile
+          specialties: jasmineProfile.specialties,
+          certifications: jasmineProfile.credentials ? [jasmineProfile.credentials] : [],
+          achievements: jasmineProfile.achievements,
+          profileImageUrl: jasmineProfile.headshotUrl,
+          coverImageUrl: jasmineProfile.heroImageUrl,
+          socialLinks: {}
         }
-      } catch (err) {
-        console.warn('Could not fetch creator profile:', err)
-      }
+      } else {
+        // Try to get extended profile from creator_profiles for other coaches
+        let profileData: any = {}
+        try {
+          const profileQuery = query(
+            collection(db, 'creator_profiles'),
+            where('uid', '==', coachId)
+          )
+          const profileSnap = await getDocs(profileQuery)
 
-      // Combine data
-      const coachProfile: CoachProfile = {
-        uid: coachId,
-        displayName: userData.displayName || profileData.displayName || userData.email || 'Coach',
-        email: userData.email || '',
-        bio: profileData.bio || userData.bio || '',
-        sport: profileData.sport || userData.sport || 'General Athletics',
-        yearsExperience: profileData.yearsExperience || userData.yearsExperience || 0,
-        specialties: profileData.specialties || userData.specialties || [],
-        certifications: profileData.certifications || userData.certifications || [],
-        achievements: profileData.achievements || userData.achievements || [],
-        profileImageUrl: profileData.profileImageUrl || userData.photoURL || '',
-        coverImageUrl: profileData.coverImageUrl || '',
-        socialLinks: profileData.socialLinks || {}
+          if (!profileSnap.empty) {
+            profileData = profileSnap.docs[0].data()
+          }
+        } catch (err) {
+          console.warn('Could not fetch creator profile:', err)
+        }
+
+        // Combine data for other coaches
+        coachProfile = {
+          uid: coachId,
+          displayName: userData.displayName || profileData.displayName || userData.email || 'Coach',
+          email: userData.email || '',
+          bio: profileData.bio || userData.bio || '',
+          sport: profileData.sport || userData.sport || 'General Athletics',
+          yearsExperience: profileData.yearsExperience || userData.yearsExperience || 0,
+          specialties: profileData.specialties || userData.specialties || [],
+          certifications: profileData.certifications || userData.certifications || [],
+          achievements: profileData.achievements || userData.achievements || [],
+          profileImageUrl: profileData.profileImageUrl || userData.photoURL || '',
+          coverImageUrl: profileData.coverImageUrl || '',
+          socialLinks: profileData.socialLinks || {}
+        }
       }
 
       setCoach(coachProfile)
