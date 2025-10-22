@@ -1,9 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { collection, query, where, orderBy, onSnapshot, updateDoc, doc } from 'firebase/firestore';
-import { auth as clientAuth } from '@/lib/firebase.client';
-import { db } from '@/lib/firebase.client';
+// Removed direct Firestore imports - now using secure APIs
 import { useAuth } from '@/hooks/use-auth';
 import { useSearchParams } from 'next/navigation';
 import { Play, Clock, User, FileText, ChevronDown, ChevronUp, Archive, CheckCircle } from 'lucide-react';
@@ -19,44 +17,42 @@ export default function QueueBypassPage() {
   useEffect(() => {
     if (!user) return;
 
-    // Listen to ALL submissions without filters to avoid index requirements
-    // We'll filter in JavaScript instead
-    const q = query(
-      collection(db, 'submissions')
-    );
+    const loadSubmissions = async () => {
+      try {
+        setLoading(true)
+        const token = await user.getIdToken()
+        const response = await fetch('/api/coach/submissions', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        })
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const allSubs = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      
-      // Filter active submissions (awaiting review)
-      const awaitingCoach = allSubs.filter((sub: any) =>
-        sub.status === 'awaiting_coach' || sub.status === 'uploading'
-      );
-      
-      // Filter completed submissions (reviewed by this coach)
-      const completedByCoach = allSubs.filter((sub: any) =>
-        (sub.status === 'complete' || sub.status === 'reviewed') && 
-        sub.claimedBy === user?.uid
-      );
-      
-      // Combine both arrays for display
-      const allSubmissions = [...awaitingCoach, ...completedByCoach];
-      
-      // Sort by createdAt in JavaScript
-      allSubmissions.sort((a: any, b: any) => {
-        const aTime = a.createdAt?.seconds || 0;
-        const bTime = b.createdAt?.seconds || 0;
-        return bTime - aTime; // Newest first
-      });
-      
-      setSubmissions(allSubmissions);
-      setLoading(false);
-    });
+        if (response.ok) {
+          const data = await response.json()
+          const allSubmissions = [...data.awaitingCoach, ...data.completedByCoach]
+          
+          // Sort by createdAt
+          allSubmissions.sort((a: any, b: any) => {
+            const aTime = new Date(a.createdAt).getTime()
+            const bTime = new Date(b.createdAt).getTime()
+            return bTime - aTime // Newest first
+          })
+          
+          setSubmissions(allSubmissions)
+          console.log('[COACH-QUEUE] Loaded submissions:', allSubmissions.length)
+        } else {
+          console.error('Failed to load submissions:', response.status)
+          setSubmissions([])
+        }
+      } catch (error) {
+        console.error('Error loading submissions:', error)
+        setSubmissions([])
+      } finally {
+        setLoading(false)
+      }
+    }
 
-    return () => unsubscribe();
+    loadSubmissions()
   }, [user]);
 
   const formatTimeAgo = (timestamp: any) => {
@@ -96,9 +92,7 @@ export default function QueueBypassPage() {
 
   const handleClaim = async (submissionId: string) => {
     try {
-      // Prefer secure API path which uses Admin SDK and enforces permissions
-      const currentUser = clientAuth.currentUser;
-      const token = currentUser ? await currentUser.getIdToken() : null;
+      const token = await user?.getIdToken();
       if (!token) throw new Error('Not authenticated');
 
       const resp = await fetch(`/api/submissions/${submissionId}/claim`, {
@@ -110,6 +104,8 @@ export default function QueueBypassPage() {
         const data = await resp.json().catch(() => ({}));
         throw new Error(data.error || 'Failed to claim submission');
       }
+      
+      console.log('[COACH-QUEUE] Successfully claimed submission:', submissionId)
     } catch (error) {
       console.error('Error claiming submission:', error);
     }
