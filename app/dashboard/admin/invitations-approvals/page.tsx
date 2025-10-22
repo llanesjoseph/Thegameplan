@@ -111,6 +111,42 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
   const [assistants, setAssistants] = useState<AssistantCoach[]>([])
   const [assistantsLoading, setAssistantsLoading] = useState(false)
 
+  // Revoke invitation function
+  const handleRevokeInvitation = async (invitationId: string) => {
+    if (!confirm('Revoke this invitation? This action cannot be undone.')) {
+      return
+    }
+
+    try {
+      if (!user) {
+        console.error('No user found')
+        return
+      }
+
+      const token = await user.getIdToken()
+
+      const response = await fetch(`/api/coach/invitations/${invitationId}/revoke`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (response.ok) {
+        alert('Invitation revoked successfully!')
+        // Reload invitations to show updated status
+        loadInvitations()
+      } else {
+        const errorResult = await response.json()
+        alert(`Failed to revoke invitation: ${errorResult.error || 'Unknown error'}`)
+      }
+    } catch (error) {
+      console.error('Error revoking invitation:', error)
+      alert('Failed to revoke invitation. Please try again.')
+    }
+  }
+
   // Coach Invite Form State
   const [coachInviteForm, setCoachInviteForm] = useState({
     coachEmail: '',
@@ -720,6 +756,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
                       <th className="text-left p-2 text-xs" style={{ color: '#000000' }}>Status</th>
                       <th className="text-left p-2 text-xs" style={{ color: '#000000' }}>Sent</th>
                       <th className="text-left p-2 text-xs" style={{ color: '#000000' }}>Expires</th>
+                      <th className="text-left p-2 text-xs" style={{ color: '#000000' }}>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -731,7 +768,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
                       </tr>
                     ) : filteredInvitations.length === 0 ? (
                       <tr>
-                        <td colSpan={8} className="text-center p-12" style={{ color: '#000000', opacity: 0.7 }}>
+                        <td colSpan={9} className="text-center p-12" style={{ color: '#000000', opacity: 0.7 }}>
                           No invitations found
                         </td>
                       </tr>
@@ -770,6 +807,17 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
                             </td>
                             <td className="p-2 text-xs" style={{ color: '#000000', opacity: 0.7 }}>
                               {invitation.expiresAt.toLocaleDateString()}
+                            </td>
+                            <td className="p-2 text-xs">
+                              {invitation.status !== 'accepted' && invitation.status !== 'revoked' && (
+                                <button
+                                  onClick={() => handleRevokeInvitation(invitation.id)}
+                                  className="px-2 py-1 bg-red-100 text-red-800 rounded text-xs hover:bg-red-200 transition-colors"
+                                  title="Revoke invitation"
+                                >
+                                  Revoke
+                                </button>
+                              )}
                             </td>
                           </tr>
                         )
@@ -1601,6 +1649,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
                       <th className="text-left p-2 text-xs" style={{ color: '#000000' }}>Status</th>
                       <th className="text-left p-2 text-xs" style={{ color: '#000000' }}>Sent</th>
                       <th className="text-left p-2 text-xs" style={{ color: '#000000' }}>Expires</th>
+                      <th className="text-left p-2 text-xs" style={{ color: '#000000' }}>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1612,7 +1661,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
                       </tr>
                     ) : filteredInvitations.length === 0 ? (
                       <tr>
-                        <td colSpan={8} className="text-center p-12" style={{ color: '#000000', opacity: 0.7 }}>
+                        <td colSpan={9} className="text-center p-12" style={{ color: '#000000', opacity: 0.7 }}>
                           No invitations found
                         </td>
                       </tr>
@@ -1651,6 +1700,17 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
                             </td>
                             <td className="p-2 text-xs" style={{ color: '#000000', opacity: 0.7 }}>
                               {invitation.expiresAt.toLocaleDateString()}
+                            </td>
+                            <td className="p-2 text-xs">
+                              {invitation.status !== 'accepted' && invitation.status !== 'revoked' && (
+                                <button
+                                  onClick={() => handleRevokeInvitation(invitation.id)}
+                                  className="px-2 py-1 bg-red-100 text-red-800 rounded text-xs hover:bg-red-200 transition-colors"
+                                  title="Revoke invitation"
+                                >
+                                  Revoke
+                                </button>
+                              )}
                             </td>
                           </tr>
                         )
