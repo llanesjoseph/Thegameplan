@@ -21,7 +21,7 @@ import VideoPlayer from '@/components/video-critique/VideoPlayer';
 import RubricScoring from '@/components/video-critique/RubricScoring';
 import TimecodeEditor from '@/components/video-critique/TimecodeEditor';
 import DrillSelector from '@/components/video-critique/DrillSelector';
-import { createNotification } from '@/lib/data/notifications';
+// Removed createNotification import - using server-side APIs for notifications
 
 interface ReviewFormProps {
   submission: Submission;
@@ -334,18 +334,7 @@ export default function ReviewForm({
         console.warn('Failed to send athlete notification:', emailErr);
       }
 
-      // Create notification for athlete
-      await createNotification(
-        submission.athleteUid,
-        'review_published',
-        'Review Published',
-        `Your ${submission.skillName} video has been reviewed by ${coachName}`,
-        `/dashboard/athlete/reviews/${submission.id}`,
-        {
-          submissionId: submission.id,
-          reviewId: reviewId,
-        }
-      );
+      // Notification is handled by the server-side API
 
       toast.success('Review published successfully');
       router.push('/dashboard/coach/queue');
