@@ -27,7 +27,26 @@ export async function POST(
     // }
 
     // Fetch submission to verify it exists and is claimable
-    const submissionDoc = await adminDb.collection('submissions').doc(params.id).get();
+    // Handle both submissions and feedback_requests collections
+    let submissionDoc;
+    let collectionName;
+    
+    console.log(`[CLAIM-API] Attempting to claim submission: ${params.id}`);
+    
+    if (params.id.startsWith('fr_')) {
+      // This is from feedback_requests collection
+      const actualId = params.id.replace('fr_', '');
+      console.log(`[CLAIM-API] Looking in feedback_requests collection for ID: ${actualId}`);
+      submissionDoc = await adminDb.collection('feedback_requests').doc(actualId).get();
+      collectionName = 'feedback_requests';
+    } else {
+      // This is from submissions collection
+      console.log(`[CLAIM-API] Looking in submissions collection for ID: ${params.id}`);
+      submissionDoc = await adminDb.collection('submissions').doc(params.id).get();
+      collectionName = 'submissions';
+    }
+    
+    console.log(`[CLAIM-API] Found submission: ${submissionDoc.exists}, collection: ${collectionName}`);
     
     if (!submissionDoc.exists) {
       return NextResponse.json(
@@ -63,7 +82,8 @@ export async function POST(
     }
 
     // Claim the submission via Admin SDK to avoid client rule issues
-    await adminDb.collection('submissions').doc(params.id).update({
+    const docId = params.id.startsWith('fr_') ? params.id.replace('fr_', '') : params.id;
+    await adminDb.collection(collectionName).doc(docId).update({
       claimedBy: coachId,
       claimedByName: coachName,
       claimedAt: new Date(),
