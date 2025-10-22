@@ -14,6 +14,7 @@ export default function AthleteReviewsPage() {
   const [isEmbedded, setIsEmbedded] = useState(false);
   const [justSubmitted, setJustSubmitted] = useState(false);
   const [showSubmitForm, setShowSubmitForm] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Detect if page is loaded in iframe
   useEffect(() => {
@@ -35,25 +36,21 @@ export default function AthleteReviewsPage() {
     // Fetch submissions WITHOUT INDEXES - fetch all and filter in JavaScript
     const fetchSubmissions = async () => {
       try {
-        // BYPASS INDEX REQUIREMENT: Fetch all submissions and filter client-side
-        const { collection, getDocs, query } = await import('firebase/firestore');
-        const { db } = await import('@/lib/firebase.client');
-
-        // Get ALL submissions (no where clauses = no index needed)
-        const q = query(collection(db, 'submissions'));
-        const querySnapshot = await getDocs(q);
-
-        // Filter for this athlete's submissions in JavaScript
-        const mySubmissions: any[] = [];
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
-          if (data.athleteUid === user.uid) {
-            mySubmissions.push({
-              id: doc.id,
-              ...data
-            });
-          }
+        // Use secure API to prevent React errors
+        const token = await user.getIdToken();
+        const response = await fetch('/api/submissions', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
         });
+
+        let mySubmissions: any[] = [];
+        if (response.ok) {
+          const data = await response.json();
+          mySubmissions = data.submissions || [];
+        } else {
+          throw new Error('API fetch failed');
+        }
 
         // Fallback: also surface pending feedback_requests for this athlete
         if (mySubmissions.length === 0) {
@@ -92,6 +89,7 @@ export default function AthleteReviewsPage() {
         setSubmissions(mySubmissions);
       } catch (error) {
         console.error('Error fetching submissions:', error);
+        setError('Failed to load reviews. Please try again.');
       } finally {
         setIsLoading(false);
       }
@@ -163,6 +161,48 @@ export default function AthleteReviewsPage() {
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mb-4"></div>
           <p className="text-gray-600">Loading your submissions...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md">
+            <h2 className="text-lg font-semibold text-red-800 mb-2">Error Loading Reviews</h2>
+            <p className="text-red-600 mb-4">{error}</p>
+            <button
+              onClick={() => {
+                setError(null);
+                setIsLoading(true);
+                // Retry fetch
+                if (user) {
+                  const fetchSubmissions = async () => {
+                    try {
+                      const token = await user.getIdToken();
+                      const response = await fetch('/api/submissions', {
+                        headers: { 'Authorization': `Bearer ${token}` },
+                      });
+                      if (response.ok) {
+                        const data = await response.json();
+                        setSubmissions(data.submissions || []);
+                      }
+                    } catch (err) {
+                      setError('Failed to load reviews. Please try again.');
+                    } finally {
+                      setIsLoading(false);
+                    }
+                  };
+                  fetchSubmissions();
+                }
+              }}
+              className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+            >
+              Try Again
+            </button>
+          </div>
         </div>
       </div>
     );
