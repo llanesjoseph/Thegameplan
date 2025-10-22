@@ -77,14 +77,22 @@ export default function QueueBypassPage() {
   };
 
   // Separate active and completed reviews
-  const activeReviews = submissions.filter(submission => 
-    submission.status === 'awaiting_coach' || submission.status === 'uploading'
-  );
+  console.log('[COACH-QUEUE] All submission statuses:', submissions.map(s => s.status))
+  console.log('[COACH-QUEUE] Sample submission:', submissions[0])
+  
+  const activeReviews = submissions.filter(submission => {
+    const isActive = submission.status === 'awaiting_coach' || submission.status === 'uploading'
+    console.log(`[COACH-QUEUE] Submission ${submission.id}: status=${submission.status}, isActive=${isActive}`)
+    return isActive
+  });
   
   const completedReviews = submissions.filter(submission => 
     (submission.status === 'complete' || submission.status === 'reviewed') && 
     submission.claimedBy === user?.uid
   );
+
+  console.log('[COACH-QUEUE] Active reviews count:', activeReviews.length)
+  console.log('[COACH-QUEUE] Completed reviews count:', completedReviews.length)
 
   // Group completed reviews by athlete
   const groupedCompletedReviews = completedReviews.reduce((groups: any, submission: any) => {
