@@ -7,6 +7,8 @@ import Link from 'next/link';
 import { Video, Clock, CheckCircle, AlertCircle, Eye, ArrowLeft, ChevronDown, ChevronUp, Archive } from 'lucide-react';
 
 export default function AthleteReviewsPage() {
+  // Add error boundary for the entire component
+  try {
   const { user, loading } = useAuth();
   const router = useRouter();
   const [submissions, setSubmissions] = useState<any[]>([]);
@@ -48,20 +50,26 @@ export default function AthleteReviewsPage() {
         let mySubmissions: any[] = [];
         if (response.ok) {
           const data = await response.json();
+          console.log('[ATHLETE-REVIEWS] API Response:', data);
           mySubmissions = data.submissions || [];
+          console.log('[ATHLETE-REVIEWS] Loaded submissions:', mySubmissions.length);
         } else {
-          console.warn('API fetch failed, continuing with empty submissions');
+          console.warn('[ATHLETE-REVIEWS] API fetch failed, continuing with empty submissions');
           mySubmissions = [];
         }
 
         // Fallback removed - using server-side API only to avoid permission errors
 
-        // Sort by createdAt (newest first)
-        mySubmissions.sort((a, b) => {
-          const aDate = a.createdAt?.toDate?.() || new Date(a.createdAt || 0);
-          const bDate = b.createdAt?.toDate?.() || new Date(b.createdAt || 0);
-          return bDate.getTime() - aDate.getTime();
-        });
+        // Sort by createdAt (newest first) with error handling
+        try {
+          mySubmissions.sort((a, b) => {
+            const aDate = a.createdAt?.toDate?.() || new Date(a.createdAt || 0);
+            const bDate = b.createdAt?.toDate?.() || new Date(b.createdAt || 0);
+            return bDate.getTime() - aDate.getTime();
+          });
+        } catch (sortError) {
+          console.warn('[ATHLETE-REVIEWS] Sort error, using original order:', sortError);
+        }
 
         setSubmissions(mySubmissions);
       } catch (error) {
@@ -132,24 +140,42 @@ export default function AthleteReviewsPage() {
     return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`;
   };
 
-  // Separate active and completed reviews
-  const activeReviews = submissions.filter(submission => 
-    submission.status !== 'complete' && submission.status !== 'reviewed'
-  );
+  // Separate active and completed reviews with error handling
+  let activeReviews: any[] = [];
+  let completedReviews: any[] = [];
   
-  const completedReviews = submissions.filter(submission => 
-    submission.status === 'complete' || submission.status === 'reviewed'
-  );
+  try {
+    activeReviews = submissions.filter(submission => 
+      submission && submission.status && 
+      submission.status !== 'complete' && submission.status !== 'reviewed'
+    );
+    
+    completedReviews = submissions.filter(submission => 
+      submission && submission.status && 
+      (submission.status === 'complete' || submission.status === 'reviewed')
+    );
+  } catch (filterError) {
+    console.error('[ATHLETE-REVIEWS] Filter error:', filterError);
+    activeReviews = [];
+    completedReviews = [];
+  }
 
-  // Group completed reviews by athlete (if multiple athletes)
-  const groupedCompletedReviews = completedReviews.reduce((groups: any, submission: any) => {
-    const athleteName = submission.athleteName || 'You';
-    if (!groups[athleteName]) {
-      groups[athleteName] = [];
-    }
-    groups[athleteName].push(submission);
-    return groups;
-  }, {});
+  // Group completed reviews by athlete (if multiple athletes) with error handling
+  let groupedCompletedReviews: any = {};
+  try {
+    groupedCompletedReviews = completedReviews.reduce((groups: any, submission: any) => {
+      if (!submission) return groups;
+      const athleteName = submission.athleteName || 'You';
+      if (!groups[athleteName]) {
+        groups[athleteName] = [];
+      }
+      groups[athleteName].push(submission);
+      return groups;
+    }, {});
+  } catch (groupError) {
+    console.error('[ATHLETE-REVIEWS] Group error:', groupError);
+    groupedCompletedReviews = {};
+  }
 
   if (loading || isLoading) {
     return (
@@ -534,4 +560,22 @@ export default function AthleteReviewsPage() {
       </div>
     </div>
   );
+  } catch (componentError) {
+    console.error('[ATHLETE-REVIEWS] Component error:', componentError);
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Something went wrong!</h2>
+          <p className="text-gray-600 mb-4">A global error occurred. Please try again.</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Try again
+          </button>
+        </div>
+      </div>
+    );
+  }
 }
