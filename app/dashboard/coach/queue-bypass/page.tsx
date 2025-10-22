@@ -275,7 +275,7 @@ export default function QueueBypassPage() {
                       {athleteName} ({athleteReviews.length} reviews)
                     </h3>
                     <div className={`grid gap-6 ${isEmbedded ? 'grid-cols-1 lg:grid-cols-2 xl:grid-cols-3' : 'grid-cols-1'}`}>
-                      {athleteReviews.map((submission) => (
+                      {athleteReviews.map((submission: any) => (
                         <div key={submission.id} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow">
                           <div className="p-6">
                             <div className="flex items-start justify-between">
