@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/firebase.admin';
+import { auth, adminDb } from '@/lib/firebase.admin';
 import { claimSubmission, getSubmission } from '@/lib/data/video-critique';
 
 export async function POST(
@@ -55,8 +55,14 @@ export async function POST(
       });
     }
 
-    // Claim the submission
-    await claimSubmission(params.id, coachId, coachName);
+    // Claim the submission via Admin SDK to avoid client rule issues
+    await adminDb.collection('submissions').doc(params.id).update({
+      claimedBy: coachId,
+      claimedByName: coachName,
+      claimedAt: new Date(),
+      status: 'claimed',
+      updatedAt: new Date(),
+    })
 
     return NextResponse.json({
       success: true,
