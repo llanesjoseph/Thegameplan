@@ -162,7 +162,7 @@ export async function GET(request: NextRequest) {
     const snapshot = await query.get();
     
     // Convert documents to array
-    const submissions = snapshot.docs.map(doc => {
+    const submissions = snapshot.docs.map((doc: any) => {
       const data = doc.data();
       return {
         id: doc.id,
