@@ -110,7 +110,7 @@ export default function CoachReviewPage({ params }: { params: { submissionId: st
   }
 
   return (
-    <div className={`${isEmbedded ? 'h-full overflow-y-auto' : 'container mx-auto p-6 max-w-7xl'}`} style={{ backgroundColor: isEmbedded ? 'white' : undefined }}>
+    <div className={`${isEmbedded ? 'h-full overflow-y-auto w-full' : 'container mx-auto p-6 max-w-7xl'}`} style={{ backgroundColor: isEmbedded ? 'white' : undefined }}>
       <ReviewForm
         submission={submission}
         rubric={null}

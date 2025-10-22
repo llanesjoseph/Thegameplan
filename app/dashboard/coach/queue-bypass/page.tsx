@@ -91,8 +91,8 @@ export default function QueueBypassPage() {
   }
 
   return (
-    <div className={`${isEmbedded ? 'h-full overflow-y-auto p-4' : 'container mx-auto px-4 py-8'}`} style={{ backgroundColor: isEmbedded ? 'white' : undefined }}>
-      <div className="max-w-7xl mx-auto">
+    <div className={`${isEmbedded ? 'h-full overflow-y-auto p-2 w-full' : 'container mx-auto px-4 py-8'}`} style={{ backgroundColor: isEmbedded ? 'white' : undefined }}>
+      <div className={`${isEmbedded ? 'w-full' : 'max-w-7xl mx-auto'}`}>
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Video Review Queue</h1>
           <p className="mt-2 text-gray-600">
@@ -114,7 +114,7 @@ export default function QueueBypassPage() {
             <p className="text-gray-600">No pending video submissions at the moment.</p>
           </div>
         ) : (
-          <div className="grid gap-6">
+          <div className={`grid gap-6 ${isEmbedded ? 'grid-cols-1 lg:grid-cols-2 xl:grid-cols-3' : 'grid-cols-1'}`}>
             {submissions.map((submission) => (
               <div key={submission.id} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow">
                 <div className="p-6">

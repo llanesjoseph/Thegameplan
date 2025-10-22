@@ -340,7 +340,7 @@ export default function ReviewForm({
   }, [rubricScores]);
 
   return (
-    <div className={`space-y-6 ${isEmbedded ? 'p-4' : ''}`}>
+    <div className={`space-y-6 ${isEmbedded ? 'p-2' : ''}`}>
       {/* Video Player Section */}
       <div className="bg-white rounded-lg shadow-sm p-6">
         <h2 className="text-xl font-semibold mb-4">Video Review</h2>
@@ -358,7 +358,7 @@ export default function ReviewForm({
       <div className="bg-white rounded-lg shadow-sm p-6">
         <h2 className="text-xl font-semibold mb-4">Overall Feedback</h2>
 
-        <div className="space-y-4">
+        <div className={`space-y-4 ${isEmbedded ? 'grid grid-cols-1 lg:grid-cols-2 gap-6' : ''}`}>
           <div>
             <label className="block text-sm font-medium mb-2">
               Summary Feedback <span className="text-red-500">*</span>
@@ -462,7 +462,7 @@ export default function ReviewForm({
       </div>
 
       {/* Action Buttons */}
-      <div className="flex items-center justify-between bg-white rounded-lg shadow-sm p-6">
+      <div className={`flex items-center justify-between bg-white rounded-lg shadow-sm p-6 ${isEmbedded ? 'flex-col sm:flex-row gap-4' : ''}`}>
         <div className="flex items-center gap-2">
           {autoSaving && (
             <span className="text-sm text-gray-500 flex items-center gap-2">
@@ -471,7 +471,7 @@ export default function ReviewForm({
             </span>
           )}
         </div>
-        <div className="flex items-center gap-3">
+        <div className={`flex items-center gap-3 ${isEmbedded ? 'w-full sm:w-auto justify-end' : ''}`}>
           <Button
             onClick={() => router.push('/dashboard/coach/queue')}
             variant="outline"
