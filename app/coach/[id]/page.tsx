@@ -25,7 +25,7 @@ import AppHeader from '@/components/ui/AppHeader'
 import Link from 'next/link'
 import { useAuth } from '@/hooks/use-auth'
 import CoachProfilePlaceholder from '@/components/coach/CoachProfilePlaceholder'
-import { createJasmineCoachProfile, isJasmineAikey } from '@/lib/jasmine-provisioning'
+import { createJasmineCoachProfile, isJasmineAikey } from '@/lib/jasmine-profile-client'
 
 interface CoachProfile {
   uid: string
