@@ -14,7 +14,8 @@ import {
   CheckCircle,
   Clock,
   AlertCircle,
-  X
+  X,
+  UserPlus
 } from 'lucide-react'
 
 interface AthleteInvitation {
