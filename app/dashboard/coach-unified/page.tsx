@@ -144,13 +144,6 @@ export default function CoachUnifiedDashboard() {
       color: '#7B92C4'
     },
     {
-      id: 'create-lesson',
-      title: 'Create Lesson',
-      description: 'Build comprehensive training lessons',
-      icon: GraduationCap,
-      color: '#5A9B9B'
-    },
-    {
       id: 'live-sessions',
       title: 'Live 1-on-1 Sessions',
       description: 'Manage session requests',
@@ -160,10 +153,10 @@ export default function CoachUnifiedDashboard() {
     },
     {
       id: 'lesson-library',
-      title: 'Lesson Library',
-      description: 'View and edit all your lessons',
+      title: 'Lesson Manager',
+      description: 'Create, edit, and manage all your lessons',
       icon: BookOpen,
-      color: '#000000'
+      color: '#5A9B9B'
     },
     {
       id: 'invite',
@@ -276,7 +269,7 @@ export default function CoachUnifiedDashboard() {
                 </h2>
               )}
               <p className={`text-xs ${isSidebarCollapsed ? 'text-center' : ''}`} style={{ color: '#666' }}>
-                {isSidebarCollapsed ? '12' : '12 tools available'}
+                {isSidebarCollapsed ? '11' : '11 tools available'}
               </p>
             </div>
 
