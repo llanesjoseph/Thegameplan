@@ -267,23 +267,28 @@ export default function AppHeader({ className = '', title, subtitle }: AppHeader
   }
 
   return (
-    <header className={`bg-white px-4 py-3 sm:py-4 shadow-sm ${className}`} role="banner">
+    <>
+      {/* Fixed ATHLEAP Logo - Locked to top-left corner */}
+      <button
+        onClick={handleLogoClick}
+        className="fixed top-4 left-4 z-50 text-2xl sm:text-3xl hover:opacity-80 transition-opacity touch-manipulation"
+        style={{
+          fontFamily: 'var(--font-permanent-marker)',
+          color: '#624A41',
+          minHeight: '44px',
+          display: 'flex',
+          alignItems: 'center'
+        }}
+        >
+        AthLeap
+      </button>
+
+      <header className={`bg-white px-4 py-3 sm:py-4 shadow-sm ${className}`} role="banner">
       <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
-        {/* Left Side - Logo and optional title */}
+        {/* Left Side - Spacer for fixed logo and optional title */}
         <div className="flex items-center gap-3 sm:gap-6 w-full sm:w-auto">
-          <button
-            onClick={handleLogoClick}
-            className="text-2xl sm:text-3xl hover:opacity-80 transition-opacity touch-manipulation"
-            style={{
-              fontFamily: 'var(--font-permanent-marker)',
-              color: '#624A41',
-              minHeight: '44px',
-              display: 'flex',
-              alignItems: 'center'
-            }}
-            >
-            AthLeap
-          </button>
+          {/* Spacer to account for fixed logo */}
+          <div className="w-32 sm:w-40"></div>
 
           {/* Dashboard Home Button - Prominent */}
           {user && (
@@ -422,5 +427,6 @@ export default function AppHeader({ className = '', title, subtitle }: AppHeader
         </nav>
       </div>
     </header>
+    </>
   )
 }
