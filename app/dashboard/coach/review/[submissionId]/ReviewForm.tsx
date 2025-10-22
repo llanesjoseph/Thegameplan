@@ -211,20 +211,30 @@ export default function ReviewForm({
 
   // Save and publish handlers
   const handleSaveDraft = async () => {
-    if (!reviewId) return;
+    if (!reviewId || !user) return;
 
     setLoading(true);
     try {
-      await saveDraftReview(
-        reviewId,
-        overallFeedback,
-        undefined, // rubricScores
-        undefined, // timecodes
-        undefined, // drillRecommendations
-        nextSteps,
-        strengths.filter(s => s.trim()),
-        areasForImprovement.filter(a => a.trim())
-      );
+      const token = await user.getIdToken();
+      const response = await fetch(`/api/reviews/${reviewId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          overallFeedback,
+          nextSteps,
+          strengths: strengths.filter(s => s.trim()),
+          areasForImprovement: areasForImprovement.filter(a => a.trim()),
+          status: 'draft',
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save draft');
+      }
+
       toast.success('Review draft saved');
     } catch (error) {
       console.error('Error saving draft:', error);
@@ -235,7 +245,7 @@ export default function ReviewForm({
   };
 
   const handlePublishReview = async () => {
-    if (!reviewId) return;
+    if (!reviewId || !user) return;
 
     // Validate required fields
     if (!overallFeedback.trim()) {
@@ -245,38 +255,54 @@ export default function ReviewForm({
 
     setLoading(true);
     try {
-      // Save final version
-      await saveDraftReview(
-        reviewId,
-        overallFeedback,
-        undefined, // rubricScores
-        undefined, // timecodes
-        undefined, // drillRecommendations
-        nextSteps,
-        strengths.filter(s => s.trim()),
-        areasForImprovement.filter(a => a.trim())
-      );
+      const token = await user.getIdToken();
+
+      // Save final version first
+      const saveResponse = await fetch(`/api/reviews/${reviewId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          overallFeedback,
+          nextSteps,
+          strengths: strengths.filter(s => s.trim()),
+          areasForImprovement: areasForImprovement.filter(a => a.trim()),
+          status: 'draft',
+        }),
+      });
+
+      if (!saveResponse.ok) {
+        throw new Error('Failed to save review');
+      }
 
       // Publish review
-      await publishReview(reviewId);
+      const publishResponse = await fetch(`/api/reviews/${reviewId}/publish`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!publishResponse.ok) {
+        throw new Error('Failed to publish review');
+      }
 
       // Send email notification to athlete via API
       try {
-        if (user) {
-          const token = await user.getIdToken();
-          await fetch('/api/notifications/review-published', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-              submissionId: submission.id,
-              athleteUid: submission.athleteUid,
-              skillName: submission.skillName || 'Video Submission'
-            }),
-          });
-        }
+        await fetch('/api/notifications/review-published', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            submissionId: submission.id,
+            athleteUid: submission.athleteUid,
+            skillName: submission.skillName || 'Video Submission'
+          }),
+        });
       } catch (emailErr) {
         console.warn('Failed to send athlete notification:', emailErr);
       }

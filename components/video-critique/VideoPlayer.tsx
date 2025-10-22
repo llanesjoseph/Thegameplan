@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useEffect, useState, useCallback } from 'react';
-import { Play, Pause, Volume2, VolumeX, Maximize, SkipBack, SkipForward } from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX, Maximize, Minimize, SkipBack, SkipForward } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Timecode } from '@/types/video-critique';
@@ -34,6 +34,8 @@ export default function VideoPlayer({
   const [volume, setVolume] = useState(1);
   const [playbackRate, setPlaybackRate] = useState(1);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [videoScale, setVideoScale] = useState(1);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   // Handle play/pause
   const togglePlayPause = useCallback(() => {
@@ -116,6 +118,16 @@ export default function VideoPlayer({
     setIsFullscreen(!isFullscreen);
   }, [isFullscreen]);
 
+  // Handle video scaling
+  const handleScaleChange = useCallback((scale: number) => {
+    setVideoScale(Math.max(0.5, Math.min(2, scale)));
+  }, []);
+
+  // Handle expand/collapse
+  const toggleExpanded = useCallback(() => {
+    setIsExpanded(!isExpanded);
+  }, [isExpanded]);
+
   // Keyboard controls
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
@@ -197,13 +209,40 @@ export default function VideoPlayer({
   return (
     <div
       ref={containerRef}
-      className="relative bg-black rounded-lg overflow-hidden group"
+      className={`relative bg-black rounded-lg overflow-hidden group ${
+        isExpanded ? 'fixed inset-4 z-50' : 'max-w-4xl mx-auto'
+      }`}
     >
+      {/* Scale and Expand Controls */}
+      <div className="absolute top-4 right-4 z-10 flex gap-2">
+        <div className="bg-black/70 rounded-lg p-2 flex items-center gap-2">
+          <span className="text-white text-sm">Scale:</span>
+          <input
+            type="range"
+            min="0.5"
+            max="2"
+            step="0.1"
+            value={videoScale}
+            onChange={(e) => handleScaleChange(parseFloat(e.target.value))}
+            className="w-20"
+          />
+          <span className="text-white text-sm">{Math.round(videoScale * 100)}%</span>
+        </div>
+        <button
+          onClick={toggleExpanded}
+          className="bg-black/70 hover:bg-black/90 text-white p-2 rounded-lg transition-colors"
+          title={isExpanded ? "Collapse" : "Expand"}
+        >
+          {isExpanded ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
+        </button>
+      </div>
+
       <video
         ref={videoRef}
         src={videoUrl}
         poster={thumbnailUrl}
-        className="w-full h-auto"
+        className="w-full h-auto transition-transform duration-200"
+        style={{ transform: `scale(${videoScale})` }}
         onClick={togglePlayPause}
       />
 
