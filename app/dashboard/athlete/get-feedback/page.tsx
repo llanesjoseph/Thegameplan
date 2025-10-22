@@ -27,6 +27,7 @@ export default function GetFeedbackPage() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [submitDone, setSubmitDone] = useState(false);
   const [createdSubmissionId, setCreatedSubmissionId] = useState<string | null>(null);
+  const [submissionId, setSubmissionId] = useState<string | null>(null);
 
   // Simple retry helper for fetch calls (exponential backoff)
   const fetchWithRetry = async (
@@ -111,6 +112,7 @@ export default function GetFeedbackPage() {
 
         const data = await resp.json();
         submissionId = data.submissionId;
+        setSubmissionId(submissionId);
         setCreatedSubmissionId(submissionId);
         setUploadProgress(15);
       } catch (apiErr) {
@@ -388,14 +390,16 @@ export default function GetFeedbackPage() {
                    View My Reviews
                  </button>
                  <button
-                   onClick={() => { 
-                     setSubmitDone(false); 
-                     setCreatedSubmissionId(null); 
-                     setSubmissionId('');
-                     setSelectedFile(null);
-                     setFormData({ context: '', goals: '', specificQuestions: '' });
-                     if (fileInputRef.current) fileInputRef.current.value = '';
-                   }}
+                  onClick={() => { 
+                    setSubmitDone(false); 
+                    setCreatedSubmissionId(null); 
+                    setSubmissionId(null);
+                    setVideoFile(null);
+                    setContext('');
+                    setGoals('');
+                    setQuestions('');
+                    if (fileInputRef.current) fileInputRef.current.value = '';
+                  }}
                    className="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition-colors"
                  >
                    Submit Another
