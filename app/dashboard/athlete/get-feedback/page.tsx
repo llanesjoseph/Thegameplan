@@ -376,33 +376,21 @@ export default function GetFeedbackPage() {
                  <p className="text-sm text-gray-600">Submission ID:</p>
                  <p className="font-mono text-lg font-bold text-gray-800">{createdSubmissionId || submissionId}</p>
                </div>
-               <div className="flex flex-col gap-3">
+               <div className="flex justify-center">
                  <button
-                   onClick={() => router.push('/dashboard/coach/queue-bypass')}
-                   className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                   onClick={() => {
+                     setSubmitDone(false);
+                     setCreatedSubmissionId(null);
+                     setSubmissionId(null);
+                     setVideoFile(null);
+                     setContext('');
+                     setGoals('');
+                     setQuestions('');
+                     if (fileInputRef.current) fileInputRef.current.value = '';
+                   }}
+                   className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors text-lg font-medium"
                  >
-                   View Coach Queue
-                 </button>
-                 <button
-                   onClick={() => router.push('/dashboard/athlete/reviews?submitted=1')}
-                   className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors"
-                 >
-                   View My Reviews
-                 </button>
-                 <button
-                  onClick={() => { 
-                    setSubmitDone(false); 
-                    setCreatedSubmissionId(null); 
-                    setSubmissionId(null);
-                    setVideoFile(null);
-                    setContext('');
-                    setGoals('');
-                    setQuestions('');
-                    if (fileInputRef.current) fileInputRef.current.value = '';
-                  }}
-                   className="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition-colors"
-                 >
-                   Submit Another
+                   OK
                  </button>
                </div>
              </div>

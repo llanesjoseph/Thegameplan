@@ -297,48 +297,60 @@ export default function AthleteDashboard() {
     return () => window.removeEventListener('message', handleMessage)
   }, [handleToolClick])
 
-  // Fetch lesson counts
+  // Fetch lesson counts and athlete submission counts
   useEffect(() => {
-    const fetchCoachContent = async () => {
-      if (!coachId) {
+    const fetchStats = async () => {
+      if (!user) {
         setLessonCount(0)
         setVideoCount(0)
         return
       }
 
       try {
-        // BYPASS INDEX REQUIREMENT: Fetch all content and filter client-side
-        const contentRef = collection(db, 'content')
-        const contentQuery = query(contentRef)  // No where clauses = no index needed
-        const contentSnap = await getDocs(contentQuery)
-
+        // Fetch coach content for lessons
         let lessons = 0
-        let videos = 0
+        if (coachId) {
+          const contentRef = collection(db, 'content')
+          const contentQuery = query(contentRef)
+          const contentSnap = await getDocs(contentQuery)
 
-        // Filter for coach's published content in JavaScript
-        contentSnap.forEach(doc => {
-          const data = doc.data()
-          // Check if content belongs to coach and is published
-          if (data.creatorUid === coachId && data.status === 'published') {
-            if (data.type === 'video') {
-              videos++
-            } else {
+          contentSnap.forEach(doc => {
+            const data = doc.data()
+            if (data.creatorUid === coachId && data.status === 'published' && data.type !== 'video') {
               lessons++
             }
+          })
+        }
+
+        // Fetch athlete's submitted videos using secure API
+        let submittedVideos = 0
+        try {
+          const token = await user.getIdToken()
+          const response = await fetch('/api/submissions', {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+          })
+          
+          if (response.ok) {
+            const data = await response.json()
+            submittedVideos = data.submissions?.length || 0
           }
-        })
+        } catch (apiError) {
+          console.warn('Could not fetch submission count via API:', apiError)
+        }
 
         setLessonCount(lessons)
-        setVideoCount(videos)
+        setVideoCount(submittedVideos)
       } catch (error) {
-        console.error('Error fetching coach content:', error)
+        console.error('Error fetching stats:', error)
         setLessonCount(0)
         setVideoCount(0)
       }
     }
 
-    fetchCoachContent()
-  }, [coachId])
+    fetchStats()
+  }, [user, coachId])
 
   if (loadError) {
     return (
