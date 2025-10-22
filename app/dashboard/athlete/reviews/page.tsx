@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import Link from 'next/link';
-import { Video, Clock, CheckCircle, AlertCircle, Eye, ArrowLeft } from 'lucide-react';
+import { Video, Clock, CheckCircle, AlertCircle, Eye, ArrowLeft, ChevronDown, ChevronUp, Archive } from 'lucide-react';
 
 export default function AthleteReviewsPage() {
   const { user, loading } = useAuth();
@@ -15,6 +15,7 @@ export default function AthleteReviewsPage() {
   const [justSubmitted, setJustSubmitted] = useState(false);
   const [showSubmitForm, setShowSubmitForm] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showCompletedReviews, setShowCompletedReviews] = useState(false);
 
   // Detect if page is loaded in iframe
   useEffect(() => {
@@ -157,6 +158,25 @@ export default function AthleteReviewsPage() {
     return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`;
   };
 
+  // Separate active and completed reviews
+  const activeReviews = submissions.filter(submission => 
+    submission.status !== 'complete' && submission.status !== 'reviewed'
+  );
+  
+  const completedReviews = submissions.filter(submission => 
+    submission.status === 'complete' || submission.status === 'reviewed'
+  );
+
+  // Group completed reviews by athlete (if multiple athletes)
+  const groupedCompletedReviews = completedReviews.reduce((groups: any, submission: any) => {
+    const athleteName = submission.athleteName || 'You';
+    if (!groups[athleteName]) {
+      groups[athleteName] = [];
+    }
+    groups[athleteName].push(submission);
+    return groups;
+  }, {});
+
   if (loading || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -293,8 +313,172 @@ export default function AthleteReviewsPage() {
           </div>
         )}
 
-        {/* Submissions Grid */}
-        {!showSubmitForm && submissions.length > 0 && (
+        {/* Active Reviews Section */}
+        {!showSubmitForm && activeReviews.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+              Active Reviews ({activeReviews.length})
+            </h2>
+            <div className="grid gap-4">
+              {activeReviews.map((submission: any) => (
+                <Link
+                  key={submission.id}
+                  href={`/dashboard/athlete/reviews/${submission.id}`}
+                  className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          {submission.skillName}
+                        </h3>
+                        <span
+                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(
+                            submission.status
+                          )}`}
+                        >
+                          {getStatusIcon(submission.status)}
+                          {formatStatus(submission.status)}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-6 text-sm text-gray-600">
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-4 h-4" />
+                          Submitted {formatDate(submission.submittedAt)}
+                        </span>
+
+                        {submission.reviewedAt && (
+                          <span className="flex items-center gap-1 text-green-600">
+                            <CheckCircle className="w-4 h-4" />
+                            Reviewed {formatTimeAgo(submission.reviewedAt)}
+                          </span>
+                        )}
+
+                        {submission.claimedBy && !submission.reviewedAt && (
+                          <span className="flex items-center gap-1 text-blue-600">
+                            <Eye className="w-4 h-4" />
+                            Coach reviewing...
+                          </span>
+                        )}
+                      </div>
+
+                      {submission.notes && (
+                        <p className="mt-2 text-sm text-gray-600 line-clamp-2">
+                          {submission.notes}
+                        </p>
+                      )}
+                    </div>
+
+                    {submission.thumbnailUrl && (
+                      <div className="ml-4 flex-shrink-0">
+                        <img
+                          src={submission.thumbnailUrl}
+                          alt="Video thumbnail"
+                          className="w-32 h-20 object-cover rounded-lg"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Completed Reviews Section */}
+        {!showSubmitForm && completedReviews.length > 0 && (
+          <div className="mb-8">
+            <button
+              onClick={() => setShowCompletedReviews(!showCompletedReviews)}
+              className="flex items-center justify-between w-full p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors mb-4"
+            >
+              <div className="flex items-center gap-3">
+                <Archive className="w-5 h-5 text-gray-600" />
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Completed Reviews ({completedReviews.length})
+                </h2>
+              </div>
+              {showCompletedReviews ? (
+                <ChevronUp className="w-5 h-5 text-gray-600" />
+              ) : (
+                <ChevronDown className="w-5 h-5 text-gray-600" />
+              )}
+            </button>
+
+            {showCompletedReviews && (
+              <div className="space-y-6">
+                {Object.entries(groupedCompletedReviews).map(([athleteName, athleteReviews]: [string, any]) => (
+                  <div key={athleteName} className="bg-gray-50 rounded-lg p-4">
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">
+                      {athleteName} ({athleteReviews.length} reviews)
+                    </h3>
+                    <div className="grid gap-4">
+                      {athleteReviews.map((submission: any) => (
+                        <Link
+                          key={submission.id}
+                          href={`/dashboard/athlete/reviews/${submission.id}`}
+                          className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-3 mb-2">
+                                <h3 className="text-lg font-semibold text-gray-900">
+                                  {submission.skillName}
+                                </h3>
+                                <span
+                                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(
+                                    submission.status
+                                  )}`}
+                                >
+                                  {getStatusIcon(submission.status)}
+                                  {formatStatus(submission.status)}
+                                </span>
+                              </div>
+
+                              <div className="flex items-center gap-6 text-sm text-gray-600">
+                                <span className="flex items-center gap-1">
+                                  <Clock className="w-4 h-4" />
+                                  Submitted {formatDate(submission.submittedAt)}
+                                </span>
+
+                                {submission.reviewedAt && (
+                                  <span className="flex items-center gap-1 text-green-600">
+                                    <CheckCircle className="w-4 h-4" />
+                                    Reviewed {formatTimeAgo(submission.reviewedAt)}
+                                  </span>
+                                )}
+                              </div>
+
+                              {submission.notes && (
+                                <p className="mt-2 text-sm text-gray-600 line-clamp-2">
+                                  {submission.notes}
+                                </p>
+                              )}
+                            </div>
+
+                            {submission.thumbnailUrl && (
+                              <div className="ml-4 flex-shrink-0">
+                                <img
+                                  src={submission.thumbnailUrl}
+                                  alt="Video thumbnail"
+                                  className="w-32 h-20 object-cover rounded-lg"
+                                />
+                              </div>
+                            )}
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Legacy Submissions Grid - Fallback for old structure */}
+        {!showSubmitForm && activeReviews.length === 0 && completedReviews.length === 0 && submissions.length > 0 && (
           <div className="grid gap-4">
             {submissions.map((submission: any) => (
               <Link
