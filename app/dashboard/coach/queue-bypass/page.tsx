@@ -169,30 +169,32 @@ export default function QueueBypassPage() {
                     <div className="flex items-start justify-between">
                       <div className="flex items-start space-x-4">
                         {/* Thumbnail */}
-                        <div className="w-32 h-20 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
+                        <div className="w-32 h-20 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden relative">
                           {submission.thumbnailUrl ? (
-                            <img 
-                              src={submission.thumbnailUrl} 
-                              alt="Video thumbnail" 
-                              className="w-full h-full object-cover"
-                              onError={(e) => {
-                                console.warn('[COACH-QUEUE] Thumbnail failed to load:', submission.thumbnailUrl);
-                                // Fallback to play icon if thumbnail fails to load
-                                e.currentTarget.style.display = 'none';
-                                e.currentTarget.nextElementSibling?.classList.remove('hidden');
-                              }}
-                              onLoad={() => {
-                                console.log('[COACH-QUEUE] Thumbnail loaded successfully:', submission.thumbnailUrl);
-                              }}
-                            />
+                            <>
+                              <img 
+                                src={submission.thumbnailUrl} 
+                                alt="Video thumbnail" 
+                                className="w-full h-full object-cover absolute inset-0"
+                                onError={(e) => {
+                                  console.warn('[COACH-QUEUE] Thumbnail failed to load:', submission.thumbnailUrl);
+                                  e.currentTarget.style.display = 'none';
+                                  const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                                  if (fallback) fallback.style.display = 'flex';
+                                }}
+                                onLoad={() => {
+                                  console.log('[COACH-QUEUE] Thumbnail loaded successfully:', submission.thumbnailUrl);
+                                }}
+                              />
+                              <div className="w-full h-full flex items-center justify-center bg-gray-200 absolute inset-0" style={{ display: 'none' }}>
+                                <Play className="w-8 h-8 text-gray-400" />
+                              </div>
+                            </>
                           ) : (
                             <div className="w-full h-full flex items-center justify-center bg-gray-200">
                               <Play className="w-8 h-8 text-gray-400" />
                             </div>
                           )}
-                          <div className="w-full h-full flex items-center justify-center bg-gray-200 hidden">
-                            <Play className="w-8 h-8 text-gray-400" />
-                          </div>
                         </div>
 
                         {/* Details */}

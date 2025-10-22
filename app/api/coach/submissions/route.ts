@@ -66,36 +66,10 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    // 4. Also check feedback_requests collection as fallback
-    console.log('[API] Checking feedback_requests collection as fallback...')
-    const feedbackQuery = adminDb.collection('feedback_requests').orderBy('createdAt', 'desc')
-    const feedbackSnapshot = await feedbackQuery.get()
-    
-    console.log(`[API] Found ${feedbackSnapshot.docs.length} items in 'feedback_requests' collection`)
-
-    const feedbackSubmissions = feedbackSnapshot.docs.map((doc) => {
-      const data = doc.data()
-      return {
-        id: `fr_${doc.id}`, // Prefix to distinguish from submissions
-        ...data,
-        // Convert Firestore timestamps to ISO strings for JSON serialization
-        createdAt: data.createdAt?.toDate?.()?.toISOString() || data.createdAt,
-        submittedAt: data.createdAt?.toDate?.()?.toISOString() || data.createdAt,
-        reviewedAt: data.reviewedAt?.toDate?.()?.toISOString() || data.reviewedAt,
-        // Map feedback_requests fields to submission format
-        status: data.status || 'awaiting_coach',
-        athleteName: data.athleteName || 'Unknown Athlete',
-        athleteContext: data.context || data.notes || '',
-        videoFileName: data.videoFileName || 'video.mp4',
-        thumbnailUrl: data.thumbnailUrl || null,
-        videoDuration: data.videoDuration || null,
-        videoFileSize: data.videoFileSize || null,
-      }
-    })
-
-    // Combine both collections
-    const combinedSubmissions = [...allSubmissions, ...feedbackSubmissions]
-    console.log(`[API] Combined total: ${combinedSubmissions.length} submissions`)
+    // 4. Use only submissions collection (single source of truth)
+    console.log('[API] Using submissions collection as single source of truth')
+    const combinedSubmissions = allSubmissions
+    console.log(`[API] Total submissions: ${combinedSubmissions.length}`)
 
     // 5. Filter submissions - let's be more inclusive to catch all possible statuses
     const awaitingCoach = combinedSubmissions.filter((sub: any) => {
