@@ -258,6 +258,23 @@ export default function ReviewForm({
       // Publish review
       await publishReview(reviewId);
 
+      // Send email notification to athlete
+      try {
+        const { sendReviewPublishedNotification } = await import('@/lib/email-service');
+        const reviewUrl = `${window.location.origin}/dashboard/athlete/reviews/${submission.id}`;
+        
+        await sendReviewPublishedNotification({
+          to: submission.athleteEmail || submission.athleteName, // Fallback to name if no email
+          athleteName: submission.athleteName,
+          coachName: coachName,
+          skillName: submission.skillName || 'Video Submission',
+          submissionId: submission.id,
+          reviewUrl
+        });
+      } catch (emailErr) {
+        console.warn('Failed to send athlete notification:', emailErr);
+      }
+
       // Create notification for athlete
       await createNotification(
         submission.athleteUid,

@@ -888,6 +888,179 @@ export async function sendAthleteWelcomeEmail({
   }
 }
 
+// Video submission notification interfaces
+interface VideoSubmissionNotificationProps {
+  to: string
+  coachName: string
+  athleteName: string
+  skillName: string
+  submissionId: string
+  reviewUrl: string
+  context?: string
+}
+
+interface ReviewPublishedNotificationProps {
+  to: string
+  athleteName: string
+  coachName: string
+  skillName: string
+  submissionId: string
+  reviewUrl: string
+}
+
+// Send notification to coach when athlete submits video
+export async function sendVideoSubmissionNotification({
+  to,
+  coachName,
+  athleteName,
+  skillName,
+  submissionId,
+  reviewUrl,
+  context
+}: VideoSubmissionNotificationProps) {
+  try {
+    const { data, error } = await resend.emails.send({
+      from: 'AthLeap <noreply@mail.crucibleanalytics.dev>',
+      to: [to],
+      subject: `🎥 New Video Submission from ${athleteName} - ${skillName}`,
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>New Video Submission - AthLeap</title>
+        </head>
+        <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8fafc;">
+          <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <div style="text-align: center; margin-bottom: 30px;">
+              <h1 style="font-family: 'Permanent Marker', cursive; color: #13367A; font-size: 32px; margin: 0;">AthLeap</h1>
+              <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">THE WORK BEFORE THE WIN</p>
+            </div>
+
+            <div style="background: #dbeafe; border: 2px solid #3b82f6; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
+              <h2 style="color: #1e40af; margin: 0;">🎥 New Video Submission!</h2>
+            </div>
+
+            <p>Hi ${coachName},</p>
+
+            <p><strong>${athleteName}</strong> has submitted a new video for <strong>${skillName}</strong> and is waiting for your review.</p>
+
+            <div style="background: #f0f9ff; border-left: 4px solid #0284c7; padding: 20px; margin: 20px 0;">
+              <h3 style="color: #0369a1; margin-top: 0;">📋 Submission Details</h3>
+              <p style="margin: 5px 0; color: #1e3a8a;"><strong>Skill:</strong> ${skillName}</p>
+              <p style="margin: 5px 0; color: #1e3a8a;"><strong>Submission ID:</strong> ${submissionId}</p>
+              ${context ? `<p style="margin: 5px 0; color: #1e3a8a;"><strong>Context:</strong> ${context}</p>` : ''}
+            </div>
+
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${reviewUrl}" style="background-color: #A01C21; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Review Video Now</a>
+            </div>
+
+            <div style="background: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px; padding: 20px; margin: 20px 0;">
+              <h3 style="color: #d97706; margin-top: 0;">⏰ Quick Review</h3>
+              <p style="margin: 5px 0; color: #92400e;">The athlete is eagerly waiting for your feedback. A quick review helps maintain their momentum and motivation.</p>
+            </div>
+
+            <p style="margin-top: 30px;">Keep up the great coaching!</p>
+            <p><strong>The AthLeap Team</strong></p>
+          </div>
+        </body>
+        </html>
+      `
+    })
+
+    if (error) {
+      console.error('Failed to send video submission notification:', error)
+      return { success: false, error: error.message }
+    }
+
+    return { success: true, data }
+  } catch (error) {
+    console.error('Email service error:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    }
+  }
+}
+
+// Send notification to athlete when coach publishes review
+export async function sendReviewPublishedNotification({
+  to,
+  athleteName,
+  coachName,
+  skillName,
+  submissionId,
+  reviewUrl
+}: ReviewPublishedNotificationProps) {
+  try {
+    const { data, error } = await resend.emails.send({
+      from: 'AthLeap <noreply@mail.crucibleanalytics.dev>',
+      to: [to],
+      subject: `✅ Your ${skillName} Review is Ready!`,
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Review Ready - AthLeap</title>
+        </head>
+        <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8fafc;">
+          <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <div style="text-align: center; margin-bottom: 30px;">
+              <h1 style="font-family: 'Permanent Marker', cursive; color: #13367A; font-size: 32px; margin: 0;">AthLeap</h1>
+              <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">THE WORK BEFORE THE WIN</p>
+            </div>
+
+            <div style="background: #dcfce7; border: 2px solid #16a34a; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
+              <h2 style="color: #15803d; margin: 0;">✅ Your Review is Ready!</h2>
+            </div>
+
+            <p>Hi ${athleteName},</p>
+
+            <p><strong>${coachName}</strong> has completed your review for <strong>${skillName}</strong> and provided detailed feedback to help you improve.</p>
+
+            <div style="background: #f0f9ff; border-left: 4px solid #0284c7; padding: 20px; margin: 20px 0;">
+              <h3 style="color: #0369a1; margin-top: 0;">📋 Review Details</h3>
+              <p style="margin: 5px 0; color: #1e3a8a;"><strong>Skill:</strong> ${skillName}</p>
+              <p style="margin: 5px 0; color: #1e3a8a;"><strong>Submission ID:</strong> ${submissionId}</p>
+              <p style="margin: 5px 0; color: #1e3a8a;"><strong>Reviewed by:</strong> ${coachName}</p>
+            </div>
+
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${reviewUrl}" style="background-color: #A01C21; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">View Your Review</a>
+            </div>
+
+            <div style="background: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px; padding: 20px; margin: 20px 0;">
+              <h3 style="color: #d97706; margin-top: 0;">💡 Pro Tip</h3>
+              <p style="margin: 5px 0; color: #92400e;">Take time to read through the feedback carefully and practice the suggested improvements. This is how you level up your game!</p>
+            </div>
+
+            <p style="margin-top: 30px;">Keep pushing yourself to be better!</p>
+            <p><strong>The AthLeap Team</strong></p>
+          </div>
+        </body>
+        </html>
+      `
+    })
+
+    if (error) {
+      console.error('Failed to send review published notification:', error)
+      return { success: false, error: error.message }
+    }
+
+    return { success: true, data }
+  } catch (error) {
+    console.error('Email service error:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    }
+  }
+}
+
 /**
  * Fetch all admin emails from Firestore
  * Returns emails of users with 'admin' or 'superadmin' role

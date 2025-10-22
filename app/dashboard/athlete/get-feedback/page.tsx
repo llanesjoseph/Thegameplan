@@ -257,6 +257,25 @@ export default function GetFeedbackPage() {
           }
         }
 
+        // Send notification to coach
+        try {
+          const { sendVideoSubmissionNotification } = await import('@/lib/email-service');
+          const coachEmail = 'llanes.joseph.m@gmail.com'; // TODO: Get from user's coach data
+          const reviewUrl = `${window.location.origin}/dashboard/coach/review/${submissionId || createdSubmissionId}`;
+          
+          await sendVideoSubmissionNotification({
+            to: coachEmail,
+            coachName: 'Coach',
+            athleteName: user.displayName || user.email || 'Athlete',
+            skillName: 'Video Submission',
+            submissionId: submissionId || createdSubmissionId || '',
+            reviewUrl,
+            context: context.trim()
+          });
+        } catch (emailErr) {
+          console.warn('Failed to send coach notification:', emailErr);
+        }
+
         // Success UI (avoid throwing / global error)
         toast.success('✅ Submission complete! Your coach will review it soon.');
 
@@ -298,27 +317,42 @@ export default function GetFeedbackPage() {
           </p>
         </div>
 
-         {/* Success Callout */}
+         {/* Success Modal */}
          {submitDone && (
-           <div className="mb-6 p-4 border border-green-200 bg-green-50 rounded-lg text-green-900">
-             <div className="flex items-start justify-between">
-               <div>
-                 <p className="font-semibold">Submission received!</p>
-                 <p className="text-sm mt-1">Your coach has been notified and will begin the review soon.</p>
-                 {createdSubmissionId && (
-                   <p className="text-xs mt-2 opacity-80">Submission ID: {createdSubmissionId}</p>
-                 )}
+           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+             <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 text-center">
+               <div className="text-green-600 text-6xl mb-4">✓</div>
+               <h3 className="text-2xl font-bold text-green-800 mb-2">Video Uploaded Successfully!</h3>
+               <p className="text-gray-700 mb-4">
+                 Your video has been submitted for review. Your coach will be notified and provide feedback soon.
+               </p>
+               <div className="bg-gray-50 border border-gray-200 rounded p-3 mb-4">
+                 <p className="text-sm text-gray-600">Submission ID:</p>
+                 <p className="font-mono text-lg font-bold text-gray-800">{createdSubmissionId || submissionId}</p>
                </div>
-               <div className="flex gap-2">
+               <div className="flex flex-col gap-3">
+                 <button
+                   onClick={() => router.push('/dashboard/coach/queue-bypass')}
+                   className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                 >
+                   View Coach Queue
+                 </button>
                  <button
                    onClick={() => router.push('/dashboard/athlete/reviews?submitted=1')}
-                   className="px-3 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                   className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors"
                  >
                    View My Reviews
                  </button>
                  <button
-                   onClick={() => { setSubmitDone(false); setCreatedSubmissionId(null); }}
-                   className="px-3 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
+                   onClick={() => { 
+                     setSubmitDone(false); 
+                     setCreatedSubmissionId(null); 
+                     setSubmissionId('');
+                     setSelectedFile(null);
+                     setFormData({ context: '', goals: '', specificQuestions: '' });
+                     if (fileInputRef.current) fileInputRef.current.value = '';
+                   }}
+                   className="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition-colors"
                  >
                    Submit Another
                  </button>
