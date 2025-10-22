@@ -22,7 +22,6 @@ import RubricScoring from '@/components/video-critique/RubricScoring';
 import TimecodeEditor from '@/components/video-critique/TimecodeEditor';
 import DrillSelector from '@/components/video-critique/DrillSelector';
 import { createNotification } from '@/lib/data/notifications';
-import { useAuth } from '@/contexts/AuthContext';
 
 interface ReviewFormProps {
   submission: Submission;
