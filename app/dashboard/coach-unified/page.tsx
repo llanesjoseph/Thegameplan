@@ -130,13 +130,6 @@ export default function CoachUnifiedDashboard() {
       color: '#E53E3E'
     },
     {
-      id: 'video-analytics',
-      title: 'Video Analytics',
-      description: 'Track review performance metrics',
-      icon: BarChart3,
-      color: '#5A52D5'
-    },
-    {
       id: 'profile',
       title: 'My Profile',
       description: 'Edit your coach profile',
@@ -283,7 +276,7 @@ export default function CoachUnifiedDashboard() {
                 </h2>
               )}
               <p className={`text-xs ${isSidebarCollapsed ? 'text-center' : ''}`} style={{ color: '#666' }}>
-                {isSidebarCollapsed ? '13' : '13 tools available'}
+                {isSidebarCollapsed ? '12' : '12 tools available'}
               </p>
             </div>
 
