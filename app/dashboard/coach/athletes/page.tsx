@@ -165,7 +165,7 @@ function CoachAthletesContent() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          coachId: user?.uid,
+          creatorUid: user?.uid,
           sport: bulkForm.sport,
           customMessage: bulkForm.customMessage,
           athletes: validAthletes
