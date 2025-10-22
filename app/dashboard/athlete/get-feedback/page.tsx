@@ -4,7 +4,7 @@ import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { storage, db } from '@/lib/firebase.client';
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { ref, uploadBytesResumable, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { collection, addDoc, updateDoc, serverTimestamp, doc, getDoc, type DocumentReference, type DocumentData } from 'firebase/firestore';
 import { ArrowLeft, Upload, Video, Check } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -155,6 +155,47 @@ export default function GetFeedbackPage() {
         ? `uploads/${user.uid}/submissions/${submissionId}/${sanitized(fileName)}`
         : `feedback/${user.uid}/${feedbackId}/${sanitized(fileName)}`;
 
+      // Generate thumbnail
+      let thumbnailUrl = null;
+      try {
+        const canvas = document.createElement('canvas');
+        const video = document.createElement('video');
+        video.src = URL.createObjectURL(videoFile);
+        
+        await new Promise<void>((resolveThumb) => {
+          video.onloadedmetadata = () => {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+              ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+              canvas.toBlob(async (blob) => {
+                if (blob) {
+                  try {
+                    const thumbnailRef = ref(storage, `thumbnails/${submissionId || createdSubmissionId || 'temp'}.jpg`);
+                    await uploadBytes(thumbnailRef, blob);
+                    thumbnailUrl = await getDownloadURL(thumbnailRef);
+                  } catch (err) {
+                    console.warn('Thumbnail generation failed:', err);
+                  }
+                }
+                URL.revokeObjectURL(video.src);
+                resolveThumb();
+              }, 'image/jpeg', 0.8);
+            } else {
+              URL.revokeObjectURL(video.src);
+              resolveThumb();
+            }
+          };
+          video.onerror = () => {
+            URL.revokeObjectURL(video.src);
+            resolveThumb();
+          };
+        });
+      } catch (err) {
+        console.warn('Thumbnail generation failed:', err);
+      }
+
       const storageRef = ref(storage, storagePath);
       // Use resumable upload for large files and real progress updates
       await new Promise<string>((resolve, reject) => {
@@ -212,6 +253,7 @@ export default function GetFeedbackPage() {
                 body: JSON.stringify({
                   videoDownloadUrl: downloadUrl,
                   videoStoragePath: storagePath,
+                  thumbnailUrl: thumbnailUrl,
                   status: 'awaiting_coach',
                   uploadProgress: 100,
                 }),
@@ -240,7 +282,7 @@ export default function GetFeedbackPage() {
               videoFileSize: videoFile.size,
               videoStoragePath: storagePath,
               videoDuration: 0,
-              thumbnailUrl: null,
+              thumbnailUrl: thumbnailUrl,
               athleteContext: context.trim(),
               athleteGoals: goals.trim(),
               specificQuestions: questions.trim(),
@@ -269,7 +311,7 @@ export default function GetFeedbackPage() {
               },
               body: JSON.stringify({
                 submissionId: submissionId || createdSubmissionId,
-                skillName: submission?.skillName || 'Video Submission',
+                skillName: 'Video Submission', // Use default since we don't have skill selection yet
                 context: context.trim()
               }),
             });

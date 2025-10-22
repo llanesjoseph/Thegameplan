@@ -118,8 +118,20 @@ export default function QueueBypassPage() {
                   <div className="flex items-start justify-between">
                     <div className="flex items-start space-x-4">
                       {/* Thumbnail */}
-                      <div className="w-32 h-20 bg-gray-200 rounded-lg flex items-center justify-center">
-                        <Play className="w-8 h-8 text-gray-400" />
+                      <div className="w-32 h-20 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
+                        {submission.thumbnailUrl ? (
+                          <img 
+                            src={submission.thumbnailUrl} 
+                            alt="Video thumbnail" 
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              // Fallback to play icon if thumbnail fails to load
+                              e.currentTarget.style.display = 'none';
+                              e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                            }}
+                          />
+                        ) : null}
+                        <Play className={`w-8 h-8 text-gray-400 ${submission.thumbnailUrl ? 'hidden' : ''}`} />
                       </div>
 
                       {/* Details */}
