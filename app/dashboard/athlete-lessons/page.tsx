@@ -90,6 +90,43 @@ export default function AthleteLessonsPage() {
         if (data.success) {
           setFeed(data.feed)
           setLessons(data.lessons || [])
+          
+          // If no lessons found but coach is assigned, try to sync
+          if ((data.lessons || []).length === 0 && data.feed?.coachId) {
+            console.log('🔄 No lessons found, attempting to sync from coach...')
+            try {
+              const syncResponse = await fetch('/api/athlete/sync-lessons', {
+                method: 'POST',
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              })
+
+              if (syncResponse.ok) {
+                const syncData = await syncResponse.json()
+                if (syncData.success && syncData.lessonCount > 0) {
+                  console.log(`✅ Synced ${syncData.lessonCount} lessons, refetching...`)
+                  // Refetch the feed after sync
+                  const refetchResponse = await fetch('/api/athlete/feed', {
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                    },
+                  })
+                  
+                  if (refetchResponse.ok) {
+                    const refetchData = await refetchResponse.json()
+                    if (refetchData.success) {
+                      setFeed(refetchData.feed)
+                      setLessons(refetchData.lessons || [])
+                    }
+                  }
+                }
+              }
+            } catch (syncErr) {
+              console.error('Error syncing lessons:', syncErr)
+              // Don't set error, just continue with empty lessons
+            }
+          }
         } else {
           setError(data.error || 'Failed to load lessons')
         }
