@@ -159,13 +159,6 @@ export default function CoachUnifiedDashboard() {
       color: '#5A9B9B'
     },
     {
-      id: 'invite',
-      title: 'Invite Athletes',
-      description: 'Send bulk invitations to athletes',
-      icon: UserPlus,
-      color: '#000000'
-    },
-    {
       id: 'videos',
       title: 'Video Manager',
       description: 'Organize and embed training videos',
@@ -269,7 +262,7 @@ export default function CoachUnifiedDashboard() {
                 </h2>
               )}
               <p className={`text-xs ${isSidebarCollapsed ? 'text-center' : ''}`} style={{ color: '#666' }}>
-                {isSidebarCollapsed ? '11' : '11 tools available'}
+                {isSidebarCollapsed ? '10' : '10 tools available'}
               </p>
             </div>
 

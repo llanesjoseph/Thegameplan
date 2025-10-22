@@ -499,6 +499,31 @@ function CoachAthletesContent() {
           </div>
         )}
 
+        {/* Invite Athletes Button */}
+        <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 overflow-hidden">
+          <div className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl flex items-center gap-3 mb-2" style={{ color: '#000000' }}>
+                  <UserPlus className="w-6 h-6" />
+                  Invite Athletes
+                </h2>
+                <p style={{ color: '#000000', opacity: 0.7 }}>
+                  Send bulk invitations to athletes
+                </p>
+              </div>
+              <button
+                onClick={() => setShowBulkInvite(true)}
+                className="flex items-center gap-2 px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-all shadow-sm active:scale-95 touch-manipulation"
+                style={{ minHeight: '44px' }}
+              >
+                <UserPlus className="w-5 h-5" />
+                <span className="font-medium">Invite Athletes</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
         {/* Invitations List */}
         <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 overflow-hidden">
           <div className="p-6 border-b border-gray-200">
@@ -524,7 +549,7 @@ function CoachAthletesContent() {
                   No invitations yet
                 </h3>
                 <p style={{ color: '#000000', opacity: 0.7 }}>
-                  Use the sidebar to invite your first athletes
+                  Click "Invite Athletes" above to send your first invitations
                 </p>
               </div>
             ) : (
