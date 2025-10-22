@@ -257,23 +257,23 @@ export default function GetFeedbackPage() {
           }
         }
 
-        // Send notification to coach
+        // Send notification to coach via API
         try {
-          const { sendVideoSubmissionNotification } = await import('@/lib/email-service');
-          // Get coach email from submission data or fallback
-          const coachEmail = submission?.coachEmail || 'llanes.joseph.m@gmail.com';
-          const coachName = submission?.coachName || 'Coach';
-          const reviewUrl = `${window.location.origin}/dashboard/coach/review/${submissionId || createdSubmissionId}`;
-          
-          await sendVideoSubmissionNotification({
-            to: coachEmail,
-            coachName: coachName,
-            athleteName: user.displayName || user.email || 'Athlete',
-            skillName: submission?.skillName || 'Video Submission',
-            submissionId: submissionId || createdSubmissionId || '',
-            reviewUrl,
-            context: context.trim()
-          });
+          const token = (user as any)?.getIdToken ? await (user as any).getIdToken(true) : null;
+          if (token) {
+            await fetchWithRetry('/api/notifications/video-submitted', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                submissionId: submissionId || createdSubmissionId,
+                skillName: submission?.skillName || 'Video Submission',
+                context: context.trim()
+              }),
+            });
+          }
         } catch (emailErr) {
           console.warn('Failed to send coach notification:', emailErr);
         }
