@@ -163,33 +163,33 @@ export default function QueueBypassPage() {
               Active Reviews ({activeReviews.length})
             </h2>
             <div className={`grid gap-6 ${isEmbedded ? 'grid-cols-1 lg:grid-cols-2 xl:grid-cols-3' : 'grid-cols-1'}`}>
-              {activeReviews.map((submission) => (
+              {activeReviews.map((submission) => {
+                console.log('[COACH-QUEUE] Rendering submission:', submission.id, 'thumbnailUrl:', submission.thumbnailUrl);
+                return (
                 <div key={submission.id} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow">
                   <div className="p-6">
                     <div className="flex items-start justify-between">
                       <div className="flex items-start space-x-4">
                         {/* Thumbnail */}
-                        <div className="w-32 h-20 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden relative">
+                        <div className="w-32 h-20 bg-gray-200 rounded-lg overflow-hidden flex items-center justify-center">
                           {submission.thumbnailUrl ? (
-                            <>
-                              <img 
-                                src={submission.thumbnailUrl} 
-                                alt="Video thumbnail" 
-                                className="w-full h-full object-cover absolute inset-0"
-                                onError={(e) => {
-                                  console.warn('[COACH-QUEUE] Thumbnail failed to load:', submission.thumbnailUrl);
-                                  e.currentTarget.style.display = 'none';
-                                  const fallback = e.currentTarget.nextElementSibling as HTMLElement;
-                                  if (fallback) fallback.style.display = 'flex';
-                                }}
-                                onLoad={() => {
-                                  console.log('[COACH-QUEUE] Thumbnail loaded successfully:', submission.thumbnailUrl);
-                                }}
-                              />
-                              <div className="w-full h-full flex items-center justify-center bg-gray-200 absolute inset-0" style={{ display: 'none' }}>
-                                <Play className="w-8 h-8 text-gray-400" />
-                              </div>
-                            </>
+                            <img 
+                              src={submission.thumbnailUrl} 
+                              alt="Video thumbnail" 
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                console.warn('[COACH-QUEUE] Thumbnail failed to load:', submission.thumbnailUrl);
+                                // Hide the image and show fallback
+                                e.currentTarget.style.display = 'none';
+                                const container = e.currentTarget.parentElement;
+                                if (container) {
+                                  container.innerHTML = '<div class="w-full h-full flex items-center justify-center bg-gray-200"><svg class="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>';
+                                }
+                              }}
+                              onLoad={() => {
+                                console.log('[COACH-QUEUE] Thumbnail loaded successfully:', submission.thumbnailUrl);
+                              }}
+                            />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center bg-gray-200">
                               <Play className="w-8 h-8 text-gray-400" />
@@ -256,7 +256,8 @@ export default function QueueBypassPage() {
                     </div>
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
