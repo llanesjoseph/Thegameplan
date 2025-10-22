@@ -5,10 +5,13 @@ import { collection, query, where, orderBy, onSnapshot, updateDoc, doc } from 'f
 import { auth as clientAuth } from '@/lib/firebase.client';
 import { db } from '@/lib/firebase.client';
 import { useAuth } from '@/hooks/use-auth';
+import { useSearchParams } from 'next/navigation';
 import { Play, Clock, User, FileText } from 'lucide-react';
 
 export default function QueueBypassPage() {
   const { user } = useAuth();
+  const searchParams = useSearchParams();
+  const isEmbedded = searchParams?.get('embedded') === 'true';
   const [submissions, setSubmissions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -81,14 +84,14 @@ export default function QueueBypassPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className={`flex items-center justify-center ${isEmbedded ? 'h-full' : 'min-h-screen'}`}>
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className={`${isEmbedded ? 'h-full overflow-y-auto p-4' : 'container mx-auto px-4 py-8'}`} style={{ backgroundColor: isEmbedded ? 'white' : undefined }}>
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Video Review Queue</h1>
@@ -192,7 +195,7 @@ export default function QueueBypassPage() {
                         Start Review
                       </button>
                       <button
-                        onClick={() => window.location.href = `/dashboard/coach/review/${submission.id}`}
+                        onClick={() => window.location.href = `/dashboard/coach/review/${submission.id}?embedded=true`}
                         className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
                       >
                         Open Review Page

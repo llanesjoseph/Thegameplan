@@ -30,6 +30,7 @@ interface ReviewFormProps {
   coachId: string;
   coachName: string;
   coachPhotoUrl?: string;
+  isEmbedded?: boolean;
 }
 
 export default function ReviewForm({
@@ -39,6 +40,7 @@ export default function ReviewForm({
   coachId,
   coachName,
   coachPhotoUrl,
+  isEmbedded = false,
 }: ReviewFormProps) {
   const router = useRouter();
   const { user } = useAuth();
@@ -338,7 +340,7 @@ export default function ReviewForm({
   }, [rubricScores]);
 
   return (
-    <div className="space-y-6">
+    <div className={`space-y-6 ${isEmbedded ? 'p-4' : ''}`}>
       {/* Video Player Section */}
       <div className="bg-white rounded-lg shadow-sm p-6">
         <h2 className="text-xl font-semibold mb-4">Video Review</h2>

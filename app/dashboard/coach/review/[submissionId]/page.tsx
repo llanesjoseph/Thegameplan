@@ -3,11 +3,13 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import ReviewForm from './ReviewForm';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function CoachReviewPage({ params }: { params: { submissionId: string } }) {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isEmbedded = searchParams?.get('embedded') === 'true';
   const [submission, setSubmission] = useState<any>(null);
   const [existingReview, setExistingReview] = useState<any>(null);
   const [initializing, setInitializing] = useState(true);
@@ -69,7 +71,7 @@ export default function CoachReviewPage({ params }: { params: { submissionId: st
 
   if (loading || initializing) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className={`flex items-center justify-center ${isEmbedded ? 'h-full' : 'min-h-screen'}`}>
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900" />
       </div>
     );
@@ -77,7 +79,7 @@ export default function CoachReviewPage({ params }: { params: { submissionId: st
 
   if (!user) {
     return (
-      <div className="container mx-auto p-6">
+      <div className={`${isEmbedded ? 'h-full p-4' : 'container mx-auto p-6'}`}>
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <h3 className="text-red-800 font-semibold">Please sign in</h3>
           <p className="text-red-600 mt-2">You must be signed in as a coach to review submissions.</p>
@@ -88,7 +90,7 @@ export default function CoachReviewPage({ params }: { params: { submissionId: st
 
   if (!submission) {
     return (
-      <div className="container mx-auto p-6">
+      <div className={`${isEmbedded ? 'h-full p-4' : 'container mx-auto p-6'}`}>
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <h3 className="text-red-800 font-semibold">Submission not found</h3>
         </div>
@@ -98,7 +100,7 @@ export default function CoachReviewPage({ params }: { params: { submissionId: st
 
   if (submission.claimedBy && submission.claimedBy !== user.uid) {
     return (
-      <div className="container mx-auto p-6">
+      <div className={`${isEmbedded ? 'h-full p-4' : 'container mx-auto p-6'}`}>
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <h3 className="text-red-800 font-semibold">Access Denied</h3>
           <p className="text-red-600 mt-2">This submission is claimed by another coach.</p>
@@ -108,7 +110,7 @@ export default function CoachReviewPage({ params }: { params: { submissionId: st
   }
 
   return (
-    <div className="container mx-auto p-6 max-w-7xl">
+    <div className={`${isEmbedded ? 'h-full overflow-y-auto' : 'container mx-auto p-6 max-w-7xl'}`} style={{ backgroundColor: isEmbedded ? 'white' : undefined }}>
       <ReviewForm
         submission={submission}
         rubric={null}
@@ -116,6 +118,7 @@ export default function CoachReviewPage({ params }: { params: { submissionId: st
         coachId={user.uid}
         coachName={user.displayName || 'Coach'}
         coachPhotoUrl={user.photoURL || undefined}
+        isEmbedded={isEmbedded}
       />
     </div>
   );

@@ -219,7 +219,7 @@ export default function CoachUnifiedDashboard() {
   const getSectionPath = (sectionId: string) => {
     const pathMap: Record<string, string> = {
       'home': '/dashboard/coach/home?embedded=true',
-      'video-queue': '/dashboard/coach/queue',
+      'video-queue': '/dashboard/coach/queue-bypass?embedded=true',
       'video-analytics': '/dashboard/coach/analytics/video-critique',
       'athletes': '/dashboard/coach/athletes?embedded=true',
       'create-lesson': '/dashboard/coach/lessons/create?embedded=true',
@@ -300,8 +300,6 @@ export default function CoachUnifiedDashboard() {
                       // Open these pages directly (not in iframe)
                       if (card.id === 'invite') {
                         router.push('/dashboard/coach/invite')
-                      } else if (card.id === 'video-queue') {
-                        router.push('/dashboard/coach/queue-bypass')
                       } else if (card.id === 'video-analytics') {
                         router.push('/dashboard/coach/analytics/video-critique')
                       } else {
