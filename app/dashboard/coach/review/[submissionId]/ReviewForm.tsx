@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
@@ -40,6 +41,7 @@ export default function ReviewForm({
   coachPhotoUrl,
 }: ReviewFormProps) {
   const router = useRouter();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [autoSaving, setAutoSaving] = useState(false);
   const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -260,19 +262,21 @@ export default function ReviewForm({
 
       // Send email notification to athlete via API
       try {
-        const token = await user.getIdToken();
-        await fetch('/api/notifications/review-published', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            submissionId: submission.id,
-            athleteUid: submission.athleteUid,
-            skillName: submission.skillName || 'Video Submission'
-          }),
-        });
+        if (user) {
+          const token = await user.getIdToken();
+          await fetch('/api/notifications/review-published', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              submissionId: submission.id,
+              athleteUid: submission.athleteUid,
+              skillName: submission.skillName || 'Video Submission'
+            }),
+          });
+        }
       } catch (emailErr) {
         console.warn('Failed to send athlete notification:', emailErr);
       }
