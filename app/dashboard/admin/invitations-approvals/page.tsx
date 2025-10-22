@@ -34,7 +34,7 @@ interface Invitation {
   athleteName: string
   athleteEmail: string
   sport: string
-  status: 'pending' | 'accepted' | 'declined' | 'expired'
+  status: 'pending' | 'accepted' | 'declined' | 'expired' | 'revoked'
   createdAt: Date
   expiresAt: Date
   invitationUrl: string
@@ -91,7 +91,7 @@ export default function InvitationsApprovalsUnified({ searchParams }: { searchPa
   // All Invitations State
   const [invitations, setInvitations] = useState<Invitation[]>([])
   const [invitationsLoading, setInvitationsLoading] = useState(false)
-  const [invitationFilter, setInvitationFilter] = useState<'all' | 'pending' | 'accepted' | 'declined' | 'expired'>('all')
+  const [invitationFilter, setInvitationFilter] = useState<'all' | 'pending' | 'accepted' | 'declined' | 'expired' | 'revoked'>('all')
   const [invitationSearch, setInvitationSearch] = useState('')
 
   // Coach Applications State
