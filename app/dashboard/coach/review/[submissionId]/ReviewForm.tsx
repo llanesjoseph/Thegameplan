@@ -305,6 +305,7 @@ export default function ReviewForm({
       }
 
       // Publish review
+      console.log('[REVIEW-FORM] Publishing review:', reviewId);
       const publishResponse = await fetch(`/api/reviews/${reviewId}/publish`, {
         method: 'POST',
         headers: {
@@ -313,8 +314,13 @@ export default function ReviewForm({
       });
 
       if (!publishResponse.ok) {
-        throw new Error('Failed to publish review');
+        const errorData = await publishResponse.json().catch(() => ({}));
+        console.error('[REVIEW-FORM] Publish failed:', publishResponse.status, errorData);
+        throw new Error(`Failed to publish review: ${errorData.error || publishResponse.statusText}`);
       }
+
+      const publishData = await publishResponse.json();
+      console.log('[REVIEW-FORM] Publish successful:', publishData);
 
       // Send email notification to athlete via API
       try {
@@ -336,8 +342,22 @@ export default function ReviewForm({
 
       // Notification is handled by the server-side API
 
-      toast.success('Review published successfully');
-      router.push('/dashboard/coach/queue');
+      toast.success('Review published successfully!');
+      console.log('[REVIEW-FORM] Review published successfully');
+      
+      // Wait a moment for the success message to be visible
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Handle navigation based on context
+      if (isEmbedded) {
+        // If embedded, send message to parent to refresh or navigate
+        if (window.parent !== window) {
+          window.parent.postMessage({ type: 'REVIEW_PUBLISHED' }, '*');
+        }
+      } else {
+        // If not embedded, navigate normally
+        router.push('/dashboard/coach/queue');
+      }
     } catch (error) {
       console.error('Error publishing review:', error);
       toast.error('Failed to publish review');
