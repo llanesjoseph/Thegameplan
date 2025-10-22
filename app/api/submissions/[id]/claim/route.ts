@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth, adminDb } from '@/lib/firebase.admin';
-import { claimSubmission, getSubmission } from '@/lib/data/video-critique';
 
 export async function POST(
   request: NextRequest,
@@ -28,11 +27,19 @@ export async function POST(
     // }
 
     // Fetch submission to verify it exists and is claimable
-    const submission = await getSubmission(params.id);
-
-    if (!submission) {
+    const submissionDoc = await adminDb.collection('submissions').doc(params.id).get();
+    
+    if (!submissionDoc.exists) {
       return NextResponse.json(
         { error: 'Submission not found' },
+        { status: 404 }
+      );
+    }
+
+    const submission = submissionDoc.data();
+    if (!submission) {
+      return NextResponse.json(
+        { error: 'Submission data not found' },
         { status: 404 }
       );
     }
@@ -62,7 +69,7 @@ export async function POST(
       claimedAt: new Date(),
       status: 'claimed',
       updatedAt: new Date(),
-    })
+    });
 
     return NextResponse.json({
       success: true,

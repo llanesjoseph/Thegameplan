@@ -260,14 +260,16 @@ export default function GetFeedbackPage() {
         // Send notification to coach
         try {
           const { sendVideoSubmissionNotification } = await import('@/lib/email-service');
-          const coachEmail = 'llanes.joseph.m@gmail.com'; // TODO: Get from user's coach data
+          // Get coach email from submission data or fallback
+          const coachEmail = submission?.coachEmail || 'llanes.joseph.m@gmail.com';
+          const coachName = submission?.coachName || 'Coach';
           const reviewUrl = `${window.location.origin}/dashboard/coach/review/${submissionId || createdSubmissionId}`;
           
           await sendVideoSubmissionNotification({
             to: coachEmail,
-            coachName: 'Coach',
+            coachName: coachName,
             athleteName: user.displayName || user.email || 'Athlete',
-            skillName: 'Video Submission',
+            skillName: submission?.skillName || 'Video Submission',
             submissionId: submissionId || createdSubmissionId || '',
             reviewUrl,
             context: context.trim()
