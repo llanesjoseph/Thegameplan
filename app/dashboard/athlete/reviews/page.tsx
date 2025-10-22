@@ -56,6 +56,8 @@ export default function AthleteReviewsPage() {
         if (mySubmissions.length === 0) {
           try {
             // IMPORTANT: use where('athleteId','==',uid) so Firestore rules allow the query
+            const { getDocs, query, collection } = await import('firebase/firestore');
+            const { db } = await import('@/lib/firebase.client');
             const frSnapshot = await getDocs(
               query(collection(db, 'feedback_requests'))
             );
