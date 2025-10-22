@@ -113,7 +113,7 @@ export async function GET(request: NextRequest) {
     console.log(`[API] Total submissions: ${combinedSubmissions.length}`)
     console.log(`[API] Awaiting coach: ${awaitingCoach.length}`)
     console.log(`[API] Completed by coach: ${completedByCoach.length}`)
-    console.log(`[API] All statuses found:`, [...new Set(combinedSubmissions.map(s => s.status))])
+    console.log(`[API] All statuses found:`, [...new Set(combinedSubmissions.map((s: any) => s.status))])
 
     return NextResponse.json({
       success: true,
