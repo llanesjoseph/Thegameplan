@@ -156,7 +156,7 @@ export default function GetFeedbackPage() {
         : `feedback/${user.uid}/${feedbackId}/${sanitized(fileName)}`;
 
       // Generate thumbnail
-      let thumbnailUrl = null;
+      let thumbnailUrl: string | null = null;
       try {
         const canvas = document.createElement('canvas');
         const video = document.createElement('video');
