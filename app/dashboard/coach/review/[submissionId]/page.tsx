@@ -110,16 +110,18 @@ export default function CoachReviewPage({ params }: { params: { submissionId: st
   }
 
   return (
-    <div className={`${isEmbedded ? 'h-full overflow-y-auto w-full' : 'container mx-auto p-6 max-w-7xl'}`} style={{ backgroundColor: isEmbedded ? 'white' : undefined }}>
-      <ReviewForm
-        submission={submission}
-        rubric={null}
-        existingReview={existingReview}
-        coachId={user.uid}
-        coachName={user.displayName || 'Coach'}
-        coachPhotoUrl={user.photoURL || undefined}
-        isEmbedded={isEmbedded}
-      />
+    <div className={`${isEmbedded ? 'h-full overflow-y-auto w-full flex justify-center' : 'container mx-auto p-6 max-w-7xl'}`} style={{ backgroundColor: isEmbedded ? 'white' : undefined }}>
+      <div className={`${isEmbedded ? 'w-full max-w-6xl px-4' : 'w-full'}`}>
+        <ReviewForm
+          submission={submission}
+          rubric={null}
+          existingReview={existingReview}
+          coachId={user.uid}
+          coachName={user.displayName || 'Coach'}
+          coachPhotoUrl={user.photoURL || undefined}
+          isEmbedded={isEmbedded}
+        />
+      </div>
     </div>
   );
 }
