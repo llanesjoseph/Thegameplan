@@ -171,25 +171,43 @@ export default function QueueBypassPage() {
                     <div className="flex items-start justify-between">
                       <div className="flex items-start space-x-4">
                         {/* Thumbnail */}
-                        <div className="w-32 h-20 bg-gray-200 rounded-lg overflow-hidden flex items-center justify-center">
+                        <div className="w-32 h-20 bg-gray-200 rounded-lg overflow-hidden relative">
                           {submission.thumbnailUrl ? (
-                            <img 
-                              src={submission.thumbnailUrl} 
-                              alt="Video thumbnail" 
-                              className="w-full h-full object-cover"
-                              onError={(e) => {
-                                console.warn('[COACH-QUEUE] Thumbnail failed to load:', submission.thumbnailUrl);
-                                // Hide the image and show fallback
-                                e.currentTarget.style.display = 'none';
-                                const container = e.currentTarget.parentElement;
-                                if (container) {
-                                  container.innerHTML = '<div class="w-full h-full flex items-center justify-center bg-gray-200"><svg class="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>';
-                                }
-                              }}
-                              onLoad={() => {
-                                console.log('[COACH-QUEUE] Thumbnail loaded successfully:', submission.thumbnailUrl);
-                              }}
-                            />
+                            <>
+                              {/* Test with a simple colored div first */}
+                              <div 
+                                className="w-full h-full absolute inset-0 z-20 bg-red-500 flex items-center justify-center text-white text-xs"
+                                style={{ display: 'block' }}
+                              >
+                                TEST
+                              </div>
+                              <img 
+                                src={submission.thumbnailUrl} 
+                                alt="Video thumbnail" 
+                                className="w-full h-full object-cover absolute inset-0 z-10"
+                                style={{ display: 'block' }}
+                                onError={(e) => {
+                                  console.warn('[COACH-QUEUE] Thumbnail failed to load:', submission.thumbnailUrl);
+                                  e.currentTarget.style.display = 'none';
+                                  const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                                  if (fallback) fallback.style.display = 'flex';
+                                }}
+                                onLoad={(e) => {
+                                  console.log('[COACH-QUEUE] Thumbnail loaded and should be visible:', submission.thumbnailUrl);
+                                  console.log('[COACH-QUEUE] Image dimensions:', e.currentTarget.naturalWidth, 'x', e.currentTarget.naturalHeight);
+                                  // Hide the test div and show the image
+                                  const testDiv = e.currentTarget.previousElementSibling as HTMLElement;
+                                  if (testDiv) testDiv.style.display = 'none';
+                                  // Ensure the image is visible
+                                  e.currentTarget.style.display = 'block';
+                                  e.currentTarget.style.opacity = '1';
+                                  e.currentTarget.style.visibility = 'visible';
+                                }}
+                              />
+                              <div className="w-full h-full flex items-center justify-center bg-gray-200 absolute inset-0 z-0" style={{ display: 'none' }}>
+                                <Play className="w-8 h-8 text-gray-400" />
+                              </div>
+                            </>
                           ) : (
                             <div className="w-full h-full flex items-center justify-center bg-gray-200">
                               <Play className="w-8 h-8 text-gray-400" />
