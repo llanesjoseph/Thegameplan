@@ -283,28 +283,10 @@ export default function CoachUnifiedDashboard() {
                 </h2>
               )}
               <p className={`text-xs ${isSidebarCollapsed ? 'text-center' : ''}`} style={{ color: '#666' }}>
-                {isSidebarCollapsed ? '14' : '14 tools available'}
+                {isSidebarCollapsed ? '13' : '13 tools available'}
               </p>
             </div>
 
-            {/* Fixed Dashboard Button - Locked at top of sidebar */}
-            <div className="sticky top-20 bg-white/95 backdrop-blur-sm z-10 border-b border-gray-200 p-2">
-              <button
-                onClick={() => setActiveSection(null)}
-                className={`w-full flex items-center gap-3 p-3 rounded-lg transition-all touch-manipulation active:scale-95 ${
-                  !activeSection
-                    ? 'bg-black text-white shadow-lg'
-                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
-                }`}
-                style={{ minHeight: '44px' }}
-                title={isSidebarCollapsed ? 'Dashboard' : undefined}
-              >
-                <Home className={`w-5 h-5 flex-shrink-0 ${isSidebarCollapsed ? 'mx-auto' : ''}`} />
-                {!isSidebarCollapsed && (
-                  <span className="font-medium">Dashboard</span>
-                )}
-              </button>
-            </div>
 
             {/* Compact Tool Cards */}
             <div className="p-2 space-y-1">
