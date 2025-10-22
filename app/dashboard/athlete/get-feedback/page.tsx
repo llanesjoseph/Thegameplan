@@ -137,12 +137,14 @@ export default function GetFeedbackPage() {
       // Generate thumbnail
       let thumbnailUrl: string | null = null;
       try {
+        console.log('[UPLOAD] Starting thumbnail generation...');
         const canvas = document.createElement('canvas');
         const video = document.createElement('video');
         video.src = URL.createObjectURL(videoFile);
         
         await new Promise<void>((resolveThumb) => {
           video.onloadedmetadata = () => {
+            console.log('[UPLOAD] Video metadata loaded, generating thumbnail...');
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             const ctx = canvas.getContext('2d');
@@ -154,8 +156,9 @@ export default function GetFeedbackPage() {
                     const thumbnailRef = ref(storage, `thumbnails/${submissionId || createdSubmissionId || 'temp'}.jpg`);
                     await uploadBytes(thumbnailRef, blob);
                     thumbnailUrl = await getDownloadURL(thumbnailRef);
+                    console.log('[UPLOAD] Thumbnail generated successfully:', thumbnailUrl);
                   } catch (err) {
-                    console.warn('Thumbnail generation failed:', err);
+                    console.warn('[UPLOAD] Thumbnail generation failed:', err);
                   }
                 }
                 URL.revokeObjectURL(video.src);
@@ -167,12 +170,13 @@ export default function GetFeedbackPage() {
             }
           };
           video.onerror = () => {
+            console.warn('[UPLOAD] Video metadata failed to load');
             URL.revokeObjectURL(video.src);
             resolveThumb();
           };
         });
       } catch (err) {
-        console.warn('Thumbnail generation failed:', err);
+        console.warn('[UPLOAD] Thumbnail generation failed:', err);
       }
 
       const storageRef = ref(storage, storagePath);

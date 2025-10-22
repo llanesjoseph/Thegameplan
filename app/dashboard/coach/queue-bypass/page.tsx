@@ -176,13 +176,23 @@ export default function QueueBypassPage() {
                               alt="Video thumbnail" 
                               className="w-full h-full object-cover"
                               onError={(e) => {
+                                console.warn('[COACH-QUEUE] Thumbnail failed to load:', submission.thumbnailUrl);
                                 // Fallback to play icon if thumbnail fails to load
                                 e.currentTarget.style.display = 'none';
                                 e.currentTarget.nextElementSibling?.classList.remove('hidden');
                               }}
+                              onLoad={() => {
+                                console.log('[COACH-QUEUE] Thumbnail loaded successfully:', submission.thumbnailUrl);
+                              }}
                             />
-                          ) : null}
-                          <Play className={`w-8 h-8 text-gray-400 ${submission.thumbnailUrl ? 'hidden' : ''}`} />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-gray-200">
+                              <Play className="w-8 h-8 text-gray-400" />
+                            </div>
+                          )}
+                          <div className="w-full h-full flex items-center justify-center bg-gray-200 hidden">
+                            <Play className="w-8 h-8 text-gray-400" />
+                          </div>
                         </div>
 
                         {/* Details */}
