@@ -259,12 +259,42 @@ function CoachAthletesContent() {
   }
 
   const handleRemoveInvitation = async (invitationId: string) => {
-    if (!confirm('Remove this invitation? This action cannot be undone.')) {
+    if (!confirm('Revoke this invitation? This action cannot be undone.')) {
       return
     }
 
-    alert('Remove invitation feature coming soon!')
-    // TODO: Implement remove invitation API endpoint
+    setIsLoading(true)
+    try {
+      if (!user) { 
+        console.error('No user found')
+        return
+      }
+
+      const token = await user.getIdToken()
+
+      const response = await fetch(`/api/coach/invitations/${invitationId}/revoke`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        alert('Invitation revoked successfully!')
+        // Reload athlete data to show updated status
+        loadAthleteData()
+      } else {
+        const errorResult = await response.json()
+        alert(`Failed to revoke invitation: ${errorResult.error || 'Unknown error'}`)
+      }
+    } catch (error) {
+      console.error('Error revoking invitation:', error)
+      alert('Failed to revoke invitation. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
 
@@ -289,6 +319,13 @@ function CoachAthletesContent() {
           <span className="px-3 py-1.5 bg-red-100 text-red-800 rounded-full text-sm font-medium flex items-center gap-1.5">
             <AlertCircle className="w-4 h-4" />
             Expired
+          </span>
+        )
+      case 'revoked':
+        return (
+          <span className="px-3 py-1.5 bg-gray-100 text-gray-800 rounded-full text-sm font-medium flex items-center gap-1.5">
+            <X className="w-4 h-4" />
+            Revoked
           </span>
         )
       default:
@@ -625,7 +662,7 @@ function CoachAthletesContent() {
                           disabled={isLoading}
                           className="flex-1 sm:flex-none p-3 sm:p-2 rounded-lg hover:opacity-80 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
                           style={{ backgroundColor: 'rgba(255, 107, 53, 0.1)', color: '#FF6B35', minWidth: '44px', minHeight: '44px' }}
-                          title="Remove invitation"
+                          title="Revoke invitation"
                         >
                           <Trash2 className="w-5 h-5 mx-auto" />
                         </button>
