@@ -16,8 +16,15 @@ export default function CoachReviewPage({ params }: { params: { submissionId: st
     const load = async () => {
       if (!user) return;
       try {
-        const { getSubmission, getReviewBySubmission } = await import('@/lib/data/video-critique');
-        let sub = await getSubmission(params.submissionId);
+        const token = await user.getIdToken();
+        // Fetch submission via Admin API to bypass client rule edge cases
+        const resp = await fetch(`/api/submissions/${params.submissionId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        let sub: any = null;
+        if (resp.ok) {
+          sub = await resp.json();
+        }
         if (!sub) {
           router.push('/dashboard/coach/queue');
           return;
@@ -26,18 +33,21 @@ export default function CoachReviewPage({ params }: { params: { submissionId: st
         // If unclaimed and this coach is assigned, claim via API
         if (!sub.claimedBy && sub.coachId === user.uid) {
           try {
-            const token = await user.getIdToken();
             await fetch(`/api/submissions/${params.submissionId}/claim`, {
               method: 'POST',
               headers: { Authorization: `Bearer ${token}` },
             });
-            sub = await getSubmission(params.submissionId);
+            const refetch = await fetch(`/api/submissions/${params.submissionId}`, {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            if (refetch.ok) sub = await refetch.json();
           } catch (e) {
             console.warn('Claim API failed:', e);
           }
         }
 
         setSubmission(sub);
+        const { getReviewBySubmission } = await import('@/lib/data/video-critique');
         const rev = await getReviewBySubmission(params.submissionId);
         setExistingReview(rev);
       } finally {
