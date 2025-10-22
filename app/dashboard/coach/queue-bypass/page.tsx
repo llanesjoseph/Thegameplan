@@ -174,13 +174,6 @@ export default function QueueBypassPage() {
                         <div className="w-32 h-20 bg-gray-200 rounded-lg overflow-hidden relative">
                           {submission.thumbnailUrl ? (
                             <>
-                              {/* Test with a simple colored div first */}
-                              <div 
-                                className="w-full h-full absolute inset-0 z-20 bg-red-500 flex items-center justify-center text-white text-xs"
-                                style={{ display: 'block' }}
-                              >
-                                TEST
-                              </div>
                               <img 
                                 src={submission.thumbnailUrl} 
                                 alt="Video thumbnail" 
@@ -193,15 +186,8 @@ export default function QueueBypassPage() {
                                   if (fallback) fallback.style.display = 'flex';
                                 }}
                                 onLoad={(e) => {
-                                  console.log('[COACH-QUEUE] Thumbnail loaded and should be visible:', submission.thumbnailUrl);
+                                  console.log('[COACH-QUEUE] Thumbnail loaded successfully:', submission.thumbnailUrl);
                                   console.log('[COACH-QUEUE] Image dimensions:', e.currentTarget.naturalWidth, 'x', e.currentTarget.naturalHeight);
-                                  // Hide the test div and show the image
-                                  const testDiv = e.currentTarget.previousElementSibling as HTMLElement;
-                                  if (testDiv) testDiv.style.display = 'none';
-                                  // Ensure the image is visible
-                                  e.currentTarget.style.display = 'block';
-                                  e.currentTarget.style.opacity = '1';
-                                  e.currentTarget.style.visibility = 'visible';
                                 }}
                               />
                               <div className="w-full h-full flex items-center justify-center bg-gray-200 absolute inset-0 z-0" style={{ display: 'none' }}>

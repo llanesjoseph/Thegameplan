@@ -143,12 +143,22 @@ export default function GetFeedbackPage() {
         video.src = URL.createObjectURL(videoFile);
         
         await new Promise<void>((resolveThumb) => {
-          video.onloadedmetadata = () => {
-            console.log('[UPLOAD] Video metadata loaded, generating thumbnail...');
+          video.onloadeddata = () => {
+            console.log('[UPLOAD] Video data loaded, generating thumbnail...');
+            // Seek to 1 second to get a proper frame
+            video.currentTime = 1;
+          };
+          
+          video.onseeked = () => {
+            console.log('[UPLOAD] Video seeked to 1 second, capturing frame...');
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             const ctx = canvas.getContext('2d');
             if (ctx) {
+              // Fill with white background first
+              ctx.fillStyle = '#ffffff';
+              ctx.fillRect(0, 0, canvas.width, canvas.height);
+              // Then draw the video frame
               ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
               canvas.toBlob(async (blob) => {
                 if (blob) {
@@ -163,14 +173,15 @@ export default function GetFeedbackPage() {
                 }
                 URL.revokeObjectURL(video.src);
                 resolveThumb();
-              }, 'image/jpeg', 0.8);
+              }, 'image/jpeg', 0.9);
             } else {
               URL.revokeObjectURL(video.src);
               resolveThumb();
             }
           };
+          
           video.onerror = () => {
-            console.warn('[UPLOAD] Video metadata failed to load');
+            console.warn('[UPLOAD] Video failed to load');
             URL.revokeObjectURL(video.src);
             resolveThumb();
           };
