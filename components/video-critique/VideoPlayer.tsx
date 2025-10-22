@@ -34,7 +34,7 @@ export default function VideoPlayer({
   const [volume, setVolume] = useState(1);
   const [playbackRate, setPlaybackRate] = useState(1);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [videoScale, setVideoScale] = useState(1);
+  const [videoScale, setVideoScale] = useState(0.6);
   const [isExpanded, setIsExpanded] = useState(false);
 
   // Handle play/pause
