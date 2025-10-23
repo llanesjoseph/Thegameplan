@@ -53,6 +53,7 @@ function AddVideoModal({ onClose }: { onClose: () => void }) {
     sport: 'baseball',
     tags: ''
   })
+  const [extractingDuration, setExtractingDuration] = useState(false)
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -77,7 +78,50 @@ function AddVideoModal({ onClose }: { onClose: () => void }) {
         const fileName = file.name.replace(/\.[^/.]+$/, '') // Remove extension
         setFormData({ ...formData, title: fileName })
       }
+
+      // Extract video duration
+      extractVideoDuration(file)
     }
+  }
+
+  const extractVideoDuration = (file: File) => {
+    setExtractingDuration(true)
+    const video = document.createElement('video')
+    video.preload = 'metadata'
+    
+    // Set a timeout to prevent hanging
+    const timeout = setTimeout(() => {
+      console.warn('Video duration extraction timed out')
+      setFormData(prev => ({ ...prev, duration: 0 }))
+      setExtractingDuration(false)
+      URL.revokeObjectURL(video.src)
+    }, 10000) // 10 second timeout
+    
+    video.onloadedmetadata = () => {
+      clearTimeout(timeout)
+      const duration = Math.round(video.duration)
+      console.log('Video duration extracted:', duration, 'seconds')
+      
+      if (duration > 0 && isFinite(duration)) {
+        setFormData(prev => ({ ...prev, duration: duration }))
+      } else {
+        console.warn('Invalid video duration:', duration)
+        setFormData(prev => ({ ...prev, duration: 0 }))
+      }
+      
+      setExtractingDuration(false)
+      URL.revokeObjectURL(video.src)
+    }
+    
+    video.onerror = () => {
+      clearTimeout(timeout)
+      console.warn('Could not extract video duration')
+      setFormData(prev => ({ ...prev, duration: 0 }))
+      setExtractingDuration(false)
+      URL.revokeObjectURL(video.src)
+    }
+    
+    video.src = URL.createObjectURL(file)
   }
 
   const uploadVideoFile = async (): Promise<string | null> => {
@@ -355,13 +399,17 @@ function AddVideoModal({ onClose }: { onClose: () => void }) {
           <div>
             <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
               Duration (minutes)
+              {extractingDuration && (
+                <span className="ml-2 text-sm text-blue-600">Extracting duration...</span>
+              )}
             </label>
             <input
               type="number"
               value={formData.duration}
               onChange={(e) => setFormData({ ...formData, duration: e.target.value === '' ? '' : parseInt(e.target.value) || '' })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-              placeholder="e.g., 10"
+              placeholder={extractingDuration ? "Extracting..." : "e.g., 10"}
+              disabled={extractingDuration}
               min="0"
             />
           </div>
@@ -607,7 +655,7 @@ function VideoManagerPageContent() {
               <div>
                 <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Total Duration</p>
                 <p className="text-3xl" style={{ color: '#000000' }}>
-                  {videos.reduce((sum, v) => sum + v.duration, 0)}m
+                  {Math.round(videos.reduce((sum, v) => sum + v.duration, 0) / 60)}m
                 </p>
               </div>
               <ExternalLink className="w-10 h-10" style={{ color: '#FF6B35', opacity: 0.3 }} />
@@ -691,7 +739,7 @@ function VideoManagerPageContent() {
                 <div className="relative aspect-video bg-gray-900 flex items-center justify-center">
                   <Play className="w-16 h-16 text-white opacity-70" />
                   <div className="absolute top-2 right-2 px-2 py-1 bg-black/70 text-white text-xs rounded">
-                    {video.duration}m
+                    {Math.round(video.duration / 60)}m
                   </div>
                   <div className="absolute bottom-2 left-2 px-2 py-1 rounded text-xs text-white" style={{ backgroundColor: getSportColor(video.sport) }}>
                     {video.sport}
