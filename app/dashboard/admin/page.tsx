@@ -164,6 +164,13 @@ export default function AdminDashboard() {
       color: '#91A6EB'
     },
     {
+      id: 'coach-management',
+      title: 'Coach Management',
+      description: 'Manage coach verification and featured status',
+      icon: Shield,
+      color: '#8B5CF6'
+    },
+    {
       id: 'sync',
       title: 'Sync Coaches',
       description: 'Sync coach profiles to public browse page',
@@ -187,6 +194,7 @@ export default function AdminDashboard() {
       'athletes': '/dashboard/admin/athletes?embedded=true',
       'content': '/dashboard/admin/content?embedded=true',
       'gear': '/dashboard/admin/curated-gear?embedded=true',
+      'coach-management': '/dashboard/admin/coach-management?embedded=true',
       'sync': '/dashboard/admin/sync-coaches?embedded=true',
       'settings': '/dashboard/admin/settings?embedded=true'
     }
