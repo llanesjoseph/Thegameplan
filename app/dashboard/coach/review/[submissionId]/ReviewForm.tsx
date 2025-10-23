@@ -6,7 +6,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import { Loader2, Plus, Trash2, Clock, Save, Send, X } from 'lucide-react';
+import { Loader2, Plus, Trash2, Clock, Save, Send, X, CheckCircle, ArrowLeft } from 'lucide-react';
 import {
   Submission,
   Review,
@@ -46,6 +46,7 @@ export default function ReviewForm({
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [autoSaving, setAutoSaving] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Review state
@@ -342,22 +343,10 @@ export default function ReviewForm({
 
       // Notification is handled by the server-side API
 
-      toast.success('Review published successfully!');
       console.log('[REVIEW-FORM] Review published successfully');
       
-      // Wait a moment for the success message to be visible
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Handle navigation based on context
-      if (isEmbedded) {
-        // If embedded, send message to parent to refresh or navigate
-        if (window.parent !== window) {
-          window.parent.postMessage({ type: 'REVIEW_PUBLISHED' }, '*');
-        }
-      } else {
-        // If not embedded, navigate normally
-        router.push('/dashboard/coach/queue');
-      }
+      // Show success modal instead of just toast
+      setShowSuccessModal(true);
     } catch (error) {
       console.error('Error publishing review:', error);
       toast.error('Failed to publish review');
@@ -540,6 +529,61 @@ export default function ReviewForm({
           </Button>
         </div>
       </div>
+
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full mx-4">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="w-8 h-8 text-green-600" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                Review Published Successfully!
+              </h3>
+              <p className="text-gray-600 mb-6">
+                Your review has been published and the athlete has been notified. 
+                They can now view your feedback and recommendations.
+              </p>
+              <div className="flex gap-3 justify-center">
+                <button
+                  onClick={() => {
+                    setShowSuccessModal(false);
+                    if (isEmbedded) {
+                      // If embedded, send message to parent to refresh or navigate
+                      if (window.parent !== window) {
+                        window.parent.postMessage({ type: 'REVIEW_PUBLISHED' }, '*');
+                      }
+                    } else {
+                      // If not embedded, navigate normally
+                      router.push('/dashboard/coach/queue');
+                    }
+                  }}
+                  className="px-6 py-3 bg-gradient-to-r from-teal-600 to-blue-600 text-white rounded-lg hover:from-teal-700 hover:to-blue-700 transition-all duration-200 font-medium shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                >
+                  Back to Queue
+                </button>
+                <button
+                  onClick={() => {
+                    setShowSuccessModal(false);
+                    // Close the review form
+                    if (isEmbedded) {
+                      if (window.parent !== window) {
+                        window.parent.postMessage({ type: 'CLOSE_REVIEW' }, '*');
+                      }
+                    } else {
+                      router.push('/dashboard/coach/queue');
+                    }
+                  }}
+                  className="px-6 py-3 bg-white border-2 border-teal-600 text-teal-600 rounded-lg hover:bg-teal-50 transition-all duration-200 font-medium shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                >
+                  Close Review
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
