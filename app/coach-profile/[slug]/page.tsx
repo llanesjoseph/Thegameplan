@@ -10,6 +10,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
+import ContactCoachModal from '@/components/coach/ContactCoachModal'
 import {
   ArrowLeft,
   Award,
@@ -83,6 +84,7 @@ export default function CoachProfilePage() {
   const [totalAthletes, setTotalAthletes] = useState(0)
   const [isInIframe, setIsInIframe] = useState(false)
   const [lessons, setLessons] = useState<Lesson[]>([])
+  const [showContactModal, setShowContactModal] = useState(false)
 
   // Detect if page is loaded in iframe
   useEffect(() => {
@@ -471,18 +473,34 @@ export default function CoachProfilePage() {
               </h3>
               <div className="space-y-3">
                 <div className="flex items-center gap-2 text-gray-600">
-                  <Mail className="w-4 h-4" />
-                  <span className="text-sm">{coach.email}</span>
-                </div>
-                <div className="flex items-center gap-2 text-gray-600">
                   <MapPin className="w-4 h-4" />
                   <span className="text-sm">Available for online coaching</span>
+                </div>
+                <div className="mt-4">
+                  <button
+                    onClick={() => setShowContactModal(true)}
+                    className="w-full bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    <Mail className="w-4 h-4 inline mr-2" />
+                    Contact Coach
+                  </button>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </main>
+
+      {/* Contact Modal */}
+      {coach && (
+        <ContactCoachModal
+          isOpen={showContactModal}
+          onClose={() => setShowContactModal(false)}
+          coachId={coach.uid}
+          coachName={coach.displayName}
+          athleteId={user?.uid}
+        />
+      )}
     </div>
   )
 }

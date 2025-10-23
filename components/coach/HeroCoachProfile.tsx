@@ -188,12 +188,12 @@ export default function HeroCoachProfile({
                     </div>
                   </div>
                 )}
-                <a
-                  href={`mailto:${coach.email}`}
+                <button
+                  onClick={() => setShowContactModal(true)}
                   className="mt-8 inline-block bg-blue-600 text-white font-bold py-3 px-10 rounded-lg shadow-lg text-lg transition-transform hover:bg-blue-700 hover:scale-105"
                 >
                   Ask {coach.displayName.split(' ')[0]}
-                </a>
+                </button>
               </div>
               
               {/* Image Placeholder */}
