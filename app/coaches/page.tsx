@@ -127,28 +127,19 @@ export default function ContributorsPage() {
    setLastDoc(snapshot.docs[snapshot.docs.length - 1] || null)
    setHasMore(snapshot.docs.length === ITEMS_PER_PAGE)
 
-   // Load cached coach count instead of counting in real-time
-   if (reset) {
-    try {
-     const cacheDoc = await getDoc(doc(db, 'system_cache', 'coach_count'))
-     if (cacheDoc.exists()) {
-      const cacheData = cacheDoc.data()
-      setActiveCoachCount(cacheData.activeCoaches || 0)
-      setTotalCount(cacheData.totalCoaches || 0)
-      console.log(`📊 Loaded cached coach count: ${cacheData.activeCoaches} active`)
-     } else {
-      // Fallback: count in real-time if cache doesn't exist
-      const countSnap = await getDocs(collection(db, 'creators_index'))
-      setTotalCount(countSnap.size)
-      setActiveCoachCount(countSnap.size)
-     }
-    } catch (cacheError) {
-     console.warn('Failed to load cached count, falling back to real-time count:', cacheError)
-     const countSnap = await getDocs(collection(db, 'creators_index'))
-     setTotalCount(countSnap.size)
-     setActiveCoachCount(countSnap.size)
-    }
+  // Force real-time count to ensure accuracy
+  if (reset) {
+   try {
+    const countSnap = await getDocs(collection(db, 'creators_index'))
+    setTotalCount(countSnap.size)
+    setActiveCoachCount(countSnap.size)
+    console.log(`📊 Real-time coach count: ${countSnap.size} active`)
+   } catch (countError) {
+    console.warn('Failed to count coaches:', countError)
+    setTotalCount(0)
+    setActiveCoachCount(0)
    }
+  }
   } catch (e) {
    // Graceful fallback (no DB): keep empty list; page still renders
    console.warn('Error loading contributors:', e)
