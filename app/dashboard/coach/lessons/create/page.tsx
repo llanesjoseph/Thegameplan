@@ -675,7 +675,6 @@ function CreateLessonPageContent() {
                       className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
                     >
                       <option value="athletes_only">My Athletes Only</option>
-                      <option value="public">Public</option>
                       <option value="specific_athletes">Specific Athletes</option>
                     </select>
                   </div>

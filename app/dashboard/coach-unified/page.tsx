@@ -237,11 +237,12 @@ export default function CoachUnifiedDashboard() {
         {activeSection && (
           <button
             onClick={() => setActiveSection(null)}
-            className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-6 py-3 bg-black text-white rounded-full shadow-lg flex items-center gap-2 touch-manipulation"
-            style={{ minHeight: '44px' }}
+            className="lg:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-50 px-3 py-2 sm:px-6 sm:py-3 bg-black text-white rounded-full shadow-lg flex items-center gap-1 sm:gap-2 touch-manipulation text-sm sm:text-base"
+            style={{ minHeight: '40px' }}
           >
-            <ChevronRight className="w-5 h-5 rotate-180" />
-            Back to Tools
+            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 rotate-180" />
+            <span className="hidden sm:inline">Back to Tools</span>
+            <span className="sm:hidden">Back</span>
           </button>
         )}
 

@@ -474,7 +474,6 @@ export default function EditLessonPage() {
                 className="w-full px-4 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
               >
                 <option value="athletes_only">My Athletes Only</option>
-                <option value="public">Public (Anyone can view)</option>
                 <option value="specific_athletes">Specific Athletes (Choose later)</option>
               </select>
             </div>
