@@ -190,6 +190,25 @@ export default function AthleteDashboard() {
     loadUserData()
   }, [user, router])
 
+  // Handle postMessage events from iframe
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      // Only accept messages from same origin for security
+      if (event.origin !== window.location.origin) return
+
+      if (event.data.type === 'NAVIGATE_TO_VIDEO_REVIEW') {
+        setActiveSection('video-review')
+        console.log('Navigating to video review from lesson completion')
+      } else if (event.data.type === 'NAVIGATE_TO_AI_ASSISTANT') {
+        setActiveSection('ai-assistant')
+        console.log('Navigating to AI assistant from lesson completion')
+      }
+    }
+
+    window.addEventListener('message', handleMessage)
+    return () => window.removeEventListener('message', handleMessage)
+  }, [])
+
   // Fetch coach data
   useEffect(() => {
     const fetchCoachData = async () => {

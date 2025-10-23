@@ -11,6 +11,7 @@ import { useAuth } from '@/hooks/use-auth'
 import { BookOpen, CheckCircle2, Circle, Clock, User, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react'
 import AppHeader from '@/components/ui/AppHeader'
 import LessonOverlay from '@/components/LessonOverlay'
+import LessonCompletionCelebration from '@/components/athlete/LessonCompletionCelebration'
 import { doc, onSnapshot } from 'firebase/firestore'
 import { db } from '@/lib/firebase.client'
 
@@ -54,9 +55,11 @@ export default function AthleteLessonsPage() {
   const [isInIframe, setIsInIframe] = useState(false)
   const [selectedLessonId, setSelectedLessonId] = useState<string | null>(null)
   const [syncing, setSyncing] = useState(false)
-  const [showCompleted, setShowCompleted] = useState(false)
+  const [showCompleted, setShowCompleted] = useState(true) // Show completed lessons by default
   const [showOlder, setShowOlder] = useState(false)
   const [progressUpdated, setProgressUpdated] = useState(false)
+  const [showCelebration, setShowCelebration] = useState(false)
+  const [completedLessonTitle, setCompletedLessonTitle] = useState('')
 
   // Detect if page is loaded in iframe (check URL param or window)
   useEffect(() => {
@@ -254,6 +257,15 @@ export default function AthleteLessonsPage() {
           setProgressUpdated(true)
           // Reset animation after 2 seconds
           setTimeout(() => setProgressUpdated(false), 2000)
+          
+          // Show celebration modal and auto-expand completed lessons
+          const completedLesson = lessons.find(l => l.id === lessonId)
+          if (completedLesson) {
+            setCompletedLessonTitle(completedLesson.title)
+            setShowCelebration(true)
+            // Auto-expand completed lessons section
+            setShowCompleted(true)
+          }
         }
       }
     } catch (err: any) {
@@ -589,16 +601,19 @@ export default function AthleteLessonsPage() {
               </div>
             )}
 
-            {/* Completed Lessons (collapsible) */}
+            {/* Completed Lessons (enhanced) */}
             {completedLessons.length > 0 && (
-              <div className="space-y-4">
+              <div className="space-y-4" data-section="completed-lessons">
                 <button
                   onClick={() => setShowCompleted(!showCompleted)}
-                  className="w-full flex items-center justify-between px-4 py-3 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
+                  className="w-full flex items-center justify-between px-4 py-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg hover:from-green-100 hover:to-emerald-100 transition-all border border-green-200"
                 >
                   <span className="text-lg font-semibold flex items-center gap-2" style={{ color: '#000000' }}>
                     <CheckCircle2 className="w-5 h-5 text-green-600" />
                     Completed Lessons ({completedLessons.length})
+                    <span className="text-sm font-normal text-green-600 bg-green-100 px-2 py-1 rounded-full">
+                      {Math.round((completedLessons.length / (completedLessons.length + recentActiveLessons.length + olderActiveLessons.length)) * 100)}% Complete
+                    </span>
                   </span>
                   {showCompleted ? (
                     <ChevronUp className="w-5 h-5" style={{ color: '#666' }} />
@@ -606,6 +621,36 @@ export default function AthleteLessonsPage() {
                     <ChevronDown className="w-5 h-5" style={{ color: '#666' }} />
                   )}
                 </button>
+
+                {/* Show preview of recent completed lessons even when collapsed */}
+                {!showCompleted && (
+                  <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                        <CheckCircle2 className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900">Recent Completions</p>
+                        <p className="text-sm text-gray-600">Click above to view all {completedLessons.length} completed lessons</p>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {completedLessons.slice(0, 3).map((lesson) => (
+                        <span
+                          key={lesson.id}
+                          className="px-3 py-1 bg-white rounded-full text-sm font-medium text-gray-700 border border-green-200"
+                        >
+                          {lesson.title}
+                        </span>
+                      ))}
+                      {completedLessons.length > 3 && (
+                        <span className="px-3 py-1 bg-green-100 rounded-full text-sm font-medium text-green-700">
+                          +{completedLessons.length - 3} more
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 {showCompleted && (
                   <div className="space-y-4">
@@ -651,6 +696,40 @@ export default function AthleteLessonsPage() {
           }}
         />
       )}
+
+      {/* Lesson Completion Celebration */}
+      <LessonCompletionCelebration
+        isOpen={showCelebration}
+        onClose={() => setShowCelebration(false)}
+        lessonTitle={completedLessonTitle}
+        totalCompleted={completedLessons.length}
+        onViewCompletedLessons={() => {
+          setShowCompleted(true)
+          // Scroll to completed lessons section
+          setTimeout(() => {
+            const element = document.querySelector('[data-section="completed-lessons"]')
+            if (element) {
+              element.scrollIntoView({ behavior: 'smooth' })
+            }
+          }, 100)
+        }}
+        onRequestVideoReview={() => {
+          // Send message to parent to navigate to video review
+          if (isInIframe && window.parent !== window) {
+            window.parent.postMessage({ type: 'NAVIGATE_TO_VIDEO_REVIEW' }, '*')
+          } else {
+            router.push('/dashboard/athlete/video-reviews')
+          }
+        }}
+        onAskCoach={() => {
+          // Send message to parent to navigate to AI assistant
+          if (isInIframe && window.parent !== window) {
+            window.parent.postMessage({ type: 'NAVIGATE_TO_AI_ASSISTANT' }, '*')
+          } else {
+            router.push('/dashboard/athlete/ai-assistant')
+          }
+        }}
+      />
     </div>
   )
 }
