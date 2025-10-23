@@ -606,7 +606,7 @@ export default function AthleteLessonsPage() {
               <div className="space-y-4" data-section="completed-lessons">
                 <button
                   onClick={() => setShowCompleted(!showCompleted)}
-                  className="w-full flex items-center justify-between px-4 py-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg hover:from-green-100 hover:to-emerald-100 transition-all border border-green-200"
+                  className="w-full flex items-center justify-between px-4 py-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg hover:from-green-100 hover:to-emerald-100 transition-all border border-green-200 group"
                 >
                   <span className="text-lg font-semibold flex items-center gap-2" style={{ color: '#000000' }}>
                     <CheckCircle2 className="w-5 h-5 text-green-600" />
@@ -615,11 +615,18 @@ export default function AthleteLessonsPage() {
                       {Math.round((completedLessons.length / (completedLessons.length + recentActiveLessons.length + olderActiveLessons.length)) * 100)}% Complete
                     </span>
                   </span>
-                  {showCompleted ? (
-                    <ChevronUp className="w-5 h-5" style={{ color: '#666' }} />
-                  ) : (
-                    <ChevronDown className="w-5 h-5" style={{ color: '#666' }} />
-                  )}
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-500 group-hover:text-gray-700 transition-colors">
+                      {showCompleted ? 'Hide' : 'Show All'}
+                    </span>
+                    <div className={`w-6 h-6 rounded-full bg-green-100 group-hover:bg-green-200 transition-all flex items-center justify-center`}>
+                      {showCompleted ? (
+                        <ChevronUp className="w-4 h-4 text-green-600" />
+                      ) : (
+                        <ChevronDown className="w-4 h-4 text-green-600" />
+                      )}
+                    </div>
+                  </div>
                 </button>
 
                 {/* Show preview of recent completed lessons even when collapsed */}
@@ -631,22 +638,28 @@ export default function AthleteLessonsPage() {
                       </div>
                       <div>
                         <p className="font-medium text-gray-900">Recent Completions</p>
-                        <p className="text-sm text-gray-600">Click above to view all {completedLessons.length} completed lessons</p>
+                        <p className="text-sm text-gray-600">Click lesson titles to view, or click above to see all {completedLessons.length} completed lessons</p>
                       </div>
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {completedLessons.slice(0, 3).map((lesson) => (
-                        <span
+                        <button
                           key={lesson.id}
-                          className="px-3 py-1 bg-white rounded-full text-sm font-medium text-gray-700 border border-green-200"
+                          onClick={() => setSelectedLessonId(lesson.id)}
+                          className="px-3 py-1 bg-white rounded-full text-sm font-medium text-gray-700 border border-green-200 hover:bg-green-100 hover:border-green-300 transition-all cursor-pointer"
+                          title={`Click to view "${lesson.title}"`}
                         >
                           {lesson.title}
-                        </span>
+                        </button>
                       ))}
                       {completedLessons.length > 3 && (
-                        <span className="px-3 py-1 bg-green-100 rounded-full text-sm font-medium text-green-700">
+                        <button
+                          onClick={() => setShowCompleted(true)}
+                          className="px-3 py-1 bg-green-100 rounded-full text-sm font-medium text-green-700 hover:bg-green-200 transition-all cursor-pointer"
+                          title="Click to view all completed lessons"
+                        >
                           +{completedLessons.length - 3} more
-                        </span>
+                        </button>
                       )}
                     </div>
                   </div>
