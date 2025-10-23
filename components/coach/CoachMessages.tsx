@@ -14,9 +14,9 @@ interface Message {
   subject: string
   message: string
   status: 'unread' | 'read' | 'replied'
-  createdAt: Date
-  readAt?: Date
-  repliedAt?: Date
+  createdAt: Date | string | any
+  readAt?: Date | string | any
+  repliedAt?: Date | string | any
 }
 
 interface CoachMessagesProps {
@@ -110,16 +110,39 @@ export default function CoachMessages({ className = '' }: CoachMessagesProps) {
     }
   }
 
-  const formatDate = (date: Date) => {
+  const formatDate = (date: any) => {
+    // Ensure we have a proper Date object
+    let dateObj: Date
+    if (date instanceof Date) {
+      dateObj = date
+    } else if (date && typeof date === 'object' && date.toDate) {
+      // Firestore Timestamp
+      dateObj = date.toDate()
+    } else if (date && typeof date === 'string') {
+      // ISO string
+      dateObj = new Date(date)
+    } else if (date && typeof date === 'number') {
+      // Timestamp
+      dateObj = new Date(date)
+    } else {
+      // Fallback
+      dateObj = new Date()
+    }
+
+    // Check if the date is valid
+    if (isNaN(dateObj.getTime())) {
+      return 'Unknown date'
+    }
+
     const now = new Date()
-    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60))
+    const diffInHours = Math.floor((now.getTime() - dateObj.getTime()) / (1000 * 60 * 60))
     
     if (diffInHours < 1) {
       return 'Just now'
     } else if (diffInHours < 24) {
       return `${diffInHours}h ago`
     } else {
-      return date.toLocaleDateString()
+      return dateObj.toLocaleDateString()
     }
   }
 

@@ -61,11 +61,16 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const messages = messagesSnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-      createdAt: doc.data().createdAt?.toDate?.() || doc.data().createdAt
-    }))
+    const messages = messagesSnapshot.docs.map(doc => {
+      const data = doc.data()
+      return {
+        id: doc.id,
+        ...data,
+        createdAt: data.createdAt?.toDate?.() || data.createdAt || new Date(),
+        readAt: data.readAt?.toDate?.() || data.readAt || null,
+        repliedAt: data.repliedAt?.toDate?.() || data.repliedAt || null
+      }
+    })
 
     console.log(`Found ${messages.length} messages for coach ${actualCoachId}`)
 
