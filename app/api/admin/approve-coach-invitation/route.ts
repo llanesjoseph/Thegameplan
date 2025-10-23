@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth, adminDb } from '@/lib/firebase.admin'
+import { ensureCoachVisibility } from '@/lib/ensure-coach-visibility'
 
 // Force dynamic rendering for API route
 export const dynamic = 'force-dynamic'
@@ -127,19 +128,36 @@ export async function POST(request: NextRequest) {
       updatedAt: now
     })
 
-    // Create creators_index entry for discoverability
-    await adminDb.collection('creators_index').doc(userRecord.uid).set({
-      id: userRecord.uid,
-      displayName: application.displayName || `${application.firstName} ${application.lastName}`,
-      sport: application.sport || '',
-      specialties: application.specialties || [],
-      experience: 'coach',
-      verified: true,
-      featured: false,
-      isActive: true,
-      createdAt: now,
-      updatedAt: now
-    })
+    // IRONCLAD: Ensure coach is visible in Browse Coaches
+    try {
+      const visibilityResult = await ensureCoachVisibility({
+        uid: userRecord.uid,
+        email: application.email.toLowerCase(),
+        displayName: application.displayName || `${application.firstName} ${application.lastName}`,
+        firstName: application.firstName,
+        lastName: application.lastName,
+        sport: application.sport || '',
+        tagline: application.tagline || '',
+        bio: application.bio || '',
+        specialties: application.specialties || [],
+        achievements: application.achievements || [],
+        experience: application.experience || '',
+        credentials: application.credentials || '',
+        isActive: true,
+        profileComplete: true,
+        status: 'approved',
+        verified: true,
+        featured: false
+      })
+      
+      if (visibilityResult.success) {
+        console.log(`✅ [APPROVE-COACH-INVITATION] IRONCLAD: ${application.displayName} is now visible in Browse Coaches`)
+      } else {
+        console.error(`❌ [APPROVE-COACH-INVITATION] IRONCLAD FAILED:`, visibilityResult.message)
+      }
+    } catch (visibilityError) {
+      console.error(`❌ [APPROVE-COACH-INVITATION] IRONCLAD ERROR:`, visibilityError)
+    }
 
     // Mark application as approved
     await adminDb.collection('coach_applications').doc(applicationId).update({

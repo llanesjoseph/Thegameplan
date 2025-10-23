@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth, adminDb } from '@/lib/firebase.admin'
 import { syncCoachToPublicProfile } from '@/lib/sync-coach-to-public-profile'
+import { ensureCoachVisibility } from '@/lib/ensure-coach-visibility'
 
 // Force dynamic rendering for API route
 export const dynamic = 'force-dynamic'
@@ -154,10 +155,10 @@ export async function POST(request: NextRequest) {
     await adminDb.collection('creatorPublic').doc(userRecord.uid).set(creatorPublicData)
     console.log(`✅ Created creatorPublic profile for ${role}`)
 
-    // Sync to creators_index for Browse Coaches page (only for coaches)
+    // IRONCLAD: Ensure coach is visible in Browse Coaches (only for coaches)
     if (role === 'coach' || role === 'creator') {
       try {
-        const syncData = {
+        const visibilityResult = await ensureCoachVisibility({
           uid: userRecord.uid,
           email: email.toLowerCase(),
           displayName: displayName,
@@ -175,16 +176,15 @@ export async function POST(request: NextRequest) {
           status: 'approved',
           verified: true,
           featured: false
-        }
+        })
         
-        const syncSuccess = await syncCoachToPublicProfile(syncData)
-        if (syncSuccess) {
-          console.log(`✅ Synced ${displayName} to creators_index for Browse Coaches`)
+        if (visibilityResult.success) {
+          console.log(`✅ [APPROVE-SIMPLE-COACH] IRONCLAD: ${displayName} is now visible in Browse Coaches`)
         } else {
-          console.warn(`⚠️ Failed to sync ${displayName} to creators_index`)
+          console.error(`❌ [APPROVE-SIMPLE-COACH] IRONCLAD FAILED:`, visibilityResult.message)
         }
-      } catch (syncError) {
-        console.warn(`⚠️ Sync error for ${displayName}:`, syncError)
+      } catch (visibilityError) {
+        console.error(`❌ [APPROVE-SIMPLE-COACH] IRONCLAD ERROR:`, visibilityError)
       }
     }
 

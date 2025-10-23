@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { nanoid } from 'nanoid'
 import { auth, adminDb } from '@/lib/firebase.admin'
 import { syncCoachToPublicProfile } from '@/lib/sync-coach-to-public-profile'
+import { ensureCoachVisibility } from '@/lib/ensure-coach-visibility'
 
 // Force dynamic rendering for API route
 export const dynamic = 'force-dynamic'
@@ -177,11 +178,11 @@ export async function POST(request: NextRequest) {
     await adminDb.collection('creatorPublic').doc(userRecord.uid).set(creatorPublicData, { merge: true })
     console.log(`✅ [COMPLETE-COACH-PROFILE] Created creatorPublic profile`)
 
-    // Sync to creators_index for Browse Coaches page
+    // IRONCLAD: Ensure coach is visible in Browse Coaches
     try {
-      const syncData = {
+      const visibilityResult = await ensureCoachVisibility({
         uid: userRecord.uid,
-        email: coachProfile.email?.toLowerCase(),
+        email: coachProfile.email?.toLowerCase() || '',
         displayName: coachProfile.displayName,
         firstName: coachProfile.firstName,
         lastName: coachProfile.lastName,
@@ -197,16 +198,16 @@ export async function POST(request: NextRequest) {
         status: 'approved',
         verified: true,
         featured: false
-      }
+      })
       
-      const syncSuccess = await syncCoachToPublicProfile(syncData)
-      if (syncSuccess) {
-        console.log(`✅ [COMPLETE-COACH-PROFILE] Synced to creators_index for Browse Coaches`)
+      if (visibilityResult.success) {
+        console.log(`✅ [COMPLETE-COACH-PROFILE] IRONCLAD: Coach is now visible in Browse Coaches`)
       } else {
-        console.warn(`⚠️ [COMPLETE-COACH-PROFILE] Failed to sync to creators_index`)
+        console.error(`❌ [COMPLETE-COACH-PROFILE] IRONCLAD FAILED:`, visibilityResult.message)
+        // Don't fail the entire process, but log the issue
       }
-    } catch (syncError) {
-      console.warn(`⚠️ [COMPLETE-COACH-PROFILE] Sync error:`, syncError)
+    } catch (visibilityError) {
+      console.error(`❌ [COMPLETE-COACH-PROFILE] IRONCLAD ERROR:`, visibilityError)
     }
 
     // Mark invitation as used
