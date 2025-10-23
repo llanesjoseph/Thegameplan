@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { X, Send, User, MessageSquare } from 'lucide-react'
 
 interface ContactCoachModalProps {
@@ -23,12 +23,56 @@ export default function ContactCoachModal({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
+  const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({})
+
+  const validateForm = () => {
+    const errors: {[key: string]: string} = {}
+    
+    // Subject validation
+    if (!subject.trim()) {
+      errors.subject = 'Subject is required'
+    } else if (subject.trim().length < 3) {
+      errors.subject = 'Subject must be at least 3 characters'
+    } else if (subject.trim().length > 100) {
+      errors.subject = 'Subject must be less than 100 characters'
+    }
+    
+    // Message validation
+    if (!message.trim()) {
+      errors.message = 'Message is required'
+    } else if (message.trim().length < 10) {
+      errors.message = 'Message must be at least 10 characters'
+    } else if (message.trim().length > 1000) {
+      errors.message = 'Message must be less than 1000 characters'
+    }
+    
+    // Check for potentially harmful content
+    const harmfulPatterns = [
+      /<script/i,
+      /javascript:/i,
+      /on\w+\s*=/i,
+      /<iframe/i,
+      /<object/i,
+      /<embed/i
+    ]
+    
+    if (harmfulPatterns.some(pattern => pattern.test(subject + message))) {
+      errors.content = 'Message contains potentially harmful content'
+    }
+    
+    setValidationErrors(errors)
+    return Object.keys(errors).length === 0
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!subject.trim() || !message.trim()) {
-      setError('Please fill in all fields')
+    // Clear previous errors
+    setError('')
+    setValidationErrors({})
+    
+    // Validate form
+    if (!validateForm()) {
       return
     }
 
@@ -37,8 +81,12 @@ export default function ContactCoachModal({
       return
     }
 
+    if (!coachId) {
+      setError('Coach information is missing')
+      return
+    }
+
     setIsSubmitting(true)
-    setError('')
 
     try {
       const response = await fetch('/api/athlete/contact-coach', {
@@ -54,26 +102,50 @@ export default function ContactCoachModal({
         })
       })
 
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+      }
+
       const data = await response.json()
 
       if (data.success) {
         setSuccess(true)
         setSubject('')
         setMessage('')
-        // Auto-close after 2 seconds
+        setValidationErrors({})
+        setError('')
+        
+        // Auto-close after 3 seconds
         setTimeout(() => {
           onClose()
           setSuccess(false)
-        }, 2000)
+        }, 3000)
       } else {
-        setError(data.error || 'Failed to send message')
+        setError(data.error || 'Failed to send message. Please try again.')
       }
     } catch (err) {
-      setError('Network error. Please try again.')
+      console.error('Contact coach error:', err)
+      if (err instanceof Error) {
+        setError(`Network error: ${err.message}`)
+      } else {
+        setError('Network error. Please check your connection and try again.')
+      }
     } finally {
       setIsSubmitting(false)
     }
   }
+
+  // Reset form when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setSubject('')
+      setMessage('')
+      setError('')
+      setValidationErrors({})
+      setSuccess(false)
+      setIsSubmitting(false)
+    }
+  }, [isOpen])
 
   if (!isOpen) return null
 
@@ -116,33 +188,60 @@ export default function ContactCoachModal({
               {/* Subject */}
               <div>
                 <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
-                  Subject
+                  Subject <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   id="subject"
                   value={subject}
-                  onChange={(e) => setSubject(e.target.value)}
+                  onChange={(e) => {
+                    setSubject(e.target.value)
+                    if (validationErrors.subject) {
+                      setValidationErrors(prev => ({ ...prev, subject: '' }))
+                    }
+                  }}
                   placeholder="e.g., Training question about technique"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                  required
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent ${
+                    validationErrors.subject ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                  }`}
+                  maxLength={100}
+                  disabled={isSubmitting}
                 />
+                {validationErrors.subject && (
+                  <p className="mt-1 text-sm text-red-600">{validationErrors.subject}</p>
+                )}
+                <p className="mt-1 text-xs text-gray-500">{subject.length}/100 characters</p>
               </div>
 
               {/* Message */}
               <div>
                 <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
-                  Message
+                  Message <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   id="message"
                   value={message}
-                  onChange={(e) => setMessage(e.target.value)}
+                  onChange={(e) => {
+                    setMessage(e.target.value)
+                    if (validationErrors.message) {
+                      setValidationErrors(prev => ({ ...prev, message: '' }))
+                    }
+                  }}
                   placeholder="Ask your question or share your training goals..."
                   rows={5}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none"
-                  required
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none ${
+                    validationErrors.message ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                  }`}
+                  maxLength={1000}
+                  disabled={isSubmitting}
                 />
+                {validationErrors.message && (
+                  <p className="mt-1 text-sm text-red-600">{validationErrors.message}</p>
+                )}
+                {validationErrors.content && (
+                  <p className="mt-1 text-sm text-red-600">{validationErrors.content}</p>
+                )}
+                <p className="mt-1 text-xs text-gray-500">{message.length}/1000 characters</p>
               </div>
 
               {/* Error Message */}
