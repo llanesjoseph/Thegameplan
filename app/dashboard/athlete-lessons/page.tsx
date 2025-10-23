@@ -56,6 +56,7 @@ export default function AthleteLessonsPage() {
   const [syncing, setSyncing] = useState(false)
   const [showCompleted, setShowCompleted] = useState(false)
   const [showOlder, setShowOlder] = useState(false)
+  const [progressUpdated, setProgressUpdated] = useState(false)
 
   // Detect if page is loaded in iframe (check URL param or window)
   useEffect(() => {
@@ -231,12 +232,29 @@ export default function AthleteLessonsPage() {
       )
 
       if (feed) {
+        const updatedCompletedLessons = isCurrentlyCompleted
+          ? feed.completedLessons.filter(id => id !== lessonId)
+          : [...feed.completedLessons, lessonId]
+        
+        const newCompletionRate = feed.totalLessons > 0 
+          ? Math.round((updatedCompletedLessons.length / feed.totalLessons) * 100)
+          : 0
+
         setFeed({
           ...feed,
-          completedLessons: isCurrentlyCompleted
-            ? feed.completedLessons.filter(id => id !== lessonId)
-            : [...feed.completedLessons, lessonId],
+          completedLessons: updatedCompletedLessons,
+          completionRate: newCompletionRate,
         })
+        
+        console.log(`📊 Progress updated: ${updatedCompletedLessons.length}/${feed.totalLessons} (${newCompletionRate}%)`)
+        
+        // Show success feedback and progress animation
+        if (!isCurrentlyCompleted) {
+          console.log('🎉 Lesson completed successfully!')
+          setProgressUpdated(true)
+          // Reset animation after 2 seconds
+          setTimeout(() => setProgressUpdated(false), 2000)
+        }
       }
     } catch (err: any) {
       console.error('Error updating progress:', err)
@@ -484,13 +502,19 @@ export default function AthleteLessonsPage() {
           </div>
           <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
             <div
-              className="h-full transition-all duration-500"
+              className={`h-full transition-all duration-500 ${progressUpdated ? 'animate-pulse' : ''}`}
               style={{
-                backgroundColor: '#20B2AA',
+                backgroundColor: progressUpdated ? '#10B981' : '#20B2AA',
                 width: `${completionPercentage}%`,
+                boxShadow: progressUpdated ? '0 0 10px rgba(16, 185, 129, 0.5)' : 'none',
               }}
             />
           </div>
+          {progressUpdated && (
+            <div className="mt-2 text-sm text-green-600 font-medium animate-bounce">
+              🎉 Great job! Progress updated!
+            </div>
+          )}
         </div>
 
         {/* Lessons List */}
