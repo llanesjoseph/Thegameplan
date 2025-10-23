@@ -171,9 +171,18 @@ async function verifyCoachVisibility(uid: string): Promise<{
     }
 
     const data = doc.data()
-    const isVisible = data?.isActive === true && 
-                     data?.profileComplete === true && 
-                     (data?.status === 'approved' || !data?.status)
+    
+    if (!data) {
+      return {
+        success: false,
+        message: 'Coach document exists but has no data',
+        details: { uid }
+      }
+    }
+    
+    const isVisible = data.isActive === true && 
+                     data.profileComplete === true && 
+                     (data.status === 'approved' || !data.status)
 
     if (isVisible) {
       return {
