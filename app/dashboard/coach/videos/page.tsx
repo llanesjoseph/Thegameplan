@@ -629,6 +629,7 @@ function VideoManagerPageContent() {
     }
   }
 
+
   const filteredVideos = videos.filter(video => {
     const matchesSearch = video.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          video.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
