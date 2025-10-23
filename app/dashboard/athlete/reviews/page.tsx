@@ -7,8 +7,6 @@ import Link from 'next/link';
 import { Video, Clock, CheckCircle, AlertCircle, Eye, ArrowLeft, ChevronDown, ChevronUp, Archive } from 'lucide-react';
 
 export default function AthleteReviewsPage() {
-  // Add error boundary for the entire component
-  try {
   const { user, loading } = useAuth();
   const router = useRouter();
   const [submissions, setSubmissions] = useState<any[]>([]);
@@ -140,19 +138,39 @@ export default function AthleteReviewsPage() {
     return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`;
   };
 
-  // Separate active and completed reviews with error handling
+  // Safe data processing function
+  const safeSubmission = (submission: any) => {
+    if (!submission || typeof submission !== 'object') return null;
+    return {
+      id: submission.id || 'unknown',
+      status: submission.status || 'unknown',
+      athleteName: submission.athleteName || 'Unknown',
+      athleteContext: submission.athleteContext || submission.context || '',
+      videoFileName: submission.videoFileName || 'video.mp4',
+      thumbnailUrl: submission.thumbnailUrl || null,
+      videoDuration: submission.videoDuration || 0,
+      videoFileSize: submission.videoFileSize || 0,
+      createdAt: submission.createdAt || new Date().toISOString(),
+      submittedAt: submission.submittedAt || submission.createdAt || new Date().toISOString(),
+      reviewedAt: submission.reviewedAt || null,
+      claimedBy: submission.claimedBy || null,
+      claimedByName: submission.claimedByName || null,
+    };
+  };
+
+  // Separate active and completed reviews with safe data processing
   let activeReviews: any[] = [];
   let completedReviews: any[] = [];
   
   try {
-    activeReviews = submissions.filter(submission => 
-      submission && submission.status && 
+    const safeSubmissions = submissions.map(safeSubmission).filter(Boolean);
+    
+    activeReviews = safeSubmissions.filter(submission => 
       submission.status !== 'complete' && submission.status !== 'reviewed'
     );
     
-    completedReviews = submissions.filter(submission => 
-      submission && submission.status && 
-      (submission.status === 'complete' || submission.status === 'reviewed')
+    completedReviews = safeSubmissions.filter(submission => 
+      submission.status === 'complete' || submission.status === 'reviewed'
     );
   } catch (filterError) {
     console.error('[ATHLETE-REVIEWS] Filter error:', filterError);
@@ -320,68 +338,86 @@ export default function AthleteReviewsPage() {
               Active Reviews ({activeReviews.length})
             </h2>
             <div className="grid gap-4">
-              {activeReviews.map((submission: any) => (
-                <Link
-                  key={submission.id}
-                  href={`/dashboard/athlete/reviews/${submission.id}`}
-                  className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-lg font-semibold text-gray-900">
-                          {submission.skillName}
-                        </h3>
-                        <span
-                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(
-                            submission.status
-                          )}`}
-                        >
-                          {getStatusIcon(submission.status)}
-                          {formatStatus(submission.status)}
-                        </span>
+              {activeReviews.map((submission: any) => {
+                // Safe property access to prevent React errors
+                const safeSubmission = {
+                  id: submission?.id || 'unknown',
+                  skillName: submission?.skillName || submission?.videoFileName || 'Video Submission',
+                  status: submission?.status || 'unknown',
+                  submittedAt: submission?.submittedAt || submission?.createdAt || new Date().toISOString(),
+                  reviewedAt: submission?.reviewedAt || null,
+                  claimedBy: submission?.claimedBy || null,
+                  notes: submission?.notes || submission?.athleteContext || '',
+                  thumbnailUrl: submission?.thumbnailUrl || null,
+                };
+
+                return (
+                  <Link
+                    key={safeSubmission.id}
+                    href={`/dashboard/athlete/reviews/${safeSubmission.id}`}
+                    className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h3 className="text-lg font-semibold text-gray-900">
+                            {safeSubmission.skillName}
+                          </h3>
+                          <span
+                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(
+                              safeSubmission.status
+                            )}`}
+                          >
+                            {getStatusIcon(safeSubmission.status)}
+                            {formatStatus(safeSubmission.status)}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-6 text-sm text-gray-600">
+                          <span className="flex items-center gap-1">
+                            <Clock className="w-4 h-4" />
+                            Submitted {formatDate(safeSubmission.submittedAt)}
+                          </span>
+
+                          {safeSubmission.reviewedAt && (
+                            <span className="flex items-center gap-1 text-green-600">
+                              <CheckCircle className="w-4 h-4" />
+                              Reviewed {formatTimeAgo(safeSubmission.reviewedAt)}
+                            </span>
+                          )}
+
+                          {safeSubmission.claimedBy && !safeSubmission.reviewedAt && (
+                            <span className="flex items-center gap-1 text-blue-600">
+                              <Eye className="w-4 h-4" />
+                              Coach reviewing...
+                            </span>
+                          )}
+                        </div>
+
+                        {safeSubmission.notes && (
+                          <p className="mt-2 text-sm text-gray-600 line-clamp-2">
+                            {safeSubmission.notes}
+                          </p>
+                        )}
                       </div>
 
-                      <div className="flex items-center gap-6 text-sm text-gray-600">
-                        <span className="flex items-center gap-1">
-                          <Clock className="w-4 h-4" />
-                          Submitted {formatDate(submission.submittedAt)}
-                        </span>
-
-                        {submission.reviewedAt && (
-                          <span className="flex items-center gap-1 text-green-600">
-                            <CheckCircle className="w-4 h-4" />
-                            Reviewed {formatTimeAgo(submission.reviewedAt)}
-                          </span>
-                        )}
-
-                        {submission.claimedBy && !submission.reviewedAt && (
-                          <span className="flex items-center gap-1 text-blue-600">
-                            <Eye className="w-4 h-4" />
-                            Coach reviewing...
-                          </span>
-                        )}
-                      </div>
-
-                      {submission.notes && (
-                        <p className="mt-2 text-sm text-gray-600 line-clamp-2">
-                          {submission.notes}
-                        </p>
+                      {safeSubmission.thumbnailUrl && (
+                        <div className="ml-4 flex-shrink-0">
+                          <img
+                            src={safeSubmission.thumbnailUrl}
+                            alt="Video thumbnail"
+                            className="w-32 h-20 object-cover rounded-lg"
+                            onError={(e) => {
+                              console.warn('[ATHLETE-REVIEWS] Thumbnail failed to load:', safeSubmission.thumbnailUrl);
+                              e.currentTarget.style.display = 'none';
+                            }}
+                          />
+                        </div>
                       )}
                     </div>
-
-                    {submission.thumbnailUrl && (
-                      <div className="ml-4 flex-shrink-0">
-                        <img
-                          src={submission.thumbnailUrl}
-                          alt="Video thumbnail"
-                          className="w-32 h-20 object-cover rounded-lg"
-                        />
-                      </div>
-                    )}
-                  </div>
-                </Link>
-              ))}
+                  </Link>
+                );
+              })}
             </div>
           </div>
         )}
@@ -414,61 +450,78 @@ export default function AthleteReviewsPage() {
                       {athleteName} ({athleteReviews.length} reviews)
                     </h3>
                     <div className="grid gap-4">
-                      {athleteReviews.map((submission: any) => (
-                        <Link
-                          key={submission.id}
-                          href={`/dashboard/athlete/reviews/${submission.id}`}
-                          className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"
-                        >
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-3 mb-2">
-                                <h3 className="text-lg font-semibold text-gray-900">
-                                  {submission.skillName}
-                                </h3>
-                                <span
-                                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(
-                                    submission.status
-                                  )}`}
-                                >
-                                  {getStatusIcon(submission.status)}
-                                  {formatStatus(submission.status)}
-                                </span>
-                              </div>
+                      {athleteReviews.map((submission: any) => {
+                        // Safe property access to prevent React errors
+                        const safeSubmission = {
+                          id: submission?.id || 'unknown',
+                          skillName: submission?.skillName || submission?.videoFileName || 'Video Submission',
+                          status: submission?.status || 'unknown',
+                          submittedAt: submission?.submittedAt || submission?.createdAt || new Date().toISOString(),
+                          reviewedAt: submission?.reviewedAt || null,
+                          notes: submission?.notes || submission?.athleteContext || '',
+                          thumbnailUrl: submission?.thumbnailUrl || null,
+                        };
 
-                              <div className="flex items-center gap-6 text-sm text-gray-600">
-                                <span className="flex items-center gap-1">
-                                  <Clock className="w-4 h-4" />
-                                  Submitted {formatDate(submission.submittedAt)}
-                                </span>
-
-                                {submission.reviewedAt && (
-                                  <span className="flex items-center gap-1 text-green-600">
-                                    <CheckCircle className="w-4 h-4" />
-                                    Reviewed {formatTimeAgo(submission.reviewedAt)}
+                        return (
+                          <Link
+                            key={safeSubmission.id}
+                            href={`/dashboard/athlete/reviews/${safeSubmission.id}`}
+                            className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer"
+                          >
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-3 mb-2">
+                                  <h3 className="text-lg font-semibold text-gray-900">
+                                    {safeSubmission.skillName}
+                                  </h3>
+                                  <span
+                                    className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(
+                                      safeSubmission.status
+                                    )}`}
+                                  >
+                                    {getStatusIcon(safeSubmission.status)}
+                                    {formatStatus(safeSubmission.status)}
                                   </span>
+                                </div>
+
+                                <div className="flex items-center gap-6 text-sm text-gray-600">
+                                  <span className="flex items-center gap-1">
+                                    <Clock className="w-4 h-4" />
+                                    Submitted {formatDate(safeSubmission.submittedAt)}
+                                  </span>
+
+                                  {safeSubmission.reviewedAt && (
+                                    <span className="flex items-center gap-1 text-green-600">
+                                      <CheckCircle className="w-4 h-4" />
+                                      Reviewed {formatTimeAgo(safeSubmission.reviewedAt)}
+                                    </span>
+                                  )}
+                                </div>
+
+                                {safeSubmission.notes && (
+                                  <p className="mt-2 text-sm text-gray-600 line-clamp-2">
+                                    {safeSubmission.notes}
+                                  </p>
                                 )}
                               </div>
 
-                              {submission.notes && (
-                                <p className="mt-2 text-sm text-gray-600 line-clamp-2">
-                                  {submission.notes}
-                                </p>
+                              {safeSubmission.thumbnailUrl && (
+                                <div className="ml-4 flex-shrink-0">
+                                  <img
+                                    src={safeSubmission.thumbnailUrl}
+                                    alt="Video thumbnail"
+                                    className="w-32 h-20 object-cover rounded-lg"
+                                    onError={(e) => {
+                                      console.warn('[ATHLETE-REVIEWS] Thumbnail failed to load:', safeSubmission.thumbnailUrl);
+                                      e.currentTarget.style.display = 'none';
+                                    }}
+                                  />
+                                </div>
                               )}
                             </div>
-
-                            {submission.thumbnailUrl && (
-                              <div className="ml-4 flex-shrink-0">
-                                <img
-                                  src={submission.thumbnailUrl}
-                                  alt="Video thumbnail"
-                                  className="w-32 h-20 object-cover rounded-lg"
-                                />
-                              </div>
-                            )}
-                          </div>
-                        </Link>
-                      ))}
+                          </Link>
+                        );
+                      })}
                     </div>
                   </div>
                 ))}
