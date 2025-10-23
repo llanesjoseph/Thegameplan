@@ -156,6 +156,10 @@ export default function CoachUnifiedDashboard() {
         // Close the current section and go back to home
         setActiveSection(null)
         console.log('Review closed - returning to dashboard')
+      } else if (event.data.type === 'NAVIGATE_TO_HOME') {
+        // Navigate to home section
+        setActiveSection('home')
+        console.log('Navigating to home from error modal')
       }
     }
 

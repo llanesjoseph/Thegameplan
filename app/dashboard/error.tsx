@@ -15,11 +15,26 @@ export default function DashboardError({
 
   // Log to error monitoring
   if (typeof window !== 'undefined' && (window as any).Sentry) {
-    (window as any).Sentry.captureException(error, {
-      tags: { location: 'dashboard-error-boundary' }
-    })
+   (window as any).Sentry.captureException(error, {
+    tags: { location: 'dashboard-error-boundary' }
+   })
   }
  }, [error])
+
+ // Check if we're in an iframe
+ const isInIframe = typeof window !== 'undefined' && window.self !== window.top
+
+ const handleDashboardHome = () => {
+  if (isInIframe) {
+   // If in iframe, send message to parent to navigate to home
+   if (window.parent !== window) {
+    window.parent.postMessage({ type: 'NAVIGATE_TO_HOME' }, '*')
+   }
+  } else {
+   // If not in iframe, navigate normally
+   window.location.href = '/dashboard'
+  }
+ }
 
  return (
   <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
@@ -46,7 +61,7 @@ export default function DashboardError({
 
     <div className="flex gap-3 justify-center">
      <button
-      onClick={() => window.location.href = '/dashboard'}
+      onClick={handleDashboardHome}
       className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
      >
       <LayoutDashboard className="h-4 w-4" />
