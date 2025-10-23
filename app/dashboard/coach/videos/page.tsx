@@ -18,8 +18,8 @@ import {
   Link as LinkIcon,
   Upload,
   Youtube,
-  ExternalLink
-,
+  ExternalLink,
+  X,
   AlertCircle
 } from 'lucide-react'
 
