@@ -47,23 +47,10 @@ const SPECIALTIES = [
 
 const ITEMS_PER_PAGE = 12
 
-// Featured Contributors - Static data
+// Featured Contributors - Static data (removed Jasmine Aikey to prevent duplicates)
 const FEATURED_CONTRIBUTORS: Contributor[] = [
- {
-  id: 'jasmine-aikey',
-  name: 'Jasmine Aikey',
-  firstName: 'Jasmine',
-  sport: 'soccer',
-  tagline: 'Elite Performance Training - The Intersection of Intellect and Intensity',
-  heroImageUrl: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
-  headshotUrl: 'https://res.cloudinary.com/dr0jtjwlh/image/upload/v1756675588/ja2_swxnai.webp',
-  badges: ['National Player of the Year', 'Stanford Cardinal', 'U-20 World Cup'],
-  lessonCount: 15,
-  specialties: ['tactical', 'mental', 'leadership', 'technical'],
-  experience: 'college' as const,
-  verified: true,
-  featured: true
- }
+ // Jasmine Aikey is now loaded from database via creators_index collection
+ // No hardcoded profiles to prevent duplicates
 ]
 
 export default function ContributorsPage() {
