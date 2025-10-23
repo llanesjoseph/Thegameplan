@@ -81,8 +81,8 @@ export default function HeroCoachProfile({
         )}
         
         {/* Content */}
-        <div className="relative container mx-auto px-6 py-24 lg:py-32">
-          <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
+        <div className="relative container mx-auto px-6 py-12 lg:py-16">
+          <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
             
             {/* Profile Picture */}
             <div className="flex-shrink-0">
@@ -105,33 +105,33 @@ export default function HeroCoachProfile({
             
             {/* Text Content */}
             <div className="text-center md:text-left">
-              <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white leading-tight">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white leading-tight drop-shadow-lg">
                 {coach.displayName.toUpperCase()}
               </h1>
-              <p className="mt-4 text-xl sm:text-2xl font-medium text-blue-100">
+              <p className="mt-3 text-lg sm:text-xl font-semibold text-white drop-shadow-md">
                 {coach.bio || `${coach.sport || 'Athletic'} Performance Training`}
               </p>
-              <p className="mt-2 text-lg text-blue-200">
+              <p className="mt-2 text-base sm:text-lg font-medium text-blue-100 drop-shadow-sm">
                 {coach.yearsExperience ? `${coach.yearsExperience}+ Years Experience` : 'Certified Coach'}
               </p>
               
               {/* Stats */}
-              <div className="mt-6 flex flex-wrap gap-6 justify-center md:justify-start">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-white">{totalLessons}</div>
-                  <div className="text-sm text-blue-200">Lessons</div>
+              <div className="mt-4 flex flex-wrap gap-4 justify-center md:justify-start">
+                <div className="text-center bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2">
+                  <div className="text-xl font-bold text-white drop-shadow-md">{totalLessons}</div>
+                  <div className="text-xs text-blue-100 font-medium">Lessons</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-white">{totalAthletes}</div>
-                  <div className="text-sm text-blue-200">Athletes</div>
+                <div className="text-center bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2">
+                  <div className="text-xl font-bold text-white drop-shadow-md">{totalAthletes}</div>
+                  <div className="text-xs text-blue-100 font-medium">Athletes</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-white">5.0</div>
-                  <div className="text-sm text-blue-200">Rating</div>
+                <div className="text-center bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2">
+                  <div className="text-xl font-bold text-white drop-shadow-md">5.0</div>
+                  <div className="text-xs text-blue-100 font-medium">Rating</div>
                 </div>
               </div>
               
-              <div className="mt-8 flex flex-wrap gap-4 justify-center md:justify-start">
+              <div className="mt-6 flex flex-wrap gap-3 justify-center md:justify-start">
                 <a
                   href={`mailto:${coach.email}`}
                   className="inline-block bg-white text-blue-800 font-bold py-3 px-8 rounded-full shadow-lg text-lg transition-transform hover:scale-105"
@@ -156,9 +156,9 @@ export default function HeroCoachProfile({
 
       {/* About Section */}
       {coach.bio && (
-        <section id="about" className="py-20 lg:py-28 bg-white">
+        <section id="about" className="py-12 lg:py-16 bg-white">
           <div className="container mx-auto px-6">
-            <div className="flex flex-col md:flex-row items-center gap-12 lg:gap-20">
+            <div className="flex flex-col md:flex-row items-center gap-8 lg:gap-12">
               
               {/* Text Content */}
               <div className="w-full md:w-1/2">
@@ -220,7 +220,7 @@ export default function HeroCoachProfile({
 
       {/* Training Library Section */}
       {lessons.length > 0 && (
-        <section id="library" className="py-20 lg:py-28 bg-gray-50">
+        <section id="library" className="py-12 lg:py-16 bg-gray-50">
           <div className="container mx-auto px-6">
             
             {/* Section Header */}
@@ -234,7 +234,7 @@ export default function HeroCoachProfile({
             </div>
             
             {/* Card Grid */}
-            <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {lessons.map((lesson, index) => (
                 <div
                   key={lesson.id}
@@ -290,10 +290,10 @@ export default function HeroCoachProfile({
 
       {/* Certifications & Achievements */}
       {((coach.certifications && coach.certifications.length > 0) || (coach.achievements && coach.achievements.length > 0)) && (
-        <section className="py-20 lg:py-28 bg-white">
+        <section className="py-12 lg:py-16 bg-white">
           <div className="container mx-auto px-6">
             
-            <div className="text-center max-w-2xl mx-auto mb-16">
+            <div className="text-center max-w-2xl mx-auto mb-8">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
                 Credentials & Achievements
               </h2>
