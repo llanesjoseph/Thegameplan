@@ -1,0 +1,98 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { adminDb as db } from '@/lib/firebase.admin'
+import { getOriginalIdFromSlug } from '@/lib/slug-utils'
+
+// Force dynamic rendering for API route
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { slug: string } }
+) {
+  try {
+    const { slug } = params
+
+    // SECURITY: Resolve slug to original ID to prevent ID exposure
+    const slugResult = await getOriginalIdFromSlug(slug)
+    
+    if (!slugResult.success || !slugResult.originalId) {
+      return NextResponse.json(
+        { error: 'Coach not found', success: false },
+        { status: 404 }
+      )
+    }
+
+    const originalId = slugResult.originalId
+    console.log(`[Coach Profile API] Resolved slug ${slug} to original ID: ${originalId}`)
+
+    // Get coach user data
+    const userRef = doc(db, 'users', originalId)
+    const userSnap = await getDoc(userRef)
+
+    if (!userSnap.exists()) {
+      return NextResponse.json(
+        { error: 'Coach not found', success: false },
+        { status: 404 }
+      )
+    }
+
+    const userData = userSnap.data()
+
+    // Check if user is actually a coach (includes legacy 'creator' role)
+    const validCoachRoles = ['coach', 'creator', 'assistant_coach']
+    if (!validCoachRoles.includes(userData.role)) {
+      return NextResponse.json(
+        { error: 'This user is not a coach', success: false },
+        { status: 404 }
+      )
+    }
+
+    // Get coach profile from creators_index
+    const creatorIndexDoc = await db.collection('creators_index').doc(originalId).get()
+    
+    if (!creatorIndexDoc.exists()) {
+      return NextResponse.json(
+        { error: 'Coach profile not found', success: false },
+        { status: 404 }
+      )
+    }
+
+    const creatorData = creatorIndexDoc.data()
+
+    // Build coach profile response
+    const coachProfile = {
+      uid: originalId,
+      displayName: creatorData.displayName || userData.displayName || 'Unknown Coach',
+      email: userData.email || '',
+      bio: creatorData.bio || '',
+      sport: creatorData.sport || 'General',
+      yearsExperience: creatorData.experience || '0',
+      specialties: creatorData.specialties || [],
+      certifications: creatorData.credentials ? [creatorData.credentials] : [],
+      achievements: creatorData.achievements || [],
+      profileImageUrl: creatorData.headshotUrl || userData.photoURL || '',
+      coverImageUrl: creatorData.heroImageUrl || '',
+      socialLinks: {},
+      verified: creatorData.verified || false,
+      featured: creatorData.featured || false,
+      isActive: creatorData.isActive || false,
+      profileComplete: creatorData.profileComplete || false,
+      status: creatorData.status || 'pending',
+      tagline: creatorData.tagline || '',
+      slug: slug // Return the slug for frontend use
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: coachProfile
+    })
+
+  } catch (error) {
+    console.error('Error fetching coach profile:', error)
+    return NextResponse.json(
+      { error: 'Failed to fetch coach profile' },
+      { status: 500 }
+    )
+  }
+}

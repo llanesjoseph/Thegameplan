@@ -102,6 +102,7 @@ export default function ContributorsPage() {
      id: d.id,
      name: data.displayName,
      sport: data.specialties?.[0] || '', // Use first specialty as primary sport
+     slug: data.slug, // Include slug for secure URLs
      ...(data as any)
     }
    }) as Contributor[]
@@ -388,7 +389,7 @@ export default function ContributorsPage() {
      {specialtyFiltered.map((c) => (
       <div key={c.id} className="group block">
        <article className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 hover:shadow-xl transition-all">
-        <Link href={`/coaches/${c.id}`} className="block">
+        <Link href={`/coach-profile/${c.slug || c.id}`} className="block">
          <div className="relative mb-6">
           <div className="aspect-square rounded-lg overflow-hidden bg-gray-50">
            <Image

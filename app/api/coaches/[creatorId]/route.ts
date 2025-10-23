@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { adminDb as db } from '@/lib/firebase.admin'
+import { getOriginalIdFromSlug } from '@/lib/slug-utils'
 
 // Force dynamic rendering for API route
 export const dynamic = 'force-dynamic'
@@ -12,19 +13,29 @@ export async function GET(
   try {
     const { creatorId } = params
 
-    // First try to find coach profile by ID or slug
+    // SECURITY: Resolve slug to original ID to prevent ID exposure
+    let originalId = creatorId
     let coachProfile = null
 
-    // Try to find by document ID in creator_profiles (the correct collection)
-    const coachProfileDoc = await db.collection('creator_profiles').doc(creatorId).get()
+    // First, try to resolve slug to original ID
+    const slugResult = await getOriginalIdFromSlug(creatorId)
+    if (slugResult.success && slugResult.originalId) {
+      originalId = slugResult.originalId
+      console.log(`[Coach Profile API] Resolved slug ${creatorId} to original ID: ${originalId}`)
+    } else {
+      console.log(`[Coach Profile API] No slug mapping found for ${creatorId}, treating as original ID`)
+    }
+
+    // Try to find coach profile by resolved original ID
+    const coachProfileDoc = await db.collection('creator_profiles').doc(originalId).get()
     if (coachProfileDoc.exists) {
       coachProfile = coachProfileDoc.data()
     } else {
       // Try to find in creators_index (where the contributors page queries from)
-      const creatorIndexDoc = await db.collection('creators_index').doc(creatorId).get()
+      const creatorIndexDoc = await db.collection('creators_index').doc(originalId).get()
       if (creatorIndexDoc.exists) {
         // Found in creators_index, now get the full profile from creator_profiles
-        const fullProfile = await db.collection('creator_profiles').doc(creatorId).get()
+        const fullProfile = await db.collection('creator_profiles').doc(originalId).get()
         if (fullProfile.exists) {
           coachProfile = fullProfile.data()
         } else {
@@ -32,7 +43,7 @@ export async function GET(
           coachProfile = creatorIndexDoc.data()
         }
       } else {
-        // Try to find by a slug/identifier field
+        // Fallback: Try to find by slug in creator_profiles
         const coachQuery = await db.collection('creator_profiles')
           .where('slug', '==', creatorId)
           .limit(1)
@@ -40,23 +51,6 @@ export async function GET(
 
         if (!coachQuery.empty) {
           coachProfile = coachQuery.docs[0].data()
-        } else {
-          // Try to find by firstName-lastName pattern
-          const nameParts = creatorId.split('-')
-          if (nameParts.length >= 2) {
-            const firstName = nameParts[0]
-            const lastName = nameParts[nameParts.length - 1]
-
-            const nameQuery = await db.collection('creator_profiles')
-              .where('firstName', '==', firstName)
-              .where('lastName', '==', lastName)
-              .limit(1)
-              .get()
-
-            if (!nameQuery.empty) {
-              coachProfile = nameQuery.docs[0].data()
-            }
-          }
         }
       }
     }
@@ -69,8 +63,8 @@ export async function GET(
       )
     }
 
-    // Debug logging for action photos
-    console.log(`[Coach Profile API] Fetching coach: ${creatorId}`)
+    // Debug logging for action photos (SECURITY: No ID exposure)
+    console.log(`[Coach Profile API] Fetching coach profile via slug: ${creatorId}`)
     console.log(`[Coach Profile API] Action photos in profile:`, coachProfile.actionPhotos)
     console.log(`[Coach Profile API] Action photos type:`, typeof coachProfile.actionPhotos)
     console.log(`[Coach Profile API] Action photos is array:`, Array.isArray(coachProfile.actionPhotos))
