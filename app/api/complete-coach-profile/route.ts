@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { nanoid } from 'nanoid'
 import { auth, adminDb } from '@/lib/firebase.admin'
+import { syncCoachToPublicProfile } from '@/lib/sync-coach-to-public-profile'
 
 // Force dynamic rendering for API route
 export const dynamic = 'force-dynamic'
@@ -175,6 +176,38 @@ export async function POST(request: NextRequest) {
 
     await adminDb.collection('creatorPublic').doc(userRecord.uid).set(creatorPublicData, { merge: true })
     console.log(`✅ [COMPLETE-COACH-PROFILE] Created creatorPublic profile`)
+
+    // Sync to creators_index for Browse Coaches page
+    try {
+      const syncData = {
+        uid: userRecord.uid,
+        email: coachProfile.email?.toLowerCase(),
+        displayName: coachProfile.displayName,
+        firstName: coachProfile.firstName,
+        lastName: coachProfile.lastName,
+        sport: coachProfile.sport || '',
+        tagline: coachProfile.tagline || '',
+        bio: coachProfile.bio || '',
+        specialties: coachProfile.specialties || [],
+        achievements: coachProfile.achievements || [],
+        experience: coachProfile.experience || '',
+        credentials: coachProfile.credentials || '',
+        isActive: true,
+        profileComplete: true,
+        status: 'approved',
+        verified: true,
+        featured: false
+      }
+      
+      const syncSuccess = await syncCoachToPublicProfile(syncData)
+      if (syncSuccess) {
+        console.log(`✅ [COMPLETE-COACH-PROFILE] Synced to creators_index for Browse Coaches`)
+      } else {
+        console.warn(`⚠️ [COMPLETE-COACH-PROFILE] Failed to sync to creators_index`)
+      }
+    } catch (syncError) {
+      console.warn(`⚠️ [COMPLETE-COACH-PROFILE] Sync error:`, syncError)
+    }
 
     // Mark invitation as used
     await adminDb.collection('invitations').doc(invitationId).update({

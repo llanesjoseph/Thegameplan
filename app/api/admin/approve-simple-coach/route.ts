@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth, adminDb } from '@/lib/firebase.admin'
+import { syncCoachToPublicProfile } from '@/lib/sync-coach-to-public-profile'
 
 // Force dynamic rendering for API route
 export const dynamic = 'force-dynamic'
@@ -152,6 +153,40 @@ export async function POST(request: NextRequest) {
 
     await adminDb.collection('creatorPublic').doc(userRecord.uid).set(creatorPublicData)
     console.log(`✅ Created creatorPublic profile for ${role}`)
+
+    // Sync to creators_index for Browse Coaches page (only for coaches)
+    if (role === 'coach' || role === 'creator') {
+      try {
+        const syncData = {
+          uid: userRecord.uid,
+          email: email.toLowerCase(),
+          displayName: displayName,
+          firstName: firstName,
+          lastName: lastName,
+          sport: sport || '',
+          tagline: tagline || '',
+          bio: bio || '',
+          specialties: specialties || [],
+          achievements: achievements || [],
+          experience: experience || '',
+          credentials: credentials || '',
+          isActive: true,
+          profileComplete: true,
+          status: 'approved',
+          verified: true,
+          featured: false
+        }
+        
+        const syncSuccess = await syncCoachToPublicProfile(syncData)
+        if (syncSuccess) {
+          console.log(`✅ Synced ${displayName} to creators_index for Browse Coaches`)
+        } else {
+          console.warn(`⚠️ Failed to sync ${displayName} to creators_index`)
+        }
+      } catch (syncError) {
+        console.warn(`⚠️ Sync error for ${displayName}:`, syncError)
+      }
+    }
 
     // Update application status
     await adminDb.collection('coach_applications').doc(applicationId).update({
