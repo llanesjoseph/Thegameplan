@@ -167,7 +167,7 @@ export default function CoachManagementPage() {
 
     try {
       setIsUpdating(uid)
-      console.log(`🔄 Updating coach ${uid}: ${field} = ${value}`)
+      console.log(`🔄 Updating coach profile: ${field} = ${value}`)
 
       await updateDoc(doc(db, 'creators_index', uid), {
         [field]: value,
@@ -179,7 +179,7 @@ export default function CoachManagementPage() {
         coach.uid === uid ? { ...coach, [field]: value } : coach
       ))
 
-      console.log(`✅ Successfully updated ${field} for coach ${uid}`)
+      console.log(`✅ Successfully updated ${field} for coach profile`)
 
     } catch (error) {
       console.error(`❌ Error updating coach ${field}:`, error)

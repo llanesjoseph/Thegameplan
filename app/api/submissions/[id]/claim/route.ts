@@ -31,17 +31,17 @@ export async function POST(
     let submissionDoc;
     let collectionName;
     
-    console.log(`[CLAIM-API] Attempting to claim submission: ${params.id}`);
+    console.log(`[CLAIM-API] Attempting to claim submission via secure route`);
     
     if (params.id.startsWith('fr_')) {
       // This is from feedback_requests collection
       const actualId = params.id.replace('fr_', '');
-      console.log(`[CLAIM-API] Looking in feedback_requests collection for ID: ${actualId}`);
+      console.log(`[CLAIM-API] Looking in feedback_requests collection`);
       submissionDoc = await adminDb.collection('feedback_requests').doc(actualId).get();
       collectionName = 'feedback_requests';
     } else {
       // This is from submissions collection
-      console.log(`[CLAIM-API] Looking in submissions collection for ID: ${params.id}`);
+      console.log(`[CLAIM-API] Looking in submissions collection`);
       submissionDoc = await adminDb.collection('submissions').doc(params.id).get();
       collectionName = 'submissions';
     }
