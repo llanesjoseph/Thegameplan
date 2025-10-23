@@ -9,6 +9,7 @@ import { ArrowLeft, Play, Clock, Eye, User, Calendar, ExternalLink } from 'lucid
 import { useAuth } from '@/hooks/use-auth'
 import AppHeader from '@/components/ui/AppHeader'
 import LessonVideoPlayer from '@/components/LessonVideoPlayer'
+import LessonPreview from '@/components/LessonPreview'
 
 interface LessonData {
  id: string
@@ -52,6 +53,11 @@ export default function LessonContent() {
  const [loading, setLoading] = useState(true)
  const [error, setError] = useState<string | null>(null)
  const [viewsIncremented, setViewsIncremented] = useState(false)
+
+ // If user is not authenticated, show preview mode
+ if (!user) {
+  return <LessonPreview lessonId={lessonId} />
+ }
 
  useEffect(() => {
   if (lessonId) {

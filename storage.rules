@@ -138,7 +138,7 @@
       
       // Lesson content - Educational videos and materials
       match /lessons/{lessonId}/{allPaths=**} {
-        allow read: if isAuthenticated(); // Authenticated users can access lessons
+        allow read: if isAuthenticated(); // RESTRICTED: Only authenticated users can access lesson content
         allow write: if isCreatorOrHigher() &&
                         (isValidImageType() || isValidVideoType() || isValidAudioType() || isValidDocumentType()) &&
                         isValidFileSize(10000) && // 10GB limit for large lesson content

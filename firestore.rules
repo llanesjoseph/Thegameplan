@@ -191,14 +191,13 @@ service cloud.firestore {
     
     // Content collection - Lessons, courses, educational content
     match /content/{contentId} {
-      // Allow reading individual documents (get)
-      // Public can read published content, creators can read their own drafts
-      // Athletes can read content from their assigned coach
-      allow get: if resource.data.status == 'published' ||
-                    (isAuthenticated() && isOwner(resource.data.creatorUid)) ||
-                    (isAuthenticated() && isAdmin()) ||
-                    (isAuthenticated() &&
-                     exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+      // RESTRICTED: Only authenticated users can read lesson content
+      // Non-authenticated users must use the preview API endpoint
+      allow get: if isAuthenticated() && (
+                    resource.data.status == 'published' ||
+                    isOwner(resource.data.creatorUid) ||
+                    isAdmin() ||
+                    (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
                      (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.coachId == resource.data.creatorUid ||
                       get(/databases/$(database)/documents/users/$(request.auth.uid)).data.assignedCoachId == resource.data.creatorUid) &&
                      (resource.data.visibility == 'public' || resource.data.visibility == 'athletes_only'));
