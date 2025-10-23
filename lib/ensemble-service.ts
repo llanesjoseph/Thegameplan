@@ -158,7 +158,7 @@ export async function callOpenAI(
       { role: 'user', content: userPrompt }
     ],
     temperature,
-    max_tokens: 2000
+    max_tokens: 8000
   })
 
   return completion.choices[0]?.message?.content?.trim() || ''
@@ -192,7 +192,7 @@ export async function callGemini(
 
   const genModel = client.getGenerativeModel({
     model,
-    generationConfig: { temperature, maxOutputTokens: 2000 },
+    generationConfig: { temperature, maxOutputTokens: 8000 },
     systemInstruction: systemPrompt
   })
 

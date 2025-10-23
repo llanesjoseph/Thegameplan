@@ -190,7 +190,7 @@ Remember: Keep facts, keep citations, only change style.`
         { role: 'user', content: userPrompt }
       ],
       temperature: 0.2, // Low temp for style consistency
-      max_tokens: 2000
+      max_tokens: 8000
     })
 
     const refined = completion.choices[0]?.message?.content?.trim() || rawAnswer
@@ -284,7 +284,7 @@ Return JSON:
         { role: 'user', content: analysisPrompt }
       ],
       temperature: 0.3,
-      max_tokens: 1000
+      max_tokens: 4000
     })
 
     const analysisRaw = completion.choices[0]?.message?.content?.trim() || '{}'

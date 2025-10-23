@@ -143,14 +143,14 @@ describe('AI Provider Management', () => {
   })
 
   describe('Token Management & Cost Control', () => {
-    it('should limit Gemini max output tokens to 1000', () => {
-      const maxOutputTokens = 1000
-      expect(maxOutputTokens).toBe(1000)
+    it('should limit Gemini max output tokens to 8000', () => {
+      const maxOutputTokens = 8000
+      expect(maxOutputTokens).toBe(8000)
     })
 
-    it('should limit OpenAI max tokens to 1000', () => {
-      const maxTokens = 1000
-      expect(maxTokens).toBe(1000)
+    it('should limit OpenAI max tokens to 8000', () => {
+      const maxTokens = 8000
+      expect(maxTokens).toBe(8000)
     })
 
     it('should use cost-effective temperature (0.7)', () => {
