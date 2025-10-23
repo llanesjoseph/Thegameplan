@@ -33,6 +33,7 @@ export default function CoachUnifiedDashboard() {
   const [activeSection, setActiveSection] = useState<string | null>('home') // Default to Home
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
   const [pendingRequestsCount, setPendingRequestsCount] = useState(0)
+  const [unreadMessagesCount, setUnreadMessagesCount] = useState(0)
   const [isInitializing, setIsInitializing] = useState(true)
 
   // Role-based redirect - prevent admins from accessing coach dashboard
@@ -114,6 +115,32 @@ export default function CoachUnifiedDashboard() {
     return () => clearInterval(interval)
   }, [user])
 
+  // Load unread messages count
+  useEffect(() => {
+    if (!user?.uid) return
+
+    const loadUnreadMessages = async () => {
+      try {
+        const response = await fetch(`/api/coach/messages?coachId=${user.uid}`)
+        if (response.ok) {
+          const data = await response.json()
+          if (data.success) {
+            const unreadCount = data.messages.filter((msg: any) => msg.status === 'unread').length
+            setUnreadMessagesCount(unreadCount)
+          }
+        }
+      } catch (error) {
+        console.error('Error loading unread messages count:', error)
+      }
+    }
+
+    loadUnreadMessages()
+    
+    // Refresh every 30 seconds
+    const interval = setInterval(loadUnreadMessages, 30000)
+    return () => clearInterval(interval)
+  }, [user?.uid])
+
   const coachCards = [
     {
       id: 'home',
@@ -128,6 +155,14 @@ export default function CoachUnifiedDashboard() {
       description: 'Review athlete video submissions',
       icon: FileVideo,
       color: '#E53E3E'
+    },
+    {
+      id: 'messages',
+      title: 'Incoming Messages',
+      description: 'View and respond to athlete messages',
+      icon: Bell,
+      color: '#5A9B9B',
+      badge: unreadMessagesCount
     },
     {
       id: 'profile',
@@ -199,6 +234,7 @@ export default function CoachUnifiedDashboard() {
     const pathMap: Record<string, string> = {
       'home': '/dashboard/coach/home?embedded=true',
       'video-queue': '/dashboard/coach/queue-bypass?embedded=true',
+      'messages': '/dashboard/coach/messages?embedded=true',
       'video-analytics': '/dashboard/coach/analytics/video-critique',
       'athletes': '/dashboard/coach/athletes?embedded=true',
       'create-lesson': '/dashboard/coach/lessons/create?embedded=true',
