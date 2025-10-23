@@ -54,7 +54,6 @@ function AddVideoModal({ onClose }: { onClose: () => void }) {
     tags: ''
   })
   const [extractingDuration, setExtractingDuration] = useState(false)
-  const [playingVideo, setPlayingVideo] = useState<VideoItem | null>(null)
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -546,6 +545,7 @@ function VideoManagerPageContent() {
   const [searchQuery, setSearchQuery] = useState('')
   const [sportFilter, setSportFilter] = useState('all')
   const [showAddModal, setShowAddModal] = useState(false)
+  const [playingVideo, setPlayingVideo] = useState<VideoItem | null>(null)
 
   // Load videos from API
   useEffect(() => {
