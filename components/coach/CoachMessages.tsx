@@ -39,12 +39,15 @@ export default function CoachMessages({ className = '' }: CoachMessagesProps) {
   const fetchMessages = async () => {
     try {
       setLoading(true)
+      console.log('Fetching messages for user:', user?.uid, user?.email)
       const response = await fetch(`/api/coach/messages?coachId=${user?.uid}`)
       const data = await response.json()
 
       if (data.success) {
         setMessages(data.messages)
+        console.log('Successfully fetched messages:', data.messages.length)
       } else {
+        console.error('Failed to fetch messages:', data.error)
         setError(data.error || 'Failed to fetch messages')
       }
     } catch (err) {

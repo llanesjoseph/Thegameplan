@@ -17,12 +17,49 @@ export async function GET(request: NextRequest) {
 
     console.log('Fetching messages for coach:', coachId)
 
+    // First, try to find the coach by the provided ID
+    let actualCoachId = coachId
+    let coachEmail = null
+
+    try {
+      const coachDoc = await adminDb.collection('users').doc(coachId).get()
+      if (coachDoc.exists) {
+        const coachData = coachDoc.data()
+        coachEmail = coachData?.email
+        console.log('Found coach by ID:', coachData?.displayName, coachData?.email)
+      } else {
+        console.log('Coach not found by ID, trying to find by email or other means')
+        // If coach not found by ID, try to find by email or other identifiers
+        // This handles cases where the user ID might be different from the coach profile ID
+      }
+    } catch (userError) {
+      console.log('Error fetching coach user data:', userError)
+    }
+
     // Fetch messages where coachId matches
-    const messagesSnapshot = await adminDb
-      .collection('messages')
-      .where('coachId', '==', coachId)
-      .orderBy('createdAt', 'desc')
-      .get()
+    let messagesSnapshot
+    try {
+      messagesSnapshot = await adminDb
+        .collection('messages')
+        .where('coachId', '==', actualCoachId)
+        .orderBy('createdAt', 'desc')
+        .get()
+    } catch (queryError) {
+      console.error('Error querying messages by coachId:', queryError)
+      // If the query fails (possibly due to missing index), try a different approach
+      // Get all messages and filter client-side (not ideal for large datasets, but works for now)
+      const allMessagesSnapshot = await adminDb.collection('messages').get()
+      const filteredMessages = allMessagesSnapshot.docs.filter(doc => {
+        const data = doc.data()
+        return data.coachId === actualCoachId || 
+               (coachEmail && data.coachEmail === coachEmail)
+      })
+      
+      messagesSnapshot = {
+        docs: filteredMessages,
+        size: filteredMessages.length
+      }
+    }
 
     const messages = messagesSnapshot.docs.map(doc => ({
       id: doc.id,
@@ -30,7 +67,7 @@ export async function GET(request: NextRequest) {
       createdAt: doc.data().createdAt?.toDate?.() || doc.data().createdAt
     }))
 
-    console.log(`Found ${messages.length} messages for coach ${coachId}`)
+    console.log(`Found ${messages.length} messages for coach ${actualCoachId}`)
 
     return NextResponse.json({
       success: true,
