@@ -202,6 +202,9 @@ export default function AthleteDashboard() {
       } else if (event.data.type === 'NAVIGATE_TO_AI_ASSISTANT') {
         setActiveSection('ai-assistant')
         console.log('Navigating to AI assistant from lesson completion')
+      } else if (event.data.type === 'NAVIGATE_TO_LESSONS') {
+        setActiveSection('lessons')
+        console.log('Navigating to lessons from lesson completion')
       }
     }
 

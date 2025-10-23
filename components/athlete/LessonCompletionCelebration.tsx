@@ -104,10 +104,7 @@ export default function LessonCompletionCelebration({
                 </h3>
                 <div className="space-y-3">
                   <button
-                    onClick={() => {
-                      onViewCompletedLessons()
-                      onClose()
-                    }}
+                    onClick={onViewCompletedLessons}
                     className="w-full flex items-center gap-3 p-4 bg-gradient-to-r from-teal-500 to-blue-600 text-white rounded-xl hover:from-teal-600 hover:to-blue-700 transition-all duration-200 font-medium shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                   >
                     <BookOpen className="w-5 h-5" />
@@ -116,10 +113,7 @@ export default function LessonCompletionCelebration({
                   </button>
 
                   <button
-                    onClick={() => {
-                      onRequestVideoReview()
-                      onClose()
-                    }}
+                    onClick={onRequestVideoReview}
                     className="w-full flex items-center gap-3 p-4 bg-white border-2 border-orange-500 text-orange-600 rounded-xl hover:bg-orange-50 transition-all duration-200 font-medium shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                   >
                     <Video className="w-5 h-5" />
@@ -128,10 +122,7 @@ export default function LessonCompletionCelebration({
                   </button>
 
                   <button
-                    onClick={() => {
-                      onAskCoach()
-                      onClose()
-                    }}
+                    onClick={onAskCoach}
                     className="w-full flex items-center gap-3 p-4 bg-white border-2 border-green-500 text-green-600 rounded-xl hover:bg-green-50 transition-all duration-200 font-medium shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                   >
                     <MessageSquare className="w-5 h-5" />

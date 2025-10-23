@@ -717,16 +717,25 @@ export default function AthleteLessonsPage() {
         lessonTitle={completedLessonTitle}
         totalCompleted={completedLessons.length}
         onViewCompletedLessons={() => {
-          setShowCompleted(true)
-          // Scroll to completed lessons section
-          setTimeout(() => {
-            const element = document.querySelector('[data-section="completed-lessons"]')
-            if (element) {
-              element.scrollIntoView({ behavior: 'smooth' })
-            }
-          }, 100)
+          // Close the modal and redirect to main lessons page
+          setShowCelebration(false)
+          // Send message to parent to navigate to lessons section
+          if (isInIframe && window.parent !== window) {
+            window.parent.postMessage({ type: 'NAVIGATE_TO_LESSONS' }, '*')
+          } else {
+            // If not in iframe, just close the modal and stay on lessons page
+            setShowCompleted(true)
+            setTimeout(() => {
+              const element = document.querySelector('[data-section="completed-lessons"]')
+              if (element) {
+                element.scrollIntoView({ behavior: 'smooth' })
+              }
+            }, 100)
+          }
         }}
         onRequestVideoReview={() => {
+          // Close the modal first
+          setShowCelebration(false)
           // Send message to parent to navigate to video review
           if (isInIframe && window.parent !== window) {
             window.parent.postMessage({ type: 'NAVIGATE_TO_VIDEO_REVIEW' }, '*')
@@ -735,6 +744,8 @@ export default function AthleteLessonsPage() {
           }
         }}
         onAskCoach={() => {
+          // Close the modal first
+          setShowCelebration(false)
           // Send message to parent to navigate to AI assistant
           if (isInIframe && window.parent !== window) {
             window.parent.postMessage({ type: 'NAVIGATE_TO_AI_ASSISTANT' }, '*')
