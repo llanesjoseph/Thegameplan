@@ -60,11 +60,11 @@ export default function AthleteReviewsPage() {
 
         // Sort by createdAt (newest first) with error handling
         try {
-          mySubmissions.sort((a, b) => {
-            const aDate = a.createdAt?.toDate?.() || new Date(a.createdAt || 0);
-            const bDate = b.createdAt?.toDate?.() || new Date(b.createdAt || 0);
-            return bDate.getTime() - aDate.getTime();
-          });
+        mySubmissions.sort((a, b) => {
+          const aDate = a.createdAt?.toDate?.() || new Date(a.createdAt || 0);
+          const bDate = b.createdAt?.toDate?.() || new Date(b.createdAt || 0);
+          return bDate.getTime() - aDate.getTime();
+        });
         } catch (sortError) {
           console.warn('[ATHLETE-REVIEWS] Sort error, using original order:', sortError);
         }
@@ -163,14 +163,14 @@ export default function AthleteReviewsPage() {
   let completedReviews: any[] = [];
   
   try {
-    const safeSubmissions = submissions.map(safeSubmission).filter(Boolean);
+    const safeSubmissions = submissions.map(safeSubmission).filter((submission): submission is NonNullable<typeof submission> => submission !== null);
     
     activeReviews = safeSubmissions.filter(submission => 
-      submission.status !== 'complete' && submission.status !== 'reviewed'
+      submission && submission.status !== 'complete' && submission.status !== 'reviewed'
     );
     
     completedReviews = safeSubmissions.filter(submission => 
-      submission.status === 'complete' || submission.status === 'reviewed'
+      submission && (submission.status === 'complete' || submission.status === 'reviewed')
     );
   } catch (filterError) {
     console.error('[ATHLETE-REVIEWS] Filter error:', filterError);
