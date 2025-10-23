@@ -54,6 +54,7 @@ function AddVideoModal({ onClose }: { onClose: () => void }) {
     tags: ''
   })
   const [extractingDuration, setExtractingDuration] = useState(false)
+  const [playingVideo, setPlayingVideo] = useState<VideoItem | null>(null)
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -553,6 +554,25 @@ function VideoManagerPageContent() {
     }
   }
 
+  const handlePlayVideo = (video: VideoItem) => {
+    setPlayingVideo(video)
+  }
+
+  const getVideoEmbedUrl = (video: VideoItem) => {
+    if (video.source === 'youtube') {
+      // Extract video ID from YouTube URL
+      const videoId = video.url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/)?.[1]
+      return videoId ? `https://www.youtube.com/embed/${videoId}` : video.url
+    } else if (video.source === 'vimeo') {
+      // Extract video ID from Vimeo URL
+      const videoId = video.url.match(/vimeo\.com\/(\d+)/)?.[1]
+      return videoId ? `https://player.vimeo.com/video/${videoId}` : video.url
+    } else {
+      // Direct video URL
+      return video.url
+    }
+  }
+
   const filteredVideos = videos.filter(video => {
     const matchesSearch = video.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          video.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -736,7 +756,10 @@ function VideoManagerPageContent() {
                 className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-white/50 overflow-hidden hover:shadow-2xl transition-all"
               >
                 {/* Video Thumbnail */}
-                <div className="relative aspect-video bg-gray-900 flex items-center justify-center">
+                <div 
+                  className="relative aspect-video bg-gray-900 flex items-center justify-center cursor-pointer hover:bg-gray-800 transition-colors"
+                  onClick={() => handlePlayVideo(video)}
+                >
                   <Play className="w-16 h-16 text-white opacity-70" />
                   <div className="absolute top-2 right-2 px-2 py-1 bg-black/70 text-white text-xs rounded">
                     {Math.round(video.duration / 60)}m
@@ -781,6 +804,7 @@ function VideoManagerPageContent() {
                   {/* Actions */}
                   <div className="flex gap-2">
                     <button
+                      onClick={() => handlePlayVideo(video)}
                       className="flex-1 px-3 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 text-sm"
                     >
                       <Play className="w-4 h-4" />
@@ -811,6 +835,64 @@ function VideoManagerPageContent() {
           setShowAddModal(false)
           loadVideos() // Reload videos after adding
         }} />}
+
+        {/* Video Player Modal */}
+        {playingVideo && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+              {/* Header */}
+              <div className="flex items-center justify-between p-4 border-b border-gray-200">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">{playingVideo.title}</h3>
+                  <p className="text-sm text-gray-600">{playingVideo.sport} • {Math.round(playingVideo.duration / 60)}m</p>
+                </div>
+                <button
+                  onClick={() => setPlayingVideo(null)}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <X className="w-5 h-5 text-gray-600" />
+                </button>
+              </div>
+
+              {/* Video Player */}
+              <div className="aspect-video bg-black">
+                {playingVideo.source === 'youtube' || playingVideo.source === 'vimeo' ? (
+                  <iframe
+                    src={getVideoEmbedUrl(playingVideo)}
+                    title={playingVideo.title}
+                    className="w-full h-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                ) : (
+                  <video
+                    src={playingVideo.url}
+                    controls
+                    className="w-full h-full"
+                    autoPlay
+                  >
+                    Your browser does not support the video tag.
+                  </video>
+                )}
+              </div>
+
+              {/* Video Info */}
+              <div className="p-4">
+                <p className="text-gray-700 mb-3">{playingVideo.description}</p>
+                <div className="flex flex-wrap gap-1">
+                  {playingVideo.tags.map((tag, idx) => (
+                    <span
+                      key={idx}
+                      className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700"
+                    >
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   )
