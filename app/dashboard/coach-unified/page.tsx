@@ -141,6 +141,28 @@ export default function CoachUnifiedDashboard() {
     return () => clearInterval(interval)
   }, [user?.uid])
 
+  // Handle postMessage events from iframe
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      // Only accept messages from same origin for security
+      if (event.origin !== window.location.origin) return
+
+      if (event.data.type === 'REVIEW_PUBLISHED') {
+        // Close the current section and go back to home
+        setActiveSection(null)
+        // Optionally refresh the video queue count
+        console.log('Review published - returning to dashboard')
+      } else if (event.data.type === 'CLOSE_REVIEW') {
+        // Close the current section and go back to home
+        setActiveSection(null)
+        console.log('Review closed - returning to dashboard')
+      }
+    }
+
+    window.addEventListener('message', handleMessage)
+    return () => window.removeEventListener('message', handleMessage)
+  }, [])
+
   const coachCards = [
     {
       id: 'home',
