@@ -131,13 +131,17 @@ export default function ContributorsPage() {
   if (reset) {
    try {
     const countSnap = await getDocs(collection(db, 'creators_index'))
-    setTotalCount(countSnap.size)
-    setActiveCoachCount(countSnap.size)
-    console.log(`📊 Real-time coach count: ${countSnap.size} active`)
+    const activeCount = countSnap.docs.filter(doc => {
+      const data = doc.data()
+      return data.isActive === true && data.profileComplete === true
+    }).length
+    setTotalCount(activeCount)
+    setActiveCoachCount(activeCount)
+    console.log(`📊 Real-time coach count: ${activeCount} active coaches`)
    } catch (countError) {
     console.warn('Failed to count coaches:', countError)
-    setTotalCount(0)
-    setActiveCoachCount(0)
+    // Don't set to 0, keep existing count to avoid confusion
+    console.log('Using cached count due to permission error')
    }
   }
   } catch (e) {
@@ -377,7 +381,7 @@ export default function ContributorsPage() {
       <Users className="w-5 h-5" />
       <span className="text-lg">
        {specialtyFiltered.length} {specialtyFiltered.length === 1 ? 'coach' : 'coaches'}
-       {totalCount > 0 && ` of ${totalCount} total`}
+       {totalCount > 0 && totalCount !== specialtyFiltered.length && ` of ${totalCount} total`}
       </span>
      </div>
      <Link
