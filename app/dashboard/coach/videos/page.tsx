@@ -99,13 +99,14 @@ function AddVideoModal({ onClose }: { onClose: () => void }) {
     
     video.onloadedmetadata = () => {
       clearTimeout(timeout)
-      const duration = Math.round(video.duration)
-      console.log('Video duration extracted:', duration, 'seconds')
+      const durationSeconds = video.duration
+      const durationMinutes = Math.round(durationSeconds / 60)
+      console.log('Video duration extracted:', durationSeconds, 'seconds =', durationMinutes, 'minutes')
       
-      if (duration > 0 && isFinite(duration)) {
-        setFormData(prev => ({ ...prev, duration: duration }))
+      if (durationSeconds > 0 && isFinite(durationSeconds)) {
+        setFormData(prev => ({ ...prev, duration: durationMinutes }))
       } else {
-        console.warn('Invalid video duration:', duration)
+        console.warn('Invalid video duration:', durationSeconds)
         setFormData(prev => ({ ...prev, duration: 0 }))
       }
       
@@ -158,49 +159,67 @@ function AddVideoModal({ onClose }: { onClose: () => void }) {
               console.log('Generating thumbnail for uploaded video...')
               const canvas = document.createElement('canvas')
               const video = document.createElement('video')
+              video.crossOrigin = 'anonymous'
+              video.muted = true
               video.src = URL.createObjectURL(videoFile)
               
               await new Promise<void>((resolveThumb) => {
+                const timeout = setTimeout(() => {
+                  console.warn('Thumbnail generation timed out')
+                  URL.revokeObjectURL(video.src)
+                  resolveThumb()
+                }, 10000) // 10 second timeout
+                
                 video.onloadeddata = () => {
-                  video.currentTime = 1 // Seek to 1 second
+                  console.log('Video loaded for thumbnail generation')
+                  video.currentTime = Math.min(1, video.duration / 2) // Seek to 1 second or middle of video
                 }
                 
                 video.onseeked = () => {
+                  console.log('Video seeked, generating thumbnail...')
                   canvas.width = video.videoWidth
                   canvas.height = video.videoHeight
                   const ctx = canvas.getContext('2d')
                   if (ctx) {
+                    // Clear canvas with white background
                     ctx.fillStyle = '#ffffff'
                     ctx.fillRect(0, 0, canvas.width, canvas.height)
+                    // Draw video frame to canvas
                     ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
                     canvas.toBlob(async (blob) => {
+                      clearTimeout(timeout)
                       if (blob) {
                         try {
                           const thumbnailRef = ref(storage, `coach-videos/${user.uid}/thumbnails/${timestamp}-thumb.jpg`)
                           await uploadBytes(thumbnailRef, blob)
                           thumbnailUrl = await getDownloadURL(thumbnailRef)
-                          console.log('Thumbnail generated successfully:', thumbnailUrl)
+                          console.log('✅ Thumbnail generated successfully:', thumbnailUrl)
                         } catch (err) {
-                          console.warn('Thumbnail generation failed:', err)
+                          console.warn('❌ Thumbnail upload failed:', err)
                         }
+                      } else {
+                        console.warn('❌ Failed to create thumbnail blob')
                       }
                       URL.revokeObjectURL(video.src)
                       resolveThumb()
-                    }, 'image/jpeg', 0.9)
+                    }, 'image/jpeg', 0.8)
                   } else {
+                    console.warn('❌ Could not get canvas context for thumbnail generation')
+                    clearTimeout(timeout)
                     URL.revokeObjectURL(video.src)
                     resolveThumb()
                   }
                 }
                 
-                video.onerror = () => {
-                  console.warn('Video failed to load for thumbnail generation')
+                video.onerror = (error) => {
+                  console.warn('❌ Video failed to load for thumbnail generation:', error)
+                  clearTimeout(timeout)
                   URL.revokeObjectURL(video.src)
                   resolveThumb()
                 }
               })
             } catch (err) {
-              console.warn('Thumbnail generation failed:', err)
+              console.warn('❌ Thumbnail generation failed:', err)
             }
             
             setUploading(false)
@@ -732,7 +751,7 @@ function VideoManagerPageContent() {
               <div>
                 <p className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Total Duration</p>
                 <p className="text-3xl" style={{ color: '#000000' }}>
-                  {Math.round(videos.reduce((sum, v) => sum + v.duration, 0) / 60)}m
+                  {videos.reduce((sum, v) => sum + v.duration, 0)}m
                 </p>
               </div>
               <ExternalLink className="w-10 h-10" style={{ color: '#FF6B35', opacity: 0.3 }} />
@@ -881,7 +900,7 @@ function VideoManagerPageContent() {
                   
                   {/* Duration badge */}
                   <div className="absolute top-2 right-2 px-2 py-1 bg-black/70 text-white text-xs rounded">
-                    {Math.round(video.duration / 60)}m
+                    {video.duration}m
                   </div>
                   
                   {/* Sport badge */}
@@ -965,7 +984,7 @@ function VideoManagerPageContent() {
               <div className="flex items-center justify-between p-4 border-b border-gray-200">
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900">{playingVideo.title}</h3>
-                  <p className="text-sm text-gray-600">{playingVideo.sport} • {Math.round(playingVideo.duration / 60)}m</p>
+                  <p className="text-sm text-gray-600">{playingVideo.sport} • {playingVideo.duration}m</p>
                 </div>
                 <button
                   onClick={() => setPlayingVideo(null)}

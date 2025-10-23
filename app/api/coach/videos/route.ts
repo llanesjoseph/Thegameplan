@@ -167,7 +167,7 @@ export async function POST(request: NextRequest) {
       source,
       url,
       thumbnail: thumbnail || '',
-      duration: typeof duration === 'number' ? duration : parseInt(duration) || 0,
+      duration: typeof duration === 'number' ? duration : parseInt(duration) || 0, // Duration in minutes
       sport,
       tags: Array.isArray(tags) ? tags : [],
       views: 0,
