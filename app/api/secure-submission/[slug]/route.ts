@@ -45,18 +45,27 @@ export async function GET(
 
     const submissionData = submissionDoc.data()
 
+    if (!submissionData) {
+      return NextResponse.json(
+        { error: 'Submission data not found', success: false },
+        { status: 404 }
+      )
+    }
+
     // Get athlete info
     const athleteId = submissionData.athleteId || submissionData.userId
-    let athleteInfo = {}
+    let athleteInfo: { displayName?: string; email?: string; sport?: string } = {}
     if (athleteId) {
       try {
         const athleteDoc = await db.collection('users').doc(athleteId).get()
         if (athleteDoc.exists) {
           const athleteData = athleteDoc.data()
-          athleteInfo = {
-            displayName: athleteData.displayName || 'Unknown Athlete',
-            email: athleteData.email || '',
-            sport: athleteData.sport || 'General'
+          if (athleteData) {
+            athleteInfo = {
+              displayName: athleteData.displayName || 'Unknown Athlete',
+              email: athleteData.email || '',
+              sport: athleteData.sport || 'General'
+            }
           }
         }
       } catch (error) {

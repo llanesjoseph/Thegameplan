@@ -60,7 +60,7 @@ export async function createSlugMapping(
     // Check if slug already exists
     const existingSlug = await adminDb.collection('slug_mappings').doc(slug).get()
     
-    if (existingSlug.exists()) {
+    if (existingSlug.exists) {
       const existingData = existingSlug.data()
       if (existingData?.originalId !== originalId) {
         // Slug exists for different creator, generate new one
@@ -100,7 +100,7 @@ export async function getOriginalIdFromSlug(slug: string): Promise<{ success: bo
   try {
     const slugDoc = await adminDb.collection('slug_mappings').doc(slug).get()
     
-    if (!slugDoc.exists()) {
+    if (!slugDoc.exists) {
       return { success: false, error: 'Slug not found' }
     }
     

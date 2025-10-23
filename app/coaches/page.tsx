@@ -25,6 +25,7 @@ type Contributor = {
  experience?: 'college' | 'pro' | 'olympic' | 'coach' | 'analyst'
  verified?: boolean
  featured?: boolean
+ slug?: string
 }
 
 type FilterState = {

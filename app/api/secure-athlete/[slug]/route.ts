@@ -38,21 +38,28 @@ export async function GET(
 
     const athleteData = athleteDoc.data()
 
+    if (!athleteData) {
+      return NextResponse.json(
+        { error: 'Athlete data not found', success: false },
+        { status: 404 }
+      )
+    }
+
     // Get user data for additional info
     const userDoc = await db.collection('users').doc(originalId).get()
-    const userData = userDoc.exists ? userDoc.data() : {}
+    const userData = userDoc.exists ? userDoc.data() : null
 
     // Build secure athlete response
     const athleteProfile = {
       uid: originalId,
       slug: slug, // Return the slug for frontend use
-      displayName: athleteData.displayName || userData.displayName || 'Unknown Athlete',
-      email: userData.email || '',
-      sport: athleteData.sport || userData.sport || 'General',
-      level: athleteData.level || userData.level || 'Beginner',
-      coachId: athleteData.coachId || userData.coachId || '',
-      assignedCoachId: athleteData.assignedCoachId || userData.assignedCoachId || '',
-      profileImageUrl: athleteData.profileImageUrl || userData.photoURL || '',
+      displayName: athleteData.displayName || (userData?.displayName) || 'Unknown Athlete',
+      email: userData?.email || '',
+      sport: athleteData.sport || (userData?.sport) || 'General',
+      level: athleteData.level || (userData?.level) || 'Beginner',
+      coachId: athleteData.coachId || (userData?.coachId) || '',
+      assignedCoachId: athleteData.assignedCoachId || (userData?.assignedCoachId) || '',
+      profileImageUrl: athleteData.profileImageUrl || (userData?.photoURL) || '',
       isActive: athleteData.isActive !== false,
       createdAt: athleteData.createdAt,
       lastUpdated: athleteData.lastUpdated

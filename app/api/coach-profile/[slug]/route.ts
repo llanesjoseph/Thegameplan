@@ -24,13 +24,12 @@ export async function GET(
     }
 
     const originalId = slugResult.originalId
-    console.log(`[Coach Profile API] Resolved slug ${slug} to original ID: ${originalId}`)
+    console.log(`[Coach Profile API] Resolved slug ${slug} to original ID`)
 
     // Get coach user data
-    const userRef = doc(db, 'users', originalId)
-    const userSnap = await getDoc(userRef)
+    const userSnap = await db.collection('users').doc(originalId).get()
 
-    if (!userSnap.exists()) {
+    if (!userSnap.exists) {
       return NextResponse.json(
         { error: 'Coach not found', success: false },
         { status: 404 }
@@ -38,6 +37,13 @@ export async function GET(
     }
 
     const userData = userSnap.data()
+
+    if (!userData) {
+      return NextResponse.json(
+        { error: 'Coach data not found', success: false },
+        { status: 404 }
+      )
+    }
 
     // Check if user is actually a coach (includes legacy 'creator' role)
     const validCoachRoles = ['coach', 'creator', 'assistant_coach']
@@ -51,7 +57,7 @@ export async function GET(
     // Get coach profile from creators_index
     const creatorIndexDoc = await db.collection('creators_index').doc(originalId).get()
     
-    if (!creatorIndexDoc.exists()) {
+    if (!creatorIndexDoc.exists) {
       return NextResponse.json(
         { error: 'Coach profile not found', success: false },
         { status: 404 }
@@ -59,6 +65,13 @@ export async function GET(
     }
 
     const creatorData = creatorIndexDoc.data()
+
+    if (!creatorData) {
+      return NextResponse.json(
+        { error: 'Coach profile data not found', success: false },
+        { status: 404 }
+      )
+    }
 
     // Build coach profile response
     const coachProfile = {
