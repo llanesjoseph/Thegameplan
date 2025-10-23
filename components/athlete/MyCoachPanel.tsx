@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import { X, Mail, MessageSquare, Calendar, User, Video, MapPin, Clock } from 'lucide-react'
 import { db } from '@/lib/firebase.client'
 import { doc, getDoc, collection, query, where, getDocs, orderBy, limit } from 'firebase/firestore'
+import ContactCoachModal from '../coach/ContactCoachModal'
+import { useAuth } from '@/hooks/use-auth'
 
 interface MyCoachPanelProps {
   coachId: string
@@ -30,9 +32,11 @@ interface NextSession {
 }
 
 export default function MyCoachPanel({ coachId, isOpen, onClose }: MyCoachPanelProps) {
+  const { user } = useAuth()
   const [coachData, setCoachData] = useState<CoachData | null>(null)
   const [nextSession, setNextSession] = useState<NextSession | null>(null)
   const [loading, setLoading] = useState(true)
+  const [showContactModal, setShowContactModal] = useState(false)
 
   useEffect(() => {
     if (isOpen && coachId) {
@@ -106,14 +110,13 @@ export default function MyCoachPanel({ coachId, isOpen, onClose }: MyCoachPanelP
   }
 
   const handleMessageCoach = () => {
-    // Future: Open in-app messaging
-    alert('💬 Messaging feature coming soon! For now, please email your coach.')
+    // Open the contact coach modal
+    setShowContactModal(true)
   }
 
   const handleEmailCoach = () => {
-    if (coachData?.email) {
-      window.location.href = `mailto:${coachData.email}?subject=Question from Athlete`
-    }
+    // Use the same in-app messaging system as handleMessageCoach
+    handleMessageCoach()
   }
 
   const handleViewProfile = () => {
@@ -254,11 +257,11 @@ export default function MyCoachPanel({ coachId, isOpen, onClose }: MyCoachPanelP
               </button>
 
               <button
-                onClick={handleEmailCoach}
+                onClick={handleMessageCoach}
                 className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all shadow-md hover:shadow-lg"
               >
                 <Mail className="w-5 h-5" />
-                <span className="font-semibold">Send Email</span>
+                <span className="font-semibold">Contact Coach</span>
               </button>
             </div>
 
@@ -340,6 +343,15 @@ export default function MyCoachPanel({ coachId, isOpen, onClose }: MyCoachPanelP
           }
         }
       `}</style>
+
+      {/* Contact Modal */}
+      <ContactCoachModal
+        isOpen={showContactModal}
+        onClose={() => setShowContactModal(false)}
+        coachId={coachId}
+        coachName={coachData?.displayName || 'Coach'}
+        athleteId={user?.uid}
+      />
     </>
   )
 }

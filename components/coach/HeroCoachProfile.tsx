@@ -1,9 +1,11 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Mail, Star, Award, BookOpen, Users, Trophy, ArrowLeft } from 'lucide-react'
+import ContactCoachModal from './ContactCoachModal'
+import { useAuth } from '@/hooks/use-auth'
 
 interface HeroCoachProfileProps {
   coach: {
@@ -48,6 +50,9 @@ export default function HeroCoachProfile({
   isInIframe = false,
   onBack
 }: HeroCoachProfileProps) {
+  const { user } = useAuth()
+  const [showContactModal, setShowContactModal] = useState(false)
+
   return (
     <div className="bg-white min-h-screen">
       {/* Hero Section */}
@@ -132,13 +137,13 @@ export default function HeroCoachProfile({
               </div>
               
               <div className="mt-4 flex flex-wrap gap-2 justify-center md:justify-start">
-                <a
-                  href={`mailto:${coach.email}`}
+                <button
+                  onClick={() => setShowContactModal(true)}
                   className="inline-block bg-white text-blue-800 font-bold py-2 px-6 rounded-full shadow-lg text-sm transition-transform hover:scale-105"
                 >
                   <Mail className="w-4 h-4 inline mr-1" />
                   Contact Coach
-                </a>
+                </button>
                 {lessons.length > 0 && (
                   <a
                     href="#library"
@@ -349,6 +354,15 @@ export default function HeroCoachProfile({
           <p>&copy; 2025 {coach.displayName}. All rights reserved.</p>
         </div>
       </footer>
+
+      {/* Contact Modal */}
+      <ContactCoachModal
+        isOpen={showContactModal}
+        onClose={() => setShowContactModal(false)}
+        coachId={coach.uid}
+        coachName={coach.displayName}
+        athleteId={user?.uid}
+      />
     </div>
   )
 }
