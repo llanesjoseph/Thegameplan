@@ -195,45 +195,32 @@ export default function CoachProfilePage() {
 
   const fetchCoachStats = async () => {
     try {
-      // First, get the TOTAL count of all published lessons (without limit)
-      const totalLessonsQuery = query(
-        collection(db, 'content'),
-        where('creatorUid', '==', coachId),
-        where('status', '==', 'published')
-      )
-      const totalLessonsSnap = await getDocs(totalLessonsQuery)
-      setTotalLessons(totalLessonsSnap.size)
+      // Use API endpoint to fetch coach stats (bypasses Firestore rules)
+      const response = await fetch(`/api/coach/${coachId}/stats`)
+      
+      if (response.ok) {
+        const data = await response.json()
+        setTotalLessons(data.totalLessons)
+        setTotalAthletes(data.totalAthletes)
+        setLessons(data.lessons)
+      } else {
+        console.warn('Failed to fetch coach stats from API')
+        // Fallback to direct Firestore access (might fail due to rules)
+        const totalLessonsQuery = query(
+          collection(db, 'content'),
+          where('creatorUid', '==', coachId),
+          where('status', '==', 'published')
+        )
+        const totalLessonsSnap = await getDocs(totalLessonsQuery)
+        setTotalLessons(totalLessonsSnap.size)
 
-      // Then, fetch the most recent 6 lessons for display
-      const recentLessonsQuery = query(
-        collection(db, 'content'),
-        where('creatorUid', '==', coachId),
-        where('status', '==', 'published'),
-        orderBy('createdAt', 'desc'),
-        limit(6)  // Show up to 6 lessons
-      )
-      const recentLessonsSnap = await getDocs(recentLessonsQuery)
-
-      const lessonsData: Lesson[] = recentLessonsSnap.docs.map(doc => ({
-        id: doc.id,
-        title: doc.data().title || 'Untitled Lesson',
-        description: doc.data().description,
-        sport: doc.data().sport,
-        level: doc.data().level,
-        createdAt: doc.data().createdAt,
-        videoUrl: doc.data().videoUrl,
-        thumbnailUrl: doc.data().thumbnailUrl
-      }))
-
-      setLessons(lessonsData)
-
-      // Count athletes assigned to this coach
-      const athletesQuery = query(
-        collection(db, 'users'),
-        where('assignedCoachId', '==', coachId)
-      )
-      const athletesSnap = await getDocs(athletesQuery)
-      setTotalAthletes(athletesSnap.size)
+        const athletesQuery = query(
+          collection(db, 'users'),
+          where('assignedCoachId', '==', coachId)
+        )
+        const athletesSnap = await getDocs(athletesQuery)
+        setTotalAthletes(athletesSnap.size)
+      }
 
     } catch (err) {
       console.warn('Could not fetch coach stats:', err)

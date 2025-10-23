@@ -81,12 +81,12 @@ export default function HeroCoachProfile({
         )}
         
         {/* Content */}
-        <div className="relative container mx-auto px-6 py-12 lg:py-16">
-          <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
+        <div className="relative container mx-auto px-6 py-6 lg:py-8">
+          <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6">
             
             {/* Profile Picture */}
             <div className="flex-shrink-0">
-              <div className="w-40 h-40 md:w-48 md:h-48 rounded-full border-4 border-white shadow-2xl overflow-hidden bg-gray-200">
+              <div className="w-32 h-32 md:w-36 md:h-36 rounded-full border-4 border-white shadow-2xl overflow-hidden bg-gray-200">
                 {coach.profileImageUrl ? (
                   <Image
                     src={coach.profileImageUrl}
@@ -105,46 +105,46 @@ export default function HeroCoachProfile({
             
             {/* Text Content */}
             <div className="text-center md:text-left">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white leading-tight drop-shadow-lg">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white leading-tight drop-shadow-lg">
                 {coach.displayName.toUpperCase()}
               </h1>
-              <p className="mt-3 text-lg sm:text-xl font-semibold text-white drop-shadow-md">
+              <p className="mt-2 text-base sm:text-lg font-semibold text-white drop-shadow-md">
                 {coach.bio || `${coach.sport || 'Athletic'} Performance Training`}
               </p>
-              <p className="mt-2 text-base sm:text-lg font-medium text-blue-100 drop-shadow-sm">
+              <p className="mt-1 text-sm sm:text-base font-medium text-blue-100 drop-shadow-sm">
                 {coach.yearsExperience ? `${coach.yearsExperience}+ Years Experience` : 'Certified Coach'}
               </p>
               
               {/* Stats */}
-              <div className="mt-4 flex flex-wrap gap-4 justify-center md:justify-start">
-                <div className="text-center bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2">
-                  <div className="text-xl font-bold text-white drop-shadow-md">{totalLessons}</div>
+              <div className="mt-3 flex flex-wrap gap-3 justify-center md:justify-start">
+                <div className="text-center bg-white/20 backdrop-blur-sm rounded-lg px-3 py-1.5">
+                  <div className="text-lg font-bold text-white drop-shadow-md">{totalLessons}</div>
                   <div className="text-xs text-blue-100 font-medium">Lessons</div>
                 </div>
-                <div className="text-center bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2">
-                  <div className="text-xl font-bold text-white drop-shadow-md">{totalAthletes}</div>
+                <div className="text-center bg-white/20 backdrop-blur-sm rounded-lg px-3 py-1.5">
+                  <div className="text-lg font-bold text-white drop-shadow-md">{totalAthletes}</div>
                   <div className="text-xs text-blue-100 font-medium">Athletes</div>
                 </div>
-                <div className="text-center bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2">
-                  <div className="text-xl font-bold text-white drop-shadow-md">5.0</div>
+                <div className="text-center bg-white/20 backdrop-blur-sm rounded-lg px-3 py-1.5">
+                  <div className="text-lg font-bold text-white drop-shadow-md">5.0</div>
                   <div className="text-xs text-blue-100 font-medium">Rating</div>
                 </div>
               </div>
               
-              <div className="mt-6 flex flex-wrap gap-3 justify-center md:justify-start">
+              <div className="mt-4 flex flex-wrap gap-2 justify-center md:justify-start">
                 <a
                   href={`mailto:${coach.email}`}
-                  className="inline-block bg-white text-blue-800 font-bold py-3 px-8 rounded-full shadow-lg text-lg transition-transform hover:scale-105"
+                  className="inline-block bg-white text-blue-800 font-bold py-2 px-6 rounded-full shadow-lg text-sm transition-transform hover:scale-105"
                 >
-                  <Mail className="w-5 h-5 inline mr-2" />
+                  <Mail className="w-4 h-4 inline mr-1" />
                   Contact Coach
                 </a>
                 {lessons.length > 0 && (
                   <a
                     href="#library"
-                    className="inline-block bg-blue-600 text-white font-bold py-3 px-8 rounded-full shadow-lg text-lg transition-transform hover:scale-105 hover:bg-blue-700"
+                    className="inline-block bg-blue-600 text-white font-bold py-2 px-6 rounded-full shadow-lg text-sm transition-transform hover:scale-105 hover:bg-blue-700"
                   >
-                    <BookOpen className="w-5 h-5 inline mr-2" />
+                    <BookOpen className="w-4 h-4 inline mr-1" />
                     View Training Library
                   </a>
                 )}
