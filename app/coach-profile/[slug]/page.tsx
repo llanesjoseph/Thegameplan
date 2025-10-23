@@ -329,12 +329,12 @@ export default function CoachProfilePage() {
         </div>
 
         {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {/* Left Column - Coach Details */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="lg:col-span-2 space-y-4">
             {/* About Section */}
-            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
-              <h2 className="text-2xl font-bold mb-4" style={{ color: '#000000' }}>
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4">
+              <h2 className="text-xl font-bold mb-3" style={{ color: '#000000' }}>
                 About {coach.displayName}
               </h2>
               {coach.bio ? (
@@ -346,8 +346,8 @@ export default function CoachProfilePage() {
 
             {/* Specialties */}
             {coach.specialties && coach.specialties.length > 0 && (
-              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
-                <h3 className="text-xl font-semibold mb-4" style={{ color: '#000000' }}>
+              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4">
+                <h3 className="text-lg font-semibold mb-3" style={{ color: '#000000' }}>
                   Specialties
                 </h3>
                 <div className="flex flex-wrap gap-2">
@@ -365,8 +365,8 @@ export default function CoachProfilePage() {
 
             {/* Achievements */}
             {coach.achievements && coach.achievements.length > 0 && (
-              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
-                <h3 className="text-xl font-semibold mb-4" style={{ color: '#000000' }}>
+              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4">
+                <h3 className="text-lg font-semibold mb-3" style={{ color: '#000000' }}>
                   Achievements
                 </h3>
                 <ul className="space-y-2">
@@ -382,8 +382,8 @@ export default function CoachProfilePage() {
 
             {/* Lessons */}
             {lessons.length > 0 && (
-              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
-                <h3 className="text-xl font-semibold mb-4" style={{ color: '#000000' }}>
+              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4">
+                <h3 className="text-lg font-semibold mb-3" style={{ color: '#000000' }}>
                   Available Lessons
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -421,13 +421,13 @@ export default function CoachProfilePage() {
           </div>
 
           {/* Right Column - Stats & Info */}
-          <div className="space-y-6">
+          <div className="space-y-4">
             {/* Stats */}
-            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
-              <h3 className="text-lg font-semibold mb-4" style={{ color: '#000000' }}>
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4">
+              <h3 className="text-base font-semibold mb-3" style={{ color: '#000000' }}>
                 Coach Stats
               </h3>
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600">Lessons</span>
                   <span className="font-semibold" style={{ color: '#000000' }}>
@@ -451,8 +451,8 @@ export default function CoachProfilePage() {
 
             {/* Certifications */}
             {coach.certifications && coach.certifications.length > 0 && (
-              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
-                <h3 className="text-lg font-semibold mb-4" style={{ color: '#000000' }}>
+              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4">
+                <h3 className="text-base font-semibold mb-3" style={{ color: '#000000' }}>
                   Certifications
                 </h3>
                 <ul className="space-y-2">
@@ -467,16 +467,16 @@ export default function CoachProfilePage() {
             )}
 
             {/* Contact Info */}
-            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
-              <h3 className="text-lg font-semibold mb-4" style={{ color: '#000000' }}>
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-4">
+              <h3 className="text-base font-semibold mb-3" style={{ color: '#000000' }}>
                 Contact Information
               </h3>
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <div className="flex items-center gap-2 text-gray-600">
                   <MapPin className="w-4 h-4" />
                   <span className="text-sm">Available for online coaching</span>
                 </div>
-                <div className="mt-4">
+                <div className="mt-3">
                   <button
                     onClick={() => setShowContactModal(true)}
                     className="w-full bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"

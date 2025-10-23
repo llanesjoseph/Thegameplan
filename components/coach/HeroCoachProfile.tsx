@@ -86,22 +86,22 @@ export default function HeroCoachProfile({
         )}
         
         {/* Content */}
-        <div className="relative container mx-auto px-6 py-6 lg:py-8">
+        <div className="relative container mx-auto px-4 py-4 lg:py-6">
           <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6">
             
             {/* Profile Picture */}
             <div className="flex-shrink-0">
-              <div className="w-32 h-32 md:w-36 md:h-36 rounded-full border-4 border-white shadow-2xl overflow-hidden bg-gray-200">
+              <div className="w-24 h-24 md:w-28 md:h-28 rounded-full border-3 border-white shadow-xl overflow-hidden bg-gray-200">
                 {coach.profileImageUrl ? (
                   <Image
                     src={coach.profileImageUrl}
                     alt={coach.displayName}
-                    width={192}
-                    height={192}
+                    width={112}
+                    height={112}
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-600 text-4xl font-bold">
+                  <div className="w-full h-full flex items-center justify-center text-gray-600 text-2xl font-bold">
                     {coach.displayName.charAt(0).toUpperCase()}
                   </div>
                 )}
@@ -110,41 +110,34 @@ export default function HeroCoachProfile({
             
             {/* Text Content */}
             <div className="text-center md:text-left">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white leading-tight drop-shadow-lg">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white leading-tight drop-shadow-lg">
                 {coach.displayName.toUpperCase()}
               </h1>
-              <p className="mt-2 text-base sm:text-lg font-semibold text-white drop-shadow-md">
+              <p className="mt-1 text-sm sm:text-base font-semibold text-white drop-shadow-md">
                 {coach.bio || `${coach.sport || 'Athletic'} Performance Training`}
               </p>
-              <p className="mt-1 text-sm sm:text-base font-medium text-blue-100 drop-shadow-sm">
+              <p className="mt-1 text-xs sm:text-sm font-medium text-blue-100 drop-shadow-sm">
                 {coach.yearsExperience ? `${coach.yearsExperience}+ Years Experience` : 'Certified Coach'}
               </p>
               
               {/* Stats */}
-              <div className="mt-3 flex flex-wrap gap-3 justify-center md:justify-start">
-                <div className="text-center bg-white/20 backdrop-blur-sm rounded-lg px-3 py-1.5">
-                  <div className="text-lg font-bold text-white drop-shadow-md">{totalLessons}</div>
+              <div className="mt-2 flex flex-wrap gap-2 justify-center md:justify-start">
+                <div className="text-center bg-white/20 backdrop-blur-sm rounded-md px-2 py-1">
+                  <div className="text-sm font-bold text-white drop-shadow-md">{totalLessons}</div>
                   <div className="text-xs text-blue-100 font-medium">Lessons</div>
                 </div>
-                <div className="text-center bg-white/20 backdrop-blur-sm rounded-lg px-3 py-1.5">
-                  <div className="text-lg font-bold text-white drop-shadow-md">{totalAthletes}</div>
+                <div className="text-center bg-white/20 backdrop-blur-sm rounded-md px-2 py-1">
+                  <div className="text-sm font-bold text-white drop-shadow-md">{totalAthletes}</div>
                   <div className="text-xs text-blue-100 font-medium">Athletes</div>
                 </div>
-                <div className="text-center bg-white/20 backdrop-blur-sm rounded-lg px-3 py-1.5">
-                  <div className="text-lg font-bold text-white drop-shadow-md">5.0</div>
+                <div className="text-center bg-white/20 backdrop-blur-sm rounded-md px-2 py-1">
+                  <div className="text-sm font-bold text-white drop-shadow-md">5.0</div>
                   <div className="text-xs text-blue-100 font-medium">Rating</div>
                 </div>
               </div>
               
-              <div className="mt-4 flex flex-wrap gap-2 justify-center md:justify-start">
-                <button
-                  onClick={() => setShowContactModal(true)}
-                  className="inline-block bg-white text-blue-800 font-bold py-2 px-6 rounded-full shadow-lg text-sm transition-transform hover:scale-105"
-                >
-                  <Mail className="w-4 h-4 inline mr-1" />
-                  Contact Coach
-                </button>
-                {lessons.length > 0 && (
+              {lessons.length > 0 && (
+                <div className="mt-4 flex flex-wrap gap-2 justify-center md:justify-start">
                   <a
                     href="#library"
                     className="inline-block bg-blue-600 text-white font-bold py-2 px-6 rounded-full shadow-lg text-sm transition-transform hover:scale-105 hover:bg-blue-700"
@@ -152,8 +145,8 @@ export default function HeroCoachProfile({
                     <BookOpen className="w-4 h-4 inline mr-1" />
                     View Training Library
                   </a>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -161,21 +154,21 @@ export default function HeroCoachProfile({
 
       {/* About Section */}
       {coach.bio && (
-        <section id="about" className="py-12 lg:py-16 bg-white">
-          <div className="container mx-auto px-6">
-            <div className="flex flex-col md:flex-row items-center gap-8 lg:gap-12">
+        <section id="about" className="py-6 lg:py-8 bg-white">
+          <div className="container mx-auto px-4">
+            <div className="flex flex-col md:flex-row items-center gap-4 lg:gap-6">
               
               {/* Text Content */}
               <div className="w-full md:w-1/2">
-                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight">
+                <h2 className="text-2xl md:text-3xl font-bold text-gray-900 leading-tight">
                   About {coach.displayName.split(' ')[0]}
                 </h2>
-                <p className="mt-4 text-lg text-gray-600 leading-relaxed">
+                <p className="mt-2 text-base text-gray-600 leading-relaxed">
                   {coach.bio}
                 </p>
                 {coach.specialties && coach.specialties.length > 0 && (
-                  <div className="mt-6">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-3">Specialties</h3>
+                  <div className="mt-4">
+                    <h3 className="text-base font-semibold text-gray-900 mb-2">Specialties</h3>
                     <div className="flex flex-wrap gap-2">
                       {coach.specialties.map((specialty, index) => (
                         <span
@@ -188,31 +181,25 @@ export default function HeroCoachProfile({
                     </div>
                   </div>
                 )}
-                <button
-                  onClick={() => setShowContactModal(true)}
-                  className="mt-8 inline-block bg-blue-600 text-white font-bold py-3 px-10 rounded-lg shadow-lg text-lg transition-transform hover:bg-blue-700 hover:scale-105"
-                >
-                  Ask {coach.displayName.split(' ')[0]}
-                </button>
               </div>
               
               {/* Image Placeholder */}
               <div className="w-full md:w-1/2">
-                <div className="w-full h-80 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl shadow-xl flex items-center justify-center">
+                <div className="w-full h-48 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg shadow-lg flex items-center justify-center">
                   {coach.profileImageUrl ? (
                     <Image
                       src={coach.profileImageUrl}
                       alt={`${coach.displayName} coaching`}
                       width={400}
-                      height={320}
-                      className="w-full h-full object-cover rounded-xl"
+                      height={192}
+                      className="w-full h-full object-cover rounded-lg"
                     />
                   ) : (
                     <div className="text-center text-gray-500">
-                      <div className="w-24 h-24 bg-blue-300 rounded-full mx-auto mb-4 flex items-center justify-center">
-                        <Users className="w-12 h-12 text-blue-600" />
+                      <div className="w-16 h-16 bg-blue-300 rounded-full mx-auto mb-2 flex items-center justify-center">
+                        <Users className="w-8 h-8 text-blue-600" />
                       </div>
-                      <p className="text-lg font-medium">Coaching in Action</p>
+                      <p className="text-sm font-medium">Coaching in Action</p>
                     </div>
                   )}
                 </div>
@@ -225,21 +212,21 @@ export default function HeroCoachProfile({
 
       {/* Training Library Section */}
       {lessons.length > 0 && (
-        <section id="library" className="py-12 lg:py-16 bg-gray-50">
-          <div className="container mx-auto px-6">
+        <section id="library" className="py-6 lg:py-8 bg-gray-50">
+          <div className="container mx-auto px-4">
             
             {/* Section Header */}
             <div className="text-center max-w-2xl mx-auto">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
                 {coach.displayName.split(' ')[0]}'s Training Library
               </h2>
-              <p className="mt-4 text-lg text-gray-600">
+              <p className="mt-2 text-base text-gray-600">
                 Access world-class training programs, drills, and mindset courses designed to elevate your game.
               </p>
             </div>
             
             {/* Card Grid */}
-            <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {lessons.map((lesson, index) => (
                 <div
                   key={lesson.id}
@@ -295,27 +282,27 @@ export default function HeroCoachProfile({
 
       {/* Certifications & Achievements */}
       {((coach.certifications && coach.certifications.length > 0) || (coach.achievements && coach.achievements.length > 0)) && (
-        <section className="py-12 lg:py-16 bg-white">
-          <div className="container mx-auto px-6">
+        <section className="py-6 lg:py-8 bg-white">
+          <div className="container mx-auto px-4">
             
-            <div className="text-center max-w-2xl mx-auto mb-8">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
+            <div className="text-center max-w-2xl mx-auto mb-4">
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
                 Credentials & Achievements
               </h2>
-              <p className="mt-4 text-lg text-gray-600">
+              <p className="mt-2 text-base text-gray-600">
                 Professional qualifications and accomplishments that set {coach.displayName.split(' ')[0]} apart.
               </p>
             </div>
             
-            <div className="grid md:grid-cols-2 gap-8">
+            <div className="grid md:grid-cols-2 gap-4">
               {/* Certifications */}
               {coach.certifications && coach.certifications.length > 0 && (
-                <div className="bg-gray-50 p-8 rounded-xl shadow-md">
-                  <div className="flex items-center gap-3 mb-6">
-                    <Award className="w-8 h-8 text-blue-600" />
-                    <h3 className="text-2xl font-bold text-gray-900">Certifications</h3>
+                <div className="bg-gray-50 p-4 rounded-lg shadow-md">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Award className="w-6 h-6 text-blue-600" />
+                    <h3 className="text-lg font-bold text-gray-900">Certifications</h3>
                   </div>
-                  <ul className="space-y-3">
+                  <ul className="space-y-2">
                     {coach.certifications.map((cert, index) => (
                       <li key={index} className="flex items-start gap-3">
                         <span className="text-blue-600 text-xl">•</span>
@@ -328,12 +315,12 @@ export default function HeroCoachProfile({
 
               {/* Achievements */}
               {coach.achievements && coach.achievements.length > 0 && (
-                <div className="bg-gray-50 p-8 rounded-xl shadow-md">
-                  <div className="flex items-center gap-3 mb-6">
-                    <Trophy className="w-8 h-8 text-yellow-600" />
-                    <h3 className="text-2xl font-bold text-gray-900">Achievements</h3>
+                <div className="bg-gray-50 p-4 rounded-lg shadow-md">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Trophy className="w-6 h-6 text-yellow-600" />
+                    <h3 className="text-lg font-bold text-gray-900">Achievements</h3>
                   </div>
-                  <ul className="space-y-3">
+                  <ul className="space-y-2">
                     {coach.achievements.map((achievement, index) => (
                       <li key={index} className="flex items-start gap-3">
                         <span className="text-yellow-600 text-xl">•</span>
@@ -349,8 +336,8 @@ export default function HeroCoachProfile({
       )}
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-gray-400 py-12">
-        <div className="container mx-auto px-6 text-center">
+      <footer className="bg-gray-900 text-gray-400 py-6">
+        <div className="container mx-auto px-4 text-center">
           <p>&copy; 2025 {coach.displayName}. All rights reserved.</p>
         </div>
       </footer>
