@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import AppHeader from '@/components/ui/AppHeader'
 import { storage } from '@/lib/firebase.client'
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
+import { ref, uploadBytesResumable, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { SPORTS } from '@/lib/constants/sports'
 import {
   Video,
@@ -125,7 +125,7 @@ function AddVideoModal({ onClose }: { onClose: () => void }) {
     video.src = URL.createObjectURL(file)
   }
 
-  const uploadVideoFile = async (): Promise<string | null> => {
+  const uploadVideoFile = async (): Promise<{ url: string; thumbnail?: string } | null> => {
     if (!videoFile || !user) return null
 
     setUploading(true)
@@ -152,8 +152,60 @@ function AddVideoModal({ onClose }: { onClose: () => void }) {
           },
           async () => {
             const downloadURL = await getDownloadURL(uploadTask.snapshot.ref)
+            
+            // Generate thumbnail for uploaded video
+            let thumbnailUrl: string | null = null
+            try {
+              console.log('Generating thumbnail for uploaded video...')
+              const canvas = document.createElement('canvas')
+              const video = document.createElement('video')
+              video.src = URL.createObjectURL(videoFile)
+              
+              await new Promise<void>((resolveThumb) => {
+                video.onloadeddata = () => {
+                  video.currentTime = 1 // Seek to 1 second
+                }
+                
+                video.onseeked = () => {
+                  canvas.width = video.videoWidth
+                  canvas.height = video.videoHeight
+                  const ctx = canvas.getContext('2d')
+                  if (ctx) {
+                    ctx.fillStyle = '#ffffff'
+                    ctx.fillRect(0, 0, canvas.width, canvas.height)
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+                    canvas.toBlob(async (blob) => {
+                      if (blob) {
+                        try {
+                          const thumbnailRef = ref(storage, `coach-videos/${user.uid}/thumbnails/${timestamp}-thumb.jpg`)
+                          await uploadBytes(thumbnailRef, blob)
+                          thumbnailUrl = await getDownloadURL(thumbnailRef)
+                          console.log('Thumbnail generated successfully:', thumbnailUrl)
+                        } catch (err) {
+                          console.warn('Thumbnail generation failed:', err)
+                        }
+                      }
+                      URL.revokeObjectURL(video.src)
+                      resolveThumb()
+                    }, 'image/jpeg', 0.9)
+                  } else {
+                    URL.revokeObjectURL(video.src)
+                    resolveThumb()
+                  }
+                }
+                
+                video.onerror = () => {
+                  console.warn('Video failed to load for thumbnail generation')
+                  URL.revokeObjectURL(video.src)
+                  resolveThumb()
+                }
+              })
+            } catch (err) {
+              console.warn('Thumbnail generation failed:', err)
+            }
+            
             setUploading(false)
-            resolve(downloadURL)
+            resolve({ url: downloadURL, thumbnail: thumbnailUrl || undefined })
           }
         )
       })
@@ -173,14 +225,17 @@ function AddVideoModal({ onClose }: { onClose: () => void }) {
       let videoUrl = formData.url
 
       // If upload source, upload the file first
+      let thumbnailUrl = formData.thumbnail
       if (formData.source === 'upload') {
         if (!videoFile) {
           throw new Error('Please select a video file to upload')
         }
-        videoUrl = await uploadVideoFile() || ''
-        if (!videoUrl) {
+        const uploadResult = await uploadVideoFile()
+        if (!uploadResult) {
           throw new Error('Failed to upload video file')
         }
+        videoUrl = uploadResult.url
+        thumbnailUrl = uploadResult.thumbnail || formData.thumbnail
       }
 
       const token = await user.getIdToken()
@@ -193,6 +248,7 @@ function AddVideoModal({ onClose }: { onClose: () => void }) {
         body: JSON.stringify({
           ...formData,
           url: videoUrl,
+          thumbnail: thumbnailUrl,
           duration: formData.duration === '' ? 0 : typeof formData.duration === 'string' ? parseInt(formData.duration) || 0 : formData.duration,
           tags: formData.tags.split(',').map(t => t.trim()).filter(t => t)
         })
@@ -757,13 +813,77 @@ function VideoManagerPageContent() {
               >
                 {/* Video Thumbnail */}
                 <div 
-                  className="relative aspect-video bg-gray-900 flex items-center justify-center cursor-pointer hover:bg-gray-800 transition-colors"
+                  className="relative aspect-video bg-gray-900 flex items-center justify-center cursor-pointer hover:bg-gray-800 transition-colors overflow-hidden"
                   onClick={() => handlePlayVideo(video)}
                 >
-                  <Play className="w-16 h-16 text-white opacity-70" />
+                  {video.thumbnail ? (
+                    <>
+                      <img 
+                        src={video.thumbnail} 
+                        alt={video.title}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          console.warn('Thumbnail failed to load:', video.thumbnail);
+                          e.currentTarget.style.display = 'none';
+                          const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                          if (fallback) fallback.style.display = 'flex';
+                        }}
+                      />
+                      <div className="absolute inset-0 bg-gray-900 flex items-center justify-center" style={{ display: 'none' }}>
+                        <Play className="w-16 h-16 text-white opacity-70" />
+                      </div>
+                    </>
+                  ) : video.source === 'youtube' ? (
+                    <>
+                      <img 
+                        src={`https://img.youtube.com/vi/${video.url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/)?.[1]}/maxresdefault.jpg`}
+                        alt={video.title}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          console.warn('YouTube thumbnail failed to load');
+                          e.currentTarget.style.display = 'none';
+                          const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                          if (fallback) fallback.style.display = 'flex';
+                        }}
+                      />
+                      <div className="absolute inset-0 bg-gray-900 flex items-center justify-center" style={{ display: 'none' }}>
+                        <Play className="w-16 h-16 text-white opacity-70" />
+                      </div>
+                    </>
+                  ) : video.source === 'vimeo' ? (
+                    <>
+                      <img 
+                        src={`https://vumbnail.com/${video.url.match(/vimeo\.com\/(\d+)/)?.[1]}.jpg`}
+                        alt={video.title}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          console.warn('Vimeo thumbnail failed to load');
+                          e.currentTarget.style.display = 'none';
+                          const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                          if (fallback) fallback.style.display = 'flex';
+                        }}
+                      />
+                      <div className="absolute inset-0 bg-gray-900 flex items-center justify-center" style={{ display: 'none' }}>
+                        <Play className="w-16 h-16 text-white opacity-70" />
+                      </div>
+                    </>
+                  ) : (
+                    <Play className="w-16 h-16 text-white opacity-70" />
+                  )}
+                  
+                  {/* Play overlay */}
+                  <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                    <div className="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                      <Play className="w-8 h-8 text-white ml-1" />
+                    </div>
+                  </div>
+                  
+                  {/* Duration badge */}
                   <div className="absolute top-2 right-2 px-2 py-1 bg-black/70 text-white text-xs rounded">
                     {Math.round(video.duration / 60)}m
                   </div>
+                  
+                  {/* Sport badge */}
                   <div className="absolute bottom-2 left-2 px-2 py-1 rounded text-xs text-white" style={{ backgroundColor: getSportColor(video.sport) }}>
                     {video.sport}
                   </div>
