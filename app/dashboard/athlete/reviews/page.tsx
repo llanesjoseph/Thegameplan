@@ -613,22 +613,4 @@ export default function AthleteReviewsPage() {
       </div>
     </div>
   );
-  } catch (componentError) {
-    console.error('[ATHLETE-REVIEWS] Component error:', componentError);
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Something went wrong!</h2>
-          <p className="text-gray-600 mb-4">A global error occurred. Please try again.</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            Try again
-          </button>
-        </div>
-      </div>
-    );
-  }
 }
