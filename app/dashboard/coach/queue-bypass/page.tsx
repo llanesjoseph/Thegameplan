@@ -305,16 +305,14 @@ export default function QueueBypassPage() {
                       </div>
                       <div className="flex gap-3">
                         <button
-                          onClick={() => handleClaim(submission.id)}
+                          onClick={() => {
+                            // Auto-claim and then open review
+                            handleClaim(submission.id);
+                            window.location.href = `/dashboard/coach/review/${submission.id}?embedded=true`;
+                          }}
                           className="px-6 py-2.5 bg-gradient-to-r from-teal-600 to-blue-600 text-white rounded-lg hover:from-teal-700 hover:to-blue-700 transition-all duration-200 font-medium shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                         >
                           Start Review
-                        </button>
-                        <button
-                          onClick={() => window.location.href = `/dashboard/coach/review/${submission.id}?embedded=true`}
-                          className="px-6 py-2.5 bg-white border-2 border-teal-600 text-teal-600 rounded-lg hover:bg-teal-50 transition-all duration-200 font-medium shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-                        >
-                          Open Review
                         </button>
                       </div>
                     </div>
@@ -384,83 +382,118 @@ export default function QueueBypassPage() {
                     </h3>
                     <div className={`grid gap-6 ${isEmbedded ? 'grid-cols-1 lg:grid-cols-2 xl:grid-cols-3' : 'grid-cols-1'}`}>
                       {athleteReviews.map((submission: any) => (
-              <div key={submission.id} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow">
-                <div className="p-6">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start space-x-4">
-                      {/* Thumbnail */}
-                                <div className="w-32 h-20 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
-                                  {submission.thumbnailUrl ? (
+                        <div key={submission.id} className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden group">
+                          <div className="p-6">
+                            {/* Header with status badge */}
+                            <div className="flex items-center justify-between mb-4">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-teal-600 rounded-full flex items-center justify-center">
+                                  <User className="w-5 h-5 text-white" />
+                                </div>
+                                <div>
+                                  <h3 className="font-semibold text-gray-900 text-lg">
+                                    {submission.athleteName || 'Athlete'}
+                                  </h3>
+                                  <p className="text-sm text-gray-500">
+                                    {submission.videoFileName || 'video.mp4'}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                  Completed
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Thumbnail and content */}
+                            <div className="flex gap-4 mb-4">
+                              {/* Enhanced Thumbnail */}
+                              <div className="w-40 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg overflow-hidden relative shadow-md group-hover:shadow-lg transition-shadow">
+                                {submission.thumbnailUrl ? (
+                                  <>
                                     <img 
                                       src={submission.thumbnailUrl} 
                                       alt="Video thumbnail" 
-                                      className="w-full h-full object-cover"
+                                      className="w-full h-full object-cover absolute inset-0 z-10"
+                                      style={{ display: 'block' }}
                                       onError={(e) => {
-                                        // Fallback to play icon if thumbnail fails to load
+                                        console.warn('[COACH-QUEUE] Thumbnail failed to load:', submission.thumbnailUrl);
                                         e.currentTarget.style.display = 'none';
-                                        e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                                        const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                                        if (fallback) fallback.style.display = 'flex';
+                                      }}
+                                      onLoad={(e) => {
+                                        console.log('[COACH-QUEUE] Thumbnail loaded successfully:', submission.thumbnailUrl);
+                                        console.log('[COACH-QUEUE] Image dimensions:', e.currentTarget.naturalWidth, 'x', e.currentTarget.naturalHeight);
                                       }}
                                     />
-                                  ) : null}
-                                  <Play className={`w-8 h-8 text-gray-400 ${submission.thumbnailUrl ? 'hidden' : ''}`} />
-                      </div>
-
-                      {/* Details */}
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <User className="w-4 h-4 text-gray-500" />
-                          <h3 className="font-semibold text-gray-900">
-                            {submission.athleteName || 'Athlete'}
-                          </h3>
-                          <span className="text-sm text-gray-500">
-                            • {submission.videoFileName || 'video.mp4'}
-                          </span>
-                        </div>
-
-                        {/* Context */}
-                        <div className="mb-3">
-                          <p className="text-sm text-gray-600 line-clamp-2">
-                            <strong>Context:</strong> {submission.athleteContext || 'No context provided'}
-                          </p>
-                        </div>
-
-                        {/* Metadata */}
-                        <div className="flex items-center gap-4 text-sm text-gray-500">
-                          <div className="flex items-center gap-1">
-                            <Clock className="w-4 h-4" />
-                            {submission.videoDuration ? `${Math.round(submission.videoDuration)}s` : 'Unknown'}
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <FileText className="w-4 h-4" />
-                            {submission.videoFileSize ?
-                              `${(submission.videoFileSize / 1024 / 1024).toFixed(1)}MB` :
-                              'Unknown'}
-                          </div>
-                                    <div className="flex items-center gap-1">
-                                      <Clock className="w-4 h-4" />
-                                      Submitted {formatTimeAgo(submission.submittedAt)}
+                                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 absolute inset-0 z-0" style={{ display: 'none' }}>
+                                      <Play className="w-8 h-8 text-gray-400" />
                                     </div>
+                                  </>
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+                                    <Play className="w-8 h-8 text-gray-400" />
+                                  </div>
+                                )}
+                                {/* Play overlay */}
+                                <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <div className="w-12 h-12 bg-white bg-opacity-90 rounded-full flex items-center justify-center">
+                                    <Play className="w-6 h-6 text-gray-700 ml-1" />
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Context */}
+                              <div className="flex-1">
+                                <div className="mb-3">
+                                  <p className="text-sm text-gray-700 leading-relaxed">
+                                    <span className="font-medium text-gray-900">Context:</span> {submission.athleteContext || 'No context provided'}
+                                  </p>
+                                </div>
+
+                                {/* Enhanced Metadata */}
+                                <div className="space-y-2">
+                                  <div className="flex items-center gap-4 text-sm text-gray-600">
+                                    <div className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-lg">
+                                      <Clock className="w-4 h-4 text-gray-500" />
+                                      <span className="font-medium">{submission.videoDuration ? `${Math.round(submission.videoDuration)}s` : 'Unknown'}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-lg">
+                                      <FileText className="w-4 h-4 text-gray-500" />
+                                      <span className="font-medium">{submission.videoFileSize ?
+                                        `${(submission.videoFileSize / 1024 / 1024).toFixed(1)}MB` :
+                                        'Unknown'}</span>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                                    <Clock className="w-4 h-4" />
+                                    <span>Submitted {formatTimeAgo(submission.submittedAt)}</span>
                                     {submission.reviewedAt && (
-                                      <div className="flex items-center gap-1 text-green-600">
+                                      <span className="ml-4 flex items-center gap-1 text-green-600">
                                         <CheckCircle className="w-4 h-4" />
                                         Reviewed {formatTimeAgo(submission.reviewedAt)}
-                                      </div>
+                                      </span>
                                     )}
-                        </div>
-                      </div>
-                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
 
-                    {/* Action */}
-                              <div className="flex flex-col items-end space-y-2">
-                                <span className="text-xs text-gray-500">ID: {submission.id}</span>
-                                <span className="text-xs text-gray-500">Status: {submission.status}</span>
-                    <button
+                            {/* Enhanced Action Buttons */}
+                            <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                              <div className="text-xs text-gray-400">
+                                ID: {submission.id}
+                              </div>
+                              <div className="flex gap-3">
+                                <button
                                   onClick={() => window.location.href = `/dashboard/coach/review/${submission.id}?embedded=true`}
-                                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-                    >
+                                  className="px-6 py-2.5 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-lg hover:from-green-700 hover:to-teal-700 transition-all duration-200 font-medium shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                                >
                                   View Review
-                    </button>
-                  </div>
+                                </button>
+                              </div>
                             </div>
                           </div>
                         </div>
