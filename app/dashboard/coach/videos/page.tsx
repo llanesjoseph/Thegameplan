@@ -6,6 +6,7 @@ import { useAuth } from '@/hooks/use-auth'
 import AppHeader from '@/components/ui/AppHeader'
 import { storage } from '@/lib/firebase.client'
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
+import { SPORTS } from '@/lib/constants/sports'
 import {
   Video,
   Plus,
@@ -341,11 +342,12 @@ function AddVideoModal({ onClose }: { onClose: () => void }) {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
               required
             >
-              <option value="baseball">Baseball</option>
-              <option value="basketball">Basketball</option>
-              <option value="football">Football</option>
-              <option value="soccer">Soccer</option>
-              <option value="other">Other</option>
+              <option value="">Select sport...</option>
+              {SPORTS.map((sport) => (
+                <option key={sport} value={sport.toLowerCase().replace(/\s+/g, '_')}>
+                  {sport}
+                </option>
+              ))}
             </select>
           </div>
 

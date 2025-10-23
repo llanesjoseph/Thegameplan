@@ -6,6 +6,7 @@ import { useAuth } from '@/hooks/use-auth'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { storage } from '@/lib/firebase.client'
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
+import { SPORTS } from '@/lib/constants/sports'
 import {
   GraduationCap,
   Save,
@@ -474,16 +475,11 @@ function CreateLessonPageContent() {
                     disabled={generating}
                   >
                     <option value="">Select sport...</option>
-                    <option value="baseball">Baseball</option>
-                    <option value="basketball">Basketball</option>
-                    <option value="bjj">Brazilian Jiu-Jitsu (BJJ)</option>
-                    <option value="football">Football</option>
-                    <option value="soccer">Soccer</option>
-                    <option value="softball">Softball</option>
-                    <option value="volleyball">Volleyball</option>
-                    <option value="wrestling">Wrestling</option>
-                    <option value="mma">MMA</option>
-                    <option value="other">Other</option>
+                    {SPORTS.map((sport) => (
+                      <option key={sport} value={sport.toLowerCase().replace(/\s+/g, '_')}>
+                        {sport}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
