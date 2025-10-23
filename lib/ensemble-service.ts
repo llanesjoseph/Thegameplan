@@ -76,6 +76,117 @@ export interface EnsembleResult {
 }
 
 // ============================================================================
+// RESPONSE LIMITING WITH FOLLOW-UP SUGGESTIONS
+// ============================================================================
+
+/**
+ * Limits response to ~500 words and adds intelligent follow-up suggestions
+ * to maintain engagement without overwhelming users
+ */
+function limitResponseWithFollowUps(response: string): string {
+  const words = response.split(' ')
+  const maxWords = 500
+  
+  if (words.length <= maxWords) {
+    return response
+  }
+  
+  // Find a good breaking point near 500 words
+  let breakPoint = maxWords
+  
+  // Look for natural sentence endings within the last 50 words
+  for (let i = maxWords - 50; i < maxWords && i < words.length; i++) {
+    const word = words[i]
+    if (word.endsWith('.') || word.endsWith('!') || word.endsWith('?')) {
+      breakPoint = i + 1
+      break
+    }
+  }
+  
+  // If no good break point found, look for paragraph breaks
+  if (breakPoint === maxWords) {
+    for (let i = maxWords - 100; i < maxWords && i < words.length; i++) {
+      if (words[i] === '\n\n' || words[i].includes('\n\n')) {
+        breakPoint = i + 1
+        break
+      }
+    }
+  }
+  
+  const truncatedResponse = words.slice(0, breakPoint).join(' ')
+  
+  // Generate follow-up suggestions based on the content
+  const followUpSuggestions = generateFollowUpSuggestions(truncatedResponse, response)
+  
+  return `${truncatedResponse}\n\n---\n\n**Want to dive deeper?** I can tell you more about:\n\n${followUpSuggestions}\n\n*Just ask about any of these topics for more detailed guidance!*`
+}
+
+/**
+ * Generates intelligent follow-up suggestions based on response content
+ */
+function generateFollowUpSuggestions(truncatedResponse: string, fullResponse: string): string {
+  const suggestions: string[] = []
+  
+  // Analyze the content to suggest relevant follow-ups
+  const content = truncatedResponse.toLowerCase()
+  
+  // Common coaching topics and their follow-ups
+  if (content.includes('technique') || content.includes('form')) {
+    suggestions.push('1. **Common technique mistakes** and how to fix them')
+  }
+  
+  if (content.includes('practice') || content.includes('drill')) {
+    suggestions.push('2. **Advanced practice drills** to take your skills further')
+  }
+  
+  if (content.includes('mental') || content.includes('mindset') || content.includes('confidence')) {
+    suggestions.push('3. **Mental training strategies** for peak performance')
+  }
+  
+  if (content.includes('injury') || content.includes('prevention') || content.includes('recovery')) {
+    suggestions.push('4. **Injury prevention** and recovery protocols')
+  }
+  
+  if (content.includes('nutrition') || content.includes('diet') || content.includes('fuel')) {
+    suggestions.push('5. **Nutrition strategies** for optimal performance')
+  }
+  
+  if (content.includes('strength') || content.includes('conditioning') || content.includes('fitness')) {
+    suggestions.push('6. **Strength and conditioning** specific to your sport')
+  }
+  
+  if (content.includes('competition') || content.includes('game') || content.includes('match')) {
+    suggestions.push('7. **Competition preparation** and game-day strategies')
+  }
+  
+  if (content.includes('beginner') || content.includes('starting') || content.includes('new')) {
+    suggestions.push('8. **Progression pathways** from beginner to advanced')
+  }
+  
+  if (content.includes('advanced') || content.includes('elite') || content.includes('professional')) {
+    suggestions.push('9. **Elite-level techniques** and advanced strategies')
+  }
+  
+  if (content.includes('equipment') || content.includes('gear') || content.includes('tools')) {
+    suggestions.push('10. **Equipment recommendations** and gear selection')
+  }
+  
+  // If no specific topics found, provide general follow-ups
+  if (suggestions.length === 0) {
+    suggestions.push(
+      '1. **Step-by-step breakdown** of the techniques mentioned',
+      '2. **Common mistakes** to avoid and how to fix them',
+      '3. **Practice progressions** to build your skills systematically',
+      '4. **Mental aspects** and mindset for success',
+      '5. **Advanced variations** once you master the basics'
+    )
+  }
+  
+  // Limit to 3-5 suggestions to avoid overwhelming
+  return suggestions.slice(0, 5).join('\n')
+}
+
+// ============================================================================
 // TEMPERATURE POLICY
 // ============================================================================
 
@@ -161,7 +272,8 @@ export async function callOpenAI(
     max_tokens: 8000
   })
 
-  return completion.choices[0]?.message?.content?.trim() || ''
+  const response = completion.choices[0]?.message?.content?.trim() || ''
+  return limitResponseWithFollowUps(response)
 }
 
 // ============================================================================
@@ -197,7 +309,8 @@ export async function callGemini(
   })
 
   const result = await genModel.generateContent(userPrompt)
-  return result.response.text().trim()
+  const response = result.response.text().trim()
+  return limitResponseWithFollowUps(response)
 }
 
 // ============================================================================

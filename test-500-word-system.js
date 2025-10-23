@@ -8,9 +8,9 @@ admin.initializeApp({
 
 const db = admin.firestore();
 
-console.log('🧪 TESTING AI RESPONSE LENGTH: Verifying token limit fixes\n');
+console.log('🧪 TESTING 500-WORD RESPONSE SYSTEM: Verifying intelligent truncation and follow-up suggestions\n');
 
-async function testAIResponseLength() {
+async function test500WordSystem() {
   try {
     // Test with a question that should generate a long response
     const testQuestion = "Can you provide a comprehensive guide on improving soccer passing skills, including technical details, common mistakes, practice drills, and progression tips for different skill levels?";
@@ -47,31 +47,44 @@ async function testAIResponseLength() {
       console.log('✅ AI Response received successfully!');
       console.log('📏 Response length:', data.response.length, 'characters');
       console.log('📊 Response word count:', data.response.split(' ').length, 'words');
-      console.log('🔢 Estimated token count:', Math.ceil(data.response.length / 4), 'tokens (rough estimate)');
       
-      // Check if response seems complete (doesn't end abruptly)
-      const lastSentence = data.response.trim().split('.').pop();
-      const endsWithPunctuation = /[.!?]$/.test(data.response.trim());
+      // Check if response has follow-up suggestions
+      const hasFollowUps = data.response.includes('Want to dive deeper?');
+      const hasNumberedSuggestions = /\d+\. \*\*/.test(data.response);
       
       console.log('\n📋 Response Analysis:');
-      console.log('   Ends with punctuation:', endsWithPunctuation ? '✅' : '❌');
-      console.log('   Last 50 characters:', data.response.slice(-50));
+      console.log('   Has follow-up suggestions:', hasFollowUps ? '✅' : '❌');
+      console.log('   Has numbered suggestions:', hasNumberedSuggestions ? '✅' : '❌');
+      console.log('   Word count under 500:', data.response.split(' ').length <= 500 ? '✅' : '❌');
       
-      if (data.response.length > 1000) {
-        console.log('✅ Response is substantial (>1000 chars)');
-      } else {
-        console.log('⚠️  Response seems short (<1000 chars)');
+      // Show the follow-up section if it exists
+      if (hasFollowUps) {
+        const followUpStart = data.response.indexOf('Want to dive deeper?');
+        const followUpSection = data.response.substring(followUpStart);
+        console.log('\n🎯 Follow-up Suggestions:');
+        console.log(followUpSection);
       }
       
-      if (endsWithPunctuation) {
-        console.log('✅ Response appears complete');
-      } else {
-        console.log('❌ Response may be truncated');
-      }
+      // Show first 300 characters of the main response
+      const mainResponse = data.response.split('Want to dive deeper?')[0].trim();
+      console.log('\n📖 Main Response Preview (first 300 chars):');
+      console.log(mainResponse.substring(0, 300) + '...');
       
-      // Show first 200 characters
-      console.log('\n📖 Response preview (first 200 chars):');
-      console.log(data.response.substring(0, 200) + '...');
+      // Analyze the system
+      if (data.response.split(' ').length <= 500 && hasFollowUps) {
+        console.log('\n✅ SYSTEM WORKING PERFECTLY!');
+        console.log('   - Response is under 500 words');
+        console.log('   - Follow-up suggestions are present');
+        console.log('   - Engagement system is active');
+      } else if (data.response.split(' ').length > 500) {
+        console.log('\n⚠️  SYSTEM NEEDS ADJUSTMENT:');
+        console.log('   - Response exceeds 500 words');
+        console.log('   - Truncation may not be working properly');
+      } else if (!hasFollowUps) {
+        console.log('\n⚠️  SYSTEM NEEDS ADJUSTMENT:');
+        console.log('   - No follow-up suggestions found');
+        console.log('   - Engagement system may not be working');
+      }
       
     } else {
       console.log('❌ API returned error:', data.error || 'Unknown error');
@@ -107,7 +120,7 @@ async function runTest() {
   
   console.log('✅ Dev server is running, proceeding with test...\n');
   
-  await testAIResponseLength();
+  await test500WordSystem();
   
   console.log('\n✅ Test complete');
   process.exit(0);
