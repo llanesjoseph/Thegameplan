@@ -292,7 +292,7 @@ export async function sendAthleteInvitationEmail({
         <body>
             <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); overflow: hidden;">
                 <header style="background-color: #13367A; padding: 24px; text-align: center;">
-                    <h1 style="font-family: 'Permanent Marker', cursive; font-size: 3rem; color: white; margin: 0;">AthLeap</h1>
+                    <h1 style="font-family: 'Inter', sans-serif; font-size: 3rem; color: white; margin: 0; font-weight: 700;">AthLeap</h1>
                     <p style="color: #87ceeb; font-size: 14px; margin: 4px 0 0 0; letter-spacing: 3px;">THE WORK BEFORE THE WIN</p>
                 </header>
                 <div><img src="https://res.cloudinary.com/dr0jtjwlh/image/upload/v1758865671/2023_11_2_ze5r3n.jpg" alt="Athletic Training" style="width: 100%; height: auto; display: block;"></div>
@@ -419,7 +419,7 @@ function generateInvitationSentEmail(coachName: string, summary: { totalSent: nu
     <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8fafc;">
       <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="font-family: 'Permanent Marker', cursive; color: #13367A; font-size: 32px; margin: 0;">AthLeap</h1>
+          <h1 style="font-family: 'Inter', sans-serif; color: #13367A; font-size: 32px; margin: 0; font-weight: 700;">AthLeap</h1>
           <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">THE WORK BEFORE THE WIN</p>
         </div>
 
@@ -475,7 +475,7 @@ function generateInvitationAcceptedEmail(coachName: string, athleteInfo: { name:
     <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8fafc;">
       <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="font-family: 'Permanent Marker', cursive; color: #13367A; font-size: 32px; margin: 0;">AthLeap</h1>
+          <h1 style="font-family: 'Inter', sans-serif; color: #13367A; font-size: 32px; margin: 0; font-weight: 700;">AthLeap</h1>
           <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">THE WORK BEFORE THE WIN</p>
         </div>
 
@@ -528,7 +528,7 @@ function generateInvitationDeclinedEmail(coachName: string, athleteInfo: { name:
     <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8fafc;">
       <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="font-family: 'Permanent Marker', cursive; color: #13367A; font-size: 32px; margin: 0;">AthLeap</h1>
+          <h1 style="font-family: 'Inter', sans-serif; color: #13367A; font-size: 32px; margin: 0; font-weight: 700;">AthLeap</h1>
           <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">THE WORK BEFORE THE WIN</p>
         </div>
 
@@ -578,7 +578,7 @@ function generateInvitationExpiredEmail(coachName: string, athleteInfo: { name: 
     <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8fafc;">
       <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="font-family: 'Permanent Marker', cursive; color: #13367A; font-size: 32px; margin: 0;">AthLeap</h1>
+          <h1 style="font-family: 'Inter', sans-serif; color: #13367A; font-size: 32px; margin: 0; font-weight: 700;">AthLeap</h1>
           <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">THE WORK BEFORE THE WIN</p>
         </div>
 
@@ -629,7 +629,7 @@ function generateAthleteProfileCreatedEmail(coachName: string, athleteInfo: { na
     <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8fafc;">
       <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="font-family: 'Permanent Marker', cursive; color: #13367A; font-size: 32px; margin: 0;">AthLeap</h1>
+          <h1 style="font-family: 'Inter', sans-serif; color: #13367A; font-size: 32px; margin: 0; font-weight: 700;">AthLeap</h1>
           <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">THE WORK BEFORE THE WIN</p>
         </div>
 
@@ -728,7 +728,7 @@ export async function sendLiveSessionRequestEmail({
         <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8fafc;">
           <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
             <div style="text-align: center; margin-bottom: 30px;">
-              <h1 style="font-family: 'Permanent Marker', cursive; color: #13367A; font-size: 32px; margin: 0;">AthLeap</h1>
+              <h1 style="font-family: 'Inter', sans-serif; color: #13367A; font-size: 32px; margin: 0; font-weight: 700;">AthLeap</h1>
               <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">THE WORK BEFORE THE WIN</p>
             </div>
 
@@ -825,7 +825,7 @@ export async function sendAthleteWelcomeEmail({
         <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8fafc;">
           <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
             <div style="text-align: center; margin-bottom: 30px;">
-              <h1 style="font-family: 'Permanent Marker', cursive; color: #13367A; font-size: 32px; margin: 0;">AthLeap</h1>
+              <h1 style="font-family: 'Inter', sans-serif; color: #13367A; font-size: 32px; margin: 0; font-weight: 700;">AthLeap</h1>
               <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">THE WORK BEFORE THE WIN</p>
             </div>
 
@@ -934,7 +934,7 @@ export async function sendVideoSubmissionNotification({
         <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8fafc;">
           <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
             <div style="text-align: center; margin-bottom: 30px;">
-              <h1 style="font-family: 'Permanent Marker', cursive; color: #13367A; font-size: 32px; margin: 0;">AthLeap</h1>
+              <h1 style="font-family: 'Inter', sans-serif; color: #13367A; font-size: 32px; margin: 0; font-weight: 700;">AthLeap</h1>
               <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">THE WORK BEFORE THE WIN</p>
             </div>
 
@@ -1010,7 +1010,7 @@ export async function sendReviewPublishedNotification({
         <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8fafc;">
           <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
             <div style="text-align: center; margin-bottom: 30px;">
-              <h1 style="font-family: 'Permanent Marker', cursive; color: #13367A; font-size: 32px; margin: 0;">AthLeap</h1>
+              <h1 style="font-family: 'Inter', sans-serif; color: #13367A; font-size: 32px; margin: 0; font-weight: 700;">AthLeap</h1>
               <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">THE WORK BEFORE THE WIN</p>
             </div>
 
@@ -1125,7 +1125,7 @@ export async function sendAdminNotificationEmail({
         <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8fafc;">
           <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
             <div style="text-align: center; margin-bottom: 30px;">
-              <h1 style="font-family: 'Permanent Marker', cursive; color: #13367A; font-size: 32px; margin: 0;">AthLeap</h1>
+              <h1 style="font-family: 'Inter', sans-serif; color: #13367A; font-size: 32px; margin: 0; font-weight: 700;">AthLeap</h1>
               <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">ADMIN NOTIFICATION</p>
             </div>
 
@@ -1243,7 +1243,7 @@ export async function sendScheduleEventNotificationEmail({
         <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8fafc;">
           <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
             <div style="text-align: center; margin-bottom: 30px;">
-              <h1 style="font-family: 'Permanent Marker', cursive; color: #13367A; font-size: 32px; margin: 0;">AthLeap</h1>
+              <h1 style="font-family: 'Inter', sans-serif; color: #13367A; font-size: 32px; margin: 0; font-weight: 700;">AthLeap</h1>
               <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">THE WORK BEFORE THE WIN</p>
             </div>
 

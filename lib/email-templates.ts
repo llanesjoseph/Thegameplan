@@ -130,7 +130,7 @@ export function getAthLeapCoachInvitationTemplate({
 
         <!-- Header with Logo -->
         <header style="background-color: #13367A; padding: 24px; text-align: center;">
-            <h1 style="font-family: 'Permanent Marker', cursive; font-size: 3rem; color: white; margin: 0;">AthLeap</h1>
+            <h1 style="font-family: 'Inter', sans-serif; font-size: 3rem; color: white; margin: 0; font-weight: 700;">AthLeap</h1>
             <p style="color: #87ceeb; font-size: 14px; margin: 4px 0 0 0; letter-spacing: 3px;">THE WORK BEFORE THE WIN</p>
         </header>
 

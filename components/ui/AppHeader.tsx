@@ -273,7 +273,8 @@ export default function AppHeader({ className = '', title, subtitle }: AppHeader
         onClick={handleLogoClick}
         className="fixed top-4 left-4 z-50 text-2xl sm:text-3xl hover:opacity-80 transition-opacity touch-manipulation"
         style={{
-          fontFamily: 'var(--font-permanent-marker)',
+          fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
+          fontWeight: '700',
           color: '#624A41',
           minHeight: '44px',
           display: 'flex',

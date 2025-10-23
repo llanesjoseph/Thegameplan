@@ -75,7 +75,10 @@ export default function LoginPage() {
             <button
               onClick={() => router.push('/')}
               className="text-2xl tracking-wider uppercase font-bold"
-              style={{ color: '#624A41' }}
+              style={{ 
+                fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
+                color: '#624A41' 
+              }}
             >
               ATHLEAP
             </button>
