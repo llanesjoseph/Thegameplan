@@ -122,8 +122,39 @@ export default function AthleteReviewDetailPage({
 
   const formatDate = (timestamp: any) => {
     if (!timestamp) return 'N/A';
-    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-    return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
+    try {
+      // Handle both Firestore timestamps and ISO strings
+      let date: Date;
+      if (timestamp.toDate && typeof timestamp.toDate === 'function') {
+        // Firestore timestamp
+        date = timestamp.toDate();
+      } else if (typeof timestamp === 'string') {
+        // ISO string
+        date = new Date(timestamp);
+      } else if (timestamp instanceof Date) {
+        // Already a Date object
+        date = timestamp;
+      } else {
+        // Fallback
+        date = new Date(timestamp);
+      }
+      
+      // Check if date is valid
+      if (isNaN(date.getTime())) {
+        return 'Invalid Date';
+      }
+      
+      return date.toLocaleDateString('en-US', { 
+        month: 'long', 
+        day: 'numeric', 
+        year: 'numeric', 
+        hour: 'numeric', 
+        minute: '2-digit' 
+      });
+    } catch (error) {
+      console.warn('Error formatting date:', error, timestamp);
+      return 'Invalid Date';
+    }
   };
 
   if (loading || isLoading) {

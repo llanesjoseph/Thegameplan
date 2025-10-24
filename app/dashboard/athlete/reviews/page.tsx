@@ -61,8 +61,27 @@ export default function AthleteReviewsPage() {
         // Sort by createdAt (newest first) with error handling
         try {
         mySubmissions.sort((a, b) => {
-          const aDate = a.createdAt?.toDate?.() || new Date(a.createdAt || 0);
-          const bDate = b.createdAt?.toDate?.() || new Date(b.createdAt || 0);
+          // Handle both Firestore timestamps and ISO strings
+          let aDate: Date;
+          let bDate: Date;
+          
+          if (a.createdAt?.toDate && typeof a.createdAt.toDate === 'function') {
+            aDate = a.createdAt.toDate();
+          } else {
+            aDate = new Date(a.createdAt || 0);
+          }
+          
+          if (b.createdAt?.toDate && typeof b.createdAt.toDate === 'function') {
+            bDate = b.createdAt.toDate();
+          } else {
+            bDate = new Date(b.createdAt || 0);
+          }
+          
+          // Check if dates are valid
+          if (isNaN(aDate.getTime()) || isNaN(bDate.getTime())) {
+            return 0; // Keep original order if dates are invalid
+          }
+          
           return bDate.getTime() - aDate.getTime();
         });
         } catch (sortError) {
@@ -115,27 +134,77 @@ export default function AthleteReviewsPage() {
 
   const formatDate = (timestamp: any) => {
     if (!timestamp) return 'N/A';
-    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
+    try {
+      // Handle both Firestore timestamps and ISO strings
+      let date: Date;
+      if (timestamp.toDate && typeof timestamp.toDate === 'function') {
+        // Firestore timestamp
+        date = timestamp.toDate();
+      } else if (typeof timestamp === 'string') {
+        // ISO string
+        date = new Date(timestamp);
+      } else if (timestamp instanceof Date) {
+        // Already a Date object
+        date = timestamp;
+      } else {
+        // Fallback
+        date = new Date(timestamp);
+      }
+      
+      // Check if date is valid
+      if (isNaN(date.getTime())) {
+        return 'Invalid Date';
+      }
+      
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      });
+    } catch (error) {
+      console.warn('Error formatting date:', error, timestamp);
+      return 'Invalid Date';
+    }
   };
 
   const formatTimeAgo = (timestamp: any) => {
     if (!timestamp) return 'N/A';
-    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / (1000 * 60));
-    const diffHours = Math.floor(diffMins / 60);
-    const diffDays = Math.floor(diffHours / 24);
+    try {
+      // Handle both Firestore timestamps and ISO strings
+      let date: Date;
+      if (timestamp.toDate && typeof timestamp.toDate === 'function') {
+        // Firestore timestamp
+        date = timestamp.toDate();
+      } else if (typeof timestamp === 'string') {
+        // ISO string
+        date = new Date(timestamp);
+      } else if (timestamp instanceof Date) {
+        // Already a Date object
+        date = timestamp;
+      } else {
+        // Fallback
+        date = new Date(timestamp);
+      }
+      
+      // Check if date is valid
+      if (isNaN(date.getTime())) {
+        return 'Invalid Date';
+      }
+      
+      const now = new Date();
+      const diffMs = now.getTime() - date.getTime();
+      const diffMins = Math.floor(diffMs / (1000 * 60));
+      const diffHours = Math.floor(diffMins / 60);
+      const diffDays = Math.floor(diffHours / 24);
 
-    if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return `${diffMins} min${diffMins === 1 ? '' : 's'} ago`;
-    if (diffHours < 24) return `${diffHours} hour${diffHours === 1 ? '' : 's'} ago`;
-    return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`;
+      if (diffMins < 1) return 'Just now';
+      if (diffMins < 60) return `${diffMins} min${diffMins === 1 ? '' : 's'} ago`;
+      if (diffHours < 24) return `${diffHours} hour${diffHours === 1 ? '' : 's'} ago`;
+      return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`;
+    } catch (error) {
+      console.warn('Error formatting time ago:', error, timestamp);
+      return 'Invalid Date';
+    }
   };
 
   // Safe data processing function
