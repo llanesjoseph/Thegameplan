@@ -24,7 +24,7 @@ async function seed() {
     const now = admin.firestore.Timestamp.now();
 
     // Create coach user document
-    console.log('  → Writing to users/' + coachId);
+    console.log('  → Writing to users/' + '[COACH_ID]');
     await db.collection('users').doc(coachId).set({
       uid: coachId,
       email: JOSEPH_COACH_EMAIL,
@@ -39,7 +39,7 @@ async function seed() {
     console.log('  ✓ User document created');
 
     // Create coach profile
-    console.log('  → Writing to coaches/' + coachId);
+    console.log('  → Writing to coaches/' + '[COACH_ID]');
     await db.collection('coaches').doc(coachId).set({
       uid: coachId,
       email: JOSEPH_COACH_EMAIL,

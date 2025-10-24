@@ -377,7 +377,7 @@ async function seedAllSampleData() {
 
     for (const app of applications) {
       await addDoc(collection(db, "contributorApplications"), app);
-      console.log('✅ Created: contributorApplications (new document)');
+      console.log('✅ Created: [ID] (new document)');
     }
 
     console.log(`\n🎉 SUCCESS! Sample database seeded successfully!\n==============================================\n\n📊 Data Created:\n• 10 Users (5 athletes + 5 creators)\n• 3 Detailed profiles\n• 3 Professional lessons\n• 2 Coaching requests\n• 2 Contributor applications\n\n🔍 Check Firebase Console:\nhttps://console.firebase.google.com/project/gameplan-787a2/firestore\n\n📋 Collections to view:\n• users - All user accounts\n• profiles - User profiles\n• content - Lessons and courses\n• coaching_requests - User-creator interactions\n• contributorApplications - Creator applications\n\nAll data is now live in your database! 🚀`);

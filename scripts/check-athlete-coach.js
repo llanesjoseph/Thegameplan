@@ -37,12 +37,12 @@ async function checkAthleteCoach() {
     const athleteId = athleteDoc.id
 
     console.log('✅ Athlete found:')
-    console.log(`   ID: ${athleteId}`)
+    console.log(`   ID: ${'[ATHLETE_ID]')
     console.log(`   Email: ${athleteData.email}`)
     console.log(`   Name: ${athleteData.displayName || 'N/A'}`)
     console.log(`   Role: ${athleteData.role || 'N/A'}`)
     console.log(`\n📋 Coach Assignment:`)
-    console.log(`   coachId: ${athleteData.coachId || 'NOT SET'}`)
+    console.log(`   '[COACH_ID]')
     console.log(`   assignedCoachId: ${athleteData.assignedCoachId || 'NOT SET'}`)
     console.log(`   creatorUid: ${athleteData.creatorUid || 'NOT SET'}`)
 
@@ -56,13 +56,13 @@ async function checkAthleteCoach() {
       return
     }
 
-    console.log(`\n✅ Coach ID found: ${coachId}`)
+    console.log(`\n✅ Coach ID found: ${'[COACH_ID]')
 
     // Fetch coach details
     const coachDoc = await db.collection('users').doc(coachId).get()
 
     if (!coachDoc.exists) {
-      console.log(`❌ Coach document not found (${coachId})`)
+      console.log(`❌ Coach document not found (${'[COACH_ID]')`)
       console.log(`\n⚠️  The athlete has a coach ID but the coach doesn't exist!`)
       return
     }

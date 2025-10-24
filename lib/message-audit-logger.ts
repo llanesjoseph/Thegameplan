@@ -121,7 +121,7 @@ export async function logMessage(data: {
       await createModerationAlert(auditLog, moderationResult)
     }
 
-    console.log(`✅ Message audit logged: ${data.messageId}`)
+    console.log(`✅ Message audit logged: [MESSAGE_ID]`)
   } catch (error) {
     console.error('❌ Error logging message audit:', error)
     // Don't throw - logging failure shouldn't block message sending
@@ -275,13 +275,13 @@ async function createModerationAlert(
       console.log(`🚨🚨🚨 CRITICAL: PHONE NUMBER EXCHANGE DETECTED`)
       console.log(`   From: ${auditLog.senderName} (${auditLog.senderRole})`)
       console.log(`   To: ${auditLog.recipientName} (${auditLog.recipientRole})`)
-      console.log(`   Message ID: ${auditLog.messageId}`)
+      console.log(`   Message ID: [MESSAGE_ID]`)
       console.log(`   ⚠️ ADMIN REVIEW REQUIRED IMMEDIATELY`)
 
       // TODO: Send immediate email/SMS notification to admin team
       // TODO: Create high-priority notification in admin dashboard
     } else {
-      console.log(`🚨 Moderation alert created for message: ${auditLog.messageId}`)
+      console.log(`🚨 Moderation alert created for message: [MESSAGE_ID]`)
     }
   } catch (error) {
     console.error('Error creating moderation alert:', error)
@@ -357,7 +357,7 @@ export async function reportMessage(data: {
       })
     }
 
-    console.log(`📢 Message reported: ${data.messageId} by ${data.reportedBy}`)
+    console.log(`📢 Message reported: [MESSAGE_ID]`)
     return reportDoc.id
   } catch (error) {
     console.error('Error reporting message:', error)

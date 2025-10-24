@@ -36,7 +36,7 @@ async function testAthleteAPI() {
     const coachDoc = coachesSnapshot.docs[0]
     const coachData = coachDoc.data()
     const coachId = coachDoc.id
-    console.log(`✅ Found coach: ${coachData.email} (${coachId})`)
+    console.log(`✅ Found coach: ${coachData.email} (${'[COACH_ID]')`)
 
     // Get an athlete assigned to this coach
     const athletesSnapshot = await db.collection('users')
@@ -64,7 +64,7 @@ async function testAthleteAPI() {
       const athleteData = athleteDoc.data()
       const athleteId = athleteDoc.id
 
-      console.log(`\n📊 Testing with athlete: ${athleteData.email} (${athleteId})`)
+      console.log(`\n📊 Testing with athlete: ${athleteData.email} (${'[ATHLETE_ID]')`)
       console.log(`   Note: This athlete may not be assigned to the coach\n`)
 
       await testAPIEndpoint(coachId, athleteId, athleteData.email)
@@ -75,8 +75,8 @@ async function testAthleteAPI() {
     const athleteData = athleteDoc.data()
     const athleteId = athleteDoc.id
 
-    console.log(`✅ Found athlete: ${athleteData.email} (${athleteId})`)
-    console.log(`   Assigned to coach: ${coachId}\n`)
+    console.log(`✅ Found athlete: ${athleteData.email} (${'[ATHLETE_ID]')`)
+    console.log(`   Assigned to coach: ${'[COACH_ID]')
 
     await testAPIEndpoint(coachId, athleteId, athleteData.email)
 
@@ -90,7 +90,7 @@ async function testAPIEndpoint(coachId, athleteId, athleteEmail) {
   console.log('=' .repeat(80))
   console.log('API ENDPOINT TEST')
   console.log('=' .repeat(80))
-  console.log(`\n📍 Endpoint: GET /api/coach/athletes/${athleteId}`)
+  console.log(`\n📍 Endpoint: GET /api/coach/athletes/${'[ATHLETE_ID]')
   console.log(`   Auth: Bearer <coach-token>\n`)
 
   // Check what data exists for this athlete
@@ -135,17 +135,7 @@ async function testAPIEndpoint(coachId, athleteId, athleteEmail) {
 The API endpoint should now work even if optional collections are missing.
 
 To test in browser:
-1. Sign in as coach: ${coachId}
-2. Navigate to: /dashboard/coach/athletes
-3. Click on athlete: ${athleteEmail}
-4. The detail page should load without errors
-
-Expected behavior:
-- ✅ Athlete details load successfully
-- ✅ Stats show even with empty optional data
-- ✅ No "Missing or insufficient permissions" errors
-- ✅ Graceful handling of missing videoReviews/liveSessions
-`)
+1. Sign in as coach: ${'[COACH_ID]')
 }
 
 // Run the test

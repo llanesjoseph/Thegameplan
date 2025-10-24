@@ -69,7 +69,7 @@ async function migrateData() {
       rosterCount++;
 
       const coach = users.find(u => u.uid === coachId);
-      console.log(`  ✅ Roster for ${coach?.displayName || coach?.email || coachId}: ${athleteIds.length} athletes`);
+      console.log(`  ✅ Roster for ${coach?.displayName || coach?.email || '[COACH_ID]');
     }
 
     if (rosterCount > 0) {
@@ -100,7 +100,7 @@ async function migrateData() {
     console.log('📖 Lessons by coach:');
     Object.entries(lessonsByCoach).forEach(([coachId, lessonIds]) => {
       const coach = users.find(u => u.uid === coachId);
-      console.log(`  - ${coach?.displayName || coach?.email || coachId}: ${lessonIds.length} lessons`);
+      console.log(`  - ${coach?.displayName || coach?.email || '[COACH_ID]');
     });
     console.log('');
 

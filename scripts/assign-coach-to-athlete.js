@@ -35,7 +35,7 @@ async function assignCoachToAthlete() {
 
     const athleteDoc = athletesSnapshot.docs[0]
     const athleteId = athleteDoc.id
-    console.log(`✅ Athlete found: ${athleteId}`)
+    console.log(`✅ Athlete found: ${'[ATHLETE_ID]')
 
     // Find a coach to assign
     console.log(`\n🔍 Finding available coaches...\n`)
@@ -62,8 +62,8 @@ async function assignCoachToAthlete() {
     const coachId = coachDoc.id
 
     console.log(`\n📝 Assigning coach: ${coachData.displayName || coachData.email}`)
-    console.log(`   Coach ID: ${coachId}`)
-    console.log(`   Athlete ID: ${athleteId}`)
+    console.log(`   Coach ID: ${'[COACH_ID]')
+    console.log(`   Athlete ID: ${'[ATHLETE_ID]')
 
     // Update the athlete document
     await db.collection('users').doc(athleteId).update({

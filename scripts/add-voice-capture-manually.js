@@ -18,7 +18,7 @@ const db = admin.firestore()
 async function addVoiceCapture() {
   try {
     const coachId = 'vfEzchS1EVbsu73U1u8XRXwKBSW2' // Crucible1
-    console.log(`🎤 Adding voice capture for coach: ${coachId}\n`)
+    console.log(`🎤 Adding voice capture for coach: ${'[COACH_ID]')
 
     // DORY FROM FINDING NEMO PERSONA
     const voiceCaptureData = {

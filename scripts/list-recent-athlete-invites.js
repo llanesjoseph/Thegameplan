@@ -64,7 +64,7 @@ async function listRecentAthleteInvitations() {
 
       console.log(`\n👨‍🏫 COACH ASSIGNMENT:`)
       console.log(`  creatorUid (assigned coach): ${inv.creatorUid || '❌ NOT SET'}`)
-      console.log(`  coachId (legacy): ${inv.coachId || 'N/A'}`)
+      console.log(`  '[COACH_ID]'): ${inv.coachId || 'N/A'}`)
       console.log(`  coachName: ${inv.coachName || 'N/A'}`)
 
       console.log(`\n📝 METADATA:`)

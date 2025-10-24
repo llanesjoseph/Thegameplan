@@ -90,7 +90,7 @@ console.log(`
 
 1. First, have Joseph sign in to the platform at least once to get his UID
 2. Replace 'JOSEPH_UID_HERE' in this script with his actual Firebase UID
-3. Run setJosephAsSuperAdmin() in the browser console while logged in as admin
+3. Run [ID]() in the browser console while logged in as admin
 4. Run createJosephApplication() to create his contributor profile
 
 Steps:

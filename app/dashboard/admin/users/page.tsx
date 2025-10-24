@@ -199,7 +199,7 @@ export default function AdminUserManagement() {
     updatedAt: new Date()
    })
 
-   console.log(`✅ Assigned coach ${coachId} to athlete ${athleteUid}`)
+    console.log(`✅ Assigned coach [COACH_ID] to user`)
    alert('Coach assigned successfully!')
    setSelectedUser(null)
    loadUsers() // Reload to show updated data

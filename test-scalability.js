@@ -45,7 +45,7 @@ const db = admin.firestore();
 
 async function analyzeCoachContent(coachId, displayName) {
   console.log(`\n${'='.repeat(80)}`);
-  console.log(`📊 ANALYZING: ${displayName} (${coachId})`);
+  console.log(`📊 ANALYZING: ${displayName} (${'[COACH_ID]')`);
   console.log('='.repeat(80));
 
   try {

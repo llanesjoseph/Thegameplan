@@ -68,8 +68,7 @@ export async function POST(request: NextRequest) {
       sport,
       level,
       duration,
-      detailLevel,
-      hasDetailedInstructions: !!detailedInstructions
+      detailLevel
     })
 
     let lessonPlan

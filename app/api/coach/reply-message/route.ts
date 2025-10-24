@@ -50,12 +50,12 @@ export async function POST(request: NextRequest) {
     // Sanitize reply text
     const sanitizedReply = replyText.trim().substring(0, 2000)
 
-    console.log('Coach reply request started', { messageId, coachId, replyLength: sanitizedReply.length })
+    console.log('Coach reply request started', { messageId: '[MESSAGE_ID]', coachId: '[COACH_ID]', replyLength: sanitizedReply.length })
 
     // Get the original message
     const messageDoc = await adminDb.collection('messages').doc(messageId).get()
     if (!messageDoc.exists) {
-      console.error('Original message not found', { messageId })
+      console.error('Original message not found', { messageId: '[MESSAGE_ID]' })
       return NextResponse.json(
         { error: 'Original message not found' },
         { status: 404 }
@@ -140,7 +140,7 @@ export async function POST(request: NextRequest) {
         repliedAt: new Date(),
         replyId: replyId
       })
-      console.log('Original message status updated to replied', { messageId })
+      console.log('Original message status updated to replied', { messageId: '[MESSAGE_ID]' })
     } catch (updateError) {
       console.error('Failed to update original message status', { messageId, error: updateError })
       // Don't fail the request if status update fails
@@ -218,7 +218,7 @@ export async function POST(request: NextRequest) {
       }
 
       await adminDb.collection('notifications').add(notificationData)
-      console.log('Notification created for athlete', { athleteId: originalMessage.athleteId })
+      console.log('Notification created for athlete', { athleteId: '[ATHLETE_ID]' })
     } catch (notificationError) {
       console.error('Failed to create notification', { athleteId: originalMessage.athleteId, error: notificationError })
       // Don't fail the request if notification fails

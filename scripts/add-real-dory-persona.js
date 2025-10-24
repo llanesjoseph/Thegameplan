@@ -18,7 +18,7 @@ const db = admin.firestore()
 async function addRealDoryPersona() {
   try {
     const coachId = 'vfEzchS1EVbsu73U1u8XRXwKBSW2' // Crucible1
-    console.log(`🎤 Adding REAL Dory persona to coach: ${coachId}\n`)
+    console.log(`🎤 Adding REAL Dory persona to coach: ${'[COACH_ID]')
 
     // This is the ACTUAL voice capture data the user filled out
     const voiceCaptureData = {

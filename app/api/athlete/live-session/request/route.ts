@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString()
     }, { userId: athleteId, severity: 'low' })
 
-    console.log(`✅ Live session request created: ${sessionRef.id} by athlete ${athleteId}`)
+    console.log(`✅ Live session request created: ${sessionRef.id} by athlete [ATHLETE_ID]`)
 
     // Send email notification to coach if assigned
     if (coachId) {

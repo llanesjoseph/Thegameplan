@@ -102,7 +102,7 @@ async function checkVoiceData() {
         console.log(`   - personalityTraits: ${vcData.personalityTraits.join(', ')}`)
       }
 
-      console.log(`   - voiceCaptureCompleteness: ${userData.voiceCaptureCompleteness || 'unknown'}`)
+      console.log(`   - [ID]: ${userData.[ID] || 'unknown'}`)
     } else {
       console.log('\n❌ NO voiceCaptureData found')
     }

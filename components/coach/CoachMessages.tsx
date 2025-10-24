@@ -41,7 +41,7 @@ export default function CoachMessages({ className = '' }: CoachMessagesProps) {
   const fetchMessages = async () => {
     try {
       setLoading(true)
-      console.log('Fetching messages for user:', user?.uid, user?.email)
+      console.log('Fetching messages for user:', '[USER_ID]', user?.email)
       const response = await fetch(`/api/coach/messages?coachId=${user?.uid}`)
       const data = await response.json()
 

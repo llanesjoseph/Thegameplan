@@ -33,7 +33,7 @@ export async function generateStaticParams() {
       );
       
       fs.writeFileSync(fullPath, content);
-      console.log(`✅ Added generateStaticParams to ${routePath}`);
+      console.log(`✅ Added [ID] to ${routePath}`);
     }
   }
 });

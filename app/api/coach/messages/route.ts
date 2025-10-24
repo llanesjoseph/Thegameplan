@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    console.log('Fetching messages for coach:', coachId)
+    console.log('Fetching messages for coach:', '[COACH_ID]')
 
     // First, try to find the coach by the provided ID
     let actualCoachId = coachId
@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log(`Updating message ${messageId} with action: ${action}`)
+    console.log(`Updating message [MESSAGE_ID]`)
 
     const messageRef = adminDb.collection('messages').doc(messageId)
     const messageDoc = await messageRef.get()
@@ -129,7 +129,7 @@ export async function POST(request: NextRequest) {
 
     await messageRef.update(updateData)
 
-    console.log(`Message ${messageId} updated successfully`)
+    console.log(`Message [MESSAGE_ID] updated successfully`)
 
     return NextResponse.json({
       success: true,

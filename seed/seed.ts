@@ -326,7 +326,7 @@ async function seed() {
 
   for (const application of superadminApplications) {
     await addDoc(collection(db, "contributorApplications"), application)
-    console.log("✅ Seeded: contributorApplications (superadmin)")
+    console.log("✅ Seeded: [ID] (superadmin)")
   }
 
   // 5. Coaching Requests

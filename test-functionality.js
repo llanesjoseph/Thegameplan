@@ -34,8 +34,8 @@ try {
   })
 
   console.log('   ✅ All sport contexts properly structured')
-  console.log('   ✅ Basketball context:', sportContextRegistry.basketball.coachName)
-  console.log('   ✅ Tennis context:', sportContextRegistry.tennis.coachName)
+  console.log('   ✅ Basketball context:', [ID].basketball.coachName)
+  console.log('   ✅ Tennis context:', [ID].tennis.coachName)
 } catch (err) {
   console.error('   ❌ AI Service Error:', err.message)
   process.exit(1)
@@ -87,7 +87,7 @@ try {
   const { processVoiceCaptureData } = require('./lib/voice-capture-service.ts')
 
   console.log('   ✅ Voice capture service exports working')
-  console.log('   ✅ processVoiceCaptureData function available')
+  console.log('   ✅ [ID] function available')
 } catch (err) {
   console.error('   ❌ Voice Capture Error:', err.message)
   process.exit(1)

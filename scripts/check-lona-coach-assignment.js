@@ -41,12 +41,12 @@ async function checkLonaCoachAssignment() {
     console.log(`Display Name: ${userData.displayName}`)
     console.log(`Email: ${userData.email}`)
     console.log(`Role: ${userData.role}`)
-    console.log(`Athlete ID: ${userData.athleteId || 'N/A'}`)
+    console.log(`Athlete ID: ${userData.'[ATHLETE_ID]')
 
     console.log(`\n\n👨‍🏫 COACH ASSIGNMENT FIELDS:`)
     console.log('─'.repeat(80))
     console.log(`creatorUid: ${userData.creatorUid || '❌ NOT SET'}`)
-    console.log(`coachId: ${userData.coachId || '❌ NOT SET'}`)
+    console.log(`'[COACH_ID]')
     console.log(`assignedCoachId: ${userData.assignedCoachId || '❌ NOT SET'}`)
 
     // Check which fields are correctly set
@@ -57,7 +57,7 @@ async function checkLonaCoachAssignment() {
     console.log(`\n\n✅ VERIFICATION:`)
     console.log('─'.repeat(80))
     console.log(`creatorUid matches: ${hasCreatorUid ? '✅ YES' : '❌ NO'}`)
-    console.log(`coachId matches: ${hasCoachId ? '✅ YES' : '❌ NO'}`)
+    console.log(`'[COACH_ID]')
     console.log(`assignedCoachId matches: ${hasAssignedCoachId ? '✅ YES' : '❌ NO'}`)
 
     if (!hasCreatorUid && !hasCoachId && !hasAssignedCoachId) {
@@ -65,7 +65,7 @@ async function checkLonaCoachAssignment() {
       console.log(`\nExpected all three fields to contain: ${expectedCoachUid}`)
       console.log(`But found:`)
       console.log(`  creatorUid: ${userData.creatorUid || 'NOT SET'}`)
-      console.log(`  coachId: ${userData.coachId || 'NOT SET'}`)
+      console.log(`  '[COACH_ID]')
       console.log(`  assignedCoachId: ${userData.assignedCoachId || 'NOT SET'}`)
     } else if (hasCreatorUid && hasCoachId && hasAssignedCoachId) {
       console.log(`\n✅ All coach assignment fields are correctly set!`)
@@ -115,11 +115,11 @@ async function checkLonaCoachAssignment() {
 
       if (athleteDoc.exists) {
         const athleteData = athleteDoc.data()
-        console.log(`\n📋 ATHLETE DOCUMENT: ${userData.athleteId}`)
+        console.log(`\n📋 ATHLETE DOCUMENT: ${userData.'[ATHLETE_ID]')
         console.log(`  creatorUid: ${athleteData.creatorUid || '❌ NOT SET'}`)
         console.log(`  creatorUid matches: ${athleteData.creatorUid === expectedCoachUid ? '✅ YES' : '❌ NO'}`)
       } else {
-        console.log(`❌ Athlete document not found: ${userData.athleteId}`)
+        console.log(`❌ Athlete document not found: ${userData.'[ATHLETE_ID]')
       }
     }
 

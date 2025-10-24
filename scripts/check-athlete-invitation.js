@@ -54,7 +54,7 @@ async function checkAthleteInvitation() {
         console.log(`Email (stored): ${inv.athleteEmail}`)
         console.log(`Created by: ${inv.createdByName || 'Unknown'} (${inv.createdBy || 'N/A'})`)
         console.log(`Coach UID (creatorUid): ${inv.creatorUid || '❌ NOT SET'}`)
-        console.log(`Coach ID (coachId): ${inv.coachId || 'N/A'}`)
+        console.log(`Coach ID ('[COACH_ID]'): ${inv.coachId || 'N/A'}`)
         console.log(`Coach Name: ${inv.coachName || 'N/A'}`)
         console.log(`Status: ${inv.status}`)
         console.log(`Role: ${inv.role || inv.type}`)
@@ -76,7 +76,7 @@ async function checkAthleteInvitation() {
       console.log(`Role/Type: ${data.role || data.type}`)
       console.log(`\n👤 COACH ASSIGNMENT:`)
       console.log(`  creatorUid: ${data.creatorUid || '❌ NOT SET'}`)
-      console.log(`  coachId: ${data.coachId || 'N/A'}`)
+      console.log(`  '[COACH_ID]')
       console.log(`  coachName: ${data.coachName || 'N/A'}`)
       console.log(`\n📋 METADATA:`)
       console.log(`  Created by (admin): ${data.createdByName || 'Unknown'} (${data.createdBy || 'N/A'})`)
@@ -106,7 +106,7 @@ async function checkAthleteInvitation() {
         console.log(`Role: ${userData.role}`)
         console.log(`\n👨‍🏫 COACH ASSIGNMENTS:`)
         console.log(`  creatorUid: ${userData.creatorUid || '❌ NOT SET'}`)
-        console.log(`  coachId: ${userData.coachId || '❌ NOT SET'}`)
+        console.log(`  '[COACH_ID]')
         console.log(`  assignedCoachId: ${userData.assignedCoachId || '❌ NOT SET'}`)
 
         // Get coach info if coachId is set

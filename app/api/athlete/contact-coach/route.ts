@@ -53,10 +53,10 @@ export async function POST(request: NextRequest) {
     const sanitizedSubject = subject.trim().substring(0, 100)
     const sanitizedMessage = message.trim().substring(0, 1000)
 
-    console.log('Contact coach request started', { athleteId, coachId, subjectLength: sanitizedSubject.length, messageLength: sanitizedMessage.length })
+    console.log('Contact coach request started', { athleteId: '[ATHLETE_ID]', coachId: '[COACH_ID]', subjectLength: sanitizedSubject.length, messageLength: sanitizedMessage.length })
 
     // Verify athlete exists and get their info
-    console.log('Fetching athlete data', { athleteId })
+    console.log('Fetching athlete data', { athleteId: '[ATHLETE_ID]' })
     const athleteDoc = await adminDb.collection('users').doc(athleteId).get()
     if (!athleteDoc.exists) {
       console.error('Athlete not found', { athleteId })
@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify coach exists and get their info
-    console.log('Fetching coach data', { coachId })
+    console.log('Fetching coach data', { coachId: '[COACH_ID]' })
     const coachDoc = await adminDb.collection('users').doc(coachId).get()
     if (!coachDoc.exists) {
       console.error('Coach not found', { coachId })
@@ -129,12 +129,12 @@ export async function POST(request: NextRequest) {
       repliedAt: null
     }
 
-    console.log('Creating message', { messageId, athleteName: messageData.athleteName, coachName: messageData.coachName })
+    console.log('Creating message', { messageId: '[MESSAGE_ID]', athleteName: messageData.athleteName, coachName: messageData.coachName })
 
     // Save to messages collection with error handling
     try {
       await adminDb.collection('messages').add(messageData)
-      console.log('Message saved successfully', { messageId })
+      console.log('Message saved successfully', { messageId: '[MESSAGE_ID]' })
     } catch (dbError) {
       console.error('Failed to save message to database', { messageId, error: dbError })
       return NextResponse.json(
@@ -144,7 +144,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create notification for coach
-    console.log('Creating notification for coach', { coachId })
+    console.log('Creating notification for coach', { coachId: '[COACH_ID]' })
     const notificationData = {
       userId: coachId,
       type: 'new_message',
@@ -161,7 +161,7 @@ export async function POST(request: NextRequest) {
 
     try {
       await adminDb.collection('notifications').add(notificationData)
-      console.log('Notification created successfully', { coachId })
+      console.log('Notification created successfully', { coachId: '[COACH_ID]' })
     } catch (notificationError) {
       console.error('Failed to create notification', { coachId, error: notificationError })
       // Don't fail the request if notification fails
@@ -209,7 +209,7 @@ export async function POST(request: NextRequest) {
     }
 
     const duration = Date.now() - startTime
-    console.log('Contact coach request completed successfully', { messageId, duration: `${duration}ms` })
+    console.log('Contact coach request completed successfully', { messageId: '[MESSAGE_ID]', duration: `${duration}ms` })
 
     return NextResponse.json({
       success: true,

@@ -115,7 +115,7 @@ async function diagnoseAllUsers() {
     console.log('1. Run: firebase login --reauth');
     console.log('2. Deploy Firestore rules: firebase deploy --only firestore:rules');
     console.log('3. Deploy Cloud Functions:');
-    console.log('   firebase deploy --only functions:enforceInvitationRole,functions:dailyRoleConsistencyCheck,functions:manualRoleEnforcement');
+    console.log('   firebase deploy --only functions:[ID],functions:[ID],functions:[ID]');
     console.log('');
     console.log('⚡ Once deployed, ALL mismatches will be auto-fixed within SECONDS.');
     console.log('');

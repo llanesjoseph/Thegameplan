@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
     const docRef = await adminDb.collection('submissions').add(submissionData);
     const submissionId = docRef.id;
 
-    console.log('Created real submission:', submissionId);
+    console.log('Created real submission:', '[SUBMISSION_ID]');
 
     return NextResponse.json({
       submissionId,

@@ -16,7 +16,7 @@ const db = admin.firestore()
 async function checkVoiceTraits() {
   try {
     const coachId = 'vfEzchS1EVbsu73U1u8XRXwKBSW2' // Crucible1
-    console.log(`🔍 Checking voice traits for coach: ${coachId}\n`)
+    console.log(`🔍 Checking voice traits for coach: ${'[COACH_ID]')
 
     const userDoc = await db.collection('users').doc(coachId).get()
     const userData = userDoc.data()

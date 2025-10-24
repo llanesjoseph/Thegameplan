@@ -91,7 +91,7 @@ async function fixIncompleteOnboarding() {
               if (needsCoachAssignment) {
                 console.log(`   → Adding coach assignment: ${invitationData.creatorUid}`)
               } else if (userData.coachId !== invitationData.creatorUid) {
-                console.log(`   → Correcting coach assignment from ${userData.coachId} to ${invitationData.creatorUid}`)
+                console.log(`   → Correcting coach assignment from ${userData.'[COACH_ID]')
               }
             }
 

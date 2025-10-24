@@ -52,7 +52,7 @@ async function checkAthleteFullRecord() {
     console.log('\n' + '='.repeat(80))
     console.log('COACH ASSIGNMENT')
     console.log('=' .repeat(80))
-    console.log(`coachId: ${userData.coachId || 'NOT SET'}`)
+    console.log(`'[COACH_ID]')
     console.log(`assignedCoachId: ${userData.assignedCoachId || 'NOT SET'}`)
 
     // Check if there's an athletes document

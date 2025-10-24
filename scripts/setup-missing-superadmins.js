@@ -130,7 +130,7 @@ async function setupMissingSuperadmins(lonaUID, merlineUID) {
 }
 
 // Instructions
-console.log(`\n🚀 Missing Superadmins Setup Ready!\n==============================\n\nRequired Steps:\n1. Have both users sign in to the platform first:\n   • LonaLorraine.Vincent@gmail.com\n   • merlinesaintil@gmail.com\n\n2. Get their UIDs from Firebase Console > Authentication\n\n3. Run: setupMissingSuperadmins(lonaUID, merlineUID)\n\nExample:\nsetupMissingSuperadmins(\n  'def456lona...',\n  'ghi789merline...'\n)\n`);
+console.log(`\n🚀 Missing Superadmins Setup Ready!\n==============================\n\nRequired Steps:\n1. Have both users sign in to the platform first:\n   • LonaLorraine.Vincent@gmail.com\n   • merlinesaintil@gmail.com\n\n2. Get their UIDs from Firebase Console > Authentication\n\n3. Run: [ID](lonaUID, merlineUID)\n\nExample:\nsetupMissingSuperadmins(\n  'def456lona...',\n  'ghi789merline...'\n)\n`);
 
 // Make function globally available
 window.setupMissingSuperadmins = setupMissingSuperadmins;

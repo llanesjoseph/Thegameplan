@@ -26,7 +26,7 @@ async function checkLona() {
       console.log('roleProtected:', data.roleProtected);
       console.log('manuallySetRole:', data.manuallySetRole);
       console.log('roleSource:', data.roleSource);
-      console.log('roleLockedByInvitation:', data.roleLockedByInvitation);
+      console.log('[ID]:', data.[ID]);
       console.log('createdAt:', data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt);
       console.log('========================================');
     });
@@ -36,7 +36,7 @@ async function checkLona() {
       .where('recipientName', '==', 'Lona Vincent')
       .get();
 
-    console.log(`\n📨 Found ${adminInvitationsSnapshot.size} admin invitations for Lona Vincent:`);
+    console.log(`\n📨 Found ${[ID].size} admin invitations for Lona Vincent:`);
     
     adminInvitationsSnapshot.forEach(doc => {
       const data = doc.data();

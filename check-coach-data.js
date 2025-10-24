@@ -25,7 +25,7 @@ async function checkCoachData() {
     const user = usersSnap.docs[0];
     const coachId = user.id;
     console.log('===== COACH DATA AUDIT =====');
-    console.log('Coach ID:', coachId);
+    console.log('Coach ID:', '[COACH_ID]');
     console.log('Display Name:', user.data().displayName);
     console.log('Sport:', user.data().sport);
     console.log('Bio:', user.data().bio?.substring(0, 100) + '...');
@@ -38,7 +38,7 @@ async function checkCoachData() {
       const vpData = voiceProfile.data();
       console.log('Completeness Score:', vpData.completenessScore + '%');
       console.log('Specialties:', vpData.technicalAuthority?.specialtyAreas || []);
-      console.log('Catchphrases:', vpData.responsePatterns?.encouragementPatterns?.slice(0, 3) || []);
+      console.log('Catchphrases:', vpData.responsePatterns?.[ID]?.slice(0, 3) || []);
     }
 
     // Check creator profile

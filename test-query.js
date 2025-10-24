@@ -10,7 +10,7 @@ const db = admin.firestore();
 
 async function testQuery() {
   try {
-    console.log('Testing query for creatorUid: OQwohokow3NC9QTBLIFSoIK7AzRQ2');
+    console.log('Testing query for creatorUid: [ID]');
 
     const lessonsSnapshot = await db
       .collection('content')

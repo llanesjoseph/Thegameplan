@@ -64,7 +64,7 @@ export default function AthleteGearBrowsePage({ searchParams }: { searchParams: 
       if (response.ok) {
         const data = await response.json()
         setCoachId(data.coachId)
-        console.log('[GEAR-SHOP] Coach ID loaded:', data.coachId)
+        console.log('[GEAR-SHOP] Coach ID loaded: [COACH_ID]')
       } else {
         console.error('Failed to load coach ID:', response.status)
       }

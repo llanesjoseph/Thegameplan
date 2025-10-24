@@ -130,7 +130,7 @@ async function seedAdvancedData() {
 
   for (const application of contributorApplications) {
     await addDoc(collection(db, "contributorApplications"), application)
-    console.log(`✅ Seeded: contributorApplications (${application.firstName} ${application.lastName})`)
+    console.log(`✅ Seeded: [ID] (${application.firstName} ${application.lastName})`)
   }
 
   // ===== 2. ANALYTICS DATA =====

@@ -86,7 +86,7 @@ async function detailedUserReport() {
   console.log('═══════════════════════════════════════════════════════════\n');
   console.log(`   Total Users: ${users.length}`);
   console.log(`   With Invitation Role: ${withInvitationRole.length}`);
-  console.log(`   Without Invitation Role: ${withoutInvitationRole.length}`);
+  console.log(`   Without Invitation Role: ${[ID].length}`);
   console.log(`   Current Mismatches: ${mismatches.length}`);
   console.log(`   Users with Auto-Corrections: ${autoCorrections.length}`);
   console.log(`   Users with Manual Fixes: ${manualFixes.length}`);
@@ -116,9 +116,9 @@ async function detailedUserReport() {
   console.log('🔧 DEPLOYMENT STATUS:');
   console.log('═══════════════════════════════════════════════════════════\n');
   console.log('Cloud Functions needed to prevent future issues:');
-  console.log('   - enforceInvitationRole (real-time trigger)');
-  console.log('   - dailyRoleConsistencyCheck (scheduled)');
-  console.log('   - manualRoleEnforcement (callable)');
+  console.log('   - [ID] (real-time trigger)');
+  console.log('   - [ID] (scheduled)');
+  console.log('   - [ID] (callable)');
   console.log('');
   console.log('Run: firebase deploy --only functions');
   console.log('');

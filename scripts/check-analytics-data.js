@@ -103,7 +103,7 @@ async function checkAnalyticsData() {
     console.log(`✓ Content with Views: ${contentWithViews.length}/${contentSnapshot.size}`);
 
     const contentWithCreatorUid = contentSnapshot.docs.filter(doc => doc.data().creatorUid);
-    console.log(`✓ Content with CreatorUid: ${contentWithCreatorUid.length}/${contentSnapshot.size}`);
+    console.log(`✓ Content with CreatorUid: ${[ID].length}/${contentSnapshot.size}`);
 
     console.log('\n' + '='.repeat(60));
     console.log('✅ Data check complete!\n');

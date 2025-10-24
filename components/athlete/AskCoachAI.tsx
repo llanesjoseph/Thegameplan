@@ -34,7 +34,7 @@ export default function AskCoachAI({ coachId, coachName, sport }: AskCoachAIProp
   useEffect(() => {
     if (!user || !coachId) return
 
-    console.log('📡 Setting up real-time chat listener for user:', user.uid, 'coach:', coachId)
+    console.log('📡 Setting up real-time chat listener for user:', user.uid, 'coach:', '[COACH_ID]')
 
     const chatQuery = query(
       collection(db, 'chat_messages'),

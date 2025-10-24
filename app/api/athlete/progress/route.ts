@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
         lastActivity: FieldValue.serverTimestamp()
       })
 
-      console.log(`✅ Athlete ${athleteId} marked lesson ${lessonId} as complete`)
+      console.log(`✅ Athlete [ATHLETE_ID] progress updated`)
 
       return NextResponse.json({
         success: true,
@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
         lastActivity: FieldValue.serverTimestamp()
       })
 
-      console.log(`✅ Athlete ${athleteId} unmarked lesson ${lessonId}`)
+      console.log(`✅ Athlete [ATHLETE_ID] progress updated`)
 
       return NextResponse.json({
         success: true,

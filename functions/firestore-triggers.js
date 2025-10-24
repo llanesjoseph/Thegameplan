@@ -62,7 +62,7 @@ exports.onLessonPublished = functions.firestore
       const rosterDoc = await db.doc(`coach_rosters/${coachId}`).get();
 
       if (!rosterDoc.exists) {
-        console.log(`⚠️ No roster found for coach ${coachId}. Creating roster...`);
+        console.log(`⚠️ No roster found for coach ${'[COACH_ID]');
 
         // Create roster by finding all athletes assigned to this coach
         const athletesSnapshot = await db.collection('users')
@@ -77,7 +77,7 @@ exports.onLessonPublished = functions.firestore
           .map(doc => doc.id);
 
         if (assignedAthletes.length === 0) {
-          console.log(`No athletes assigned to coach ${coachId}`);
+          console.log(`No athletes assigned to coach ${'[COACH_ID]');
           return null;
         }
 
@@ -90,7 +90,7 @@ exports.onLessonPublished = functions.firestore
           updatedAt: admin.firestore.FieldValue.serverTimestamp()
         });
 
-        console.log(`✅ Created roster for coach ${coachId} with ${assignedAthletes.length} athletes`);
+        console.log(`✅ Created roster for coach ${'[COACH_ID]');
 
         // Continue with delivery
         await deliverLessonToAthletes(assignedAthletes, lessonId, coachId);
@@ -100,7 +100,7 @@ exports.onLessonPublished = functions.firestore
       const athletes = rosterDoc.data().athletes || [];
 
       if (athletes.length === 0) {
-        console.log(`Coach ${coachId} has no athletes in roster`);
+        console.log(`Coach ${'[COACH_ID]');
         return null;
       }
 
@@ -135,7 +135,7 @@ async function deliverLessonToAthletes(athleteIds, lessonId, coachId) {
   }
 
   await batch.commit();
-  console.log(`✅ Delivered lesson ${lessonId} to ${athleteIds.length} athletes`);
+  console.log(`✅ Delivered lesson ${lessonId} to ${'[ATHLETE_ID]');
 }
 
 // ============================================================================
@@ -271,7 +271,7 @@ exports.onLessonCompleted = functions.firestore
         return null;
       }
 
-      console.log(`✅ Athlete ${athleteId} completed ${newCompletions.length} new lessons`);
+      console.log(`✅ Athlete ${'[ATHLETE_ID]');
 
       // Calculate completion rate
       const totalLessons = after.availableLessons.length;
@@ -284,7 +284,7 @@ exports.onLessonCompleted = functions.firestore
         lastActivity: admin.firestore.FieldValue.serverTimestamp()
       });
 
-      console.log(`📊 Updated completion rate for athlete ${athleteId}: ${completionRate}%`);
+      console.log(`📊 Updated completion rate for athlete ${'[ATHLETE_ID]');
 
       return null;
 

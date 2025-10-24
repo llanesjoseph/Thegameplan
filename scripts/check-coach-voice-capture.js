@@ -19,7 +19,7 @@ const db = admin.firestore()
 async function checkCoachVoiceCapture() {
   try {
     const coachId = 'vfEzchS1EVbsu73U1u8XRXwKBSW2' // Crucible1
-    console.log(`🔍 Checking voice capture for coach: ${coachId}\n`)
+    console.log(`🔍 Checking voice capture for coach: ${'[COACH_ID]')
 
     // Check users collection
     const userDoc = await db.collection('users').doc(coachId).get()
@@ -88,7 +88,7 @@ async function checkCoachVoiceCapture() {
     if (voiceCapturesSnapshot.empty) {
       console.log('❌ No voice captures found')
     } else {
-      console.log(`Found ${voiceCapturesSnapshot.docs.length} voice capture(s):\n`)
+      console.log(`Found ${[ID].docs.length} voice capture(s):\n`)
       voiceCapturesSnapshot.docs.forEach((doc, index) => {
         const data = doc.data()
         console.log(`Voice Capture ${index + 1}:`)

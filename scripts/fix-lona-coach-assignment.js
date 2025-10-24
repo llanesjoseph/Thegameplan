@@ -44,9 +44,9 @@ async function fixLonaCoachAssignment() {
     console.log(`Email: ${userData.email}`)
     console.log(`Role: ${userData.role}`)
     console.log(`creatorUid: ${userData.creatorUid || '❌ NOT SET'}`)
-    console.log(`coachId: ${userData.coachId || '❌ NOT SET'}`)
+    console.log(`'[COACH_ID]')
     console.log(`assignedCoachId: ${userData.assignedCoachId || '❌ NOT SET'}`)
-    console.log(`athleteId: ${userData.athleteId || '❌ NOT SET'}`)
+    console.log(`'[ATHLETE_ID]')
     console.log(`invitationId: ${userData.invitationId || '❌ NOT SET'}`)
 
     // Update the user document with coach assignments
@@ -76,7 +76,7 @@ async function fixLonaCoachAssignment() {
     console.log(`\n\n✅ UPDATED STATE:`)
     console.log('─'.repeat(80))
     console.log(`creatorUid: ${updatedData.creatorUid}`)
-    console.log(`coachId: ${updatedData.coachId}`)
+    console.log(`'[COACH_ID]')
     console.log(`assignedCoachId: ${updatedData.assignedCoachId}`)
     console.log(`invitationId: ${updatedData.invitationId}`)
 

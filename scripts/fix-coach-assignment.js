@@ -36,8 +36,8 @@ async function fixCoachAssignment() {
     const athleteData = athleteDoc.data()
     const athleteId = athleteDoc.id
 
-    console.log(`✅ Found athlete: ${athleteId}`)
-    console.log(`   Current coach: ${athleteData.coachId}`)
+    console.log(`✅ Found athlete: ${'[ATHLETE_ID]')
+    console.log(`   Current coach: ${athleteData.'[COACH_ID]')
 
     // Get the invitation
     const invitationId = athleteData.invitationId

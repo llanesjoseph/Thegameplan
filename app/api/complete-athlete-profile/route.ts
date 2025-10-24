@@ -121,7 +121,7 @@ export async function POST(request: NextRequest) {
     }
 
     await adminDb.collection('athletes').doc(athleteId).set(athleteData)
-    console.log(`✅ [COMPLETE-PROFILE] Created athlete document: ${athleteId} with coach: ${coachUid}`)
+    console.log(`✅ [COMPLETE-PROFILE] Created athlete document: [ATHLETE_ID]`)
 
     // Check if user document already exists (in case they're also a coach)
     const existingUserDoc = await adminDb.collection('users').doc(userRecord.uid).get()
@@ -159,7 +159,7 @@ export async function POST(request: NextRequest) {
     }
 
     await adminDb.collection('users').doc(userRecord.uid).set(userDocData, { merge: true })
-    console.log(`✅ [COMPLETE-PROFILE] Created user document - role: ${finalRole}, coachId: ${coachUid}, assignedCoachId: ${coachUid}`)
+    console.log(`✅ [COMPLETE-PROFILE] Created user document - role: ${finalRole}, '[COACH_ID]', assignedCoachId: ${coachUid}`)
 
     // CRITICAL: Set custom claims for Firebase Auth so Storage rules work
     try {
@@ -272,8 +272,8 @@ export async function POST(request: NextRequest) {
       }
     } else {
       console.log(`✅ [COMPLETE-PROFILE] VERIFICATION PASSED!`)
-      console.log(`   - Athlete ${athleteId} has coachId: ${athleteCoach}`)
-      console.log(`   - User ${userRecord.uid} has coachId: ${userCoach}`)
+      console.log(`   - Athlete [ATHLETE_ID] has coachId: [COACH_ID]`)
+      console.log(`   - User [USER_ID] has coachId: [COACH_ID]`)
     }
 
     return NextResponse.json({

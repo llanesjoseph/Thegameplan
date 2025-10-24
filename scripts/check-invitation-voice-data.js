@@ -16,7 +16,7 @@ const db = admin.firestore()
 async function checkInvitationVoiceData() {
   try {
     const coachId = 'vfEzchS1EVbsu73U1u8XRXwKBSW2' // Crucible1
-    console.log(`🔍 Checking invitation voice data for coach: ${coachId}\n`)
+    console.log(`🔍 Checking invitation voice data for coach: ${'[COACH_ID]')
 
     // Find the invitation for this coach
     const invitationsSnapshot = await db.collection('invitations')

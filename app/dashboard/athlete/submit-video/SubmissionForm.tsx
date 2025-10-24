@@ -168,7 +168,7 @@ export default function SubmissionForm({ user }: SubmissionFormProps) {
         }
 
         const { submissionId } = await response.json();
-        console.log('Submission created with ID:', submissionId);
+        console.log('Submission created with ID:', '[SUBMISSION_ID]');
 
         // Generate storage path (using user ID as team identifier)
         const storagePath = generateVideoStoragePath(

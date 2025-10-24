@@ -124,7 +124,7 @@ export default function QueueBypassPage() {
         throw new Error(data.error || 'Failed to claim submission');
       }
       
-      console.log('[COACH-QUEUE] Successfully claimed submission:', submissionId)
+      console.log('[COACH-QUEUE] Successfully claimed submission:', '[SUBMISSION_ID]')
     } catch (error) {
       console.error('Error claiming submission:', error);
     }
