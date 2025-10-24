@@ -41,11 +41,12 @@ export async function GET(request: NextRequest) {
     }
     
     const lastSessionDoc = snapshot.docs[0]
+    const sessionData = lastSessionDoc.data()
     const lastSession = {
       id: lastSessionDoc.id,
-      ...lastSessionDoc.data(),
-      startTime: lastSessionDoc.data().startTime?.toDate?.()?.toISOString() || null,
-      consentTimestamp: lastSessionDoc.data().consentTimestamp?.toDate?.()?.toISOString() || null,
+      ...sessionData,
+      startTime: sessionData.startTime?.toDate?.()?.toISOString() || null,
+      consentTimestamp: sessionData.consentTimestamp?.toDate?.()?.toISOString() || null,
     }
     
     const CURRENT_TERMS_VERSION = '1.0'
@@ -54,8 +55,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       data: {
-        needsTermsUpdate: lastSession.termsVersion !== CURRENT_TERMS_VERSION,
-        needsPrivacyUpdate: lastSession.privacyPolicyVersion !== CURRENT_PRIVACY_VERSION,
+        needsTermsUpdate: sessionData.termsVersion !== CURRENT_TERMS_VERSION,
+        needsPrivacyUpdate: sessionData.privacyPolicyVersion !== CURRENT_PRIVACY_VERSION,
         lastSession
       }
     })
