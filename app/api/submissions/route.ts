@@ -69,6 +69,7 @@ export async function POST(request: NextRequest) {
     const submissionData = {
       // Owner info
       athleteUid: userId,
+      athleteId: userId, // Add athleteId field for coach queue compatibility
       athleteName: userName,
       athletePhotoUrl: userPhoto || null,
       teamId: userId,
@@ -82,6 +83,7 @@ export async function POST(request: NextRequest) {
       videoFileName: body.videoFileName,
       videoFileSize: body.videoFileSize,
       videoStoragePath: storagePath,
+      videoUrl: null, // Will be set after upload completion
       videoDuration: body.videoDuration || 0,
 
       // Workflow state

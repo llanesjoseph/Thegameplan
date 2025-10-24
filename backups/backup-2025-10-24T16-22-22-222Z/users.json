@@ -1,0 +1,352 @@
+[
+  {
+    "id": "HFstEWRA82aqNNuFrqWztIHy1Su1",
+    "email": "lona@aikeysaintil.com",
+    "onboardedAt": "2025-10-13T19:53:58.000Z",
+    "invitationCode": "admin-1760384984260-ml62p9lzear",
+    "invitedBy": "lbC6UOZtC5ODlpxqqcrQmOGbwML2",
+    "createdAt": "2025-10-13T19:53:58.000Z",
+    "manuallySetRole": true,
+    "roleProtected": true,
+    "roleSource": "admin_invitation",
+    "invitationRole": "admin",
+    "profileComplete": false,
+    "preferences": {
+      "sports": [],
+      "notifications": {
+        "updates": true,
+        "email": true,
+        "push": true,
+        "lessons": true
+      }
+    },
+    "displayName": "Lona Vincent",
+    "isNewUser": false,
+    "signUpMethod": "google",
+    "accountStatus": "active",
+    "photoURL": "https://lh3.googleusercontent.com/a/ACg8ocKq8jBw4dIQVQTqgvhCGpESxaPNOsAWNAcCnwCtaTyb34etHg=s96-c",
+    "uid": "HFstEWRA82aqNNuFrqWztIHy1Su1",
+    "lastLoginAt": null,
+    "stats": {
+      "lessonsCompleted": 0,
+      "lessonsCreated": 0,
+      "loginCount": 1
+    },
+    "needsOnboarding": false,
+    "onboardingCompleted": false,
+    "signUpTimestamp": null,
+    "roleUpdateReason": "Enforced from invitation",
+    "roleUpdatedAt": "2025-10-13T20:38:59.000Z",
+    "role": "coach",
+    "updatedAt": "2025-10-23T21:59:12.000Z"
+  },
+  {
+    "id": "JYn0KnJmpmPlK6dH7W9C5Yy0Ioi1",
+    "createdAt": "2025-10-10T00:53:22.000Z",
+    "firstName": "jose",
+    "lastName": "llanes",
+    "uid": "JYn0KnJmpmPlK6dH7W9C5Yy0Ioi1",
+    "athleteId": "f1dQzMhK02Zn3MiUR2_WI",
+    "invitationId": "athlete-invite-1760056637158-b2vlnrvm8fc",
+    "coachId": "OQuvoho6w3NC9QTBLFSoIK7A2RQ2",
+    "email": "bigpenger@gmail.com",
+    "athleteProfile": {
+      "typicalTrainingDay": "weekends",
+      "onboardedAt": {
+        "_seconds": 1760061028,
+        "_nanoseconds": 968000000
+      }
+    },
+    "onboardingComplete": true,
+    "preferredSports": [
+      "Brazilian Jiu-Jitsu"
+    ],
+    "experienceYears": 0,
+    "profileComplete": false,
+    "accountStatus": "active",
+    "preferences": {
+      "sports": [],
+      "notifications": {
+        "updates": true,
+        "email": true,
+        "push": true,
+        "lessons": true
+      }
+    },
+    "displayName": "joseph llanes",
+    "needsOnboarding": false,
+    "isNewUser": false,
+    "onboardingCompleted": false,
+    "signUpMethod": "google",
+    "role": "athlete",
+    "stats": {
+      "lessonsCompleted": 0,
+      "lessonsCreated": 0,
+      "loginCount": 1
+    },
+    "signUpTimestamp": null,
+    "roleProtected": true,
+    "manuallySetRole": true,
+    "roleUpdateReason": "Known coach auto-correction",
+    "featured": false,
+    "socialLinks": {
+      "youtube": "",
+      "twitter": "",
+      "website": "",
+      "discord": "",
+      "tiktok": "",
+      "instagram": "",
+      "linkedin": ""
+    },
+    "achievements": [],
+    "bio": "learn and grow ",
+    "coachingPhilosophy": "",
+    "availability": "monday: Flexible, saturday: Flexible, sunday: Flexible",
+    "experience": "beginner",
+    "voiceCaptureData": null,
+    "assistantCoaches": [],
+    "averageRating": 0,
+    "voiceCaptureCompleteness": "none",
+    "gearRecommendations": [],
+    "profileImageUrl": "https://firebasestorage.googleapis.com/v0/b/gameplan-787a2.firebasestorage.app/o/users%2FJYn0KnJmpmPlK6dH7W9C5Yy0Ioi1%2Fprofile%2Favatar_1760079808400?alt=media&token=5bed7c1c-9452-42ba-830c-7841696e5ec3",
+    "studentsHelped": 0,
+    "languages": [
+      "visual"
+    ],
+    "verified": false,
+    "philosophy": {
+      "description": "",
+      "title": "",
+      "points": []
+    },
+    "certifications": [],
+    "userId": "JYn0KnJmpmPlK6dH7W9C5Yy0Ioi1",
+    "badges": [],
+    "lessonCount": 0,
+    "tagline": "",
+    "coachingCredentials": "",
+    "lastLoginAt": null,
+    "roleUpdatedAt": "2025-10-12T23:06:33.000Z",
+    "specialties": [
+      "Brazilian Jiu-Jitsu"
+    ],
+    "sport": "Brazilian Jiu-Jitsu",
+    "location": "San Francisco ",
+    "photoURL": "https://firebasestorage.googleapis.com/v0/b/gameplan-787a2.firebasestorage.app/o/users%2FJYn0KnJmpmPlK6dH7W9C5Yy0Ioi1%2Fprofile%2Favatar_1760399856433?alt=media&token=f3a7cb08-9944-4a97-a823-ef8c826074e6",
+    "updatedAt": "2025-10-13T23:58:09.635Z"
+  },
+  {
+    "id": "OQuvoho6w3NC9QTBLFSoIK7A2RQ2",
+    "uid": "OQuvoho6w3NC9QTBLFSoIK7A2RQ2",
+    "email": "llanes.joseph.m@gmail.com",
+    "displayName": "Joseph Llanes",
+    "role": "coach",
+    "createdAt": "2025-10-15T00:00:24.000Z",
+    "lastLoginAt": "2025-10-15T00:00:24.000Z",
+    "voiceDataMigrated": true,
+    "voiceCaptureCompleteness": "quick",
+    "voiceDataVersion": 2,
+    "voiceDataMigratedAt": "2025-10-17T19:32:14.000Z",
+    "voiceCaptureData": {
+      "catchphrases": [],
+      "keyStories": [],
+      "personalityTraits": [],
+      "captureMode": "quick"
+    },
+    "athletes": [
+      {
+        "id": "yWyu7ZchLUL27Bv4_DYMk",
+        "uid": "N1ssup6FSYSOAgIgEaP24vKcDGD3",
+        "name": "TESTTEST#3 Analytics",
+        "email": "crucibletester3@proton.me",
+        "sport": "Brazilian Jiu-Jitsu",
+        "skillLevel": "beginner",
+        "joinedAt": {
+          "_seconds": 1760487369,
+          "_nanoseconds": 708000000
+        }
+      },
+      {
+        "id": "CDfFGj1wLr1m2tXEGlDVa",
+        "uid": "POBAW4VwPCOR6IQ0uQDosBYj05Q2",
+        "name": "TESTER3 Analytics",
+        "email": "crucibletester3@proton.me",
+        "sport": "Brazilian Jiu-Jitsu",
+        "skillLevel": "beginner",
+        "joinedAt": {
+          "_seconds": 1760488914,
+          "_nanoseconds": 606000000
+        }
+      },
+      {
+        "id": "nnhhoSeOvi4UClLEBJFvY",
+        "uid": "A7gHpwxqLgeMtoayVeK6dpZ5fLf1",
+        "name": "LONA VINCENT",
+        "email": "lonalorraine.vincent@gmail.com",
+        "sport": "Brazilian Jiu-Jitsu",
+        "skillLevel": "intermediate",
+        "joinedAt": {
+          "_seconds": 1760636547,
+          "_nanoseconds": 413000000
+        }
+      },
+      {
+        "id": "vcWD0x0K1kI9Nfi1mQzAH",
+        "uid": "I71NQnRVuxW2jAzhFiQdSjckpPz2",
+        "name": "LONA VINCENT",
+        "email": "lonalorraine.vincent@gmail.com",
+        "sport": "Brazilian Jiu-Jitsu",
+        "skillLevel": "beginner",
+        "joinedAt": {
+          "_seconds": 1761078825,
+          "_nanoseconds": 412000000
+        }
+      },
+      {
+        "id": "fI2g-9OTjMSIq_OHzTyXB",
+        "uid": "6dLxRQtGVZN37TYg1RGa1xmK0vq1",
+        "name": "sadasdasd DSADSDsd",
+        "email": "ammphotostudiosf@gmail.com",
+        "sport": "Soccer",
+        "skillLevel": "advanced",
+        "joinedAt": {
+          "_seconds": 1761118478,
+          "_nanoseconds": 537000000
+        }
+      }
+    ],
+    "athleteCount": 5,
+    "lessonCount": 5,
+    "lastLessonCreatedAt": "2025-10-23T00:14:55.000Z"
+  },
+  {
+    "id": "lbC6UOZtC5ODlpxqqcrQmOGbwML2",
+    "firstName": "Joseph",
+    "lastName": "Admin",
+    "role": "superadmin",
+    "lastActive": "2025-10-07T18:52:59.000Z",
+    "autoProvisioned": true,
+    "lastUpdatedAt": "2025-10-07T18:52:59.000Z",
+    "displayName": "Joseph Llanes",
+    "permissions": {
+      "canSwitchRoles": true,
+      "canAccessAnalytics": true,
+      "canManageUsers": true,
+      "canReceivePayments": true,
+      "canCreateContent": true,
+      "canManageContent": true
+    },
+    "joinedAt": "2025-10-07T18:52:59.000Z",
+    "provisionedAt": "2025-10-07T18:52:59.000Z",
+    "creatorStatus": "approved",
+    "email": "joseph@crucibleanalytics.dev",
+    "profileComplete": false,
+    "accountStatus": "active",
+    "photoURL": "https://lh3.googleusercontent.com/a/ACg8ocLmlx_rY5PGAEkjd3oEHy8Q0mJuXgvzaykbja7GpIUOYfxgcA=s96-c",
+    "uid": "lbC6UOZtC5ODlpxqqcrQmOGbwML2",
+    "preferences": {
+      "sports": [],
+      "notifications": {
+        "updates": true,
+        "email": true,
+        "push": true,
+        "lessons": true
+      }
+    },
+    "needsOnboarding": false,
+    "isNewUser": false,
+    "onboardingCompleted": false,
+    "signUpMethod": "google",
+    "stats": {
+      "lessonsCompleted": 0,
+      "lessonsCreated": 0,
+      "loginCount": 1
+    },
+    "lastLoginAt": "2025-10-13T02:44:51.000Z",
+    "signUpTimestamp": "2025-10-13T02:44:51.000Z",
+    "createdAt": "2025-10-13T02:44:51.000Z",
+    "updatedAt": "2025-10-13T08:53:21.000Z"
+  },
+  {
+    "id": "skA8MrAshhh6FUh1d2lZSFJWeDg2",
+    "uid": "skA8MrAshhh6FUh1d2lZSFJWeDg2",
+    "email": "lonalorraine.vincent@gmail.com",
+    "displayName": "Lona Vincent",
+    "role": "athlete",
+    "createdAt": "2025-10-23T16:13:45.000Z",
+    "lastLoginAt": "2025-10-23T16:13:45.000Z",
+    "assignedCoachId": "xpXL0YsVg8U12roUXqTK7rUS6fs1",
+    "coachId": "xpXL0YsVg8U12roUXqTK7rUS6fs1",
+    "updatedAt": "2025-10-23T16:13:47.000Z"
+  },
+  {
+    "id": "xpXL0YsVg8U12roUXqTK7rUS6fs1",
+    "lastName": "Vincent",
+    "role": "coach",
+    "displayName": "Lona Vincent (Coach)",
+    "roleLockedByInvitation": true,
+    "invitationId": "inv_1761007000212_mo5npjaemx7",
+    "manuallySetRole": true,
+    "voiceCaptureData": null,
+    "createdAt": "2025-10-21T00:44:42.000Z",
+    "firstName": "Lona",
+    "invitationRole": "coach",
+    "uid": "xpXL0YsVg8U12roUXqTK7rUS6fs1",
+    "invitationType": "coach_invitation",
+    "lastLoginAt": "2025-10-21T00:44:42.000Z",
+    "phone": "",
+    "roleProtected": true,
+    "location": "",
+    "voiceCaptureCompleteness": "none",
+    "roleSource": "invitation",
+    "email": "lv255@cornell.edu",
+    "voiceTraits": [],
+    "photoURL": "https://lh3.googleusercontent.com/a/ACg8ocIc9VTCHvgy0NHIRhLDvkk24SLN_2QecPnr_ouvgpT6tNDV4g=s96-c",
+    "specialties": [],
+    "bio": "TESTING",
+    "experience": "7",
+    "sport": "",
+    "updatedAt": "2025-10-21T00:46:42.581Z",
+    "lessonCount": 1,
+    "lastLessonCreatedAt": "2025-10-21T00:50:10.000Z",
+    "athletes": [
+      {
+        "id": "7lY34t4St5mxajZ7EEyfx",
+        "uid": "woAd3OzkYpSMmb3xetaBm9scWXz1",
+        "name": "Joseph Testing",
+        "email": "crucibletester2@yahoo.com",
+        "sport": "Soccer",
+        "skillLevel": "beginner",
+        "joinedAt": {
+          "_seconds": 1761008066,
+          "_nanoseconds": 541000000
+        }
+      },
+      {
+        "id": "Q5UkkBsTVM4Qh1AuHlwLp",
+        "uid": "fdYMS0NfOuZCHnVDWN8W3oKxw303",
+        "name": "Joseph TEST",
+        "email": "crucibletester2@yahoo.com",
+        "sport": "Soccer",
+        "skillLevel": "beginner",
+        "joinedAt": {
+          "_seconds": 1761009193,
+          "_nanoseconds": 959000000
+        }
+      },
+      {
+        "id": "-qHJe_z220J_ztDlzfyQQ",
+        "uid": "skA8MrAshhh6FUh1d2lZSFJWeDg2",
+        "name": "Lona Vincent (Athlete)",
+        "email": "lonalorraine.vincent@gmail.com",
+        "sport": "Soccer",
+        "skillLevel": "beginner",
+        "joinedAt": {
+          "_seconds": 1761236026,
+          "_nanoseconds": 140000000
+        }
+      }
+    ],
+    "athleteCount": 3
+  }
+]
