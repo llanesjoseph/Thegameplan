@@ -126,52 +126,51 @@ export default function AthleteDashboard() {
       if (!user) return
 
       try {
-        const userRef = doc(db, 'users', user.uid)
-        const userDoc = await getDoc(userRef)
+        // Use secure API to get user role instead of client-side Firebase
+        const token = await user.getIdToken()
+        const response = await fetch('/api/user/role', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        })
 
-        if (userDoc.exists()) {
-          const userData = userDoc.data()
-          const userRole = userData?.role
+        if (response.ok) {
+          const data = await response.json()
+          if (data.success) {
+            const userRole = data.data.role
 
-          console.log('👤 User loaded:', {
-            email: user.email,
-            role: userRole,
-            displayName: userData?.displayName
-          })
-
-          // SAFETY CHECK: If user is NOT an athlete, redirect them
-          if (userRole && ['coach', 'admin', 'superadmin', 'assistant_coach'].includes(userRole)) {
-            console.log(`⚠️ User has role '${userRole}' - redirecting to correct dashboard`)
-            router.push(userRole === 'admin' || userRole === 'superadmin' ? '/dashboard/admin' : '/dashboard/coach-unified')
-            return
-          }
-
-          // Check if user also has coach role (dual role: athlete who is also a coach)
-          const userRoles = userData?.roles || []
-          setHasCoachRole(
-            userRole === 'coach' ||
-            userRole === 'assistant_coach' ||
-            userRoles.includes('coach') ||
-            userRoles.includes('assistant_coach')
-          )
-
-          // Load coach assignment
-          const extractedCoachId = userData?.coachId || userData?.assignedCoachId || null
-          setCoachId(extractedCoachId)
-
-          // CRITICAL: Log if coach assignment is missing
-          if (!extractedCoachId) {
-            console.error('⚠️ [ATHLETE-DASHBOARD] WARNING: No coach assignment found for athlete', {
-              athleteUid: user?.uid,
-              athleteEmail: user?.email,
-              userData: {
-                coachId: userData?.coachId,
-                assignedCoachId: userData?.assignedCoachId,
-                creatorUid: userData?.creatorUid
-              }
+            console.log('👤 User loaded:', {
+              email: user.email,
+              role: userRole,
+              displayName: user.displayName
             })
-          } else {
-            console.log('✅ [ATHLETE-DASHBOARD] Coach ID loaded:', extractedCoachId)
+
+            // SAFETY CHECK: If user is NOT an athlete, redirect them
+            if (userRole && ['coach', 'admin', 'superadmin', 'assistant_coach'].includes(userRole)) {
+              console.log(`⚠️ User has role '${userRole}' - redirecting to correct dashboard`)
+              router.push(userRole === 'admin' || userRole === 'superadmin' ? '/dashboard/admin' : '/dashboard/coach-unified')
+              return
+            }
+
+            // Check if user also has coach role (dual role: athlete who is also a coach)
+            setHasCoachRole(
+              userRole === 'coach' ||
+              userRole === 'assistant_coach'
+            )
+
+            // Load coach assignment - this will be handled by the coach data API
+            const extractedCoachId = null
+            setCoachId(extractedCoachId)
+
+            // CRITICAL: Log if coach assignment is missing
+            if (!extractedCoachId) {
+              console.error('⚠️ [ATHLETE-DASHBOARD] WARNING: No coach assignment found for athlete', {
+                athleteUid: user?.uid,
+                athleteEmail: user?.email
+              })
+            } else {
+              console.log('✅ [ATHLETE-DASHBOARD] Coach ID loaded:', extractedCoachId)
+            }
           }
         }
       } catch (error: any) {
