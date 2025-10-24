@@ -91,8 +91,15 @@ export default function SecureAthleteProfilePage() {
       setLoading(true)
       setError(null)
 
+      // Get auth token for secure API call
+      const token = await user!.getIdToken()
+
       // SECURITY: Use slug-based API to prevent ID exposure
-      const response = await fetch(`/api/secure-athlete/${slug}`)
+      const response = await fetch(`/api/secure-athlete/${slug}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
       const result = await response.json()
 
       if (!result.success) {
