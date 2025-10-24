@@ -19,6 +19,7 @@ export default function AthleteReviewDetailPage({
   const [isLoading, setIsLoading] = useState(true);
   const [newComment, setNewComment] = useState('');
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user && !loading) {
@@ -30,26 +31,36 @@ export default function AthleteReviewDetailPage({
 
     const fetchData = async () => {
       try {
-        const { getSubmission, getReviewBySubmission, getCommentsByReview } = await import('@/lib/data/video-critique');
+        // Use secure server-side API instead of client-side Firebase functions
+        const token = await user.getIdToken();
+        const response = await fetch(`/api/submissions/${params.submissionId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
 
-        const submissionData = await getSubmission(params.submissionId);
-        if (!submissionData || submissionData.athleteUid !== user.uid) {
-          throw new Error('Unauthorized');
-        }
-
-        setSubmission(submissionData);
-
-        if (submissionData.status === 'complete') {
-          const reviewData = await getReviewBySubmission(params.submissionId);
-          setReview(reviewData);
-
-          if (reviewData) {
-            const commentsData = await getCommentsByReview(reviewData.id);
-            setComments(commentsData);
+        if (!response.ok) {
+          if (response.status === 403) {
+            throw new Error('Unauthorized - You can only access your own submissions');
+          } else if (response.status === 404) {
+            throw new Error('Submission not found');
+          } else {
+            throw new Error('Failed to load submission details');
           }
         }
+
+        const data = await response.json();
+        
+        if (data.success) {
+          setSubmission(data.data.submission);
+          setReview(data.data.review);
+          setComments(data.data.comments || []);
+        } else {
+          throw new Error(data.error || 'Failed to load submission details');
+        }
       } catch (error) {
-        console.error('Error:', error);
+        console.error('Error loading submission details:', error);
+        setError(error instanceof Error ? error.message : 'Failed to load submission details');
       } finally {
         setIsLoading(false);
       }
@@ -60,24 +71,50 @@ export default function AthleteReviewDetailPage({
 
   const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newComment.trim() || !review || !user || !submission) return;
+    if (!newComment.trim() || !user || !submission) return;
 
     setIsSubmittingComment(true);
     try {
-      const { addComment, getCommentsByReview } = await import('@/lib/data/video-critique');
-      await addComment(submission.id, {
-        authorUid: user.uid,
-        authorName: user.displayName || user.email || 'Athlete',
-        authorPhotoUrl: user.photoURL || undefined,
-        authorRole: 'athlete',
-        content: newComment.trim(),
+      // Use secure server-side API for adding comments
+      const token = await user.getIdToken();
+      const response = await fetch(`/api/submissions/${submission.id}/comments`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content: newComment.trim(),
+          authorRole: 'athlete'
+        }),
       });
 
-      setNewComment('');
-      const updatedComments = await getCommentsByReview(review.id);
-      setComments(updatedComments);
+      if (!response.ok) {
+        throw new Error('Failed to add comment');
+      }
+
+      const data = await response.json();
+      
+      if (data.success) {
+        setNewComment('');
+        
+        // Refresh comments by refetching the submission data
+        const submissionResponse = await fetch(`/api/submissions/${submission.id}`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+        
+        if (submissionResponse.ok) {
+          const submissionData = await submissionResponse.json();
+          if (submissionData.success) {
+            setComments(submissionData.data.comments || []);
+          }
+        }
+      } else {
+        throw new Error(data.error || 'Failed to add comment');
+      }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error adding comment:', error);
+      alert('Failed to add comment. Please try again.');
     } finally {
       setIsSubmittingComment(false);
     }
@@ -95,6 +132,58 @@ export default function AthleteReviewDetailPage({
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mb-4"></div>
           <p className="text-gray-600">Loading review...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-2xl mx-auto">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+            <h2 className="text-lg font-semibold text-red-900 mb-2">Error Loading Review</h2>
+            <p className="text-red-800 mb-4">{error}</p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setError(null);
+                  setIsLoading(true);
+                  // Retry the fetch
+                  if (user) {
+                    const fetchData = async () => {
+                      try {
+                        const token = await user.getIdToken();
+                        const response = await fetch(`/api/submissions/${params.submissionId}`, {
+                          headers: { 'Authorization': `Bearer ${token}` },
+                        });
+                        if (response.ok) {
+                          const data = await response.json();
+                          if (data.success) {
+                            setSubmission(data.data.submission);
+                            setReview(data.data.review);
+                            setComments(data.data.comments || []);
+                          }
+                        }
+                      } catch (err) {
+                        setError('Failed to load submission details');
+                      } finally {
+                        setIsLoading(false);
+                      }
+                    };
+                    fetchData();
+                  }
+                }}
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+              >
+                Try Again
+              </button>
+              <Link href="/dashboard/athlete/reviews" className="inline-flex items-center px-4 py-2 text-red-600 hover:text-red-700 border border-red-300 rounded">
+                <ArrowLeft className="w-4 h-4 mr-1" />
+                Back to Reviews
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     );

@@ -1,104 +1,109 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { auth, adminDb } from '@/lib/firebase.admin';
-import { FieldValue } from 'firebase-admin/firestore';
+import { NextRequest, NextResponse } from 'next/server'
+import { auth, adminDb } from '@/lib/firebase.admin'
 
+export const runtime = 'nodejs'
+
+/**
+ * GET /api/submissions/[id]
+ * Fetch a single submission with review and comments data
+ * SECURITY: Only allows athletes to access their own submissions
+ */
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    // Verify authentication
-    const authHeader = request.headers.get('authorization');
+    // 1. Verify authentication
+    const authHeader = request.headers.get('authorization')
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const idToken = authHeader.split('Bearer ')[1];
-    await auth.verifyIdToken(idToken);
+    const token = authHeader.split('Bearer ')[1]
+    const decodedToken = await auth.verifyIdToken(token)
+    const userId = decodedToken.uid
 
-    // Fetch submission using Admin SDK
-    const submissionDoc = await adminDb.collection('submissions').doc(params.id).get();
-
+    // 2. Get submission data
+    const submissionDoc = await adminDb.collection('submissions').doc(params.id).get()
+    
     if (!submissionDoc.exists) {
-      return NextResponse.json(
-        { error: 'Submission not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Submission not found' }, { status: 404 })
     }
 
-    const submission = { id: submissionDoc.id, ...submissionDoc.data() };
-    return NextResponse.json(submission);
-  } catch (error) {
-    console.error('Error fetching submission:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch submission' },
-      { status: 500 }
-    );
-  }
-}
+    const submissionData = submissionDoc.data()
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    // Verify authentication
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // 3. SECURITY: Verify the user owns this submission
+    if (submissionData?.athleteUid !== userId) {
+      return NextResponse.json({ error: 'Forbidden - You can only access your own submissions' }, { status: 403 })
     }
 
-    const idToken = authHeader.split('Bearer ')[1];
-    const decodedToken = await auth.verifyIdToken(idToken);
-    const userId = decodedToken.uid;
-
-    // Parse request body
-    const updates = await request.json();
-
-    // Fetch submission to verify ownership using Admin SDK
-    const submissionDoc = await adminDb.collection('submissions').doc(params.id).get();
-
-    if (!submissionDoc.exists) {
-      return NextResponse.json(
-        { error: 'Submission not found' },
-        { status: 404 }
-      );
-    }
-
-    const submission = submissionDoc.data();
-
-    // Check permissions - only athlete owner or assigned coach can update
-    if (
-      submission?.athleteUid !== userId &&
-      submission?.claimedBy !== userId
-    ) {
-      return NextResponse.json(
-        { error: 'Forbidden - You can only update your own submissions' },
-        { status: 403 }
-      );
-    }
-
-    // Update submission using Admin SDK
-    const updateData = {
-      ...updates,
-      updatedAt: FieldValue.serverTimestamp(),
-    };
-
-    // Remove undefined values
-    Object.keys(updateData).forEach((key) => {
-      if (updateData[key] === undefined) {
-        delete updateData[key];
+    // 4. Get review data if submission is complete
+    let reviewData = null
+    if (submissionData?.status === 'complete' && submissionData?.reviewId) {
+      try {
+        const reviewDoc = await adminDb.collection('reviews').doc(submissionData.reviewId).get()
+        if (reviewDoc.exists) {
+          reviewData = reviewDoc.data()
+        }
+      } catch (error) {
+        console.warn('Could not fetch review data:', error)
       }
-    });
+    }
 
-    await adminDb.collection('submissions').doc(params.id).update(updateData);
+    // 5. Get comments data
+    let commentsData: any[] = []
+    try {
+      const commentsSnapshot = await adminDb
+        .collection('comments')
+        .where('submissionId', '==', params.id)
+        .orderBy('createdAt', 'asc')
+        .get()
 
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error('Error updating submission:', error);
+      commentsData = commentsSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        createdAt: doc.data().createdAt?.toDate?.()?.toISOString() || null
+      }))
+    } catch (error) {
+      console.warn('Could not fetch comments data:', error)
+    }
+
+    // 6. Format response data
+    const responseData = {
+      submission: {
+        id: submissionDoc.id,
+        ...submissionData,
+        createdAt: submissionData?.createdAt?.toDate?.()?.toISOString() || null,
+        updatedAt: submissionData?.updatedAt?.toDate?.()?.toISOString() || null,
+        submittedAt: submissionData?.submittedAt?.toDate?.()?.toISOString() || null,
+        reviewedAt: submissionData?.reviewedAt?.toDate?.()?.toISOString() || null,
+        slaDeadline: submissionData?.slaDeadline?.toDate?.()?.toISOString() || null,
+      },
+      review: reviewData ? {
+        id: submissionData?.reviewId,
+        ...reviewData,
+        createdAt: reviewData?.createdAt?.toDate?.()?.toISOString() || null,
+        updatedAt: reviewData?.updatedAt?.toDate?.()?.toISOString() || null,
+        publishedAt: reviewData?.publishedAt?.toDate?.()?.toISOString() || null,
+      } : null,
+      comments: commentsData
+    }
+
+    console.log(`[SUBMISSION-API] Successfully fetched submission ${params.id} for user ${userId}`)
+
+    return NextResponse.json({
+      success: true,
+      data: responseData
+    })
+
+  } catch (error: any) {
+    console.error('[SUBMISSION-API] Error fetching submission:', error)
     return NextResponse.json(
-      { error: 'Failed to update submission' },
+      { 
+        error: 'Failed to fetch submission details',
+        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      },
       { status: 500 }
-    );
+    )
   }
 }

@@ -1,269 +1,87 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/firebase.admin';
-import { getSubmission } from '@/lib/data/submissions';
-import {
-  createComment,
-  getSubmissionComments,
-  updateComment,
-  deleteComment,
-} from '@/lib/data/comments';
+import { NextRequest, NextResponse } from 'next/server'
+import { auth, adminDb } from '@/lib/firebase.admin'
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    // Verify authentication
-    const authHeader = request.headers.get('cookie');
-    const sessionCookie = authHeader
-      ?.split('; ')
-      .find((row) => row.startsWith('session='))
-      ?.split('=')[1];
+export const runtime = 'nodejs'
 
-    if (!sessionCookie) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const decodedToken = await auth.verifyIdToken(sessionCookie);
-    const userId = decodedToken.uid;
-
-    // Fetch submission to verify access
-    const submission = await getSubmission(params.id);
-
-    if (!submission) {
-      return NextResponse.json(
-        { error: 'Submission not found' },
-        { status: 404 }
-      );
-    }
-
-    // Check permissions - only athlete or assigned/claimed coach can view
-    const canView =
-      submission.athleteUid === userId ||
-      submission.claimedBy === userId ||
-      submission.coachId === userId;
-
-    if (!canView) {
-      return NextResponse.json(
-        { error: 'Access denied' },
-        { status: 403 }
-      );
-    }
-
-    // Get comments
-    const { comments } = await getSubmissionComments(params.id, 100); // Get up to 100 comments
-
-    return NextResponse.json({ comments });
-  } catch (error) {
-    console.error('Error fetching comments:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch comments' },
-      { status: 500 }
-    );
-  }
-}
-
+/**
+ * POST /api/submissions/[id]/comments
+ * Add a comment to a submission
+ * SECURITY: Only allows athletes to comment on their own submissions
+ */
 export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    // Verify authentication
-    const authHeader = request.headers.get('cookie');
-    const sessionCookie = authHeader
-      ?.split('; ')
-      .find((row) => row.startsWith('session='))
-      ?.split('=')[1];
-
-    if (!sessionCookie) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // 1. Verify authentication
+    const authHeader = request.headers.get('authorization')
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const decodedToken = await auth.verifyIdToken(sessionCookie);
-    const userId = decodedToken.uid;
-    const userEmail = decodedToken.email;
+    const token = authHeader.split('Bearer ')[1]
+    const decodedToken = await auth.verifyIdToken(token)
+    const userId = decodedToken.uid
 
-    // Parse request body
-    const {
-      content,
-      authorRole,
-      authorName,
-      authorPhotoUrl,
-      timestamp,
-      parentCommentId,
-    } = await request.json();
+    // 2. Parse request body
+    const body = await request.json()
+    const { content, authorRole = 'athlete' } = body
 
-    if (!content || !authorRole || !authorName) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      );
+    if (!content || !content.trim()) {
+      return NextResponse.json({ error: 'Comment content is required' }, { status: 400 })
     }
 
-    // Fetch submission to verify access
-    const submission = await getSubmission(params.id);
-
-    if (!submission) {
-      return NextResponse.json(
-        { error: 'Submission not found' },
-        { status: 404 }
-      );
+    // 3. Verify submission exists and user has access
+    const submissionDoc = await adminDb.collection('submissions').doc(params.id).get()
+    
+    if (!submissionDoc.exists) {
+      return NextResponse.json({ error: 'Submission not found' }, { status: 404 })
     }
 
-    // Check permissions - only athlete or assigned/claimed coach can comment
-    const canComment =
-      submission.athleteUid === userId ||
-      submission.claimedBy === userId ||
-      submission.coachId === userId;
+    const submissionData = submissionDoc.data()
 
-    if (!canComment) {
-      return NextResponse.json(
-        { error: 'Access denied' },
-        { status: 403 }
-      );
+    // 4. SECURITY: Verify the user owns this submission
+    if (submissionData?.athleteUid !== userId) {
+      return NextResponse.json({ error: 'Forbidden - You can only comment on your own submissions' }, { status: 403 })
     }
 
-    // Create comment
-    const commentId = await createComment(
-      params.id,
-      userId,
-      authorName,
-      authorPhotoUrl,
-      authorRole,
-      content,
-      timestamp,
-      parentCommentId
-    );
+    // 5. Create comment
+    const commentData = {
+      submissionId: params.id,
+      authorUid: userId,
+      authorName: decodedToken.name || decodedToken.email?.split('@')[0] || 'Athlete',
+      authorPhotoUrl: decodedToken.picture || null,
+      authorRole: authorRole,
+      content: content.trim(),
+      createdAt: new Date(),
+      edited: false
+    }
+
+    const commentRef = await adminDb.collection('comments').add(commentData)
+
+    // 6. Update comment count on submission
+    const currentCount = submissionData?.commentCount || 0
+    await adminDb.collection('submissions').doc(params.id).update({
+      commentCount: currentCount + 1,
+      updatedAt: new Date()
+    })
+
+    console.log(`[COMMENTS-API] Successfully added comment ${commentRef.id} to submission ${params.id} by user ${userId}`)
 
     return NextResponse.json({
       success: true,
-      commentId,
-    });
-  } catch (error) {
-    console.error('Error creating comment:', error);
+      commentId: commentRef.id,
+      message: 'Comment added successfully'
+    })
+
+  } catch (error: any) {
+    console.error('[COMMENTS-API] Error adding comment:', error)
     return NextResponse.json(
-      { error: 'Failed to create comment' },
+      { 
+        error: 'Failed to add comment',
+        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      },
       { status: 500 }
-    );
-  }
-}
-
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    // Verify authentication
-    const authHeader = request.headers.get('cookie');
-    const sessionCookie = authHeader
-      ?.split('; ')
-      .find((row) => row.startsWith('session='))
-      ?.split('=')[1];
-
-    if (!sessionCookie) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const decodedToken = await auth.verifyIdToken(sessionCookie);
-    const userId = decodedToken.uid;
-
-    // Parse request body
-    const { commentId, content } = await request.json();
-
-    if (!commentId || !content) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      );
-    }
-
-    // Verify comment ownership
-    const { getComment } = await import('@/lib/data/comments');
-    const comment = await getComment(commentId);
-
-    if (!comment) {
-      return NextResponse.json(
-        { error: 'Comment not found' },
-        { status: 404 }
-      );
-    }
-
-    if (comment.authorUid !== userId) {
-      return NextResponse.json(
-        { error: 'You can only edit your own comments' },
-        { status: 403 }
-      );
-    }
-
-    // Update comment
-    await updateComment(commentId, content);
-
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error('Error updating comment:', error);
-    return NextResponse.json(
-      { error: 'Failed to update comment' },
-      { status: 500 }
-    );
-  }
-}
-
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    // Verify authentication
-    const authHeader = request.headers.get('cookie');
-    const sessionCookie = authHeader
-      ?.split('; ')
-      .find((row) => row.startsWith('session='))
-      ?.split('=')[1];
-
-    if (!sessionCookie) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const decodedToken = await auth.verifyIdToken(sessionCookie);
-    const userId = decodedToken.uid;
-
-    // Parse request body
-    const { commentId } = await request.json();
-
-    if (!commentId) {
-      return NextResponse.json(
-        { error: 'Missing comment ID' },
-        { status: 400 }
-      );
-    }
-
-    // Verify comment ownership
-    const { getComment } = await import('@/lib/data/comments');
-    const comment = await getComment(commentId);
-
-    if (!comment) {
-      return NextResponse.json(
-        { error: 'Comment not found' },
-        { status: 404 }
-      );
-    }
-
-    if (comment.authorUid !== userId) {
-      return NextResponse.json(
-        { error: 'You can only delete your own comments' },
-        { status: 403 }
-      );
-    }
-
-    // Delete comment
-    await deleteComment(commentId, params.id);
-
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error('Error deleting comment:', error);
-    return NextResponse.json(
-      { error: 'Failed to delete comment' },
-      { status: 500 }
-    );
+    )
   }
 }
