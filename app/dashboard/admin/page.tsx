@@ -205,13 +205,13 @@ export default function AdminDashboard() {
     <div style={{ backgroundColor: '#E8E6D8' }} className="min-h-screen">
       <AppHeader title="Admin Dashboard" subtitle="Full platform control" />
 
-      <main className="relative" style={{ height: 'calc(100vh - 120px)' }}>
+      <main className="relative min-h-screen">
         {/* Two-column layout: Sidebar + Main Content */}
-        <div className="flex h-full">
+        <div className="flex min-h-screen">
           {/* Left Sidebar - Compact Admin Tools */}
           <aside
             className="w-80 bg-white/90 backdrop-blur-sm border-r border-gray-200 overflow-y-auto"
-            style={{ height: '100%' }}
+            style={{ minHeight: 'calc(100vh - 120px)' }}
           >
             {/* Sidebar Header */}
             <div className="sticky top-0 bg-white/95 backdrop-blur-sm z-10 border-b border-gray-200 p-4">
@@ -273,7 +273,7 @@ export default function AdminDashboard() {
           </aside>
 
           {/* Main Content Area - Expanded Content */}
-          <div className="flex-1 overflow-hidden relative">
+          <div className="flex-1 overflow-y-auto relative">
             {activeSection ? (
               <div className="h-full bg-white/90 backdrop-blur-sm">
                 {/* Content Header */}
@@ -316,11 +316,11 @@ export default function AdminDashboard() {
               /* Clean Dashboard Overview */
               <div className="h-full p-8">
                 <div className="text-center mb-8">
-                  <Shield className="w-20 h-20 mx-auto mb-4" style={{ color: '#8B5CF6' }} />
-                  <h2 className="text-3xl font-bold mb-2" style={{ color: '#000000' }}>
-                    Admin Dashboard
-                  </h2>
-                  <p className="text-lg" style={{ color: '#666' }}>
+                    <Shield className="w-20 h-20 mx-auto mb-4" style={{ color: '#8B5CF6' }} />
+                    <h2 className="text-3xl font-bold mb-2" style={{ color: '#000000' }}>
+                      Admin Dashboard
+                    </h2>
+                    <p className="text-lg" style={{ color: '#666' }}>
                     Platform overview and quick access to all admin tools
                   </p>
                 </div>
