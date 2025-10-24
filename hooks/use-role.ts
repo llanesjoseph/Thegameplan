@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
-import { auth, db } from '@/lib/firebase.client'
+import { auth } from '@/lib/firebase.client'
 import { onAuthStateChanged } from 'firebase/auth'
-import { doc, getDoc } from 'firebase/firestore'
 import type { AppRole } from '@/types/user'
 
 export function useRole() {
@@ -29,32 +28,31 @@ export function useRole() {
           return
         }
 
-        // Single Source of Truth: users/{uid}.role
+        // Single Source of Truth: users/{uid}.role via secure API
         try {
-          // Add timeout to Firestore query
-          const userDocPromise = getDoc(doc(db, 'users', user.uid))
-          const timeoutPromise = new Promise<never>((_, reject) =>
-            setTimeout(() => reject(new Error('Firestore query timeout')), 10000)
-          )
+          const token = await user.getIdToken()
+          const response = await fetch('/api/user/role', {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+          })
 
-          const userDoc = await Promise.race([userDocPromise, timeoutPromise])
-          if (userDoc.exists()) {
-            const data = userDoc.data() as { role?: AppRole }
-            const fetchedRole = data.role ?? 'user'
-            // Reduced logging to prevent console spam
-            // console.log('📖 useRole: Loaded role from Firestore:', {
-            //   uid: user.uid,
-            //   email: user.email,
-            //   role: fetchedRole
-            // })
-            setRole(fetchedRole)
+          if (response.ok) {
+            const data = await response.json()
+            if (data.success) {
+              const fetchedRole = data.data.role ?? 'user'
+              setRole(fetchedRole)
+            } else {
+              console.warn('⚠️ useRole: API returned error, defaulting to user role')
+              setRole('user')
+            }
           } else {
-            console.warn('⚠️ useRole: User document not found, defaulting to user role:', user.uid)
+            console.warn('⚠️ useRole: Failed to fetch role via API, defaulting to user role')
             setRole('user')
           }
-        } catch (firestoreError) {
-          console.warn('❌ useRole: Failed to fetch user role from Firestore:', firestoreError)
-          // Default to 'user' role if Firestore fails
+        } catch (apiError) {
+          console.warn('❌ useRole: Failed to fetch user role via API:', apiError)
+          // Default to 'user' role if API fails
           setRole('user')
         }
       } catch (error) {
