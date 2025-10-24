@@ -8,7 +8,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
-import { BookOpen, CheckCircle2, Circle, Clock, User, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react'
+import { BookOpen, CheckCircle2, Circle, Clock, User, RefreshCw, ChevronDown, ChevronUp, Play, Video, X } from 'lucide-react'
 import AppHeader from '@/components/ui/AppHeader'
 import LessonOverlay from '@/components/LessonOverlay'
 import LessonCompletionCelebration from '@/components/athlete/LessonCompletionCelebration'
@@ -60,6 +60,9 @@ export default function AthleteLessonsPage() {
   const [progressUpdated, setProgressUpdated] = useState(false)
   const [showCelebration, setShowCelebration] = useState(false)
   const [completedLessonTitle, setCompletedLessonTitle] = useState('')
+  const [coachVideos, setCoachVideos] = useState<any[]>([])
+  const [videosLoading, setVideosLoading] = useState(false)
+  const [selectedVideo, setSelectedVideo] = useState<any | null>(null)
 
   // Detect if page is loaded in iframe (check URL param or window)
   useEffect(() => {
@@ -199,6 +202,13 @@ export default function AthleteLessonsPage() {
     }
   }, [user, loading])
 
+  // Fetch coach videos when component loads
+  useEffect(() => {
+    if (user && !loading) {
+      fetchCoachVideos()
+    }
+  }, [user, loading])
+
   // Toggle lesson completion
   const toggleCompletion = async (lessonId: string, isCurrentlyCompleted: boolean) => {
     if (!user || processingLesson) return
@@ -323,6 +333,42 @@ export default function AthleteLessonsPage() {
     }
   }
 
+  const fetchCoachVideos = async () => {
+    if (!user) return
+
+    try {
+      setVideosLoading(true)
+      console.log('Fetching coach videos for user:', user.uid)
+
+      const response = await fetch('/api/athlete/coach-videos', {
+        headers: {
+          'Authorization': `Bearer ${await user.getIdToken()}`
+        }
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        console.log('Coach videos response:', data)
+
+        if (data.success) {
+          setCoachVideos(data.videos || [])
+          console.log('Loaded coach videos:', data.videos?.length || 0)
+        } else {
+          console.log('No coach videos found')
+          setCoachVideos([])
+        }
+      } else {
+        console.error('Failed to fetch coach videos:', response.status)
+        setCoachVideos([])
+      }
+    } catch (err: any) {
+      console.error('Error fetching coach videos:', err)
+      setCoachVideos([])
+    } finally {
+      setVideosLoading(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#E8E6D8' }}>
@@ -395,87 +441,138 @@ export default function AthleteLessonsPage() {
     onView: () => void
     onToggleCompletion: () => void
   }) => (
-    <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 overflow-hidden hover:shadow-2xl transition-all">
-      <div className="p-6">
-        <div className="flex flex-col gap-4">
-          {/* Lesson Header with Title and Description */}
-          <div className="flex-grow">
-            <h3
-              className={`text-xl mb-2 ${lesson.isCompleted ? 'opacity-60 line-through' : ''}`}
-              style={{ color: '#000000' }}
-            >
-              {lesson.title}
-            </h3>
-            {lesson.description && (
-              <p
-                className={`text-sm mb-3 ${lesson.isCompleted ? 'opacity-40' : 'opacity-70'}`}
-                style={{ color: '#000000' }}
-              >
-                {lesson.description}
-              </p>
+    <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-md border border-white/50 overflow-hidden hover:shadow-lg transition-all">
+      <div className="p-4">
+        {/* Compact Header */}
+        <div className="mb-3">
+          <h3
+            className={`text-lg font-semibold mb-1 ${lesson.isCompleted ? 'opacity-60 line-through' : ''}`}
+            style={{ color: '#000000' }}
+          >
+            {lesson.title}
+          </h3>
+          <div className="flex flex-wrap gap-1.5">
+            {lesson.sport && (
+              <span className="px-2 py-0.5 rounded text-xs font-medium" style={{ backgroundColor: '#3B82F6', color: 'white' }}>
+                {lesson.sport}
+              </span>
             )}
-            <div className="flex flex-wrap gap-2">
-              {lesson.sport && (
-                <span className="px-3 py-1 rounded-full text-xs" style={{ backgroundColor: '#3B82F6', color: 'white' }}>
-                  {lesson.sport}
-                </span>
-              )}
-              {lesson.level && (
-                <span className="px-3 py-1 rounded-full text-xs" style={{ backgroundColor: '#8D9440', color: 'white' }}>
-                  {lesson.level}
-                </span>
-              )}
-              {lesson.createdAt && (
-                <span className="px-3 py-1 rounded-full text-xs flex items-center gap-1" style={{ backgroundColor: '#E8E6D8', color: '#000000' }}>
-                  <Clock className="w-3 h-3" />
-                  {new Date(lesson.createdAt).toLocaleDateString()}
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* Action Buttons Row */}
-          <div className="flex flex-wrap gap-3">
-            <button
-              onClick={onView}
-              className="flex-1 min-w-[140px] px-5 py-3 rounded-lg text-sm font-medium transition-all hover:shadow-lg active:scale-95 flex items-center justify-center gap-2"
-              style={{ backgroundColor: '#3B82F6', color: 'white' }}
-            >
-              <BookOpen className="w-4 h-4" />
-              View Lesson
-            </button>
-
-            <button
-              onClick={onToggleCompletion}
-              disabled={processingLesson === lesson.id}
-              className={`flex-1 min-w-[140px] px-5 py-3 rounded-lg text-sm font-semibold transition-all hover:shadow-lg active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${
-                lesson.isCompleted ? 'border-2' : ''
-              }`}
-              style={{
-                backgroundColor: lesson.isCompleted ? '#ffffff' : '#20B2AA',
-                color: lesson.isCompleted ? '#20B2AA' : '#ffffff',
-                borderColor: lesson.isCompleted ? '#20B2AA' : 'transparent'
-              }}
-            >
-              {processingLesson === lesson.id ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2" style={{ borderColor: lesson.isCompleted ? '#20B2AA' : '#ffffff' }}></div>
-                  Saving...
-                </>
-              ) : lesson.isCompleted ? (
-                <>
-                  <CheckCircle2 className="w-5 h-5" />
-                  Completed ✓
-                </>
-              ) : (
-                <>
-                  <Circle className="w-5 h-5" />
-                  Mark Complete
-                </>
-              )}
-            </button>
+            {lesson.level && (
+              <span className="px-2 py-0.5 rounded text-xs font-medium" style={{ backgroundColor: '#8D9440', color: 'white' }}>
+                {lesson.level}
+              </span>
+            )}
+            {lesson.createdAt && (
+              <span className="px-2 py-0.5 rounded text-xs flex items-center gap-1" style={{ backgroundColor: '#E8E6D8', color: '#000000' }}>
+                <Clock className="w-3 h-3" />
+                {new Date(lesson.createdAt).toLocaleDateString()}
+              </span>
+            )}
           </div>
         </div>
+
+        {/* Compact Action Buttons */}
+        <div className="flex gap-2">
+          <button
+            onClick={onView}
+            className="flex-1 px-3 py-2 rounded text-sm font-medium transition-all hover:shadow-md active:scale-95 flex items-center justify-center gap-1.5"
+            style={{ backgroundColor: '#3B82F6', color: 'white' }}
+          >
+            <BookOpen className="w-4 h-4" />
+            View
+          </button>
+
+          <button
+            onClick={onToggleCompletion}
+            disabled={processingLesson === lesson.id}
+            className={`flex-1 px-3 py-2 rounded text-sm font-medium transition-all hover:shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 ${
+              lesson.isCompleted ? 'border' : ''
+            }`}
+            style={{
+              backgroundColor: lesson.isCompleted ? '#ffffff' : '#20B2AA',
+              color: lesson.isCompleted ? '#20B2AA' : '#ffffff',
+              borderColor: lesson.isCompleted ? '#20B2AA' : 'transparent'
+            }}
+          >
+            {processingLesson === lesson.id ? (
+              <>
+                <div className="animate-spin rounded-full h-3 w-3 border-b-2" style={{ borderColor: lesson.isCompleted ? '#20B2AA' : '#ffffff' }}></div>
+                Saving...
+              </>
+            ) : lesson.isCompleted ? (
+              <>
+                <CheckCircle2 className="w-4 h-4" />
+                Done
+              </>
+            ) : (
+              <>
+                <Circle className="w-4 h-4" />
+                Complete
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+
+  const VideoCard = ({
+    video,
+    onView
+  }: {
+    video: any
+    onView: () => void
+  }) => (
+    <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-md border border-white/50 overflow-hidden hover:shadow-lg transition-all">
+      <div className="p-4">
+        {/* Video Thumbnail */}
+        {video.thumbnail && (
+          <div className="mb-3">
+            <img
+              src={video.thumbnail}
+              alt={video.title}
+              className="w-full h-24 object-cover rounded"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none'
+              }}
+            />
+          </div>
+        )}
+
+        {/* Video Info */}
+        <div className="mb-3">
+          <h3 className="text-lg font-semibold mb-1 line-clamp-2" style={{ color: '#000000' }}>
+            {video.title}
+          </h3>
+          <div className="flex flex-wrap gap-1.5">
+            {video.sport && (
+              <span className="px-2 py-0.5 rounded text-xs font-medium" style={{ backgroundColor: '#FF6B35', color: 'white' }}>
+                {video.sport}
+              </span>
+            )}
+            {video.duration > 0 && (
+              <span className="px-2 py-0.5 rounded text-xs flex items-center gap-1" style={{ backgroundColor: '#E8E6D8', color: '#000000' }}>
+                <Clock className="w-3 h-3" />
+                {video.duration}m
+              </span>
+            )}
+            {video.createdDate && (
+              <span className="px-2 py-0.5 rounded text-xs" style={{ backgroundColor: '#E8E6D8', color: '#000000' }}>
+                {video.createdDate}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* View Button */}
+        <button
+          onClick={onView}
+          className="w-full px-3 py-2 rounded text-sm font-medium transition-all hover:shadow-md active:scale-95 flex items-center justify-center gap-1.5"
+          style={{ backgroundColor: '#FF6B35', color: 'white' }}
+        >
+          <Play className="w-4 h-4" />
+          Watch Video
+        </button>
       </div>
     </div>
   )
@@ -549,45 +646,57 @@ export default function AthleteLessonsPage() {
             </p>
           </div>
         ) : (
-          <div className="space-y-6">
-            {/* Recent Active Lessons (always visible) */}
-            {recentActiveLessons.length > 0 && (
+          <div className="space-y-8">
+            {/* Coach Videos Section */}
+            {coachVideos.length > 0 && (
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold px-2" style={{ color: '#000000' }}>
-                  Active Lessons ({recentActiveLessons.length})
-                </h3>
-                {recentActiveLessons.map((lesson) => (
-                  <LessonCard
-                    key={lesson.id}
-                    lesson={lesson}
-                    processingLesson={processingLesson}
-                    onView={() => setSelectedLessonId(lesson.id)}
-                    onToggleCompletion={() => toggleCompletion(lesson.id, lesson.isCompleted)}
-                  />
-                ))}
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                    <Video className="w-5 h-5 text-orange-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold" style={{ color: '#000000' }}>
+                      Coach's Videos ({coachVideos.length})
+                    </h3>
+                    <p className="text-sm" style={{ color: '#666' }}>
+                      Videos posted by your coach
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {coachVideos.map((video) => (
+                    <VideoCard
+                      key={video.id}
+                      video={video}
+                      onView={() => setSelectedVideo(video)}
+                    />
+                  ))}
+                </div>
               </div>
             )}
 
-            {/* Older Active Lessons (collapsible) */}
-            {olderActiveLessons.length > 0 && (
+            {/* Active Lessons Section */}
+            {(recentActiveLessons.length > 0 || olderActiveLessons.length > 0) && (
               <div className="space-y-4">
-                <button
-                  onClick={() => setShowOlder(!showOlder)}
-                  className="w-full flex items-center justify-between px-4 py-3 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-                >
-                  <span className="text-lg font-semibold" style={{ color: '#000000' }}>
-                    Older Lessons ({olderActiveLessons.length})
-                  </span>
-                  {showOlder ? (
-                    <ChevronUp className="w-5 h-5" style={{ color: '#666' }} />
-                  ) : (
-                    <ChevronDown className="w-5 h-5" style={{ color: '#666' }} />
-                  )}
-                </button>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <BookOpen className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold" style={{ color: '#000000' }}>
+                      Active Lessons ({recentActiveLessons.length + olderActiveLessons.length})
+                    </h3>
+                    <p className="text-sm" style={{ color: '#666' }}>
+                      Lessons assigned by your coach
+                    </p>
+                  </div>
+                </div>
 
-                {showOlder && (
-                  <div className="space-y-4">
-                    {olderActiveLessons.map((lesson) => (
+                {/* Recent Active Lessons */}
+                {recentActiveLessons.length > 0 && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {recentActiveLessons.map((lesson) => (
                       <LessonCard
                         key={lesson.id}
                         lesson={lesson}
@@ -596,6 +705,39 @@ export default function AthleteLessonsPage() {
                         onToggleCompletion={() => toggleCompletion(lesson.id, lesson.isCompleted)}
                       />
                     ))}
+                  </div>
+                )}
+
+                {/* Older Active Lessons (collapsible) */}
+                {olderActiveLessons.length > 0 && (
+                  <div className="space-y-4">
+                    <button
+                      onClick={() => setShowOlder(!showOlder)}
+                      className="w-full flex items-center justify-between px-4 py-3 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                    >
+                      <span className="text-lg font-semibold" style={{ color: '#000000' }}>
+                        Older Lessons ({olderActiveLessons.length})
+                      </span>
+                      {showOlder ? (
+                        <ChevronUp className="w-5 h-5" style={{ color: '#666' }} />
+                      ) : (
+                        <ChevronDown className="w-5 h-5" style={{ color: '#666' }} />
+                      )}
+                    </button>
+
+                    {showOlder && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {olderActiveLessons.map((lesson) => (
+                          <LessonCard
+                            key={lesson.id}
+                            lesson={lesson}
+                            processingLesson={processingLesson}
+                            onView={() => setSelectedLessonId(lesson.id)}
+                            onToggleCompletion={() => toggleCompletion(lesson.id, lesson.isCompleted)}
+                          />
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -666,7 +808,7 @@ export default function AthleteLessonsPage() {
                 )}
 
                 {showCompleted && (
-                  <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {completedLessons.map((lesson) => (
                       <LessonCard
                         key={lesson.id}
@@ -708,6 +850,80 @@ export default function AthleteLessonsPage() {
             }
           }}
         />
+      )}
+
+      {/* Video Overlay */}
+      {selectedVideo && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b">
+              <h3 className="text-xl font-semibold" style={{ color: '#000000' }}>
+                {selectedVideo.title}
+              </h3>
+              <button
+                onClick={() => setSelectedVideo(null)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5" style={{ color: '#000000' }} />
+              </button>
+            </div>
+            
+            <div className="p-4">
+              {/* Video Player */}
+              <div className="mb-4">
+                {selectedVideo.source === 'youtube' && selectedVideo.url ? (
+                  <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                    <iframe
+                      src={selectedVideo.url.replace('watch?v=', 'embed/')}
+                      className="absolute top-0 left-0 w-full h-full rounded-lg"
+                      allowFullScreen
+                      title={selectedVideo.title}
+                    />
+                  </div>
+                ) : selectedVideo.source === 'vimeo' && selectedVideo.url ? (
+                  <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                    <iframe
+                      src={selectedVideo.url.replace('vimeo.com/', 'player.vimeo.com/video/')}
+                      className="absolute top-0 left-0 w-full h-full rounded-lg"
+                      allowFullScreen
+                      title={selectedVideo.title}
+                    />
+                  </div>
+                ) : (
+                  <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <p className="text-gray-500">Video not available</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Video Info */}
+              <div className="space-y-3">
+                {selectedVideo.description && (
+                  <p className="text-gray-700">{selectedVideo.description}</p>
+                )}
+                
+                <div className="flex flex-wrap gap-2">
+                  {selectedVideo.sport && (
+                    <span className="px-3 py-1 rounded-full text-sm" style={{ backgroundColor: '#FF6B35', color: 'white' }}>
+                      {selectedVideo.sport}
+                    </span>
+                  )}
+                  {selectedVideo.duration > 0 && (
+                    <span className="px-3 py-1 rounded-full text-sm flex items-center gap-1" style={{ backgroundColor: '#E8E6D8', color: '#000000' }}>
+                      <Clock className="w-4 h-4" />
+                      {selectedVideo.duration}m
+                    </span>
+                  )}
+                  {selectedVideo.createdDate && (
+                    <span className="px-3 py-1 rounded-full text-sm" style={{ backgroundColor: '#E8E6D8', color: '#000000' }}>
+                      {selectedVideo.createdDate}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Lesson Completion Celebration */}
