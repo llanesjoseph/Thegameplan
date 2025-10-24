@@ -214,6 +214,7 @@ export async function POST(request: NextRequest) {
       sport: sport.toLowerCase().trim(),
       level,
       duration: duration || 60,
+      type: 'lesson', // Add type field for content categorization
 
       // Content
       objectives: objectives || [],

@@ -170,6 +170,7 @@ export async function POST(request: NextRequest) {
       duration: typeof duration === 'number' ? duration : parseInt(duration) || 0, // Duration in minutes
       sport,
       tags: Array.isArray(tags) ? tags : [],
+      type: 'video_lesson', // Add type field for content categorization
       views: 0,
       createdAt: now,
       updatedAt: now
