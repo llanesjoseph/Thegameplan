@@ -1,5 +1,5 @@
 import { db } from './firebase.client'
-import { collection, addDoc, updateDoc, serverTimestamp, query, where, orderBy, limit, getDocs, Timestamp } from 'firebase/firestore'
+import { collection, addDoc, updateDoc, serverTimestamp, Timestamp } from 'firebase/firestore'
 import { AIProvider, SubscriptionTier } from '../types'
 
 export interface AILogEntry {
@@ -389,29 +389,29 @@ export async function checkUserLegalCompliance(userId: string): Promise<{
   lastSession?: AISession
 }> {
   try {
-    const sessionsRef = collection(db, 'ai_sessions')
-    const q = query(
-      sessionsRef,
-      where('userId', '==', userId),
-      orderBy('startTime', 'desc'),
-      limit(1)
-    )
-    
-    const snapshot = await getDocs(q)
-    
-    if (snapshot.empty) {
-      return {
-        needsTermsUpdate: true,
-        needsPrivacyUpdate: true
+    // Use secure server-side API instead of client-side Firebase calls
+    const response = await fetch('/api/user/legal-compliance', {
+      headers: {
+        'Authorization': `Bearer ${await getAuthToken()}`,
+      },
+    })
+
+    if (response.ok) {
+      const data = await response.json()
+      if (data.success) {
+        return {
+          needsTermsUpdate: data.data.needsTermsUpdate,
+          needsPrivacyUpdate: data.data.needsPrivacyUpdate,
+          lastSession: data.data.lastSession
+        }
       }
     }
     
-    const lastSession = snapshot.docs[0].data() as AISession
-    
+    // Fallback to requiring updates if API fails
+    console.warn('Failed to check legal compliance via API, defaulting to requiring updates')
     return {
-      needsTermsUpdate: lastSession.termsVersion !== CURRENT_TERMS_VERSION,
-      needsPrivacyUpdate: lastSession.privacyPolicyVersion !== CURRENT_PRIVACY_VERSION,
-      lastSession
+      needsTermsUpdate: true,
+      needsPrivacyUpdate: true
     }
     
   } catch (error) {
@@ -421,4 +421,15 @@ export async function checkUserLegalCompliance(userId: string): Promise<{
       needsPrivacyUpdate: true
     }
   }
+}
+
+// Helper function to get auth token
+async function getAuthToken(): Promise<string> {
+  const { getAuth } = await import('firebase/auth')
+  const { auth } = await import('@/lib/firebase.client')
+  const user = auth.currentUser
+  if (!user) {
+    throw new Error('No authenticated user')
+  }
+  return await user.getIdToken()
 }
