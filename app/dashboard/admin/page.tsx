@@ -326,74 +326,74 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Comprehensive Metrics Dashboard */}
-                <div className="bg-white rounded-xl border border-gray-200 p-6 mb-8">
-                  <h3 className="text-lg font-semibold mb-6" style={{ color: '#000000' }}>Platform Metrics</h3>
+                <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl border border-slate-200 p-6 mb-8">
+                  <h3 className="text-lg font-semibold mb-6" style={{ color: '#1E293B' }}>Platform Metrics</h3>
                   
                   {/* Primary Metrics Row */}
                   <div className="grid grid-cols-4 gap-6 mb-6">
                     <div className="text-center">
                       <div className="text-4xl font-bold mb-1" style={{ color: '#8B5CF6' }}>6</div>
-                      <div className="text-sm font-medium" style={{ color: '#000000' }}>Active Athletes</div>
-                      <div className="text-xs" style={{ color: '#666' }}>Total registered athletes</div>
+                      <div className="text-sm font-medium" style={{ color: '#1E293B' }}>Active Athletes</div>
+                      <div className="text-xs" style={{ color: '#64748B' }}>Total registered athletes</div>
                     </div>
                     <div className="text-center">
                       <div className="text-4xl font-bold mb-1" style={{ color: '#20B2AA' }}>3</div>
-                      <div className="text-sm font-medium" style={{ color: '#000000' }}>Coaches</div>
-                      <div className="text-xs" style={{ color: '#666' }}>Verified coaches</div>
+                      <div className="text-sm font-medium" style={{ color: '#1E293B' }}>Coaches</div>
+                      <div className="text-xs" style={{ color: '#64748B' }}>Verified coaches</div>
                     </div>
                     <div className="text-center">
                       <div className="text-4xl font-bold mb-1" style={{ color: '#FF6B35' }}>22</div>
-                      <div className="text-sm font-medium" style={{ color: '#000000' }}>Content Items</div>
-                      <div className="text-xs" style={{ color: '#666' }}>Lessons & videos</div>
+                      <div className="text-sm font-medium" style={{ color: '#1E293B' }}>Content Items</div>
+                      <div className="text-xs" style={{ color: '#64748B' }}>Lessons & videos</div>
                     </div>
                     <div className="text-center">
                       <div className="text-4xl font-bold mb-1" style={{ color: '#91A6EB' }}>2</div>
-                      <div className="text-sm font-medium" style={{ color: '#000000' }}>Pending Invites</div>
-                      <div className="text-xs" style={{ color: '#666' }}>Awaiting approval</div>
+                      <div className="text-sm font-medium" style={{ color: '#1E293B' }}>Pending Invites</div>
+                      <div className="text-xs" style={{ color: '#64748B' }}>Awaiting approval</div>
                     </div>
                   </div>
 
                   {/* Secondary Metrics Row */}
-                  <div className="grid grid-cols-6 gap-4 pt-4 border-t border-gray-100">
+                  <div className="grid grid-cols-6 gap-4 pt-4 border-t border-slate-200">
                     <div className="text-center">
-                      <div className="text-2xl font-bold mb-1" style={{ color: '#000000' }}>9</div>
-                      <div className="text-xs font-medium" style={{ color: '#000000' }}>Total Users</div>
+                      <div className="text-2xl font-bold mb-1" style={{ color: '#1E293B' }}>9</div>
+                      <div className="text-xs font-medium" style={{ color: '#1E293B' }}>Total Users</div>
                     </div>
                     <div className="text-center">
                       <div className="text-2xl font-bold mb-1" style={{ color: '#10B981' }}>2</div>
-                      <div className="text-xs font-medium" style={{ color: '#000000' }}>Featured</div>
+                      <div className="text-xs font-medium" style={{ color: '#1E293B' }}>Featured</div>
                     </div>
                     <div className="text-center">
                       <div className="text-2xl font-bold mb-1" style={{ color: '#F59E0B' }}>0</div>
-                      <div className="text-xs font-medium" style={{ color: '#000000' }}>Pending</div>
+                      <div className="text-xs font-medium" style={{ color: '#1E293B' }}>Pending</div>
                     </div>
                     <div className="text-center">
                       <div className="text-2xl font-bold mb-1" style={{ color: '#EF4444' }}>0</div>
-                      <div className="text-xs font-medium" style={{ color: '#000000' }}>Suspended</div>
+                      <div className="text-xs font-medium" style={{ color: '#1E293B' }}>Suspended</div>
                     </div>
                     <div className="text-center">
                       <div className="text-2xl font-bold mb-1" style={{ color: '#6B7280' }}>0</div>
-                      <div className="text-xs font-medium" style={{ color: '#000000' }}>Total Views</div>
+                      <div className="text-xs font-medium" style={{ color: '#1E293B' }}>Total Views</div>
                     </div>
                     <div className="text-center">
                       <div className="text-2xl font-bold mb-1" style={{ color: '#8B5CF6' }}>100%</div>
-                      <div className="text-xs font-medium" style={{ color: '#000000' }}>Health Score</div>
+                      <div className="text-xs font-medium" style={{ color: '#1E293B' }}>Health Score</div>
                     </div>
                   </div>
 
-                  {/* Status Indicators */}
-                  <div className="grid grid-cols-3 gap-4 pt-4 border-t border-gray-100 mt-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm" style={{ color: '#666' }}>System Status:</span>
+                  {/* Status Indicators - Fixed Spacing */}
+                  <div className="flex items-center justify-between pt-4 border-t border-slate-200 mt-4">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm" style={{ color: '#64748B' }}>System Status:</span>
                       <span className="text-sm font-medium text-green-600">● Operational</span>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm" style={{ color: '#666' }}>Last Updated:</span>
-                      <span className="text-sm font-medium" style={{ color: '#000000' }}>Just now</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm" style={{ color: '#64748B' }}>Last Updated:</span>
+                      <span className="text-sm font-medium" style={{ color: '#1E293B' }}>Just now</span>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm" style={{ color: '#666' }}>Uptime:</span>
-                      <span className="text-sm font-medium" style={{ color: '#000000' }}>99.9%</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm" style={{ color: '#64748B' }}>Uptime:</span>
+                      <span className="text-sm font-medium" style={{ color: '#1E293B' }}>99.9%</span>
                     </div>
                   </div>
                 </div>
