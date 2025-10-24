@@ -52,8 +52,8 @@ export async function POST(request: NextRequest) {
 
     const messageData = messageDoc.data()
 
-    // 5. Verify this message was sent to this coach
-    if (messageData?.recipientId !== coachId) {
+    // 5. Verify message data exists and was sent to this coach
+    if (!messageData || messageData.recipientId !== coachId) {
       return NextResponse.json(
         { error: 'Unauthorized - This message was not sent to you' },
         { status: 403 }
