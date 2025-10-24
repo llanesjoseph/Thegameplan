@@ -1,0 +1,67 @@
+
+COMPREHENSIVE PLATFORM TEST REPORT
+Generated: 2025-10-24T07:34:54.435Z
+
+TEST SUMMARY:
+- Total Tests: 74
+- Passed: 28
+- Failed: 0
+- Warnings: 46
+- Health Score: 38%
+
+CRITICAL ISSUES:
+
+
+BUGS FOUND:
+
+
+RECOMMENDATIONS:
+1. Submission 1FGS1s32UykKyxiYRoph: Missing fields: athleteId, videoUrl
+2. Submission QCbULE7I1lr9E2nS5RiN: Missing fields: athleteId, videoUrl
+3. Submission b42Jho9MrpWb1vLifEpf: Missing fields: athleteId, videoUrl
+4. Submission qQkI3TTOT5kwVoLNWfpo: Missing fields: athleteId, videoUrl
+5. Submission ruq4KUqO3cpu8ai9rhRd: Missing fields: athleteId, videoUrl
+6. Submission tWP34dv6IQnEdgZ2V1nY: Missing fields: athleteId, videoUrl
+7. Submission Structure: 6 submissions missing required fields
+8. Invitation coach-1760226860847-a24oe4x8f47: Missing fields: athleteEmail
+9. Invitation coach-1760226948129-fx0m03pukpv: Missing fields: athleteEmail
+10. Invitation coach-1760385630307-jz6iyzsks6s: Missing fields: athleteEmail
+11. Invitation coach-1760480911138-q6mvlz6et2: Missing fields: athleteEmail
+12. Invitation coach-1760638193177-vm18hxrz4ee: Missing fields: athleteEmail
+13. Invitation inv_1760223224037_ylogs2xen: Missing fields: athleteEmail
+14. Invitation inv_1760722508103_xu0oe6yq2c: Missing fields: athleteEmail
+15. Invitation inv_1760723300747_8t16tfryqkl: Missing fields: athleteEmail
+16. Invitation inv_1760723719150_23eymyj2vtr: Missing fields: athleteEmail
+17. Invitation inv_1761007000212_mo5npjaemx7: Missing fields: athleteEmail
+18. Invitation Structure: 10 invitations missing required fields
+19. Content 5uvex6NizIfQMpOgBYDR: Missing fields: type
+20. Content APZmMOnoHtwFHMk0EPvy: Missing fields: type
+21. Content EFipOkolaGGMd67tT6kf: Missing fields: type
+22. Content EMpb62YS2Ra3hH6VYMYX: Missing fields: type
+23. Content HlHR2I89KHF4bunGQIMq: Missing fields: type
+24. Content Jj0GHazX2hPDgLVWVANq: Missing fields: type
+25. Content Jjc1wLP14vhfpaiVuJp8: Missing fields: type
+26. Content QniB1GS3EadqWOJoRtFt: Missing fields: type
+27. Content RmuNkcdvvQUg6b1nBs1k: Missing fields: type
+28. Content S27lX9PaPMnurn92ZMYm: Missing fields: type
+29. Content SnJ7EJMVJ4MjTZG4cOx8: Missing fields: type
+30. Content UWPmzwjpgK8UE7PjcKOY: Missing fields: type
+31. Content YK0CdslPEy1kPRTA6YmC: Missing fields: type
+32. Content fioSrq1ms0b5kqtWR5Ue: Missing fields: type
+33. Content gRsebaBK7BwIq1Esq9SE: Missing fields: type
+34. Content iCIojrh2q4vWbRtYxR2Q: Missing fields: type
+35. Content mLy98CPMuywKJv9ykgGQ: Missing fields: type
+36. Content n7OXCdrKnWrccveIpLNr: Missing fields: type
+37. Content pLIIrs2XkfF644bwKg8s: Missing fields: type
+38. Content qSgjjaTJ21ttIJFNvFTk: Missing fields: type
+39. Content wgDZwMn1fxP0YFpwx8Ig: Missing fields: type
+40. Content xJQ3bDDHCXARWubLxuoM: Missing fields: type
+41. Content Structure: 22 content items missing required fields
+42. API: /api/coach/messages: Unexpected status 400
+43. API: /api/coach/reply-message: Unexpected status 405
+44. API: /api/athlete/contact-coach: Unexpected status 405
+45. API: /api/athlete/sync-lessons: Unexpected status 405
+46. API: /api/generate-lesson: Unexpected status 405
+
+OVERALL ASSESSMENT:
+POOR: Platform has significant issues requiring immediate attention.
