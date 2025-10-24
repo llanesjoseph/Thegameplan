@@ -117,10 +117,12 @@ export default function CoachMessages({ className = '' }: CoachMessagesProps) {
 
     setSendingReply(true)
     try {
+      const token = await user.getIdToken()
       const response = await fetch('/api/coach/reply-message', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
           messageId,
