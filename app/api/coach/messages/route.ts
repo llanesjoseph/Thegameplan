@@ -109,17 +109,20 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log(`Updating message [MESSAGE_ID]`)
+    console.log(`Updating message ${messageId}`)
 
     const messageRef = adminDb.collection('messages').doc(messageId)
     const messageDoc = await messageRef.get()
 
     if (!messageDoc.exists) {
+      console.error(`Message not found: ${messageId}`)
       return NextResponse.json(
         { error: 'Message not found' },
         { status: 404 }
       )
     }
+
+    console.log(`Message found: ${messageId}`)
 
     const updateData: any = {
       updatedAt: new Date()
