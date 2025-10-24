@@ -103,7 +103,7 @@ export default function AthleteReviewsPage() {
         }
       } catch (error) {
         // Don't log aborted requests as errors
-        if (error.name === 'AbortError') {
+        if (error instanceof Error && error.name === 'AbortError') {
           console.log('[ATHLETE-REVIEWS] Request aborted');
           return;
         }
@@ -339,7 +339,7 @@ export default function AthleteReviewsPage() {
                         setError('Failed to load reviews. Please try again.');
                       }
                     } catch (err) {
-                      if (err.name === 'AbortError') {
+                      if (err instanceof Error && err.name === 'AbortError') {
                         console.log('[ATHLETE-REVIEWS] Retry request aborted');
                         return;
                       }

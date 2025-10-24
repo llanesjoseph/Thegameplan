@@ -273,10 +273,19 @@ export default function AthleteReviewDetailPage({
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="space-y-6">
-            {submission.videoDownloadUrl && (
+            {(submission.videoUrl || submission.videoDownloadUrl) && (
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                 <div className="aspect-video bg-black">
-                  <video controls className="w-full h-full" src={submission.videoDownloadUrl} poster={submission.thumbnailUrl}>
+                  <video 
+                    controls 
+                    className="w-full h-full" 
+                    src={submission.videoUrl || submission.videoDownloadUrl} 
+                    poster={submission.thumbnailUrl}
+                    onError={(e) => {
+                      console.error('Video failed to load:', submission.videoUrl || submission.videoDownloadUrl);
+                      e.currentTarget.style.display = 'none';
+                    }}
+                  >
                     Your browser does not support the video tag.
                   </video>
                 </div>
