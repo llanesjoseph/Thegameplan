@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import Link from 'next/link';
-import { Video, Clock, CheckCircle, AlertCircle, Eye, ArrowLeft, ChevronDown, ChevronUp, Archive } from 'lucide-react';
+import { Video, Clock, CheckCircle, AlertCircle, Eye, ArrowLeft, ChevronDown, ChevronUp, Archive, Edit } from 'lucide-react';
 
 export default function AthleteReviewsPage() {
   const { user, loading } = useAuth();
@@ -463,12 +463,11 @@ export default function AthleteReviewsPage() {
                         };
 
                         return (
-                          <Link
+                          <div
                             key={safeSubmission.id}
-                            href={`/dashboard/athlete/reviews/${safeSubmission.id}`}
-                            className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer"
+                            className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"
                           >
-                            <div className="flex items-start justify-between">
+                            <div className="flex items-start justify-between mb-4">
                               <div className="flex-1">
                                 <div className="flex items-center gap-3 mb-2">
                                   <h3 className="text-lg font-semibold text-gray-900">
@@ -519,7 +518,28 @@ export default function AthleteReviewsPage() {
                                 </div>
                               )}
                             </div>
-                          </Link>
+
+                            {/* Action Buttons */}
+                            <div className="flex gap-2 pt-3 border-t border-gray-200">
+                              <Link
+                                href={`/dashboard/athlete/reviews/${safeSubmission.id}`}
+                                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                              >
+                                <Eye className="w-4 h-4" />
+                                View Review
+                              </Link>
+                              <button
+                                onClick={() => {
+                                  // TODO: Implement edit functionality
+                                  console.log('Edit review:', safeSubmission.id);
+                                }}
+                                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
+                              >
+                                <Edit className="w-4 h-4" />
+                                Edit
+                              </button>
+                            </div>
+                          </div>
                         );
                       })}
                     </div>
