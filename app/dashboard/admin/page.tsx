@@ -313,195 +313,248 @@ export default function AdminDashboard() {
                 </div>
               </div>
             ) : (
-              /* Quick View Dashboard with Live Iframes */
-              <div className="h-full p-6 overflow-y-auto">
-                <div className="mb-6 text-center">
-                  <Shield className="w-16 h-16 mx-auto mb-3" style={{ color: '#8B5CF6' }} />
-                  <h2 className="text-2xl font-bold mb-2" style={{ color: '#000000' }}>
+              /* Clean Dashboard Overview */
+              <div className="h-full p-8">
+                <div className="text-center mb-8">
+                  <Shield className="w-20 h-20 mx-auto mb-4" style={{ color: '#8B5CF6' }} />
+                  <h2 className="text-3xl font-bold mb-2" style={{ color: '#000000' }}>
                     Admin Dashboard
                   </h2>
-                  <p className="text-sm" style={{ color: '#666' }}>
-                    Live overview of all platform tools - Click any preview to open full view
+                  <p className="text-lg" style={{ color: '#666' }}>
+                    Platform overview and quick access to all admin tools
                   </p>
                 </div>
 
-                {/* Quick View Grid */}
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  {/* User Management Quick View */}
-                  <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
-                    <div className="bg-gradient-to-r from-purple-500 to-purple-600 px-4 py-2">
-                      <div className="flex items-center gap-2">
-                        <UserCog className="w-4 h-4 text-white" />
-                        <h3 className="text-sm font-semibold text-white">User Management</h3>
-                      </div>
+                {/* Key Metrics Row */}
+                <div className="grid grid-cols-4 gap-6 mb-8">
+                  <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 text-center">
+                    <div className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-3" style={{ backgroundColor: '#8B5CF6' }}>
+                      <Users className="w-6 h-6 text-white" />
                     </div>
-                    <div className="h-48">
-                      <iframe
-                        src="/dashboard/admin/users?embedded=true&quickview=true"
-                        className="w-full h-full border-0"
-                        title="User Management Quick View"
-                      />
-                    </div>
-                    <div className="p-3 bg-gray-50 border-t">
-                      <button
-                        onClick={() => setActiveSection('users')}
-                        className="w-full text-xs bg-purple-600 text-white py-1 px-3 rounded hover:bg-purple-700 transition-colors"
-                      >
-                        Open Full View
-                      </button>
-                    </div>
+                    <div className="text-3xl font-bold mb-1" style={{ color: '#8B5CF6' }}>6</div>
+                    <div className="text-sm" style={{ color: '#666' }}>Active Athletes</div>
                   </div>
 
-                  {/* Analytics Quick View */}
-                  <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
-                    <div className="bg-gradient-to-r from-orange-500 to-orange-600 px-4 py-2">
-                      <div className="flex items-center gap-2">
-                        <BarChart3 className="w-4 h-4 text-white" />
-                        <h3 className="text-sm font-semibold text-white">Analytics</h3>
-                      </div>
+                  <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 text-center">
+                    <div className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-3" style={{ backgroundColor: '#20B2AA' }}>
+                      <UserCog className="w-6 h-6 text-white" />
                     </div>
-                    <div className="h-48">
-                      <iframe
-                        src="/dashboard/admin/analytics?embedded=true&quickview=true"
-                        className="w-full h-full border-0"
-                        title="Analytics Quick View"
-                      />
-                    </div>
-                    <div className="p-3 bg-gray-50 border-t">
-                      <button
-                        onClick={() => setActiveSection('analytics')}
-                        className="w-full text-xs bg-orange-600 text-white py-1 px-3 rounded hover:bg-orange-700 transition-colors"
-                      >
-                        Open Full View
-                      </button>
-                    </div>
+                    <div className="text-3xl font-bold mb-1" style={{ color: '#20B2AA' }}>3</div>
+                    <div className="text-sm" style={{ color: '#666' }}>Coaches</div>
                   </div>
 
-                  {/* Coach Management Quick View */}
-                  <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
-                    <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-4 py-2">
-                      <div className="flex items-center gap-2">
-                        <Shield className="w-4 h-4 text-white" />
-                        <h3 className="text-sm font-semibold text-white">Coach Management</h3>
-                      </div>
+                  <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 text-center">
+                    <div className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-3" style={{ backgroundColor: '#FF6B35' }}>
+                      <BarChart3 className="w-6 h-6 text-white" />
                     </div>
-                    <div className="h-48">
-                      <iframe
-                        src="/dashboard/admin/coach-management?embedded=true&quickview=true"
-                        className="w-full h-full border-0"
-                        title="Coach Management Quick View"
-                      />
-                    </div>
-                    <div className="p-3 bg-gray-50 border-t">
-                      <button
-                        onClick={() => setActiveSection('coach-management')}
-                        className="w-full text-xs bg-blue-600 text-white py-1 px-3 rounded hover:bg-blue-700 transition-colors"
-                      >
-                        Open Full View
-                      </button>
-                    </div>
+                    <div className="text-3xl font-bold mb-1" style={{ color: '#FF6B35' }}>22</div>
+                    <div className="text-sm" style={{ color: '#666' }}>Content Items</div>
                   </div>
 
-                  {/* Invitations Quick View */}
-                  <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
-                    <div className="bg-gradient-to-r from-teal-500 to-teal-600 px-4 py-2">
-                      <div className="flex items-center gap-2">
-                        <UserCheck className="w-4 h-4 text-white" />
-                        <h3 className="text-sm font-semibold text-white">Invitations</h3>
-                      </div>
+                  <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 text-center">
+                    <div className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-3" style={{ backgroundColor: '#91A6EB' }}>
+                      <UserCheck className="w-6 h-6 text-white" />
                     </div>
-                    <div className="h-48">
-                      <iframe
-                        src="/dashboard/admin/invitations-approvals?embedded=true&quickview=true"
-                        className="w-full h-full border-0"
-                        title="Invitations Quick View"
-                      />
-                    </div>
-                    <div className="p-3 bg-gray-50 border-t">
-                      <button
-                        onClick={() => setActiveSection('invitations-approvals')}
-                        className="w-full text-xs bg-teal-600 text-white py-1 px-3 rounded hover:bg-teal-700 transition-colors"
-                      >
-                        Open Full View
-                      </button>
-                    </div>
+                    <div className="text-3xl font-bold mb-1" style={{ color: '#91A6EB' }}>2</div>
+                    <div className="text-sm" style={{ color: '#666' }}>Pending Invites</div>
                   </div>
                 </div>
 
-                {/* Additional Quick Views Row */}
-                <div className="grid grid-cols-3 gap-4">
-                  {/* Athletes Quick View */}
-                  <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
-                    <div className="bg-gradient-to-r from-green-500 to-green-600 px-3 py-2">
-                      <div className="flex items-center gap-2">
-                        <Trophy className="w-4 h-4 text-white" />
-                        <h3 className="text-xs font-semibold text-white">Athletes</h3>
+                {/* Quick Actions Grid */}
+                <div className="grid grid-cols-2 gap-6">
+                  {/* Left Column */}
+                  <div className="space-y-4">
+                    <h3 className="text-xl font-semibold mb-4" style={{ color: '#000000' }}>User Management</h3>
+                    
+                    <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#8B5CF6' }}>
+                            <UserCog className="w-5 h-5 text-white" />
+                          </div>
+                          <div>
+                            <h4 className="font-semibold" style={{ color: '#000000' }}>User & Role Management</h4>
+                            <p className="text-sm" style={{ color: '#666' }}>Manage users, roles, and permissions</p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => setActiveSection('users')}
+                          className="px-4 py-2 rounded-lg text-white text-sm font-medium transition-colors"
+                          style={{ backgroundColor: '#8B5CF6' }}
+                        >
+                          Open
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span style={{ color: '#666' }}>Total Users:</span>
+                          <span className="ml-2 font-semibold" style={{ color: '#000000' }}>9</span>
+                        </div>
+                        <div>
+                          <span style={{ color: '#666' }}>Active:</span>
+                          <span className="ml-2 font-semibold" style={{ color: '#000000' }}>9</span>
+                        </div>
                       </div>
                     </div>
-                    <div className="h-32">
-                      <iframe
-                        src="/dashboard/admin/athletes?embedded=true&quickview=true"
-                        className="w-full h-full border-0"
-                        title="Athletes Quick View"
-                      />
+
+                    <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#20B2AA' }}>
+                            <UserCheck className="w-5 h-5 text-white" />
+                          </div>
+                          <div>
+                            <h4 className="font-semibold" style={{ color: '#000000' }}>Invitations & Approvals</h4>
+                            <p className="text-sm" style={{ color: '#666' }}>Review and approve applications</p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => setActiveSection('invitations-approvals')}
+                          className="px-4 py-2 rounded-lg text-white text-sm font-medium transition-colors"
+                          style={{ backgroundColor: '#20B2AA' }}
+                        >
+                          Open
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span style={{ color: '#666' }}>Pending:</span>
+                          <span className="ml-2 font-semibold" style={{ color: '#000000' }}>2</span>
+                        </div>
+                        <div>
+                          <span style={{ color: '#666' }}>Approved:</span>
+                          <span className="ml-2 font-semibold" style={{ color: '#000000' }}>0</span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="p-2 bg-gray-50 border-t">
-                      <button
-                        onClick={() => setActiveSection('athletes')}
-                        className="w-full text-xs bg-green-600 text-white py-1 px-2 rounded hover:bg-green-700 transition-colors"
-                      >
-                        Open
-                      </button>
+
+                    <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#91A6EB' }}>
+                            <Trophy className="w-5 h-5 text-white" />
+                          </div>
+                          <div>
+                            <h4 className="font-semibold" style={{ color: '#000000' }}>Athletes</h4>
+                            <p className="text-sm" style={{ color: '#666' }}>Manage athlete accounts and progress</p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => setActiveSection('athletes')}
+                          className="px-4 py-2 rounded-lg text-white text-sm font-medium transition-colors"
+                          style={{ backgroundColor: '#91A6EB' }}
+                        >
+                          Open
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span style={{ color: '#666' }}>Total:</span>
+                          <span className="ml-2 font-semibold" style={{ color: '#000000' }}>6</span>
+                        </div>
+                        <div>
+                          <span style={{ color: '#666' }}>Active:</span>
+                          <span className="ml-2 font-semibold" style={{ color: '#000000' }}>6</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Content Management Quick View */}
-                  <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
-                    <div className="bg-gradient-to-r from-indigo-500 to-indigo-600 px-3 py-2">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4 text-white" />
-                        <h3 className="text-xs font-semibold text-white">Content</h3>
+                  {/* Right Column */}
+                  <div className="space-y-4">
+                    <h3 className="text-xl font-semibold mb-4" style={{ color: '#000000' }}>Content & Analytics</h3>
+                    
+                    <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#FF6B35' }}>
+                            <BarChart3 className="w-5 h-5 text-white" />
+                          </div>
+                          <div>
+                            <h4 className="font-semibold" style={{ color: '#000000' }}>System Analytics</h4>
+                            <p className="text-sm" style={{ color: '#666' }}>View platform metrics and insights</p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => setActiveSection('analytics')}
+                          className="px-4 py-2 rounded-lg text-white text-sm font-medium transition-colors"
+                          style={{ backgroundColor: '#FF6B35' }}
+                        >
+                          Open
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span style={{ color: '#666' }}>Total Views:</span>
+                          <span className="ml-2 font-semibold" style={{ color: '#000000' }}>0</span>
+                        </div>
+                        <div>
+                          <span style={{ color: '#666' }}>Growth:</span>
+                          <span className="ml-2 font-semibold" style={{ color: '#000000' }}>+0%</span>
+                        </div>
                       </div>
                     </div>
-                    <div className="h-32">
-                      <iframe
-                        src="/dashboard/admin/content?embedded=true&quickview=true"
-                        className="w-full h-full border-0"
-                        title="Content Management Quick View"
-                      />
-                    </div>
-                    <div className="p-2 bg-gray-50 border-t">
-                      <button
-                        onClick={() => setActiveSection('content')}
-                        className="w-full text-xs bg-indigo-600 text-white py-1 px-2 rounded hover:bg-indigo-700 transition-colors"
-                      >
-                        Open
-                      </button>
-                    </div>
-                  </div>
 
-                  {/* System Settings Quick View */}
-                  <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
-                    <div className="bg-gradient-to-r from-gray-500 to-gray-600 px-3 py-2">
-                      <div className="flex items-center gap-2">
-                        <Settings className="w-4 h-4 text-white" />
-                        <h3 className="text-xs font-semibold text-white">Settings</h3>
+                    <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#8B5CF6' }}>
+                            <Shield className="w-5 h-5 text-white" />
+                          </div>
+                          <div>
+                            <h4 className="font-semibold" style={{ color: '#000000' }}>Coach Management</h4>
+                            <p className="text-sm" style={{ color: '#666' }}>Manage coach verification and featured status</p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => setActiveSection('coach-management')}
+                          className="px-4 py-2 rounded-lg text-white text-sm font-medium transition-colors"
+                          style={{ backgroundColor: '#8B5CF6' }}
+                        >
+                          Open
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span style={{ color: '#666' }}>Verified:</span>
+                          <span className="ml-2 font-semibold" style={{ color: '#000000' }}>3</span>
+                        </div>
+                        <div>
+                          <span style={{ color: '#666' }}>Featured:</span>
+                          <span className="ml-2 font-semibold" style={{ color: '#000000' }}>2</span>
+                        </div>
                       </div>
                     </div>
-                    <div className="h-32">
-                      <iframe
-                        src="/dashboard/admin/settings?embedded=true&quickview=true"
-                        className="w-full h-full border-0"
-                        title="System Settings Quick View"
-                      />
-                    </div>
-                    <div className="p-2 bg-gray-50 border-t">
-                      <button
-                        onClick={() => setActiveSection('settings')}
-                        className="w-full text-xs bg-gray-600 text-white py-1 px-2 rounded hover:bg-gray-700 transition-colors"
-                      >
-                        Open
-                      </button>
+
+                    <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#000000' }}>
+                            <Calendar className="w-5 h-5 text-white" />
+                          </div>
+                          <div>
+                            <h4 className="font-semibold" style={{ color: '#000000' }}>Content Management</h4>
+                            <p className="text-sm" style={{ color: '#666' }}>Review and moderate platform content</p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => setActiveSection('content')}
+                          className="px-4 py-2 rounded-lg text-white text-sm font-medium transition-colors"
+                          style={{ backgroundColor: '#000000' }}
+                        >
+                          Open
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span style={{ color: '#666' }}>Published:</span>
+                          <span className="ml-2 font-semibold" style={{ color: '#000000' }}>22</span>
+                        </div>
+                        <div>
+                          <span style={{ color: '#666' }}>Pending:</span>
+                          <span className="ml-2 font-semibold" style={{ color: '#000000' }}>0</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
