@@ -268,28 +268,11 @@ export default function AppHeader({ className = '', title, subtitle }: AppHeader
 
   return (
     <>
-      {/* Fixed ATHLEAP Logo - Locked to top-left corner */}
-      <button
-        onClick={handleLogoClick}
-        className="fixed top-4 left-4 z-50 text-2xl sm:text-3xl hover:opacity-80 transition-opacity touch-manipulation"
-        style={{
-          fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
-          fontWeight: '700',
-          color: '#624A41',
-          minHeight: '44px',
-          display: 'flex',
-          alignItems: 'center'
-        }}
-        >
-        AthLeap
-      </button>
 
       <header className={`bg-white px-4 py-3 sm:py-4 shadow-sm ${className}`} role="banner">
       <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
-        {/* Left Side - Spacer for fixed logo and optional title */}
+        {/* Left Side - Title section */}
         <div className="flex items-center gap-3 sm:gap-6 w-full sm:w-auto">
-          {/* Spacer to account for fixed logo */}
-          <div className="w-32 sm:w-40"></div>
 
 
           {title && (
