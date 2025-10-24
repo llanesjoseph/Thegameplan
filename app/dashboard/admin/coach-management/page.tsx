@@ -195,21 +195,21 @@ export default function CoachManagementPage() {
         return (
           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs text-white bg-green-600">
             <CheckCircle className="w-3 h-3 mr-1" />
-            Approved
+            Active
           </span>
         )
       case 'pending':
         return (
           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs text-white bg-yellow-600">
             <AlertCircle className="w-3 h-3 mr-1" />
-            Pending
+            Pending Review
           </span>
         )
       case 'rejected':
         return (
           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs text-white bg-red-600">
             <XCircle className="w-3 h-3 mr-1" />
-            Rejected
+            Suspended
           </span>
         )
       default:
@@ -310,9 +310,9 @@ export default function CoachManagementPage() {
                 onChange={(e) => setStatusFilter(e.target.value)}
               >
                 <option value="all">All Status</option>
-                <option value="approved">Approved</option>
-                <option value="pending">Pending</option>
-                <option value="rejected">Rejected</option>
+                <option value="approved">Active</option>
+                <option value="pending">Pending Review</option>
+                <option value="rejected">Suspended</option>
               </select>
             </div>
 
@@ -569,14 +569,14 @@ export default function CoachManagementPage() {
                   </button>
                 </div>
 
-                {/* Status Change */}
+                {/* Coach Access Control */}
                 <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
                   <div>
                     <h4 className="font-medium" style={{ color: '#000000' }}>
-                      Approval Status
+                      Coach Access Control
                     </h4>
                     <p className="text-sm" style={{ color: '#666' }}>
-                      Change the coach's approval status
+                      Suspend or revoke coach access to the platform. Suspended coaches cannot access their dashboard or interact with athletes.
                     </p>
                   </div>
                   <div className="flex gap-2">
@@ -589,7 +589,7 @@ export default function CoachManagementPage() {
                           : 'bg-green-600 text-white hover:bg-green-700'
                       } ${isUpdating === selectedCoach.uid ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
-                      Approve
+                      Restore Access
                     </button>
                     <button
                       onClick={() => updateCoachStatus(selectedCoach.uid, 'status', 'rejected')}
@@ -600,7 +600,7 @@ export default function CoachManagementPage() {
                           : 'bg-red-600 text-white hover:bg-red-700'
                       } ${isUpdating === selectedCoach.uid ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
-                      Reject
+                      Suspend Coach
                     </button>
                   </div>
                 </div>
