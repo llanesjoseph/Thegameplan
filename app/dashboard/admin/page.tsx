@@ -327,7 +327,7 @@ export default function AdminDashboard() {
 
                 {/* Key Metrics Row */}
                 <div className="grid grid-cols-4 gap-6 mb-8">
-                  <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 text-center">
+                  <div className="bg-gray-50 rounded-lg border border-gray-200 p-6 text-center">
                     <div className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-3" style={{ backgroundColor: '#8B5CF6' }}>
                       <Users className="w-6 h-6 text-white" />
                     </div>
@@ -335,7 +335,7 @@ export default function AdminDashboard() {
                     <div className="text-sm" style={{ color: '#666' }}>Active Athletes</div>
                   </div>
 
-                  <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 text-center">
+                  <div className="bg-gray-50 rounded-lg border border-gray-200 p-6 text-center">
                     <div className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-3" style={{ backgroundColor: '#20B2AA' }}>
                       <UserCog className="w-6 h-6 text-white" />
                     </div>
@@ -343,7 +343,7 @@ export default function AdminDashboard() {
                     <div className="text-sm" style={{ color: '#666' }}>Coaches</div>
                   </div>
 
-                  <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 text-center">
+                  <div className="bg-gray-50 rounded-lg border border-gray-200 p-6 text-center">
                     <div className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-3" style={{ backgroundColor: '#FF6B35' }}>
                       <BarChart3 className="w-6 h-6 text-white" />
                     </div>
@@ -351,7 +351,7 @@ export default function AdminDashboard() {
                     <div className="text-sm" style={{ color: '#666' }}>Content Items</div>
                   </div>
 
-                  <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 text-center">
+                  <div className="bg-gray-50 rounded-lg border border-gray-200 p-6 text-center">
                     <div className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-3" style={{ backgroundColor: '#91A6EB' }}>
                       <UserCheck className="w-6 h-6 text-white" />
                     </div>
