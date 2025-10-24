@@ -66,8 +66,8 @@ export default function CoachesLockerRoom() {
         )
         const coachesSnapshot = await getDocs(coachesQuery)
 
-        // Get all videos
-        const videosSnapshot = await getDocs(collection(db, 'videos'))
+        // Get all content (lessons and videos)
+        const contentSnapshot = await getDocs(collection(db, 'content'))
 
         // Calculate stats for each coach
         const coachesData = await Promise.all(
@@ -75,21 +75,21 @@ export default function CoachesLockerRoom() {
             const coachData = coachDoc.data()
             const coachId = coachDoc.id
 
-            // Get coach's videos
-            const coachVideos = videosSnapshot.docs.filter(
-              (videoDoc) => videoDoc.data().creatorId === coachId
+            // Get coach's content (lessons and videos)
+            const coachContent = contentSnapshot.docs.filter(
+              (contentDoc) => contentDoc.data().creatorUid === coachId
             )
 
-            const videoCount = coachVideos.length
-            const totalViews = coachVideos.reduce(
-              (sum, videoDoc) => sum + (videoDoc.data().views || 0),
+            const videoCount = coachContent.length
+            const totalViews = coachContent.reduce(
+              (sum, contentDoc) => sum + (contentDoc.data().viewCount || contentDoc.data().views || 0),
               0
             )
 
             // Calculate average rating
-            const ratings = coachVideos
-              .map((v) => v.data().rating)
-              .filter((r) => r !== undefined)
+            const ratings = coachContent
+              .map((c) => c.data().averageRating || c.data().rating)
+              .filter((r) => r !== undefined && r > 0)
             const averageRating =
               ratings.length > 0
                 ? ratings.reduce((sum, r) => sum + r, 0) / ratings.length
@@ -111,9 +111,9 @@ export default function CoachesLockerRoom() {
         setCoaches(coachesData)
 
         // Calculate overall stats
-        const totalVideos = videosSnapshot.size
-        const totalViews = videosSnapshot.docs.reduce(
-          (sum, doc) => sum + (doc.data().views || 0),
+        const totalVideos = contentSnapshot.size
+        const totalViews = contentSnapshot.docs.reduce(
+          (sum, doc) => sum + (doc.data().viewCount || doc.data().views || 0),
           0
         )
         const activeCoaches = coachesData.filter((c) => c.videoCount > 0).length
