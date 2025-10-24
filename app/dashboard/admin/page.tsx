@@ -313,60 +313,196 @@ export default function AdminDashboard() {
                 </div>
               </div>
             ) : (
-              /* Welcome/Empty State */
-              <div className="h-full flex items-center justify-center p-8">
-                <div className="max-w-2xl text-center">
-                  <div className="mb-6">
-                    <Shield className="w-20 h-20 mx-auto mb-4" style={{ color: '#8B5CF6' }} />
-                    <h2 className="text-3xl font-bold mb-2" style={{ color: '#000000' }}>
-                      Admin Dashboard
-                    </h2>
-                    <p className="text-lg" style={{ color: '#666' }}>
-                      Select a tool from the left sidebar to manage the platform
-                    </p>
-                  </div>
+              /* Quick View Dashboard with Live Iframes */
+              <div className="h-full p-6 overflow-y-auto">
+                <div className="mb-6 text-center">
+                  <Shield className="w-16 h-16 mx-auto mb-3" style={{ color: '#8B5CF6' }} />
+                  <h2 className="text-2xl font-bold mb-2" style={{ color: '#000000' }}>
+                    Admin Dashboard
+                  </h2>
+                  <p className="text-sm" style={{ color: '#666' }}>
+                    Live overview of all platform tools - Click any preview to open full view
+                  </p>
+                </div>
 
-                  <div className="grid grid-cols-2 gap-4 text-left">
-                    <div className="bg-gradient-to-br from-purple-500/10 to-purple-500/5 rounded-lg p-5 border-2 border-purple-500/30">
-                      <UserCog className="w-8 h-8 mb-3" style={{ color: '#8B5CF6' }} />
-                      <h3 className="font-semibold mb-1" style={{ color: '#000000' }}>User Management</h3>
-                      <p className="text-sm" style={{ color: '#666' }}>
-                        Manage users, roles, and permissions
-                      </p>
+                {/* Quick View Grid */}
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                  {/* User Management Quick View */}
+                  <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
+                    <div className="bg-gradient-to-r from-purple-500 to-purple-600 px-4 py-2">
+                      <div className="flex items-center gap-2">
+                        <UserCog className="w-4 h-4 text-white" />
+                        <h3 className="text-sm font-semibold text-white">User Management</h3>
+                      </div>
                     </div>
-
-                    <div className="bg-gradient-to-br from-teal/10 to-teal/5 rounded-lg p-5 border-2" style={{ borderColor: '#20B2AA' }}>
-                      <UserCheck className="w-8 h-8 mb-3" style={{ color: '#20B2AA' }} />
-                      <h3 className="font-semibold mb-1" style={{ color: '#000000' }}>Invitations</h3>
-                      <p className="text-sm" style={{ color: '#666' }}>
-                        Review and approve applications
-                      </p>
+                    <div className="h-48">
+                      <iframe
+                        src="/dashboard/admin/users?embedded=true&quickview=true"
+                        className="w-full h-full border-0"
+                        title="User Management Quick View"
+                      />
                     </div>
-
-                    <div className="bg-gradient-to-br from-orange/10 to-orange/5 rounded-lg p-5 border-2" style={{ borderColor: '#FF6B35' }}>
-                      <BarChart3 className="w-8 h-8 mb-3" style={{ color: '#FF6B35' }} />
-                      <h3 className="font-semibold mb-1" style={{ color: '#000000' }}>Analytics</h3>
-                      <p className="text-sm" style={{ color: '#666' }}>
-                        View platform metrics and insights
-                      </p>
-                    </div>
-
-                    <div className="bg-gradient-to-br from-black/10 to-black/5 rounded-lg p-5 border-2 border-black/20">
-                      <Settings className="w-8 h-8 mb-3" style={{ color: '#000000' }} />
-                      <h3 className="font-semibold mb-1" style={{ color: '#000000' }}>System Settings</h3>
-                      <p className="text-sm" style={{ color: '#666' }}>
-                        Configure platform settings
-                      </p>
+                    <div className="p-3 bg-gray-50 border-t">
+                      <button
+                        onClick={() => setActiveSection('users')}
+                        className="w-full text-xs bg-purple-600 text-white py-1 px-3 rounded hover:bg-purple-700 transition-colors"
+                      >
+                        Open Full View
+                      </button>
                     </div>
                   </div>
 
-                  <div className="mt-6 bg-gradient-to-r from-purple-600 to-purple-800 rounded-lg p-5 text-white text-left">
-                    <h3 className="font-semibold mb-3 text-lg">🛡️ Admin Quick Access</h3>
-                    <ol className="space-y-2 text-sm">
-                      <li><strong>1.</strong> Click any tool in the sidebar to open it</li>
-                      <li><strong>2.</strong> Use "User & Role Management" for user admin</li>
-                      <li><strong>3.</strong> Check "Analytics" for platform insights</li>
-                    </ol>
+                  {/* Analytics Quick View */}
+                  <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
+                    <div className="bg-gradient-to-r from-orange-500 to-orange-600 px-4 py-2">
+                      <div className="flex items-center gap-2">
+                        <BarChart3 className="w-4 h-4 text-white" />
+                        <h3 className="text-sm font-semibold text-white">Analytics</h3>
+                      </div>
+                    </div>
+                    <div className="h-48">
+                      <iframe
+                        src="/dashboard/admin/analytics?embedded=true&quickview=true"
+                        className="w-full h-full border-0"
+                        title="Analytics Quick View"
+                      />
+                    </div>
+                    <div className="p-3 bg-gray-50 border-t">
+                      <button
+                        onClick={() => setActiveSection('analytics')}
+                        className="w-full text-xs bg-orange-600 text-white py-1 px-3 rounded hover:bg-orange-700 transition-colors"
+                      >
+                        Open Full View
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Coach Management Quick View */}
+                  <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
+                    <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-4 py-2">
+                      <div className="flex items-center gap-2">
+                        <Shield className="w-4 h-4 text-white" />
+                        <h3 className="text-sm font-semibold text-white">Coach Management</h3>
+                      </div>
+                    </div>
+                    <div className="h-48">
+                      <iframe
+                        src="/dashboard/admin/coach-management?embedded=true&quickview=true"
+                        className="w-full h-full border-0"
+                        title="Coach Management Quick View"
+                      />
+                    </div>
+                    <div className="p-3 bg-gray-50 border-t">
+                      <button
+                        onClick={() => setActiveSection('coach-management')}
+                        className="w-full text-xs bg-blue-600 text-white py-1 px-3 rounded hover:bg-blue-700 transition-colors"
+                      >
+                        Open Full View
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Invitations Quick View */}
+                  <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
+                    <div className="bg-gradient-to-r from-teal-500 to-teal-600 px-4 py-2">
+                      <div className="flex items-center gap-2">
+                        <UserCheck className="w-4 h-4 text-white" />
+                        <h3 className="text-sm font-semibold text-white">Invitations</h3>
+                      </div>
+                    </div>
+                    <div className="h-48">
+                      <iframe
+                        src="/dashboard/admin/invitations-approvals?embedded=true&quickview=true"
+                        className="w-full h-full border-0"
+                        title="Invitations Quick View"
+                      />
+                    </div>
+                    <div className="p-3 bg-gray-50 border-t">
+                      <button
+                        onClick={() => setActiveSection('invitations-approvals')}
+                        className="w-full text-xs bg-teal-600 text-white py-1 px-3 rounded hover:bg-teal-700 transition-colors"
+                      >
+                        Open Full View
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Additional Quick Views Row */}
+                <div className="grid grid-cols-3 gap-4">
+                  {/* Athletes Quick View */}
+                  <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
+                    <div className="bg-gradient-to-r from-green-500 to-green-600 px-3 py-2">
+                      <div className="flex items-center gap-2">
+                        <Trophy className="w-4 h-4 text-white" />
+                        <h3 className="text-xs font-semibold text-white">Athletes</h3>
+                      </div>
+                    </div>
+                    <div className="h-32">
+                      <iframe
+                        src="/dashboard/admin/athletes?embedded=true&quickview=true"
+                        className="w-full h-full border-0"
+                        title="Athletes Quick View"
+                      />
+                    </div>
+                    <div className="p-2 bg-gray-50 border-t">
+                      <button
+                        onClick={() => setActiveSection('athletes')}
+                        className="w-full text-xs bg-green-600 text-white py-1 px-2 rounded hover:bg-green-700 transition-colors"
+                      >
+                        Open
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Content Management Quick View */}
+                  <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
+                    <div className="bg-gradient-to-r from-indigo-500 to-indigo-600 px-3 py-2">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4 text-white" />
+                        <h3 className="text-xs font-semibold text-white">Content</h3>
+                      </div>
+                    </div>
+                    <div className="h-32">
+                      <iframe
+                        src="/dashboard/admin/content?embedded=true&quickview=true"
+                        className="w-full h-full border-0"
+                        title="Content Management Quick View"
+                      />
+                    </div>
+                    <div className="p-2 bg-gray-50 border-t">
+                      <button
+                        onClick={() => setActiveSection('content')}
+                        className="w-full text-xs bg-indigo-600 text-white py-1 px-2 rounded hover:bg-indigo-700 transition-colors"
+                      >
+                        Open
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* System Settings Quick View */}
+                  <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
+                    <div className="bg-gradient-to-r from-gray-500 to-gray-600 px-3 py-2">
+                      <div className="flex items-center gap-2">
+                        <Settings className="w-4 h-4 text-white" />
+                        <h3 className="text-xs font-semibold text-white">Settings</h3>
+                      </div>
+                    </div>
+                    <div className="h-32">
+                      <iframe
+                        src="/dashboard/admin/settings?embedded=true&quickview=true"
+                        className="w-full h-full border-0"
+                        title="System Settings Quick View"
+                      />
+                    </div>
+                    <div className="p-2 bg-gray-50 border-t">
+                      <button
+                        onClick={() => setActiveSection('settings')}
+                        className="w-full text-xs bg-gray-600 text-white py-1 px-2 rounded hover:bg-gray-700 transition-colors"
+                      >
+                        Open
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
