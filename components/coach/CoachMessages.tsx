@@ -29,6 +29,8 @@ export default function CoachMessages({ className = '' }: CoachMessagesProps) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null)
+  const [replyText, setReplyText] = useState('')
+  const [sendingReply, setSendingReply] = useState(false)
 
   useEffect(() => {
     if (user?.uid) {
@@ -107,6 +109,50 @@ export default function CoachMessages({ className = '' }: CoachMessagesProps) {
       }
     } catch (err) {
       console.error('Error marking message as replied:', err)
+    }
+  }
+
+  const sendReply = async (messageId: string, replyText: string) => {
+    if (!user?.uid || !replyText.trim()) return
+
+    setSendingReply(true)
+    try {
+      const response = await fetch('/api/coach/reply-message', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          messageId,
+          replyText: replyText.trim(),
+          coachId: user.uid
+        })
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        // Update local state
+        setMessages(prev => prev.map(msg => 
+          msg.id === messageId 
+            ? { ...msg, status: 'replied' as const, repliedAt: new Date() }
+            : msg
+        ))
+        
+        // Clear reply text and close modal
+        setReplyText('')
+        setSelectedMessage(null)
+        
+        console.log('Reply sent successfully')
+      } else {
+        console.error('Failed to send reply:', data.error)
+        alert('Failed to send reply: ' + (data.error || 'Unknown error'))
+      }
+    } catch (err) {
+      console.error('Error sending reply:', err)
+      alert('Failed to send reply. Please try again.')
+    } finally {
+      setSendingReply(false)
     }
   }
 
@@ -287,7 +333,10 @@ export default function CoachMessages({ className = '' }: CoachMessagesProps) {
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-gray-900">Message Details</h3>
                 <button
-                  onClick={() => setSelectedMessage(null)}
+                  onClick={() => {
+                    setSelectedMessage(null)
+                    setReplyText('')
+                  }}
                   className="text-gray-400 hover:text-gray-600"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -324,19 +373,55 @@ export default function CoachMessages({ className = '' }: CoachMessagesProps) {
                 </div>
               </div>
 
+              {/* Reply Form */}
+              {selectedMessage.status !== 'replied' && (
+                <div className="mb-6 border-t pt-6">
+                  <h4 className="font-medium text-gray-900 mb-3">Reply to {selectedMessage.athleteName}</h4>
+                  <textarea
+                    value={replyText}
+                    onChange={(e) => setReplyText(e.target.value)}
+                    placeholder="Type your reply here..."
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none"
+                    rows={4}
+                    maxLength={2000}
+                  />
+                  <div className="flex justify-between items-center mt-2">
+                    <span className="text-sm text-gray-500">
+                      {replyText.length}/2000 characters
+                    </span>
+                    <button
+                      onClick={() => sendReply(selectedMessage.id, replyText)}
+                      disabled={!replyText.trim() || sendingReply}
+                      className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {sendingReply ? 'Sending...' : 'Send Reply'}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {selectedMessage.status === 'replied' && (
+                <div className="mb-6 border-t pt-6">
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <div className="flex items-center">
+                      <svg className="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span className="text-green-800 font-medium">Replied</span>
+                    </div>
+                    <p className="text-green-700 text-sm mt-1">
+                      You replied to this message on {formatDate(selectedMessage.repliedAt)}
+                    </p>
+                  </div>
+                </div>
+              )}
+
               <div className="flex gap-3">
                 <button
                   onClick={() => {
-                    markAsReplied(selectedMessage.id)
                     setSelectedMessage(null)
+                    setReplyText('')
                   }}
-                  className="flex items-center gap-2 bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors"
-                >
-                  <Reply className="w-4 h-4" />
-                  Mark as Replied
-                </button>
-                <button
-                  onClick={() => setSelectedMessage(null)}
                   className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   Close
