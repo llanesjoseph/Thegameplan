@@ -1,5 +1,5 @@
 import { db } from './firebase.client'
-import { collection, addDoc, updateDoc, serverTimestamp, Timestamp } from 'firebase/firestore'
+import { collection, addDoc, updateDoc, serverTimestamp, Timestamp, query, where, getDocs } from 'firebase/firestore'
 import { AIProvider, SubscriptionTier } from '../types'
 
 export interface AILogEntry {
