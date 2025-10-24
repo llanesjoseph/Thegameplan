@@ -143,12 +143,14 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status');
     const limit = parseInt(searchParams.get('limit') || '20');
 
-    // Build query using Firebase Admin SDK
-    let query: any = adminDb.collection('submissions');
+    // SECURITY: Always filter by authenticated user's ID to prevent privacy violations
+    // This ensures athletes can only see their own submissions
+    let query: any = adminDb.collection('submissions').where('athleteUid', '==', userId);
 
-    // Apply filters
-    if (athleteUid) {
-      query = query.where('athleteUid', '==', athleteUid);
+    // Apply additional filters (but always maintain athleteUid filter)
+    if (athleteUid && athleteUid !== userId) {
+      // If someone tries to query for a different athlete's submissions, ignore the parameter
+      console.warn(`User ${userId} attempted to query submissions for different athlete ${athleteUid} - blocked for security`);
     }
     if (teamId) {
       query = query.where('teamId', '==', teamId);

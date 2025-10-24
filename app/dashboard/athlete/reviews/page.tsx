@@ -37,9 +37,9 @@ export default function AthleteReviewsPage() {
     // Fetch submissions WITHOUT INDEXES - fetch all and filter in JavaScript
     const fetchSubmissions = async () => {
       try {
-        // Use secure API to prevent React errors
+        // Use secure API to prevent React errors - CRITICAL: Filter by athlete ID
         const token = await user.getIdToken();
-        const response = await fetch('/api/submissions', {
+        const response = await fetch(`/api/submissions?athleteUid=${user.uid}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
           },
@@ -222,7 +222,7 @@ export default function AthleteReviewsPage() {
                   const fetchSubmissions = async () => {
                     try {
                       const token = await user.getIdToken();
-                      const response = await fetch('/api/submissions', {
+                      const response = await fetch(`/api/submissions?athleteUid=${user.uid}`, {
                         headers: { 'Authorization': `Bearer ${token}` },
                       });
                       if (response.ok) {
