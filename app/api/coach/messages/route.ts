@@ -61,16 +61,22 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const messages = messagesSnapshot.docs.map(doc => {
-      const data = doc.data()
-      return {
-        id: doc.id,
-        ...data,
-        createdAt: data.createdAt?.toDate?.() || data.createdAt || new Date(),
-        readAt: data.readAt?.toDate?.() || data.readAt || null,
-        repliedAt: data.repliedAt?.toDate?.() || data.repliedAt || null
-      }
-    })
+    const messages = messagesSnapshot.docs
+      .filter(doc => {
+        const data = doc.data()
+        // Filter out dismissed messages
+        return data.status !== 'dismissed'
+      })
+      .map(doc => {
+        const data = doc.data()
+        return {
+          id: doc.id,
+          ...data,
+          createdAt: data.createdAt?.toDate?.() || data.createdAt || new Date(),
+          readAt: data.readAt?.toDate?.() || data.readAt || null,
+          repliedAt: data.repliedAt?.toDate?.() || data.repliedAt || null
+        }
+      })
 
     console.log(`Found ${messages.length} messages for coach ${actualCoachId}`)
 
@@ -122,12 +128,28 @@ export async function POST(request: NextRequest) {
     if (action === 'mark_read') {
       updateData.status = 'read'
       updateData.readAt = new Date()
+      await messageRef.update(updateData)
     } else if (action === 'mark_replied') {
       updateData.status = 'replied'
       updateData.repliedAt = new Date()
+      await messageRef.update(updateData)
+    } else if (action === 'dismiss') {
+      updateData.status = 'dismissed'
+      updateData.dismissedAt = new Date()
+      await messageRef.update(updateData)
+    } else if (action === 'delete') {
+      await messageRef.delete()
+      console.log(`Message [MESSAGE_ID] deleted successfully`)
+      return NextResponse.json({
+        success: true,
+        message: 'Message deleted successfully'
+      })
+    } else {
+      return NextResponse.json(
+        { error: 'Invalid action' },
+        { status: 400 }
+      )
     }
-
-    await messageRef.update(updateData)
 
     console.log(`Message [MESSAGE_ID] updated successfully`)
 

@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { Mail, Clock, User, MessageSquare, CheckCircle, Reply } from 'lucide-react'
+import { Mail, Clock, User, MessageSquare, CheckCircle, Reply, Trash2, Archive, X } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 
 interface Message {
@@ -156,6 +156,64 @@ export default function CoachMessages({ className = '' }: CoachMessagesProps) {
     }
   }
 
+  const dismissMessage = async (messageId: string) => {
+    try {
+      const response = await fetch('/api/coach/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          messageId,
+          action: 'dismiss'
+        })
+      })
+
+      if (response.ok) {
+        // Remove message from local state
+        setMessages(prev => prev.filter(msg => msg.id !== messageId))
+        console.log('Message dismissed successfully')
+      } else {
+        console.error('Failed to dismiss message')
+        alert('Failed to dismiss message. Please try again.')
+      }
+    } catch (err) {
+      console.error('Error dismissing message:', err)
+      alert('Failed to dismiss message. Please try again.')
+    }
+  }
+
+  const deleteMessage = async (messageId: string) => {
+    if (!confirm('Are you sure you want to delete this message? This action cannot be undone.')) {
+      return
+    }
+
+    try {
+      const response = await fetch('/api/coach/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          messageId,
+          action: 'delete'
+        })
+      })
+
+      if (response.ok) {
+        // Remove message from local state
+        setMessages(prev => prev.filter(msg => msg.id !== messageId))
+        console.log('Message deleted successfully')
+      } else {
+        console.error('Failed to delete message')
+        alert('Failed to delete message. Please try again.')
+      }
+    } catch (err) {
+      console.error('Error deleting message:', err)
+      alert('Failed to delete message. Please try again.')
+    }
+  }
+
   const formatDate = (date: any) => {
     // Ensure we have a proper Date object
     let dateObj: Date
@@ -288,15 +346,9 @@ export default function CoachMessages({ className = '' }: CoachMessagesProps) {
             {messages.map((message) => (
               <div
                 key={message.id}
-                className={`p-4 border-l-4 cursor-pointer hover:bg-gray-50 transition-colors ${getStatusColor(message.status)}`}
-                onClick={() => {
-                  setSelectedMessage(message)
-                  if (message.status === 'unread') {
-                    markAsRead(message.id)
-                  }
-                }}
+                className={`p-4 border-l-4 hover:bg-gray-50 transition-colors ${getStatusColor(message.status)}`}
               >
-                <div className="flex items-start justify-between">
+                <div className="flex items-start justify-between mb-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <User className="w-4 h-4 text-gray-500" />
@@ -318,6 +370,38 @@ export default function CoachMessages({ className = '' }: CoachMessagesProps) {
                       {formatDate(message.createdAt)}
                     </span>
                   </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex items-center gap-2 pt-2 border-t border-gray-200">
+                  <button
+                    onClick={() => {
+                      setSelectedMessage(message)
+                      if (message.status === 'unread') {
+                        markAsRead(message.id)
+                      }
+                    }}
+                    className="flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 text-sm"
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                    View & Reply
+                  </button>
+                  <button
+                    onClick={() => dismissMessage(message.id)}
+                    className="px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 text-sm"
+                    title="Dismiss message"
+                  >
+                    <X className="w-4 h-4" />
+                    Dismiss
+                  </button>
+                  <button
+                    onClick={() => deleteMessage(message.id)}
+                    className="px-3 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors flex items-center justify-center gap-2 text-sm"
+                    title="Delete message"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Delete
+                  </button>
                 </div>
               </div>
             ))}
