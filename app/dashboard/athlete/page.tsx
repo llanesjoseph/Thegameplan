@@ -3,8 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
-import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore'
-import { db } from '@/lib/firebase.client'
+// Removed client-side Firebase imports - using secure API endpoints instead
 import {
   BookOpen,
   Video,
@@ -212,43 +211,32 @@ export default function AthleteDashboard() {
     return () => window.removeEventListener('message', handleMessage)
   }, [])
 
-  // Fetch coach data
+  // Fetch coach data using secure API
   useEffect(() => {
     const fetchCoachData = async () => {
-      if (!coachId) {
-        setCoachName('')
-        setCoachPhotoURL('')
-        return
-      }
+      if (!user) return
 
       try {
-        const coachRef = doc(db, 'users', coachId)
-        const coachSnap = await getDoc(coachRef)
+        const token = await user.getIdToken()
+        const response = await fetch('/api/athlete/coach-data', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        })
 
-        if (coachSnap.exists()) {
-          const coachData = coachSnap.data()
-          setCoachName(coachData?.displayName || coachData?.email || 'Your Coach')
-
-          let profileImageUrl = coachData?.photoURL || ''
-
-          if (!profileImageUrl) {
-            try {
-              const profileQuery = query(
-                collection(db, 'creator_profiles'),
-                where('uid', '==', coachId)
-              )
-              const profileSnap = await getDocs(profileQuery)
-
-              if (!profileSnap.empty) {
-                const profileData = profileSnap.docs[0].data()
-                profileImageUrl = profileData?.profileImageUrl || ''
-              }
-            } catch (error) {
-              console.warn('Could not fetch creator profile:', error)
+        if (response.ok) {
+          const data = await response.json()
+          if (data.success) {
+            setCoachName(data.data.coachName)
+            setCoachPhotoURL(data.data.coachPhotoURL)
+            if (data.data.coachId) {
+              setCoachId(data.data.coachId)
             }
           }
-
-          setCoachPhotoURL(profileImageUrl)
+        } else {
+          console.warn('Failed to fetch coach data')
+          setCoachName('Your Coach')
+          setCoachPhotoURL('')
         }
       } catch (error) {
         console.error('Error fetching coach data:', error)
@@ -258,7 +246,7 @@ export default function AthleteDashboard() {
     }
 
     fetchCoachData()
-  }, [coachId])
+  }, [user])
 
   // Memoize handleToolClick to prevent recreation on every render
   const handleToolClick = useCallback((toolId: string) => {
@@ -329,25 +317,30 @@ export default function AthleteDashboard() {
       }
 
       try {
-        // Fetch coach content for lessons
+        const token = await user.getIdToken()
+        
+        // Fetch content using secure API
         let lessons = 0
-        if (coachId) {
-          const contentRef = collection(db, 'content')
-          const contentQuery = query(contentRef)
-          const contentSnap = await getDocs(contentQuery)
-
-          contentSnap.forEach(doc => {
-            const data = doc.data()
-            if (data.creatorUid === coachId && data.status === 'published' && data.type !== 'video') {
-              lessons++
-            }
+        try {
+          const contentResponse = await fetch('/api/athlete/content?type=lesson', {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
           })
+          
+          if (contentResponse.ok) {
+            const contentData = await contentResponse.json()
+            if (contentData.success) {
+              lessons = contentData.data.content?.length || 0
+            }
+          }
+        } catch (contentError) {
+          console.warn('Could not fetch lesson count via API:', contentError)
         }
 
         // Fetch athlete's submitted videos using secure API
         let submittedVideos = 0
         try {
-          const token = await user.getIdToken()
           const response = await fetch('/api/submissions', {
             headers: {
               'Authorization': `Bearer ${token}`,
