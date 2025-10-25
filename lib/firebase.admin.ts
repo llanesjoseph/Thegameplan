@@ -1,6 +1,7 @@
 import { initializeApp, getApps, cert } from 'firebase-admin/app'
 import { getAuth } from 'firebase-admin/auth'
 import { getFirestore } from 'firebase-admin/firestore'
+import { getStorage } from 'firebase-admin/storage'
 
 // For development, we'll use the emulator or fallback to limited functionality
 const firebaseAdminConfig = {
@@ -45,5 +46,6 @@ if (getApps().length === 0) {
 
 export const auth = getAuth(app)
 export const adminDb = getFirestore(app)
+export const adminStorage = getStorage(app)
 
 export default app
