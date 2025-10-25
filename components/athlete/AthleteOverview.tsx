@@ -69,11 +69,49 @@ export default function AthleteOverview() {
       // Get today's date for upcoming events (simplified - would need actual event tracking)
       const upcomingEvents = 0 // Placeholder - would fetch from schedule
 
+      // Calculate training streak based on completed lessons
+      const calculateStreak = () => {
+        if (!feedData?.completedLessons || feedData.completedLessons.length === 0) {
+          return 0;
+        }
+        
+        // Get completion dates from lesson data
+        const completionDates = feedData.completedLessons.map((lessonId: string) => {
+          const lesson = lessons.find((l: any) => l.id === lessonId);
+          return lesson?.completedAt ? new Date(lesson.completedAt) : null;
+        }).filter(Boolean).sort((a: Date, b: Date) => b.getTime() - a.getTime());
+        
+        if (completionDates.length === 0) return 0;
+        
+        // Calculate consecutive days
+        let streak = 0;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        for (let i = 0; i < completionDates.length; i++) {
+          const completionDate = new Date(completionDates[i]);
+          completionDate.setHours(0, 0, 0, 0);
+          
+          const daysDiff = Math.floor((today.getTime() - completionDate.getTime()) / (1000 * 60 * 60 * 24));
+          
+          if (daysDiff === streak) {
+            streak++;
+          } else if (daysDiff === streak + 1) {
+            // Allow for yesterday's completion
+            streak++;
+          } else {
+            break;
+          }
+        }
+        
+        return Math.max(0, streak);
+      };
+
       setStats({
         lessonsCompleted: lessonsCompletedCount,
         lessonsTotal: totalLessons,
         upcomingEvents,
-        trainingStreak: 0 // Placeholder - would calculate streak
+        trainingStreak: calculateStreak()
       })
     } catch (error) {
       console.error('Error loading stats:', error)
@@ -151,78 +189,82 @@ export default function AthleteOverview() {
         <p className="text-teal-50 text-sm sm:text-base">{formattedDate}</p>
       </div>
 
-      {/* Quick Stats Grid - Now Clickable */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Compact Stats Grid - Horizontal Layout */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
         {/* Total Lessons */}
         <button
           onClick={() => handleMetricClick('lessons')}
-          className="bg-white rounded-xl p-5 shadow-sm border-2 border-gray-100 hover:shadow-lg hover:border-sky-blue/50 transition-all text-left cursor-pointer active:scale-95 group"
-          style={{ minHeight: '44px' }}
+          className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 hover:shadow-md hover:border-sky-blue/50 transition-all text-left cursor-pointer active:scale-95 group"
         >
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 rounded-lg bg-sky-blue/10 flex items-center justify-center group-hover:bg-sky-blue/20 transition-colors">
-              <BookOpen className="w-5 h-5" style={{ color: '#7B92C4' }} />
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-sky-blue/10 flex items-center justify-center group-hover:bg-sky-blue/20 transition-colors flex-shrink-0">
+              <BookOpen className="w-4 h-4" style={{ color: '#7B92C4' }} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xl font-bold text-gray-900">{stats.lessonsTotal}</p>
+              <p className="text-xs text-gray-600">Available Lessons</p>
             </div>
             {loading && (
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400"></div>
             )}
           </div>
-          <p className="text-2xl font-bold text-gray-900">{stats.lessonsTotal}</p>
-          <p className="text-xs text-gray-600 mt-1">Available Lessons</p>
         </button>
 
         {/* Lessons Completed */}
         <button
           onClick={() => handleMetricClick('lessons')}
-          className="bg-white rounded-xl p-5 shadow-sm border-2 border-gray-100 hover:shadow-lg hover:border-green-500/50 transition-all text-left cursor-pointer active:scale-95 group"
-          style={{ minHeight: '44px' }}
+          className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 hover:shadow-md hover:border-green-500/50 transition-all text-left cursor-pointer active:scale-95 group"
         >
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center group-hover:bg-green-500/20 transition-colors">
-              <Trophy className="w-5 h-5 text-green-600" />
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center group-hover:bg-green-500/20 transition-colors flex-shrink-0">
+              <Trophy className="w-4 h-4 text-green-600" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xl font-bold text-gray-900">{stats.lessonsCompleted}</p>
+              <p className="text-xs text-gray-600">Completed</p>
             </div>
             {loading && (
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400"></div>
             )}
           </div>
-          <p className="text-2xl font-bold text-gray-900">{stats.lessonsCompleted}</p>
-          <p className="text-xs text-gray-600 mt-1">Completed</p>
         </button>
 
         {/* Upcoming Events */}
         <button
           onClick={() => handleMetricClick('coach-schedule')}
-          className="bg-white rounded-xl p-5 shadow-sm border-2 border-gray-100 hover:shadow-lg hover:border-teal/50 transition-all text-left cursor-pointer active:scale-95 group"
-          style={{ minHeight: '44px' }}
+          className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 hover:shadow-md hover:border-teal/50 transition-all text-left cursor-pointer active:scale-95 group"
         >
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 rounded-lg bg-teal/10 flex items-center justify-center group-hover:bg-teal/20 transition-colors">
-              <Calendar className="w-5 h-5" style={{ color: '#5A9A70' }} />
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-teal/10 flex items-center justify-center group-hover:bg-teal/20 transition-colors flex-shrink-0">
+              <Calendar className="w-4 h-4" style={{ color: '#5A9A70' }} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xl font-bold text-gray-900">{stats.upcomingEvents}</p>
+              <p className="text-xs text-gray-600">Upcoming Events</p>
             </div>
             {loading && (
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400"></div>
             )}
           </div>
-          <p className="text-2xl font-bold text-gray-900">{stats.upcomingEvents}</p>
-          <p className="text-xs text-gray-600 mt-1">Upcoming Events</p>
         </button>
 
         {/* Training Streak */}
         <button
           onClick={() => handleMetricClick('lessons')}
-          className="bg-white rounded-xl p-5 shadow-sm border-2 border-gray-100 hover:shadow-lg hover:border-orange/50 transition-all text-left cursor-pointer active:scale-95 group"
-          style={{ minHeight: '44px' }}
+          className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 hover:shadow-md hover:border-orange/50 transition-all text-left cursor-pointer active:scale-95 group"
         >
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 rounded-lg bg-orange/10 flex items-center justify-center group-hover:bg-orange/20 transition-colors">
-              <Video className="w-5 h-5" style={{ color: '#FF6B35' }} />
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-orange/10 flex items-center justify-center group-hover:bg-orange/20 transition-colors flex-shrink-0">
+              <Video className="w-4 h-4" style={{ color: '#FF6B35' }} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xl font-bold text-gray-900">{stats.trainingStreak}</p>
+              <p className="text-xs text-gray-600">Day Streak 🔥</p>
             </div>
             {loading && (
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400"></div>
             )}
           </div>
-          <p className="text-2xl font-bold text-gray-900">{stats.trainingStreak}</p>
-          <p className="text-xs text-gray-600 mt-1">Day Streak 🔥</p>
         </button>
       </div>
     </div>
