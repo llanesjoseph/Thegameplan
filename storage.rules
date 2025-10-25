@@ -6,10 +6,11 @@
   service firebase.storage {
     match /b/{bucket}/o {
 
-      // TEMPORARY: COMPLETELY OPEN FOR URGENT TESTING
+      // TEMPORARY: COMPLETELY OPEN FOR URGENT TESTING - INCLUDES THUMBNAILS
       // TODO: REVERT THIS AFTER FIXING THE ISSUE
       match /{allPaths=**} {
-        allow read, write: if request.auth != null;
+        allow read: if true; // PUBLIC READ FOR TESTING
+        allow write: if request.auth != null;
       }
 
       // Feedback uploads - Same pattern as lessons (which we know works)
@@ -197,7 +198,9 @@
       
       // User uploads - General user file uploads
       match /uploads/{userId}/{allPaths=**} {
-        allow read: if request.auth.uid == userId || isAdmin();
+        // TEMPORARY FIX: Allow any authenticated user to read (for video playback)
+        // TODO: Make this more restrictive once video auth is properly implemented
+        allow read: if isAuthenticated();
         allow write: if isAuthenticated() && request.auth.uid == userId &&
                         (isValidImageType() || isValidVideoType() || isValidAudioType() || isValidDocumentType()) &&
                         isValidFileSize(500); // 500MB limit
