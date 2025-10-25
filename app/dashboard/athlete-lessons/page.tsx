@@ -862,6 +862,17 @@ export default function AthleteLessonsPage() {
                       title={selectedVideo.title}
                     />
                   </div>
+                ) : selectedVideo.url ? (
+                  <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                    <video
+                      controls
+                      className="absolute top-0 left-0 w-full h-full rounded-lg bg-black"
+                      src={selectedVideo.url}
+                      title={selectedVideo.title}
+                    >
+                      Your browser does not support the video tag.
+                    </video>
+                  </div>
                 ) : (
                   <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
                     <p className="text-gray-500">Video not available</p>
