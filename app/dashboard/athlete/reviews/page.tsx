@@ -188,22 +188,19 @@ export default function AthleteReviewsPageV2() {
           </div>
         )}
 
-        {/* Submissions grid - compact card layout */}
+        {/* Command Palette Style List */}
         {submissions.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden divide-y divide-gray-100">
             {submissions.map((submission: any) => {
               const isDeletable = ['pending', 'draft', 'awaiting_coach'].includes(submission.status);
               return (
-                <div
-                  key={submission.id}
-                  className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow relative group"
-                >
+                <div key={submission.id} className="relative">
                   <Link
                     href={isEmbedded ? `/dashboard/athlete/reviews/${submission.id}?embedded=true` : `/dashboard/athlete/reviews/${submission.id}`}
-                    className="block cursor-pointer"
+                    className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors group"
                   >
-                    {/* Thumbnail */}
-                    <div className="aspect-video bg-gray-100 relative">
+                    {/* Thumbnail "Profile Pic" */}
+                    <div className="flex-shrink-0 w-16 h-16 rounded-full overflow-hidden bg-gray-100 ring-2 ring-gray-200">
                       {submission.thumbnailUrl ? (
                         <img
                           src={submission.thumbnailUrl}
@@ -213,44 +210,73 @@ export default function AthleteReviewsPageV2() {
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
-                          <Video className="w-12 h-12 text-gray-300" />
+                          <Video className="w-8 h-8 text-gray-400" />
                         </div>
                       )}
-                      
-                      {/* Status badge overlay */}
-                      <div className="absolute top-2 left-2">
-                        <span className={`px-2 py-1 rounded-md text-xs font-medium shadow-sm ${
-                          submission.status === 'complete' ? 'bg-green-500 text-white' :
-                          submission.status === 'in_review' || submission.status === 'claimed' ? 'bg-blue-500 text-white' :
-                          'bg-yellow-500 text-white'
-                        }`}>
-                          {submission.status === 'complete' ? '✓ Complete' :
-                           submission.status === 'in_review' || submission.status === 'claimed' ? '⏳ In Review' :
-                           '⏱ Pending'}
+                    </div>
+
+                    {/* Content */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="text-base font-semibold text-gray-900 truncate">
+                          {submission.skillName || submission.videoFileName || 'Video Submission'}
+                        </h3>
+                        
+                        {/* Completion/Status Badge */}
+                        {submission.status === 'complete' ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 flex-shrink-0">
+                            <CheckCircle className="w-3 h-3" />
+                            Complete
+                          </span>
+                        ) : submission.status === 'in_review' || submission.status === 'claimed' ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 flex-shrink-0">
+                            <Clock className="w-3 h-3" />
+                            In Review
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 flex-shrink-0">
+                            <Clock className="w-3 h-3" />
+                            Pending
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Description */}
+                      {submission.athleteContext && (
+                        <p className="text-sm text-gray-600 line-clamp-1 mb-2">
+                          {submission.athleteContext}
+                        </p>
+                      )}
+
+                      {/* Metadata */}
+                      <div className="flex items-center gap-3 text-xs text-gray-500">
+                        <span className="flex items-center gap-1">
+                          <Video className="w-3 h-3" />
+                          Video Submission
+                        </span>
+                        <span>•</span>
+                        <span>
+                          {new Date(submission.createdAt || Date.now()).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric'
+                          })}
                         </span>
                       </div>
                     </div>
 
-                    {/* Content */}
-                    <div className="p-4">
-                      <h3 className="font-semibold text-gray-900 mb-1 line-clamp-1">
-                        {submission.skillName || submission.videoFileName || 'Video Submission'}
-                      </h3>
-                      
-                      <div className="flex items-center gap-2 text-xs text-gray-500 mb-2">
-                        <Clock className="w-3 h-3" />
-                        {new Date(submission.createdAt || Date.now()).toLocaleDateString('en-US', { 
-                          month: 'short', 
-                          day: 'numeric' 
-                        })}
-                      </div>
-
-                      {submission.athleteContext && (
-                        <p className="text-sm text-gray-600 line-clamp-2">
-                          {submission.athleteContext}
-                        </p>
-                      )}
-                    </div>
+                    {/* Arrow indicator */}
+                    <svg
+                      className="h-5 w-5 flex-none text-gray-400 group-hover:text-gray-600"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
                   </Link>
 
                   {/* Delete button - only show for deletable submissions */}
@@ -261,7 +287,7 @@ export default function AthleteReviewsPageV2() {
                         e.stopPropagation();
                         setShowDeleteConfirm(submission.id);
                       }}
-                      className="absolute top-2 right-2 p-1.5 bg-white/90 backdrop-blur-sm text-red-600 hover:bg-red-600 hover:text-white rounded-md transition-all shadow-sm"
+                      className="absolute top-4 right-12 p-1.5 bg-white text-red-600 hover:bg-red-50 rounded-md transition-colors border border-gray-200 opacity-0 group-hover:opacity-100"
                       disabled={deletingId === submission.id}
                       title="Delete submission"
                     >
