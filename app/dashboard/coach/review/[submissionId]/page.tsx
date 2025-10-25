@@ -216,9 +216,12 @@ export default function CoachReviewPage({ params }: { params: { submissionId: st
   return (
     <div className={isEmbedded ? 'h-full' : 'min-h-screen bg-gray-50'}>
       <ReviewForm
-        submissionId={params.submissionId}
         submission={submission}
+        rubric={null}
         existingReview={existingReview}
+        coachId={user.uid}
+        coachName={user.displayName || user.email || 'Coach'}
+        coachPhotoUrl={user.photoURL || undefined}
         isEmbedded={isEmbedded}
       />
     </div>
