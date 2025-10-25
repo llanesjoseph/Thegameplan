@@ -273,22 +273,42 @@ export default function AthleteReviewDetailPage({
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="space-y-6">
-            {(submission.videoUrl || submission.videoDownloadUrl) && (
+            {(submission.videoUrl || submission.videoDownloadUrl) ? (
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                <div className="aspect-video bg-black">
+                <div className="aspect-video bg-black relative">
                   <video 
                     controls 
                     className="w-full h-full" 
                     src={submission.videoUrl || submission.videoDownloadUrl} 
                     poster={submission.thumbnailUrl}
                     onError={(e) => {
-                      console.error('Video failed to load:', submission.videoUrl || submission.videoDownloadUrl);
+                      const videoUrl = submission.videoUrl || submission.videoDownloadUrl;
+                      console.error('❌ Video failed to load:', videoUrl);
+                      console.error('Error details:', e);
                       e.currentTarget.style.display = 'none';
+                      // Show error message to user
+                      const errorDiv = document.createElement('div');
+                      errorDiv.className = 'absolute inset-0 flex items-center justify-center bg-red-900/20 text-white p-4 text-center';
+                      errorDiv.innerHTML = `
+                        <div>
+                          <p className="font-semibold mb-2">Video failed to load</p>
+                          <a href="${videoUrl}" target="_blank" class="text-sm underline">
+                            Try opening video in new tab
+                          </a>
+                        </div>
+                      `;
+                      e.currentTarget.parentElement?.appendChild(errorDiv);
                     }}
+                    onLoadStart={() => console.log('✅ Video loading started')}
+                    onCanPlay={() => console.log('✅ Video can play')}
                   >
                     Your browser does not support the video tag.
                   </video>
                 </div>
+              </div>
+            ) : (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
+                <p className="text-yellow-800">Video URL not found. The upload may not have completed successfully.</p>
               </div>
             )}
 
