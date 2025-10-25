@@ -27,16 +27,28 @@ export default function AthleteReviewsPage() {
   }, []);
 
   useEffect(() => {
-    if (!user && !loading) {
-      router.push('/login');
-      return;
-    }
-
-    if (!user) return;
-
-    // Create abort controller for cleanup
+    // CRITICAL: Create abort controller and isMounted flag BEFORE any conditional returns
+    // This ensures consistent hook behavior and prevents React error #310
     const abortController = new AbortController();
     let isMounted = true;
+
+    // Check auth state and redirect if needed
+    if (!user && !loading) {
+      router.push('/login');
+      // Return cleanup function even when redirecting
+      return () => {
+        isMounted = false;
+        abortController.abort();
+      };
+    }
+
+    // Don't fetch if user is still loading
+    if (!user) {
+      return () => {
+        isMounted = false;
+        abortController.abort();
+      };
+    }
 
     // Fetch submissions WITHOUT INDEXES - fetch all and filter in JavaScript
     const fetchSubmissions = async () => {
