@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, Suspense, useRef, useCallback } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import AppHeader from '@/components/ui/AppHeader'
@@ -13,6 +13,7 @@ import {
   Search,
   Filter,
   Play,
+  Pause,
   Edit,
   Trash2,
   Link as LinkIcon,
@@ -20,7 +21,9 @@ import {
   Youtube,
   ExternalLink,
   X,
-  AlertCircle
+  AlertCircle,
+  Camera,
+  Check
 } from 'lucide-react'
 
 interface VideoItem {
@@ -55,6 +58,88 @@ function AddVideoModal({ onClose }: { onClose: () => void }) {
   })
   const [extractingDuration, setExtractingDuration] = useState(false)
 
+  // Thumbnail scrubber state
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const [videoUrl, setVideoUrl] = useState<string>('')
+  const [showThumbnailSelector, setShowThumbnailSelector] = useState(false)
+  const [selectedThumbnail, setSelectedThumbnail] = useState<string>('')
+  const [thumbnailCandidates, setThumbnailCandidates] = useState<string[]>([])
+  const [videoDuration, setVideoDuration] = useState(0)
+  const [currentTime, setCurrentTime] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+
+  // Thumbnail functions
+  const captureFrame = useCallback(() => {
+    if (!videoRef.current || !canvasRef.current) return null
+    const video = videoRef.current
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return null
+
+    canvas.width = video.videoWidth
+    canvas.height = video.videoHeight
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+    return canvas.toDataURL('image/jpeg', 0.8)
+  }, [])
+
+  const generateThumbnails = useCallback(async () => {
+    if (!videoRef.current || !canvasRef.current) return
+
+    const video = videoRef.current
+    const duration = video.duration || 10
+    const candidates: string[] = []
+
+    // Immediate thumbnail
+    const immediate = captureFrame()
+    if (immediate) {
+      candidates.push(immediate)
+      setThumbnailCandidates([...candidates])
+      setSelectedThumbnail(immediate)
+    }
+
+    // Additional thumbnails at 25%, 50%, 75%
+    const timestamps = [duration * 0.25, duration * 0.5, duration * 0.75]
+    for (const timestamp of timestamps) {
+      try {
+        video.currentTime = timestamp
+        await new Promise<void>((resolve) => {
+          const timeout = setTimeout(() => resolve(), 2000)
+          const handleSeeked = () => {
+            clearTimeout(timeout)
+            video.removeEventListener('seeked', handleSeeked)
+            resolve()
+          }
+          video.addEventListener('seeked', handleSeeked)
+        })
+
+        const thumbnail = captureFrame()
+        if (thumbnail && !candidates.includes(thumbnail)) {
+          candidates.push(thumbnail)
+          setThumbnailCandidates([...candidates])
+        }
+      } catch {}
+    }
+  }, [captureFrame])
+
+  const handlePlayPause = useCallback(() => {
+    if (!videoRef.current) return
+    if (isPlaying) {
+      videoRef.current.pause()
+    } else {
+      videoRef.current.play()
+    }
+    setIsPlaying(!isPlaying)
+  }, [isPlaying])
+
+  const handleScrub = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const time = parseFloat(e.target.value)
+    if (videoRef.current) {
+      videoRef.current.currentTime = time
+      setCurrentTime(time)
+    }
+  }, [])
+
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
@@ -71,7 +156,16 @@ function AddVideoModal({ onClose }: { onClose: () => void }) {
         return
       }
 
+      // Clean up previous video URL
+      if (videoUrl) {
+        URL.revokeObjectURL(videoUrl)
+      }
+
       setVideoFile(file)
+      setVideoUrl(URL.createObjectURL(file))
+      setShowThumbnailSelector(true)
+      setThumbnailCandidates([])
+      setSelectedThumbnail('')
 
       // Auto-fill title if empty
       if (!formData.title) {
@@ -81,6 +175,15 @@ function AddVideoModal({ onClose }: { onClose: () => void }) {
 
       // Extract video duration
       extractVideoDuration(file)
+
+      // Generate thumbnails
+      setTimeout(async () => {
+        try {
+          await generateThumbnails()
+        } catch (error) {
+          console.error('Thumbnail generation failed:', error)
+        }
+      }, 100)
     }
   }
 
@@ -153,15 +256,23 @@ function AddVideoModal({ onClose }: { onClose: () => void }) {
           async () => {
             const downloadURL = await getDownloadURL(uploadTask.snapshot.ref)
             
-            // Generate thumbnail for uploaded video
+            // Upload selected thumbnail
             let thumbnailUrl: string | null = null
             try {
-              console.log('Generating thumbnail for uploaded video...')
-              const canvas = document.createElement('canvas')
-              const video = document.createElement('video')
-              video.crossOrigin = 'anonymous'
-              video.muted = true
-              video.src = URL.createObjectURL(videoFile)
+              if (selectedThumbnail) {
+                console.log('Uploading selected thumbnail...')
+                const thumbnailBlob = await fetch(selectedThumbnail).then(r => r.blob())
+                const thumbnailRef = ref(storage, `coach-videos/${user.uid}/thumbnails/${timestamp}-thumbnail.jpg`)
+                await uploadBytes(thumbnailRef, thumbnailBlob)
+                thumbnailUrl = await getDownloadURL(thumbnailRef)
+                console.log('✅ Thumbnail uploaded:', thumbnailUrl)
+              } else {
+                console.log('Generating automatic thumbnail...')
+                const canvas = document.createElement('canvas')
+                const video = document.createElement('video')
+                video.crossOrigin = 'anonymous'
+                video.muted = true
+                video.src = URL.createObjectURL(videoFile)
               
               await new Promise<void>((resolveThumb) => {
                 const timeout = setTimeout(() => {
@@ -218,6 +329,7 @@ function AddVideoModal({ onClose }: { onClose: () => void }) {
                   resolveThumb()
                 }
               })
+              }
             } catch (err) {
               console.warn('❌ Thumbnail generation failed:', err)
             }
@@ -503,19 +615,104 @@ function AddVideoModal({ onClose }: { onClose: () => void }) {
             />
           </div>
 
-          {/* Thumbnail URL (optional) */}
-          <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
-              Thumbnail URL (optional)
-            </label>
-            <input
-              type="url"
-              value={formData.thumbnail}
-              onChange={(e) => setFormData({ ...formData, thumbnail: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-              placeholder="https://example.com/thumbnail.jpg"
-            />
-          </div>
+          {/* Video Preview and Thumbnail Selection */}
+          {videoUrl && formData.source === 'upload' && (
+            <div>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
+                Choose Thumbnail
+              </label>
+
+              {/* Hidden canvas */}
+              <canvas ref={canvasRef} className="hidden" />
+
+              {/* Video player */}
+              <div className="relative bg-black rounded-lg overflow-hidden mb-4">
+                <video
+                  ref={videoRef}
+                  src={videoUrl}
+                  className="w-full h-48 object-contain"
+                  onLoadedMetadata={() => {
+                    if (videoRef.current) {
+                      setVideoDuration(videoRef.current.duration)
+                    }
+                  }}
+                  onTimeUpdate={() => {
+                    if (videoRef.current) {
+                      setCurrentTime(videoRef.current.currentTime)
+                    }
+                  }}
+                  onPlay={() => setIsPlaying(true)}
+                  onPause={() => setIsPlaying(false)}
+                />
+
+                {/* Controls */}
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={handlePlayPause}
+                      className="text-white hover:text-blue-400"
+                    >
+                      {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+                    </button>
+                    <input
+                      type="range"
+                      min="0"
+                      max={videoDuration || 100}
+                      value={currentTime}
+                      onChange={handleScrub}
+                      className="flex-1 h-1 bg-white/20 rounded-lg"
+                    />
+                    <span className="text-white text-xs">
+                      {Math.floor(currentTime)}s / {Math.floor(videoDuration)}s
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Thumbnail candidates */}
+              {thumbnailCandidates.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-600">Select a thumbnail:</p>
+                  <div className="grid grid-cols-4 gap-2">
+                    {thumbnailCandidates.map((thumbnail, index) => (
+                      <div key={index} className="relative">
+                        <img
+                          src={thumbnail}
+                          alt={`Thumbnail ${index + 1}`}
+                          className={`w-full h-16 object-cover rounded cursor-pointer border-2 ${
+                            selectedThumbnail === thumbnail
+                              ? 'border-blue-500 ring-2 ring-blue-200'
+                              : 'border-gray-200 hover:border-gray-300'
+                          }`}
+                          onClick={() => setSelectedThumbnail(thumbnail)}
+                        />
+                        {selectedThumbnail === thumbnail && (
+                          <div className="absolute top-1 right-1 bg-blue-500 text-white rounded-full p-0.5">
+                            <Check className="w-3 h-3" />
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const custom = captureFrame()
+                      if (custom) {
+                        setSelectedThumbnail(custom)
+                        setThumbnailCandidates(prev => [...prev, custom])
+                      }
+                    }}
+                    className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded text-sm"
+                  >
+                    <Camera className="w-4 h-4" />
+                    Capture Current Frame
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Actions */}
           <div className="flex gap-3 pt-4">
