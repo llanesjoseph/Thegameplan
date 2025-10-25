@@ -14,7 +14,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyDKgnOZaAZIBSR8e1OilhW-cp5TxY3ewxE",
   authDomain: "gameplan-787a2.firebaseapp.com",
   projectId: "gameplan-787a2",
-  storageBucket: "gameplan-787a2.firebasestorage.app",
+  storageBucket: "gameplan-787a2.appspot.com",
   messagingSenderId: "301349049756",
   appId: "1:301349049756:web:c3091e3966de56117ae459"
 };

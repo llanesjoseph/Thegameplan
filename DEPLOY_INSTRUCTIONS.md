@@ -118,7 +118,7 @@ After deployment, verify in Firebase Console:
 ## Firebase Project Info
 
 **Project ID:** `gameplan-787a2`
-**Storage Bucket:** `gameplan-787a2.firebasestorage.app`
+**Storage Bucket:** `gameplan-787a2.appspot.com`
 
 ---
 
