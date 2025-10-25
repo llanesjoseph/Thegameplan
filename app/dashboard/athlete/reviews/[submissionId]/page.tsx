@@ -418,6 +418,58 @@ export default function AthleteReviewDetailPage({
                         </ul>
                       </div>
                     )}
+
+                    {/* Timestamped Notes */}
+                    {review.timecodes && review.timecodes.length > 0 && (
+                      <div>
+                        <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                          <Clock className="w-5 h-5" />
+                          Frame-by-Frame Notes ({review.timecodes.length})
+                        </h3>
+                        <p className="text-sm text-gray-600 mb-3">Click any timestamp to jump to that moment in the video</p>
+                        <div className="space-y-2">
+                          {review.timecodes.sort((a: any, b: any) => a.timestamp - b.timestamp).map((tc: any, idx: number) => {
+                            const minutes = Math.floor(tc.timestamp / 60);
+                            const seconds = Math.floor(tc.timestamp % 60);
+                            const timeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                            
+                            return (
+                              <div 
+                                key={idx}
+                                className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer border border-gray-200"
+                                onClick={() => {
+                                  const videoEl = document.querySelector('video') as HTMLVideoElement;
+                                  if (videoEl) {
+                                    videoEl.currentTime = tc.timestamp;
+                                    videoEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                  }
+                                }}
+                              >
+                                <span className="flex-shrink-0 font-mono text-sm font-semibold text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                                  {timeStr}
+                                </span>
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <span className={`text-xs px-2 py-0.5 rounded font-medium ${
+                                      tc.type === 'praise' ? 'bg-green-100 text-green-700' :
+                                      tc.type === 'correction' ? 'bg-orange-100 text-orange-700' :
+                                      tc.type === 'question' ? 'bg-blue-100 text-blue-700' :
+                                      'bg-gray-100 text-gray-700'
+                                    }`}>
+                                      {tc.type === 'praise' ? '👍 Praise' :
+                                       tc.type === 'correction' ? '📝 Correction' :
+                                       tc.type === 'question' ? '❓ Question' :
+                                       tc.type}
+                                    </span>
+                                  </div>
+                                  <p className="text-sm text-gray-700">{tc.comment || <em className="text-gray-400">See this moment</em>}</p>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 
