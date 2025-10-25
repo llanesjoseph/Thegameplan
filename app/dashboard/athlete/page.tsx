@@ -311,25 +311,26 @@ export default function AthleteDashboard() {
       try {
         const token = await user.getIdToken()
         
-        // Fetch content using secure API
+        // Fetch lesson count from athlete feed (consistent with lessons page)
         let lessons = 0
         try {
-          const contentResponse = await fetch('/api/athlete/content?type=lesson', {
+          const feedResponse = await fetch('/api/athlete/feed', {
             headers: {
               'Authorization': `Bearer ${token}`,
             },
             signal: abortController.signal,
           })
           
-          if (contentResponse.ok) {
-            const contentData = await contentResponse.json()
-            if (contentData.success) {
-              lessons = contentData.data.content?.length || 0
+          if (feedResponse.ok) {
+            const feedData = await feedResponse.json()
+            if (feedData.success && feedData.feed) {
+              // Use totalLessons from athlete_feed for consistency
+              lessons = feedData.feed.totalLessons || 0
             }
           }
-        } catch (contentError) {
-          if (contentError instanceof Error && contentError.name !== 'AbortError') {
-            console.warn('Could not fetch lesson count via API:', contentError)
+        } catch (feedError) {
+          if (feedError instanceof Error && feedError.name !== 'AbortError') {
+            console.warn('Could not fetch lesson count from athlete feed:', feedError)
           }
         }
 
