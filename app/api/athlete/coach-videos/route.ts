@@ -36,11 +36,10 @@ export async function GET(request: NextRequest) {
       })
     }
 
-    // 3. Fetch videos from the content collection (where coach videos are stored)
+    // 3. Fetch videos from the videos collection (same as coach Video Manager)
     const videosSnapshot = await adminDb
-      .collection('content')
+      .collection('videos')
       .where('creatorUid', '==', assignedCoachId)
-      .where('type', '==', 'video_lesson')
       .get()
 
     const videos = videosSnapshot.docs.map(doc => {

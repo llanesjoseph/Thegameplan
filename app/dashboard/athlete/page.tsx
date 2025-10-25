@@ -53,6 +53,7 @@ export default function AthleteDashboard() {
   const [loadError, setLoadError] = useState<string | null>(null)
   const [lessonCount, setLessonCount] = useState<number>(0)
   const [videoCount, setVideoCount] = useState<number>(0)
+  const [coachVideoCount, setCoachVideoCount] = useState<number>(0)
   const [completedReviewsCount, setCompletedReviewsCount] = useState<number>(0)
 
   // Athlete tools - simplified for sidebar
@@ -360,6 +361,26 @@ export default function AthleteDashboard() {
           }
         }
 
+        // Fetch coach's video count using the fixed API
+        let coachVideoCount = 0
+        try {
+          const coachVideosResponse = await fetch('/api/athlete/coach-videos', {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+            signal: abortController.signal,
+          })
+          
+          if (coachVideosResponse.ok) {
+            const coachVideosData = await coachVideosResponse.json()
+            coachVideoCount = coachVideosData.videos?.length || 0
+          }
+        } catch (coachVideoError) {
+          if (coachVideoError instanceof Error && coachVideoError.name !== 'AbortError') {
+            console.warn('Could not fetch coach video count:', coachVideoError)
+          }
+        }
+
         // Fetch completed reviews count (new reviews ready to view)
         let completedCount = 0
         try {
@@ -386,12 +407,14 @@ export default function AthleteDashboard() {
         if (isMounted) {
           setLessonCount(lessons)
           setVideoCount(submittedVideos)
+          setCoachVideoCount(coachVideoCount)
           setCompletedReviewsCount(completedCount)
         }
       } catch (error) {
         console.error('Error fetching stats:', error)
         setLessonCount(0)
         setVideoCount(0)
+        setCoachVideoCount(0)
         setCompletedReviewsCount(0)
       }
     }
@@ -582,8 +605,8 @@ export default function AthleteDashboard() {
                     <span className="text-sm font-bold" style={{ color: '#7B92C4' }}>{lessonCount}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs" style={{ color: '#666' }}>Videos</span>
-                    <span className="text-sm font-bold" style={{ color: '#5A9B9B' }}>{videoCount}</span>
+                    <span className="text-xs" style={{ color: '#666' }}>Coach Videos</span>
+                    <span className="text-sm font-bold" style={{ color: '#5A9B9B' }}>{coachVideoCount}</span>
                   </div>
                 </div>
               </div>
@@ -728,7 +751,7 @@ export default function AthleteDashboard() {
                       <div className="mt-4 sm:mt-6 bg-gradient-to-r from-slate-600 to-slate-700 rounded-lg p-4 sm:p-5 text-white text-left">
                         <h3 className="font-semibold mb-2 sm:mb-3 text-base sm:text-lg">🎯 Training with {coachName.split(' ')[0]}</h3>
                         <p className="text-xs sm:text-sm">
-                          Your coach has prepared {lessonCount} lessons and {videoCount} videos for your training. Click "Ask {coachName.split(' ')[0]}" to get personalized coaching advice!
+                          Your coach has prepared {lessonCount} lessons and {coachVideoCount} videos for your training. Click "Ask {coachName.split(' ')[0]}" to get personalized coaching advice!
                         </p>
                       </div>
                     )}
