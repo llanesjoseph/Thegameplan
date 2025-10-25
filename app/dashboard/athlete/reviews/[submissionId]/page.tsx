@@ -364,12 +364,14 @@ export default function AthleteReviewDetailPage({
           <div className="space-y-6">
             {(submission.videoUrl || submission.videoDownloadUrl) ? (
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                <div className="aspect-video bg-black relative">
+                {/* Responsive video container - maintains 16:9 aspect ratio */}
+                <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
                   <video 
                     controls 
-                    className="w-full h-full" 
+                    className="absolute top-0 left-0 w-full h-full object-contain bg-black"
                     src={submission.videoUrl || submission.videoDownloadUrl} 
                     poster={submission.thumbnailUrl}
+                    preload="metadata"
                     onError={(e) => {
                       const videoUrl = submission.videoUrl || submission.videoDownloadUrl;
                       console.error('❌ Video failed to load:', videoUrl);
