@@ -32,16 +32,6 @@ export default function AdminDashboard() {
   const [activeSection, setActiveSection] = useState<string | null>(null)
   const { role, loading: roleLoading } = useRole()
 
-  // Redirect unauthenticated
-  useEffect(() => {
-    if (!authLoading && !user) {
-      router.push('/signin')
-    }
-  }, [authLoading, user, router])
-
-  // Wrap content with role requirement
-  if (authLoading || roleLoading) return null
-
   const adminCards = [
     {
       id: 'users',
