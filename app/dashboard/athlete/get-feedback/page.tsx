@@ -87,10 +87,25 @@ export default function GetFeedbackPage() {
     if (!videoRef.current || !canvasRef.current) return;
 
     const video = videoRef.current;
-    const duration = video.duration;
+    const duration = video.duration || 10; // Default duration if not available
     const candidates: string[] = [];
 
-    // Generate thumbnails at 25%, 50%, and 75% of video duration
+    console.log('Starting thumbnail generation, video duration:', duration);
+
+    // Try to capture current frame first (immediate)
+    try {
+      const immediateThumbnail = captureFrame();
+      if (immediateThumbnail) {
+        candidates.push(immediateThumbnail);
+        setThumbnailCandidates([...candidates]);
+        setSelectedThumbnail(immediateThumbnail);
+        console.log('Generated immediate thumbnail');
+      }
+    } catch (error) {
+      console.warn('Failed to generate immediate thumbnail:', error);
+    }
+
+    // Generate thumbnails at different timestamps
     const timestamps = [duration * 0.25, duration * 0.5, duration * 0.75];
 
     for (const timestamp of timestamps) {
@@ -101,8 +116,8 @@ export default function GetFeedbackPage() {
         // Wait for the video to seek and be ready
         await new Promise<void>((resolve, reject) => {
           const timeout = setTimeout(() => {
-            reject(new Error('Thumbnail generation timeout'));
-          }, 3000);
+            resolve(); // Don't reject, just resolve and continue
+          }, 2000);
 
           const handleSeeked = () => {
             clearTimeout(timeout);
@@ -113,65 +128,26 @@ export default function GetFeedbackPage() {
           video.addEventListener('seeked', handleSeeked);
         });
 
-        // Small delay to ensure frame is ready
-        await new Promise(resolve => setTimeout(resolve, 100));
-
         // Capture frame
         const thumbnail = captureFrame();
-        if (thumbnail) {
+        if (thumbnail && !candidates.includes(thumbnail)) {
           candidates.push(thumbnail);
           setThumbnailCandidates([...candidates]);
-
-          // If this is the first thumbnail, set it as selected
-          if (candidates.length === 1) {
-            setSelectedThumbnail(thumbnail);
-          }
+          console.log(`Generated thumbnail at ${timestamp}s`);
         }
       } catch (error) {
         console.warn(`Failed to generate thumbnail at ${timestamp}:`, error);
-      }
-    }
-
-    // If no thumbnails were generated, try to capture the current frame
-    if (candidates.length === 0) {
-      try {
-        const fallbackThumbnail = captureFrame();
-        if (fallbackThumbnail) {
-          setThumbnailCandidates([fallbackThumbnail]);
-          setSelectedThumbnail(fallbackThumbnail);
-          console.log('Generated fallback thumbnail');
-        }
-      } catch (error) {
-        console.error('Failed to generate fallback thumbnail:', error);
       }
     }
   }, [captureFrame]);
 
   const handleVideoLoad = useCallback(async () => {
     if (videoRef.current) {
-      console.log('Video loaded, starting thumbnail generation...');
+      console.log('Video metadata loaded, updating duration...');
       setVideoDuration(videoRef.current.duration);
-      setShowThumbnailSelector(true);
-
-      try {
-        await generateThumbnails();
-        console.log('Thumbnail generation completed');
-      } catch (error) {
-        console.error('Thumbnail generation failed:', error);
-        // Generate a simple fallback thumbnail
-        try {
-          const fallbackThumbnail = captureFrame();
-          if (fallbackThumbnail) {
-            setThumbnailCandidates([fallbackThumbnail]);
-            setSelectedThumbnail(fallbackThumbnail);
-            console.log('Generated fallback thumbnail');
-          }
-        } catch (fallbackError) {
-          console.error('Fallback thumbnail generation failed:', fallbackError);
-        }
-      }
+      // Thumbnails should already be generated from handleFileSelect
     }
-  }, [generateThumbnails, captureFrame]);
+  }, []);
 
   const handleTimeUpdate = useCallback(() => {
     if (videoRef.current) {
@@ -220,7 +196,12 @@ export default function GetFeedbackPage() {
       setVideoDuration(0);
       setCurrentTime(0);
       setIsPlaying(false);
-      toast.success('Video selected - choose your thumbnail');
+
+      // Generate thumbnails immediately
+      setTimeout(() => {
+        setShowThumbnailSelector(true);
+        toast.success('Video selected - generating thumbnails...');
+      }, 100);
     }
   };
 
