@@ -133,7 +133,13 @@ export async function GET(request: NextRequest) {
     }
 
     const idToken = authHeader.split('Bearer ')[1];
-    const decodedToken = await auth.verifyIdToken(idToken);
+    let decodedToken
+    try {
+      decodedToken = await auth.verifyIdToken(idToken);
+    } catch (error: any) {
+      console.error('Token verification failed:', error)
+      return NextResponse.json({ error: 'Invalid authentication token' }, { status: 401 });
+    }
     const userId = decodedToken.uid;
 
     // Parse query parameters
@@ -164,13 +170,20 @@ export async function GET(request: NextRequest) {
     console.log(`Executing Firestore query`)
     let snapshot
     try {
+      console.log('About to execute query...')
       snapshot = await query.get();
+      console.log(`Query executed successfully, found ${snapshot.docs.length} documents`)
     } catch (error: any) {
-      console.error('Firestore query failed:', error)
+      console.error('Firestore query failed:', {
+        message: error.message,
+        code: error.code,
+        stack: error.stack
+      })
       return NextResponse.json(
         {
           error: 'Database query failed',
-          details: error.message
+          details: error.message,
+          code: error.code
         },
         { status: 500 }
       )
