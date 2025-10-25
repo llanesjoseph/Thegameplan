@@ -131,19 +131,6 @@ export default function VideoPlayer({
   // Keyboard controls
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
-      // CRITICAL: Don't interfere with typing in input fields
-      const target = e.target as HTMLElement;
-      const isInputElement = target.tagName === 'INPUT' || 
-                            target.tagName === 'TEXTAREA' || 
-                            target.isContentEditable ||
-                            target.closest('textarea') ||
-                            target.closest('input');
-      
-      if (isInputElement) {
-        // User is typing in an input field, don't interfere
-        return;
-      }
-
       if (!videoRef.current) return;
 
       switch (e.key) {
