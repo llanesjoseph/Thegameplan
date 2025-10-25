@@ -131,6 +131,20 @@ export default function GetFeedbackPage() {
         console.warn(`Failed to generate thumbnail at ${timestamp}:`, error);
       }
     }
+
+    // If no thumbnails were generated, try to capture the current frame
+    if (candidates.length === 0) {
+      try {
+        const fallbackThumbnail = captureFrame();
+        if (fallbackThumbnail) {
+          setThumbnailCandidates([fallbackThumbnail]);
+          setSelectedThumbnail(fallbackThumbnail);
+          console.log('Generated fallback thumbnail');
+        }
+      } catch (error) {
+        console.error('Failed to generate fallback thumbnail:', error);
+      }
+    }
   }, [captureFrame]);
 
   const handleVideoLoad = useCallback(async () => {
@@ -138,15 +152,26 @@ export default function GetFeedbackPage() {
       console.log('Video loaded, starting thumbnail generation...');
       setVideoDuration(videoRef.current.duration);
       setShowThumbnailSelector(true);
+
       try {
         await generateThumbnails();
         console.log('Thumbnail generation completed');
       } catch (error) {
         console.error('Thumbnail generation failed:', error);
-        // Still show the selector even if thumbnail generation fails
+        // Generate a simple fallback thumbnail
+        try {
+          const fallbackThumbnail = captureFrame();
+          if (fallbackThumbnail) {
+            setThumbnailCandidates([fallbackThumbnail]);
+            setSelectedThumbnail(fallbackThumbnail);
+            console.log('Generated fallback thumbnail');
+          }
+        } catch (fallbackError) {
+          console.error('Fallback thumbnail generation failed:', fallbackError);
+        }
       }
     }
-  }, [generateThumbnails]);
+  }, [generateThumbnails, captureFrame]);
 
   const handleTimeUpdate = useCallback(() => {
     if (videoRef.current) {
@@ -217,7 +242,7 @@ export default function GetFeedbackPage() {
       return;
     }
 
-    if (videoUrl && !selectedThumbnail) {
+    if (!selectedThumbnail) {
       toast.error('Please select a thumbnail for your video');
       return;
     }
@@ -378,7 +403,7 @@ export default function GetFeedbackPage() {
           try {
             const token = (user as any)?.getIdToken ? await (user as any).getIdToken(true) : null;
             if (token) {
-              await fetchWithRetry(`/api/submissions/${submissionId}/patch`, {
+              await fetchWithRetry(`/api/submissions/${submissionId}`, {
                 method: 'PATCH',
                 headers: {
                   'Content-Type': 'application/json',
@@ -472,15 +497,6 @@ export default function GetFeedbackPage() {
         setIsPlaying(false);
 
         if (fileInputRef.current) fileInputRef.current.value = '';
-
-        // Auto-navigate back to reviews page after 3 seconds
-        setTimeout(() => {
-          if (isEmbedded) {
-            window.parent.postMessage({ type: 'NAVIGATE_TO_VIDEO_REVIEW' }, '*');
-          } else {
-            router.push('/dashboard/athlete/reviews');
-          }
-        }, 3000);
       });
       return;
 
@@ -530,14 +546,29 @@ export default function GetFeedbackPage() {
                <div className="flex justify-center">
                  <button
                    onClick={() => {
+                     // Clean up all state
                      setSubmitDone(false);
                      setCreatedSubmissionId(null);
                      setSubmissionId(null);
                      setVideoFile(null);
+                     setVideoUrl('');
                      setContext('');
                      setGoals('');
                      setQuestions('');
+                     setShowThumbnailSelector(false);
+                     setThumbnailCandidates([]);
+                     setSelectedThumbnail('');
+                     setVideoDuration(0);
+                     setCurrentTime(0);
+                     setIsPlaying(false);
                      if (fileInputRef.current) fileInputRef.current.value = '';
+
+                     // Navigate back to reviews
+                     if (isEmbedded) {
+                       window.parent.postMessage({ type: 'NAVIGATE_TO_VIDEO_REVIEW' }, '*');
+                     } else {
+                       router.push('/dashboard/athlete/reviews');
+                     }
                    }}
                    className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors text-lg font-medium"
                  >
