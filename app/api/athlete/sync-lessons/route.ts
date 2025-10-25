@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
 
     const availableLessons = lessonsSnapshot.docs.map(doc => doc.id)
 
-    console.log(`📚 Found ${availableLessons.length} published lessons for coach [COACH_ID]`)
+    console.log(`📚 Found ${availableLessons.length} published lessons for coach`)
 
     // 4. Get existing athlete feed to preserve completion data
     const feedDoc = await adminDb.collection('athlete_feed').doc(userId).get()

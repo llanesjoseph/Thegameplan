@@ -53,10 +53,10 @@ export async function POST(request: NextRequest) {
     const sanitizedSubject = subject.trim().substring(0, 100)
     const sanitizedMessage = message.trim().substring(0, 1000)
 
-    console.log('Contact coach request started', { athleteId: '[ATHLETE_ID]', coachId: '[COACH_ID]', subjectLength: sanitizedSubject.length, messageLength: sanitizedMessage.length })
+    console.log('Contact coach request started', { subjectLength: sanitizedSubject.length, messageLength: sanitizedMessage.length })
 
     // Verify athlete exists and get their info
-    console.log('Fetching athlete data', { athleteId: '[ATHLETE_ID]' })
+    console.log('Fetching athlete data')
     const athleteDoc = await adminDb.collection('users').doc(athleteId).get()
     if (!athleteDoc.exists) {
       console.error('Athlete not found', { athleteId })
@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify coach exists and get their info
-    console.log('Fetching coach data', { coachId: '[COACH_ID]' })
+    console.log('Fetching coach data')
     const coachDoc = await adminDb.collection('users').doc(coachId).get()
     if (!coachDoc.exists) {
       console.error('Coach not found', { coachId })
@@ -144,7 +144,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create notification for coach
-    console.log('Creating notification for coach', { coachId: '[COACH_ID]' })
+    console.log('Creating notification for coach')
     const notificationData = {
       userId: coachId,
       type: 'new_message',
@@ -161,7 +161,7 @@ export async function POST(request: NextRequest) {
 
     try {
       await adminDb.collection('notifications').add(notificationData)
-      console.log('Notification created successfully', { coachId: '[COACH_ID]' })
+      console.log('Notification created successfully')
     } catch (notificationError) {
       console.error('Failed to create notification', { coachId, error: notificationError })
       // Don't fail the request if notification fails

@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
       // Don't fail the reply if email fails
     }
 
-    console.log(`[COACH-REPLY] Successfully sent reply from coach ${coachId} to message ${messageId}`)
+    console.log(`[COACH-REPLY] Successfully sent reply to message ${messageId}`)
 
     return NextResponse.json({
       success: true,

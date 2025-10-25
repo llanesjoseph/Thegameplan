@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
       coachUid = invitationCoachUid // Use invitation as source of truth
     }
 
-    console.log(`✅ [COMPLETE-PROFILE] FINAL Coach UID: ${coachUid}`)
+    console.log(`✅ [COMPLETE-PROFILE] FINAL Coach assigned`)
 
     // CRITICAL: Validate coach UID exists - every athlete MUST have a coach
     if (!coachUid || coachUid.trim() === '') {
@@ -159,7 +159,7 @@ export async function POST(request: NextRequest) {
     }
 
     await adminDb.collection('users').doc(userRecord.uid).set(userDocData, { merge: true })
-    console.log(`✅ [COMPLETE-PROFILE] Created user document - role: ${finalRole}, '[COACH_ID]', assignedCoachId: ${coachUid}`)
+    console.log(`✅ [COMPLETE-PROFILE] Created user document - role: ${finalRole}, assignedCoachId: assigned`)
 
     // CRITICAL: Set custom claims for Firebase Auth so Storage rules work
     try {
@@ -207,7 +207,7 @@ export async function POST(request: NextRequest) {
             athletes: athletesList,
             athleteCount: athletesList.length
           })
-          console.log(`✅ [COMPLETE-PROFILE] Added athlete to coach's list`)
+          console.log(`✅ [COMPLETE-PROFILE] Added athlete to coach's athlete list`)
         }
 
         // Send coach notification
@@ -272,8 +272,8 @@ export async function POST(request: NextRequest) {
       }
     } else {
       console.log(`✅ [COMPLETE-PROFILE] VERIFICATION PASSED!`)
-      console.log(`   - Athlete [ATHLETE_ID] has coachId: [COACH_ID]`)
-      console.log(`   - User [USER_ID] has coachId: [COACH_ID]`)
+      console.log(`   - Athlete has coach assigned`)
+      console.log(`   - User has coach assigned`)
     }
 
     return NextResponse.json({

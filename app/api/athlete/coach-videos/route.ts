@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
       return dateB - dateA
     })
 
-    console.log(`Found ${videos.length} videos for athlete ${userId} from coach ${assignedCoachId}`)
+    console.log(`Found ${videos.length} videos for athlete from coach`)
 
     return NextResponse.json({
       success: true,

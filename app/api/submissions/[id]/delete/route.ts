@@ -42,11 +42,12 @@ export async function DELETE(
       );
     }
 
-    // 4. Check if submission can be deleted (not in review)
-    const deletableStatuses = ['pending', 'draft', 'awaiting_coach'];
+    // 4. Check if submission can be deleted
+    // Allow deletion of completed submissions too since users might want to clean up
+    const deletableStatuses = ['pending', 'draft', 'awaiting_coach', 'complete'];
     if (!deletableStatuses.includes(submissionData?.status)) {
       return NextResponse.json(
-        { 
+        {
           error: 'Cannot delete submission',
           message: `Submissions with status "${submissionData?.status}" cannot be deleted. Contact support if you need help.`
         },

@@ -19,34 +19,54 @@ export default function AthleteReviewsPageV2() {
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null)
 
-  // Fetch submissions - ULTRA SIMPLE version
+  // Fetch submissions - BULLETPROOF version with no early returns
   useEffect(() => {
-    if (authLoading) return
-    if (!user) return
-
+    // Declare ALL variables at the top
     let mounted = true
+    let abortController: AbortController | null = null
 
     const fetchData = async () => {
       try {
-        console.log('[REVIEWS-V3] Fetching submissions...')
-        
+        // Wait for auth to load
+        if (authLoading) {
+          console.log('[REVIEWS-V4] Waiting for auth...')
+          return
+        }
+
+        // Handle no user case
+        if (!user) {
+          console.log('[REVIEWS-V4] No user, redirecting to login')
+          router.push('/login')
+          return
+        }
+
+        console.log('[REVIEWS-V4] Fetching submissions...')
+
+        // Create abort controller
+        abortController = new AbortController()
+
         const token = await user.getIdToken()
         const response = await fetch(`/api/submissions?athleteUid=${user.uid}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: { 'Authorization': `Bearer ${token}` },
+          signal: abortController.signal
         })
 
         if (!mounted) return
 
         if (response.ok) {
           const data = await response.json()
-          console.log('[REVIEWS-V3] Got submissions:', data.submissions?.length || 0)
+          console.log('[REVIEWS-V4] Got submissions:', data.submissions?.length || 0)
           setSubmissions(data.submissions || [])
         } else {
           setError('Failed to load submissions')
         }
-      } catch (err) {
+      } catch (err: any) {
         if (!mounted) return
-        console.error('[REVIEWS-V3] Fetch error:', err)
+        if (err.name === 'AbortError') {
+          console.log('[REVIEWS-V4] Request aborted')
+          return
+        }
+        console.error('[REVIEWS-V4] Fetch error:', err)
         setError('Failed to load submissions')
       } finally {
         if (mounted) {
@@ -57,10 +77,14 @@ export default function AthleteReviewsPageV2() {
 
     fetchData()
 
+    // Cleanup - ALWAYS return this
     return () => {
       mounted = false
+      if (abortController) {
+        abortController.abort()
+      }
     }
-  }, [user, authLoading])
+  }, [user, authLoading, router])
 
   // Handle delete submission
   const handleDelete = async (submissionId: string, e: React.MouseEvent) => {
@@ -184,7 +208,7 @@ export default function AthleteReviewsPageV2() {
         {submissions.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3">
             {submissions.map((submission: any) => {
-              const isDeletable = ['pending', 'draft', 'awaiting_coach'].includes(submission.status)
+              const isDeletable = ['pending', 'draft', 'awaiting_coach', 'complete'].includes(submission.status)
               console.log(`[REVIEWS-V3] Submission: status=${submission.status}, isDeletable=${isDeletable}`)
               return (
                 <div
