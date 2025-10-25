@@ -32,6 +32,7 @@ export default function CoachUnifiedDashboard() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
   const [pendingRequestsCount, setPendingRequestsCount] = useState(0)
   const [unreadMessagesCount, setUnreadMessagesCount] = useState(0)
+  const [pendingVideosCount, setPendingVideosCount] = useState(0)
   const [isInitializing, setIsInitializing] = useState(true)
 
   // Role-based redirect - prevent admins from accessing coach dashboard
@@ -129,7 +130,10 @@ export default function CoachUnifiedDashboard() {
 
     const loadUnreadMessages = async () => {
       try {
-        const response = await fetch(`/api/coach/messages?coachId=${user.uid}`)
+        const token = await user.getIdToken()
+        const response = await fetch(`/api/coach/messages`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
         if (response.ok) {
           const data = await response.json()
           if (data.success) {
@@ -147,7 +151,36 @@ export default function CoachUnifiedDashboard() {
     // Refresh every 30 seconds
     const interval = setInterval(loadUnreadMessages, 30000)
     return () => clearInterval(interval)
-  }, [user?.uid])
+  }, [user])
+
+  // Load pending videos count
+  useEffect(() => {
+    if (!user?.uid) return
+
+    const loadPendingVideos = async () => {
+      try {
+        const token = await user.getIdToken()
+        const response = await fetch('/api/coach/submissions', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+        if (response.ok) {
+          const data = await response.json()
+          if (data.success) {
+            const awaitingCount = data.awaitingCoach?.length || 0
+            setPendingVideosCount(awaitingCount)
+          }
+        }
+      } catch (error) {
+        console.error('Error loading pending videos count:', error)
+      }
+    }
+
+    loadPendingVideos()
+    
+    // Refresh every 30 seconds
+    const interval = setInterval(loadPendingVideos, 30000)
+    return () => clearInterval(interval)
+  }, [user])
 
   // Handle postMessage events from iframe
   useEffect(() => {
@@ -188,7 +221,8 @@ export default function CoachUnifiedDashboard() {
       title: 'Video Review Queue',
       description: 'Review athlete video submissions',
       icon: FileVideo,
-      color: '#E53E3E'
+      color: '#E53E3E',
+      badge: pendingVideosCount
     },
     {
       id: 'messages',

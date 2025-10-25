@@ -53,6 +53,7 @@ export default function AthleteDashboard() {
   const [loadError, setLoadError] = useState<string | null>(null)
   const [lessonCount, setLessonCount] = useState<number>(0)
   const [videoCount, setVideoCount] = useState<number>(0)
+  const [completedReviewsCount, setCompletedReviewsCount] = useState<number>(0)
 
   // Athlete tools - simplified for sidebar
   const athleteTools = [
@@ -68,7 +69,8 @@ export default function AthleteDashboard() {
       title: 'Video Reviews',
       description: 'View and submit videos for feedback',
       icon: Video,
-      color: '#E53E3E'
+      color: '#E53E3E',
+      badge: completedReviewsCount
     },
     {
       id: 'ai-assistant',
@@ -358,22 +360,49 @@ export default function AthleteDashboard() {
           }
         }
 
+        // Fetch completed reviews count (new reviews ready to view)
+        let completedCount = 0
+        try {
+          const reviewsResponse = await fetch('/api/submissions', {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+            signal: abortController.signal,
+          })
+          
+          if (reviewsResponse.ok) {
+            const reviewsData = await reviewsResponse.json()
+            const submissions = reviewsData.submissions || []
+            completedCount = submissions.filter((s: any) => s.status === 'complete').length
+          }
+        } catch (reviewError) {
+          if (reviewError instanceof Error && reviewError.name !== 'AbortError') {
+            console.warn('Could not fetch completed reviews count:', reviewError)
+          }
+        }
+
         // Check if component is still mounted before setting state
         if (isMounted) {
           setLessonCount(lessons)
           setVideoCount(submittedVideos)
+          setCompletedReviewsCount(completedCount)
         }
       } catch (error) {
         console.error('Error fetching stats:', error)
         setLessonCount(0)
         setVideoCount(0)
+        setCompletedReviewsCount(0)
       }
     }
 
     fetchStats()
 
+    // Refresh every 30 seconds
+    const interval = setInterval(fetchStats, 30000)
+
     // Cleanup function
     return () => {
+      clearInterval(interval)
       abortController.abort()
       isMounted = false
     }
