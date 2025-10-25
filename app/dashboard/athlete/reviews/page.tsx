@@ -261,7 +261,7 @@ export default function AthleteReviewsPageV2() {
                         e.stopPropagation();
                         setShowDeleteConfirm(submission.id);
                       }}
-                      className="absolute top-2 right-2 p-1.5 bg-white/90 backdrop-blur-sm text-red-600 hover:bg-red-50 rounded-md transition-all opacity-0 group-hover:opacity-100 shadow-sm"
+                      className="absolute top-2 right-2 p-1.5 bg-white/90 backdrop-blur-sm text-red-600 hover:bg-red-600 hover:text-white rounded-md transition-all shadow-sm"
                       disabled={deletingId === submission.id}
                       title="Delete submission"
                     >
