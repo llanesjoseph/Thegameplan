@@ -159,14 +159,12 @@ export async function GET(request: NextRequest) {
       query = query.where('status', '==', status);
     }
 
-    // Order by creation date (newest first) and limit
-    query = query.orderBy('createdAt', 'desc').limit(limit);
-
-    // Execute query
+    // Execute query WITHOUT orderBy to avoid requiring composite index
+    // We'll sort in memory instead
     const snapshot = await query.get();
     
     // Convert documents to array
-    const submissions = snapshot.docs.map((doc: any) => {
+    let submissions = snapshot.docs.map((doc: any) => {
       const data = doc.data();
       return {
         id: doc.id,
@@ -179,6 +177,16 @@ export async function GET(request: NextRequest) {
         reviewedAt: data.reviewedAt?.toDate?.()?.toISOString() || data.reviewedAt,
       };
     });
+
+    // Sort by creation date (newest first) in memory
+    submissions.sort((a, b) => {
+      const aDate = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const bDate = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return bDate - aDate;
+    });
+
+    // Apply limit after sorting
+    submissions = submissions.slice(0, limit);
 
     return NextResponse.json({
       submissions,
