@@ -29,18 +29,18 @@ export default function AthleteReviewsPageV2() {
       try {
         // Wait for auth to load
         if (authLoading) {
-          console.log('[REVIEWS-V4] Waiting for auth...')
+          console.log('Waiting for authentication...')
           return
         }
 
         // Handle no user case
         if (!user) {
-          console.log('[REVIEWS-V4] No user, redirecting to login')
+          console.log('No user found, redirecting to login')
           router.push('/login')
           return
         }
 
-        console.log('[REVIEWS-V4] Fetching submissions...')
+        console.log('Fetching video submissions...')
 
         // Create abort controller
         abortController = new AbortController()
@@ -55,7 +55,7 @@ export default function AthleteReviewsPageV2() {
 
         if (response.ok) {
           const data = await response.json()
-          console.log('[REVIEWS-V4] Got submissions:', data.submissions?.length || 0)
+          console.log('Loaded', data.submissions?.length || 0, 'video submissions')
           setSubmissions(data.submissions || [])
         } else {
           setError('Failed to load submissions')
@@ -63,10 +63,10 @@ export default function AthleteReviewsPageV2() {
       } catch (err: any) {
         if (!mounted) return
         if (err.name === 'AbortError') {
-          console.log('[REVIEWS-V4] Request aborted')
+          console.log('Request cancelled')
           return
         }
-        console.error('[REVIEWS-V4] Fetch error:', err)
+        console.error('Failed to load video submissions:', err)
         setError('Failed to load submissions')
       } finally {
         if (mounted) {
@@ -209,7 +209,7 @@ export default function AthleteReviewsPageV2() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3">
             {submissions.map((submission: any) => {
               const isDeletable = ['pending', 'draft', 'awaiting_coach', 'complete'].includes(submission.status)
-              console.log(`[REVIEWS-V3] Submission: status=${submission.status}, isDeletable=${isDeletable}`)
+              console.log(`Video submission: status=${submission.status}, isDeletable=${isDeletable}`)
               return (
                 <div
                   key={submission.id}
@@ -269,7 +269,7 @@ export default function AthleteReviewsPageV2() {
                     onClick={(e) => {
                       e.preventDefault()
                       e.stopPropagation()
-                      console.log(`[REVIEWS-V3] Delete clicked, isDeletable: ${isDeletable}`)
+                      console.log(`Delete clicked, isDeletable: ${isDeletable}`)
                       if (isDeletable) {
                         setShowDeleteConfirm(submission.id)
                       } else {
