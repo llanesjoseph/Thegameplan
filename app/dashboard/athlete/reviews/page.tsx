@@ -146,9 +146,10 @@ export default function AthleteReviewsPageV2() {
         {submissions.length > 0 && (
           <div className="grid gap-4">
             {submissions.map((submission: any) => (
-              <div
+              <Link
                 key={submission.id}
-                className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"
+                href={`/dashboard/athlete/reviews/${submission.id}`}
+                className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow block cursor-pointer"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
@@ -183,7 +184,7 @@ export default function AthleteReviewsPageV2() {
                     />
                   )}
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}
