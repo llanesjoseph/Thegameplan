@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
-import { ArrowLeft, Clock, CheckCircle, Video, MessageCircle } from 'lucide-react';
+import { ArrowLeft, Clock, CheckCircle, Video, MessageCircle, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 
 export default function AthleteReviewDetailPage({
@@ -20,6 +20,8 @@ export default function AthleteReviewDetailPage({
   const [newComment, setNewComment] = useState('');
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
     if (!user && !loading) {
@@ -117,6 +119,35 @@ export default function AthleteReviewDetailPage({
       alert('Failed to add comment. Please try again.');
     } finally {
       setIsSubmittingComment(false);
+    }
+  };
+
+  const handleDeleteSubmission = async () => {
+    if (!user) return;
+
+    setIsDeleting(true);
+    try {
+      const token = await user.getIdToken();
+      const response = await fetch(`/api/submissions/${params.submissionId}/delete`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || result.error || 'Failed to delete submission');
+      }
+
+      // Success - redirect to reviews list
+      router.push('/dashboard/athlete/reviews?deleted=true');
+    } catch (error: any) {
+      console.error('Error deleting submission:', error);
+      alert(error.message || 'Failed to delete submission. Please try again.');
+      setIsDeleting(false);
+      setShowDeleteConfirm(false);
     }
   };
 
@@ -245,20 +276,73 @@ export default function AthleteReviewDetailPage({
             <ArrowLeft className="w-4 h-4 mr-1" />
             Back to Reviews
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">Video Review</h1>
-          <div className="mt-2 flex items-center gap-4 text-sm text-gray-600">
-            <span className="flex items-center gap-1">
-              <Clock className="w-4 h-4" />
-              Submitted {formatDate(submission.submittedAt)}
-            </span>
-            {submission.reviewedAt && (
-              <span className="flex items-center gap-1 text-green-600">
-                <CheckCircle className="w-4 h-4" />
-                Reviewed {formatDate(submission.reviewedAt)}
-              </span>
+          <div className="flex items-start justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Video Review</h1>
+              <div className="mt-2 flex items-center gap-4 text-sm text-gray-600">
+                <span className="flex items-center gap-1">
+                  <Clock className="w-4 h-4" />
+                  Submitted {formatDate(submission.submittedAt)}
+                </span>
+                {submission.reviewedAt && (
+                  <span className="flex items-center gap-1 text-green-600">
+                    <CheckCircle className="w-4 h-4" />
+                    Reviewed {formatDate(submission.reviewedAt)}
+                  </span>
+                )}
+              </div>
+            </div>
+            {/* Delete button - only show if submission is not being reviewed */}
+            {['pending', 'draft', 'awaiting_coach'].includes(submission.status) && (
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="flex items-center gap-2 px-4 py-2 text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition-colors"
+                disabled={isDeleting}
+              >
+                <Trash2 className="w-4 h-4" />
+                Delete
+              </button>
             )}
           </div>
         </div>
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteConfirm && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-2">Delete Submission?</h2>
+              <p className="text-gray-600 mb-6">
+                This will permanently delete your video submission and all associated data. This action cannot be undone.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  disabled={isDeleting}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDeleteSubmission}
+                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                  disabled={isDeleting}
+                >
+                  {isDeleting ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      Deleting...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="w-4 h-4" />
+                      Delete
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {submission.status !== 'complete' && (
           <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
