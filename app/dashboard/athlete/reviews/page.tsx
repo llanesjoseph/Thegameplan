@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import Link from 'next/link';
 import { Video, Clock, CheckCircle, AlertCircle, Eye, ArrowLeft, Trash2 } from 'lucide-react';
@@ -9,9 +9,12 @@ import { Video, Clock, CheckCircle, AlertCircle, Eye, ArrowLeft, Trash2 } from '
 /**
  * SIMPLIFIED Athlete Reviews Page
  * Removed all complex logic that was causing React error #310
+ * NOW SUPPORTS IFRAME EMBEDDING with ?embedded=true
  */
 export default function AthleteReviewsPageV2() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isEmbedded = searchParams?.get('embedded') === 'true';
   const { user, loading: authLoading } = useAuth();
   
   // State
@@ -32,10 +35,15 @@ export default function AthleteReviewsPageV2() {
         return;
       }
 
-      // Redirect if no user
-      if (!user) {
+      // Redirect if no user (but not if embedded - let parent handle auth)
+      if (!user && !isEmbedded) {
         console.log('[REVIEWS-V2] No user, redirecting to login');
         router.push('/login');
+        return;
+      }
+      
+      // If embedded and no user, just show loading
+      if (!user) {
         return;
       }
 
@@ -73,7 +81,7 @@ export default function AthleteReviewsPageV2() {
     return () => {
       isMounted = false;
     };
-  }, [user, authLoading, router]);
+  }, [user, authLoading, router, isEmbedded]);
 
   // Handle delete submission
   const handleDelete = async (submissionId: string, e: React.MouseEvent) => {
@@ -141,17 +149,19 @@ export default function AthleteReviewsPageV2() {
 
   // Main content
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
+    <div className={isEmbedded ? "w-full h-full" : "container mx-auto px-4 py-8"}>
+      <div className={isEmbedded ? "w-full h-full" : "max-w-6xl mx-auto"}>
+        {/* Header - hide back button when embedded */}
         <div className="mb-8">
-          <Link
-            href="/dashboard/athlete"
-            className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-4"
-          >
-            <ArrowLeft className="w-4 h-4 mr-1" />
-            Back to Dashboard
-          </Link>
+          {!isEmbedded && (
+            <Link
+              href="/dashboard/athlete"
+              className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-4"
+            >
+              <ArrowLeft className="w-4 h-4 mr-1" />
+              Back to Dashboard
+            </Link>
+          )}
           <h1 className="text-3xl font-bold text-gray-900">My Video Reviews</h1>
           <p className="mt-2 text-gray-600">
             Track your submitted videos and coach feedback
@@ -189,7 +199,7 @@ export default function AthleteReviewsPageV2() {
                   className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow relative"
                 >
                   <Link
-                    href={`/dashboard/athlete/reviews/${submission.id}`}
+                    href={isEmbedded ? `/dashboard/athlete/reviews/${submission.id}?embedded=true` : `/dashboard/athlete/reviews/${submission.id}`}
                     className="block cursor-pointer"
                   >
                     <div className="flex items-start justify-between">

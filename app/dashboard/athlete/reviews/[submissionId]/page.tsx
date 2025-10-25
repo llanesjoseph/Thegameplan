@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { ArrowLeft, Clock, CheckCircle, Video, MessageCircle, Trash2 } from 'lucide-react';
 import Link from 'next/link';
@@ -13,6 +13,8 @@ export default function AthleteReviewDetailPage({
 }) {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isEmbedded = searchParams?.get('embedded') === 'true';
   const [submission, setSubmission] = useState<any>(null);
   const [review, setReview] = useState<any>(null);
   const [comments, setComments] = useState<any[]>([]);
@@ -24,7 +26,8 @@ export default function AthleteReviewDetailPage({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
-    if (!user && !loading) {
+    // Don't redirect if embedded - let parent handle auth
+    if (!user && !loading && !isEmbedded) {
       router.push('/login');
       return;
     }
@@ -69,7 +72,7 @@ export default function AthleteReviewDetailPage({
     };
 
     fetchData();
-  }, [user, loading, router, params.submissionId]);
+  }, [user, loading, router, params.submissionId, isEmbedded]);
 
   const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -269,13 +272,15 @@ export default function AthleteReviewDetailPage({
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-6xl mx-auto">
+    <div className={isEmbedded ? "w-full h-full p-4" : "container mx-auto px-4 py-8"}>
+      <div className={isEmbedded ? "w-full h-full" : "max-w-6xl mx-auto"}>
         <div className="mb-8">
-          <Link href="/dashboard/athlete/reviews" className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-4">
-            <ArrowLeft className="w-4 h-4 mr-1" />
-            Back to Reviews
-          </Link>
+          {!isEmbedded && (
+            <Link href="/dashboard/athlete/reviews" className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-4">
+              <ArrowLeft className="w-4 h-4 mr-1" />
+              Back to Reviews
+            </Link>
+          )}
           <div className="flex items-start justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Video Review</h1>
