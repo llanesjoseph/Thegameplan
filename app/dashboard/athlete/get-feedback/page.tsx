@@ -218,9 +218,16 @@ export default function GetFeedbackPage() {
       setIsPlaying(false);
 
       // Generate thumbnails immediately
-      setTimeout(() => {
+      setTimeout(async () => {
         setShowThumbnailSelector(true);
         toast.success('Video selected - generating thumbnails...');
+
+        // Generate thumbnails right away
+        try {
+          await generateThumbnails();
+        } catch (error) {
+          console.error('Initial thumbnail generation failed:', error);
+        }
       }, 100);
     }
   };
