@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import { useRole } from '@/hooks/use-role'
+import RequireRole from '@/components/guards/RequireRole'
 import AppHeader from '@/components/ui/AppHeader'
 import InvitationsApprovalsUnified from './invitations-approvals/page'
 import {
@@ -38,45 +39,8 @@ export default function AdminDashboard() {
     }
   }, [authLoading, user, router])
 
-  // Show loading state
-  if (authLoading || roleLoading) {
-    return (
-      <div style={{ backgroundColor: '#E8E6D8' }} className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-black mx-auto mb-4"></div>
-          <p style={{ color: '#000000' }}>Verifying admin access...</p>
-        </div>
-      </div>
-    )
-  }
-
-  // Show access denied if not admin
-  if (!['admin', 'superadmin'].includes(role as any)) {
-    return (
-      <div style={{ backgroundColor: '#E8E6D8' }} className="min-h-screen flex items-center justify-center">
-        <div className="max-w-md mx-auto px-4">
-          <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-red-200 p-8 text-center">
-            <div className="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center bg-red-100">
-              <AlertTriangle className="w-10 h-10 text-red-600" />
-            </div>
-            <h2 className="text-2xl font-bold mb-3" style={{ color: '#000000' }}>
-              Access Denied
-            </h2>
-            <p className="mb-6" style={{ color: '#666' }}>
-              You don't have permission to access the admin dashboard. This area is restricted to administrators only.
-            </p>
-            <button
-              onClick={() => router.push('/dashboard/coach-unified')}
-              className="px-6 py-3 rounded-lg text-white transition-colors"
-              style={{ backgroundColor: '#91A6EB' }}
-            >
-              Back to Dashboard
-            </button>
-          </div>
-        </div>
-      </div>
-    )
-  }
+  // Wrap content with role requirement
+  if (authLoading || roleLoading) return null
 
   const adminCards = [
     {
@@ -167,6 +131,7 @@ export default function AdminDashboard() {
   }
 
   return (
+    <RequireRole allow={['admin','superadmin']}>
     <div style={{ backgroundColor: '#E8E6D8' }} className="min-h-screen">
       <AppHeader title="Admin Dashboard" subtitle="Full platform control" />
 
@@ -567,5 +532,6 @@ export default function AdminDashboard() {
         </div>
       </main>
     </div>
+    </RequireRole>
   )
 }
