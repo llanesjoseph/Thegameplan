@@ -41,8 +41,12 @@ export default function AthleteReviewsPage() {
     // Fetch submissions WITHOUT INDEXES - fetch all and filter in JavaScript
     const fetchSubmissions = async () => {
       try {
+        console.log('[ATHLETE-REVIEWS] Starting fetch for user:', user.uid);
+        
         // Use secure API to prevent React errors - CRITICAL: Filter by athlete ID
         const token = await user.getIdToken();
+        console.log('[ATHLETE-REVIEWS] Got auth token, calling API...');
+        
         const response = await fetch(`/api/submissions?athleteUid=${user.uid}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -50,17 +54,28 @@ export default function AthleteReviewsPage() {
           signal: abortController.signal, // Add abort signal
         });
 
+        console.log('[ATHLETE-REVIEWS] API response status:', response.status);
+
         // Check if component is still mounted before processing response
-        if (!isMounted) return;
+        if (!isMounted) {
+          console.log('[ATHLETE-REVIEWS] Component unmounted, stopping');
+          return;
+        }
 
         let mySubmissions: any[] = [];
         if (response.ok) {
-          const data = await response.json();
-          console.log('[ATHLETE-REVIEWS] API Response:', data);
-          mySubmissions = data.submissions || [];
-          console.log('[ATHLETE-REVIEWS] Loaded submissions:', mySubmissions.length);
+          try {
+            const data = await response.json();
+            console.log('[ATHLETE-REVIEWS] API Response:', data);
+            mySubmissions = data.submissions || [];
+            console.log('[ATHLETE-REVIEWS] Loaded submissions:', mySubmissions.length);
+          } catch (jsonError) {
+            console.error('[ATHLETE-REVIEWS] JSON parse error:', jsonError);
+            mySubmissions = [];
+          }
         } else {
-          console.warn('[ATHLETE-REVIEWS] API fetch failed, continuing with empty submissions');
+          const errorText = await response.text();
+          console.error('[ATHLETE-REVIEWS] API fetch failed:', response.status, errorText);
           mySubmissions = [];
         }
 
@@ -104,23 +119,31 @@ export default function AthleteReviewsPage() {
       } catch (error) {
         // Don't log aborted requests as errors
         if (error instanceof Error && error.name === 'AbortError') {
-          console.log('[ATHLETE-REVIEWS] Request aborted');
+          console.log('[ATHLETE-REVIEWS] Request aborted (component cleanup)');
           return;
         }
         
-        console.error('Error fetching submissions:', error);
+        console.error('[ATHLETE-REVIEWS] Error fetching submissions:', error);
+        
+        // Only update error state if component is still mounted
         if (isMounted) {
-          setError('Failed to load reviews. Please try again.');
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          console.error('[ATHLETE-REVIEWS] Setting error state:', errorMessage);
+          setError(`Failed to load reviews: ${errorMessage}`);
         }
       } finally {
         // Only update loading state if component is still mounted
         if (isMounted) {
+          console.log('[ATHLETE-REVIEWS] Fetch complete, setting isLoading to false');
           setIsLoading(false);
         }
       }
     };
 
-    fetchSubmissions();
+    console.log('[ATHLETE-REVIEWS] Calling fetchSubmissions...');
+    fetchSubmissions().catch(err => {
+      console.error('[ATHLETE-REVIEWS] Uncaught error in fetchSubmissions:', err);
+    });
 
     // Cleanup function to prevent state updates after unmount
     return () => {
