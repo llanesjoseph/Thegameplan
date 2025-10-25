@@ -106,11 +106,28 @@ export async function GET(
 
     // 4. Get review data if submission is complete
     let reviewData = null
-    if (submissionData?.status === 'complete' && submissionData?.reviewId) {
+    if (submissionData?.status === 'complete') {
       try {
-        const reviewDoc = await adminDb.collection('reviews').doc(submissionData.reviewId).get()
-        if (reviewDoc.exists) {
-          reviewData = reviewDoc.data()
+        // Try to get review by reviewId if available
+        if (submissionData?.reviewId) {
+          const reviewDoc = await adminDb.collection('reviews').doc(submissionData.reviewId).get()
+          if (reviewDoc.exists) {
+            reviewData = reviewDoc.data()
+          }
+        }
+        
+        // Fallback: Search by submissionId if reviewId not set (for older reviews)
+        if (!reviewData) {
+          const reviewsSnapshot = await adminDb.collection('reviews')
+            .where('submissionId', '==', params.id)
+            .where('status', '==', 'published')
+            .limit(1)
+            .get()
+          
+          if (!reviewsSnapshot.empty) {
+            reviewData = reviewsSnapshot.docs[0].data()
+            console.log('[SUBMISSION-API] Found review by submissionId fallback')
+          }
         }
       } catch (error) {
         console.warn('Could not fetch review data:', error)
