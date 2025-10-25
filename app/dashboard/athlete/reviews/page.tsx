@@ -52,7 +52,7 @@ export default function AthleteReviewsPage() {
         if (!isMounted) return
 
         console.log('Making API request with auth token...')
-        const response = await fetch(`/api/submissions?athleteUid=${user.uid}`, {
+        const response = await fetch(`/api/submissions`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
