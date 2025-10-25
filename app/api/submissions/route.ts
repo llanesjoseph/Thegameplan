@@ -161,7 +161,20 @@ export async function GET(request: NextRequest) {
 
     // Execute query WITHOUT orderBy to avoid requiring composite index
     // We'll sort in memory instead
-    const snapshot = await query.get();
+    console.log(`Executing Firestore query`)
+    let snapshot
+    try {
+      snapshot = await query.get();
+    } catch (error: any) {
+      console.error('Firestore query failed:', error)
+      return NextResponse.json(
+        {
+          error: 'Database query failed',
+          details: error.message
+        },
+        { status: 500 }
+      )
+    }
     
     // Convert documents to array
     let submissions = snapshot.docs.map((doc: any) => {
