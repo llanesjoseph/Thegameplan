@@ -179,7 +179,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Sort by creation date (newest first) in memory
-    submissions.sort((a, b) => {
+    submissions.sort((a: any, b: any) => {
       const aDate = a.createdAt ? new Date(a.createdAt).getTime() : 0;
       const bDate = b.createdAt ? new Date(b.createdAt).getTime() : 0;
       return bDate - aDate;
