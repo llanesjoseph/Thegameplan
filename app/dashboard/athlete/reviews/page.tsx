@@ -28,7 +28,7 @@ export default function AthleteReviewsPageV2() {
 
     const fetchData = async () => {
       try {
-        console.log('[REVIEWS-V3] Fetching submissions for:', user.uid)
+        console.log('[REVIEWS-V3] Fetching submissions...')
         
         const token = await user.getIdToken()
         const response = await fetch(`/api/submissions?athleteUid=${user.uid}`, {
@@ -185,7 +185,7 @@ export default function AthleteReviewsPageV2() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3">
             {submissions.map((submission: any) => {
               const isDeletable = ['pending', 'draft', 'awaiting_coach'].includes(submission.status)
-              console.log(`[REVIEWS-V3] Submission ${submission.id}: status=${submission.status}, isDeletable=${isDeletable}`)
+              console.log(`[REVIEWS-V3] Submission: status=${submission.status}, isDeletable=${isDeletable}`)
               return (
                 <div
                   key={submission.id}
@@ -245,7 +245,7 @@ export default function AthleteReviewsPageV2() {
                     onClick={(e) => {
                       e.preventDefault()
                       e.stopPropagation()
-                      console.log(`[REVIEWS-V3] Delete clicked for ${submission.id}, isDeletable: ${isDeletable}`)
+                      console.log(`[REVIEWS-V3] Delete clicked, isDeletable: ${isDeletable}`)
                       if (isDeletable) {
                         setShowDeleteConfirm(submission.id)
                       } else {

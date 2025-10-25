@@ -50,7 +50,7 @@ export default function AppleSignInButton({
     const user = result.user
 
     console.log('[AppleSignIn] ✓ Successfully signed in with Apple:', user.displayName || user.email)
-    console.log('[AppleSignIn] User ID:', user.uid)
+    console.log('[AppleSignIn] User authenticated successfully')
     console.log('[AppleSignIn] Provider Data:', user.providerData)
 
     // Redirect to onboarding for new users to complete their profile

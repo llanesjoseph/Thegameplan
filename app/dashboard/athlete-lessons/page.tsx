@@ -154,7 +154,7 @@ export default function AthleteLessonsPage() {
   useEffect(() => {
     if (!user?.uid || loading) return
 
-    console.log('🔥 Setting up real-time listener for athlete feed:', user.uid)
+    console.log('🔥 Setting up real-time listener for athlete feed')
 
     const feedDocRef = doc(db, 'athlete_feed', user.uid)
 
@@ -338,7 +338,7 @@ export default function AthleteLessonsPage() {
 
     try {
       setVideosLoading(true)
-      console.log('Fetching coach videos for user:', user.uid)
+      console.log('Fetching coach videos...')
 
       const response = await fetch('/api/athlete/coach-videos', {
         headers: {
