@@ -1,167 +1,134 @@
-'use client';
+'use client'
 
-import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useAuth } from '@/hooks/use-auth';
-import Link from 'next/link';
-import { Video, Clock, CheckCircle, AlertCircle, Eye, ArrowLeft, Trash2 } from 'lucide-react';
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import Link from 'next/link'
+import { useAuth } from '@/hooks/use-auth'
+import { Video, Clock, Trash2, ArrowLeft } from 'lucide-react'
 
-/**
- * SIMPLIFIED Athlete Reviews Page
- * Removed all complex logic that was causing React error #310
- * NOW SUPPORTS IFRAME EMBEDDING with ?embedded=true
- */
 export default function AthleteReviewsPageV2() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const isEmbedded = searchParams?.get('embedded') === 'true';
-  const { user, loading: authLoading } = useAuth();
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const isEmbedded = searchParams?.get('embedded') === 'true'
+  const { user, loading: authLoading } = useAuth()
   
-  // State
-  const [submissions, setSubmissions] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
+  // State - ALL declared at top level
+  const [submissions, setSubmissions] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null)
 
-  // Fetch submissions - BULLETPROOF version
+  // Fetch submissions - ULTRA SIMPLE version
   useEffect(() => {
-    // Always declare these at the top to avoid React error #310
-    let isMounted = true;
-    let abortController: AbortController | null = null;
+    if (authLoading) return
+    if (!user) return
+
+    let mounted = true
 
     const fetchData = async () => {
       try {
-        // Wait for auth to load
-        if (authLoading) {
-          console.log('[REVIEWS-V2] Waiting for auth...');
-          return;
-        }
-
-        // Redirect if no user (but not if embedded - let parent handle auth)
-        if (!user && !isEmbedded) {
-          console.log('[REVIEWS-V2] No user, redirecting to login');
-          router.push('/login');
-          return;
-        }
-
-        // If embedded and no user, just show loading
-        if (!user) {
-          return;
-        }
-
-        console.log('[REVIEWS-V2] Fetching submissions for:', user.uid);
-
-        // Create abort controller for this request
-        abortController = new AbortController();
-
-        const token = await user.getIdToken();
+        console.log('[REVIEWS-V3] Fetching submissions for:', user.uid)
+        
+        const token = await user.getIdToken()
         const response = await fetch(`/api/submissions?athleteUid=${user.uid}`, {
-          headers: { 'Authorization': `Bearer ${token}` },
-          signal: abortController.signal
-        });
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
 
-        if (!isMounted) return;
+        if (!mounted) return
 
         if (response.ok) {
-          const data = await response.json();
-          console.log('[REVIEWS-V2] Got submissions:', data.submissions?.length || 0);
-          setSubmissions(data.submissions || []);
+          const data = await response.json()
+          console.log('[REVIEWS-V3] Got submissions:', data.submissions?.length || 0)
+          setSubmissions(data.submissions || [])
         } else {
-          console.error('[REVIEWS-V2] API error:', response.status);
-          setError('Failed to load submissions');
+          setError('Failed to load submissions')
         }
-      } catch (err: any) {
-        if (!isMounted) return;
-        if (err.name === 'AbortError') {
-          console.log('[REVIEWS-V2] Request aborted');
-          return;
-        }
-        console.error('[REVIEWS-V2] Fetch error:', err);
-        setError(err instanceof Error ? err.message : 'Unknown error');
+      } catch (err) {
+        if (!mounted) return
+        console.error('[REVIEWS-V3] Fetch error:', err)
+        setError('Failed to load submissions')
       } finally {
-        if (isMounted) {
-          setIsLoading(false);
+        if (mounted) {
+          setIsLoading(false)
         }
       }
-    };
+    }
 
-    fetchData();
+    fetchData()
 
-    // Cleanup function - ALWAYS return this
     return () => {
-      isMounted = false;
-      if (abortController) {
-        abortController.abort();
-      }
-    };
-  }, [user, authLoading, router, isEmbedded]);
+      mounted = false
+    }
+  }, [user, authLoading])
 
   // Handle delete submission
   const handleDelete = async (submissionId: string, e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault()
+    e.stopPropagation()
     
-    if (!user) return;
+    if (!user) return
     
-    setDeletingId(submissionId);
+    setDeletingId(submissionId)
     try {
-      const token = await user.getIdToken();
+      const token = await user.getIdToken()
       const response = await fetch(`/api/submissions/${submissionId}/delete`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
-        },
-      });
+          'Content-Type': 'application/json'
+        }
+      })
 
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || result.error || 'Failed to delete submission');
+      if (response.ok) {
+        // Remove from local state
+        setSubmissions(prev => prev.filter(s => s.id !== submissionId))
+        setShowDeleteConfirm(null)
+        console.log('[REVIEWS-V3] Submission deleted successfully')
+      } else {
+        const errorData = await response.json()
+        alert(`Failed to delete: ${errorData.error || 'Unknown error'}`)
       }
-
-      // Remove from local state
-      setSubmissions(prev => prev.filter(s => s.id !== submissionId));
-      setShowDeleteConfirm(null);
-    } catch (error: any) {
-      console.error('Error deleting submission:', error);
-      alert(error.message || 'Failed to delete submission. Please try again.');
+    } catch (err) {
+      console.error('[REVIEWS-V3] Delete error:', err)
+      alert('Failed to delete submission')
     } finally {
-      setDeletingId(null);
+      setDeletingId(null)
     }
-  };
+  }
 
-  // Loading state
+  // Redirect if no user (but not if embedded)
+  if (!user && !isEmbedded) {
+    router.push('/login')
+    return null
+  }
+
   if (authLoading || isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+      <div className={isEmbedded ? "w-full h-full" : "container mx-auto px-4 py-8"}>
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
       </div>
-    );
+    )
   }
 
-  // Error state
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md">
-          <h2 className="text-lg font-semibold text-red-800 mb-2">Error</h2>
-            <p className="text-red-600 mb-4">{error}</p>
-            <button
-            onClick={() => window.location.reload()}
-              className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-            >
-            Reload Page
-            </button>
+      <div className={isEmbedded ? "w-full h-full" : "container mx-auto px-4 py-8"}>
+        <div className="text-center">
+          <p className="text-red-600 mb-4">{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Try Again
+          </button>
         </div>
       </div>
-    );
+    )
   }
 
-  // Main content
   return (
     <div className={isEmbedded ? "w-full h-full" : "container mx-auto px-4 py-8"}>
       <div className={isEmbedded ? "w-full h-full" : "max-w-6xl mx-auto"}>
@@ -177,9 +144,20 @@ export default function AthleteReviewsPageV2() {
             </Link>
           )}
           <h1 className="text-3xl font-bold text-gray-900">My Video Reviews</h1>
-              <p className="mt-2 text-gray-600">
+          <p className="mt-2 text-gray-600">
             Track your submitted videos and coach feedback
           </p>
+        </div>
+
+        {/* Submit Video Button */}
+        <div className="mb-6">
+          <Link
+            href="/dashboard/athlete/get-feedback"
+            className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+          >
+            <Video className="w-5 h-5 mr-2" />
+            Submit New Video
+          </Link>
         </div>
 
         {/* Empty state */}
@@ -202,24 +180,13 @@ export default function AthleteReviewsPageV2() {
           </div>
         )}
 
-        {/* Submit Video Button */}
-        <div className="mb-6">
-          <Link
-            href="/dashboard/athlete/get-feedback"
-            className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
-          >
-            <Video className="w-5 h-5 mr-2" />
-            Submit New Video
-          </Link>
-        </div>
-
         {/* Submissions grid - smaller compact cards */}
         {submissions.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3">
             {submissions.map((submission: any) => {
-              const isDeletable = ['pending', 'draft', 'awaiting_coach'].includes(submission.status);
-              console.log(`[REVIEWS-V2] Submission ${submission.id}: status=${submission.status}, isDeletable=${isDeletable}`);
-                return (
+              const isDeletable = ['pending', 'draft', 'awaiting_coach'].includes(submission.status)
+              console.log(`[REVIEWS-V3] Submission ${submission.id}: status=${submission.status}, isDeletable=${isDeletable}`)
+              return (
                 <div
                   key={submission.id}
                   className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow relative group"
@@ -253,9 +220,9 @@ export default function AthleteReviewsPageV2() {
                           {submission.status === 'complete' ? '✓' :
                            submission.status === 'in_review' || submission.status === 'claimed' ? '⏳' :
                            '⏱'}
-                            </span>
+                        </span>
                       </div>
-                        </div>
+                    </div>
 
                     {/* Compact Content */}
                     <div className="p-3">
@@ -276,13 +243,13 @@ export default function AthleteReviewsPageV2() {
                   {/* Delete button - always visible for debugging */}
                   <button
                     onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      console.log(`[REVIEWS-V2] Delete clicked for ${submission.id}, isDeletable: ${isDeletable}`);
+                      e.preventDefault()
+                      e.stopPropagation()
+                      console.log(`[REVIEWS-V3] Delete clicked for ${submission.id}, isDeletable: ${isDeletable}`)
                       if (isDeletable) {
-                        setShowDeleteConfirm(submission.id);
+                        setShowDeleteConfirm(submission.id)
                       } else {
-                        alert(`Cannot delete submission in status: ${submission.status}`);
+                        alert(`Cannot delete submission in status: ${submission.status}`)
                       }
                     }}
                     className={`absolute top-1 right-1 p-1.5 rounded-md transition-all shadow-sm z-10 ${
@@ -307,9 +274,9 @@ export default function AthleteReviewsPageV2() {
                         <div className="flex gap-3">
                           <button
                             onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              setShowDeleteConfirm(null);
+                              e.preventDefault()
+                              e.stopPropagation()
+                              setShowDeleteConfirm(null)
                             }}
                             className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                             disabled={deletingId === submission.id}
@@ -332,18 +299,17 @@ export default function AthleteReviewsPageV2() {
                                 Delete
                               </>
                             )}
-                              </button>
-                            </div>
-                          </div>
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
-              );
+              )
             })}
           </div>
         )}
       </div>
     </div>
-  );
+  )
 }
-
