@@ -296,6 +296,10 @@ export default function AthleteDashboard() {
 
   // Fetch lesson counts and athlete submission counts
   useEffect(() => {
+    // Create abort controller for cleanup
+    const abortController = new AbortController()
+    let isMounted = true
+
     const fetchStats = async () => {
       if (!user) {
         setLessonCount(0)
@@ -313,6 +317,7 @@ export default function AthleteDashboard() {
             headers: {
               'Authorization': `Bearer ${token}`,
             },
+            signal: abortController.signal,
           })
           
           if (contentResponse.ok) {
@@ -322,7 +327,9 @@ export default function AthleteDashboard() {
             }
           }
         } catch (contentError) {
-          console.warn('Could not fetch lesson count via API:', contentError)
+          if (contentError.name !== 'AbortError') {
+            console.warn('Could not fetch lesson count via API:', contentError)
+          }
         }
 
         // Fetch athlete's submitted videos using secure API
@@ -332,6 +339,7 @@ export default function AthleteDashboard() {
             headers: {
               'Authorization': `Bearer ${token}`,
             },
+            signal: abortController.signal,
           })
           
           if (response.ok) {
@@ -339,11 +347,16 @@ export default function AthleteDashboard() {
             submittedVideos = data.submissions?.length || 0
           }
         } catch (apiError) {
-          console.warn('Could not fetch submission count via API:', apiError)
+          if (apiError.name !== 'AbortError') {
+            console.warn('Could not fetch submission count via API:', apiError)
+          }
         }
 
-        setLessonCount(lessons)
-        setVideoCount(submittedVideos)
+        // Check if component is still mounted before setting state
+        if (isMounted) {
+          setLessonCount(lessons)
+          setVideoCount(submittedVideos)
+        }
       } catch (error) {
         console.error('Error fetching stats:', error)
         setLessonCount(0)
@@ -352,6 +365,12 @@ export default function AthleteDashboard() {
     }
 
     fetchStats()
+
+    // Cleanup function
+    return () => {
+      abortController.abort()
+      isMounted = false
+    }
   }, [user, coachId])
 
   if (loadError) {
