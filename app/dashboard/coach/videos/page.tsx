@@ -23,7 +23,8 @@ import {
   X,
   AlertCircle,
   Camera,
-  Check
+  Check,
+  RefreshCw
 } from 'lucide-react'
 
 interface VideoItem {
@@ -40,7 +41,7 @@ interface VideoItem {
   views: number
 }
 
-function AddVideoModal({ onClose }: { onClose: () => void }) {
+function AddVideoModal({ onClose, onSuccess }: { onClose: () => void; onSuccess?: () => void }) {
   const { user } = useAuth()
   const [loading, setLoading] = useState(false)
   const [videoFile, setVideoFile] = useState<File | null>(null)
@@ -390,6 +391,7 @@ function AddVideoModal({ onClose }: { onClose: () => void }) {
       }
 
       alert('Video added successfully!')
+      if (onSuccess) onSuccess()
       onClose()
     } catch (error) {
       console.error('Error adding video:', error)
@@ -773,9 +775,13 @@ function VideoManagerPageContent() {
   const loadVideos = async () => {
     setLoading(true)
     try {
-      if (!user) { console.error('No user found'); return; }
+      if (!user) { 
+        console.error('No user found'); 
+        setLoading(false);
+        return; 
+      }
 
-      if (!user) { console.error('No user found'); return; }
+      console.log('[VIDEO-MANAGER] Loading videos for coach...');
       const token = await user.getIdToken()
       const response = await fetch('/api/coach/videos', {
         headers: {
@@ -788,6 +794,13 @@ function VideoManagerPageContent() {
       }
 
       const data = await response.json()
+      console.log('[VIDEO-MANAGER] API Response:', data)
+      console.log('[VIDEO-MANAGER] Loaded videos count:', data.videos?.length || 0)
+      if (data.videos && data.videos.length > 0) {
+        console.log('[VIDEO-MANAGER] Sample video:', data.videos[0])
+      } else {
+        console.log('[VIDEO-MANAGER] No videos found')
+      }
       setVideos(data.videos || [])
     } catch (error) {
       console.error('Error loading videos:', error)
@@ -965,6 +978,17 @@ function VideoManagerPageContent() {
             >
               <Plus className="w-5 h-5" />
               Add Video
+            </button>
+            <button
+              onClick={() => {
+                console.log('[VIDEO-MANAGER] Manual refresh triggered')
+                loadVideos()
+              }}
+              className="px-4 py-2.5 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors flex items-center gap-2"
+              title="Refresh video list"
+            >
+              <RefreshCw className="w-5 h-5" />
+              Refresh
             </button>
 
             <div className="flex-1 relative">
@@ -1168,10 +1192,13 @@ function VideoManagerPageContent() {
         )}
 
         {/* Add Video Modal */}
-        {showAddModal && <AddVideoModal onClose={() => {
-          setShowAddModal(false)
-          loadVideos() // Reload videos after adding
-        }} />}
+        {showAddModal && <AddVideoModal 
+          onClose={() => setShowAddModal(false)}
+          onSuccess={() => {
+            console.log('[VIDEO-MANAGER] Video added, reloading list...')
+            loadVideos()
+          }}
+        />}
 
         {/* Video Player Modal */}
         {playingVideo && (
