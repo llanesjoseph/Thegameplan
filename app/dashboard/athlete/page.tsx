@@ -327,7 +327,7 @@ export default function AthleteDashboard() {
             }
           }
         } catch (contentError) {
-          if (contentError.name !== 'AbortError') {
+          if (contentError instanceof Error && contentError.name !== 'AbortError') {
             console.warn('Could not fetch lesson count via API:', contentError)
           }
         }
@@ -347,7 +347,7 @@ export default function AthleteDashboard() {
             submittedVideos = data.submissions?.length || 0
           }
         } catch (apiError) {
-          if (apiError.name !== 'AbortError') {
+          if (apiError instanceof Error && apiError.name !== 'AbortError') {
             console.warn('Could not fetch submission count via API:', apiError)
           }
         }
