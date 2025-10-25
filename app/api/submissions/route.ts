@@ -150,7 +150,7 @@ export async function GET(request: NextRequest) {
     // Apply additional filters (but always maintain athleteUid filter)
     if (athleteUid && athleteUid !== userId) {
       // If someone tries to query for a different athlete's submissions, ignore the parameter
-      console.warn(`User ${userId} attempted to query submissions for different athlete ${athleteUid} - blocked for security`);
+      console.warn(`User attempted to query submissions for different athlete - blocked for security`);
     }
     if (teamId) {
       query = query.where('teamId', '==', teamId);

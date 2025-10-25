@@ -51,6 +51,7 @@ export default function AthleteReviewsPage() {
         const token = await user.getIdToken()
         if (!isMounted) return
 
+        console.log('Making API request with auth token...')
         const response = await fetch(`/api/submissions?athleteUid=${user.uid}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -63,12 +64,17 @@ export default function AthleteReviewsPage() {
 
         if (response.ok) {
           const data = await response.json()
+          console.log('API response successful:', data)
           console.log('Loaded', data.submissions?.length || 0, 'submissions')
           setSubmissions(data.submissions || [])
           setError(null)
         } else {
           const errorText = await response.text()
-          console.error('API error:', response.status, errorText)
+          console.error('API error response:', {
+            status: response.status,
+            statusText: response.statusText,
+            error: errorText
+          })
           setError(`Failed to load submissions (${response.status})`)
         }
       } catch (err: any) {
@@ -98,17 +104,30 @@ export default function AthleteReviewsPage() {
 
   // Safe delete handler
   const handleDelete = useCallback(async (submissionId: string) => {
-    if (!user) return
+    if (!user) {
+      console.error('No user available for delete')
+      return
+    }
 
+    console.log('Starting delete process for submission:', submissionId)
     setDeletingId(submissionId)
+
     try {
+      console.log('Getting auth token...')
       const token = await user.getIdToken()
+      console.log('Making delete API call...')
+
       const response = await fetch(`/api/submissions/${submissionId}/delete`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
+      })
+
+      console.log('Delete API response:', {
+        status: response.status,
+        statusText: response.statusText
       })
 
       if (response.ok) {
@@ -123,7 +142,7 @@ export default function AthleteReviewsPage() {
       }
     } catch (err: any) {
       console.error('Delete error:', err)
-      alert('Failed to delete submission')
+      alert(`Failed to delete: ${err.message || 'Network error'}`)
     } finally {
       setDeletingId(null)
     }
