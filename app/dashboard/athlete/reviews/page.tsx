@@ -188,9 +188,20 @@ export default function AthleteReviewsPageV2() {
           </div>
         )}
 
-        {/* Submissions grid - compact card layout */}
+        {/* Submit Video Button */}
+        <div className="mb-6">
+          <Link
+            href="/dashboard/athlete/get-feedback"
+            className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+          >
+            <Video className="w-5 h-5 mr-2" />
+            Submit New Video
+          </Link>
+        </div>
+
+        {/* Submissions grid - smaller compact cards */}
         {submissions.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3">
             {submissions.map((submission: any) => {
               const isDeletable = ['pending', 'draft', 'awaiting_coach'].includes(submission.status);
                 return (
@@ -202,7 +213,7 @@ export default function AthleteReviewsPageV2() {
                     href={isEmbedded ? `/dashboard/athlete/reviews/${submission.id}?embedded=true` : `/dashboard/athlete/reviews/${submission.id}`}
                     className="block cursor-pointer"
                   >
-                    {/* Thumbnail */}
+                    {/* Smaller Thumbnail */}
                     <div className="aspect-video bg-gray-100 relative">
                       {submission.thumbnailUrl ? (
                         <img
@@ -213,59 +224,53 @@ export default function AthleteReviewsPageV2() {
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
-                          <Video className="w-12 h-12 text-gray-300" />
+                          <Video className="w-8 h-8 text-gray-300" />
                         </div>
                       )}
                       
                       {/* Status badge overlay */}
-                      <div className="absolute top-2 left-2">
-                        <span className={`px-2 py-1 rounded-md text-xs font-medium shadow-sm ${
+                      <div className="absolute top-1 left-1">
+                        <span className={`px-1.5 py-0.5 rounded text-xs font-medium shadow-sm ${
                           submission.status === 'complete' ? 'bg-green-500 text-white' :
                           submission.status === 'in_review' || submission.status === 'claimed' ? 'bg-blue-500 text-white' :
                           'bg-yellow-500 text-white'
                         }`}>
-                          {submission.status === 'complete' ? '✓ Complete' :
-                           submission.status === 'in_review' || submission.status === 'claimed' ? '⏳ In Review' :
-                           '⏱ Pending'}
-                            </span>
+                          {submission.status === 'complete' ? '✓' :
+                           submission.status === 'in_review' || submission.status === 'claimed' ? '⏳' :
+                           '⏱'}
+                        </span>
                       </div>
-                        </div>
+                    </div>
 
-                    {/* Content */}
-                    <div className="p-4">
-                      <h3 className="font-semibold text-gray-900 mb-1 line-clamp-1">
+                    {/* Compact Content */}
+                    <div className="p-3">
+                      <h3 className="font-medium text-gray-900 mb-1 line-clamp-1 text-sm">
                         {submission.skillName || submission.videoFileName || 'Video Submission'}
                       </h3>
                       
-                      <div className="flex items-center gap-2 text-xs text-gray-500 mb-2">
+                      <div className="flex items-center gap-1 text-xs text-gray-500">
                         <Clock className="w-3 h-3" />
                         {new Date(submission.createdAt || Date.now()).toLocaleDateString('en-US', { 
                           month: 'short', 
                           day: 'numeric' 
                         })}
                       </div>
-
-                      {submission.athleteContext && (
-                        <p className="text-sm text-gray-600 line-clamp-2">
-                          {submission.athleteContext}
-                        </p>
-                      )}
                     </div>
                   </Link>
 
-                  {/* Delete button - always visible */}
+                  {/* Delete button - always visible and prominent */}
                   {isDeletable && (
-            <button
+                    <button
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
                         setShowDeleteConfirm(submission.id);
                       }}
-                      className="absolute top-2 right-2 p-1.5 bg-white/90 backdrop-blur-sm text-red-600 hover:bg-red-600 hover:text-white rounded-md transition-all shadow-sm"
+                      className="absolute top-1 right-1 p-1.5 bg-red-500 text-white hover:bg-red-600 rounded-md transition-all shadow-sm z-10"
                       disabled={deletingId === submission.id}
                       title="Delete submission"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3 h-3" />
                     </button>
                   )}
 
