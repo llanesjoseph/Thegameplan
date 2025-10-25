@@ -48,12 +48,6 @@ export async function PATCH(
     return NextResponse.json({ error: 'Failed to update submission', details: error.message }, { status: 500 })
   }
 }
-
-import { NextRequest, NextResponse } from 'next/server'
-import { auth, adminDb } from '@/lib/firebase.admin'
-
-export const runtime = 'nodejs'
-
 /**
  * GET /api/submissions/[id]
  * Fetch a single submission with review and comments data
