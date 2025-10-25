@@ -19,26 +19,41 @@ export default function AthleteReviewsPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null)
 
-  // BULLETPROOF useEffect - no early returns, no conditionals
+  // ABSOLUTELY BULLETPROOF useEffect - no early returns, no conditionals
   useEffect(() => {
+    // Declare ALL variables at the very top
     let isMounted = true
     let abortController: AbortController | null = null
 
+    // Only execute if we have the required dependencies
+    if (!isMounted) return
+
     const fetchData = async () => {
       try {
-        // Handle auth loading
+        // Check auth loading state
         if (authLoading) {
           console.log('Auth still loading...')
+          if (isMounted) {
+            setIsLoading(true)
+            setError(null)
+          }
           return
         }
 
-        // Handle no user case - redirect if not embedded
+        // Check user authentication
         if (!user) {
           if (!isEmbedded) {
             console.log('No user found, redirecting to login')
-            router.push('/login')
+            if (isMounted) {
+              router.push('/login')
+              setError(null)
+            }
           } else {
-            console.log('No user found in embedded mode, showing loading')
+            console.log('No user found in embedded mode')
+            if (isMounted) {
+              setIsLoading(false)
+              setError(null)
+            }
           }
           return
         }
@@ -47,6 +62,7 @@ export default function AthleteReviewsPage() {
 
         // Create abort controller
         abortController = new AbortController()
+        if (!isMounted) return
 
         const token = await user.getIdToken()
         if (!isMounted) return
@@ -66,8 +82,10 @@ export default function AthleteReviewsPage() {
           const data = await response.json()
           console.log('API response successful:', data)
           console.log('Loaded', data.submissions?.length || 0, 'submissions')
-          setSubmissions(data.submissions || [])
-          setError(null)
+          if (isMounted) {
+            setSubmissions(data.submissions || [])
+            setError(null)
+          }
         } else {
           const errorText = await response.text()
           console.error('API error response:', {
@@ -75,7 +93,9 @@ export default function AthleteReviewsPage() {
             statusText: response.statusText,
             error: errorText
           })
-          setError(`Failed to load submissions (${response.status})`)
+          if (isMounted) {
+            setError(`Failed to load submissions (${response.status})`)
+          }
         }
       } catch (err: any) {
         if (!isMounted) return
@@ -84,7 +104,9 @@ export default function AthleteReviewsPage() {
           return
         }
         console.error('Failed to load submissions:', err)
-        setError('Failed to load submissions')
+        if (isMounted) {
+          setError('Failed to load submissions')
+        }
       } finally {
         if (isMounted) {
           setIsLoading(false)
@@ -201,13 +223,22 @@ export default function AthleteReviewsPage() {
 
         {/* Submit Video Button */}
         <div className="mb-6">
-          <Link
-            href="/dashboard/athlete/get-feedback"
+          <button
+            onClick={() => {
+              console.log('Submit New Video clicked, isEmbedded:', isEmbedded)
+              if (isEmbedded) {
+                // In iframe, use window.parent to navigate
+                window.parent.postMessage({ type: 'NAVIGATE_TO_GET_FEEDBACK' }, '*')
+              } else {
+                // Direct navigation
+                router.push('/dashboard/athlete/get-feedback')
+              }
+            }}
             className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
           >
             <Video className="w-5 h-5 mr-2" />
             Submit New Video
-          </Link>
+          </button>
         </div>
 
         {/* Empty state */}

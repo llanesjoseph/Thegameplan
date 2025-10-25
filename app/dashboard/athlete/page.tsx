@@ -192,12 +192,16 @@ export default function AthleteDashboard() {
       } else if (event.data.type === 'NAVIGATE_TO_LESSONS') {
         setActiveSection('lessons')
         console.log('Navigating to lessons from lesson completion')
+      } else if (event.data.type === 'NAVIGATE_TO_GET_FEEDBACK') {
+        // Navigate to get-feedback page (outside iframe)
+        router.push('/dashboard/athlete/get-feedback')
+        console.log('Navigating to get-feedback page')
       }
     }
 
     window.addEventListener('message', handleMessage)
     return () => window.removeEventListener('message', handleMessage)
-  }, [])
+  }, [router])
 
   // Fetch coach data using secure API
   useEffect(() => {
