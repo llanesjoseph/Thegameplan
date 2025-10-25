@@ -24,35 +24,41 @@ export default function AthleteReviewsPageV2() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
 
-  // Fetch submissions - SIMPLE version with no conditional hooks
+  // Fetch submissions - BULLETPROOF version
   useEffect(() => {
+    // Always declare these at the top to avoid React error #310
     let isMounted = true;
+    let abortController: AbortController | null = null;
 
-    async function fetchData() {
-      // Wait for auth to load
-      if (authLoading) {
-        console.log('[REVIEWS-V2] Waiting for auth...');
-        return;
-      }
-
-      // Redirect if no user (but not if embedded - let parent handle auth)
-      if (!user && !isEmbedded) {
-        console.log('[REVIEWS-V2] No user, redirecting to login');
-      router.push('/login');
-      return;
-    }
-
-      // If embedded and no user, just show loading
-      if (!user) {
-        return;
-      }
-
-      console.log('[REVIEWS-V2] Fetching submissions for:', user.uid);
-
+    const fetchData = async () => {
       try {
+        // Wait for auth to load
+        if (authLoading) {
+          console.log('[REVIEWS-V2] Waiting for auth...');
+          return;
+        }
+
+        // Redirect if no user (but not if embedded - let parent handle auth)
+        if (!user && !isEmbedded) {
+          console.log('[REVIEWS-V2] No user, redirecting to login');
+          router.push('/login');
+          return;
+        }
+
+        // If embedded and no user, just show loading
+        if (!user) {
+          return;
+        }
+
+        console.log('[REVIEWS-V2] Fetching submissions for:', user.uid);
+
+        // Create abort controller for this request
+        abortController = new AbortController();
+
         const token = await user.getIdToken();
         const response = await fetch(`/api/submissions?athleteUid=${user.uid}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: { 'Authorization': `Bearer ${token}` },
+          signal: abortController.signal
         });
 
         if (!isMounted) return;
@@ -65,8 +71,12 @@ export default function AthleteReviewsPageV2() {
           console.error('[REVIEWS-V2] API error:', response.status);
           setError('Failed to load submissions');
         }
-      } catch (err) {
+      } catch (err: any) {
         if (!isMounted) return;
+        if (err.name === 'AbortError') {
+          console.log('[REVIEWS-V2] Request aborted');
+          return;
+        }
         console.error('[REVIEWS-V2] Fetch error:', err);
         setError(err instanceof Error ? err.message : 'Unknown error');
       } finally {
@@ -74,12 +84,16 @@ export default function AthleteReviewsPageV2() {
           setIsLoading(false);
         }
       }
-    }
+    };
 
     fetchData();
 
+    // Cleanup function - ALWAYS return this
     return () => {
       isMounted = false;
+      if (abortController) {
+        abortController.abort();
+      }
     };
   }, [user, authLoading, router, isEmbedded]);
 
@@ -204,6 +218,7 @@ export default function AthleteReviewsPageV2() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3">
             {submissions.map((submission: any) => {
               const isDeletable = ['pending', 'draft', 'awaiting_coach'].includes(submission.status);
+              console.log(`[REVIEWS-V2] Submission ${submission.id}: status=${submission.status}, isDeletable=${isDeletable}`);
                 return (
                 <div
                   key={submission.id}
@@ -238,9 +253,9 @@ export default function AthleteReviewsPageV2() {
                           {submission.status === 'complete' ? '✓' :
                            submission.status === 'in_review' || submission.status === 'claimed' ? '⏳' :
                            '⏱'}
-                        </span>
+                            </span>
                       </div>
-                    </div>
+                        </div>
 
                     {/* Compact Content */}
                     <div className="p-3">
@@ -258,21 +273,28 @@ export default function AthleteReviewsPageV2() {
                     </div>
                   </Link>
 
-                  {/* Delete button - always visible and prominent */}
-                  {isDeletable && (
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
+                  {/* Delete button - always visible for debugging */}
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      console.log(`[REVIEWS-V2] Delete clicked for ${submission.id}, isDeletable: ${isDeletable}`);
+                      if (isDeletable) {
                         setShowDeleteConfirm(submission.id);
-                      }}
-                      className="absolute top-1 right-1 p-1.5 bg-red-500 text-white hover:bg-red-600 rounded-md transition-all shadow-sm z-10"
-                      disabled={deletingId === submission.id}
-                      title="Delete submission"
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </button>
-                  )}
+                      } else {
+                        alert(`Cannot delete submission in status: ${submission.status}`);
+                      }
+                    }}
+                    className={`absolute top-1 right-1 p-1.5 rounded-md transition-all shadow-sm z-10 ${
+                      isDeletable 
+                        ? 'bg-red-500 text-white hover:bg-red-600' 
+                        : 'bg-gray-400 text-white hover:bg-gray-500'
+                    }`}
+                    disabled={deletingId === submission.id}
+                    title={isDeletable ? "Delete submission" : `Cannot delete (status: ${submission.status})`}
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </button>
 
                   {/* Delete confirmation modal */}
                   {showDeleteConfirm === submission.id && (
