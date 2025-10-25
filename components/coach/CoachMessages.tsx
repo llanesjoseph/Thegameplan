@@ -42,7 +42,12 @@ export default function CoachMessages({ className = '' }: CoachMessagesProps) {
     try {
       setLoading(true)
       console.log('Fetching messages for user:', '[USER_ID]', user?.email)
-      const response = await fetch(`/api/coach/messages?coachId=${user?.uid}`)
+      const token = await user?.getIdToken()
+      const response = await fetch(`/api/coach/messages?coachId=${user?.uid}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      })
       const data = await response.json()
 
       if (data.success) {
@@ -62,10 +67,12 @@ export default function CoachMessages({ className = '' }: CoachMessagesProps) {
 
   const markAsRead = async (messageId: string) => {
     try {
+      const token = await user?.getIdToken()
       const response = await fetch('/api/coach/messages', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
           messageId,
@@ -88,10 +95,12 @@ export default function CoachMessages({ className = '' }: CoachMessagesProps) {
 
   const markAsReplied = async (messageId: string) => {
     try {
+      const token = await user?.getIdToken()
       const response = await fetch('/api/coach/messages', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
           messageId,
@@ -160,10 +169,12 @@ export default function CoachMessages({ className = '' }: CoachMessagesProps) {
 
   const dismissMessage = async (messageId: string) => {
     try {
+      const token = await user?.getIdToken()
       const response = await fetch('/api/coach/messages', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
           messageId,
@@ -191,10 +202,12 @@ export default function CoachMessages({ className = '' }: CoachMessagesProps) {
     }
 
     try {
+      const token = await user?.getIdToken()
       const response = await fetch('/api/coach/messages', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
           messageId,

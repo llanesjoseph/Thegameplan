@@ -7,7 +7,6 @@ import { auth, db } from '@/lib/firebase.client'
 import { useAuth } from '@/hooks/use-auth'
 import SimpleAuth from '@/components/auth/SimpleAuth'
 import AppHeader from '@/components/ui/AppHeader'
-import { doc, getDoc } from 'firebase/firestore'
 
 /**
  * BULLETPROOF ROUTING SYSTEM
@@ -41,29 +40,50 @@ export default function Dashboard() {
   const fetchRole = async () => {
    try {
     console.log('🔍 FETCHING ROLE for:', user.email)
-    const userDocRef = doc(db, 'users', user.uid)
-    const userDoc = await getDoc(userDocRef)
+    
+    // Use secure API to get user role instead of client-side Firebase
+    const token = await user.getIdToken()
+    const response = await fetch('/api/user/role', {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    })
 
-    if (userDoc.exists()) {
-     const role = userDoc.data()?.role || null
-     console.log('✅ ROLE FETCHED:', role, 'for', user.email)
+    if (response.ok) {
+      const data = await response.json()
+      if (data.success) {
+        const role = data.data.role || null
+        console.log('✅ ROLE FETCHED:', role, 'for', user.email)
 
-     // If role is 'user' or 'creator', wait a bit for auto-upgrade to complete
-     if (role === 'user' || role === 'creator') {
-      console.log('⏳ Detected legacy role, waiting for auto-upgrade...')
-      // Wait 2 seconds for user initialization to upgrade the role
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      // Refetch the role
-      const updatedDoc = await getDoc(userDocRef)
-      const updatedRole = updatedDoc.data()?.role || null
-      console.log('🔄 REFETCHED ROLE:', updatedRole, 'for', user.email)
-      setActualRole(updatedRole)
-     } else {
-      setActualRole(role)
-     }
+        // If role is 'user' or 'creator', wait a bit for auto-upgrade to complete
+        if (role === 'user' || role === 'creator') {
+          console.log('⏳ Detected legacy role, waiting for auto-upgrade...')
+          // Wait 2 seconds for user initialization to upgrade the role
+          await new Promise(resolve => setTimeout(resolve, 2000))
+          // Refetch the role
+          const updatedResponse = await fetch('/api/user/role', {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+          })
+          if (updatedResponse.ok) {
+            const updatedData = await updatedResponse.json()
+            const updatedRole = updatedData.success ? updatedData.data.role : null
+            console.log('🔄 REFETCHED ROLE:', updatedRole, 'for', user.email)
+            setActualRole(updatedRole)
+          } else {
+            setActualRole(role)
+          }
+        } else {
+          setActualRole(role)
+        }
+      } else {
+        console.warn('⚠️ API returned error for role fetch')
+        setActualRole(null)
+      }
     } else {
-     console.warn('⚠️ No user document found for:', user.uid)
-     setActualRole(null)
+      console.warn('⚠️ Failed to fetch role via API')
+      setActualRole(null)
     }
    } catch (error) {
     console.error('❌ Error fetching role:', error)
