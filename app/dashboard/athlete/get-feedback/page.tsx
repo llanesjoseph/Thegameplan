@@ -145,9 +145,29 @@ export default function GetFeedbackPage() {
     if (videoRef.current) {
       console.log('Video metadata loaded, updating duration...');
       setVideoDuration(videoRef.current.duration);
-      // Thumbnails should already be generated from handleFileSelect
+
+      // If no thumbnails were generated yet, generate them now
+      if (thumbnailCandidates.length === 0) {
+        console.log('No thumbnails available, generating now...');
+        try {
+          await generateThumbnails();
+        } catch (error) {
+          console.error('Thumbnail generation failed:', error);
+          // Generate a simple fallback thumbnail
+          try {
+            const fallbackThumbnail = captureFrame();
+            if (fallbackThumbnail) {
+              setThumbnailCandidates([fallbackThumbnail]);
+              setSelectedThumbnail(fallbackThumbnail);
+              console.log('Generated fallback thumbnail in handleVideoLoad');
+            }
+          } catch (fallbackError) {
+            console.error('Fallback thumbnail generation failed:', fallbackError);
+          }
+        }
+      }
     }
-  }, []);
+  }, [generateThumbnails, captureFrame, thumbnailCandidates.length]);
 
   const handleTimeUpdate = useCallback(() => {
     if (videoRef.current) {
