@@ -13,13 +13,19 @@ export async function GET(request: NextRequest) {
   try {
     // 1. Verify authentication
     const authHeader = request.headers.get('authorization')
+    console.log('[COACH-MESSAGES-API] Auth header:', authHeader ? 'Present' : 'Missing')
+    
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.log('[COACH-MESSAGES-API] No valid auth header')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const token = authHeader.split('Bearer ')[1]
+    console.log('[COACH-MESSAGES-API] Token length:', token.length)
+    
     const decodedToken = await auth.verifyIdToken(token)
     const userId = decodedToken.uid
+    console.log('[COACH-MESSAGES-API] User ID:', userId)
 
     // 2. Parse query parameters
     const { searchParams } = new URL(request.url)

@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { doc, getDoc } from 'firebase/firestore'
-import { db } from '@/lib/firebase.client'
 import AppHeader from '@/components/ui/AppHeader'
 import { useAuth } from '@/hooks/use-auth'
 import {
@@ -48,21 +46,31 @@ export default function CoachUnifiedDashboard() {
         // Small delay to ensure Firestore is fully initialized after auth
         await new Promise(resolve => setTimeout(resolve, 500))
 
-        const userDoc = await getDoc(doc(db, 'users', user.uid))
-        if (userDoc.exists()) {
-          const role = userDoc.data()?.role
+        // Use secure API to get user role instead of client-side Firebase
+        const token = await user.getIdToken()
+        const response = await fetch('/api/user/role', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        })
 
-          // Redirect admins to admin dashboard
-          if (role === 'admin' || role === 'superadmin') {
-            console.log('🛡️ Admin detected on coach page - redirecting to admin dashboard')
-            router.replace('/dashboard/admin')
-            return
-          }
-          // Redirect athletes to their dashboard
-          else if (role === 'athlete') {
-            console.log('🏃 Athlete detected on coach page - redirecting to athlete dashboard')
-            router.replace('/dashboard/athlete')
-            return
+        if (response.ok) {
+          const data = await response.json()
+          if (data.success) {
+            const role = data.data.role
+
+            // Redirect admins to admin dashboard
+            if (role === 'admin' || role === 'superadmin') {
+              console.log('🛡️ Admin detected on coach page - redirecting to admin dashboard')
+              router.replace('/dashboard/admin')
+              return
+            }
+            // Redirect athletes to their dashboard
+            else if (role === 'athlete') {
+              console.log('🏃 Athlete detected on coach page - redirecting to athlete dashboard')
+              router.replace('/dashboard/athlete')
+              return
+            }
           }
         }
 
