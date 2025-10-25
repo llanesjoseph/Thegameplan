@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth, adminDb } from '@/lib/firebase.admin';
-import { getStorage } from 'firebase-admin/storage';
+import { auth, adminDb, adminStorage } from '@/lib/firebase.admin';
 
 export const runtime = 'nodejs';
 
@@ -55,10 +54,7 @@ export async function DELETE(
       );
     }
 
-    // 5. Delete video and thumbnail from Storage
-    const storage = getStorage();
-    const bucket = storage.bucket();
-
+    // 5. Delete video and thumbnail from Storage (non-blocking)
     const filesToDelete: string[] = [];
 
     // Extract storage paths from URLs
@@ -69,23 +65,16 @@ export async function DELETE(
       filesToDelete.push(submissionData.thumbnailStoragePath);
     }
 
-    // Delete files from storage
-    const deletePromises = filesToDelete.map(async (path) => {
+    // Delete files from storage (don't fail if files missing)
+    for (const path of filesToDelete) {
       try {
-        await bucket.file(path).delete();
+        await adminStorage.file(path).delete();
         console.log(`✅ Deleted file: ${path}`);
       } catch (error: any) {
-        // Log but don't fail if file doesn't exist
-        if (error.code === 404) {
-          console.warn(`⚠️ File not found (already deleted?): ${path}`);
-        } else {
-          console.error(`❌ Error deleting file ${path}:`, error);
-          throw error;
-        }
+        // Log but don't fail if file doesn't exist or other storage errors
+        console.warn(`Could not delete file ${path}:`, error.message);
       }
-    });
-
-    await Promise.all(deletePromises);
+    }
 
     // 6. Delete submission document from Firestore
     await adminDb.collection('submissions').doc(params.id).delete();

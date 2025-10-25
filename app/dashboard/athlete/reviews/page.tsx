@@ -1,75 +1,81 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/hooks/use-auth'
 import { Video, Clock, Trash2, ArrowLeft } from 'lucide-react'
 
-export default function AthleteReviewsPageV2() {
+export default function AthleteReviewsPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const isEmbedded = searchParams?.get('embedded') === 'true'
   const { user, loading: authLoading } = useAuth()
-  
-  // State - ALL declared at top level
+
+  // ALL state declared at top level - NO CONDITIONALS
   const [submissions, setSubmissions] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null)
 
-  // Fetch submissions - BULLETPROOF version with no early returns
+  // BULLETPROOF useEffect - no early returns, no conditionals
   useEffect(() => {
-    // Declare ALL variables at the top
-    let mounted = true
+    let isMounted = true
     let abortController: AbortController | null = null
 
     const fetchData = async () => {
       try {
-        // Wait for auth to load
+        // Handle auth loading
         if (authLoading) {
-          console.log('Waiting for authentication...')
+          console.log('Auth still loading...')
           return
         }
 
         // Handle no user case
         if (!user) {
-          console.log('No user found, redirecting to login')
-          router.push('/login')
+          console.log('No user found')
           return
         }
 
-        console.log('Fetching video submissions...')
+        console.log('Fetching submissions for athlete...')
 
         // Create abort controller
         abortController = new AbortController()
 
         const token = await user.getIdToken()
+        if (!isMounted) return
+
         const response = await fetch(`/api/submissions?athleteUid=${user.uid}`, {
-          headers: { 'Authorization': `Bearer ${token}` },
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
           signal: abortController.signal
         })
 
-        if (!mounted) return
+        if (!isMounted) return
 
         if (response.ok) {
           const data = await response.json()
-          console.log('Loaded', data.submissions?.length || 0, 'video submissions')
+          console.log('Loaded', data.submissions?.length || 0, 'submissions')
           setSubmissions(data.submissions || [])
+          setError(null)
         } else {
-          setError('Failed to load submissions')
+          const errorText = await response.text()
+          console.error('API error:', response.status, errorText)
+          setError(`Failed to load submissions (${response.status})`)
         }
       } catch (err: any) {
-        if (!mounted) return
+        if (!isMounted) return
         if (err.name === 'AbortError') {
           console.log('Request cancelled')
           return
         }
-        console.error('Failed to load video submissions:', err)
+        console.error('Failed to load submissions:', err)
         setError('Failed to load submissions')
       } finally {
-        if (mounted) {
+        if (isMounted) {
           setIsLoading(false)
         }
       }
@@ -77,22 +83,18 @@ export default function AthleteReviewsPageV2() {
 
     fetchData()
 
-    // Cleanup - ALWAYS return this
     return () => {
-      mounted = false
+      isMounted = false
       if (abortController) {
         abortController.abort()
       }
     }
-  }, [user, authLoading, router])
+  }, [user, authLoading])
 
-  // Handle delete submission
-  const handleDelete = async (submissionId: string, e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    
+  // Safe delete handler
+  const handleDelete = useCallback(async (submissionId: string) => {
     if (!user) return
-    
+
     setDeletingId(submissionId)
     try {
       const token = await user.getIdToken()
@@ -108,42 +110,42 @@ export default function AthleteReviewsPageV2() {
         // Remove from local state
         setSubmissions(prev => prev.filter(s => s.id !== submissionId))
         setShowDeleteConfirm(null)
-        console.log('[REVIEWS-V3] Submission deleted successfully')
+        console.log('Submission deleted successfully')
       } else {
         const errorData = await response.json()
+        console.error('Delete failed:', response.status, errorData)
         alert(`Failed to delete: ${errorData.error || 'Unknown error'}`)
       }
-    } catch (err) {
-      console.error('[REVIEWS-V3] Delete error:', err)
+    } catch (err: any) {
+      console.error('Delete error:', err)
       alert('Failed to delete submission')
     } finally {
       setDeletingId(null)
     }
-  }
+  }, [user])
 
-  // Redirect if no user (but not if embedded)
-  if (!user && !isEmbedded) {
-    router.push('/login')
-    return null
-  }
-
+  // Handle loading state
   if (authLoading || isLoading) {
     return (
       <div className={isEmbedded ? "w-full h-full" : "container mx-auto px-4 py-8"}>
         <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-2 text-gray-600">Loading...</p>
+          </div>
         </div>
       </div>
     )
   }
 
+  // Handle error state
   if (error) {
     return (
       <div className={isEmbedded ? "w-full h-full" : "container mx-auto px-4 py-8"}>
         <div className="text-center">
           <p className="text-red-600 mb-4">{error}</p>
-          <button 
-            onClick={() => window.location.reload()} 
+          <button
+            onClick={() => window.location.reload()}
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
           >
             Try Again
@@ -156,7 +158,7 @@ export default function AthleteReviewsPageV2() {
   return (
     <div className={isEmbedded ? "w-full h-full" : "container mx-auto px-4 py-8"}>
       <div className={isEmbedded ? "w-full h-full" : "max-w-6xl mx-auto"}>
-        {/* Header - hide back button when embedded */}
+        {/* Header */}
         <div className="mb-8">
           {!isEmbedded && (
             <Link
@@ -204,22 +206,22 @@ export default function AthleteReviewsPageV2() {
           </div>
         )}
 
-        {/* Submissions grid - smaller compact cards */}
+        {/* Submissions grid */}
         {submissions.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3">
             {submissions.map((submission: any) => {
               const isDeletable = ['pending', 'draft', 'awaiting_coach', 'complete'].includes(submission.status)
-              console.log(`Video submission: status=${submission.status}, isDeletable=${isDeletable}`)
+
               return (
                 <div
                   key={submission.id}
-                  className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow relative group"
+                  className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow relative"
                 >
                   <Link
-                    href={isEmbedded ? `/dashboard/athlete/reviews/${submission.id}?embedded=true` : `/dashboard/athlete/reviews/${submission.id}`}
-                    className="block cursor-pointer"
+                    href={`/dashboard/athlete/reviews/${submission.id}${isEmbedded ? '?embedded=true' : ''}`}
+                    className="block"
                   >
-                    {/* Smaller Thumbnail */}
+                    {/* Thumbnail */}
                     <div className="aspect-video bg-gray-100 relative">
                       {submission.thumbnailUrl ? (
                         <img
@@ -233,8 +235,8 @@ export default function AthleteReviewsPageV2() {
                           <Video className="w-8 h-8 text-gray-300" />
                         </div>
                       )}
-                      
-                      {/* Status badge overlay */}
+
+                      {/* Status badge */}
                       <div className="absolute top-1 left-1">
                         <span className={`px-1.5 py-0.5 rounded text-xs font-medium shadow-sm ${
                           submission.status === 'complete' ? 'bg-green-500 text-white' :
@@ -248,37 +250,36 @@ export default function AthleteReviewsPageV2() {
                       </div>
                     </div>
 
-                    {/* Compact Content */}
+                    {/* Content */}
                     <div className="p-3">
                       <h3 className="font-medium text-gray-900 mb-1 line-clamp-1 text-sm">
                         {submission.skillName || submission.videoFileName || 'Video Submission'}
                       </h3>
-                      
+
                       <div className="flex items-center gap-1 text-xs text-gray-500">
                         <Clock className="w-3 h-3" />
-                        {new Date(submission.createdAt || Date.now()).toLocaleDateString('en-US', { 
-                          month: 'short', 
-                          day: 'numeric' 
+                        {new Date(submission.createdAt || Date.now()).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric'
                         })}
                       </div>
                     </div>
                   </Link>
 
-                  {/* Delete button - always visible for debugging */}
+                  {/* Delete button */}
                   <button
                     onClick={(e) => {
                       e.preventDefault()
                       e.stopPropagation()
-                      console.log(`Delete clicked, isDeletable: ${isDeletable}`)
                       if (isDeletable) {
                         setShowDeleteConfirm(submission.id)
                       } else {
                         alert(`Cannot delete submission in status: ${submission.status}`)
                       }
                     }}
-                    className={`absolute top-1 right-1 p-1.5 rounded-md transition-all shadow-sm z-10 ${
-                      isDeletable 
-                        ? 'bg-red-500 text-white hover:bg-red-600' 
+                    className={`absolute top-1 right-1 p-1.5 rounded-md transition-all shadow-sm ${
+                      isDeletable
+                        ? 'bg-red-500 text-white hover:bg-red-600'
                         : 'bg-gray-400 text-white hover:bg-gray-500'
                     }`}
                     disabled={deletingId === submission.id}
@@ -289,7 +290,7 @@ export default function AthleteReviewsPageV2() {
 
                   {/* Delete confirmation modal */}
                   {showDeleteConfirm === submission.id && (
-                    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={(e) => e.stopPropagation()}>
+                    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
                       <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
                         <h2 className="text-xl font-bold text-gray-900 mb-2">Delete Submission?</h2>
                         <p className="text-gray-600 mb-6">
@@ -297,18 +298,14 @@ export default function AthleteReviewsPageV2() {
                         </p>
                         <div className="flex gap-3">
                           <button
-                            onClick={(e) => {
-                              e.preventDefault()
-                              e.stopPropagation()
-                              setShowDeleteConfirm(null)
-                            }}
+                            onClick={() => setShowDeleteConfirm(null)}
                             className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                             disabled={deletingId === submission.id}
                           >
                             Cancel
                           </button>
                           <button
-                            onClick={(e) => handleDelete(submission.id, e)}
+                            onClick={() => handleDelete(submission.id)}
                             className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                             disabled={deletingId === submission.id}
                           >
