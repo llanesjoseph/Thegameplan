@@ -56,6 +56,24 @@ export default function AthleteReviewDetailPage({
         if (data.success) {
           setSubmission(data.data.submission);
           setReview(data.data.review);
+
+          // Auto-mark as viewed if status is complete and not already viewed
+          const sub = data.data.submission;
+          if (sub.status === 'complete' && !sub.viewed) {
+            try {
+              await fetch(`/api/submissions/${params.submissionId}`, {
+                method: 'PATCH',
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ viewed: true, viewedAt: new Date().toISOString() }),
+              });
+              console.log('✅ Marked review as viewed');
+            } catch (viewErr) {
+              console.warn('Failed to mark as viewed:', viewErr);
+            }
+          }
         } else {
           throw new Error(data.error || 'Failed to load submission details');
         }

@@ -299,7 +299,7 @@ export default function AthleteReviewsPage() {
                       )}
 
                       {/* Status badge */}
-                      <div className="absolute top-1 left-1">
+                      <div className="absolute top-1 left-1 flex gap-1">
                         <span className={`px-1.5 py-0.5 rounded text-xs font-medium shadow-sm ${
                           submission.status === 'complete' ? 'bg-green-500 text-white' :
                           submission.status === 'in_review' || submission.status === 'claimed' ? 'bg-blue-500 text-white' :
@@ -308,9 +308,14 @@ export default function AthleteReviewsPage() {
                           {submission.status === 'complete' ? '✓' :
                            submission.status === 'in_review' || submission.status === 'claimed' ? '⏳' :
                            '⏱'}
-                            </span>
+                        </span>
+                        {submission.status === 'complete' && !submission.viewed && (
+                          <span className="px-1.5 py-0.5 rounded text-xs font-medium shadow-sm bg-red-500 text-white animate-pulse">
+                            NEW
+                          </span>
+                        )}
                       </div>
-                        </div>
+                    </div>
 
                     {/* Content */}
                     <div className="p-3">

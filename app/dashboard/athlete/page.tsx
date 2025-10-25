@@ -373,7 +373,8 @@ export default function AthleteDashboard() {
           if (reviewsResponse.ok) {
             const reviewsData = await reviewsResponse.json()
             const submissions = reviewsData.submissions || []
-            completedCount = submissions.filter((s: any) => s.status === 'complete').length
+            // Only count unviewed completed reviews for badge
+            completedCount = submissions.filter((s: any) => s.status === 'complete' && !s.viewed).length
           }
         } catch (reviewError) {
           if (reviewError instanceof Error && reviewError.name !== 'AbortError') {
