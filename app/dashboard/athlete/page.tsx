@@ -158,19 +158,7 @@ export default function AthleteDashboard() {
               userRole === 'assistant_coach'
             )
 
-            // Load coach assignment - this will be handled by the coach data API
-            const extractedCoachId = null
-            setCoachId(extractedCoachId)
-
-            // CRITICAL: Log if coach assignment is missing
-            if (!extractedCoachId) {
-              console.error('⚠️ [ATHLETE-DASHBOARD] WARNING: No coach assignment found for athlete', {
-                athleteUid: user?.uid,
-                athleteEmail: user?.email
-              })
-            } else {
-              console.log('✅ [ATHLETE-DASHBOARD] Coach ID loaded:', extractedCoachId)
-            }
+            // Coach data will be loaded by the separate useEffect
           }
         }
       } catch (error: any) {

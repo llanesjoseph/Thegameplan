@@ -12,13 +12,19 @@ export async function GET(request: NextRequest) {
   try {
     // 1. Verify authentication
     const authHeader = request.headers.get('authorization')
+    console.log('[COACH-DATA-API] Auth header:', authHeader ? 'Present' : 'Missing')
+    
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.log('[COACH-DATA-API] No valid auth header')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const token = authHeader.split('Bearer ')[1]
+    console.log('[COACH-DATA-API] Token length:', token.length)
+    
     const decodedToken = await auth.verifyIdToken(token)
     const userId = decodedToken.uid
+    console.log('[COACH-DATA-API] User ID:', userId)
 
     // 2. Get athlete's user document to find assigned coach
     const userDoc = await adminDb.collection('users').doc(userId).get()

@@ -12,13 +12,19 @@ export async function GET(request: NextRequest) {
   try {
     // 1. Verify authentication
     const authHeader = request.headers.get('authorization')
+    console.log('[CONTENT-API] Auth header:', authHeader ? 'Present' : 'Missing')
+    
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.log('[CONTENT-API] No valid auth header')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const token = authHeader.split('Bearer ')[1]
+    console.log('[CONTENT-API] Token length:', token.length)
+    
     const decodedToken = await auth.verifyIdToken(token)
     const userId = decodedToken.uid
+    console.log('[CONTENT-API] User ID:', userId)
 
     // 2. Parse query parameters
     const { searchParams } = new URL(request.url)
