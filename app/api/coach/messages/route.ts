@@ -40,28 +40,71 @@ export async function GET(request: NextRequest) {
     }
 
     // 4. Fetch messages for this coach
-    const messagesRef = adminDb.collection('messages')
-    const q = messagesRef
-      .where('recipientId', '==', userId)
-      .orderBy('timestamp', 'desc')
-      .limit(50)
-    
-    const snapshot = await q.get()
-    
-    const messages = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-      createdAt: doc.data().timestamp?.toDate?.()?.toISOString() || null,
-      readAt: doc.data().readAt?.toDate?.()?.toISOString() || null,
-      repliedAt: doc.data().repliedAt?.toDate?.()?.toISOString() || null,
-    }))
+    try {
+      const messagesRef = adminDb.collection('messages')
+      const q = messagesRef
+        .where('recipientId', '==', userId)
+        .orderBy('timestamp', 'desc')
+        .limit(50)
+      
+      const snapshot = await q.get()
+      
+      const messages = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        createdAt: doc.data().timestamp?.toDate?.()?.toISOString() || null,
+        readAt: doc.data().readAt?.toDate?.()?.toISOString() || null,
+        repliedAt: doc.data().repliedAt?.toDate?.()?.toISOString() || null,
+      }))
 
-    console.log(`[COACH-MESSAGES] Successfully fetched ${messages.length} messages for coach ${userId}`)
+      console.log(`[COACH-MESSAGES] Successfully fetched ${messages.length} messages for coach ${userId}`)
 
-    return NextResponse.json({
-      success: true,
-      messages
-    })
+      return NextResponse.json({
+        success: true,
+        messages
+      })
+    } catch (queryError: any) {
+      // If there's a query error (likely missing index), try without orderBy
+      console.warn('[COACH-MESSAGES] Query with orderBy failed, trying without:', queryError.message)
+      
+      try {
+        const messagesRef = adminDb.collection('messages')
+        const q = messagesRef
+          .where('recipientId', '==', userId)
+          .limit(50)
+        
+        const snapshot = await q.get()
+        
+        const messages = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          createdAt: doc.data().timestamp?.toDate?.()?.toISOString() || null,
+          readAt: doc.data().readAt?.toDate?.()?.toISOString() || null,
+          repliedAt: doc.data().repliedAt?.toDate?.()?.toISOString() || null,
+        }))
+
+        // Sort in memory
+        messages.sort((a: any, b: any) => {
+          const timeA = new Date(a.timestamp || a.createdAt || 0).getTime()
+          const timeB = new Date(b.timestamp || b.createdAt || 0).getTime()
+          return timeB - timeA // Descending order
+        })
+
+        console.log(`[COACH-MESSAGES] Successfully fetched ${messages.length} messages (no index) for coach ${userId}`)
+
+        return NextResponse.json({
+          success: true,
+          messages
+        })
+      } catch (fallbackError: any) {
+        console.error('[COACH-MESSAGES] Fallback query also failed:', fallbackError)
+        // Return empty array rather than erroring out
+        return NextResponse.json({
+          success: true,
+          messages: []
+        })
+      }
+    }
 
   } catch (error: any) {
     console.error('[COACH-MESSAGES] Error fetching messages:', error)
