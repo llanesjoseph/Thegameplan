@@ -182,11 +182,19 @@ export default function GetFeedbackPage() {
         return;
       }
 
+      // Clean up previous video URL to prevent memory leaks
+      if (videoUrl) {
+        URL.revokeObjectURL(videoUrl);
+      }
+
       setVideoFile(file);
       setVideoUrl(URL.createObjectURL(file));
       setShowThumbnailSelector(false);
       setThumbnailCandidates([]);
       setSelectedThumbnail('');
+      setVideoDuration(0);
+      setCurrentTime(0);
+      setIsPlaying(false);
       toast.success('Video selected - choose your thumbnail');
     }
   };
@@ -370,7 +378,7 @@ export default function GetFeedbackPage() {
           try {
             const token = (user as any)?.getIdToken ? await (user as any).getIdToken(true) : null;
             if (token) {
-              await fetchWithRetry(`/api/submissions/${submissionId}`, {
+              await fetchWithRetry(`/api/submissions/${submissionId}/patch`, {
                 method: 'PATCH',
                 headers: {
                   'Content-Type': 'application/json',
@@ -453,7 +461,26 @@ export default function GetFeedbackPage() {
         setSubmitDone(true);
         setUploading(false);
         setUploadProgress(0);
+
+        // Clean up video preview state
+        setVideoUrl('');
+        setShowThumbnailSelector(false);
+        setThumbnailCandidates([]);
+        setSelectedThumbnail('');
+        setVideoDuration(0);
+        setCurrentTime(0);
+        setIsPlaying(false);
+
         if (fileInputRef.current) fileInputRef.current.value = '';
+
+        // Auto-navigate back to reviews page after 3 seconds
+        setTimeout(() => {
+          if (isEmbedded) {
+            window.parent.postMessage({ type: 'NAVIGATE_TO_VIDEO_REVIEW' }, '*');
+          } else {
+            router.push('/dashboard/athlete/reviews');
+          }
+        }, 3000);
       });
       return;
 
@@ -567,6 +594,13 @@ export default function GetFeedbackPage() {
                     type="button"
                     onClick={() => {
                       setVideoFile(null);
+                      setVideoUrl('');
+                      setShowThumbnailSelector(false);
+                      setThumbnailCandidates([]);
+                      setSelectedThumbnail('');
+                      setVideoDuration(0);
+                      setCurrentTime(0);
+                      setIsPlaying(false);
                       if (fileInputRef.current) fileInputRef.current.value = '';
                     }}
                     className="text-red-600 hover:text-red-700"

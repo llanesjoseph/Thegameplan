@@ -218,7 +218,7 @@ export default function SubmissionForm({ user }: SubmissionFormProps) {
 
             // Try to update submission with video URL
             try {
-              const updateResponse = await fetch(`/api/submissions/${submissionId}`, {
+              const updateResponse = await fetch(`/api/submissions/${submissionId}/patch`, {
                 method: 'PATCH',
                 headers: {
                   'Content-Type': 'application/json',

@@ -124,6 +124,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
+
 export async function GET(request: NextRequest) {
   try {
     // Verify authentication
