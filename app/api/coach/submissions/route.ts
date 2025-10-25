@@ -47,12 +47,14 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // 3. Fetch all submissions using Admin SDK
-    console.log('[API] Fetching submissions from Firestore...')
-    const submissionsQuery = adminDb.collection('submissions').orderBy('createdAt', 'desc')
+    // 3. Fetch submissions assigned to THIS coach using Admin SDK
+    console.log('[API] Fetching submissions assigned to this coach...')
+    const submissionsQuery = adminDb.collection('submissions')
+      .where('assignedCoachId', '==', uid)
+    
     const snapshot = await submissionsQuery.get()
 
-    console.log(`[API] Found ${snapshot.docs.length} submissions in 'submissions' collection`)
+    console.log(`[API] Found ${snapshot.docs.length} submissions assigned to this coach`)
 
     const allSubmissions = snapshot.docs.map((doc) => {
       const data = doc.data()
@@ -66,10 +68,17 @@ export async function GET(request: NextRequest) {
       }
     })
 
+    // Sort by createdAt in memory (newest first)
+    allSubmissions.sort((a: any, b: any) => {
+      const aTime = new Date(a.createdAt || 0).getTime()
+      const bTime = new Date(b.createdAt || 0).getTime()
+      return bTime - aTime
+    })
+
     // 4. Use only submissions collection (single source of truth)
     console.log('[API] Using submissions collection as single source of truth')
     const combinedSubmissions = allSubmissions
-    console.log(`[API] Total submissions: ${combinedSubmissions.length}`)
+    console.log(`[API] Total submissions for this coach: ${combinedSubmissions.length}`)
 
     // 5. Filter submissions - let's be more inclusive to catch all possible statuses
     const awaitingCoach = combinedSubmissions.filter((sub: any) => {

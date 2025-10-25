@@ -74,6 +74,7 @@ export async function POST(request: NextRequest) {
       athletePhotoUrl: userPhoto || null,
       teamId: userId,
       coachId: coachId || null,
+      assignedCoachId: coachId || null, // CRITICAL: Add this so coach can query submissions
 
       // Skill context (optional)
       skillId: null,

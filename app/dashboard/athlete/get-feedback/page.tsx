@@ -406,28 +406,41 @@ export default function GetFeedbackPage() {
 
         setUploadProgress(100);
 
-        // Step 5: If we created a server-side submission, patch it with the video URL
+        // Step 5: CRITICAL - Update submission with video URL and set status to awaiting_coach
         if (submissionId) {
           try {
+            console.log('[UPLOAD] Finalizing submission:', submissionId);
             const token = (user as any)?.getIdToken ? await (user as any).getIdToken(true) : null;
-            if (token) {
-              await fetchWithRetry(`/api/submissions/${submissionId}`, {
-                method: 'PATCH',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${token}`,
-                },
-                body: JSON.stringify({
-                  videoDownloadUrl: downloadUrl,
-                  videoStoragePath: storagePath,
-                  thumbnailUrl: thumbnailUrl,
-                  status: 'awaiting_coach',
-                  uploadProgress: 100,
-                }),
-              });
+            if (!token) {
+              throw new Error('No auth token for PATCH');
             }
+
+            const patchResponse = await fetchWithRetry(`/api/submissions/${submissionId}`, {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                videoDownloadUrl: downloadUrl,
+                videoStoragePath: storagePath,
+                videoUrl: downloadUrl,
+                thumbnailUrl: thumbnailUrl,
+                status: 'awaiting_coach',
+                uploadProgress: 100,
+              }),
+            });
+
+            if (!patchResponse.ok) {
+              const errorText = await patchResponse.text();
+              console.error('[UPLOAD] PATCH failed:', patchResponse.status, errorText);
+              throw new Error(`PATCH failed: ${patchResponse.status}`);
+            }
+
+            console.log('[UPLOAD] ✅ Submission finalized successfully');
           } catch (patchErr) {
-            console.warn('Submission patch failed (upload succeeded):', patchErr);
+            console.error('[UPLOAD] ❌ CRITICAL: Submission patch failed (upload succeeded):', patchErr);
+            alert('Video uploaded but failed to finalize submission. Please contact support with submission ID: ' + submissionId);
           }
         } else if (createClientSideSubmissionFallback) {
           // Create the submission document using secure API as a fallback
