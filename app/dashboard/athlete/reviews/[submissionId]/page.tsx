@@ -172,7 +172,6 @@ export default function AthleteReviewDetailPage({
                           if (data.success) {
                             setSubmission(data.data.submission);
                             setReview(data.data.review);
-                            setComments(data.data.comments || []);
                           }
                         }
                       } catch (err) {
