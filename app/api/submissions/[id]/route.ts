@@ -31,7 +31,18 @@ export async function PATCH(
       return NextResponse.json({ error: 'Submission not found' }, { status: 404 })
     }
     const submission = snap.data()
-    if (submission?.athleteUid !== userId) {
+    
+    // SECURITY: Allow athlete, assigned coach, claimed coach, or admin
+    const isAthlete = submission?.athleteUid === userId
+    const isAssignedCoach = submission?.assignedCoachId === userId || submission?.coachId === userId
+    const isClaimedByCoach = submission?.claimedBy === userId
+    
+    // Get user role to check for admin access
+    const userDoc = await adminDb.collection('users').doc(userId).get()
+    const userRole = userDoc.exists ? userDoc.data()?.role : null
+    const isAdmin = ['admin', 'superadmin'].includes(userRole)
+    
+    if (!isAthlete && !isAssignedCoach && !isClaimedByCoach && !isAdmin) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
@@ -77,9 +88,20 @@ export async function GET(
 
     const submissionData = submissionDoc.data()
 
-    // 3. SECURITY: Verify the user owns this submission
-    if (submissionData?.athleteUid !== userId) {
-      return NextResponse.json({ error: 'Forbidden - You can only access your own submissions' }, { status: 403 })
+    // 3. SECURITY: Verify access (athlete, assigned coach, or admin)
+    const isAthlete = submissionData?.athleteUid === userId
+    const isAssignedCoach = submissionData?.assignedCoachId === userId || submissionData?.coachId === userId
+    const isClaimedByCoach = submissionData?.claimedBy === userId
+    
+    // Get user role to check for admin access
+    const userDoc = await adminDb.collection('users').doc(userId).get()
+    const userRole = userDoc.exists ? userDoc.data()?.role : null
+    const isAdmin = ['admin', 'superadmin'].includes(userRole)
+
+    if (!isAthlete && !isAssignedCoach && !isClaimedByCoach && !isAdmin) {
+      return NextResponse.json({ 
+        error: 'Forbidden - You do not have access to this submission' 
+      }, { status: 403 })
     }
 
     // 4. Get review data if submission is complete
