@@ -188,51 +188,67 @@ export default function AthleteReviewsPageV2() {
           </div>
         )}
 
-        {/* Submissions list */}
+        {/* Submissions grid - compact card layout */}
         {submissions.length > 0 && (
-          <div className="grid gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {submissions.map((submission: any) => {
               const isDeletable = ['pending', 'draft', 'awaiting_coach'].includes(submission.status);
               return (
                 <div
                   key={submission.id}
-                  className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow relative"
+                  className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow relative group"
                 >
                   <Link
                     href={isEmbedded ? `/dashboard/athlete/reviews/${submission.id}?embedded=true` : `/dashboard/athlete/reviews/${submission.id}`}
                     className="block cursor-pointer"
                   >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1 pr-12">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                          {submission.skillName || submission.videoFileName || 'Video Submission'}
-                        </h3>
-                        <div className="flex items-center gap-4 text-sm text-gray-600">
-                          <span className="flex items-center gap-1">
-                            <Clock className="w-4 h-4" />
-                            {new Date(submission.createdAt || Date.now()).toLocaleDateString()}
-                          </span>
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            submission.status === 'complete' ? 'bg-green-100 text-green-800' :
-                            submission.status === 'in_review' || submission.status === 'claimed' ? 'bg-blue-100 text-blue-800' :
-                            'bg-yellow-100 text-yellow-800'
-                          }`}>
-                            {submission.status || 'pending'}
-                          </span>
-                        </div>
-                        {submission.athleteContext && (
-                          <p className="mt-2 text-sm text-gray-600 line-clamp-2">
-                            {submission.athleteContext}
-                          </p>
-                        )}
-                      </div>
-                      {submission.thumbnailUrl && (
+                    {/* Thumbnail */}
+                    <div className="aspect-video bg-gray-100 relative">
+                      {submission.thumbnailUrl ? (
                         <img
                           src={submission.thumbnailUrl}
                           alt="Video thumbnail"
-                          className="w-32 h-20 object-cover rounded-lg ml-4"
+                          className="w-full h-full object-cover"
                           onError={(e) => {e.currentTarget.style.display = 'none'}}
                         />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Video className="w-12 h-12 text-gray-300" />
+                        </div>
+                      )}
+                      
+                      {/* Status badge overlay */}
+                      <div className="absolute top-2 left-2">
+                        <span className={`px-2 py-1 rounded-md text-xs font-medium shadow-sm ${
+                          submission.status === 'complete' ? 'bg-green-500 text-white' :
+                          submission.status === 'in_review' || submission.status === 'claimed' ? 'bg-blue-500 text-white' :
+                          'bg-yellow-500 text-white'
+                        }`}>
+                          {submission.status === 'complete' ? '✓ Complete' :
+                           submission.status === 'in_review' || submission.status === 'claimed' ? '⏳ In Review' :
+                           '⏱ Pending'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Content */}
+                    <div className="p-4">
+                      <h3 className="font-semibold text-gray-900 mb-1 line-clamp-1">
+                        {submission.skillName || submission.videoFileName || 'Video Submission'}
+                      </h3>
+                      
+                      <div className="flex items-center gap-2 text-xs text-gray-500 mb-2">
+                        <Clock className="w-3 h-3" />
+                        {new Date(submission.createdAt || Date.now()).toLocaleDateString('en-US', { 
+                          month: 'short', 
+                          day: 'numeric' 
+                        })}
+                      </div>
+
+                      {submission.athleteContext && (
+                        <p className="text-sm text-gray-600 line-clamp-2">
+                          {submission.athleteContext}
+                        </p>
                       )}
                     </div>
                   </Link>
@@ -245,17 +261,17 @@ export default function AthleteReviewsPageV2() {
                         e.stopPropagation();
                         setShowDeleteConfirm(submission.id);
                       }}
-                      className="absolute top-4 right-4 p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      className="absolute top-2 right-2 p-1.5 bg-white/90 backdrop-blur-sm text-red-600 hover:bg-red-50 rounded-md transition-all opacity-0 group-hover:opacity-100 shadow-sm"
                       disabled={deletingId === submission.id}
                       title="Delete submission"
                     >
-                      <Trash2 className="w-5 h-5" />
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   )}
 
                   {/* Delete confirmation modal */}
                   {showDeleteConfirm === submission.id && (
-                    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={(e) => e.stopPropagation()}>
                       <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
                         <h2 className="text-xl font-bold text-gray-900 mb-2">Delete Submission?</h2>
                         <p className="text-gray-600 mb-6">
