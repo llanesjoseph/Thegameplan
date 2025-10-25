@@ -3,7 +3,6 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import CommandPalette from '@/components/CommandPalette'
 import { useAuth } from '@/hooks/use-auth'
 // Removed client-side Firebase imports - using secure API endpoints instead
 import {
