@@ -482,35 +482,41 @@ export default function AthleteLessonsPage() {
             View
           </button>
 
-          <button
-            onClick={onToggleCompletion}
-            disabled={processingLesson === lesson.id}
-            className={`flex-1 px-3 py-2 rounded text-sm font-medium transition-all hover:shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 ${
-              lesson.isCompleted ? 'border' : ''
-            }`}
-            style={{
-              backgroundColor: lesson.isCompleted ? '#ffffff' : '#20B2AA',
-              color: lesson.isCompleted ? '#20B2AA' : '#ffffff',
-              borderColor: lesson.isCompleted ? '#20B2AA' : 'transparent'
-            }}
-          >
-            {processingLesson === lesson.id ? (
-              <>
-                <div className="animate-spin rounded-full h-3 w-3 border-b-2" style={{ borderColor: lesson.isCompleted ? '#20B2AA' : '#ffffff' }}></div>
-                Saving...
-              </>
-            ) : lesson.isCompleted ? (
-              <>
-                <CheckCircle2 className="w-4 h-4" />
-                Done
-              </>
-            ) : (
-              <>
-                <Circle className="w-4 h-4" />
-                Complete
-              </>
-            )}
-          </button>
+          {lesson.isCompleted ? (
+            <button
+              onClick={onView}
+              className="flex-1 px-3 py-2 rounded text-sm font-medium transition-all hover:shadow-md active:scale-95 flex items-center justify-center gap-1.5"
+              style={{
+                backgroundColor: '#20B2AA',
+                color: '#ffffff'
+              }}
+            >
+              <BookOpen className="w-4 h-4" />
+              Review
+            </button>
+          ) : (
+            <button
+              onClick={onToggleCompletion}
+              disabled={processingLesson === lesson.id}
+              className="flex-1 px-3 py-2 rounded text-sm font-medium transition-all hover:shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
+              style={{
+                backgroundColor: '#20B2AA',
+                color: '#ffffff'
+              }}
+            >
+              {processingLesson === lesson.id ? (
+                <>
+                  <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Circle className="w-4 h-4" />
+                  Complete
+                </>
+              )}
+            </button>
+          )}
         </div>
       </div>
     </div>
