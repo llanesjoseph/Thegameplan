@@ -31,22 +31,16 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '20')
     const type = searchParams.get('type') // 'lesson' or 'video_lesson'
 
-    // 3. Build query for content
+    // 3. Build query for content - simplified to avoid index requirements
     let query = adminDb.collection('content')
       .where('visibility', 'in', ['public', 'my_athletes'])
-      .orderBy('createdAt', 'desc')
       .limit(limit)
-
-    // Apply type filter if specified
-    if (type) {
-      query = query.where('type', '==', type)
-    }
 
     // 4. Execute query
     const contentSnapshot = await query.get()
     
-    // 5. Convert documents to array
-    const content = contentSnapshot.docs.map((doc: any) => {
+    // 5. Filter by type in memory if specified
+    let content = contentSnapshot.docs.map((doc: any) => {
       const data = doc.data()
       return {
         id: doc.id,
@@ -54,6 +48,18 @@ export async function GET(request: NextRequest) {
         createdAt: data.createdAt?.toDate?.()?.toISOString() || null,
         updatedAt: data.updatedAt?.toDate?.()?.toISOString() || null,
       }
+    })
+
+    // Apply type filter in memory if specified
+    if (type) {
+      content = content.filter(item => item.type === type)
+    }
+
+    // Sort by createdAt in memory
+    content.sort((a, b) => {
+      const dateA = new Date(a.createdAt || 0)
+      const dateB = new Date(b.createdAt || 0)
+      return dateB.getTime() - dateA.getTime()
     })
 
     console.log(`[CONTENT-API] Successfully fetched ${content.length} content items for user ${userId}`)

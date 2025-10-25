@@ -3,9 +3,8 @@
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
-import { storage, db } from '@/lib/firebase.client';
+import { storage } from '@/lib/firebase.client';
 import { ref, uploadBytesResumable, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { collection, addDoc, updateDoc, serverTimestamp, doc, getDoc, type DocumentReference, type DocumentData } from 'firebase/firestore';
 import { ArrowLeft, Upload, Video, Check } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -249,37 +248,37 @@ export default function GetFeedbackPage() {
             console.warn('Submission patch failed (upload succeeded):', patchErr);
           }
         } else if (createClientSideSubmissionFallback) {
-          // Create the submission document on the client as a fallback so coaches can see it
+          // Create the submission document using secure API as a fallback
           try {
-            let coachId: string | null = null;
-            try {
-              const userSnap = await getDoc(doc(db, 'users', user.uid));
-              const udata: any = userSnap.data();
-              coachId = udata?.coachId || udata?.assignedCoachId || null;
-            } catch {}
-
-            const subRef = await addDoc(collection(db, 'submissions'), {
-              athleteUid: user.uid,
-              athleteName: user.displayName || user.email,
-              athletePhotoUrl: user.photoURL || null,
-              teamId: user.uid,
-              coachId: coachId || null,
-              videoFileName: videoFile.name,
-              videoFileSize: videoFile.size,
-              videoStoragePath: storagePath,
-              videoDuration: 0,
-              thumbnailUrl: thumbnailUrl,
-              athleteContext: context.trim(),
-              athleteGoals: goals.trim(),
-              specificQuestions: questions.trim(),
-              status: 'awaiting_coach',
-              uploadProgress: 100,
-              createdAt: serverTimestamp(),
-              updatedAt: serverTimestamp(),
-              submittedAt: serverTimestamp(),
+            const token = await user.getIdToken();
+            const response = await fetch('/api/submissions', {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                videoFileName: videoFile.name,
+                videoFileSize: videoFile.size,
+                videoStoragePath: storagePath,
+                videoDownloadUrl: downloadUrl,
+                videoDuration: 0,
+                thumbnailUrl: thumbnailUrl,
+                athleteContext: context.trim(),
+                athleteGoals: goals.trim(),
+                specificQuestions: questions.trim(),
+                status: 'awaiting_coach',
+                uploadProgress: 100,
+              }),
             });
-            setCreatedSubmissionId(subRef.id);
-            console.log('✅ Created client-side submission fallback');
+
+            if (response.ok) {
+              const data = await response.json();
+              setCreatedSubmissionId(data.submissionId);
+              console.log('✅ Created client-side submission fallback via API');
+            } else {
+              console.warn('API submission fallback failed:', await response.text());
+            }
           } catch (subErr) {
             console.warn('Client-side submission fallback failed:', subErr);
           }
