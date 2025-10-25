@@ -3,6 +3,57 @@ import { auth, adminDb } from '@/lib/firebase.admin'
 
 export const runtime = 'nodejs'
 
+// PATCH /api/submissions/[id]
+// Update a submission document the athlete owns
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    // Auth
+    const authHeader = request.headers.get('authorization')
+    if (!authHeader?.startsWith('Bearer ')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const token = authHeader.split('Bearer ')[1]
+    let decoded
+    try {
+      decoded = await auth.verifyIdToken(token)
+    } catch (e: any) {
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
+    }
+    const userId = decoded.uid
+
+    const submissionRef = adminDb.collection('submissions').doc(params.id)
+    const snap = await submissionRef.get()
+    if (!snap.exists) {
+      return NextResponse.json({ error: 'Submission not found' }, { status: 404 })
+    }
+    const submission = snap.data()
+    if (submission?.athleteUid !== userId) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
+    const update = await request.json()
+
+    await submissionRef.update({
+      ...update,
+      updatedAt: new Date()
+    })
+
+    return NextResponse.json({ success: true })
+  } catch (error: any) {
+    console.error('PATCH submissions/[id] failed:', error)
+    return NextResponse.json({ error: 'Failed to update submission', details: error.message }, { status: 500 })
+  }
+}
+
+import { NextRequest, NextResponse } from 'next/server'
+import { auth, adminDb } from '@/lib/firebase.admin'
+
+export const runtime = 'nodejs'
+
 /**
  * GET /api/submissions/[id]
  * Fetch a single submission with review and comments data
