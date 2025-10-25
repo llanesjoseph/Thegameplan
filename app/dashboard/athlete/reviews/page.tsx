@@ -32,9 +32,14 @@ export default function AthleteReviewsPage() {
           return
         }
 
-        // Handle no user case
+        // Handle no user case - redirect if not embedded
         if (!user) {
-          console.log('No user found')
+          if (!isEmbedded) {
+            console.log('No user found, redirecting to login')
+            router.push('/login')
+          } else {
+            console.log('No user found in embedded mode, showing loading')
+          }
           return
         }
 
@@ -89,7 +94,7 @@ export default function AthleteReviewsPage() {
         abortController.abort()
       }
     }
-  }, [user, authLoading])
+  }, [user, authLoading, router, isEmbedded])
 
   // Safe delete handler
   const handleDelete = useCallback(async (submissionId: string) => {
