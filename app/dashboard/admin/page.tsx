@@ -2,8 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
-import { doc, getDoc } from 'firebase/firestore'
-import { db } from '@/lib/firebase.client'
+import { useRole } from '@/hooks/use-role'
 import AppHeader from '@/components/ui/AppHeader'
 import InvitationsApprovalsUnified from './invitations-approvals/page'
 import {
@@ -30,51 +29,17 @@ export default function AdminDashboard() {
   const { user, loading: authLoading } = useAuth()
   const router = useRouter()
   const [activeSection, setActiveSection] = useState<string | null>(null)
-  const [isAdmin, setIsAdmin] = useState<boolean | null>(null)
-  const [checking, setChecking] = useState(true)
+  const { role, loading: roleLoading } = useRole()
 
-  // Check if user has admin privileges
+  // Redirect unauthenticated
   useEffect(() => {
-    const checkAdminAccess = async () => {
-      if (authLoading) return
-
-      if (!user) {
-        router.push('/signin')
-        return
-      }
-
-      try {
-        const userDoc = await getDoc(doc(db, 'users', user.uid))
-        if (!userDoc.exists()) {
-          setIsAdmin(false)
-          setChecking(false)
-          return
-        }
-
-        const userData = userDoc.data()
-        const userRole = userData?.role || userData?.roles?.[0] || 'user'
-
-        // Only admin and superadmin can access
-        const hasAccess = ['admin', 'superadmin'].includes(userRole)
-        setIsAdmin(hasAccess)
-        setChecking(false)
-
-        if (!hasAccess) {
-          // Log unauthorized access attempt
-          console.warn(`Unauthorized admin access attempt by ${user.email} (role: ${userRole})`)
-        }
-      } catch (error) {
-        console.error('Error checking admin access:', error)
-        setIsAdmin(false)
-        setChecking(false)
-      }
+    if (!authLoading && !user) {
+      router.push('/signin')
     }
-
-    checkAdminAccess()
-  }, [user, authLoading, router])
+  }, [authLoading, user, router])
 
   // Show loading state
-  if (authLoading || checking) {
+  if (authLoading || roleLoading) {
     return (
       <div style={{ backgroundColor: '#E8E6D8' }} className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -86,7 +51,7 @@ export default function AdminDashboard() {
   }
 
   // Show access denied if not admin
-  if (isAdmin === false) {
+  if (!['admin', 'superadmin'].includes(role as any)) {
     return (
       <div style={{ backgroundColor: '#E8E6D8' }} className="min-h-screen flex items-center justify-center">
         <div className="max-w-md mx-auto px-4">

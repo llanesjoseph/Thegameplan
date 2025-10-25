@@ -6,6 +6,7 @@ import type { AppRole } from '@/types/user'
 export function useRole() {
   const [role, setRole] = useState<AppRole>('guest')
   const [loading, setLoading] = useState(true)
+  const [cached, setCached] = useState<AppRole | null>(null)
 
   // Add timeout to prevent infinite loading
   useEffect(() => {
@@ -42,22 +43,26 @@ export function useRole() {
             if (data.success) {
               const fetchedRole = data.data.role ?? 'user'
               setRole(fetchedRole)
+              setCached(fetchedRole)
             } else {
-              console.warn('⚠️ useRole: API returned error, defaulting to user role')
-              setRole('user')
+              console.warn('⚠️ useRole: API returned error, keeping previous role')
+              if (cached) setRole(cached)
+              else setRole('guest')
             }
           } else {
-            console.warn('⚠️ useRole: Failed to fetch role via API, defaulting to user role')
-            setRole('user')
+            console.warn('⚠️ useRole: Failed to fetch role via API, keeping previous role')
+            if (cached) setRole(cached)
+            else setRole('guest')
           }
         } catch (apiError) {
           console.warn('❌ useRole: Failed to fetch user role via API:', apiError)
-          // Default to 'user' role if API fails
-          setRole('user')
+          if (cached) setRole(cached)
+          else setRole('guest')
         }
       } catch (error) {
         console.error('Error in useRole:', error)
-        setRole('user')
+        if (cached) setRole(cached)
+        else setRole('guest')
       } finally {
         setLoading(false)
       }
