@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { useAuth } from '@/hooks/use-auth'
 // Removed client-side Firebase imports - using secure API endpoints instead
 import {
@@ -611,12 +612,21 @@ export default function AthleteDashboard() {
                     )}
 
                     {activeSection === 'video-reviews' && (
-                      <iframe
-                        ref={activeSection === 'video-reviews' ? iframeRef : null}
-                        src="/dashboard/athlete/reviews?embedded=true"
-                        className="w-full h-full border-0"
-                        title="Video Reviews"
-                      />
+                      <div className="h-full overflow-y-auto p-4">
+                        <div className="max-w-6xl mx-auto">
+                          <h2 className="text-2xl font-bold mb-4">Video Reviews</h2>
+                          <p className="text-gray-600 mb-6">
+                            View and manage your video submissions
+                          </p>
+                          <Link
+                            href="/dashboard/athlete/reviews"
+                            className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                          >
+                            <Video className="w-5 h-5 mr-2" />
+                            View All Reviews
+                          </Link>
+                        </div>
+                      </div>
                     )}
 
                     {activeSection === 'lessons' && (
