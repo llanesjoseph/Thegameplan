@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
-import { ArrowLeft, Clock, CheckCircle, Video, MessageCircle, Trash2 } from 'lucide-react';
+import { ArrowLeft, Clock, CheckCircle, Video, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 
 export default function AthleteReviewDetailPage({
@@ -17,10 +17,7 @@ export default function AthleteReviewDetailPage({
   const isEmbedded = searchParams?.get('embedded') === 'true';
   const [submission, setSubmission] = useState<any>(null);
   const [review, setReview] = useState<any>(null);
-  const [comments, setComments] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [newComment, setNewComment] = useState('');
-  const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -59,7 +56,6 @@ export default function AthleteReviewDetailPage({
         if (data.success) {
           setSubmission(data.data.submission);
           setReview(data.data.review);
-          setComments(data.data.comments || []);
         } else {
           throw new Error(data.error || 'Failed to load submission details');
         }
@@ -73,57 +69,6 @@ export default function AthleteReviewDetailPage({
 
     fetchData();
   }, [user, loading, router, params.submissionId, isEmbedded]);
-
-  const handleCommentSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newComment.trim() || !user || !submission) return;
-
-    setIsSubmittingComment(true);
-    try {
-      // Use secure server-side API for adding comments
-      const token = await user.getIdToken();
-      const response = await fetch(`/api/submissions/${submission.id}/comments`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          content: newComment.trim(),
-          authorRole: 'athlete'
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to add comment');
-      }
-
-      const data = await response.json();
-      
-      if (data.success) {
-        setNewComment('');
-        
-        // Refresh comments by refetching the submission data
-        const submissionResponse = await fetch(`/api/submissions/${submission.id}`, {
-          headers: { 'Authorization': `Bearer ${token}` },
-        });
-        
-        if (submissionResponse.ok) {
-          const submissionData = await submissionResponse.json();
-          if (submissionData.success) {
-            setComments(submissionData.data.comments || []);
-          }
-        }
-      } else {
-        throw new Error(data.error || 'Failed to add comment');
-      }
-    } catch (error) {
-      console.error('Error adding comment:', error);
-      alert('Failed to add comment. Please try again.');
-    } finally {
-      setIsSubmittingComment(false);
-    }
-  };
 
   const handleDeleteSubmission = async () => {
     if (!user) return;
@@ -459,43 +404,6 @@ export default function AthleteReviewDetailPage({
                   </div>
                 </div>
 
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                  <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                    <MessageCircle className="w-5 h-5" />
-                    Discussion
-                  </h2>
-                  <div className="space-y-4 mb-6">
-                    {comments.length === 0 ? (
-                      <p className="text-gray-500 text-sm">No comments yet. Start the conversation!</p>
-                    ) : (
-                      comments.map((comment: any) => (
-                        <div key={comment.id} className={`p-4 rounded-lg ${comment.authorRole === 'coach' ? 'bg-blue-50 border border-blue-100' : 'bg-gray-50 border border-gray-100'}`}>
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="font-semibold text-sm">{comment.authorName}</span>
-                            <span className={`text-xs px-2 py-0.5 rounded-full ${comment.authorRole === 'coach' ? 'bg-blue-100 text-blue-700' : 'bg-gray-200 text-gray-700'}`}>
-                              {comment.authorRole === 'coach' ? 'Coach' : 'You'}
-                            </span>
-                            <span className="text-xs text-gray-500">{formatDate(comment.createdAt)}</span>
-                          </div>
-                          <p className="text-gray-700 text-sm">{comment.content}</p>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                  <form onSubmit={handleCommentSubmit} className="space-y-3">
-                    <textarea
-                      value={newComment}
-                      onChange={(e) => setNewComment(e.target.value)}
-                      placeholder="Ask a follow-up question or add a comment..."
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                      rows={3}
-                      disabled={isSubmittingComment}
-                    />
-                    <button type="submit" disabled={!newComment.trim() || isSubmittingComment} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-                      {isSubmittingComment ? 'Posting...' : 'Post Comment'}
-                    </button>
-                  </form>
-                </div>
               </>
             ) : (
               <div className="bg-gray-50 rounded-lg border border-gray-200 p-12 text-center">
