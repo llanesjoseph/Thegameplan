@@ -86,7 +86,7 @@ export default function AthleteReviewsPage() {
             setSubmissions(data.submissions || [])
             setError(null)
           }
-        } else {
+          } else {
           const errorText = await response.text()
           console.error('API error response:', {
             status: response.status,
@@ -175,7 +175,7 @@ export default function AthleteReviewsPage() {
     return (
       <div className={isEmbedded ? "w-full h-full" : "container mx-auto px-4 py-8"}>
         <div className="flex items-center justify-center h-64">
-          <div className="text-center">
+        <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
             <p className="mt-2 text-gray-600">Loading...</p>
           </div>
@@ -189,15 +189,15 @@ export default function AthleteReviewsPage() {
     return (
       <div className={isEmbedded ? "w-full h-full" : "container mx-auto px-4 py-8"}>
         <div className="text-center">
-          <p className="text-red-600 mb-4">{error}</p>
-          <button
+            <p className="text-red-600 mb-4">{error}</p>
+            <button
             onClick={() => window.location.reload()}
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          >
-            Try Again
-          </button>
+            >
+              Try Again
+            </button>
+          </div>
         </div>
-      </div>
     )
   }
 
@@ -216,14 +216,14 @@ export default function AthleteReviewsPage() {
             </Link>
           )}
           <h1 className="text-3xl font-bold text-gray-900">My Video Reviews</h1>
-          <p className="mt-2 text-gray-600">
+              <p className="mt-2 text-gray-600">
             Track your submitted videos and coach feedback
-          </p>
-        </div>
+              </p>
+            </div>
 
         {/* Submit Video Button */}
         <div className="mb-6">
-          <button
+            <button
             onClick={() => {
               console.log('Submit New Video clicked, isEmbedded:', isEmbedded)
               if (isEmbedded) {
@@ -236,9 +236,9 @@ export default function AthleteReviewsPage() {
             }}
             className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
           >
-            <Video className="w-5 h-5 mr-2" />
+                  <Video className="w-5 h-5 mr-2" />
             Submit New Video
-          </button>
+            </button>
         </div>
 
         {/* Empty state */}
@@ -251,13 +251,20 @@ export default function AthleteReviewsPage() {
             <p className="text-gray-600 mb-6">
               Submit your first video to get personalized feedback from your coach
             </p>
-            <Link
-              href="/dashboard/athlete/get-feedback"
+            <button
+              onClick={() => {
+                console.log('Submit Video button clicked, navigating...')
+                if (isEmbedded) {
+                  window.parent.postMessage({ type: 'NAVIGATE_TO_GET_FEEDBACK' }, '*')
+                } else {
+                  router.push('/dashboard/athlete/get-feedback')
+                }
+              }}
               className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               <Video className="w-5 h-5 mr-2" />
               Submit Video
-            </Link>
+            </button>
           </div>
         )}
 
@@ -267,7 +274,7 @@ export default function AthleteReviewsPage() {
             {submissions.map((submission: any) => {
               const isDeletable = ['pending', 'draft', 'awaiting_coach', 'complete'].includes(submission.status)
 
-              return (
+                return (
                 <div
                   key={submission.id}
                   className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow relative"
@@ -301,9 +308,9 @@ export default function AthleteReviewsPage() {
                           {submission.status === 'complete' ? '✓' :
                            submission.status === 'in_review' || submission.status === 'claimed' ? '⏳' :
                            '⏱'}
-                        </span>
+                            </span>
                       </div>
-                    </div>
+                        </div>
 
                     {/* Content */}
                     <div className="p-3">
@@ -316,13 +323,13 @@ export default function AthleteReviewsPage() {
                         {new Date(submission.createdAt || Date.now()).toLocaleDateString('en-US', {
                           month: 'short',
                           day: 'numeric'
-                        })}
-                      </div>
-                    </div>
+              })}
+            </div>
+          </div>
                   </Link>
 
                   {/* Delete button */}
-                  <button
+            <button
                     onClick={(e) => {
                       e.preventDefault()
                       e.stopPropagation()
@@ -341,7 +348,7 @@ export default function AthleteReviewsPage() {
                     title={isDeletable ? "Delete submission" : `Cannot delete (status: ${submission.status})`}
                   >
                     <Trash2 className="w-3 h-3" />
-                  </button>
+            </button>
 
                   {/* Delete confirmation modal */}
                   {showDeleteConfirm === submission.id && (
@@ -359,7 +366,7 @@ export default function AthleteReviewsPage() {
                           >
                             Cancel
                           </button>
-                          <button
+                              <button
                             onClick={() => handleDelete(submission.id)}
                             className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                             disabled={deletingId === submission.id}
@@ -375,12 +382,12 @@ export default function AthleteReviewsPage() {
                                 Delete
                               </>
                             )}
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                              </button>
+                            </div>
+                          </div>
+              </div>
+            )}
+          </div>
               )
             })}
           </div>

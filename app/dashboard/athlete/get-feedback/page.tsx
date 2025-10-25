@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { storage } from '@/lib/firebase.client';
 import { ref, uploadBytesResumable, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { ArrowLeft, Upload, Video, Check } from 'lucide-react';
+import { ArrowLeft, Upload, Video, Check, Camera, Play, Pause } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function GetFeedbackPage() {
@@ -27,6 +27,17 @@ export default function GetFeedbackPage() {
   const [submitDone, setSubmitDone] = useState(false);
   const [createdSubmissionId, setCreatedSubmissionId] = useState<string | null>(null);
   const [submissionId, setSubmissionId] = useState<string | null>(null);
+
+  // Video scrubbing and thumbnail selection
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [videoUrl, setVideoUrl] = useState<string>('');
+  const [showThumbnailSelector, setShowThumbnailSelector] = useState(false);
+  const [selectedThumbnail, setSelectedThumbnail] = useState<string>('');
+  const [thumbnailCandidates, setThumbnailCandidates] = useState<string[]>([]);
+  const [videoDuration, setVideoDuration] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   // Simple retry helper for fetch calls (exponential backoff)
   const fetchWithRetry = async (
@@ -51,6 +62,117 @@ export default function GetFeedbackPage() {
     throw lastErr instanceof Error ? lastErr : new Error('request failed');
   };
 
+  // Video scrubbing and thumbnail generation functions
+  const captureFrame = useCallback(() => {
+    if (!videoRef.current || !canvasRef.current) return null;
+
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+
+    if (!ctx) return null;
+
+    // Set canvas size to match video
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    // Draw current frame to canvas
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    // Convert to data URL
+    return canvas.toDataURL('image/jpeg', 0.8);
+  }, []);
+
+  const generateThumbnails = useCallback(async () => {
+    if (!videoRef.current || !canvasRef.current) return;
+
+    const video = videoRef.current;
+    const duration = video.duration;
+    const candidates: string[] = [];
+
+    // Generate thumbnails at 25%, 50%, and 75% of video duration
+    const timestamps = [duration * 0.25, duration * 0.5, duration * 0.75];
+
+    for (const timestamp of timestamps) {
+      try {
+        // Set video time
+        video.currentTime = timestamp;
+
+        // Wait for the video to seek and be ready
+        await new Promise<void>((resolve, reject) => {
+          const timeout = setTimeout(() => {
+            reject(new Error('Thumbnail generation timeout'));
+          }, 3000);
+
+          const handleSeeked = () => {
+            clearTimeout(timeout);
+            video.removeEventListener('seeked', handleSeeked);
+            resolve();
+          };
+
+          video.addEventListener('seeked', handleSeeked);
+        });
+
+        // Small delay to ensure frame is ready
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        // Capture frame
+        const thumbnail = captureFrame();
+        if (thumbnail) {
+          candidates.push(thumbnail);
+          setThumbnailCandidates([...candidates]);
+
+          // If this is the first thumbnail, set it as selected
+          if (candidates.length === 1) {
+            setSelectedThumbnail(thumbnail);
+          }
+        }
+      } catch (error) {
+        console.warn(`Failed to generate thumbnail at ${timestamp}:`, error);
+      }
+    }
+  }, [captureFrame]);
+
+  const handleVideoLoad = useCallback(async () => {
+    if (videoRef.current) {
+      console.log('Video loaded, starting thumbnail generation...');
+      setVideoDuration(videoRef.current.duration);
+      setShowThumbnailSelector(true);
+      try {
+        await generateThumbnails();
+        console.log('Thumbnail generation completed');
+      } catch (error) {
+        console.error('Thumbnail generation failed:', error);
+        // Still show the selector even if thumbnail generation fails
+      }
+    }
+  }, [generateThumbnails]);
+
+  const handleTimeUpdate = useCallback(() => {
+    if (videoRef.current) {
+      setCurrentTime(videoRef.current.currentTime);
+    }
+  }, []);
+
+  const handleScrub = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const time = parseFloat(e.target.value);
+    if (videoRef.current) {
+      videoRef.current.currentTime = time;
+      setCurrentTime(time);
+    }
+  }, []);
+
+  const handlePlayPause = useCallback(() => {
+    if (!videoRef.current) return;
+
+    if (isPlaying) {
+      videoRef.current.pause();
+    } else {
+      videoRef.current.play();
+    }
+    setIsPlaying(!isPlaying);
+  }, [isPlaying]);
+
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -59,8 +181,13 @@ export default function GetFeedbackPage() {
         toast.error('File too large. Maximum 500MB.');
         return;
       }
+
       setVideoFile(file);
-      toast.success('Video selected');
+      setVideoUrl(URL.createObjectURL(file));
+      setShowThumbnailSelector(false);
+      setThumbnailCandidates([]);
+      setSelectedThumbnail('');
+      toast.success('Video selected - choose your thumbnail');
     }
   };
 
@@ -79,6 +206,11 @@ export default function GetFeedbackPage() {
 
     if (!context.trim()) {
       toast.error('Please provide context about your video');
+      return;
+    }
+
+    if (videoUrl && !selectedThumbnail) {
+      toast.error('Please select a thumbnail for your video');
       return;
     }
 
@@ -133,60 +265,69 @@ export default function GetFeedbackPage() {
         ? `uploads/${user.uid}/submissions/${submissionId}/${sanitized(fileName)}`
         : `feedback/${user.uid}/${feedbackId}/${sanitized(fileName)}`;
 
-      // Generate thumbnail
+      // Use selected thumbnail or generate one
       let thumbnailUrl: string | null = null;
       try {
-        console.log('[UPLOAD] Starting thumbnail generation...');
-        const canvas = document.createElement('canvas');
-        const video = document.createElement('video');
-        video.src = URL.createObjectURL(videoFile);
-        
-        await new Promise<void>((resolveThumb) => {
-          video.onloadeddata = () => {
-            console.log('[UPLOAD] Video data loaded, generating thumbnail...');
-            // Seek to 1 second to get a proper frame
-            video.currentTime = 1;
-          };
-          
-          video.onseeked = () => {
-            console.log('[UPLOAD] Video seeked to 1 second, capturing frame...');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            const ctx = canvas.getContext('2d');
-            if (ctx) {
-              // Fill with white background first
-              ctx.fillStyle = '#ffffff';
-              ctx.fillRect(0, 0, canvas.width, canvas.height);
-              // Then draw the video frame
-              ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-              canvas.toBlob(async (blob) => {
-                if (blob) {
-                  try {
-                    const thumbnailRef = ref(storage, `thumbnails/${submissionId || createdSubmissionId || 'temp'}.jpg`);
-                    await uploadBytes(thumbnailRef, blob);
-                    thumbnailUrl = await getDownloadURL(thumbnailRef);
-                    console.log('[UPLOAD] Thumbnail generated successfully:', thumbnailUrl);
-                  } catch (err) {
-                    console.warn('[UPLOAD] Thumbnail generation failed:', err);
+        if (selectedThumbnail) {
+          // Use the user-selected thumbnail
+          console.log('[UPLOAD] Using user-selected thumbnail...');
+          const response = await fetch(selectedThumbnail);
+          const blob = await response.blob();
+          const thumbnailRef = ref(storage, `thumbnails/${submissionId || createdSubmissionId || 'temp'}.jpg`);
+          await uploadBytes(thumbnailRef, blob);
+          thumbnailUrl = await getDownloadURL(thumbnailRef);
+          console.log('[UPLOAD] User thumbnail uploaded successfully:', thumbnailUrl);
+        } else {
+          // Fallback: Generate thumbnail automatically
+          console.log('[UPLOAD] No thumbnail selected, generating automatically...');
+          const canvas = document.createElement('canvas');
+          const video = document.createElement('video');
+          video.src = URL.createObjectURL(videoFile);
+
+          await new Promise<void>((resolveThumb) => {
+            video.onloadeddata = () => {
+              console.log('[UPLOAD] Video data loaded, generating thumbnail...');
+              video.currentTime = 1;
+            };
+
+            video.onseeked = () => {
+              console.log('[UPLOAD] Video seeked to 1 second, capturing frame...');
+              canvas.width = video.videoWidth;
+              canvas.height = video.videoHeight;
+              const ctx = canvas.getContext('2d');
+              if (ctx) {
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                canvas.toBlob(async (blob) => {
+                  if (blob) {
+                    try {
+                      const thumbnailRef = ref(storage, `thumbnails/${submissionId || createdSubmissionId || 'temp'}.jpg`);
+                      await uploadBytes(thumbnailRef, blob);
+                      thumbnailUrl = await getDownloadURL(thumbnailRef);
+                      console.log('[UPLOAD] Thumbnail generated successfully:', thumbnailUrl);
+                    } catch (err) {
+                      console.warn('[UPLOAD] Thumbnail generation failed:', err);
+                    }
                   }
-                }
+                  URL.revokeObjectURL(video.src);
+                  resolveThumb();
+                }, 'image/jpeg', 0.9);
+              } else {
                 URL.revokeObjectURL(video.src);
                 resolveThumb();
-              }, 'image/jpeg', 0.9);
-            } else {
+              }
+            };
+
+            video.onerror = () => {
+              console.warn('[UPLOAD] Video failed to load');
               URL.revokeObjectURL(video.src);
               resolveThumb();
-            }
-          };
-          
-          video.onerror = () => {
-            console.warn('[UPLOAD] Video failed to load');
-            URL.revokeObjectURL(video.src);
-            resolveThumb();
-          };
-        });
+            };
+          });
+        }
       } catch (err) {
-        console.warn('[UPLOAD] Thumbnail generation failed:', err);
+        console.warn('[UPLOAD] Thumbnail upload failed:', err);
       }
 
       const storageRef = ref(storage, storagePath);
@@ -435,6 +576,108 @@ export default function GetFeedbackPage() {
                 </div>
               </div>
             )}
+
+            {/* Video Preview and Thumbnail Selection */}
+            {videoUrl && (
+              <div className="bg-white rounded-lg shadow p-6 mt-6">
+                <h3 className="text-lg font-semibold mb-4">Choose Your Thumbnail</h3>
+
+                {/* Hidden canvas for frame capture */}
+                <canvas ref={canvasRef} className="hidden" />
+
+                {/* Video Player */}
+                <div className="relative bg-black rounded-lg overflow-hidden mb-4">
+                  <video
+                    ref={videoRef}
+                    src={videoUrl}
+                    className="w-full h-64 object-contain"
+                    onLoadedMetadata={handleVideoLoad}
+                    onTimeUpdate={handleTimeUpdate}
+                    onPlay={() => setIsPlaying(true)}
+                    onPause={() => setIsPlaying(false)}
+                  />
+
+                  {/* Video Controls */}
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                    <div className="flex items-center gap-4">
+                      <button
+                        onClick={handlePlayPause}
+                        className="text-white hover:text-blue-400 transition-colors"
+                      >
+                        {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6" />}
+                      </button>
+
+                      {/* Scrubber */}
+                      <div className="flex-1">
+                        <input
+                          type="range"
+                          min="0"
+                          max={videoDuration || 100}
+                          value={currentTime}
+                          onChange={handleScrub}
+                          className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer slider"
+                          style={{
+                            background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${(currentTime / (videoDuration || 100)) * 100}%, rgba(255,255,255,0.2) ${(currentTime / (videoDuration || 100)) * 100}%, rgba(255,255,255,0.2) 100%)`
+                          }}
+                        />
+                      </div>
+
+                      {/* Time Display */}
+                      <span className="text-white text-sm">
+                        {Math.floor(currentTime)}s / {Math.floor(videoDuration)}s
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Thumbnail Candidates */}
+                {showThumbnailSelector && thumbnailCandidates.length > 0 && (
+                  <div className="space-y-4">
+                    <p className="text-sm text-gray-600">Click on a thumbnail to select it:</p>
+                    <div className="grid grid-cols-3 gap-3">
+                      {thumbnailCandidates.map((thumbnail, index) => (
+                        <div key={index} className="relative">
+                          <img
+                            src={thumbnail}
+                            alt={`Thumbnail ${index + 1}`}
+                            className={`w-full h-20 object-cover rounded-lg cursor-pointer border-2 transition-colors ${
+                              selectedThumbnail === thumbnail
+                                ? 'border-blue-500 ring-2 ring-blue-200'
+                                : 'border-gray-200 hover:border-gray-300'
+                            }`}
+                            onClick={() => setSelectedThumbnail(thumbnail)}
+                          />
+                          {selectedThumbnail === thumbnail && (
+                            <div className="absolute top-1 right-1 bg-blue-500 text-white rounded-full p-1">
+                              <Check className="w-3 h-3" />
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Custom Thumbnail Capture */}
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => {
+                          const customThumbnail = captureFrame();
+                          if (customThumbnail) {
+                            setSelectedThumbnail(customThumbnail);
+                            setThumbnailCandidates(prev => [...prev, customThumbnail]);
+                          }
+                        }}
+                        className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                      >
+                        <Camera className="w-4 h-4" />
+                        Capture Current Frame
+                      </button>
+                      <span className="text-sm text-gray-500">Use the scrubber above to find the perfect frame</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
           </div>
 
           {/* Context */}
