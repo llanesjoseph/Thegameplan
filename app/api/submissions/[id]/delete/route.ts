@@ -68,7 +68,8 @@ export async function DELETE(
     // Delete files from storage (don't fail if files missing)
     for (const path of filesToDelete) {
       try {
-        await adminStorage.file(path).delete();
+        const bucket = adminStorage.bucket();
+        await bucket.file(path).delete();
         console.log(`✅ Deleted file: ${path}`);
       } catch (error: any) {
         // Log but don't fail if file doesn't exist or other storage errors
