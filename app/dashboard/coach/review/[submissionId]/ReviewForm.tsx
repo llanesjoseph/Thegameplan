@@ -21,6 +21,7 @@ import VideoPlayer from '@/components/video-critique/VideoPlayer';
 import RubricScoring from '@/components/video-critique/RubricScoring';
 import TimecodeEditor from '@/components/video-critique/TimecodeEditor';
 import DrillSelector from '@/components/video-critique/DrillSelector';
+import { formatTimecode } from '@/lib/data/reviews';
 // Removed createNotification import - using server-side APIs for notifications
 
 interface ReviewFormProps {
@@ -374,8 +375,76 @@ export default function ReviewForm({
           onDurationChange={setVideoDuration}
           timecodes={timecodes}
         />
+        
+        {/* Perusall-Style: Add Note at Current Time */}
+        <div className="mt-4 flex items-center justify-between bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="flex items-center gap-3">
+            <Clock className="w-5 h-5 text-blue-600" />
+            <div>
+              <p className="font-medium text-gray-900">Current Time: {formatTimecode(currentTime)}</p>
+              <p className="text-sm text-gray-600">Click to add a note at this timestamp</p>
+            </div>
+          </div>
+          <button
+            onClick={handleAddTimecode}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            Add Note Here
+          </button>
+        </div>
       </div>
 
+      {/* Perusall-Style Timestamped Notes Section */}
+      {timecodes.length > 0 && (
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold">Timestamped Notes ({timecodes.length})</h2>
+            <span className="text-sm text-gray-600">Click timestamps to jump to that moment</span>
+          </div>
+          
+          <TimecodeEditor
+            timecodes={timecodes}
+            onUpdate={handleUpdateTimecode}
+            onDelete={handleDeleteTimecode}
+            onSeek={handleSeekToTimecode}
+          />
+          
+          {/* Summary of All Notes */}
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+              <Clock className="w-5 h-5" />
+              Notes Summary
+            </h3>
+            <div className="space-y-2">
+              {timecodes.sort((a, b) => a.timestamp - b.timestamp).map((tc, index) => (
+                <div 
+                  key={tc.id}
+                  className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                  onClick={() => handleSeekToTimecode(tc.timestamp)}
+                >
+                  <span className="flex-shrink-0 font-mono text-sm font-semibold text-blue-600">
+                    {formatTimecode(tc.timestamp)}
+                  </span>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className={`text-xs px-2 py-0.5 rounded ${
+                        tc.type === 'praise' ? 'bg-green-100 text-green-700' :
+                        tc.type === 'correction' ? 'bg-orange-100 text-orange-700' :
+                        tc.type === 'question' ? 'bg-blue-100 text-blue-700' :
+                        'bg-gray-100 text-gray-700'
+                      }`}>
+                        {tc.type}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-700">{tc.comment || <em className="text-gray-400">No comment</em>}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Overall Feedback Section */}
       <div className="bg-white rounded-lg shadow-sm p-6">
