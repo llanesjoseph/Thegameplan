@@ -55,7 +55,8 @@ export default function TimecodeEditor({
     }
   }, []);
 
-  const sortedTimecodes = [...timecodes].sort((a, b) => a.timestamp - b.timestamp);
+  // Sort in reverse order (newest/highest timestamp first) for easier visibility of recent notes
+  const sortedTimecodes = [...timecodes].sort((a, b) => b.timestamp - a.timestamp);
 
   if (timecodes.length === 0) {
     return (
