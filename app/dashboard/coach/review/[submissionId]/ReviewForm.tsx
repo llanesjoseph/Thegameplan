@@ -6,7 +6,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import { Loader2, Plus, Trash2, Clock, Save, Send, X, CheckCircle, ArrowLeft } from 'lucide-react';
+import { Loader2, Plus, Trash2, Clock, Save, Send, X, CheckCircle, ArrowLeft, Sparkles, Wand2 } from 'lucide-react';
 import {
   Submission,
   Review,
@@ -49,6 +49,14 @@ export default function ReviewForm({
   const [autoSaving, setAutoSaving] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // AI assistance loading states
+  const [aiLoading, setAiLoading] = useState<{
+    overallFeedback?: boolean;
+    nextSteps?: boolean;
+    strengths?: Record<number, boolean>;
+    improvements?: Record<number, boolean>;
+  }>({});
 
   // Review state
   const [reviewId, setReviewId] = useState<string>(existingReview?.id || '');
@@ -169,6 +177,63 @@ export default function ReviewForm({
       }
     };
   }, [performAutoSave]);
+
+  // AI Assistance handlers
+  const handleAIAssist = async (
+    action: 'transform' | 'polish',
+    context: 'summary' | 'nextSteps' | 'strength' | 'improvement',
+    text: string,
+    onSuccess: (newText: string) => void,
+    loadingKey: string
+  ) => {
+    if (!text.trim()) {
+      toast.error('Please enter some text first');
+      return;
+    }
+
+    if (!user) return;
+
+    // Set loading state
+    if (context === 'summary') {
+      setAiLoading(prev => ({ ...prev, overallFeedback: true }));
+    } else if (context === 'nextSteps') {
+      setAiLoading(prev => ({ ...prev, nextSteps: true }));
+    }
+
+    try {
+      const token = await user.getIdToken();
+      const response = await fetch('/api/coach/ai-assist', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          text,
+          action,
+          context
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('AI assist failed');
+      }
+
+      const data = await response.json();
+      onSuccess(data.text);
+      toast.success(action === 'transform' ? 'Notes transformed!' : 'Text polished!');
+    } catch (error) {
+      console.error('AI assist error:', error);
+      toast.error('Failed to process with AI. Please try again.');
+    } finally {
+      // Clear loading state
+      if (context === 'summary') {
+        setAiLoading(prev => ({ ...prev, overallFeedback: false }));
+      } else if (context === 'nextSteps') {
+        setAiLoading(prev => ({ ...prev, nextSteps: false }));
+      }
+    }
+  };
 
   // Timecode management
   const handleAddTimecode = useCallback(() => {
@@ -452,9 +517,39 @@ export default function ReviewForm({
 
         <div className={`space-y-4 ${isEmbedded ? 'grid grid-cols-1 lg:grid-cols-2 gap-6' : ''}`}>
           <div>
-            <label className="block text-sm font-medium mb-2">
-              Summary Feedback <span className="text-red-500">*</span>
-            </label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-medium">
+                Summary Feedback <span className="text-red-500">*</span>
+              </label>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleAIAssist('transform', 'summary', overallFeedback, setOverallFeedback, 'overallFeedback')}
+                  disabled={aiLoading.overallFeedback || !overallFeedback.trim()}
+                  className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-purple-600 bg-purple-50 hover:bg-purple-100 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Transform rough notes into polished feedback"
+                >
+                  {aiLoading.overallFeedback ? (
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                  ) : (
+                    <Sparkles className="w-3 h-3" />
+                  )}
+                  <span>Transform</span>
+                </button>
+                <button
+                  onClick={() => handleAIAssist('polish', 'summary', overallFeedback, setOverallFeedback, 'overallFeedback')}
+                  disabled={aiLoading.overallFeedback || !overallFeedback.trim()}
+                  className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Polish and improve your text"
+                >
+                  {aiLoading.overallFeedback ? (
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                  ) : (
+                    <Wand2 className="w-3 h-3" />
+                  )}
+                  <span>Polish</span>
+                </button>
+              </div>
+            </div>
             <Textarea
               value={overallFeedback}
               onChange={(e) => setOverallFeedback(e.target.value)}
@@ -468,9 +563,39 @@ export default function ReviewForm({
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">
-              Next Steps <span className="text-red-500">*</span>
-            </label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-medium">
+                Next Steps <span className="text-red-500">*</span>
+              </label>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleAIAssist('transform', 'nextSteps', nextSteps, setNextSteps, 'nextSteps')}
+                  disabled={aiLoading.nextSteps || !nextSteps.trim()}
+                  className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-purple-600 bg-purple-50 hover:bg-purple-100 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Transform rough notes into clear action steps"
+                >
+                  {aiLoading.nextSteps ? (
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                  ) : (
+                    <Sparkles className="w-3 h-3" />
+                  )}
+                  <span>Transform</span>
+                </button>
+                <button
+                  onClick={() => handleAIAssist('polish', 'nextSteps', nextSteps, setNextSteps, 'nextSteps')}
+                  disabled={aiLoading.nextSteps || !nextSteps.trim()}
+                  className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Polish and improve your text"
+                >
+                  {aiLoading.nextSteps ? (
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                  ) : (
+                    <Wand2 className="w-3 h-3" />
+                  )}
+                  <span>Polish</span>
+                </button>
+              </div>
+            </div>
             <Textarea
               value={nextSteps}
               onChange={(e) => setNextSteps(e.target.value)}
