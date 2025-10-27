@@ -75,6 +75,7 @@ export default function SecureAthleteProfilePage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
+  const [analyticsError, setAnalyticsError] = useState<string | null>(null)
   const [aiChatSummary, setAiChatSummary] = useState<string>('')
   const [messageText, setMessageText] = useState('')
   const [sendingMessage, setSendingMessage] = useState(false)
@@ -82,7 +83,6 @@ export default function SecureAthleteProfilePage() {
   useEffect(() => {
     if (slug && user) {
       loadAthleteDetails()
-      loadAIChatSummary()
     }
   }, [slug, user])
 
@@ -110,8 +110,9 @@ export default function SecureAthleteProfilePage() {
       const athleteProfile = result.data
       setAthlete(athleteProfile)
 
-      // Load analytics data
+      // Load analytics data and AI chat summary after athlete data is available
       await loadAnalytics(athleteProfile.uid)
+      await loadAIChatSummary(athleteProfile.uid)
 
     } catch (error) {
       console.error('Error loading athlete details:', error)
@@ -123,6 +124,7 @@ export default function SecureAthleteProfilePage() {
 
   const loadAnalytics = async (athleteId: string) => {
     try {
+      setAnalyticsError(null)
       const token = await user!.getIdToken()
       const response = await fetch(`/api/coach/athletes/${athleteId}`, {
         headers: {
@@ -132,19 +134,41 @@ export default function SecureAthleteProfilePage() {
 
       if (response.ok) {
         const data = await response.json()
-        setAnalytics(data.analytics)
+        if (data.analytics) {
+          setAnalytics(data.analytics)
+        } else {
+          // Set default analytics if none returned
+          setAnalytics({
+            totalLessons: 0,
+            completedLessons: 0,
+            completionRate: 0,
+            lastActivity: null,
+            aiQuestionsAsked: 0,
+            averageEngagement: 0,
+            sessionRequestsPending: 0,
+            sessionRequestsCompleted: 0,
+            totalMessages: 0,
+            messagesLastWeek: 0,
+            contentByType: { lessons: 0, videos: 0, articles: 0 },
+            engagementTrend: 'stable',
+            weeklyActivity: [0, 0, 0, 0, 0, 0, 0]
+          })
+        }
+      } else {
+        setAnalyticsError('Unable to load analytics data')
       }
     } catch (error) {
       console.error('Error loading analytics:', error)
+      setAnalyticsError('Failed to load analytics')
     }
   }
 
-  const loadAIChatSummary = async () => {
+  const loadAIChatSummary = async (athleteUid: string) => {
     try {
-      if (!athlete?.uid) return
+      if (!athleteUid) return
 
       const token = await user!.getIdToken()
-      const response = await fetch(`/api/coach/athletes/${athlete.uid}/ai-chat-summary`, {
+      const response = await fetch(`/api/coach/athletes/${athleteUid}/ai-chat-summary`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -152,10 +176,19 @@ export default function SecureAthleteProfilePage() {
 
       if (response.ok) {
         const data = await response.json()
-        setAiChatSummary(data.summary || 'No recent AI interactions.')
+        if (data.summary?.verbalSummary) {
+          setAiChatSummary(data.summary.verbalSummary)
+        } else if (typeof data.summary === 'string') {
+          setAiChatSummary(data.summary)
+        } else {
+          setAiChatSummary('No recent AI interactions.')
+        }
+      } else {
+        setAiChatSummary('Unable to load AI chat summary.')
       }
     } catch (error) {
       console.error('Error loading AI chat summary:', error)
+      setAiChatSummary('Error loading AI chat summary.')
     }
   }
 
@@ -181,7 +214,9 @@ export default function SecureAthleteProfilePage() {
       if (response.ok) {
         setMessageText('')
         // Reload AI chat summary
-        await loadAIChatSummary()
+        if (athlete?.uid) {
+          await loadAIChatSummary(athlete.uid)
+        }
       }
     } catch (error) {
       console.error('Error sending message:', error)
@@ -294,7 +329,24 @@ export default function SecureAthleteProfilePage() {
           </div>
         </div>
 
+        {/* Comprehensive Coaching Dashboard */}
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold mb-2 flex items-center gap-2" style={{ color: '#000000' }}>
+            <BarChart3 className="w-6 h-6 text-blue-600" />
+            Comprehensive Coaching Dashboard
+          </h2>
+          <p className="text-gray-600">Track athlete progress, engagement, and performance metrics</p>
+        </div>
+
         {/* Analytics Grid */}
+        {analyticsError && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-8">
+            <div className="flex items-center gap-2 text-yellow-800">
+              <AlertCircle className="w-5 h-5" />
+              <p className="text-sm">{analyticsError}</p>
+            </div>
+          </div>
+        )}
         {analytics && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">

@@ -273,7 +273,19 @@ export default function AppHeader({ className = '', title, subtitle }: AppHeader
       <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
         {/* Left Side - Title section */}
         <div className="flex items-center gap-3 sm:gap-6 w-full sm:w-auto">
-
+          {/* AthLeap Logo */}
+          <button
+            onClick={handleLogoClick}
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity touch-manipulation"
+            style={{ minHeight: '44px' }}
+            aria-label="Go to home"
+          >
+            <img
+              src="/logo-gp.svg"
+              alt="AthLeap"
+              className="h-8 sm:h-10 w-auto"
+            />
+          </button>
 
           {title && (
             <div className="border-l border-gray-300 pl-3 sm:pl-6 flex-1 sm:flex-none">

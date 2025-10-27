@@ -20,6 +20,7 @@ import {
 
 interface AthleteInvitation {
   id: string
+  slug?: string
   email: string
   name: string
   sport: string
@@ -98,6 +99,7 @@ function CoachAthletesContent() {
       // Transform athletes data into invitation format
       const athleteInvitations = (data.athletes || []).map((athlete: any) => ({
         id: athlete.id,
+        slug: athlete.slug || athlete.id, // Use slug if available, fallback to ID
         email: athlete.email || athlete.athleteEmail || '',
         name: athlete.displayName || athlete.name || athlete.athleteName || 'Unknown',
         sport: athlete.sport || athlete.preferredSports?.[0] || 'Unknown',
@@ -614,9 +616,11 @@ function CoachAthletesContent() {
                       // Don't trigger if clicking on action buttons
                       if (!(e.target as HTMLElement).closest('button')) {
                         console.log('Athlete clicked:', invitation.name)
+                        // Use slug if available, otherwise fall back to ID
+                        const athleteIdentifier = invitation.slug || invitation.id
                         const targetUrl = embedded
-                          ? `/dashboard/coach/athletes/${invitation.id}?embedded=true`
-                          : `/dashboard/coach/athletes/${invitation.id}`
+                          ? `/dashboard/coach/athletes/${athleteIdentifier}?embedded=true`
+                          : `/dashboard/coach/athletes/${athleteIdentifier}`
                         router.push(targetUrl)
                       }
                     }}

@@ -108,12 +108,43 @@ export async function GET(request: NextRequest) {
 
     const athletes = Array.from(athleteMap.values())
 
-    console.log(`Fetched ${athletes.length} athletes for coach ${userId}`)
+    // Look up slugs for all athletes
+    const athletesWithSlugs = await Promise.all(
+      athletes.map(async (athlete) => {
+        try {
+          // Query slug_mappings to find a slug that maps to this athlete ID
+          const slugQuery = await adminDb
+            .collection('slug_mappings')
+            .where('targetId', '==', athlete.id)
+            .limit(1)
+            .get()
+
+          let slug = athlete.id // Default to ID if no slug found
+
+          if (!slugQuery.empty) {
+            slug = slugQuery.docs[0].id // The document ID is the slug
+          }
+
+          return {
+            ...athlete,
+            slug
+          }
+        } catch (error) {
+          console.error(`Error looking up slug for athlete ${athlete.id}:`, error)
+          return {
+            ...athlete,
+            slug: athlete.id // Fallback to ID
+          }
+        }
+      })
+    )
+
+    console.log(`Fetched ${athletesWithSlugs.length} athletes for coach ${userId}`)
 
     return NextResponse.json({
       success: true,
-      athletes,
-      count: athletes.length
+      athletes: athletesWithSlugs,
+      count: athletesWithSlugs.length
     })
 
   } catch (error) {
