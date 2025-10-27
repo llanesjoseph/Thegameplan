@@ -148,15 +148,20 @@ export default function SecureAthleteProfilePage() {
             completedLessons: 0,
             completionRate: 0,
             lastActivity: null,
+            daysSinceLastActive: null,
+            daysSinceJoined: 0,
             aiQuestionsAsked: 0,
             averageEngagement: 0,
             sessionRequestsPending: 0,
             sessionRequestsCompleted: 0,
             totalMessages: 0,
             messagesLastWeek: 0,
+            videoSubmissions: 0,
+            pendingReviews: 0,
             contentByType: { lessons: 0, videos: 0, articles: 0 },
             engagementTrend: 'stable',
-            weeklyActivity: [0, 0, 0, 0, 0, 0, 0]
+            weeklyActivity: [0, 0, 0, 0, 0, 0, 0],
+            messagingEnabled: false
           })
         }
       } else {
