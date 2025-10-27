@@ -27,9 +27,9 @@ const permanentMarker = Permanent_Marker({
 })
 
 export const metadata: Metadata = {
- title: 'AthLeap – The Work Before the Win',
+ title: 'GamePlan – The Work Before the Win',
  description: 'AI-powered sports performance platform for elite athletes and coaches.',
- icons: { icon: '/logo-gp.svg' }
+ icons: { icon: '/new-logo.png' }
 }
 
 // Viewport configuration for proper mobile rendering

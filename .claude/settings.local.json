@@ -11,7 +11,8 @@
       "mcp__ide__getDiagnostics",
       "Bash(npm run build:*)",
       "Bash(npm run dev:*)",
-      "Bash(timeout 90 npm run build:*)"
+      "Bash(timeout 90 npm run build:*)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []
