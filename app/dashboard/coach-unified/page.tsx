@@ -201,6 +201,10 @@ export default function CoachUnifiedDashboard() {
         // Navigate to home section
         setActiveSection('home')
         console.log('Navigating to home from error modal')
+      } else if (event.data.type === 'NAVIGATE' && event.data.path) {
+        // Navigate to the requested path
+        router.push(event.data.path)
+        console.log('Navigating to:', event.data.path)
       }
     }
 

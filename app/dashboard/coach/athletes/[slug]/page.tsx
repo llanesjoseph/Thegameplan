@@ -86,6 +86,17 @@ export default function SecureAthleteProfilePage() {
   const [messageText, setMessageText] = useState('')
   const [sendingMessage, setSendingMessage] = useState(false)
 
+  // Helper function for navigation that handles embedded context
+  const navigate = (path: string) => {
+    if (embedded && typeof window !== 'undefined') {
+      // If embedded in iframe, navigate the parent window
+      window.parent.postMessage({ type: 'NAVIGATE', path }, window.location.origin)
+    } else {
+      // Normal navigation
+      router.push(path)
+    }
+  }
+
   useEffect(() => {
     if (slug && user) {
       loadAthleteDetails()
@@ -362,7 +373,7 @@ export default function SecureAthleteProfilePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {/* Total Lessons - Clickable */}
             <button
-              onClick={() => router.push('/dashboard/coach/lessons/library')}
+              onClick={() => navigate('/dashboard/coach/lessons/library')}
               className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 hover:shadow-xl hover:border-blue-300 transition-all cursor-pointer text-left"
             >
               <div className="flex items-center justify-between">
@@ -412,7 +423,7 @@ export default function SecureAthleteProfilePage() {
 
             {/* Direct Messages - Clickable */}
             <button
-              onClick={() => router.push('/dashboard/coach/messages')}
+              onClick={() => navigate('/dashboard/coach/messages')}
               className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 hover:shadow-xl hover:border-orange-300 transition-all cursor-pointer text-left"
             >
               <div className="flex items-center justify-between">
@@ -432,7 +443,7 @@ export default function SecureAthleteProfilePage() {
             {/* Additional Metrics Row */}
             {/* Video Submissions - Clickable */}
             <button
-              onClick={() => router.push('/dashboard/coach/queue-bypass')}
+              onClick={() => navigate('/dashboard/coach/queue-bypass')}
               className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 hover:shadow-xl hover:border-red-300 transition-all cursor-pointer text-left"
             >
               <div className="flex items-center justify-between">
@@ -451,7 +462,7 @@ export default function SecureAthleteProfilePage() {
 
             {/* Session Requests - Clickable */}
             <button
-              onClick={() => router.push('/dashboard/coach/live-sessions')}
+              onClick={() => navigate('/dashboard/coach/live-sessions')}
               className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 hover:shadow-xl hover:border-indigo-300 transition-all cursor-pointer text-left"
             >
               <div className="flex items-center justify-between">
