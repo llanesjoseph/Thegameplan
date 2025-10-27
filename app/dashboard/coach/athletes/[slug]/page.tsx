@@ -89,8 +89,18 @@ export default function SecureAthleteProfilePage() {
   // Helper function for navigation that handles embedded context
   const navigate = (path: string) => {
     if (embedded && typeof window !== 'undefined') {
-      // If embedded in iframe, navigate the parent window
-      window.parent.postMessage({ type: 'NAVIGATE', path }, window.location.origin)
+      // If embedded in iframe, change the section in parent coach dashboard
+      // Map paths to section IDs
+      const pathToSection: Record<string, string> = {
+        '/dashboard/coach/lessons/library': 'lesson-library',
+        '/dashboard/coach/messages': 'messages',
+        '/dashboard/coach/queue-bypass': 'video-queue',
+        '/dashboard/coach/live-sessions': 'live-sessions'
+      }
+      const sectionId = pathToSection[path]
+      if (sectionId) {
+        window.parent.postMessage({ type: 'SET_SECTION', sectionId }, window.location.origin)
+      }
     } else {
       // Normal navigation
       router.push(path)
@@ -390,34 +400,34 @@ export default function SecureAthleteProfilePage() {
               </div>
             </button>
 
-            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+            <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-lg border border-gray-300 p-6 opacity-80">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Completion Rate</p>
-                  <p className="text-2xl font-bold" style={{ color: '#000000' }}>
+                  <p className="text-sm text-gray-500">Completion Rate</p>
+                  <p className="text-2xl font-bold text-gray-700">
                     {analytics.completionRate}%
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-gray-400 mt-1">
                     {analytics.engagementTrend === 'up' ? '📈 Growing' : analytics.engagementTrend === 'down' ? '📉 Declining' : '➡️ Stable'}
                   </p>
                 </div>
-                <TrendingUp className="w-8 h-8 text-green-600" />
+                <TrendingUp className="w-8 h-8 text-gray-400" />
               </div>
             </div>
 
-            {/* AI Questions - Clickable */}
-            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+            {/* AI Questions - Non-clickable */}
+            <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-lg border border-gray-300 p-6 opacity-80">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">AI Questions</p>
-                  <p className="text-2xl font-bold" style={{ color: '#000000' }}>
+                  <p className="text-sm text-gray-500">AI Questions</p>
+                  <p className="text-2xl font-bold text-gray-700">
                     {analytics.aiQuestionsAsked}
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-gray-400 mt-1">
                     {analytics.aiQuestionsAsked > 20 ? 'High engagement' : analytics.aiQuestionsAsked > 10 ? 'Moderate' : 'Getting started'}
                   </p>
                 </div>
-                <Brain className="w-8 h-8 text-purple-600" />
+                <Brain className="w-8 h-8 text-gray-400" />
               </div>
             </div>
 
@@ -479,11 +489,11 @@ export default function SecureAthleteProfilePage() {
               </div>
             </button>
 
-            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+            <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-lg border border-gray-300 p-6 opacity-80">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Last Active</p>
-                  <p className="text-2xl font-bold" style={{ color: '#000000' }}>
+                  <p className="text-sm text-gray-500">Last Active</p>
+                  <p className="text-2xl font-bold text-gray-700">
                     {analytics.daysSinceLastActive !== null
                       ? analytics.daysSinceLastActive === 0
                         ? 'Today'
@@ -491,26 +501,26 @@ export default function SecureAthleteProfilePage() {
                       : 'Never'
                     }
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-gray-400 mt-1">
                     Member for {analytics.daysSinceJoined || 0} days
                   </p>
                 </div>
-                <Activity className="w-8 h-8 text-teal-600" />
+                <Activity className="w-8 h-8 text-gray-400" />
               </div>
             </div>
 
-            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+            <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-lg border border-gray-300 p-6 opacity-80">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Engagement Score</p>
-                  <p className="text-2xl font-bold" style={{ color: '#000000' }}>
+                  <p className="text-sm text-gray-500">Engagement Score</p>
+                  <p className="text-2xl font-bold text-gray-700">
                     {Math.round(analytics.averageEngagement)}%
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-gray-400 mt-1">
                     {analytics.averageEngagement > 75 ? '⭐ Excellent' : analytics.averageEngagement > 50 ? '👍 Good' : '💪 Needs boost'}
                   </p>
                 </div>
-                <Zap className="w-8 h-8 text-yellow-600" />
+                <Zap className="w-8 h-8 text-gray-400" />
               </div>
             </div>
           </div>

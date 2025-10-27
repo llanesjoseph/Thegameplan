@@ -201,8 +201,12 @@ export default function CoachUnifiedDashboard() {
         // Navigate to home section
         setActiveSection('home')
         console.log('Navigating to home from error modal')
+      } else if (event.data.type === 'SET_SECTION' && event.data.sectionId) {
+        // Change the active section (keeps iframe view)
+        setActiveSection(event.data.sectionId)
+        console.log('Switching to section:', event.data.sectionId)
       } else if (event.data.type === 'NAVIGATE' && event.data.path) {
-        // Navigate to the requested path
+        // Navigate to the requested path (full page navigation)
         router.push(event.data.path)
         console.log('Navigating to:', event.data.path)
       }
