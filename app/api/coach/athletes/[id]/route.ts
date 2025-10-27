@@ -210,10 +210,58 @@ export async function GET(
     }
 
     // Calculate activity streak (days since last activity)
+    // Check multiple sources: login, chat conversations, messages, lessons
     let daysSinceLastActive = null
+    let lastActivityDate: Date | null = null
+
+    // Check login time
     if (athleteData?.lastLoginAt) {
-      const lastActive = athleteData.lastLoginAt.toDate?.() || new Date(athleteData.lastLoginAt)
-      daysSinceLastActive = Math.floor((Date.now() - lastActive.getTime()) / (1000 * 60 * 60 * 24))
+      const loginDate = athleteData.lastLoginAt.toDate?.() || new Date(athleteData.lastLoginAt)
+      lastActivityDate = loginDate
+    }
+
+    // Check chat conversation activity
+    try {
+      const recentChatsSnapshot = await adminDb
+        .collection('chatConversations')
+        .where('userId', '==', athleteId)
+        .orderBy('updatedAt', 'desc')
+        .limit(1)
+        .get()
+
+      if (!recentChatsSnapshot.empty) {
+        const chatDate = recentChatsSnapshot.docs[0].data()?.updatedAt?.toDate?.()
+        if (chatDate && (!lastActivityDate || chatDate > lastActivityDate)) {
+          lastActivityDate = chatDate
+        }
+      }
+    } catch (error) {
+      // Index might not exist, continue
+      console.warn('Could not check chat activity:', error)
+    }
+
+    // Check message activity
+    try {
+      const recentMessagesSnapshot = await adminDb
+        .collection('messages')
+        .where('senderId', '==', athleteId)
+        .orderBy('createdAt', 'desc')
+        .limit(1)
+        .get()
+
+      if (!recentMessagesSnapshot.empty) {
+        const msgDate = recentMessagesSnapshot.docs[0].data()?.createdAt?.toDate?.()
+        if (msgDate && (!lastActivityDate || msgDate > lastActivityDate)) {
+          lastActivityDate = msgDate
+        }
+      }
+    } catch (error) {
+      console.warn('Could not check message activity:', error)
+    }
+
+    // Calculate days since last activity
+    if (lastActivityDate) {
+      daysSinceLastActive = Math.floor((Date.now() - lastActivityDate.getTime()) / (1000 * 60 * 60 * 24))
     }
 
     // Build analytics object for athlete profile dashboard
