@@ -427,6 +427,69 @@ export default function LiveSessionsPage() {
                           Reschedule
                         </button>
                       )}
+                      {request.status === 'completed' && (
+                        <>
+                          <button
+                            onClick={() => {
+                              setSelectedRequest(request)
+                              setResponseData({
+                                response: request.coachResponse || '',
+                                meetingLink: request.meetingLink || '',
+                                action: 'edit',
+                                rescheduleDate: '',
+                                rescheduleTime: ''
+                              })
+                            }}
+                            className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-md"
+                          >
+                            <MessageSquare className="w-4 h-4" />
+                            Add Notes
+                          </button>
+                          <button
+                            onClick={async () => {
+                              if (confirm('Archive this session? It will still be visible in the list but marked as archived.')) {
+                                try {
+                                  await updateDoc(doc(db, 'liveSessionRequests', request.id), {
+                                    archived: true,
+                                    updatedAt: new Date()
+                                  })
+                                  await loadSessionRequests()
+                                  alert('Session archived successfully!')
+                                } catch (error) {
+                                  console.error('Error archiving session:', error)
+                                  alert('Failed to archive session')
+                                }
+                              }
+                            }}
+                            className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors shadow-md text-sm"
+                          >
+                            Archive
+                          </button>
+                        </>
+                      )}
+                      {request.status === 'cancelled' && (
+                        <button
+                          onClick={async () => {
+                            if (confirm('Delete this cancelled session permanently?')) {
+                              try {
+                                await updateDoc(doc(db, 'liveSessionRequests', request.id), {
+                                  deleted: true,
+                                  updatedAt: new Date()
+                                })
+                                await loadSessionRequests()
+                                alert('Session deleted successfully!')
+                              } catch (error) {
+                                console.error('Error deleting session:', error)
+                                alert('Failed to delete session')
+                              }
+                            }
+                          }}
+                          className="flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors shadow-md text-sm"
+                        >
+                          <X className="w-4 h-4" />
+                          Delete
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
