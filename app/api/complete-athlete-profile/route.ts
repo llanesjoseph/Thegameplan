@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { nanoid } from 'nanoid'
 import { auth, adminDb } from '@/lib/firebase.admin'
 import { sendCoachNotificationEmail, sendAthleteWelcomeEmail } from '@/lib/email-service'
+import { generateSlug } from '@/lib/slug-utils'
 
 // Force dynamic rendering for API route
 export const dynamic = 'force-dynamic'
@@ -122,6 +123,25 @@ export async function POST(request: NextRequest) {
 
     await adminDb.collection('athletes').doc(athleteId).set(athleteData)
     console.log(`✅ [COMPLETE-PROFILE] Created athlete document: [ATHLETE_ID]`)
+
+    // Generate and store slug mapping for secure URLs
+    const displayName = `${athleteProfile.firstName || ''} ${athleteProfile.lastName || ''}`.trim() || athleteProfile.displayName
+    const slug = generateSlug(displayName, userRecord.uid)
+
+    try {
+      await adminDb.collection('slug_mappings').doc(slug).set({
+        slug,
+        targetId: userRecord.uid,
+        displayName,
+        entityType: 'athlete',
+        createdAt: now,
+        lastUsed: now
+      })
+      console.log(`✅ [COMPLETE-PROFILE] Created slug mapping: ${slug} -> ${userRecord.uid}`)
+    } catch (slugError) {
+      console.error('❌ [COMPLETE-PROFILE] Failed to create slug mapping:', slugError)
+      // Don't fail the whole request if slug creation fails
+    }
 
     // Check if user document already exists (in case they're also a coach)
     const existingUserDoc = await adminDb.collection('users').doc(userRecord.uid).get()
