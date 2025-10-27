@@ -116,18 +116,29 @@ export async function GET(
       ? Math.round((completedLessons.length / availableLessons.length) * 100)
       : 0
 
-    // Get AI questions count
+    // Get AI questions count from chatConversations
     let aiQuestionsAsked = 0
     try {
-      const aiConversationsSnapshot = await adminDb
-        .collection('ai_conversations')
+      const chatConversationsSnapshot = await adminDb
+        .collection('chatConversations')
         .where('userId', '==', athleteId)
         .get()
 
-      aiConversationsSnapshot.docs.forEach(doc => {
-        const messages = doc.data()?.messages || []
-        aiQuestionsAsked += messages.filter((m: any) => m.role === 'user').length
-      })
+      // For each conversation, count user messages
+      for (const convDoc of chatConversationsSnapshot.docs) {
+        try {
+          const messagesSnapshot = await adminDb
+            .collection('chatConversations')
+            .doc(convDoc.id)
+            .collection('messages')
+            .where('type', '==', 'user')
+            .get()
+
+          aiQuestionsAsked += messagesSnapshot.size
+        } catch (msgError) {
+          console.warn(`Could not fetch messages for conversation ${convDoc.id}:`, msgError)
+        }
+      }
     } catch (error) {
       console.warn('Could not fetch AI questions:', error)
     }
@@ -173,25 +184,63 @@ export async function GET(
       recentLiveSessions: liveSessions
     }
 
+    // Get video submissions count
+    let videoSubmissionsCount = 0
+    let pendingReviewsCount = 0
+    try {
+      const submissionsSnapshot = await adminDb
+        .collection('submissions')
+        .where('athleteId', '==', athleteId)
+        .get()
+
+      videoSubmissionsCount = submissionsSnapshot.size
+      pendingReviewsCount = submissionsSnapshot.docs.filter(doc =>
+        doc.data().status === 'pending' || doc.data().status === 'submitted'
+      ).length
+    } catch (error) {
+      console.warn('Could not fetch video submissions:', error)
+    }
+
+    // Calculate days since account created
+    let daysSinceJoined = 0
+    if (athleteData?.createdAt) {
+      const createdDate = athleteData.createdAt.toDate?.() || new Date(athleteData.createdAt)
+      const daysDiff = Math.floor((Date.now() - createdDate.getTime()) / (1000 * 60 * 60 * 24))
+      daysSinceJoined = daysDiff
+    }
+
+    // Calculate activity streak (days since last activity)
+    let daysSinceLastActive = null
+    if (athleteData?.lastLoginAt) {
+      const lastActive = athleteData.lastLoginAt.toDate?.() || new Date(athleteData.lastLoginAt)
+      daysSinceLastActive = Math.floor((Date.now() - lastActive.getTime()) / (1000 * 60 * 60 * 24))
+    }
+
     // Build analytics object for athlete profile dashboard
     const analytics = {
       totalLessons: availableLessons.length,
       completedLessons: completedLessons.length,
       completionRate,
       lastActivity: athleteData?.lastLoginAt?.toDate?.()?.toISOString() || null,
+      daysSinceLastActive,
+      daysSinceJoined,
       aiQuestionsAsked,
       averageEngagement: completionRate, // Use completion rate as engagement metric
       sessionRequestsPending: liveSessions.filter((s: any) => s.status === 'pending').length,
       sessionRequestsCompleted: liveSessions.filter((s: any) => s.status === 'completed').length,
       totalMessages,
-      messagesLastWeek: 0, // TODO: implement if needed
+      messagesLastWeek: 0, // TODO: implement time-based filtering
+      videoSubmissions: videoSubmissionsCount,
+      pendingReviews: pendingReviewsCount,
       contentByType: {
         lessons: availableLessons.length,
-        videos: 0, // TODO: implement if needed
-        articles: 0 // TODO: implement if needed
+        videos: videoSubmissionsCount,
+        articles: 0 // TODO: implement if articles are tracked separately
       },
       engagementTrend: completionRate > 50 ? 'up' : completionRate > 0 ? 'stable' : 'down',
-      weeklyActivity: [0, 0, 0, 0, 0, 0, 0] // TODO: implement weekly breakdown
+      weeklyActivity: [0, 0, 0, 0, 0, 0, 0], // TODO: implement weekly breakdown
+      // Messaging status for UI
+      messagingEnabled: athleteData?.messagingEnabled === true
     }
 
     return NextResponse.json({

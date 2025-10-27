@@ -33,12 +33,16 @@ interface AnalyticsData {
   completedLessons: number
   completionRate: number
   lastActivity: string | null
+  daysSinceLastActive: number | null
+  daysSinceJoined: number
   aiQuestionsAsked: number
   averageEngagement: number
   sessionRequestsPending: number
   sessionRequestsCompleted: number
   totalMessages: number
   messagesLastWeek: number
+  videoSubmissions?: number
+  pendingReviews?: number
   contentByType: {
     lessons: number
     videos: number
@@ -46,6 +50,7 @@ interface AnalyticsData {
   }
   engagementTrend: 'up' | 'down' | 'stable'
   weeklyActivity: number[]
+  messagingEnabled?: boolean
 }
 
 interface AthleteProfile {
@@ -356,6 +361,9 @@ export default function SecureAthleteProfilePage() {
                   <p className="text-2xl font-bold" style={{ color: '#000000' }}>
                     {analytics.totalLessons}
                   </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {analytics.completedLessons} completed
+                  </p>
                 </div>
                 <BookOpen className="w-8 h-8 text-blue-600" />
               </div>
@@ -367,6 +375,9 @@ export default function SecureAthleteProfilePage() {
                   <p className="text-sm text-gray-600">Completion Rate</p>
                   <p className="text-2xl font-bold" style={{ color: '#000000' }}>
                     {analytics.completionRate}%
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {analytics.engagementTrend === 'up' ? '📈 Growing' : analytics.engagementTrend === 'down' ? '📉 Declining' : '➡️ Stable'}
                   </p>
                 </div>
                 <TrendingUp className="w-8 h-8 text-green-600" />
@@ -380,6 +391,9 @@ export default function SecureAthleteProfilePage() {
                   <p className="text-2xl font-bold" style={{ color: '#000000' }}>
                     {analytics.aiQuestionsAsked}
                   </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {analytics.aiQuestionsAsked > 20 ? 'High engagement' : analytics.aiQuestionsAsked > 10 ? 'Moderate' : 'Getting started'}
+                  </p>
                 </div>
                 <Brain className="w-8 h-8 text-purple-600" />
               </div>
@@ -388,12 +402,81 @@ export default function SecureAthleteProfilePage() {
             <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Messages</p>
+                  <p className="text-sm text-gray-600">Direct Messages</p>
                   <p className="text-2xl font-bold" style={{ color: '#000000' }}>
                     {analytics.totalMessages}
                   </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Coach ↔ Athlete
+                  </p>
                 </div>
                 <MessageCircle className="w-8 h-8 text-orange-600" />
+              </div>
+            </div>
+
+            {/* Additional Metrics Row */}
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">Video Submissions</p>
+                  <p className="text-2xl font-bold" style={{ color: '#000000' }}>
+                    {analytics.videoSubmissions || 0}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {analytics.pendingReviews || 0} pending review
+                  </p>
+                </div>
+                <Video className="w-8 h-8 text-red-600" />
+              </div>
+            </div>
+
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">Session Requests</p>
+                  <p className="text-2xl font-bold" style={{ color: '#000000' }}>
+                    {analytics.sessionRequestsPending + analytics.sessionRequestsCompleted}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {analytics.sessionRequestsPending} pending
+                  </p>
+                </div>
+                <Calendar className="w-8 h-8 text-indigo-600" />
+              </div>
+            </div>
+
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">Last Active</p>
+                  <p className="text-2xl font-bold" style={{ color: '#000000' }}>
+                    {analytics.daysSinceLastActive !== null
+                      ? analytics.daysSinceLastActive === 0
+                        ? 'Today'
+                        : `${analytics.daysSinceLastActive}d`
+                      : 'Never'
+                    }
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Member for {analytics.daysSinceJoined || 0} days
+                  </p>
+                </div>
+                <Activity className="w-8 h-8 text-teal-600" />
+              </div>
+            </div>
+
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">Engagement Score</p>
+                  <p className="text-2xl font-bold" style={{ color: '#000000' }}>
+                    {Math.round(analytics.averageEngagement)}%
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {analytics.averageEngagement > 75 ? '⭐ Excellent' : analytics.averageEngagement > 50 ? '👍 Good' : '💪 Needs boost'}
+                  </p>
+                </div>
+                <Zap className="w-8 h-8 text-yellow-600" />
               </div>
             </div>
           </div>
@@ -401,30 +484,66 @@ export default function SecureAthleteProfilePage() {
 
         {/* AI Chat Summary */}
         <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 mb-8">
-          <h3 className="text-xl font-semibold mb-4" style={{ color: '#000000' }}>
+          <h3 className="text-xl font-semibold mb-4 flex items-center gap-2" style={{ color: '#000000' }}>
+            <Sparkles className="w-5 h-5 text-purple-600" />
             AI Chat Summary
           </h3>
           <div className="bg-gray-50 rounded-lg p-4 mb-4">
             <p className="text-gray-700">{aiChatSummary}</p>
           </div>
-          
+
+          {/* Messaging Status Warning */}
+          {analytics && analytics.messagingEnabled === false && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+              <div className="flex items-start gap-2">
+                <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium text-yellow-800">Messaging Disabled</p>
+                  <p className="text-xs text-yellow-700 mt-1">
+                    This athlete has not enabled messaging yet. They need to enable it in their settings before you can send direct messages.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Message Input */}
           <div className="flex gap-3">
             <input
               type="text"
               value={messageText}
               onChange={(e) => setMessageText(e.target.value)}
-              placeholder="Send a message to this athlete..."
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault()
+                  sendMessage()
+                }
+              }}
+              placeholder={analytics?.messagingEnabled === false ? "Messaging disabled - athlete must enable in settings" : "Send a message to this athlete..."}
+              disabled={analytics?.messagingEnabled === false}
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
             />
             <button
               onClick={sendMessage}
-              disabled={sendingMessage || !messageText.trim()}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              disabled={sendingMessage || !messageText.trim() || analytics?.messagingEnabled === false}
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
             >
-              {sendingMessage ? 'Sending...' : 'Send'}
+              {sendingMessage ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  Sending...
+                </>
+              ) : (
+                <>
+                  <Send className="w-4 h-4" />
+                  Send
+                </>
+              )}
             </button>
           </div>
+          <p className="text-xs text-gray-500 mt-2">
+            💡 Press Enter to send, Shift+Enter for new line
+          </p>
         </div>
       </main>
     </div>
