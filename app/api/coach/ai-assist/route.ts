@@ -132,6 +132,17 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Validate prompts were set
+    if (!systemPrompt || !userPrompt) {
+      console.error('Prompts not set for action:', action, 'context:', context)
+      return NextResponse.json(
+        { error: `Invalid context '${context}' for action '${action}'` },
+        { status: 400 }
+      )
+    }
+
+    console.log('[AI-ASSIST] Calling Anthropic API:', { action, context, hasTimecodes: !!timecodes })
+
     // Call Anthropic API
     const anthropicResponse = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -155,9 +166,9 @@ export async function POST(request: NextRequest) {
 
     if (!anthropicResponse.ok) {
       const errorData = await anthropicResponse.json().catch(() => ({}))
-      console.error('Anthropic API error:', errorData)
+      console.error('[AI-ASSIST] Anthropic API error:', anthropicResponse.status, errorData)
       return NextResponse.json(
-        { error: 'AI service error' },
+        { error: `AI service error: ${errorData.error?.message || 'Unknown error'}` },
         { status: 500 }
       )
     }
@@ -165,13 +176,15 @@ export async function POST(request: NextRequest) {
     const anthropicData = await anthropicResponse.json()
     const generatedText = anthropicData.content[0].text
 
+    console.log('[AI-ASSIST] Success:', { action, context, textLength: generatedText.length })
+
     return NextResponse.json({
       success: true,
       text: generatedText
     })
 
   } catch (error: any) {
-    console.error('Error in AI assist:', error)
+    console.error('[AI-ASSIST] Error:', error)
     return NextResponse.json(
       { error: error.message || 'Failed to process AI request' },
       { status: 500 }
