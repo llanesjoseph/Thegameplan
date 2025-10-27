@@ -116,6 +116,34 @@ export async function GET(
       ? Math.round((completedLessons.length / availableLessons.length) * 100)
       : 0
 
+    // Get AI questions count
+    let aiQuestionsAsked = 0
+    try {
+      const aiConversationsSnapshot = await adminDb
+        .collection('ai_conversations')
+        .where('userId', '==', athleteId)
+        .get()
+
+      aiConversationsSnapshot.docs.forEach(doc => {
+        const messages = doc.data()?.messages || []
+        aiQuestionsAsked += messages.filter((m: any) => m.role === 'user').length
+      })
+    } catch (error) {
+      console.warn('Could not fetch AI questions:', error)
+    }
+
+    // Get messages count
+    let totalMessages = 0
+    try {
+      const messagesSnapshot = await adminDb
+        .collection('messages')
+        .where('athleteId', '==', athleteId)
+        .get()
+      totalMessages = messagesSnapshot.size
+    } catch (error) {
+      console.warn('Could not fetch messages:', error)
+    }
+
     const athlete = {
       id: athleteDoc.id,
       displayName: athleteData?.displayName || athleteData?.name || 'Unknown Athlete',
@@ -145,9 +173,31 @@ export async function GET(
       recentLiveSessions: liveSessions
     }
 
+    // Build analytics object for athlete profile dashboard
+    const analytics = {
+      totalLessons: availableLessons.length,
+      completedLessons: completedLessons.length,
+      completionRate,
+      lastActivity: athleteData?.lastLoginAt?.toDate?.()?.toISOString() || null,
+      aiQuestionsAsked,
+      averageEngagement: completionRate, // Use completion rate as engagement metric
+      sessionRequestsPending: liveSessions.filter((s: any) => s.status === 'pending').length,
+      sessionRequestsCompleted: liveSessions.filter((s: any) => s.status === 'completed').length,
+      totalMessages,
+      messagesLastWeek: 0, // TODO: implement if needed
+      contentByType: {
+        lessons: availableLessons.length,
+        videos: 0, // TODO: implement if needed
+        articles: 0 // TODO: implement if needed
+      },
+      engagementTrend: completionRate > 50 ? 'up' : completionRate > 0 ? 'stable' : 'down',
+      weeklyActivity: [0, 0, 0, 0, 0, 0, 0] // TODO: implement weekly breakdown
+    }
+
     return NextResponse.json({
       success: true,
-      athlete
+      athlete,
+      analytics // Add analytics for athlete profile page compatibility
     })
 
   } catch (error: any) {
