@@ -24,7 +24,8 @@ import {
   CheckCircle2,
   AlertCircle,
   Brain,
-  Sparkles
+  Sparkles,
+  Video
 } from 'lucide-react'
 import AppHeader from '@/components/ui/AppHeader'
 
