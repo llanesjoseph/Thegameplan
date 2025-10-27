@@ -360,7 +360,11 @@ export default function SecureAthleteProfilePage() {
         )}
         {analytics && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+            {/* Total Lessons - Clickable */}
+            <button
+              onClick={() => router.push('/dashboard/coach/lessons/library')}
+              className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 hover:shadow-xl hover:border-blue-300 transition-all cursor-pointer text-left"
+            >
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Total Lessons</p>
@@ -373,7 +377,7 @@ export default function SecureAthleteProfilePage() {
                 </div>
                 <BookOpen className="w-8 h-8 text-blue-600" />
               </div>
-            </div>
+            </button>
 
             <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
               <div className="flex items-center justify-between">
@@ -390,6 +394,7 @@ export default function SecureAthleteProfilePage() {
               </div>
             </div>
 
+            {/* AI Questions - Clickable */}
             <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -405,7 +410,11 @@ export default function SecureAthleteProfilePage() {
               </div>
             </div>
 
-            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+            {/* Direct Messages - Clickable */}
+            <button
+              onClick={() => router.push('/dashboard/coach/messages')}
+              className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 hover:shadow-xl hover:border-orange-300 transition-all cursor-pointer text-left"
+            >
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Direct Messages</p>
@@ -418,10 +427,14 @@ export default function SecureAthleteProfilePage() {
                 </div>
                 <MessageCircle className="w-8 h-8 text-orange-600" />
               </div>
-            </div>
+            </button>
 
             {/* Additional Metrics Row */}
-            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+            {/* Video Submissions - Clickable */}
+            <button
+              onClick={() => router.push('/dashboard/coach/queue-bypass')}
+              className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 hover:shadow-xl hover:border-red-300 transition-all cursor-pointer text-left"
+            >
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Video Submissions</p>
@@ -434,9 +447,13 @@ export default function SecureAthleteProfilePage() {
                 </div>
                 <Video className="w-8 h-8 text-red-600" />
               </div>
-            </div>
+            </button>
 
-            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+            {/* Session Requests - Clickable */}
+            <button
+              onClick={() => router.push('/dashboard/coach/live-sessions')}
+              className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 hover:shadow-xl hover:border-indigo-300 transition-all cursor-pointer text-left"
+            >
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Session Requests</p>
@@ -449,7 +466,7 @@ export default function SecureAthleteProfilePage() {
                 </div>
                 <Calendar className="w-8 h-8 text-indigo-600" />
               </div>
-            </div>
+            </button>
 
             <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
               <div className="flex items-center justify-between">
