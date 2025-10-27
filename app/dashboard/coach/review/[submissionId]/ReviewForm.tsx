@@ -6,7 +6,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import { Loader2, Plus, Trash2, Clock, Save, Send, X, CheckCircle, ArrowLeft, Sparkles, Wand2 } from 'lucide-react';
+import { Loader2, Plus, Trash2, Clock, Save, Send, X, CheckCircle, ArrowLeft, Sparkles, Wand2, FileText } from 'lucide-react';
 import {
   Submission,
   Review,
@@ -225,6 +225,64 @@ export default function ReviewForm({
     } catch (error) {
       console.error('AI assist error:', error);
       toast.error('Failed to process with AI. Please try again.');
+    } finally {
+      // Clear loading state
+      if (context === 'summary') {
+        setAiLoading(prev => ({ ...prev, overallFeedback: false }));
+      } else if (context === 'nextSteps') {
+        setAiLoading(prev => ({ ...prev, nextSteps: false }));
+      }
+    }
+  };
+
+  // Compile timestamped notes into feedback
+  const handleCompileNotes = async (
+    context: 'summary' | 'nextSteps',
+    onSuccess: (newText: string) => void
+  ) => {
+    if (timecodes.length === 0) {
+      toast.error('No timestamped notes to compile');
+      return;
+    }
+
+    if (!user) return;
+
+    // Set loading state
+    if (context === 'summary') {
+      setAiLoading(prev => ({ ...prev, overallFeedback: true }));
+    } else if (context === 'nextSteps') {
+      setAiLoading(prev => ({ ...prev, nextSteps: true }));
+    }
+
+    try {
+      const token = await user.getIdToken();
+      const response = await fetch('/api/coach/ai-assist', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          action: 'compile',
+          context,
+          timecodes: timecodes.map(tc => ({
+            timestamp: tc.timestamp,
+            type: tc.type,
+            comment: tc.comment
+          }))
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to compile notes');
+      }
+
+      const data = await response.json();
+      onSuccess(data.text);
+      toast.success('Notes compiled successfully!');
+    } catch (error) {
+      console.error('Compile notes error:', error);
+      toast.error('Failed to compile notes. Please try again.');
     } finally {
       // Clear loading state
       if (context === 'summary') {
@@ -522,6 +580,21 @@ export default function ReviewForm({
                 Summary Feedback <span className="text-red-500">*</span>
               </label>
               <div className="flex items-center gap-2">
+                {timecodes.length > 0 && (
+                  <button
+                    onClick={() => handleCompileNotes('summary', setOverallFeedback)}
+                    disabled={aiLoading.overallFeedback}
+                    className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-green-600 bg-green-50 hover:bg-green-100 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    title="Generate summary from your timestamped notes"
+                  >
+                    {aiLoading.overallFeedback ? (
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                    ) : (
+                      <FileText className="w-3 h-3" />
+                    )}
+                    <span>From Notes</span>
+                  </button>
+                )}
                 <button
                   onClick={() => handleAIAssist('transform', 'summary', overallFeedback, setOverallFeedback, 'overallFeedback')}
                   disabled={aiLoading.overallFeedback || !overallFeedback.trim()}
@@ -568,6 +641,21 @@ export default function ReviewForm({
                 Next Steps <span className="text-red-500">*</span>
               </label>
               <div className="flex items-center gap-2">
+                {timecodes.length > 0 && (
+                  <button
+                    onClick={() => handleCompileNotes('nextSteps', setNextSteps)}
+                    disabled={aiLoading.nextSteps}
+                    className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-green-600 bg-green-50 hover:bg-green-100 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    title="Generate next steps from your timestamped notes"
+                  >
+                    {aiLoading.nextSteps ? (
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                    ) : (
+                      <FileText className="w-3 h-3" />
+                    )}
+                    <span>From Notes</span>
+                  </button>
+                )}
                 <button
                   onClick={() => handleAIAssist('transform', 'nextSteps', nextSteps, setNextSteps, 'nextSteps')}
                   disabled={aiLoading.nextSteps || !nextSteps.trim()}

@@ -5,10 +5,17 @@ import { auth } from '@/lib/firebase.admin'
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
+interface TimecodeNote {
+  timestamp: number
+  type: string
+  comment: string
+}
+
 interface AIAssistRequest {
-  text: string
-  action: 'transform' | 'polish'
+  text?: string
+  action: 'transform' | 'polish' | 'compile'
   context: string // 'summary' | 'nextSteps' | 'strength' | 'improvement'
+  timecodes?: TimecodeNote[]
 }
 
 export async function POST(request: NextRequest) {
@@ -37,11 +44,26 @@ export async function POST(request: NextRequest) {
     }
 
     const body: AIAssistRequest = await request.json()
-    const { text, action, context } = body
+    const { text, action, context, timecodes } = body
 
-    if (!text || !action || !context) {
+    if (!action || !context) {
       return NextResponse.json(
         { error: 'Missing required fields' },
+        { status: 400 }
+      )
+    }
+
+    // Validate based on action type
+    if (action === 'compile' && (!timecodes || timecodes.length === 0)) {
+      return NextResponse.json(
+        { error: 'Timecodes required for compile action' },
+        { status: 400 }
+      )
+    }
+
+    if ((action === 'transform' || action === 'polish') && !text) {
+      return NextResponse.json(
+        { error: 'Text required for transform/polish actions' },
         { status: 400 }
       )
     }
@@ -59,7 +81,26 @@ export async function POST(request: NextRequest) {
     let systemPrompt = ''
     let userPrompt = ''
 
-    if (action === 'transform') {
+    if (action === 'compile') {
+      // Compile timestamped notes into coherent feedback
+      const formatTimestamp = (seconds: number) => {
+        const mins = Math.floor(seconds / 60)
+        const secs = Math.floor(seconds % 60)
+        return `${mins}:${secs.toString().padStart(2, '0')}`
+      }
+
+      const notesText = timecodes!
+        .map(tc => `[${formatTimestamp(tc.timestamp)}] (${tc.type}) ${tc.comment}`)
+        .join('\n')
+
+      if (context === 'summary') {
+        systemPrompt = 'You are a professional athletic coach assistant helping synthesize timestamped video review notes into comprehensive, encouraging summary feedback for athletes.'
+        userPrompt = `I've reviewed an athlete's video submission and made the following timestamped notes. Please compile these notes into a cohesive, well-structured summary feedback. The feedback should be encouraging, specific, and actionable. Group related observations together and maintain a supportive coaching tone:\n\n${notesText}\n\nProvide only the compiled summary feedback without any preamble or explanation.`
+      } else if (context === 'nextSteps') {
+        systemPrompt = 'You are a professional athletic coach assistant helping create actionable next steps from timestamped video review notes.'
+        userPrompt = `Based on these timestamped notes from a video review, create clear, specific next steps for the athlete to focus on. Prioritize the most important areas for improvement:\n\n${notesText}\n\nProvide only the next steps without any preamble or explanation.`
+      }
+    } else if (action === 'transform') {
       // Transform rough notes into polished responses
       if (context === 'summary') {
         systemPrompt = 'You are a professional athletic coach assistant helping transform rough notes into clear, constructive feedback for athletes. Your tone should be encouraging, specific, and actionable.'
