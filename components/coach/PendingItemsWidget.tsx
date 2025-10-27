@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Calendar, MessageSquare, AlertCircle, Clock } from 'lucide-react'
+import { Calendar, MessageSquare, AlertCircle, Clock, Video } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 
 interface PendingItemsWidgetProps {
@@ -10,7 +10,7 @@ interface PendingItemsWidgetProps {
 
 interface PendingItem {
   id: string
-  type: 'session_request' | 'message' | 'lesson_review'
+  type: 'session_request' | 'message' | 'lesson_review' | 'video_review'
   title: string
   subtitle: string
   time: string
@@ -54,6 +54,26 @@ export default function PendingItemsWidget({ onViewItem }: PendingItemsWidgetPro
         }
       }
 
+      // Load pending video reviews
+      const videosRes = await fetch('/api/coach/submissions', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      }).catch(() => null)
+
+      if (videosRes?.ok) {
+        const data = await videosRes.json()
+        const awaitingCount = data.awaitingCoach?.length || 0
+        if (awaitingCount > 0) {
+          items.push({
+            id: 'video-reviews',
+            type: 'video_review',
+            title: `${awaitingCount} Video ${awaitingCount === 1 ? 'Review' : 'Reviews'}`,
+            subtitle: 'Athlete videos waiting for feedback',
+            time: 'Pending',
+            urgent: true
+          })
+        }
+      }
+
       // TODO: Load other pending items (messages, lesson reviews, etc.)
 
       setPendingItems(items)
@@ -72,6 +92,8 @@ export default function PendingItemsWidget({ onViewItem }: PendingItemsWidgetPro
         return MessageSquare
       case 'lesson_review':
         return Clock
+      case 'video_review':
+        return Video
       default:
         return AlertCircle
     }
@@ -85,6 +107,8 @@ export default function PendingItemsWidget({ onViewItem }: PendingItemsWidgetPro
         return '#91A6EB'
       case 'lesson_review':
         return '#FF6B35'
+      case 'video_review':
+        return '#E53E3E'
       default:
         return '#666'
     }

@@ -42,6 +42,14 @@ export default function CoachHomePage() {
   const handleViewPendingItem = (type: string, itemId?: string) => {
     if (type === 'session_request' || itemId === 'session-requests') {
       handleQuickAction('live-sessions')
+    } else if (type === 'video_review' || itemId === 'video-reviews') {
+      // Navigate to video review queue
+      const route = '/dashboard/coach/queue-bypass'
+      if (isEmbedded) {
+        router.push(`${route}?embedded=true`)
+      } else {
+        router.push(route)
+      }
     }
     // Handle other types as needed
   }
