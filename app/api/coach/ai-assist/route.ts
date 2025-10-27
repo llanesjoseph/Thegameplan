@@ -68,9 +68,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get Anthropic API key from environment
-    const anthropicApiKey = process.env.ANTHROPIC_API_KEY
-    if (!anthropicApiKey) {
+    // Get OpenAI API key from environment
+    const openaiApiKey = process.env.OPENAI_API_KEY
+    if (!openaiApiKey) {
       return NextResponse.json(
         { error: 'AI service not configured' },
         { status: 500 }
@@ -141,21 +141,24 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log('[AI-ASSIST] Calling Anthropic API:', { action, context, hasTimecodes: !!timecodes })
+    console.log('[AI-ASSIST] Calling OpenAI API:', { action, context, hasTimecodes: !!timecodes })
 
-    // Call Anthropic API
-    const anthropicResponse = await fetch('https://api.anthropic.com/v1/messages', {
+    // Call OpenAI API
+    const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': anthropicApiKey,
-        'anthropic-version': '2023-06-01'
+        'Authorization': `Bearer ${openaiApiKey}`
       },
       body: JSON.stringify({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'gpt-4o',
         max_tokens: 1024,
-        system: systemPrompt,
+        temperature: 0.7,
         messages: [
+          {
+            role: 'system',
+            content: systemPrompt
+          },
           {
             role: 'user',
             content: userPrompt
@@ -164,17 +167,17 @@ export async function POST(request: NextRequest) {
       })
     })
 
-    if (!anthropicResponse.ok) {
-      const errorData = await anthropicResponse.json().catch(() => ({}))
-      console.error('[AI-ASSIST] Anthropic API error:', anthropicResponse.status, errorData)
+    if (!openaiResponse.ok) {
+      const errorData = await openaiResponse.json().catch(() => ({}))
+      console.error('[AI-ASSIST] OpenAI API error:', openaiResponse.status, errorData)
       return NextResponse.json(
         { error: `AI service error: ${errorData.error?.message || 'Unknown error'}` },
         { status: 500 }
       )
     }
 
-    const anthropicData = await anthropicResponse.json()
-    const generatedText = anthropicData.content[0].text
+    const openaiData = await openaiResponse.json()
+    const generatedText = openaiData.choices[0].message.content
 
     console.log('[AI-ASSIST] Success:', { action, context, textLength: generatedText.length })
 
