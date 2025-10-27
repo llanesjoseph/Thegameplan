@@ -184,19 +184,22 @@ export async function GET(
       recentLiveSessions: liveSessions
     }
 
-    // Get video submissions count
+    // Get video submissions count - only count submissions assigned to THIS coach
     let videoSubmissionsCount = 0
     let pendingReviewsCount = 0
     try {
       const submissionsSnapshot = await adminDb
         .collection('submissions')
         .where('athleteId', '==', athleteId)
+        .where('assignedCoachId', '==', userId)
         .get()
 
       videoSubmissionsCount = submissionsSnapshot.size
-      pendingReviewsCount = submissionsSnapshot.docs.filter(doc =>
-        doc.data().status === 'pending' || doc.data().status === 'submitted'
-      ).length
+      // Use same status filter as /api/coach/submissions (awaiting = not complete/reviewed)
+      pendingReviewsCount = submissionsSnapshot.docs.filter(doc => {
+        const status = doc.data().status
+        return !['complete', 'reviewed'].includes(status)
+      }).length
     } catch (error) {
       console.warn('Could not fetch video submissions:', error)
     }
