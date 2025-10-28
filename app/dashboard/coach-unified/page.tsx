@@ -438,9 +438,9 @@ export default function CoachUnifiedDashboard() {
                       )}
                     </div>
 
-                    {/* Badge positioned on outside of button */}
+                    {/* Badge positioned on right side of button */}
                     {(card as any).badge && (card as any).badge > 0 && (
-                      <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-white shadow-md">
+                      <div className="absolute -right-2 top-1/2 -translate-y-1/2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-white shadow-md">
                         {(card as any).badge}
                       </div>
                     )}

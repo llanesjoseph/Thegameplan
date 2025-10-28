@@ -585,10 +585,10 @@ export default function AthleteDashboard() {
                         </div>
                       </div>
 
-                      {/* Badge positioned on outside of button */}
+                      {/* Badge positioned on right side of button */}
                       {(tool as any).badge && (tool as any).badge > 0 && (
                         <span
-                          className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center border-2 border-white shadow-md"
+                          className="absolute -right-2 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center border-2 border-white shadow-md"
                         >
                           {(tool as any).badge}
                         </span>
