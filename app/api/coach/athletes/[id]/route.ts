@@ -221,6 +221,7 @@ export async function GET(
     if (athleteData?.lastLoginAt) {
       const loginDate = athleteData.lastLoginAt.toDate?.() || new Date(athleteData.lastLoginAt)
       lastActivityDate = loginDate
+      console.log(`✅ Found lastLoginAt: ${loginDate}`)
     }
 
     // Check chat conversation activity
@@ -236,6 +237,7 @@ export async function GET(
         const chatDate = recentChatsSnapshot.docs[0].data()?.updatedAt?.toDate?.()
         if (chatDate && (!lastActivityDate || chatDate > lastActivityDate)) {
           lastActivityDate = chatDate
+          console.log(`✅ Found chat activity: ${chatDate}`)
         }
       }
     } catch (error) {
@@ -256,15 +258,26 @@ export async function GET(
         const msgDate = recentMessagesSnapshot.docs[0].data()?.createdAt?.toDate?.()
         if (msgDate && (!lastActivityDate || msgDate > lastActivityDate)) {
           lastActivityDate = msgDate
+          console.log(`✅ Found message activity: ${msgDate}`)
         }
       }
     } catch (error) {
       console.warn('Could not check message activity:', error)
     }
 
+    // Fallback: Use createdAt if no activity found but user exists
+    if (!lastActivityDate && athleteData?.createdAt) {
+      const createdDate = athleteData.createdAt.toDate?.() || new Date(athleteData.createdAt)
+      lastActivityDate = createdDate
+      console.log(`⚠️ No activity found, using createdAt as fallback: ${createdDate}`)
+    }
+
     // Calculate days since last activity
     if (lastActivityDate) {
       daysSinceLastActive = Math.floor((Date.now() - lastActivityDate.getTime()) / (1000 * 60 * 60 * 24))
+      console.log(`📊 daysSinceLastActive calculated: ${daysSinceLastActive} days`)
+    } else {
+      console.warn('⚠️ No lastActivityDate found - will show "Never"')
     }
 
     // Build analytics object for athlete profile dashboard
