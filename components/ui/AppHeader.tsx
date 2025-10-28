@@ -269,24 +269,24 @@ export default function AppHeader({ className = '', title, subtitle }: AppHeader
   return (
     <>
 
-      <header className={`bg-white px-4 py-3 sm:py-4 shadow-sm ${className}`} role="banner">
-      <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
+      <header className={`bg-white px-4 py-3 sm:py-4 shadow-sm ${className} relative`} role="banner">
+      {/* AthLeap Logo - Locked to Top Left Corner */}
+      <button
+        onClick={handleLogoClick}
+        className="absolute top-2 left-2 hover:opacity-80 transition-opacity touch-manipulation z-50"
+        style={{ minHeight: '44px' }}
+        aria-label="Go to home"
+      >
+        <span className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent">
+          AthLeap
+        </span>
+      </button>
+
+      <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 pl-24 sm:pl-32">
         {/* Left Side - Title section */}
         <div className="flex items-center gap-3 sm:gap-6 w-full sm:w-auto">
-          {/* AthLeap Logo */}
-          <button
-            onClick={handleLogoClick}
-            className="flex items-center gap-2 hover:opacity-80 transition-opacity touch-manipulation"
-            style={{ minHeight: '44px' }}
-            aria-label="Go to home"
-          >
-            <span className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent">
-              AthLeap
-            </span>
-          </button>
-
           {title && (
-            <div className="border-l border-gray-300 pl-3 sm:pl-6 flex-1 sm:flex-none">
+            <div className="flex-1 sm:flex-none">
               <h1 className="text-xl sm:text-2xl font-bold text-gray-900 bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent">
                 {title}
               </h1>
