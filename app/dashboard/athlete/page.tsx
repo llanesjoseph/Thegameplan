@@ -554,24 +554,17 @@ export default function AthleteDashboard() {
                     <button
                       key={tool.id}
                       onClick={() => handleToolClick(tool.id)}
-                      className={`w-full text-left transition-all rounded-lg touch-manipulation active:scale-95 ${
+                      className={`w-full text-left transition-all rounded-lg touch-manipulation active:scale-95 relative ${
                         isActive ? 'bg-black/10 shadow-md' : 'hover:bg-gray-100/80'
                       }`}
                       style={{ minHeight: '44px' }}
                     >
                       <div className="flex items-center gap-3 p-3">
                         <div
-                          className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 relative"
+                          className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
                           style={{ backgroundColor: tool.color }}
                         >
                           <Icon className="w-4 h-4 text-white" />
-                          {(tool as any).badge && (tool as any).badge > 0 && (
-                            <span
-                              className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center border-2 border-white"
-                            >
-                              {(tool as any).badge}
-                            </span>
-                          )}
                         </div>
 
                         <div className="flex-1 min-w-0">
@@ -591,6 +584,15 @@ export default function AthleteDashboard() {
                           </p>
                         </div>
                       </div>
+
+                      {/* Badge positioned on outside of button */}
+                      {(tool as any).badge && (tool as any).badge > 0 && (
+                        <span
+                          className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center border-2 border-white shadow-md"
+                        >
+                          {(tool as any).badge}
+                        </span>
+                      )}
                     </button>
                   )
                 })}

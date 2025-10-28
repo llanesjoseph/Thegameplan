@@ -398,7 +398,7 @@ export default function CoachUnifiedDashboard() {
                         setActiveSection(card.id)
                       }
                     }}
-                    className={`w-full text-left transition-all rounded-sm touch-manipulation active:scale-95 ${
+                    className={`w-full text-left transition-all rounded-sm touch-manipulation active:scale-95 relative ${
                       isActive
                         ? 'bg-black/10 shadow-md'
                         : 'hover:bg-gray-100/80'
@@ -407,37 +407,23 @@ export default function CoachUnifiedDashboard() {
                     title={isSidebarCollapsed ? card.title : undefined}
                   >
                     <div className={`flex items-center gap-3 p-3 ${isSidebarCollapsed ? 'justify-center' : ''}`}>
-                      {/* Icon with badge */}
-                      <div className="relative flex-shrink-0">
+                      {/* Icon */}
+                      <div className="flex-shrink-0">
                         <div
                           className="w-8 h-8 rounded-sm flex items-center justify-center"
                           style={{ backgroundColor: card.color }}
                         >
                           <Icon className="w-4 h-4 text-white" />
                         </div>
-                        {/* Notification Badge */}
-                        {(card as any).badge && (card as any).badge > 0 && (
-                          <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-white">
-                            {(card as any).badge}
-                          </div>
-                        )}
                       </div>
 
                       {/* Text content - hidden when collapsed */}
                       {!isSidebarCollapsed && (
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <h3 className="text-sm font-medium truncate" style={{ color: '#000000' }}>
-                                {card.title}
-                              </h3>
-                              {/* Badge in title area */}
-                              {(card as any).badge && (card as any).badge > 0 && (
-                                <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-                                  {(card as any).badge}
-                                </span>
-                              )}
-                            </div>
+                            <h3 className="text-sm font-medium truncate" style={{ color: '#000000' }}>
+                              {card.title}
+                            </h3>
                             <ChevronRight
                               className={`w-4 h-4 flex-shrink-0 transition-transform ${
                                 isActive ? 'rotate-90' : ''
@@ -451,6 +437,13 @@ export default function CoachUnifiedDashboard() {
                         </div>
                       )}
                     </div>
+
+                    {/* Badge positioned on outside of button */}
+                    {(card as any).badge && (card as any).badge > 0 && (
+                      <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-white shadow-md">
+                        {(card as any).badge}
+                      </div>
+                    )}
                   </button>
                 )
               })}
