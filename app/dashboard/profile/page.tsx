@@ -777,18 +777,9 @@ function ProfilePageContent() {
                 placeholder="e.g., Elevating mental game through tactical intelligence"
                 maxLength={120}
               />
-            </div>
-
-            <div>
-              <label className="block text-sm mb-2" style={{ color: '#000000', opacity: 0.7 }}>Credentials & Background</label>
-              <textarea
-                value={profileData.coachingCredentials}
-                onChange={(e) => setProfileData(prev => ({ ...prev, coachingCredentials: e.target.value }))}
-                className="w-full border-2 rounded-xl p-3 resize-none focus:border-sky-blue focus:ring-4 focus:ring-sky-blue/20 transition-all"
-                style={{ borderColor: 'rgba(145, 166, 235, 0.2)', backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
-                rows={3}
-                placeholder="List your coaching credentials, certifications, and professional background..."
-              />
+              <p className="text-xs mt-2" style={{ color: '#000000', opacity: 0.5 }}>
+                💡 Add your certifications in the dedicated "Certifications" tab above
+              </p>
             </div>
           </div>
         )
