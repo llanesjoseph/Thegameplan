@@ -428,6 +428,10 @@ export default function ContributorsPage() {
            {c.name}
           </h3>
           <p className="text-blue-600 text-sm uppercase tracking-wider">{c.sport}</p>
+          {/* ID Badge for easy identification */}
+          <div className="mt-2 inline-block px-2 py-1 bg-gray-100 rounded text-xs font-mono text-gray-600">
+           ID: {c.id}
+          </div>
          </div>
 
          {c.tagline && (
