@@ -229,8 +229,7 @@ export default function CoachUnifiedDashboard() {
       title: 'Video Review Queue',
       description: 'Review athlete video submissions',
       icon: FileVideo,
-      color: '#E53E3E',
-      badge: pendingVideosCount
+      color: '#E53E3E'
     },
     {
       id: 'messages',
