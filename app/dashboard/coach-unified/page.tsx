@@ -366,27 +366,6 @@ export default function CoachUnifiedDashboard() {
             } ${activeSection ? 'hidden lg:block' : 'block'}`}
             style={{ height: '100%' }}
           >
-            {/* Logo Section - Top Left Corner */}
-            {!isSidebarCollapsed && (
-              <div className="bg-white p-6 border-b border-gray-200">
-                <img
-                  src="/new-logo.png"
-                  alt="AthLeap"
-                  className="w-full h-auto"
-                  style={{ maxWidth: '280px' }}
-                />
-              </div>
-            )}
-            {isSidebarCollapsed && (
-              <div className="bg-white p-2 border-b border-gray-200 flex items-center justify-center">
-                <img
-                  src="/new-logo.png"
-                  alt="AthLeap"
-                  className="w-12 h-12 object-contain"
-                />
-              </div>
-            )}
-
             {/* Sidebar Header */}
             <div className="sticky top-0 bg-white/95 backdrop-blur-sm z-10 border-b border-gray-200 p-3 sm:p-4">
               {!isSidebarCollapsed && (

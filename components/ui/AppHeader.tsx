@@ -280,11 +280,9 @@ export default function AppHeader({ className = '', title, subtitle }: AppHeader
             style={{ minHeight: '44px' }}
             aria-label="Go to home"
           >
-            <img
-              src="/new-logo.png"
-              alt="AthLeap"
-              className="h-8 sm:h-10 w-auto"
-            />
+            <span className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent">
+              AthLeap
+            </span>
           </button>
 
           {title && (
