@@ -250,8 +250,8 @@ export default function CoachProfilePage() {
 
           {/* Profile Section */}
           <div className="relative px-6 pb-6">
-            {/* Profile Image */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-end gap-6 -mt-16">
+            {/* Profile Image - Overlapping the header */}
+            <div className="flex justify-center sm:justify-start -mt-16 mb-6">
               <div className="relative">
                 <div className="w-32 h-32 rounded-full border-4 border-white shadow-lg overflow-hidden bg-gray-100">
                   {coach.profileImageUrl ? (
@@ -275,10 +275,12 @@ export default function CoachProfilePage() {
                   </div>
                 )}
               </div>
+            </div>
 
-              {/* Coach Info */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-3 mb-2">
+            {/* Coach Info - In white space below */}
+            <div className="space-y-4">
+              <div>
+                <div className="flex flex-wrap items-center gap-3 mb-2">
                   <h1 className="text-3xl font-bold" style={{ color: '#000000' }}>
                     {coach.displayName}
                   </h1>
@@ -297,32 +299,32 @@ export default function CoachProfilePage() {
                 </div>
 
                 <p className="text-xl text-blue-600 font-semibold mb-2">{coach.sport}</p>
-                
+
                 {coach.tagline && (
                   <p className="text-gray-600 text-lg mb-4">{coach.tagline}</p>
                 )}
+              </div>
 
-                {/* Action Buttons */}
-                <div className="flex flex-wrap gap-3">
-                  <button
-                    onClick={handleContactCoach}
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                  >
-                    <Mail className="w-4 h-4" />
-                    Contact Coach
-                  </button>
-                  <button
-                    onClick={handleFollowCoach}
-                    className="inline-flex items-center gap-2 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-                  >
-                    <Heart className="w-4 h-4" />
-                    Follow
-                  </button>
-                  <button className="inline-flex items-center gap-2 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
-                    <Share2 className="w-4 h-4" />
-                    Share
-                  </button>
-                </div>
+              {/* Action Buttons */}
+              <div className="flex flex-wrap gap-3">
+                <button
+                  onClick={handleContactCoach}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  <Mail className="w-4 h-4" />
+                  Contact Coach
+                </button>
+                <button
+                  onClick={handleFollowCoach}
+                  className="inline-flex items-center gap-2 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  <Heart className="w-4 h-4" />
+                  Follow
+                </button>
+                <button className="inline-flex items-center gap-2 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                  <Share2 className="w-4 h-4" />
+                  Share
+                </button>
               </div>
             </div>
           </div>
