@@ -146,9 +146,6 @@ export default function PendingItemsWidget({ onViewItem }: PendingItemsWidgetPro
     <div className="bg-white rounded-xl p-6 shadow-sm border-2 border-gray-100">
       <h2 className="text-lg font-bold text-gray-900 mb-4">
         Pending Items
-        <span className="ml-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-          {pendingItems.length}
-        </span>
       </h2>
       <div className="space-y-3">
         {pendingItems.map((item) => {
