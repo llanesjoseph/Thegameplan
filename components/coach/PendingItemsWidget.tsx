@@ -128,7 +128,7 @@ export default function PendingItemsWidget({ onViewItem }: PendingItemsWidgetPro
   if (pendingItems.length === 0) {
     return (
       <div className="bg-white rounded-xl p-6 shadow-sm border-2 border-gray-100">
-        <h2 className="text-lg font-bold text-gray-900 mb-4">Pending Items</h2>
+        <h2 className="text-lg font-bold text-gray-900 mb-4">Notification Center</h2>
         <div className="text-center py-8">
           <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-3">
             <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -136,7 +136,7 @@ export default function PendingItemsWidget({ onViewItem }: PendingItemsWidgetPro
             </svg>
           </div>
           <p className="text-sm font-semibold text-gray-900">All caught up!</p>
-          <p className="text-xs text-gray-500 mt-1">No pending items at the moment</p>
+          <p className="text-xs text-gray-500 mt-1">No pending notifications at the moment</p>
         </div>
       </div>
     )
@@ -144,9 +144,16 @@ export default function PendingItemsWidget({ onViewItem }: PendingItemsWidgetPro
 
   return (
     <div className="bg-white rounded-xl p-6 shadow-sm border-2 border-gray-100">
-      <h2 className="text-lg font-bold text-gray-900 mb-4">
-        Pending Items
-      </h2>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-bold text-gray-900">
+          Notification Center
+        </h2>
+        {pendingItems.length > 0 && (
+          <span className="bg-red-500 text-white text-sm font-bold px-3 py-1 rounded-full">
+            {pendingItems.length}
+          </span>
+        )}
+      </div>
       <div className="space-y-3">
         {pendingItems.map((item) => {
           const Icon = getIcon(item.type)

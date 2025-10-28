@@ -216,17 +216,13 @@ export default function CoachUnifiedDashboard() {
     return () => window.removeEventListener('message', handleMessage)
   }, [])
 
-  // Calculate total pending notifications
-  const totalPendingCount = unreadMessagesCount + pendingRequestsCount + pendingVideosCount
-
   const coachCards = [
     {
       id: 'home',
       title: 'Home',
       description: 'Today\'s overview and quick actions',
       icon: Home,
-      color: '#5A9B9B',
-      badge: totalPendingCount > 0 ? totalPendingCount : undefined
+      color: '#5A9B9B'
     },
     {
       id: 'video-queue',
@@ -439,13 +435,6 @@ export default function CoachUnifiedDashboard() {
                         </div>
                       )}
                     </div>
-
-                    {/* Badge positioned on right side of button */}
-                    {(card as any).badge && (card as any).badge > 0 && (
-                      <div className="absolute -right-2 top-1/2 -translate-y-1/2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-white shadow-md">
-                        {(card as any).badge}
-                      </div>
-                    )}
                   </button>
                 )
               })}
