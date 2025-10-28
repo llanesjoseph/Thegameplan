@@ -248,38 +248,38 @@ export default function CoachProfilePage() {
             <div className="absolute inset-0 bg-black/20" />
           </div>
 
-          {/* Profile Section */}
-          <div className="relative px-6 pb-6">
-            {/* Profile Image - Overlapping the header */}
-            <div className="flex justify-center sm:justify-start -mt-16 mb-6">
-              <div className="relative">
-                <div className="w-32 h-32 rounded-full border-4 border-white shadow-lg overflow-hidden bg-gray-100">
-                  {coach.profileImageUrl ? (
-                    <Image
-                      src={coach.profileImageUrl}
-                      alt={coach.displayName}
-                      width={128}
-                      height={128}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gray-200">
-                      <UserPlus className="w-12 h-12 text-gray-400" />
+          {/* Profile Section - Horizontal Layout */}
+          <div className="relative px-6 pb-6 pt-6">
+            <div className="flex flex-col md:flex-row gap-6 items-start">
+              {/* Profile Image - Overlapping the header */}
+              <div className="-mt-28 flex-shrink-0">
+                <div className="relative">
+                  <div className="w-32 h-32 rounded-full border-4 border-white shadow-lg overflow-hidden bg-gray-100">
+                    {coach.profileImageUrl ? (
+                      <Image
+                        src={coach.profileImageUrl}
+                        alt={coach.displayName}
+                        width={128}
+                        height={128}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gray-200">
+                        <UserPlus className="w-12 h-12 text-gray-400" />
+                      </div>
+                    )}
+                  </div>
+                  {/* Verification Badge */}
+                  {coach.verified && (
+                    <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                      <CheckCircle className="w-5 h-5 text-white" />
                     </div>
                   )}
                 </div>
-                {/* Verification Badge */}
-                {coach.verified && (
-                  <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-                    <CheckCircle className="w-5 h-5 text-white" />
-                  </div>
-                )}
               </div>
-            </div>
 
-            {/* Coach Info - In white space below */}
-            <div className="space-y-4">
-              <div>
+              {/* Coach Info - Centered/Left */}
+              <div className="flex-1 min-w-0">
                 <div className="flex flex-wrap items-center gap-3 mb-2">
                   <h1 className="text-3xl font-bold" style={{ color: '#000000' }}>
                     {coach.displayName}
@@ -301,27 +301,27 @@ export default function CoachProfilePage() {
                 <p className="text-xl text-blue-600 font-semibold mb-2">{coach.sport}</p>
 
                 {coach.tagline && (
-                  <p className="text-gray-600 text-lg mb-4">{coach.tagline}</p>
+                  <p className="text-gray-600 text-lg">{coach.tagline}</p>
                 )}
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex flex-wrap gap-3">
+              {/* Action Buttons - Right side */}
+              <div className="flex flex-col gap-3 flex-shrink-0">
                 <button
                   onClick={handleContactCoach}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors whitespace-nowrap"
                 >
                   <Mail className="w-4 h-4" />
                   Contact Coach
                 </button>
                 <button
                   onClick={handleFollowCoach}
-                  className="inline-flex items-center gap-2 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors whitespace-nowrap"
                 >
                   <Heart className="w-4 h-4" />
                   Follow
                 </button>
-                <button className="inline-flex items-center gap-2 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                <button className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors whitespace-nowrap">
                   <Share2 className="w-4 h-4" />
                   Share
                 </button>
