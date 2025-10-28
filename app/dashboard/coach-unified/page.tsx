@@ -216,13 +216,17 @@ export default function CoachUnifiedDashboard() {
     return () => window.removeEventListener('message', handleMessage)
   }, [])
 
+  // Calculate total pending notifications
+  const totalPendingCount = unreadMessagesCount + pendingRequestsCount + pendingVideosCount
+
   const coachCards = [
     {
       id: 'home',
       title: 'Home',
       description: 'Today\'s overview and quick actions',
       icon: Home,
-      color: '#5A9B9B'
+      color: '#5A9B9B',
+      badge: totalPendingCount > 0 ? totalPendingCount : undefined
     },
     {
       id: 'video-queue',
@@ -236,8 +240,7 @@ export default function CoachUnifiedDashboard() {
       title: 'Incoming Messages',
       description: 'View and respond to athlete messages',
       icon: Bell,
-      color: '#5A9B9B',
-      badge: unreadMessagesCount
+      color: '#5A9B9B'
     },
     {
       id: 'profile',
@@ -258,8 +261,7 @@ export default function CoachUnifiedDashboard() {
       title: 'Live 1-on-1 Sessions',
       description: 'Manage session requests',
       icon: Calendar,
-      color: '#5A9A70',
-      badge: pendingRequestsCount
+      color: '#5A9A70'
     },
     {
       id: 'lesson-library',
