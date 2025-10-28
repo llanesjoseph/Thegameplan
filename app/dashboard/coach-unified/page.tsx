@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import AppHeader from '@/components/ui/AppHeader'
 import { useAuth } from '@/hooks/use-auth'
+import { usePageAnalytics } from '@/hooks/use-page-analytics'
 import {
   Users,
   BookOpen,
@@ -34,6 +35,9 @@ export default function CoachUnifiedDashboard() {
   const [unreadMessagesCount, setUnreadMessagesCount] = useState(0)
   const [pendingVideosCount, setPendingVideosCount] = useState(0)
   const [isInitializing, setIsInitializing] = useState(true)
+
+  // Track page analytics
+  usePageAnalytics()
 
   // Role-based redirect - prevent admins from accessing coach dashboard
   useEffect(() => {

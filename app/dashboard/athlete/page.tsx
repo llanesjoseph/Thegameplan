@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/hooks/use-auth'
+import { usePageAnalytics } from '@/hooks/use-page-analytics'
 // Removed client-side Firebase imports - using secure API endpoints instead
 import {
   BookOpen,
@@ -33,6 +34,9 @@ export default function AthleteDashboard() {
   const { user } = useAuth()
   const router = useRouter()
   const iframeRef = useRef<HTMLIFrameElement>(null)
+
+  // Track page analytics
+  usePageAnalytics()
 
   const [showLive1on1Modal, setShowLive1on1Modal] = useState(false)
   const [showCoachPanel, setShowCoachPanel] = useState(false)

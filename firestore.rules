@@ -200,7 +200,7 @@ service cloud.firestore {
                     (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
                      (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.coachId == resource.data.creatorUid ||
                       get(/databases/$(database)/documents/users/$(request.auth.uid)).data.assignedCoachId == resource.data.creatorUid) &&
-                     (resource.data.visibility == 'public' || resource.data.visibility == 'athletes_only'));
+                     (resource.data.visibility == 'public' || resource.data.visibility == 'athletes_only')))
 
       // Allow listing content (queries)
       // Public can query all content (will be filtered to published by app)

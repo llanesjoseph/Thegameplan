@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation'
 import { getRedirectResult } from 'firebase/auth'
 import { auth, db } from '@/lib/firebase.client'
 import { useAuth } from '@/hooks/use-auth'
+import { usePageAnalytics } from '@/hooks/use-page-analytics'
 import SimpleAuth from '@/components/auth/SimpleAuth'
 import AppHeader from '@/components/ui/AppHeader'
 
@@ -28,6 +29,9 @@ export default function Dashboard() {
  const hasRedirected = useRef(false)
  const [actualRole, setActualRole] = useState<string | null>(null)
  const [roleLoading, setRoleLoading] = useState(true)
+
+ // Track page analytics (time on page, scroll depth, interactions)
+ usePageAnalytics()
 
  // Fetch role directly from Firestore - BULLETPROOF approach
  useEffect(() => {
