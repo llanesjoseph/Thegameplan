@@ -19,7 +19,15 @@ import {
  Award,
  Activity,
  Zap,
- Globe
+ Globe,
+ AlertTriangle,
+ CheckCircle,
+ XCircle,
+ LogIn,
+ UserPlus,
+ Bug,
+ MousePointer,
+ Timer
 } from 'lucide-react'
 
 interface SystemStats {
@@ -51,6 +59,34 @@ interface TopCreators {
  averageRating: number
 }
 
+interface AnalyticsMetrics {
+ // API Health
+ apiErrors5xx: number
+ apiErrors4xx: number
+ avgResponseTime: number
+ apiRequests: number
+
+ // Authentication
+ loginSuccess: number
+ loginFailure: number
+ signups: number
+
+ // Bug Reporter
+ bugReportsViewed: number
+ bugReportsStarted: number
+ bugReportsSubmitted: number
+ bugReportsFailed: number
+
+ // Page Tracking
+ avgTimeOnPage: number
+ avgScrollDepth: number
+ avgInteractions: number
+
+ // Errors
+ jsErrors: number
+ promiseRejections: number
+}
+
 export default function AdminAnalytics() {
  const [systemStats, setSystemStats] = useState<SystemStats>({
   totalUsers: 0,
@@ -61,6 +97,24 @@ export default function AdminAnalytics() {
   monthlyGrowth: 0,
   activeUsers: 0,
   contentPublished: 0
+ })
+ const [analyticsMetrics, setAnalyticsMetrics] = useState<AnalyticsMetrics>({
+  apiErrors5xx: 0,
+  apiErrors4xx: 0,
+  avgResponseTime: 0,
+  apiRequests: 0,
+  loginSuccess: 0,
+  loginFailure: 0,
+  signups: 0,
+  bugReportsViewed: 0,
+  bugReportsStarted: 0,
+  bugReportsSubmitted: 0,
+  bugReportsFailed: 0,
+  avgTimeOnPage: 0,
+  avgScrollDepth: 0,
+  avgInteractions: 0,
+  jsErrors: 0,
+  promiseRejections: 0
  })
  const [topContent, setTopContent] = useState<TopContent[]>([])
  const [topCreators, setTopCreators] = useState<TopCreators[]>([])
@@ -236,6 +290,119 @@ export default function AdminAnalytics() {
     .slice(0, 3)
 
    setTopCreators(sortedCreators)
+
+   // Load comprehensive analytics from analytics_events collection
+   try {
+    const analyticsSnapshot = await getDocs(collection(db, 'analytics_events'))
+
+    let apiErrors5xx = 0
+    let apiErrors4xx = 0
+    let apiResponseTimes: number[] = []
+    let apiRequests = 0
+    let loginSuccess = 0
+    let loginFailure = 0
+    let signups = 0
+    let bugReportsViewed = 0
+    let bugReportsStarted = 0
+    let bugReportsSubmitted = 0
+    let bugReportsFailed = 0
+    let pageTimes: number[] = []
+    let scrollDepths: number[] = []
+    let interactions: number[] = []
+    let jsErrors = 0
+    let promiseRejections = 0
+
+    analyticsSnapshot.docs.forEach(doc => {
+     const data = doc.data()
+
+     // API Health
+     if (data.category === 'error' && data.action === 'server_error') {
+      apiErrors5xx++
+     }
+     if (data.category === 'error' && data.action === 'client_error') {
+      apiErrors4xx++
+     }
+     if (data.category === 'api_health' && data.value) {
+      apiResponseTimes.push(data.value)
+      apiRequests++
+     }
+
+     // Authentication
+     if (data.category === 'user_auth') {
+      if (data.action === 'user.login_success') loginSuccess++
+      if (data.action === 'user.login_failure') loginFailure++
+      if (data.action === 'user.signup_success') signups++
+     }
+
+     // Bug Reporter
+     if (data.category === 'bug_reporter') {
+      if (data.action === 'bug_reporter.form_viewed') bugReportsViewed++
+      if (data.action === 'bug_reporter.form_started') bugReportsStarted++
+      if (data.action === 'bug_reporter.form_submitted') bugReportsSubmitted++
+      if (data.action === 'bug_reporter.form_failed') bugReportsFailed++
+     }
+
+     // Page Tracking
+     if (data.category === 'page_tracking' && data.action === 'page_time') {
+      if (data.value) pageTimes.push(data.value)
+      if (data.metadata?.scrollDepth) scrollDepths.push(data.metadata.scrollDepth)
+      if (data.metadata?.interactions) interactions.push(data.metadata.interactions)
+     }
+
+     // Errors
+     if (data.category === 'error') {
+      if (data.action === 'javascript_error') jsErrors++
+      if (data.action === 'unhandled_promise_rejection') promiseRejections++
+     }
+    })
+
+    // Calculate averages
+    const avgResponseTime = apiResponseTimes.length > 0
+     ? Math.round(apiResponseTimes.reduce((a, b) => a + b, 0) / apiResponseTimes.length)
+     : 0
+
+    const avgTimeOnPage = pageTimes.length > 0
+     ? Math.round(pageTimes.reduce((a, b) => a + b, 0) / pageTimes.length)
+     : 0
+
+    const avgScrollDepth = scrollDepths.length > 0
+     ? Math.round(scrollDepths.reduce((a, b) => a + b, 0) / scrollDepths.length)
+     : 0
+
+    const avgInteractions = interactions.length > 0
+     ? Math.round(interactions.reduce((a, b) => a + b, 0) / interactions.length)
+     : 0
+
+    setAnalyticsMetrics({
+     apiErrors5xx,
+     apiErrors4xx,
+     avgResponseTime,
+     apiRequests,
+     loginSuccess,
+     loginFailure,
+     signups,
+     bugReportsViewed,
+     bugReportsStarted,
+     bugReportsSubmitted,
+     bugReportsFailed,
+     avgTimeOnPage,
+     avgScrollDepth,
+     avgInteractions,
+     jsErrors,
+     promiseRejections
+    })
+
+    console.log('📊 Loaded comprehensive analytics:', {
+     apiErrors5xx,
+     apiErrors4xx,
+     avgResponseTime,
+     loginSuccess,
+     bugReportsSubmitted
+    })
+   } catch (analyticsError) {
+    console.error('Error loading analytics events:', analyticsError)
+    // Don't fail the whole page if analytics fail
+   }
 
   } catch (error) {
    console.error('Error loading analytics:', error)
@@ -504,6 +671,282 @@ export default function AdminAnalytics() {
          <span style={{ color: '#000000', opacity: 0.7 }}>User Retention</span>
          <span className="font-semibold" style={{ color: '#FF6B35' }}>72%</span>
         </div>
+       </div>
+      </div>
+     </div>
+    </div>
+
+    {/* API HEALTH & PERFORMANCE */}
+    <div className="mb-12 mt-12">
+     <h2 className="text-2xl mb-6 flex items-center gap-2" style={{ color: '#000000' }}>
+      <Activity className="w-6 h-6" style={{ color: '#91A6EB' }} />
+      API Health & Performance
+     </h2>
+     <div className="grid md:grid-cols-4 gap-6">
+      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
+       <div className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: '#FF6B35' }}>
+        <XCircle className="w-6 h-6 text-white" />
+       </div>
+       <div className="text-4xl mb-2" style={{ color: '#FF6B35' }}>
+        {analyticsMetrics.apiErrors5xx}
+       </div>
+       <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>5xx Server Errors</div>
+       <div className="text-xs mt-1" style={{ color: '#000000', opacity: 0.5 }}>Critical</div>
+      </div>
+
+      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
+       <div className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: '#FF6B35' }}>
+        <AlertTriangle className="w-6 h-6 text-white" />
+       </div>
+       <div className="text-4xl mb-2" style={{ color: '#FF6B35' }}>
+        {analyticsMetrics.apiErrors4xx}
+       </div>
+       <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>4xx Client Errors</div>
+       <div className="text-xs mt-1" style={{ color: '#000000', opacity: 0.5 }}>Bad requests</div>
+      </div>
+
+      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
+       <div className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: '#20B2AA' }}>
+        <Zap className="w-6 h-6 text-white" />
+       </div>
+       <div className="text-4xl mb-2" style={{ color: '#20B2AA' }}>
+        {analyticsMetrics.avgResponseTime}ms
+       </div>
+       <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Avg Response Time</div>
+       <div className="text-xs mt-1" style={{ color: analyticsMetrics.avgResponseTime > 500 ? '#FF6B35' : '#20B2AA' }}>
+        {analyticsMetrics.avgResponseTime > 500 ? 'Slow' : 'Good'}
+       </div>
+      </div>
+
+      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
+       <div className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: '#91A6EB' }}>
+        <BarChart3 className="w-6 h-6 text-white" />
+       </div>
+       <div className="text-4xl mb-2" style={{ color: '#91A6EB' }}>
+        {analyticsMetrics.apiRequests}
+       </div>
+       <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>API Requests</div>
+       <div className="text-xs mt-1" style={{ color: '#000000', opacity: 0.5 }}>Total tracked</div>
+      </div>
+     </div>
+    </div>
+
+    {/* AUTHENTICATION METRICS */}
+    <div className="mb-12">
+     <h2 className="text-2xl mb-6 flex items-center gap-2" style={{ color: '#000000' }}>
+      <LogIn className="w-6 h-6" style={{ color: '#20B2AA' }} />
+      User Authentication
+     </h2>
+     <div className="grid md:grid-cols-3 gap-6">
+      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+       <div className="flex items-center gap-3 mb-4">
+        <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: '#20B2AA' }}>
+         <CheckCircle className="w-6 h-6 text-white" />
+        </div>
+        <div>
+         <h3 className="text-2xl font-semibold" style={{ color: '#20B2AA' }}>
+          {analyticsMetrics.loginSuccess}
+         </h3>
+         <div className="text-sm" style={{ color: '#000000', opacity: 0.6 }}>Successful Logins</div>
+        </div>
+       </div>
+       <div className="text-xs" style={{ color: '#000000', opacity: 0.5 }}>
+        Success Rate: {analyticsMetrics.loginSuccess + analyticsMetrics.loginFailure > 0
+         ? Math.round((analyticsMetrics.loginSuccess / (analyticsMetrics.loginSuccess + analyticsMetrics.loginFailure)) * 100)
+         : 0}%
+       </div>
+      </div>
+
+      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+       <div className="flex items-center gap-3 mb-4">
+        <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: '#FF6B35' }}>
+         <XCircle className="w-6 h-6 text-white" />
+        </div>
+        <div>
+         <h3 className="text-2xl font-semibold" style={{ color: '#FF6B35' }}>
+          {analyticsMetrics.loginFailure}
+         </h3>
+         <div className="text-sm" style={{ color: '#000000', opacity: 0.6 }}>Failed Logins</div>
+        </div>
+       </div>
+       <div className="text-xs" style={{ color: '#000000', opacity: 0.5 }}>
+        Investigate if spike detected
+       </div>
+      </div>
+
+      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+       <div className="flex items-center gap-3 mb-4">
+        <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: '#91A6EB' }}>
+         <UserPlus className="w-6 h-6 text-white" />
+        </div>
+        <div>
+         <h3 className="text-2xl font-semibold" style={{ color: '#91A6EB' }}>
+          {analyticsMetrics.signups}
+         </h3>
+         <div className="text-sm" style={{ color: '#000000', opacity: 0.6 }}>New Signups</div>
+        </div>
+       </div>
+       <div className="text-xs" style={{ color: '#000000', opacity: 0.5 }}>
+        User acquisition
+       </div>
+      </div>
+     </div>
+    </div>
+
+    {/* BUG REPORTER HEALTH */}
+    <div className="mb-12">
+     <h2 className="text-2xl mb-6 flex items-center gap-2" style={{ color: '#000000' }}>
+      <Bug className="w-6 h-6" style={{ color: '#FF6B35' }} />
+      Bug Reporter Health
+     </h2>
+     <div className="grid md:grid-cols-2 gap-6">
+      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+       <h3 className="font-semibold mb-4" style={{ color: '#000000' }}>Form Funnel</h3>
+       <div className="space-y-3">
+        <div className="flex justify-between items-center">
+         <span style={{ color: '#000000', opacity: 0.7 }}>Viewed</span>
+         <span className="font-semibold" style={{ color: '#91A6EB' }}>{analyticsMetrics.bugReportsViewed}</span>
+        </div>
+        <div className="flex justify-between items-center">
+         <span style={{ color: '#000000', opacity: 0.7 }}>Started</span>
+         <span className="font-semibold" style={{ color: '#20B2AA' }}>{analyticsMetrics.bugReportsStarted}</span>
+        </div>
+        <div className="flex justify-between items-center">
+         <span style={{ color: '#000000', opacity: 0.7 }}>Submitted</span>
+         <span className="font-semibold" style={{ color: '#20B2AA' }}>{analyticsMetrics.bugReportsSubmitted}</span>
+        </div>
+        <div className="flex justify-between items-center">
+         <span style={{ color: '#000000', opacity: 0.7 }}>Failed</span>
+         <span className="font-semibold" style={{ color: '#FF6B35' }}>{analyticsMetrics.bugReportsFailed}</span>
+        </div>
+       </div>
+      </div>
+
+      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+       <h3 className="font-semibold mb-4" style={{ color: '#000000' }}>Completion Metrics</h3>
+       <div className="space-y-3">
+        <div className="flex justify-between items-center">
+         <span style={{ color: '#000000', opacity: 0.7 }}>Completion Rate</span>
+         <span className="font-semibold text-2xl" style={{
+          color: analyticsMetrics.bugReportsStarted > 0 &&
+           (analyticsMetrics.bugReportsSubmitted / analyticsMetrics.bugReportsStarted) * 100 > 80
+           ? '#20B2AA' : '#FF6B35'
+         }}>
+          {analyticsMetrics.bugReportsStarted > 0
+           ? Math.round((analyticsMetrics.bugReportsSubmitted / analyticsMetrics.bugReportsStarted) * 100)
+           : 0}%
+         </span>
+        </div>
+        <div className="flex justify-between items-center">
+         <span style={{ color: '#000000', opacity: 0.7 }}>Abandonment Rate</span>
+         <span className="font-semibold" style={{ color: '#FF6B35' }}>
+          {analyticsMetrics.bugReportsStarted > 0
+           ? Math.round(((analyticsMetrics.bugReportsStarted - analyticsMetrics.bugReportsSubmitted) / analyticsMetrics.bugReportsStarted) * 100)
+           : 0}%
+         </span>
+        </div>
+        <div className="text-xs mt-4 p-2 rounded" style={{
+         backgroundColor: analyticsMetrics.bugReportsStarted > 0 &&
+          (analyticsMetrics.bugReportsSubmitted / analyticsMetrics.bugReportsStarted) * 100 > 80
+          ? 'rgba(32, 178, 170, 0.1)' : 'rgba(255, 107, 53, 0.1)',
+         color: '#000000'
+        }}>
+         {analyticsMetrics.bugReportsStarted > 0 &&
+          (analyticsMetrics.bugReportsSubmitted / analyticsMetrics.bugReportsStarted) * 100 > 80
+          ? '✅ Bug reporter is healthy'
+          : '⚠️ Consider simplifying bug report form'}
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+
+    {/* PAGE TRACKING & ENGAGEMENT */}
+    <div className="mb-12">
+     <h2 className="text-2xl mb-6 flex items-center gap-2" style={{ color: '#000000' }}>
+      <MousePointer className="w-6 h-6" style={{ color: '#91A6EB' }} />
+      Page Tracking & Engagement
+     </h2>
+     <div className="grid md:grid-cols-3 gap-6">
+      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
+       <div className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: '#20B2AA' }}>
+        <Timer className="w-6 h-6 text-white" />
+       </div>
+       <div className="text-4xl mb-2" style={{ color: '#20B2AA' }}>
+        {analyticsMetrics.avgTimeOnPage}s
+       </div>
+       <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Avg Time on Page</div>
+       <div className="text-xs mt-1" style={{ color: '#000000', opacity: 0.5 }}>
+        {analyticsMetrics.avgTimeOnPage > 60 ? 'Highly engaged' : 'Low engagement'}
+       </div>
+      </div>
+
+      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
+       <div className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: '#91A6EB' }}>
+        <BarChart3 className="w-6 h-6 text-white" />
+       </div>
+       <div className="text-4xl mb-2" style={{ color: '#91A6EB' }}>
+        {analyticsMetrics.avgScrollDepth}%
+       </div>
+       <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Avg Scroll Depth</div>
+       <div className="text-xs mt-1" style={{ color: '#000000', opacity: 0.5 }}>
+        Content visibility
+       </div>
+      </div>
+
+      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
+       <div className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: '#FF6B35' }}>
+        <MousePointer className="w-6 h-6 text-white" />
+       </div>
+       <div className="text-4xl mb-2" style={{ color: '#FF6B35' }}>
+        {analyticsMetrics.avgInteractions}
+       </div>
+       <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Avg Interactions</div>
+       <div className="text-xs mt-1" style={{ color: '#000000', opacity: 0.5 }}>
+        Clicks & keystrokes
+       </div>
+      </div>
+     </div>
+    </div>
+
+    {/* ERROR TRACKING */}
+    <div className="mb-12">
+     <h2 className="text-2xl mb-6 flex items-center gap-2" style={{ color: '#000000' }}>
+      <AlertTriangle className="w-6 h-6" style={{ color: '#FF6B35' }} />
+      Error Tracking
+     </h2>
+     <div className="grid md:grid-cols-2 gap-6">
+      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+       <div className="flex items-center gap-3 mb-4">
+        <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: '#FF6B35' }}>
+         <XCircle className="w-6 h-6 text-white" />
+        </div>
+        <div>
+         <h3 className="text-2xl font-semibold" style={{ color: '#FF6B35' }}>
+          {analyticsMetrics.jsErrors}
+         </h3>
+         <div className="text-sm" style={{ color: '#000000', opacity: 0.6 }}>JavaScript Errors</div>
+        </div>
+       </div>
+       <div className="text-xs" style={{ color: '#000000', opacity: 0.5 }}>
+        Frontend runtime errors
+       </div>
+      </div>
+
+      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+       <div className="flex items-center gap-3 mb-4">
+        <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: '#FF6B35' }}>
+         <AlertTriangle className="w-6 h-6 text-white" />
+        </div>
+        <div>
+         <h3 className="text-2xl font-semibold" style={{ color: '#FF6B35' }}>
+          {analyticsMetrics.promiseRejections}
+         </h3>
+         <div className="text-sm" style={{ color: '#000000', opacity: 0.6 }}>Promise Rejections</div>
+        </div>
+       </div>
+       <div className="text-xs" style={{ color: '#000000', opacity: 0.5 }}>
+        Unhandled async errors
        </div>
       </div>
      </div>
