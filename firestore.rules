@@ -1045,6 +1045,34 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // ============================================================================
+    // ANALYTICS SYSTEM - Comprehensive app and user behavior tracking
+    // ============================================================================
+
+    // Analytics Events - Raw event data
+    match /analytics_events/{eventId} {
+      // Allow authenticated users to create analytics events
+      allow create: if isAuthenticated();
+
+      // Only admins can read analytics (for dashboard)
+      allow read: if isAdmin();
+
+      // Analytics events are immutable (audit trail)
+      allow update, delete: if false;
+    }
+
+    // Analytics Aggregations - Pre-computed metrics for dashboards
+    match /analytics_aggregations/{aggId} {
+      // Only Cloud Functions can write aggregations
+      allow create, update: if false;
+
+      // Only admins can read aggregations
+      allow read: if isAdmin();
+
+      // Aggregations can be deleted by Cloud Functions for cleanup
+      allow delete: if false;
+    }
+
     // ===== DEFAULT DENY =====
     match /{document=**} {
       allow read, write: if false;
