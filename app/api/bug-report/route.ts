@@ -21,12 +21,13 @@ interface BugReportRequest {
     userId: string
     userEmail: string
   }
+  screenshot?: string // Base64 encoded image
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body: BugReportRequest = await request.json()
-    const { description, consoleLogs, pageInfo } = body
+    const { description, consoleLogs, pageInfo, screenshot } = body
 
     if (!description) {
       return NextResponse.json(
@@ -107,6 +108,16 @@ export async function POST(request: NextRequest) {
               <h2 style="color: #A01C21; margin-top: 0; font-size: 20px;">Bug Description</h2>
               <p style="color: #333; white-space: pre-wrap; line-height: 1.6; margin: 0;">${escapeHtml(description)}</p>
             </div>
+
+            ${screenshot ? `
+            <!-- Screenshot -->
+            <div style="margin-bottom: 30px;">
+              <h2 style="color: #333; font-size: 20px; margin-bottom: 15px;">📸 Screenshot</h2>
+              <div style="background: #f9fafb; border: 2px solid #e5e7eb; border-radius: 8px; padding: 10px;">
+                <img src="${screenshot}" alt="Bug screenshot" style="max-width: 100%; height: auto; border-radius: 4px;" />
+              </div>
+            </div>
+            ` : ''}
 
             <!-- Console Logs -->
             <div style="margin-bottom: 30px;">
