@@ -62,6 +62,22 @@ export function useAuth() {
             // Continue anyway - user can still use the app with limited functionality
           }
         }
+
+        // Track user activity (lastLoginAt) - do in background
+        try {
+          const token = await user.getIdToken()
+          fetch('/api/track-activity', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          }).catch(err => {
+            console.warn('Activity tracking failed (non-critical):', err)
+          })
+        } catch (error) {
+          // Non-critical error - don't block auth flow
+          console.warn('Could not track activity:', error)
+        }
       } else {
         // Clear initialized users when user logs out
         initializedUsersRef.current.clear()
