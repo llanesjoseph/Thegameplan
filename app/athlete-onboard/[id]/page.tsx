@@ -151,11 +151,12 @@ export default function AthleteOnboardingPage() {
 
       if (response.ok && data.success && data.invitation) {
         setInvitation(data.invitation)
+        // Only pre-fill fields if they have values (not empty for generic invitations)
         setFormData(prev => ({
           ...prev,
-          email: data.invitation.athleteEmail,
-          firstName: data.invitation.athleteName.split(' ')[0] || '',
-          lastName: data.invitation.athleteName.split(' ').slice(1).join(' ') || '',
+          email: data.invitation.athleteEmail || '',
+          firstName: data.invitation.athleteName ? data.invitation.athleteName.split(' ')[0] : '',
+          lastName: data.invitation.athleteName ? data.invitation.athleteName.split(' ').slice(1).join(' ') : '',
           primarySport: data.invitation.sport || ''
         }))
       } else {
@@ -441,7 +442,9 @@ export default function AthleteOnboardingPage() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900">Training Invitation</h3>
-                    <p className="text-gray-600">{invitation.sport} Training Program</p>
+                    <p className="text-gray-600">
+                      {invitation.sport ? `${invitation.sport} Training Program` : 'General Training Program'}
+                    </p>
                     {invitation.customMessage && (
                       <p className="text-sm text-gray-500 mt-1">{invitation.customMessage}</p>
                     )}
@@ -484,14 +487,23 @@ export default function AthleteOnboardingPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2">Email (From Invitation)</label>
+                  <label className="block text-sm font-medium mb-2">
+                    Email {invitation?.athleteEmail ? '(From Invitation)' : '*'}
+                  </label>
                   <Input
                     type="email"
                     value={formData.email}
-                    disabled
-                    className="bg-gray-50 text-gray-600 cursor-not-allowed"
+                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    disabled={!!invitation?.athleteEmail}
+                    className={invitation?.athleteEmail ? "bg-gray-50 text-gray-600 cursor-not-allowed" : ""}
+                    placeholder={!invitation?.athleteEmail ? "Enter your email address" : ""}
+                    required
                   />
-                  <p className="text-xs text-gray-500 mt-1">This email is locked to your invitation and cannot be changed</p>
+                  {invitation?.athleteEmail ? (
+                    <p className="text-xs text-gray-500 mt-1">This email is locked to your invitation and cannot be changed</p>
+                  ) : (
+                    <p className="text-xs text-gray-500 mt-1">Enter the email you want to use for your account</p>
+                  )}
                 </div>
 
                 <div className="flex justify-end">

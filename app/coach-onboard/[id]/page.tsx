@@ -186,9 +186,12 @@ export default function CoachOnboardPage() {
       }
 
       setIngestionData(result.data)
-      setCoachData(prev => ({ ...prev, sport: result.data.sport }))
+      // Only pre-populate sport if it has a value
+      if (result.data.sport) {
+        setCoachData(prev => ({ ...prev, sport: result.data.sport }))
+      }
 
-      // Pre-populate email from invitation if available
+      // Pre-populate email from invitation only if it has a value (not empty for generic invitations)
       if (result.data.coachEmail) {
         setUserInfo(prev => ({ ...prev, email: result.data.coachEmail }))
       }
@@ -617,15 +620,24 @@ export default function CoachOnboardPage() {
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <Label htmlFor="email">Email (From Invitation)</Label>
+                  <Label htmlFor="email">
+                    Email {ingestionData?.coachEmail ? '(From Invitation)' : '*'}
+                  </Label>
                   <Input
                     id="email"
                     type="email"
                     value={userInfo.email}
-                    disabled
-                    className="bg-gray-50 text-gray-600 cursor-not-allowed"
+                    onChange={(e) => setUserInfo(prev => ({ ...prev, email: e.target.value }))}
+                    disabled={!!ingestionData?.coachEmail}
+                    className={ingestionData?.coachEmail ? "bg-gray-50 text-gray-600 cursor-not-allowed" : ""}
+                    placeholder={!ingestionData?.coachEmail ? "Enter your email address" : ""}
+                    required
                   />
-                  <p className="text-xs text-gray-500 mt-1">This email is locked to your invitation and cannot be changed</p>
+                  {ingestionData?.coachEmail ? (
+                    <p className="text-xs text-gray-500 mt-1">This email is locked to your invitation and cannot be changed</p>
+                  ) : (
+                    <p className="text-xs text-gray-500 mt-1">Enter the email you want to use for your account</p>
+                  )}
                 </div>
                 <div>
                   <Label htmlFor="displayName">Display Name</Label>
