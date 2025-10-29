@@ -28,6 +28,8 @@ interface IngestionData {
   autoApprove: boolean
   expiresAt: string
   usesRemaining: number
+  coachEmail?: string  // Email from invitation (may be empty for generic invitations)
+  coachName?: string   // Name from invitation (may be empty for generic invitations)
   metadata?: {
     isTestInvitation?: boolean
     isJasmineSpecial?: boolean
