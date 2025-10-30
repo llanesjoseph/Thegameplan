@@ -80,18 +80,26 @@ export async function POST(request: NextRequest) {
       coachUid = invitationCoachUid // Use invitation as source of truth
     }
 
-    console.log(`✅ [COMPLETE-PROFILE] FINAL Coach assigned`)
+    console.log(`✅ [COMPLETE-PROFILE] FINAL Coach assigned: ${coachUid || 'NONE (bulk invite)'}`)
 
     // CRITICAL: Validate coach UID exists - every athlete MUST have a coach
+    // EXCEPTION: Bulk invitations can be created without a coach (admin will assign later)
+    const isBulkInvitation = invitationData?.type === 'bulk_invitation'
+
     if (!coachUid || coachUid.trim() === '') {
-      console.error(`❌ [COMPLETE-PROFILE] CRITICAL ERROR: No coach UID in invitation ${invitationId}`)
-      return NextResponse.json(
-        {
-          error: 'Critical error: No coach found in invitation. Please contact support.',
-          details: 'Invitation is missing creatorUid - athlete cannot be assigned to coach'
-        },
-        { status: 500 }
-      )
+      if (isBulkInvitation) {
+        console.log(`⚠️ [COMPLETE-PROFILE] Bulk invitation has no coach - will be assigned by admin later`)
+        coachUid = '' // Set to empty string for now
+      } else {
+        console.error(`❌ [COMPLETE-PROFILE] CRITICAL ERROR: No coach UID in invitation ${invitationId}`)
+        return NextResponse.json(
+          {
+            error: 'Critical error: No coach found in invitation. Please contact support.',
+            details: 'Invitation is missing creatorUid - athlete cannot be assigned to coach'
+          },
+          { status: 500 }
+        )
+      }
     }
 
     // Create the athlete document
@@ -100,8 +108,9 @@ export async function POST(request: NextRequest) {
       uid: userRecord.uid,
       invitationId,
       creatorUid: invitationData?.creatorUid || '',
-      coachId: coachUid, // Add coach ID to athlete document
-      assignedCoachId: coachUid, // Add assigned coach ID to athlete document
+      coachId: coachUid || '', // Add coach ID to athlete document (empty for bulk invites)
+      assignedCoachId: coachUid || '', // Add assigned coach ID to athlete document (empty for bulk invites)
+      needsCoachAssignment: isBulkInvitation && !coachUid, // Flag for admin to assign coach
       status: 'active',
       createdAt: now,
       updatedAt: now,
@@ -162,8 +171,9 @@ export async function POST(request: NextRequest) {
       lastName: athleteProfile.lastName,
       athleteId,
       creatorUid: invitationData?.creatorUid || '',
-      coachId: coachUid, // Use the coach UID we extracted earlier
-      assignedCoachId: coachUid, // Use the coach UID we extracted earlier
+      coachId: coachUid || '', // Use the coach UID we extracted earlier (empty for bulk invites)
+      assignedCoachId: coachUid || '', // Use the coach UID we extracted earlier (empty for bulk invites)
+      needsCoachAssignment: isBulkInvitation && !coachUid, // Flag for admin to assign coach
       lastLoginAt: now,
       invitationId,
       invitationRole: targetRole,
@@ -203,9 +213,10 @@ export async function POST(request: NextRequest) {
     })
     console.log(`✅ [COMPLETE-PROFILE] Marked invitation as used`)
 
-    // Add athlete to coach's list
-    if (invitationData?.creatorUid) {
-      const coachRef = adminDb.collection('users').doc(invitationData.creatorUid)
+    // Add athlete to coach's list (skip if no coach assigned yet for bulk invites)
+    if (invitationData?.creatorUid || coachUid) {
+      const assignedCoachUid = invitationData?.creatorUid || coachUid
+      const coachRef = adminDb.collection('users').doc(assignedCoachUid)
       const coachDoc = await coachRef.get()
 
       if (coachDoc.exists) {
@@ -267,28 +278,33 @@ export async function POST(request: NextRequest) {
     const userCoach = verifyUserDoc.data()?.coachId || verifyUserDoc.data()?.assignedCoachId
 
     if (!athleteCoach || !userCoach) {
-      console.error(`❌ [COMPLETE-PROFILE] VERIFICATION FAILED! Coach assignment missing!`)
-      console.error(`   - Athlete doc coachId: ${athleteCoach}`)
-      console.error(`   - User doc coachId: ${userCoach}`)
-      console.error(`   - Expected coachId: ${coachUid}`)
+      // For bulk invitations without a coach, this is expected
+      if (isBulkInvitation && !coachUid) {
+        console.log(`⚠️ [COMPLETE-PROFILE] Bulk invitation - no coach assigned yet (admin will assign later)`)
+      } else {
+        console.error(`❌ [COMPLETE-PROFILE] VERIFICATION FAILED! Coach assignment missing!`)
+        console.error(`   - Athlete doc coachId: ${athleteCoach}`)
+        console.error(`   - User doc coachId: ${userCoach}`)
+        console.error(`   - Expected coachId: ${coachUid}`)
 
-      // EMERGENCY FIX: Try to assign coach one more time
-      if (!athleteCoach) {
-        await adminDb.collection('athletes').doc(athleteId).update({
-          coachId: coachUid,
-          assignedCoachId: coachUid,
-          updatedAt: new Date()
-        })
-        console.log(`🔧 [COMPLETE-PROFILE] EMERGENCY: Fixed athlete coach assignment`)
-      }
+        // EMERGENCY FIX: Try to assign coach one more time
+        if (!athleteCoach && coachUid) {
+          await adminDb.collection('athletes').doc(athleteId).update({
+            coachId: coachUid,
+            assignedCoachId: coachUid,
+            updatedAt: new Date()
+          })
+          console.log(`🔧 [COMPLETE-PROFILE] EMERGENCY: Fixed athlete coach assignment`)
+        }
 
-      if (!userCoach) {
-        await adminDb.collection('users').doc(userRecord.uid).update({
-          coachId: coachUid,
-          assignedCoachId: coachUid,
-          updatedAt: new Date()
-        })
-        console.log(`🔧 [COMPLETE-PROFILE] EMERGENCY: Fixed user coach assignment`)
+        if (!userCoach && coachUid) {
+          await adminDb.collection('users').doc(userRecord.uid).update({
+            coachId: coachUid,
+            assignedCoachId: coachUid,
+            updatedAt: new Date()
+          })
+          console.log(`🔧 [COMPLETE-PROFILE] EMERGENCY: Fixed user coach assignment`)
+        }
       }
     } else {
       console.log(`✅ [COMPLETE-PROFILE] VERIFICATION PASSED!`)
@@ -302,8 +318,11 @@ export async function POST(request: NextRequest) {
         athleteId,
         userId: userRecord.uid,
         role: finalRole,
-        coachId: coachUid,
-        message: 'Profile completed successfully!'
+        coachId: coachUid || null,
+        needsCoachAssignment: isBulkInvitation && !coachUid,
+        message: isBulkInvitation && !coachUid
+          ? 'Profile completed successfully! An admin will assign you to a coach shortly.'
+          : 'Profile completed successfully!'
       }
     })
 
