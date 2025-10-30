@@ -74,31 +74,18 @@ export default function BulkInvitesPage() {
 
       const results = await Promise.allSettled(
         validRows.map(async (row) => {
-          const endpoint = row.role === 'COACH'
-            ? '/api/admin/create-coach-invitation'
-            : '/api/admin/create-athlete-invitation';
-
-          // Prepare request body based on role
-          const body = row.role === 'COACH'
-            ? {
-                coachEmail: row.email,
-                coachName: row.name,
-                sport: row.sport,
-              }
-            : {
-                athleteEmail: row.email,
-                athleteName: row.name,
-                sport: row.sport,
-                creatorUid: user.uid, // Assign athlete to the admin creating the invite
-              };
-
-          const response = await fetch(endpoint, {
+          const response = await fetch('/api/admin/send-bulk-invite', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${idToken}`
             },
-            body: JSON.stringify(body),
+            body: JSON.stringify({
+              email: row.email,
+              name: row.name,
+              sport: row.sport,
+              role: row.role
+            }),
           });
 
           if (!response.ok) {
