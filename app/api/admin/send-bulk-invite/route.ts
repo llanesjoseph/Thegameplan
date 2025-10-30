@@ -174,7 +174,7 @@ function generateAthleapEarlyAccessEmail(
           <tr>
             <td style="background-color:#1a1b22; padding:0; border-radius:16px 16px 0 0; position:relative;">
               <!-- Single hero image -->
-              <img src="https://res.cloudinary.com/dr0jtjwlh/image/upload/c_fill,w_1200,h_500,g_auto,f_jpg,q_auto/v1761801110/2023_11_ha6dth.jpg" alt="Athleap Athletes" width="100%" style="display:block; max-width:600px; height:auto; border-radius:16px 16px 0 0;"/>
+              <img src="https://res.cloudinary.com/dr0jtjwlh/image/upload/v1761863549/ezgif.com-animated-gif-maker_1_jttvsl.gif" alt="Athleap Athletes" width="100%" style="display:block; max-width:600px; height:auto; border-radius:16px 16px 0 0;"/>
 
               <!-- Hero Text Overlay -->
               <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:-250px; position:relative;">
