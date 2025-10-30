@@ -135,21 +135,9 @@ export default function BulkInvitesPage() {
   html,body { margin:0; padding:0; background:var(--bg); color:var(--fg); font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
   a { color: inherit; text-decoration: none; }
 
-  .hero { position:relative; min-height:76vh; display:grid; place-items:center; overflow:hidden; }
-  .grid { position:absolute; inset:0; display:grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap:8px; padding:8px; }
-  .tile { position:relative; overflow:hidden; border-radius:14px; }
-  .tile::after { content:''; position:absolute; inset:0; background: linear-gradient(180deg, rgba(0,0,0,.0), rgba(0,0,0,.35) 60%, rgba(0,0,0,.6)); }
-  .img { position:absolute; inset:-4%; width:108%; height:108%; object-fit:cover; filter: saturate(1.04) contrast(1.02); opacity:0; transition: opacity 900ms ease; }
-  .img.active { opacity:1; }
-  .ken { animation: ken 14s ease-in-out infinite; transform: scale(1.08); }
-  @keyframes ken {
-    0% { transform: scale(1.08); }
-    50% { transform: scale(1.14); }
-    100% { transform: scale(1.08); }
-  }
-  .vignette { position:absolute; inset:0; pointer-events:none; box-shadow: inset 0 0 120px rgba(0,0,0,.55); border-radius:16px; }
-
-  .overlay { position:absolute; inset:0; background: radial-gradient(60% 60% at 50% 50%, rgba(0,0,0,.0), rgba(0,0,0,.55)); }
+  .hero { position:relative; min-height:76vh; display:flex; align-items:center; justify-content:center; overflow:hidden; background:#1a1b22; }
+  .hero-bg { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  .overlay { position:absolute; inset:0; background: linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,0.4) 60%, rgba(0,0,0,0.6)); }
   .content { position:relative; z-index:2; text-align:center; padding:18px; }
 
   .headline {
@@ -197,7 +185,7 @@ export default function BulkInvitesPage() {
 </head>
 <body>
   <header class="hero">
-    <div class="grid" id="grid"></div>
+    <img src="https://res.cloudinary.com/dr0jtjwlh/image/upload/v1761863549/ezgif.com-animated-gif-maker_1_jttvsl.gif" alt="Athleap Athletes" class="hero-bg" />
     <div class="overlay"></div>
     <div class="content">
       <h1 class="headline">Athleap Early Access</h1>
@@ -237,58 +225,6 @@ export default function BulkInvitesPage() {
   </main>
 
   <footer>© Athleap</footer>
-
-<script>
-  const sources = ['https://res.cloudinary.com/dr0jtjwlh/image/upload/v1761801110/2023_11_ha6dth.jpg', 'https://res.cloudinary.com/dr0jtjwlh/image/upload/v1761801108/2022_09_santa_clara_rain_uavpsb.jpg', 'https://res.cloudinary.com/dr0jtjwlh/image/upload/v1761801108/2022_08_2_h0rspg.jpg', 'https://res.cloudinary.com/dr0jtjwlh/image/upload/v1761801118/2023_11_2_oqbego.jpg'];
-
-  function shuffle(arr) {
-    const a = arr.slice();
-    for (let i = a.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [a[i], a[j]] = [a[j], a[i]];
-    }
-    return a;
-  }
-
-  const grid = document.getElementById('grid');
-  const tiles = [];
-  for (let i = 0; i < 4; i++) {
-    const tile = document.createElement('div');
-    tile.className = 'tile';
-    const a = document.createElement('img');
-    a.className = 'img ken active';
-    a.src = sources[i % sources.length];
-    const b = document.createElement('img');
-    b.className = 'img ken';
-    b.src = sources[(i+1) % sources.length];
-    const vig = document.createElement('div');
-    vig.className = 'vignette';
-    tile.appendChild(a); tile.appendChild(b); tile.appendChild(vig);
-    grid.appendChild(tile);
-    tiles.push({root: tile, a, b, usingA: true});
-  }
-
-  let offset = 0;
-  setInterval(() => {
-    const base = sources.slice(offset).concat(sources.slice(0, offset));
-    const nextSet = shuffle(base);
-    offset = (offset + 1) % sources.length;
-
-    tiles.forEach((t, idx) => {
-      const nextSrc = nextSet[idx % nextSet.length];
-      if (t.usingA) {
-        t.b.src = nextSrc;
-        t.b.classList.add('active');
-        t.a.classList.remove('active');
-      } else {
-        t.a.src = nextSrc;
-        t.a.classList.add('active');
-        t.b.classList.remove('active');
-      }
-      t.usingA = !t.usingA;
-    });
-  }, 4800);
-</script>
 </body>
 </html>`;
   };
