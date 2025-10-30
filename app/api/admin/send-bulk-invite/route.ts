@@ -61,11 +61,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Generate unique invitation code
+    // Generate unique invitation code (inv_<timestamp>_<random> format for simple validation)
     const timestamp = Date.now()
     const randomSuffix = Math.random().toString(36).substring(2, 15)
-    const rolePrefix = role.toLowerCase()
-    const invitationCode = `${rolePrefix}-${timestamp}-${randomSuffix}`
+    const invitationCode = `inv_${timestamp}_${randomSuffix}`
 
     // Calculate expiration
     const expiresAt = new Date()
@@ -79,8 +78,8 @@ export async function POST(request: NextRequest) {
     // Create invitation document
     const invitationData = {
       id: invitationCode,
-      type: `${rolePrefix}_invitation`,
-      role: rolePrefix,
+      type: 'bulk_invitation',
+      role: role.toLowerCase(),
       email: email.toLowerCase(),
       name,
       sport,
