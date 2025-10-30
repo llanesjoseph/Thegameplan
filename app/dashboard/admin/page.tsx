@@ -23,7 +23,8 @@ import {
   Trophy,
   X,
   ChevronRight,
-  AlertTriangle
+  AlertTriangle,
+  Send
 } from 'lucide-react'
 
 export default function AdminDashboard() {
@@ -46,6 +47,13 @@ export default function AdminDashboard() {
       description: 'View comprehensive platform analytics',
       icon: BarChart3,
       color: '#FF6B35'
+    },
+    {
+      id: 'bulk-invites',
+      title: 'Bulk Invites',
+      description: 'Send multiple invitations with live email preview',
+      icon: Send,
+      color: '#10B981'
     },
     {
       id: 'invitations-approvals',
@@ -109,6 +117,7 @@ export default function AdminDashboard() {
     const pathMap: Record<string, string> = {
       'users': '/dashboard/admin/users?embedded=true',
       'analytics': '/dashboard/admin/analytics?embedded=true',
+      'bulk-invites': '/dashboard/admin/bulk-invites?embedded=true',
       'locker-room': '/dashboard/admin/coaches-locker-room?embedded=true',
       'athletes': '/dashboard/admin/athletes?embedded=true',
       'content': '/dashboard/admin/content?embedded=true',
