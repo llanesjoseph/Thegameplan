@@ -163,7 +163,7 @@ export default function BulkInvitesPage() {
     background: linear-gradient(90deg, #ff3d3d, #ff7a7a);
     box-shadow: 0 0 18px rgba(255,61,61,.6);
   }
-  p.sub { color:var(--muted); font-size: clamp(14px, 2.4vw, 18px); margin:10px 0 16px; }
+  p.sub { color:#e8e8ea; font-size: clamp(18px, 3vw, 24px); margin:10px 0 16px; font-weight: 500; letter-spacing: 0.3px; }
   .cta { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
   .btn { background:#fff; color:#111; padding:12px 18px; border-radius:12px; font-weight:800; }
   .btn.secondary { background:transparent; color:#fff; border:1px solid rgba(255,255,255,.35); }
@@ -190,7 +190,6 @@ export default function BulkInvitesPage() {
       <p class="sub">Train smarter. Play harder. Grow together.</p>
       <div class="cta">
         <a id="cta" class="btn" href="#" target="_blank" rel="noopener">Accept Your Invitation</a>
-        <a class="btn secondary" href="#details">See details</a>
       </div>
     </div>
   </header>
