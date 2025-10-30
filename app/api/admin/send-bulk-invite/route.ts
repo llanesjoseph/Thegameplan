@@ -145,7 +145,7 @@ export async function POST(request: NextRequest) {
 }
 
 /**
- * Generate Athleap Early Access HTML email
+ * Generate Athleap Early Access HTML email (Table-based for email client compatibility)
  */
 function generateAthleapEarlyAccessEmail(
   name: string,
@@ -160,128 +160,110 @@ function generateAthleapEarlyAccessEmail(
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Athleap Invite — Coordinated Montage</title>
-<style>
-  :root {
-    --bg: #0e0f12; --fg:#fff; --muted:#c7c8cc; --card:#14151a; --stroke:#272833;
-  }
-  * { box-sizing: border-box; }
-  html,body { margin:0; padding:0; background:var(--bg); color:var(--fg); font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
-  a { color: inherit; text-decoration: none; }
-
-  .hero { position:relative; min-height:76vh; display:grid; place-items:center; overflow:hidden; }
-  .grid { position:absolute; inset:0; display:grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap:8px; padding:8px; }
-  .tile { position:relative; overflow:hidden; border-radius:14px; }
-  .tile::after { content:''; position:absolute; inset:0; background: linear-gradient(180deg, rgba(0,0,0,.0), rgba(0,0,0,.35) 60%, rgba(0,0,0,.6)); }
-  .img { position:absolute; inset:-4%; width:108%; height:108%; object-fit:cover; filter: saturate(1.04) contrast(1.02); opacity:1; }
-  .ken { animation: ken 14s ease-in-out infinite; transform: scale(1.08); }
-  @keyframes ken {
-    0% { transform: scale(1.08); }
-    50% { transform: scale(1.14); }
-    100% { transform: scale(1.08); }
-  }
-  .vignette { position:absolute; inset:0; pointer-events:none; box-shadow: inset 0 0 120px rgba(0,0,0,.55); border-radius:16px; }
-
-  .overlay { position:absolute; inset:0; background: radial-gradient(60% 60% at 50% 50%, rgba(0,0,0,.0), rgba(0,0,0,.55)); }
-  .content { position:relative; z-index:2; text-align:center; padding:18px; }
-
-  .headline {
-    font-size: clamp(34px, 7vw, 74px);
-    line-height: 1.02;
-    margin: 6px 0 8px;
-    letter-spacing: 0.5px;
-    background: linear-gradient(180deg, #ffffff, #e4e4e6 60%, #cfcfd6);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    text-shadow:
-      0 2px 18px rgba(0,0,0,.45),
-      0 1px 0 rgba(0,0,0,.35);
-    position: relative;
-    display: inline-block;
-    padding: 0 10px;
-  }
-  .headline::after {
-    content:'';
-    position:absolute;
-    left: 8px; right: 8px; bottom: -8px;
-    height: 4px;
-    border-radius: 3px;
-    background: linear-gradient(90deg, #ff3d3d, #ff7a7a);
-    box-shadow: 0 0 18px rgba(255,61,61,.6);
-  }
-  p.sub { color:#e8e8ea; font-size: clamp(18px, 3vw, 24px); margin:10px 0 16px; font-weight: 500; letter-spacing: 0.3px; }
-  .cta { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
-  .btn { background:#fff; color:#111; padding:12px 18px; border-radius:12px; font-weight:800; }
-  .btn.secondary { background:transparent; color:#fff; border:1px solid rgba(255,255,255,.35); }
-
-  .container { width:min(1100px,92vw); margin:0 auto; }
-  .card { background:var(--card); border:1px solid var(--stroke); border-radius:16px; padding: clamp(16px, 3vw, 28px); margin: 28px auto; }
-  .card h3 { margin-top:0; font-size: clamp(20px, 3.4vw, 28px); }
-  .steps ol { padding-left:18px; }
-  .muted { color:var(--muted); }
-
-  footer { text-align:center; color:var(--muted); padding:34px 0 48px; font-size:14px; }
-</style>
+<title>Athleap Early Access Invitation</title>
 </head>
-<body>
-  <header class="hero">
-    <div class="grid">
-      <div class="tile">
-        <img class="img ken" src="https://res.cloudinary.com/dr0jtjwlh/image/upload/v1761801110/2023_11_ha6dth.jpg" alt="">
-        <div class="vignette"></div>
-      </div>
-      <div class="tile">
-        <img class="img ken" src="https://res.cloudinary.com/dr0jtjwlh/image/upload/v1761801108/2022_09_santa_clara_rain_uavpsb.jpg" alt="">
-        <div class="vignette"></div>
-      </div>
-      <div class="tile">
-        <img class="img ken" src="https://res.cloudinary.com/dr0jtjwlh/image/upload/v1761801108/2022_08_2_h0rspg.jpg" alt="">
-        <div class="vignette"></div>
-      </div>
-      <div class="tile">
-        <img class="img ken" src="https://res.cloudinary.com/dr0jtjwlh/image/upload/v1761801118/2023_11_2_oqbego.jpg" alt="">
-        <div class="vignette"></div>
-      </div>
-    </div>
-    <div class="overlay"></div>
-    <div class="content">
-      <h1 class="headline">Athleap Early Access</h1>
-      <p class="sub">Train smarter. Play harder. Grow together.</p>
-      <div class="cta">
-        <a class="btn" href="${invitationUrl}" target="_blank" rel="noopener">Accept Your Invitation</a>
-      </div>
-    </div>
-  </header>
+<body style="margin:0; padding:0; background-color:#0e0f12; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+  <!-- Full width wrapper -->
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#0e0f12;">
+    <tr>
+      <td align="center" style="padding:20px 0;">
 
-  <main class="container">
-    <section class="card">
-      <h3>${greeting} –</h3>
-      <p>We are excited to get you involved in the early testing of Athleap!</p>
-      <p>
-        We hope to get your perspective on the Athleap concept – an AI driven platform for fan engagement and the future of sports.
-        Through the platform, elite athletes can engage in coaching, gear recommendations, and training the next generation.
-      </p>
-      <p style="color: var(--muted); font-size: 14px;">
-        <strong>Your role:</strong> ${roleText}
-      </p>
+        <!-- Main container -->
+        <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px; width:100%;">
 
-      <div class="steps">
-        <h3>What we ask</h3>
-        <ol>
-          <li>Set up a profile.</li>
-          <li>Complete a lesson.</li>
-          <li>Submit a video.</li>
-          <li>Schedule a meeting.</li>
-          <li>Visit the site store.</li>
-        </ol>
-        <p class="muted">Use the bug icon at the bottom of any page to report issues. The research remains open for 2 weeks; we'll follow up for feedback. Thank you!</p>
-        <p>Best,<br/>Athleap Team</p>
-      </div>
-    </section>
-  </main>
+          <!-- Hero Section with Image Grid -->
+          <tr>
+            <td style="background-color:#1a1b22; padding:0; border-radius:16px 16px 0 0;">
+              <!-- 2x2 Image Grid -->
+              <table width="100%" cellpadding="0" cellspacing="4" border="0">
+                <tr>
+                  <td width="50%" style="padding:4px;">
+                    <img src="https://res.cloudinary.com/dr0jtjwlh/image/upload/v1761801110/2023_11_ha6dth.jpg" alt="Athlete" width="100%" style="display:block; border-radius:12px; max-width:290px;"/>
+                  </td>
+                  <td width="50%" style="padding:4px;">
+                    <img src="https://res.cloudinary.com/dr0jtjwlh/image/upload/v1761801108/2022_09_santa_clara_rain_uavpsb.jpg" alt="Athlete" width="100%" style="display:block; border-radius:12px; max-width:290px;"/>
+                  </td>
+                </tr>
+                <tr>
+                  <td width="50%" style="padding:4px;">
+                    <img src="https://res.cloudinary.com/dr0jtjwlh/image/upload/v1761801108/2022_08_2_h0rspg.jpg" alt="Athlete" width="100%" style="display:block; border-radius:12px; max-width:290px;"/>
+                  </td>
+                  <td width="50%" style="padding:4px;">
+                    <img src="https://res.cloudinary.com/dr0jtjwlh/image/upload/v1761801118/2023_11_2_oqbego.jpg" alt="Athlete" width="100%" style="display:block; border-radius:12px; max-width:290px;"/>
+                  </td>
+                </tr>
+              </table>
 
-  <footer>© Athleap</footer>
+              <!-- Hero Text Overlay -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:-200px; position:relative;">
+                <tr>
+                  <td align="center" style="padding:40px 20px;">
+                    <h1 style="color:#ffffff; font-size:48px; font-weight:700; margin:0 0 10px 0; text-align:center; line-height:1.1;">Athleap Early Access</h1>
+                    <p style="color:#e8e8ea; font-size:20px; font-weight:500; margin:0 0 20px 0; text-align:center; letter-spacing:0.3px;">Train smarter. Play harder. Grow together.</p>
+
+                    <!-- CTA Button -->
+                    <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin:20px auto;">
+                      <tr>
+                        <td align="center" style="background-color:#ffffff; border-radius:12px; padding:14px 32px;">
+                          <a href="${invitationUrl}" style="color:#111111; font-size:16px; font-weight:800; text-decoration:none; display:block;">Accept Your Invitation</a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Content Section -->
+          <tr>
+            <td style="background-color:#14151a; border:1px solid #272833; border-radius:0 0 16px 16px; padding:28px;">
+              <h3 style="color:#ffffff; font-size:24px; margin:0 0 16px 0;">${greeting} –</h3>
+
+              <p style="color:#c7c8cc; font-size:16px; line-height:1.6; margin:0 0 16px 0;">
+                We are excited to get you involved in the early testing of Athleap!
+              </p>
+
+              <p style="color:#c7c8cc; font-size:16px; line-height:1.6; margin:0 0 16px 0;">
+                We hope to get your perspective on the Athleap concept – an AI driven platform for fan engagement and the future of sports. Through the platform, elite athletes can engage in coaching, gear recommendations, and training the next generation.
+              </p>
+
+              <p style="color:#c7c8cc; font-size:14px; margin:0 0 24px 0;">
+                <strong style="color:#ffffff;">Your role:</strong> ${roleText}
+              </p>
+
+              <h3 style="color:#ffffff; font-size:22px; margin:24px 0 12px 0;">What we ask</h3>
+              <ol style="color:#c7c8cc; font-size:16px; line-height:1.8; padding-left:20px; margin:0 0 16px 0;">
+                <li>Set up a profile.</li>
+                <li>Complete a lesson.</li>
+                <li>Submit a video.</li>
+                <li>Schedule a meeting.</li>
+                <li>Visit the site store.</li>
+              </ol>
+
+              <p style="color:#999; font-size:14px; line-height:1.6; margin:20px 0;">
+                Use the bug icon at the bottom of any page to report issues. The research remains open for 2 weeks; we'll follow up for feedback. Thank you!
+              </p>
+
+              <p style="color:#c7c8cc; font-size:16px; margin:20px 0 0 0;">
+                Best,<br/>
+                Athleap Team
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td align="center" style="padding:30px 0;">
+              <p style="color:#666; font-size:14px; margin:0;">© Athleap</p>
+            </td>
+          </tr>
+
+        </table>
+
+      </td>
+    </tr>
+  </table>
 </body>
 </html>`;
 }
