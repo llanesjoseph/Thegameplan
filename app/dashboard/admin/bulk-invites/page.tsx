@@ -5,17 +5,21 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Trash2, Plus, Send } from 'lucide-react';
+import { useAuth } from '@/hooks/use-auth';
+import { auth } from '@/lib/firebase';
 
 interface InviteRow {
   id: string;
   name: string;
   email: string;
   role: 'COACH' | 'ATHLETE';
+  sport: string;
 }
 
 export default function BulkInvitesPage() {
+  const { user } = useAuth();
   const [rows, setRows] = useState<InviteRow[]>([
-    { id: '1', name: '', email: '', role: 'COACH' }
+    { id: '1', name: '', email: '', role: 'COACH', sport: '' }
   ]);
   const [selectedPreviewIndex, setSelectedPreviewIndex] = useState(0);
   const [sending, setSending] = useState(false);
@@ -25,7 +29,8 @@ export default function BulkInvitesPage() {
       id: Date.now().toString(),
       name: '',
       email: '',
-      role: 'COACH'
+      role: 'COACH',
+      sport: ''
     }]);
   };
 
@@ -45,10 +50,15 @@ export default function BulkInvitesPage() {
   };
 
   const handleSendInvites = async () => {
-    const validRows = rows.filter(row => row.name && row.email);
+    const validRows = rows.filter(row => row.name && row.email && row.sport);
 
     if (validRows.length === 0) {
-      alert('Please add at least one invite with name and email');
+      alert('Please add at least one invite with name, email, and sport');
+      return;
+    }
+
+    if (!user) {
+      alert('You must be signed in to send invitations');
       return;
     }
 
@@ -59,24 +69,41 @@ export default function BulkInvitesPage() {
     setSending(true);
 
     try {
+      // Get Firebase ID token for authentication
+      const idToken = await user.getIdToken();
+
       const results = await Promise.allSettled(
         validRows.map(async (row) => {
           const endpoint = row.role === 'COACH'
             ? '/api/admin/create-coach-invitation'
             : '/api/admin/create-athlete-invitation';
 
+          // Prepare request body based on role
+          const body = row.role === 'COACH'
+            ? {
+                coachEmail: row.email,
+                coachName: row.name,
+                sport: row.sport,
+              }
+            : {
+                athleteEmail: row.email,
+                athleteName: row.name,
+                sport: row.sport,
+                creatorUid: user.uid, // Assign athlete to the admin creating the invite
+              };
+
           const response = await fetch(endpoint, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              email: row.email,
-              name: row.name,
-              // Add any additional fields needed
-            }),
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${idToken}`
+            },
+            body: JSON.stringify(body),
           });
 
           if (!response.ok) {
-            throw new Error(`Failed to send invite to ${row.email}`);
+            const errorData = await response.json();
+            throw new Error(errorData.error || `Failed to send invite to ${row.email}`);
           }
 
           return response.json();
@@ -90,7 +117,7 @@ export default function BulkInvitesPage() {
 
       // Clear successful rows
       if (successful > 0) {
-        setRows([{ id: Date.now().toString(), name: '', email: '', role: 'COACH' }]);
+        setRows([{ id: Date.now().toString(), name: '', email: '', role: 'COACH', sport: '' }]);
       }
     } catch (error) {
       console.error('Error sending invites:', error);
@@ -346,6 +373,12 @@ export default function BulkInvitesPage() {
                     type="email"
                     value={row.email}
                     onChange={(e) => updateRow(row.id, 'email', e.target.value)}
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                  <Input
+                    placeholder="Sport (e.g., Basketball, Soccer)"
+                    value={row.sport}
+                    onChange={(e) => updateRow(row.id, 'sport', e.target.value)}
                     onClick={(e) => e.stopPropagation()}
                   />
                   <select
