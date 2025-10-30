@@ -171,31 +171,14 @@ function generateAthleapEarlyAccessEmail(
         <!-- Main container -->
         <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px; width:100%;">
 
-          <!-- Hero Section with Image Grid -->
+          <!-- Hero Section with 2x2 Image Grid -->
           <tr>
-            <td style="background-color:#1a1b22; padding:0; border-radius:16px 16px 0 0;">
-              <!-- 2x2 Image Grid -->
-              <table width="100%" cellpadding="0" cellspacing="4" border="0">
-                <tr>
-                  <td width="50%" style="padding:4px;">
-                    <img src="https://res.cloudinary.com/dr0jtjwlh/image/upload/c_fill,w_600,h_400,g_auto/v1761801110/2023_11_ha6dth.jpg" alt="Athlete" width="100%" height="200" style="display:block; border-radius:12px; object-fit:cover;"/>
-                  </td>
-                  <td width="50%" style="padding:4px;">
-                    <img src="https://res.cloudinary.com/dr0jtjwlh/image/upload/c_fill,w_600,h_400,g_auto/v1761801108/2022_09_santa_clara_rain_uavpsb.jpg" alt="Athlete" width="100%" height="200" style="display:block; border-radius:12px; object-fit:cover;"/>
-                  </td>
-                </tr>
-                <tr>
-                  <td width="50%" style="padding:4px;">
-                    <img src="https://res.cloudinary.com/dr0jtjwlh/image/upload/c_fill,w_600,h_400,g_auto/v1761801108/2022_08_2_h0rspg.jpg" alt="Athlete" width="100%" height="200" style="display:block; border-radius:12px; object-fit:cover;"/>
-                  </td>
-                  <td width="50%" style="padding:4px;">
-                    <img src="https://res.cloudinary.com/dr0jtjwlh/image/upload/c_fill,w_600,h_400,g_auto/v1761801118/2023_11_2_oqbego.jpg" alt="Athlete" width="100%" height="200" style="display:block; border-radius:12px; object-fit:cover;"/>
-                  </td>
-                </tr>
-              </table>
+            <td style="background-color:#1a1b22; padding:0; border-radius:16px 16px 0 0; position:relative;">
+              <!-- 2x2 grid montage created by Cloudinary -->
+              <img src="https://res.cloudinary.com/dr0jtjwlh/image/upload/w_1200,h_600,c_fill,b_rgb:1a1b22/l_2023_11_ha6dth,w_570,h_285,c_fill,g_auto,x_-305,y_-152/fl_layer_apply/l_2022_09_santa_clara_rain_uavpsb,w_570,h_285,c_fill,g_auto,x_305,y_-152/fl_layer_apply/l_2022_08_2_h0rspg,w_570,h_285,c_fill,g_auto,x_-305,y_152/fl_layer_apply/l_2023_11_2_oqbego,w_570,h_285,c_fill,g_auto,x_305,y_152/fl_layer_apply/f_jpg,q_auto/v1761801110/2023_11_ha6dth.jpg" alt="Athleap Athletes" width="100%" style="display:block; max-width:600px; height:auto; border-radius:16px 16px 0 0;"/>
 
               <!-- Hero Text Overlay -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:-200px; position:relative;">
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:-300px; position:relative;">
                 <tr>
                   <td align="center" style="padding:40px 20px;">
                     <h1 style="color:#ffffff; font-size:48px; font-weight:700; margin:0 0 10px 0; text-align:center; line-height:1.1;">Athleap Early Access</h1>
