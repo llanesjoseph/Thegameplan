@@ -178,18 +178,18 @@ function generateAthleapEarlyAccessEmail(
               <table width="100%" cellpadding="0" cellspacing="4" border="0">
                 <tr>
                   <td width="50%" style="padding:4px;">
-                    <img src="https://res.cloudinary.com/dr0jtjwlh/image/upload/v1761801110/2023_11_ha6dth.jpg" alt="Athlete" width="100%" style="display:block; border-radius:12px; max-width:290px;"/>
+                    <img src="https://res.cloudinary.com/dr0jtjwlh/image/upload/c_fill,w_600,h_400,g_auto/v1761801110/2023_11_ha6dth.jpg" alt="Athlete" width="100%" height="200" style="display:block; border-radius:12px; object-fit:cover;"/>
                   </td>
                   <td width="50%" style="padding:4px;">
-                    <img src="https://res.cloudinary.com/dr0jtjwlh/image/upload/v1761801108/2022_09_santa_clara_rain_uavpsb.jpg" alt="Athlete" width="100%" style="display:block; border-radius:12px; max-width:290px;"/>
+                    <img src="https://res.cloudinary.com/dr0jtjwlh/image/upload/c_fill,w_600,h_400,g_auto/v1761801108/2022_09_santa_clara_rain_uavpsb.jpg" alt="Athlete" width="100%" height="200" style="display:block; border-radius:12px; object-fit:cover;"/>
                   </td>
                 </tr>
                 <tr>
                   <td width="50%" style="padding:4px;">
-                    <img src="https://res.cloudinary.com/dr0jtjwlh/image/upload/v1761801108/2022_08_2_h0rspg.jpg" alt="Athlete" width="100%" style="display:block; border-radius:12px; max-width:290px;"/>
+                    <img src="https://res.cloudinary.com/dr0jtjwlh/image/upload/c_fill,w_600,h_400,g_auto/v1761801108/2022_08_2_h0rspg.jpg" alt="Athlete" width="100%" height="200" style="display:block; border-radius:12px; object-fit:cover;"/>
                   </td>
                   <td width="50%" style="padding:4px;">
-                    <img src="https://res.cloudinary.com/dr0jtjwlh/image/upload/v1761801118/2023_11_2_oqbego.jpg" alt="Athlete" width="100%" style="display:block; border-radius:12px; max-width:290px;"/>
+                    <img src="https://res.cloudinary.com/dr0jtjwlh/image/upload/c_fill,w_600,h_400,g_auto/v1761801118/2023_11_2_oqbego.jpg" alt="Athlete" width="100%" height="200" style="display:block; border-radius:12px; object-fit:cover;"/>
                   </td>
                 </tr>
               </table>
