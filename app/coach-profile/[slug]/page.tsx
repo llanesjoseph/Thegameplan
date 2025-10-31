@@ -113,10 +113,7 @@ export default function CoachProfilePage() {
       setCoach(coachProfile)
 
       // Fetch additional data
-      await Promise.all([
-        fetchCoachLessons(coachProfile.uid),
-        fetchCoachStats(coachProfile.uid)
-      ])
+      await fetchCoachStats(coachProfile.uid)
 
     } catch (error) {
       console.error('Error fetching coach profile:', error)
@@ -126,25 +123,14 @@ export default function CoachProfilePage() {
     }
   }
 
-  const fetchCoachLessons = async (coachId: string) => {
-    try {
-      const response = await fetch(`/api/coach/${coachId}/lessons`)
-      if (response.ok) {
-        const data = await response.json()
-        setLessons(data.lessons || [])
-        setTotalLessons(data.total || 0)
-      }
-    } catch (error) {
-      console.error('Error fetching coach lessons:', error)
-    }
-  }
-
   const fetchCoachStats = async (coachId: string) => {
     try {
       const response = await fetch(`/api/coach/${coachId}/stats`)
       if (response.ok) {
         const data = await response.json()
+        setTotalLessons(data.totalLessons || 0)
         setTotalAthletes(data.totalAthletes || 0)
+        setLessons(data.lessons || [])
       }
     } catch (error) {
       console.error('Error fetching coach stats:', error)

@@ -26,13 +26,25 @@ export async function GET(
 
     const totalLessons = lessonsSnapshot.size
 
-    // Get athlete count
-    const athletesSnapshot = await adminDb
-      .collection('users')
-      .where('assignedCoachId', '==', coachId)
-      .get()
+    // Get athlete count - check both coachId and assignedCoachId fields
+    const [athletesByCoachId, athletesByAssignedCoachId] = await Promise.all([
+      adminDb
+        .collection('users')
+        .where('coachId', '==', coachId)
+        .get(),
+      adminDb
+        .collection('users')
+        .where('assignedCoachId', '==', coachId)
+        .get()
+    ])
 
-    const totalAthletes = athletesSnapshot.size
+    // Use Set to deduplicate athletes who might have both fields set
+    const athleteIds = new Set([
+      ...athletesByCoachId.docs.map(doc => doc.id),
+      ...athletesByAssignedCoachId.docs.map(doc => doc.id)
+    ])
+
+    const totalAthletes = athleteIds.size
 
     // Get recent lessons (up to 6)
     const recentLessonsSnapshot = await adminDb
