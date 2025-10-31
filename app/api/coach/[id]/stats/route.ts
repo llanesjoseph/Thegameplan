@@ -26,25 +26,35 @@ export async function GET(
 
     const totalLessons = lessonsSnapshot.size
 
-    // Get athlete count - check both coachId and assignedCoachId fields
-    const [athletesByCoachId, athletesByAssignedCoachId] = await Promise.all([
-      adminDb
+    // Get athlete count - try both fields, handle missing indexes gracefully
+    let totalAthletes = 0
+    const athleteIds = new Set()
+
+    try {
+      // Try coachId field
+      const athletesByCoachId = await adminDb
         .collection('users')
         .where('coachId', '==', coachId)
-        .get(),
-      adminDb
+        .get()
+
+      athletesByCoachId.docs.forEach(doc => athleteIds.add(doc.id))
+    } catch (error) {
+      console.log('Could not query by coachId, may need index:', error)
+    }
+
+    try {
+      // Try assignedCoachId field
+      const athletesByAssignedCoachId = await adminDb
         .collection('users')
         .where('assignedCoachId', '==', coachId)
         .get()
-    ])
 
-    // Use Set to deduplicate athletes who might have both fields set
-    const athleteIds = new Set([
-      ...athletesByCoachId.docs.map(doc => doc.id),
-      ...athletesByAssignedCoachId.docs.map(doc => doc.id)
-    ])
+      athletesByAssignedCoachId.docs.forEach(doc => athleteIds.add(doc.id))
+    } catch (error) {
+      console.log('Could not query by assignedCoachId, may need index:', error)
+    }
 
-    const totalAthletes = athleteIds.size
+    totalAthletes = athleteIds.size
 
     // Get recent lessons (up to 6)
     const recentLessonsSnapshot = await adminDb
