@@ -48,25 +48,40 @@ export async function GET(request: NextRequest) {
     }
 
     // 3. Fetch submissions assigned to THIS coach using Admin SDK
+    // Query both coachId and assignedCoachId for maximum compatibility
     console.log('[API] Fetching submissions assigned to this coach...')
-    const submissionsQuery = adminDb.collection('submissions')
-      .where('assignedCoachId', '==', uid)
-    
-    const snapshot = await submissionsQuery.get()
+    const [submissionsByCoachId, submissionsByAssignedCoachId] = await Promise.all([
+      adminDb.collection('submissions')
+        .where('coachId', '==', uid)
+        .get(),
+      adminDb.collection('submissions')
+        .where('assignedCoachId', '==', uid)
+        .get()
+    ])
 
-    console.log(`[API] Found ${snapshot.docs.length} submissions assigned to this coach`)
+    // Deduplicate submissions
+    const submissionMap = new Map()
 
-    const allSubmissions = snapshot.docs.map((doc) => {
-      const data = doc.data()
-      return {
-        id: doc.id,
-        ...data,
-        // Convert Firestore timestamps to ISO strings for JSON serialization
-        createdAt: data.createdAt?.toDate?.()?.toISOString() || data.createdAt,
-        submittedAt: data.submittedAt?.toDate?.()?.toISOString() || data.submittedAt,
-        reviewedAt: data.reviewedAt?.toDate?.()?.toISOString() || data.reviewedAt,
+    const processSubmission = (doc: any) => {
+      if (!submissionMap.has(doc.id)) {
+        const data = doc.data()
+        submissionMap.set(doc.id, {
+          id: doc.id,
+          ...data,
+          // Convert Firestore timestamps to ISO strings for JSON serialization
+          createdAt: data.createdAt?.toDate?.()?.toISOString() || data.createdAt,
+          submittedAt: data.submittedAt?.toDate?.()?.toISOString() || data.submittedAt,
+          reviewedAt: data.reviewedAt?.toDate?.()?.toISOString() || data.reviewedAt,
+        })
       }
-    })
+    }
+
+    submissionsByCoachId.docs.forEach(processSubmission)
+    submissionsByAssignedCoachId.docs.forEach(processSubmission)
+
+    const allSubmissions = Array.from(submissionMap.values())
+
+    console.log(`[API] Found ${allSubmissions.length} submissions assigned to this coach`)
 
     // Sort by createdAt in memory (newest first)
     allSubmissions.sort((a: any, b: any) => {
