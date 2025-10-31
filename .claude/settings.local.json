@@ -28,7 +28,9 @@
       "Bash(node check-coach-data.js:*)",
       "Bash(vercel --prod:*)",
       "Bash(vercel login)",
-      "Bash(python -m json.tool:*)"
+      "Bash(python -m json.tool:*)",
+      "Bash(firebase --version:*)",
+      "Bash(firebase login:*)"
     ],
     "deny": [],
     "ask": []
