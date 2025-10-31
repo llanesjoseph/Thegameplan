@@ -85,8 +85,16 @@ export async function GET(
 
   } catch (error) {
     console.error('Error fetching coach stats:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    const errorStack = error instanceof Error ? error.stack : ''
+
     return NextResponse.json(
-      { error: 'Failed to fetch coach stats' },
+      {
+        error: 'Failed to fetch coach stats',
+        details: errorMessage,
+        stack: process.env.NODE_ENV === 'development' ? errorStack : undefined,
+        coachId: params.id
+      },
       { status: 500 }
     )
   }
