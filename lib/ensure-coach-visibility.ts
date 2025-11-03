@@ -1,4 +1,5 @@
 import { adminDb } from '@/lib/firebase.admin'
+import { createSlugMapping } from '@/lib/slug-utils'
 
 export interface CoachData {
   uid: string
@@ -69,6 +70,20 @@ export async function ensureCoachVisibility(coachData: CoachData): Promise<{
     // Write to creators_index (this is what Browse Coaches queries)
     await adminDb.collection('creators_index').doc(coachData.uid).set(creatorsIndexData)
     console.log(`✅ [ENSURE-COACH-VISIBILITY] Added ${coachData.displayName} to creators_index`)
+
+    // Create slug mapping for secure profile URLs
+    try {
+      const slugResult = await createSlugMapping(coachData.uid, coachData.displayName)
+      if (slugResult.success) {
+        console.log(`✅ [ENSURE-COACH-VISIBILITY] Created slug mapping: ${slugResult.slug}`)
+      } else {
+        console.warn(`⚠️ [ENSURE-COACH-VISIBILITY] Failed to create slug: ${slugResult.error}`)
+        // Don't fail the entire process if slug creation fails
+      }
+    } catch (slugError: any) {
+      console.error(`❌ [ENSURE-COACH-VISIBILITY] Error creating slug:`, slugError)
+      // Don't fail the entire process if slug creation fails
+    }
 
     // Update coach count cache
     await updateCoachCountCache()
