@@ -51,25 +51,37 @@ export function generateSlug(displayName: string, originalId: string): string {
  * Create or update a slug mapping for a creator
  */
 export async function createSlugMapping(
-  originalId: string, 
-  displayName: string
+  originalId: string,
+  displayName: string,
+  retryCount: number = 0
 ): Promise<{ success: boolean; slug: string; error?: string }> {
   try {
-    const slug = generateSlug(displayName, originalId)
-    
+    // Prevent infinite recursion
+    if (retryCount > 5) {
+      throw new Error('Maximum slug collision retries exceeded')
+    }
+
+    // Generate slug with additional entropy on retries
+    const slugSuffix = retryCount > 0 ? Date.now().toString() : ''
+    const slug = generateSlug(displayName, originalId + slugSuffix)
+
     // Check if slug already exists
     const existingSlug = await adminDb.collection('slug_mappings').doc(slug).get()
-    
+
     if (existingSlug.exists) {
       const existingData = existingSlug.data()
       if (existingData?.originalId !== originalId) {
-        // Slug exists for different creator, generate new one
-        const newSlug = generateSlug(displayName, originalId + Date.now().toString())
-        return await createSlugMapping(originalId, displayName)
+        // Slug collision - retry with more entropy
+        console.log(`⚠️ Slug collision for "${slug}", retrying (attempt ${retryCount + 1})`)
+        return await createSlugMapping(originalId, displayName, retryCount + 1)
+      } else {
+        // Slug already exists for this coach, just return it
+        console.log(`ℹ️ Slug already exists for this coach: ${slug}`)
+        return { success: true, slug }
       }
     }
-    
-    // Create or update slug mapping
+
+    // Create slug mapping
     await adminDb.collection('slug_mappings').doc(slug).set({
       slug,
       originalId,
@@ -77,15 +89,15 @@ export async function createSlugMapping(
       createdAt: new Date(),
       lastUsed: new Date()
     }, { merge: true })
-    
-    // Also update the creator's profile with the slug
+
+    // Update the creator's profile with the slug
     await adminDb.collection('creators_index').doc(originalId).update({
       slug,
       lastUpdated: new Date()
     })
-    
+
     console.log(`✅ Created slug mapping: ${slug} -> ${originalId} (${displayName})`)
-    
+
     return { success: true, slug }
   } catch (error) {
     console.error('❌ Error creating slug mapping:', error)

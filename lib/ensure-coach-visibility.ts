@@ -71,19 +71,20 @@ export async function ensureCoachVisibility(coachData: CoachData): Promise<{
     await adminDb.collection('creators_index').doc(coachData.uid).set(creatorsIndexData)
     console.log(`✅ [ENSURE-COACH-VISIBILITY] Added ${coachData.displayName} to creators_index`)
 
-    // Create slug mapping for secure profile URLs
-    try {
-      const slugResult = await createSlugMapping(coachData.uid, coachData.displayName)
-      if (slugResult.success) {
-        console.log(`✅ [ENSURE-COACH-VISIBILITY] Created slug mapping: ${slugResult.slug}`)
-      } else {
-        console.warn(`⚠️ [ENSURE-COACH-VISIBILITY] Failed to create slug: ${slugResult.error}`)
-        // Don't fail the entire process if slug creation fails
-      }
-    } catch (slugError: any) {
-      console.error(`❌ [ENSURE-COACH-VISIBILITY] Error creating slug:`, slugError)
-      // Don't fail the entire process if slug creation fails
+    // IRONCLAD: Create slug mapping for secure profile URLs (REQUIRED)
+    const slugResult = await createSlugMapping(coachData.uid, coachData.displayName)
+    if (!slugResult.success) {
+      throw new Error(`Failed to create slug mapping for ${coachData.displayName}: ${slugResult.error}`)
     }
+    console.log(`✅ [ENSURE-COACH-VISIBILITY] Created slug mapping: ${slugResult.slug}`)
+
+    // Verify slug was actually stored in creators_index
+    const verifyDoc = await adminDb.collection('creators_index').doc(coachData.uid).get()
+    const verifyData = verifyDoc.data()
+    if (!verifyData?.slug) {
+      throw new Error(`Slug verification failed for ${coachData.displayName} - slug not found in creators_index`)
+    }
+    console.log(`✅ [ENSURE-COACH-VISIBILITY] Verified slug in creators_index: ${verifyData.slug}`)
 
     // Update coach count cache
     await updateCoachCountCache()
