@@ -334,6 +334,85 @@ exports.onLessonCompleted = onDocumentUpdated('athlete_feed/{athleteId}', async 
 });
 
 // ============================================================================
+// FUNCTION 4: updateCoachLessonCount
+// Trigger: When a lesson's status changes, update the coach's lessonCount in creators_index
+// ============================================================================
+
+exports.updateCoachLessonCount = onDocumentWritten('content/{lessonId}', async (event) => {
+  try {
+    const lessonId = event.params.lessonId;
+
+    // Handle lesson deletion
+    if (!event.data.after.exists && event.data.before.exists) {
+      const beforeData = event.data.before.data();
+      const coachId = beforeData.creatorUid;
+
+      if (coachId && beforeData.status === 'published') {
+        logger.log(`Lesson ${lessonId} was deleted. Decrementing lesson count for coach ${coachId}`);
+        await updateCoachLessonCountHelper(coachId);
+      }
+      return null;
+    }
+
+    // Handle lesson creation or update
+    if (!event.data.after.exists) {
+      return null;
+    }
+
+    const afterData = event.data.after.data();
+    const beforeData = event.data.before.exists ? event.data.before.data() : null;
+    const coachId = afterData.creatorUid;
+
+    if (!coachId) {
+      return null;
+    }
+
+    // Check if publication status changed
+    const wasPublished = beforeData?.status === 'published';
+    const isPublished = afterData.status === 'published';
+
+    // Only update count if publication status changed
+    if (wasPublished !== isPublished) {
+      logger.log(`Lesson ${lessonId} publication status changed. Updating lesson count for coach ${coachId}`);
+      await updateCoachLessonCountHelper(coachId);
+    }
+
+    return null;
+
+  } catch (error) {
+    logger.error('❌ Error in updateCoachLessonCount:', error);
+    // Don't throw - this is non-critical for lesson delivery
+    return null;
+  }
+});
+
+/**
+ * Helper function to update the lesson count for a coach in creators_index
+ */
+async function updateCoachLessonCountHelper(coachId) {
+  try {
+    // Count published lessons
+    const lessonsSnapshot = await db.collection('content')
+      .where('creatorUid', '==', coachId)
+      .where('status', '==', 'published')
+      .get();
+
+    const lessonCount = lessonsSnapshot.size;
+
+    // Update creators_index
+    await db.doc(`creators_index/${coachId}`).update({
+      lessonCount,
+      updatedAt: FieldValue.serverTimestamp()
+    });
+
+    logger.log(`✅ Updated lesson count for coach ${coachId}: ${lessonCount} lessons`);
+
+  } catch (error) {
+    logger.error(`❌ Error updating lesson count for coach ${coachId}:`, error);
+  }
+}
+
+// ============================================================================
 // HELPER FUNCTION: Manual Sync (Callable from client)
 // Use this if data gets out of sync
 // ============================================================================

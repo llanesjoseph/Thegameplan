@@ -20,7 +20,9 @@ import {
  Phone,
  Calendar,
  Trash2,
- AlertTriangle
+ AlertTriangle,
+ User,
+ X
 } from 'lucide-react'
 
 interface User {
@@ -34,6 +36,8 @@ interface User {
  sport?: string
  level?: string
  location?: string
+ coachId?: string
+ assignedCoachId?: string
 }
 
 export default function AdminUserManagement() {
@@ -52,6 +56,8 @@ export default function AdminUserManagement() {
  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
  const [deleteStep, setDeleteStep] = useState(1)
  const [isDeletingUser, setIsDeletingUser] = useState(false)
+ const [showProfileIframe, setShowProfileIframe] = useState(false)
+ const [profileUrl, setProfileUrl] = useState('')
 
  const { user } = useAuth()
  const { role, loading: roleLoading } = useEnhancedRole()
@@ -81,7 +87,9 @@ export default function AdminUserManagement() {
      lastActive: data.lastActive?.toDate() || new Date(),
      sport: data.sport || '',
      level: data.level || '',
-     location: data.location || ''
+     location: data.location || '',
+     coachId: data.coachId || data.assignedCoachId || '',
+     assignedCoachId: data.assignedCoachId || data.coachId || ''
     })
    })
 
@@ -201,12 +209,32 @@ export default function AdminUserManagement() {
 
     console.log(`✅ Assigned coach to user`)
    alert('Coach assigned successfully!')
+   setSelectedCoachId('') // Reset dropdown after successful assignment
    setSelectedUser(null)
    loadUsers() // Reload to show updated data
   } catch (error) {
    console.error('Error assigning coach:', error)
    alert('Failed to assign coach. Please try again.')
   }
+ }
+
+ // Pre-select current coach when modal opens for an athlete
+ useEffect(() => {
+  if (selectedUser && selectedUser.role === 'athlete') {
+   const currentCoachId = selectedUser.coachId || selectedUser.assignedCoachId || ''
+   setSelectedCoachId(currentCoachId)
+  } else {
+   setSelectedCoachId('')
+  }
+ }, [selectedUser])
+
+ const handleViewProfile = (user: User) => {
+  const profilePath = user.role === 'athlete'
+   ? `/dashboard/admin/profile/athlete/${user.uid}`
+   : `/dashboard/admin/profile/coach/${user.uid}`
+  setProfileUrl(profilePath)
+  setShowProfileIframe(true)
+  setSelectedUser(null)
  }
 
  const deleteUser = async (uid: string, email: string) => {
@@ -580,6 +608,20 @@ export default function AdminUserManagement() {
       <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-2xl border border-white/50 max-w-md w-full my-auto max-h-[calc(100vh-2rem)] overflow-y-auto p-6">
        <h3 className="text-2xl mb-6" style={{ color: '#000000' }}>User Actions</h3>
 
+       {/* View Profile Button */}
+       <div className="mb-6">
+        <button
+         onClick={() => handleViewProfile(selectedUser)}
+         className="w-full px-4 py-3 rounded-lg text-white transition-all font-medium"
+         style={{ backgroundColor: '#8B5CF6' }}
+        >
+         <div className="flex items-center justify-center gap-2">
+          <User className="w-5 h-5" />
+          <span>View Full Profile</span>
+         </div>
+        </button>
+       </div>
+
        <div className="space-y-3 mb-6">
         <div className="flex items-center gap-3 p-3 rounded-lg bg-white/60 border border-gray-300/30">
          <Mail className="w-5 h-5" style={{ color: '#91A6EB' }} />
@@ -692,8 +734,26 @@ export default function AdminUserManagement() {
 
         {/* Assign Coach (Athletes Only) */}
         {selectedUser.role === 'athlete' && (
-         <div className="border-t border-gray-300/30 pt-4 space-y-2">
-          <label className="text-sm font-medium" style={{ color: '#000000' }}>Assign Coach</label>
+         <div className="border-t border-gray-300/30 pt-4 space-y-3">
+          {/* Current Coach Display */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+           <div className="text-xs font-semibold mb-1" style={{ color: '#1e40af' }}>CURRENT ASSIGNED COACH</div>
+           {selectedUser.coachId || selectedUser.assignedCoachId ? (
+            <div className="flex items-center gap-2">
+             <Star className="w-4 h-4 text-blue-600" />
+             <span className="font-medium text-sm" style={{ color: '#000000' }}>
+              {coaches.find(c => c.uid === (selectedUser.coachId || selectedUser.assignedCoachId))?.name || 'Coach not found'}
+             </span>
+            </div>
+           ) : (
+            <div className="flex items-center gap-2 text-orange-600">
+             <AlertTriangle className="w-4 h-4" />
+             <span className="text-sm font-medium">No coach assigned</span>
+            </div>
+           )}
+          </div>
+
+          <label className="text-sm font-medium" style={{ color: '#000000' }}>Change or Assign Coach</label>
           <select
            value={selectedCoachId}
            onChange={(e) => setSelectedCoachId(e.target.value)}
@@ -841,6 +901,39 @@ export default function AdminUserManagement() {
         >
          Close
         </button>
+       </div>
+      </div>
+     </div>
+    )}
+
+    {/* Profile Iframe Overlay */}
+    {showProfileIframe && (
+     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-2xl border border-white/50 w-full max-w-7xl h-[90vh] flex flex-col">
+       {/* Header */}
+       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+        <h2 className="text-xl font-semibold" style={{ color: '#000000' }}>
+         User Profile
+        </h2>
+        <button
+         onClick={() => {
+          setShowProfileIframe(false)
+          setProfileUrl('')
+         }}
+         className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+         title="Close"
+        >
+         <X className="w-5 h-5" style={{ color: '#000000' }} />
+        </button>
+       </div>
+
+       {/* Iframe */}
+       <div className="flex-1 overflow-hidden">
+        <iframe
+         src={profileUrl}
+         className="w-full h-full border-0"
+         title="User Profile"
+        />
        </div>
       </div>
      </div>

@@ -34,7 +34,8 @@ import {
 
 interface InvitationData {
   id: string
-  coachId: string
+  creatorUid: string  // The coach's UID (always present)
+  coachId: string     // Also stored as coachId for consistency
   athleteEmail: string
   athleteName: string
   sport: string
@@ -284,7 +285,7 @@ export default function AthleteOnboardingPage() {
         body: JSON.stringify({
           invitationId,
           email: formData.email,
-          coachId: invitation?.coachId // 🔒 LOCKED IN: Pass coach UID directly from invitation
+          coachId: invitation?.coachId || invitation?.creatorUid // 🔒 LOCKED IN: Pass coach UID directly from invitation (with fallback)
         })
       })
 
@@ -338,7 +339,7 @@ export default function AthleteOnboardingPage() {
         body: JSON.stringify({
           invitationId,
           email: formData.email,
-          coachId: invitation?.coachId // 🔒 LOCKED IN: Pass coach UID directly from invitation
+          coachId: invitation?.coachId || invitation?.creatorUid // 🔒 LOCKED IN: Pass coach UID directly from invitation (with fallback)
         })
       })
 

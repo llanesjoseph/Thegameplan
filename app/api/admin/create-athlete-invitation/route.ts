@@ -105,6 +105,7 @@ export async function POST(request: NextRequest) {
       type: 'athlete_invitation',
       role: 'athlete', // CRITICAL: Target role
       creatorUid, // The assigned coach
+      coachId: creatorUid, // CRITICAL: Duplicate as coachId for absolute certainty (consistency with coach-created invitations)
       coachName,
       athleteEmail: athleteEmail.toLowerCase(),
       athleteName,

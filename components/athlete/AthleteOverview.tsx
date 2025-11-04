@@ -70,16 +70,77 @@ export default function AthleteOverview() {
       // Get today's date for upcoming events (simplified - would need actual event tracking)
       const upcomingEvents = 0 // Placeholder - would fetch from schedule
 
-      // Calculate training streak based on completed lessons
+      // Calculate training streak based on actual consecutive days of activity
       const calculateStreak = () => {
         if (!feedData?.completedLessons || feedData.completedLessons.length === 0) {
           return 0;
         }
-        
-        // Simple streak calculation based on completion count
-        // For now, just return the number of completed lessons as a basic streak
-        // TODO: Implement proper date-based streak calculation
-        return Math.min(feedData.completedLessons.length, 7); // Max 7 days for now
+
+        // Get completion dates from the new completionDates map
+        const completionDates = feedData.completionDates || {};
+
+        if (Object.keys(completionDates).length === 0) {
+          // No completion dates tracked yet - fallback to checking lastActivity
+          const lastActivity = feedData.lastActivity?.toDate?.();
+          if (!lastActivity) return 0;
+
+          const now = new Date();
+          const hoursSinceLastActivity = (now.getTime() - lastActivity.getTime()) / (1000 * 60 * 60);
+          const daysSinceLastActivity = Math.floor(hoursSinceLastActivity / 24);
+
+          // If more than 1 day has passed, streak is broken
+          return daysSinceLastActivity > 1 ? 0 : 1;
+        }
+
+        // Convert completion timestamps to dates (YYYY-MM-DD format for comparison)
+        const completionDateStrings = Object.values(completionDates)
+          .map((timestamp: any) => {
+            const date = timestamp?.toDate ? timestamp.toDate() : new Date(timestamp);
+            return date.toISOString().split('T')[0]; // YYYY-MM-DD
+          })
+          .filter((date: string) => date); // Remove any invalid dates
+
+        if (completionDateStrings.length === 0) return 0;
+
+        // Get unique dates (in case multiple lessons completed on same day)
+        const uniqueDates = [...new Set(completionDateStrings)].sort().reverse(); // Most recent first
+
+        // Calculate consecutive days working backwards from today/yesterday
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const todayStr = today.toISOString().split('T')[0];
+
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+        // Start streak from today or yesterday (grace period)
+        let streakStart = -1;
+        if (uniqueDates.includes(todayStr)) {
+          streakStart = 0; // Start from today
+        } else if (uniqueDates.includes(yesterdayStr)) {
+          streakStart = 1; // Start from yesterday
+        } else {
+          return 0; // No recent activity, streak broken
+        }
+
+        // Count consecutive days backwards
+        let streak = 1;
+        let currentDate = new Date(today);
+        currentDate.setDate(currentDate.getDate() - streakStart);
+
+        for (let i = streakStart; i < uniqueDates.length; i++) {
+          const expectedDateStr = currentDate.toISOString().split('T')[0];
+
+          if (uniqueDates[i] === expectedDateStr) {
+            if (i > streakStart) streak++; // Don't double count the first day
+            currentDate.setDate(currentDate.getDate() - 1); // Move to previous day
+          } else {
+            break; // Streak broken
+          }
+        }
+
+        return streak;
       };
 
       setStats({

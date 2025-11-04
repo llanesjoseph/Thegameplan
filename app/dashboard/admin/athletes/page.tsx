@@ -27,11 +27,14 @@ interface AthleteData {
   email?: string
   role: string
   createdAt?: any
+  lastLoginAt?: any
   lastActive?: any
-  videosWatched?: number
-  totalWatchTime?: number
-  completionRate?: number
-  subscriptionStatus?: 'active' | 'inactive' | 'trial'
+  lessonsCompleted?: number
+  currentStreak?: number
+  totalVideosSubmitted?: number
+  coachId?: string
+  assignedCoachId?: string
+  status?: 'active' | 'inactive' | 'suspended'
 }
 
 export default function Athletes() {
@@ -42,8 +45,8 @@ export default function Athletes() {
   const [stats, setStats] = useState({
     totalAthletes: 0,
     activeAthletes: 0,
-    averageWatchTime: 0,
-    averageCompletion: 0
+    averageLessons: 0,
+    averageStreak: 0
   })
 
   const { user } = useAuth()
@@ -64,17 +67,29 @@ export default function Athletes() {
         // Calculate stats for each athlete
         const athletesData = athletesSnapshot.docs.map((doc) => {
           const data = doc.data()
+
+          // Build display name
+          let displayName = data.displayName
+          if (!displayName && data.firstName && data.lastName) {
+            displayName = `${data.firstName} ${data.lastName}`
+          } else if (!displayName) {
+            displayName = data.email || 'Unknown'
+          }
+
           return {
             id: doc.id,
-            displayName: data.displayName,
+            displayName,
             email: data.email,
             role: data.role,
             createdAt: data.createdAt,
-            lastActive: data.lastActive,
-            videosWatched: data.videosWatched || 0,
-            totalWatchTime: data.totalWatchTime || 0,
-            completionRate: data.completionRate || 0,
-            subscriptionStatus: data.subscriptionStatus || 'inactive'
+            lastLoginAt: data.lastLoginAt,
+            lastActive: data.lastLoginAt || data.lastActive, // Use lastLoginAt as lastActive
+            lessonsCompleted: data.lessonsCompleted || 0,
+            currentStreak: data.currentStreak || 0,
+            totalVideosSubmitted: data.totalVideosSubmitted || 0,
+            coachId: data.coachId || data.assignedCoachId,
+            assignedCoachId: data.assignedCoachId || data.coachId,
+            status: data.status || 'active'
           }
         })
 
@@ -91,14 +106,14 @@ export default function Athletes() {
         }).length
 
         // Calculate averages
-        const totalWatchTime = athletesData.reduce((sum, a) => sum + (a.totalWatchTime || 0), 0)
-        const totalCompletion = athletesData.reduce((sum, a) => sum + (a.completionRate || 0), 0)
+        const totalLessons = athletesData.reduce((sum, a) => sum + (a.lessonsCompleted || 0), 0)
+        const totalStreak = athletesData.reduce((sum, a) => sum + (a.currentStreak || 0), 0)
 
         setStats({
           totalAthletes: athletesData.length,
           activeAthletes,
-          averageWatchTime: athletesData.length > 0 ? totalWatchTime / athletesData.length : 0,
-          averageCompletion: athletesData.length > 0 ? totalCompletion / athletesData.length : 0
+          averageLessons: athletesData.length > 0 ? totalLessons / athletesData.length : 0,
+          averageStreak: athletesData.length > 0 ? totalStreak / athletesData.length : 0
         })
       } catch (error) {
         console.error('Error loading athletes:', error)
@@ -118,7 +133,7 @@ export default function Athletes() {
       athlete.email?.toLowerCase().includes(searchTerm.toLowerCase())
 
     const matchesFilter =
-      filterStatus === 'all' || athlete.subscriptionStatus === filterStatus
+      filterStatus === 'all' || athlete.status === filterStatus
 
     return matchesSearch && matchesFilter
   })
@@ -126,10 +141,10 @@ export default function Athletes() {
   const getStatusBadge = (status: string) => {
     const configs = {
       active: { bg: '#20B2AA', label: 'Active' },
-      trial: { bg: '#91A6EB', label: 'Trial' },
+      suspended: { bg: '#FF6B35', label: 'Suspended' },
       inactive: { bg: '#666', label: 'Inactive' }
     }
-    const config = configs[status as keyof typeof configs] || configs.inactive
+    const config = configs[status as keyof typeof configs] || configs.active
     return (
       <span
         className="px-3 py-1 rounded-full text-xs text-white"
@@ -196,22 +211,22 @@ export default function Athletes() {
 
           <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
             <div className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: '#FF6B35' }}>
-              <Clock className="w-6 h-6 text-white" />
+              <Trophy className="w-6 h-6 text-white" />
             </div>
             <div className="text-4xl mb-2" style={{ color: '#FF6B35' }}>
-              {stats.averageWatchTime.toFixed(1)}h
+              {stats.averageLessons.toFixed(1)}
             </div>
-            <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Avg Watch Time</div>
+            <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Avg Lessons</div>
           </div>
 
           <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 text-center">
-            <div className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: '#000000' }}>
+            <div className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: '#F59E0B' }}>
               <Target className="w-6 h-6 text-white" />
             </div>
-            <div className="text-4xl mb-2" style={{ color: '#000000' }}>
-              {stats.averageCompletion.toFixed(0)}%
+            <div className="text-4xl mb-2" style={{ color: '#F59E0B' }}>
+              {stats.averageStreak.toFixed(1)}
             </div>
-            <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Avg Completion</div>
+            <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>Avg Streak</div>
           </div>
         </div>
 
@@ -239,7 +254,7 @@ export default function Athletes() {
               >
                 <option value="all">All Status</option>
                 <option value="active">Active</option>
-                <option value="trial">Trial</option>
+                <option value="suspended">Suspended</option>
                 <option value="inactive">Inactive</option>
               </select>
             </div>
@@ -254,8 +269,9 @@ export default function Athletes() {
                 <tr>
                   <th className="text-left p-4" style={{ color: '#000000' }}>Athlete</th>
                   <th className="text-center p-4" style={{ color: '#000000' }}>Status</th>
-                  <th className="text-center p-4" style={{ color: '#000000' }}>Videos Watched</th>
-                  <th className="text-center p-4" style={{ color: '#000000' }}>Watch Time</th>
+                  <th className="text-center p-4" style={{ color: '#000000' }}>Lessons Done</th>
+                  <th className="text-center p-4" style={{ color: '#000000' }}>Streak</th>
+                  <th className="text-center p-4" style={{ color: '#000000' }}>Videos Sent</th>
                   <th className="text-center p-4" style={{ color: '#000000' }}>Last Active</th>
                 </tr>
               </thead>
@@ -269,13 +285,19 @@ export default function Athletes() {
                       </div>
                     </td>
                     <td className="p-4 text-center">
-                      {getStatusBadge(athlete.subscriptionStatus || 'inactive')}
+                      {getStatusBadge(athlete.status || 'active')}
                     </td>
                     <td className="p-4 text-center">
-                      <div style={{ color: '#000000' }}>{athlete.videosWatched || 0}</div>
+                      <div style={{ color: '#000000' }}>{athlete.lessonsCompleted || 0}</div>
                     </td>
                     <td className="p-4 text-center">
-                      <div style={{ color: '#000000' }}>{(athlete.totalWatchTime || 0).toFixed(1)}h</div>
+                      <div className="flex items-center justify-center gap-1">
+                        <span style={{ color: '#F59E0B' }}>{athlete.currentStreak || 0}</span>
+                        {(athlete.currentStreak || 0) > 0 && <span>🔥</span>}
+                      </div>
+                    </td>
+                    <td className="p-4 text-center">
+                      <div style={{ color: '#000000' }}>{athlete.totalVideosSubmitted || 0}</div>
                     </td>
                     <td className="p-4 text-center">
                       <div className="text-sm" style={{ color: '#000000', opacity: 0.7 }}>

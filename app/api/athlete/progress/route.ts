@@ -98,13 +98,15 @@ export async function POST(request: NextRequest) {
     const feedRef = adminDb.collection('athlete_feed').doc(athleteId)
 
     if (action === 'complete') {
-      // Add to completedLessons array (using arrayUnion for idempotency)
+      // Add to completedLessons array AND store completion timestamp
+      // completionDates format: { [lessonId]: timestamp }
       await feedRef.update({
         completedLessons: FieldValue.arrayUnion(lessonId),
+        [`completionDates.${lessonId}`]: FieldValue.serverTimestamp(),
         lastActivity: FieldValue.serverTimestamp()
       })
 
-      console.log(`✅ Athlete [ATHLETE_ID] progress updated`)
+      console.log(`✅ Athlete ${athleteId} marked lesson ${lessonId} as complete`)
 
       return NextResponse.json({
         success: true,
@@ -114,13 +116,14 @@ export async function POST(request: NextRequest) {
       })
 
     } else if (action === 'uncomplete') {
-      // Remove from completedLessons array
+      // Remove from completedLessons array AND remove completion timestamp
       await feedRef.update({
         completedLessons: FieldValue.arrayRemove(lessonId),
+        [`completionDates.${lessonId}`]: FieldValue.delete(),
         lastActivity: FieldValue.serverTimestamp()
       })
 
-      console.log(`✅ Athlete [ATHLETE_ID] progress updated`)
+      console.log(`✅ Athlete ${athleteId} unmarked lesson ${lessonId}`)
 
       return NextResponse.json({
         success: true,
