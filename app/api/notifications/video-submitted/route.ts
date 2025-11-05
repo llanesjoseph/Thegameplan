@@ -47,12 +47,41 @@ export async function POST(request: NextRequest) {
     const athleteData = athleteDoc.data();
     const athleteName = athleteData?.displayName || athleteData?.email || 'Athlete';
 
-    // Get coach email
-    const coachEmail = submission.coachEmail || 'llanes.joseph.m@gmail.com';
-    const coachName = submission.coachName || 'Coach';
+    // Get assigned coach ID from submission (use assignedCoachId or coachId)
+    const assignedCoachId = submission.assignedCoachId || submission.coachId;
+
+    if (!assignedCoachId) {
+      console.log(`No assigned coach for submission ${submissionId}, skipping notification`);
+      return NextResponse.json({
+        success: true,
+        message: 'No assigned coach, notification skipped'
+      });
+    }
+
+    // Fetch coach details from users collection
+    const coachDoc = await adminDb.collection('users').doc(assignedCoachId).get();
+
+    if (!coachDoc.exists) {
+      console.error(`Assigned coach ${assignedCoachId} not found for submission ${submissionId}`);
+      return NextResponse.json({
+        error: 'Assigned coach not found'
+      }, { status: 404 });
+    }
+
+    const coachData = coachDoc.data();
+    const coachEmail = coachData?.email;
+    const coachName = coachData?.displayName || coachData?.email || 'Coach';
+
+    if (!coachEmail) {
+      console.error(`Coach ${assignedCoachId} has no email address`);
+      return NextResponse.json({
+        error: 'Coach email not found'
+      }, { status: 404 });
+    }
+
     const reviewUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://playbookd.crucibleanalytics.dev'}/dashboard/coach/review/${submissionId}`;
 
-    // Send email notification
+    // Send email notification to the ASSIGNED coach only
     await sendVideoSubmissionNotification({
       to: coachEmail,
       coachName: coachName,
