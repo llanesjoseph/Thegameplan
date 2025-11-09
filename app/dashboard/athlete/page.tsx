@@ -7,28 +7,19 @@ import { useAuth } from '@/hooks/use-auth'
 import { usePageAnalytics } from '@/hooks/use-page-analytics'
 // Removed client-side Firebase imports - using secure API endpoints instead
 import {
-  BookOpen,
   Video,
-  Sparkles,
   Calendar,
   LayoutDashboard,
   ChevronRight,
   X,
   Clock,
   TrendingUp,
-  ShoppingBag,
-  Rss,
   User,
   FileVideo,
   RefreshCw
 } from 'lucide-react'
 import AppHeader from '@/components/ui/AppHeader'
-import Live1on1RequestModal from '@/components/athlete/Live1on1RequestModal'
 import MyCoachPanel from '@/components/athlete/MyCoachPanel'
-import CoachFeedView from '@/components/athlete/CoachFeedView'
-import CoachScheduleView from '@/components/athlete/CoachScheduleView'
-import AIAssistant from '@/components/AIAssistant'
-import AskCoachAI from '@/components/athlete/AskCoachAI'
 
 export default function AthleteDashboard() {
   const { user } = useAuth()
@@ -38,7 +29,6 @@ export default function AthleteDashboard() {
   // Track page analytics
   usePageAnalytics()
 
-  const [showLive1on1Modal, setShowLive1on1Modal] = useState(false)
   const [showCoachPanel, setShowCoachPanel] = useState(false)
   const [hasCoachRole, setHasCoachRole] = useState(false)
   const [coachId, setCoachId] = useState<string | null>(null)
@@ -60,7 +50,7 @@ export default function AthleteDashboard() {
   const [coachVideoCount, setCoachVideoCount] = useState<number>(0)
   const [completedReviewsCount, setCompletedReviewsCount] = useState<number>(0)
 
-  // Athlete tools - simplified for sidebar
+  // Athlete tools - reduced scope (core video feedback loop only)
   const athleteTools = [
     {
       id: 'home',
@@ -76,48 +66,6 @@ export default function AthleteDashboard() {
       icon: Video,
       color: '#E53E3E',
       badge: completedReviewsCount
-    },
-    {
-      id: 'ai-assistant',
-      title: coachName ? `Ask ${coachName.split(' ')[0]}` : 'Ask Your Coach',
-      description: 'Chat with your coach\'s AI assistant',
-      icon: Sparkles,
-      color: '#5A9B9B'
-    },
-    {
-      id: 'coach-feed',
-      title: "Coach's Feed",
-      description: 'Updates and tips from your coach',
-      icon: Rss,
-      color: '#5A9B9B'
-    },
-    {
-      id: 'coach-schedule',
-      title: "Coach's Schedule",
-      description: 'View upcoming events and sessions',
-      icon: Calendar,
-      color: '#5A9A70'
-    },
-    {
-      id: 'lessons',
-      title: 'My Lessons',
-      description: 'View and complete training lessons',
-      icon: BookOpen,
-      color: '#7B92C4'
-    },
-    {
-      id: 'live-session',
-      title: 'Live 1-on-1 Session',
-      description: 'Schedule a live coaching call',
-      icon: Calendar,
-      color: '#5A9A70'
-    },
-    {
-      id: 'gear',
-      title: 'Gear Shop',
-      description: 'Browse recommended equipment',
-      icon: ShoppingBag,
-      color: '#7B92C4'
     },
     ...(hasCoachRole ? [{
       id: 'coach-dashboard',
@@ -249,10 +197,6 @@ export default function AthleteDashboard() {
 
   // Memoize handleToolClick to prevent recreation on every render
   const handleToolClick = useCallback((toolId: string) => {
-    if (toolId === 'live-session') {
-      setShowLive1on1Modal(true)
-      return
-    }
     if (toolId === 'coach-dashboard') {
       router.push('/dashboard/coach-unified')
       return
@@ -467,18 +411,6 @@ export default function AthleteDashboard() {
 
   return (
     <>
-      {/* Live 1-on-1 Session Modal */}
-      {showLive1on1Modal && user && (
-        <Live1on1RequestModal
-          userId={user.uid}
-          userEmail={user.email || ''}
-          coachId={coachId || undefined}
-          coachName={coachName}
-          onClose={() => setShowLive1on1Modal(false)}
-          onSuccess={() => alert('✅ Live session request submitted! Your coach will respond soon.')}
-        />
-      )}
-
       {/* My Coach Panel */}
       {coachId && (
         <MyCoachPanel
@@ -635,37 +567,6 @@ export default function AthleteDashboard() {
                       />
                     )}
 
-                    {activeSection === 'ai-assistant' && user && (
-                      <div className="h-full p-6 overflow-y-auto">
-                        <AIAssistant
-                          mode="inline"
-                          userId={user.uid}
-                          userEmail={user.email || ''}
-                          title={coachName ? `${coachName}'s AI Assistant` : "AI Coach Assistant"}
-                          context={`You are ${coachName || "Coach"}'s AI assistant. Provide specific, technical coaching advice. Always speak as the coach using first person. Be specific with techniques, positions, and step-by-step instructions. Never give generic platitudes.`}
-                          placeholder={coachName ? `Ask ${coachName.split(' ')[0]} anything...` : "Ask me anything..."}
-                          requireLegalConsent={true}
-                          sport="Training"
-                          creatorId={coachId || undefined}
-                          creatorName={coachName || undefined}
-                          userPhotoURL={user.photoURL || undefined}
-                          coachPhotoURL={coachPhotoURL || undefined}
-                        />
-                      </div>
-                    )}
-
-                    {activeSection === 'coach-feed' && user && (
-                      <div className="h-full overflow-y-auto">
-                        <CoachFeedView />
-                      </div>
-                    )}
-
-                    {activeSection === 'coach-schedule' && user && (
-                      <div className="h-full overflow-y-auto">
-                        <CoachScheduleView />
-                      </div>
-                    )}
-
     {activeSection === 'video-reviews' && (
       <div className="h-full overflow-hidden">
         <iframe
@@ -676,24 +577,6 @@ export default function AthleteDashboard() {
         />
       </div>
     )}
-
-                    {activeSection === 'lessons' && (
-                      <iframe
-                        ref={activeSection === 'lessons' ? iframeRef : null}
-                        src="/dashboard/athlete-lessons?embedded=true"
-                        className="w-full h-full border-0"
-                        title="Your Lessons"
-                      />
-                    )}
-
-                    {activeSection === 'gear' && (
-                      <iframe
-                        ref={activeSection === 'gear' ? iframeRef : null}
-                        src="/dashboard/gear?embedded=true"
-                        className="w-full h-full border-0"
-                        title="Gear Shop"
-                      />
-                    )}
                   </div>
                 </div>
               ) : (
