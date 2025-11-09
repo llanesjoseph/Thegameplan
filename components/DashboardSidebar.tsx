@@ -34,32 +34,13 @@ const navigationItems = {
   { title: 'Dashboard', icon: LayoutDashboard, href: '/dashboard/athlete', color: 'text-blue-600' },
   { title: 'Video Reviews', icon: Video, href: '/dashboard/athlete/reviews', color: 'text-red-600' },
   { title: 'Submit Video', icon: FileVideo, href: '/dashboard/athlete/submit-video', color: 'text-orange-600' },
-  { title: 'Progress', icon: TrendingUp, href: '/dashboard/athlete', color: 'text-green-600' },
-  { title: 'Request Coaching', icon: MessageCircle, href: '/dashboard/coaching', color: 'text-purple-600' },
-  { title: 'Curated Gear', icon: ShoppingBag, href: '/gear', color: 'text-emerald-600' },
  ],
  creator: [
   { title: '🏟️ Coaches Locker Room', icon: LayoutDashboard, href: '/dashboard/coach-unified', color: 'text-blue-600' },
   { title: 'Video Review Queue', icon: FileVideo, href: '/dashboard/coach/queue', color: 'text-red-600' },
+  { title: 'Athletes', icon: Users, href: '/dashboard/coach/athletes', color: 'text-cyan-600' },
   { title: 'Video Analytics', icon: BarChart3, href: '/dashboard/coach/analytics/video-critique', color: 'text-indigo-600' },
   { title: 'Create Content', icon: Video, href: '/dashboard/coach-unified?section=create', color: 'text-red-600' },
-  { title: 'Manage Content', icon: FileVideo, href: '/dashboard/coach-unified?section=manage', color: 'text-green-600' },
-  { title: 'Coach Network', icon: UserPlus, href: '/dashboard/coach-unified?section=invitations', color: 'text-violet-600' },
-  { title: 'Athletes', icon: Users, href: '/dashboard/coach-unified/athletes', color: 'text-cyan-600' },
-  { title: 'Coaching Requests', icon: MessageSquare, href: '/dashboard/coach-unified/requests', color: 'text-purple-600' },
-  { title: 'Social Media', icon: Share2, href: '/dashboard/coach/social-media', color: 'text-pink-600' },
-  { title: 'My Schedule', icon: Calendar, href: '/dashboard/coach-unified/schedule', color: 'text-orange-600' },
-  { title: 'Analytics', icon: BarChart3, href: '/dashboard/coach-unified/analytics', color: 'text-purple-600' },
-  { title: 'Curated Gear', icon: ShoppingBag, href: '/gear', color: 'text-emerald-600' },
- ],
- assistant: [
-  { title: 'Dashboard', icon: LayoutDashboard, href: '/dashboard/coach-unified', color: 'text-blue-600' },
-  { title: 'Coaching Requests', icon: MessageCircle, href: '/dashboard/assistant/requests', color: 'text-green-600' },
-  { title: 'Schedule Management', icon: Calendar, href: '/dashboard/assistant/schedule', color: 'text-orange-600' },
-  { title: 'Content Organization', icon: Video, href: '/dashboard/assistant/content', color: 'text-red-600' },
-  { title: 'Athlete Management', icon: Users, href: '/dashboard/assistant/athletes', color: 'text-purple-600' },
-  { title: 'Analytics', icon: BarChart3, href: '/dashboard/assistant/analytics', color: 'text-pink-600' },
-  { title: 'Curated Gear', icon: ShoppingBag, href: '/gear', color: 'text-emerald-600' },
  ],
  superadmin: [
   { title: 'Dashboard', icon: LayoutDashboard, href: '/dashboard/coach-unified', color: 'text-blue-600' },
@@ -70,13 +51,7 @@ const navigationItems = {
   { title: 'Coach Applications', icon: Award, href: '/dashboard/admin/creator-applications', color: 'text-indigo-600' },
   { title: '━━━ Content Management ━━━', icon: null, href: '', color: 'text-gray-400', disabled: true },
   { title: 'Content Management', icon: Video, href: '/dashboard/admin/content', color: 'text-orange-600' },
-  { title: '━━━ Coach Tools ━━━', icon: null, href: '', color: 'text-gray-400', disabled: true },
   { title: 'Coaches Locker Room', icon: Video, href: '/dashboard/coach-unified', color: 'text-red-600' },
-  { title: 'Athletes', icon: Users, href: '/dashboard/coach-unified/athletes', color: 'text-cyan-600' },
-  { title: 'Coach Requests', icon: MessageCircle, href: '/dashboard/coach-unified/requests', color: 'text-green-600' },
-  { title: 'Assistant Coaches', icon: UserCheck, href: '/dashboard/coach-unified/assistants', color: 'text-indigo-600' },
-  { title: '━━━ General ━━━', icon: null, href: '', color: 'text-gray-400', disabled: true },
-  { title: 'Curated Gear', icon: ShoppingBag, href: '/gear', color: 'text-emerald-600' },
   { title: 'System Settings', icon: Settings, href: '/dashboard/admin/settings', color: 'text-gray-600' },
  ]
 }
@@ -107,11 +82,6 @@ export function DashboardSidebar() {
     return <div className="inline-flex items-center px-2 py-1 rounded-full text-xs " style={{backgroundColor: 'rgba(0, 0, 0, 0.1)', color: '#000000'}}>
      <Award className="w-3 h-3 mr-1" />
      Coach
-    </div>
-   case 'assistant':
-    return <div className="inline-flex items-center px-2 py-1 rounded-full text-xs " style={{backgroundColor: 'rgba(99, 102, 241, 0.1)', color: '#6366F1'}}>
-     <UserCheck className="w-3 h-3 mr-1" />
-     Assistant Coach
     </div>
    case 'superadmin':
     return <div className="inline-flex items-center px-2 py-1 rounded-full text-xs " style={{backgroundColor: 'rgba(140, 21, 21, 0.1)', color: '#8C1515'}}>

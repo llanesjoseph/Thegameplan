@@ -35,7 +35,9 @@
       "Bash(node scripts/check-athlete-activity.js:*)",
       "Bash(node scripts/backfill-completion-dates.js:*)",
       "Bash(node scripts/verify-streak-data.js:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(test:*)",
+      "Bash(tree:*)"
     ],
     "deny": [],
     "ask": []
