@@ -1,6 +1,6 @@
 'use client'
 
-import { Video, FileVideo } from 'lucide-react'
+import { BookOpen, Calendar, Sparkles, Rss, Video } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 
 interface QuickAction {
@@ -13,18 +13,39 @@ interface QuickAction {
 
 const quickActions: QuickAction[] = [
   {
-    id: 'video-reviews',
-    label: 'Video Reviews',
-    icon: Video,
-    color: '#E53E3E',
-    description: 'View coach feedback'
+    id: 'lessons',
+    label: 'View Lessons',
+    icon: BookOpen,
+    color: '#7B92C4',
+    description: 'Start training'
   },
   {
-    id: 'submit-video',
-    label: 'Submit Video',
-    icon: FileVideo,
-    color: '#F97316',
-    description: 'Upload for review'
+    id: 'ask-coach',
+    label: 'Ask Coach',
+    icon: Sparkles,
+    color: '#5A9B9B',
+    description: 'Get AI assistance'
+  },
+  {
+    id: 'schedule-session',
+    label: 'Schedule Session',
+    icon: Calendar,
+    color: '#5A9A70',
+    description: 'Book 1-on-1 time'
+  },
+  {
+    id: 'coach-feed',
+    label: "Coach's Feed",
+    icon: Rss,
+    color: '#5A9B9B',
+    description: 'Latest updates'
+  },
+  {
+    id: 'coach-schedule',
+    label: "Coach's Schedule",
+    icon: Calendar,
+    color: '#5A9A70',
+    description: 'Upcoming events'
   }
 ]
 
@@ -47,8 +68,11 @@ export default function AthleteQuickActions({ onAction }: AthleteQuickActionsPro
     if (isEmbedded && window.parent !== window) {
       // Map action IDs to section IDs that the parent dashboard understands
       const sectionMap: Record<string, string> = {
-        'video-reviews': 'video-reviews',
-        'submit-video': 'video-reviews' // Both go to video reviews section
+        'lessons': 'lessons',
+        'ask-coach': 'ai-assistant',
+        'schedule-session': 'live-session',
+        'coach-feed': 'coach-feed',
+        'coach-schedule': 'coach-schedule'
       }
 
       const sectionId = sectionMap[actionId]
@@ -64,8 +88,11 @@ export default function AthleteQuickActions({ onAction }: AthleteQuickActionsPro
 
     // Not embedded - do regular navigation
     const routes: Record<string, string> = {
-      'video-reviews': '/dashboard/athlete/reviews',
-      'submit-video': '/dashboard/athlete/submit-video'
+      'lessons': '/dashboard/athlete-lessons',
+      'ask-coach': '/dashboard/athlete',
+      'schedule-session': '/dashboard/athlete',
+      'coach-feed': '/dashboard/athlete',
+      'coach-schedule': '/dashboard/athlete'
     }
 
     const route = routes[actionId]

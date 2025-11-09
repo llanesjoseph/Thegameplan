@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Video, Trophy } from 'lucide-react'
+import { BookOpen, Video, Calendar, Trophy } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { doc, getDoc, collection, query, where, getDocs, onSnapshot } from 'firebase/firestore'
 import { db } from '@/lib/firebase.client'
@@ -12,8 +12,9 @@ export default function AthleteOverview() {
   const isEmbedded = searchParams?.get('embedded') === 'true'
   const { user } = useAuth()
   const [stats, setStats] = useState({
-    videosSubmitted: 0,
-    reviewsCompleted: 0,
+    lessonsCompleted: 0,
+    lessonsTotal: 0,
+    upcomingEvents: 0,
     trainingStreak: 0
   })
   const [loading, setLoading] = useState(true)
@@ -39,37 +40,35 @@ export default function AthleteOverview() {
 
   // Memoize loadStats to prevent recreation on every render
   const loadStats = useCallback(async () => {
-    if (!user?.uid) return
+    if (!user?.uid || !coachId) return
 
     try {
       setLoading(true)
 
-      // Fetch athlete's submitted videos
-      let videosSubmitted = 0
-      let reviewsCompleted = 0
+      // Fetch athlete feed to get accurate completion data
+      let lessonsCompletedCount = 0
       let feedData: any = null
-
-      try {
-        const submissionsQuery = query(
-          collection(db, 'submissions'),
-          where('athleteId', '==', user.uid)
-        )
-        const submissionsSnap = await getDocs(submissionsQuery)
-        videosSubmitted = submissionsSnap.size
-        reviewsCompleted = submissionsSnap.docs.filter(doc => doc.data().status === 'complete').length
-      } catch (error) {
-        console.warn('Could not fetch video submissions:', error)
-      }
-
-      // Fetch athlete feed for streak data
       try {
         const feedDoc = await getDoc(doc(db, 'athlete_feed', user.uid))
         if (feedDoc.exists()) {
           feedData = feedDoc.data()
+          lessonsCompletedCount = feedData?.completedLessons?.length || 0
         }
       } catch (error) {
-        console.warn('Could not fetch athlete feed:', error)
+        console.warn('Could not fetch athlete feed for completion count:', error)
       }
+
+      // Count total lessons from coach
+      const contentQuery = query(
+        collection(db, 'content'),
+        where('creatorUid', '==', coachId),
+        where('status', '==', 'published')
+      )
+      const contentSnap = await getDocs(contentQuery)
+      const totalLessons = contentSnap.size
+
+      // Get today's date for upcoming events (simplified - would need actual event tracking)
+      const upcomingEvents = 0 // Placeholder - would fetch from schedule
 
       // Calculate training streak based on actual consecutive days of activity
       const calculateStreak = () => {
@@ -145,8 +144,9 @@ export default function AthleteOverview() {
       };
 
       setStats({
-        videosSubmitted,
-        reviewsCompleted,
+        lessonsCompleted: lessonsCompletedCount,
+        lessonsTotal: totalLessons,
+        upcomingEvents,
         trainingStreak: calculateStreak()
       })
     } catch (error) {
@@ -154,13 +154,13 @@ export default function AthleteOverview() {
     } finally {
       setLoading(false)
     }
-  }, [user?.uid])  // Only recreate if user.uid changes
+  }, [user?.uid, coachId])  // Only recreate if user.uid or coachId changes
 
   useEffect(() => {
-    if (user?.uid) {
+    if (user?.uid && coachId) {
       loadStats()
     }
-  }, [user?.uid, loadStats])  // Include loadStats in dependencies
+  }, [user?.uid, coachId, loadStats])  // Include loadStats in dependencies
 
   // Real-time listener for athlete feed updates
   useEffect(() => {
@@ -226,19 +226,19 @@ export default function AthleteOverview() {
       </div>
 
       {/* Compact Stats Grid - Horizontal Layout */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        {/* Videos Submitted */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+        {/* Total Lessons */}
         <button
-          onClick={() => handleMetricClick('video-reviews')}
-          className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 hover:shadow-md hover:border-orange/50 transition-all text-left cursor-pointer active:scale-95 group"
+          onClick={() => handleMetricClick('lessons')}
+          className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 hover:shadow-md hover:border-sky-blue/50 transition-all text-left cursor-pointer active:scale-95 group"
         >
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-orange/10 flex items-center justify-center group-hover:bg-orange/20 transition-colors flex-shrink-0">
-              <Video className="w-4 h-4" style={{ color: '#FF6B35' }} />
+            <div className="w-8 h-8 rounded-lg bg-sky-blue/10 flex items-center justify-center group-hover:bg-sky-blue/20 transition-colors flex-shrink-0">
+              <BookOpen className="w-4 h-4" style={{ color: '#7B92C4' }} />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xl font-bold text-gray-900">{stats.videosSubmitted}</p>
-              <p className="text-xs text-gray-600">Videos Submitted</p>
+              <p className="text-xl font-bold text-gray-900">{stats.lessonsTotal}</p>
+              <p className="text-xs text-gray-600">Available Lessons</p>
             </div>
             {loading && (
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400"></div>
@@ -246,9 +246,9 @@ export default function AthleteOverview() {
           </div>
         </button>
 
-        {/* Reviews Completed */}
+        {/* Lessons Completed */}
         <button
-          onClick={() => handleMetricClick('video-reviews')}
+          onClick={() => handleMetricClick('lessons')}
           className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 hover:shadow-md hover:border-green-500/50 transition-all text-left cursor-pointer active:scale-95 group"
         >
           <div className="flex items-center gap-3">
@@ -256,8 +256,27 @@ export default function AthleteOverview() {
               <Trophy className="w-4 h-4 text-green-600" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xl font-bold text-gray-900">{stats.reviewsCompleted}</p>
-              <p className="text-xs text-gray-600">Reviews Completed</p>
+              <p className="text-xl font-bold text-gray-900">{stats.lessonsCompleted}</p>
+              <p className="text-xs text-gray-600">Completed</p>
+            </div>
+            {loading && (
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400"></div>
+            )}
+          </div>
+        </button>
+
+        {/* Upcoming Events */}
+        <button
+          onClick={() => handleMetricClick('coach-schedule')}
+          className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 hover:shadow-md hover:border-teal/50 transition-all text-left cursor-pointer active:scale-95 group"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-teal/10 flex items-center justify-center group-hover:bg-teal/20 transition-colors flex-shrink-0">
+              <Calendar className="w-4 h-4" style={{ color: '#5A9A70' }} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xl font-bold text-gray-900">{stats.upcomingEvents}</p>
+              <p className="text-xs text-gray-600">Upcoming Events</p>
             </div>
             {loading && (
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400"></div>
@@ -267,12 +286,12 @@ export default function AthleteOverview() {
 
         {/* Training Streak */}
         <button
-          onClick={() => handleMetricClick('video-reviews')}
-          className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 hover:shadow-md hover:border-teal/50 transition-all text-left cursor-pointer active:scale-95 group"
+          onClick={() => handleMetricClick('lessons')}
+          className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 hover:shadow-md hover:border-orange/50 transition-all text-left cursor-pointer active:scale-95 group"
         >
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-teal/10 flex items-center justify-center group-hover:bg-teal/20 transition-colors flex-shrink-0">
-              <Video className="w-4 h-4" style={{ color: '#5A9B9B' }} />
+            <div className="w-8 h-8 rounded-lg bg-orange/10 flex items-center justify-center group-hover:bg-orange/20 transition-colors flex-shrink-0">
+              <Video className="w-4 h-4" style={{ color: '#FF6B35' }} />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-xl font-bold text-gray-900">{stats.trainingStreak}</p>

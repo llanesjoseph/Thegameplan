@@ -7,19 +7,26 @@ import { useAuth } from '@/hooks/use-auth'
 import { usePageAnalytics } from '@/hooks/use-page-analytics'
 // Removed client-side Firebase imports - using secure API endpoints instead
 import {
+  BookOpen,
   Video,
+  Sparkles,
   Calendar,
   LayoutDashboard,
   ChevronRight,
   X,
   Clock,
   TrendingUp,
+  Rss,
   User,
   FileVideo,
   RefreshCw
 } from 'lucide-react'
 import AppHeader from '@/components/ui/AppHeader'
+import Live1on1RequestModal from '@/components/athlete/Live1on1RequestModal'
 import MyCoachPanel from '@/components/athlete/MyCoachPanel'
+import CoachFeedView from '@/components/athlete/CoachFeedView'
+import CoachScheduleView from '@/components/athlete/CoachScheduleView'
+import AIAssistant from '@/components/AIAssistant'
 
 export default function AthleteDashboard() {
   const { user } = useAuth()
@@ -29,6 +36,7 @@ export default function AthleteDashboard() {
   // Track page analytics
   usePageAnalytics()
 
+  const [showLive1on1Modal, setShowLive1on1Modal] = useState(false)
   const [showCoachPanel, setShowCoachPanel] = useState(false)
   const [hasCoachRole, setHasCoachRole] = useState(false)
   const [coachId, setCoachId] = useState<string | null>(null)
@@ -45,10 +53,12 @@ export default function AthleteDashboard() {
 
   const [activeSection, setActiveSection] = useState<string | null>(getInitialSection())
   const [loadError, setLoadError] = useState<string | null>(null)
+  const [lessonCount, setLessonCount] = useState<number>(0)
   const [videoCount, setVideoCount] = useState<number>(0)
+  const [coachVideoCount, setCoachVideoCount] = useState<number>(0)
   const [completedReviewsCount, setCompletedReviewsCount] = useState<number>(0)
 
-  // Athlete tools - reduced scope (core video feedback loop only)
+  // Athlete tools - sidebar navigation
   const athleteTools = [
     {
       id: 'home',
@@ -64,6 +74,41 @@ export default function AthleteDashboard() {
       icon: Video,
       color: '#E53E3E',
       badge: completedReviewsCount
+    },
+    {
+      id: 'ai-assistant',
+      title: coachName ? `Ask ${coachName.split(' ')[0]}` : 'Ask Your Coach',
+      description: 'Chat with your coach\'s AI assistant',
+      icon: Sparkles,
+      color: '#5A9B9B'
+    },
+    {
+      id: 'coach-feed',
+      title: "Coach's Feed",
+      description: 'Updates and tips from your coach',
+      icon: Rss,
+      color: '#5A9B9B'
+    },
+    {
+      id: 'coach-schedule',
+      title: "Coach's Schedule",
+      description: 'View upcoming events and sessions',
+      icon: Calendar,
+      color: '#5A9A70'
+    },
+    {
+      id: 'lessons',
+      title: 'My Lessons',
+      description: 'View and complete training lessons',
+      icon: BookOpen,
+      color: '#7B92C4'
+    },
+    {
+      id: 'live-session',
+      title: 'Live 1-on-1 Session',
+      description: 'Schedule a live coaching call',
+      icon: Calendar,
+      color: '#5A9A70'
     },
     ...(hasCoachRole ? [{
       id: 'coach-dashboard',
@@ -195,6 +240,10 @@ export default function AthleteDashboard() {
 
   // Memoize handleToolClick to prevent recreation on every render
   const handleToolClick = useCallback((toolId: string) => {
+    if (toolId === 'live-session') {
+      setShowLive1on1Modal(true)
+      return
+    }
     if (toolId === 'coach-dashboard') {
       router.push('/dashboard/coach-unified')
       return
@@ -256,12 +305,36 @@ export default function AthleteDashboard() {
 
     const fetchStats = async () => {
       if (!user) {
+        setLessonCount(0)
         setVideoCount(0)
         return
       }
 
       try {
         const token = await user.getIdToken()
+
+        // Fetch lesson count from athlete feed (consistent with lessons page)
+        let lessons = 0
+        try {
+          const feedResponse = await fetch('/api/athlete/feed', {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+            signal: abortController.signal,
+          })
+
+          if (feedResponse.ok) {
+            const feedData = await feedResponse.json()
+            if (feedData.success && feedData.feed) {
+              // Use totalLessons from athlete_feed for consistency
+              lessons = feedData.feed.totalLessons || 0
+            }
+          }
+        } catch (feedError) {
+          if (feedError instanceof Error && feedError.name !== 'AbortError') {
+            console.warn('Could not fetch lesson count from athlete feed:', feedError)
+          }
+        }
 
         // Fetch athlete's submitted videos using secure API
         let submittedVideos = 0
@@ -280,6 +353,26 @@ export default function AthleteDashboard() {
         } catch (apiError) {
           if (apiError instanceof Error && apiError.name !== 'AbortError') {
             console.warn('Could not fetch submission count via API:', apiError)
+          }
+        }
+
+        // Fetch coach's video count using the fixed API
+        let coachVideoCount = 0
+        try {
+          const coachVideosResponse = await fetch('/api/athlete/coach-videos', {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+            signal: abortController.signal,
+          })
+
+          if (coachVideosResponse.ok) {
+            const coachVideosData = await coachVideosResponse.json()
+            coachVideoCount = coachVideosData.videos?.length || 0
+          }
+        } catch (coachVideoError) {
+          if (coachVideoError instanceof Error && coachVideoError.name !== 'AbortError') {
+            console.warn('Could not fetch coach video count:', coachVideoError)
           }
         }
 
@@ -307,12 +400,16 @@ export default function AthleteDashboard() {
 
         // Check if component is still mounted before setting state
         if (isMounted) {
+          setLessonCount(lessons)
           setVideoCount(submittedVideos)
+          setCoachVideoCount(coachVideoCount)
           setCompletedReviewsCount(completedCount)
         }
       } catch (error) {
         console.error('Error fetching stats:', error)
+        setLessonCount(0)
         setVideoCount(0)
+        setCoachVideoCount(0)
         setCompletedReviewsCount(0)
       }
     }
@@ -367,6 +464,21 @@ export default function AthleteDashboard() {
           coachId={coachId}
           isOpen={showCoachPanel}
           onClose={() => setShowCoachPanel(false)}
+        />
+      )}
+
+      {/* Live 1-on-1 Session Request Modal */}
+      {showLive1on1Modal && user && coachId && (
+        <Live1on1RequestModal
+          userId={user.uid}
+          userEmail={user.email || ''}
+          coachId={coachId}
+          coachName={coachName}
+          onClose={() => setShowLive1on1Modal(false)}
+          onSuccess={() => {
+            console.log('✅ Live session request submitted successfully')
+            setShowLive1on1Modal(false)
+          }}
         />
       )}
 
@@ -482,7 +594,7 @@ export default function AthleteDashboard() {
               {activeSection ? (
                 <div className="h-full relative">
                   {/* Refresh Button for iframe sections */}
-                  {['home', 'video-reviews', 'lessons', 'gear'].includes(activeSection) && (
+                  {['home', 'video-reviews', 'lessons'].includes(activeSection) && (
                     <button
                       onClick={refreshIframe}
                       className="absolute top-4 right-4 z-10 p-2 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow"
@@ -503,6 +615,37 @@ export default function AthleteDashboard() {
                       />
                     )}
 
+                    {activeSection === 'ai-assistant' && user && (
+                      <div className="h-full p-6 overflow-y-auto">
+                        <AIAssistant
+                          mode="inline"
+                          userId={user.uid}
+                          userEmail={user.email || ''}
+                          title={coachName ? `${coachName}'s AI Assistant` : "AI Coach Assistant"}
+                          context={`You are ${coachName || "Coach"}'s AI assistant. Provide specific, technical coaching advice. Always speak as the coach using first person. Be specific with techniques, positions, and step-by-step instructions. Never give generic platitudes.`}
+                          placeholder={coachName ? `Ask ${coachName.split(' ')[0]} anything...` : "Ask me anything..."}
+                          requireLegalConsent={true}
+                          sport="Training"
+                          creatorId={coachId || undefined}
+                          creatorName={coachName || undefined}
+                          userPhotoURL={user.photoURL || undefined}
+                          coachPhotoURL={coachPhotoURL || undefined}
+                        />
+                      </div>
+                    )}
+
+                    {activeSection === 'coach-feed' && user && (
+                      <div className="h-full overflow-y-auto">
+                        <CoachFeedView />
+                      </div>
+                    )}
+
+                    {activeSection === 'coach-schedule' && user && (
+                      <div className="h-full overflow-y-auto">
+                        <CoachScheduleView />
+                      </div>
+                    )}
+
     {activeSection === 'video-reviews' && (
       <div className="h-full overflow-hidden">
         <iframe
@@ -513,6 +656,15 @@ export default function AthleteDashboard() {
         />
       </div>
     )}
+
+                    {activeSection === 'lessons' && (
+                      <iframe
+                        ref={activeSection === 'lessons' ? iframeRef : null}
+                        src="/dashboard/athlete-lessons?embedded=true"
+                        className="w-full h-full border-0"
+                        title="Your Lessons"
+                      />
+                    )}
                   </div>
                 </div>
               ) : (
