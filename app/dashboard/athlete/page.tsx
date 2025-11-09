@@ -45,9 +45,7 @@ export default function AthleteDashboard() {
 
   const [activeSection, setActiveSection] = useState<string | null>(getInitialSection())
   const [loadError, setLoadError] = useState<string | null>(null)
-  const [lessonCount, setLessonCount] = useState<number>(0)
   const [videoCount, setVideoCount] = useState<number>(0)
-  const [coachVideoCount, setCoachVideoCount] = useState<number>(0)
   const [completedReviewsCount, setCompletedReviewsCount] = useState<number>(0)
 
   // Athlete tools - reduced scope (core video feedback loop only)
@@ -258,36 +256,12 @@ export default function AthleteDashboard() {
 
     const fetchStats = async () => {
       if (!user) {
-        setLessonCount(0)
         setVideoCount(0)
         return
       }
 
       try {
         const token = await user.getIdToken()
-        
-        // Fetch lesson count from athlete feed (consistent with lessons page)
-        let lessons = 0
-        try {
-          const feedResponse = await fetch('/api/athlete/feed', {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-            },
-            signal: abortController.signal,
-          })
-          
-          if (feedResponse.ok) {
-            const feedData = await feedResponse.json()
-            if (feedData.success && feedData.feed) {
-              // Use totalLessons from athlete_feed for consistency
-              lessons = feedData.feed.totalLessons || 0
-            }
-          }
-        } catch (feedError) {
-          if (feedError instanceof Error && feedError.name !== 'AbortError') {
-            console.warn('Could not fetch lesson count from athlete feed:', feedError)
-          }
-        }
 
         // Fetch athlete's submitted videos using secure API
         let submittedVideos = 0
@@ -306,26 +280,6 @@ export default function AthleteDashboard() {
         } catch (apiError) {
           if (apiError instanceof Error && apiError.name !== 'AbortError') {
             console.warn('Could not fetch submission count via API:', apiError)
-          }
-        }
-
-        // Fetch coach's video count using the fixed API
-        let coachVideoCount = 0
-        try {
-          const coachVideosResponse = await fetch('/api/athlete/coach-videos', {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-            },
-            signal: abortController.signal,
-          })
-          
-          if (coachVideosResponse.ok) {
-            const coachVideosData = await coachVideosResponse.json()
-            coachVideoCount = coachVideosData.videos?.length || 0
-          }
-        } catch (coachVideoError) {
-          if (coachVideoError instanceof Error && coachVideoError.name !== 'AbortError') {
-            console.warn('Could not fetch coach video count:', coachVideoError)
           }
         }
 
@@ -353,16 +307,12 @@ export default function AthleteDashboard() {
 
         // Check if component is still mounted before setting state
         if (isMounted) {
-          setLessonCount(lessons)
           setVideoCount(submittedVideos)
-          setCoachVideoCount(coachVideoCount)
           setCompletedReviewsCount(completedCount)
         }
       } catch (error) {
         console.error('Error fetching stats:', error)
-        setLessonCount(0)
         setVideoCount(0)
-        setCoachVideoCount(0)
         setCompletedReviewsCount(0)
       }
     }
@@ -525,20 +475,6 @@ export default function AthleteDashboard() {
                 })}
               </div>
 
-              {/* Quick Stats in Sidebar */}
-              <div className="p-4 mt-4 border-t border-gray-200">
-                <p className="text-xs font-semibold mb-3" style={{ color: '#666' }}>Quick Stats</p>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs" style={{ color: '#666' }}>Lessons</span>
-                    <span className="text-sm font-bold" style={{ color: '#7B92C4' }}>{lessonCount}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs" style={{ color: '#666' }}>Coach Videos</span>
-                    <span className="text-sm font-bold" style={{ color: '#5A9B9B' }}>{coachVideoCount}</span>
-                  </div>
-                </div>
-              </div>
             </aside>
 
             {/* Main Content Area */}
@@ -593,45 +529,29 @@ export default function AthleteDashboard() {
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-left">
-                      <div className="bg-gradient-to-br from-teal/10 to-teal/5 rounded-lg p-5 border-2" style={{ borderColor: '#5A9B9B' }}>
-                        <Sparkles className="w-8 h-8 mb-3" style={{ color: '#5A9B9B' }} />
-                        <h3 className="font-semibold mb-1" style={{ color: '#000000' }}>Ask Your Coach</h3>
-                        <p className="text-sm" style={{ color: '#666' }}>
-                          Get instant answers from AI assistant
-                        </p>
-                      </div>
-
-                      <div className="bg-gradient-to-br from-sky-blue/10 to-sky-blue/5 rounded-lg p-5 border-2" style={{ borderColor: '#7B92C4' }}>
-                        <BookOpen className="w-8 h-8 mb-3" style={{ color: '#7B92C4' }} />
-                        <h3 className="font-semibold mb-1" style={{ color: '#000000' }}>Training Lessons</h3>
-                        <p className="text-sm" style={{ color: '#666' }}>
-                          {lessonCount} lessons available
-                        </p>
-                      </div>
-
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-left max-w-lg mx-auto">
                       <div className="bg-gradient-to-br from-orange/10 to-orange/5 rounded-lg p-5 border-2" style={{ borderColor: '#C4886A' }}>
                         <Video className="w-8 h-8 mb-3" style={{ color: '#C4886A' }} />
-                        <h3 className="font-semibold mb-1" style={{ color: '#000000' }}>Video Review</h3>
+                        <h3 className="font-semibold mb-1" style={{ color: '#000000' }}>Video Reviews</h3>
                         <p className="text-sm" style={{ color: '#666' }}>
-                          Get feedback on your performance
+                          Submit and review your training videos
                         </p>
                       </div>
 
-                      <div className="bg-gradient-to-br from-purple-500/10 to-purple-500/5 rounded-lg p-5 border-2 border-purple-500/30">
-                        <Clock className="w-8 h-8 mb-3" style={{ color: '#8B5CF6' }} />
+                      <div className="bg-gradient-to-br from-teal/10 to-teal/5 rounded-lg p-5 border-2" style={{ borderColor: '#5A9B9B' }}>
+                        <TrendingUp className="w-8 h-8 mb-3" style={{ color: '#5A9B9B' }} />
                         <h3 className="font-semibold mb-1" style={{ color: '#000000' }}>Your Progress</h3>
                         <p className="text-sm" style={{ color: '#666' }}>
-                          Track your training journey
+                          Track your improvement over time
                         </p>
                       </div>
                     </div>
 
                     {coachId && coachName && (
-                      <div className="mt-4 sm:mt-6 bg-gradient-to-r from-slate-600 to-slate-700 rounded-lg p-4 sm:p-5 text-white text-left">
+                      <div className="mt-4 sm:mt-6 bg-gradient-to-r from-slate-600 to-slate-700 rounded-lg p-4 sm:p-5 text-white text-left max-w-lg mx-auto">
                         <h3 className="font-semibold mb-2 sm:mb-3 text-base sm:text-lg">🎯 Training with {coachName.split(' ')[0]}</h3>
                         <p className="text-xs sm:text-sm">
-                          Your coach has prepared {lessonCount} lessons and {coachVideoCount} videos for your training. Click "Ask {coachName.split(' ')[0]}" to get personalized coaching advice!
+                          Submit your videos for expert feedback from {coachName}. Your coach will review and provide detailed analysis to help you improve.
                         </p>
                       </div>
                     )}
