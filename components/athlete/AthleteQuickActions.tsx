@@ -1,6 +1,6 @@
 'use client'
 
-import { BookOpen, Calendar, Sparkles, Rss, Video } from 'lucide-react'
+import { BookOpen, Sparkles, Rss } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 
 interface QuickAction {
@@ -27,25 +27,11 @@ const quickActions: QuickAction[] = [
     description: 'Get AI assistance'
   },
   {
-    id: 'schedule-session',
-    label: 'Schedule Session',
-    icon: Calendar,
-    color: '#5A9A70',
-    description: 'Book 1-on-1 time'
-  },
-  {
     id: 'coach-feed',
     label: "Coach's Feed",
     icon: Rss,
     color: '#5A9B9B',
     description: 'Latest updates'
-  },
-  {
-    id: 'coach-schedule',
-    label: "Coach's Schedule",
-    icon: Calendar,
-    color: '#5A9A70',
-    description: 'Upcoming events'
   }
 ]
 
@@ -70,9 +56,7 @@ export default function AthleteQuickActions({ onAction }: AthleteQuickActionsPro
       const sectionMap: Record<string, string> = {
         'lessons': 'lessons',
         'ask-coach': 'ai-assistant',
-        'schedule-session': 'live-session',
-        'coach-feed': 'coach-feed',
-        'coach-schedule': 'coach-schedule'
+        'coach-feed': 'coach-feed'
       }
 
       const sectionId = sectionMap[actionId]
@@ -90,9 +74,7 @@ export default function AthleteQuickActions({ onAction }: AthleteQuickActionsPro
     const routes: Record<string, string> = {
       'lessons': '/dashboard/athlete-lessons',
       'ask-coach': '/dashboard/athlete',
-      'schedule-session': '/dashboard/athlete',
-      'coach-feed': '/dashboard/athlete',
-      'coach-schedule': '/dashboard/athlete'
+      'coach-feed': '/dashboard/athlete'
     }
 
     const route = routes[actionId]

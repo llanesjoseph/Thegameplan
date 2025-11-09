@@ -22,10 +22,8 @@ import {
   RefreshCw
 } from 'lucide-react'
 import AppHeader from '@/components/ui/AppHeader'
-import Live1on1RequestModal from '@/components/athlete/Live1on1RequestModal'
 import MyCoachPanel from '@/components/athlete/MyCoachPanel'
 import CoachFeedView from '@/components/athlete/CoachFeedView'
-import CoachScheduleView from '@/components/athlete/CoachScheduleView'
 import AIAssistant from '@/components/AIAssistant'
 
 export default function AthleteDashboard() {
@@ -36,7 +34,6 @@ export default function AthleteDashboard() {
   // Track page analytics
   usePageAnalytics()
 
-  const [showLive1on1Modal, setShowLive1on1Modal] = useState(false)
   const [showCoachPanel, setShowCoachPanel] = useState(false)
   const [hasCoachRole, setHasCoachRole] = useState(false)
   const [coachId, setCoachId] = useState<string | null>(null)
@@ -90,25 +87,11 @@ export default function AthleteDashboard() {
       color: '#5A9B9B'
     },
     {
-      id: 'coach-schedule',
-      title: "Coach's Schedule",
-      description: 'View upcoming events and sessions',
-      icon: Calendar,
-      color: '#5A9A70'
-    },
-    {
       id: 'lessons',
       title: 'My Lessons',
       description: 'View and complete training lessons',
       icon: BookOpen,
       color: '#7B92C4'
-    },
-    {
-      id: 'live-session',
-      title: 'Live 1-on-1 Session',
-      description: 'Schedule a live coaching call',
-      icon: Calendar,
-      color: '#5A9A70'
     },
     ...(hasCoachRole ? [{
       id: 'coach-dashboard',
@@ -240,10 +223,6 @@ export default function AthleteDashboard() {
 
   // Memoize handleToolClick to prevent recreation on every render
   const handleToolClick = useCallback((toolId: string) => {
-    if (toolId === 'live-session') {
-      setShowLive1on1Modal(true)
-      return
-    }
     if (toolId === 'coach-dashboard') {
       router.push('/dashboard/coach-unified')
       return
@@ -467,21 +446,6 @@ export default function AthleteDashboard() {
         />
       )}
 
-      {/* Live 1-on-1 Session Request Modal */}
-      {showLive1on1Modal && user && coachId && (
-        <Live1on1RequestModal
-          userId={user.uid}
-          userEmail={user.email || ''}
-          coachId={coachId}
-          coachName={coachName}
-          onClose={() => setShowLive1on1Modal(false)}
-          onSuccess={() => {
-            console.log('✅ Live session request submitted successfully')
-            setShowLive1on1Modal(false)
-          }}
-        />
-      )}
-
       <div style={{ backgroundColor: '#E8E6D8' }} className="min-h-screen">
         <AppHeader title="Athlete Dashboard" subtitle="Your training hub for excellence" />
 
@@ -640,13 +604,7 @@ export default function AthleteDashboard() {
                       </div>
                     )}
 
-                    {activeSection === 'coach-schedule' && user && (
-                      <div className="h-full overflow-y-auto">
-                        <CoachScheduleView />
-                      </div>
-                    )}
-
-    {activeSection === 'video-reviews' && (
+                    {activeSection === 'video-reviews' && (
       <div className="h-full overflow-hidden">
         <iframe
           src="/dashboard/athlete/reviews?embedded=true"
