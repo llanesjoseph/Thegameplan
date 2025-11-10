@@ -71,13 +71,13 @@ Coach → Signs up → Chooses Tier (Basic or Premium)
 
 1. **Go to Stripe Dashboard → Products**
 2. **Create Product 1: Basic Plan**
-   - Name: "GamePlan Basic"
+   - Name: "Athleap Basic"
    - Description: "Essential coaching tools for up to 10 athletes"
    - Pricing: $29/month (Recurring)
    - Copy the Price ID: `price_XXXBASIC123` (you'll need this)
 
 3. **Create Product 2: Premium Plan**
-   - Name: "GamePlan Premium"
+   - Name: "Athleap Premium"
    - Description: "Full-featured coaching platform with unlimited athletes"
    - Pricing: $99/month (Recurring)
    - Copy the Price ID: `price_XXXPREMIUM456` (you'll need this)

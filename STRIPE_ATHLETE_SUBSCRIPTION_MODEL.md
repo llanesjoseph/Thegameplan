@@ -158,13 +158,13 @@ interface CoachPayout {
 
 1. **Go to Stripe Dashboard → Products**
 2. **Create Product 1: Athlete Basic**
-   - Name: "GamePlan Basic"
+   - Name: "Athleap Basic"
    - Description: "Essential training access with your coach"
    - Pricing: **$0/month** (Recurring) ← SET TO ZERO FOR TESTING
    - Copy the Price ID: `price_XXXBASIC123`
 
 3. **Create Product 2: Athlete Elite**
-   - Name: "GamePlan Elite"
+   - Name: "Athleap Elite"
    - Description: "Premium training with unlimited access"
    - Pricing: **$0/month** (Recurring) ← SET TO ZERO FOR TESTING
    - Copy the Price ID: `price_XXXELITE456`

@@ -66,6 +66,7 @@ export async function POST(request: NextRequest) {
         metadata: {
           firebaseUID: athleteUid,
           role: 'athlete',
+          platform: 'athleap',
         },
       });
       stripeCustomerId = customer.id;

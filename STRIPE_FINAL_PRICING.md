@@ -1,4 +1,4 @@
-# GAMEPLAN STRIPE - FINAL PRICING MODEL
+# ATHLEAP STRIPE - FINAL PRICING MODEL
 **Athlete Subscription Pricing**
 **Last Updated:** November 9, 2025
 
@@ -43,8 +43,8 @@
 1. **Go to:** https://dashboard.stripe.com/test/products
 2. **Click:** "Add product"
 
-**Product 1: GamePlan Basic**
-- Name: `GamePlan Basic - Athlete Subscription`
+**Product 1: Athleap Basic**
+- Name: `Athleap Basic - Athlete Subscription`
 - Description: `Essential training access with personalized coaching`
 - Pricing Model: `Recurring`
 - Price: `$19.99`
@@ -53,8 +53,8 @@
 - Click "Save product"
 - **Copy the Price ID:** `price_XXXBASIC123` ← You'll need this!
 
-**Product 2: GamePlan Elite**
-- Name: `GamePlan Elite - Athlete Subscription`
+**Product 2: Athleap Elite**
+- Name: `Athleap Elite - Athlete Subscription`
 - Description: `Premium training with unlimited access and AI assistance`
 - Pricing Model: `Recurring`
 - Price: `$29.99`
@@ -578,8 +578,8 @@ export default function AthletePricingPage() {
 
 1. **Create Stripe Products:**
    - Go to Stripe Dashboard
-   - Create "GamePlan Basic" at $19.99/month
-   - Create "GamePlan Elite" at $29.99/month
+   - Create "Athleap Basic" at $19.99/month
+   - Create "Athleap Elite" at $29.99/month
    - Copy both Price IDs
 
 2. **Update Environment Variables:**

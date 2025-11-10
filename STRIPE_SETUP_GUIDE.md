@@ -1,6 +1,6 @@
 # Stripe Subscription Setup Guide
 
-This guide will walk you through setting up Stripe subscriptions for GamePlan with the Basic ($19.99/month) and Elite ($29.99/month) tiers.
+This guide will walk you through setting up Stripe subscriptions for Athleap with the Basic ($19.99/month) and Elite ($29.99/month) tiers.
 
 ## Overview
 
@@ -27,7 +27,7 @@ This guide will walk you through setting up Stripe subscriptions for GamePlan wi
 
 1. In Stripe Dashboard, go to **Products** → **Add product**
 2. Fill in:
-   - **Name**: GamePlan Basic
+   - **Name**: Athleap Basic
    - **Description**: Perfect for athletes starting their journey - 2 video submissions per month, progress tracking, direct coach messaging
    - **Pricing model**: Standard pricing
    - **Price**: $19.99 USD
@@ -44,7 +44,7 @@ This guide will walk you through setting up Stripe subscriptions for GamePlan wi
 
 1. Click **Add product** again
 2. Fill in:
-   - **Name**: GamePlan Elite
+   - **Name**: Athleap Elite
    - **Description**: For serious athletes - unlimited video submissions, AI assistant, coach feed access, priority review queue
    - **Pricing model**: Standard pricing
    - **Price**: $29.99 USD
