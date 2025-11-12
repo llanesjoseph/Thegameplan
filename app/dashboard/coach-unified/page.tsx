@@ -257,13 +257,6 @@ export default function CoachUnifiedDashboard() {
       color: '#7B92C4'
     },
     {
-      id: 'live-sessions',
-      title: 'Live 1-on-1 Sessions',
-      description: 'Manage session requests',
-      icon: Calendar,
-      color: '#5A9A70'
-    },
-    {
       id: 'lesson-library',
       title: 'Lesson Manager',
       description: 'Create, edit, and manage all your lessons',
@@ -278,32 +271,18 @@ export default function CoachUnifiedDashboard() {
       color: '#C4886A'
     },
     {
+      id: 'feed',
+      title: 'Post Updates',
+      description: 'Share tips with athletes',
+      icon: FileText,
+      color: '#5A9A70'
+    },
+    {
       id: 'analytics',
       title: 'Analytics',
       description: 'Track engagement and progress',
       icon: BarChart3,
       color: '#5A9B9B'
-    },
-    {
-      id: 'assistants',
-      title: 'Assistant Coaches',
-      description: 'Manage coaching staff',
-      icon: UserCog,
-      color: '#5A9B9B'
-    },
-    {
-      id: 'recruit-coach',
-      title: 'Recruit Fellow Coach',
-      description: 'Invite other coaches to join',
-      icon: UserCheck,
-      color: '#5A9B9B'
-    },
-    {
-      id: 'gear',
-      title: 'Gear Recommendations',
-      description: 'Recommend equipment to athletes',
-      icon: ShoppingBag,
-      color: '#C4886A'
     }
   ]
 
@@ -312,18 +291,12 @@ export default function CoachUnifiedDashboard() {
       'home': '/dashboard/coach/home?embedded=true',
       'video-queue': '/dashboard/coach/queue-bypass?embedded=true',
       'messages': '/dashboard/coach/messages?embedded=true',
-      'video-analytics': '/dashboard/coach/analytics/video-critique',
       'athletes': '/dashboard/coach/athletes?embedded=true',
-      'create-lesson': '/dashboard/coach/lessons/create?embedded=true',
-      'live-sessions': '/dashboard/coach/live-sessions?embedded=true',
       'lesson-library': '/dashboard/coach/lessons/library?embedded=true',
       'videos': '/dashboard/coach/videos?embedded=true',
+      'feed': '/dashboard/coach/feed?embedded=true',
       'analytics': '/dashboard/coach/analytics?embedded=true',
-      'invite': '/dashboard/coach/invite?embedded=true',
-      'recruit-coach': '/dashboard/coach/recruit?embedded=true',
-      'profile': '/dashboard/profile?embedded=true',
-      'assistants': '/dashboard/coach/assistants?embedded=true',
-      'gear': '/dashboard/coach/gear?embedded=true'
+      'profile': '/dashboard/profile?embedded=true'
     }
     return pathMap[sectionId]
   }
@@ -376,7 +349,7 @@ export default function CoachUnifiedDashboard() {
                 </h2>
               )}
               <p className={`text-xs ${isSidebarCollapsed ? 'text-center' : ''}`} style={{ color: '#666' }}>
-                {isSidebarCollapsed ? '10' : '10 tools available'}
+                {isSidebarCollapsed ? '9' : '9 tools available'}
               </p>
             </div>
 
