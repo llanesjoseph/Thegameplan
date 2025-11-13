@@ -139,76 +139,14 @@ export default function AthleteOverview() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-teal-500 to-teal-600 rounded-xl p-6 sm:p-8 text-white shadow-lg">
-        <div className="flex items-center justify-between mb-2">
-          <h1 className="text-2xl sm:text-3xl font-bold">
-            {greeting()}, {user?.displayName?.split(' ')[0] || 'Athlete'}! 👋
-          </h1>
-        </div>
-        <p className="text-teal-50 text-sm sm:text-base">{formattedDate}</p>
-      </div>
-
-      {/* Compact Stats Grid - Horizontal Layout */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-        {/* Total Lessons */}
-        <button
-          onClick={() => handleMetricClick('lessons')}
-          className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 hover:shadow-md hover:border-sky-blue/50 transition-all text-left cursor-pointer active:scale-95 group"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-sky-blue/10 flex items-center justify-center group-hover:bg-sky-blue/20 transition-colors flex-shrink-0">
-              <BookOpen className="w-4 h-4" style={{ color: '#7B92C4' }} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xl font-bold text-gray-900">{stats.lessonsTotal}</p>
-              <p className="text-xs text-gray-600">Available Lessons</p>
-            </div>
-            {loading && (
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400"></div>
-            )}
-          </div>
-        </button>
-
-        {/* Lessons Completed */}
-        <button
-          onClick={() => handleMetricClick('lessons')}
-          className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 hover:shadow-md hover:border-green-500/50 transition-all text-left cursor-pointer active:scale-95 group"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center group-hover:bg-green-500/20 transition-colors flex-shrink-0">
-              <Trophy className="w-4 h-4 text-green-600" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xl font-bold text-gray-900">{stats.lessonsCompleted}</p>
-              <p className="text-xs text-gray-600">Completed</p>
-            </div>
-            {loading && (
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400"></div>
-            )}
-          </div>
-        </button>
-
-        {/* Upcoming Events */}
-        <button
-          onClick={() => handleMetricClick('lessons')}
-          className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 hover:shadow-md hover:border-teal/50 transition-all text-left cursor-pointer active:scale-95 group"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-teal/10 flex items-center justify-center group-hover:bg-teal/20 transition-colors flex-shrink-0">
-              <Calendar className="w-4 h-4" style={{ color: '#5A9A70' }} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xl font-bold text-gray-900">{stats.upcomingEvents}</p>
-              <p className="text-xs text-gray-600">Upcoming Events</p>
-            </div>
-            {loading && (
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400"></div>
-            )}
-          </div>
-        </button>
-      </div>
+    <div className="mb-3">
+      {/* Welcome Header - Clean, no cards */}
+      <h1 className="text-2xl sm:text-3xl font-bold mb-1" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
+        Welcome to your game plan, {user?.displayName?.split(' ')[0] || 'Athlete'}!
+      </h1>
+      <p className="text-sm" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+        This is where you can keep track of your coaches, upcoming training and events, and manage your progress, on and off the field.
+      </p>
     </div>
   )
 }
