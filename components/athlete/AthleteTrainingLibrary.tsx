@@ -95,9 +95,7 @@ export default function AthleteTrainingLibrary() {
               <p className="text-sm font-semibold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
                 {lesson.title}
               </p>
-              <p className="text-xs" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
-                {lesson.author}
-              </p>
+              {/* Author hidden to avoid coach reference clutter per design */}
             </button>
           ))}
         </div>
