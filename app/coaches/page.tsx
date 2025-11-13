@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import { db } from '@/lib/firebase.client'
 import { collection, getDocs, query, where, orderBy, limit, startAfter, doc, getDoc, type QueryDocumentSnapshot, type DocumentData } from 'firebase/firestore'
@@ -55,6 +56,8 @@ const FEATURED_CONTRIBUTORS: Contributor[] = [
 ]
 
 export default function ContributorsPage() {
+ const searchParams = useSearchParams()
+ const rebrand = searchParams?.get('rebrand') === '1'
  const { user } = useAuth()
  const [contributors, setContributors] = useState<Contributor[]>([])
  const [loading, setLoading] = useState(true)
@@ -231,6 +234,50 @@ export default function ContributorsPage() {
   if (!filters.specialty) return filteredContributors
   return filteredContributors.filter(c => c.specialties?.includes(filters.specialty))
  }, [filteredContributors, filters.specialty])
+
+ // Rebranded, frameless browse page
+ if (rebrand) {
+  return (
+   <div className="min-h-screen bg-white">
+    <header className="bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-4">
+     <div className="max-w-5xl mx-auto flex items-center justify-between">
+      <Link href="/" className="flex-shrink-0">
+       <span className="text-2xl font-bold" style={{ color: '#440102', fontFamily: '\"Open Sans\", sans-serif', fontWeight: 700 }}>
+        ATHLEAP
+       </span>
+      </Link>
+     </div>
+    </header>
+    <main className="w-full">
+     <div className="px-4 sm:px-6 lg:px-8 py-3">
+      <div className="w-full max-w-5xl mx-auto space-y-5">
+       <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif', fontWeight: 700 }}>
+        Browse Coaches
+       </h1>
+       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        {specialtyFiltered.map((c) => (
+         <Link key={c.id} href={`/coach-profile/${c.slug || c.id}`} className="block">
+          <div className="w-full aspect-square rounded-lg overflow-hidden bg-gray-100">
+           <Image
+            src={c.headshotUrl || c.heroImageUrl || '/logo-gp.svg'}
+            alt={c.name}
+            width={300}
+            height={300}
+            className="w-full h-full object-cover"
+           />
+          </div>
+          <p className="text-sm font-semibold mt-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+           {c.name}
+          </p>
+         </Link>
+        ))}
+       </div>
+      </div>
+     </div>
+    </main>
+   </div>
+  )
+ }
 
  return (
   <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
