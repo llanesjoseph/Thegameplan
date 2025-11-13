@@ -147,9 +147,14 @@ export default function AthleteCoaches() {
 
       {showScheduleModal && coachId && (
         <Live1on1RequestModal
+          userId={user?.uid || ''}
+          userEmail={user?.email || ''}
           coachId={coachId}
-          isOpen={showScheduleModal}
           onClose={() => setShowScheduleModal(false)}
+          onSuccess={() => {
+            setShowScheduleModal(false)
+            console.log('Live 1-1 session request submitted')
+          }}
         />
       )}
     </>
