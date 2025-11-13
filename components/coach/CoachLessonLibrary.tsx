@@ -1,10 +1,42 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useAuth } from '@/hooks/use-auth'
+import { collection, getDocs, query, where, orderBy, limit } from 'firebase/firestore'
+import { db } from '@/lib/firebase.client'
+
+type Lesson = { id: string; title: string; thumbnailUrl?: string }
 
 export default function CoachLessonLibrary() {
   const router = useRouter()
-  const lessons = [{ id: 'l1' }, { id: 'l2' }, { id: 'l3' }, { id: 'l4' }]
+  const { user } = useAuth()
+  const [lessons, setLessons] = useState<Lesson[]>([])
+
+  useEffect(() => {
+    const load = async () => {
+      if (!user?.uid) return
+      try {
+        const q = query(
+          collection(db, 'content'),
+          where('creatorUid', '==', user.uid),
+          where('status', '==', 'published'),
+          orderBy('createdAt', 'desc'),
+          limit(8)
+        )
+        const snap = await getDocs(q)
+        const items: Lesson[] = snap.docs.map(d => ({
+          id: d.id,
+          title: (d.data() as any).title || 'Title',
+          thumbnailUrl: (d.data() as any).thumbnailUrl
+        }))
+        setLessons(items)
+      } catch (e) {
+        console.warn('Failed to load lessons:', e)
+      }
+    }
+    load()
+  }, [user])
 
   return (
     <div>
@@ -23,16 +55,21 @@ export default function CoachLessonLibrary() {
             className="text-left w-44 md:w-48 lg:w-56"
           >
             <div className="w-full aspect-square rounded-lg overflow-hidden bg-gray-100 mb-1">
-              <div className="w-full h-full bg-gray-300" />
+              {l.thumbnailUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={l.thumbnailUrl} alt={l.title} className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full bg-gray-300" />
+              )}
             </div>
             <p className="text-sm font-semibold" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
-              Title
-            </p>
-            <p className="text-xs" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
-              Tap to open
+              {l.title}
             </p>
           </button>
         ))}
+        {lessons.length === 0 && (
+          <div className="text-sm text-gray-500">No published lessons yet.</div>
+        )}
       </div>
     </div>
   )

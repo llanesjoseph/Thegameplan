@@ -1,14 +1,40 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useAuth } from '@/hooks/use-auth'
+
+type Athlete = { id: string; name: string; imageUrl?: string }
 
 export default function CoachAthletes() {
   const router = useRouter()
-  const athletes = [
-    { id: 'a1', name: 'Athlete', imageUrl: '' },
-    { id: 'a2', name: 'Athlete', imageUrl: '' },
-    { id: 'a3', name: 'Athlete', imageUrl: '' },
-  ]
+  const { user } = useAuth()
+  const [athletes, setAthletes] = useState<Athlete[]>([])
+
+  useEffect(() => {
+    const load = async () => {
+      if (!user?.uid) return
+      try {
+        const token = await user.getIdToken()
+        const res = await fetch('/api/coach/athletes', {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        if (res.ok) {
+          const data = await res.json()
+          const list: Athlete[] =
+            data?.athletes?.map((a: any) => ({
+              id: a.id || a.uid,
+              name: a.displayName || 'Athlete',
+              imageUrl: a.photoURL
+            })) || []
+          setAthletes(list.slice(0, 6))
+        }
+      } catch (e) {
+        console.warn('Failed to load athletes', e)
+      }
+    }
+    load()
+  }, [user])
 
   return (
     <div>
@@ -42,6 +68,9 @@ export default function CoachAthletes() {
             </p>
           </button>
         ))}
+        {athletes.length === 0 && (
+          <div className="text-sm text-gray-500">No assigned athletes yet.</div>
+        )}
       </div>
     </div>
   )

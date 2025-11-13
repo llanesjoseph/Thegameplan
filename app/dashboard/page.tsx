@@ -19,7 +19,7 @@ import AppHeader from '@/components/ui/AppHeader'
  * 1. ALWAYS wait for real role from Firestore (never use 'guest' or undefined)
  * 2. DIRECT routing to correct dashboard based on actual role
  * 3. Athletes (role: 'athlete') ALWAYS go to /dashboard/athlete
- * 4. Coaches (role: 'coach' or 'assistant_coach') ALWAYS go to /dashboard/coach-unified
+ * 4. Coaches (role: 'coach' or 'assistant_coach') ALWAYS go to /dashboard/coach
  * 5. Admins (role: 'admin' or 'superadmin') ALWAYS go to /dashboard/admin
  */
 export default function Dashboard() {
@@ -163,11 +163,11 @@ export default function Dashboard() {
    console.log('🛡️ ADMIN DETECTED - Routing to /dashboard/admin')
    router.replace('/dashboard/admin')
   } else if (actualRole === 'coach' || actualRole === 'assistant_coach') {
-   console.log('👨‍🏫 COACH DETECTED - Routing to /dashboard/coach-unified')
-   router.replace('/dashboard/coach-unified')
+  console.log('👨‍🏫 COACH DETECTED - Routing to /dashboard/coach')
+  router.replace('/dashboard/coach')
   } else {
-   console.warn('❓ UNKNOWN ROLE - Defaulting to /dashboard/coach-unified', { role: actualRole })
-   router.replace('/dashboard/coach-unified')
+  console.warn('❓ UNKNOWN ROLE - Defaulting to /dashboard/coach', { role: actualRole })
+  router.replace('/dashboard/coach')
   }
  }, [user, authLoading, roleLoading, actualRole, pathname, router])
 

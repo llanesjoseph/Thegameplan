@@ -2,21 +2,36 @@
 
 import { useEffect, useState } from 'react'
 import { useAuth } from '@/hooks/use-auth'
+import { doc, getDoc } from 'firebase/firestore'
+import { db } from '@/lib/firebase.client'
 
 export default function CoachProfile() {
   const { user } = useAuth()
   const [sports, setSports] = useState<string[]>([])
+  const [bio, setBio] = useState<string>('')
+  const [primarySport, setPrimarySport] = useState<string>('')
 
   useEffect(() => {
-    // Lightweight extraction from custom claims if present in user metadata
-    // We avoid Firestore here to keep SSR safe; placeholders will render otherwise
-    const possible: string[] = []
-    // @ts-ignore
-    const anyUser: any = user || {}
-    if (Array.isArray(anyUser?.sports)) possible.push(...anyUser.sports)
-    if (typeof anyUser?.sport === 'string') possible.push(anyUser.sport)
-    const unique = Array.from(new Set(possible.map((s) => String(s).trim()))).filter(Boolean)
-    setSports(unique)
+    const load = async () => {
+      if (!user?.uid) return
+      try {
+        const snap = await getDoc(doc(db, 'users', user.uid))
+        if (snap.exists()) {
+          const data = snap.data() as any
+          const list: string[] = []
+          if (Array.isArray(data?.sports)) list.push(...data.sports)
+          if (typeof data?.sport === 'string') list.push(data.sport)
+          if (Array.isArray(data?.specialties)) list.push(...data.specialties)
+          const unique = Array.from(new Set(list.map(s => String(s).trim()))).filter(Boolean)
+          setSports(unique)
+          setPrimarySport((data?.sport as string) || unique[0] || '')
+          setBio((data?.bio as string) || (data?.about as string) || '')
+        }
+      } catch (e) {
+        console.warn('Failed to load coach profile:', e)
+      }
+    }
+    load()
   }, [user])
 
   return (
@@ -31,12 +46,12 @@ export default function CoachProfile() {
             {user?.displayName || 'Coach'}
           </h2>
           <p className="text-sm" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
-            {sports[0] || '[Primary Sport]'}
+            {primarySport || ''}
           </p>
         </div>
 
         <p className="text-sm" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
-          Short bio about coaching style, specialties, and achievements. Replace with live data later.
+          {bio}
         </p>
 
         <div>
@@ -47,7 +62,7 @@ export default function CoachProfile() {
             Specialties:
           </h3>
           <p className="text-sm" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
-            Technique, Strength & Conditioning, Game IQ
+            {sports.slice(0, 3).join(', ')}
           </p>
         </div>
       </div>

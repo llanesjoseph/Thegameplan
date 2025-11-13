@@ -71,7 +71,7 @@ export default function LandingPage() {
       } else if (role === 'superadmin' || role === 'admin') {
        redirectPath = '/dashboard/admin'
       } else if (role === 'coach' || role === 'assistant_coach' || role === 'creator') {
-       redirectPath = '/dashboard/coach-unified'
+        redirectPath = '/dashboard/coach'
       }
       
       console.log('[Landing] Redirecting to:', redirectPath)
