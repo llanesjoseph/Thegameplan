@@ -19,41 +19,72 @@ export default function AthleteProfile() {
 
   useEffect(() => {
     const init = async () => {
-      // Initialize with user auth data immediately
       if (user?.uid) {
-        setProfileData({
-          displayName: user.displayName || '',
-          location: '[Location]',
-          bio: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.',
-          trainingGoals: '[entered from pick list]',
-          profileImageUrl: user.photoURL || ''
-        })
-
         try {
           const snap = await getDoc(doc(db, 'users', user.uid))
-          if (snap.exists()) {
-            const data = snap.data() as any
-            const extracted: string[] = []
-            // Common shapes: array, single string, or object map of booleans
-            if (Array.isArray(data?.sports)) {
-              extracted.push(...data.sports.filter((s: any) => typeof s === 'string' && s))
-            }
-            if (typeof data?.sport === 'string' && data.sport.trim()) {
-              extracted.push(data.sport.trim())
-            }
-            if (Array.isArray(data?.selectedSports)) {
-              extracted.push(...data.selectedSports.filter((s: any) => typeof s === 'string' && s))
-            }
-            if (data?.sports && !Array.isArray(data.sports) && typeof data.sports === 'object') {
-              Object.entries(data.sports).forEach(([key, value]) => {
-                if (value) extracted.push(key)
-              })
-            }
-            const unique = Array.from(new Set(extracted.map((s) => String(s).trim()))).filter(Boolean)
-            setSports(unique)
+          let data: any = {}
+          if (snap.exists()) data = snap.data()
+
+          // Map common profile fields – leave blank if missing
+          const mappedDisplayName =
+            (data.displayName as string) || user.displayName || ''
+          const mappedLocation =
+            (data.location as string) ||
+            [data.city, data.state].filter(Boolean).join(', ') ||
+            ''
+          const mappedBio =
+            (data.bio as string) ||
+            (data.about as string) ||
+            ''
+          const mappedTrainingGoals =
+            (Array.isArray(data.trainingGoals) ? data.trainingGoals.join(', ') : data.trainingGoals) ||
+            (Array.isArray(data.goals) ? data.goals.join(', ') : data.goals) ||
+            ''
+          const mappedImage =
+            (data.profileImageUrl as string) ||
+            (data.photoURL as string) ||
+            user.photoURL ||
+            ''
+
+          setProfileData({
+            displayName: mappedDisplayName,
+            location: mappedLocation,
+            bio: mappedBio,
+            trainingGoals: mappedTrainingGoals,
+            profileImageUrl: mappedImage
+          })
+
+          // Sports extraction from several shapes
+          const extracted: string[] = []
+          if (Array.isArray(data?.sports)) {
+            extracted.push(...data.sports.filter((s: any) => typeof s === 'string' && s))
           }
+          if (typeof data?.sport === 'string' && data.sport.trim()) {
+            extracted.push(data.sport.trim())
+          }
+          if (Array.isArray(data?.selectedSports)) {
+            extracted.push(...data.selectedSports.filter((s: any) => typeof s === 'string' && s))
+          }
+          if (data?.sports && !Array.isArray(data.sports) && typeof data.sports === 'object') {
+            Object.entries(data.sports).forEach(([key, value]) => {
+              if (value) extracted.push(key)
+            })
+          }
+          const unique = Array.from(new Set(extracted.map((s) => String(s).trim()))).filter(Boolean)
+          setSports(unique)
+
+          // Set a reminder flag if profile is incomplete (checked on next login)
+          const incomplete =
+            !mappedLocation || !mappedBio || !mappedTrainingGoals || unique.length === 0 || !mappedImage
+          try {
+            if (incomplete) {
+              localStorage.setItem('athlete_profile_incomplete', '1')
+            } else {
+              localStorage.removeItem('athlete_profile_incomplete')
+            }
+          } catch {}
         } catch (err) {
-          console.error('Error loading user sports:', err)
+          console.error('Error loading athlete profile:', err)
         }
       }
       setLoading(false)

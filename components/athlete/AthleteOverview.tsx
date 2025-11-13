@@ -18,6 +18,7 @@ export default function AthleteOverview() {
   })
   const [loading, setLoading] = useState(true)
   const [coachId, setCoachId] = useState<string | null>(null)
+  const [showProfileReminder, setShowProfileReminder] = useState(false)
 
   useEffect(() => {
     const loadCoachId = async () => {
@@ -36,6 +37,16 @@ export default function AthleteOverview() {
 
     loadCoachId()
   }, [user])
+
+  // Soft reminder if profile is incomplete (flag set by AthleteProfile)
+  useEffect(() => {
+    try {
+      const flag = typeof window !== 'undefined' ? localStorage.getItem('athlete_profile_incomplete') : null
+      setShowProfileReminder(flag === '1')
+    } catch {
+      setShowProfileReminder(false)
+    }
+  }, [])
 
   // Memoize loadStats to prevent recreation on every render
   const loadStats = useCallback(async () => {
@@ -147,6 +158,13 @@ export default function AthleteOverview() {
       <p className="text-sm" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
         This is where you can keep track of your coaches, upcoming training and events, and manage your progress, on and off the field.
       </p>
+      {showProfileReminder && (
+        <div className="mt-2 p-3 rounded-lg border text-sm" style={{ borderColor: '#E5E7EB', color: '#000000' }}>
+          Your profile is missing some information. You can finish it any time in
+          {' '}
+          <a href="/dashboard/profile" className="underline font-semibold">Settings › Profile</a>.
+        </div>
+      )}
     </div>
   )
 }
