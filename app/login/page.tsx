@@ -1,19 +1,23 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
-import { useRouter } from 'next/navigation'
-import { auth } from '@/lib/firebase.client'
+import { useEffect, useState, useRef, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { auth, db } from '@/lib/firebase.client'
 import { onAuthStateChanged } from 'firebase/auth'
+import { doc, getDoc } from 'firebase/firestore'
 import AuthButtons from '@/components/auth/AuthButtons'
+import Link from 'next/link'
 
 // FORCE DYNAMIC - NO STATIC GENERATION
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [isChecking, setIsChecking] = useState(true)
   const hasRedirected = useRef(false)
+  const mode = searchParams?.get('mode') || 'signin' // 'signin' or 'signup'
 
   // Listen for auth state changes
   useEffect(() => {
@@ -30,16 +34,48 @@ export default function LoginPage() {
           if (token) {
             hasRedirected.current = true
 
-            console.log('[Login] User authenticated, redirecting to dashboard')
+            console.log('[Login] User authenticated, fetching role')
 
-            // Get redirect param from URL
-            const params = new URLSearchParams(window.location.search)
-            const redirect = params.get('redirect') || '/dashboard/coach-unified'
-
-            console.log('[Login] Redirecting to:', redirect)
-
-            // Use window.location.href for hard redirect
-            window.location.href = redirect
+            // Get user role using API (faster and more reliable)
+            try {
+              const response = await fetch('/api/user/role', {
+                headers: {
+                  'Authorization': `Bearer ${token}`
+                }
+              })
+              
+              let role = 'athlete' // default
+              if (response.ok) {
+                const data = await response.json()
+                if (data.success) {
+                  role = data.data.role || 'athlete'
+                }
+              } else {
+                // Fallback to direct Firestore fetch
+                const userDoc = await getDoc(doc(db, 'users', user.uid))
+                const userData = userDoc.data()
+                role = userData?.role || 'athlete'
+              }
+              
+              console.log('[Login] User role:', role)
+              
+              // Route directly to role-specific page
+              let redirectPath = '/dashboard/athlete'
+              if (role === 'athlete') {
+                redirectPath = '/dashboard/athlete'
+              } else if (role === 'superadmin' || role === 'admin') {
+                redirectPath = '/dashboard/admin'
+              } else if (role === 'coach' || role === 'assistant_coach' || role === 'creator') {
+                redirectPath = '/dashboard/coach-unified'
+              }
+              
+              console.log('[Login] Redirecting to:', redirectPath)
+              window.location.href = redirectPath
+            } catch (error) {
+              console.error('[Login] Error fetching user role:', error)
+              // Fallback to dashboard if role fetch fails
+              window.location.href = '/dashboard'
+            }
           }
         } catch (error) {
           console.error('[Login] Token verification failed:', error)
@@ -67,59 +103,81 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#E8E6D8' }}>
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#FFFFFF', fontFamily: '"Open Sans", sans-serif' }}>
       {/* Header */}
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <button
-              onClick={() => router.push('/')}
-              className="text-2xl tracking-wider uppercase font-bold"
+            <Link
+              href="/"
+              className="text-2xl tracking-wider uppercase font-bold cursor-pointer transition-opacity hover:opacity-80"
               style={{ 
-                fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
-                color: '#624A41' 
+                fontFamily: '"Open Sans", sans-serif',
+                fontWeight: 700,
+                color: '#440102' 
               }}
             >
               ATHLEAP
-            </button>
-            <p className="text-sm text-gray-600">
-              New here?{' '}
-              <button
-                onClick={() => router.push('/signup')}
-                className="text-teal-600 hover:text-teal-700 font-semibold"
-              >
-                Sign up
-              </button>
-            </p>
+            </Link>
+            {mode === 'signin' && (
+              <p className="text-sm font-bold" style={{ fontFamily: '"Open Sans", sans-serif', color: '#440102' }}>
+                New here?{' '}
+                <button
+                  onClick={() => router.push('/login?mode=signup')}
+                  className="font-bold transition-colors"
+                  style={{ color: '#FC0105' }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = '#440102'}
+                  onMouseLeave={(e) => e.currentTarget.style.color = '#FC0105'}
+                >
+                  Join Now
+                </button>
+              </p>
+            )}
+            {mode === 'signup' && (
+              <p className="text-sm font-bold" style={{ fontFamily: '"Open Sans", sans-serif', color: '#440102' }}>
+                Already have an account?{' '}
+                <button
+                  onClick={() => router.push('/login?mode=signin')}
+                  className="font-bold transition-colors"
+                  style={{ color: '#FC0105' }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = '#440102'}
+                  onMouseLeave={(e) => e.currentTarget.style.color = '#FC0105'}
+                >
+                  Sign In
+                </button>
+              </p>
+            )}
           </div>
         </div>
       </header>
 
       {/* Login Form */}
-      <main className="flex-1 flex items-center justify-center px-4 py-12">
+      <main className="flex-1 flex items-center justify-center px-4 py-12" style={{ backgroundColor: '#440102' }}>
         <div className="w-full max-w-md">
-          <div className="bg-white rounded-xl shadow-xl p-8">
+          <div className="bg-white rounded-xl shadow-2xl p-8" style={{ border: '3px solid #440102' }}>
             <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                Welcome Back
+              <h1 className="text-2xl font-bold mb-2" style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700, color: '#440102' }}>
+                {mode === 'signup' ? 'Join AthLeap' : 'Welcome Back'}
               </h1>
-              <p className="text-gray-600">
-                Sign in to access your dashboard
+              <p className="text-sm font-semibold" style={{ fontFamily: '"Open Sans", sans-serif', color: '#FC0105', fontWeight: 700 }}>
+                {mode === 'signup' 
+                  ? 'Start your athletic journey today' 
+                  : 'Let\'s get back to training'}
               </p>
             </div>
 
             {/* Auth Buttons */}
-            <AuthButtons />
+            <AuthButtons initialMode={mode === 'signup' ? 'signup' : 'signin'} />
 
             {/* Terms */}
             <div className="mt-6 text-center">
-              <p className="text-xs text-gray-500">
+              <p className="text-xs" style={{ fontFamily: '"Open Sans", sans-serif', color: '#440102', opacity: 0.7 }}>
                 By signing in, you agree to our{' '}
-                <a href="/terms" className="text-teal-600 hover:underline">
+                <a href="/terms" className="font-bold" style={{ color: '#FC0105' }}>
                   Terms of Service
                 </a>{' '}
                 and{' '}
-                <a href="/privacy" className="text-teal-600 hover:underline">
+                <a href="/privacy" className="font-bold" style={{ color: '#FC0105' }}>
                   Privacy Policy
                 </a>
               </p>
@@ -130,7 +188,10 @@ export default function LoginPage() {
           <div className="text-center mt-6">
             <button
               onClick={() => router.push('/')}
-              className="text-gray-600 hover:text-gray-900 text-sm"
+              className="text-sm font-bold transition-colors"
+              style={{ fontFamily: '"Open Sans", sans-serif', color: '#FFFFFF' }}
+              onMouseEnter={(e) => e.currentTarget.style.color = '#FC0105'}
+              onMouseLeave={(e) => e.currentTarget.style.color = '#FFFFFF'}
             >
               ← Back to home
             </button>
@@ -138,5 +199,20 @@ export default function LoginPage() {
         </div>
       </main>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#E8E6D8' }}>
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mb-4"></div>
+          <p className="text-gray-700">Loading...</p>
+        </div>
+      </div>
+    }>
+      <LoginContent />
+    </Suspense>
   )
 }

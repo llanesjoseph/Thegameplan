@@ -174,13 +174,14 @@ export default function Dashboard() {
  // Show loading state while auth or role is loading
  if (authLoading || roleLoading) {
   return (
-   <div className="min-h-screen bg-gray-50">
-    <AppHeader />
-    <div className="flex items-center justify-center min-h-[80vh]">
-     <div className="text-center bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-      <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-cardinal mx-auto"></div>
-      <p className="mt-4 text-gray-700">Loading your dashboard...</p>
-      <p className="mt-2 text-sm text-gray-500">
+   <div className="min-h-screen" style={{ backgroundColor: '#440102' }}>
+    <div className="flex items-center justify-center min-h-screen">
+     <div className="text-center">
+      <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-white border-t-transparent mb-4"></div>
+      <p className="text-white font-bold text-lg" style={{ fontFamily: '"Open Sans", sans-serif' }}>
+       Loading your dashboard...
+      </p>
+      <p className="text-white text-sm mt-2 opacity-80" style={{ fontFamily: '"Open Sans", sans-serif' }}>
        {authLoading ? 'Authenticating...' : 'Loading role...'}
       </p>
      </div>
@@ -189,13 +190,39 @@ export default function Dashboard() {
   )
  }
 
- // If user is not authenticated, show auth form
+ // If user is not authenticated, redirect to home (don't show auth form here)
+ // The landing page modal handles authentication
+ useEffect(() => {
+  if (!authLoading && !user) {
+   console.log('[Dashboard] No user detected, redirecting to home')
+   window.location.href = '/'
+  }
+ }, [user, authLoading])
+
+ if (!user && !authLoading) {
+  return (
+   <div className="min-h-screen" style={{ backgroundColor: '#440102' }}>
+    <div className="flex items-center justify-center min-h-screen">
+     <div className="text-center">
+      <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-white border-t-transparent mb-4"></div>
+      <p className="text-white font-bold text-lg" style={{ fontFamily: '"Open Sans", sans-serif' }}>
+       Redirecting...
+      </p>
+     </div>
+    </div>
+   </div>
+  )
+ }
+
+ // This should never be reached due to routing logic above, but just in case
  return (
-  <div className="min-h-screen bg-gray-50">
-   <AppHeader />
-   <div className="flex items-center justify-center min-h-[80vh]">
-    <div className="w-full max-w-md">
-     <SimpleAuth />
+  <div className="min-h-screen" style={{ backgroundColor: '#440102' }}>
+   <div className="flex items-center justify-center min-h-screen">
+    <div className="text-center">
+     <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-white border-t-transparent mb-4"></div>
+     <p className="text-white font-bold text-lg" style={{ fontFamily: '"Open Sans", sans-serif' }}>
+      Loading...
+     </p>
     </div>
    </div>
   </div>
