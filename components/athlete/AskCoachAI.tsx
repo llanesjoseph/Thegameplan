@@ -16,21 +16,23 @@ interface AskCoachAIProps {
   coachId?: string
   coachName?: string
   sport?: string
+  defaultOpen?: boolean
+  hideLauncher?: boolean
 }
 
-export default function AskCoachAI({ coachId, coachName, sport }: AskCoachAIProps) {
+export default function AskCoachAI({ coachId, coachName, sport, defaultOpen = false, hideLauncher = false }: AskCoachAIProps) {
   const { user } = useAuth()
   const [messages, setMessages] = useState<Message[]>([])
   const [question, setQuestion] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(defaultOpen)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
-  // Load messages from Firestore in real-time
+  // Load messages from Firestore in real-time (no composite index required)
   useEffect(() => {
     if (!user || !coachId) return
 
@@ -39,8 +41,7 @@ export default function AskCoachAI({ coachId, coachName, sport }: AskCoachAIProp
     const chatQuery = query(
       collection(db, 'chat_messages'),
       where('userId', '==', user.uid),
-      where('coachId', '==', coachId),
-      orderBy('timestamp', 'asc')
+      where('coachId', '==', coachId)
     )
 
     const unsubscribe = onSnapshot(chatQuery, (snapshot) => {
@@ -51,7 +52,7 @@ export default function AskCoachAI({ coachId, coachName, sport }: AskCoachAIProp
           content: data.content,
           timestamp: data.timestamp?.toDate() || new Date()
         }
-      })
+      }).sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime())
 
       setMessages(loadedMessages)
       console.log('✅ Loaded', loadedMessages.length, 'messages from Firestore')
@@ -153,16 +154,18 @@ export default function AskCoachAI({ coachId, coachName, sport }: AskCoachAIProp
 
   if (!isOpen) {
     return (
-      <button
-        onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 w-16 h-16 rounded-full shadow-lg hover:shadow-xl transition-all flex items-center justify-center z-50 group"
-        style={{ backgroundColor: '#20B2AA' }}
-      >
-        <Bot className="w-7 h-7 text-white group-hover:scale-110 transition-transform" />
-        <span className="absolute -top-2 -right-2 w-6 h-6 bg-orange rounded-full flex items-center justify-center">
-          <Sparkles className="w-3 h-3 text-white" />
-        </span>
-      </button>
+      hideLauncher ? null : (
+        <button
+          onClick={() => setIsOpen(true)}
+          className="fixed bottom-6 right-6 w-16 h-16 rounded-full shadow-lg hover:shadow-xl transition-all flex items-center justify-center z-50 group"
+          style={{ backgroundColor: '#20B2AA' }}
+        >
+          <Bot className="w-7 h-7 text-white group-hover:scale-110 transition-transform" />
+          <span className="absolute -top-2 -right-2 w-6 h-6 bg-orange rounded-full flex items-center justify-center">
+            <Sparkles className="w-3 h-3 text-white" />
+          </span>
+        </button>
+      )
     )
   }
 
@@ -280,9 +283,7 @@ export default function AskCoachAI({ coachId, coachName, sport }: AskCoachAIProp
             <Send className="w-4 h-4" />
           </button>
         </div>
-        <p className="text-xs text-gray-500 mt-2">
-          AI-powered coaching assistance • Not medical advice
-        </p>
+        {/* Subtle legal note intentionally removed per design feedback */}
       </form>
     </div>
   )
