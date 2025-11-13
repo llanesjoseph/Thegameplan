@@ -1,24 +1,36 @@
 'use client'
 
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 
 type GearItem = {
   id: string
   name: string
-  price: string
+  price?: string
+  description?: string
   imageUrl?: string
+  link?: string
 }
 
-const MOCK_GEAR: GearItem[] = [
-  { id: 'g1', name: 'Product', price: '$19.99' },
-  { id: 'g2', name: 'Product', price: '$29.99' },
-  { id: 'g3', name: 'Product', price: '$39.99' },
-  { id: 'g4', name: 'Product', price: '$49.99' },
-  { id: 'g5', name: 'Product', price: '$59.99' },
-  { id: 'g6', name: 'Product', price: '$69.99' },
-]
-
 export default function GearStore() {
+  const [items, setItems] = useState<GearItem[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await fetch('/api/gear', { cache: 'no-store' })
+        const data = await res.json()
+        if (data?.success) setItems(data.gearItems || [])
+      } catch (e) {
+        console.warn('Failed to load gear', e)
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
+  }, [])
+
   return (
     <div className="min-h-screen bg-white">
       <header className="bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-4">
@@ -39,17 +51,26 @@ export default function GearStore() {
             </h1>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-              {MOCK_GEAR.map((g) => (
-                <div key={g.id}>
+              {(loading ? Array.from({ length: 8 }) : items).map((g: any, idx: number) => (
+                <div key={g?.id || idx}>
                   <div className="w-full aspect-square bg-gray-100 rounded-lg overflow-hidden">
-                    <div className="w-full h-full bg-gray-300" />
+                    {loading ? (
+                      <div className="w-full h-full bg-gray-200 animate-pulse" />
+                    ) : g?.imageUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={g.imageUrl} alt={g.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-gray-300" />
+                    )}
                   </div>
                   <p className="font-bold text-sm mt-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
-                    {g.name}
+                    {loading ? 'Product' : g?.name}
                   </p>
-                  <p className="text-xs" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
-                    {g.price}
-                  </p>
+                  {!loading && g?.price && (
+                    <p className="text-xs" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
+                      {g.price}
+                    </p>
+                  )}
                 </div>
               ))}
             </div>
@@ -59,5 +80,5 @@ export default function GearStore() {
     </div>
   )
 }
-
+ 
 
