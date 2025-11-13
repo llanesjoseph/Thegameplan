@@ -7,10 +7,10 @@
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-family: 'Open Sans', var(--font-open-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   line-height: 1.625;
-  color: #624A41; /* Dark */
-  background-color: #E8E6D8; /* Cream background */
+  color: #000000; /* Primary text */
+  background-color: #FFFFFF; /* Brand surface default */
 }
 
 /* Athleap Button Styles with New Color Palette */
