@@ -457,7 +457,7 @@ export default function LandingPage() {
         fontFamily: '"Open Sans", sans-serif',
         boxShadow: '0 25px 70px rgba(68, 1, 2, 0.5)',
         border: 'none',
-        background: 'linear-gradient(135deg, #FFFFFF 0%, #FFF5F5 100%)',
+        background: '#FFFFFF',
         backdropFilter: 'blur(10px)'
        }}
       >
@@ -465,7 +465,7 @@ export default function LandingPage() {
        <div 
         className="w-full py-3 px-6"
         style={{
-         background: `linear-gradient(90deg, ${authMode === 'signin' ? '#FC0105, #440102' : '#440102, #FC0105'})`
+        background: '#FC0105'
         }}
        >
         <div className="flex items-center justify-between">

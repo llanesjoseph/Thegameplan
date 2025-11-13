@@ -18,6 +18,7 @@ import AthleteProgress from '@/components/athlete/AthleteProgress'
 import AthleteCoaches from '@/components/athlete/AthleteCoaches'
 import AthleteTrainingLibrary from '@/components/athlete/AthleteTrainingLibrary'
 import AthleteRecommendedGear from '@/components/athlete/AthleteRecommendedGear'
+import AthleteAssistant from '@/components/athlete/AthleteAssistant'
 
 export default function AthleteDashboard() {
   const { user } = useAuth()
@@ -140,6 +141,9 @@ export default function AthleteDashboard() {
 
             {/* Recommended Gear Section */}
             <AthleteRecommendedGear />
+
+            {/* Ask Your Coach - AI Assistant */}
+            <AthleteAssistant />
           </div>
         </div>
       </main>
