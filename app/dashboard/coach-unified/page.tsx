@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import AppHeader from '@/components/ui/AppHeader'
 import { useAuth } from '@/hooks/use-auth'
 import { usePageAnalytics } from '@/hooks/use-page-analytics'
@@ -24,8 +24,18 @@ import {
   Home,
   FileVideo
 } from 'lucide-react'
+import CoachOverview from '@/components/coach/CoachOverview'
+import CoachProfile from '@/components/coach/CoachProfile'
+import CoachAthletes from '@/components/coach/CoachAthletes'
+import CoachLessonLibrary from '@/components/coach/CoachLessonLibrary'
+import CoachRecommendedGear from '@/components/coach/CoachRecommendedGear'
+import Link from 'next/link'
 
 export default function CoachUnifiedDashboard() {
+  const searchParams = useSearchParams()
+  const rebrandFlag =
+    (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_REBRAND_ENABLED === '1') ||
+    searchParams?.get('rebrand') === '1'
   const { user, loading: authLoading } = useAuth()
   const router = useRouter()
   const [showWelcome, setShowWelcome] = useState(false)
@@ -310,6 +320,44 @@ export default function CoachUnifiedDashboard() {
           <p className="text-xl font-semibold text-gray-900">Loading your dashboard...</p>
           <p className="text-sm text-gray-600 mt-2">Please wait while we set things up</p>
         </div>
+      </div>
+    )
+  }
+
+  // Rebranded frameless layout (feature-flagged)
+  if (rebrandFlag) {
+    return (
+      <div className="min-h-screen bg-white">
+        <header className="bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-4">
+          <div className="max-w-5xl mx-auto flex items-center justify-between">
+            <Link href="/" className="flex-shrink-0">
+              <span className="text-2xl font-bold" style={{ color: '#440102', fontFamily: '\"Open Sans\", sans-serif', fontWeight: 700 }}>
+                ATHLEAP
+              </span>
+            </Link>
+            <nav className="flex items-center gap-4">
+              <Link
+                href="/dashboard/coach-unified?rebrand=0"
+                className="text-sm font-semibold hover:opacity-80 transition-opacity"
+                style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif', fontWeight: 600 }}
+              >
+                Switch to current view
+              </Link>
+            </nav>
+          </div>
+        </header>
+
+        <main className="w-full">
+          <div className="px-4 sm:px-6 lg:px-8 py-3">
+            <div className="w-full max-w-5xl mx-auto space-y-5">
+              <CoachOverview />
+              <CoachProfile />
+              <CoachAthletes />
+              <CoachLessonLibrary />
+              <CoachRecommendedGear />
+            </div>
+          </div>
+        </main>
       </div>
     )
   }
