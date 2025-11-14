@@ -132,7 +132,7 @@ export default function AthleteDashboard() {
       {/* Main Content - Clean and Frameless */}
       <main className="w-full">
         <div className="px-4 sm:px-6 lg:px-8 py-3">
-          <div className="w-full max-w-7xl mx-auto space-y-5">
+          <div className="w-full max-w-5xl mx-auto space-y-5">
             {/* Welcome Header */}
             <AthleteOverview />
 

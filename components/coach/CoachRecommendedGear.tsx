@@ -62,21 +62,20 @@ export default function CoachRecommendedGear() {
           Recommended Gear
         </h2>
 
-        {/* Brand-red + next to title */}
-        <div className="relative group">
-          <button
-            onClick={() => setShowAdd(true)}
-            aria-label="Add gear"
-            className="h-9 w-9 rounded-full flex items-center justify-center shadow-md transition-colors"
-            style={{ backgroundColor: '#FC0105', color: '#FFFFFF' }}
-            title="Add gear"
-          >
-            <span className="text-xl leading-none">+</span>
-          </button>
-          <span className="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs bg-black text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition">
-            Add gear
+        {/* Brand-red + with sliding "add gear" label */}
+        <button
+          onClick={() => setShowAdd(true)}
+          aria-label="Add gear"
+          className="group h-9 rounded-full flex items-center justify-center shadow-md overflow-hidden transition-all duration-300 ease-in-out hover:pr-3"
+          style={{ backgroundColor: '#FC0105', color: '#FFFFFF', width: '36px' }}
+          onMouseEnter={(e) => { e.currentTarget.style.width = 'auto' }}
+          onMouseLeave={(e) => { e.currentTarget.style.width = '36px' }}
+        >
+          <span className="text-xl leading-none px-2">+</span>
+          <span className="whitespace-nowrap text-sm font-semibold opacity-0 max-w-0 group-hover:opacity-100 group-hover:max-w-[100px] transition-all duration-300 ease-in-out overflow-hidden" style={{ fontFamily: '"Open Sans", sans-serif' }}>
+            add gear
           </span>
-        </div>
+        </button>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
