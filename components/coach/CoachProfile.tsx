@@ -100,8 +100,9 @@ export default function CoachProfile() {
             </div>
           )}
         </div>
-        <div className="absolute -bottom-6 left-4 sm:left-6">
-          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden ring-4 ring-white shadow-xl bg-gray-100">
+        {/* Profile photo fixed in top-right, consistent size */}
+        <div className="absolute top-4 right-4">
+          <div className="w-24 h-24 rounded-xl overflow-hidden ring-4 ring-white shadow-xl bg-gray-100">
             {photoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={photoUrl} alt={user?.displayName || 'Coach'} className="w-full h-full object-cover" />
@@ -114,8 +115,8 @@ export default function CoachProfile() {
         </div>
       </div>
 
-      {/* Text content below */}
-      <div className="pt-8 max-w-2xl space-y-3">
+      {/* Text content below banner (profile photo remains in banner corner) */}
+      <div className="pt-6 sm:pt-8 max-w-2xl space-y-3">
         <div>
           <h2
             className="text-2xl sm:text-3xl font-bold mb-1"
