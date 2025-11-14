@@ -48,17 +48,8 @@ export default function AthleteAssistant() {
 
   if (loading || !coachId) return null
 
-  // Floating chat: render the launcher + overlay only (no inline container)
-  return (
-    <AskCoachAI
-      coachId={coachId || undefined}
-      coachName={coachName}
-      sport={sport}
-      defaultOpen={false}
-      hideLauncher={false}
-      inlineMode={false}
-    />
-  )
+  // Disable floating launcher per product decision (access via Coaches section only)
+  return null
 }
 
 

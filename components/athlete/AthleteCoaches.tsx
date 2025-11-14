@@ -9,6 +9,8 @@ import { User } from 'lucide-react'
 import Live1on1RequestModal from './Live1on1RequestModal'
 import dynamic from 'next/dynamic'
 
+const AskCoachAI = dynamic(() => import('./AskCoachAI'), { ssr: false })
+
 export default function AthleteCoaches() {
   const { user } = useAuth()
   const router = useRouter()
@@ -16,7 +18,7 @@ export default function AthleteCoaches() {
   const [loading, setLoading] = useState(true)
   const [showScheduleModal, setShowScheduleModal] = useState(false)
   const [coachId, setCoachId] = useState<string | null>(null)
-  // Removed inline AskCoachAI modal; floating launcher handles chat
+  const [showAskModal, setShowAskModal] = useState(false)
 
   useEffect(() => {
     const loadCoaches = async () => {
@@ -68,7 +70,11 @@ export default function AthleteCoaches() {
     router.push('/dashboard/athlete/submit-video')
   }
 
-  // Ask question handled by global floating chat; no-op here
+  const handleAskQuestion = () => {
+    if (coachId) {
+      setShowAskModal(true)
+    }
+  }
 
   return (
     <>
@@ -134,6 +140,13 @@ export default function AthleteCoaches() {
             >
               Submit Training Video for Coach Feedback
             </button>
+            <button
+              onClick={handleAskQuestion}
+              className="w-full bg-black text-white py-2.5 rounded-lg text-sm font-bold hover:bg-gray-800 transition-colors"
+              style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
+            >
+              Ask a Question With Your Coach
+            </button>
           </div>
         </div>
       </div>
@@ -151,7 +164,51 @@ export default function AthleteCoaches() {
         />
       )}
 
-      {/* Ask a Question modal removed to avoid duplicate AI entry point */}
+      {/* Ask a Question - Chat Drawer */}
+      {showAskModal && coachId && (
+        <div
+          className="fixed inset-0 z-50"
+          style={{ backgroundColor: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(2px)' }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowAskModal(false)
+          }}
+        >
+          <div
+            className="fixed right-4 bottom-4 sm:right-6 sm:bottom-6 w-[92vw] sm:w-[520px] max-w-[560px] rounded-2xl shadow-2xl overflow-hidden"
+            style={{ background: '#FFFFFF', animation: 'slideInChat .28s ease-out forwards' }}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-4 py-3" style={{ background: '#FC0105' }}>
+              <div>
+                <h3 className="text-white font-bold" style={{ fontFamily: '\"Open Sans\", sans-serif' }}>Ask Your Coach</h3>
+                <p className="text-white/90 text-xs">Chat without leaving this page</p>
+              </div>
+              <button
+                onClick={() => setShowAskModal(false)}
+                className="text-white/90 hover:text-white px-2 py-1 rounded-lg hover:bg-white/10 transition-colors"
+                aria-label="Close"
+              >
+                ✕
+              </button>
+            </div>
+            {/* Body */}
+            <div className="h-[60vh] sm:h-[64vh]">
+              <AskCoachAI
+                coachId={coachId}
+                coachName={(coaches?.[0]?.name as string) || 'Coach'}
+                sport={(coaches?.[0]?.title as string) || ''}
+                inlineMode
+              />
+            </div>
+          </div>
+          <style jsx global>{`
+            @keyframes slideInChat {
+              from { transform: translateY(12px) scale(0.98); opacity: 0; }
+              to { transform: translateY(0) scale(1); opacity: 1; }
+            }
+          `}</style>
+        </div>
+      )}
     </>
   )
 }
