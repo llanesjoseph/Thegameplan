@@ -90,25 +90,26 @@ export default function CoachProfile() {
     <div className="space-y-4">
       {/* Banner with overlay profile */}
       <div className="relative">
-        <div className="h-32 sm:h-40 md:h-48 rounded-xl overflow-hidden bg-gray-100">
+        <div className="h-36 sm:h-44 md:h-56 rounded-xl overflow-hidden bg-gray-100">
           {bannerUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={bannerUrl} alt="Coach banner" className="w-full h-full object-cover" />
           ) : (
-            <div className="w-full h-full bg-white flex items-center justify-center">
-              <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-24 opacity-40" />
+            <div className="relative w-full h-full bg-white">
+              {/* Thin, light gray guide line when no banner is set */}
+              <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-px bg-gray-300" />
             </div>
           )}
         </div>
-        {/* Profile photo fixed in top-right, consistent size and style as cards */}
-        <div className="absolute top-4 right-4">
-          <div className="w-32 h-32 sm:w-36 sm:h-36 rounded-xl overflow-hidden ring-4 ring-white shadow-xl bg-gray-100">
+        {/* Profile photo fixed near top-right; larger to match render */}
+        <div className="absolute top-6 right-6">
+          <div className="w-40 h-40 sm:w-44 sm:h-44 rounded-xl overflow-hidden ring-4 ring-white shadow-xl bg-gray-100">
             {photoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={photoUrl} alt={user?.displayName || 'Coach'} className="w-full h-full object-cover" />
             ) : (
               <div className="w-full h-full bg-white flex items-center justify-center">
-                <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-10 opacity-60" />
+                <div className="w-10 h-10 rounded-md bg-gray-200" />
               </div>
             )}
           </div>
