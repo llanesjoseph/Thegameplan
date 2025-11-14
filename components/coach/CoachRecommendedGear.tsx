@@ -54,7 +54,7 @@ export default function CoachRecommendedGear() {
 
   return (
     <div>
-      <div className="relative mb-2 flex items-center justify-between">
+      <div className="mb-2 flex items-center gap-2">
         <h2
           className="text-xl font-bold"
           style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif', fontWeight: 700 }}
@@ -62,7 +62,7 @@ export default function CoachRecommendedGear() {
           Recommended Gear
         </h2>
 
-        {/* Brand-red floating + button with tooltip */}
+        {/* Brand-red + next to title */}
         <div className="relative group">
           <button
             onClick={() => setShowAdd(true)}
@@ -73,7 +73,7 @@ export default function CoachRecommendedGear() {
           >
             <span className="text-xl leading-none">+</span>
           </button>
-          <span className="pointer-events-none absolute -top-8 right-0 whitespace-nowrap text-xs bg-black text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition">
+          <span className="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs bg-black text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition">
             Add gear
           </span>
         </div>

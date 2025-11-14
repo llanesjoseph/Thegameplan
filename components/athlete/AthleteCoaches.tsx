@@ -125,7 +125,7 @@ export default function AthleteCoaches() {
           </div>
 
           {/* Action Buttons */}
-          <div className="w-full md:w-64 md:max-w-[18rem] lg:w-72 space-y-2 mt-4 md:mt-0 md:ml-4">
+          <div className="w-full md:w-44 md:max-w-[14rem] lg:w-56 space-y-2 mt-4 md:mt-0 md:ml-4">
             <button
               onClick={handleScheduleSession}
               className="w-full bg-black text-white py-2.5 rounded-lg text-sm font-bold hover:bg-gray-800 transition-colors"
