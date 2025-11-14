@@ -268,7 +268,7 @@ export async function sendAthleteInvitationEmail({
   expiresAt
 }: AthleteInvitationEmailProps) {
   try {
-    const expiryDate = new Date(expiresAt).toLocaleDateString() // kept for compatibility; not displayed in minimal template
+    const expiryDate = new Date(expiresAt).toLocaleDateString() // kept for compatibility; not displayed directly
 
     const { data, error } = await resend.emails.send({
       from: 'AthLeap <noreply@mail.crucibleanalytics.dev>',
@@ -281,10 +281,42 @@ export async function sendAthleteInvitationEmail({
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>AthLeap Invitation</title>
-            <style>.btn{background:#000;color:#fff;font-weight:700;padding:14px 28px;border-radius:8px;text-decoration:none;display:inline-block}</style>
+            <style>
+              .btn{
+                background:#FC0105;
+                color:#fff;
+                font-weight:700;
+                padding:12px 28px;
+                border-radius:8px;
+                text-decoration:none;
+                display:inline-block
+              }
+              .container{
+                max-width:600px;
+                margin:0 auto;
+                background:#ffffff;
+                border-radius:12px;
+                box-shadow:0 20px 40px rgba(0,0,0,0.08);
+                overflow:hidden
+              }
+              .h1{
+                font-family:Arial,Helvetica,sans-serif;
+                font-size:28px;
+                font-weight:800;
+                color:#000;
+                margin:0 0 12px 0
+              }
+              .p{
+                font-family:Arial,Helvetica,sans-serif;
+                font-size:15px;
+                line-height:1.6;
+                color:#374151;
+                margin:0 0 16px 0
+              }
+            </style>
         </head>
         <body>
-            <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); overflow: hidden;">
+            <div class="container">
                 <!-- Logo banner -->
                 <header style="background-color:#440102;padding:20px;">
                   <div style="display:flex;align-items:center;gap:12px;">
@@ -293,13 +325,28 @@ export async function sendAthleteInvitationEmail({
                   </div>
                 </header>
                 <main style="padding:32px 24px;text-align:left;">
-                    <h2 style="font-size:24px;color:#000;margin:0 0 12px 0;font-weight:800;">Athlete Invite</h2>
-                    <p style="color:#374151;margin:0 0 16px 0;line-height:1.6;">
-                      Hi ${athleteName || 'there'} – ${coachName ? `${coachName} has invited you` : 'You’ve been invited'} to join AthLeap${sport ? ` for ${sport}` : ''}.
+                    <h1 class="h1">Athlete Invite</h1>
+
+                    <p class="p">Hi ${athleteName || 'there'} –</p>
+
+                    <p class="p">
+                      <strong>${coachName || 'Your Coach'}</strong> has invited you to join ${coachName ? 'their' : 'our'} team on Athleap, a new platform blending the power of AI with the thrill of sports, creating unforgettable fan experiences and coaching next-generation athletes.
                     </p>
-                    <div style="margin:28px 0;">
+
+                    <div style="margin:20px 0 24px 0;">
                       <a href="${invitationUrl}" class="btn">Accept Invite</a>
                     </div>
+
+                    <p class="p">
+                      Join now and be a part of a company changing the future of sports. Once you are in, you can begin to train with ${coachName || 'your coach'}${sport ? ` in ${sport}` : ''} and follow other elite coaches.
+                    </p>
+
+                    <p class="p">We can’t wait to have you on board!</p>
+
+                    <p class="p" style="margin-top:20px;">
+                      See you inside,<br/>
+                      <strong>The Athleap Team</strong>
+                    </p>
                 </main>
                 <footer style="background-color:#f9fafb;text-align:center;padding:18px;border-top:1px solid #e5e7eb;">
                   <p style="margin:0;color:#6b7280;font-size:12px;">AthLeap — The Work Before the Win</p>
