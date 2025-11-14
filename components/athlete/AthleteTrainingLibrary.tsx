@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore'
 import { db, storage } from '@/lib/firebase.client'
 import { ref, getDownloadURL } from 'firebase/storage'
-import { BookOpen } from 'lucide-react'
+import { BookOpen, ChevronLeft, ChevronRight } from 'lucide-react'
 
 export default function AthleteTrainingLibrary() {
   const { user } = useAuth()
@@ -127,32 +127,32 @@ export default function AthleteTrainingLibrary() {
           ))}
           </div>
 
-          {/* Overlay arrows positioned over first/last tiles */}
+          {/* Overlay arrows positioned over the thumbnails row */}
           {totalPages > 1 && (
             <>
               <button
                 aria-label="Previous lessons"
                 disabled={!canPrev}
                 onClick={() => setPage((p) => Math.max(0, p - 1))}
-                className={`absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full border text-lg leading-none flex items-center justify-center transition ${
+                className={`absolute left-2 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full border flex items-center justify-center transition ${
                   canPrev
                     ? 'bg-white text-black border-black/70 hover:bg-black hover:text-white'
                     : 'bg-white text-gray-400 border-gray-300 cursor-not-allowed opacity-60'
                 }`}
               >
-                ‹
+                <ChevronLeft className="w-4 h-4" />
               </button>
               <button
                 aria-label="Next lessons"
                 disabled={!canNext}
                 onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
-                className={`absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full border text-lg leading-none flex items-center justify-center transition ${
+                className={`absolute right-2 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full border flex items-center justify-center transition ${
                   canNext
                     ? 'bg-white text-black border-black/70 hover:bg-black hover:text-white'
                     : 'bg-white text-gray-400 border-gray-300 cursor-not-allowed opacity-60'
                 }`}
               >
-                ›
+                <ChevronRight className="w-4 h-4" />
               </button>
             </>
           )}
