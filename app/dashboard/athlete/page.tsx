@@ -19,12 +19,14 @@ import AthleteCoaches from '@/components/athlete/AthleteCoaches'
 import AthleteTrainingLibrary from '@/components/athlete/AthleteTrainingLibrary'
 import AthleteRecommendedGear from '@/components/athlete/AthleteRecommendedGear'
 import AthleteAssistant from '@/components/athlete/AthleteAssistant'
+import ProfileQuickSetupModal from '@/components/athlete/ProfileQuickSetupModal'
 
 export default function AthleteDashboard() {
   const { user } = useAuth()
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
   const [isSigningOut, setIsSigningOut] = useState(false)
+  const [showQuickSetup, setShowQuickSetup] = useState(false)
 
   // Redirect non-athletes
   useEffect(() => {
@@ -62,6 +64,13 @@ export default function AthleteDashboard() {
 
     checkRole()
   }, [user, router])
+
+  useEffect(() => {
+    try {
+      const flag = localStorage.getItem('athleap_show_quick_profile_setup')
+      if (flag === '1') setShowQuickSetup(true)
+    } catch {}
+  }, [])
 
   if (isLoading) {
     return (
@@ -147,6 +156,12 @@ export default function AthleteDashboard() {
           </div>
         </div>
       </main>
+
+      {/* Optional profile quick-setup modal, stays on this page */}
+      <ProfileQuickSetupModal
+        isOpen={showQuickSetup}
+        onClose={() => setShowQuickSetup(false)}
+      />
     </div>
   )
 }

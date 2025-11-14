@@ -41,7 +41,7 @@ export default function AthleteTrainingLibrary() {
               title: doc.data().title || 'Title',
               author: doc.data().creatorName || 'Author'
             }))
-            setLessons(lessonsData.slice(0, 4)) // Show first 4
+            setLessons(lessonsData) // Show all lessons
           }
         }
       } catch (error) {

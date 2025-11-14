@@ -67,6 +67,9 @@ export default function AthleteOnboardingPage() {
         })
       })
 
+      // Show quick profile setup on first dashboard view
+      try { localStorage.setItem('athleap_show_quick_profile_setup', '1') } catch {}
+
       // Sign out to ensure clean dashboard load, then hard redirect
       await signOut(auth)
       window.location.replace('/dashboard/athlete')
