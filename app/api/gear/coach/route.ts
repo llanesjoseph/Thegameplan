@@ -20,21 +20,31 @@ export async function GET(req: NextRequest) {
     }
 
     const collections = ['curatedGear', 'recommendedGear']
-    const docs: any[] = []
+    const docsMap = new Map<string, FirebaseFirestore.QueryDocumentSnapshot>()
+    // Collect matches across multiple possible owner fields
+    const ownerFields = ['coachId', 'creatorUid', 'createdBy', 'ownerUid']
     for (const col of collections) {
-      const s = await adminDb.collection(col).where('coachId', '==', coachUid).get().catch(() => null)
-      if (s && !s.empty) docs.push(...s.docs)
+      for (const field of ownerFields) {
+        const s = await adminDb.collection(col).where(field, '==', coachUid).get().catch(() => null)
+        if (s && !s.empty) {
+          for (const d of s.docs) docsMap.set(`${col}:${d.id}`, d)
+        }
+      }
     }
-    // fall back to gear where recommended true and creator/coach matches
-    const rec = await adminDb
-      .collection('gear')
-      .where('recommended', '==', true)
-      .where('coachId', '==', coachUid)
-      .get()
-      .catch(() => null)
-    if (rec && !rec.empty) docs.push(...rec.docs)
+    // gear collection: recommended true and owned by coach via any field
+    for (const field of ownerFields) {
+      const s = await adminDb
+        .collection('gear')
+        .where('recommended', '==', true)
+        .where(field, '==', coachUid)
+        .get()
+        .catch(() => null)
+      if (s && !s.empty) {
+        for (const d of s.docs) docsMap.set(`gear:${d.id}`, d)
+      }
+    }
 
-    const gearItems = docs.map((doc) => {
+    const gearItems = Array.from(docsMap.values()).map((doc) => {
       const d = doc.data() as any
       return {
         id: doc.id,
