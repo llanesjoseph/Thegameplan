@@ -12,6 +12,8 @@ export default function AthleteTrainingLibrary() {
   const router = useRouter()
   const [lessons, setLessons] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [page, setPage] = useState(0)
+  const pageSize = 4
 
   useEffect(() => {
     const loadTrainingLibrary = async () => {
@@ -41,7 +43,8 @@ export default function AthleteTrainingLibrary() {
               title: doc.data().title || 'Title',
               author: doc.data().creatorName || 'Author'
             }))
-            setLessons(lessonsData) // Show all lessons
+            setLessons(lessonsData) // We keep all, but page through
+            setPage(0)
           }
         }
       } catch (error) {
@@ -58,6 +61,12 @@ export default function AthleteTrainingLibrary() {
     router.push(`/dashboard/athlete-lessons?lesson=${lessonId}`)
   }
 
+  const totalPages = Math.max(1, Math.ceil(lessons.length / pageSize))
+  const start = page * pageSize
+  const visibleLessons = lessons.slice(start, start + pageSize)
+  const canPrev = page > 0
+  const canNext = page < totalPages - 1
+
   return (
     <div>
       <h2 className="text-xl font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
@@ -71,8 +80,10 @@ export default function AthleteTrainingLibrary() {
           ))}
         </div>
       ) : lessons.length > 0 ? (
-        <div className="flex flex-wrap gap-4">
-          {lessons.map((lesson) => (
+        <div className="relative">
+          {/* Content row */}
+          <div className="flex flex-wrap gap-4">
+          {visibleLessons.map((lesson) => (
             <button
               key={lesson.id}
               onClick={() => handleViewLesson(lesson.id)}
@@ -98,6 +109,30 @@ export default function AthleteTrainingLibrary() {
               {/* Author hidden to avoid coach reference clutter per design */}
             </button>
           ))}
+          </div>
+
+          {/* Pager controls */}
+          {totalPages > 1 && (
+            <div className="mt-3 flex items-center justify-between max-w-[640px]">
+              <button
+                disabled={!canPrev}
+                onClick={() => setPage(p => Math.max(0, p - 1))}
+                className={`px-3 py-1 rounded border text-sm ${canPrev ? 'hover:bg-gray-50' : 'opacity-40 cursor-not-allowed'}`}
+              >
+                &lt;
+              </button>
+              <div className="text-xs text-gray-500">
+                Page {page + 1} of {totalPages}
+              </div>
+              <button
+                disabled={!canNext}
+                onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
+                className={`px-3 py-1 rounded border text-sm ${canNext ? 'hover:bg-gray-50' : 'opacity-40 cursor-not-allowed'}`}
+              >
+                &gt;
+              </button>
+            </div>
+          )}
         </div>
       ) : (
         <p className="text-gray-500 text-sm">No training content available yet</p>
