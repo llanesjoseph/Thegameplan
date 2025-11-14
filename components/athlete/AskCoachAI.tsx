@@ -29,6 +29,47 @@ export default function AskCoachAI({ coachId, coachName, sport, defaultOpen = fa
   const [isOpen, setIsOpen] = useState(defaultOpen)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
+  // Very small markdown-ish formatter to make bullets look good
+  const escapeHtml = (str: string): string =>
+    str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  const formatInline = (str: string): string =>
+    escapeHtml(str).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+  const renderMessageContent = (text: string) => {
+    const lines = text.split(/\r?\n/)
+    const elements: JSX.Element[] = []
+    let currentList: string[] = []
+    const isListLine = (l: string) => /^(\*|-|\d+[.)])\s+/.test(l.trim())
+    const stripMarker = (l: string) => l.trim().replace(/^(\*|-|\d+[.)])\s+/, '')
+    const flushList = () => {
+      if (currentList.length > 0) {
+        elements.push(
+          <ul className="list-disc pl-5 space-y-1">
+            {currentList.map((item, i) => (
+              <li key={i} dangerouslySetInnerHTML={{ __html: formatInline(item) }} />
+            ))}
+          </ul>
+        )
+        currentList = []
+      }
+    }
+    for (const line of lines) {
+      if (!line.trim()) {
+        flushList()
+        continue
+      }
+      if (isListLine(line)) {
+        currentList.push(stripMarker(line))
+      } else {
+        flushList()
+        elements.push(
+          <p className="text-sm" dangerouslySetInnerHTML={{ __html: formatInline(line) }} />
+        )
+      }
+    }
+    flushList()
+    return <div className="space-y-2">{elements}</div>
+  }
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
@@ -185,7 +226,7 @@ export default function AskCoachAI({ coachId, coachName, sport, defaultOpen = fa
                   message.role === 'user' ? 'bg-black text-white' : 'bg-white border border-gray-200'
                 }`}
               >
-                <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                {renderMessageContent(message.content)}
                 <p className="text-xs mt-1 opacity-50">
                   {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </p>
@@ -194,7 +235,7 @@ export default function AskCoachAI({ coachId, coachName, sport, defaultOpen = fa
           ))}
           {isLoading && (
             <div className="flex gap-3">
-              <div className="flex-1 bg-white border border-gray-200 rounded-lg p-3">
+            <div className="flex-1 bg-white border border-gray-200 rounded-lg p-3">
                 <div className="flex items-center gap-2">
                   <Loader2 className="w-4 h-4 animate-spin" style={{ color: '#000' }} />
                   <span className="text-sm text-gray-600">Thinking...</span>
@@ -281,7 +322,7 @@ export default function AskCoachAI({ coachId, coachName, sport, defaultOpen = fa
                   : 'bg-white border border-gray-200'
               }`}
             >
-              <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+              {renderMessageContent(message.content)}
               <p className="text-xs mt-1 opacity-50">
                 {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </p>

@@ -196,12 +196,12 @@ export default function BugReportButton() {
       {/* Floating Bug Report Button */}
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-24 z-50 bg-gradient-to-r from-orange to-orange/90 text-white p-2 sm:p-4 rounded-full shadow-2xl hover:scale-110 transition-all duration-300 hover:shadow-orange/50"
+        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 bg-orange text-white p-2 rounded-full shadow-lg opacity-80 hover:opacity-100 hover:scale-110 transition-all duration-200"
         title="Report a bug"
         aria-label="Report a bug"
-        style={{ minHeight: '40px', minWidth: '40px' }}
+        style={{ minHeight: '32px', minWidth: '32px' }}
       >
-        <Bug className="w-4 h-4 sm:w-6 sm:h-6" />
+        <Bug className="w-4 h-4" />
       </button>
 
       {/* Bug Report Modal */}
