@@ -15,6 +15,8 @@ export default function AthleteRecommendedGear() {
   const { user } = useAuth()
   const [gear, setGear] = useState<GearItem[]>([])
   const [loading, setLoading] = useState(true)
+  const [page, setPage] = useState(0)
+  const pageSize = 4
 
   useEffect(() => {
     const load = async () => {
@@ -41,14 +43,20 @@ export default function AthleteRecommendedGear() {
     load()
   }, [user])
 
+  const totalPages = Math.max(1, Math.ceil((gear?.length || 0) / pageSize))
+  const canPrev = page > 0
+  const canNext = page < totalPages - 1
+  const visible = gear.slice(page * pageSize, page * pageSize + pageSize)
+
   return (
     <div>
       <h2 className="text-xl font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
         Recommended Gear
       </h2>
       
-      <div className="flex flex-wrap gap-4">
-        {(loading ? Array.from({ length: 3 }) : gear).map((item: any, idx: number) => (
+      <div className="relative">
+        <div className="flex flex-wrap gap-4">
+        {(loading ? Array.from({ length: 4 }) : visible).map((item: any, idx: number) => (
           <div key={item?.id || idx} className="overflow-hidden w-44 md:w-48 lg:w-56">
             <div className="w-full bg-gray-100 mb-1 rounded-lg" style={{ aspectRatio: '1/1' }}>
               {loading ? (
@@ -80,6 +88,29 @@ export default function AthleteRecommendedGear() {
             )}
           </div>
         ))}
+        </div>
+
+        {/* Arrows */}
+        {!loading && gear.length > pageSize && (
+          <>
+            <button
+              aria-label="Previous gear"
+              disabled={!canPrev}
+              onClick={() => setPage((p) => Math.max(0, p - 1))}
+              className={`absolute -left-3 top-6 w-8 h-8 rounded-full text-white text-lg leading-none shadow ${canPrev ? 'bg-black hover:bg-gray-800' : 'bg-gray-400 opacity-40 cursor-not-allowed'}`}
+            >
+              ‹
+            </button>
+            <button
+              aria-label="Next gear"
+              disabled={!canNext}
+              onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+              className={`absolute -right-3 top-6 w-8 h-8 rounded-full text-white text-lg leading-none shadow ${canNext ? 'bg-black hover:bg-gray-800' : 'bg-gray-400 opacity-40 cursor-not-allowed'}`}
+            >
+              ›
+            </button>
+          </>
+        )}
       </div>
     </div>
   )

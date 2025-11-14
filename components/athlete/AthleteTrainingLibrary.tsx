@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { useRouter } from 'next/navigation'
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore'
-import { db } from '@/lib/firebase.client'
+import { db, storage } from '@/lib/firebase.client'
+import { ref, getDownloadURL } from 'firebase/storage'
 import { BookOpen } from 'lucide-react'
 
 export default function AthleteTrainingLibrary() {
@@ -37,12 +38,27 @@ export default function AthleteTrainingLibrary() {
               where('status', '==', 'published')
             )
             const lessonsSnap = await getDocs(lessonsQuery)
-            const lessonsData = lessonsSnap.docs.map(doc => ({
-              id: doc.id,
-              ...doc.data(),
-              title: doc.data().title || 'Title',
-              author: doc.data().creatorName || 'Author'
-            }))
+            const lessonsData = await Promise.all(
+              lessonsSnap.docs.map(async (d) => {
+                const data: any = d.data()
+                let thumbnailUrl: string | undefined =
+                  data.thumbnailUrl || data.thumbnail || data.thumbUrl || data.coverImageUrl || data.imageUrl
+                if (thumbnailUrl && !/^https?:\/\//i.test(thumbnailUrl)) {
+                  try {
+                    thumbnailUrl = await getDownloadURL(ref(storage, thumbnailUrl))
+                  } catch {
+                    // keep as-is; placeholder will show
+                  }
+                }
+                return {
+                  id: d.id,
+                  ...data,
+                  thumbnailUrl,
+                  title: data.title || 'Title',
+                  author: data.creatorName || 'Author'
+                }
+              })
+            )
             setLessons(lessonsData) // We keep all, but page through
             setPage(0)
           }
@@ -111,27 +127,26 @@ export default function AthleteTrainingLibrary() {
           ))}
           </div>
 
-          {/* Pager controls */}
+          {/* Overlay arrows positioned over first/last tiles */}
           {totalPages > 1 && (
-            <div className="mt-3 flex items-center justify-between max-w-[640px]">
+            <>
               <button
+                aria-label="Previous lessons"
                 disabled={!canPrev}
-                onClick={() => setPage(p => Math.max(0, p - 1))}
-                className={`px-3 py-1 rounded border text-sm ${canPrev ? 'hover:bg-gray-50' : 'opacity-40 cursor-not-allowed'}`}
+                onClick={() => setPage((p) => Math.max(0, p - 1))}
+                className={`absolute -left-3 top-6 w-8 h-8 rounded-full text-white text-lg leading-none shadow ${canPrev ? 'bg-black hover:bg-gray-800' : 'bg-gray-400 opacity-40 cursor-not-allowed'}`}
               >
-                &lt;
+                ‹
               </button>
-              <div className="text-xs text-gray-500">
-                Page {page + 1} of {totalPages}
-              </div>
               <button
+                aria-label="Next lessons"
                 disabled={!canNext}
-                onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
-                className={`px-3 py-1 rounded border text-sm ${canNext ? 'hover:bg-gray-50' : 'opacity-40 cursor-not-allowed'}`}
+                onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+                className={`absolute -right-3 top-6 w-8 h-8 rounded-full text-white text-lg leading-none shadow ${canNext ? 'bg-black hover:bg-gray-800' : 'bg-gray-400 opacity-40 cursor-not-allowed'}`}
               >
-                &gt;
+                ›
               </button>
-            </div>
+            </>
           )}
         </div>
       ) : (
