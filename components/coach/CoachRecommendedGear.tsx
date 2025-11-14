@@ -54,25 +54,27 @@ export default function CoachRecommendedGear() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
+      <div className="relative mb-2 flex items-center justify-between">
         <h2
           className="text-xl font-bold"
           style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif', fontWeight: 700 }}
         >
           Recommended Gear
         </h2>
+
+        {/* Brand-red floating + button with tooltip */}
         <div className="relative group">
           <button
             onClick={() => setShowAdd(true)}
-            className="w-full sm:w-auto inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-black text-white hover:bg-gray-800 transition-colors"
-            aria-label="Add gear from URL"
-            title="Add gear from URL — paste a product link and we’ll fetch details"
+            aria-label="Add gear"
+            className="h-9 w-9 rounded-full flex items-center justify-center shadow-md transition-colors"
+            style={{ backgroundColor: '#FC0105', color: '#FFFFFF' }}
+            title="Add gear"
           >
-            <span className="text-lg leading-none">＋</span>
-            <span className="hidden sm:inline">Add Gear from URL</span>
+            <span className="text-xl leading-none">+</span>
           </button>
-          <span className="absolute -top-8 right-0 hidden sm:block whitespace-nowrap text-xs bg-gray-800 text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition">
-            Paste a product link — details auto-filled
+          <span className="pointer-events-none absolute -top-8 right-0 whitespace-nowrap text-xs bg-black text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition">
+            Add gear
           </span>
         </div>
       </div>
@@ -113,9 +115,8 @@ export default function CoachRecommendedGear() {
           }}
         >
           <div className="fixed right-4 bottom-4 sm:right-6 sm:bottom-6 w-[92vw] sm:w-[560px] max-w-[600px] rounded-2xl shadow-2xl overflow-hidden bg-white">
-            <div className="flex items-center justify-between px-4 py-3 border-b" style={{ background: '#FC0105' }}>
+            <div className="px-4 py-3 border-b" style={{ background: '#FC0105' }}>
               <h3 className="text-white font-bold" style={{ fontFamily: '\"Open Sans\", sans-serif' }}>Add Recommended Gear</h3>
-              <button onClick={() => setShowAdd(false)} className="text-white/90 hover:text-white px-2 py-1 rounded-lg hover:bg-white/10">✕</button>
             </div>
             <div className="p-4 space-y-3">
               <input
@@ -129,7 +130,8 @@ export default function CoachRecommendedGear() {
                 <button
                   onClick={addItem}
                   disabled={saving || !url.trim()}
-                  className="px-4 py-2 rounded-lg text-white bg-black hover:bg-gray-800 disabled:opacity-50"
+                  className="px-4 py-2 rounded-lg text-white disabled:opacity-50"
+                  style={{ backgroundColor: '#000000' }}
                 >
                   {saving ? 'Adding…' : 'Add'}
                 </button>
