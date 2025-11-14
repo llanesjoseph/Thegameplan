@@ -61,15 +61,20 @@ export default function CoachRecommendedGear() {
         >
           Recommended Gear
         </h2>
-        <button
-          onClick={() => setShowAdd(true)}
-          className="w-full sm:w-auto inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-black text-white hover:bg-gray-800 transition-colors"
-          aria-label="Add gear from URL"
-          title="Add gear from URL — paste a product link and we’ll fetch details"
-        >
-          <span className="text-lg leading-none">＋</span>
-          <span className="hidden sm:inline">Add gear</span>
-        </button>
+        <div className="relative group">
+          <button
+            onClick={() => setShowAdd(true)}
+            className="w-full sm:w-auto inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-black text-white hover:bg-gray-800 transition-colors"
+            aria-label="Add gear from URL"
+            title="Add gear from URL — paste a product link and we’ll fetch details"
+          >
+            <span className="text-lg leading-none">＋</span>
+            <span className="hidden sm:inline">Add Gear from URL</span>
+          </button>
+          <span className="absolute -top-8 right-0 hidden sm:block whitespace-nowrap text-xs bg-gray-800 text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition">
+            Paste a product link — details auto-filled
+          </span>
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-4">

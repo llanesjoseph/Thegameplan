@@ -15,7 +15,7 @@ export default function CoachDashboard() {
   return (
     <div className="min-h-screen bg-white">
       <header className="bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-4">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex-shrink-0">
             <span className="text-2xl font-bold" style={{ color: '#440102', fontFamily: '\"Open Sans\", sans-serif', fontWeight: 700 }}>
               ATHLEAP
@@ -57,7 +57,7 @@ export default function CoachDashboard() {
 
       <main className="w-full">
         <div className="px-4 sm:px-6 lg:px-8 py-3">
-          <div className="w-full max-w-5xl mx-auto space-y-5">
+          <div className="w-full max-w-6xl mx-auto space-y-5">
             <CoachOverview />
             <CoachProfile />
             <CoachAthletes />
