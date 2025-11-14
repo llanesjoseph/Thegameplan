@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import { collection, getDocs, query, where, orderBy, limit } from 'firebase/firestore'
-import { db } from '@/lib/firebase.client'
+import { db, storage } from '@/lib/firebase.client'
+import { getDownloadURL, ref } from 'firebase/storage'
 
 type Lesson = { id: string; title: string; thumbnailUrl?: string }
 
@@ -26,7 +27,7 @@ export default function CoachLessonLibrary() {
           limit(8)
         )
         const snap = await getDocs(q)
-        const items: Lesson[] = snap.docs.map(d => {
+        let items: Lesson[] = snap.docs.map(d => {
           const data = d.data() as any
           return {
             id: d.id,
@@ -34,6 +35,21 @@ export default function CoachLessonLibrary() {
             thumbnailUrl: data.thumbnailUrl || data.imageUrl || data.coverUrl || ''
           }
         })
+        // Resolve storage paths for thumbnails
+        items = await Promise.all(
+          items.map(async (it) => {
+            const isHttp = /^https?:\/\//i.test(it.thumbnailUrl || '')
+            if (it.thumbnailUrl && !isHttp) {
+              try {
+                const url = await getDownloadURL(ref(storage, it.thumbnailUrl))
+                return { ...it, thumbnailUrl: url }
+              } catch {
+                return it
+              }
+            }
+            return it
+          })
+        )
         setLessons(items)
       } catch (e) {
         console.warn('Failed to load lessons:', e)
@@ -64,7 +80,7 @@ export default function CoachLessonLibrary() {
                 <img src={l.thumbnailUrl} alt={l.title} className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full bg-white flex items-center justify-center">
-                  <img src="/athleap-logo-transparent.png" alt="AthLeap" className="w-1/2 opacity-30" />
+                  <img src="/new-logo.png" alt="AthLeap" className="w-1/2 opacity-60" />
                 </div>
               )}
             </div>

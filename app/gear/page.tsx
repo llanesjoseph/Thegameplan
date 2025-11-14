@@ -2,6 +2,8 @@
 
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
+import { getDownloadURL, ref } from 'firebase/storage'
+import { storage } from '@/lib/firebase.client'
 
 type GearItem = {
   id: string
@@ -21,7 +23,25 @@ export default function GearStore() {
       try {
         const res = await fetch('/api/gear', { cache: 'no-store' })
         const data = await res.json()
-        if (data?.success) setItems(data.gearItems || [])
+        if (data?.success) {
+          let list = data.gearItems || []
+          // Resolve storage paths to URLs
+          list = await Promise.all(
+            list.map(async (g: any) => {
+              const isHttp = /^https?:\/\//i.test(g.imageUrl || '')
+              if (g.imageUrl && !isHttp) {
+                try {
+                  const url = await getDownloadURL(ref(storage, g.imageUrl))
+                  return { ...g, imageUrl: url }
+                } catch {
+                  return g
+                }
+              }
+              return g
+            })
+          )
+          setItems(list)
+        }
       } catch (e) {
         console.warn('Failed to load gear', e)
       } finally {
@@ -61,7 +81,7 @@ export default function GearStore() {
                       <img src={g.imageUrl} alt={g.name} className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full bg-white flex items-center justify-center">
-                        <img src="/athleap-logo-transparent.png" alt="AthLeap" className="w-1/2 opacity-30" />
+                        <img src="/new-logo.png" alt="AthLeap" className="w-1/2 opacity-60" />
                       </div>
                     )}
                   </div>

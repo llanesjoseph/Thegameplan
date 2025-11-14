@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
+import { getDownloadURL, ref } from 'firebase/storage'
+import { storage } from '@/lib/firebase.client'
 
 type Athlete = { id: string; name: string; imageUrl?: string }
 
@@ -21,19 +23,34 @@ export default function CoachAthletes() {
         })
         if (res.ok) {
           const data = await res.json()
-          const list: Athlete[] =
-            data?.athletes?.map((a: any) => ({
-              id: a.id || a.uid,
-              name: a.displayName || a.name || 'Athlete',
-              imageUrl:
-                a.photoURL ||
-                a.photoUrl ||
-                a.profileImageUrl ||
-                a.avatarUrl ||
-                a.imageUrl ||
-                ''
-            })) || []
-          setAthletes(list.slice(0, 6))
+          let list: Athlete[] =
+            data?.athletes?.map((a: any) => {
+              const raw =
+                a.photoURL || a.photoUrl || a.profileImageUrl || a.avatarUrl || a.imageUrl || ''
+              return {
+                id: a.id || a.uid,
+                name: a.displayName || a.name || 'Athlete',
+                imageUrl: raw
+              }
+            }) || []
+
+          // Resolve any storage paths
+          list = await Promise.all(
+            list.slice(0, 6).map(async (ath) => {
+              const isHttp = /^https?:\/\//i.test(ath.imageUrl || '')
+              if (ath.imageUrl && !isHttp) {
+                try {
+                  const url = await getDownloadURL(ref(storage, ath.imageUrl))
+                  return { ...ath, imageUrl: url }
+                } catch {
+                  return ath
+                }
+              }
+              return ath
+            })
+          )
+
+          setAthletes(list)
         }
       } catch (e) {
         console.warn('Failed to load athletes', e)
@@ -64,7 +81,7 @@ export default function CoachAthletes() {
                 <img src={a.imageUrl} alt={a.name} className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full bg-white flex items-center justify-center">
-                  <img src="/athleap-logo-transparent.png" alt="AthLeap" className="w-1/2 opacity-30" />
+                  <img src="/new-logo.png" alt="AthLeap" className="w-1/2 opacity-60" />
                 </div>
               )}
             </div>

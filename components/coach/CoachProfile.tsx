@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { doc, getDoc } from 'firebase/firestore'
-import { db } from '@/lib/firebase.client'
+import { db, storage } from '@/lib/firebase.client'
+import { getDownloadURL, ref } from 'firebase/storage'
 
 export default function CoachProfile() {
   const { user } = useAuth()
@@ -29,13 +30,28 @@ export default function CoachProfile() {
           setBio((data?.bio as string) || (data?.about as string) || '')
 
           // Prefer explicit profile image fields, then auth photoURL
-          setPhotoUrl(
+          const raw =
             (data?.profileImageUrl as string) ||
             (data?.headshotUrl as string) ||
             (data?.heroImageUrl as string) ||
+            (data?.photoURL as string) ||
             user.photoURL ||
             ''
-          )
+
+          // Resolve storage paths like 'users/uid/photo.jpg' or 'gs://'
+          const isHttp = /^https?:\/\//i.test(raw)
+          if (!raw) {
+            setPhotoUrl('')
+          } else if (isHttp) {
+            setPhotoUrl(raw)
+          } else {
+            try {
+              const url = await getDownloadURL(ref(storage, raw))
+              setPhotoUrl(url)
+            } catch {
+              setPhotoUrl('')
+            }
+          }
         }
       } catch (e) {
         console.warn('Failed to load coach profile:', e)
@@ -88,8 +104,8 @@ export default function CoachProfile() {
             <img src={photoUrl} alt={user?.displayName || 'Coach'} className="w-full h-full object-cover" />
           ) : (
             <div className="w-full h-full bg-white flex items-center justify-center">
-              {/* Logo placeholder */}
-              <img src="/athleap-logo-transparent.png" alt="AthLeap" className="w-1/2 opacity-30" />
+              {/* Colored logo placeholder */}
+              <img src="/new-logo.png" alt="AthLeap" className="w-1/2 opacity-60" />
             </div>
           )}
         </div>
