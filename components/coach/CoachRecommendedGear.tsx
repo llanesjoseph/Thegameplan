@@ -54,7 +54,7 @@ export default function CoachRecommendedGear() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
         <h2
           className="text-xl font-bold"
           style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif', fontWeight: 700 }}
@@ -63,10 +63,12 @@ export default function CoachRecommendedGear() {
         </h2>
         <button
           onClick={() => setShowAdd(true)}
-          className="rounded-full w-9 h-9 bg-black text-white hover:bg-gray-800 flex items-center justify-center"
-          aria-label="Add gear item"
+          className="w-full sm:w-auto inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-black text-white hover:bg-gray-800 transition-colors"
+          aria-label="Add gear from URL"
+          title="Add gear from URL — paste a product link and we’ll fetch details"
         >
-          +
+          <span className="text-lg leading-none">＋</span>
+          <span className="hidden sm:inline">Add gear</span>
         </button>
       </div>
 
