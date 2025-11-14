@@ -81,7 +81,7 @@ export default function CoachAthletes() {
                 <img src={a.imageUrl} alt={a.name} className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full bg-white flex items-center justify-center">
-                  <img src="/new-logo.png" alt="AthLeap" className="w-1/2 opacity-60" />
+                  <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-60" />
                 </div>
               )}
             </div>

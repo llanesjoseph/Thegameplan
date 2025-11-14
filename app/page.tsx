@@ -218,7 +218,7 @@ export default function LandingPage() {
       {/* Transparent Logo - Centered and Scaled Down */}
       <div className="relative w-full flex items-center justify-center">
        <img 
-        src="/athleap-logo-transparent.png" 
+        src="/brand/athleap-logo-colored.png" 
         alt="AthLeap Logo" 
         className="h-24 md:h-32 lg:h-40 w-auto mx-auto"
         style={{ maxWidth: '400px', height: 'auto', objectFit: 'contain' }}

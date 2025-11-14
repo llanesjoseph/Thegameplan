@@ -80,7 +80,7 @@ export default function CoachLessonLibrary() {
                 <img src={l.thumbnailUrl} alt={l.title} className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full bg-white flex items-center justify-center">
-                  <img src="/new-logo.png" alt="AthLeap" className="w-1/2 opacity-60" />
+                  <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-60" />
                 </div>
               )}
             </div>

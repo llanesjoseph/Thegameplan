@@ -105,7 +105,7 @@ export default function CoachProfile() {
           ) : (
             <div className="w-full h-full bg-white flex items-center justify-center">
               {/* Colored logo placeholder */}
-              <img src="/new-logo.png" alt="AthLeap" className="w-1/2 opacity-60" />
+              <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-60" />
             </div>
           )}
         </div>
