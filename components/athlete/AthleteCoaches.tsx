@@ -85,7 +85,7 @@ export default function AthleteCoaches() {
         
         <div className="flex flex-col md:flex-row md:items-start md:justify-start gap-4 md:gap-6">
           {/* Coach Images Grid */}
-          <div className="flex-1">
+          <div className="w-full md:flex-none">
             {loading ? (
               <div className="flex flex-wrap gap-3">
                 {[1, 2, 3].map((i) => (
@@ -125,7 +125,7 @@ export default function AthleteCoaches() {
           </div>
 
           {/* Action Buttons */}
-          <div className="md:w-44 md:max-w-[14rem] lg:w-56 space-y-2 mt-4 md:mt-0">
+          <div className="md:w-44 md:max-w-[14rem] lg:w-56 space-y-2 mt-4 md:mt-0 md:ml-4">
             <button
               onClick={handleScheduleSession}
               className="w-full bg-black text-white py-2.5 rounded-lg text-sm font-bold hover:bg-gray-800 transition-colors"
