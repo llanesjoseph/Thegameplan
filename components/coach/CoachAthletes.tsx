@@ -24,8 +24,14 @@ export default function CoachAthletes() {
           const list: Athlete[] =
             data?.athletes?.map((a: any) => ({
               id: a.id || a.uid,
-              name: a.displayName || 'Athlete',
-              imageUrl: a.photoURL
+              name: a.displayName || a.name || 'Athlete',
+              imageUrl:
+                a.photoURL ||
+                a.photoUrl ||
+                a.profileImageUrl ||
+                a.avatarUrl ||
+                a.imageUrl ||
+                ''
             })) || []
           setAthletes(list.slice(0, 6))
         }
@@ -57,7 +63,9 @@ export default function CoachAthletes() {
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={a.imageUrl} alt={a.name} className="w-full h-full object-cover" />
               ) : (
-                <div className="w-full h-full bg-gray-300" />
+                <div className="w-full h-full bg-white flex items-center justify-center">
+                  <img src="/athleap-logo-transparent.png" alt="AthLeap" className="w-1/2 opacity-30" />
+                </div>
               )}
             </div>
             <p className="text-sm font-semibold" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>

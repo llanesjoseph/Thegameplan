@@ -60,15 +60,17 @@ export default function GearStore() {
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={g.imageUrl} alt={g.name} className="w-full h-full object-cover" />
                     ) : (
-                      <div className="w-full h-full bg-gray-300" />
+                      <div className="w-full h-full bg-white flex items-center justify-center">
+                        <img src="/athleap-logo-transparent.png" alt="AthLeap" className="w-1/2 opacity-30" />
+                      </div>
                     )}
                   </div>
                   <p className="font-bold text-sm mt-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
                     {loading ? 'Product' : g?.name}
                   </p>
-                  {!loading && g?.price && (
+                  {!loading && (g?.price || g?.priceUSD) && (
                     <p className="text-xs" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
-                      {g.price}
+                      {typeof g.price === 'number' ? `$${g.price.toFixed(2)}` : (g.price || g.priceUSD)}
                     </p>
                   )}
                 </div>

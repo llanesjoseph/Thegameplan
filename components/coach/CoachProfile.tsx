@@ -10,6 +10,7 @@ export default function CoachProfile() {
   const [sports, setSports] = useState<string[]>([])
   const [bio, setBio] = useState<string>('')
   const [primarySport, setPrimarySport] = useState<string>('')
+  const [photoUrl, setPhotoUrl] = useState<string>('')
 
   useEffect(() => {
     const load = async () => {
@@ -26,6 +27,15 @@ export default function CoachProfile() {
           setSports(unique)
           setPrimarySport((data?.sport as string) || unique[0] || '')
           setBio((data?.bio as string) || (data?.about as string) || '')
+
+          // Prefer explicit profile image fields, then auth photoURL
+          setPhotoUrl(
+            (data?.profileImageUrl as string) ||
+            (data?.headshotUrl as string) ||
+            (data?.heroImageUrl as string) ||
+            user.photoURL ||
+            ''
+          )
         }
       } catch (e) {
         console.warn('Failed to load coach profile:', e)
@@ -73,11 +83,14 @@ export default function CoachProfile() {
           className="rounded-lg overflow-hidden bg-gray-100 w-44 h-44 md:w-48 md:h-48 lg:w-56 lg:h-56"
           style={{ aspectRatio: '1/1' }}
         >
-          {user?.photoURL ? (
+          {photoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={user.photoURL} alt={user.displayName || 'Coach'} className="w-full h-full object-cover" />
+            <img src={photoUrl} alt={user?.displayName || 'Coach'} className="w-full h-full object-cover" />
           ) : (
-            <div className="w-full h-full bg-gray-300" />
+            <div className="w-full h-full bg-white flex items-center justify-center">
+              {/* Logo placeholder */}
+              <img src="/athleap-logo-transparent.png" alt="AthLeap" className="w-1/2 opacity-30" />
+            </div>
           )}
         </div>
 
