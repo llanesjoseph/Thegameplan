@@ -97,7 +97,11 @@ export default function AthleteRecommendedGear() {
               aria-label="Previous gear"
               disabled={!canPrev}
               onClick={() => setPage((p) => Math.max(0, p - 1))}
-              className={`absolute -left-3 top-6 w-8 h-8 rounded-full text-white text-lg leading-none shadow ${canPrev ? 'bg-black hover:bg-gray-800' : 'bg-gray-400 opacity-40 cursor-not-allowed'}`}
+              className={`absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full border text-lg leading-none flex items-center justify-center transition ${
+                canPrev
+                  ? 'bg-white text-black border-black/70 hover:bg-black hover:text-white'
+                  : 'bg-white text-gray-400 border-gray-300 cursor-not-allowed opacity-60'
+              }`}
             >
               ‹
             </button>
@@ -105,7 +109,11 @@ export default function AthleteRecommendedGear() {
               aria-label="Next gear"
               disabled={!canNext}
               onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
-              className={`absolute -right-3 top-6 w-8 h-8 rounded-full text-white text-lg leading-none shadow ${canNext ? 'bg-black hover:bg-gray-800' : 'bg-gray-400 opacity-40 cursor-not-allowed'}`}
+              className={`absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full border text-lg leading-none flex items-center justify-center transition ${
+                canNext
+                  ? 'bg-white text-black border-black/70 hover:bg-black hover:text-white'
+                  : 'bg-white text-gray-400 border-gray-300 cursor-not-allowed opacity-60'
+              }`}
             >
               ›
             </button>
