@@ -22,12 +22,21 @@ export async function GET(req: NextRequest) {
     const collections = ['curatedGear', 'recommendedGear']
     const docsMap = new Map<string, FirebaseFirestore.QueryDocumentSnapshot>()
     // Collect matches across multiple possible owner fields
-    const ownerFields = ['coachId', 'creatorUid', 'createdBy', 'ownerUid']
+    const ownerFields = ['coachId', 'creatorUid', 'createdBy', 'ownerUid', 'coachUID', 'creatorID', 'authorUid', 'userId']
+    const emailFields = ['coachEmail', 'creatorEmail', 'ownerEmail', 'email', 'recommendedByEmail']
     for (const col of collections) {
       for (const field of ownerFields) {
         const s = await adminDb.collection(col).where(field, '==', coachUid).get().catch(() => null)
         if (s && !s.empty) {
           for (const d of s.docs) docsMap.set(`${col}:${d.id}`, d)
+        }
+      }
+      if (email) {
+        for (const field of emailFields) {
+          const s = await adminDb.collection(col).where(field, '==', email).get().catch(() => null)
+          if (s && !s.empty) {
+            for (const d of s.docs) docsMap.set(`${col}:${d.id}`, d)
+          }
         }
       }
     }
@@ -41,6 +50,19 @@ export async function GET(req: NextRequest) {
         .catch(() => null)
       if (s && !s.empty) {
         for (const d of s.docs) docsMap.set(`gear:${d.id}`, d)
+      }
+    }
+    if (email) {
+      for (const field of emailFields) {
+        const s = await adminDb
+          .collection('gear')
+          .where('recommended', '==', true)
+          .where(field, '==', email)
+          .get()
+          .catch(() => null)
+        if (s && !s.empty) {
+          for (const d of s.docs) docsMap.set(`gear:${d.id}`, d)
+        }
       }
     }
 
