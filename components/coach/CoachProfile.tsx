@@ -12,6 +12,7 @@ export default function CoachProfile() {
   const [bio, setBio] = useState<string>('')
   const [primarySport, setPrimarySport] = useState<string>('')
   const [photoUrl, setPhotoUrl] = useState<string>('')
+  const [bannerUrl, setBannerUrl] = useState<string>('')
 
   useEffect(() => {
     const load = async () => {
@@ -33,7 +34,6 @@ export default function CoachProfile() {
           const raw =
             (data?.profileImageUrl as string) ||
             (data?.headshotUrl as string) ||
-            (data?.heroImageUrl as string) ||
             (data?.photoURL as string) ||
             user.photoURL ||
             ''
@@ -52,6 +52,32 @@ export default function CoachProfile() {
               setPhotoUrl('')
             }
           }
+
+          // Banner: prefer bannerUrl/cover/hero
+          const rawBanner =
+            (data?.bannerUrl as string) ||
+            (data?.coverUrl as string) ||
+            (data?.heroImageUrl as string) ||
+            ''
+          const bannerHttp = /^https?:\/\//i.test(rawBanner || '')
+          if (!rawBanner) {
+            // Fallback to profile image as banner if none provided
+            if (photoUrl) {
+              setBannerUrl(photoUrl)
+            } else {
+              setBannerUrl('')
+            }
+          } else if (bannerHttp) {
+            setBannerUrl(rawBanner)
+          } else {
+            try {
+              const url = await getDownloadURL(ref(storage, rawBanner))
+              setBannerUrl(url)
+            } catch {
+              if (photoUrl) setBannerUrl(photoUrl)
+              else setBannerUrl('')
+            }
+          }
         }
       } catch (e) {
         console.warn('Failed to load coach profile:', e)
@@ -61,9 +87,35 @@ export default function CoachProfile() {
   }, [user])
 
   return (
-    <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
-      {/* LEFT - Text */}
-      <div className="flex-1 max-w-2xl space-y-3">
+    <div className="space-y-4">
+      {/* Banner with overlay profile */}
+      <div className="relative">
+        <div className="h-32 sm:h-40 md:h-48 rounded-xl overflow-hidden bg-gray-100">
+          {bannerUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={bannerUrl} alt="Coach banner" className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full bg-white flex items-center justify-center">
+              <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-24 opacity-40" />
+            </div>
+          )}
+        </div>
+        <div className="absolute -bottom-6 left-4 sm:left-6">
+          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden ring-4 ring-white shadow-xl bg-gray-100">
+            {photoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={photoUrl} alt={user?.displayName || 'Coach'} className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full bg-white flex items-center justify-center">
+                <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-10 opacity-60" />
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Text content below */}
+      <div className="pt-8 max-w-2xl space-y-3">
         <div>
           <h2
             className="text-2xl sm:text-3xl font-bold mb-1"
@@ -91,34 +143,16 @@ export default function CoachProfile() {
             {sports.slice(0, 3).join(', ')}
           </p>
         </div>
-      </div>
 
-      {/* RIGHT - Square profile image and sport chips */}
-      <div className="flex-shrink-0 md:w-48 lg:w-56 flex flex-col items-center md:items-stretch gap-3">
-        <div
-          className="rounded-lg overflow-hidden bg-gray-100 w-44 h-44 md:w-48 md:h-48 lg:w-56 lg:h-56"
-          style={{ aspectRatio: '1/1' }}
-        >
-          {photoUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={photoUrl} alt={user?.displayName || 'Coach'} className="w-full h-full object-cover" />
-          ) : (
-            <div className="w-full h-full bg-white flex items-center justify-center">
-              {/* Colored logo placeholder */}
-              <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-60" />
-            </div>
-          )}
-        </div>
-
-        <div className="w-full space-y-2">
+        <div className="flex flex-wrap gap-2 pt-1">
           {(sports.length ? sports : ['Sport']).map((s) => (
-            <button
+            <span
               key={s}
-              className="w-full bg-black text-white py-2.5 rounded-lg font-bold text-sm hover:bg-gray-800 transition-colors"
-              style={{ fontFamily: '\"Open Sans\", sans-serif', fontWeight: 700 }}
+              className="px-3 py-1 rounded-lg bg-black text-white text-xs font-bold"
+              style={{ fontFamily: '\"Open Sans\", sans-serif' }}
             >
               {s}
-            </button>
+            </span>
           ))}
         </div>
       </div>

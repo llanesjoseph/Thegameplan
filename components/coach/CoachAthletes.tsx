@@ -120,17 +120,36 @@ export default function CoachAthletes() {
                         </div>
                       ) : (
                         <>
-                          <p className="text-xs text-gray-600">Submissions awaiting</p>
-                          <p className="text-xl font-bold">{m?.videosAwaiting ?? 0}</p>
-                          {m?.lessons !== undefined && (
+                          <div className="grid grid-cols-2 gap-3 text-left">
+                            <div>
+                              <p className="text-[11px] text-gray-600">Awaiting review</p>
+                              <p className="text-lg font-bold">{m?.videosAwaiting ?? 0}</p>
+                            </div>
+                            <div>
+                              <p className="text-[11px] text-gray-600">Total submissions</p>
+                              <p className="text-lg font-bold">{m?.submissions ?? 0}</p>
+                            </div>
+                            {m?.lessons !== undefined && (
+                              <div>
+                                <p className="text-[11px] text-gray-600">Lessons</p>
+                                <p className="text-sm font-semibold">{m.lessons}</p>
+                              </div>
+                            )}
+                            {m?.lastActivity && (
+                              <div className="col-span-2">
+                                <p className="text-[11px] text-gray-600">Last activity</p>
+                                <p className="text-xs font-semibold">{m.lastActivity}</p>
+                              </div>
+                            )}
+                          </div>
+                          {/* Room for expansion: 7d submissions, messages, upcoming events */}
+                          {/* We’ll surface these when available from API */}
+                          {/* 
                             <>
-                              <p className="text-xs text-gray-600 mt-1">Lessons</p>
-                              <p className="text-sm font-semibold">{m.lessons}</p>
+                            <p className="text-[11px] text-gray-600 mt-1">7‑day submissions</p>
+                            <p className="text-sm font-semibold">{m.last7d ?? 0}</p>
                             </>
-                          )}
-                          {m?.lastActivity && (
-                            <p className="text-[11px] text-gray-500 mt-1">Last activity: {m.lastActivity}</p>
-                          )}
+                          */} 
                         </>
                       )}
                     </div>
