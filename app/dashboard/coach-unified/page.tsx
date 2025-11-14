@@ -1,5 +1,32 @@
 'use client'
 
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+
+export default function LegacyCoachUnifiedRedirect() {
+  const router = useRouter()
+
+  useEffect(() => {
+    // Hard redirect to the new coach dashboard
+    router.replace('/dashboard/coach')
+    // Also do a location replace to avoid history back to unified
+    if (typeof window !== 'undefined') {
+      window.location.replace('/dashboard/coach')
+    }
+  }, [router])
+
+  return (
+    <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="text-center">
+        <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-900 border-t-transparent mb-4" />
+        <p className="text-lg font-semibold text-gray-900">Loading coach dashboard…</p>
+      </div>
+    </div>
+  )
+}
+
+'use client'
+
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import AppHeader from '@/components/ui/AppHeader'
