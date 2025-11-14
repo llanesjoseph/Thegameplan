@@ -57,7 +57,7 @@ export default function AthleteAssistant() {
         Ask Your Coach
       </h2>
       <div className="rounded-lg overflow-hidden">
-        <AskCoachAI coachId={coachId} coachName={coachName} sport={sport} />
+        <AskCoachAI coachId={coachId || undefined} coachName={coachName} sport={sport} defaultOpen={true} hideLauncher={true} />
       </div>
     </section>
   )
