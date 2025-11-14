@@ -83,7 +83,7 @@ export default function AthleteCoaches() {
           Your Coaches
         </h2>
         
-        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 md:gap-6">
+        <div className="flex flex-col md:flex-row md:items-start md:justify-start gap-4 md:gap-6">
           {/* Coach Images Grid */}
           <div className="flex-1">
             {loading ? (
