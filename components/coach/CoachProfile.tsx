@@ -100,9 +100,9 @@ export default function CoachProfile() {
             </div>
           )}
         </div>
-        {/* Profile photo fixed in top-right, consistent size */}
+        {/* Profile photo fixed in top-right, consistent size and style as cards */}
         <div className="absolute top-4 right-4">
-          <div className="w-24 h-24 rounded-xl overflow-hidden ring-4 ring-white shadow-xl bg-gray-100">
+          <div className="w-32 h-32 sm:w-36 sm:h-36 rounded-xl overflow-hidden ring-4 ring-white shadow-xl bg-gray-100">
             {photoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={photoUrl} alt={user?.displayName || 'Coach'} className="w-full h-full object-cover" />
