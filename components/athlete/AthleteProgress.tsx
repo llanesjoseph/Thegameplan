@@ -67,59 +67,51 @@ export default function AthleteProgress() {
         Your Progress
       </h2>
 
-      {/* Clean row without hover reveal */}
+      {/* Clean minimal button row */}
       <div className="relative">
-        {/* Minimal, clean row with click morph */}
-        <div className="flex flex-wrap gap-3 md:gap-6">
-          {/* Trainings Complete - Square Icon */}
+        <div className="flex flex-wrap gap-3">
+          {/* Trainings Complete */}
           <button
             type="button"
             aria-pressed={active === 'complete'}
             onClick={() => triggerMorph('complete')}
             onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && triggerMorph('complete')}
-            className={`transition-all duration-300 ease-out rounded-full px-3 py-1 flex items-center gap-2 md:gap-3 ring-1 ring-transparent focus:outline-none focus:ring-black/20 ${active === 'complete' ? 'bg-black text-white scale-105 shadow-md' : 'bg-transparent text-black'}`}
+            className={`transition-all duration-300 ease-out rounded-full px-4 py-2.5 flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-black/20 ${active === 'complete' ? 'bg-black text-white shadow-lg scale-105' : 'bg-white text-black border-2 border-black hover:bg-gray-50'}`}
           >
-            <span className={`flex items-center justify-center ${active === 'complete' ? 'bg-white text-black' : ''} w-10 h-10 md:w-12 md:h-12 rounded-lg`} style={{ backgroundColor: active === 'complete' ? undefined : '#E5E5E5' }}>
-              <CheckCircle className="w-5 h-5 md:w-6 md:h-6" style={{ color: active === 'complete' ? '#000000' : '#000000' }} />
-            </span>
-            <span className="text-xs md:text-sm font-semibold" style={{ fontFamily: 'Open Sans, sans-serif' }}>
-              {active === 'complete' ? stats.trainingsComplete : 'Trainings Complete'}
+            <CheckCircle className="w-5 h-5" strokeWidth={2.5} />
+            <span className="text-sm font-bold" style={{ fontFamily: 'Open Sans, sans-serif' }}>
+              {active === 'complete' ? `${stats.trainingsComplete} Complete` : 'Training Complete'}
             </span>
           </button>
 
-          {/* Trainings In Progress - Circular Icon */}
+          {/* Trainings In Progress */}
           <button
             type="button"
             aria-pressed={active === 'progress'}
             onClick={() => triggerMorph('progress')}
             onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && triggerMorph('progress')}
-            className={`transition-all duration-300 ease-out rounded-full px-3 py-1 flex items-center gap-2 md:gap-3 ring-1 ring-transparent focus:outline-none focus:ring-black/20 ${active === 'progress' ? 'bg-black text-white scale-105 shadow-md' : 'bg-transparent text-black'}`}
+            className={`transition-all duration-300 ease-out rounded-full px-4 py-2.5 flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-black/20 ${active === 'progress' ? 'bg-black text-white shadow-lg scale-105' : 'bg-white text-black border-2 border-black hover:bg-gray-50'}`}
           >
-            <span className={`flex items-center justify-center ${active === 'progress' ? 'bg-white text-black' : ''} w-10 h-10 md:w-12 md:h-12 rounded-full`} style={{ backgroundColor: active === 'progress' ? undefined : '#E5E5E5' }}>
-              <RefreshCw className="w-5 h-5 md:w-6 md:h-6" style={{ color: '#000000' }} />
-            </span>
-            <span className="text-xs md:text-sm font-semibold" style={{ fontFamily: 'Open Sans, sans-serif' }}>
-              {active === 'progress' ? stats.trainingsInProgress : 'Trainings In Progress'}
+            <RefreshCw className="w-5 h-5" strokeWidth={2.5} />
+            <span className="text-sm font-bold" style={{ fontFamily: 'Open Sans, sans-serif' }}>
+              {active === 'progress' ? `${stats.trainingsInProgress} In Progress` : 'Trainings in Progress'}
             </span>
           </button>
 
-          {/* Upcoming Event - Circular Icon */}
+          {/* Upcoming Event */}
           <button
             type="button"
             aria-pressed={active === 'upcoming'}
             onClick={() => triggerMorph('upcoming')}
             onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && triggerMorph('upcoming')}
-            className={`transition-all duration-300 ease-out rounded-full px-3 py-1 flex items-center gap-2 md:gap-3 ring-1 ring-transparent focus:outline-none focus:ring-black/20 ${active === 'upcoming' ? 'bg-black text-white scale-105 shadow-md' : 'bg-transparent text-black'}`}
+            className={`transition-all duration-300 ease-out rounded-full px-4 py-2.5 flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-black/20 ${active === 'upcoming' ? 'bg-black text-white shadow-lg scale-105' : 'bg-white text-black border-2 border-black hover:bg-gray-50'}`}
           >
-            <span className={`flex items-center justify-center ${active === 'upcoming' ? 'bg-white text-black' : ''} w-10 h-10 md:w-12 md:h-12 rounded-full`} style={{ backgroundColor: active === 'upcoming' ? undefined : '#E5E5E5' }}>
-              <Calendar className="w-5 h-5 md:w-6 md:h-6" style={{ color: '#000000' }} />
-            </span>
-            <span className="text-xs md:text-sm font-semibold" style={{ fontFamily: 'Open Sans, sans-serif' }}>
-              {active === 'upcoming' ? stats.upcomingEvents : 'Upcoming Event'}
+            <Calendar className="w-5 h-5" strokeWidth={2.5} />
+            <span className="text-sm font-bold" style={{ fontFamily: 'Open Sans, sans-serif' }}>
+              {active === 'upcoming' ? `${stats.upcomingEvents} Upcoming` : 'Upcoming Event'}
             </span>
           </button>
         </div>
-
       </div>
     </div>
   )
