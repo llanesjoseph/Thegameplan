@@ -67,12 +67,12 @@ export default function CoachLessonLibrary() {
         Your Lesson Library
       </h2>
 
-      <div className="flex flex-wrap gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
         {lessons.map((l) => (
           <button
             key={l.id}
             onClick={() => setOpenLessonId(l.id)}
-            className="text-left w-44 md:w-48 lg:w-56"
+            className="text-left w-full"
           >
             <div className="w-full aspect-square rounded-lg overflow-hidden bg-gray-100 mb-1">
               {l.thumbnailUrl ? (

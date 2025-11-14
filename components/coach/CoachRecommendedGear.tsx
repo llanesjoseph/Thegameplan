@@ -77,9 +77,9 @@ export default function CoachRecommendedGear() {
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-4">
-        {(loading ? Array.from({ length: 3 }) : items).map((g: any, idx: number) => (
-          <div key={g?.id || idx} className="w-44 md:w-48 lg:w-56">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+        {(loading ? Array.from({ length: 4 }) : items).map((g: any, idx: number) => (
+          <div key={g?.id || idx} className="w-full">
             <div className="w-full aspect-square bg-gray-100 rounded-lg mb-1 overflow-hidden">
               {loading ? (
                 <div className="w-full h-full bg-gray-200 animate-pulse" />

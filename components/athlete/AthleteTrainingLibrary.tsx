@@ -90,20 +90,20 @@ export default function AthleteTrainingLibrary() {
       </h2>
       
       {loading ? (
-        <div className="flex flex-wrap gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="w-44 h-44 md:w-48 md:h-48 lg:w-56 lg:h-56 bg-gray-200 rounded-lg animate-pulse" style={{ aspectRatio: '1/1' }}></div>
+            <div key={i} className="w-full bg-gray-200 rounded-lg animate-pulse" style={{ aspectRatio: '1/1' }}></div>
           ))}
         </div>
       ) : lessons.length > 0 ? (
         <div className="relative">
           {/* Content row */}
-          <div className="flex flex-wrap gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
           {visibleLessons.map((lesson) => (
             <button
               key={lesson.id}
               onClick={() => handleViewLesson(lesson.id)}
-              className="text-left group w-44 md:w-48 lg:w-56"
+              className="text-left group w-full"
             >
               <div className="w-full rounded-lg overflow-hidden bg-gray-100 mb-1" style={{ aspectRatio: '1/1' }}>
                 {lesson.thumbnailUrl ? (
