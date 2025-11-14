@@ -1,17 +1,19 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import { getDownloadURL, ref } from 'firebase/storage'
 import { storage } from '@/lib/firebase.client'
 
 type Athlete = { id: string; name: string; imageUrl?: string }
+type Metrics = { submissions: number; videosAwaiting: number; lastActivity?: string; lessons?: number }
 
 export default function CoachAthletes() {
-  const router = useRouter()
   const { user } = useAuth()
   const [athletes, setAthletes] = useState<Athlete[]>([])
+  const [openId, setOpenId] = useState<string | null>(null)
+  const [metricsById, setMetricsById] = useState<Record<string, Metrics>>({})
+  const [loadingMetrics, setLoadingMetrics] = useState<Record<string, boolean>>({})
 
   useEffect(() => {
     const load = async () => {
@@ -59,6 +61,34 @@ export default function CoachAthletes() {
     load()
   }, [user])
 
+  const toggleMetrics = async (athleteId: string) => {
+    if (openId === athleteId) {
+      setOpenId(null)
+      return
+    }
+    setOpenId(athleteId)
+    if (!metricsById[athleteId] && user) {
+      setLoadingMetrics((s) => ({ ...s, [athleteId]: true }))
+      try {
+        const res = await fetch(`/api/coach/${athleteId}/stats`)
+        if (res.ok) {
+          const data = await res.json()
+          const m: Metrics = {
+            submissions: data?.pendingVideos ?? data?.pendingSubmissions ?? 0,
+            videosAwaiting: data?.pendingVideos ?? 0,
+            lastActivity: data?.lastActivity,
+            lessons: data?.recentLessons?.length ?? data?.lessonsCount ?? undefined
+          }
+          setMetricsById((s) => ({ ...s, [athleteId]: m }))
+        }
+      } catch {
+        // ignore
+      } finally {
+        setLoadingMetrics((s) => ({ ...s, [athleteId]: false }))
+      }
+    }
+  }
+
   return (
     <div>
       <h2
@@ -69,30 +99,60 @@ export default function CoachAthletes() {
       </h2>
 
       <div className="flex flex-wrap gap-4">
-        {athletes.map((a) => (
-          <button
-            key={a.id}
-            onClick={() => router.push('/dashboard/coach/athletes')}
-            className="text-left w-44 md:w-48 lg:w-56"
-          >
-            <div className="w-full aspect-square rounded-lg overflow-hidden bg-gray-100 mb-1">
-              {a.imageUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={a.imageUrl} alt={a.name} className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full bg-white flex items-center justify-center">
-                  <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-60" />
-                </div>
-              )}
-            </div>
-            <p className="text-sm font-semibold" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
-              {a.name}
-            </p>
-            <p className="text-xs" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
-              View profile
-            </p>
-          </button>
-        ))}
+        {athletes.map((a) => {
+          const isOpen = openId === a.id
+          const m = metricsById[a.id]
+          return (
+            <button
+              key={a.id}
+              onClick={() => toggleMetrics(a.id)}
+              className="text-left w-44 md:w-48 lg:w-56"
+              title={isOpen ? 'Hide metrics' : 'View quick metrics'}
+            >
+              <div className="w-full aspect-square rounded-lg overflow-hidden bg-gray-100 mb-1 relative">
+                {isOpen ? (
+                  <div className="absolute inset-0 bg-white/95 backdrop-blur flex items-center justify-center p-3">
+                    <div className="text-center space-y-1" style={{ fontFamily: '\"Open Sans\", sans-serif' }}>
+                      {loadingMetrics[a.id] ? (
+                        <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
+                          <div className="h-4 w-4 rounded-full border-2 border-gray-400 border-t-transparent animate-spin" />
+                          Loading metrics…
+                        </div>
+                      ) : (
+                        <>
+                          <p className="text-xs text-gray-600">Submissions awaiting</p>
+                          <p className="text-xl font-bold">{m?.videosAwaiting ?? 0}</p>
+                          {m?.lessons !== undefined && (
+                            <>
+                              <p className="text-xs text-gray-600 mt-1">Lessons</p>
+                              <p className="text-sm font-semibold">{m.lessons}</p>
+                            </>
+                          )}
+                          {m?.lastActivity && (
+                            <p className="text-[11px] text-gray-500 mt-1">Last activity: {m.lastActivity}</p>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </div>
+                ) : a.imageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={a.imageUrl} alt={a.name} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full bg-white flex items-center justify-center">
+                    <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-60" />
+                  </div>
+                )}
+              </div>
+              <p className="text-sm font-semibold" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                {a.name}
+              </p>
+              <p className="text-xs" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
+                {isOpen ? 'Click to hide metrics' : 'Click to view metrics'}
+              </p>
+            </button>
+          )
+        })}
         {athletes.length === 0 && (
           <div className="text-sm text-gray-500">No assigned athletes yet.</div>
         )}
