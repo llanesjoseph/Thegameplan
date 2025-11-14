@@ -18,9 +18,10 @@ interface AskCoachAIProps {
   sport?: string
   defaultOpen?: boolean
   hideLauncher?: boolean
+  inlineMode?: boolean
 }
 
-export default function AskCoachAI({ coachId, coachName, sport, defaultOpen = false, hideLauncher = false }: AskCoachAIProps) {
+export default function AskCoachAI({ coachId, coachName, sport, defaultOpen = false, hideLauncher = false, inlineMode = false }: AskCoachAIProps) {
   const { user } = useAuth()
   const [messages, setMessages] = useState<Message[]>([])
   const [question, setQuestion] = useState('')
@@ -152,7 +153,7 @@ export default function AskCoachAI({ coachId, coachName, sport, defaultOpen = fa
     }
   }
 
-  if (!isOpen) {
+  if (!inlineMode && !isOpen) {
     return (
       hideLauncher ? null : (
         <button
@@ -163,6 +164,67 @@ export default function AskCoachAI({ coachId, coachName, sport, defaultOpen = fa
           <Bot className="w-5 h-5 text-white" />
         </button>
       )
+    )
+  }
+
+  // INLINE MODE: no fixed container/header; render just body + input, filling parent
+  if (inlineMode) {
+    return (
+      <div className="w-full h-full flex flex-col bg-white">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-white">
+          {messages.length === 0 && (
+            <div className="text-center py-12">
+              <p className="text-gray-600 mb-2">Your past chat will appear here.</p>
+              <p className="text-sm text-gray-500">Start by asking a question.</p>
+            </div>
+          )}
+          {messages.map((message, index) => (
+            <div key={index} className={`flex gap-3 ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+              <div
+                className={`flex-1 rounded-lg p-3 ${
+                  message.role === 'user' ? 'bg-black text-white' : 'bg-white border border-gray-200'
+                }`}
+              >
+                <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                <p className="text-xs mt-1 opacity-50">
+                  {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </p>
+              </div>
+            </div>
+          ))}
+          {isLoading && (
+            <div className="flex gap-3">
+              <div className="flex-1 bg-white border border-gray-200 rounded-lg p-3">
+                <div className="flex items-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin" style={{ color: '#000' }} />
+                  <span className="text-sm text-gray-600">Thinking...</span>
+                </div>
+              </div>
+            </div>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+        <form onSubmit={handleSubmit} className="p-3 border-t bg-white">
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              placeholder="Ask your coach a question..."
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-sm"
+              disabled={isLoading}
+            />
+            <button
+              type="submit"
+              disabled={isLoading || !question.trim()}
+              className="px-4 py-2 rounded-lg text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg"
+              style={{ backgroundColor: '#000000' }}
+            >
+              <Send className="w-4 h-4" />
+            </button>
+          </div>
+        </form>
+      </div>
     )
   }
 

@@ -195,8 +195,7 @@ export default function AthleteCoaches() {
                 coachId={coachId}
                 coachName={(coaches?.[0]?.name as string) || 'Coach'}
                 sport={(coaches?.[0]?.title as string) || ''}
-                defaultOpen
-                hideLauncher
+                inlineMode
               />
             </div>
           </div>
