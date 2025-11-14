@@ -49,17 +49,25 @@ export default function AthleteAssistant() {
   if (loading || !coachId) return null
 
   return (
-    <section id="ai-assistant" className="scroll-mt-20">
-      <h2
-        className="text-xl font-bold mb-2"
-        style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif', fontWeight: 700 }}
-      >
-        Ask Your Coach
-      </h2>
-      <div className="rounded-lg overflow-hidden">
-        <AskCoachAI coachId={coachId || undefined} coachName={coachName} sport={sport} defaultOpen={true} hideLauncher={true} />
+    <aside id="ai-assistant" className="scroll-mt-20">
+      <div className="mb-2">
+        <h2
+          className="text-xl font-bold"
+          style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif', fontWeight: 700 }}
+        >
+          Ask Your Coach
+        </h2>
       </div>
-    </section>
+      <div className="rounded-lg border border-gray-200 overflow-hidden bg-white lg:sticky lg:top-24"
+           style={{ height: 'min(700px, calc(100vh - 140px))' }}>
+        <AskCoachAI
+          coachId={coachId || undefined}
+          coachName={coachName}
+          sport={sport}
+          inlineMode={true}
+        />
+      </div>
+    </aside>
   )
 }
 

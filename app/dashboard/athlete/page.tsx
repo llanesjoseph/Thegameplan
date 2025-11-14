@@ -136,23 +136,28 @@ export default function AthleteDashboard() {
             {/* Welcome Header */}
             <AthleteOverview />
 
-            {/* Athlete Profile Section */}
-            <AthleteProfile />
-
-            {/* Your Progress Section */}
-            <AthleteProgress />
-
-            {/* Your Coaches Section */}
-            <AthleteCoaches />
-
-            {/* Your Training Library Section */}
-            <AthleteTrainingLibrary />
-
-            {/* Recommended Gear Section */}
-            <AthleteRecommendedGear />
-
-            {/* Ask Your Coach - AI Assistant */}
-            <AthleteAssistant />
+            {/* Main content with right-side chat on large screens */}
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6">
+              <div className="space-y-5">
+                {/* Athlete Profile Section */}
+                <AthleteProfile />
+                {/* Your Progress Section */}
+                <AthleteProgress />
+                {/* Your Coaches Section */}
+                <AthleteCoaches />
+                {/* Your Training Library Section */}
+                <AthleteTrainingLibrary />
+                {/* Recommended Gear Section */}
+                <AthleteRecommendedGear />
+              </div>
+              <div className="hidden lg:block">
+                <AthleteAssistant />
+              </div>
+            </div>
+            {/* Mobile chat below content */}
+            <div className="lg:hidden">
+              <AthleteAssistant />
+            </div>
           </div>
         </div>
       </main>
