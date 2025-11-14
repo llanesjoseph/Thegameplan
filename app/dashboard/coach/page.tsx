@@ -22,6 +22,15 @@ export default function CoachDashboard() {
             </span>
           </Link>
           <nav className="flex items-center gap-4">
+            <a
+              href="/dashboard/coach/locker-room"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-2 rounded-lg text-sm font-bold bg-black text-white hover:bg-gray-800 transition-colors"
+              style={{ fontFamily: '\"Open Sans\", sans-serif', fontWeight: 700 }}
+            >
+              Coach Locker Room
+            </a>
             <button
               onClick={async () => {
                 if (isSigningOut) return
