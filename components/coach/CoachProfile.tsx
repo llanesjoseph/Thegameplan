@@ -103,7 +103,7 @@ export default function CoachProfile() {
         </div>
         {/* Profile photo fixed near top-right; larger to match render */}
         <div className="absolute top-6 right-6">
-          <div className="w-40 h-40 sm:w-44 sm:h-44 rounded-xl overflow-hidden ring-4 ring-white shadow-xl bg-gray-100">
+          <div className="w-40 h-40 sm:w-44 sm:h-44 rounded-none overflow-hidden ring-4 ring-white shadow-xl bg-gray-100">
             {photoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={photoUrl} alt={user?.displayName || 'Coach'} className="w-full h-full object-cover" />
