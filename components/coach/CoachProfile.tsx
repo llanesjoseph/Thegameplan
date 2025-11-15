@@ -6,6 +6,16 @@ import { doc, getDoc } from 'firebase/firestore'
 import { db, storage } from '@/lib/firebase.client'
 import { getDownloadURL, ref } from 'firebase/storage'
 
+// Expand sport abbreviations to full names
+const expandSportName = (sport: string): string => {
+  const expansions: Record<string, string> = {
+    'BJJ': 'Brazilian Jiu-Jitsu',
+    'MMA': 'Mixed Martial Arts',
+    'JKD': 'Jeet Kune Do'
+  }
+  return expansions[sport] || sport
+}
+
 export default function CoachProfile() {
   const { user } = useAuth()
   const [sports, setSports] = useState<string[]>([])
@@ -26,8 +36,9 @@ export default function CoachProfile() {
           if (typeof data?.sport === 'string') list.push(data.sport)
           if (Array.isArray(data?.specialties)) list.push(...data.specialties)
           const unique = Array.from(new Set(list.map(s => String(s).trim()))).filter(Boolean)
-          setSports(unique)
-          setPrimarySport((data?.sport as string) || unique[0] || '')
+          const expanded = unique.map(expandSportName)
+          setSports(expanded)
+          setPrimarySport(expandSportName((data?.sport as string) || expanded[0] || ''))
           setBio((data?.bio as string) || (data?.about as string) || '')
 
           // Prefer explicit profile image fields, then auth photoURL
@@ -135,8 +146,26 @@ export default function CoachProfile() {
           </p>
         </div>
 
-        {/* Coach Locker Room Button */}
-        <div className="pt-1">
+        <div>
+          <h3
+            className="text-base font-bold mb-1"
+            style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif', fontWeight: 700 }}
+          >
+            Specialties:
+          </h3>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          {(sports.length ? sports : ['Sport']).map((s) => (
+            <span
+              key={s}
+              className="px-3 py-1 rounded-lg bg-black text-white text-xs font-bold"
+              style={{ fontFamily: '\"Open Sans\", sans-serif' }}
+            >
+              {s}
+            </span>
+          ))}
+          {/* Coach Locker Room Button at the end */}
           <a
             href="/dashboard/coach/locker-room"
             target="_blank"
@@ -151,30 +180,6 @@ export default function CoachProfile() {
         <p className="text-sm" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
           {bio}
         </p>
-
-        <div>
-          <h3
-            className="text-base font-bold mb-1"
-            style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif', fontWeight: 700 }}
-          >
-            Specialties:
-          </h3>
-          <p className="text-sm" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
-            {sports.slice(0, 3).join(', ')}
-          </p>
-        </div>
-
-        <div className="flex flex-wrap gap-2 pt-1">
-          {(sports.length ? sports : ['Sport']).map((s) => (
-            <span
-              key={s}
-              className="px-3 py-1 rounded-lg bg-black text-white text-xs font-bold"
-              style={{ fontFamily: '\"Open Sans\", sans-serif' }}
-            >
-              {s}
-            </span>
-          ))}
-        </div>
       </div>
     </div>
   )
