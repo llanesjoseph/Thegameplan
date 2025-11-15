@@ -247,6 +247,65 @@ export default function CoachProfile() {
               </div>
             )}
           </div>
+
+          {/* Social Media Icons - Below Profile Photo */}
+          {(instagram || youtube || linkedin || facebook) && (
+            <div className="mt-4">
+              <h4 className="text-xs font-bold mb-2 text-center" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                Connect
+              </h4>
+              <div className="flex justify-center gap-2">
+                {instagram && (
+                  <a
+                    href={`https://instagram.com/${instagram.replace('@', '')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-9 h-9 rounded-lg flex items-center justify-center transition-all hover:scale-110"
+                    style={{ backgroundColor: '#E4405F' }}
+                    title="Instagram"
+                  >
+                    <Instagram className="w-4 h-4 text-white" />
+                  </a>
+                )}
+                {youtube && (
+                  <a
+                    href={youtube.startsWith('http') ? youtube : `https://youtube.com/${youtube}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-9 h-9 rounded-lg flex items-center justify-center transition-all hover:scale-110"
+                    style={{ backgroundColor: '#FF0000' }}
+                    title="YouTube"
+                  >
+                    <Youtube className="w-4 h-4 text-white" />
+                  </a>
+                )}
+                {linkedin && (
+                  <a
+                    href={linkedin.startsWith('http') ? linkedin : `https://linkedin.com/in/${linkedin}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-9 h-9 rounded-lg flex items-center justify-center transition-all hover:scale-110"
+                    style={{ backgroundColor: '#0A66C2' }}
+                    title="LinkedIn"
+                  >
+                    <Linkedin className="w-4 h-4 text-white" />
+                  </a>
+                )}
+                {facebook && (
+                  <a
+                    href={facebook.startsWith('http') ? facebook : `https://facebook.com/${facebook}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-9 h-9 rounded-lg flex items-center justify-center transition-all hover:scale-110"
+                    style={{ backgroundColor: '#1877F2' }}
+                    title="Facebook"
+                  >
+                    <Facebook className="w-4 h-4 text-white" />
+                  </a>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -295,121 +354,56 @@ export default function CoachProfile() {
           </button>
         </div>
 
-        {/* Two Column Layout for Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-4xl">
-          {/* Left Column */}
-          <div className="space-y-4">
-            {/* Bio */}
-            {bio && (
-              <div>
-                <h4 className="text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
-                  About
-                </h4>
-                <p className="text-sm leading-relaxed" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
-                  {bio}
-                </p>
-              </div>
-            )}
-
-            {/* Achievements */}
-            {achievements && (
-              <div>
-                <h4 className="text-sm font-bold mb-2 flex items-center gap-1.5" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
-                  <Award className="w-4 h-4" />
-                  Achievements
-                </h4>
-                <p className="text-sm leading-relaxed whitespace-pre-line" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
-                  {achievements}
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Right Column */}
-          <div className="space-y-4">
-            {/* Social Media Icons */}
-            {(instagram || youtube || linkedin || facebook) && (
-              <div>
-                <h4 className="text-sm font-bold mb-3" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
-                  Connect
-                </h4>
-                <div className="flex gap-3">
-                  {instagram && (
-                    <a
-                      href={`https://instagram.com/${instagram.replace('@', '')}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-10 h-10 rounded-lg flex items-center justify-center transition-all hover:scale-110"
-                      style={{ backgroundColor: '#E4405F' }}
-                      title="Instagram"
-                    >
-                      <Instagram className="w-5 h-5 text-white" />
-                    </a>
-                  )}
-                  {youtube && (
-                    <a
-                      href={youtube.startsWith('http') ? youtube : `https://youtube.com/${youtube}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-10 h-10 rounded-lg flex items-center justify-center transition-all hover:scale-110"
-                      style={{ backgroundColor: '#FF0000' }}
-                      title="YouTube"
-                    >
-                      <Youtube className="w-5 h-5 text-white" />
-                    </a>
-                  )}
-                  {linkedin && (
-                    <a
-                      href={linkedin.startsWith('http') ? linkedin : `https://linkedin.com/in/${linkedin}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-10 h-10 rounded-lg flex items-center justify-center transition-all hover:scale-110"
-                      style={{ backgroundColor: '#0A66C2' }}
-                      title="LinkedIn"
-                    >
-                      <Linkedin className="w-5 h-5 text-white" />
-                    </a>
-                  )}
-                  {facebook && (
-                    <a
-                      href={facebook.startsWith('http') ? facebook : `https://facebook.com/${facebook}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-10 h-10 rounded-lg flex items-center justify-center transition-all hover:scale-110"
-                      style={{ backgroundColor: '#1877F2' }}
-                      title="Facebook"
-                    >
-                      <Facebook className="w-5 h-5 text-white" />
-                    </a>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Locker Room Button */}
+        {/* Content Section */}
+        <div className="max-w-4xl space-y-4">
+          {/* Bio */}
+          {bio && (
             <div>
-              <a
-                href="/dashboard/coach/locker-room"
-                target="_blank"
-                rel="noopener noreferrer"
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#FC0105'
-                  e.currentTarget.querySelector('span')!.textContent = 'Enter'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#000'
-                  e.currentTarget.querySelector('span')!.textContent = 'Coach Locker Room'
-                }}
-                className="inline-block px-4 py-2.5 rounded-lg text-white text-sm font-bold transition-all"
-                style={{
-                  fontFamily: '\"Open Sans\", sans-serif',
-                  fontWeight: 700,
-                  backgroundColor: '#000'
-                }}
-              >
-                <span>Coach Locker Room</span>
-              </a>
+              <h4 className="text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                About
+              </h4>
+              <p className="text-sm leading-relaxed" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                {bio}
+              </p>
             </div>
+          )}
+
+          {/* Achievements */}
+          {achievements && (
+            <div>
+              <h4 className="text-sm font-bold mb-2 flex items-center gap-1.5" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                <Award className="w-4 h-4" />
+                Achievements
+              </h4>
+              <p className="text-sm leading-relaxed whitespace-pre-line" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                {achievements}
+              </p>
+            </div>
+          )}
+
+          {/* Locker Room Button */}
+          <div>
+            <a
+              href="/dashboard/coach/locker-room"
+              target="_blank"
+              rel="noopener noreferrer"
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#FC0105'
+                e.currentTarget.querySelector('span')!.textContent = 'Enter'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#000'
+                e.currentTarget.querySelector('span')!.textContent = 'Coach Locker Room'
+              }}
+              className="inline-block px-4 py-2.5 rounded-lg text-white text-sm font-bold transition-all"
+              style={{
+                fontFamily: '\"Open Sans\", sans-serif',
+                fontWeight: 700,
+                backgroundColor: '#000'
+              }}
+            >
+              <span>Coach Locker Room</span>
+            </a>
           </div>
         </div>
 
