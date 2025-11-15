@@ -135,6 +135,19 @@ export default function CoachProfile() {
           </p>
         </div>
 
+        {/* Coach Locker Room Button */}
+        <div className="pt-1">
+          <a
+            href="/dashboard/coach/locker-room"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block px-3 py-1 rounded-lg bg-black text-white text-xs font-bold hover:bg-gray-800 transition-colors"
+            style={{ fontFamily: '\"Open Sans\", sans-serif' }}
+          >
+            Coach Locker Room
+          </a>
+        </div>
+
         <p className="text-sm" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
           {bio}
         </p>
