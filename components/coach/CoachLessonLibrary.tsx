@@ -3,9 +3,10 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
-import { collection, getDocs, query, where, orderBy, limit } from 'firebase/firestore'
+import { collection, getDocs, query, where, orderBy } from 'firebase/firestore'
 import { db, storage } from '@/lib/firebase.client'
 import { getDownloadURL, ref } from 'firebase/storage'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 type Lesson = { id: string; title: string; thumbnailUrl?: string }
 
@@ -14,6 +15,8 @@ export default function CoachLessonLibrary() {
   const { user } = useAuth()
   const [lessons, setLessons] = useState<Lesson[]>([])
   const [openLessonId, setOpenLessonId] = useState<string | null>(null)
+  const [lessonPage, setLessonPage] = useState(0)
+  const lessonPageSize = 4
 
   useEffect(() => {
     const load = async () => {
@@ -23,8 +26,7 @@ export default function CoachLessonLibrary() {
           collection(db, 'content'),
           where('creatorUid', '==', user.uid),
           where('status', '==', 'published'),
-          orderBy('createdAt', 'desc'),
-          limit(8)
+          orderBy('createdAt', 'desc')
         )
         const snap = await getDocs(q)
         let items: Lesson[] = snap.docs.map(d => {
@@ -67,30 +69,62 @@ export default function CoachLessonLibrary() {
         Your Lesson Library
       </h2>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-        {lessons.map((l) => (
-          <button
-            key={l.id}
-            onClick={() => setOpenLessonId(l.id)}
-            className="text-left w-full"
-          >
-            <div className="w-full aspect-square rounded-lg overflow-hidden mb-1">
-              {l.thumbnailUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={l.thumbnailUrl} alt={l.title} className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#8B7D7B' }}>
-                  <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
-                </div>
-              )}
-            </div>
-            <p className="text-sm font-semibold" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
-              {l.title}
-            </p>
-          </button>
-        ))}
-        {lessons.length === 0 && (
-          <div className="text-sm text-gray-500">No published lessons yet.</div>
+      <div className="relative">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          {lessons.slice(lessonPage * lessonPageSize, (lessonPage + 1) * lessonPageSize).map((l) => (
+            <button
+              key={l.id}
+              onClick={() => setOpenLessonId(l.id)}
+              className="text-left w-full"
+            >
+              <div className="w-full aspect-square rounded-lg overflow-hidden mb-1">
+                {l.thumbnailUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={l.thumbnailUrl} alt={l.title} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#8B7D7B' }}>
+                    <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
+                  </div>
+                )}
+              </div>
+              <p className="text-sm font-semibold" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                {l.title}
+              </p>
+            </button>
+          ))}
+          {lessons.length === 0 && (
+            <div className="text-sm text-gray-500">No published lessons yet.</div>
+          )}
+        </div>
+
+        {/* Pagination arrows - only show if MORE than 4 lessons */}
+        {lessons.length > 4 && (
+          <>
+            <button
+              aria-label="Previous lessons"
+              disabled={lessonPage === 0}
+              onClick={() => setLessonPage((p) => Math.max(0, p - 1))}
+              className={`absolute left-2 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full border flex items-center justify-center transition ${
+                lessonPage > 0
+                  ? 'bg-white text-black border-black/70 hover:bg-black hover:text-white'
+                  : 'bg-white text-gray-400 border-gray-300 cursor-not-allowed opacity-60'
+              }`}
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              aria-label="Next lessons"
+              disabled={lessonPage >= Math.ceil(lessons.length / lessonPageSize) - 1}
+              onClick={() => setLessonPage((p) => Math.min(Math.ceil(lessons.length / lessonPageSize) - 1, p + 1))}
+              className={`absolute right-2 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full border flex items-center justify-center transition ${
+                lessonPage < Math.ceil(lessons.length / lessonPageSize) - 1
+                  ? 'bg-white text-black border-black/70 hover:bg-black hover:text-white'
+                  : 'bg-white text-gray-400 border-gray-300 cursor-not-allowed opacity-60'
+              }`}
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </>
         )}
       </div>
 
