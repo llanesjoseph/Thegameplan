@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { collection, query, where, getDocs, orderBy } from 'firebase/firestore'
 import { db } from '@/lib/firebase.client'
-import { Play, MessageSquare, Clock, CheckCircle2 } from 'lucide-react'
+import { Play, MessageSquare, Clock, CheckCircle2, Plus } from 'lucide-react'
+import SubmitVideoModal from './SubmitVideoModal'
 
 interface VideoSubmission {
   id: string
@@ -24,37 +25,43 @@ export default function AthleteVideoReviews() {
   const [submissions, setSubmissions] = useState<VideoSubmission[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedVideo, setSelectedVideo] = useState<VideoSubmission | null>(null)
+  const [showSubmitModal, setShowSubmitModal] = useState(false)
 
-  useEffect(() => {
-    const loadSubmissions = async () => {
-      if (!user?.uid) {
-        setLoading(false)
-        return
-      }
-
-      try {
-        const q = query(
-          collection(db, 'videoSubmissions'),
-          where('athleteUid', '==', user.uid),
-          orderBy('createdAt', 'desc')
-        )
-
-        const snapshot = await getDocs(q)
-        const subs = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as VideoSubmission[]
-
-        setSubmissions(subs)
-      } catch (error) {
-        console.error('Error loading video submissions:', error)
-      } finally {
-        setLoading(false)
-      }
+  const loadSubmissions = async () => {
+    if (!user?.uid) {
+      setLoading(false)
+      return
     }
 
+    try {
+      const q = query(
+        collection(db, 'videoSubmissions'),
+        where('athleteUid', '==', user.uid),
+        orderBy('createdAt', 'desc')
+      )
+
+      const snapshot = await getDocs(q)
+      const subs = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as VideoSubmission[]
+
+      setSubmissions(subs)
+    } catch (error) {
+      console.error('Error loading video submissions:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
     loadSubmissions()
   }, [user])
+
+  const handleSubmitSuccess = () => {
+    setShowSubmitModal(false)
+    loadSubmissions() // Refresh the list
+  }
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -95,9 +102,19 @@ export default function AthleteVideoReviews() {
 
   return (
     <div>
-      <h2 className="text-xl font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
-        Your Video Submissions
-      </h2>
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="text-xl font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
+          Your Video Submissions
+        </h2>
+        <button
+          onClick={() => setShowSubmitModal(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-black text-white font-bold rounded-lg hover:bg-gray-800 transition-colors"
+          style={{ fontFamily: '"Open Sans", sans-serif' }}
+        >
+          <Plus className="w-4 h-4" />
+          Submit Video
+        </button>
+      </div>
 
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -274,6 +291,16 @@ export default function AthleteVideoReviews() {
             }
           `}</style>
         </div>
+      )}
+
+      {/* Submit Video Modal */}
+      {showSubmitModal && (
+        <SubmitVideoModal
+          userId={user?.uid || ''}
+          userEmail={user?.email || ''}
+          onClose={() => setShowSubmitModal(false)}
+          onSuccess={handleSubmitSuccess}
+        />
       )}
     </div>
   )

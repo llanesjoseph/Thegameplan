@@ -6,7 +6,6 @@ import { doc, getDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase.client'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import Live1on1RequestModal from './Live1on1RequestModal'
-import SubmitVideoModal from './SubmitVideoModal'
 import dynamic from 'next/dynamic'
 
 const AskCoachAI = dynamic(() => import('./AskCoachAI'), { ssr: false })
@@ -18,7 +17,6 @@ export default function AthleteCoaches() {
   const [showScheduleModal, setShowScheduleModal] = useState(false)
   const [coachId, setCoachId] = useState<string | null>(null)
   const [showAskModal, setShowAskModal] = useState(false)
-  const [showSubmitVideoModal, setShowSubmitVideoModal] = useState(false)
   const [coachPage, setCoachPage] = useState(0)
   const coachPageSize = 3
 
@@ -66,10 +64,6 @@ export default function AthleteCoaches() {
     if (coachId) {
       setShowScheduleModal(true)
     }
-  }
-
-  const handleSubmitVideo = () => {
-    setShowSubmitVideoModal(true)
   }
 
   const handleAskQuestion = () => {
@@ -136,13 +130,6 @@ export default function AthleteCoaches() {
                   style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
                 >
                   Schedule 1-1 Session With a Coach
-                </button>
-                <button
-                  onClick={handleSubmitVideo}
-                  className="w-full bg-black text-white py-2.5 text-xs font-bold hover:bg-gray-800 transition-colors leading-tight"
-                  style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
-                >
-                  Submit Training Video for Coach Feedback
                 </button>
                 <button
                   onClick={handleAskQuestion}
@@ -244,19 +231,6 @@ export default function AthleteCoaches() {
             }
           `}</style>
         </div>
-      )}
-
-      {/* Submit Video Modal */}
-      {showSubmitVideoModal && (
-        <SubmitVideoModal
-          userId={user?.uid || ''}
-          userEmail={user?.email || ''}
-          onClose={() => setShowSubmitVideoModal(false)}
-          onSuccess={() => {
-            setShowSubmitVideoModal(false)
-            console.log('Video submission completed')
-          }}
-        />
       )}
     </>
   )
