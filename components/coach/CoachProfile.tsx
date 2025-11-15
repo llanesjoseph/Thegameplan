@@ -134,38 +134,41 @@ export default function CoachProfile() {
 
       {/* Text content below banner (profile photo remains in banner corner) */}
       <div className="pt-6 sm:pt-8 max-w-2xl space-y-3">
-        <div>
-          <h2
-            className="text-2xl sm:text-3xl font-bold mb-1"
-            style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif', fontWeight: 700 }}
-          >
-            {user?.displayName || 'Coach'}
-          </h2>
-          <p className="text-sm" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
-            {primarySport || ''}
-          </p>
-        </div>
+        {/* Name */}
+        <h2
+          className="text-2xl sm:text-3xl font-bold"
+          style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif', fontWeight: 700 }}
+        >
+          {user?.displayName || 'Coach'}
+        </h2>
 
-        <div>
-          <h3
-            className="text-base font-bold mb-1"
-            style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif', fontWeight: 700 }}
-          >
-            Specialties:
-          </h3>
-        </div>
+        {/* Specialties label */}
+        <h3
+          className="text-base font-bold"
+          style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif', fontWeight: 700 }}
+        >
+          Specialties:
+        </h3>
 
-        <div className="flex flex-wrap gap-2">
-          {(sports.length ? sports : ['Sport']).map((s) => (
+        {/* Primary sport badge */}
+        {primarySport && (
+          <div className="flex flex-wrap gap-2">
             <span
-              key={s}
               className="px-3 py-1 rounded-lg bg-black text-white text-xs font-bold"
               style={{ fontFamily: '\"Open Sans\", sans-serif' }}
             >
-              {s}
+              {primarySport}
             </span>
-          ))}
-          {/* Coach Locker Room Button at the end */}
+          </div>
+        )}
+
+        {/* Bio */}
+        <p className="text-sm" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+          {bio}
+        </p>
+
+        {/* Coach Locker Room button */}
+        <div>
           <a
             href="/dashboard/coach/locker-room"
             target="_blank"
@@ -176,10 +179,6 @@ export default function CoachProfile() {
             Coach Locker Room
           </a>
         </div>
-
-        <p className="text-sm" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
-          {bio}
-        </p>
       </div>
     </div>
   )
