@@ -17,6 +17,7 @@ import AthleteProfile from '@/components/athlete/AthleteProfile'
 import AthleteProgress from '@/components/athlete/AthleteProgress'
 import AthleteCoaches from '@/components/athlete/AthleteCoaches'
 import AthleteTrainingLibrary from '@/components/athlete/AthleteTrainingLibrary'
+import AthleteVideoReviews from '@/components/athlete/AthleteVideoReviews'
 import AthleteRecommendedGear from '@/components/athlete/AthleteRecommendedGear'
 import AthleteAssistant from '@/components/athlete/AthleteAssistant'
 import ProfileQuickSetupModal from '@/components/athlete/ProfileQuickSetupModal'
@@ -144,6 +145,8 @@ export default function AthleteDashboard() {
             <AthleteCoaches />
             {/* Your Training Library Section */}
             <AthleteTrainingLibrary />
+            {/* Your Video Submissions Section */}
+            <AthleteVideoReviews />
             {/* Recommended Gear Section */}
             <AthleteRecommendedGear />
 
