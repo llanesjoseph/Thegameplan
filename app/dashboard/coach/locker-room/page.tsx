@@ -282,7 +282,7 @@ export default function CoachLockerRoom() {
               </button>
             </div>
             <iframe
-              src="/dashboard/coach/lessons/create"
+              src="/dashboard/coach/lessons/create?embedded=true"
               className="w-full h-[70vh] border-0 rounded-lg"
               title="Create Lesson"
             />
@@ -345,15 +345,11 @@ export default function CoachLockerRoom() {
                 ✕
               </button>
             </div>
-            <div className="text-center py-12">
-              <Calendar className="w-16 h-16 mx-auto mb-4" style={{ color: '#666', opacity: 0.5 }} />
-              <p className="text-lg font-bold mb-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
-                Event Scheduling
-              </p>
-              <p className="text-sm" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
-                This feature is coming soon
-              </p>
-            </div>
+            <iframe
+              src="/dashboard/coach/events?embedded=true"
+              className="w-full h-[60vh] border-0 rounded-lg"
+              title="Event Schedule"
+            />
           </div>
         </div>
       )}
@@ -380,7 +376,7 @@ export default function CoachLockerRoom() {
               </button>
             </div>
             <iframe
-              src="/dashboard/coach/live-sessions"
+              src="/dashboard/coach/live-sessions?embedded=true"
               className="w-full h-[60vh] border-0 rounded-lg"
               title="Schedule Training Session"
             />

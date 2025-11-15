@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, Suspense} from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import AppHeader from '@/components/ui/AppHeader'
 import { useAuth } from '@/hooks/use-auth'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -23,7 +23,8 @@ import {
   X,
   Video,
   Upload,
-  Link2
+  Link2,
+  Image
 } from 'lucide-react'
 
 interface LessonForm {
@@ -37,6 +38,8 @@ interface LessonForm {
   visibility: 'public' | 'athletes_only' | 'specific_athletes'
   videoUrl?: string // YouTube, Vimeo, or other video links
   videoFile?: File | null // Uploaded video file
+  thumbnailFile?: File | null // Uploaded thumbnail image
+  thumbnailUrl?: string // URL to thumbnail image
 }
 
 function CreateLessonPageContent() {
@@ -67,10 +70,16 @@ function CreateLessonPageContent() {
     tags: [],
     visibility: 'athletes_only',
     videoUrl: '',
-    videoFile: null
+    videoFile: null,
+    thumbnailFile: null,
+    thumbnailUrl: ''
   })
 
   const [videoFileName, setVideoFileName] = useState('')
+  const [thumbnailFileName, setThumbnailFileName] = useState('')
+  const [showVideoScrubber, setShowVideoScrubber] = useState(false)
+  const [scrubbedThumbnail, setScrubbedThumbnail] = useState<string | null>(null)
+  const videoPreviewRef = useRef<HTMLVideoElement>(null)
 
   // Add objective
   const addObjective = () => {
@@ -139,6 +148,71 @@ function CreateLessonPageContent() {
     setVideoFileName('')
   }
 
+  // Handle thumbnail file selection
+  const handleThumbnailFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      // Validate file type
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+      if (!validTypes.includes(file.type)) {
+        alert('Please select a valid image file (JPEG, PNG, or WebP)')
+        return
+      }
+
+      // Validate file size (max 5MB)
+      const maxSize = 5 * 1024 * 1024 // 5MB in bytes
+      if (file.size > maxSize) {
+        alert('Image file is too large. Maximum size is 5MB.')
+        return
+      }
+
+      setLesson(prev => ({ ...prev, thumbnailFile: file }))
+      setThumbnailFileName(file.name)
+    }
+  }
+
+  // Remove thumbnail file
+  const removeThumbnailFile = () => {
+    setLesson(prev => ({ ...prev, thumbnailFile: null }))
+    setThumbnailFileName('')
+  }
+
+  // Capture thumbnail from video at current time
+  const captureThumbnailFromVideo = () => {
+    const video = videoPreviewRef.current
+    if (!video) return
+
+    const canvas = document.createElement('canvas')
+    canvas.width = video.videoWidth
+    canvas.height = video.videoHeight
+    const ctx = canvas.getContext('2d')
+
+    if (ctx) {
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+      const thumbnailDataUrl = canvas.toDataURL('image/jpeg', 0.8)
+      setScrubbedThumbnail(thumbnailDataUrl)
+
+      // Convert data URL to blob and then to File
+      fetch(thumbnailDataUrl)
+        .then(res => res.blob())
+        .then(blob => {
+          const file = new File([blob], 'video-thumbnail.jpg', { type: 'image/jpeg' })
+          setLesson(prev => ({ ...prev, thumbnailFile: file }))
+          setThumbnailFileName('video-thumbnail.jpg')
+          setShowVideoScrubber(false)
+        })
+    }
+  }
+
+  // Handle video scrubber slider change
+  const handleVideoScrub = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const video = videoPreviewRef.current
+    if (!video) return
+
+    const time = parseFloat(e.target.value)
+    video.currentTime = time
+  }
+
   // Upload video to Firebase Storage
   const uploadVideoToStorage = async (videoFile: File, userId: string): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -183,6 +257,46 @@ function CreateLessonPageContent() {
         console.error('Error setting up upload:', error)
         setUploadingVideo(false)
         setUploadProgress(0)
+        reject(error)
+      }
+    })
+  }
+
+  // Upload thumbnail to Firebase Storage
+  const uploadThumbnailToStorage = async (thumbnailFile: File, userId: string): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      try {
+        // Create a unique file path
+        const timestamp = Date.now()
+        const sanitizedFileName = thumbnailFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')
+        const storageRef = ref(storage, `lesson-thumbnails/${userId}/${timestamp}_${sanitizedFileName}`)
+
+        // Create upload task
+        const uploadTask = uploadBytesResumable(storageRef, thumbnailFile)
+
+        // Monitor upload progress
+        uploadTask.on(
+          'state_changed',
+          (snapshot) => {
+            // Progress tracking for thumbnail is less critical
+          },
+          (error) => {
+            console.error('Thumbnail upload error:', error)
+            reject(new Error(`Upload failed: ${error.message}`))
+          },
+          async () => {
+            // Upload completed successfully, get download URL
+            try {
+              const downloadURL = await getDownloadURL(uploadTask.snapshot.ref)
+              resolve(downloadURL)
+            } catch (error) {
+              console.error('Error getting download URL:', error)
+              reject(new Error('Failed to get download URL'))
+            }
+          }
+        )
+      } catch (error) {
+        console.error('Error setting up upload:', error)
         reject(error)
       }
     })
@@ -279,6 +393,7 @@ function CreateLessonPageContent() {
       }
 
       let uploadedVideoUrl = lesson.videoUrl || ''
+      let uploadedThumbnailUrl = lesson.thumbnailUrl || ''
 
       // Upload video file if present
       if (lesson.videoFile) {
@@ -294,13 +409,28 @@ function CreateLessonPageContent() {
         }
       }
 
+      // Upload thumbnail file if present
+      if (lesson.thumbnailFile) {
+        try {
+          uploadedThumbnailUrl = await uploadThumbnailToStorage(lesson.thumbnailFile, user.uid)
+          console.log('Thumbnail uploaded successfully:', uploadedThumbnailUrl)
+        } catch (uploadError: any) {
+          console.error('Thumbnail upload failed:', uploadError)
+          alert(`Failed to upload thumbnail: ${uploadError.message}. Please try again or continue without the thumbnail.`)
+          setSaving(false)
+          return
+        }
+      }
+
       const token = await user.getIdToken()
 
-      // Prepare lesson data with video URL (either from upload or URL input)
+      // Prepare lesson data with video URL and thumbnail URL (either from upload or URL input)
       const lessonData = {
         ...lesson,
         videoUrl: uploadedVideoUrl,
-        videoFile: undefined // Remove file object before sending
+        thumbnailUrl: uploadedThumbnailUrl,
+        videoFile: undefined, // Remove file object before sending
+        thumbnailFile: undefined // Remove file object before sending
       }
 
       const response = await fetch('/api/coach/lessons/create', {
@@ -422,19 +552,6 @@ function CreateLessonPageContent() {
       {!embedded && <AppHeader title="Create Lesson" subtitle="Build comprehensive training content for your athletes" />}
 
       <main className={`w-full ${embedded ? 'p-4' : 'max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 py-6'}`}>
-        {/* Header for embedded mode */}
-        {embedded && (
-          <div className="mb-6">
-            <div className="flex items-center gap-3 mb-2">
-              <GraduationCap className="w-8 h-8" style={{ color: '#20B2AA' }} />
-              <h1 className="text-3xl font-medium" style={{ color: '#000000' }}>Create Lesson</h1>
-            </div>
-            <p style={{ color: '#000000', opacity: 0.7 }}>
-              Build comprehensive training content for your athletes
-            </p>
-          </div>
-        )}
-
         {/* AI Generation Modal */}
         {showAIModal && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -564,6 +681,86 @@ function CreateLessonPageContent() {
                   onClick={() => setShowAIModal(false)}
                   disabled={generating}
                   className="px-6 py-3 bg-gray-100 text-black rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 font-bold"
+                  style={{ fontFamily: '"Open Sans", sans-serif' }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Video Scrubber Modal */}
+        {showVideoScrubber && lesson.videoFile && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full p-6 sm:p-8">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-black rounded-xl flex items-center justify-center">
+                    <Video className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>Select Video Thumbnail</h2>
+                    <p className="text-sm" style={{ color: '#000000', opacity: 0.6, fontFamily: '"Open Sans", sans-serif' }}>Scrub through the video to find the perfect frame</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowVideoScrubber(false)}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              {/* Video Player */}
+              <div className="space-y-4 mb-6">
+                <div className="relative rounded-lg overflow-hidden bg-black">
+                  <video
+                    ref={videoPreviewRef}
+                    src={URL.createObjectURL(lesson.videoFile)}
+                    className="w-full h-auto"
+                    controls
+                    style={{ maxHeight: '400px' }}
+                  />
+                </div>
+
+                {/* Scrubber Slider */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                    Scrub Timeline
+                  </label>
+                  <input
+                    type="range"
+                    min="0"
+                    max={videoPreviewRef.current?.duration || 0}
+                    step="0.1"
+                    onChange={handleVideoScrub}
+                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                    style={{
+                      accentColor: '#000000'
+                    }}
+                  />
+                  <p className="text-xs" style={{ color: '#000000', opacity: 0.6, fontFamily: '"Open Sans", sans-serif' }}>
+                    Drag the slider or use the video controls to find your desired thumbnail frame
+                  </p>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3">
+                <button
+                  onClick={captureThumbnailFromVideo}
+                  className="flex-1 px-6 py-3 bg-black text-white rounded-lg hover:bg-red-600 transition-all flex items-center justify-center gap-2 font-bold"
+                  style={{ fontFamily: '"Open Sans", sans-serif', backgroundColor: '#000' }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#FC0105'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#000'}
+                >
+                  <Image className="w-5 h-5" />
+                  Use This Frame
+                </button>
+                <button
+                  onClick={() => setShowVideoScrubber(false)}
+                  className="px-6 py-3 bg-gray-100 text-black rounded-lg hover:bg-gray-200 transition-colors font-bold"
                   style={{ fontFamily: '"Open Sans", sans-serif' }}
                 >
                   Cancel
@@ -838,28 +1035,118 @@ function CreateLessonPageContent() {
                       />
                     </label>
                   ) : (
-                    <div className="flex items-center justify-between px-4 py-3 bg-orange-50 border-2 border-orange-200 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <Video className="w-6 h-6 text-orange-600 flex-shrink-0" />
-                        <div>
-                          <p className="text-sm font-medium" style={{ color: '#000000' }}>{videoFileName}</p>
-                          <p className="text-xs" style={{ color: '#000000', opacity: 0.6 }}>
-                            {lesson.videoFile && `${(lesson.videoFile.size / (1024 * 1024)).toFixed(2)} MB`}
-                          </p>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between px-4 py-3 bg-orange-50 border-2 border-orange-200 rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <Video className="w-6 h-6 text-orange-600 flex-shrink-0" />
+                          <div>
+                            <p className="text-sm font-medium" style={{ color: '#000000' }}>{videoFileName}</p>
+                            <p className="text-xs" style={{ color: '#000000', opacity: 0.6 }}>
+                              {lesson.videoFile && `${(lesson.videoFile.size / (1024 * 1024)).toFixed(2)} MB`}
+                            </p>
+                          </div>
                         </div>
+                        <button
+                          onClick={removeVideoFile}
+                          className="p-2 hover:bg-red-100 rounded-full transition-colors"
+                          type="button"
+                        >
+                          <Trash2 className="w-5 h-5 text-red-600" />
+                        </button>
                       </div>
+
+                      {/* Select Thumbnail from Video Button */}
                       <button
-                        onClick={removeVideoFile}
-                        className="p-2 hover:bg-red-100 rounded-full transition-colors"
+                        onClick={() => setShowVideoScrubber(true)}
+                        className="w-full px-4 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 font-bold"
+                        style={{ fontFamily: '"Open Sans", sans-serif' }}
                         type="button"
                       >
-                        <Trash2 className="w-5 h-5 text-red-600" />
+                        <Image className="w-5 h-5" />
+                        Select Thumbnail from Video
                       </button>
                     </div>
                   )}
 
                   <p className="text-xs mt-2" style={{ color: '#000000', opacity: 0.5 }}>
                     Note: Video files will be uploaded to cloud storage when you save the lesson
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Thumbnail Section */}
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+              <h2 className="text-xl font-bold mb-4 flex items-center gap-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                <Image className="w-6 h-6" style={{ color: '#FC0105' }} />
+                Lesson Thumbnail (Optional)
+              </h2>
+
+              <p className="text-sm mb-4" style={{ color: '#000000', opacity: 0.6, fontFamily: '"Open Sans", sans-serif' }}>
+                Add a custom thumbnail image for your lesson. This is especially useful for lessons without videos.
+              </p>
+
+              <div className="space-y-4">
+                {/* Thumbnail File Upload */}
+                <div>
+                  <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                    Upload Thumbnail Image
+                  </label>
+
+                  {!lesson.thumbnailFile ? (
+                    <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-black hover:bg-gray-50 transition-colors">
+                      <div className="flex flex-col items-center justify-center py-4">
+                        <Image className="w-10 h-10 mb-2" style={{ color: '#000000', opacity: 0.4 }} />
+                        <p className="text-sm" style={{ color: '#000000', opacity: 0.7, fontFamily: '"Open Sans", sans-serif' }}>
+                          <span className="font-bold">Click to upload</span> or drag and drop
+                        </p>
+                        <p className="text-xs mt-1" style={{ color: '#000000', opacity: 0.5, fontFamily: '"Open Sans", sans-serif' }}>
+                          JPEG, PNG, or WebP (max 5MB)
+                        </p>
+                      </div>
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept="image/jpeg,image/jpg,image/png,image/webp"
+                        onChange={handleThumbnailFileChange}
+                      />
+                    </label>
+                  ) : (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between px-4 py-3 bg-red-50 border-2 border-red-200 rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <Image className="w-6 h-6 text-red-600 flex-shrink-0" />
+                          <div>
+                            <p className="text-sm font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>{thumbnailFileName}</p>
+                            <p className="text-xs" style={{ color: '#000000', opacity: 0.6, fontFamily: '"Open Sans", sans-serif' }}>
+                              {lesson.thumbnailFile && `${(lesson.thumbnailFile.size / (1024 * 1024)).toFixed(2)} MB`}
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={removeThumbnailFile}
+                          className="p-2 hover:bg-red-100 rounded-full transition-colors"
+                          type="button"
+                        >
+                          <Trash2 className="w-5 h-5 text-red-600" />
+                        </button>
+                      </div>
+
+                      {/* Thumbnail Preview */}
+                      {lesson.thumbnailFile && (
+                        <div className="relative rounded-lg overflow-hidden border-2 border-gray-200">
+                          <img
+                            src={URL.createObjectURL(lesson.thumbnailFile)}
+                            alt="Thumbnail preview"
+                            className="w-full h-48 object-cover"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  <p className="text-xs mt-2" style={{ color: '#000000', opacity: 0.5, fontFamily: '"Open Sans", sans-serif' }}>
+                    Recommended size: 1280x720 pixels (16:9 aspect ratio)
                   </p>
                 </div>
               </div>
