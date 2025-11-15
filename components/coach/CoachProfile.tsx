@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from 'react'
 import { useAuth } from '@/hooks/use-auth'
-import { doc, getDoc } from 'firebase/firestore'
+import { doc, getDoc, updateDoc } from 'firebase/firestore'
 import { db, storage } from '@/lib/firebase.client'
-import { getDownloadURL, ref } from 'firebase/storage'
-import { Edit2 } from 'lucide-react'
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage'
+import { Edit2, MapPin, Award, Camera, Instagram, Youtube, Linkedin, Facebook } from 'lucide-react'
 
 // Expand sport abbreviations to full names
 const expandSportName = (sport: string): string => {
@@ -26,6 +26,17 @@ export default function CoachProfile() {
   const [bannerUrl, setBannerUrl] = useState<string>('')
   const [isEditingProfile, setIsEditingProfile] = useState(false)
   const [isHoveringBadge, setIsHoveringBadge] = useState(false)
+
+  // Edit form state
+  const [editBio, setEditBio] = useState('')
+  const [editLocation, setEditLocation] = useState('')
+  const [editAchievements, setEditAchievements] = useState('')
+  const [editInstagram, setEditInstagram] = useState('')
+  const [editYoutube, setEditYoutube] = useState('')
+  const [editLinkedin, setEditLinkedin] = useState('')
+  const [editFacebook, setEditFacebook] = useState('')
+  const [isSaving, setIsSaving] = useState(false)
+  const [uploadingPhoto, setUploadingPhoto] = useState(false)
 
   useEffect(() => {
     const load = async () => {
@@ -55,7 +66,17 @@ export default function CoachProfile() {
             expanded[0] ||
             'Sport'
           setPrimarySport(expandSportName(sportValue))
-          setBio((data?.bio as string) || (data?.about as string) || '')
+          const bioText = (data?.bio as string) || (data?.about as string) || ''
+          setBio(bioText)
+
+          // Load edit form data
+          setEditBio(bioText)
+          setEditLocation((data?.location as string) || '')
+          setEditAchievements((data?.achievements as string) || '')
+          setEditInstagram((data?.instagram as string) || '')
+          setEditYoutube((data?.youtube as string) || '')
+          setEditLinkedin((data?.linkedin as string) || '')
+          setEditFacebook((data?.facebook as string) || '')
 
           // Prefer explicit profile image fields, then auth photoURL
           const raw =
@@ -117,6 +138,57 @@ export default function CoachProfile() {
     }
     load()
   }, [user])
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file || !user) return
+
+    setUploadingPhoto(true)
+    try {
+      const storageRef = ref(storage, `users/${user.uid}/profile-photo.jpg`)
+      await uploadBytes(storageRef, file)
+      const url = await getDownloadURL(storageRef)
+
+      await updateDoc(doc(db, 'users', user.uid), {
+        profileImageUrl: url,
+        photoURL: url
+      })
+
+      setPhotoUrl(url)
+      alert('Profile photo updated!')
+    } catch (error) {
+      console.error('Error uploading photo:', error)
+      alert('Failed to upload photo. Please try again.')
+    } finally {
+      setUploadingPhoto(false)
+    }
+  }
+
+  const handleSaveProfile = async () => {
+    if (!user) return
+
+    setIsSaving(true)
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        bio: editBio,
+        location: editLocation,
+        achievements: editAchievements,
+        instagram: editInstagram,
+        youtube: editYoutube,
+        linkedin: editLinkedin,
+        facebook: editFacebook
+      })
+
+      setBio(editBio)
+      setIsEditingProfile(false)
+      alert('Profile updated successfully!')
+    } catch (error) {
+      console.error('Error saving profile:', error)
+      alert('Failed to save profile. Please try again.')
+    } finally {
+      setIsSaving(false)
+    }
+  }
 
   return (
     <div className="space-y-4">
@@ -197,7 +269,7 @@ export default function CoachProfile() {
 
         {/* Inline Profile Editor */}
         {isEditingProfile && (
-          <div className="mt-4 p-6 rounded-xl border-2 bg-white" style={{ borderColor: '#000' }}>
+          <div className="mt-4 p-6 rounded-xl border-2 bg-white space-y-4" style={{ borderColor: '#000' }}>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-bold" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
                 Edit Profile
@@ -209,11 +281,163 @@ export default function CoachProfile() {
                 ✕
               </button>
             </div>
-            <iframe
-              src="/dashboard/coach/profile?embedded=true"
-              className="w-full h-[600px] border-0 rounded-lg"
-              title="Edit Profile"
-            />
+
+            {/* Photo Upload */}
+            <div>
+              <label className="block text-sm font-bold mb-2 flex items-center gap-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                <Camera className="w-4 h-4" />
+                Profile Photo
+              </label>
+              <div className="flex items-center gap-4">
+                <div className="w-20 h-20 rounded-lg overflow-hidden bg-gray-100">
+                  {photoUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={photoUrl} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#8B7D7B' }}>
+                      <Camera className="w-8 h-8 text-white" />
+                    </div>
+                  )}
+                </div>
+                <label className="cursor-pointer">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handlePhotoUpload}
+                    className="hidden"
+                    disabled={uploadingPhoto}
+                  />
+                  <span className="inline-flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors text-sm font-bold"
+                    style={{ fontFamily: '\"Open Sans\", sans-serif', cursor: uploadingPhoto ? 'not-allowed' : 'pointer', opacity: uploadingPhoto ? 0.7 : 1 }}>
+                    {uploadingPhoto ? 'Uploading...' : 'Upload Photo'}
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            {/* Location */}
+            <div>
+              <label className="block text-sm font-bold mb-2 flex items-center gap-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                <MapPin className="w-4 h-4" />
+                Location
+              </label>
+              <input
+                type="text"
+                value={editLocation}
+                onChange={(e) => setEditLocation(e.target.value)}
+                placeholder="City, State"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-sm"
+                style={{ fontFamily: '\"Open Sans\", sans-serif' }}
+              />
+            </div>
+
+            {/* Bio */}
+            <div>
+              <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                Bio
+              </label>
+              <textarea
+                value={editBio}
+                onChange={(e) => setEditBio(e.target.value)}
+                placeholder="Tell athletes about your coaching philosophy and experience..."
+                rows={4}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black resize-none text-sm"
+                style={{ fontFamily: '\"Open Sans\", sans-serif' }}
+              />
+            </div>
+
+            {/* Achievements */}
+            <div>
+              <label className="block text-sm font-bold mb-2 flex items-center gap-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                <Award className="w-4 h-4" />
+                Achievements
+              </label>
+              <textarea
+                value={editAchievements}
+                onChange={(e) => setEditAchievements(e.target.value)}
+                placeholder="List your notable achievements, certifications, and awards..."
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black resize-none text-sm"
+                style={{ fontFamily: '\"Open Sans\", sans-serif' }}
+              />
+            </div>
+
+            {/* Social Media */}
+            <div>
+              <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                Social Media
+              </label>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Instagram className="w-4 h-4" />
+                  <input
+                    type="text"
+                    value={editInstagram}
+                    onChange={(e) => setEditInstagram(e.target.value)}
+                    placeholder="Instagram username"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-sm"
+                    style={{ fontFamily: '\"Open Sans\", sans-serif' }}
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <Youtube className="w-4 h-4" />
+                  <input
+                    type="text"
+                    value={editYoutube}
+                    onChange={(e) => setEditYoutube(e.target.value)}
+                    placeholder="YouTube channel URL"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-sm"
+                    style={{ fontFamily: '\"Open Sans\", sans-serif' }}
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <Linkedin className="w-4 h-4" />
+                  <input
+                    type="text"
+                    value={editLinkedin}
+                    onChange={(e) => setEditLinkedin(e.target.value)}
+                    placeholder="LinkedIn profile URL"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-sm"
+                    style={{ fontFamily: '\"Open Sans\", sans-serif' }}
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <Facebook className="w-4 h-4" />
+                  <input
+                    type="text"
+                    value={editFacebook}
+                    onChange={(e) => setEditFacebook(e.target.value)}
+                    placeholder="Facebook page URL"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-sm"
+                    style={{ fontFamily: '\"Open Sans\", sans-serif' }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Save Button */}
+            <div className="flex gap-2 pt-4">
+              <button
+                onClick={() => setIsEditingProfile(false)}
+                className="px-4 py-2 rounded-lg text-sm font-bold hover:bg-gray-100 transition-colors"
+                style={{ color: '#000', fontFamily: '\"Open Sans\", sans-serif' }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveProfile}
+                disabled={isSaving}
+                className="flex-1 px-6 py-2 rounded-lg text-white text-sm font-bold transition-colors"
+                style={{
+                  backgroundColor: isSaving ? '#666' : '#000',
+                  fontFamily: '\"Open Sans\", sans-serif',
+                  cursor: isSaving ? 'not-allowed' : 'pointer',
+                  opacity: isSaving ? 0.7 : 1
+                }}
+              >
+                {isSaving ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
           </div>
         )}
 
