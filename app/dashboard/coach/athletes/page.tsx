@@ -15,7 +15,8 @@ import {
   Clock,
   AlertCircle,
   X,
-  UserPlus
+  UserPlus,
+  RefreshCw
 } from 'lucide-react'
 
 interface AthleteInvitation {
@@ -178,6 +179,17 @@ function CoachAthletesContent() {
         const result = await response.json()
         console.log('Invitation response:', result)
 
+        // Always close the form and reload data first
+        setShowBulkInvite(false)
+        setBulkForm({
+          sport: 'Soccer',
+          customMessage: '',
+          athletes: [{ email: '', name: '' }]
+        })
+
+        // Force immediate reload
+        await loadAthleteData()
+
         if (result.successCount === 0 && result.failCount > 0) {
           const failedDetails = result.results
             ?.filter((r: any) => r.status === 'failed')
@@ -185,25 +197,10 @@ function CoachAthletesContent() {
             .join('\n')
           alert(`Failed to send ${result.failCount} invitation(s):\n\n${failedDetails || 'Email service error. Please check your email configuration.'}`)
         } else if (result.successCount > 0) {
-          alert(`Successfully sent ${result.successCount} invitation(s)!${result.failCount > 0 ? `\n${result.failCount} failed.` : ''}`)
-          setShowBulkInvite(false)
-          setBulkForm({
-            sport: 'Soccer',
-            customMessage: '',
-            athletes: [{ email: '', name: '' }]
-          })
-          // Reload athlete data to show new invitations
-          loadAthleteData()
+          alert(`Successfully sent ${result.successCount} invitation(s)!${result.failCount > 0 ? `\n${result.failCount} failed.` : ''}\n\nRefreshing athlete list...`)
         } else {
           // Handle case where successCount is 0 but no failures
           alert(`Processed ${result.duplicateCount || 0} invitations (duplicates skipped)`)
-          setShowBulkInvite(false)
-          setBulkForm({
-            sport: 'Soccer',
-            customMessage: '',
-            athletes: [{ email: '', name: '' }]
-          })
-          loadAthleteData()
         }
       } else {
         const errorResult = await response.json()
@@ -304,35 +301,35 @@ function CoachAthletesContent() {
     switch (status) {
       case 'accepted':
         return (
-          <span className="px-3 py-1.5 bg-green-100 text-green-800 rounded-full text-sm font-medium flex items-center gap-1.5">
-            <CheckCircle className="w-4 h-4" />
+          <span className="px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 bg-black text-white" style={{ fontFamily: 'Open Sans, sans-serif' }}>
+            <CheckCircle className="w-3.5 h-3.5" />
             Accepted
           </span>
         )
       case 'pending':
         return (
-          <span className="px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-1.5" style={{ backgroundColor: 'rgba(255, 107, 53, 0.1)', color: '#FF6B35' }}>
-            <Clock className="w-4 h-4" />
+          <span className="px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 border-2 border-gray-300 text-gray-600" style={{ fontFamily: 'Open Sans, sans-serif' }}>
+            <Clock className="w-3.5 h-3.5" />
             Pending
           </span>
         )
       case 'expired':
         return (
-          <span className="px-3 py-1.5 bg-red-100 text-red-800 rounded-full text-sm font-medium flex items-center gap-1.5">
-            <AlertCircle className="w-4 h-4" />
+          <span className="px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 border-2 border-gray-400 text-gray-500" style={{ fontFamily: 'Open Sans, sans-serif' }}>
+            <AlertCircle className="w-3.5 h-3.5" />
             Expired
           </span>
         )
       case 'revoked':
         return (
-          <span className="px-3 py-1.5 bg-gray-100 text-gray-800 rounded-full text-sm font-medium flex items-center gap-1.5">
-            <X className="w-4 h-4" />
+          <span className="px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 border-2 border-gray-400 text-gray-500" style={{ fontFamily: 'Open Sans, sans-serif' }}>
+            <X className="w-3.5 h-3.5" />
             Revoked
           </span>
         )
       default:
         return (
-          <span className="px-3 py-1.5 bg-gray-100 text-gray-800 rounded-full text-sm font-medium">
+          <span className="px-3 py-1 rounded-full text-xs font-bold border-2 border-gray-300 text-gray-600" style={{ fontFamily: 'Open Sans, sans-serif' }}>
             {status}
           </span>
         )
@@ -383,13 +380,12 @@ function CoachAthletesContent() {
       <main className={`w-full ${embedded ? 'p-4' : 'max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6'} space-y-6`}>
         {/* Header */}
         {embedded && (
-          <div className="mb-4">
-            <div className="flex items-center gap-3 mb-2">
-              <Users className="w-8 h-8" style={{ color: '#91A6EB' }} />
-              <h1 className="text-3xl" style={{ color: '#000000' }}>My Athletes</h1>
-            </div>
-            <p style={{ color: '#000000', opacity: 0.7 }}>
-              Manage your athlete roster and invitations
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold mb-2" style={{ color: '#000000', fontFamily: 'Open Sans, sans-serif', fontWeight: 700 }}>
+              My Athletes
+            </h1>
+            <p className="text-sm" style={{ color: '#666', fontFamily: 'Open Sans, sans-serif' }}>
+              Track the status of your athlete invitations
             </p>
           </div>
         )}
@@ -397,13 +393,13 @@ function CoachAthletesContent() {
 
         {/* Bulk Invite Form */}
         {showBulkInvite && (
-          <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 overflow-hidden">
-            <div className="p-6 border-b border-gray-200">
-              <h2 className="text-xl mb-2" style={{ color: '#000000' }}>
-                Invite Multiple Athletes
+          <div className="bg-white rounded-xl border-2 border-gray-200 overflow-hidden">
+            <div className="p-6 border-b-2 border-gray-200">
+              <h2 className="text-xl font-bold mb-2" style={{ color: '#000000', fontFamily: 'Open Sans, sans-serif', fontWeight: 700 }}>
+                Invite Athletes
               </h2>
-              <p style={{ color: '#000000', opacity: 0.7 }}>
-                Send personalized invitations to multiple athletes at once
+              <p className="text-sm" style={{ color: '#666', fontFamily: 'Open Sans, sans-serif' }}>
+                Send bulk invitations to athletes
               </p>
             </div>
 
@@ -411,13 +407,14 @@ function CoachAthletesContent() {
               {/* Sport and Message */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm mb-2" style={{ color: '#000000' }}>
+                  <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: 'Open Sans, sans-serif' }}>
                     Sport
                   </label>
                   <select
                     value={bulkForm.sport}
                     onChange={(e) => setBulkForm(prev => ({ ...prev, sport: e.target.value }))}
-                    className="w-full px-4 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                    className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                    style={{ fontFamily: 'Open Sans, sans-serif' }}
                   >
                     <option value="Brazilian Jiu-Jitsu">Brazilian Jiu-Jitsu</option>
                     <option value="Mixed Martial Arts">Mixed Martial Arts</option>
@@ -438,7 +435,7 @@ function CoachAthletesContent() {
                 </div>
 
                 <div>
-                  <label className="block text-sm mb-2" style={{ color: '#000000' }}>
+                  <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: 'Open Sans, sans-serif' }}>
                     Custom Message (Optional)
                   </label>
                   <textarea
@@ -446,7 +443,8 @@ function CoachAthletesContent() {
                     onChange={(e) => setBulkForm(prev => ({ ...prev, customMessage: e.target.value }))}
                     placeholder="Add a personal message to your invitation..."
                     rows={3}
-                    className="w-full px-4 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black resize-none"
+                    className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black resize-none"
+                    style={{ fontFamily: 'Open Sans, sans-serif' }}
                   />
                 </div>
               </div>
@@ -454,14 +452,14 @@ function CoachAthletesContent() {
               {/* Athletes List */}
               <div>
                 <div className="flex justify-between items-center mb-4">
-                  <label className="block text-sm" style={{ color: '#000000' }}>
+                  <label className="block text-sm font-bold" style={{ color: '#000000', fontFamily: 'Open Sans, sans-serif' }}>
                     Athletes
                   </label>
                   <button
                     type="button"
                     onClick={addAthleteRow}
-                    className="px-3 py-1.5 rounded-lg text-sm hover:opacity-80 transition-opacity flex items-center gap-1.5"
-                    style={{ backgroundColor: 'rgba(145, 166, 235, 0.2)', color: '#91A6EB' }}
+                    className="px-3 py-1.5 rounded-lg text-sm font-bold hover:bg-gray-800 transition-colors flex items-center gap-1.5 bg-black text-white"
+                    style={{ fontFamily: 'Open Sans, sans-serif' }}
                   >
                     <Plus className="w-4 h-4" />
                     Add Row
@@ -477,7 +475,8 @@ function CoachAthletesContent() {
                           placeholder="athlete@example.com"
                           value={athlete.email}
                           onChange={(e) => updateAthlete(index, 'email', e.target.value)}
-                          className="w-full px-4 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                          className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                          style={{ fontFamily: 'Open Sans, sans-serif' }}
                         />
                       </div>
                       <div className="flex-1">
@@ -486,16 +485,17 @@ function CoachAthletesContent() {
                           placeholder="Athlete Name"
                           value={athlete.name}
                           onChange={(e) => updateAthlete(index, 'name', e.target.value)}
-                          className="w-full px-4 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                          className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                          style={{ fontFamily: 'Open Sans, sans-serif' }}
                         />
                       </div>
                       {bulkForm.athletes.length > 1 && (
                         <button
                           type="button"
                           onClick={() => removeAthleteRow(index)}
-                          className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                         >
-                          <X className="w-5 h-5" style={{ color: '#FF6B35' }} />
+                          <X className="w-5 h-5" style={{ color: '#000' }} />
                         </button>
                       )}
                     </div>
@@ -503,160 +503,156 @@ function CoachAthletesContent() {
                 </div>
               </div>
 
-              {/* Send Button - SUPER PROMINENT */}
+              {/* Send Button */}
               <div className="pt-6 border-t-2 border-gray-200 mt-6">
                 <button
                   onClick={handleBulkInvite}
                   disabled={isLoading}
-                  className="w-full px-8 py-5 rounded-xl transition-all shadow-2xl hover:shadow-3xl disabled:cursor-not-allowed flex items-center justify-center gap-3 text-xl"
+                  className="w-full px-8 py-4 rounded-lg transition-all disabled:cursor-not-allowed flex items-center justify-center gap-3 font-bold"
                   style={{
-                    minHeight: '70px',
-                    backgroundColor: isLoading ? '#9CA3AF' : '#16A34A',
+                    backgroundColor: isLoading ? '#9CA3AF' : '#FC0105',
                     color: '#FFFFFF',
                     opacity: isLoading ? 0.7 : 1,
                     cursor: isLoading ? 'not-allowed' : 'pointer',
-                    border: '3px solid #15803D'
+                    fontFamily: 'Open Sans, sans-serif',
+                    fontWeight: 700
                   }}
                   onMouseEnter={(e) => {
                     if (!isLoading) {
-                      e.currentTarget.style.backgroundColor = '#15803D'
-                      e.currentTarget.style.transform = 'scale(1.02)'
+                      e.currentTarget.style.backgroundColor = '#D00104'
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (!isLoading) {
-                      e.currentTarget.style.backgroundColor = '#16A34A'
-                      e.currentTarget.style.transform = 'scale(1)'
+                      e.currentTarget.style.backgroundColor = '#FC0105'
                     }
                   }}
                 >
                   {isLoading ? (
                     <>
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-4 border-white"></div>
-                      <span className="text-xl">Sending Invitations...</span>
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                      <span>Sending Invitations...</span>
                     </>
                   ) : (
                     <>
-                      <Send className="w-8 h-8" />
-                      <span className="text-xl">
+                      <Send className="w-5 h-5" />
+                      <span>
                         Send {bulkForm.athletes.filter(a => a.email.trim()).length} Invitation(s)
                       </span>
                     </>
                   )}
                 </button>
-                <p className="text-center text-sm mt-3" style={{ color: '#000000', opacity: 0.6 }}>
-                  Click the big green button above to send invitations
-                </p>
               </div>
             </div>
           </div>
         )}
 
         {/* Invite Athletes Button */}
-        <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 overflow-hidden">
+        <div className="bg-white rounded-xl border-2 border-gray-200 overflow-hidden">
           <div className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-xl flex items-center gap-3 mb-2" style={{ color: '#000000' }}>
-                  <UserPlus className="w-6 h-6" />
+                <h2 className="text-lg font-bold mb-1" style={{ color: '#000000', fontFamily: 'Open Sans, sans-serif', fontWeight: 700 }}>
                   Invite Athletes
                 </h2>
-                <p style={{ color: '#000000', opacity: 0.7 }}>
+                <p className="text-sm" style={{ color: '#666', fontFamily: 'Open Sans, sans-serif' }}>
                   Send bulk invitations to athletes
                 </p>
               </div>
               <button
                 onClick={() => setShowBulkInvite(true)}
-                className="flex items-center gap-2 px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-all shadow-sm active:scale-95 touch-manipulation"
-                style={{ minHeight: '44px' }}
+                className="flex items-center gap-2 px-4 py-2.5 bg-black text-white rounded-lg hover:bg-gray-800 transition-all font-bold"
+                style={{ fontFamily: 'Open Sans, sans-serif', fontWeight: 700 }}
               >
                 <UserPlus className="w-5 h-5" />
-                <span className="font-medium">Invite Athletes</span>
+                <span>Invite Athletes</span>
               </button>
             </div>
           </div>
         </div>
 
         {/* Invitations List */}
-        <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 overflow-hidden">
-          <div className="p-6 border-b border-gray-200">
-            <h2 className="text-xl flex items-center gap-3 mb-2" style={{ color: '#000000' }}>
-              <Users className="w-6 h-6" />
-              Athlete Roster & Invitations
-            </h2>
-            <p style={{ color: '#000000', opacity: 0.7 }}>
-              Track the status of your athlete invitations
-            </p>
+        <div className="bg-white rounded-xl border-2 border-gray-200 overflow-hidden">
+          <div className="p-6 border-b-2 border-gray-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-bold mb-1" style={{ color: '#000000', fontFamily: 'Open Sans, sans-serif', fontWeight: 700 }}>
+                  Athlete Roster & Invitations
+                </h2>
+                <p className="text-sm" style={{ color: '#666', fontFamily: 'Open Sans, sans-serif' }}>
+                  Track the status of your athlete invitations
+                </p>
+              </div>
+              <button
+                onClick={loadAthleteData}
+                disabled={dataLoading}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-black text-white hover:bg-gray-800 transition-all font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ fontFamily: 'Open Sans, sans-serif', fontWeight: 700 }}
+                title="Refresh athlete list"
+              >
+                <RefreshCw className={`w-4 h-4 ${dataLoading ? 'animate-spin' : ''}`} />
+                <span className="text-sm">Refresh</span>
+              </button>
+            </div>
           </div>
 
           <div className="p-6">
             {dataLoading ? (
               <div className="text-center py-12">
                 <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-black mb-4"></div>
-                <p style={{ color: '#000000', opacity: 0.7 }}>Loading athletes...</p>
+                <p className="text-sm" style={{ color: '#666', fontFamily: 'Open Sans, sans-serif' }}>Loading athletes...</p>
               </div>
             ) : invitations.length === 0 ? (
               <div className="text-center py-12">
-                <Users className="w-16 h-16 mx-auto mb-4" style={{ color: '#000000', opacity: 0.3 }} />
-                <h3 className="text-xl mb-2" style={{ color: '#000000' }}>
+                <Users className="w-16 h-16 mx-auto mb-4" style={{ color: '#666', opacity: 0.3 }} />
+                <h3 className="text-lg font-bold mb-2" style={{ color: '#000000', fontFamily: 'Open Sans, sans-serif' }}>
                   No invitations yet
                 </h3>
-                <p style={{ color: '#000000', opacity: 0.7 }}>
+                <p className="text-sm" style={{ color: '#666', fontFamily: 'Open Sans, sans-serif' }}>
                   Click "Invite Athletes" above to send your first invitations
                 </p>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 {invitations.map((invitation) => (
-                  <div
-                    key={invitation.id}
-                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-5 sm:p-6 border-2 border-gray-200 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all cursor-pointer active:scale-[0.98] touch-manipulation"
-                    style={{ minHeight: '120px' }}
-                    onClick={(e) => {
-                      // Don't trigger if clicking on action buttons
-                      if (!(e.target as HTMLElement).closest('button')) {
-                        console.log('Athlete clicked:', invitation.name)
-                        // Use slug if available, otherwise fall back to ID
-                        const athleteIdentifier = invitation.slug || invitation.id
-                        const targetUrl = embedded
-                          ? `/dashboard/coach/athletes/${athleteIdentifier}?embedded=true`
-                          : `/dashboard/coach/athletes/${athleteIdentifier}`
-                        router.push(targetUrl)
-                      }
-                    }}
-                  >
-                    <div className="flex items-center gap-4 mb-4 sm:mb-0">
-                      <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg, #91A6EB 0%, #000000 100%)' }}>
-                        <User className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
+                  <div key={invitation.id} className="text-left w-full">
+                    <div
+                      className="w-full aspect-square rounded-lg overflow-hidden bg-gray-100 mb-1 relative cursor-pointer hover:opacity-90 transition-opacity"
+                      onClick={(e) => {
+                        // Don't trigger if clicking on action buttons
+                        if (!(e.target as HTMLElement).closest('button')) {
+                          console.log('Athlete clicked:', invitation.name)
+                          // Use slug if available, otherwise fall back to ID
+                          const athleteIdentifier = invitation.slug || invitation.id
+                          const targetUrl = embedded
+                            ? `/dashboard/coach/athletes/${athleteIdentifier}?embedded=true`
+                            : `/dashboard/coach/athletes/${athleteIdentifier}`
+                          router.push(targetUrl)
+                        }
+                      }}
+                    >
+                      {/* Profile Image Placeholder */}
+                      <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#8B7D7B' }}>
+                        <User className="w-1/3 h-1/3 text-white opacity-90" />
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-semibold text-lg sm:text-xl" style={{ color: '#000000' }}>
-                          {invitation.name}
-                        </h4>
-                        <p className="text-sm sm:text-base truncate" style={{ color: '#000000', opacity: 0.6 }}>
-                          {invitation.email}
-                        </p>
-                        <p className="text-xs sm:text-sm" style={{ color: '#000000', opacity: 0.5 }}>
-                          {invitation.sport} • Sent {invitation.sentAt}
-                        </p>
+
+                      {/* Status Badge Overlay */}
+                      <div className="absolute top-2 right-2">
+                        {getStatusBadge(invitation.status)}
                       </div>
-                    </div>
 
-                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
-                      {getStatusBadge(invitation.status)}
-
-                      <div className="flex gap-2 sm:gap-3">
+                      {/* Action Buttons Overlay (bottom) */}
+                      <div className="absolute bottom-2 left-2 right-2 flex gap-2">
                         <button
                           onClick={(e) => {
                             e.stopPropagation()
                             handleResendInvitation(invitation.id)
                           }}
                           disabled={isLoading}
-                          className="flex-1 sm:flex-none p-3 sm:p-2 rounded-lg hover:opacity-80 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
-                          style={{ backgroundColor: 'rgba(145, 166, 235, 0.1)', color: '#91A6EB', minWidth: '44px', minHeight: '44px' }}
+                          className="flex-1 p-2 rounded-lg hover:bg-gray-900 transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-black/80 backdrop-blur-sm"
                           title="Resend invitation"
                         >
-                          <Mail className="w-5 h-5 mx-auto" />
+                          <Mail className="w-4 h-4 mx-auto text-white" />
                         </button>
                         <button
                           onClick={(e) => {
@@ -664,14 +660,24 @@ function CoachAthletesContent() {
                             handleRemoveInvitation(invitation.id)
                           }}
                           disabled={isLoading}
-                          className="flex-1 sm:flex-none p-3 sm:p-2 rounded-lg hover:opacity-80 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
-                          style={{ backgroundColor: 'rgba(255, 107, 53, 0.1)', color: '#FF6B35', minWidth: '44px', minHeight: '44px' }}
+                          className="flex-1 p-2 rounded-lg border-2 border-white hover:bg-white/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-white/80 backdrop-blur-sm"
                           title="Revoke invitation"
                         >
-                          <Trash2 className="w-5 h-5 mx-auto" />
+                          <Trash2 className="w-4 h-4 mx-auto text-gray-800" />
                         </button>
                       </div>
                     </div>
+
+                    {/* Athlete Info Below */}
+                    <p className="text-sm font-semibold truncate" style={{ color: '#000000', fontFamily: 'Open Sans, sans-serif' }}>
+                      {invitation.name}
+                    </p>
+                    <p className="text-xs truncate" style={{ color: '#666', fontFamily: 'Open Sans, sans-serif' }}>
+                      {invitation.email}
+                    </p>
+                    <p className="text-xs" style={{ color: '#999', fontFamily: 'Open Sans, sans-serif' }}>
+                      {invitation.sport} • {invitation.sentAt}
+                    </p>
                   </div>
                 ))}
               </div>

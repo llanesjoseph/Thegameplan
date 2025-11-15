@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Calendar, MessageSquare, AlertCircle, Clock, Video } from 'lucide-react'
+import { Calendar, MessageSquare, AlertCircle, Clock, Video, RefreshCw } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 
 interface PendingItemsWidgetProps {
@@ -116,10 +116,10 @@ export default function PendingItemsWidget({ onViewItem }: PendingItemsWidgetPro
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl p-6 shadow-sm border-2 border-gray-100">
-        <h2 className="text-lg font-bold text-gray-900 mb-4">Pending Items</h2>
+      <div className="bg-white rounded-xl p-6 border-2 border-gray-200">
+        <h2 className="text-lg font-bold mb-4" style={{ color: '#000000', fontFamily: 'Open Sans, sans-serif', fontWeight: 700 }}>Notification Center</h2>
         <div className="flex items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black"></div>
         </div>
       </div>
     )
@@ -127,63 +127,83 @@ export default function PendingItemsWidget({ onViewItem }: PendingItemsWidgetPro
 
   if (pendingItems.length === 0) {
     return (
-      <div className="bg-white rounded-xl p-6 shadow-sm border-2 border-gray-100">
-        <h2 className="text-lg font-bold text-gray-900 mb-4">Notification Center</h2>
+      <div className="bg-white rounded-xl p-6 border-2 border-gray-200">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-bold" style={{ color: '#000000', fontFamily: 'Open Sans, sans-serif', fontWeight: 700 }}>Notification Center</h2>
+          <button
+            onClick={loadPendingItems}
+            disabled={loading}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black text-white hover:bg-gray-800 transition-all font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{ fontFamily: 'Open Sans, sans-serif', fontWeight: 700 }}
+            title="Refresh notifications"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+            <span className="text-xs">Refresh</span>
+          </button>
+        </div>
         <div className="text-center py-8">
-          <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-3">
-            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
+            <svg className="w-8 h-8" style={{ color: '#000' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <p className="text-sm font-semibold text-gray-900">All caught up!</p>
-          <p className="text-xs text-gray-500 mt-1">No pending notifications at the moment</p>
+          <p className="text-sm font-bold mb-1" style={{ color: '#000000', fontFamily: 'Open Sans, sans-serif' }}>All caught up!</p>
+          <p className="text-xs" style={{ color: '#666', fontFamily: 'Open Sans, sans-serif' }}>No pending notifications at the moment</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="bg-white rounded-xl p-6 shadow-sm border-2 border-gray-100">
+    <div className="bg-white rounded-xl p-6 border-2 border-gray-200">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold text-gray-900">
-          Notification Center
-        </h2>
-        {pendingItems.length > 0 && (
-          <span className="bg-red-500 text-white text-sm font-bold px-3 py-1 rounded-full">
-            {pendingItems.length}
-          </span>
-        )}
+        <div className="flex items-center gap-3">
+          <h2 className="text-lg font-bold" style={{ color: '#000000', fontFamily: 'Open Sans, sans-serif', fontWeight: 700 }}>
+            Notification Center
+          </h2>
+          {pendingItems.length > 0 && (
+            <span className="bg-black text-white text-xs font-bold px-2.5 py-1 rounded-full" style={{ fontFamily: 'Open Sans, sans-serif' }}>
+              {pendingItems.length}
+            </span>
+          )}
+        </div>
+        <button
+          onClick={loadPendingItems}
+          disabled={loading}
+          className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black text-white hover:bg-gray-800 transition-all font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+          style={{ fontFamily: 'Open Sans, sans-serif', fontWeight: 700 }}
+          title="Refresh notifications"
+        >
+          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+          <span className="text-xs">Refresh</span>
+        </button>
       </div>
       <div className="space-y-3">
         {pendingItems.map((item) => {
           const Icon = getIcon(item.type)
-          const color = getColor(item.type)
 
           return (
             <button
               key={item.id}
               onClick={() => onViewItem?.(item.type, item.id)}
-              className="w-full flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors border-2 border-transparent hover:border-gray-200 text-left touch-manipulation"
+              className="w-full flex items-start gap-3 p-4 rounded-lg border-2 border-gray-200 hover:border-black transition-all text-left"
             >
-              <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm"
-                style={{ backgroundColor: color }}
-              >
+              <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-black">
                 <Icon className="w-5 h-5 text-white" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2 mb-1">
-                  <p className="text-sm font-semibold text-gray-900 truncate">
+                  <p className="text-sm font-bold truncate" style={{ color: '#000000', fontFamily: 'Open Sans, sans-serif', fontWeight: 700 }}>
                     {item.title}
                   </p>
                   {item.urgent && (
-                    <span className="bg-red-100 text-red-700 text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0">
+                    <span className="bg-black text-white text-xs font-bold px-2 py-0.5 rounded-full flex-shrink-0" style={{ fontFamily: 'Open Sans, sans-serif' }}>
                       Urgent
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-gray-600 truncate">{item.subtitle}</p>
-                <p className="text-xs text-gray-500 mt-1">{item.time}</p>
+                <p className="text-xs truncate" style={{ color: '#666', fontFamily: 'Open Sans, sans-serif' }}>{item.subtitle}</p>
+                <p className="text-xs mt-1" style={{ color: '#999', fontFamily: 'Open Sans, sans-serif' }}>{item.time}</p>
               </div>
             </button>
           )
