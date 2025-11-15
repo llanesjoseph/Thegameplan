@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/use-auth'
 import { doc, getDoc } from 'firebase/firestore'
 import { db, storage } from '@/lib/firebase.client'
 import { getDownloadURL, ref } from 'firebase/storage'
+import { Edit2 } from 'lucide-react'
 
 // Expand sport abbreviations to full names
 const expandSportName = (sport: string): string => {
@@ -23,6 +24,8 @@ export default function CoachProfile() {
   const [primarySport, setPrimarySport] = useState<string>('')
   const [photoUrl, setPhotoUrl] = useState<string>('')
   const [bannerUrl, setBannerUrl] = useState<string>('')
+  const [isEditingProfile, setIsEditingProfile] = useState(false)
+  const [isHoveringBadge, setIsHoveringBadge] = useState(false)
 
   useEffect(() => {
     const load = async () => {
@@ -163,20 +166,56 @@ export default function CoachProfile() {
           Specialties:
         </h3>
 
-        {/* Primary sport badge - always shows */}
+        {/* Primary sport badge - clickable to edit */}
         <div className="flex flex-wrap gap-2">
-          <span
-            className="px-3 py-1 rounded-lg bg-black text-white text-xs font-bold"
-            style={{ fontFamily: '\"Open Sans\", sans-serif' }}
+          <button
+            onClick={() => setIsEditingProfile(!isEditingProfile)}
+            onMouseEnter={() => setIsHoveringBadge(true)}
+            onMouseLeave={() => setIsHoveringBadge(false)}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-white text-sm font-bold transition-all"
+            style={{
+              fontFamily: '\"Open Sans\", sans-serif',
+              fontWeight: 700,
+              backgroundColor: isHoveringBadge ? '#333' : '#000'
+            }}
           >
-            {primarySport}
-          </span>
+            {isHoveringBadge ? (
+              <>
+                <Edit2 className="w-4 h-4" />
+                Edit Profile
+              </>
+            ) : (
+              primarySport
+            )}
+          </button>
         </div>
 
         {/* Bio */}
         <p className="text-sm" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
           {bio}
         </p>
+
+        {/* Inline Profile Editor */}
+        {isEditingProfile && (
+          <div className="mt-4 p-6 rounded-xl border-2 bg-white" style={{ borderColor: '#000' }}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                Edit Profile
+              </h3>
+              <button
+                onClick={() => setIsEditingProfile(false)}
+                className="text-gray-500 hover:text-black text-xl font-bold"
+              >
+                ✕
+              </button>
+            </div>
+            <iframe
+              src="/dashboard/coach/profile?embedded=true"
+              className="w-full h-[600px] border-0 rounded-lg"
+              title="Edit Profile"
+            />
+          </div>
+        )}
 
         {/* Coach Locker Room button */}
         <div>
