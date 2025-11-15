@@ -53,120 +53,120 @@ export default function CoachLockerRoom() {
       </header>
 
       <main className="w-full">
-        <div className="px-4 sm:px-6 lg:px-8 py-8">
-          <div className="w-full max-w-6xl mx-auto space-y-8">
+        <div className="px-4 sm:px-6 lg:px-8 py-3">
+          <div className="w-full max-w-6xl mx-auto space-y-5">
             {/* Welcome Section */}
             <div>
-              <h1 className="text-4xl font-bold mb-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif', fontWeight: 700 }}>
+              <h1 className="text-2xl font-bold mb-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif', fontWeight: 700 }}>
                 Welcome to your locker room, {user?.displayName || 'Coach'}!
               </h1>
-              <p className="text-lg" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
+              <p className="text-sm" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
                 Empower your athletes with expert training
               </p>
             </div>
 
             {/* Athletes and Training Content */}
             <div>
-              <h2 className="text-2xl font-bold mb-4" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif', fontWeight: 700 }}>
+              <h2 className="text-xl font-bold mb-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif', fontWeight: 700 }}>
                 Athletes and Training Content
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 {/* Manage Athletes */}
                 <button
                   onClick={() => setActiveModal('athletes')}
-                  className="group bg-white border-2 border-gray-200 rounded-lg overflow-hidden hover:border-black transition-colors"
+                  className="text-left w-full"
                 >
-                  <div className="aspect-square bg-gray-100 flex items-center justify-center">
-                    <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
+                  <div className="w-full aspect-square rounded-lg overflow-hidden mb-1" style={{ backgroundColor: '#8B7D7B' }}>
+                    <div className="w-full h-full flex items-center justify-center">
+                      <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
+                    </div>
                   </div>
-                  <div className="p-4 text-left">
-                    <h3 className="font-bold mb-1" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
-                      Manage Athletes
-                    </h3>
-                    <p className="text-sm" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
-                      See and Manage Athlete List
-                    </p>
-                  </div>
+                  <p className="text-sm font-semibold" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                    Manage Athletes
+                  </p>
+                  <p className="text-xs" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
+                    See and Manage Athlete List
+                  </p>
                 </button>
 
                 {/* Create Lesson */}
                 <button
                   onClick={() => setActiveModal('create-lesson')}
-                  className="group bg-white border-2 border-gray-200 rounded-lg overflow-hidden hover:border-black transition-colors"
+                  className="text-left w-full"
                 >
-                  <div className="aspect-square bg-gray-100 flex items-center justify-center">
-                    <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
+                  <div className="w-full aspect-square rounded-lg overflow-hidden mb-1" style={{ backgroundColor: '#8B7D7B' }}>
+                    <div className="w-full h-full flex items-center justify-center">
+                      <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
+                    </div>
                   </div>
-                  <div className="p-4 text-left">
-                    <h3 className="font-bold mb-1" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
-                      Create Lesson
-                    </h3>
-                    <p className="text-sm" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
-                      Build New Training
-                    </p>
-                  </div>
+                  <p className="text-sm font-semibold" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                    Create Lesson
+                  </p>
+                  <p className="text-xs" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
+                    Build New Training
+                  </p>
                 </button>
 
                 {/* Add Videos and Content */}
                 <button
                   onClick={() => setActiveModal('add-content')}
-                  className="group bg-white border-2 border-gray-200 rounded-lg overflow-hidden hover:border-black transition-colors"
+                  className="text-left w-full"
                 >
-                  <div className="aspect-square bg-gray-100 flex items-center justify-center">
-                    <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
+                  <div className="w-full aspect-square rounded-lg overflow-hidden mb-1" style={{ backgroundColor: '#8B7D7B' }}>
+                    <div className="w-full h-full flex items-center justify-center">
+                      <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
+                    </div>
                   </div>
-                  <div className="p-4 text-left">
-                    <h3 className="font-bold mb-1" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
-                      Add Videos and Content
-                    </h3>
-                    <p className="text-sm" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
-                      Upload Content to Your Profile
-                    </p>
-                  </div>
+                  <p className="text-sm font-semibold" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                    Add Videos and Content
+                  </p>
+                  <p className="text-xs" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
+                    Upload Content to Your Profile
+                  </p>
                 </button>
               </div>
             </div>
 
             {/* Calendar and Events */}
             <div>
-              <h2 className="text-2xl font-bold mb-4" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif', fontWeight: 700 }}>
+              <h2 className="text-xl font-bold mb-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif', fontWeight: 700 }}>
                 Calendar and Events
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 {/* Event Schedule */}
                 <button
                   onClick={() => setActiveModal('event-schedule')}
-                  className="group bg-white border-2 border-gray-200 rounded-lg overflow-hidden hover:border-black transition-colors"
+                  className="text-left w-full"
                 >
-                  <div className="aspect-square bg-gray-100 flex items-center justify-center">
-                    <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
+                  <div className="w-full aspect-square rounded-lg overflow-hidden mb-1" style={{ backgroundColor: '#8B7D7B' }}>
+                    <div className="w-full h-full flex items-center justify-center">
+                      <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
+                    </div>
                   </div>
-                  <div className="p-4 text-left">
-                    <h3 className="font-bold mb-1" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
-                      Event Schedule
-                    </h3>
-                    <p className="text-sm" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
-                      Add Community Events for Athletes
-                    </p>
-                  </div>
+                  <p className="text-sm font-semibold" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                    Event Schedule
+                  </p>
+                  <p className="text-xs" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
+                    Add Community Events for Athletes
+                  </p>
                 </button>
 
                 {/* Schedule Training Session */}
                 <button
                   onClick={() => setActiveModal('schedule-session')}
-                  className="group bg-white border-2 border-gray-200 rounded-lg overflow-hidden hover:border-black transition-colors"
+                  className="text-left w-full"
                 >
-                  <div className="aspect-square bg-gray-100 flex items-center justify-center">
-                    <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
+                  <div className="w-full aspect-square rounded-lg overflow-hidden mb-1" style={{ backgroundColor: '#8B7D7B' }}>
+                    <div className="w-full h-full flex items-center justify-center">
+                      <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
+                    </div>
                   </div>
-                  <div className="p-4 text-left">
-                    <h3 className="font-bold mb-1" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
-                      Schedule Training Session
-                    </h3>
-                    <p className="text-sm" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
-                      Review Requests and Add to Calendar
-                    </p>
-                  </div>
+                  <p className="text-sm font-semibold" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                    Schedule Training Session
+                  </p>
+                  <p className="text-xs" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
+                    Review Requests and Add to Calendar
+                  </p>
                 </button>
               </div>
             </div>
