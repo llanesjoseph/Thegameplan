@@ -251,34 +251,37 @@ export default function CoachProfile() {
       </div>
 
       {/* Text content below banner (profile photo remains in banner corner) */}
-      <div className="pt-6 sm:pt-8 max-w-2xl space-y-3">
-        {/* Name */}
-        <h2
-          className="text-2xl sm:text-3xl font-bold"
-          style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif', fontWeight: 700 }}
-        >
-          {user?.displayName || 'Coach'}
-        </h2>
+      <div className="pt-6 sm:pt-8 space-y-4">
+        {/* Name and Location Row */}
+        <div>
+          <h2
+            className="text-2xl sm:text-3xl font-bold mb-1"
+            style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif', fontWeight: 700 }}
+          >
+            {user?.displayName || 'Coach'}
+          </h2>
+          {location && (
+            <div className="flex items-center gap-1.5 text-sm" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
+              <MapPin className="w-4 h-4" />
+              <span>{location}</span>
+            </div>
+          )}
+        </div>
 
-        {/* Specialties label */}
-        <h3
-          className="text-base font-bold"
-          style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif', fontWeight: 700 }}
-        >
-          Specialties:
-        </h3>
-
-        {/* Primary sport badge - clickable to edit */}
-        <div className="flex flex-wrap gap-2">
+        {/* Specialties and Actions Row */}
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-sm font-bold" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+            Specialties:
+          </span>
           <button
             onClick={() => setIsEditingProfile(!isEditingProfile)}
             onMouseEnter={() => setIsHoveringBadge(true)}
             onMouseLeave={() => setIsHoveringBadge(false)}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-white text-sm font-bold transition-all"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm font-bold transition-all"
             style={{
               fontFamily: '\"Open Sans\", sans-serif',
               fontWeight: 700,
-              backgroundColor: isHoveringBadge ? '#333' : '#000'
+              backgroundColor: isHoveringBadge ? '#FC0105' : '#000'
             }}
           >
             {isHoveringBadge ? (
@@ -292,97 +295,123 @@ export default function CoachProfile() {
           </button>
         </div>
 
-        {/* Location */}
-        {location && (
-          <div className="flex items-center gap-2 text-sm" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
-            <MapPin className="w-4 h-4" />
-            <span>{location}</span>
-          </div>
-        )}
+        {/* Two Column Layout for Content */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-4xl">
+          {/* Left Column */}
+          <div className="space-y-4">
+            {/* Bio */}
+            {bio && (
+              <div>
+                <h4 className="text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                  About
+                </h4>
+                <p className="text-sm leading-relaxed" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                  {bio}
+                </p>
+              </div>
+            )}
 
-        {/* Bio */}
-        {bio && (
-          <div>
-            <h4 className="text-sm font-bold mb-1" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
-              About
-            </h4>
-            <p className="text-sm" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
-              {bio}
-            </p>
+            {/* Achievements */}
+            {achievements && (
+              <div>
+                <h4 className="text-sm font-bold mb-2 flex items-center gap-1.5" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                  <Award className="w-4 h-4" />
+                  Achievements
+                </h4>
+                <p className="text-sm leading-relaxed whitespace-pre-line" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                  {achievements}
+                </p>
+              </div>
+            )}
           </div>
-        )}
 
-        {/* Achievements */}
-        {achievements && (
-          <div>
-            <h4 className="text-sm font-bold mb-1 flex items-center gap-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
-              <Award className="w-4 h-4" />
-              Achievements
-            </h4>
-            <p className="text-sm whitespace-pre-line" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
-              {achievements}
-            </p>
-          </div>
-        )}
+          {/* Right Column */}
+          <div className="space-y-4">
+            {/* Social Media Icons */}
+            {(instagram || youtube || linkedin || facebook) && (
+              <div>
+                <h4 className="text-sm font-bold mb-3" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                  Connect
+                </h4>
+                <div className="flex gap-3">
+                  {instagram && (
+                    <a
+                      href={`https://instagram.com/${instagram.replace('@', '')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-10 h-10 rounded-lg flex items-center justify-center transition-all hover:scale-110"
+                      style={{ backgroundColor: '#E4405F' }}
+                      title="Instagram"
+                    >
+                      <Instagram className="w-5 h-5 text-white" />
+                    </a>
+                  )}
+                  {youtube && (
+                    <a
+                      href={youtube.startsWith('http') ? youtube : `https://youtube.com/${youtube}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-10 h-10 rounded-lg flex items-center justify-center transition-all hover:scale-110"
+                      style={{ backgroundColor: '#FF0000' }}
+                      title="YouTube"
+                    >
+                      <Youtube className="w-5 h-5 text-white" />
+                    </a>
+                  )}
+                  {linkedin && (
+                    <a
+                      href={linkedin.startsWith('http') ? linkedin : `https://linkedin.com/in/${linkedin}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-10 h-10 rounded-lg flex items-center justify-center transition-all hover:scale-110"
+                      style={{ backgroundColor: '#0A66C2' }}
+                      title="LinkedIn"
+                    >
+                      <Linkedin className="w-5 h-5 text-white" />
+                    </a>
+                  )}
+                  {facebook && (
+                    <a
+                      href={facebook.startsWith('http') ? facebook : `https://facebook.com/${facebook}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-10 h-10 rounded-lg flex items-center justify-center transition-all hover:scale-110"
+                      style={{ backgroundColor: '#1877F2' }}
+                      title="Facebook"
+                    >
+                      <Facebook className="w-5 h-5 text-white" />
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
 
-        {/* Social Media Links */}
-        {(instagram || youtube || linkedin || facebook) && (
-          <div>
-            <h4 className="text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
-              Connect
-            </h4>
-            <div className="flex flex-wrap gap-2">
-              {instagram && (
-                <a
-                  href={`https://instagram.com/${instagram.replace('@', '')}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-white text-xs font-bold transition-colors hover:opacity-80"
-                  style={{ backgroundColor: '#E4405F', fontFamily: '\"Open Sans\", sans-serif' }}
-                >
-                  <Instagram className="w-3.5 h-3.5" />
-                  Instagram
-                </a>
-              )}
-              {youtube && (
-                <a
-                  href={youtube.startsWith('http') ? youtube : `https://youtube.com/${youtube}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-white text-xs font-bold transition-colors hover:opacity-80"
-                  style={{ backgroundColor: '#FF0000', fontFamily: '\"Open Sans\", sans-serif' }}
-                >
-                  <Youtube className="w-3.5 h-3.5" />
-                  YouTube
-                </a>
-              )}
-              {linkedin && (
-                <a
-                  href={linkedin.startsWith('http') ? linkedin : `https://linkedin.com/in/${linkedin}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-white text-xs font-bold transition-colors hover:opacity-80"
-                  style={{ backgroundColor: '#0A66C2', fontFamily: '\"Open Sans\", sans-serif' }}
-                >
-                  <Linkedin className="w-3.5 h-3.5" />
-                  LinkedIn
-                </a>
-              )}
-              {facebook && (
-                <a
-                  href={facebook.startsWith('http') ? facebook : `https://facebook.com/${facebook}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-white text-xs font-bold transition-colors hover:opacity-80"
-                  style={{ backgroundColor: '#1877F2', fontFamily: '\"Open Sans\", sans-serif' }}
-                >
-                  <Facebook className="w-3.5 h-3.5" />
-                  Facebook
-                </a>
-              )}
+            {/* Locker Room Button */}
+            <div>
+              <a
+                href="/dashboard/coach/locker-room"
+                target="_blank"
+                rel="noopener noreferrer"
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#FC0105'
+                  e.currentTarget.querySelector('span')!.textContent = 'Enter'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#000'
+                  e.currentTarget.querySelector('span')!.textContent = 'Coach Locker Room'
+                }}
+                className="inline-block px-4 py-2.5 rounded-lg text-white text-sm font-bold transition-all"
+                style={{
+                  fontFamily: '\"Open Sans\", sans-serif',
+                  fontWeight: 700,
+                  backgroundColor: '#000'
+                }}
+              >
+                <span>Coach Locker Room</span>
+              </a>
             </div>
           </div>
-        )}
+        </div>
 
         {/* Inline Profile Editor */}
         {isEditingProfile && (
