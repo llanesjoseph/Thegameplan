@@ -2,23 +2,23 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/use-auth'
-import { useRouter } from 'next/navigation'
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase.client'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import Live1on1RequestModal from './Live1on1RequestModal'
+import SubmitVideoModal from './SubmitVideoModal'
 import dynamic from 'next/dynamic'
 
 const AskCoachAI = dynamic(() => import('./AskCoachAI'), { ssr: false })
 
 export default function AthleteCoaches() {
   const { user } = useAuth()
-  const router = useRouter()
   const [coaches, setCoaches] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [showScheduleModal, setShowScheduleModal] = useState(false)
   const [coachId, setCoachId] = useState<string | null>(null)
   const [showAskModal, setShowAskModal] = useState(false)
+  const [showSubmitVideoModal, setShowSubmitVideoModal] = useState(false)
   const [coachPage, setCoachPage] = useState(0)
   const coachPageSize = 3
 
@@ -69,7 +69,7 @@ export default function AthleteCoaches() {
   }
 
   const handleSubmitVideo = () => {
-    router.push('/dashboard/athlete/submit-video')
+    setShowSubmitVideoModal(true)
   }
 
   const handleAskQuestion = () => {
@@ -244,6 +244,19 @@ export default function AthleteCoaches() {
             }
           `}</style>
         </div>
+      )}
+
+      {/* Submit Video Modal */}
+      {showSubmitVideoModal && (
+        <SubmitVideoModal
+          userId={user?.uid || ''}
+          userEmail={user?.email || ''}
+          onClose={() => setShowSubmitVideoModal(false)}
+          onSuccess={() => {
+            setShowSubmitVideoModal(false)
+            console.log('Video submission completed')
+          }}
+        />
       )}
     </>
   )
