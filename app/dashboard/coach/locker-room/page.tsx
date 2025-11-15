@@ -82,9 +82,9 @@ export default function CoachLockerRoom() {
 
       <main className="w-full">
         <div className="px-4 sm:px-6 lg:px-8 py-3">
-          <div className="w-full max-w-6xl mx-auto space-y-5 relative">
-            {/* Return to Dashboard - Fixed Top Right */}
-            <div className="absolute top-0 right-0 z-10">
+          <div className="w-full max-w-6xl mx-auto space-y-5">
+            {/* Return to Dashboard - Top Right */}
+            <div className="flex justify-end">
               <Link
                 href="/dashboard/coach"
                 className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-bold text-sm inline-block"

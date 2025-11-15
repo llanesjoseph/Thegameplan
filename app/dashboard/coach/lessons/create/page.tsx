@@ -441,12 +441,12 @@ function CreateLessonPageContent() {
             <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-6 sm:p-8">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-600 rounded-xl flex items-center justify-center">
+                  <div className="w-12 h-12 bg-black rounded-xl flex items-center justify-center">
                     <Sparkles className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h2 className="text-2xl font-medium" style={{ color: '#000000' }}>AI Lesson Generator</h2>
-                    <p className="text-sm" style={{ color: '#000000', opacity: 0.6 }}>Powered by advanced AI</p>
+                    <h2 className="text-2xl font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>AI Lesson Generator</h2>
+                    <p className="text-sm" style={{ color: '#000000', opacity: 0.6, fontFamily: '"Open Sans", sans-serif' }}>Powered by advanced AI</p>
                   </div>
                 </div>
                 <button
@@ -458,20 +458,21 @@ function CreateLessonPageContent() {
                 </button>
               </div>
 
-              <p className="mb-6 text-sm leading-relaxed" style={{ color: '#000000', opacity: 0.7 }}>
+              <p className="mb-6 text-sm leading-relaxed" style={{ color: '#000000', opacity: 0.7, fontFamily: '"Open Sans", sans-serif' }}>
                 Fill in the details below and our AI will create a complete lesson plan with sections, objectives, and training content.
               </p>
 
               <div className="space-y-4 mb-6">
                 {/* Sport Selection */}
                 <div>
-                  <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
+                  <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
                     Sport <span className="text-red-500">*</span>
                   </label>
                   <select
                     value={aiSport}
                     onChange={(e) => setAiSport(e.target.value)}
-                    className="w-full px-4 py-3 border-2 border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                    style={{ fontFamily: '"Open Sans", sans-serif' }}
                     disabled={generating}
                   >
                     <option value="">Select sport...</option>
@@ -485,13 +486,14 @@ function CreateLessonPageContent() {
 
                 {/* Skill Level Selection */}
                 <div>
-                  <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
+                  <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
                     Skill Level <span className="text-red-500">*</span>
                   </label>
                   <select
                     value={aiLevel}
                     onChange={(e) => setAiLevel(e.target.value as any)}
-                    className="w-full px-4 py-3 border-2 border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                    style={{ fontFamily: '"Open Sans", sans-serif' }}
                     disabled={generating}
                   >
                     <option value="">Select level...</option>
@@ -503,7 +505,7 @@ function CreateLessonPageContent() {
 
                 {/* Lesson Topic */}
                 <div>
-                  <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
+                  <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
                     Lesson Topic <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -511,14 +513,15 @@ function CreateLessonPageContent() {
                     value={aiTopic}
                     onChange={(e) => setAiTopic(e.target.value)}
                     placeholder="e.g., Proper Batting Stance and Swing Mechanics"
-                    className="w-full px-4 py-3 border-2 border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                    style={{ fontFamily: '"Open Sans", sans-serif' }}
                     disabled={generating}
                   />
                 </div>
 
                 {/* Detailed Description (Optional) */}
                 <div>
-                  <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
+                  <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
                     Additional Details (Optional)
                   </label>
                   <textarea
@@ -526,10 +529,11 @@ function CreateLessonPageContent() {
                     onChange={(e) => setAiPrompt(e.target.value)}
                     placeholder="Add any specific requirements, drills, key focus points, or teaching methods you want to include..."
                     rows={4}
-                    className="w-full px-4 py-3 border-2 border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 text-sm"
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-sm"
+                    style={{ fontFamily: '"Open Sans", sans-serif' }}
                     disabled={generating}
                   />
-                  <p className="text-xs mt-2" style={{ color: '#000000', opacity: 0.5 }}>
+                  <p className="text-xs mt-2" style={{ color: '#000000', opacity: 0.5, fontFamily: '"Open Sans", sans-serif' }}>
                     The more details you provide, the better the AI-generated lesson will be
                   </p>
                 </div>
@@ -539,7 +543,10 @@ function CreateLessonPageContent() {
                 <button
                   onClick={handleAIGenerate}
                   disabled={generating || !aiSport || !aiLevel || !aiTopic.trim()}
-                  className="flex-1 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-medium"
+                  className="flex-1 px-6 py-3 bg-black text-white rounded-lg hover:bg-red-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-bold"
+                  style={{ fontFamily: '"Open Sans", sans-serif', backgroundColor: generating ? '#666' : '#000' }}
+                  onMouseEnter={(e) => !generating && (e.currentTarget.style.backgroundColor = '#FC0105')}
+                  onMouseLeave={(e) => !generating && (e.currentTarget.style.backgroundColor = '#000')}
                 >
                   {generating ? (
                     <>
@@ -556,7 +563,8 @@ function CreateLessonPageContent() {
                 <button
                   onClick={() => setShowAIModal(false)}
                   disabled={generating}
-                  className="px-6 py-3 bg-gray-100 text-black rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
+                  className="px-6 py-3 bg-gray-100 text-black rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 font-bold"
+                  style={{ fontFamily: '"Open Sans", sans-serif' }}
                 >
                   Cancel
                 </button>
@@ -572,26 +580,29 @@ function CreateLessonPageContent() {
             {/* AI Generate Button - Prominent at top */}
             <button
               onClick={() => setShowAIModal(true)}
-              className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl p-4 hover:from-purple-700 hover:to-blue-700 transition-all hover:scale-[1.02] shadow-lg flex items-center justify-center gap-3"
+              className="w-full bg-black text-white rounded-xl p-4 hover:bg-red-600 transition-all hover:scale-[1.02] shadow-lg flex items-center justify-center gap-3"
+              style={{ fontFamily: '"Open Sans", sans-serif', backgroundColor: '#000' }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#FC0105'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#000'}
             >
               <Sparkles className="w-6 h-6" />
               <div className="text-left">
-                <h3 className="font-medium text-base">Generate with AI</h3>
-                <p className="text-xs text-white/80">Let AI create a complete lesson in seconds</p>
+                <h3 className="font-bold text-base" style={{ fontFamily: '"Open Sans", sans-serif' }}>Generate with AI</h3>
+                <p className="text-xs text-white/80" style={{ fontFamily: '"Open Sans", sans-serif' }}>Let AI create a complete lesson in seconds</p>
               </div>
               <ChevronRight className="w-5 h-5 ml-auto" />
             </button>
 
             {/* Basic Information */}
             <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
-              <h2 className="text-xl font-medium mb-4" style={{ color: '#000000' }}>
+              <h2 className="text-xl font-bold mb-4" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
                 Basic Information
               </h2>
 
               <div className="space-y-4">
                 {/* Title */}
                 <div>
-                  <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
+                  <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
                     Lesson Title <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -600,6 +611,7 @@ function CreateLessonPageContent() {
                     onChange={(e) => setLesson(prev => ({ ...prev, title: e.target.value }))}
                     placeholder="e.g., Advanced Pitching Mechanics"
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                    style={{ fontFamily: '"Open Sans", sans-serif' }}
                   />
                 </div>
 
@@ -680,7 +692,7 @@ function CreateLessonPageContent() {
 
             {/* Learning Objectives */}
             <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
-              <h2 className="text-xl font-medium mb-4" style={{ color: '#000000' }}>
+              <h2 className="text-xl font-bold mb-4" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
                 Learning Objectives
               </h2>
 
@@ -722,7 +734,7 @@ function CreateLessonPageContent() {
 
             {/* Tags */}
             <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
-              <h2 className="text-xl font-medium mb-4" style={{ color: '#000000' }}>
+              <h2 className="text-xl font-bold mb-4" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
                 Tags (Optional)
               </h2>
 
@@ -855,7 +867,7 @@ function CreateLessonPageContent() {
 
             {/* Lesson Content */}
             <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
-              <h2 className="text-xl font-medium mb-4" style={{ color: '#000000' }}>
+              <h2 className="text-xl font-bold mb-4" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
                 Lesson Content
               </h2>
 
