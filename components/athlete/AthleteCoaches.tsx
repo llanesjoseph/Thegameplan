@@ -83,19 +83,19 @@ export default function AthleteCoaches() {
           Your Coaches
         </h2>
         
-        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+        <div className="space-y-4">
           {/* Coach Images Grid */}
-          <div className="w-full md:flex-none">
+          <div className="w-full">
             {loading ? (
-              <div className="flex flex-wrap gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="w-44 h-44 md:w-48 md:h-48 lg:w-56 lg:h-56 bg-gray-200 rounded-lg animate-pulse" style={{ aspectRatio: '1/1' }}></div>
+                  <div key={i} className="w-full bg-gray-200 rounded-lg animate-pulse" style={{ aspectRatio: '1/1' }}></div>
                 ))}
               </div>
             ) : coaches.length > 0 ? (
-              <div className="flex flex-wrap gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 {coaches.map((coach) => (
-                  <div key={coach.id} className="text-center w-44 md:w-48 lg:w-56">
+                  <div key={coach.id} className="text-center w-full">
                     <div className="w-full rounded-lg overflow-hidden bg-gray-100 mb-1" style={{ aspectRatio: '1/1' }}>
                       {coach.imageUrl ? (
                         <img
@@ -104,9 +104,8 @@ export default function AthleteCoaches() {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full" style={{ backgroundColor: '#E5E5E5' }}>
-                          {/* Placeholder for coach image */}
-                          <div className="w-full h-full bg-gray-300"></div>
+                        <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#8B7D7B' }}>
+                          <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
                         </div>
                       )}
                     </div>
@@ -124,25 +123,25 @@ export default function AthleteCoaches() {
             )}
           </div>
 
-          {/* Action Buttons - Sharp rectangles stacked vertically */}
-          <div className="w-full md:w-auto md:flex-shrink-0 flex flex-col gap-1 mt-4 md:mt-0">
+          {/* Action Buttons - Sharp rectangles stacked vertically, aligned left */}
+          <div className="flex flex-col gap-1">
             <button
               onClick={handleScheduleSession}
-              className="w-full md:min-w-[280px] bg-black text-white px-3 py-2 text-xs font-bold hover:bg-gray-800 transition-colors whitespace-nowrap"
+              className="w-full md:w-auto md:min-w-[280px] bg-black text-white px-3 py-2 text-xs font-bold hover:bg-gray-800 transition-colors whitespace-nowrap"
               style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
             >
               Schedule 1-1 Session With a Coach
             </button>
             <button
               onClick={handleSubmitVideo}
-              className="w-full md:min-w-[280px] bg-black text-white px-3 py-2 text-xs font-bold hover:bg-gray-800 transition-colors whitespace-nowrap"
+              className="w-full md:w-auto md:min-w-[280px] bg-black text-white px-3 py-2 text-xs font-bold hover:bg-gray-800 transition-colors whitespace-nowrap"
               style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
             >
               Submit Training Video for Coach Feedback
             </button>
             <button
               onClick={handleAskQuestion}
-              className="w-full md:min-w-[280px] bg-black text-white px-3 py-2 text-xs font-bold hover:bg-gray-800 transition-colors whitespace-nowrap"
+              className="w-full md:w-auto md:min-w-[280px] bg-black text-white px-3 py-2 text-xs font-bold hover:bg-gray-800 transition-colors whitespace-nowrap"
               style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
             >
               Ask a Question With Your Coach

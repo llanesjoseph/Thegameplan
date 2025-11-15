@@ -81,15 +81,15 @@ export default function CoachRecommendedGear() {
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
         {(loading ? Array.from({ length: 4 }) : items).map((g: any, idx: number) => (
           <div key={g?.id || idx} className="w-full">
-            <div className="w-full aspect-square bg-gray-100 rounded-lg mb-1 overflow-hidden">
+            <div className="w-full aspect-square rounded-lg mb-1 overflow-hidden">
               {loading ? (
                 <div className="w-full h-full bg-gray-200 animate-pulse" />
               ) : g?.imageUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={g.imageUrl} alt={g.name} className="w-full h-full object-cover" />
               ) : (
-                <div className="w-full h-full bg-white flex items-center justify-center">
-                  <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-60" />
+                <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#8B7D7B' }}>
+                  <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
                 </div>
               )}
             </div>

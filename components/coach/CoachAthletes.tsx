@@ -6,7 +6,14 @@ import { getDownloadURL, ref } from 'firebase/storage'
 import { storage } from '@/lib/firebase.client'
 
 type Athlete = { id: string; name: string; imageUrl?: string }
-type Metrics = { submissions: number; videosAwaiting: number; lastActivity?: string; lessons?: number }
+type Metrics = {
+  submissions: number
+  videosAwaiting: number
+  lastActivity?: string
+  lessons?: number
+  lessonsCompleted?: number
+  lessonsUnfinished?: number
+}
 
 export default function CoachAthletes() {
   const { user } = useAuth()
@@ -61,6 +68,16 @@ export default function CoachAthletes() {
     load()
   }, [user])
 
+  // Auto-close metrics after 5 seconds
+  useEffect(() => {
+    if (openId) {
+      const timer = setTimeout(() => {
+        setOpenId(null)
+      }, 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [openId])
+
   const toggleMetrics = async (athleteId: string) => {
     if (openId === athleteId) {
       setOpenId(null)
@@ -77,7 +94,9 @@ export default function CoachAthletes() {
             submissions: data?.pendingVideos ?? data?.pendingSubmissions ?? 0,
             videosAwaiting: data?.pendingVideos ?? 0,
             lastActivity: data?.lastActivity,
-            lessons: data?.recentLessons?.length ?? data?.lessonsCount ?? undefined
+            lessons: data?.recentLessons?.length ?? data?.lessonsCount ?? undefined,
+            lessonsCompleted: data?.lessonsCompleted ?? data?.completedLessons ?? 0,
+            lessonsUnfinished: data?.lessonsUnfinished ?? data?.incompleteLessons ?? 0
           }
           setMetricsById((s) => ({ ...s, [athleteId]: m }))
         }
@@ -129,27 +148,15 @@ export default function CoachAthletes() {
                               <p className="text-[11px] text-gray-600">Total submissions</p>
                               <p className="text-lg font-bold">{m?.submissions ?? 0}</p>
                             </div>
-                            {m?.lessons !== undefined && (
-                              <div>
-                                <p className="text-[11px] text-gray-600">Lessons</p>
-                                <p className="text-sm font-semibold">{m.lessons}</p>
-                              </div>
-                            )}
-                            {m?.lastActivity && (
-                              <div className="col-span-2">
-                                <p className="text-[11px] text-gray-600">Last activity</p>
-                                <p className="text-xs font-semibold">{m.lastActivity}</p>
-                              </div>
-                            )}
+                            <div>
+                              <p className="text-[11px] text-gray-600">Lessons completed</p>
+                              <p className="text-lg font-bold">{m?.lessonsCompleted ?? 0}</p>
+                            </div>
+                            <div>
+                              <p className="text-[11px] text-gray-600">Lessons unfinished</p>
+                              <p className="text-lg font-bold">{m?.lessonsUnfinished ?? 0}</p>
+                            </div>
                           </div>
-                          {/* Room for expansion: 7d submissions, messages, upcoming events */}
-                          {/* We’ll surface these when available from API */}
-                          {/* 
-                            <>
-                            <p className="text-[11px] text-gray-600 mt-1">7‑day submissions</p>
-                            <p className="text-sm font-semibold">{m.last7d ?? 0}</p>
-                            </>
-                          */} 
                         </>
                       )}
                     </div>
@@ -158,8 +165,8 @@ export default function CoachAthletes() {
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={a.imageUrl} alt={a.name} className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full bg-white flex items-center justify-center">
-                    <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-60" />
+                  <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#8B7D7B' }}>
+                    <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
                   </div>
                 )}
               </div>

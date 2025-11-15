@@ -105,8 +105,6 @@ export default function AthleteProfile() {
     )
   }
 
-  const imageClasses = 'w-44 h-44 md:w-48 md:h-48 lg:w-56 lg:h-56'
-
   return (
     <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
       {/* LEFT SIDE - Text Content */}
@@ -134,9 +132,9 @@ export default function AthleteProfile() {
         </div>
       </div>
 
-      {/* RIGHT SIDE - Square Profile Image and sport tags */}
-      <div className="flex-shrink-0 md:w-48 lg:w-56 flex flex-col items-center md:items-stretch gap-3">
-        <div className={`rounded-lg overflow-hidden bg-gray-100 ${imageClasses}`} style={{ aspectRatio: '1/1' }}>
+      {/* RIGHT SIDE - Square Profile Image and sport tags - matches card grid sizing */}
+      <div className="flex-shrink-0 w-[calc(50%-0.75rem)] sm:w-[calc(33.333%-0.667rem)] lg:w-[calc(25%-0.75rem)] flex flex-col gap-3">
+        <div className="w-full rounded-lg overflow-hidden bg-gray-100" style={{ aspectRatio: '1/1' }}>
           {profileData.profileImageUrl ? (
             <img
               src={profileData.profileImageUrl}
@@ -156,14 +154,14 @@ export default function AthleteProfile() {
             sports.map((sport) => (
               <button
                 key={sport}
-                className="w-full bg-black text-white py-2.5 rounded-lg font-bold text-sm hover:bg-gray-800 transition-colors"
+                className="w-full bg-black text-white py-2.5 font-bold text-sm hover:bg-gray-800 transition-colors"
                 style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
               >
                 {sport}
               </button>
             ))
           ) : (
-            <button className="w-full bg-black text-white py-2.5 rounded-lg font-bold text-sm hover:bg-gray-800 transition-colors" style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
+            <button className="w-full bg-black text-white py-2.5 font-bold text-sm hover:bg-gray-800 transition-colors" style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
               Sport
             </button>
           )}

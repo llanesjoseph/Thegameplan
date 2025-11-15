@@ -59,14 +59,14 @@ export default function AthleteRecommendedGear() {
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
         {(loading ? Array.from({ length: 4 }) : visible).map((item: any, idx: number) => (
           <div key={item?.id || idx} className="overflow-hidden w-full">
-            <div className="w-full bg-gray-100 mb-1 rounded-lg" style={{ aspectRatio: '1/1' }}>
+            <div className="w-full mb-1 rounded-lg" style={{ aspectRatio: '1/1' }}>
               {loading ? (
                 <div className="w-full h-full bg-gray-200 animate-pulse"></div>
               ) : item.imageUrl ? (
                 <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
               ) : (
-                <div className="w-full h-full bg-white flex items-center justify-center">
-                  <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-60" />
+                <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#8B7D7B' }}>
+                  <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
                 </div>
               )}
             </div>
