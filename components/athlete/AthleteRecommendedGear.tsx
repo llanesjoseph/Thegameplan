@@ -10,6 +10,7 @@ interface GearItem {
   description?: string
   price?: string
   imageUrl?: string
+  link?: string
 }
 
 export default function AthleteRecommendedGear() {
@@ -32,7 +33,8 @@ export default function AthleteRecommendedGear() {
             name: g.name,
             description: g.description,
             price: g.price,
-            imageUrl: g.imageUrl
+            imageUrl: g.imageUrl,
+            link: g.link
           })))
         }
       } catch (e) {
@@ -57,38 +59,54 @@ export default function AthleteRecommendedGear() {
       
       <div className="relative">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-        {(loading ? Array.from({ length: 4 }) : visible).map((item: any, idx: number) => (
-          <div key={item?.id || idx} className="overflow-hidden w-full">
-            <div className="w-full mb-1 rounded-lg" style={{ aspectRatio: '1/1' }}>
-              {loading ? (
-                <div className="w-full h-full bg-gray-200 animate-pulse"></div>
-              ) : item.imageUrl ? (
-                <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#8B7D7B' }}>
-                  <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
-                </div>
-              )}
-            </div>
-            {!loading && (
-              <div className="pt-1">
-                <p className="font-bold mb-0.5 text-xs" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
-                  {item.name}
-                </p>
-                {item.description && (
-                  <p className="text-xs mb-0.5" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
-                    {item.description}
-                  </p>
-                )}
-                {item.price && (
-                  <p className="font-bold text-xs" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
-                    {item.price}
-                  </p>
+        {(loading ? Array.from({ length: 4 }) : visible).map((item: any, idx: number) => {
+          const ItemWrapper = item?.link ? 'a' : 'div'
+          const wrapperProps = item?.link ? {
+            href: item.link,
+            target: '_blank',
+            rel: 'noopener noreferrer',
+            className: 'overflow-hidden w-full block group cursor-pointer'
+          } : {
+            className: 'overflow-hidden w-full'
+          }
+
+          return (
+            <ItemWrapper key={item?.id || idx} {...wrapperProps}>
+              <div className="w-full mb-1 rounded-lg overflow-hidden" style={{ aspectRatio: '1/1' }}>
+                {loading ? (
+                  <div className="w-full h-full bg-gray-200 animate-pulse"></div>
+                ) : item.imageUrl ? (
+                  <img
+                    src={item.imageUrl}
+                    alt={item.name}
+                    className={`w-full h-full object-cover ${item?.link ? 'group-hover:scale-105 transition-transform' : ''}`}
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#8B7D7B' }}>
+                    <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
+                  </div>
                 )}
               </div>
-            )}
-          </div>
-        ))}
+              {!loading && (
+                <div className="pt-1">
+                  <p className="font-bold mb-0.5 text-xs" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                    {item.name}
+                  </p>
+                  {item.description && (
+                    <p className="text-xs mb-0.5" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+                      {item.description}
+                    </p>
+                  )}
+                  {item.price && (
+                    <p className="font-bold text-xs" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                      {item.price}
+                    </p>
+                  )}
+                </div>
+              )}
+            </ItemWrapper>
+          )
+        })}
         </div>
 
         {/* Arrows */}
