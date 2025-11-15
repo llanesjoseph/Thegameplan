@@ -1073,6 +1073,68 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // ============================================================================
+    // TRAINING SESSIONS - 1:1 coach-athlete training session scheduling
+    // ============================================================================
+
+    // Training Sessions - Scheduled 1:1 training sessions between coaches and athletes
+    match /training_sessions/{sessionId} {
+      // Coaches can read their own sessions
+      allow read: if isAuthenticated() &&
+                     (resource.data.coachId == request.auth.uid || isAdmin());
+
+      // Athletes can read sessions assigned to them
+      allow read: if isAuthenticated() &&
+                     resource.data.athleteId == request.auth.uid;
+
+      // Coaches can create sessions
+      allow create: if isCreatorOrHigher() &&
+                       request.resource.data.coachId == request.auth.uid &&
+                       request.resource.data.keys().hasAll(['coachId', 'athleteId', 'date', 'time', 'status']);
+
+      // Coaches can update their own sessions
+      allow update: if isCreatorOrHigher() &&
+                       resource.data.coachId == request.auth.uid;
+
+      // Admins can update any session
+      allow update: if isAdmin();
+
+      // Only coaches and admins can delete sessions
+      allow delete: if (isCreatorOrHigher() && resource.data.coachId == request.auth.uid) || isAdmin();
+    }
+
+    // ============================================================================
+    // COACH EVENTS - Coach event scheduling (games, tournaments, training events)
+    // ============================================================================
+
+    // Coach Events - Scheduled events shared with athletes
+    match /coach_events/{eventId} {
+      // Coaches can read their own events
+      allow read: if isAuthenticated() &&
+                     (resource.data.coachId == request.auth.uid || isAdmin());
+
+      // Athletes can read events from their coach
+      allow read: if isAuthenticated() &&
+                     exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+                     (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.coachId == resource.data.coachId ||
+                      get(/databases/$(database)/documents/users/$(request.auth.uid)).data.assignedCoachId == resource.data.coachId);
+
+      // Coaches can create events
+      allow create: if isCreatorOrHigher() &&
+                       request.resource.data.coachId == request.auth.uid &&
+                       request.resource.data.keys().hasAll(['coachId', 'title', 'type', 'date', 'time']);
+
+      // Coaches can update their own events
+      allow update: if isCreatorOrHigher() &&
+                       resource.data.coachId == request.auth.uid;
+
+      // Admins can update any event
+      allow update: if isAdmin();
+
+      // Only coaches and admins can delete events
+      allow delete: if (isCreatorOrHigher() && resource.data.coachId == request.auth.uid) || isAdmin();
+    }
+
     // ===== DEFAULT DENY =====
     match /{document=**} {
       allow read, write: if false;

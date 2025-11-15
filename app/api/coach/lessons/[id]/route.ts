@@ -168,7 +168,10 @@ export async function PUT(
       objectives,
       sections,
       tags,
-      visibility
+      visibility,
+      content,
+      videoUrl,
+      thumbnailUrl
     } = body
 
     // 6. Validate required fields
@@ -180,7 +183,7 @@ export async function PUT(
     }
 
     // 7. Update lesson document
-    const updateData = {
+    const updateData: any = {
       // Basic info
       title: title.trim(),
       sport: sport.toLowerCase(),
@@ -209,6 +212,19 @@ export async function PUT(
       completionCount: existingLesson?.completionCount || 0,
       averageRating: existingLesson?.averageRating || 0,
       ratingCount: existingLesson?.ratingCount || 0
+    }
+
+    // Add optional fields if provided
+    if (content !== undefined && content !== null && content !== '') {
+      updateData.content = content
+    }
+
+    if (videoUrl !== undefined && videoUrl !== null && videoUrl !== '') {
+      updateData.videoUrl = videoUrl
+    }
+
+    if (thumbnailUrl !== undefined && thumbnailUrl !== null && thumbnailUrl !== '') {
+      updateData.thumbnailUrl = thumbnailUrl
     }
 
     // 8. Save to Firestore

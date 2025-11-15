@@ -61,9 +61,15 @@ export default function LiveSessionsPage() {
           setAthletes(athletesData.athletes || [])
         }
 
-        // TODO: Load sessions from database when the API is ready
-        // For now, show empty state
-        setSessions([])
+        // Load sessions from database
+        const sessionsResponse = await fetch('/api/coach/sessions', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+
+        if (sessionsResponse.ok) {
+          const sessionsData = await sessionsResponse.json()
+          setSessions(sessionsData.sessions || [])
+        }
       } catch (error) {
         console.error('Error loading data:', error)
       } finally {
@@ -80,22 +86,46 @@ export default function LiveSessionsPage() {
       return
     }
 
-    try {
-      const selectedAthlete = athletes.find(a => a.id === newSession.athleteId)
+    if (!user) {
+      alert('You must be logged in to create a session')
+      return
+    }
 
-      // TODO: Save to database via API when ready
-      const session: TrainingSession = {
-        id: Date.now().toString(),
-        athleteId: newSession.athleteId,
-        athleteName: selectedAthlete?.name || 'Unknown',
-        date: newSession.date,
-        time: newSession.time,
-        duration: newSession.duration,
-        notes: newSession.notes,
-        status: 'scheduled'
+    try {
+      const token = await user.getIdToken()
+
+      const response = await fetch('/api/coach/sessions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          athleteId: newSession.athleteId,
+          date: newSession.date,
+          time: newSession.time,
+          duration: newSession.duration,
+          notes: newSession.notes
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to create session')
       }
 
-      setSessions([...sessions, session])
+      const data = await response.json()
+
+      // Reload sessions
+      const sessionsResponse = await fetch('/api/coach/sessions', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+
+      if (sessionsResponse.ok) {
+        const sessionsData = await sessionsResponse.json()
+        setSessions(sessionsData.sessions || [])
+      }
+
       setShowNewSessionModal(false)
       setNewSession({
         athleteId: '',
@@ -108,7 +138,7 @@ export default function LiveSessionsPage() {
       alert('Session scheduled successfully!')
     } catch (error) {
       console.error('Error creating session:', error)
-      alert('Failed to create session')
+      alert(error instanceof Error ? error.message : 'Failed to create session')
     }
   }
 

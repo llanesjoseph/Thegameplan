@@ -107,7 +107,8 @@ export async function POST(request: NextRequest) {
       tags,
       visibility,
       content,
-      videoUrl
+      videoUrl,
+      thumbnailUrl
     } = body
 
     // 4. SERVER-SIDE VALIDATION - CRITICAL
@@ -188,6 +189,21 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Thumbnail URL validation (optional field)
+    if (thumbnailUrl !== undefined && thumbnailUrl !== null && thumbnailUrl !== '') {
+      if (typeof thumbnailUrl !== 'string') {
+        validationErrors.push('Thumbnail URL must be a string')
+      } else if (thumbnailUrl.length > 2048) {
+        validationErrors.push('Thumbnail URL must not exceed 2048 characters')
+      }
+      // Basic URL format validation
+      try {
+        new URL(thumbnailUrl)
+      } catch {
+        validationErrors.push('Thumbnail URL must be a valid URL')
+      }
+    }
+
     // Content validation (optional field for long-form content)
     if (content !== undefined && typeof content !== 'string') {
       validationErrors.push('Content must be a string')
@@ -249,6 +265,10 @@ export async function POST(request: NextRequest) {
 
     if (videoUrl !== undefined && videoUrl !== null && videoUrl !== '') {
       lessonData.videoUrl = videoUrl
+    }
+
+    if (thumbnailUrl !== undefined && thumbnailUrl !== null && thumbnailUrl !== '') {
+      lessonData.thumbnailUrl = thumbnailUrl
     }
 
     // 6. ATOMIC TRANSACTION - Save lesson and update coach count

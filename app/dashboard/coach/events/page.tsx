@@ -48,78 +48,177 @@ export default function CoachEventsPage() {
     notifyAthletes: true
   })
 
-  // Load events from localStorage (temporary solution until database is ready)
+  // Load events from database
   useEffect(() => {
-    if (!user || authLoading || roleLoading) return
+    const loadEvents = async () => {
+      if (!user || authLoading || roleLoading) return
 
-    try {
-      const savedEvents = localStorage.getItem(`coach_events_${user.uid}`)
-      if (savedEvents) {
-        setEvents(JSON.parse(savedEvents))
+      try {
+        const token = await user.getIdToken()
+
+        const response = await fetch('/api/coach/events', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          setEvents(data.events || [])
+        }
+      } catch (error) {
+        console.error('Error loading events:', error)
       }
-    } catch (error) {
-      console.error('Error loading events:', error)
     }
+
+    loadEvents()
   }, [user, authLoading, roleLoading])
 
-  // Save events to localStorage
-  const saveEvents = (updatedEvents: Event[]) => {
+  // Reload events from database
+  const reloadEvents = async () => {
     if (!user) return
     try {
-      localStorage.setItem(`coach_events_${user.uid}`, JSON.stringify(updatedEvents))
-      setEvents(updatedEvents)
+      const token = await user.getIdToken()
+
+      const response = await fetch('/api/coach/events', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setEvents(data.events || [])
+      }
     } catch (error) {
-      console.error('Error saving events:', error)
+      console.error('Error reloading events:', error)
     }
   }
 
-  const handleCreateEvent = () => {
+  const handleCreateEvent = async () => {
     if (!eventForm.title || !eventForm.date || !eventForm.time) {
       alert('Please fill in all required fields')
       return
     }
 
-    const newEvent: Event = {
-      id: Date.now().toString(),
-      ...eventForm,
-      createdAt: Date.now()
+    if (!user) {
+      alert('You must be logged in to create an event')
+      return
     }
 
-    const updatedEvents = [...events, newEvent]
-    saveEvents(updatedEvents)
-    resetForm()
-    setShowNewEventModal(false)
+    try {
+      const token = await user.getIdToken()
 
-    if (eventForm.notifyAthletes) {
-      alert('Event created! Your athletes will be notified.')
-    } else {
-      alert('Event created successfully!')
+      const response = await fetch('/api/coach/events', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          title: eventForm.title,
+          type: eventForm.type,
+          date: eventForm.date,
+          time: eventForm.time,
+          location: eventForm.location,
+          description: eventForm.description,
+          notifyAthletes: eventForm.notifyAthletes
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to create event')
+      }
+
+      await reloadEvents()
+      resetForm()
+      setShowNewEventModal(false)
+
+      if (eventForm.notifyAthletes) {
+        alert('Event created! Your athletes will be notified.')
+      } else {
+        alert('Event created successfully!')
+      }
+    } catch (error) {
+      console.error('Error creating event:', error)
+      alert(error instanceof Error ? error.message : 'Failed to create event')
     }
   }
 
-  const handleUpdateEvent = () => {
+  const handleUpdateEvent = async () => {
     if (!editingEvent || !eventForm.title || !eventForm.date || !eventForm.time) {
       alert('Please fill in all required fields')
       return
     }
 
-    const updatedEvents = events.map(event =>
-      event.id === editingEvent.id
-        ? { ...event, ...eventForm }
-        : event
-    )
+    if (!user) {
+      alert('You must be logged in to update an event')
+      return
+    }
 
-    saveEvents(updatedEvents)
-    resetForm()
-    setEditingEvent(null)
-    alert('Event updated successfully!')
+    try {
+      const token = await user.getIdToken()
+
+      const response = await fetch('/api/coach/events', {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          id: editingEvent.id,
+          title: eventForm.title,
+          type: eventForm.type,
+          date: eventForm.date,
+          time: eventForm.time,
+          location: eventForm.location,
+          description: eventForm.description,
+          notifyAthletes: eventForm.notifyAthletes
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to update event')
+      }
+
+      await reloadEvents()
+      resetForm()
+      setEditingEvent(null)
+      alert('Event updated successfully!')
+    } catch (error) {
+      console.error('Error updating event:', error)
+      alert(error instanceof Error ? error.message : 'Failed to update event')
+    }
   }
 
-  const handleDeleteEvent = (eventId: string) => {
-    if (confirm('Are you sure you want to delete this event?')) {
-      const updatedEvents = events.filter(event => event.id !== eventId)
-      saveEvents(updatedEvents)
+  const handleDeleteEvent = async (eventId: string) => {
+    if (!confirm('Are you sure you want to delete this event?')) {
+      return
+    }
+
+    if (!user) {
+      alert('You must be logged in to delete an event')
+      return
+    }
+
+    try {
+      const token = await user.getIdToken()
+
+      const response = await fetch(`/api/coach/events?id=${eventId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to delete event')
+      }
+
+      await reloadEvents()
       alert('Event deleted successfully')
+    } catch (error) {
+      console.error('Error deleting event:', error)
+      alert(error instanceof Error ? error.message : 'Failed to delete event')
     }
   }
 
