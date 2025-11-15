@@ -10,10 +10,23 @@ import { Calendar, Video, Users, FileText, Facebook, Instagram, Youtube, Linkedi
 
 export default function CoachLockerRoom() {
   const { user } = useAuth()
-  const { role } = useEnhancedRole()
+  const { role, loading } = useEnhancedRole()
   const [activeModal, setActiveModal] = useState<string | null>(null)
   const [isSigningOut, setIsSigningOut] = useState(false)
 
+  // Show loading spinner while checking authentication
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-black mb-4"></div>
+          <p style={{ color: '#000000', opacity: 0.7 }}>Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Show access denied only after loading is complete
   if (!user || (role !== 'coach' && role !== 'creator' && role !== 'superadmin' && role !== 'admin')) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">

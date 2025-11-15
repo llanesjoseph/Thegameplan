@@ -16,13 +16,15 @@ import Link from 'next/link'
 function CoachProfileContent() {
   const { user, loading: authLoading } = useAuth()
   const router = useRouter()
-  const { role } = useEnhancedRole()
+  const { role, loading: roleLoading } = useEnhancedRole()
   const searchParams = useSearchParams()
   const embedded = searchParams.get('embedded') === 'true'
 
   const [activeTab, setActiveTab] = useState('images')
   const [isEditingVoice, setIsEditingVoice] = useState(false)
   const [isSavingVoice, setIsSavingVoice] = useState(false)
+
+  const loading = authLoading || roleLoading
 
   const handleVoiceCaptureComplete = async (voiceCaptureData: any) => {
     if (!user) return
@@ -56,10 +58,8 @@ function CoachProfileContent() {
     }
   }
 
-  // Only allow coaches to access this page (includes legacy 'creator' role)
-  if (role !== 'coach' && role !== 'creator' && role !== 'admin' && role !== 'superadmin') {
-    // Show loading state while checking auth
-  if (authLoading) {
+  // Show loading state while checking auth
+  if (loading) {
     return (
       <div style={{ backgroundColor: embedded ? 'transparent' : '#E8E6D8' }} className={embedded ? 'p-12' : 'min-h-screen flex items-center justify-center'}>
         <div className="text-center">
@@ -86,6 +86,29 @@ function CoachProfileContent() {
               className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
             >
               Return to Login
+            </button>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  // Only allow coaches to access this page (includes legacy 'creator' role)
+  if (role !== 'coach' && role !== 'creator' && role !== 'admin' && role !== 'superadmin') {
+    return (
+      <div style={{ backgroundColor: embedded ? 'transparent' : '#E8E6D8' }} className={embedded ? 'p-12' : 'min-h-screen flex items-center justify-center'}>
+        <div className="text-center bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-8 max-w-md">
+          <AlertCircle className="w-16 h-16 mx-auto mb-4" style={{ color: '#FF6B35' }} />
+          <h2 className="text-2xl mb-2" style={{ color: '#000000' }}>Access Denied</h2>
+          <p className="mb-6" style={{ color: '#000000', opacity: 0.7 }}>
+            This page is for coaches only.
+          </p>
+          {!embedded && (
+            <button
+              onClick={() => router.push('/')}
+              className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
+            >
+              Return to Home
             </button>
           )}
         </div>
