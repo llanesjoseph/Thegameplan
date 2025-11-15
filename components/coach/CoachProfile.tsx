@@ -184,8 +184,14 @@ export default function CoachProfile() {
             href="/dashboard/coach/locker-room"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block px-3 py-1 rounded-lg bg-black text-white text-xs font-bold hover:bg-gray-800 transition-colors"
-            style={{ fontFamily: '\"Open Sans\", sans-serif' }}
+            className="inline-block px-4 py-2.5 rounded-lg text-white text-sm font-bold transition-colors"
+            style={{
+              fontFamily: '\"Open Sans\", sans-serif',
+              fontWeight: 700,
+              backgroundColor: '#FC0105'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#D00104'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#FC0105'}
           >
             Coach Locker Room
           </a>
