@@ -87,46 +87,49 @@ export default function AthleteCoaches() {
         
         <div className="relative">
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            {/* Coach Images - show 3 at a time */}
+            {/* Columns 1-3: Coach Images - show 3 at a time, leave empty if no coach */}
             {loading ? (
               <>
                 {[1, 2, 3].map((i) => (
                   <div key={i} className="w-full bg-gray-200 rounded-lg animate-pulse" style={{ aspectRatio: '1/1' }}></div>
                 ))}
               </>
-            ) : coaches.length > 0 ? (
-              <>
-                {coaches.slice(coachPage * coachPageSize, coachPage * coachPageSize + coachPageSize).map((coach) => (
-                  <div key={coach.id} className="text-center w-full">
-                    <div className="w-full rounded-lg overflow-hidden bg-gray-100 mb-1" style={{ aspectRatio: '1/1' }}>
-                      {coach.imageUrl ? (
-                        <img
-                          src={coach.imageUrl}
-                          alt={coach.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#8B7D7B' }}>
-                          <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
-                        </div>
-                      )}
-                    </div>
-                    <p className="text-sm font-semibold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
-                      {coach.title}
-                    </p>
-                    <p className="text-xs" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
-                      {coach.author}
-                    </p>
-                  </div>
-                ))}
-              </>
             ) : (
-              <p className="text-gray-500 text-sm col-span-3">No coaches assigned yet</p>
+              <>
+                {[0, 1, 2].map((index) => {
+                  const coach = coaches[coachPage * coachPageSize + index]
+                  return coach ? (
+                    <div key={coach.id} className="text-center w-full">
+                      <div className="w-full rounded-lg overflow-hidden bg-gray-100 mb-1" style={{ aspectRatio: '1/1' }}>
+                        {coach.imageUrl ? (
+                          <img
+                            src={coach.imageUrl}
+                            alt={coach.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#8B7D7B' }}>
+                            <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-sm font-semibold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                        {coach.title}
+                      </p>
+                      <p className="text-xs" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+                        {coach.author}
+                      </p>
+                    </div>
+                  ) : (
+                    <div key={`empty-${index}`} className="w-full" style={{ aspectRatio: '1/1' }}></div>
+                  )
+                })}
+              </>
             )}
 
-            {/* 4th column - Action Buttons */}
+            {/* 4th column - Action Buttons centered vertically */}
             {!loading && (
-              <div className="w-full flex flex-col gap-2">
+              <div className="w-full flex flex-col justify-center gap-2">
                 <button
                   onClick={handleScheduleSession}
                   className="w-full bg-black text-white py-2.5 text-sm font-bold hover:bg-gray-800 transition-colors"
@@ -152,8 +155,8 @@ export default function AthleteCoaches() {
             )}
           </div>
 
-          {/* Pagination arrows for coaches - only show if more than 3 coaches */}
-          {!loading && coaches.length > coachPageSize && (
+          {/* Pagination arrows - only show if MORE than 3 coaches */}
+          {!loading && coaches.length > 3 && (
             <>
               <button
                 aria-label="Previous coaches"
