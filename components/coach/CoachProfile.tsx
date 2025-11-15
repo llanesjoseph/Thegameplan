@@ -566,12 +566,20 @@ export default function CoachProfile() {
             style={{
               fontFamily: '\"Open Sans\", sans-serif',
               fontWeight: 700,
-              backgroundColor: '#FC0105'
+              backgroundColor: '#FC0105',
+              minWidth: '180px',
+              textAlign: 'center'
             }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#D00104'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#FC0105'}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#D00104'
+              e.currentTarget.querySelector('span')!.textContent = 'Enter'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#FC0105'
+              e.currentTarget.querySelector('span')!.textContent = 'Coach Locker Room'
+            }}
           >
-            Coach Locker Room
+            <span>Coach Locker Room</span>
           </a>
         </div>
       </div>
