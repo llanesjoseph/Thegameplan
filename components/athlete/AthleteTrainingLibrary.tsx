@@ -108,7 +108,7 @@ export default function AthleteTrainingLibrary() {
               onClick={() => handleViewLesson(lesson.id)}
               className="text-left group w-full"
             >
-              <div className="w-full rounded-lg overflow-hidden bg-gray-100 mb-1" style={{ aspectRatio: '1/1' }}>
+              <div className="w-full rounded-lg overflow-hidden mb-1" style={{ aspectRatio: '1/1' }}>
                 {lesson.thumbnailUrl ? (
                   <img
                     src={lesson.thumbnailUrl}
@@ -116,9 +116,8 @@ export default function AthleteTrainingLibrary() {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                   />
                 ) : (
-                  <div className="w-full h-full" style={{ backgroundColor: '#E5E5E5' }}>
-                    {/* Placeholder for training library image */}
-                    <div className="w-full h-full bg-gray-300"></div>
+                  <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#8B7D7B' }}>
+                    <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
                   </div>
                 )}
               </div>

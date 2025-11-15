@@ -74,13 +74,13 @@ export default function CoachLessonLibrary() {
             onClick={() => setOpenLessonId(l.id)}
             className="text-left w-full"
           >
-            <div className="w-full aspect-square rounded-lg overflow-hidden bg-gray-100 mb-1">
+            <div className="w-full aspect-square rounded-lg overflow-hidden mb-1">
               {l.thumbnailUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={l.thumbnailUrl} alt={l.title} className="w-full h-full object-cover" />
               ) : (
-                <div className="w-full h-full bg-white flex items-center justify-center">
-                  <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-60" />
+                <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#8B7D7B' }}>
+                  <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
                 </div>
               )}
             </div>
