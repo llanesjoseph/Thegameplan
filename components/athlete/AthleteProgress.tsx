@@ -97,7 +97,7 @@ export default function AthleteProgress() {
 
   return (
     <div>
-      <h2 className="text-xl font-bold mb-2" style={{ color: '#000000', fontFamily: 'Open Sans, sans-serif', fontWeight: 700 }}>
+      <h2 className="text-xl font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
         Your Progress
       </h2>
 
@@ -113,7 +113,7 @@ export default function AthleteProgress() {
             className={`transition-all duration-300 ease-out rounded-full px-4 py-2.5 flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-black/20 ${active === 'complete' ? 'bg-black text-white shadow-lg scale-105' : 'bg-white text-black border-2 border-black hover:bg-gray-50'}`}
           >
             <CheckCircle className="w-5 h-5" strokeWidth={2.5} />
-            <span className="text-sm font-bold" style={{ fontFamily: 'Open Sans, sans-serif' }}>
+            <span className="text-sm font-bold" style={{ fontFamily: '"Open Sans", sans-serif' }}>
               {active === 'complete' ? `${stats.trainingsComplete} Complete` : 'Training Complete'}
             </span>
           </button>
@@ -127,7 +127,7 @@ export default function AthleteProgress() {
             className={`transition-all duration-300 ease-out rounded-full px-4 py-2.5 flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-black/20 ${active === 'progress' ? 'bg-black text-white shadow-lg scale-105' : 'bg-white text-black border-2 border-black hover:bg-gray-50'}`}
           >
             <RefreshCw className="w-5 h-5" strokeWidth={2.5} />
-            <span className="text-sm font-bold" style={{ fontFamily: 'Open Sans, sans-serif' }}>
+            <span className="text-sm font-bold" style={{ fontFamily: '"Open Sans", sans-serif' }}>
               {active === 'progress' ? `${stats.trainingsInProgress} In Progress` : 'Trainings in Progress'}
             </span>
           </button>
@@ -153,7 +153,7 @@ export default function AthleteProgress() {
             className={`transition-all duration-300 ease-out rounded-full px-4 py-2.5 flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-black/20 ${active === 'upcoming' ? 'bg-black text-white shadow-lg scale-105' : 'bg-white text-black border-2 border-black hover:bg-gray-50'}`}
           >
             <Calendar className="w-5 h-5" strokeWidth={2.5} />
-            <span className="text-sm font-bold" style={{ fontFamily: 'Open Sans, sans-serif' }}>
+            <span className="text-sm font-bold" style={{ fontFamily: '"Open Sans", sans-serif' }}>
               {active === 'upcoming' ? `${stats.upcomingEvents} Upcoming` : 'Upcoming Event'}
             </span>
           </button>
@@ -173,7 +173,7 @@ export default function AthleteProgress() {
           >
             {/* Modal Header */}
             <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
-              <h2 className="text-2xl font-bold" style={{ color: '#000000', fontFamily: 'Open Sans, sans-serif', fontWeight: 700 }}>
+              <h2 className="text-2xl font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
                 Upcoming Events
               </h2>
               <button
@@ -190,10 +190,10 @@ export default function AthleteProgress() {
               {events.length === 0 ? (
                 <div className="text-center py-12">
                   <Calendar className="w-16 h-16 mx-auto mb-4" style={{ color: '#666', opacity: 0.5 }} />
-                  <p className="text-lg font-bold mb-2" style={{ color: '#000000', fontFamily: 'Open Sans, sans-serif' }}>
+                  <p className="text-lg font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
                     No upcoming events
                   </p>
-                  <p className="text-sm" style={{ color: '#666', fontFamily: 'Open Sans, sans-serif' }}>
+                  <p className="text-sm" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
                     Check back later for scheduled events
                   </p>
                 </div>
@@ -204,7 +204,7 @@ export default function AthleteProgress() {
                     className="border-2 border-gray-200 rounded-lg p-4 sm:p-5 hover:border-black transition-colors"
                   >
                     {/* Event Title */}
-                    <h3 className="text-lg font-bold mb-3" style={{ color: '#000000', fontFamily: 'Open Sans, sans-serif', fontWeight: 700 }}>
+                    <h3 className="text-lg font-bold mb-3" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
                       {event.title}
                     </h3>
 
@@ -214,7 +214,7 @@ export default function AthleteProgress() {
                       <div className="flex items-start gap-2">
                         <Clock className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: '#666' }} />
                         <div>
-                          <p className="text-sm font-semibold" style={{ color: '#000000', fontFamily: 'Open Sans, sans-serif' }}>
+                          <p className="text-sm font-semibold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
                             {event.date.toLocaleDateString('en-US', {
                               weekday: 'long',
                               year: 'numeric',
@@ -222,7 +222,7 @@ export default function AthleteProgress() {
                               day: 'numeric'
                             })}
                           </p>
-                          <p className="text-sm" style={{ color: '#666', fontFamily: 'Open Sans, sans-serif' }}>
+                          <p className="text-sm" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
                             {event.date.toLocaleTimeString('en-US', {
                               hour: 'numeric',
                               minute: '2-digit',
@@ -236,7 +236,7 @@ export default function AthleteProgress() {
                       {event.location && (
                         <div className="flex items-start gap-2">
                           <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: '#666' }} />
-                          <p className="text-sm" style={{ color: '#666', fontFamily: 'Open Sans, sans-serif' }}>
+                          <p className="text-sm" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
                             {event.location}
                           </p>
                         </div>
@@ -247,7 +247,7 @@ export default function AthleteProgress() {
                         <div className="pt-1">
                           <span
                             className="inline-block px-3 py-1 rounded-full bg-black text-white text-xs font-bold"
-                            style={{ fontFamily: 'Open Sans, sans-serif' }}
+                            style={{ fontFamily: '"Open Sans", sans-serif' }}
                           >
                             {event.type}
                           </span>
@@ -257,7 +257,7 @@ export default function AthleteProgress() {
                       {/* Description */}
                       {event.description && (
                         <div className="pt-2 mt-2 border-t border-gray-100">
-                          <p className="text-sm" style={{ color: '#000000', fontFamily: 'Open Sans, sans-serif' }}>
+                          <p className="text-sm" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
                             {event.description}
                           </p>
                         </div>

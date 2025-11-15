@@ -301,35 +301,35 @@ function CoachAthletesContent() {
     switch (status) {
       case 'accepted':
         return (
-          <span className="px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 bg-black text-white" style={{ fontFamily: 'Open Sans, sans-serif' }}>
+          <span className="px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 bg-black text-white" style={{ fontFamily: '"Open Sans", sans-serif' }}>
             <CheckCircle className="w-3.5 h-3.5" />
             Accepted
           </span>
         )
       case 'pending':
         return (
-          <span className="px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 border-2 border-gray-300 text-gray-600" style={{ fontFamily: 'Open Sans, sans-serif' }}>
+          <span className="px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 border-2 border-gray-300" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
             <Clock className="w-3.5 h-3.5" />
             Pending
           </span>
         )
       case 'expired':
         return (
-          <span className="px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 border-2 border-gray-400 text-gray-500" style={{ fontFamily: 'Open Sans, sans-serif' }}>
+          <span className="px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 border-2 border-gray-400" style={{ color: '#999', fontFamily: '"Open Sans", sans-serif' }}>
             <AlertCircle className="w-3.5 h-3.5" />
             Expired
           </span>
         )
       case 'revoked':
         return (
-          <span className="px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 border-2 border-gray-400 text-gray-500" style={{ fontFamily: 'Open Sans, sans-serif' }}>
+          <span className="px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 border-2 border-gray-400" style={{ color: '#999', fontFamily: '"Open Sans", sans-serif' }}>
             <X className="w-3.5 h-3.5" />
             Revoked
           </span>
         )
       default:
         return (
-          <span className="px-3 py-1 rounded-full text-xs font-bold border-2 border-gray-300 text-gray-600" style={{ fontFamily: 'Open Sans, sans-serif' }}>
+          <span className="px-3 py-1 rounded-full text-xs font-bold border-2 border-gray-300" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
             {status}
           </span>
         )
@@ -381,10 +381,10 @@ function CoachAthletesContent() {
         {/* Header */}
         {embedded && (
           <div className="mb-6">
-            <h1 className="text-2xl font-bold mb-2" style={{ color: '#000000', fontFamily: 'Open Sans, sans-serif', fontWeight: 700 }}>
+            <h1 className="text-2xl font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
               My Athletes
             </h1>
-            <p className="text-sm" style={{ color: '#666', fontFamily: 'Open Sans, sans-serif' }}>
+            <p className="text-sm" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
               Track the status of your athlete invitations
             </p>
           </div>
@@ -395,10 +395,10 @@ function CoachAthletesContent() {
         {showBulkInvite && (
           <div className="bg-white rounded-xl border-2 border-gray-200 overflow-hidden">
             <div className="p-6 border-b-2 border-gray-200">
-              <h2 className="text-xl font-bold mb-2" style={{ color: '#000000', fontFamily: 'Open Sans, sans-serif', fontWeight: 700 }}>
+              <h2 className="text-xl font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
                 Invite Athletes
               </h2>
-              <p className="text-sm" style={{ color: '#666', fontFamily: 'Open Sans, sans-serif' }}>
+              <p className="text-sm" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
                 Send bulk invitations to athletes
               </p>
             </div>
@@ -407,14 +407,14 @@ function CoachAthletesContent() {
               {/* Sport and Message */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: 'Open Sans, sans-serif' }}>
+                  <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
                     Sport
                   </label>
                   <select
                     value={bulkForm.sport}
                     onChange={(e) => setBulkForm(prev => ({ ...prev, sport: e.target.value }))}
                     className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-                    style={{ fontFamily: 'Open Sans, sans-serif' }}
+                    style={{ fontFamily: '"Open Sans", sans-serif' }}
                   >
                     <option value="Brazilian Jiu-Jitsu">Brazilian Jiu-Jitsu</option>
                     <option value="Mixed Martial Arts">Mixed Martial Arts</option>
@@ -435,7 +435,7 @@ function CoachAthletesContent() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: 'Open Sans, sans-serif' }}>
+                  <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
                     Custom Message (Optional)
                   </label>
                   <textarea
@@ -444,7 +444,7 @@ function CoachAthletesContent() {
                     placeholder="Add a personal message to your invitation..."
                     rows={3}
                     className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black resize-none"
-                    style={{ fontFamily: 'Open Sans, sans-serif' }}
+                    style={{ fontFamily: '"Open Sans", sans-serif' }}
                   />
                 </div>
               </div>
@@ -452,14 +452,14 @@ function CoachAthletesContent() {
               {/* Athletes List */}
               <div>
                 <div className="flex justify-between items-center mb-4">
-                  <label className="block text-sm font-bold" style={{ color: '#000000', fontFamily: 'Open Sans, sans-serif' }}>
+                  <label className="block text-sm font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
                     Athletes
                   </label>
                   <button
                     type="button"
                     onClick={addAthleteRow}
                     className="px-3 py-1.5 rounded-lg text-sm font-bold hover:bg-gray-800 transition-colors flex items-center gap-1.5 bg-black text-white"
-                    style={{ fontFamily: 'Open Sans, sans-serif' }}
+                    style={{ fontFamily: '"Open Sans", sans-serif' }}
                   >
                     <Plus className="w-4 h-4" />
                     Add Row
@@ -476,7 +476,7 @@ function CoachAthletesContent() {
                           value={athlete.email}
                           onChange={(e) => updateAthlete(index, 'email', e.target.value)}
                           className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-                          style={{ fontFamily: 'Open Sans, sans-serif' }}
+                          style={{ fontFamily: '"Open Sans", sans-serif' }}
                         />
                       </div>
                       <div className="flex-1">
@@ -486,7 +486,7 @@ function CoachAthletesContent() {
                           value={athlete.name}
                           onChange={(e) => updateAthlete(index, 'name', e.target.value)}
                           className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-                          style={{ fontFamily: 'Open Sans, sans-serif' }}
+                          style={{ fontFamily: '"Open Sans", sans-serif' }}
                         />
                       </div>
                       {bulkForm.athletes.length > 1 && (
@@ -514,7 +514,7 @@ function CoachAthletesContent() {
                     color: '#FFFFFF',
                     opacity: isLoading ? 0.7 : 1,
                     cursor: isLoading ? 'not-allowed' : 'pointer',
-                    fontFamily: 'Open Sans, sans-serif',
+                    fontFamily: '"Open Sans", sans-serif',
                     fontWeight: 700
                   }}
                   onMouseEnter={(e) => {
@@ -552,17 +552,17 @@ function CoachAthletesContent() {
           <div className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-bold mb-1" style={{ color: '#000000', fontFamily: 'Open Sans, sans-serif', fontWeight: 700 }}>
+                <h2 className="text-lg font-bold mb-1" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
                   Invite Athletes
                 </h2>
-                <p className="text-sm" style={{ color: '#666', fontFamily: 'Open Sans, sans-serif' }}>
+                <p className="text-sm" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
                   Send bulk invitations to athletes
                 </p>
               </div>
               <button
                 onClick={() => setShowBulkInvite(true)}
                 className="flex items-center gap-2 px-4 py-2.5 bg-black text-white rounded-lg hover:bg-gray-800 transition-all font-bold"
-                style={{ fontFamily: 'Open Sans, sans-serif', fontWeight: 700 }}
+                style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
               >
                 <UserPlus className="w-5 h-5" />
                 <span>Invite Athletes</span>
@@ -576,10 +576,10 @@ function CoachAthletesContent() {
           <div className="p-6 border-b-2 border-gray-200">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-bold mb-1" style={{ color: '#000000', fontFamily: 'Open Sans, sans-serif', fontWeight: 700 }}>
+                <h2 className="text-lg font-bold mb-1" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
                   Athlete Roster & Invitations
                 </h2>
-                <p className="text-sm" style={{ color: '#666', fontFamily: 'Open Sans, sans-serif' }}>
+                <p className="text-sm" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
                   Track the status of your athlete invitations
                 </p>
               </div>
@@ -587,7 +587,7 @@ function CoachAthletesContent() {
                 onClick={loadAthleteData}
                 disabled={dataLoading}
                 className="flex items-center gap-2 px-3 py-2 rounded-lg bg-black text-white hover:bg-gray-800 transition-all font-bold disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{ fontFamily: 'Open Sans, sans-serif', fontWeight: 700 }}
+                style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
                 title="Refresh athlete list"
               >
                 <RefreshCw className={`w-4 h-4 ${dataLoading ? 'animate-spin' : ''}`} />
@@ -600,15 +600,15 @@ function CoachAthletesContent() {
             {dataLoading ? (
               <div className="text-center py-12">
                 <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-black mb-4"></div>
-                <p className="text-sm" style={{ color: '#666', fontFamily: 'Open Sans, sans-serif' }}>Loading athletes...</p>
+                <p className="text-sm" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>Loading athletes...</p>
               </div>
             ) : invitations.length === 0 ? (
               <div className="text-center py-12">
                 <Users className="w-16 h-16 mx-auto mb-4" style={{ color: '#666', opacity: 0.3 }} />
-                <h3 className="text-lg font-bold mb-2" style={{ color: '#000000', fontFamily: 'Open Sans, sans-serif' }}>
+                <h3 className="text-lg font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
                   No invitations yet
                 </h3>
-                <p className="text-sm" style={{ color: '#666', fontFamily: 'Open Sans, sans-serif' }}>
+                <p className="text-sm" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
                   Click "Invite Athletes" above to send your first invitations
                 </p>
               </div>
@@ -669,13 +669,13 @@ function CoachAthletesContent() {
                     </div>
 
                     {/* Athlete Info Below */}
-                    <p className="text-sm font-semibold truncate" style={{ color: '#000000', fontFamily: 'Open Sans, sans-serif' }}>
+                    <p className="text-sm font-semibold truncate" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
                       {invitation.name}
                     </p>
-                    <p className="text-xs truncate" style={{ color: '#666', fontFamily: 'Open Sans, sans-serif' }}>
+                    <p className="text-xs truncate" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
                       {invitation.email}
                     </p>
-                    <p className="text-xs" style={{ color: '#999', fontFamily: 'Open Sans, sans-serif' }}>
+                    <p className="text-xs" style={{ color: '#999', fontFamily: '"Open Sans", sans-serif' }}>
                       {invitation.sport} • {invitation.sentAt}
                     </p>
                   </div>

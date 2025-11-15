@@ -117,7 +117,7 @@ export default function PendingItemsWidget({ onViewItem }: PendingItemsWidgetPro
   if (loading) {
     return (
       <div className="bg-white rounded-xl p-6 border-2 border-gray-200">
-        <h2 className="text-lg font-bold mb-4" style={{ color: '#000000', fontFamily: 'Open Sans, sans-serif', fontWeight: 700 }}>Notification Center</h2>
+        <h2 className="text-lg font-bold mb-4" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>Notification Center</h2>
         <div className="flex items-center justify-center py-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black"></div>
         </div>
@@ -129,12 +129,12 @@ export default function PendingItemsWidget({ onViewItem }: PendingItemsWidgetPro
     return (
       <div className="bg-white rounded-xl p-6 border-2 border-gray-200">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold" style={{ color: '#000000', fontFamily: 'Open Sans, sans-serif', fontWeight: 700 }}>Notification Center</h2>
+          <h2 className="text-lg font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>Notification Center</h2>
           <button
             onClick={loadPendingItems}
             disabled={loading}
             className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black text-white hover:bg-gray-800 transition-all font-bold disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{ fontFamily: 'Open Sans, sans-serif', fontWeight: 700 }}
+            style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
             title="Refresh notifications"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
@@ -147,8 +147,8 @@ export default function PendingItemsWidget({ onViewItem }: PendingItemsWidgetPro
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <p className="text-sm font-bold mb-1" style={{ color: '#000000', fontFamily: 'Open Sans, sans-serif' }}>All caught up!</p>
-          <p className="text-xs" style={{ color: '#666', fontFamily: 'Open Sans, sans-serif' }}>No pending notifications at the moment</p>
+          <p className="text-sm font-bold mb-1" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>All caught up!</p>
+          <p className="text-xs" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>No pending notifications at the moment</p>
         </div>
       </div>
     )
@@ -158,11 +158,11 @@ export default function PendingItemsWidget({ onViewItem }: PendingItemsWidgetPro
     <div className="bg-white rounded-xl p-6 border-2 border-gray-200">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <h2 className="text-lg font-bold" style={{ color: '#000000', fontFamily: 'Open Sans, sans-serif', fontWeight: 700 }}>
+          <h2 className="text-lg font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
             Notification Center
           </h2>
           {pendingItems.length > 0 && (
-            <span className="bg-black text-white text-xs font-bold px-2.5 py-1 rounded-full" style={{ fontFamily: 'Open Sans, sans-serif' }}>
+            <span className="bg-black text-white text-xs font-bold px-2.5 py-1 rounded-full" style={{ fontFamily: '"Open Sans", sans-serif' }}>
               {pendingItems.length}
             </span>
           )}
@@ -171,7 +171,7 @@ export default function PendingItemsWidget({ onViewItem }: PendingItemsWidgetPro
           onClick={loadPendingItems}
           disabled={loading}
           className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black text-white hover:bg-gray-800 transition-all font-bold disabled:opacity-50 disabled:cursor-not-allowed"
-          style={{ fontFamily: 'Open Sans, sans-serif', fontWeight: 700 }}
+          style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
           title="Refresh notifications"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
@@ -193,17 +193,17 @@ export default function PendingItemsWidget({ onViewItem }: PendingItemsWidgetPro
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2 mb-1">
-                  <p className="text-sm font-bold truncate" style={{ color: '#000000', fontFamily: 'Open Sans, sans-serif', fontWeight: 700 }}>
+                  <p className="text-sm font-bold truncate" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
                     {item.title}
                   </p>
                   {item.urgent && (
-                    <span className="bg-black text-white text-xs font-bold px-2 py-0.5 rounded-full flex-shrink-0" style={{ fontFamily: 'Open Sans, sans-serif' }}>
+                    <span className="bg-black text-white text-xs font-bold px-2 py-0.5 rounded-full flex-shrink-0" style={{ fontFamily: '"Open Sans", sans-serif' }}>
                       Urgent
                     </span>
                   )}
                 </div>
-                <p className="text-xs truncate" style={{ color: '#666', fontFamily: 'Open Sans, sans-serif' }}>{item.subtitle}</p>
-                <p className="text-xs mt-1" style={{ color: '#999', fontFamily: 'Open Sans, sans-serif' }}>{item.time}</p>
+                <p className="text-xs truncate" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>{item.subtitle}</p>
+                <p className="text-xs mt-1" style={{ color: '#999', fontFamily: '"Open Sans", sans-serif' }}>{item.time}</p>
               </div>
             </button>
           )
