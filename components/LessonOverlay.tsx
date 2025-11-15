@@ -142,20 +142,21 @@ export default function LessonOverlay({
       {/* Overlay Panel */}
       <div className="fixed inset-y-0 right-0 w-full sm:w-[90%] md:w-[80%] lg:w-[70%] xl:w-[60%] bg-white z-50 shadow-2xl animate-slideInRight overflow-y-auto">
         {/* Header */}
-        <div className="sticky top-0 z-10 bg-gradient-to-r from-blue-500/10 to-teal-500/10 backdrop-blur-sm border-b border-blue-200/50 px-6 py-4">
+        <div className="sticky top-0 z-10 bg-white backdrop-blur-sm border-b-2 border-black px-6 py-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold" style={{ color: '#000000' }}>
+            <h2 className="text-xl font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
               Lesson Details
             </h2>
             <div className="flex items-center gap-3">
               {onToggleCompletion && (
                 <button
                   onClick={onToggleCompletion}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold transition-all ${
                     isCompleted
-                      ? 'bg-teal-500 hover:bg-teal-600 text-white'
-                      : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                      ? 'bg-black text-white hover:bg-gray-800'
+                      : 'bg-white text-black border-2 border-black hover:bg-gray-50'
                   }`}
+                  style={{ fontFamily: '"Open Sans", sans-serif' }}
                 >
                   {isCompleted ? (
                     <>
@@ -172,7 +173,7 @@ export default function LessonOverlay({
               )}
               <button
                 onClick={onClose}
-                className="p-2 hover:bg-blue-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                 title="Close (Esc)"
               >
                 <X className="w-6 h-6" style={{ color: '#000000' }} />

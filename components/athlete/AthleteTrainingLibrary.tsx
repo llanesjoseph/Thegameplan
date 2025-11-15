@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/use-auth'
-import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore'
+import { doc, getDoc, collection, query, where, getDocs, setDoc, deleteDoc } from 'firebase/firestore'
 import { db, storage } from '@/lib/firebase.client'
 import { ref, getDownloadURL } from 'firebase/storage'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
@@ -14,6 +14,7 @@ export default function AthleteTrainingLibrary() {
   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(0)
   const [openLessonId, setOpenLessonId] = useState<string | null>(null)
+  const [completedLessons, setCompletedLessons] = useState<Set<string>>(new Set())
   const pageSize = 4
 
   useEffect(() => {
@@ -69,6 +70,21 @@ export default function AthleteTrainingLibrary() {
             )
             setLessons(lessonsData) // We keep all, but page through
             setPage(0)
+
+            // Load completed lessons for this athlete
+            const completedQuery = query(
+              collection(db, 'lessonCompletions'),
+              where('athleteUid', '==', user.uid)
+            )
+            const completedSnap = await getDocs(completedQuery)
+            const completed = new Set<string>()
+            completedSnap.forEach((doc) => {
+              const data = doc.data()
+              if (data.lessonId) {
+                completed.add(data.lessonId)
+              }
+            })
+            setCompletedLessons(completed)
           }
         }
       } catch (error) {
@@ -83,6 +99,36 @@ export default function AthleteTrainingLibrary() {
 
   const handleViewLesson = (lessonId: string) => {
     setOpenLessonId(lessonId)
+  }
+
+  const handleToggleCompletion = async () => {
+    if (!openLessonId || !user?.uid) return
+
+    try {
+      const completionId = `${user.uid}_${openLessonId}`
+      const isCurrentlyCompleted = completedLessons.has(openLessonId)
+
+      if (isCurrentlyCompleted) {
+        // Mark as incomplete - remove from Firestore
+        await deleteDoc(doc(db, 'lessonCompletions', completionId))
+        setCompletedLessons((prev) => {
+          const updated = new Set(prev)
+          updated.delete(openLessonId)
+          return updated
+        })
+      } else {
+        // Mark as complete - add to Firestore
+        await setDoc(doc(db, 'lessonCompletions', completionId), {
+          athleteUid: user.uid,
+          lessonId: openLessonId,
+          completedAt: new Date(),
+          lessonTitle: lessons.find((l) => l.id === openLessonId)?.title || ''
+        })
+        setCompletedLessons((prev) => new Set(prev).add(openLessonId))
+      }
+    } catch (error) {
+      console.error('Error toggling lesson completion:', error)
+    }
   }
 
   const totalPages = Math.max(1, Math.ceil(lessons.length / pageSize))
@@ -176,11 +222,8 @@ export default function AthleteTrainingLibrary() {
         <LessonOverlay
           lessonId={openLessonId}
           onClose={() => setOpenLessonId(null)}
-          isCompleted={lessons.find(l => l.id === openLessonId)?.isCompleted}
-          onToggleCompletion={() => {
-            // Optional: handle completion toggle if needed
-            console.log('Lesson completion toggled')
-          }}
+          isCompleted={completedLessons.has(openLessonId)}
+          onToggleCompletion={handleToggleCompletion}
         />
       )}
     </div>
