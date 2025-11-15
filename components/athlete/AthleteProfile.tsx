@@ -230,22 +230,13 @@ export default function AthleteProfile() {
 
   return (
     <div>
-      {/* Header with Edit/Save/Cancel buttons */}
+      {/* Header with Save/Cancel buttons (Edit button moved to sport tag) */}
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
           Your Profile
         </h2>
         <div className="flex gap-2">
-          {!isEditing ? (
-            <button
-              onClick={handleEditClick}
-              className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-bold text-sm"
-              style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
-            >
-              <Edit2 className="w-4 h-4" />
-              Edit Profile
-            </button>
-          ) : (
+          {isEditing && (
             <>
               <button
                 onClick={handleCancelEdit}
@@ -403,22 +394,55 @@ export default function AthleteProfile() {
             )}
           </div>
 
-          {/* Sport Tags */}
+          {/* Sport Tags - Hover to Edit Profile */}
           <div className="w-full space-y-2">
             {sports.length > 0 ? (
               sports.map((sport) => (
-                <div
+                <button
                   key={sport}
-                  className="w-full bg-black text-white py-2.5 font-bold text-sm text-center"
+                  onClick={!isEditing ? handleEditClick : undefined}
+                  disabled={isEditing}
+                  className="w-full group relative overflow-hidden py-2.5 font-bold text-sm text-center transition-all duration-300 disabled:cursor-not-allowed"
                   style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
                 >
-                  {sport}
-                </div>
+                  {/* Default State - Black background with sport name */}
+                  <span className="absolute inset-0 bg-black transition-opacity duration-300 group-hover:opacity-0"></span>
+                  <span className="absolute inset-0 flex items-center justify-center text-white transition-opacity duration-300 group-hover:opacity-0">
+                    {sport}
+                  </span>
+
+                  {/* Hover State - Red background with "Edit Profile" */}
+                  <span className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" style={{ backgroundColor: '#FC0105' }}></span>
+                  <span className="absolute inset-0 flex items-center justify-center text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                    Edit Profile
+                  </span>
+
+                  {/* Invisible text for layout */}
+                  <span className="invisible">{sport}</span>
+                </button>
               ))
             ) : (
-              <div className="w-full bg-black text-white py-2.5 font-bold text-sm text-center" style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
-                Sport
-              </div>
+              <button
+                onClick={!isEditing ? handleEditClick : undefined}
+                disabled={isEditing}
+                className="w-full group relative overflow-hidden py-2.5 font-bold text-sm text-center transition-all duration-300 disabled:cursor-not-allowed"
+                style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
+              >
+                {/* Default State - Black background with "Sport" */}
+                <span className="absolute inset-0 bg-black transition-opacity duration-300 group-hover:opacity-0"></span>
+                <span className="absolute inset-0 flex items-center justify-center text-white transition-opacity duration-300 group-hover:opacity-0">
+                  Sport
+                </span>
+
+                {/* Hover State - Red background with "Edit Profile" */}
+                <span className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" style={{ backgroundColor: '#FC0105' }}></span>
+                <span className="absolute inset-0 flex items-center justify-center text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                  Edit Profile
+                </span>
+
+                {/* Invisible text for layout */}
+                <span className="invisible">Sport</span>
+              </button>
             )}
           </div>
         </div>

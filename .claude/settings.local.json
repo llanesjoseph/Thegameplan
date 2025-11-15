@@ -37,7 +37,13 @@
       "Bash(node scripts/verify-streak-data.js:*)",
       "Bash(node:*)",
       "Bash(test:*)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(for comp in \"AthleteOverview\" \"AthleteAssistant\" \"CoachOverview\" \"TodaysOverview\")",
+      "Bash(do echo \"=== $comp ===\")",
+      "Bash(done)",
+      "Bash(find:*)",
+      "Bash(for file in AthleteVideoReviews TodaysOverview TodaysSchedule CoachAthletes)",
+      "Bash(do echo '=== Searching for $file usage ===')"
     ],
     "deny": [],
     "ask": []
