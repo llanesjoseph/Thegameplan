@@ -395,8 +395,8 @@ function CoachAthletesContent() {
       <main className={`w-full ${embedded ? 'p-4' : 'max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6'} space-y-6`}>
 
 
-        {/* Bulk Invite Form - REMOVED FOR EMBEDDED VIEW */}
-        {!embedded && showBulkInvite && (
+        {/* Bulk Invite Form */}
+        {showBulkInvite && (
           <div className="mb-6">
             <div className="mb-4">
               <h2 className="text-base font-bold mb-0.5" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
@@ -597,16 +597,27 @@ function CoachAthletesContent() {
                 Track the status of your athlete invitations
               </p>
             </div>
-            <button
-              onClick={loadAthleteData}
-              disabled={dataLoading}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-black text-white hover:bg-gray-800 transition-all font-bold disabled:opacity-50 disabled:cursor-not-allowed text-xs"
-              style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
-              title="Refresh athlete list"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 ${dataLoading ? 'animate-spin' : ''}`} />
-              <span>Refresh</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowBulkInvite(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-black text-white hover:bg-gray-800 transition-all font-bold text-xs"
+                style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
+                title="Invite new athletes"
+              >
+                <UserPlus className="w-3.5 h-3.5" />
+                <span>Invite</span>
+              </button>
+              <button
+                onClick={loadAthleteData}
+                disabled={dataLoading}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-black text-white hover:bg-gray-800 transition-all font-bold disabled:opacity-50 disabled:cursor-not-allowed text-xs"
+                style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
+                title="Refresh athlete list"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${dataLoading ? 'animate-spin' : ''}`} />
+                <span>Refresh</span>
+              </button>
+            </div>
           </div>
 
           {dataLoading ? (
