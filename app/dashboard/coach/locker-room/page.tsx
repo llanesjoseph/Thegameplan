@@ -246,7 +246,7 @@ export default function CoachLockerRoom() {
               </button>
             </div>
             <iframe
-              src="/dashboard/coach/athletes"
+              src="/dashboard/coach/athletes?embedded=true"
               className="w-full h-[60vh] border-0 rounded-lg"
               title="Manage Athletes"
             />

@@ -387,7 +387,7 @@ function CoachAthletesContent() {
   }
 
   return (
-    <div style={{ backgroundColor: embedded ? 'transparent' : '#E8E6D8' }} className={embedded ? '' : 'min-h-screen'}>
+    <div style={{ backgroundColor: embedded ? '#FFFFFF' : '#E8E6D8' }} className={embedded ? '' : 'min-h-screen'}>
       {!embedded && (
         <AppHeader title="My Athletes" subtitle="Manage your athlete roster and invitations" />
       )}
@@ -395,8 +395,8 @@ function CoachAthletesContent() {
       <main className={`w-full ${embedded ? 'p-4' : 'max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6'} space-y-6`}>
 
 
-        {/* Bulk Invite Form */}
-        {showBulkInvite && (
+        {/* Bulk Invite Form - REMOVED FOR EMBEDDED VIEW */}
+        {!embedded && showBulkInvite && (
           <div className="mb-6">
             <div className="mb-4">
               <h2 className="text-base font-bold mb-0.5" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
@@ -562,27 +562,29 @@ function CoachAthletesContent() {
           </div>
         )}
 
-        {/* Invite Athletes Button */}
-        <div className="mb-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-base font-bold mb-0.5" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
-                Invite Athletes
-              </h2>
-              <p className="text-xs" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
-                Send bulk invitations to athletes
-              </p>
+        {/* Invite Athletes Button - HIDDEN IN EMBEDDED VIEW */}
+        {!embedded && (
+          <div className="mb-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-base font-bold mb-0.5" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
+                  Invite Athletes
+                </h2>
+                <p className="text-xs" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+                  Send bulk invitations to athletes
+                </p>
+              </div>
+              <button
+                onClick={() => setShowBulkInvite(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-all font-bold text-sm"
+                style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
+              >
+                <UserPlus className="w-4 h-4" />
+                <span>Invite Athletes</span>
+              </button>
             </div>
-            <button
-              onClick={() => setShowBulkInvite(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-all font-bold text-sm"
-              style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
-            >
-              <UserPlus className="w-4 h-4" />
-              <span>Invite Athletes</span>
-            </button>
           </div>
-        </div>
+        )}
 
         {/* Invitations List */}
         <div>
