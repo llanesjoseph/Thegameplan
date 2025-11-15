@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/use-auth'
 import { useRouter } from 'next/navigation'
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase.client'
-import { User } from 'lucide-react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import Live1on1RequestModal from './Live1on1RequestModal'
 import dynamic from 'next/dynamic'
 
@@ -19,6 +19,8 @@ export default function AthleteCoaches() {
   const [showScheduleModal, setShowScheduleModal] = useState(false)
   const [coachId, setCoachId] = useState<string | null>(null)
   const [showAskModal, setShowAskModal] = useState(false)
+  const [coachPage, setCoachPage] = useState(0)
+  const coachPageSize = 3
 
   useEffect(() => {
     const loadCoaches = async () => {
@@ -83,18 +85,18 @@ export default function AthleteCoaches() {
           Your Coaches
         </h2>
         
-        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-          {/* Coach Images Grid */}
-          <div className="w-full md:flex-1">
+        <div className="relative">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            {/* Coach Images - show 3 at a time */}
             {loading ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+              <>
                 {[1, 2, 3].map((i) => (
                   <div key={i} className="w-full bg-gray-200 rounded-lg animate-pulse" style={{ aspectRatio: '1/1' }}></div>
                 ))}
-              </div>
+              </>
             ) : coaches.length > 0 ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                {coaches.map((coach) => (
+              <>
+                {coaches.slice(coachPage * coachPageSize, coachPage * coachPageSize + coachPageSize).map((coach) => (
                   <div key={coach.id} className="text-center w-full">
                     <div className="w-full rounded-lg overflow-hidden bg-gray-100 mb-1" style={{ aspectRatio: '1/1' }}>
                       {coach.imageUrl ? (
@@ -117,36 +119,68 @@ export default function AthleteCoaches() {
                     </p>
                   </div>
                 ))}
-              </div>
+              </>
             ) : (
-              <p className="text-gray-500 text-sm">No coaches assigned yet</p>
+              <p className="text-gray-500 text-sm col-span-3">No coaches assigned yet</p>
+            )}
+
+            {/* 4th column - Action Buttons */}
+            {!loading && (
+              <div className="w-full flex flex-col gap-2">
+                <button
+                  onClick={handleScheduleSession}
+                  className="w-full bg-black text-white py-2.5 text-sm font-bold hover:bg-gray-800 transition-colors"
+                  style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
+                >
+                  Schedule 1-1 Session With a Coach
+                </button>
+                <button
+                  onClick={handleSubmitVideo}
+                  className="w-full bg-black text-white py-2.5 text-xs font-bold hover:bg-gray-800 transition-colors leading-tight"
+                  style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
+                >
+                  Submit Training Video for Coach Feedback
+                </button>
+                <button
+                  onClick={handleAskQuestion}
+                  className="w-full bg-black text-white py-2.5 text-sm font-bold hover:bg-gray-800 transition-colors"
+                  style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
+                >
+                  Ask a Question With Your Coach
+                </button>
+              </div>
             )}
           </div>
 
-          {/* Action Buttons - Match sport button size, positioned on right */}
-          <div className="w-full md:w-[calc(25%-0.75rem)] flex flex-col gap-2">
-            <button
-              onClick={handleScheduleSession}
-              className="w-full bg-black text-white py-2.5 text-sm font-bold hover:bg-gray-800 transition-colors"
-              style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
-            >
-              Schedule 1-1 Session With a Coach
-            </button>
-            <button
-              onClick={handleSubmitVideo}
-              className="w-full bg-black text-white py-2.5 text-sm font-bold hover:bg-gray-800 transition-colors"
-              style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
-            >
-              Submit Training Video for Coach Feedback
-            </button>
-            <button
-              onClick={handleAskQuestion}
-              className="w-full bg-black text-white py-2.5 text-sm font-bold hover:bg-gray-800 transition-colors"
-              style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
-            >
-              Ask a Question With Your Coach
-            </button>
-          </div>
+          {/* Pagination arrows for coaches - only show if more than 3 coaches */}
+          {!loading && coaches.length > coachPageSize && (
+            <>
+              <button
+                aria-label="Previous coaches"
+                disabled={coachPage === 0}
+                onClick={() => setCoachPage((p) => Math.max(0, p - 1))}
+                className={`absolute left-2 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full border flex items-center justify-center transition ${
+                  coachPage > 0
+                    ? 'bg-white text-black border-black/70 hover:bg-black hover:text-white'
+                    : 'bg-white text-gray-400 border-gray-300 cursor-not-allowed opacity-60'
+                }`}
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <button
+                aria-label="Next coaches"
+                disabled={coachPage >= Math.ceil(coaches.length / coachPageSize) - 1}
+                onClick={() => setCoachPage((p) => Math.min(Math.ceil(coaches.length / coachPageSize) - 1, p + 1))}
+                className={`absolute right-2 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full border flex items-center justify-center transition ${
+                  coachPage < Math.ceil(coaches.length / coachPageSize) - 1
+                    ? 'bg-white text-black border-black/70 hover:bg-black hover:text-white'
+                    : 'bg-white text-gray-400 border-gray-300 cursor-not-allowed opacity-60'
+                }`}
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </>
+          )}
         </div>
       </div>
 
