@@ -83,7 +83,7 @@ export default function AthleteCoaches() {
           Your Coaches
         </h2>
         
-        <div className="flex flex-col md:flex-row md:items-start md:justify-start gap-4 md:gap-6">
+        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
           {/* Coach Images Grid */}
           <div className="w-full md:flex-none">
             {loading ? (
@@ -124,25 +124,25 @@ export default function AthleteCoaches() {
             )}
           </div>
 
-          {/* Action Buttons */}
-          <div className="w-full md:w-44 md:max-w-[14rem] lg:w-56 space-y-2 mt-4 md:mt-0 md:ml-4">
+          {/* Action Buttons - Sharp rectangles aligned to right edge */}
+          <div className="w-full md:w-auto md:flex-shrink-0 space-y-2 mt-4 md:mt-0">
             <button
               onClick={handleScheduleSession}
-              className="w-full bg-black text-white py-2.5 rounded-lg text-sm font-bold hover:bg-gray-800 transition-colors"
+              className="w-full md:w-64 bg-black text-white py-3 text-sm font-bold hover:bg-gray-800 transition-colors"
               style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
             >
               Schedule 1-1 Session With a Coach
             </button>
             <button
               onClick={handleSubmitVideo}
-              className="w-full bg-black text-white py-2.5 rounded-lg text-sm font-bold hover:bg-gray-800 transition-colors"
+              className="w-full md:w-64 bg-black text-white py-3 text-sm font-bold hover:bg-gray-800 transition-colors"
               style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
             >
               Submit Training Video for Coach Feedback
             </button>
             <button
               onClick={handleAskQuestion}
-              className="w-full bg-black text-white py-2.5 rounded-lg text-sm font-bold hover:bg-gray-800 transition-colors"
+              className="w-full md:w-64 bg-black text-white py-3 text-sm font-bold hover:bg-gray-800 transition-colors"
               style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
             >
               Ask a Question With Your Coach

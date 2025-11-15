@@ -92,7 +92,10 @@ export default function AthleteTrainingLibrary() {
       {loading ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="w-full bg-gray-200 rounded-lg animate-pulse" style={{ aspectRatio: '1/1' }}></div>
+            <div key={i} className="w-full">
+              <div className="w-full rounded-lg overflow-hidden bg-gray-200 mb-1 animate-pulse" style={{ aspectRatio: '1/1' }}></div>
+              <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+            </div>
           ))}
         </div>
       ) : lessons.length > 0 ? (
