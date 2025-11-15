@@ -1,13 +1,15 @@
 'use client'
 
 import Link from 'next/link'
+import { useState } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { useEnhancedRole } from '@/hooks/use-role-switcher'
-import { BookOpen, Users, MessageSquare, BarChart2, UserCog, PlusSquare } from 'lucide-react'
+import { Calendar, Video, Users, FileText, Facebook, Instagram, Youtube, Linkedin } from 'lucide-react'
 
 export default function CoachLockerRoom() {
   const { user } = useAuth()
   const { role } = useEnhancedRole()
+  const [activeModal, setActiveModal] = useState<string | null>(null)
 
   if (!user || (role !== 'coach' && role !== 'creator' && role !== 'superadmin' && role !== 'admin')) {
     return (
@@ -25,69 +27,327 @@ export default function CoachLockerRoom() {
 
   return (
     <div className="min-h-screen bg-white">
+      {/* Header */}
       <header className="bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-4">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
           <span className="text-2xl font-bold" style={{ color: '#440102', fontFamily: '\"Open Sans\", sans-serif', fontWeight: 700 }}>
             ATHLEAP
           </span>
-          <Link href="/dashboard/coach" className="px-4 py-2 rounded-lg text-sm font-bold bg-black text-white hover:bg-gray-800">
-            Back to Dashboard
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/coaches"
+              className="px-4 py-2 text-sm font-bold hover:opacity-80 transition-opacity"
+              style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}
+            >
+              Browse Coaches
+            </Link>
+            <Link
+              href="/dashboard/coach"
+              className="px-4 py-2 rounded-lg text-sm font-bold bg-black text-white hover:bg-gray-800 transition-colors"
+              style={{ fontFamily: '\"Open Sans\", sans-serif' }}
+            >
+              Button
+            </Link>
+          </div>
         </div>
       </header>
 
       <main className="w-full">
-        <div className="px-4 sm:px-6 lg:px-8 py-3">
-          <div className="w-full max-w-5xl mx-auto space-y-6">
+        <div className="px-4 sm:px-6 lg:px-8 py-8">
+          <div className="w-full max-w-6xl mx-auto space-y-8">
+            {/* Welcome Section */}
             <div>
-              <h1 className="text-2xl font-bold mb-1" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif', fontWeight: 700 }}>
-                Coach Locker Room
+              <h1 className="text-4xl font-bold mb-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif', fontWeight: 700 }}>
+                Welcome to your locker room, {user?.displayName || 'Coach'}!
               </h1>
-              <p className="text-sm text-gray-600">Your tools and resources, in one frameless space.</p>
+              <p className="text-lg" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
+                Empower your athletes with expert training
+              </p>
             </div>
 
-            {/* Frameless square-card grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-4">
-              <a href="/dashboard/coach/lessons/library" className="group rounded-lg border bg-white hover:bg-gray-50 transition-colors">
-                <div className="w-full aspect-square flex flex-col items-center justify-center">
-                  <BookOpen className="w-8 h-8 mb-2" />
-                  <div className="text-sm font-semibold">Lesson Library</div>
-                </div>
+            {/* Athletes and Training Content */}
+            <div>
+              <h2 className="text-2xl font-bold mb-4" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif', fontWeight: 700 }}>
+                Athletes and Training Content
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Manage Athletes */}
+                <button
+                  onClick={() => setActiveModal('athletes')}
+                  className="group bg-white border-2 border-gray-200 rounded-lg overflow-hidden hover:border-black transition-colors"
+                >
+                  <div className="aspect-square bg-gray-100 flex items-center justify-center">
+                    <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
+                  </div>
+                  <div className="p-4 text-left">
+                    <h3 className="font-bold mb-1" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                      Manage Athletes
+                    </h3>
+                    <p className="text-sm" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
+                      See and Manage Athlete List
+                    </p>
+                  </div>
+                </button>
+
+                {/* Create Lesson */}
+                <button
+                  onClick={() => setActiveModal('create-lesson')}
+                  className="group bg-white border-2 border-gray-200 rounded-lg overflow-hidden hover:border-black transition-colors"
+                >
+                  <div className="aspect-square bg-gray-100 flex items-center justify-center">
+                    <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
+                  </div>
+                  <div className="p-4 text-left">
+                    <h3 className="font-bold mb-1" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                      Create Lesson
+                    </h3>
+                    <p className="text-sm" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
+                      Build New Training
+                    </p>
+                  </div>
+                </button>
+
+                {/* Add Videos and Content */}
+                <button
+                  onClick={() => setActiveModal('add-content')}
+                  className="group bg-white border-2 border-gray-200 rounded-lg overflow-hidden hover:border-black transition-colors"
+                >
+                  <div className="aspect-square bg-gray-100 flex items-center justify-center">
+                    <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
+                  </div>
+                  <div className="p-4 text-left">
+                    <h3 className="font-bold mb-1" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                      Add Videos and Content
+                    </h3>
+                    <p className="text-sm" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
+                      Upload Content to Your Profile
+                    </p>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            {/* Calendar and Events */}
+            <div>
+              <h2 className="text-2xl font-bold mb-4" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif', fontWeight: 700 }}>
+                Calendar and Events
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Event Schedule */}
+                <button
+                  onClick={() => setActiveModal('event-schedule')}
+                  className="group bg-white border-2 border-gray-200 rounded-lg overflow-hidden hover:border-black transition-colors"
+                >
+                  <div className="aspect-square bg-gray-100 flex items-center justify-center">
+                    <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
+                  </div>
+                  <div className="p-4 text-left">
+                    <h3 className="font-bold mb-1" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                      Event Schedule
+                    </h3>
+                    <p className="text-sm" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
+                      Add Community Events for Athletes
+                    </p>
+                  </div>
+                </button>
+
+                {/* Schedule Training Session */}
+                <button
+                  onClick={() => setActiveModal('schedule-session')}
+                  className="group bg-white border-2 border-gray-200 rounded-lg overflow-hidden hover:border-black transition-colors"
+                >
+                  <div className="aspect-square bg-gray-100 flex items-center justify-center">
+                    <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
+                  </div>
+                  <div className="p-4 text-left">
+                    <h3 className="font-bold mb-1" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                      Schedule Training Session
+                    </h3>
+                    <p className="text-sm" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
+                      Review Requests and Add to Calendar
+                    </p>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            {/* Social Media Icons */}
+            <div className="flex items-center gap-4 pt-8 border-t border-gray-200">
+              <a href="#" className="text-gray-600 hover:text-black transition-colors" aria-label="Facebook">
+                <Facebook className="w-5 h-5" />
               </a>
-              <a href="/dashboard/coach/lessons/create" className="group rounded-lg border bg-white hover:bg-gray-50 transition-colors">
-                <div className="w-full aspect-square flex flex-col items-center justify-center">
-                  <PlusSquare className="w-8 h-8 mb-2" />
-                  <div className="text-sm font-semibold">Create Lesson</div>
-                </div>
+              <a href="#" className="text-gray-600 hover:text-black transition-colors" aria-label="LinkedIn">
+                <Linkedin className="w-5 h-5" />
               </a>
-              <a href="/dashboard/coach/athletes" className="group rounded-lg border bg-white hover:bg-gray-50 transition-colors">
-                <div className="w-full aspect-square flex flex-col items-center justify-center">
-                  <Users className="w-8 h-8 mb-2" />
-                  <div className="text-sm font-semibold">Your Athletes</div>
-                </div>
+              <a href="#" className="text-gray-600 hover:text-black transition-colors" aria-label="YouTube">
+                <Youtube className="w-5 h-5" />
               </a>
-              <a href="/dashboard/coach/messages" className="group rounded-lg border bg-white hover:bg-gray-50 transition-colors">
-                <div className="w-full aspect-square flex flex-col items-center justify-center">
-                  <MessageSquare className="w-8 h-8 mb-2" />
-                  <div className="text-sm font-semibold">Messages</div>
-                </div>
-              </a>
-              <a href="/dashboard/coach/analytics" className="group rounded-lg border bg-white hover:bg-gray-50 transition-colors">
-                <div className="w-full aspect-square flex flex-col items-center justify-center">
-                  <BarChart2 className="w-8 h-8 mb-2" />
-                  <div className="text-sm font-semibold">Analytics</div>
-                </div>
-              </a>
-              <a href="/dashboard/coach/profile" className="group rounded-lg border bg-white hover:bg-gray-50 transition-colors">
-                <div className="w-full aspect-square flex flex-col items-center justify-center">
-                  <UserCog className="w-8 h-8 mb-2" />
-                  <div className="text-sm font-semibold">Profile</div>
-                </div>
+              <a href="#" className="text-gray-600 hover:text-black transition-colors" aria-label="Instagram">
+                <Instagram className="w-5 h-5" />
               </a>
             </div>
           </div>
         </div>
       </main>
+
+      {/* Modals */}
+      {activeModal === 'athletes' && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+          onClick={() => setActiveModal(null)}
+        >
+          <div
+            className="bg-white rounded-2xl p-8 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                Manage Athletes
+              </h2>
+              <button
+                onClick={() => setActiveModal(null)}
+                className="text-gray-500 hover:text-black text-2xl font-bold"
+              >
+                ✕
+              </button>
+            </div>
+            <iframe
+              src="/dashboard/coach/athletes"
+              className="w-full h-[60vh] border-0 rounded-lg"
+              title="Manage Athletes"
+            />
+          </div>
+        </div>
+      )}
+
+      {activeModal === 'create-lesson' && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+          onClick={() => setActiveModal(null)}
+        >
+          <div
+            className="bg-white rounded-2xl p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                Create Lesson
+              </h2>
+              <button
+                onClick={() => setActiveModal(null)}
+                className="text-gray-500 hover:text-black text-2xl font-bold"
+              >
+                ✕
+              </button>
+            </div>
+            <iframe
+              src="/dashboard/coach/lessons/create"
+              className="w-full h-[70vh] border-0 rounded-lg"
+              title="Create Lesson"
+            />
+          </div>
+        </div>
+      )}
+
+      {activeModal === 'add-content' && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+          onClick={() => setActiveModal(null)}
+        >
+          <div
+            className="bg-white rounded-2xl p-8 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                Add Videos and Content
+              </h2>
+              <button
+                onClick={() => setActiveModal(null)}
+                className="text-gray-500 hover:text-black text-2xl font-bold"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="text-center py-12">
+              <Video className="w-16 h-16 mx-auto mb-4" style={{ color: '#666', opacity: 0.5 }} />
+              <p className="text-lg font-bold mb-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                Content Upload
+              </p>
+              <p className="text-sm" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
+                This feature is coming soon
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeModal === 'event-schedule' && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+          onClick={() => setActiveModal(null)}
+        >
+          <div
+            className="bg-white rounded-2xl p-8 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                Event Schedule
+              </h2>
+              <button
+                onClick={() => setActiveModal(null)}
+                className="text-gray-500 hover:text-black text-2xl font-bold"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="text-center py-12">
+              <Calendar className="w-16 h-16 mx-auto mb-4" style={{ color: '#666', opacity: 0.5 }} />
+              <p className="text-lg font-bold mb-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                Event Scheduling
+              </p>
+              <p className="text-sm" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
+                This feature is coming soon
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeModal === 'schedule-session' && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+          onClick={() => setActiveModal(null)}
+        >
+          <div
+            className="bg-white rounded-2xl p-8 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                Schedule Training Session
+              </h2>
+              <button
+                onClick={() => setActiveModal(null)}
+                className="text-gray-500 hover:text-black text-2xl font-bold"
+              >
+                ✕
+              </button>
+            </div>
+            <iframe
+              src="/dashboard/coach/live-sessions"
+              className="w-full h-[60vh] border-0 rounded-lg"
+              title="Schedule Training Session"
+            />
+          </div>
+        </div>
+      )}
     </div>
   )
 }
