@@ -4,12 +4,15 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { useEnhancedRole } from '@/hooks/use-role-switcher'
+import { signOut } from 'firebase/auth'
+import { auth } from '@/lib/firebase.client'
 import { Calendar, Video, Users, FileText, Facebook, Instagram, Youtube, Linkedin } from 'lucide-react'
 
 export default function CoachLockerRoom() {
   const { user } = useAuth()
   const { role } = useEnhancedRole()
   const [activeModal, setActiveModal] = useState<string | null>(null)
+  const [isSigningOut, setIsSigningOut] = useState(false)
 
   if (!user || (role !== 'coach' && role !== 'creator' && role !== 'superadmin' && role !== 'admin')) {
     return (
@@ -41,13 +44,25 @@ export default function CoachLockerRoom() {
             >
               Browse Coaches
             </Link>
-            <Link
-              href="/dashboard/coach"
-              className="px-4 py-2 rounded-lg text-sm font-bold bg-black text-white hover:bg-gray-800 transition-colors"
-              style={{ fontFamily: '\"Open Sans\", sans-serif' }}
+            <button
+              onClick={async () => {
+                if (isSigningOut) return
+                setIsSigningOut(true)
+                setTimeout(async () => {
+                  try {
+                    await signOut(auth)
+                  } catch (e) {
+                    console.error('Sign out failed:', e)
+                  } finally {
+                    window.location.href = '/'
+                  }
+                }, 900)
+              }}
+              className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${isSigningOut ? 'bg-gray-800 text-white' : 'bg-black text-white hover:bg-gray-800'}`}
+              style={{ fontFamily: '\"Open Sans\", sans-serif', fontWeight: 700 }}
             >
-              Button
-            </Link>
+              {isSigningOut ? 'Goodbye…' : 'Sign Out'}
+            </button>
           </div>
         </div>
       </header>
@@ -168,11 +183,29 @@ export default function CoachLockerRoom() {
                     Review Requests and Add to Calendar
                   </p>
                 </button>
+
+                {/* Return to Dashboard */}
+                <Link
+                  href="/dashboard/coach"
+                  className="text-left w-full"
+                >
+                  <div className="w-full aspect-square rounded-lg overflow-hidden mb-1 flex items-center justify-center" style={{ backgroundColor: '#FC0105' }}>
+                    <div className="w-full h-full flex items-center justify-center">
+                      <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
+                    </div>
+                  </div>
+                  <p className="text-sm font-semibold" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                    Return to Dashboard
+                  </p>
+                  <p className="text-xs" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
+                    Back to Main Coach Dashboard
+                  </p>
+                </Link>
               </div>
             </div>
 
             {/* Social Media Icons */}
-            <div className="flex items-center gap-4 pt-8 border-t border-gray-200">
+            <div className="flex items-center gap-4 pt-8">
               <a href="#" className="text-gray-600 hover:text-black transition-colors" aria-label="Facebook">
                 <Facebook className="w-5 h-5" />
               </a>
