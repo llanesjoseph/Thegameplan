@@ -101,15 +101,15 @@ export default function CoachProfile() {
             </div>
           )}
         </div>
-        {/* Profile photo fixed near top-right; larger to match render */}
-        <div className="absolute top-6 right-6">
-          <div className="w-40 h-40 sm:w-44 sm:h-44 rounded-none overflow-hidden ring-4 ring-white shadow-xl bg-gray-100">
+        {/* Profile photo fixed near top-right; matches card grid sizing */}
+        <div className="absolute top-6 right-6 w-[calc(50%-0.75rem)] sm:w-[calc(33.333%-0.667rem)] lg:w-[calc(25%-0.75rem)]">
+          <div className="w-full rounded-lg overflow-hidden ring-4 ring-white shadow-xl bg-gray-100" style={{ aspectRatio: '1/1' }}>
             {photoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={photoUrl} alt={user?.displayName || 'Coach'} className="w-full h-full object-cover" />
             ) : (
-              <div className="w-full h-full bg-white flex items-center justify-center">
-                <div className="w-10 h-10 rounded-md bg-gray-200" />
+              <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#8B7D7B' }}>
+                <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
               </div>
             )}
           </div>
