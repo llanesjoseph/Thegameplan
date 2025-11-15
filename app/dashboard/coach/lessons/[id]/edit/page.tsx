@@ -320,58 +320,66 @@ export default function EditLessonPage() {
           </div>
         )}
 
-        {/* Basic Info */}
-        <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
-          <h2 className="text-xl font-heading mb-4 flex items-center gap-2" style={{ color: '#000000' }}>
-            <FileText className="w-5 h-5" />
-            Basic Information
-          </h2>
+        {/* Step 1: Lesson Details */}
+        <div className="bg-white rounded-xl border-2 border-black p-6">
+          <div className="flex items-center gap-3 mb-6 pb-4 border-b-2 border-gray-100">
+            <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center font-bold">1</div>
+            <div>
+              <h2 className="text-lg font-bold" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                Lesson Details
+              </h2>
+              <p className="text-xs" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
+                Basic information about your lesson
+              </p>
+            </div>
+          </div>
 
           <div className="space-y-4">
             {/* Title */}
             <div>
-              <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
-                Lesson Title *
+              <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                Lesson Title <span style={{ color: '#FC0105' }}>*</span>
               </label>
               <input
                 type="text"
                 value={lesson.title}
                 onChange={(e) => setLesson(prev => ({ ...prev, title: e.target.value }))}
-                placeholder="e.g., Advanced Pitching Mechanics"
-                className="w-full px-4 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                placeholder="e.g., Ankle Locks Fundamentals"
+                className="w-full px-4 py-2.5 border-2 border-black rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                style={{ fontFamily: '\"Open Sans\", sans-serif' }}
               />
             </div>
 
-            {/* Sport and Level */}
+            {/* Sport, Level, Duration */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
-                  Sport *
+                <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                  Sport <span style={{ color: '#FC0105' }}>*</span>
                 </label>
                 <select
                   value={lesson.sport}
                   onChange={(e) => setLesson(prev => ({ ...prev, sport: e.target.value }))}
-                  className="w-full px-4 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                  className="w-full px-4 py-2.5 border-2 border-black rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                  style={{ fontFamily: '\"Open Sans\", sans-serif' }}
                 >
                   <option value="">Select sport...</option>
-                  <option value="baseball">Baseball</option>
-                  <option value="basketball">Basketball</option>
-                  <option value="football">Football</option>
-                  <option value="soccer">Soccer</option>
-                  <option value="softball">Softball</option>
-                  <option value="volleyball">Volleyball</option>
-                  <option value="other">Other</option>
+                  <option value="BJJ">Brazilian Jiu-Jitsu</option>
+                  <option value="MMA">Mixed Martial Arts</option>
+                  <option value="Boxing">Boxing</option>
+                  <option value="Wrestling">Wrestling</option>
+                  <option value="Other">Other</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
-                  Skill Level *
+                <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                  Skill Level <span style={{ color: '#FC0105' }}>*</span>
                 </label>
                 <select
                   value={lesson.level}
                   onChange={(e) => setLesson(prev => ({ ...prev, level: e.target.value as any }))}
-                  className="w-full px-4 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                  className="w-full px-4 py-2.5 border-2 border-black rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                  style={{ fontFamily: '\"Open Sans\", sans-serif' }}
                 >
                   <option value="">Select level...</option>
                   <option value="beginner">Beginner</option>
@@ -381,37 +389,79 @@ export default function EditLessonPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
-                  Duration (minutes)
+                <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                  Duration
                 </label>
-                <input
-                  type="number"
-                  value={lesson.duration}
-                  onChange={(e) => setLesson(prev => ({ ...prev, duration: parseInt(e.target.value) || 60 }))}
-                  min="5"
-                  max="240"
-                  className="w-full px-4 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-                />
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    value={lesson.duration}
+                    onChange={(e) => setLesson(prev => ({ ...prev, duration: parseInt(e.target.value) || 60 }))}
+                    min="5"
+                    max="240"
+                    className="flex-1 px-4 py-2.5 border-2 border-black rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                    style={{ fontFamily: '\"Open Sans\", sans-serif' }}
+                  />
+                  <span className="text-sm font-bold" style={{ color: '#666' }}>min</span>
+                </div>
               </div>
             </div>
 
+            {/* Visibility */}
+            <div>
+              <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                Who can see this lesson?
+              </label>
+              <select
+                value={lesson.visibility}
+                onChange={(e) => setLesson(prev => ({ ...prev, visibility: e.target.value as any }))}
+                className="w-full px-4 py-2.5 border-2 border-black rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                style={{ fontFamily: '\"Open Sans\", sans-serif' }}
+              >
+                <option value="athletes_only">My Athletes Only</option>
+                <option value="specific_athletes">Specific Athletes</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Step 2: Learning Goals */}
+        <div className="bg-white rounded-xl border-2 border-black p-6">
+          <div className="flex items-center gap-3 mb-6 pb-4 border-b-2 border-gray-100">
+            <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center font-bold">2</div>
+            <div>
+              <h2 className="text-lg font-bold" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                Learning Goals
+              </h2>
+              <p className="text-xs" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
+                What will athletes learn from this lesson?
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
             {/* Objectives */}
             <div>
-              <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
+              <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
                 Learning Objectives
               </label>
-              <div className="flex gap-2 mb-2">
+              <p className="text-xs mb-3" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
+                Add specific skills or knowledge athletes will gain
+              </p>
+              <div className="flex gap-2 mb-3">
                 <input
                   type="text"
                   value={currentObjective}
                   onChange={(e) => setCurrentObjective(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addObjective())}
-                  placeholder="Add an objective and press Enter"
-                  className="flex-1 px-4 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                  placeholder="e.g., Master proper ankle lock positioning"
+                  className="flex-1 px-4 py-2.5 border-2 border-black rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                  style={{ fontFamily: '\"Open Sans\", sans-serif' }}
                 />
                 <button
                   onClick={addObjective}
-                  className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2"
+                  className="px-4 py-2.5 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2 font-bold"
+                  style={{ fontFamily: '\"Open Sans\", sans-serif' }}
                 >
                   <Plus className="w-4 h-4" />
                   Add
@@ -419,10 +469,10 @@ export default function EditLessonPage() {
               </div>
               <div className="flex flex-wrap gap-2">
                 {lesson.objectives.map((obj, idx) => (
-                  <div key={idx} className="px-3 py-1 rounded-full flex items-center gap-2" style={{ backgroundColor: 'rgba(145, 166, 235, 0.1)', border: '1px solid #91A6EB' }}>
-                    <span className="text-sm">{obj}</span>
+                  <div key={idx} className="px-3 py-1.5 rounded-lg flex items-center gap-2 bg-gray-100 border-2 border-gray-300">
+                    <span className="text-sm font-semibold" style={{ fontFamily: '\"Open Sans\", sans-serif' }}>{obj}</span>
                     <button onClick={() => removeObjective(idx)} className="hover:bg-red-100 rounded-full p-1">
-                      <Trash2 className="w-3 h-3" style={{ color: '#FF6B35' }} />
+                      <Trash2 className="w-3 h-3" style={{ color: '#FC0105' }} />
                     </button>
                   </div>
                 ))}
@@ -431,21 +481,26 @@ export default function EditLessonPage() {
 
             {/* Tags */}
             <div>
-              <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
-                Tags
+              <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                Tags (Optional)
               </label>
-              <div className="flex gap-2 mb-2">
+              <p className="text-xs mb-3" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
+                Help organize and categorize this lesson
+              </p>
+              <div className="flex gap-2 mb-3">
                 <input
                   type="text"
                   value={currentTag}
                   onChange={(e) => setCurrentTag(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
-                  placeholder="Add tags for organization (e.g., pitching, mechanics)"
-                  className="flex-1 px-4 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                  placeholder="e.g., submissions, fundamentals"
+                  className="flex-1 px-4 py-2.5 border-2 border-black rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                  style={{ fontFamily: '\"Open Sans\", sans-serif' }}
                 />
                 <button
                   onClick={addTag}
-                  className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2"
+                  className="px-4 py-2.5 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2 font-bold"
+                  style={{ fontFamily: '\"Open Sans\", sans-serif' }}
                 >
                   <Plus className="w-4 h-4" />
                   Add
@@ -453,66 +508,56 @@ export default function EditLessonPage() {
               </div>
               <div className="flex flex-wrap gap-2">
                 {lesson.tags.map((tag, idx) => (
-                  <div key={idx} className="px-3 py-1 rounded-full flex items-center gap-2" style={{ backgroundColor: 'rgba(32, 178, 170, 0.1)', border: '1px solid #20B2AA' }}>
-                    <span className="text-sm">{tag}</span>
+                  <div key={idx} className="px-3 py-1.5 rounded-lg flex items-center gap-2 bg-gray-100 border-2 border-gray-300">
+                    <span className="text-sm font-semibold" style={{ fontFamily: '\"Open Sans\", sans-serif' }}>{tag}</span>
                     <button onClick={() => removeTag(idx)} className="hover:bg-red-100 rounded-full p-1">
-                      <Trash2 className="w-3 h-3" style={{ color: '#FF6B35' }} />
+                      <Trash2 className="w-3 h-3" style={{ color: '#FC0105' }} />
                     </button>
                   </div>
                 ))}
               </div>
             </div>
-
-            {/* Visibility */}
-            <div>
-              <label className="block text-sm font-semibold mb-2" style={{ color: '#000000' }}>
-                Visibility
-              </label>
-              <select
-                value={lesson.visibility}
-                onChange={(e) => setLesson(prev => ({ ...prev, visibility: e.target.value as any }))}
-                className="w-full px-4 py-2 border border-gray-300/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-              >
-                <option value="athletes_only">My Athletes Only</option>
-                <option value="specific_athletes">Specific Athletes (Choose later)</option>
-              </select>
-            </div>
           </div>
         </div>
 
-        {/* Lesson Sections */}
-        <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-heading flex items-center gap-2" style={{ color: '#000000' }}>
-              <Video className="w-5 h-5" />
-              Lesson Sections
-            </h2>
+        {/* Step 3: Lesson Content */}
+        <div className="bg-white rounded-xl border-2 border-black p-6">
+          <div className="flex items-center gap-3 mb-6 pb-4 border-b-2 border-gray-100">
+            <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center font-bold">3</div>
+            <div className="flex-1">
+              <h2 className="text-lg font-bold" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                Lesson Content
+              </h2>
+              <p className="text-xs" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
+                Build your lesson with text, videos, drills, and reflections
+              </p>
+            </div>
             <div className="flex gap-2">
               <button
                 onClick={() => addSection('text')}
-                className="px-3 py-1 text-sm rounded-lg hover:opacity-80 transition-opacity"
-                style={{ backgroundColor: 'rgba(145, 166, 235, 0.2)', color: '#000000' }}
+                className="px-4 py-2 text-xs font-bold rounded-lg border-2 border-black bg-white hover:bg-black hover:text-white transition-colors"
+                style={{ fontFamily: '\"Open Sans\", sans-serif' }}
               >
                 + Text
               </button>
               <button
                 onClick={() => addSection('video')}
-                className="px-3 py-1 text-sm rounded-lg hover:opacity-80 transition-opacity"
-                style={{ backgroundColor: 'rgba(32, 178, 170, 0.2)', color: '#000000' }}
+                className="px-4 py-2 text-xs font-bold rounded-lg border-2 border-black bg-white hover:bg-black hover:text-white transition-colors"
+                style={{ fontFamily: '\"Open Sans\", sans-serif' }}
               >
                 + Video
               </button>
               <button
                 onClick={() => addSection('drill')}
-                className="px-3 py-1 text-sm rounded-lg hover:opacity-80 transition-opacity"
-                style={{ backgroundColor: 'rgba(255, 107, 53, 0.2)', color: '#000000' }}
+                className="px-4 py-2 text-xs font-bold rounded-lg border-2 border-black bg-white hover:bg-black hover:text-white transition-colors"
+                style={{ fontFamily: '\"Open Sans\", sans-serif' }}
               >
                 + Drill
               </button>
               <button
                 onClick={() => addSection('reflection')}
-                className="px-3 py-1 text-sm bg-black/10 rounded-lg hover:bg-black/20 transition-colors"
-                style={{ color: '#000000' }}
+                className="px-4 py-2 text-xs font-bold rounded-lg border-2 border-black bg-white hover:bg-black hover:text-white transition-colors"
+                style={{ fontFamily: '\"Open Sans\", sans-serif' }}
               >
                 + Reflection
               </button>
@@ -520,9 +565,14 @@ export default function EditLessonPage() {
           </div>
 
           {lesson.sections.length === 0 ? (
-            <div className="text-center py-12" style={{ color: '#000000', opacity: 0.5 }}>
-              <GraduationCap className="w-16 h-16 mx-auto mb-4" style={{ opacity: 0.3 }} />
-              <p className="text-lg">No sections yet. Add sections to build your lesson.</p>
+            <div className="text-center py-12 border-2 border-dashed border-gray-300 rounded-lg">
+              <GraduationCap className="w-12 h-12 mx-auto mb-3" style={{ color: '#666', opacity: 0.3 }} />
+              <p className="text-sm font-bold mb-1" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                No content yet
+              </p>
+              <p className="text-xs" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
+                Click the buttons above to start building your lesson
+              </p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -631,18 +681,20 @@ export default function EditLessonPage() {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-4">
+        <div className="flex gap-4 pt-4">
           <button
             onClick={handleSave}
             disabled={saving || !lesson.title || !lesson.sport || !lesson.level}
-            className="flex-1 px-6 py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="flex-1 px-6 py-3.5 bg-black text-white rounded-lg font-bold hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            style={{ fontFamily: '\"Open Sans\", sans-serif' }}
           >
             <Save className="w-5 h-5" />
             {saving ? 'Saving Changes...' : 'Save Changes'}
           </button>
           <button
             onClick={() => router.back()}
-            className="px-6 py-3 bg-white border-2 border-gray-300 text-black rounded-lg font-semibold hover:bg-gray-50 transition-colors"
+            className="px-6 py-3.5 bg-white border-2 border-black text-black rounded-lg font-bold hover:bg-gray-50 transition-colors"
+            style={{ fontFamily: '\"Open Sans\", sans-serif' }}
           >
             Cancel
           </button>
