@@ -16,6 +16,7 @@ interface Props {
 export default function ProfileQuickSetupModal({ isOpen, onClose }: Props) {
   const { user } = useAuth()
   const [bio, setBio] = useState('')
+  const [location, setLocation] = useState('')
   const [trainingGoals, setTrainingGoals] = useState('')
   const [photoFile, setPhotoFile] = useState<File | null>(null)
   const [photoPreview, setPhotoPreview] = useState<string>('')
@@ -31,6 +32,8 @@ export default function ProfileQuickSetupModal({ isOpen, onClose }: Props) {
         if (snap.exists()) {
           const d = snap.data() as any
           setBio(d?.bio || d?.about || '')
+          const loc = d?.location || [d?.city, d?.state].filter(Boolean).join(', ') || ''
+          setLocation(loc)
           const goals = Array.isArray(d?.trainingGoals) ? d.trainingGoals.join(', ') : (d?.trainingGoals || '')
           setTrainingGoals(goals)
           const photoUrl = d?.profileImageUrl || d?.photoURL || user.photoURL || ''
@@ -79,6 +82,11 @@ export default function ProfileQuickSetupModal({ isOpen, onClose }: Props) {
       return
     }
 
+    if (!location.trim()) {
+      toast.error('Please add your location')
+      return
+    }
+
     if (!trainingGoals.trim()) {
       toast.error('Please add your training goals')
       return
@@ -99,6 +107,7 @@ export default function ProfileQuickSetupModal({ isOpen, onClose }: Props) {
       // Update user document
       const updates: any = {
         bio: bio.trim(),
+        location: location.trim(),
         trainingGoals: trainingGoals.trim(),
       }
 
@@ -220,6 +229,26 @@ export default function ProfileQuickSetupModal({ isOpen, onClose }: Props) {
             </p>
           </div>
 
+          {/* Location */}
+          <div>
+            <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+              Location <span style={{ color: '#FC0105' }}>*</span>
+            </label>
+            <input
+              type="text"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="City, State or Country"
+              className="w-full px-3 py-2 border-2 border-black rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+              style={{ fontFamily: '"Open Sans", sans-serif' }}
+              maxLength={100}
+              disabled={isSaving}
+            />
+            <p className="text-xs mt-1 text-right" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+              {location.length}/100
+            </p>
+          </div>
+
           {/* Training Goals */}
           <div>
             <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
@@ -254,7 +283,7 @@ export default function ProfileQuickSetupModal({ isOpen, onClose }: Props) {
             <button
               type="button"
               onClick={handleSave}
-              disabled={isSaving || !bio.trim() || !trainingGoals.trim()}
+              disabled={isSaving || !bio.trim() || !location.trim() || !trainingGoals.trim()}
               className="px-4 py-2 bg-black text-white rounded-lg font-bold hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ fontFamily: '"Open Sans", sans-serif' }}
             >

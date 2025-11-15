@@ -1,9 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '@/hooks/use-auth'
-import { doc, getDoc } from 'firebase/firestore'
-import { db } from '@/lib/firebase.client'
+import { doc, getDoc, updateDoc } from 'firebase/firestore'
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
+import { db, storage } from '@/lib/firebase.client'
+import { Edit2, Save, X, User } from 'lucide-react'
+import toast from 'react-hot-toast'
 
 export default function AthleteProfile() {
   const { user } = useAuth()
@@ -16,6 +19,16 @@ export default function AthleteProfile() {
   })
   const [loading, setLoading] = useState(true)
   const [sports, setSports] = useState<string[]>([])
+  const [isEditing, setIsEditing] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const [editedData, setEditedData] = useState({
+    location: '',
+    bio: '',
+    trainingGoals: ''
+  })
+  const [photoFile, setPhotoFile] = useState<File | null>(null)
+  const [photoPreview, setPhotoPreview] = useState<string>('')
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     const init = async () => {
@@ -93,6 +106,116 @@ export default function AthleteProfile() {
     init()
   }, [user])
 
+  const handleEditClick = () => {
+    setEditedData({
+      location: profileData.location,
+      bio: profileData.bio,
+      trainingGoals: profileData.trainingGoals
+    })
+    setPhotoPreview(profileData.profileImageUrl)
+    setIsEditing(true)
+  }
+
+  const handleCancelEdit = () => {
+    setIsEditing(false)
+    setEditedData({
+      location: '',
+      bio: '',
+      trainingGoals: ''
+    })
+    setPhotoFile(null)
+    setPhotoPreview('')
+  }
+
+  const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file')
+      return
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be less than 5MB')
+      return
+    }
+
+    setPhotoFile(file)
+
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      setPhotoPreview(reader.result as string)
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const handleSave = async () => {
+    if (!user?.uid) return
+
+    if (!editedData.location.trim()) {
+      toast.error('Location is required')
+      return
+    }
+
+    if (!editedData.bio.trim()) {
+      toast.error('Bio is required')
+      return
+    }
+
+    if (!editedData.trainingGoals.trim()) {
+      toast.error('Training goals are required')
+      return
+    }
+
+    setIsSaving(true)
+
+    try {
+      let photoURL = profileData.profileImageUrl
+
+      if (photoFile) {
+        const storageRef = ref(storage, `users/${user.uid}/profile-photo.jpg`)
+        await uploadBytes(storageRef, photoFile)
+        photoURL = await getDownloadURL(storageRef)
+      }
+
+      const updates: any = {
+        location: editedData.location.trim(),
+        bio: editedData.bio.trim(),
+        trainingGoals: editedData.trainingGoals.trim(),
+      }
+
+      if (photoURL) {
+        updates.profileImageUrl = photoURL
+        updates.photoURL = photoURL
+      }
+
+      await updateDoc(doc(db, 'users', user.uid), updates)
+
+      setProfileData(prev => ({
+        ...prev,
+        location: editedData.location.trim(),
+        bio: editedData.bio.trim(),
+        trainingGoals: editedData.trainingGoals.trim(),
+        profileImageUrl: photoURL
+      }))
+
+      toast.success('Profile updated successfully!')
+      setIsEditing(false)
+      setPhotoFile(null)
+      setPhotoPreview('')
+
+      try {
+        localStorage.removeItem('athlete_profile_incomplete')
+      } catch {}
+    } catch (error) {
+      console.error('Error saving profile:', error)
+      toast.error('Failed to save profile')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -106,65 +229,198 @@ export default function AthleteProfile() {
   }
 
   return (
-    <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
-      {/* LEFT SIDE - Text Content */}
-      <div className="flex-1 max-w-2xl space-y-3">
-        <div>
-          <h2 className="text-2xl sm:text-3xl font-bold mb-1" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
-            {profileData.displayName || user?.displayName || 'Athlete'}
-          </h2>
-          <p className="text-sm" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
-            {profileData.location}
-          </p>
-        </div>
-
-        <p className="text-sm leading-relaxed" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
-          {profileData.bio}
-        </p>
-
-        <div>
-          <h3 className="text-base font-bold mb-1" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
-            Training Goals:
-          </h3>
-          <p className="text-sm" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
-            {profileData.trainingGoals}
-          </p>
+    <div>
+      {/* Header with Edit/Save/Cancel buttons */}
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
+          Your Profile
+        </h2>
+        <div className="flex gap-2">
+          {!isEditing ? (
+            <button
+              onClick={handleEditClick}
+              className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-bold text-sm"
+              style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
+            >
+              <Edit2 className="w-4 h-4" />
+              Edit Profile
+            </button>
+          ) : (
+            <>
+              <button
+                onClick={handleCancelEdit}
+                disabled={isSaving}
+                className="flex items-center gap-2 px-4 py-2 border-2 border-black rounded-lg hover:bg-gray-100 transition-colors font-bold text-sm disabled:opacity-50"
+                style={{ color: '#000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
+              >
+                <X className="w-4 h-4" />
+                Cancel
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={isSaving}
+                className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-bold text-sm disabled:opacity-50"
+                style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
+              >
+                {isSaving ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4" />
+                    Save Changes
+                  </>
+                )}
+              </button>
+            </>
+          )}
         </div>
       </div>
 
-      {/* RIGHT SIDE - Square Profile Image and sport tags - matches card grid sizing */}
-      <div className="flex-shrink-0 w-[calc(50%-0.75rem)] sm:w-[calc(33.333%-0.667rem)] lg:w-[calc(25%-0.75rem)] flex flex-col gap-3">
-        <div className="w-full rounded-lg overflow-hidden bg-gray-100" style={{ aspectRatio: '1/1' }}>
-          {profileData.profileImageUrl ? (
-            <img
-              src={profileData.profileImageUrl}
-              alt={profileData.displayName || 'Profile'}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#FC0105' }}>
-              {/* Placeholder for athlete profile image */}
-              <div className="w-full h-full bg-gradient-to-br from-red-600 to-red-800"></div>
-            </div>
-          )}
+      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+        {/* LEFT SIDE - Text Content */}
+        <div className="flex-1 max-w-2xl space-y-4">
+          {/* Name (not editable) */}
+          <div>
+            <h3 className="text-2xl sm:text-3xl font-bold mb-1" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
+              {profileData.displayName || user?.displayName || 'Athlete'}
+            </h3>
+          </div>
+
+          {/* Location */}
+          <div>
+            <label className="block text-sm font-bold mb-1" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
+              Location
+            </label>
+            {isEditing ? (
+              <input
+                type="text"
+                value={editedData.location}
+                onChange={(e) => setEditedData(prev => ({ ...prev, location: e.target.value }))}
+                placeholder="City, State or Country"
+                className="w-full px-3 py-2 border-2 border-black rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-sm"
+                style={{ fontFamily: '"Open Sans", sans-serif' }}
+                maxLength={100}
+              />
+            ) : (
+              <p className="text-sm" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+                {profileData.location || 'Not set'}
+              </p>
+            )}
+          </div>
+
+          {/* Bio */}
+          <div>
+            <label className="block text-sm font-bold mb-1" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
+              About Me
+            </label>
+            {isEditing ? (
+              <textarea
+                value={editedData.bio}
+                onChange={(e) => setEditedData(prev => ({ ...prev, bio: e.target.value }))}
+                placeholder="Tell us about yourself..."
+                className="w-full px-3 py-2 border-2 border-black rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-sm"
+                style={{ fontFamily: '"Open Sans", sans-serif' }}
+                rows={3}
+                maxLength={200}
+              />
+            ) : (
+              <p className="text-sm leading-relaxed" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                {profileData.bio || 'No bio yet'}
+              </p>
+            )}
+            {isEditing && (
+              <p className="text-xs mt-1 text-right" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+                {editedData.bio.length}/200
+              </p>
+            )}
+          </div>
+
+          {/* Training Goals */}
+          <div>
+            <label className="block text-sm font-bold mb-1" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
+              Training Goals
+            </label>
+            {isEditing ? (
+              <textarea
+                value={editedData.trainingGoals}
+                onChange={(e) => setEditedData(prev => ({ ...prev, trainingGoals: e.target.value }))}
+                placeholder="What do you want to achieve?"
+                className="w-full px-3 py-2 border-2 border-black rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-sm"
+                style={{ fontFamily: '"Open Sans", sans-serif' }}
+                rows={3}
+                maxLength={200}
+              />
+            ) : (
+              <p className="text-sm" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+                {profileData.trainingGoals || 'No training goals set'}
+              </p>
+            )}
+            {isEditing && (
+              <p className="text-xs mt-1 text-right" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+                {editedData.trainingGoals.length}/200
+              </p>
+            )}
+          </div>
         </div>
 
-        <div className="w-full space-y-2">
-          {sports.length > 0 ? (
-            sports.map((sport) => (
-              <button
-                key={sport}
-                className="w-full bg-black text-white py-2.5 font-bold text-sm hover:bg-gray-800 transition-colors"
-                style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
-              >
-                {sport}
-              </button>
-            ))
-          ) : (
-            <button className="w-full bg-black text-white py-2.5 font-bold text-sm hover:bg-gray-800 transition-colors" style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
-              Sport
-            </button>
-          )}
+        {/* RIGHT SIDE - Square Profile Image and sport tags */}
+        <div className="flex-shrink-0 w-[calc(50%-0.75rem)] sm:w-[calc(33.333%-0.667rem)] lg:w-[calc(25%-0.75rem)] flex flex-col gap-3">
+          {/* Profile Photo */}
+          <div className="w-full rounded-lg overflow-hidden bg-gray-100 relative" style={{ aspectRatio: '1/1' }}>
+            {(isEditing ? photoPreview : profileData.profileImageUrl) ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={isEditing ? photoPreview : profileData.profileImageUrl}
+                alt={profileData.displayName || 'Profile'}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#8B7D7B' }}>
+                <User className="w-1/3 h-1/3 text-white opacity-90" />
+              </div>
+            )}
+            {isEditing && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePhotoSelect}
+                  className="hidden"
+                  id="athlete-photo-upload"
+                />
+                <label
+                  htmlFor="athlete-photo-upload"
+                  className="px-4 py-2 bg-white text-black font-bold rounded-lg hover:bg-gray-100 transition-colors cursor-pointer text-sm"
+                  style={{ fontFamily: '"Open Sans", sans-serif' }}
+                >
+                  Change Photo
+                </label>
+              </div>
+            )}
+          </div>
+
+          {/* Sport Tags */}
+          <div className="w-full space-y-2">
+            {sports.length > 0 ? (
+              sports.map((sport) => (
+                <div
+                  key={sport}
+                  className="w-full bg-black text-white py-2.5 font-bold text-sm text-center"
+                  style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
+                >
+                  {sport}
+                </div>
+              ))
+            ) : (
+              <div className="w-full bg-black text-white py-2.5 font-bold text-sm text-center" style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
+                Sport
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

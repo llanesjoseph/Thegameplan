@@ -29,6 +29,7 @@ interface AthleteInvitation {
   status: 'pending' | 'sent' | 'accepted' | 'expired'
   sentAt?: string
   expiresAt?: string
+  photoUrl?: string
 }
 
 interface BulkInviteForm {
@@ -50,6 +51,19 @@ function CoachAthletesContent() {
   const [showBulkInvite, setShowBulkInvite] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [dataLoading, setDataLoading] = useState(true)
+  const [flippedCards, setFlippedCards] = useState<Set<string>>(new Set())
+
+  const toggleCardFlip = (id: string) => {
+    setFlippedCards(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(id)) {
+        newSet.delete(id)
+      } else {
+        newSet.add(id)
+      }
+      return newSet
+    })
+  }
 
   // Authentication check
   useEffect(() => {
@@ -107,7 +121,8 @@ function CoachAthletesContent() {
         status: athlete.status || 'accepted',
         sentAt: athlete.createdAt ? new Date(athlete.createdAt).toLocaleDateString() : 'Unknown',
         expiresAt: athlete.expiresAt ? new Date(athlete.expiresAt).toLocaleDateString() : undefined,
-        customMessage: athlete.customMessage
+        customMessage: athlete.customMessage,
+        photoUrl: athlete.photoURL || athlete.profileImageUrl || athlete.headshotUrl || ''
       }))
 
       setInvitations(athleteInvitations)
@@ -378,17 +393,6 @@ function CoachAthletesContent() {
       )}
 
       <main className={`w-full ${embedded ? 'p-4' : 'max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6'} space-y-6`}>
-        {/* Header */}
-        {embedded && (
-          <div className="mb-4">
-            <h1 className="text-xl font-bold mb-1" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
-              My Athletes
-            </h1>
-            <p className="text-xs" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
-              Track the status of your athlete invitations
-            </p>
-          </div>
-        )}
 
 
         {/* Bulk Invite Form */}
@@ -619,76 +623,97 @@ function CoachAthletesContent() {
               </p>
             </div>
           ) : (
-            <div className="space-y-2">
-              {invitations.map((invitation) => (
-                <div
-                  key={invitation.id}
-                  className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
-                  onClick={(e) => {
-                    // Don't trigger if clicking on action buttons
-                    if (!(e.target as HTMLElement).closest('button')) {
-                      console.log('Athlete clicked:', invitation.name)
-                      // Use slug if available, otherwise fall back to ID
-                      const athleteIdentifier = invitation.slug || invitation.id
-                      const targetUrl = embedded
-                        ? `/dashboard/coach/athletes/${athleteIdentifier}?embedded=true`
-                        : `/dashboard/coach/athletes/${athleteIdentifier}`
-                      router.push(targetUrl)
-                    }
-                  }}
-                >
-                  {/* Profile Photo */}
-                  <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0" style={{ backgroundColor: '#8B7D7B' }}>
-                    <div className="w-full h-full flex items-center justify-center">
-                      <User className="w-6 h-6 text-white opacity-90" />
-                    </div>
-                  </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+              {invitations.map((invitation) => {
+                const isFlipped = flippedCards.has(invitation.id)
+                return (
+                  <div key={invitation.id} className="text-left w-full">
+                    <div
+                      className="w-full aspect-square rounded-lg overflow-hidden mb-1 cursor-pointer"
+                      style={{ perspective: '1000px' }}
+                      onClick={() => toggleCardFlip(invitation.id)}
+                    >
+                      <div
+                        className="relative w-full h-full transition-transform duration-500"
+                        style={{
+                          transformStyle: 'preserve-3d',
+                          transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)'
+                        }}
+                      >
+                        {/* Front Side - Athlete Photo */}
+                        <div
+                          className="absolute inset-0 w-full h-full flex items-center justify-center"
+                          style={{
+                            backfaceVisibility: 'hidden',
+                            backgroundColor: '#8B7D7B'
+                          }}
+                        >
+                          {invitation.photoUrl ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={invitation.photoUrl}
+                              alt={invitation.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <User className="w-1/3 h-1/3 text-white opacity-90" />
+                          )}
+                        </div>
 
-                  {/* Athlete Info */}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold truncate" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
+                        {/* Back Side - Management Functions */}
+                        <div
+                          className="absolute inset-0 w-full h-full flex flex-col items-center justify-center gap-3 p-4"
+                          style={{
+                            backfaceVisibility: 'hidden',
+                            transform: 'rotateY(180deg)',
+                            backgroundColor: '#8B7D7B'
+                          }}
+                        >
+                          {/* Status Badge */}
+                          <div className="mb-2">
+                            {getStatusBadge(invitation.status)}
+                          </div>
+
+                          {/* Action Buttons */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleResendInvitation(invitation.id)
+                            }}
+                            disabled={isLoading}
+                            className="w-full px-3 py-2 rounded-lg hover:bg-gray-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-black text-white text-xs font-bold flex items-center justify-center gap-2"
+                            style={{ fontFamily: '"Open Sans", sans-serif' }}
+                          >
+                            <Mail className="w-3.5 h-3.5" />
+                            Resend
+                          </button>
+
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleRemoveInvitation(invitation.id)
+                            }}
+                            disabled={isLoading}
+                            className="w-full px-3 py-2 rounded-lg hover:bg-gray-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-white text-xs font-bold flex items-center justify-center gap-2"
+                            style={{ color: '#000', fontFamily: '"Open Sans", sans-serif' }}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            Revoke
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Athlete Info Below Card */}
+                    <p className="text-sm font-semibold truncate" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
                       {invitation.name}
                     </p>
                     <p className="text-xs truncate" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
-                      {invitation.email}
-                    </p>
-                    <p className="text-xs" style={{ color: '#999', fontFamily: '"Open Sans", sans-serif' }}>
-                      {invitation.sport} • {invitation.sentAt}
+                      {invitation.sport}
                     </p>
                   </div>
-
-                  {/* Status Badge */}
-                  <div className="flex-shrink-0">
-                    {getStatusBadge(invitation.status)}
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex gap-2 flex-shrink-0">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleResendInvitation(invitation.id)
-                      }}
-                      disabled={isLoading}
-                      className="p-2 rounded-lg hover:bg-gray-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-black"
-                      title="Resend invitation"
-                    >
-                      <Mail className="w-4 h-4 text-white" />
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleRemoveInvitation(invitation.id)
-                      }}
-                      disabled={isLoading}
-                      className="p-2 rounded-lg hover:bg-gray-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                      title="Revoke invitation"
-                    >
-                      <Trash2 className="w-4 h-4 text-gray-600" />
-                    </button>
-                  </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           )}
         </div>
