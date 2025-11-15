@@ -184,24 +184,18 @@ export default function CoachLockerRoom() {
                   </p>
                 </button>
 
-                {/* Return to Dashboard */}
-                <Link
-                  href="/dashboard/coach"
-                  className="text-left w-full"
-                >
-                  <div className="w-full aspect-square rounded-lg overflow-hidden mb-1 flex items-center justify-center" style={{ backgroundColor: '#FC0105' }}>
-                    <div className="w-full h-full flex items-center justify-center">
-                      <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
-                    </div>
-                  </div>
-                  <p className="text-sm font-semibold" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
-                    Return to Dashboard
-                  </p>
-                  <p className="text-xs" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
-                    Back to Main Coach Dashboard
-                  </p>
-                </Link>
               </div>
+            </div>
+
+            {/* Return to Dashboard Button */}
+            <div className="flex justify-center pt-4">
+              <Link
+                href="/dashboard/coach"
+                className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-bold text-sm"
+                style={{ fontFamily: '\"Open Sans\", sans-serif', fontWeight: 700 }}
+              >
+                Return to Dashboard
+              </Link>
             </div>
 
             {/* Social Media Icons */}
