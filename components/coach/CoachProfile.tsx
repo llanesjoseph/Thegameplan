@@ -38,7 +38,20 @@ export default function CoachProfile() {
           const unique = Array.from(new Set(list.map(s => String(s).trim()))).filter(Boolean)
           const expanded = unique.map(expandSportName)
           setSports(expanded)
-          setPrimarySport(expandSportName((data?.sport as string) || expanded[0] || ''))
+
+          // Ensure we always have a primary sport - fallback chain:
+          // 1. data.sport (primary sport field)
+          // 2. data.primarySport (alternate field)
+          // 3. data.inviteSport (sport from invite)
+          // 4. expanded[0] (first from sports array)
+          // 5. "Sport" (ultimate fallback)
+          const sportValue =
+            (data?.sport as string) ||
+            (data?.primarySport as string) ||
+            (data?.inviteSport as string) ||
+            expanded[0] ||
+            'Sport'
+          setPrimarySport(expandSportName(sportValue))
           setBio((data?.bio as string) || (data?.about as string) || '')
 
           // Prefer explicit profile image fields, then auth photoURL
@@ -150,17 +163,15 @@ export default function CoachProfile() {
           Specialties:
         </h3>
 
-        {/* Primary sport badge */}
-        {primarySport && (
-          <div className="flex flex-wrap gap-2">
-            <span
-              className="px-3 py-1 rounded-lg bg-black text-white text-xs font-bold"
-              style={{ fontFamily: '\"Open Sans\", sans-serif' }}
-            >
-              {primarySport}
-            </span>
-          </div>
-        )}
+        {/* Primary sport badge - always shows */}
+        <div className="flex flex-wrap gap-2">
+          <span
+            className="px-3 py-1 rounded-lg bg-black text-white text-xs font-bold"
+            style={{ fontFamily: '\"Open Sans\", sans-serif' }}
+          >
+            {primarySport}
+          </span>
+        </div>
 
         {/* Bio */}
         <p className="text-sm" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
