@@ -27,6 +27,14 @@ export default function CoachProfile() {
   const [isEditingProfile, setIsEditingProfile] = useState(false)
   const [isHoveringBadge, setIsHoveringBadge] = useState(false)
 
+  // Display state
+  const [location, setLocation] = useState<string>('')
+  const [achievements, setAchievements] = useState<string>('')
+  const [instagram, setInstagram] = useState<string>('')
+  const [youtube, setYoutube] = useState<string>('')
+  const [linkedin, setLinkedin] = useState<string>('')
+  const [facebook, setFacebook] = useState<string>('')
+
   // Edit form state
   const [editBio, setEditBio] = useState('')
   const [editLocation, setEditLocation] = useState('')
@@ -67,16 +75,30 @@ export default function CoachProfile() {
             'Sport'
           setPrimarySport(expandSportName(sportValue))
           const bioText = (data?.bio as string) || (data?.about as string) || ''
+          const locationText = (data?.location as string) || ''
+          const achievementsText = (data?.achievements as string) || ''
+          const instagramText = (data?.instagram as string) || ''
+          const youtubeText = (data?.youtube as string) || ''
+          const linkedinText = (data?.linkedin as string) || ''
+          const facebookText = (data?.facebook as string) || ''
+
+          // Set display state
           setBio(bioText)
+          setLocation(locationText)
+          setAchievements(achievementsText)
+          setInstagram(instagramText)
+          setYoutube(youtubeText)
+          setLinkedin(linkedinText)
+          setFacebook(facebookText)
 
           // Load edit form data
           setEditBio(bioText)
-          setEditLocation((data?.location as string) || '')
-          setEditAchievements((data?.achievements as string) || '')
-          setEditInstagram((data?.instagram as string) || '')
-          setEditYoutube((data?.youtube as string) || '')
-          setEditLinkedin((data?.linkedin as string) || '')
-          setEditFacebook((data?.facebook as string) || '')
+          setEditLocation(locationText)
+          setEditAchievements(achievementsText)
+          setEditInstagram(instagramText)
+          setEditYoutube(youtubeText)
+          setEditLinkedin(linkedinText)
+          setEditFacebook(facebookText)
 
           // Prefer explicit profile image fields, then auth photoURL
           const raw =
@@ -179,7 +201,15 @@ export default function CoachProfile() {
         facebook: editFacebook
       })
 
+      // Update display state
       setBio(editBio)
+      setLocation(editLocation)
+      setAchievements(editAchievements)
+      setInstagram(editInstagram)
+      setYoutube(editYoutube)
+      setLinkedin(editLinkedin)
+      setFacebook(editFacebook)
+
       setIsEditingProfile(false)
       alert('Profile updated successfully!')
     } catch (error) {
@@ -262,10 +292,97 @@ export default function CoachProfile() {
           </button>
         </div>
 
+        {/* Location */}
+        {location && (
+          <div className="flex items-center gap-2 text-sm" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
+            <MapPin className="w-4 h-4" />
+            <span>{location}</span>
+          </div>
+        )}
+
         {/* Bio */}
-        <p className="text-sm" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
-          {bio}
-        </p>
+        {bio && (
+          <div>
+            <h4 className="text-sm font-bold mb-1" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+              About
+            </h4>
+            <p className="text-sm" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+              {bio}
+            </p>
+          </div>
+        )}
+
+        {/* Achievements */}
+        {achievements && (
+          <div>
+            <h4 className="text-sm font-bold mb-1 flex items-center gap-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+              <Award className="w-4 h-4" />
+              Achievements
+            </h4>
+            <p className="text-sm whitespace-pre-line" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+              {achievements}
+            </p>
+          </div>
+        )}
+
+        {/* Social Media Links */}
+        {(instagram || youtube || linkedin || facebook) && (
+          <div>
+            <h4 className="text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+              Connect
+            </h4>
+            <div className="flex flex-wrap gap-2">
+              {instagram && (
+                <a
+                  href={`https://instagram.com/${instagram.replace('@', '')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-white text-xs font-bold transition-colors hover:opacity-80"
+                  style={{ backgroundColor: '#E4405F', fontFamily: '\"Open Sans\", sans-serif' }}
+                >
+                  <Instagram className="w-3.5 h-3.5" />
+                  Instagram
+                </a>
+              )}
+              {youtube && (
+                <a
+                  href={youtube.startsWith('http') ? youtube : `https://youtube.com/${youtube}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-white text-xs font-bold transition-colors hover:opacity-80"
+                  style={{ backgroundColor: '#FF0000', fontFamily: '\"Open Sans\", sans-serif' }}
+                >
+                  <Youtube className="w-3.5 h-3.5" />
+                  YouTube
+                </a>
+              )}
+              {linkedin && (
+                <a
+                  href={linkedin.startsWith('http') ? linkedin : `https://linkedin.com/in/${linkedin}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-white text-xs font-bold transition-colors hover:opacity-80"
+                  style={{ backgroundColor: '#0A66C2', fontFamily: '\"Open Sans\", sans-serif' }}
+                >
+                  <Linkedin className="w-3.5 h-3.5" />
+                  LinkedIn
+                </a>
+              )}
+              {facebook && (
+                <a
+                  href={facebook.startsWith('http') ? facebook : `https://facebook.com/${facebook}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-white text-xs font-bold transition-colors hover:opacity-80"
+                  style={{ backgroundColor: '#1877F2', fontFamily: '\"Open Sans\", sans-serif' }}
+                >
+                  <Facebook className="w-3.5 h-3.5" />
+                  Facebook
+                </a>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Inline Profile Editor */}
         {isEditingProfile && (
