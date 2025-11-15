@@ -6,6 +6,7 @@ import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firesto
 import { db, storage } from '@/lib/firebase.client'
 import { ref, getDownloadURL } from 'firebase/storage'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import LessonOverlay from '@/components/LessonOverlay'
 
 export default function AthleteTrainingLibrary() {
   const { user } = useAuth()
@@ -170,35 +171,17 @@ export default function AthleteTrainingLibrary() {
         <p className="text-gray-500 text-sm">No training content available yet</p>
       )}
 
-      {/* Lesson Viewer Popup */}
+      {/* Lesson Viewer - Shows ONLY the individual lesson */}
       {openLessonId && (
-        <div
-          className="fixed inset-0 z-50"
-          style={{ backgroundColor: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(2px)' }}
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setOpenLessonId(null)
+        <LessonOverlay
+          lessonId={openLessonId}
+          onClose={() => setOpenLessonId(null)}
+          isCompleted={lessons.find(l => l.id === openLessonId)?.isCompleted}
+          onToggleCompletion={() => {
+            // Optional: handle completion toggle if needed
+            console.log('Lesson completion toggled')
           }}
-        >
-          <div className="fixed right-4 bottom-4 sm:right-6 sm:bottom-6 w-[94vw] sm:w-[840px] max-w-[880px] rounded-2xl shadow-2xl overflow-hidden bg-white">
-            <div className="flex items-center justify-between px-4 py-3" style={{ background: '#FC0105' }}>
-              <h3 className="text-white font-bold" style={{ fontFamily: '"Open Sans", sans-serif' }}>Training Lesson</h3>
-              <button
-                onClick={() => setOpenLessonId(null)}
-                className="text-white/90 hover:text-white px-2 py-1 rounded-lg hover:bg-white/10 transition-colors"
-                aria-label="Close"
-              >
-                ✕
-              </button>
-            </div>
-            <div className="h-[70vh]">
-              <iframe
-                src={`/dashboard/athlete-lessons?lesson=${openLessonId}&embedded=true`}
-                title="Lesson Viewer"
-                className="w-full h-full border-0"
-              />
-            </div>
-          </div>
-        </div>
+        />
       )}
     </div>
   )
