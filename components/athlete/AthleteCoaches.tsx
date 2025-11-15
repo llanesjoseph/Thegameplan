@@ -6,7 +6,7 @@ import { doc, getDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase.client'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import Live1on1RequestModal from './Live1on1RequestModal'
-import SubmitVideoModal from './SubmitVideoModal'
+import VideoManagementModal from './VideoManagementModal'
 import dynamic from 'next/dynamic'
 
 const AskCoachAI = dynamic(() => import('./AskCoachAI'), { ssr: false })
@@ -246,16 +246,11 @@ export default function AthleteCoaches() {
         </div>
       )}
 
-      {/* Submit Video Modal */}
+      {/* Video Management Modal */}
       {showSubmitVideoModal && (
-        <SubmitVideoModal
-          userId={user?.uid || ''}
-          userEmail={user?.email || ''}
+        <VideoManagementModal
           onClose={() => setShowSubmitVideoModal(false)}
-          onSuccess={() => {
-            setShowSubmitVideoModal(false)
-            console.log('Video submission completed')
-          }}
+          initialTab="submit"
         />
       )}
     </>
