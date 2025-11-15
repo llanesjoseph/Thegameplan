@@ -103,7 +103,7 @@ export default function VideoManagementModal({
 
     try {
       const q = query(
-        collection(db, 'videoSubmissions'),
+        collection(db, 'submissions'),
         where('athleteUid', '==', user.uid),
         orderBy('createdAt', 'desc')
       )
