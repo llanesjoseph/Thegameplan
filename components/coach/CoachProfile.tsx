@@ -327,9 +327,9 @@ export default function CoachProfile() {
           )}
         </div>
 
-        {/* Specialties and Actions Row */}
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-sm font-bold" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+        {/* Specialties and Actions */}
+        <div>
+          <span className="text-sm font-bold block mb-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
             Specialties:
           </span>
           <button
