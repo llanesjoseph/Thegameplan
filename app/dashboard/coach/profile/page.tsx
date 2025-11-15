@@ -117,27 +117,6 @@ function CoachProfileContent() {
   }
 
   return (
-      <div style={{ backgroundColor: embedded ? 'transparent' : '#E8E6D8' }} className={embedded ? '' : 'min-h-screen'}>
-        {!embedded && <AppHeader title="Coach Profile" subtitle="Manage your coaching profile" />}
-
-        <div className={`w-full ${embedded ? 'p-4' : 'max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6'}`}>
-          <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-12 text-center">
-            <div className="w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-6" style={{ background: 'linear-gradient(135deg, #FF6B35 0%, rgba(255, 107, 53, 0.8) 100%)' }}>
-              <User className="w-8 h-8 text-white" />
-            </div>
-            <h2 className="text-2xl mb-2" style={{ color: '#000000' }}>
-              Access Restricted
-            </h2>
-            <p style={{ color: '#000000', opacity: 0.7 }}>
-              Only approved coaches can access profile management.
-            </p>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  return (
     <div style={{ backgroundColor: embedded ? 'transparent' : '#E8E6D8' }} className={embedded ? '' : 'min-h-screen'}>
       {!embedded && (
         <AppHeader title="Coach Profile" subtitle="Manage your coaching profile and presentation" />
