@@ -38,6 +38,7 @@ interface LessonForm {
   sections: LessonSection[]
   tags: string[]
   visibility: 'public' | 'athletes_only' | 'specific_athletes'
+  thumbnailUrl?: string
 }
 
 export default function EditLessonPage() {
@@ -52,6 +53,8 @@ export default function EditLessonPage() {
   const [saving, setSaving] = useState(false)
   const [currentObjective, setCurrentObjective] = useState('')
   const [currentTag, setCurrentTag] = useState('')
+  const [thumbnailPreview, setThumbnailPreview] = useState<string>('')
+  const [showPreview, setShowPreview] = useState(false)
 
   const [lesson, setLesson] = useState<LessonForm>({
     title: '',
@@ -61,7 +64,8 @@ export default function EditLessonPage() {
     objectives: [],
     sections: [],
     tags: [],
-    visibility: 'athletes_only'
+    visibility: 'athletes_only',
+    thumbnailUrl: ''
   })
 
   // Load lesson data
@@ -97,8 +101,10 @@ export default function EditLessonPage() {
         objectives: lessonData.objectives || [],
         sections: lessonData.sections || [],
         tags: lessonData.tags || [],
-        visibility: lessonData.visibility || 'athletes_only'
+        visibility: lessonData.visibility || 'athletes_only',
+        thumbnailUrl: lessonData.thumbnailUrl || ''
       })
+      setThumbnailPreview(lessonData.thumbnailUrl || '')
     } catch (error) {
       console.error('Error loading lesson:', error)
       alert('Failed to load lesson')
@@ -159,6 +165,31 @@ export default function EditLessonPage() {
     // Update order numbers
     const reorderedSections = newSections.map((s, idx) => ({ ...s, order: idx }))
     setLesson(prev => ({ ...prev, sections: reorderedSections }))
+  }
+
+  // Handle thumbnail selection
+  const handleThumbnailSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file')
+      return
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image must be less than 5MB')
+      return
+    }
+
+    // Create preview
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      const result = reader.result as string
+      setThumbnailPreview(result)
+      setLesson(prev => ({ ...prev, thumbnailUrl: result }))
+    }
+    reader.readAsDataURL(file)
   }
 
   // Add objective
@@ -403,6 +434,47 @@ export default function EditLessonPage() {
                     style={{ fontFamily: '\"Open Sans\", sans-serif' }}
                   />
                   <span className="text-sm font-bold" style={{ color: '#666' }}>min</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Thumbnail Upload */}
+            <div>
+              <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                Lesson Thumbnail
+              </label>
+              <p className="text-xs mb-3" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
+                Upload a custom thumbnail image for this lesson
+              </p>
+              <div className="flex items-center gap-4">
+                <div className="w-32 h-32 rounded-lg overflow-hidden border-2 border-black bg-gray-100 flex items-center justify-center">
+                  {thumbnailPreview ? (
+                    <img src={thumbnailPreview} alt="Thumbnail preview" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="text-center p-2">
+                      <Upload className="w-8 h-8 mx-auto mb-1" style={{ color: '#666', opacity: 0.5 }} />
+                      <p className="text-xs" style={{ color: '#666' }}>No thumbnail</p>
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleThumbnailSelect}
+                    className="hidden"
+                    id="thumbnail-upload"
+                  />
+                  <label
+                    htmlFor="thumbnail-upload"
+                    className="inline-block px-4 py-2.5 bg-black text-white rounded-lg font-bold hover:bg-gray-800 transition-colors cursor-pointer"
+                    style={{ fontFamily: '\"Open Sans\", sans-serif' }}
+                  >
+                    {thumbnailPreview ? 'Change Thumbnail' : 'Upload Thumbnail'}
+                  </label>
+                  <p className="mt-2 text-xs" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
+                    JPG, PNG or GIF • Max 5MB
+                  </p>
                 </div>
               </div>
             </div>
@@ -676,6 +748,127 @@ export default function EditLessonPage() {
                   />
                 </div>
               ))}
+            </div>
+          )}
+        </div>
+
+        {/* Step 4: Preview */}
+        <div className="bg-white rounded-xl border-2 border-black p-6">
+          <div className="flex items-center gap-3 mb-6 pb-4 border-b-2 border-gray-100">
+            <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center font-bold">4</div>
+            <div className="flex-1">
+              <h2 className="text-lg font-bold" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                Preview
+              </h2>
+              <p className="text-xs" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
+                See how your lesson will look to athletes
+              </p>
+            </div>
+            <button
+              onClick={() => setShowPreview(!showPreview)}
+              className="px-4 py-2 text-xs font-bold rounded-lg border-2 border-black bg-white hover:bg-black hover:text-white transition-colors"
+              style={{ fontFamily: '\"Open Sans\", sans-serif' }}
+            >
+              {showPreview ? 'Hide Preview' : 'Show Preview'}
+            </button>
+          </div>
+
+          {showPreview && (
+            <div className="space-y-4">
+              {/* Preview Header */}
+              <div className="border-2 border-gray-200 rounded-lg p-4">
+                <div className="flex gap-4">
+                  {thumbnailPreview && (
+                    <div className="w-40 h-40 rounded-lg overflow-hidden border-2 border-black flex-shrink-0">
+                      <img src={thumbnailPreview} alt="Lesson thumbnail" className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                  <div className="flex-1">
+                    <h3 className="text-2xl font-bold mb-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                      {lesson.title || 'Untitled Lesson'}
+                    </h3>
+                    <div className="flex gap-2 mb-3">
+                      {lesson.sport && (
+                        <span className="px-3 py-1 rounded-lg bg-black text-white text-xs font-bold" style={{ fontFamily: '\"Open Sans\", sans-serif' }}>
+                          {lesson.sport}
+                        </span>
+                      )}
+                      {lesson.level && (
+                        <span className="px-3 py-1 rounded-lg bg-gray-100 border-2 border-gray-300 text-xs font-bold capitalize" style={{ fontFamily: '\"Open Sans\", sans-serif' }}>
+                          {lesson.level}
+                        </span>
+                      )}
+                      {lesson.duration > 0 && (
+                        <span className="px-3 py-1 rounded-lg bg-gray-100 border-2 border-gray-300 text-xs font-bold" style={{ fontFamily: '\"Open Sans\", sans-serif' }}>
+                          {lesson.duration} min
+                        </span>
+                      )}
+                    </div>
+                    {lesson.objectives.length > 0 && (
+                      <div>
+                        <p className="text-sm font-bold mb-1" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                          Learning Objectives:
+                        </p>
+                        <ul className="list-disc list-inside space-y-1">
+                          {lesson.objectives.map((obj, idx) => (
+                            <li key={idx} className="text-sm" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
+                              {obj}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Preview Sections */}
+              {lesson.sections.length > 0 && (
+                <div className="border-2 border-gray-200 rounded-lg p-4">
+                  <h4 className="text-lg font-bold mb-4" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                    Lesson Content
+                  </h4>
+                  <div className="space-y-4">
+                    {lesson.sections.map((section, idx) => (
+                      <div key={section.id} className="pb-4 border-b border-gray-200 last:border-0 last:pb-0">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-xs px-2 py-1 bg-black text-white rounded font-bold">
+                            {idx + 1}
+                          </span>
+                          <h5 className="text-base font-bold" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                            {section.title || `Section ${idx + 1}`}
+                          </h5>
+                          <span className="text-xs px-2 py-1 bg-gray-100 rounded capitalize" style={{ fontFamily: '\"Open Sans\", sans-serif' }}>
+                            {section.type}
+                          </span>
+                        </div>
+                        {section.content && (
+                          <p className="text-sm whitespace-pre-wrap" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
+                            {section.content}
+                          </p>
+                        )}
+                        {section.type === 'video' && section.videoUrl && renderVideoPreview(section)}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {lesson.sections.length === 0 && (
+                <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
+                  <p className="text-sm" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
+                    No content sections added yet
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {!showPreview && (
+            <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
+              <p className="text-sm" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
+                Click "Show Preview" to see how your lesson will look
+              </p>
             </div>
           )}
         </div>
