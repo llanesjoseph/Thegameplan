@@ -39,16 +39,21 @@ export default function CoachProfile() {
             ''
 
           // Resolve storage paths like 'users/uid/photo.jpg' or 'gs://'
+          let resolvedPhotoUrl = ''
           const isHttp = /^https?:\/\//i.test(raw)
           if (!raw) {
+            resolvedPhotoUrl = ''
             setPhotoUrl('')
           } else if (isHttp) {
+            resolvedPhotoUrl = raw
             setPhotoUrl(raw)
           } else {
             try {
               const url = await getDownloadURL(ref(storage, raw))
+              resolvedPhotoUrl = url
               setPhotoUrl(url)
             } catch {
+              resolvedPhotoUrl = ''
               setPhotoUrl('')
             }
           }
@@ -62,8 +67,8 @@ export default function CoachProfile() {
           const bannerHttp = /^https?:\/\//i.test(rawBanner || '')
           if (!rawBanner) {
             // Fallback to profile image as banner if none provided
-            if (photoUrl) {
-              setBannerUrl(photoUrl)
+            if (resolvedPhotoUrl) {
+              setBannerUrl(resolvedPhotoUrl)
             } else {
               setBannerUrl('')
             }
@@ -74,7 +79,7 @@ export default function CoachProfile() {
               const url = await getDownloadURL(ref(storage, rawBanner))
               setBannerUrl(url)
             } catch {
-              if (photoUrl) setBannerUrl(photoUrl)
+              if (resolvedPhotoUrl) setBannerUrl(resolvedPhotoUrl)
               else setBannerUrl('')
             }
           }
