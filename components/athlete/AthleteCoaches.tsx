@@ -83,9 +83,9 @@ export default function AthleteCoaches() {
           Your Coaches
         </h2>
         
-        <div className="space-y-4">
+        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
           {/* Coach Images Grid */}
-          <div className="w-full">
+          <div className="w-full md:flex-1">
             {loading ? (
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 {[1, 2, 3].map((i) => (
@@ -123,25 +123,25 @@ export default function AthleteCoaches() {
             )}
           </div>
 
-          {/* Action Buttons - Sharp rectangles stacked vertically, aligned left */}
-          <div className="flex flex-col gap-1">
+          {/* Action Buttons - Match sport button size, positioned on right */}
+          <div className="w-full md:w-[calc(25%-0.75rem)] flex flex-col gap-2">
             <button
               onClick={handleScheduleSession}
-              className="w-full md:w-auto md:min-w-[280px] bg-black text-white px-3 py-2 text-xs font-bold hover:bg-gray-800 transition-colors whitespace-nowrap"
+              className="w-full bg-black text-white py-2.5 text-sm font-bold hover:bg-gray-800 transition-colors"
               style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
             >
               Schedule 1-1 Session With a Coach
             </button>
             <button
               onClick={handleSubmitVideo}
-              className="w-full md:w-auto md:min-w-[280px] bg-black text-white px-3 py-2 text-xs font-bold hover:bg-gray-800 transition-colors whitespace-nowrap"
+              className="w-full bg-black text-white py-2.5 text-sm font-bold hover:bg-gray-800 transition-colors"
               style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
             >
               Submit Training Video for Coach Feedback
             </button>
             <button
               onClick={handleAskQuestion}
-              className="w-full md:w-auto md:min-w-[280px] bg-black text-white px-3 py-2 text-xs font-bold hover:bg-gray-800 transition-colors whitespace-nowrap"
+              className="w-full bg-black text-white py-2.5 text-sm font-bold hover:bg-gray-800 transition-colors"
               style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
             >
               Ask a Question With Your Coach
