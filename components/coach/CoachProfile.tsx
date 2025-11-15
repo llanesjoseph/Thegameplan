@@ -380,31 +380,6 @@ export default function CoachProfile() {
               </p>
             </div>
           )}
-
-          {/* Locker Room Button */}
-          <div>
-            <a
-              href="/dashboard/coach/locker-room"
-              target="_blank"
-              rel="noopener noreferrer"
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#FC0105'
-                e.currentTarget.querySelector('span')!.textContent = 'Enter'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = '#000'
-                e.currentTarget.querySelector('span')!.textContent = 'Coach Locker Room'
-              }}
-              className="inline-block px-4 py-2.5 rounded-lg text-white text-sm font-bold transition-all"
-              style={{
-                fontFamily: '\"Open Sans\", sans-serif',
-                fontWeight: 700,
-                backgroundColor: '#000'
-              }}
-            >
-              <span>Coach Locker Room</span>
-            </a>
-          </div>
         </div>
 
         {/* Inline Profile Editor */}
