@@ -87,21 +87,30 @@ export default function CoachAthletes() {
     if (!metricsById[athleteId] && user) {
       setLoadingMetrics((s) => ({ ...s, [athleteId]: true }))
       try {
-        const res = await fetch(`/api/coach/${athleteId}/stats`)
+        const token = await user.getIdToken()
+        const res = await fetch(`/api/coach/athletes/${athleteId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
         if (res.ok) {
           const data = await res.json()
+          const analytics = data?.analytics
+          const athleteStats = data?.athlete?.stats
+
+          const totalLessons = athleteStats?.totalLessons ?? analytics?.totalLessons ?? 0
+          const completedLessons = analytics?.completedLessons ?? athleteStats?.completedLessons ?? 0
+
           const m: Metrics = {
-            submissions: data?.pendingVideos ?? data?.pendingSubmissions ?? 0,
-            videosAwaiting: data?.pendingVideos ?? 0,
-            lastActivity: data?.lastActivity,
-            lessons: data?.recentLessons?.length ?? data?.lessonsCount ?? undefined,
-            lessonsCompleted: data?.lessonsCompleted ?? data?.completedLessons ?? 0,
-            lessonsUnfinished: data?.lessonsUnfinished ?? data?.incompleteLessons ?? 0
+            submissions: analytics?.videoSubmissions ?? 0,
+            videosAwaiting: analytics?.pendingReviews ?? 0,
+            lastActivity: analytics?.lastActivity,
+            lessons: totalLessons,
+            lessonsCompleted: completedLessons,
+            lessonsUnfinished: totalLessons - completedLessons
           }
           setMetricsById((s) => ({ ...s, [athleteId]: m }))
         }
-      } catch {
-        // ignore
+      } catch (error) {
+        console.error('Failed to load athlete metrics:', error)
       } finally {
         setLoadingMetrics((s) => ({ ...s, [athleteId]: false }))
       }
