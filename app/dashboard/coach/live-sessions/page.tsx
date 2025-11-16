@@ -48,6 +48,7 @@ export default function LiveSessionsPage() {
   const [pendingRequests, setPendingRequests] = useState<LiveSessionRequest[]>([])
   const [athletes, setAthletes] = useState<Athlete[]>([])
   const [showNewSessionModal, setShowNewSessionModal] = useState(false)
+  const [showApprovalModal, setShowApprovalModal] = useState(false)
   const [loading, setLoading] = useState(true)
 
   // New session form state
@@ -58,6 +59,18 @@ export default function LiveSessionsPage() {
     duration: 60,
     notes: ''
   })
+
+  // Approval modal state
+  const [approvalData, setApprovalData] = useState<{
+    requestId: string
+    athleteName: string
+    topic: string
+    description: string
+    specificGoals?: string
+    date: string
+    time: string
+    duration: number
+  } | null>(null)
 
   // Load athletes and sessions
   useEffect(() => {
@@ -98,9 +111,23 @@ export default function LiveSessionsPage() {
     loadData()
   }, [user, authLoading, roleLoading])
 
-  const handleApproveRequest = async (requestId: string, preferredDate: string, preferredTime: string) => {
-    if (!user) {
-      alert('You must be logged in to approve requests')
+  const openApprovalModal = (request: LiveSessionRequest) => {
+    setApprovalData({
+      requestId: request.id,
+      athleteName: request.athleteName,
+      topic: request.topic,
+      description: request.description,
+      specificGoals: request.specificGoals,
+      date: request.preferredDate,
+      time: request.preferredTime,
+      duration: request.duration
+    })
+    setShowApprovalModal(true)
+  }
+
+  const handleConfirmApproval = async () => {
+    if (!user || !approvalData) {
+      alert('Missing required data')
       return
     }
 
@@ -114,9 +141,9 @@ export default function LiveSessionsPage() {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          requestId,
-          confirmedDate: preferredDate,
-          confirmedTime: preferredTime
+          requestId: approvalData.requestId,
+          confirmedDate: approvalData.date,
+          confirmedTime: approvalData.time
         })
       })
 
@@ -136,6 +163,8 @@ export default function LiveSessionsPage() {
         setPendingRequests(sessionsData.pendingRequests || [])
       }
 
+      setShowApprovalModal(false)
+      setApprovalData(null)
       alert('Session request approved and scheduled!')
     } catch (error) {
       console.error('Error approving request:', error)
@@ -308,11 +337,11 @@ export default function LiveSessionsPage() {
                   </div>
                   <div className="flex gap-3 mt-4">
                     <button
-                      onClick={() => handleApproveRequest(request.id, request.preferredDate, request.preferredTime)}
+                      onClick={() => openApprovalModal(request)}
                       className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-bold"
                       style={{ fontFamily: '"Open Sans", sans-serif' }}
                     >
-                      Approve & Schedule
+                      Review & Schedule
                     </button>
                   </div>
                 </div>
@@ -502,6 +531,118 @@ export default function LiveSessionsPage() {
                 </button>
                 <button
                   onClick={() => setShowNewSessionModal(false)}
+                  className="px-6 py-3 bg-gray-100 text-black rounded-lg hover:bg-gray-200 transition-colors font-bold"
+                  style={{ fontFamily: '"Open Sans", sans-serif' }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Approval Modal */}
+      {showApprovalModal && approvalData && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+          onClick={() => {
+            setShowApprovalModal(false)
+            setApprovalData(null)
+          }}
+        >
+          <div
+            className="bg-white rounded-2xl p-8 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                Review & Schedule Session
+              </h2>
+              <button
+                onClick={() => {
+                  setShowApprovalModal(false)
+                  setApprovalData(null)
+                }}
+                className="text-gray-500 hover:text-black text-2xl font-bold"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Athlete Info */}
+            <div className="bg-gray-50 rounded-lg p-4 mb-6 border-2 border-gray-200">
+              <h3 className="font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                Session Request from {approvalData.athleteName}
+              </h3>
+              <div className="space-y-1 text-sm" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+                <div><strong>Topic:</strong> {approvalData.topic}</div>
+                <div><strong>Description:</strong> {approvalData.description}</div>
+                {approvalData.specificGoals && (
+                  <div><strong>Goals:</strong> {approvalData.specificGoals}</div>
+                )}
+                <div><strong>Duration:</strong> {approvalData.duration} minutes</div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {/* Date */}
+              <div>
+                <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                  Session Date <span style={{ color: '#FC0105' }}>*</span>
+                </label>
+                <p className="text-xs mb-2" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+                  Athlete's preferred date: {new Date(approvalData.date).toLocaleDateString()} - You can adjust if needed
+                </p>
+                <input
+                  type="date"
+                  value={approvalData.date}
+                  onChange={(e) => setApprovalData({ ...approvalData, date: e.target.value })}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                  style={{ fontFamily: '"Open Sans", sans-serif' }}
+                />
+              </div>
+
+              {/* Time */}
+              <div>
+                <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                  Session Time <span style={{ color: '#FC0105' }}>*</span>
+                </label>
+                <p className="text-xs mb-2" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+                  Athlete's preferred time: {approvalData.time} - You can adjust if needed
+                </p>
+                <input
+                  type="time"
+                  value={approvalData.time}
+                  onChange={(e) => setApprovalData({ ...approvalData, time: e.target.value })}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                  style={{ fontFamily: '"Open Sans", sans-serif' }}
+                />
+              </div>
+
+              {/* Info Message */}
+              <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
+                <p className="text-sm" style={{ color: '#1e40af', fontFamily: '"Open Sans", sans-serif' }}>
+                  💡 <strong>Tip:</strong> If you change the time or date, the athlete will be notified of the confirmed session details.
+                </p>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={handleConfirmApproval}
+                  className="flex-1 px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 font-bold"
+                  style={{ fontFamily: '"Open Sans", sans-serif' }}
+                >
+                  <Save className="w-5 h-5" />
+                  Confirm & Schedule
+                </button>
+                <button
+                  onClick={() => {
+                    setShowApprovalModal(false)
+                    setApprovalData(null)
+                  }}
                   className="px-6 py-3 bg-gray-100 text-black rounded-lg hover:bg-gray-200 transition-colors font-bold"
                   style={{ fontFamily: '"Open Sans", sans-serif' }}
                 >
