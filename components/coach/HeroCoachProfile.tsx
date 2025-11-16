@@ -16,8 +16,8 @@ interface HeroCoachProfileProps {
     sport?: string
     yearsExperience?: number
     specialties?: string[]
-    certifications?: string[]
-    achievements?: string[]
+    certifications?: string[] | string
+    achievements?: string[] | string
     profileImageUrl?: string
     coverImageUrl?: string
     bannerUrl?: string
