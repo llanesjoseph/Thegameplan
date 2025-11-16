@@ -50,6 +50,7 @@ export default function LiveSessionsPage() {
   const [showNewSessionModal, setShowNewSessionModal] = useState(false)
   const [showApprovalModal, setShowApprovalModal] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [modalTab, setModalTab] = useState<'schedule' | 'upcoming'>('schedule')
 
   // New session form state
   const [newSession, setNewSession] = useState({
@@ -428,16 +429,47 @@ export default function LiveSessionsPage() {
           >
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
-                Schedule Training Session
+                Training Sessions
               </h2>
               <button
-                onClick={() => setShowNewSessionModal(false)}
+                onClick={() => {
+                  setShowNewSessionModal(false)
+                  setModalTab('schedule')
+                }}
                 className="text-gray-500 hover:text-black text-2xl font-bold"
               >
                 <X className="w-6 h-6" />
               </button>
             </div>
 
+            {/* Tabs */}
+            <div className="flex gap-2 border-b-2 border-gray-200 mb-6">
+              <button
+                onClick={() => setModalTab('schedule')}
+                className={`px-6 py-3 font-bold transition-colors ${
+                  modalTab === 'schedule'
+                    ? 'border-b-4 border-black text-black'
+                    : 'text-gray-500 hover:text-black'
+                }`}
+                style={{ fontFamily: '"Open Sans", sans-serif', marginBottom: '-2px' }}
+              >
+                Schedule New Session
+              </button>
+              <button
+                onClick={() => setModalTab('upcoming')}
+                className={`px-6 py-3 font-bold transition-colors ${
+                  modalTab === 'upcoming'
+                    ? 'border-b-4 border-black text-black'
+                    : 'text-gray-500 hover:text-black'
+                }`}
+                style={{ fontFamily: '"Open Sans", sans-serif', marginBottom: '-2px' }}
+              >
+                Upcoming Events ({sessions.filter(s => new Date(s.date) >= new Date()).length})
+              </button>
+            </div>
+
+            {/* Tab Content */}
+            {modalTab === 'schedule' ? (
             <div className="space-y-4">
               {/* Athlete Selection */}
               <div>
@@ -538,6 +570,75 @@ export default function LiveSessionsPage() {
                 </button>
               </div>
             </div>
+            ) : (
+              /* Upcoming Events Tab */
+              <div className="space-y-4">
+                {sessions.filter(s => new Date(s.date) >= new Date()).length === 0 ? (
+                  <div className="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
+                    <Calendar className="w-16 h-16 mx-auto mb-4" style={{ color: '#666', opacity: 0.5 }} />
+                    <h3 className="text-lg font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                      No Upcoming Events
+                    </h3>
+                    <p className="text-sm mb-4" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+                      Schedule your first session to get started
+                    </p>
+                    <button
+                      onClick={() => setModalTab('schedule')}
+                      className="px-6 py-2 rounded-lg bg-black text-white hover:bg-gray-800 transition-colors font-bold"
+                      style={{ fontFamily: '"Open Sans", sans-serif' }}
+                    >
+                      Schedule Session
+                    </button>
+                  </div>
+                ) : (
+                  sessions
+                    .filter(s => new Date(s.date) >= new Date())
+                    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+                    .map((session) => (
+                      <div
+                        key={session.id}
+                        className="bg-white border-2 border-gray-200 rounded-lg p-4 hover:border-black transition-all"
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-2">
+                              <User className="w-5 h-5" style={{ color: '#000000' }} />
+                              <h3 className="font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                                {session.athleteName}
+                              </h3>
+                              <span
+                                className="px-3 py-1 rounded-full text-xs font-bold"
+                                style={{
+                                  backgroundColor: session.status === 'scheduled' ? '#DBEAFE' : '#FEE2E2',
+                                  color: session.status === 'scheduled' ? '#1E40AF' : '#991B1B',
+                                  fontFamily: '"Open Sans", sans-serif'
+                                }}
+                              >
+                                {session.status.toUpperCase()}
+                              </span>
+                            </div>
+                            <div className="space-y-1 text-sm" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+                              <div className="flex items-center gap-2">
+                                <Calendar className="w-4 h-4" />
+                                <span>{new Date(session.date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Clock className="w-4 h-4" />
+                                <span>{session.time} ({session.duration} minutes)</span>
+                              </div>
+                              {session.notes && (
+                                <div className="mt-2 p-2 bg-gray-50 rounded">
+                                  <strong>Notes:</strong> {session.notes}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}
