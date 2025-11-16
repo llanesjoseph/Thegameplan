@@ -191,7 +191,7 @@ export async function GET(
       const submissionsSnapshot = await adminDb
         .collection('submissions')
         .where('athleteId', '==', athleteId)
-        .where('assignedCoachId', '==', userId)
+        .where('coachId', '==', userId)
         .get()
 
       videoSubmissionsCount = submissionsSnapshot.size
@@ -200,6 +200,8 @@ export async function GET(
         const status = doc.data().status
         return !['complete', 'reviewed'].includes(status)
       }).length
+
+      console.log(`[Athlete Metrics API] Athlete ${athleteId}: ${videoSubmissionsCount} total submissions, ${pendingReviewsCount} pending`)
     } catch (error) {
       console.warn('Could not fetch video submissions:', error)
     }
@@ -310,7 +312,19 @@ export async function GET(
     return NextResponse.json({
       success: true,
       athlete,
-      analytics // Add analytics for athlete profile page compatibility
+      analytics, // Add analytics for athlete profile page compatibility
+      // Add submissions data in the format expected by AthleteEngagementList
+      submissions: {
+        total: videoSubmissionsCount,
+        pending: pendingReviewsCount,
+        awaitingReview: pendingReviewsCount // Alternative field name
+      },
+      // Add progress data for AthleteEngagementList
+      progress: {
+        completed: completedLessons.length,
+        inProgress: availableLessons.length - completedLessons.length
+      },
+      lastActivity: athleteData?.lastLoginAt?.toDate?.()?.toISOString() || null
     })
 
   } catch (error: any) {

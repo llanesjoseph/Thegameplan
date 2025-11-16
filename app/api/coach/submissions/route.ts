@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
     console.log('[API] Fetching submissions assigned to this coach...')
     const submissionsSnapshot = await adminDb
       .collection('submissions')
-      .where('assignedCoachId', '==', uid)
+      .where('coachId', '==', uid)
       .get()
 
     const allSubmissions = submissionsSnapshot.docs.map((doc) => {

@@ -60,15 +60,18 @@ export default function AthleteEngagementList() {
               const metricsData = await metricsRes.json()
 
               if (metricsData.success) {
+                // CRITICAL: Make sure we're showing pending video submissions!
+                const pendingVideos = metricsData.submissions?.pending || metricsData.submissions?.awaitingReview || 0
                 metrics[athlete.uid] = {
                   submissions: metricsData.submissions?.total || 0,
-                  videosAwaiting: metricsData.submissions?.pending || 0,
+                  videosAwaiting: pendingVideos,
                   lessonsCompleted: metricsData.progress?.completed || 0,
                   lessonsUnfinished: metricsData.progress?.inProgress || 0,
                   lastActivity: metricsData.lastActivity,
                   upcomingSessions: 0, // TODO: Add sessions endpoint
                   messagesUnread: 0 // TODO: Add messages endpoint
                 }
+                console.log(`[AthleteEngagementList] ${athlete.displayName} has ${pendingVideos} pending videos`)
               }
             } catch (e) {
               console.warn(`Failed to load metrics for ${athlete.displayName}:`, e)
