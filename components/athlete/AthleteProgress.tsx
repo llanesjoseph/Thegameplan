@@ -51,10 +51,16 @@ export default function AthleteProgress() {
         // Fetch athlete feed for completion data
         const feedDoc = await getDoc(doc(db, 'athlete_feed', user.uid))
         let completedCount = 0
+        let totalLessons = 0
         if (feedDoc.exists()) {
           const feedData = feedDoc.data()
           completedCount = feedData?.completedLessons?.length || 0
+          // Get total lessons assigned (both completed and not completed)
+          totalLessons = feedData?.lessons?.length || 0
         }
+
+        // Calculate in-progress trainings (total assigned minus completed)
+        const inProgressCount = Math.max(0, totalLessons - completedCount)
 
         // Fetch upcoming events
         const userDoc = await getDoc(doc(db, 'users', user.uid))
@@ -82,7 +88,7 @@ export default function AthleteProgress() {
         setEvents(upcomingEventsData)
         setStats({
           trainingsComplete: completedCount,
-          trainingsInProgress: 0,
+          trainingsInProgress: inProgressCount,
           upcomingEvents: upcomingEventsData.length
         })
       } catch (error) {
