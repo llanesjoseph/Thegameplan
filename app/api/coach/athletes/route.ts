@@ -71,6 +71,7 @@ export async function GET(request: NextRequest) {
       const data = doc.data()
       athleteMap.set(doc.id, {
         id: doc.id,
+        uid: doc.id, // Add uid for component compatibility
         ...data,
         // Ensure availability is always an array
         availability: Array.isArray(data.availability) ? data.availability : [],
@@ -84,6 +85,7 @@ export async function GET(request: NextRequest) {
       const data = doc.data()
       athleteMap.set(doc.id, {
         id: doc.id,
+        uid: doc.id, // Add uid for component compatibility
         ...data,
         // Ensure availability is always an array
         availability: Array.isArray(data.availability) ? data.availability : [],
@@ -97,6 +99,7 @@ export async function GET(request: NextRequest) {
       const data = doc.data()
       athleteMap.set(doc.id, {
         id: doc.id,
+        uid: doc.id, // Add uid for component compatibility
         ...data,
         // Ensure availability is always an array
         availability: Array.isArray(data.availability) ? data.availability : [],
