@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import Link from 'next/link'
-import { ChevronDown } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { ChevronDown, ArrowLeft } from 'lucide-react'
 import { SPORTS } from '@/lib/constants/sports'
 
 type Coach = {
@@ -24,12 +25,24 @@ type Coach = {
 
 export default function BrowseCoachesPage() {
   const { user } = useAuth()
+  const router = useRouter()
   const [coaches, setCoaches] = useState<Coach[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedSport, setSelectedSport] = useState<string>('all')
   const [totalCount, setTotalCount] = useState(0)
   const [hasMore, setHasMore] = useState(false)
   const [offset, setOffset] = useState(0)
+
+  const handleSignOut = async () => {
+    try {
+      const { signOut } = await import('firebase/auth')
+      const { auth } = await import('@/lib/firebase.client')
+      await signOut(auth)
+      window.location.href = '/'
+    } catch (error) {
+      console.error('Sign out error:', error)
+    }
+  }
 
   const loadCoaches = async (reset = false) => {
     setLoading(true)
@@ -73,16 +86,27 @@ export default function BrowseCoachesPage() {
             </span>
           </Link>
           {user && (
-            <Link
-              href="/dashboard"
+            <button
+              onClick={handleSignOut}
               className="px-4 py-2 rounded-lg text-white font-bold text-sm transition-opacity hover:opacity-90"
-              style={{ background: 'linear-gradient(to right, #FC0105, #000000)', fontFamily: '"Open Sans", sans-serif' }}
+              style={{ backgroundColor: '#000000', fontFamily: '"Open Sans", sans-serif' }}
             >
-              Dashboard
-            </Link>
+              Sign Out
+            </button>
           )}
         </div>
       </header>
+
+      {/* Back Button */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+        <button
+          onClick={() => router.back()}
+          className="inline-flex items-center gap-2 text-black hover:text-gray-600 transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          <span className="font-bold" style={{ fontFamily: '"Open Sans", sans-serif' }}>Back</span>
+        </button>
+      </div>
 
       {/* Main Content */}
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

@@ -16,28 +16,58 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '50')
     const offset = parseInt(searchParams.get('offset') || '0')
 
-    // Query creators_index for all active coaches
-    let query = adminDb
-      .collection('creators_index')
-      .where('isActive', '==', true)
-      .where('profileComplete', '==', true)
+    // Try creators_index first, then fallback to users collection
+    let allCoaches: any[] = []
 
-    // Optional: Filter by sport
-    if (sport && sport !== 'all') {
-      query = query.where('specialties', 'array-contains', sport)
+    try {
+      // Query creators_index - get all coaches, not just active/complete ones
+      const collection = adminDb.collection('creators_index')
+
+      // Optional: Filter by sport
+      const snapshot = sport && sport !== 'all'
+        ? await collection.where('specialties', 'array-contains', sport).get()
+        : await collection.get()
+
+      if (snapshot.docs.length > 0) {
+        allCoaches = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }))
+      }
+    } catch (indexError) {
+      console.log('[API/COACHES/PUBLIC] creators_index query failed, trying users collection:', indexError)
     }
 
-    // Order by display name for consistent results
-    query = query.orderBy('displayName')
+    // Fallback: If creators_index is empty or failed, try users collection
+    if (allCoaches.length === 0) {
+      try {
+        let usersQuery = adminDb
+          .collection('users')
+          .where('role', 'in', ['coach', 'creator'])
 
-    // Get all coaches first, then paginate
-    const snapshot = await query.get()
+        const usersSnapshot = await usersQuery.get()
+        allCoaches = usersSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }))
+      } catch (usersError) {
+        console.error('[API/COACHES/PUBLIC] users collection query also failed:', usersError)
+      }
+    }
 
-    // Apply offset and limit
-    const allCoaches = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }))
+    // Filter by sport in memory if needed (for users collection fallback)
+    if (sport && sport !== 'all' && allCoaches.length > 0) {
+      allCoaches = allCoaches.filter(coach =>
+        coach.specialties?.includes(sport) || coach.sport === sport
+      )
+    }
+
+    // Sort by displayName
+    allCoaches.sort((a, b) => {
+      const nameA = a.displayName || ''
+      const nameB = b.displayName || ''
+      return nameA.localeCompare(nameB)
+    })
 
     const paginatedCoaches = allCoaches.slice(offset, offset + limit)
     const totalCount = allCoaches.length
