@@ -6,6 +6,7 @@ import { auth } from '@/lib/firebase.client'
 import { useState } from 'react'
 import CoachOverview from '@/components/coach/CoachOverview'
 import CoachProfile from '@/components/coach/CoachProfile'
+import CoachPhotoShowcase from '@/components/coach/CoachPhotoShowcase'
 import CoachLessonLibrary from '@/components/coach/CoachLessonLibrary'
 import CoachRecommendedGear from '@/components/coach/CoachRecommendedGear'
 
@@ -50,6 +51,7 @@ export default function CoachDashboard() {
           <div className="w-full max-w-6xl mx-auto space-y-5">
             <CoachOverview />
             <CoachProfile />
+            <CoachPhotoShowcase />
             <CoachLessonLibrary />
             <CoachRecommendedGear />
           </div>
