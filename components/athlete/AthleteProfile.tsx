@@ -317,7 +317,7 @@ export default function AthleteProfile() {
                 className="w-full px-3 py-2 border-2 border-black rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-sm"
                 style={{ fontFamily: '"Open Sans", sans-serif' }}
                 rows={3}
-                maxLength={200}
+                maxLength={1000}
               />
             ) : (
               <div>
@@ -339,7 +339,7 @@ export default function AthleteProfile() {
             )}
             {isEditing && (
               <p className="text-xs mt-1 text-right" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
-                {editedData.bio.length}/200
+                {editedData.bio.length}/1000
               </p>
             )}
           </div>
@@ -357,7 +357,7 @@ export default function AthleteProfile() {
                 className="w-full px-3 py-2 border-2 border-black rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-sm"
                 style={{ fontFamily: '"Open Sans", sans-serif' }}
                 rows={3}
-                maxLength={200}
+                maxLength={1000}
               />
             ) : (
               <div>
@@ -379,7 +379,7 @@ export default function AthleteProfile() {
             )}
             {isEditing && (
               <p className="text-xs mt-1 text-right" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
-                {editedData.trainingGoals.length}/200
+                {editedData.trainingGoals.length}/1000
               </p>
             )}
           </div>
