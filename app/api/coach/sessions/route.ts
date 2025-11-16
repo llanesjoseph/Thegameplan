@@ -49,22 +49,62 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // 3. Get all sessions for this coach
+    // 3. Get all confirmed sessions for this coach
     const sessionsSnapshot = await adminDb
       .collection('training_sessions')
       .where('coachId', '==', uid)
-      .orderBy('date', 'asc')
-      .orderBy('time', 'asc')
       .get()
 
     const sessions = sessionsSnapshot.docs.map(doc => ({
       id: doc.id,
-      ...doc.data()
+      ...doc.data(),
+      createdAt: doc.data().createdAt?.toDate?.()?.toISOString() || null,
+      updatedAt: doc.data().updatedAt?.toDate?.()?.toISOString() || null
     }))
+
+    // Sort in-memory to avoid index requirements
+    sessions.sort((a: any, b: any) => {
+      const dateCompare = (a.date || '').localeCompare(b.date || '')
+      if (dateCompare !== 0) return dateCompare
+      return (a.time || '').localeCompare(b.time || '')
+    })
+
+    // 4. Get all pending live session requests for this coach
+    const requestsSnapshot = await adminDb
+      .collection('liveSessionRequests')
+      .where('status', '==', 'pending')
+      .get()
+
+    // Filter requests for this coach (could be in coachId field or athlete's assigned coach)
+    const allRequests = requestsSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      createdAt: doc.data().createdAt?.toDate?.()?.toISOString() || null,
+      updatedAt: doc.data().updatedAt?.toDate?.()?.toISOString() || null
+    }))
+
+    // Filter for this coach's requests
+    const pendingRequests = allRequests.filter((req: any) => {
+      // Direct match on coachId
+      if (req.coachId === uid) return true
+
+      // If no coachId, we can't match it to this coach
+      return false
+    })
+
+    // Sort by creation date (newest first)
+    pendingRequests.sort((a: any, b: any) => {
+      const aTime = new Date(a.createdAt || 0).getTime()
+      const bTime = new Date(b.createdAt || 0).getTime()
+      return bTime - aTime
+    })
+
+    console.log(`[Coach Sessions API] Found ${sessions.length} scheduled sessions and ${pendingRequests.length} pending requests for coach ${uid}`)
 
     return NextResponse.json({
       success: true,
-      sessions
+      sessions,
+      pendingRequests
     })
 
   } catch (error: any) {

@@ -17,6 +17,21 @@ interface TrainingSession {
   status: 'scheduled' | 'completed' | 'cancelled'
 }
 
+interface LiveSessionRequest {
+  id: string
+  athleteId: string
+  athleteName: string
+  athleteEmail: string
+  preferredDate: string
+  preferredTime: string
+  duration: number
+  topic: string
+  description: string
+  specificGoals?: string
+  status: string
+  createdAt: string
+}
+
 interface Athlete {
   id: string
   name: string
@@ -30,6 +45,7 @@ export default function LiveSessionsPage() {
   const embedded = searchParams.get('embedded') === 'true'
 
   const [sessions, setSessions] = useState<TrainingSession[]>([])
+  const [pendingRequests, setPendingRequests] = useState<LiveSessionRequest[]>([])
   const [athletes, setAthletes] = useState<Athlete[]>([])
   const [showNewSessionModal, setShowNewSessionModal] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -61,7 +77,7 @@ export default function LiveSessionsPage() {
           setAthletes(athletesData.athletes || [])
         }
 
-        // Load sessions from database
+        // Load sessions and pending requests from database
         const sessionsResponse = await fetch('/api/coach/sessions', {
           headers: { 'Authorization': `Bearer ${token}` }
         })
@@ -69,6 +85,8 @@ export default function LiveSessionsPage() {
         if (sessionsResponse.ok) {
           const sessionsData = await sessionsResponse.json()
           setSessions(sessionsData.sessions || [])
+          setPendingRequests(sessionsData.pendingRequests || [])
+          console.log(`[Live Sessions] Loaded ${sessionsData.sessions?.length || 0} sessions and ${sessionsData.pendingRequests?.length || 0} pending requests`)
         }
       } catch (error) {
         console.error('Error loading data:', error)
@@ -79,6 +97,51 @@ export default function LiveSessionsPage() {
 
     loadData()
   }, [user, authLoading, roleLoading])
+
+  const handleApproveRequest = async (requestId: string, preferredDate: string, preferredTime: string) => {
+    if (!user) {
+      alert('You must be logged in to approve requests')
+      return
+    }
+
+    try {
+      const token = await user.getIdToken()
+
+      const response = await fetch('/api/coach/sessions/approve', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          requestId,
+          confirmedDate: preferredDate,
+          confirmedTime: preferredTime
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to approve request')
+      }
+
+      // Reload sessions and requests
+      const sessionsResponse = await fetch('/api/coach/sessions', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+
+      if (sessionsResponse.ok) {
+        const sessionsData = await sessionsResponse.json()
+        setSessions(sessionsData.sessions || [])
+        setPendingRequests(sessionsData.pendingRequests || [])
+      }
+
+      alert('Session request approved and scheduled!')
+    } catch (error) {
+      console.error('Error approving request:', error)
+      alert(error instanceof Error ? error.message : 'Failed to approve request')
+    }
+  }
 
   const handleCreateSession = async () => {
     if (!newSession.athleteId || !newSession.date || !newSession.time) {
@@ -124,6 +187,7 @@ export default function LiveSessionsPage() {
       if (sessionsResponse.ok) {
         const sessionsData = await sessionsResponse.json()
         setSessions(sessionsData.sessions || [])
+        setPendingRequests(sessionsData.pendingRequests || [])
       }
 
       setShowNewSessionModal(false)
@@ -193,20 +257,91 @@ export default function LiveSessionsPage() {
           </button>
         </div>
 
-        {/* Sessions List */}
-        <div className="space-y-4">
-          {sessions.length === 0 ? (
-            <div className="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
-              <Calendar className="w-16 h-16 mx-auto mb-4" style={{ color: '#666', opacity: 0.5 }} />
-              <h3 className="text-lg font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
-                No sessions scheduled
-              </h3>
-              <p className="text-sm mb-4" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
-                Click "Schedule New Session" to create your first 1:1 training session
-              </p>
+        {/* Pending Requests Section */}
+        {pendingRequests.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-xl font-bold mb-4" style={{ color: '#FC0105', fontFamily: '"Open Sans", sans-serif' }}>
+              Pending Athlete Requests ({pendingRequests.length})
+            </h2>
+            <div className="space-y-4">
+              {pendingRequests.map((request) => (
+                <div
+                  key={request.id}
+                  className="bg-yellow-50 border-2 border-yellow-400 rounded-lg p-4"
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <User className="w-5 h-5" style={{ color: '#000000' }} />
+                        <h3 className="font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                          {request.athleteName}
+                        </h3>
+                        <span
+                          className="px-3 py-1 rounded-full text-xs font-bold"
+                          style={{
+                            backgroundColor: '#FEF3C7',
+                            color: '#92400E',
+                            fontFamily: '"Open Sans", sans-serif'
+                          }}
+                        >
+                          PENDING APPROVAL
+                        </span>
+                      </div>
+                      <div className="space-y-2 text-sm" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+                        <div><strong>Topic:</strong> {request.topic}</div>
+                        <div><strong>Description:</strong> {request.description}</div>
+                        {request.specificGoals && (
+                          <div><strong>Goals:</strong> {request.specificGoals}</div>
+                        )}
+                        <div className="flex items-center gap-4 mt-3">
+                          <div className="flex items-center gap-2">
+                            <Calendar className="w-4 h-4" />
+                            <span>{new Date(request.preferredDate).toLocaleDateString()}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Clock className="w-4 h-4" />
+                            <span>{request.preferredTime} ({request.duration} min)</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex gap-3 mt-4">
+                    <button
+                      onClick={() => handleApproveRequest(request.id, request.preferredDate, request.preferredTime)}
+                      className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-bold"
+                      style={{ fontFamily: '"Open Sans", sans-serif' }}
+                    >
+                      Approve & Schedule
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
-          ) : (
-            sessions.map((session) => (
+          </div>
+        )}
+
+        {/* Scheduled Sessions List */}
+        <div>
+          <h2 className="text-xl font-bold mb-4" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+            Scheduled Sessions ({sessions.length})
+          </h2>
+          <div className="space-y-4">
+            {sessions.length === 0 ? (
+              <div className="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
+                <Calendar className="w-16 h-16 mx-auto mb-4" style={{ color: '#666', opacity: 0.5 }} />
+                <h3 className="text-lg font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                  No sessions scheduled
+                </h3>
+                <p className="text-sm mb-4" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+                  {pendingRequests.length > 0
+                    ? 'Approve athlete requests above or click "Schedule New Session"'
+                    : 'Click "Schedule New Session" to create your first 1:1 training session'
+                  }
+                </p>
+              </div>
+            ) : (
+              sessions.map((session) => (
               <div
                 key={session.id}
                 className="bg-white border-2 border-gray-200 rounded-lg p-4 hover:border-black transition-colors"
@@ -247,6 +382,7 @@ export default function LiveSessionsPage() {
               </div>
             ))
           )}
+          </div>
         </div>
       </div>
 
