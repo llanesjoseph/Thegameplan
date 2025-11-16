@@ -30,28 +30,79 @@ export default function AthleteCoaches() {
       }
 
       try {
-        // Get athlete's assigned coach
+        const token = await user.getIdToken()
+        const coachMap = new Map<string, any>()
+
+        // 1. Get athlete's assigned coach
         const userDoc = await getDoc(doc(db, 'users', user.uid))
         if (userDoc.exists()) {
           const userData = userDoc.data()
           const assignedCoachId = userData?.coachId || userData?.assignedCoachId
 
           if (assignedCoachId) {
-            // Fetch coach data
+            // Fetch assigned coach data
             const coachDoc = await getDoc(doc(db, 'users', assignedCoachId))
             if (coachDoc.exists()) {
               const coachData = coachDoc.data()
-              setCoaches([{
+              coachMap.set(assignedCoachId, {
                 id: assignedCoachId,
                 name: coachData.displayName || 'Coach',
                 imageUrl: coachData.photoURL || '',
                 title: coachData.sport || 'Coach',
-                author: coachData.displayName || 'Coach'
-              }])
-              setCoachId(assignedCoachId)
+                author: coachData.displayName || 'Coach',
+                isAssigned: true
+              })
             }
           }
         }
+
+        // 2. Get followed coaches
+        try {
+          const followingResponse = await fetch('/api/athlete/following', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          })
+
+          if (followingResponse.ok) {
+            const followingData = await followingResponse.json()
+            if (followingData.success && followingData.following) {
+              // Fetch details for each followed coach
+              for (const follow of followingData.following) {
+                if (!coachMap.has(follow.coachId)) {
+                  try {
+                    const coachDoc = await getDoc(doc(db, 'users', follow.coachId))
+                    if (coachDoc.exists()) {
+                      const coachData = coachDoc.data()
+                      coachMap.set(follow.coachId, {
+                        id: follow.coachId,
+                        name: coachData.displayName || follow.coachName || 'Coach',
+                        imageUrl: coachData.photoURL || '',
+                        title: coachData.sport || 'Coach',
+                        author: coachData.displayName || follow.coachName || 'Coach',
+                        isAssigned: false
+                      })
+                    }
+                  } catch (e) {
+                    console.warn(`Could not fetch coach ${follow.coachId}:`, e)
+                  }
+                }
+              }
+            }
+          }
+        } catch (error) {
+          console.warn('Could not fetch followed coaches:', error)
+        }
+
+        // Convert map to array
+        const allCoaches = Array.from(coachMap.values())
+
+        // Set first coach as primary (assigned coach takes priority)
+        if (allCoaches.length > 0) {
+          const primaryCoach = allCoaches.find(c => c.isAssigned) || allCoaches[0]
+          setCoachId(primaryCoach.id)
+        }
+
+        setCoaches(allCoaches)
+        console.log(`✅ Loaded ${allCoaches.length} coaches (${allCoaches.filter(c => c.isAssigned).length} assigned, ${allCoaches.filter(c => !c.isAssigned).length} followed)`)
       } catch (error) {
         console.error('Error loading coaches:', error)
       } finally {

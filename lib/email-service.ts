@@ -1299,8 +1299,8 @@ export async function sendSessionConfirmationEmail({
       from: 'AthLeap <noreply@mail.crucibleanalytics.dev>',
       to: [to],
       subject: timeChanged
-        ? `✅ Session Confirmed (Time Adjusted) - ${coachName}`
-        : `✅ Session Confirmed - ${coachName}`,
+        ? `Session Confirmed (Time Adjusted) - ${coachName}`
+        : `Session Confirmed - ${coachName}`,
       html: `
         <!DOCTYPE html>
         <html lang="en">
@@ -1311,125 +1311,69 @@ export async function sendSessionConfirmationEmail({
             <link rel="preconnect" href="https://fonts.googleapis.com">
             <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
             <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
-            <style>
-                body {
-                    font-family: "Open Sans", sans-serif;
-                    background-color: #f5f5f5;
-                    margin: 0;
-                    padding: 0;
-                }
-            </style>
         </head>
-        <body style="font-family: 'Open Sans', sans-serif; background-color: #f5f5f5; margin: 0; padding: 16px;">
-            <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden;">
+        <body style="font-family: 'Open Sans', sans-serif; background-color: #f5f5f5; margin: 0; padding: 20px;">
+            <div style="max-width: 560px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
 
-                <!-- Header with Logo -->
-                <header style="background-color: #FFFFFF; padding: 32px 24px; text-align: center; border-bottom: 3px solid #000000;">
-                    <h1 style="font-family: 'Open Sans', sans-serif; font-size: 2.5rem; color: #440102; margin: 0; font-weight: 700; letter-spacing: 2px;">ATHLEAP</h1>
-                    <p style="color: #666666; font-size: 12px; margin: 8px 0 0 0; letter-spacing: 2px; font-weight: 600;">THE WORK BEFORE THE WIN</p>
+                <!-- Header -->
+                <header style="background-color: #000000; padding: 28px 24px; text-align: center;">
+                    <h1 style="font-family: 'Open Sans', sans-serif; font-size: 2rem; color: #FFFFFF; margin: 0; font-weight: 700; letter-spacing: 2px;">ATHLEAP</h1>
+                    <p style="color: rgba(255,255,255,0.8); font-size: 11px; margin: 6px 0 0 0; letter-spacing: 1.5px; font-weight: 600;">THE WORK BEFORE THE WIN</p>
                 </header>
 
-                <main style="padding: 40px 24px;">
-                    <!-- Confirmation Banner -->
-                    <div style="background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); border: 2px solid #16A34A; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
-                        <h2 style="color: #16A34A; margin: 0; font-family: 'Open Sans', sans-serif; font-size: 1.5rem; font-weight: 700;">
-                            ✅ Your 1-on-1 Session is Confirmed!
-                        </h2>
-                    </div>
-
-                    <p style="color: #333333; line-height: 1.6; font-size: 16px; font-family: 'Open Sans', sans-serif;">
+                <!-- Main Content -->
+                <main style="padding: 32px 24px;">
+                    <p style="color: #000000; line-height: 1.5; font-size: 15px; margin: 0 0 20px 0; font-weight: 600;">
                         Hi ${athleteName},
                     </p>
 
-                    <p style="color: #333333; line-height: 1.6; font-size: 16px; font-family: 'Open Sans', sans-serif;">
-                        Great news! <strong>${coachName}</strong> has confirmed your live coaching session request for <strong>${topic}</strong>.
+                    <p style="color: #333333; line-height: 1.6; font-size: 15px; margin: 0 0 24px 0;">
+                        <strong>${coachName}</strong> has confirmed your 1-on-1 session for <strong>${topic}</strong>.
                     </p>
 
                     ${timeChanged ? `
-                    <!-- Time Changed Notice -->
-                    <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 2px solid #FC0105; padding: 16px; border-radius: 8px; margin: 24px 0;">
-                        <p style="margin: 0; color: #92400e; font-size: 14px; font-family: 'Open Sans', sans-serif; text-align: center;">
-                            <strong>⏰ Note:</strong> The coach has adjusted the session time to better accommodate their schedule.
-                        </p>
-                    </div>
-
-                    <!-- Original Request -->
-                    <div style="background: #f9f9f9; border-left: 4px solid #666; padding: 16px 20px; margin: 20px 0; border-radius: 0 8px 8px 0;">
-                        <h4 style="color: #666; margin: 0 0 8px 0; font-size: 14px; font-family: 'Open Sans', sans-serif; font-weight: 600;">
-                            Your Original Request:
-                        </h4>
-                        <p style="margin: 4px 0; color: #666; font-size: 14px; font-family: 'Open Sans', sans-serif;">
-                            <strong>Date:</strong> ${formattedRequestedDate}
-                        </p>
-                        <p style="margin: 4px 0; color: #666; font-size: 14px; font-family: 'Open Sans', sans-serif;">
-                            <strong>Time:</strong> ${requestedTime}
+                    <!-- Time Adjusted Notice -->
+                    <div style="background: #FEF3C7; border-left: 4px solid #FC0105; padding: 14px 16px; margin: 0 0 24px 0; border-radius: 0 6px 6px 0;">
+                        <p style="margin: 0; color: #92400E; font-size: 14px; font-weight: 600;">
+                            ⏰ Your coach adjusted the time: ${formattedRequestedDate} at ${requestedTime} → ${formattedConfirmedDate} at ${confirmedTime}
                         </p>
                     </div>
                     ` : ''}
 
-                    <!-- Confirmed Session Details -->
-                    <div style="background: #ffffff; border-left: 4px solid #FC0105; padding: 24px; margin: 24px 0; border-radius: 0 8px 8px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                        <h3 style="color: #000000; margin: 0 0 16px 0; font-size: 18px; font-family: 'Open Sans', sans-serif; font-weight: 700;">
-                            ${timeChanged ? '✨ Confirmed Session Details:' : '📋 Session Details:'}
-                        </h3>
-                        <p style="margin: 8px 0; color: #000000; font-size: 16px; font-family: 'Open Sans', sans-serif;">
-                            <strong>Topic:</strong> ${topic}
-                        </p>
-                        <p style="margin: 8px 0; color: #000000; font-size: 16px; font-family: 'Open Sans', sans-serif;">
-                            <strong>Date:</strong> ${formattedConfirmedDate}
-                        </p>
-                        <p style="margin: 8px 0; color: #000000; font-size: 16px; font-family: 'Open Sans', sans-serif;">
-                            <strong>Time:</strong> ${confirmedTime}
-                        </p>
-                        <p style="margin: 8px 0; color: #000000; font-size: 16px; font-family: 'Open Sans', sans-serif;">
-                            <strong>Duration:</strong> ${duration} minutes
-                        </p>
-                        <p style="margin: 8px 0; color: #000000; font-size: 16px; font-family: 'Open Sans', sans-serif;">
-                            <strong>Coach:</strong> ${coachName}
-                        </p>
+                    <!-- Session Details Card -->
+                    <div style="background: #F9FAFB; border: 2px solid #E5E7EB; padding: 20px; margin: 0 0 28px 0; border-radius: 8px;">
+                        <p style="margin: 0 0 12px 0; color: #6B7280; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Session Details</p>
+                        <p style="margin: 6px 0; color: #000000; font-size: 15px;"><strong>Date:</strong> ${formattedConfirmedDate}</p>
+                        <p style="margin: 6px 0; color: #000000; font-size: 15px;"><strong>Time:</strong> ${confirmedTime}</p>
+                        <p style="margin: 6px 0; color: #000000; font-size: 15px;"><strong>Duration:</strong> ${duration} minutes</p>
+                        <p style="margin: 6px 0; color: #000000; font-size: 15px;"><strong>Coach:</strong> ${coachName}</p>
                         ${notes ? `
-                        <div style="margin-top: 16px; padding: 12px; background: #f9f9f9; border-radius: 4px;">
-                            <p style="margin: 0 0 4px 0; color: #000000; font-weight: 600; font-size: 14px; font-family: 'Open Sans', sans-serif;">
-                                Notes from Coach:
-                            </p>
-                            <p style="margin: 0; color: #666; font-size: 14px; font-style: italic; font-family: 'Open Sans', sans-serif; white-space: pre-wrap;">
-                                "${notes}"
-                            </p>
+                        <div style="margin-top: 14px; padding-top: 14px; border-top: 1px solid #E5E7EB;">
+                            <p style="margin: 0 0 6px 0; color: #000000; font-weight: 600; font-size: 13px;">Notes from Coach:</p>
+                            <p style="margin: 0; color: #4B5563; font-size: 14px; font-style: italic; white-space: pre-wrap;">${notes}</p>
                         </div>
                         ` : ''}
                     </div>
 
-                    <!-- Call to Action -->
-                    <div style="text-align: center; margin: 32px 0;">
-                        <a href="${dashboardUrl}" style="background-color: #000000; color: white; font-weight: 700; padding: 16px 40px; border-radius: 8px; text-decoration: none; text-transform: uppercase; letter-spacing: 1px; font-size: 16px; display: inline-block; font-family: 'Open Sans', sans-serif;">
-                            View in Dashboard
+                    <!-- Single CTA Button -->
+                    <div style="text-align: center; margin: 0 0 28px 0;">
+                        <a href="${dashboardUrl}" style="display: inline-block; background-color: #FC0105; color: white; font-weight: 700; padding: 16px 48px; border-radius: 8px; text-decoration: none; font-size: 15px; letter-spacing: 0.5px;">
+                            View Session
                         </a>
                     </div>
 
-                    <!-- Preparation Tips -->
-                    <div style="margin: 32px 0; padding: 24px; background: #f9f9f9; border-radius: 8px; border: 2px solid #000000;">
-                        <h3 style="color: #000000; margin: 0 0 16px 0; font-size: 18px; font-weight: 700; text-align: center; font-family: 'Open Sans', sans-serif;">
-                            How to Prepare:
-                        </h3>
-                        <ul style="color: #333333; margin: 0; text-align: left; max-width: 450px; margin: 0 auto; line-height: 1.8; font-family: 'Open Sans', sans-serif; font-size: 15px;">
-                            <li style="margin: 8px 0;">Mark your calendar and set a reminder</li>
-                            <li style="margin: 8px 0;">Prepare any questions you want to ask</li>
-                            <li style="margin: 8px 0;">Have your equipment ready</li>
-                            <li style="margin: 8px 0;">Join 5 minutes early to test your connection</li>
-                        </ul>
-                    </div>
+                    <p style="color: #6B7280; font-size: 13px; text-align: center; margin: 0; line-height: 1.5;">
+                        Mark your calendar and join 5 minutes early to test your connection.
+                    </p>
                 </main>
 
                 <!-- Footer -->
-                <footer style="background-color: #f9f9f9; text-align: center; padding: 24px; border-top: 2px solid #000000;">
-                    <p style="color: #666666; font-size: 14px; margin: 0 0 8px 0; font-family: 'Open Sans', sans-serif;">
-                        This session was scheduled by ${coachName}
+                <footer style="background-color: #F9FAFB; text-align: center; padding: 20px; border-top: 1px solid #E5E7EB;">
+                    <p style="margin: 0; font-weight: 700; color: #000000; font-size: 14px; letter-spacing: 1px;">
+                        ATHLEAP
                     </p>
-                    <p style="margin: 0; font-weight: 700; color: #440102; font-size: 16px; letter-spacing: 1px; font-family: 'Open Sans', sans-serif;">
-                        ATHLEAP - The Work Before the Win
-                    </p>
-                    <p style="color: #999999; font-size: 12px; margin: 16px 0 0 0; font-family: 'Open Sans', sans-serif;">
-                        Questions? Contact your coach directly through the platform.
+                    <p style="color: #9CA3AF; font-size: 12px; margin: 4px 0 0 0;">
+                        Questions? Reply to this email or contact ${coachName}.
                     </p>
                 </footer>
 
