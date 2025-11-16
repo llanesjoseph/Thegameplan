@@ -53,97 +53,119 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // 3. Fetch athlete feed document
-    const feedDoc = await adminDb.collection('athlete_feed').doc(athleteId).get()
+    // 3. Get all followed coaches
+    const followsSnapshot = await adminDb
+      .collection('coach_followers')
+      .where('athleteId', '==', athleteId)
+      .get()
 
-    if (!feedDoc.exists) {
-      // No feed exists yet - might be newly assigned athlete
-      const coachId = userData?.coachId || userData?.assignedCoachId
+    const followedCoachIds = followsSnapshot.docs.map(doc => doc.data().coachId)
 
+    // Add assigned coach if exists (for backwards compatibility)
+    const assignedCoachId = userData?.coachId || userData?.assignedCoachId
+    if (assignedCoachId && !followedCoachIds.includes(assignedCoachId)) {
+      followedCoachIds.push(assignedCoachId)
+    }
+
+    if (followedCoachIds.length === 0) {
       return NextResponse.json({
         success: true,
         feed: {
           athleteId,
-          coachId: coachId || null,
+          coachIds: [],
+          coaches: [],
           availableLessons: [],
           assignedLessons: [],
           completedLessons: [],
           totalLessons: 0,
           completionRate: 0,
-          unreadAnnouncements: 0,
-          message: 'No lessons available yet. Your coach will assign lessons soon.'
-        }
+          message: 'No coaches followed yet. Browse coaches to get started.'
+        },
+        lessons: [],
+        count: 0
       })
     }
 
-    const feedData = feedDoc.data()
+    // 4. Fetch athlete feed document for completion tracking
+    const feedDoc = await adminDb.collection('athlete_feed').doc(athleteId).get()
+    const feedData = feedDoc.exists ? feedDoc.data() : {}
+    const completedLessonIds = feedData?.completedLessons || []
 
-    // 4. Fetch full lesson details for available lessons
-    const availableLessonIds = feedData?.availableLessons || []
-    const lessons: any[] = []
+    // 5. Fetch lessons from all followed coaches
+    const allLessons: any[] = []
 
-    if (availableLessonIds.length > 0) {
-      // Batch fetch lessons (Firestore has limit of 10 for 'in' queries, so chunk if needed)
-      const chunkSize = 10
-      for (let i = 0; i < availableLessonIds.length; i += chunkSize) {
-        const chunk = availableLessonIds.slice(i, i + chunkSize)
+    for (const coachId of followedCoachIds) {
+      try {
+        // Get all public lessons from this coach
         const lessonsSnapshot = await adminDb
           .collection('content')
-          .where(FieldPath.documentId(), 'in', chunk)
+          .where('creatorId', '==', coachId)
+          .where('visibility', '==', 'public')
+          .orderBy('createdAt', 'desc')
+          .limit(50) // Limit per coach to prevent overload
           .get()
 
         lessonsSnapshot.docs.forEach(doc => {
           const lessonData = doc.data()
-          lessons.push({
+          allLessons.push({
             id: doc.id,
             ...lessonData,
             createdAt: lessonData.createdAt?.toDate?.()?.toISOString() || null,
             updatedAt: lessonData.updatedAt?.toDate?.()?.toISOString() || null,
-            isCompleted: feedData?.completedLessons?.includes(doc.id) || false
+            isCompleted: completedLessonIds.includes(doc.id),
+            coachId: coachId
           })
         })
+      } catch (error) {
+        console.error(`Error fetching lessons for coach ${coachId}:`, error)
       }
     }
 
-    // 5. Get coach information
-    const coachId = feedData?.coachId
-    let coachInfo = null
-
-    if (coachId) {
-      const coachDoc = await adminDb.collection('users').doc(coachId).get()
-      if (coachDoc.exists) {
-        const coachData = coachDoc.data()
-        coachInfo = {
-          id: coachId,
-          displayName: coachData?.displayName || coachData?.email || 'Your Coach',
-          email: coachData?.email || null,
-          photoURL: coachData?.photoURL || null
+    // 6. Get coach information for all followed coaches
+    const coaches: any[] = []
+    for (const coachId of followedCoachIds) {
+      try {
+        const coachDoc = await adminDb.collection('users').doc(coachId).get()
+        if (coachDoc.exists) {
+          const coachData = coachDoc.data()
+          coaches.push({
+            id: coachId,
+            displayName: coachData?.displayName || coachData?.email || 'Coach',
+            email: coachData?.email || null,
+            photoURL: coachData?.photoURL || coachData?.profileImageUrl || null
+          })
         }
+      } catch (error) {
+        console.error(`Error fetching coach info for ${coachId}:`, error)
       }
     }
+
+    // 7. Sort all lessons by creation date, newest first
+    const sortedLessons = allLessons.sort((a, b) => {
+      const dateA = new Date(a.createdAt || 0).getTime()
+      const dateB = new Date(b.createdAt || 0).getTime()
+      return dateB - dateA
+    })
 
     return NextResponse.json({
       success: true,
       feed: {
         athleteId,
-        coachId: feedData?.coachId || null,
-        coach: coachInfo,
-        availableLessons: feedData?.availableLessons || [],
+        coachIds: followedCoachIds,
+        coaches,
+        availableLessons: sortedLessons.map(l => l.id),
         assignedLessons: feedData?.assignedLessons || [],
-        completedLessons: feedData?.completedLessons || [],
-        totalLessons: feedData?.totalLessons || 0,
-        completionRate: feedData?.completionRate || 0,
+        completedLessons: completedLessonIds,
+        totalLessons: sortedLessons.length,
+        completionRate: sortedLessons.length > 0
+          ? Math.round((completedLessonIds.length / sortedLessons.length) * 100)
+          : 0,
         unreadAnnouncements: feedData?.unreadAnnouncements || 0,
         lastActivity: feedData?.lastActivity?.toDate?.()?.toISOString() || null,
-        updatedAt: feedData?.updatedAt?.toDate?.()?.toISOString() || null
+        updatedAt: new Date().toISOString()
       },
-      lessons: lessons.sort((a, b) => {
-        // Sort by creation date, newest first
-        const dateA = new Date(a.createdAt || 0).getTime()
-        const dateB = new Date(b.createdAt || 0).getTime()
-        return dateB - dateA
-      }),
-      count: lessons.length
+      lessons: sortedLessons,
+      count: sortedLessons.length
     })
 
   } catch (error: any) {

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { ChevronDown, ArrowLeft } from 'lucide-react'
+import { ChevronDown, ArrowLeft, UserPlus, UserCheck } from 'lucide-react'
 import { SPORTS } from '@/lib/constants/sports'
 
 type Coach = {
@@ -32,6 +32,8 @@ export default function BrowseCoachesPage() {
   const [totalCount, setTotalCount] = useState(0)
   const [hasMore, setHasMore] = useState(false)
   const [offset, setOffset] = useState(0)
+  const [followingSet, setFollowingSet] = useState<Set<string>>(new Set())
+  const [followingLoading, setFollowingLoading] = useState<Set<string>>(new Set())
 
   const handleSignOut = async () => {
     try {
@@ -41,6 +43,81 @@ export default function BrowseCoachesPage() {
       window.location.href = '/'
     } catch (error) {
       console.error('Sign out error:', error)
+    }
+  }
+
+  const loadFollowingList = async () => {
+    if (!user?.uid) return
+
+    try {
+      const token = await user.getIdToken()
+      const response = await fetch('/api/athlete/following', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      const data = await response.json()
+
+      if (data.success && data.following) {
+        const followedCoachIds = new Set<string>(data.following.map((f: any) => f.coachId))
+        setFollowingSet(followedCoachIds)
+      }
+    } catch (error) {
+      console.error('Error loading following list:', error)
+    }
+  }
+
+  const handleFollowToggle = async (coachId: string, e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    if (!user?.uid) {
+      alert('Please sign in to follow coaches')
+      return
+    }
+
+    // Add to loading set
+    setFollowingLoading(prev => new Set(prev).add(coachId))
+
+    try {
+      const token = await user.getIdToken()
+      const isFollowing = followingSet.has(coachId)
+
+      const response = await fetch('/api/athlete/follow-coach', {
+        method: isFollowing ? 'DELETE' : 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ coachId })
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        // Update following set
+        setFollowingSet(prev => {
+          const newSet = new Set(prev)
+          if (isFollowing) {
+            newSet.delete(coachId)
+          } else {
+            newSet.add(coachId)
+          }
+          return newSet
+        })
+      } else {
+        alert(data.error || 'Failed to update follow status')
+      }
+    } catch (error) {
+      console.error('Error toggling follow:', error)
+      alert('Failed to update follow status')
+    } finally {
+      // Remove from loading set
+      setFollowingLoading(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(coachId)
+        return newSet
+      })
     }
   }
 
@@ -74,6 +151,13 @@ export default function BrowseCoachesPage() {
     loadCoaches(true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedSport])
+
+  useEffect(() => {
+    if (user?.uid) {
+      loadFollowingList()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.uid])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-cream via-cream to-sky-blue/10">
@@ -156,56 +240,91 @@ export default function BrowseCoachesPage() {
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {coaches.map((coach) => (
-                <Link
-                  key={coach.id}
-                  href={`/coach-profile/${coach.slug || coach.id}`}
-                  className="group block"
-                >
-                  {/* Coach Card */}
-                  <div className="space-y-2">
-                    {/* Profile Image */}
-                    <div className="relative w-full aspect-square rounded-lg overflow-hidden bg-gray-100 ring-2 ring-transparent group-hover:ring-black transition-all">
-                      {coach.profileImageUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={coach.profileImageUrl}
-                          alt={coach.displayName}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#8B7D7B' }}>
-                          <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
-                        </div>
-                      )}
+              {coaches.map((coach) => {
+                const isFollowing = followingSet.has(coach.id)
+                const isLoading = followingLoading.has(coach.id)
 
-                      {/* Featured Badge */}
-                      {coach.featured && (
-                        <div className="absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-bold text-white" style={{ backgroundColor: '#FC0105' }}>
-                          Featured
-                        </div>
-                      )}
-                    </div>
+                return (
+                  <div key={coach.id} className="group block">
+                    {/* Coach Card */}
+                    <div className="space-y-2">
+                      {/* Profile Image - wrapped in Link */}
+                      <Link href={`/coach-profile/${coach.slug || coach.id}`}>
+                        <div className="relative w-full aspect-square rounded-lg overflow-hidden bg-gray-100 ring-2 ring-transparent group-hover:ring-black transition-all cursor-pointer">
+                          {coach.profileImageUrl ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={coach.profileImageUrl}
+                              alt={coach.displayName}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#8B7D7B' }}>
+                              <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
+                            </div>
+                          )}
 
-                    {/* Coach Info */}
-                    <div>
-                      <p className="font-bold text-sm line-clamp-1" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
-                        {coach.displayName}
-                      </p>
-                      {(coach.specialties?.[0] || coach.sport) && (
-                        <p className="text-xs line-clamp-1" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
-                          {coach.specialties?.[0] || coach.sport}
-                        </p>
-                      )}
-                      {coach.tagline && (
-                        <p className="text-xs line-clamp-1 italic" style={{ color: '#999', fontFamily: '"Open Sans", sans-serif' }}>
-                          {coach.tagline}
-                        </p>
-                      )}
+                          {/* Featured Badge */}
+                          {coach.featured && (
+                            <div className="absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-bold text-white" style={{ backgroundColor: '#FC0105' }}>
+                              Featured
+                            </div>
+                          )}
+
+                          {/* Follow Button Overlay - shows on hover */}
+                          {user && (
+                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                              <button
+                                onClick={(e) => handleFollowToggle(coach.id, e)}
+                                disabled={isLoading}
+                                className={`px-4 py-2 rounded-lg font-bold text-sm transition-all flex items-center gap-2 ${
+                                  isFollowing
+                                    ? 'bg-white text-black hover:bg-gray-100'
+                                    : 'bg-black text-white hover:bg-gray-800 border-2 border-white'
+                                }`}
+                                style={{ fontFamily: '"Open Sans", sans-serif' }}
+                              >
+                                {isLoading ? (
+                                  <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                                ) : isFollowing ? (
+                                  <>
+                                    <UserCheck className="w-4 h-4" />
+                                    Following
+                                  </>
+                                ) : (
+                                  <>
+                                    <UserPlus className="w-4 h-4" />
+                                    Follow
+                                  </>
+                                )}
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </Link>
+
+                      {/* Coach Info - wrapped in Link */}
+                      <Link href={`/coach-profile/${coach.slug || coach.id}`}>
+                        <div className="cursor-pointer">
+                          <p className="font-bold text-sm line-clamp-1" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                            {coach.displayName}
+                          </p>
+                          {(coach.specialties?.[0] || coach.sport) && (
+                            <p className="text-xs line-clamp-1" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+                              {coach.specialties?.[0] || coach.sport}
+                            </p>
+                          )}
+                          {coach.tagline && (
+                            <p className="text-xs line-clamp-1 italic" style={{ color: '#999', fontFamily: '"Open Sans", sans-serif' }}>
+                              {coach.tagline}
+                            </p>
+                          )}
+                        </div>
+                      </Link>
                     </div>
                   </div>
-                </Link>
-              ))}
+                )
+              })}
             </div>
           )}
 
