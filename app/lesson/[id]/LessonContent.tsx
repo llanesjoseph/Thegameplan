@@ -53,6 +53,8 @@ export default function LessonContent() {
  const [loading, setLoading] = useState(true)
  const [error, setError] = useState<string | null>(null)
  const [viewsIncremented, setViewsIncremented] = useState(false)
+ const [isCompleted, setIsCompleted] = useState(false)
+ const [isMarking, setIsMarking] = useState(false)
 
  // If user is not authenticated, show preview mode
  if (!user) {
@@ -174,23 +176,59 @@ export default function LessonContent() {
 
     {/* Lesson Header */}
     <div className="mb-8">
-     <div className="flex items-center gap-2 mb-4">
-      <div className="px-3 py-1 bg-sky-blue/20 text-sky-blue rounded-full text-sm font-medium">
-       {lesson.level}
+     <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center gap-2">
+       <div className="px-3 py-1 rounded-full text-sm font-bold text-white" style={{ backgroundColor: lesson.level === 'intermediate' ? '#0A66C2' : lesson.level === 'advanced' ? '#FC0105' : '#00A651' }}>
+        {lesson.level}
+       </div>
+       <div className="flex items-center gap-1 text-dark/60 text-sm">
+        <Eye className="w-4 h-4" />
+        {lesson.views || 0} views
+       </div>
+       <div className="flex items-center gap-1 text-dark/60 text-sm">
+        <Calendar className="w-4 h-4" />
+        {lesson.createdAt?.toDate ?
+         lesson.createdAt.toDate().toLocaleDateString() :
+         lesson.createdAt?.seconds ?
+         new Date(lesson.createdAt.seconds * 1000).toLocaleDateString() :
+         'Recently'
+        }
+       </div>
       </div>
-      <div className="flex items-center gap-1 text-dark/60 text-sm">
-       <Eye className="w-4 h-4" />
-       {lesson.views || 0} views
-      </div>
-      <div className="flex items-center gap-1 text-dark/60 text-sm">
-       <Calendar className="w-4 h-4" />
-       {lesson.createdAt?.toDate ?
-        lesson.createdAt.toDate().toLocaleDateString() :
-        lesson.createdAt?.seconds ?
-        new Date(lesson.createdAt.seconds * 1000).toLocaleDateString() :
-        'Recently'
-       }
-      </div>
+
+      {/* Mark as Complete Button */}
+      <button
+       onClick={async () => {
+        if (!user || isMarking) return
+        setIsMarking(true)
+        try {
+         const token = await user.getIdToken()
+         const res = await fetch('/api/athlete/progress/mark-complete', {
+          method: 'POST',
+          headers: {
+           'Content-Type': 'application/json',
+           'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ lessonId })
+         })
+         if (res.ok) {
+          setIsCompleted(true)
+         }
+        } catch (e) {
+         console.error('Failed to mark complete:', e)
+        } finally {
+         setIsMarking(false)
+        }
+       }}
+       disabled={isMarking || isCompleted}
+       className="px-4 py-2 rounded-lg font-bold text-white transition-all hover:opacity-90 disabled:opacity-50"
+       style={{
+        backgroundColor: isCompleted ? '#00A651' : '#FC0105',
+        fontFamily: '"Open Sans", sans-serif'
+       }}
+      >
+       {isCompleted ? '✓ Completed' : isMarking ? 'Marking...' : 'Mark as Complete'}
+      </button>
      </div>
 
      <h1 className="text-4xl text-dark font-heading mb-4">{lesson.title}</h1>
@@ -234,9 +272,9 @@ export default function LessonContent() {
 
      {/* Text-only lesson indicator */}
      {!lesson.videoUrl && !lesson.videoId && (
-      <div className="mb-6 p-4 bg-gradient-to-r from-sky-blue/10 to-cream rounded-xl border-2 border-sky-blue/30">
+      <div className="mb-6 p-4 rounded-xl border-2" style={{ backgroundColor: 'rgba(252, 1, 5, 0.05)', borderColor: 'rgba(252, 1, 5, 0.2)' }}>
        <div className="flex items-center gap-3">
-        <div className="w-10 h-10 bg-gradient-to-br from-sky-blue to-black rounded-full flex items-center justify-center flex-shrink-0">
+        <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(to bottom right, #FC0105, #000000)' }}>
          <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
          </svg>
@@ -299,13 +337,14 @@ export default function LessonContent() {
      )}
 
      {lesson.tags && lesson.tags.length > 0 && (
-      <div className="mt-8 pt-6 border-t border-sky-blue/20">
+      <div className="mt-8 pt-6 border-t" style={{ borderColor: 'rgba(0, 0, 0, 0.1)' }}>
        <h4 className="text-sm font-medium text-dark mb-3">Tags</h4>
        <div className="flex flex-wrap gap-2">
         {lesson.tags.map((tag, index) => (
          <span
           key={index}
-          className="px-3 py-1 bg-sky-blue/20 text-sky-blue rounded-full text-sm"
+          className="px-3 py-1 rounded-full text-sm font-semibold"
+          style={{ backgroundColor: 'rgba(252, 1, 5, 0.1)', color: '#FC0105' }}
          >
           {tag}
          </span>
@@ -319,14 +358,16 @@ export default function LessonContent() {
     <div className="mt-8 flex flex-col sm:flex-row gap-4">
      <Link
       href="/lessons"
-      className="flex-1 sm:flex-none px-6 py-3 bg-gradient-to-r from-sky-blue to-black text-white rounded-xl text-center hover:opacity-90 transition-opacity font-medium"
+      className="flex-1 sm:flex-none px-6 py-3 text-white rounded-xl text-center hover:opacity-90 transition-opacity font-bold"
+      style={{ background: 'linear-gradient(to right, #FC0105, #000000)', fontFamily: '"Open Sans", sans-serif' }}
      >
       Browse More Lessons
      </Link>
      {creator && (
       <Link
        href={`/lessons?coach=${lesson.creatorUid}`}
-       className="flex-1 sm:flex-none px-6 py-3 bg-white/80 backdrop-blur-sm text-dark border border-sky-blue/20 rounded-xl text-center hover:bg-white transition-colors font-medium"
+       className="flex-1 sm:flex-none px-6 py-3 bg-white/80 backdrop-blur-sm text-dark border-2 border-black rounded-xl text-center hover:bg-white transition-colors font-bold"
+       style={{ fontFamily: '"Open Sans", sans-serif' }}
       >
        More from {creator.displayName || creator.name}
       </Link>
