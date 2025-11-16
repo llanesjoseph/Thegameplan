@@ -34,7 +34,15 @@ export default function AthleteEngagementList() {
       if (!user?.uid) return
 
       try {
-        const res = await fetch('/api/coach/athletes')
+        // Get auth token
+        const { auth } = await import('@/lib/firebase.client')
+        const token = await user.getIdToken()
+
+        const res = await fetch('/api/coach/athletes', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
         const data = await res.json()
 
         if (data.success) {
@@ -44,7 +52,11 @@ export default function AthleteEngagementList() {
           const metrics: Record<string, AthleteMetrics> = {}
           for (const athlete of data.athletes || []) {
             try {
-              const metricsRes = await fetch(`/api/coach/athletes/${athlete.slug || athlete.uid}`)
+              const metricsRes = await fetch(`/api/coach/athletes/${athlete.slug || athlete.uid}`, {
+                headers: {
+                  'Authorization': `Bearer ${token}`
+                }
+              })
               const metricsData = await metricsRes.json()
 
               if (metricsData.success) {
@@ -63,6 +75,8 @@ export default function AthleteEngagementList() {
             }
           }
           setMetricsMap(metrics)
+        } else {
+          console.error('Failed to load athletes:', data.error)
         }
       } catch (error) {
         console.error('Failed to load athletes:', error)
