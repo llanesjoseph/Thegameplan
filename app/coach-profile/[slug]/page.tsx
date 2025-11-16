@@ -11,7 +11,6 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import HeroCoachProfile from '@/components/coach/HeroCoachProfile'
-import AppHeader from '@/components/ui/AppHeader'
 
 interface CoachProfile {
   uid: string
@@ -175,16 +174,13 @@ export default function CoachProfilePage() {
   }
 
   return (
-    <>
-      {!isInIframe && <AppHeader title="Coach Profile" subtitle="View coach information and credentials" />}
-      <HeroCoachProfile
-        coach={coach}
-        totalLessons={totalLessons}
-        totalAthletes={totalAthletes}
-        lessons={lessons}
-        isInIframe={isInIframe}
-        onBack={handleBack}
-      />
-    </>
+    <HeroCoachProfile
+      coach={coach}
+      totalLessons={totalLessons}
+      totalAthletes={totalAthletes}
+      lessons={lessons}
+      isInIframe={isInIframe}
+      onBack={handleBack}
+    />
   )
 }

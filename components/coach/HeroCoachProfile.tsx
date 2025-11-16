@@ -87,8 +87,60 @@ export default function HeroCoachProfile({
   const achievements = typeof coach.achievements === 'string' ? coach.achievements : coach.achievements?.join('\n')
   const certifications = typeof coach.certifications === 'string' ? coach.certifications : coach.certifications?.join('\n')
 
+  const handleSignOut = async () => {
+    try {
+      const { signOut } = await import('firebase/auth')
+      const { auth } = await import('@/lib/firebase.client')
+      await signOut(auth)
+      window.location.href = '/'
+    } catch (error) {
+      console.error('Sign out error:', error)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-cream via-cream to-sky-blue/10">
+      {/* Header */}
+      {!isInIframe && (
+        <header className="bg-white/80 backdrop-blur-sm border-b border-white/50 px-4 sm:px-6 lg:px-8 py-4">
+          <div className="max-w-6xl mx-auto flex items-center justify-between">
+            <Link href="/" className="flex-shrink-0">
+              <span className="text-2xl font-bold" style={{ color: '#440102', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
+                ATHLEAP
+              </span>
+            </Link>
+            <div className="flex items-center gap-3">
+              {user ? (
+                <button
+                  onClick={handleSignOut}
+                  className="px-4 py-2 rounded-lg text-white font-bold text-sm transition-opacity hover:opacity-90"
+                  style={{ background: 'linear-gradient(to right, #FC0105, #000000)', fontFamily: '"Open Sans", sans-serif' }}
+                >
+                  Sign Out
+                </button>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    className="px-4 py-2 rounded-lg border-2 border-black text-black font-bold text-sm transition-colors hover:bg-black hover:text-white"
+                    style={{ fontFamily: '"Open Sans", sans-serif' }}
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    href="/onboarding"
+                    className="px-4 py-2 rounded-lg text-white font-bold text-sm transition-opacity hover:opacity-90"
+                    style={{ background: 'linear-gradient(to right, #FC0105, #000000)', fontFamily: '"Open Sans", sans-serif' }}
+                  >
+                    Join Now
+                  </Link>
+                </>
+              )}
+            </div>
+          </div>
+        </header>
+      )}
+
       {/* Back Button */}
       {!isInIframe && onBack && (
         <div className="max-w-4xl mx-auto px-6 pt-6">
