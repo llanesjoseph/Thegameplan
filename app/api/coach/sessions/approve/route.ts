@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth, adminDb } from '@/lib/firebase.admin'
 import { FieldValue } from 'firebase-admin/firestore'
+import { sendSessionConfirmationEmail } from '@/lib/email-service'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -116,6 +117,35 @@ export async function POST(request: NextRequest) {
       updatedAt: FieldValue.serverTimestamp(),
       viewedByCoach: true
     })
+
+    // 7. Send confirmation email to athlete
+    try {
+      // Get athlete's email
+      const athleteDoc = await adminDb.collection('users').doc(requestData.athleteId).get()
+      const athleteData = athleteDoc.data()
+      const athleteEmail = athleteData?.email
+
+      if (athleteEmail) {
+        await sendSessionConfirmationEmail({
+          to: athleteEmail,
+          athleteName: requestData.athleteName,
+          coachName: userData?.displayName || 'Your Coach',
+          topic: requestData.topic,
+          requestedDate: requestData.preferredDate,
+          requestedTime: requestData.preferredTime,
+          confirmedDate: confirmedDate || requestData.preferredDate,
+          confirmedTime: confirmedTime || requestData.preferredTime,
+          duration: requestData.duration,
+          notes: notes
+        })
+        console.log(`📧 Confirmation email sent to ${athleteEmail}`)
+      } else {
+        console.warn(`⚠️ Could not send email - athlete ${requestData.athleteId} has no email address`)
+      }
+    } catch (emailError) {
+      // Don't fail the request if email fails - just log it
+      console.error('Failed to send confirmation email (non-blocking):', emailError)
+    }
 
     console.log(`✅ Session request ${requestId} approved and session ${sessionRef.id} created by coach ${uid}`)
 

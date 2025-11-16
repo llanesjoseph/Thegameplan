@@ -1247,6 +1247,214 @@ interface ScheduleEventNotificationEmailProps {
   dashboardUrl?: string
 }
 
+// Session confirmation email
+interface SessionConfirmationEmailProps {
+  to: string
+  athleteName: string
+  coachName: string
+  topic: string
+  requestedDate: string
+  requestedTime: string
+  confirmedDate: string
+  confirmedTime: string
+  duration: number
+  notes?: string
+  dashboardUrl?: string
+}
+
+export async function sendSessionConfirmationEmail({
+  to,
+  athleteName,
+  coachName,
+  topic,
+  requestedDate,
+  requestedTime,
+  confirmedDate,
+  confirmedTime,
+  duration,
+  notes,
+  dashboardUrl = `${APP_URL}/dashboard/athlete`
+}: SessionConfirmationEmailProps) {
+  try {
+    // Format dates for display
+    const confirmedDateObj = new Date(confirmedDate)
+    const formattedConfirmedDate = confirmedDateObj.toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })
+
+    // Check if coach changed the time from athlete's preference
+    const timeChanged = requestedDate !== confirmedDate || requestedTime !== confirmedTime
+    const requestedDateObj = new Date(requestedDate)
+    const formattedRequestedDate = requestedDateObj.toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })
+
+    const { data, error } = await resend.emails.send({
+      from: 'AthLeap <noreply@mail.crucibleanalytics.dev>',
+      to: [to],
+      subject: timeChanged
+        ? `✅ Session Confirmed (Time Adjusted) - ${coachName}`
+        : `✅ Session Confirmed - ${coachName}`,
+      html: `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Session Confirmed - ATHLEAP</title>
+            <link rel="preconnect" href="https://fonts.googleapis.com">
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+            <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+            <style>
+                body {
+                    font-family: "Open Sans", sans-serif;
+                    background-color: #f5f5f5;
+                    margin: 0;
+                    padding: 0;
+                }
+            </style>
+        </head>
+        <body style="font-family: 'Open Sans', sans-serif; background-color: #f5f5f5; margin: 0; padding: 16px;">
+            <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden;">
+
+                <!-- Header with Logo -->
+                <header style="background-color: #FFFFFF; padding: 32px 24px; text-align: center; border-bottom: 3px solid #000000;">
+                    <h1 style="font-family: 'Open Sans', sans-serif; font-size: 2.5rem; color: #440102; margin: 0; font-weight: 700; letter-spacing: 2px;">ATHLEAP</h1>
+                    <p style="color: #666666; font-size: 12px; margin: 8px 0 0 0; letter-spacing: 2px; font-weight: 600;">THE WORK BEFORE THE WIN</p>
+                </header>
+
+                <main style="padding: 40px 24px;">
+                    <!-- Confirmation Banner -->
+                    <div style="background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); border: 2px solid #16A34A; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
+                        <h2 style="color: #16A34A; margin: 0; font-family: 'Open Sans', sans-serif; font-size: 1.5rem; font-weight: 700;">
+                            ✅ Your 1-on-1 Session is Confirmed!
+                        </h2>
+                    </div>
+
+                    <p style="color: #333333; line-height: 1.6; font-size: 16px; font-family: 'Open Sans', sans-serif;">
+                        Hi ${athleteName},
+                    </p>
+
+                    <p style="color: #333333; line-height: 1.6; font-size: 16px; font-family: 'Open Sans', sans-serif;">
+                        Great news! <strong>${coachName}</strong> has confirmed your live coaching session request for <strong>${topic}</strong>.
+                    </p>
+
+                    ${timeChanged ? `
+                    <!-- Time Changed Notice -->
+                    <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 2px solid #FC0105; padding: 16px; border-radius: 8px; margin: 24px 0;">
+                        <p style="margin: 0; color: #92400e; font-size: 14px; font-family: 'Open Sans', sans-serif; text-align: center;">
+                            <strong>⏰ Note:</strong> The coach has adjusted the session time to better accommodate their schedule.
+                        </p>
+                    </div>
+
+                    <!-- Original Request -->
+                    <div style="background: #f9f9f9; border-left: 4px solid #666; padding: 16px 20px; margin: 20px 0; border-radius: 0 8px 8px 0;">
+                        <h4 style="color: #666; margin: 0 0 8px 0; font-size: 14px; font-family: 'Open Sans', sans-serif; font-weight: 600;">
+                            Your Original Request:
+                        </h4>
+                        <p style="margin: 4px 0; color: #666; font-size: 14px; font-family: 'Open Sans', sans-serif;">
+                            <strong>Date:</strong> ${formattedRequestedDate}
+                        </p>
+                        <p style="margin: 4px 0; color: #666; font-size: 14px; font-family: 'Open Sans', sans-serif;">
+                            <strong>Time:</strong> ${requestedTime}
+                        </p>
+                    </div>
+                    ` : ''}
+
+                    <!-- Confirmed Session Details -->
+                    <div style="background: #ffffff; border-left: 4px solid #FC0105; padding: 24px; margin: 24px 0; border-radius: 0 8px 8px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <h3 style="color: #000000; margin: 0 0 16px 0; font-size: 18px; font-family: 'Open Sans', sans-serif; font-weight: 700;">
+                            ${timeChanged ? '✨ Confirmed Session Details:' : '📋 Session Details:'}
+                        </h3>
+                        <p style="margin: 8px 0; color: #000000; font-size: 16px; font-family: 'Open Sans', sans-serif;">
+                            <strong>Topic:</strong> ${topic}
+                        </p>
+                        <p style="margin: 8px 0; color: #000000; font-size: 16px; font-family: 'Open Sans', sans-serif;">
+                            <strong>Date:</strong> ${formattedConfirmedDate}
+                        </p>
+                        <p style="margin: 8px 0; color: #000000; font-size: 16px; font-family: 'Open Sans', sans-serif;">
+                            <strong>Time:</strong> ${confirmedTime}
+                        </p>
+                        <p style="margin: 8px 0; color: #000000; font-size: 16px; font-family: 'Open Sans', sans-serif;">
+                            <strong>Duration:</strong> ${duration} minutes
+                        </p>
+                        <p style="margin: 8px 0; color: #000000; font-size: 16px; font-family: 'Open Sans', sans-serif;">
+                            <strong>Coach:</strong> ${coachName}
+                        </p>
+                        ${notes ? `
+                        <div style="margin-top: 16px; padding: 12px; background: #f9f9f9; border-radius: 4px;">
+                            <p style="margin: 0 0 4px 0; color: #000000; font-weight: 600; font-size: 14px; font-family: 'Open Sans', sans-serif;">
+                                Notes from Coach:
+                            </p>
+                            <p style="margin: 0; color: #666; font-size: 14px; font-style: italic; font-family: 'Open Sans', sans-serif; white-space: pre-wrap;">
+                                "${notes}"
+                            </p>
+                        </div>
+                        ` : ''}
+                    </div>
+
+                    <!-- Call to Action -->
+                    <div style="text-align: center; margin: 32px 0;">
+                        <a href="${dashboardUrl}" style="background-color: #000000; color: white; font-weight: 700; padding: 16px 40px; border-radius: 8px; text-decoration: none; text-transform: uppercase; letter-spacing: 1px; font-size: 16px; display: inline-block; font-family: 'Open Sans', sans-serif;">
+                            View in Dashboard
+                        </a>
+                    </div>
+
+                    <!-- Preparation Tips -->
+                    <div style="margin: 32px 0; padding: 24px; background: #f9f9f9; border-radius: 8px; border: 2px solid #000000;">
+                        <h3 style="color: #000000; margin: 0 0 16px 0; font-size: 18px; font-weight: 700; text-align: center; font-family: 'Open Sans', sans-serif;">
+                            How to Prepare:
+                        </h3>
+                        <ul style="color: #333333; margin: 0; text-align: left; max-width: 450px; margin: 0 auto; line-height: 1.8; font-family: 'Open Sans', sans-serif; font-size: 15px;">
+                            <li style="margin: 8px 0;">Mark your calendar and set a reminder</li>
+                            <li style="margin: 8px 0;">Prepare any questions you want to ask</li>
+                            <li style="margin: 8px 0;">Have your equipment ready</li>
+                            <li style="margin: 8px 0;">Join 5 minutes early to test your connection</li>
+                        </ul>
+                    </div>
+                </main>
+
+                <!-- Footer -->
+                <footer style="background-color: #f9f9f9; text-align: center; padding: 24px; border-top: 2px solid #000000;">
+                    <p style="color: #666666; font-size: 14px; margin: 0 0 8px 0; font-family: 'Open Sans', sans-serif;">
+                        This session was scheduled by ${coachName}
+                    </p>
+                    <p style="margin: 0; font-weight: 700; color: #440102; font-size: 16px; letter-spacing: 1px; font-family: 'Open Sans', sans-serif;">
+                        ATHLEAP - The Work Before the Win
+                    </p>
+                    <p style="color: #999999; font-size: 12px; margin: 16px 0 0 0; font-family: 'Open Sans', sans-serif;">
+                        Questions? Contact your coach directly through the platform.
+                    </p>
+                </footer>
+
+            </div>
+        </body>
+        </html>
+      `
+    })
+
+    if (error) {
+      console.error('Failed to send session confirmation email:', error)
+      return { success: false, error: error.message }
+    }
+
+    console.log(`✅ Session confirmation email sent to ${to} ${timeChanged ? '(time adjusted)' : ''}`)
+    return { success: true, data }
+  } catch (error) {
+    console.error('Session confirmation email service error:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    }
+  }
+}
+
 export async function sendScheduleEventNotificationEmail({
   to,
   athleteName,
