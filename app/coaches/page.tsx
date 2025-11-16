@@ -168,28 +168,18 @@ export default function BrowseCoachesPage() {
                   <div className="space-y-2">
                     {/* Profile Image */}
                     <div className="relative w-full aspect-square rounded-lg overflow-hidden bg-gray-100 ring-2 ring-transparent group-hover:ring-black transition-all">
-                      {(() => {
-                        // Check multiple possible image field names
-                        const imageUrl = coach.profileImageUrl ||
-                                        (coach as any).photoURL ||
-                                        (coach as any).profileImage ||
-                                        coach.bannerUrl ||
-                                        (coach as any).heroImageUrl ||
-                                        (coach as any).coverImageUrl
-
-                        return imageUrl ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={imageUrl}
-                            alt={coach.displayName}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#8B7D7B' }}>
-                            <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
-                          </div>
-                        )
-                      })()}
+                      {coach.profileImageUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={coach.profileImageUrl}
+                          alt={coach.displayName}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#8B7D7B' }}>
+                          <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
+                        </div>
+                      )}
 
                       {/* Featured Badge */}
                       {coach.featured && (

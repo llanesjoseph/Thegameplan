@@ -29,10 +29,23 @@ export async function GET(request: NextRequest) {
         : await collection.get()
 
       if (snapshot.docs.length > 0) {
-        allCoaches = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }))
+        allCoaches = snapshot.docs.map(doc => {
+          const data = doc.data()
+          // Ensure we have image URLs - check multiple field names
+          const imageUrl = data.profileImageUrl ||
+                          data.photoURL ||
+                          data.profileImage ||
+                          data.bannerUrl ||
+                          data.heroImageUrl ||
+                          data.coverImageUrl
+
+          return {
+            id: doc.id,
+            ...data,
+            // Ensure profileImageUrl is always set if any image exists
+            profileImageUrl: imageUrl || data.profileImageUrl
+          }
+        })
       }
     } catch (indexError) {
       console.log('[API/COACHES/PUBLIC] creators_index query failed, trying users collection:', indexError)
@@ -46,10 +59,23 @@ export async function GET(request: NextRequest) {
           .where('role', 'in', ['coach', 'creator'])
 
         const usersSnapshot = await usersQuery.get()
-        allCoaches = usersSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }))
+        allCoaches = usersSnapshot.docs.map(doc => {
+          const data = doc.data()
+          // Ensure we have image URLs - check multiple field names
+          const imageUrl = data.profileImageUrl ||
+                          data.photoURL ||
+                          data.profileImage ||
+                          data.bannerUrl ||
+                          data.heroImageUrl ||
+                          data.coverImageUrl
+
+          return {
+            id: doc.id,
+            ...data,
+            // Ensure profileImageUrl is always set if any image exists
+            profileImageUrl: imageUrl || data.profileImageUrl
+          }
+        })
       } catch (usersError) {
         console.error('[API/COACHES/PUBLIC] users collection query also failed:', usersError)
       }
