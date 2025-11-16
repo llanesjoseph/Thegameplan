@@ -109,34 +109,13 @@ export default function HeroCoachProfile({
                 ATHLEAP
               </span>
             </Link>
-            <div className="flex items-center gap-3">
-              {user ? (
-                <button
-                  onClick={handleSignOut}
-                  className="px-4 py-2 rounded-lg text-white font-bold text-sm transition-opacity hover:opacity-90"
-                  style={{ backgroundColor: '#FC0105', fontFamily: '"Open Sans", sans-serif' }}
-                >
-                  Sign Out
-                </button>
-              ) : (
-                <>
-                  <Link
-                    href="/login"
-                    className="px-4 py-2 rounded-lg border-2 border-black text-black font-bold text-sm transition-colors hover:bg-black hover:text-white"
-                    style={{ fontFamily: '"Open Sans", sans-serif' }}
-                  >
-                    Sign In
-                  </Link>
-                  <Link
-                    href="/onboarding"
-                    className="px-4 py-2 rounded-lg text-white font-bold text-sm transition-opacity hover:opacity-90"
-                    style={{ background: 'linear-gradient(to right, #FC0105, #000000)', fontFamily: '"Open Sans", sans-serif' }}
-                  >
-                    Join Now
-                  </Link>
-                </>
-              )}
-            </div>
+            <button
+              onClick={onBack}
+              className="px-4 py-2 rounded-lg text-white font-bold text-sm transition-opacity hover:opacity-90"
+              style={{ backgroundColor: '#000000', fontFamily: '"Open Sans", sans-serif' }}
+            >
+              Back
+            </button>
           </div>
         </header>
       )}
