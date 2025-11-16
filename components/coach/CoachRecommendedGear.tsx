@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useAuth } from '@/hooks/use-auth'
-import { ChevronLeft, ChevronRight, Edit2, Trash2 } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Edit2, Trash2, RotateCw } from 'lucide-react'
 
 type GearItem = { id: string; name: string; price?: string; description?: string; imageUrl?: string; link?: string }
 
@@ -143,11 +143,11 @@ export default function CoachRecommendedGear() {
                 {/* Front of card */}
                 <button
                   onClick={() => !loading && setFlippedCard(flippedCard === g?.id ? null : g?.id)}
-                  className="w-full backface-hidden"
+                  className="w-full backface-hidden group"
                   style={{ backfaceVisibility: 'hidden' }}
                   disabled={loading}
                 >
-                  <div className="w-full aspect-square rounded-lg mb-1 overflow-hidden">
+                  <div className="w-full aspect-square rounded-lg mb-1 overflow-hidden relative">
                     {loading ? (
                       <div className="w-full h-full bg-gray-200 animate-pulse" />
                     ) : g?.imageUrl ? (
@@ -156,6 +156,11 @@ export default function CoachRecommendedGear() {
                     ) : (
                       <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#8B7D7B' }}>
                         <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
+                      </div>
+                    )}
+                    {!loading && (
+                      <div className="absolute top-2 right-2 bg-black/70 rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        <RotateCw className="w-4 h-4 text-white" />
                       </div>
                     )}
                   </div>
