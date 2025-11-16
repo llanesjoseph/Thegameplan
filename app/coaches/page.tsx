@@ -1,276 +1,213 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useAuth } from '@/hooks/use-auth'
-import { db } from '@/lib/firebase.client'
-import { collection, getDocs, query, where, orderBy, limit, startAfter, doc, getDoc, type QueryDocumentSnapshot, type DocumentData } from 'firebase/firestore'
 import Link from 'next/link'
-import Image from 'next/image'
-import { Search, Filter, Star, CheckCircle, Users, Trophy, User, Facebook, Instagram, Twitter } from 'lucide-react'
-import AppHeader from '@/components/ui/AppHeader'
-import FollowButton from '@/components/coach/FollowButton'
+import { ChevronDown } from 'lucide-react'
 import { SPORTS } from '@/lib/constants/sports'
 
-type Contributor = {
- id: string
- name: string
- firstName?: string
- sport: string
- tagline?: string
- heroImageUrl?: string
- headshotUrl?: string
- badges?: string[]
- lessonCount?: number
- specialties?: string[]
- experience?: 'college' | 'pro' | 'olympic' | 'coach' | 'analyst'
- verified?: boolean
- featured?: boolean
- slug?: string
+type Coach = {
+  id: string
+  displayName: string
+  slug?: string
+  sport?: string
+  specialties?: string[]
+  profileImageUrl?: string
+  bannerUrl?: string
+  tagline?: string
+  bio?: string
+  location?: string
+  yearsExperience?: number | string
+  verified?: boolean
+  featured?: boolean
 }
 
-type FilterState = {
- search: string
- sport: string
- experience: string
- specialty: string
- verified: boolean
- featured: boolean
-}
+export default function BrowseCoachesPage() {
+  const { user } = useAuth()
+  const [coaches, setCoaches] = useState<Coach[]>([])
+  const [loading, setLoading] = useState(true)
+  const [selectedSport, setSelectedSport] = useState<string>('all')
+  const [totalCount, setTotalCount] = useState(0)
+  const [hasMore, setHasMore] = useState(false)
+  const [offset, setOffset] = useState(0)
 
-const EXPERIENCES = [
- 'college', 'pro', 'olympic', 'coach', 'analyst'
-]
+  const loadCoaches = async (reset = false) => {
+    setLoading(true)
+    try {
+      const currentOffset = reset ? 0 : offset
+      const url = `/api/coaches/public?sport=${selectedSport}&limit=50&offset=${currentOffset}`
 
-const SPECIALTIES = [
- 'technical', 'tactical', 'mental', 'physical', 'recovery', 'leadership',
- 'goalkeeping', 'defense', 'midfield', 'attack', 'conditioning', 'nutrition'
-]
+      const response = await fetch(url, { cache: 'no-store' })
+      const data = await response.json()
 
-const ITEMS_PER_PAGE = 12
-
-// Featured Contributors - Static data (removed Jasmine Aikey to prevent duplicates)
-const FEATURED_CONTRIBUTORS: Contributor[] = [
- // Jasmine Aikey is now loaded from database via creators_index collection
- // No hardcoded profiles to prevent duplicates
-]
-
-export default function ContributorsPage() {
- const { user } = useAuth()
- const [contributors, setContributors] = useState<Contributor[]>([])
- const [loading, setLoading] = useState(true)
- const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot<DocumentData> | null>(null)
- const [hasMore, setHasMore] = useState(true)
- const [totalCount, setTotalCount] = useState(0)
- const [activeCoachCount, setActiveCoachCount] = useState(0)
- const [userPreferences, setUserPreferences] = useState<{ sports: string[]; level: string }>({ sports: [], level: 'all' })
-
- const [filters, setFilters] = useState<FilterState>({
-  search: '',
-  sport: '',
-  experience: '',
-  specialty: '',
-  verified: false,
-  featured: false
- })
-
- const loadContributors = async (reset = false) => {
-  setLoading(true)
-  try {
-   // Query creators_index instead of coaches (this is where profile saves write to)
-   let q = query(
-    collection(db, 'creators_index'),
-    where('isActive', '==', true) // Only show active coach profiles
-   )
-
-   // Apply filters
-   if (filters.sport) {
-    // Match sport in specialties array
-    q = query(q, where('specialties', 'array-contains', filters.sport))
-   }
-   if (filters.experience) q = query(q, where('experience', '==', filters.experience))
-   if (filters.verified) q = query(q, where('verified', '==', true))
-   if (filters.featured) q = query(q, where('featured', '==', true))
-
-   // Simplified orderBy to avoid composite index requirement
-   q = query(q, orderBy('displayName'))
-   if (!reset && lastDoc) q = query(q, startAfter(lastDoc))
-   q = query(q, limit(ITEMS_PER_PAGE))
-
-   const snapshot = await getDocs(q)
-   const newItems = snapshot.docs.map(d => {
-    const data = d.data()
-    return {
-     id: d.id,
-     name: data.displayName,
-     sport: data.specialties?.[0] || '', // Use first specialty as primary sport
-     slug: data.slug, // Include slug for secure URLs
-     ...(data as any)
+      if (data.success) {
+        if (reset) {
+          setCoaches(data.coaches || [])
+        } else {
+          setCoaches(prev => [...prev, ...(data.coaches || [])])
+        }
+        setTotalCount(data.pagination?.total || 0)
+        setHasMore(data.pagination?.hasMore || false)
+        setOffset(reset ? 50 : currentOffset + 50)
+      }
+    } catch (error) {
+      console.error('Error loading coaches:', error)
+    } finally {
+      setLoading(false)
     }
-   }) as Contributor[]
-
-   if (reset) {
-    setContributors(newItems)
-   } else {
-    setContributors(prev => [...prev, ...newItems])
-   }
-   setLastDoc(snapshot.docs[snapshot.docs.length - 1] || null)
-   setHasMore(snapshot.docs.length === ITEMS_PER_PAGE)
-
-  // Force real-time count to ensure accuracy
-  if (reset) {
-   try {
-    const countSnap = await getDocs(collection(db, 'creators_index'))
-    const activeCount = countSnap.docs.filter(doc => {
-      const data = doc.data()
-      return data.isActive === true && data.profileComplete === true
-    }).length
-    setTotalCount(activeCount)
-    setActiveCoachCount(activeCount)
-    console.log(`📊 Real-time coach count: ${activeCount} active coaches`)
-   } catch (countError) {
-    console.warn('Failed to count coaches:', countError)
-    // Don't set to 0, keep existing count to avoid confusion
-    console.log('Using cached count due to permission error')
-   }
-  }
-  } catch (e) {
-   // Graceful fallback (no DB): keep empty list; page still renders
-   console.warn('Error loading contributors:', e)
-   if (reset) {
-    setContributors([])
-    setTotalCount(0)
-    setActiveCoachCount(0)
-   }
-   setHasMore(false)
-  } finally {
-   setLoading(false)
-  }
- }
-
- useEffect(() => {
-  const loadUserPreferences = async () => {
-   if (!user?.uid) {
-    // For non-authenticated users, show all contributors
-    loadContributors(true)
-    return
-   }
-
-   try {
-    // Get user profile to determine sports preferences
-    const userDocRef = doc(db, 'users', user.uid)
-    const userDoc = await getDoc(userDocRef)
-    
-    let preferences = { sports: [], level: 'all' }
-    
-    if (userDoc.exists()) {
-     const userData = userDoc.data()
-     preferences = {
-      sports: userData.preferredSports || [],
-      level: userData.skillLevel || 'all'
-     }
-    }
-
-    setUserPreferences(preferences)
-    
-    // If user has sport preferences, pre-filter by their primary sport
-    if (preferences.sports.length > 0 && preferences.sports[0] !== 'all') {
-     setFilters(prev => ({ ...prev, sport: preferences.sports[0] }))
-    }
-    
-    loadContributors(true)
-    
-   } catch (error) {
-    console.warn('Failed to load user preferences:', error)
-    loadContributors(true)
-   }
   }
 
-  loadUserPreferences()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
- }, [user?.uid])
+  useEffect(() => {
+    loadCoaches(true)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedSport])
 
- const applyFilters = () => {
-  setLastDoc(null)
-  loadContributors(true)
- }
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-cream via-cream to-sky-blue/10">
+      {/* Header */}
+      <header className="bg-white/80 backdrop-blur-sm border-b border-white/50 px-4 sm:px-6 lg:px-8 py-4">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <Link href="/" className="flex-shrink-0">
+            <span className="text-2xl font-bold" style={{ color: '#440102', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
+              ATHLEAP
+            </span>
+          </Link>
+          {user && (
+            <Link
+              href="/dashboard"
+              className="px-4 py-2 rounded-lg text-white font-bold text-sm transition-opacity hover:opacity-90"
+              style={{ background: 'linear-gradient(to right, #FC0105, #000000)', fontFamily: '"Open Sans", sans-serif' }}
+            >
+              Dashboard
+            </Link>
+          )}
+        </div>
+      </header>
 
- const clearFilters = () => {
-  setFilters({ search: '', sport: '', experience: '', specialty: '', verified: false, featured: false })
-  setLastDoc(null)
-  loadContributors(true)
- }
+      {/* Main Content */}
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="space-y-6">
+          {/* Page Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
+                Browse Coaches
+              </h1>
+              <p className="text-sm" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+                {totalCount} {totalCount === 1 ? 'coach' : 'coaches'} available
+              </p>
+            </div>
 
- const loadMore = () => {
-  if (!loading && hasMore) loadContributors(false)
- }
-
- // Combine featured contributors with database contributors
- const allContributors = useMemo(() => {
-  const combined = [...FEATURED_CONTRIBUTORS, ...contributors]
-  // Sort featured first, then by name
-  return combined.sort((a, b) => {
-   if (a.featured && !b.featured) return -1
-   if (!a.featured && b.featured) return 1
-   return (a.name || '').localeCompare(b.name || '')
-  })
- }, [contributors])
-
- const filteredContributors = useMemo(() => {
-  if (!filters.search) return allContributors
-  const s = filters.search.toLowerCase()
-  return allContributors.filter(c =>
-   c.name?.toLowerCase().includes(s) ||
-   c.sport?.toLowerCase().includes(s) ||
-   c.tagline?.toLowerCase().includes(s) ||
-   c.specialties?.some(x => x.toLowerCase().includes(s)) ||
-   c.badges?.some(x => x.toLowerCase().includes(s))
-  )
- }, [allContributors, filters.search])
-
- const specialtyFiltered = useMemo(() => {
-  if (!filters.specialty) return filteredContributors
-  return filteredContributors.filter(c => c.specialties?.includes(filters.specialty))
- }, [filteredContributors, filters.specialty])
-
- // Frameless browse page (default)
- return (
-   <div className="min-h-screen bg-white">
-    <header className="bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-4">
-     <div className="max-w-5xl mx-auto flex items-center justify-between">
-      <Link href="/" className="flex-shrink-0">
-       <span className="text-2xl font-bold" style={{ color: '#440102', fontFamily: '\"Open Sans\", sans-serif', fontWeight: 700 }}>
-        ATHLEAP
-       </span>
-      </Link>
-     </div>
-    </header>
-    <main className="w-full">
-     <div className="px-4 sm:px-6 lg:px-8 py-3">
-      <div className="w-full max-w-5xl mx-auto space-y-5">
-       <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif', fontWeight: 700 }}>
-        Browse Coaches
-       </h1>
-       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-        {specialtyFiltered.map((c) => (
-         <Link key={c.id} href={`/coach-profile/${c.slug || c.id}`} className="block">
-          <div className="w-full aspect-square rounded-lg overflow-hidden bg-gray-100">
-           <Image
-            src={c.headshotUrl || c.heroImageUrl || '/logo-gp.svg'}
-            alt={c.name}
-            width={300}
-            height={300}
-            className="w-full h-full object-cover"
-           />
+            {/* Sport Filter */}
+            <div className="relative">
+              <select
+                value={selectedSport}
+                onChange={(e) => setSelectedSport(e.target.value)}
+                className="appearance-none px-4 py-2 pr-10 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-black cursor-pointer"
+                style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 600 }}
+              >
+                <option value="all">All Sports</option>
+                {SPORTS.map(sport => (
+                  <option key={sport} value={sport}>{sport}</option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none" />
+            </div>
           </div>
-          <p className="text-sm font-semibold mt-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
-           {c.name}
-          </p>
-         </Link>
-        ))}
-       </div>
-      </div>
-     </div>
-    </main>
-   </div>
- )
+
+          {/* Coaches Grid */}
+          {loading && coaches.length === 0 ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {[...Array(10)].map((_, i) => (
+                <div key={i} className="space-y-2">
+                  <div className="w-full aspect-square rounded-lg bg-gray-200 animate-pulse" />
+                  <div className="h-4 bg-gray-200 rounded animate-pulse" />
+                  <div className="h-3 bg-gray-200 rounded animate-pulse w-2/3" />
+                </div>
+              ))}
+            </div>
+          ) : coaches.length === 0 ? (
+            <div className="text-center py-20">
+              <p className="text-lg" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+                No coaches found{selectedSport !== 'all' ? ` for ${selectedSport}` : ''}.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {coaches.map((coach) => (
+                <Link
+                  key={coach.id}
+                  href={`/coach-profile/${coach.slug || coach.id}`}
+                  className="group block"
+                >
+                  {/* Coach Card */}
+                  <div className="space-y-2">
+                    {/* Profile Image */}
+                    <div className="relative w-full aspect-square rounded-lg overflow-hidden bg-gray-100 ring-2 ring-transparent group-hover:ring-black transition-all">
+                      {coach.profileImageUrl || coach.bannerUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={coach.profileImageUrl || coach.bannerUrl}
+                          alt={coach.displayName}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#8B7D7B' }}>
+                          <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
+                        </div>
+                      )}
+
+                      {/* Featured Badge */}
+                      {coach.featured && (
+                        <div className="absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-bold text-white" style={{ backgroundColor: '#FC0105' }}>
+                          Featured
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Coach Info */}
+                    <div>
+                      <p className="font-bold text-sm line-clamp-1" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                        {coach.displayName}
+                      </p>
+                      {(coach.specialties?.[0] || coach.sport) && (
+                        <p className="text-xs line-clamp-1" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+                          {coach.specialties?.[0] || coach.sport}
+                        </p>
+                      )}
+                      {coach.tagline && (
+                        <p className="text-xs line-clamp-1 italic" style={{ color: '#999', fontFamily: '"Open Sans", sans-serif' }}>
+                          {coach.tagline}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+
+          {/* Load More Button */}
+          {hasMore && !loading && (
+            <div className="flex justify-center pt-6">
+              <button
+                onClick={() => loadCoaches(false)}
+                className="px-6 py-3 rounded-lg text-white font-bold transition-opacity hover:opacity-90"
+                style={{ background: 'linear-gradient(to right, #FC0105, #000000)', fontFamily: '"Open Sans", sans-serif' }}
+              >
+                Load More Coaches
+              </button>
+            </div>
+          )}
+
+          {/* Loading More Indicator */}
+          {loading && coaches.length > 0 && (
+            <div className="flex justify-center py-8">
+              <div className="w-8 h-8 border-4 border-black border-t-transparent rounded-full animate-spin" />
+            </div>
+          )}
+        </div>
+      </main>
+    </div>
+  )
 }
