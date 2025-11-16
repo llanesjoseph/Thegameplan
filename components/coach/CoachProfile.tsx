@@ -34,6 +34,10 @@ export default function CoachProfile() {
   const [youtube, setYoutube] = useState<string>('')
   const [linkedin, setLinkedin] = useState<string>('')
   const [facebook, setFacebook] = useState<string>('')
+  const [tagline, setTagline] = useState<string>('')
+  const [yearsExperience, setYearsExperience] = useState<string>('')
+  const [websiteUrl, setWebsiteUrl] = useState<string>('')
+  const [certifications, setCertifications] = useState<string>('')
 
   // Edit form state
   const [editBio, setEditBio] = useState('')
@@ -43,6 +47,10 @@ export default function CoachProfile() {
   const [editYoutube, setEditYoutube] = useState('')
   const [editLinkedin, setEditLinkedin] = useState('')
   const [editFacebook, setEditFacebook] = useState('')
+  const [editTagline, setEditTagline] = useState('')
+  const [editYearsExperience, setEditYearsExperience] = useState('')
+  const [editWebsiteUrl, setEditWebsiteUrl] = useState('')
+  const [editCertifications, setEditCertifications] = useState('')
   const [isSaving, setIsSaving] = useState(false)
   const [uploadingPhoto, setUploadingPhoto] = useState(false)
   const [isBioExpanded, setIsBioExpanded] = useState(false)
@@ -94,6 +102,10 @@ export default function CoachProfile() {
           const youtubeText = (data?.youtube as string) || ''
           const linkedinText = (data?.linkedin as string) || ''
           const facebookText = (data?.facebook as string) || ''
+          const taglineText = (data?.tagline as string) || (data?.title as string) || ''
+          const yearsExperienceText = (data?.yearsExperience as string) || (data?.experience as string) || ''
+          const websiteUrlText = (data?.websiteUrl as string) || (data?.website as string) || ''
+          const certificationsText = (data?.certifications as string) || ''
 
           // Set display state
           setBio(bioText)
@@ -103,6 +115,10 @@ export default function CoachProfile() {
           setYoutube(youtubeText)
           setLinkedin(linkedinText)
           setFacebook(facebookText)
+          setTagline(taglineText)
+          setYearsExperience(yearsExperienceText)
+          setWebsiteUrl(websiteUrlText)
+          setCertifications(certificationsText)
 
           // Load edit form data
           setEditBio(bioText)
@@ -112,6 +128,10 @@ export default function CoachProfile() {
           setEditYoutube(youtubeText)
           setEditLinkedin(linkedinText)
           setEditFacebook(facebookText)
+          setEditTagline(taglineText)
+          setEditYearsExperience(yearsExperienceText)
+          setEditWebsiteUrl(websiteUrlText)
+          setEditCertifications(certificationsText)
 
           // Prefer explicit profile image fields, then auth photoURL
           const raw =
@@ -211,7 +231,11 @@ export default function CoachProfile() {
         instagram: editInstagram,
         youtube: editYoutube,
         linkedin: editLinkedin,
-        facebook: editFacebook
+        facebook: editFacebook,
+        tagline: editTagline,
+        yearsExperience: editYearsExperience,
+        websiteUrl: editWebsiteUrl,
+        certifications: editCertifications
       })
 
       // Update display state
@@ -222,6 +246,10 @@ export default function CoachProfile() {
       setYoutube(editYoutube)
       setLinkedin(editLinkedin)
       setFacebook(editFacebook)
+      setTagline(editTagline)
+      setYearsExperience(editYearsExperience)
+      setWebsiteUrl(editWebsiteUrl)
+      setCertifications(editCertifications)
 
       setIsEditingProfile(false)
       alert('Profile updated successfully!')
@@ -372,12 +400,25 @@ export default function CoachProfile() {
           >
             {user?.displayName || 'Coach'}
           </h2>
-          {location && (
-            <div className="flex items-center gap-1.5 text-sm" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
-              <MapPin className="w-4 h-4" />
-              <span>{location}</span>
-            </div>
+          {tagline && (
+            <p className="text-base mb-2" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif', fontStyle: 'italic' }}>
+              {tagline}
+            </p>
           )}
+          <div className="flex flex-wrap items-center gap-3 text-sm" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
+            {location && (
+              <div className="flex items-center gap-1.5">
+                <MapPin className="w-4 h-4" />
+                <span>{location}</span>
+              </div>
+            )}
+            {yearsExperience && (
+              <div className="flex items-center gap-1.5">
+                <Award className="w-4 h-4" />
+                <span>{yearsExperience} experience</span>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Specialties and Actions */}
@@ -459,6 +500,40 @@ export default function CoachProfile() {
               </div>
             </div>
           )}
+
+          {/* Certifications */}
+          {certifications && (
+            <div>
+              <h4 className="text-sm font-bold mb-2 flex items-center gap-1.5" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                <Award className="w-4 h-4" />
+                Certifications
+              </h4>
+              <p className="text-sm leading-relaxed whitespace-pre-line" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                {certifications}
+              </p>
+            </div>
+          )}
+
+          {/* Website */}
+          {websiteUrl && (
+            <div>
+              <h4 className="text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                Website
+              </h4>
+              <a
+                href={websiteUrl.startsWith('http') ? websiteUrl : `https://${websiteUrl}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm font-semibold hover:underline inline-flex items-center gap-1"
+                style={{ color: '#FC0105', fontFamily: '\"Open Sans\", sans-serif' }}
+              >
+                {websiteUrl}
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
+            </div>
+          )}
         </div>
 
         {/* Inline Profile Editor */}
@@ -525,6 +600,53 @@ export default function CoachProfile() {
               />
             </div>
 
+            {/* Tagline/Title */}
+            <div>
+              <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                Tagline / Title
+              </label>
+              <input
+                type="text"
+                value={editTagline}
+                onChange={(e) => setEditTagline(e.target.value)}
+                placeholder="e.g., Work hard! or Lead Independent Director"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-sm"
+                style={{ fontFamily: '\"Open Sans\", sans-serif' }}
+                maxLength={100}
+              />
+            </div>
+
+            {/* Years of Experience */}
+            <div>
+              <label className="block text-sm font-bold mb-2 flex items-center gap-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                <Award className="w-4 h-4" />
+                Years of Experience
+              </label>
+              <input
+                type="text"
+                value={editYearsExperience}
+                onChange={(e) => setEditYearsExperience(e.target.value)}
+                placeholder="e.g., 14 years or 10+ years"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-sm"
+                style={{ fontFamily: '\"Open Sans\", sans-serif' }}
+              />
+            </div>
+
+            {/* Website URL */}
+            <div>
+              <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                Website
+              </label>
+              <input
+                type="url"
+                value={editWebsiteUrl}
+                onChange={(e) => setEditWebsiteUrl(e.target.value)}
+                placeholder="https://www.yourwebsite.com"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-sm"
+                style={{ fontFamily: '\"Open Sans\", sans-serif' }}
+              />
+            </div>
+
             {/* Bio */}
             <div>
               <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
@@ -551,6 +673,22 @@ export default function CoachProfile() {
                 onChange={(e) => setEditAchievements(e.target.value)}
                 placeholder="List your notable achievements, certifications, and awards..."
                 rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black resize-none text-sm"
+                style={{ fontFamily: '\"Open Sans\", sans-serif' }}
+              />
+            </div>
+
+            {/* Certifications */}
+            <div>
+              <label className="block text-sm font-bold mb-2 flex items-center gap-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                <Award className="w-4 h-4" />
+                Certifications
+              </label>
+              <textarea
+                value={editCertifications}
+                onChange={(e) => setEditCertifications(e.target.value)}
+                placeholder="List your certifications (e.g., NASM Certified, USATF Level 2, etc.)"
+                rows={2}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black resize-none text-sm"
                 style={{ fontFamily: '\"Open Sans\", sans-serif' }}
               />
