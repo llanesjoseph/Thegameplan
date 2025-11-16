@@ -74,15 +74,16 @@ export async function GET(
     }
 
     // Check all possible image field names
-    const profileImageUrl = creatorData.profileImageUrl ||
-                           creatorData.headshotUrl ||
-                           userData.photoURL ||
-                           userData.profileImage ||
+    // Prioritize Firebase Storage URLs over external URLs (Google Photos) for reliability
+    const profileImageUrl = creatorData.headshotUrl ||
                            creatorData.photoURL ||
+                           userData.photoURL ||
+                           creatorData.profileImageUrl ||
+                           userData.profileImage ||
                            ''
 
-    const coverImageUrl = creatorData.coverImageUrl ||
-                         creatorData.heroImageUrl ||
+    const coverImageUrl = creatorData.heroImageUrl ||
+                         creatorData.coverImageUrl ||
                          creatorData.bannerUrl ||
                          ''
 

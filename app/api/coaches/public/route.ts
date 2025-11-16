@@ -32,8 +32,10 @@ export async function GET(request: NextRequest) {
         allCoaches = snapshot.docs.map(doc => {
           const data = doc.data()
           // Ensure we have image URLs - check multiple field names
-          const imageUrl = data.profileImageUrl ||
+          // Prioritize Firebase Storage URLs over external URLs (Google Photos) for reliability
+          const imageUrl = data.headshotUrl ||
                           data.photoURL ||
+                          data.profileImageUrl ||
                           data.profileImage ||
                           data.bannerUrl ||
                           data.heroImageUrl ||
@@ -62,8 +64,10 @@ export async function GET(request: NextRequest) {
         allCoaches = usersSnapshot.docs.map(doc => {
           const data = doc.data()
           // Ensure we have image URLs - check multiple field names
-          const imageUrl = data.profileImageUrl ||
+          // Prioritize Firebase Storage URLs over external URLs (Google Photos) for reliability
+          const imageUrl = data.headshotUrl ||
                           data.photoURL ||
+                          data.profileImageUrl ||
                           data.profileImage ||
                           data.bannerUrl ||
                           data.heroImageUrl ||
