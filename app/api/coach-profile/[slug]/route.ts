@@ -96,7 +96,7 @@ export async function GET(
       sport: creatorData.sport || 'General',
       yearsExperience: creatorData.experience || '0',
       specialties: creatorData.specialties || [],
-      certifications: creatorData.credentials ? [creatorData.credentials] : [],
+      certifications: creatorData.credentials ? [creatorData.credentials] : [], // Legacy field, now called "milestones" in UI
       achievements: creatorData.achievements || [],
       profileImageUrl: profileImageUrl,
       coverImageUrl: coverImageUrl,

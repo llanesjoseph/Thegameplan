@@ -6,7 +6,8 @@ import { useAuth } from '@/hooks/use-auth'
 import { useEnhancedRole } from '@/hooks/use-role-switcher'
 import { signOut } from 'firebase/auth'
 import { auth } from '@/lib/firebase.client'
-import { Calendar, Video, Users, FileText, Facebook, Instagram, Youtube, Linkedin } from 'lucide-react'
+import { Calendar, Video, Users, FileText, Facebook, Instagram, Youtube, Linkedin, X } from 'lucide-react'
+import AthleteEngagementList from '@/components/coach/AthleteEngagementList'
 
 export default function CoachLockerRoom() {
   const { user } = useAuth()
@@ -232,30 +233,34 @@ export default function CoachLockerRoom() {
       {/* Modals */}
       {activeModal === 'athletes' && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
           style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
           onClick={() => setActiveModal(null)}
         >
           <div
-            className="bg-white rounded-2xl p-8 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto"
+            className="bg-white rounded-2xl p-6 max-w-4xl w-full max-h-[85vh] overflow-hidden flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
-                Manage Athletes
-              </h2>
+            <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
+              <div>
+                <h2 className="text-2xl font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                  Athlete Roster & Invitations
+                </h2>
+                <p className="text-sm mt-1" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+                  Track athlete status and engagement
+                </p>
+              </div>
               <button
                 onClick={() => setActiveModal(null)}
-                className="text-gray-500 hover:text-black text-2xl font-bold"
+                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                aria-label="Close"
               >
-                ✕
+                <X className="w-6 h-6" style={{ color: '#000000' }} />
               </button>
             </div>
-            <iframe
-              src="/dashboard/coach/athletes?embedded=true"
-              className="w-full h-[60vh] border-0 rounded-lg"
-              title="Manage Athletes"
-            />
+            <div className="flex-1 overflow-y-auto">
+              <AthleteEngagementList />
+            </div>
           </div>
         </div>
       )}

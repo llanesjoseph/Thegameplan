@@ -365,12 +365,12 @@ export default function HeroCoachProfile({
                 </div>
               )}
 
-              {/* Certifications */}
+              {/* Sports Milestones */}
               {certifications && (
                 <div>
                   <h4 className="text-sm font-bold mb-2 flex items-center gap-1.5" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
                     <Award className="w-4 h-4" />
-                    Certifications
+                    Sports Milestones
                   </h4>
                   <p className="text-sm leading-relaxed whitespace-pre-line" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
                     {certifications}
