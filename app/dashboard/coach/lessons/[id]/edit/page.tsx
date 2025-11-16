@@ -39,6 +39,8 @@ interface LessonForm {
   tags: string[]
   visibility: 'public' | 'athletes_only' | 'specific_athletes'
   thumbnailUrl?: string
+  content?: string
+  videoUrl?: string
 }
 
 export default function EditLessonPage() {
@@ -65,7 +67,9 @@ export default function EditLessonPage() {
     sections: [],
     tags: [],
     visibility: 'athletes_only',
-    thumbnailUrl: ''
+    thumbnailUrl: '',
+    content: '',
+    videoUrl: ''
   })
 
   // Load lesson data
@@ -115,7 +119,9 @@ export default function EditLessonPage() {
         sections: sectionsWithIds,
         tags: lessonData.tags || [],
         visibility: lessonData.visibility || 'athletes_only',
-        thumbnailUrl: lessonData.thumbnailUrl || ''
+        thumbnailUrl: lessonData.thumbnailUrl || '',
+        content: lessonData.content || '',
+        videoUrl: lessonData.videoUrl || ''
       })
       setThumbnailPreview(lessonData.thumbnailUrl || '')
 
@@ -494,6 +500,24 @@ export default function EditLessonPage() {
               </div>
             </div>
 
+            {/* Video URL */}
+            <div>
+              <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                Lesson Video URL (Optional)
+              </label>
+              <p className="text-xs mb-3" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
+                Add a YouTube or Vimeo video URL for this lesson
+              </p>
+              <input
+                type="url"
+                value={lesson.videoUrl || ''}
+                onChange={(e) => setLesson(prev => ({ ...prev, videoUrl: e.target.value }))}
+                placeholder="https://youtube.com/watch?v=..."
+                className="w-full px-4 py-2.5 border-2 border-black rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                style={{ fontFamily: '\"Open Sans\", sans-serif' }}
+              />
+            </div>
+
             {/* Visibility */}
             <div>
               <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
@@ -603,6 +627,27 @@ export default function EditLessonPage() {
                   </div>
                 ))}
               </div>
+            </div>
+
+            {/* Main Lesson Content */}
+            <div>
+              <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                Main Lesson Content
+              </label>
+              <p className="text-xs mb-3" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
+                The detailed text content that athletes will read (Introduction, Technical Breakdown, steps, etc.)
+              </p>
+              <textarea
+                value={lesson.content || ''}
+                onChange={(e) => setLesson(prev => ({ ...prev, content: e.target.value }))}
+                placeholder="Write the full lesson content here. This is what athletes will see when they view the lesson..."
+                className="w-full px-4 py-3 border-2 border-black rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-sm font-mono"
+                style={{ fontFamily: '\"Open Sans\", sans-serif' }}
+                rows={20}
+              />
+              <p className="text-xs mt-2" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
+                💡 Tip: Use clear headings like "1. Introduction", "2. Technical Breakdown", etc. to organize your content
+              </p>
             </div>
           </div>
         </div>
