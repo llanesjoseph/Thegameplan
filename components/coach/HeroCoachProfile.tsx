@@ -52,6 +52,7 @@ export default function HeroCoachProfile({
 }: HeroCoachProfileProps) {
   const { user } = useAuth()
   const [showContactModal, setShowContactModal] = useState(false)
+  const [isBioExpanded, setIsBioExpanded] = useState(false)
 
   return (
     <div className="bg-white min-h-screen">
@@ -163,9 +164,21 @@ export default function HeroCoachProfile({
                 <h2 className="text-2xl md:text-3xl font-bold text-gray-900 leading-tight">
                   About {coach.displayName.split(' ')[0]}
                 </h2>
-                <p className="mt-2 text-base text-gray-600 leading-relaxed">
-                  {coach.bio}
-                </p>
+                <div>
+                  <p className="mt-2 text-base text-gray-600 leading-relaxed">
+                    {coach.bio && coach.bio.length > 150 && !isBioExpanded
+                      ? `${coach.bio.slice(0, 150)}...`
+                      : coach.bio}
+                  </p>
+                  {coach.bio && coach.bio.length > 150 && (
+                    <button
+                      onClick={() => setIsBioExpanded(!isBioExpanded)}
+                      className="text-sm font-semibold mt-1 text-red-600 hover:underline"
+                    >
+                      {isBioExpanded ? 'Read less' : 'Read more'}
+                    </button>
+                  )}
+                </div>
                 {coach.specialties && coach.specialties.length > 0 && (
                   <div className="mt-4">
                     <h3 className="text-base font-semibold text-gray-900 mb-2">Specialties</h3>

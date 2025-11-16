@@ -29,6 +29,8 @@ export default function AthleteProfile() {
   const [photoFile, setPhotoFile] = useState<File | null>(null)
   const [photoPreview, setPhotoPreview] = useState<string>('')
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [isBioExpanded, setIsBioExpanded] = useState(false)
+  const [isGoalsExpanded, setIsGoalsExpanded] = useState(false)
 
   useEffect(() => {
     const init = async () => {
@@ -318,9 +320,22 @@ export default function AthleteProfile() {
                 maxLength={200}
               />
             ) : (
-              <p className="text-sm leading-relaxed" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
-                {profileData.bio || 'No bio yet'}
-              </p>
+              <div>
+                <p className="text-sm leading-relaxed" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                  {profileData.bio && profileData.bio.length > 150 && !isBioExpanded
+                    ? `${profileData.bio.slice(0, 150)}...`
+                    : profileData.bio || 'No bio yet'}
+                </p>
+                {profileData.bio && profileData.bio.length > 150 && (
+                  <button
+                    onClick={() => setIsBioExpanded(!isBioExpanded)}
+                    className="text-sm font-semibold mt-1 hover:underline"
+                    style={{ color: '#FC0105', fontFamily: '"Open Sans", sans-serif' }}
+                  >
+                    {isBioExpanded ? 'Read less' : 'Read more'}
+                  </button>
+                )}
+              </div>
             )}
             {isEditing && (
               <p className="text-xs mt-1 text-right" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
@@ -345,9 +360,22 @@ export default function AthleteProfile() {
                 maxLength={200}
               />
             ) : (
-              <p className="text-sm" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
-                {profileData.trainingGoals || 'No training goals set'}
-              </p>
+              <div>
+                <p className="text-sm" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+                  {profileData.trainingGoals && profileData.trainingGoals.length > 150 && !isGoalsExpanded
+                    ? `${profileData.trainingGoals.slice(0, 150)}...`
+                    : profileData.trainingGoals || 'No training goals set'}
+                </p>
+                {profileData.trainingGoals && profileData.trainingGoals.length > 150 && (
+                  <button
+                    onClick={() => setIsGoalsExpanded(!isGoalsExpanded)}
+                    className="text-sm font-semibold mt-1 hover:underline"
+                    style={{ color: '#FC0105', fontFamily: '"Open Sans", sans-serif' }}
+                  >
+                    {isGoalsExpanded ? 'Read less' : 'Read more'}
+                  </button>
+                )}
+              </div>
             )}
             {isEditing && (
               <p className="text-xs mt-1 text-right" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>

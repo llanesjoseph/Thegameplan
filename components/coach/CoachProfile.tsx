@@ -45,6 +45,8 @@ export default function CoachProfile() {
   const [editFacebook, setEditFacebook] = useState('')
   const [isSaving, setIsSaving] = useState(false)
   const [uploadingPhoto, setUploadingPhoto] = useState(false)
+  const [isBioExpanded, setIsBioExpanded] = useState(false)
+  const [isAchievementsExpanded, setIsAchievementsExpanded] = useState(false)
 
   useEffect(() => {
     const load = async () => {
@@ -362,9 +364,22 @@ export default function CoachProfile() {
               <h4 className="text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
                 About
               </h4>
-              <p className="text-sm leading-relaxed" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
-                {bio}
-              </p>
+              <div>
+                <p className="text-sm leading-relaxed" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                  {bio.length > 150 && !isBioExpanded
+                    ? `${bio.slice(0, 150)}...`
+                    : bio}
+                </p>
+                {bio.length > 150 && (
+                  <button
+                    onClick={() => setIsBioExpanded(!isBioExpanded)}
+                    className="text-sm font-semibold mt-1 hover:underline"
+                    style={{ color: '#FC0105', fontFamily: '\"Open Sans\", sans-serif' }}
+                  >
+                    {isBioExpanded ? 'Read less' : 'Read more'}
+                  </button>
+                )}
+              </div>
             </div>
           )}
 
@@ -375,9 +390,22 @@ export default function CoachProfile() {
                 <Award className="w-4 h-4" />
                 Achievements
               </h4>
-              <p className="text-sm leading-relaxed whitespace-pre-line" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
-                {achievements}
-              </p>
+              <div>
+                <p className="text-sm leading-relaxed whitespace-pre-line" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                  {achievements.length > 150 && !isAchievementsExpanded
+                    ? `${achievements.slice(0, 150)}...`
+                    : achievements}
+                </p>
+                {achievements.length > 150 && (
+                  <button
+                    onClick={() => setIsAchievementsExpanded(!isAchievementsExpanded)}
+                    className="text-sm font-semibold mt-1 hover:underline"
+                    style={{ color: '#FC0105', fontFamily: '\"Open Sans\", sans-serif' }}
+                  >
+                    {isAchievementsExpanded ? 'Read less' : 'Read more'}
+                  </button>
+                )}
+              </div>
             </div>
           )}
         </div>
