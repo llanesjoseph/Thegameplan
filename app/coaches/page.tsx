@@ -89,7 +89,7 @@ export default function BrowseCoachesPage() {
             <button
               onClick={handleSignOut}
               className="px-4 py-2 rounded-lg text-white font-bold text-sm transition-opacity hover:opacity-90"
-              style={{ backgroundColor: '#000000', fontFamily: '"Open Sans", sans-serif' }}
+              style={{ backgroundColor: '#FC0105', fontFamily: '"Open Sans", sans-serif' }}
             >
               Sign Out
             </button>

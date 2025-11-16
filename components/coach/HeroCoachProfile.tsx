@@ -114,7 +114,7 @@ export default function HeroCoachProfile({
                 <button
                   onClick={handleSignOut}
                   className="px-4 py-2 rounded-lg text-white font-bold text-sm transition-opacity hover:opacity-90"
-                  style={{ background: 'linear-gradient(to right, #FC0105, #000000)', fontFamily: '"Open Sans", sans-serif' }}
+                  style={{ backgroundColor: '#FC0105', fontFamily: '"Open Sans", sans-serif' }}
                 >
                   Sign Out
                 </button>
@@ -443,72 +443,6 @@ export default function HeroCoachProfile({
             </div>
           </div>
         </div>
-
-        {/* Training Library Section */}
-        {lessons.length > 0 && (
-          <div className="mt-12">
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
-                Training Library
-              </h2>
-              <p className="text-sm mt-1" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
-                Access world-class training programs designed to elevate your game
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {lessons.map((lesson) => (
-                <div
-                  key={lesson.id}
-                  className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 overflow-hidden hover:shadow-xl transition-shadow"
-                >
-                  {lesson.thumbnailUrl ? (
-                    <div className="h-48 overflow-hidden">
-                      <img
-                        src={lesson.thumbnailUrl}
-                        alt={lesson.title}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  ) : (
-                    <div className="h-48 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                      <BookOpen className="w-12 h-12 text-gray-400" />
-                    </div>
-                  )}
-                  <div className="p-4">
-                    <h3 className="text-lg font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
-                      {lesson.title}
-                    </h3>
-                    {lesson.description && (
-                      <p className="text-sm mb-3 line-clamp-2" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
-                        {lesson.description}
-                      </p>
-                    )}
-                    <div className="flex flex-wrap gap-2 mb-3">
-                      {lesson.level && (
-                        <span
-                          className="px-2 py-1 rounded-full text-xs font-bold text-white"
-                          style={{
-                            backgroundColor: lesson.level === 'intermediate' ? '#0A66C2' : lesson.level === 'advanced' ? '#FC0105' : '#00A651'
-                          }}
-                        >
-                          {lesson.level}
-                        </span>
-                      )}
-                    </div>
-                    <Link
-                      href={`/lesson/${lesson.id}`}
-                      className="block w-full text-center py-2 rounded-lg text-white font-bold text-sm transition-opacity hover:opacity-90"
-                      style={{ background: 'linear-gradient(to right, #FC0105, #000000)', fontFamily: '"Open Sans", sans-serif' }}
-                    >
-                      View Lesson
-                    </Link>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Contact Modal */}
