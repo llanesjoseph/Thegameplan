@@ -143,7 +143,7 @@ export default function HeroCoachProfile({
 
       {/* Back Button */}
       {!isInIframe && onBack && (
-        <div className="max-w-4xl mx-auto px-6 pt-6">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
           <button
             onClick={onBack}
             className="inline-flex items-center gap-2 text-dark/60 hover:text-dark transition-colors"
@@ -154,7 +154,7 @@ export default function HeroCoachProfile({
         </div>
       )}
 
-      <div className="max-w-4xl mx-auto px-6 py-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-4">
           {/* Banner with overlay profile */}
           <div className="relative">
