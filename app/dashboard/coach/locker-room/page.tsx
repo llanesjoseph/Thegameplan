@@ -8,6 +8,7 @@ import { signOut } from 'firebase/auth'
 import { auth } from '@/lib/firebase.client'
 import { Calendar, Video, Users, FileText, Facebook, Instagram, Youtube, Linkedin, X } from 'lucide-react'
 import AthleteEngagementList from '@/components/coach/AthleteEngagementList'
+import CoachContentUpload from '@/components/coach/CoachContentUpload'
 
 export default function CoachLockerRoom() {
   const { user } = useAuth()
@@ -297,34 +298,32 @@ export default function CoachLockerRoom() {
 
       {activeModal === 'add-content' && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
           style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
           onClick={() => setActiveModal(null)}
         >
           <div
-            className="bg-white rounded-2xl p-8 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto"
+            className="bg-white rounded-2xl p-6 max-w-2xl w-full max-h-[85vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
-                Add Videos and Content
-              </h2>
+            <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
+              <div>
+                <h2 className="text-2xl font-bold" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                  Add Videos and Content
+                </h2>
+                <p className="text-sm mt-1" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
+                  Upload training videos and documents for your athletes
+                </p>
+              </div>
               <button
                 onClick={() => setActiveModal(null)}
-                className="text-gray-500 hover:text-black text-2xl font-bold"
+                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                aria-label="Close"
               >
-                ✕
+                <X className="w-6 h-6" style={{ color: '#000000' }} />
               </button>
             </div>
-            <div className="text-center py-12">
-              <Video className="w-16 h-16 mx-auto mb-4" style={{ color: '#666', opacity: 0.5 }} />
-              <p className="text-lg font-bold mb-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
-                Content Upload
-              </p>
-              <p className="text-sm" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
-                This feature is coming soon
-              </p>
-            </div>
+            <CoachContentUpload />
           </div>
         </div>
       )}
