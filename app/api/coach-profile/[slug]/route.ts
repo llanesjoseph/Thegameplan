@@ -101,6 +101,8 @@ export async function GET(
       profileImageUrl: profileImageUrl,
       coverImageUrl: coverImageUrl,
       bannerUrl: coverImageUrl, // Also set bannerUrl for compatibility
+      showcasePhoto1: userData.showcasePhoto1 || '',
+      showcasePhoto2: userData.showcasePhoto2 || '',
       socialLinks: {},
       verified: creatorData.verified || false,
       featured: creatorData.featured || false,

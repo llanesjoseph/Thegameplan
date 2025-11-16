@@ -21,6 +21,8 @@ interface HeroCoachProfileProps {
     profileImageUrl?: string
     coverImageUrl?: string
     bannerUrl?: string
+    showcasePhoto1?: string
+    showcasePhoto2?: string
     tagline?: string
     title?: string
     location?: string
@@ -373,6 +375,29 @@ export default function HeroCoachProfile({
                   <p className="text-sm leading-relaxed whitespace-pre-line" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
                     {certifications}
                   </p>
+                </div>
+              )}
+
+              {/* Photo Showcase */}
+              {(coach.showcasePhoto1 || coach.showcasePhoto2) && (
+                <div>
+                  <h4 className="text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                    Photo Showcase
+                  </h4>
+                  <div className="grid grid-cols-2 gap-3">
+                    {coach.showcasePhoto1 && (
+                      <div className="w-full aspect-square rounded-lg overflow-hidden bg-gray-100">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={coach.showcasePhoto1} alt="Showcase 1" className="w-full h-full object-cover" />
+                      </div>
+                    )}
+                    {coach.showcasePhoto2 && (
+                      <div className="w-full aspect-square rounded-lg overflow-hidden bg-gray-100">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={coach.showcasePhoto2} alt="Showcase 2" className="w-full h-full object-cover" />
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 
