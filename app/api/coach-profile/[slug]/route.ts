@@ -73,6 +73,19 @@ export async function GET(
       )
     }
 
+    // Check all possible image field names
+    const profileImageUrl = creatorData.profileImageUrl ||
+                           creatorData.headshotUrl ||
+                           userData.photoURL ||
+                           userData.profileImage ||
+                           creatorData.photoURL ||
+                           ''
+
+    const coverImageUrl = creatorData.coverImageUrl ||
+                         creatorData.heroImageUrl ||
+                         creatorData.bannerUrl ||
+                         ''
+
     // Build coach profile response
     const coachProfile = {
       uid: originalId,
@@ -84,8 +97,9 @@ export async function GET(
       specialties: creatorData.specialties || [],
       certifications: creatorData.credentials ? [creatorData.credentials] : [],
       achievements: creatorData.achievements || [],
-      profileImageUrl: creatorData.headshotUrl || userData.photoURL || '',
-      coverImageUrl: creatorData.heroImageUrl || '',
+      profileImageUrl: profileImageUrl,
+      coverImageUrl: coverImageUrl,
+      bannerUrl: coverImageUrl, // Also set bannerUrl for compatibility
       socialLinks: {},
       verified: creatorData.verified || false,
       featured: creatorData.featured || false,
