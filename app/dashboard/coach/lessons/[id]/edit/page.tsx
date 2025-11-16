@@ -91,7 +91,11 @@ export default function EditLessonPage() {
       }
 
       const data = await response.json()
+      console.log('📚 Raw API response:', data)
+
       const lessonData = data.lesson
+      console.log('📖 Lesson data:', lessonData)
+      console.log('📝 Sections from DB:', lessonData.sections)
 
       // Ensure sections have IDs
       const sectionsWithIds = (lessonData.sections || []).map((section: any, idx: number) => ({
@@ -99,6 +103,8 @@ export default function EditLessonPage() {
         id: section.id || `section-${Date.now()}-${idx}`,
         order: section.order !== undefined ? section.order : idx
       }))
+
+      console.log('✅ Sections with IDs:', sectionsWithIds)
 
       setLesson({
         title: lessonData.title || '',
@@ -113,8 +119,7 @@ export default function EditLessonPage() {
       })
       setThumbnailPreview(lessonData.thumbnailUrl || '')
 
-      // Debug log to verify sections loaded
-      console.log('Loaded lesson with', sectionsWithIds.length, 'sections:', sectionsWithIds)
+      console.log('🎯 Final lesson state set with', sectionsWithIds.length, 'sections')
     } catch (error) {
       console.error('Error loading lesson:', error)
       alert('Failed to load lesson')
