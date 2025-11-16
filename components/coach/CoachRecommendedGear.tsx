@@ -230,7 +230,7 @@ export default function CoachRecommendedGear() {
                           </button>
                           <button
                             onClick={() => setFlippedCard(null)}
-                            className="text-xs text-gray-600 hover:text-black"
+                            className="w-full px-4 py-2 rounded-lg text-black text-sm font-semibold border-2 border-black hover:bg-black hover:text-white transition"
                             style={{ fontFamily: '"Open Sans", sans-serif' }}
                           >
                             Back
