@@ -18,6 +18,7 @@ export default function CoachRecommendedGear() {
   const [editUrl, setEditUrl] = useState('')
   const [gearPage, setGearPage] = useState(0)
   const gearPageSize = 4
+  const first = user?.displayName?.split(' ')[0] || 'Recommended'
 
   useEffect(() => {
     const load = async () => {
@@ -113,7 +114,7 @@ export default function CoachRecommendedGear() {
           className="text-xl font-bold"
           style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
         >
-          Recommended Gear
+          {first}'s Recommended Gear
         </h2>
 
         {/* Brand-red + with sliding "add gear" label */}

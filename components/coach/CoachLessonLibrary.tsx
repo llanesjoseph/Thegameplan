@@ -17,6 +17,7 @@ export default function CoachLessonLibrary() {
   const [openLessonId, setOpenLessonId] = useState<string | null>(null)
   const [lessonPage, setLessonPage] = useState(0)
   const lessonPageSize = 4
+  const first = user?.displayName?.split(' ')[0] || 'Your'
 
   useEffect(() => {
     const load = async () => {
@@ -66,7 +67,7 @@ export default function CoachLessonLibrary() {
         className="text-xl font-bold mb-2"
         style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif', fontWeight: 700 }}
       >
-        Your Lesson Library
+        {first}'s Lesson Library
       </h2>
 
       <div className="relative">
