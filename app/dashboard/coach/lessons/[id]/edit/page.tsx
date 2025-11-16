@@ -93,18 +93,28 @@ export default function EditLessonPage() {
       const data = await response.json()
       const lessonData = data.lesson
 
+      // Ensure sections have IDs
+      const sectionsWithIds = (lessonData.sections || []).map((section: any, idx: number) => ({
+        ...section,
+        id: section.id || `section-${Date.now()}-${idx}`,
+        order: section.order !== undefined ? section.order : idx
+      }))
+
       setLesson({
         title: lessonData.title || '',
         sport: lessonData.sport || '',
         level: lessonData.level || '',
         duration: lessonData.duration || 60,
         objectives: lessonData.objectives || [],
-        sections: lessonData.sections || [],
+        sections: sectionsWithIds,
         tags: lessonData.tags || [],
         visibility: lessonData.visibility || 'athletes_only',
         thumbnailUrl: lessonData.thumbnailUrl || ''
       })
       setThumbnailPreview(lessonData.thumbnailUrl || '')
+
+      // Debug log to verify sections loaded
+      console.log('Loaded lesson with', sectionsWithIds.length, 'sections:', sectionsWithIds)
     } catch (error) {
       console.error('Error loading lesson:', error)
       alert('Failed to load lesson')
