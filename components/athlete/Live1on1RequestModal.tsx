@@ -183,7 +183,7 @@ export default function Live1on1RequestModal({
         <div className="p-6 border-b" style={{ borderColor: '#E8E6D8' }}>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #FC0105 0%, #440102 100%)' }}>
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: '#FC0105' }}>
                 <Video className="w-6 h-6 text-white" />
               </div>
               <div>
