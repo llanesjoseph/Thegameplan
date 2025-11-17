@@ -196,7 +196,28 @@ export default function AthleteCoaches() {
         <h2 className="text-xl font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
           Your Coaches
         </h2>
-        
+
+        {/* No Coaches Message */}
+        {!loading && coaches.length === 0 && (
+          <div className="bg-white border-2 border-black rounded-lg p-6 text-center">
+            <p className="text-lg font-semibold mb-3" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+              You don't have any coaches yet!
+            </p>
+            <p className="text-sm mb-4" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+              Browse our amazing coaches and start your training journey today.
+            </p>
+            <a
+              href="/coaches"
+              className="inline-block px-6 py-3 bg-black text-white rounded-lg font-bold hover:bg-gray-800 transition-colors"
+              style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
+            >
+              Browse Coaches
+            </a>
+          </div>
+        )}
+
+        {/* Coach Grid - only show if there are coaches */}
+        {(loading || coaches.length > 0) && (
         <div className="relative">
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             {/* Columns 1-3: Coach Images - show 3 at a time, leave empty if no coach */}
@@ -310,6 +331,8 @@ export default function AthleteCoaches() {
             </>
           )}
         </div>
+        </div>
+        )}
       </div>
 
       {showScheduleModal && coachId && (

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { ChevronDown, ArrowLeft, UserPlus, UserCheck, Instagram, Youtube, Linkedin } from 'lucide-react'
+import { ChevronDown, UserPlus, UserCheck, Instagram, Youtube, Linkedin } from 'lucide-react'
 import { SPORTS } from '@/lib/constants/sports'
 
 type Coach = {
@@ -226,11 +226,11 @@ export default function BrowseCoachesPage() {
       {/* Back Button */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
         <button
-          onClick={() => router.back()}
-          className="inline-flex items-center gap-2 text-black hover:text-gray-600 transition-colors"
+          onClick={() => router.push('/dashboard/athlete')}
+          className="px-6 py-3 bg-black text-white rounded-lg font-bold hover:bg-gray-800 transition-colors"
+          style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
         >
-          <ArrowLeft className="w-5 h-5" />
-          <span className="font-bold" style={{ fontFamily: '"Open Sans", sans-serif' }}>Back</span>
+          Back to Dashboard
         </button>
       </div>
 
