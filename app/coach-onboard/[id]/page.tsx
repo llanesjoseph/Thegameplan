@@ -534,13 +534,16 @@ export default function CoachOnboardPage() {
     )
   }
 
-  // NEW: Simple one-page flow for inv_ coach invitations
   if (isSimpleInvitation) {
     return (
       <div className="min-h-screen bg-white">
         <div className="max-w-3xl mx-auto px-4 py-8">
           {/* Logo banner */}
-          <div className="w-full h-32 rounded-lg flex items-center justify-center mb-8" style={{ backgroundColor: '#440102' }}>
+          <div
+            className="w-full h-32 rounded-lg flex items-center justify-center mb-8"
+            style={{ backgroundColor: '#440102' }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/brand/athleap-logo-colored.png"
               alt="ATHLEAP"
@@ -548,10 +551,16 @@ export default function CoachOnboardPage() {
             />
           </div>
 
-          <h1 className="text-3xl font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+          <h1
+            className="text-3xl font-bold mb-2"
+            style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}
+          >
             Join as a Coach
           </h1>
-          <p className="text-gray-700 mb-6" style={{ fontFamily: '"Open Sans", sans-serif' }}>
+          <p
+            className="text-gray-700 mb-6"
+            style={{ fontFamily: '"Open Sans", sans-serif' }}
+          >
             Tell us a few basics so we can set up your coaching profile.
           </p>
 
@@ -564,7 +573,9 @@ export default function CoachOnboardPage() {
                   <Input
                     id="firstNameSimple"
                     value={userInfo.firstName}
-                    onChange={(e) => setUserInfo(prev => ({ ...prev, firstName: e.target.value }))}
+                    onChange={(e) =>
+                      setUserInfo((prev) => ({ ...prev, firstName: e.target.value }))
+                    }
                     placeholder="Enter your first name"
                   />
                 </div>
@@ -573,7 +584,9 @@ export default function CoachOnboardPage() {
                   <Input
                     id="lastNameSimple"
                     value={userInfo.lastName}
-                    onChange={(e) => setUserInfo(prev => ({ ...prev, lastName: e.target.value }))}
+                    onChange={(e) =>
+                      setUserInfo((prev) => ({ ...prev, lastName: e.target.value }))
+                    }
                     placeholder="Enter your last name"
                   />
                 </div>
@@ -585,13 +598,21 @@ export default function CoachOnboardPage() {
                   id="emailSimple"
                   type="email"
                   value={userInfo.email}
-                  onChange={(e) => setUserInfo(prev => ({ ...prev, email: e.target.value }))}
+                  onChange={(e) =>
+                    setUserInfo((prev) => ({ ...prev, email: e.target.value }))
+                  }
                   disabled={!!ingestionData?.coachEmail}
-                  className={ingestionData?.coachEmail ? 'bg-gray-50 text-gray-600 cursor-not-allowed' : ''}
+                  className={
+                    ingestionData?.coachEmail
+                      ? 'bg-gray-50 text-gray-600 cursor-not-allowed'
+                      : ''
+                  }
                   placeholder="you@example.com"
                 />
                 {ingestionData?.coachEmail && (
-                  <p className="text-xs text-gray-500 mt-1">This email comes from your invitation and cannot be changed.</p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    This email comes from your invitation and cannot be changed.
+                  </p>
                 )}
               </div>
 
@@ -601,7 +622,9 @@ export default function CoachOnboardPage() {
                 <select
                   id="sportSimple"
                   value={coachData.sport}
-                  onChange={(e) => setCoachData(prev => ({ ...prev, sport: e.target.value }))}
+                  onChange={(e) =>
+                    setCoachData((prev) => ({ ...prev, sport: e.target.value }))
+                  }
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 >
                   <option value="">Select a sport</option>
@@ -610,7 +633,7 @@ export default function CoachOnboardPage() {
                   <option value="Football">Football</option>
                   <option value="Baseball">Baseball</option>
                   <option value="Volleyball">Volleyball</option>
-                  <option value="Track & Field">Track & Field</option>
+                  <option value="Track and Field">Track and Field</option>
                   <option value="Swimming">Swimming</option>
                   <option value="Tennis">Tennis</option>
                   <option value="Golf">Golf</option>
@@ -624,7 +647,9 @@ export default function CoachOnboardPage() {
                 <Input
                   id="yearsInGame"
                   value={coachData.experience}
-                  onChange={(e) => setCoachData(prev => ({ ...prev, experience: e.target.value }))}
+                  onChange={(e) =>
+                    setCoachData((prev) => ({ ...prev, experience: e.target.value }))
+                  }
                   placeholder="e.g., 4 years"
                 />
               </div>
@@ -636,7 +661,9 @@ export default function CoachOnboardPage() {
                   id="shortBio"
                   rows={4}
                   value={coachData.bio}
-                  onChange={(e) => setCoachData(prev => ({ ...prev, bio: e.target.value }))}
+                  onChange={(e) =>
+                    setCoachData((prev) => ({ ...prev, bio: e.target.value }))
+                  }
                   placeholder="A few sentences about your playing or coaching background."
                 />
               </div>
@@ -650,7 +677,15 @@ export default function CoachOnboardPage() {
               <div className="pt-2">
                 <Button
                   onClick={handleSubmit}
-                  disabled={submitting || !userInfo.firstName || !userInfo.lastName || !userInfo.email || !coachData.sport || !coachData.experience || !coachData.bio}
+                  disabled={
+                    submitting ||
+                    !userInfo.firstName ||
+                    !userInfo.lastName ||
+                    !userInfo.email ||
+                    !coachData.sport ||
+                    !coachData.experience ||
+                    !coachData.bio
+                  }
                   className="w-full"
                 >
                   {submitting ? (
@@ -665,159 +700,113 @@ export default function CoachOnboardPage() {
               </div>
             </div>
           ) : (
-            // After profile submit: show simplified auth step (reuse existing logic)
             <div className="mt-6 space-y-6">
               <div className="text-center mb-4">
-                <h2 className="text-2xl font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                <h2
+                  className="text-2xl font-bold mb-2"
+                  style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}
+                >
                   Create Your Account
                 </h2>
-                <p className="text-gray-600" style={{ fontFamily: '"Open Sans", sans-serif' }}>
+                <p
+                  className="text-gray-600"
+                  style={{ fontFamily: '"Open Sans", sans-serif' }}
+                >
                   One last step – choose how you want to sign in to Athleap.
                 </p>
               </div>
 
-              {/* Reuse the hasGoogleAccount step UI from step 8 */}
-              <div className="space-y-6">
-                {hasGoogleAccount === null && (
-                  <div className="space-y-4">
-                    <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                      <p className="font-medium text-gray-900 mb-1">
-                        Do you have a Google account with this email?
-                      </p>
-                      <p className="text-sm text-gray-600">{userInfo.email}</p>
-                    </div>
-
-                    <div className="grid gap-3">
-                      <Button
-                        variant="outline"
-                        className="w-full h-auto py-4 flex items-start gap-3"
-                        onClick={() => setHasGoogleAccount(true)}
-                      >
-                        <Mail className="w-5 h-5 mt-1 flex-shrink-0" />
-                        <div className="text-left">
-                          <div className="font-medium">Yes, I have a Google account</div>
-                          <div className="text-sm text-gray-500">
-                            Sign in with your existing Google account
-                          </div>
-                        </div>
-                      </Button>
-
-                      <Button
-                        variant="outline"
-                        className="w-full h-auto py-4 flex items-start gap-3"
-                        onClick={() => setHasGoogleAccount(false)}
-                      >
-                        <Lock className="w-5 h-5 mt-1 flex-shrink-0" />
-                        <div className="text-left">
-                          <div className="font-medium">No, I don't have a Google account</div>
-                          <div className="text-sm text-gray-500">
-                            Create a password for your account
-                          </div>
-                        </div>
-                      </Button>
-                    </div>
+              <div className="space-y-4">
+                {/* Google sign-in option */}
+                <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                  <p className="text-sm text-gray-700 mb-2">
+                    If you have a Google account with this email, you can sign in with
+                    Google.
+                  </p>
+                  <p className="text-sm text-gray-600">{userInfo.email}</p>
+                </div>
+                {authError && (
+                  <div className="p-4 bg-red-50 rounded-lg border border-red-200">
+                    <p className="text-sm text-red-700">{authError}</p>
                   </div>
                 )}
-
-                {hasGoogleAccount === true && (
-                  <div className="space-y-4">
-                    <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                      <p className="text-sm text-gray-700">
-                        Click the button below to sign in with your Google account.
-                      </p>
-                    </div>
-                    {authError && (
-                      <div className="p-4 bg-red-50 rounded-lg border border-red-200">
-                        <p className="text-sm text-red-700">{authError}</p>
-                      </div>
-                    )}
-                    <Button
-                      className="w-full"
-                      onClick={handleGoogleSignIn}
-                      disabled={isCreatingAccount}
-                    >
-                      {isCreatingAccount ? (
-                        <>
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          Creating Account...
-                        </>
-                      ) : (
-                        <>
-                          <Mail className="w-4 h-4 mr-2" />
-                          Sign in with Google
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                )}
-
-                {hasGoogleAccount === false && (
-                  <div className="space-y-4">
-                    <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                      <p className="text-sm text-gray-700">
-                        Create a password for your account. You'll use this email and password to sign in.
-                      </p>
-                    </div>
-                    <div>
-                      <Label htmlFor="auth-email-simple">Email</Label>
-                      <Input
-                        id="auth-email-simple"
-                        type="email"
-                        value={userInfo.email}
-                        disabled
-                        className="bg-gray-50 text-gray-600"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="auth-password-simple">
-                        Password <span className="text-red-500">*</span>
-                      </Label>
-                      <Input
-                        id="auth-password-simple"
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="At least 6 characters"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="auth-confirm-password-simple">
-                        Confirm Password <span className="text-red-500">*</span>
-                      </Label>
-                      <Input
-                        id="auth-confirm-password-simple"
-                        type="password"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        placeholder="Re-enter your password"
-                      />
-                    </div>
-                    {authError && (
-                      <div className="p-4 bg-red-50 rounded-lg border border-red-200">
-                        <p className="text-sm text-red-700">{authError}</p>
-                      </div>
-                    )}
-                    <Button
-                      className="w-full"
-                      onClick={handlePasswordSignUp}
-                      disabled={isCreatingAccount || !password || !confirmPassword}
-                    >
-                      {isCreatingAccount ? (
-                        <>
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          Creating Account...
-                        </>
-                      ) : (
-                        <>
-                          <CheckCircle className="w-4 h-4 mr-2" />
-                          Create Account
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                )}
+                <Button
+                  className="w-full"
+                  onClick={handleGoogleSignIn}
+                  disabled={isCreatingAccount}
+                >
+                  {isCreatingAccount ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Creating Account...
+                    </>
+                  ) : (
+                    <>
+                      <Mail className="w-4 h-4 mr-2" />
+                      Sign in with Google
+                    </>
+                  )}
+                </Button>
               </div>
-            )}
+
+              <div className="space-y-4 pt-4 border-t border-gray-200">
+                <p className="text-sm text-gray-700">
+                  Or create a password for your Athleap account.
+                </p>
+                <div>
+                  <Label htmlFor="auth-email-simple">Email</Label>
+                  <Input
+                    id="auth-email-simple"
+                    type="email"
+                    value={userInfo.email}
+                    disabled
+                    className="bg-gray-50 text-gray-600"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="auth-password-simple">
+                    Password <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="auth-password-simple"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="At least 6 characters"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="auth-confirm-password-simple">
+                    Confirm Password <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="auth-confirm-password-simple"
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Re-enter your password"
+                  />
+                </div>
+                <Button
+                  className="w-full"
+                  onClick={handlePasswordSignUp}
+                  disabled={isCreatingAccount || !password || !confirmPassword}
+                >
+                  {isCreatingAccount ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Creating Account...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle className="w-4 h-4 mr-2" />
+                      Create Account
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     )
