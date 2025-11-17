@@ -89,7 +89,7 @@ export default function CoachProfileModal({ isOpen, onClose, coachId, coachSlug,
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-2xl w-full max-w-4xl max-h-[98vh] overflow-y-auto relative"
+        className="bg-white rounded-2xl w-full max-w-5xl max-h-[96vh] overflow-y-auto relative"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Content */}

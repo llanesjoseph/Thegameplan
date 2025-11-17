@@ -137,11 +137,11 @@ export default function HeroCoachProfile({
         </div>
       )}
 
-      <div className={`max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 ${isInIframe ? 'py-1' : 'py-8'}`}>
-        <div className={`${isInIframe ? 'space-y-1' : 'space-y-4'}`}>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="space-y-4">
           {/* Banner with overlay profile */}
           <div className="relative">
-            <div className={`${isInIframe ? 'h-20 sm:h-24' : 'h-36 sm:h-44 md:h-56'} rounded-xl overflow-hidden bg-gray-100`}>
+            <div className="h-36 sm:h-44 md:h-56 rounded-xl overflow-hidden bg-gray-100">
               {bannerUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={bannerUrl} alt="Coach banner" className="w-full h-full object-cover" />
@@ -152,8 +152,8 @@ export default function HeroCoachProfile({
               )}
             </div>
             {/* Profile photo fixed near top-right */}
-            <div className={`absolute ${isInIframe ? 'top-3 right-3' : 'top-6 right-6'} ${isInIframe ? 'w-[calc(33.333%-0.667rem)] sm:w-[calc(25%-0.75rem)] lg:w-[calc(20%-0.75rem)]' : 'w-[calc(50%-0.75rem)] sm:w-[calc(33.333%-0.667rem)] lg:w-[calc(25%-0.75rem)]'} flex flex-col ${isInIframe ? 'gap-1.5' : 'gap-3'}`}>
-              <div className={`w-full rounded-lg overflow-hidden ${isInIframe ? 'ring-2' : 'ring-4'} ring-white shadow-xl bg-gray-100`} style={{ aspectRatio: '1/1' }}>
+            <div className="absolute top-6 right-6 w-[calc(50%-0.75rem)] sm:w-[calc(33.333%-0.667rem)] lg:w-[calc(25%-0.75rem)] flex flex-col gap-3">
+              <div className="w-full rounded-lg overflow-hidden ring-4 ring-white shadow-xl bg-gray-100" style={{ aspectRatio: '1/1' }}>
                 {coach.profileImageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={coach.profileImageUrl} alt={coach.displayName} className="w-full h-full object-cover" />
@@ -266,30 +266,30 @@ export default function HeroCoachProfile({
           </div>
 
           {/* Text content below banner */}
-          <div className={`${isInIframe ? 'pt-0 space-y-1' : 'pt-6 sm:pt-8 space-y-4'}`}>
+          <div className="pt-6 sm:pt-8 space-y-4">
             {/* Name and Details */}
             <div>
               <h2
-                className={`${isInIframe ? 'text-xl' : 'text-2xl sm:text-3xl'} font-bold ${isInIframe ? 'mb-0.5' : 'mb-1'}`}
+                className="text-2xl sm:text-3xl font-bold mb-1"
                 style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
               >
                 {coach.displayName}
               </h2>
               {tagline && (
-                <p className={`${isInIframe ? 'text-sm mb-1' : 'text-base mb-2'}`} style={{ color: '#666', fontFamily: '"Open Sans", sans-serif', fontStyle: 'italic' }}>
+                <p className="text-base mb-2" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif', fontStyle: 'italic' }}>
                   {tagline}
                 </p>
               )}
-              <div className={`flex flex-wrap items-center ${isInIframe ? 'gap-2 text-xs' : 'gap-3 text-sm'}`} style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+              <div className="flex flex-wrap items-center gap-3 text-sm" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
                 {coach.location && (
                   <div className="flex items-center gap-1.5">
-                    <MapPin className={`${isInIframe ? 'w-3 h-3' : 'w-4 h-4'}`} />
+                    <MapPin className="w-4 h-4" />
                     <span>{coach.location}</span>
                   </div>
                 )}
                 {coach.yearsExperience && (
                   <div className="flex items-center gap-1.5">
-                    <Award className={`${isInIframe ? 'w-3 h-3' : 'w-4 h-4'}`} />
+                    <Award className="w-4 h-4" />
                     <span>{coach.yearsExperience} years experience</span>
                   </div>
                 )}
@@ -299,10 +299,10 @@ export default function HeroCoachProfile({
             {/* Sport Badge */}
             {coach.sport && (
               <div>
-                <span className={`${isInIframe ? 'text-xs' : 'text-sm'} font-bold block ${isInIframe ? 'mb-1' : 'mb-2'}`} style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                <span className="text-sm font-bold block mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
                   Specialties:
                 </span>
-                <div className={`inline-flex items-center gap-2 ${isInIframe ? 'px-3 py-1.5' : 'px-4 py-2'} rounded-lg text-white ${isInIframe ? 'text-xs' : 'text-sm'} font-bold`}
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm font-bold"
                   style={{
                     fontFamily: '"Open Sans", sans-serif',
                     fontWeight: 700,
@@ -315,15 +315,15 @@ export default function HeroCoachProfile({
             )}
 
             {/* Content Section */}
-            <div className={`max-w-4xl ${isInIframe ? 'space-y-2' : 'space-y-4'}`}>
+            <div className="max-w-4xl space-y-4">
               {/* Bio */}
               {bio && (
                 <div>
-                  <h4 className={`${isInIframe ? 'text-xs' : 'text-sm'} font-bold ${isInIframe ? 'mb-1' : 'mb-2'}`} style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                  <h4 className="text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
                     About
                   </h4>
                   <div>
-                    <p className={`${isInIframe ? 'text-xs leading-snug' : 'text-sm leading-relaxed'}`} style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                    <p className="text-sm leading-relaxed" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
                       {isInIframe && bio.length > 80 && !isBioExpanded
                         ? `${bio.slice(0, 80)}...`
                         : bio}
@@ -344,12 +344,12 @@ export default function HeroCoachProfile({
               {/* Achievements */}
               {achievements && (
                 <div>
-                  <h4 className={`${isInIframe ? 'text-xs' : 'text-sm'} font-bold ${isInIframe ? 'mb-1' : 'mb-2'} flex items-center gap-1.5`} style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
-                    <Award className={`${isInIframe ? 'w-3 h-3' : 'w-4 h-4'}`} />
+                  <h4 className="text-sm font-bold mb-2 flex items-center gap-1.5" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                    <Award className="w-4 h-4" />
                     Achievements
                   </h4>
                   <div>
-                    <p className={`${isInIframe ? 'text-xs leading-snug' : 'text-sm leading-relaxed'} whitespace-pre-line`} style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                    <p className="text-sm leading-relaxed whitespace-pre-line" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
                       {isInIframe && achievements.length > 80 && !isAchievementsExpanded
                         ? `${achievements.slice(0, 80)}...`
                         : achievements}
@@ -383,10 +383,10 @@ export default function HeroCoachProfile({
               {/* Photo Showcase */}
               {(coach.showcasePhoto1 || coach.showcasePhoto2) && (
                 <div>
-                  <h4 className={`${isInIframe ? 'text-xs' : 'text-sm'} font-bold ${isInIframe ? 'mb-1' : 'mb-2'}`} style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                  <h4 className="text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
                     Photo Showcase
                   </h4>
-                  <div className={`grid grid-cols-2 ${isInIframe ? 'gap-2' : 'gap-3'}`}>
+                  <div className="grid grid-cols-2 gap-3">
                     {coach.showcasePhoto1 && (
                       <div className="w-full aspect-square rounded-lg overflow-hidden bg-gray-100">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
