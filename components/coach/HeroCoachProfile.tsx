@@ -161,106 +161,106 @@ export default function HeroCoachProfile({
                   </div>
                 )}
               </div>
+            </div>
 
-              {/* Social Media Flip Card - Below Profile Photo */}
-              {(instagram || youtube || linkedin || facebook) && (
-                <div className="mt-4 w-full perspective-1000" style={{ perspective: '1000px' }}>
+            {/* Social Media Flip Card - Right Side of Banner */}
+            {(instagram || youtube || linkedin || facebook) && (
+              <div className="absolute bottom-6 right-6 w-48 perspective-1000" style={{ perspective: '1000px' }}>
+                <div
+                  className="relative w-full"
+                  style={{
+                    transformStyle: 'preserve-3d',
+                    transition: 'transform 0.6s',
+                    transform: showSocialIcons ? 'rotateY(180deg)' : 'rotateY(0deg)'
+                  }}
+                  onMouseEnter={() => setShowSocialIcons(true)}
+                >
+                  {/* Front - Connect Button */}
                   <div
-                    className="relative w-full"
+                    className="w-full backface-hidden"
                     style={{
-                      transformStyle: 'preserve-3d',
-                      transition: 'transform 0.6s',
-                      transform: showSocialIcons ? 'rotateY(180deg)' : 'rotateY(0deg)'
+                      backfaceVisibility: 'hidden',
+                      transform: 'rotateY(0deg)'
                     }}
-                    onMouseEnter={() => setShowSocialIcons(true)}
                   >
-                    {/* Front - Connect Button */}
-                    <div
-                      className="w-full backface-hidden"
+                    <button
+                      className="w-full py-3 rounded-lg text-white text-sm font-bold transition-colors shadow-lg"
                       style={{
-                        backfaceVisibility: 'hidden',
-                        transform: 'rotateY(0deg)'
+                        backgroundColor: '#000000',
+                        fontFamily: '"Open Sans", sans-serif',
+                        fontWeight: 700
                       }}
                     >
-                      <button
-                        className="w-full py-2.5 rounded-lg text-white text-sm font-bold transition-colors"
-                        style={{
-                          backgroundColor: '#000000',
-                          fontFamily: '"Open Sans", sans-serif',
-                          fontWeight: 700
-                        }}
-                      >
-                        Connect
-                      </button>
-                    </div>
+                      Connect
+                    </button>
+                  </div>
 
-                    {/* Back - Social Icons */}
-                    <div
-                      className="absolute inset-0 w-full backface-hidden"
-                      style={{
-                        backfaceVisibility: 'hidden',
-                        transform: 'rotateY(180deg)'
-                      }}
-                    >
-                      <div className="w-full py-2 px-2 rounded-lg bg-black flex justify-center gap-2">
-                        {instagram && (
-                          <a
-                            href={`https://instagram.com/${instagram.replace('@', '')}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-9 h-9 rounded-lg flex items-center justify-center transition-all hover:scale-110"
-                            style={{ backgroundColor: '#E4405F' }}
-                            title="Instagram"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <Instagram className="w-4 h-4 text-white" />
-                          </a>
-                        )}
-                        {youtube && (
-                          <a
-                            href={youtube.startsWith('http') ? youtube : `https://youtube.com/${youtube}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-9 h-9 rounded-lg flex items-center justify-center transition-all hover:scale-110"
-                            style={{ backgroundColor: '#FF0000' }}
-                            title="YouTube"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <Youtube className="w-4 h-4 text-white" />
-                          </a>
-                        )}
-                        {linkedin && (
-                          <a
-                            href={linkedin.startsWith('http') ? linkedin : `https://linkedin.com/in/${linkedin}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-9 h-9 rounded-lg flex items-center justify-center transition-all hover:scale-110"
-                            style={{ backgroundColor: '#0A66C2' }}
-                            title="LinkedIn"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <Linkedin className="w-4 h-4 text-white" />
-                          </a>
-                        )}
-                        {facebook && (
-                          <a
-                            href={facebook.startsWith('http') ? facebook : `https://facebook.com/${facebook}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-9 h-9 rounded-lg flex items-center justify-center transition-all hover:scale-110"
-                            style={{ backgroundColor: '#1877F2' }}
-                            title="Facebook"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <Facebook className="w-4 h-4 text-white" />
-                          </a>
-                        )}
-                      </div>
+                  {/* Back - Social Icons */}
+                  <div
+                    className="absolute inset-0 w-full backface-hidden"
+                    style={{
+                      backfaceVisibility: 'hidden',
+                      transform: 'rotateY(180deg)'
+                    }}
+                  >
+                    <div className="w-full py-2.5 px-2 rounded-lg bg-black shadow-lg flex justify-center gap-2">
+                      {instagram && (
+                        <a
+                          href={`https://instagram.com/${instagram.replace('@', '')}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-10 h-10 rounded-lg flex items-center justify-center transition-all hover:scale-110"
+                          style={{ backgroundColor: '#E4405F' }}
+                          title="Instagram"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Instagram className="w-5 h-5 text-white" />
+                        </a>
+                      )}
+                      {youtube && (
+                        <a
+                          href={youtube.startsWith('http') ? youtube : `https://youtube.com/${youtube}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-10 h-10 rounded-lg flex items-center justify-center transition-all hover:scale-110"
+                          style={{ backgroundColor: '#FF0000' }}
+                          title="YouTube"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Youtube className="w-5 h-5 text-white" />
+                        </a>
+                      )}
+                      {linkedin && (
+                        <a
+                          href={linkedin.startsWith('http') ? linkedin : `https://linkedin.com/in/${linkedin}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-10 h-10 rounded-lg flex items-center justify-center transition-all hover:scale-110"
+                          style={{ backgroundColor: '#0A66C2' }}
+                          title="LinkedIn"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Linkedin className="w-5 h-5 text-white" />
+                        </a>
+                      )}
+                      {facebook && (
+                        <a
+                          href={facebook.startsWith('http') ? facebook : `https://facebook.com/${facebook}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-10 h-10 rounded-lg flex items-center justify-center transition-all hover:scale-110"
+                          style={{ backgroundColor: '#1877F2' }}
+                          title="Facebook"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Facebook className="w-5 h-5 text-white" />
+                        </a>
+                      )}
                     </div>
                   </div>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
 
           {/* Text content below banner */}

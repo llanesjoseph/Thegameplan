@@ -103,7 +103,19 @@ export async function GET(
       bannerUrl: coverImageUrl, // Also set bannerUrl for compatibility
       showcasePhoto1: userData.showcasePhoto1 || '',
       showcasePhoto2: userData.showcasePhoto2 || '',
-      socialLinks: {},
+      // Social media links
+      instagram: creatorData.instagram || userData.instagram || '',
+      youtube: creatorData.youtube || userData.youtube || '',
+      linkedin: creatorData.linkedin || userData.linkedin || '',
+      facebook: creatorData.facebook || userData.facebook || '',
+      website: creatorData.website || userData.website || '',
+      websiteUrl: creatorData.websiteUrl || userData.websiteUrl || '',
+      location: creatorData.location || userData.location || '',
+      title: creatorData.title || '',
+      socialLinks: {
+        instagram: creatorData.instagram || userData.instagram || '',
+        linkedin: creatorData.linkedin || userData.linkedin || '',
+      },
       verified: creatorData.verified || false,
       featured: creatorData.featured || false,
       isActive: creatorData.isActive || false,
