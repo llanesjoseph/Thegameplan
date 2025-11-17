@@ -8,6 +8,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import Live1on1RequestModal from './Live1on1RequestModal'
 import VideoManagementModal from './VideoManagementModal'
 import dynamic from 'next/dynamic'
+import Link from 'next/link'
 
 const AskCoachAI = dynamic(() => import('./AskCoachAI'), { ssr: false })
 
@@ -50,6 +51,7 @@ export default function AthleteCoaches() {
                 imageUrl: coachData.photoURL || '',
                 title: coachData.sport || 'Coach',
                 author: coachData.displayName || 'Coach',
+                slug: coachData.slug,
                 isAssigned: true
               })
             }
@@ -85,6 +87,7 @@ export default function AthleteCoaches() {
                         imageUrl: coachData.photoURL || '',
                         title: coachData.sport || 'Coach',
                         author: coachData.displayName || follow.coachName || 'Coach',
+                        slug: coachData.slug,
                         isAssigned: false
                       })
                       console.log(`✅ Added followed coach: ${coachData.displayName}`)
@@ -206,13 +209,17 @@ export default function AthleteCoaches() {
                 {[0, 1, 2].map((index) => {
                   const coach = coaches[coachPage * coachPageSize + index]
                   return coach ? (
-                    <div key={coach.id} className="text-center w-full">
-                      <div className="w-full rounded-lg overflow-hidden bg-gray-100 mb-1" style={{ aspectRatio: '1/1' }}>
+                    <Link
+                      key={coach.id}
+                      href={`/coach-profile/${coach.slug || coach.id}`}
+                      className="text-center w-full group block cursor-pointer"
+                    >
+                      <div className="w-full rounded-lg overflow-hidden bg-gray-100 mb-1 group-hover:ring-2 group-hover:ring-black transition-all" style={{ aspectRatio: '1/1' }}>
                         {coach.imageUrl ? (
                           <img
                             src={coach.imageUrl}
                             alt={coach.name}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#8B7D7B' }}>
@@ -220,13 +227,13 @@ export default function AthleteCoaches() {
                           </div>
                         )}
                       </div>
-                      <p className="text-sm font-semibold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                      <p className="text-sm font-semibold group-hover:text-red-600 transition-colors" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
                         {coach.title}
                       </p>
                       <p className="text-xs" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
                         {coach.author}
                       </p>
-                    </div>
+                    </Link>
                   ) : (
                     <div key={`empty-${index}`} className="w-full" style={{ aspectRatio: '1/1' }}></div>
                   )

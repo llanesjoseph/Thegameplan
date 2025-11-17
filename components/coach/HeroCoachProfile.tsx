@@ -445,6 +445,44 @@ export default function HeroCoachProfile({
                 </div>
               )}
             </div>
+
+            {/* Training Content Section */}
+            {lessons && lessons.length > 0 && (
+              <div className="mt-8 pt-8 border-t border-gray-200">
+                <h3 className="text-xl font-bold mb-4 flex items-center gap-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
+                  <BookOpen className="w-6 h-6" style={{ color: '#FC0105' }} />
+                  Training Content ({lessons.length})
+                </h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {lessons.map((lesson) => (
+                    <div key={lesson.id} className="group block">
+                      <div className="w-full aspect-square rounded-lg overflow-hidden bg-gray-100 mb-2 group-hover:ring-2 group-hover:ring-black transition-all">
+                        {lesson.thumbnailUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={lesson.thumbnailUrl}
+                            alt={lesson.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#8B7D7B' }}>
+                            <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-sm font-semibold line-clamp-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                        {lesson.title}
+                      </p>
+                      {lesson.sport && (
+                        <p className="text-xs mt-1" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+                          {lesson.sport}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
