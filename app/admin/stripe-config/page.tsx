@@ -63,11 +63,40 @@ export default function StripeConfigAdminPage() {
     )
   }
 
-  if (!user || (!isSuperadmin && !isExplicitlyAllowed)) {
+  // If not signed in, show a simple login prompt
+  if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="bg-white rounded-xl border border-gray-200 p-8 text-center max-w-md shadow-sm">
-          <h1 className="text-2xl font-bold mb-2" style={{ fontFamily: '"Open Sans", sans-serif', color: '#000000' }}>
+          <h1
+            className="text-2xl font-bold mb-2"
+            style={{ fontFamily: '"Open Sans", sans-serif', color: '#000000' }}
+          >
+            Sign in required
+          </h1>
+          <p className="text-sm text-gray-600 mb-4">
+            You must be signed in as a superadmin or the designated Stripe admin to access this page.
+          </p>
+          <a
+            href="/login"
+            className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-black text-white text-sm font-semibold hover:bg-gray-800"
+          >
+            Go to login
+          </a>
+        </div>
+      </div>
+    )
+  }
+
+  // If signed in but not allowed, show access restricted
+  if (!isSuperadmin && !isExplicitlyAllowed) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="bg-white rounded-xl border border-gray-200 p-8 text-center max-w-md shadow-sm">
+          <h1
+            className="text-2xl font-bold mb-2"
+            style={{ fontFamily: '"Open Sans", sans-serif', color: '#000000' }}
+          >
             Access Restricted
           </h1>
           <p className="text-sm text-gray-600 mb-4">
@@ -162,6 +191,22 @@ export default function StripeConfigAdminPage() {
               {stripeConfigured ? 'Stripe: Configured' : 'Stripe: Not fully configured'}
             </span>
           )}
+        </div>
+
+        {/* Logged-in user + role context */}
+        <div className="flex items-center justify-between mb-4 text-xs text-gray-500">
+          <span>
+            Signed in as{' '}
+            <span className="font-semibold text-gray-800">
+              {user.email || 'unknown'}
+            </span>
+          </span>
+          <span>
+            Role:{' '}
+            <span className="font-semibold text-gray-800">
+              {effectiveRole}
+            </span>
+          </span>
         </div>
         <p className="text-sm text-gray-600 mb-6" style={{ fontFamily: '"Open Sans", sans-serif' }}>
           Enter your live Stripe keys. These values are sent securely to the server and stored only
