@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/use-auth'
-import { ChevronLeft, ChevronRight, X, Video, BookOpen, Clock, TrendingUp, ArrowLeft } from 'lucide-react'
+import { ChevronLeft, ChevronRight, X, Video, BookOpen, Clock, TrendingUp, ArrowLeft, Plus, Trash2, Sparkles } from 'lucide-react'
 
 interface Athlete {
   uid: string
@@ -27,7 +27,16 @@ interface EnhancedAthleteRosterModalProps {
   onClose: () => void
 }
 
-type ViewState = 'list' | 'profile' | 'videos'
+type ViewState = 'list' | 'profile' | 'videos' | 'invite'
+
+interface InviteForm {
+  sport: string
+  customMessage: string
+  athletes: Array<{
+    email: string
+    name: string
+  }>
+}
 
 export default function EnhancedAthleteRosterModal({ isOpen, onClose }: EnhancedAthleteRosterModalProps) {
   const { user } = useAuth()
@@ -36,6 +45,14 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose }: Enhanced
   const [selectedAthleteIndex, setSelectedAthleteIndex] = useState(0)
   const [loading, setLoading] = useState(true)
   const [viewState, setViewState] = useState<ViewState>('list')
+  const [inviteForm, setInviteForm] = useState<InviteForm>({
+    sport: 'Soccer',
+    customMessage: '',
+    athletes: [{ email: '', name: '' }]
+  })
+  const [sendingInvites, setSendingInvites] = useState(false)
+  const [aiChatSummary, setAiChatSummary] = useState<string>('')
+  const [loadingSummary, setLoadingSummary] = useState(false)
 
   useEffect(() => {
     const loadAthletes = async () => {
@@ -94,6 +111,38 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose }: Enhanced
     loadAthletes()
   }, [user, isOpen])
 
+  // Fetch AI Chat Summary when athlete changes
+  useEffect(() => {
+    const fetchAiChatSummary = async () => {
+      const currentAthlete = athletes[selectedAthleteIndex]
+      if (!currentAthlete || !user) return
+
+      try {
+        setLoadingSummary(true)
+        const token = await user.getIdToken()
+        const response = await fetch(`/api/coach/athletes/${currentAthlete.uid}/ai-chat-summary`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+        const data = await response.json()
+
+        if (data.success) {
+          setAiChatSummary(data.summary || 'No recent conversations')
+        } else {
+          setAiChatSummary('No recent conversations')
+        }
+      } catch (error) {
+        console.error('Error fetching AI chat summary:', error)
+        setAiChatSummary('Unable to load chat summary')
+      } finally {
+        setLoadingSummary(false)
+      }
+    }
+
+    fetchAiChatSummary()
+  }, [selectedAthleteIndex, athletes, user])
+
   const handlePrevAthlete = () => {
     setSelectedAthleteIndex((prev) => (prev === 0 ? athletes.length - 1 : prev - 1))
   }
@@ -112,6 +161,79 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose }: Enhanced
 
   const handleBackToList = () => {
     setViewState('list')
+  }
+
+  const handleInviteAthlete = () => {
+    setViewState('invite')
+  }
+
+  const addAthleteRow = () => {
+    setInviteForm(prev => ({
+      ...prev,
+      athletes: [...prev.athletes, { email: '', name: '' }]
+    }))
+  }
+
+  const removeAthleteRow = (index: number) => {
+    setInviteForm(prev => ({
+      ...prev,
+      athletes: prev.athletes.filter((_, i) => i !== index)
+    }))
+  }
+
+  const updateAthlete = (index: number, field: 'email' | 'name', value: string) => {
+    setInviteForm(prev => ({
+      ...prev,
+      athletes: prev.athletes.map((athlete, i) =>
+        i === index ? { ...athlete, [field]: value } : athlete
+      )
+    }))
+  }
+
+  const handleSendInvites = async () => {
+    setSendingInvites(true)
+    try {
+      const validAthletes = inviteForm.athletes.filter(a => a.email.trim() && a.name.trim())
+
+      if (validAthletes.length === 0) {
+        alert('Please add at least one athlete with email and name')
+        return
+      }
+
+      const token = await user!.getIdToken()
+
+      const response = await fetch('/api/coach/invite-athletes', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          creatorUid: user?.uid,
+          sport: inviteForm.sport,
+          customMessage: inviteForm.customMessage,
+          athletes: validAthletes
+        }),
+      })
+
+      if (response.ok) {
+        setInviteForm({
+          sport: 'Soccer',
+          customMessage: '',
+          athletes: [{ email: '', name: '' }]
+        })
+        setViewState('list')
+        alert(`Successfully sent ${validAthletes.length} invitation(s)!`)
+      } else {
+        const error = await response.json()
+        alert(`Failed to send invitations: ${error.message || 'Unknown error'}`)
+      }
+    } catch (error) {
+      console.error('Error sending invites:', error)
+      alert('Failed to send invitations')
+    } finally {
+      setSendingInvites(false)
+    }
   }
 
   if (!isOpen) return null
@@ -146,11 +268,13 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose }: Enhanced
                 {viewState === 'list' && 'Athlete Roster & Invitations'}
                 {viewState === 'profile' && selectedAthlete && `${selectedAthlete.displayName} - Full Profile`}
                 {viewState === 'videos' && selectedAthlete && `${selectedAthlete.displayName} - Video Reviews`}
+                {viewState === 'invite' && 'Invite New Athletes'}
               </h2>
               <p className="text-sm mt-1" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
                 {viewState === 'list' && 'Track athlete status and engagement'}
                 {viewState === 'profile' && 'Complete athlete profile and training history'}
                 {viewState === 'videos' && 'Review submitted videos and provide feedback'}
+                {viewState === 'invite' && 'Send invitations to athletes to join your roster'}
               </p>
             </div>
           </div>
@@ -441,7 +565,7 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose }: Enhanced
                         <h3 className="text-lg font-bold mb-4" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
                           Quick Actions
                         </h3>
-                        <div className="flex gap-4">
+                        <div className="flex gap-4 mb-6">
                           <button
                             onClick={handleViewProfile}
                             className="flex-1 px-6 py-4 rounded-lg bg-black text-white font-bold text-center hover:bg-gray-800 transition-colors"
@@ -461,6 +585,30 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose }: Enhanced
                             </button>
                           )}
                         </div>
+
+                        {/* AI Chat Summary */}
+                        <div className="bg-white rounded-lg p-5 border border-gray-200">
+                          <h4 className="text-base font-bold mb-3 flex items-center gap-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                            <Sparkles className="w-5 h-5" style={{ color: '#9B59B6' }} />
+                            AI Chat Summary
+                          </h4>
+                          {loadingSummary ? (
+                            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                              <div className="flex items-center gap-2">
+                                <div className="h-4 w-4 rounded-full border-2 border-purple-500 border-t-transparent animate-spin" />
+                                <p className="text-sm" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+                                  Loading summary...
+                                </p>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                              <p className="text-sm leading-relaxed" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                                {aiChatSummary}
+                              </p>
+                            </div>
+                          )}
+                        </div>
                       </div>
 
                       {/* Pending Invitations */}
@@ -478,10 +626,7 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose }: Enhanced
                           <button
                             className="mt-4 px-6 py-3 rounded-lg bg-black text-white font-bold hover:bg-gray-800 transition-colors"
                             style={{ fontFamily: '"Open Sans", sans-serif' }}
-                            onClick={() => {
-                              // TODO: Add invite athlete functionality
-                              alert('Invite athlete feature coming soon!')
-                            }}
+                            onClick={handleInviteAthlete}
                           >
                             Invite New Athlete
                           </button>
@@ -509,6 +654,116 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose }: Enhanced
                     className="w-full h-full border-0 rounded-lg"
                     title="Video Review Queue"
                   />
+                </div>
+              )}
+
+              {viewState === 'invite' && (
+                <div className="space-y-6">
+                  {/* Sport Selection */}
+                  <div>
+                    <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                      Sport
+                    </label>
+                    <select
+                      value={inviteForm.sport}
+                      onChange={(e) => setInviteForm(prev => ({ ...prev, sport: e.target.value }))}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-black"
+                      style={{ fontFamily: '"Open Sans", sans-serif' }}
+                    >
+                      <option>Soccer</option>
+                      <option>Basketball</option>
+                      <option>Football</option>
+                      <option>Baseball</option>
+                      <option>Volleyball</option>
+                      <option>Track & Field</option>
+                      <option>Swimming</option>
+                      <option>Tennis</option>
+                      <option>Golf</option>
+                      <option>Other</option>
+                    </select>
+                  </div>
+
+                  {/* Custom Message */}
+                  <div>
+                    <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                      Custom Message (Optional)
+                    </label>
+                    <textarea
+                      value={inviteForm.customMessage}
+                      onChange={(e) => setInviteForm(prev => ({ ...prev, customMessage: e.target.value }))}
+                      placeholder="Add a personal message to your invitation..."
+                      rows={3}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-black"
+                      style={{ fontFamily: '"Open Sans", sans-serif' }}
+                    />
+                  </div>
+
+                  {/* Athletes List */}
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <label className="block text-sm font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                        Athletes
+                      </label>
+                      <button
+                        onClick={addAthleteRow}
+                        className="flex items-center gap-2 px-3 py-2 text-sm font-bold rounded-lg border-2 border-black hover:bg-gray-50 transition-colors"
+                        style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}
+                      >
+                        <Plus className="w-4 h-4" />
+                        Add Athlete
+                      </button>
+                    </div>
+
+                    <div className="space-y-3">
+                      {inviteForm.athletes.map((athlete, index) => (
+                        <div key={index} className="flex gap-3">
+                          <input
+                            type="text"
+                            placeholder="Athlete Name"
+                            value={athlete.name}
+                            onChange={(e) => updateAthlete(index, 'name', e.target.value)}
+                            className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-black"
+                            style={{ fontFamily: '"Open Sans", sans-serif' }}
+                          />
+                          <input
+                            type="email"
+                            placeholder="athlete@email.com"
+                            value={athlete.email}
+                            onChange={(e) => updateAthlete(index, 'email', e.target.value)}
+                            className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-black"
+                            style={{ fontFamily: '"Open Sans", sans-serif' }}
+                          />
+                          {inviteForm.athletes.length > 1 && (
+                            <button
+                              onClick={() => removeAthleteRow(index)}
+                              className="px-4 py-3 rounded-lg border-2 border-gray-200 hover:border-red-500 hover:bg-red-50 transition-colors"
+                            >
+                              <Trash2 className="w-5 h-5" style={{ color: '#FC0105' }} />
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Send Button */}
+                  <div className="flex gap-3 pt-4">
+                    <button
+                      onClick={handleSendInvites}
+                      disabled={sendingInvites}
+                      className="flex-1 px-6 py-4 rounded-lg bg-black text-white font-bold hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      style={{ fontFamily: '"Open Sans", sans-serif' }}
+                    >
+                      {sendingInvites ? 'Sending...' : `Send ${inviteForm.athletes.filter(a => a.email && a.name).length} Invitation(s)`}
+                    </button>
+                    <button
+                      onClick={handleBackToList}
+                      className="px-6 py-4 rounded-lg border-2 border-gray-200 font-bold hover:bg-gray-50 transition-colors"
+                      style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 </div>
               )}
             </>

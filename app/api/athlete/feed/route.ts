@@ -96,11 +96,11 @@ export async function GET(request: NextRequest) {
 
     for (const coachId of followedCoachIds) {
       try {
-        // Get all public lessons from this coach
+        // Get all published lessons from this coach (using creatorUid, not creatorId)
         const lessonsSnapshot = await adminDb
           .collection('content')
-          .where('creatorId', '==', coachId)
-          .where('visibility', '==', 'public')
+          .where('creatorUid', '==', coachId)
+          .where('status', '==', 'published')
           .orderBy('createdAt', 'desc')
           .limit(50) // Limit per coach to prevent overload
           .get()
