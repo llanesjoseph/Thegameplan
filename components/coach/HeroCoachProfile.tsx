@@ -324,19 +324,8 @@ export default function HeroCoachProfile({
                   </h4>
                   <div>
                     <p className="text-sm leading-relaxed" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
-                      {isInIframe && bio.length > 80 && !isBioExpanded
-                        ? `${bio.slice(0, 80)}...`
-                        : bio}
+                      {bio}
                     </p>
-                    {isInIframe && bio.length > 80 && (
-                      <button
-                        onClick={() => setIsBioExpanded(!isBioExpanded)}
-                        className="text-xs font-semibold mt-0.5 hover:underline"
-                        style={{ color: '#FC0105', fontFamily: '"Open Sans", sans-serif' }}
-                      >
-                        {isBioExpanded ? 'Read less' : 'Read more'}
-                      </button>
-                    )}
                   </div>
                 </div>
               )}
@@ -350,19 +339,8 @@ export default function HeroCoachProfile({
                   </h4>
                   <div>
                     <p className="text-sm leading-relaxed whitespace-pre-line" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
-                      {isInIframe && achievements.length > 80 && !isAchievementsExpanded
-                        ? `${achievements.slice(0, 80)}...`
-                        : achievements}
+                      {achievements}
                     </p>
-                    {isInIframe && achievements.length > 80 && (
-                      <button
-                        onClick={() => setIsAchievementsExpanded(!isAchievementsExpanded)}
-                        className="text-xs font-semibold mt-0.5 hover:underline"
-                        style={{ color: '#FC0105', fontFamily: '"Open Sans", sans-serif' }}
-                      >
-                        {isAchievementsExpanded ? 'Read less' : 'Read more'}
-                      </button>
-                    )}
                   </div>
                 </div>
               )}
