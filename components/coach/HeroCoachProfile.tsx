@@ -326,14 +326,12 @@ export default function HeroCoachProfile({
                     <p className={`${isInIframe ? 'text-xs leading-snug' : 'text-sm leading-relaxed'}`} style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
                       {isInIframe && bio.length > 80 && !isBioExpanded
                         ? `${bio.slice(0, 80)}...`
-                        : !isInIframe && bio.length > 150 && !isBioExpanded
-                        ? `${bio.slice(0, 150)}...`
                         : bio}
                     </p>
-                    {((isInIframe && bio.length > 80) || (!isInIframe && bio.length > 150)) && (
+                    {isInIframe && bio.length > 80 && (
                       <button
                         onClick={() => setIsBioExpanded(!isBioExpanded)}
-                        className={`${isInIframe ? 'text-xs' : 'text-sm'} font-semibold mt-0.5 hover:underline`}
+                        className="text-xs font-semibold mt-0.5 hover:underline"
                         style={{ color: '#FC0105', fontFamily: '"Open Sans", sans-serif' }}
                       >
                         {isBioExpanded ? 'Read less' : 'Read more'}
@@ -354,14 +352,12 @@ export default function HeroCoachProfile({
                     <p className={`${isInIframe ? 'text-xs leading-snug' : 'text-sm leading-relaxed'} whitespace-pre-line`} style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
                       {isInIframe && achievements.length > 80 && !isAchievementsExpanded
                         ? `${achievements.slice(0, 80)}...`
-                        : !isInIframe && achievements.length > 150 && !isAchievementsExpanded
-                        ? `${achievements.slice(0, 150)}...`
                         : achievements}
                     </p>
-                    {((isInIframe && achievements.length > 80) || (!isInIframe && achievements.length > 150)) && (
+                    {isInIframe && achievements.length > 80 && (
                       <button
                         onClick={() => setIsAchievementsExpanded(!isAchievementsExpanded)}
-                        className={`${isInIframe ? 'text-xs' : 'text-sm'} font-semibold mt-0.5 hover:underline`}
+                        className="text-xs font-semibold mt-0.5 hover:underline"
                         style={{ color: '#FC0105', fontFamily: '"Open Sans", sans-serif' }}
                       >
                         {isAchievementsExpanded ? 'Read less' : 'Read more'}
