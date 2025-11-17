@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { useEnhancedRole } from '@/hooks/use-role-switcher'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Video, Clock, User, ChevronRight, AlertCircle } from 'lucide-react'
 
@@ -22,7 +23,13 @@ interface VideoSubmission {
 
 export default function CoachQueuePage() {
   const { user, loading: authLoading } = useAuth()
-  const { role, loading: roleLoading } = useEnhancedRole()
+  const searchParams = useSearchParams()
+  const isEmbedded = searchParams.get('embedded') === 'true'
+  const athleteId = searchParams.get('athleteId')
+
+  // Only use role hook when NOT embedded
+  const { role, loading: roleLoading } = isEmbedded ? { role: 'coach', loading: false } : useEnhancedRole()
+
   const [submissions, setSubmissions] = useState<VideoSubmission[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -50,7 +57,14 @@ export default function CoachQueuePage() {
 
         if (data.success) {
           // Get submissions awaiting coach review
-          const pending = data.awaitingCoach || []
+          let pending = data.awaitingCoach || []
+
+          // Filter by athleteId if provided (when embedded in athlete roster modal)
+          if (athleteId) {
+            pending = pending.filter((sub: VideoSubmission) => sub.athleteId === athleteId)
+            console.log(`[Coach Queue] Filtered to ${pending.length} submissions for athlete ${athleteId}`)
+          }
+
           setSubmissions(pending)
           console.log(`[Coach Queue] Loaded ${pending.length} pending submissions`)
         } else {
@@ -65,7 +79,7 @@ export default function CoachQueuePage() {
     }
 
     loadSubmissions()
-  }, [user, authLoading, roleLoading])
+  }, [user, authLoading, roleLoading, athleteId])
 
   // Show loading spinner
   if (authLoading || roleLoading || loading) {
@@ -97,30 +111,32 @@ export default function CoachQueuePage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex items-center justify-between mb-2">
-            <h1 className="text-3xl font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
-              Video Review Queue
-            </h1>
-            <Link
-              href="/dashboard/coach"
-              className="px-4 py-2 rounded-lg bg-black text-white hover:bg-gray-800 transition-colors font-bold"
-              style={{ fontFamily: '"Open Sans", sans-serif' }}
-            >
-              Back to Dashboard
-            </Link>
+      {/* Header - Hide when embedded */}
+      {!isEmbedded && (
+        <header className="bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-4">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex items-center justify-between mb-2">
+              <h1 className="text-3xl font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                Video Review Queue
+              </h1>
+              <Link
+                href="/dashboard/coach"
+                className="px-4 py-2 rounded-lg bg-black text-white hover:bg-gray-800 transition-colors font-bold"
+                style={{ fontFamily: '"Open Sans", sans-serif' }}
+              >
+                Back to Dashboard
+              </Link>
+            </div>
+            <p style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+              Review and provide feedback on athlete video submissions
+            </p>
           </div>
-          <p style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
-            Review and provide feedback on athlete video submissions
-          </p>
-        </div>
-      </header>
+        </header>
+      )}
 
       {/* Main Content */}
-      <main className="px-4 sm:px-6 lg:px-8 py-8">
-        <div className="max-w-6xl mx-auto">
+      <main className={isEmbedded ? "px-4 py-4" : "px-4 sm:px-6 lg:px-8 py-8"}>
+        <div className={isEmbedded ? "w-full" : "max-w-6xl mx-auto"}>
           {/* Error State */}
           {error && (
             <div className="bg-red-50 border-2 border-red-200 rounded-lg p-4 mb-6">

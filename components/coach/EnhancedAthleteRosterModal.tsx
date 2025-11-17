@@ -676,10 +676,10 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose }: Enhanced
                 </div>
               )}
 
-              {viewState === 'videos' && (
+              {viewState === 'videos' && selectedAthlete && (
                 <div className="h-[calc(90vh-12rem)]">
                   <iframe
-                    src="/dashboard/coach/queue?embedded=true"
+                    src={`/dashboard/coach/queue?embedded=true&athleteId=${selectedAthlete.uid}`}
                     className="w-full h-full border-0 rounded-lg"
                     title="Video Review Queue"
                   />
