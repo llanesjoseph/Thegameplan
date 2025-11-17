@@ -27,6 +27,8 @@ export default function AthleteTrainingLibrary() {
       try {
         console.log('🔍 Loading training library for athlete:', user.uid)
 
+        const token = await user.getIdToken()
+
         // Get athlete's assigned coach ID
         const userDoc = await getDoc(doc(db, 'users', user.uid))
         const coachIds: string[] = []
@@ -42,19 +44,31 @@ export default function AthleteTrainingLibrary() {
           }
         }
 
-        // Get followed coaches
-        const followersQuery = query(
-          collection(db, 'coach_followers'),
-          where('athleteId', '==', user.uid)
-        )
-        const followersSnap = await getDocs(followersQuery)
-        followersSnap.forEach((doc) => {
-          const followedCoachId = doc.data().coachId
-          if (followedCoachId && !coachIds.includes(followedCoachId)) {
-            coachIds.push(followedCoachId)
-            console.log('  ✅ Followed coach:', followedCoachId)
+        // Get followed coaches via API (uses admin privileges; avoids client Firestore permission issues)
+        try {
+          console.log('🔍 Loading followed coaches for training library...')
+          const followingResponse = await fetch('/api/athlete/following', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          })
+
+          if (followingResponse.ok) {
+            const followingData = await followingResponse.json()
+            if (followingData.success && Array.isArray(followingData.following)) {
+              for (const follow of followingData.following) {
+                const followedCoachId = follow.coachId
+                if (followedCoachId && !coachIds.includes(followedCoachId)) {
+                  coachIds.push(followedCoachId)
+                  console.log('  ✅ Followed coach (library):', followedCoachId)
+                }
+              }
+            }
+          } else {
+            const errorData = await followingResponse.json().catch(() => ({}))
+            console.warn('⚠️ Training library following API error:', followingResponse.status, errorData)
           }
-        })
+        } catch (followError) {
+          console.warn('⚠️ Could not load followed coaches for training library:', followError)
+        }
 
         console.log(`📚 Fetching lessons from ${coachIds.length} coach(es)`)
 
@@ -108,20 +122,24 @@ export default function AthleteTrainingLibrary() {
           setPage(0)
         }
 
-        // Load completed lessons for this athlete
-        const completedQuery = query(
-          collection(db, 'lessonCompletions'),
-          where('athleteUid', '==', user.uid)
-        )
-        const completedSnap = await getDocs(completedQuery)
-        const completed = new Set<string>()
-        completedSnap.forEach((doc) => {
-          const data = doc.data()
-          if (data.lessonId) {
-            completed.add(data.lessonId)
-          }
-        })
-        setCompletedLessons(completed)
+        // Load completed lessons for this athlete (best-effort; failures should not hide lessons)
+        try {
+          const completedQuery = query(
+            collection(db, 'lessonCompletions'),
+            where('athleteUid', '==', user.uid)
+          )
+          const completedSnap = await getDocs(completedQuery)
+          const completed = new Set<string>()
+          completedSnap.forEach((doc) => {
+            const data = doc.data()
+            if (data.lessonId) {
+              completed.add(data.lessonId)
+            }
+          })
+          setCompletedLessons(completed)
+        } catch (completedError) {
+          console.warn('⚠️ Could not load completed lessons (training library):', completedError)
+        }
       } catch (error) {
         console.error('Error loading training library:', error)
       } finally {
