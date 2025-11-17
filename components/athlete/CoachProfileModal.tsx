@@ -30,12 +30,22 @@ export default function CoachProfileModal({ isOpen, onClose, coachId, coachSlug 
       setLoading(true)
       setError(null)
 
+      console.log('🔍 CoachProfileModal - Fetching coach profile')
+      console.log('  - coachId:', coachId)
+      console.log('  - coachSlug:', coachSlug)
+
       // Use slug if available, otherwise use ID
       const identifier = coachSlug || coachId
+      console.log('  - Using identifier:', identifier)
+
       const response = await fetch(`/api/coach-profile/${identifier}`)
+      console.log('  - Response status:', response.status)
+
       const result = await response.json()
+      console.log('  - Response data:', result)
 
       if (!result.success) {
+        console.error('❌ Coach profile fetch failed:', result.error)
         setError(result.error || 'Coach not found')
         return
       }
@@ -47,7 +57,7 @@ export default function CoachProfileModal({ isOpen, onClose, coachId, coachSlug 
       await fetchCoachStats(coachProfile.uid)
 
     } catch (error) {
-      console.error('Error fetching coach profile:', error)
+      console.error('❌ Error fetching coach profile:', error)
       setError('Failed to load coach profile')
     } finally {
       setLoading(false)
@@ -83,7 +93,7 @@ export default function CoachProfileModal({ isOpen, onClose, coachId, coachSlug 
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="sticky top-4 right-4 z-10 ml-auto mr-4 mt-4 p-2 rounded-full bg-black/80 hover:bg-black text-white transition-colors"
+          className="sticky top-6 right-6 z-10 ml-auto mr-6 mt-6 p-3 rounded-full bg-black/80 hover:bg-black text-white transition-colors shadow-lg"
           aria-label="Close"
         >
           <X className="w-6 h-6" />

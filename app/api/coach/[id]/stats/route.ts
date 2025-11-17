@@ -41,13 +41,12 @@ export async function GET(
       totalAthletes = 0
     }
 
-    // Get recent lessons (up to 6)
+    // Get all published lessons
     const recentLessonsSnapshot = await adminDb
       .collection('content')
       .where('creatorUid', '==', coachId)
       .where('status', '==', 'published')
       .orderBy('createdAt', 'desc')
-      .limit(6)
       .get()
 
     const lessons = recentLessonsSnapshot.docs.map(doc => ({
