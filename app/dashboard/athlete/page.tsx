@@ -125,19 +125,33 @@ export default function AthleteDashboard() {
 
           {/* Right Navigation */}
           <nav className="flex items-center gap-4">
+            <button
+              type="button"
+              onClick={() => {
+                try {
+                  // Smooth-scroll to the inline profile section
+                  const el = document.getElementById('athlete-profile-section')
+                  if (el) {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                  }
+                  // Broadcast an event so AthleteProfile can enter edit mode
+                  window.dispatchEvent(new CustomEvent('athlete-edit-profile'))
+                } catch {
+                  // Fallback: just fire the event
+                  window.dispatchEvent(new CustomEvent('athlete-edit-profile'))
+                }
+              }}
+              className="hidden md:inline-flex items-center px-4 py-2 rounded-lg border-2 border-black text-sm font-bold hover:bg-gray-100 transition-colors"
+              style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
+            >
+              Edit Profile
+            </button>
             <Link
               href="/coaches"
               className="hidden md:block text-sm font-semibold hover:opacity-80 transition-opacity"
               style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 600 }}
             >
               Browse Coaches
-            </Link>
-            <Link
-              href="/dashboard/profile"
-              className="hidden md:block text-sm font-semibold hover:opacity-80 transition-opacity"
-              style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 600 }}
-            >
-              Update Profile
             </Link>
             <button
               onClick={async () => {

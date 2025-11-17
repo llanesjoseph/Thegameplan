@@ -108,6 +108,28 @@ export default function AthleteProfile() {
     init()
   }, [user])
 
+  // Allow header "Edit Profile" button to trigger inline edit
+  useEffect(() => {
+    const handleExternalEdit = () => {
+      if (!isEditing) {
+        handleEditClick()
+        try {
+          const el = document.getElementById('athlete-profile-section')
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+          }
+        } catch {
+          // ignore scroll errors
+        }
+      }
+    }
+
+    window.addEventListener('athlete-edit-profile', handleExternalEdit as EventListener)
+    return () => {
+      window.removeEventListener('athlete-edit-profile', handleExternalEdit as EventListener)
+    }
+  }, [isEditing])
+
   const handleEditClick = () => {
     setEditedData({
       location: profileData.location,
@@ -231,7 +253,7 @@ export default function AthleteProfile() {
   }
 
   return (
-    <div>
+    <div id="athlete-profile-section">
       {/* Header with Save/Cancel buttons and inline Edit toggle */}
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
