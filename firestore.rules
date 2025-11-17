@@ -193,14 +193,13 @@ service cloud.firestore {
     match /content/{contentId} {
       // RESTRICTED: Only authenticated users can read lesson content
       // Non-authenticated users must use the preview API endpoint
+      // Athletes can read published content from any coach
+      // Coaches/creators can read their own content (any status)
+      // Admins can read all content
       allow get: if isAuthenticated() && (
-                    resource.data.status == 'published' ||
+                    (resource.data.status == 'published') ||
                     isOwner(resource.data.creatorUid) ||
-                    isAdmin() ||
-                    (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-                     (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.coachId == resource.data.creatorUid ||
-                      get(/databases/$(database)/documents/users/$(request.auth.uid)).data.assignedCoachId == resource.data.creatorUid) &&
-                     (resource.data.visibility == 'public' || resource.data.visibility == 'athletes_only')))
+                    isAdmin())
 
       // Allow listing content (queries)
       // Public can query all content (will be filtered to published by app)
