@@ -152,7 +152,7 @@ export default function HeroCoachProfile({
               )}
             </div>
             {/* Profile photo fixed near top-right */}
-            <div className="absolute top-6 right-6 w-[calc(50%-0.75rem)] sm:w-[calc(33.333%-0.667rem)] lg:w-[calc(25%-0.75rem)]">
+            <div className="absolute top-6 right-6 w-[calc(50%-0.75rem)] sm:w-[calc(33.333%-0.667rem)] lg:w-[calc(25%-0.75rem)] flex flex-col gap-3">
               <div className="w-full rounded-lg overflow-hidden ring-4 ring-white shadow-xl bg-gray-100" style={{ aspectRatio: '1/1' }}>
                 {coach.profileImageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -163,11 +163,10 @@ export default function HeroCoachProfile({
                   </div>
                 )}
               </div>
-            </div>
 
-            {/* Social Media Flip Card - Right Side of Banner */}
-            {(instagram || youtube || linkedin || facebook) && (
-              <div className="absolute bottom-6 right-6 w-48 perspective-1000" style={{ perspective: '1000px' }}>
+              {/* Social Media Flip Card - Below Profile Photo */}
+              {(instagram || youtube || linkedin || facebook) && (
+                <div className="w-full perspective-1000" style={{ perspective: '1000px' }}>
                 <div
                   className="relative w-full"
                   style={{
@@ -261,8 +260,9 @@ export default function HeroCoachProfile({
                     </div>
                   </div>
                 </div>
-              </div>
-            )}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Text content below banner */}
