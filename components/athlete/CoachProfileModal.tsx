@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { X } from 'lucide-react'
 import HeroCoachProfile from '@/components/coach/HeroCoachProfile'
 
 interface CoachProfileModalProps {
@@ -93,15 +92,6 @@ export default function CoachProfileModal({ isOpen, onClose, coachId, coachSlug,
         className="bg-white rounded-2xl w-full max-w-4xl max-h-[85vh] overflow-y-auto relative"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="sticky top-6 right-6 z-10 ml-auto mr-6 mt-6 p-3 rounded-lg bg-black/80 hover:bg-black text-white transition-colors shadow-lg"
-          aria-label="Close"
-        >
-          <X className="w-6 h-6" />
-        </button>
-
         {/* Content */}
         {loading ? (
           <div className="flex items-center justify-center py-20">

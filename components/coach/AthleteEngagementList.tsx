@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/use-auth'
-import { ChevronDown, ChevronUp, Video, BookOpen, Clock, TrendingUp, Calendar, MessageSquare, X } from 'lucide-react'
+import { ChevronDown, ChevronUp, Video, BookOpen, Clock, TrendingUp, Calendar, MessageSquare } from 'lucide-react'
 
 interface Athlete {
   uid: string
@@ -301,17 +301,10 @@ export default function AthleteEngagementList() {
             className="bg-white rounded-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+            <div className="p-6 pb-4 border-b border-gray-200">
               <h2 className="text-2xl font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
                 Athlete Profile
               </h2>
-              <button
-                onClick={() => setSelectedAthleteSlug(null)}
-                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                aria-label="Close"
-              >
-                <X className="w-6 h-6" style={{ color: '#000000' }} />
-              </button>
             </div>
             <iframe
               src={`/dashboard/coach/athletes/${selectedAthleteSlug}?embedded=true`}
@@ -333,17 +326,10 @@ export default function AthleteEngagementList() {
             className="bg-white rounded-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+            <div className="p-6 pb-4 border-b border-gray-200">
               <h2 className="text-2xl font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
                 Video Review Queue
               </h2>
-              <button
-                onClick={() => setShowVideoQueue(false)}
-                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                aria-label="Close"
-              >
-                <X className="w-6 h-6" style={{ color: '#000000' }} />
-              </button>
             </div>
             <iframe
               src="/dashboard/coach/queue?embedded=true"
