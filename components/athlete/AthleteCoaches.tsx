@@ -389,6 +389,7 @@ export default function AthleteCoaches() {
           }}
           coachId={selectedCoach.id}
           coachSlug={selectedCoach.slug}
+          hideLessons={true}
         />
       )}
     </>

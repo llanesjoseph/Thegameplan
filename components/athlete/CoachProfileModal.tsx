@@ -9,9 +9,10 @@ interface CoachProfileModalProps {
   onClose: () => void
   coachId: string
   coachSlug?: string
+  hideLessons?: boolean
 }
 
-export default function CoachProfileModal({ isOpen, onClose, coachId, coachSlug }: CoachProfileModalProps) {
+export default function CoachProfileModal({ isOpen, onClose, coachId, coachSlug, hideLessons = false }: CoachProfileModalProps) {
   const [coach, setCoach] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -53,8 +54,10 @@ export default function CoachProfileModal({ isOpen, onClose, coachId, coachSlug 
       const coachProfile = result.data
       setCoach(coachProfile)
 
-      // Fetch additional data
-      await fetchCoachStats(coachProfile.uid)
+      // Fetch additional data only if not hiding lessons
+      if (!hideLessons) {
+        await fetchCoachStats(coachProfile.uid)
+      }
 
     } catch (error) {
       console.error('❌ Error fetching coach profile:', error)
@@ -128,6 +131,7 @@ export default function CoachProfileModal({ isOpen, onClose, coachId, coachSlug 
               lessons={lessons}
               isInIframe={true}
               onBack={onClose}
+              hideLessons={hideLessons}
             />
           </div>
         )}

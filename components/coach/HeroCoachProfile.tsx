@@ -52,6 +52,7 @@ interface HeroCoachProfileProps {
   }>
   isInIframe?: boolean
   onBack?: () => void
+  hideLessons?: boolean
 }
 
 export default function HeroCoachProfile({
@@ -60,7 +61,8 @@ export default function HeroCoachProfile({
   totalAthletes,
   lessons,
   isInIframe = false,
-  onBack
+  onBack,
+  hideLessons = false
 }: HeroCoachProfileProps) {
   const { user } = useAuth()
   const [showContactModal, setShowContactModal] = useState(false)
@@ -447,7 +449,7 @@ export default function HeroCoachProfile({
             </div>
 
             {/* Training Content Section */}
-            {lessons && lessons.length > 0 && (
+            {!hideLessons && lessons && lessons.length > 0 && (
               <div className="mt-8 pt-8 border-t border-gray-200">
                 <h3 className="text-xl font-bold mb-4 flex items-center gap-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
                   <BookOpen className="w-6 h-6" style={{ color: '#FC0105' }} />
