@@ -67,25 +67,31 @@ export default function AthleteProgress() {
         let upcomingEventsData: Event[] = []
         if (coachId) {
           try {
-            console.log('📅 Fetching upcoming events for coach:', coachId)
-            const now = Timestamp.now()
+            console.log('📅 Fetching all events for coach:', coachId)
+            // Get all events for this coach (without date filter to avoid index requirement)
             const eventsQuery = query(
               collection(db, 'coach_schedule'),
-              where('coachId', '==', coachId),
-              where('eventDate', '>=', now)
+              where('coachId', '==', coachId)
             )
             const eventsSnap = await getDocs(eventsQuery)
-            upcomingEventsData = eventsSnap.docs.map(doc => ({
-              id: doc.id,
-              title: doc.data().title || 'Event',
-              description: doc.data().description,
-              date: doc.data().eventDate?.toDate() || new Date(),
-              location: doc.data().location,
-              type: doc.data().type
-            })).sort((a, b) => a.date.getTime() - b.date.getTime())
+            const now = new Date()
+
+            // Filter in memory for upcoming events
+            upcomingEventsData = eventsSnap.docs
+              .map(doc => ({
+                id: doc.id,
+                title: doc.data().title || 'Event',
+                description: doc.data().description,
+                date: doc.data().eventDate?.toDate() || new Date(),
+                location: doc.data().location,
+                type: doc.data().type
+              }))
+              .filter(event => event.date >= now)
+              .sort((a, b) => a.date.getTime() - b.date.getTime())
+
             console.log('  - Found', upcomingEventsData.length, 'upcoming events')
           } catch (eventError) {
-            console.warn('⚠️ Could not fetch upcoming events (may need Firestore index):', eventError)
+            console.warn('⚠️ Could not fetch upcoming events:', eventError)
             // Continue without events data
           }
         }
