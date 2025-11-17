@@ -152,8 +152,8 @@ export default function HeroCoachProfile({
               )}
             </div>
             {/* Profile photo fixed near top-right */}
-            <div className={`absolute ${isInIframe ? 'top-3 right-3' : 'top-6 right-6'} w-[calc(50%-0.75rem)] sm:w-[calc(33.333%-0.667rem)] lg:w-[calc(25%-0.75rem)] flex flex-col ${isInIframe ? 'gap-1.5' : 'gap-3'}`}>
-              <div className="w-full rounded-lg overflow-hidden ring-4 ring-white shadow-xl bg-gray-100" style={{ aspectRatio: '1/1' }}>
+            <div className={`absolute ${isInIframe ? 'top-3 right-3' : 'top-6 right-6'} ${isInIframe ? 'w-[calc(33.333%-0.667rem)] sm:w-[calc(25%-0.75rem)] lg:w-[calc(20%-0.75rem)]' : 'w-[calc(50%-0.75rem)] sm:w-[calc(33.333%-0.667rem)] lg:w-[calc(25%-0.75rem)]'} flex flex-col ${isInIframe ? 'gap-1.5' : 'gap-3'}`}>
+              <div className={`w-full rounded-lg overflow-hidden ${isInIframe ? 'ring-2' : 'ring-4'} ring-white shadow-xl bg-gray-100`} style={{ aspectRatio: '1/1' }}>
                 {coach.profileImageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={coach.profileImageUrl} alt={coach.displayName} className="w-full h-full object-cover" />
@@ -324,14 +324,16 @@ export default function HeroCoachProfile({
                   </h4>
                   <div>
                     <p className={`${isInIframe ? 'text-xs leading-snug' : 'text-sm leading-relaxed'}`} style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
-                      {bio.length > 150 && !isBioExpanded
+                      {isInIframe && bio.length > 80 && !isBioExpanded
+                        ? `${bio.slice(0, 80)}...`
+                        : !isInIframe && bio.length > 150 && !isBioExpanded
                         ? `${bio.slice(0, 150)}...`
                         : bio}
                     </p>
-                    {bio.length > 150 && (
+                    {((isInIframe && bio.length > 80) || (!isInIframe && bio.length > 150)) && (
                       <button
                         onClick={() => setIsBioExpanded(!isBioExpanded)}
-                        className="text-sm font-semibold mt-1 hover:underline"
+                        className={`${isInIframe ? 'text-xs' : 'text-sm'} font-semibold mt-0.5 hover:underline`}
                         style={{ color: '#FC0105', fontFamily: '"Open Sans", sans-serif' }}
                       >
                         {isBioExpanded ? 'Read less' : 'Read more'}
@@ -350,14 +352,16 @@ export default function HeroCoachProfile({
                   </h4>
                   <div>
                     <p className={`${isInIframe ? 'text-xs leading-snug' : 'text-sm leading-relaxed'} whitespace-pre-line`} style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
-                      {achievements.length > 150 && !isAchievementsExpanded
+                      {isInIframe && achievements.length > 80 && !isAchievementsExpanded
+                        ? `${achievements.slice(0, 80)}...`
+                        : !isInIframe && achievements.length > 150 && !isAchievementsExpanded
                         ? `${achievements.slice(0, 150)}...`
                         : achievements}
                     </p>
-                    {achievements.length > 150 && (
+                    {((isInIframe && achievements.length > 80) || (!isInIframe && achievements.length > 150)) && (
                       <button
                         onClick={() => setIsAchievementsExpanded(!isAchievementsExpanded)}
-                        className="text-sm font-semibold mt-1 hover:underline"
+                        className={`${isInIframe ? 'text-xs' : 'text-sm'} font-semibold mt-0.5 hover:underline`}
                         style={{ color: '#FC0105', fontFamily: '"Open Sans", sans-serif' }}
                       >
                         {isAchievementsExpanded ? 'Read less' : 'Read more'}
@@ -388,13 +392,13 @@ export default function HeroCoachProfile({
                   </h4>
                   <div className={`grid grid-cols-2 ${isInIframe ? 'gap-2' : 'gap-3'}`}>
                     {coach.showcasePhoto1 && (
-                      <div className="w-full aspect-square rounded-lg overflow-hidden bg-gray-100">
+                      <div className={`w-full ${isInIframe ? 'aspect-[2/1]' : 'aspect-square'} rounded-lg overflow-hidden bg-gray-100`}>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={coach.showcasePhoto1} alt="Showcase 1" className="w-full h-full object-cover" />
                       </div>
                     )}
                     {coach.showcasePhoto2 && (
-                      <div className="w-full aspect-square rounded-lg overflow-hidden bg-gray-100">
+                      <div className={`w-full ${isInIframe ? 'aspect-[2/1]' : 'aspect-square'} rounded-lg overflow-hidden bg-gray-100`}>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={coach.showcasePhoto2} alt="Showcase 2" className="w-full h-full object-cover" />
                       </div>
