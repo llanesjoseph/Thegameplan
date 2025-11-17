@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/use-auth'
-import { ChevronDown, ChevronUp, Video, BookOpen, Clock, TrendingUp, Calendar, MessageSquare } from 'lucide-react'
+import { ChevronDown, ChevronUp, Video, BookOpen, Clock, TrendingUp, Calendar, MessageSquare, X } from 'lucide-react'
 
 interface Athlete {
   uid: string
@@ -28,6 +28,7 @@ export default function AthleteEngagementList() {
   const [metricsMap, setMetricsMap] = useState<Record<string, AthleteMetrics>>({})
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [selectedAthleteSlug, setSelectedAthleteSlug] = useState<string | null>(null)
 
   useEffect(() => {
     const loadAthletes = async () => {
@@ -263,13 +264,13 @@ export default function AthleteEngagementList() {
                       Quick Actions
                     </h4>
                     <div className="flex flex-col gap-2">
-                      <a
-                        href={`/dashboard/coach/athletes/${athlete.slug || athlete.uid}`}
+                      <button
+                        onClick={() => setSelectedAthleteSlug(athlete.slug || athlete.uid)}
                         className="text-xs px-3 py-2 rounded bg-black text-white font-bold text-center hover:bg-gray-800 transition-colors"
                         style={{ fontFamily: '"Open Sans", sans-serif' }}
                       >
                         View Full Profile
-                      </a>
+                      </button>
                       {metrics.videosAwaiting > 0 && (
                         <a
                           href="/dashboard/coach/queue"
@@ -287,6 +288,38 @@ export default function AthleteEngagementList() {
           </div>
         )
       })}
+
+      {/* Athlete Profile Modal */}
+      {selectedAthleteSlug && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
+          onClick={() => setSelectedAthleteSlug(null)}
+        >
+          <div
+            className="bg-white rounded-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h2 className="text-2xl font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                Athlete Profile
+              </h2>
+              <button
+                onClick={() => setSelectedAthleteSlug(null)}
+                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                aria-label="Close"
+              >
+                <X className="w-6 h-6" style={{ color: '#000000' }} />
+              </button>
+            </div>
+            <iframe
+              src={`/dashboard/coach/athletes/${selectedAthleteSlug}?embedded=true`}
+              className="w-full flex-1 border-0"
+              title="Athlete Profile"
+            />
+          </div>
+        </div>
+      )}
     </div>
   )
 }
