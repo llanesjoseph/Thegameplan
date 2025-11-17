@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic'
 
 export default function StripeConfigAdminPage() {
   const { user, loading } = useAuth()
-  const { effectiveRole, loading: roleLoading } = useUrlEnhancedRole()
+  const { effectiveRole } = useUrlEnhancedRole()
 
   const [secretKey, setSecretKey] = useState('')
   const [publishableKey, setPublishableKey] = useState('')
@@ -21,11 +21,14 @@ export default function StripeConfigAdminPage() {
   const [statusLoading, setStatusLoading] = useState(true)
   const [stripeConfigured, setStripeConfigured] = useState<boolean | null>(null)
 
-  const isLoading = loading || roleLoading
+  const isLoading = loading
 
   const allowedEmail = (process.env.NEXT_PUBLIC_STRIPE_CONFIG_ADMIN_EMAIL || '').toLowerCase()
   const userEmail = (user?.email || '').toLowerCase()
-  const isSuperadmin = effectiveRole === 'superadmin'
+
+  // Use the actual stored user role for access control to avoid any flicker
+  const actualRole = (user as any)?.role || 'guest'
+  const isSuperadmin = actualRole === 'superadmin'
   const isExplicitlyAllowed = allowedEmail && userEmail === allowedEmail
 
   // Load Stripe status for badge (admins only)
