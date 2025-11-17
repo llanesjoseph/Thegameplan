@@ -22,12 +22,6 @@ export default function BugReportButton() {
   const [screenshot, setScreenshot] = useState<File | null>(null)
   const [screenshotPreview, setScreenshotPreview] = useState<string | null>(null)
 
-  // Don't render in embedded iframes
-  const isEmbedded = searchParams?.get('embedded') === 'true'
-  if (isEmbedded) {
-    return null
-  }
-
   // Capture console logs
   useEffect(() => {
     const originalLog = console.log
@@ -99,6 +93,12 @@ export default function BugReportButton() {
       console.info = originalInfo
     }
   }, [])
+
+  // Don't render in embedded iframes (placed AFTER hooks to preserve hook order)
+  const isEmbedded = searchParams?.get('embedded') === 'true'
+  if (isEmbedded) {
+    return null
+  }
 
   const handleScreenshotChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
