@@ -7,8 +7,8 @@ import { db } from '@/lib/firebase.client'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import Live1on1RequestModal from './Live1on1RequestModal'
 import VideoManagementModal from './VideoManagementModal'
+import CoachProfileModal from './CoachProfileModal'
 import dynamic from 'next/dynamic'
-import Link from 'next/link'
 
 const AskCoachAI = dynamic(() => import('./AskCoachAI'), { ssr: false })
 
@@ -22,6 +22,8 @@ export default function AthleteCoaches() {
   const [showSubmitVideoModal, setShowSubmitVideoModal] = useState(false)
   const [coachPage, setCoachPage] = useState(0)
   const coachPageSize = 3
+  const [showCoachProfileModal, setShowCoachProfileModal] = useState(false)
+  const [selectedCoach, setSelectedCoach] = useState<any>(null)
 
   useEffect(() => {
     const loadCoaches = async () => {
@@ -209,9 +211,12 @@ export default function AthleteCoaches() {
                 {[0, 1, 2].map((index) => {
                   const coach = coaches[coachPage * coachPageSize + index]
                   return coach ? (
-                    <Link
+                    <button
                       key={coach.id}
-                      href={`/coach-profile/${coach.slug || coach.id}`}
+                      onClick={() => {
+                        setSelectedCoach(coach)
+                        setShowCoachProfileModal(true)
+                      }}
                       className="text-center w-full group block cursor-pointer"
                     >
                       <div className="w-full rounded-lg overflow-hidden bg-gray-100 mb-1 group-hover:ring-2 group-hover:ring-black transition-all" style={{ aspectRatio: '1/1' }}>
@@ -233,7 +238,7 @@ export default function AthleteCoaches() {
                       <p className="text-xs" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
                         {coach.author}
                       </p>
-                    </Link>
+                    </button>
                   ) : (
                     <div key={`empty-${index}`} className="w-full" style={{ aspectRatio: '1/1' }}></div>
                   )
@@ -371,6 +376,19 @@ export default function AthleteCoaches() {
         <VideoManagementModal
           onClose={() => setShowSubmitVideoModal(false)}
           initialTab="submit"
+        />
+      )}
+
+      {/* Coach Profile Modal */}
+      {showCoachProfileModal && selectedCoach && (
+        <CoachProfileModal
+          isOpen={showCoachProfileModal}
+          onClose={() => {
+            setShowCoachProfileModal(false)
+            setSelectedCoach(null)
+          }}
+          coachId={selectedCoach.id}
+          coachSlug={selectedCoach.slug}
         />
       )}
     </>
