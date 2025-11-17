@@ -232,12 +232,22 @@ export default function AthleteProfile() {
 
   return (
     <div>
-      {/* Header with Save/Cancel buttons (Edit button moved to sport tag) */}
+      {/* Header with Save/Cancel buttons and inline Edit toggle */}
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
           Your Profile
         </h2>
         <div className="flex gap-2">
+          {!isEditing && (
+            <button
+              onClick={handleEditClick}
+              className="flex items-center gap-2 px-4 py-2 border-2 border-black rounded-lg hover:bg-gray-100 transition-colors font-bold text-sm"
+              style={{ color: '#000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
+            >
+              <Edit2 className="w-4 h-4" />
+              Edit Profile
+            </button>
+          )}
           {isEditing && (
             <>
               <button
