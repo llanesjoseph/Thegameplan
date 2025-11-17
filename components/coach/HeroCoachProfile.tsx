@@ -380,13 +380,13 @@ export default function HeroCoachProfile({
                 </div>
               )}
 
-              {/* Photo Showcase - Hidden in iframe/modal to save space */}
-              {!isInIframe && (coach.showcasePhoto1 || coach.showcasePhoto2) && (
+              {/* Photo Showcase */}
+              {(coach.showcasePhoto1 || coach.showcasePhoto2) && (
                 <div>
-                  <h4 className="text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                  <h4 className={`${isInIframe ? 'text-xs' : 'text-sm'} font-bold ${isInIframe ? 'mb-1' : 'mb-2'}`} style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
                     Photo Showcase
                   </h4>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className={`grid grid-cols-2 ${isInIframe ? 'gap-2' : 'gap-3'}`}>
                     {coach.showcasePhoto1 && (
                       <div className="w-full aspect-square rounded-lg overflow-hidden bg-gray-100">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
