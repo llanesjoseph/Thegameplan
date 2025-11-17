@@ -39,28 +39,28 @@ export default function AdminDashboard() {
       title: 'User & Role Management',
       description: 'Manage user accounts, roles, and permissions',
       icon: UserCog,
-      color: '#8B5CF6'
+      color: '#FC0105'
     },
     {
       id: 'analytics',
       title: 'System Analytics',
       description: 'View comprehensive platform analytics',
       icon: BarChart3,
-      color: '#FF6B35'
+      color: '#440102'
     },
     {
       id: 'bulk-invites',
       title: 'Bulk Invites',
       description: 'Send multiple invitations with live email preview',
       icon: Send,
-      color: '#10B981'
+      color: '#FC0105'
     },
     {
       id: 'invitations-approvals',
       title: 'Invitations & Approvals',
       description: 'Manage all invitations, applications, and approval workflows',
       icon: UserCheck,
-      color: '#20B2AA'
+      color: '#440102'
     },
     {
       id: 'locker-room',
@@ -74,7 +74,7 @@ export default function AdminDashboard() {
       title: 'Athletes',
       description: 'Manage athlete accounts and progress',
       icon: Trophy,
-      color: '#91A6EB'
+      color: '#FC0105'
     },
     {
       id: 'content',
@@ -88,21 +88,21 @@ export default function AdminDashboard() {
       title: 'Curated Gear',
       description: 'Manage recommended gear and equipment',
       icon: ShoppingBag,
-      color: '#91A6EB'
+      color: '#440102'
     },
     {
       id: 'coach-management',
       title: 'Coach Management',
       description: 'Manage coach verification and featured status',
       icon: Shield,
-      color: '#8B5CF6'
+      color: '#FC0105'
     },
     {
       id: 'sync',
       title: 'Sync Coaches',
       description: 'Sync coach profiles to public browse page',
       icon: Dumbbell,
-      color: '#20B2AA'
+      color: '#440102'
     },
     {
       id: 'settings',
@@ -245,7 +245,7 @@ export default function AdminDashboard() {
               /* Clean Dashboard Overview */
               <div className="h-full p-8">
                 <div className="text-center mb-8">
-                    <Shield className="w-20 h-20 mx-auto mb-4" style={{ color: '#8B5CF6' }} />
+                    <Shield className="w-20 h-20 mx-auto mb-4" style={{ color: '#FC0105' }} />
                     <h2 className="text-3xl font-bold mb-2" style={{ color: '#000000' }}>
                       Admin Dashboard
                     </h2>
