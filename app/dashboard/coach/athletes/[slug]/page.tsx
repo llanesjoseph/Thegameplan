@@ -259,10 +259,10 @@ export default function SecureAthleteProfilePage() {
 
   if (loading) {
     return (
-      <div style={{ backgroundColor: '#E8E6D8' }} className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-black mx-auto mb-4"></div>
-          <p style={{ color: '#000000' }}>Loading athlete profile...</p>
+          <p style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>Loading athlete profile...</p>
         </div>
       </div>
     )
@@ -270,23 +270,23 @@ export default function SecureAthleteProfilePage() {
 
   if (error || !athlete) {
     return (
-      <div style={{ backgroundColor: '#E8E6D8' }} className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="max-w-md mx-auto px-4">
-          <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-red-200 p-8 text-center">
-            <div className="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center bg-red-100">
-              <User className="w-10 h-10 text-red-600" />
+          <div className="bg-white rounded-xl shadow-lg border-2 border-gray-200 p-8 text-center">
+            <div className="w-20 h-20 rounded-lg mx-auto mb-4 flex items-center justify-center" style={{ backgroundColor: '#FEE' }}>
+              <User className="w-10 h-10" style={{ color: '#FC0105' }} />
             </div>
-            <h2 className="text-2xl font-bold mb-3" style={{ color: '#000000' }}>
+            <h2 className="text-2xl font-bold mb-3" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
               Athlete Not Found
             </h2>
-            <p className="mb-6" style={{ color: '#666' }}>
+            <p className="mb-6" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
               {error || 'The athlete you are looking for does not exist or has been removed.'}
             </p>
             <div className="flex gap-3 justify-center">
               <button
                 onClick={() => router.push('/dashboard/coach/athletes')}
-                className="px-6 py-3 rounded-lg text-white transition-colors"
-                style={{ backgroundColor: '#91A6EB' }}
+                className="px-6 py-3 rounded-lg text-white transition-colors hover:bg-gray-800"
+                style={{ backgroundColor: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
               >
                 Back to Athletes
               </button>
@@ -298,7 +298,7 @@ export default function SecureAthleteProfilePage() {
   }
 
   return (
-    <div style={{ backgroundColor: '#E8E6D8' }} className="min-h-screen">
+    <div className="min-h-screen bg-white">
       {!embedded && <AppHeader title="Athlete Profile" subtitle="View athlete details and progress" />}
 
       <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
@@ -307,7 +307,8 @@ export default function SecureAthleteProfilePage() {
           <div className="mb-6">
             <button
               onClick={() => router.back()}
-              className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+              className="inline-flex items-center gap-2 hover:opacity-70 transition-opacity"
+              style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 600 }}
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Athletes
@@ -316,10 +317,10 @@ export default function SecureAthleteProfilePage() {
         )}
 
         {/* Athlete Header */}
-        <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 mb-8">
-          <div className="flex items-center gap-6">
-            {/* Profile Image */}
-            <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+        <div className="bg-white rounded-xl border-2 border-gray-200 p-8 mb-8">
+          <div className="flex items-start gap-8">
+            {/* Profile Image - Square */}
+            <div className="w-32 h-32 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden flex-shrink-0 ring-4 ring-black">
               {athlete.profileImageUrl ? (
                 <img
                   src={athlete.profileImageUrl}
@@ -327,35 +328,37 @@ export default function SecureAthleteProfilePage() {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <User className="w-10 h-10 text-gray-400" />
+                <User className="w-16 h-16 text-gray-400" />
               )}
             </div>
 
             {/* Athlete Info */}
             <div className="flex-1">
-              <h1 className="text-3xl font-bold mb-2" style={{ color: '#000000' }}>
+              <h1 className="text-4xl font-bold mb-4" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
                 {athlete.displayName}
               </h1>
-              <div className="flex items-center gap-4 text-gray-600">
-                <span className="flex items-center gap-1">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="flex items-center gap-2" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
                   <Mail className="w-4 h-4" />
-                  {athlete.email}
-                </span>
-                <span className="flex items-center gap-1">
+                  <span className="text-sm">{athlete.email}</span>
+                </div>
+                <div className="flex items-center gap-2" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
                   <Trophy className="w-4 h-4" />
-                  {athlete.sport}
-                </span>
-                <span className="flex items-center gap-1">
+                  <span className="text-sm">{athlete.sport}</span>
+                </div>
+                <div className="flex items-center gap-2" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
                   <Target className="w-4 h-4" />
-                  {athlete.level}
-                </span>
-                <span className={`px-2 py-1 rounded-full text-xs ${
-                  athlete.isActive 
-                    ? 'bg-green-100 text-green-800' 
-                    : 'bg-gray-100 text-gray-800'
-                }`}>
-                  {athlete.isActive ? 'Active' : 'Inactive'}
-                </span>
+                  <span className="text-sm">{athlete.level}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={`px-3 py-1 rounded-md text-xs font-bold ${
+                    athlete.isActive
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-gray-100 text-gray-800'
+                  }`} style={{ fontFamily: '"Open Sans", sans-serif' }}>
+                    {athlete.isActive ? 'Active' : 'Inactive'}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -363,19 +366,19 @@ export default function SecureAthleteProfilePage() {
 
         {/* Comprehensive Coaching Dashboard */}
         <div className="mb-6">
-          <h2 className="text-2xl font-bold mb-2 flex items-center gap-2" style={{ color: '#000000' }}>
-            <BarChart3 className="w-6 h-6 text-blue-600" />
-            Comprehensive Coaching Dashboard
+          <h2 className="text-2xl font-bold mb-2 flex items-center gap-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+            <BarChart3 className="w-6 h-6" style={{ color: '#FC0105' }} />
+            Athlete Metrics & Progress
           </h2>
-          <p className="text-gray-600">Track athlete progress, engagement, and performance metrics</p>
+          <p style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>Track progress, engagement, and performance</p>
         </div>
 
         {/* Analytics Grid */}
         {analyticsError && (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-8">
-            <div className="flex items-center gap-2 text-yellow-800">
-              <AlertCircle className="w-5 h-5" />
-              <p className="text-sm">{analyticsError}</p>
+          <div className="bg-white border-2 border-yellow-400 rounded-lg p-4 mb-8">
+            <div className="flex items-center gap-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+              <AlertCircle className="w-5 h-5" style={{ color: '#FC0105' }} />
+              <p className="text-sm font-semibold">{analyticsError}</p>
             </div>
           </div>
         )}
@@ -384,166 +387,149 @@ export default function SecureAthleteProfilePage() {
             {/* Total Lessons - Clickable */}
             <button
               onClick={() => navigate('/dashboard/coach/lessons/library')}
-              className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 hover:shadow-xl hover:border-blue-300 transition-all cursor-pointer text-left"
+              className="bg-white rounded-xl border-2 border-gray-200 p-6 hover:border-black transition-all cursor-pointer text-left"
             >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Total Lessons</p>
-                  <p className="text-2xl font-bold" style={{ color: '#000000' }}>
-                    {analytics.totalLessons}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {analytics.completedLessons} completed
-                  </p>
-                </div>
-                <BookOpen className="w-8 h-8 text-blue-600" />
+              <div className="flex items-center justify-between mb-3">
+                <BookOpen className="w-8 h-8" style={{ color: '#FC0105' }} />
               </div>
+              <p className="text-sm mb-2" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>Total Lessons</p>
+              <p className="text-3xl font-bold mb-1" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                {analytics.totalLessons}
+              </p>
+              <p className="text-xs" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+                {analytics.completedLessons} completed
+              </p>
             </button>
 
-            <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-lg border border-gray-300 p-6 opacity-80">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-500">Completion Rate</p>
-                  <p className="text-2xl font-bold text-gray-700">
-                    {analytics.completionRate}%
-                  </p>
-                  <p className="text-xs text-gray-400 mt-1">
-                    {analytics.engagementTrend === 'up' ? '📈 Growing' : analytics.engagementTrend === 'down' ? '📉 Declining' : '➡️ Stable'}
-                  </p>
-                </div>
-                <TrendingUp className="w-8 h-8 text-gray-400" />
+            <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
+              <div className="flex items-center justify-between mb-3">
+                <TrendingUp className="w-8 h-8" style={{ color: '#00A651' }} />
               </div>
+              <p className="text-sm mb-2" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>Completion Rate</p>
+              <p className="text-3xl font-bold mb-1" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                {analytics.completionRate}%
+              </p>
+              <p className="text-xs" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+                {analytics.engagementTrend === 'up' ? '↗ Growing' : analytics.engagementTrend === 'down' ? '↘ Declining' : '→ Stable'}
+              </p>
             </div>
 
-            {/* AI Questions - Non-clickable */}
-            <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-lg border border-gray-300 p-6 opacity-80">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-500">AI Questions</p>
-                  <p className="text-2xl font-bold text-gray-700">
-                    {analytics.aiQuestionsAsked}
-                  </p>
-                  <p className="text-xs text-gray-400 mt-1">
-                    {analytics.aiQuestionsAsked > 20 ? 'High engagement' : analytics.aiQuestionsAsked > 10 ? 'Moderate' : 'Getting started'}
-                  </p>
-                </div>
-                <Brain className="w-8 h-8 text-gray-400" />
+            {/* AI Questions */}
+            <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
+              <div className="flex items-center justify-between mb-3">
+                <Brain className="w-8 h-8" style={{ color: '#9B59B6' }} />
               </div>
+              <p className="text-sm mb-2" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>AI Questions</p>
+              <p className="text-3xl font-bold mb-1" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                {analytics.aiQuestionsAsked}
+              </p>
+              <p className="text-xs" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+                {analytics.aiQuestionsAsked > 20 ? 'High engagement' : analytics.aiQuestionsAsked > 10 ? 'Moderate' : 'Getting started'}
+              </p>
             </div>
 
             {/* Direct Messages - Clickable */}
             <button
               onClick={() => navigate('/dashboard/coach/messages')}
-              className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 hover:shadow-xl hover:border-orange-300 transition-all cursor-pointer text-left"
+              className="bg-white rounded-xl border-2 border-gray-200 p-6 hover:border-black transition-all cursor-pointer text-left"
             >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Direct Messages</p>
-                  <p className="text-2xl font-bold" style={{ color: '#000000' }}>
-                    {analytics.totalMessages}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Coach ↔ Athlete
-                  </p>
-                </div>
-                <MessageCircle className="w-8 h-8 text-orange-600" />
+              <div className="flex items-center justify-between mb-3">
+                <MessageCircle className="w-8 h-8" style={{ color: '#FF9800' }} />
               </div>
+              <p className="text-sm mb-2" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>Direct Messages</p>
+              <p className="text-3xl font-bold mb-1" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                {analytics.totalMessages}
+              </p>
+              <p className="text-xs" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+                Coach ↔ Athlete
+              </p>
             </button>
 
-            {/* Additional Metrics Row */}
             {/* Video Submissions - Clickable */}
             <button
               onClick={() => navigate('/dashboard/coach/queue-bypass')}
-              className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 hover:shadow-xl hover:border-red-300 transition-all cursor-pointer text-left"
+              className="bg-white rounded-xl border-2 border-gray-200 p-6 hover:border-black transition-all cursor-pointer text-left"
             >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Video Submissions</p>
-                  <p className="text-2xl font-bold" style={{ color: '#000000' }}>
-                    {analytics.videoSubmissions || 0}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {analytics.pendingReviews || 0} pending review
-                  </p>
-                </div>
-                <Video className="w-8 h-8 text-red-600" />
+              <div className="flex items-center justify-between mb-3">
+                <Video className="w-8 h-8" style={{ color: '#FC0105' }} />
               </div>
+              <p className="text-sm mb-2" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>Video Submissions</p>
+              <p className="text-3xl font-bold mb-1" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                {analytics.videoSubmissions || 0}
+              </p>
+              <p className="text-xs" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+                {analytics.pendingReviews || 0} pending review
+              </p>
             </button>
 
             {/* Session Requests - Clickable */}
             <button
               onClick={() => navigate('/dashboard/coach/live-sessions')}
-              className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 hover:shadow-xl hover:border-indigo-300 transition-all cursor-pointer text-left"
+              className="bg-white rounded-xl border-2 border-gray-200 p-6 hover:border-black transition-all cursor-pointer text-left"
             >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Session Requests</p>
-                  <p className="text-2xl font-bold" style={{ color: '#000000' }}>
-                    {analytics.sessionRequestsPending + analytics.sessionRequestsCompleted}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {analytics.sessionRequestsPending} pending
-                  </p>
-                </div>
-                <Calendar className="w-8 h-8 text-indigo-600" />
+              <div className="flex items-center justify-between mb-3">
+                <Calendar className="w-8 h-8" style={{ color: '#3F51B5' }} />
               </div>
+              <p className="text-sm mb-2" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>Session Requests</p>
+              <p className="text-3xl font-bold mb-1" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                {analytics.sessionRequestsPending + analytics.sessionRequestsCompleted}
+              </p>
+              <p className="text-xs" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+                {analytics.sessionRequestsPending} pending
+              </p>
             </button>
 
-            <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-lg border border-gray-300 p-6 opacity-80">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-500">Last Active</p>
-                  <p className="text-2xl font-bold text-gray-700">
-                    {analytics.daysSinceLastActive !== null
-                      ? analytics.daysSinceLastActive === 0
-                        ? 'Today'
-                        : `${analytics.daysSinceLastActive}d`
-                      : 'Never'
-                    }
-                  </p>
-                  <p className="text-xs text-gray-400 mt-1">
-                    Member for {analytics.daysSinceJoined || 0} days
-                  </p>
-                </div>
-                <Activity className="w-8 h-8 text-gray-400" />
+            <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
+              <div className="flex items-center justify-between mb-3">
+                <Activity className="w-8 h-8" style={{ color: '#666' }} />
               </div>
+              <p className="text-sm mb-2" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>Last Active</p>
+              <p className="text-3xl font-bold mb-1" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                {analytics.daysSinceLastActive !== null
+                  ? analytics.daysSinceLastActive === 0
+                    ? 'Today'
+                    : `${analytics.daysSinceLastActive}d`
+                  : 'Never'
+                }
+              </p>
+              <p className="text-xs" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+                Member for {analytics.daysSinceJoined || 0} days
+              </p>
             </div>
 
-            <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-lg border border-gray-300 p-6 opacity-80">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-500">Engagement Score</p>
-                  <p className="text-2xl font-bold text-gray-700">
-                    {Math.round(analytics.averageEngagement)}%
-                  </p>
-                  <p className="text-xs text-gray-400 mt-1">
-                    {analytics.averageEngagement > 75 ? '⭐ Excellent' : analytics.averageEngagement > 50 ? '👍 Good' : '💪 Needs boost'}
-                  </p>
-                </div>
-                <Zap className="w-8 h-8 text-gray-400" />
+            <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
+              <div className="flex items-center justify-between mb-3">
+                <Zap className="w-8 h-8" style={{ color: '#FFC107' }} />
               </div>
+              <p className="text-sm mb-2" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>Engagement Score</p>
+              <p className="text-3xl font-bold mb-1" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                {Math.round(analytics.averageEngagement)}%
+              </p>
+              <p className="text-xs" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+                {analytics.averageEngagement > 75 ? 'Excellent' : analytics.averageEngagement > 50 ? 'Good' : 'Needs boost'}
+              </p>
             </div>
           </div>
         )}
 
         {/* AI Chat Summary */}
-        <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6 mb-8">
-          <h3 className="text-xl font-semibold mb-4 flex items-center gap-2" style={{ color: '#000000' }}>
-            <Sparkles className="w-5 h-5 text-purple-600" />
+        <div className="bg-white rounded-xl border-2 border-gray-200 p-8 mb-8">
+          <h3 className="text-xl font-bold mb-4 flex items-center gap-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+            <Sparkles className="w-6 h-6" style={{ color: '#9B59B6' }} />
             AI Chat Summary
           </h3>
-          <div className="bg-gray-50 rounded-lg p-4 mb-4">
-            <p className="text-gray-700">{aiChatSummary}</p>
+          <div className="bg-gray-50 rounded-lg p-6 mb-6 border border-gray-200">
+            <p style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', lineHeight: '1.6' }}>{aiChatSummary}</p>
           </div>
 
           {/* Messaging Status Warning */}
           {analytics && analytics.messagingEnabled === false && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
-              <div className="flex items-start gap-2">
-                <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+            <div className="bg-yellow-50 border-2 border-yellow-400 rounded-lg p-4 mb-6">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#FC0105' }} />
                 <div>
-                  <p className="text-sm font-medium text-yellow-800">Messaging Disabled</p>
-                  <p className="text-xs text-yellow-700 mt-1">
+                  <p className="text-sm font-bold mb-1" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>Messaging Disabled</p>
+                  <p className="text-xs" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
                     This athlete has not enabled messaging yet. They need to enable it in their settings before you can send direct messages.
                   </p>
                 </div>
@@ -565,12 +551,14 @@ export default function SecureAthleteProfilePage() {
               }}
               placeholder={analytics?.messagingEnabled === false ? "Messaging disabled - athlete must enable in settings" : "Send a message to this athlete..."}
               disabled={analytics?.messagingEnabled === false}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+              className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-black disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
+              style={{ fontFamily: '"Open Sans", sans-serif' }}
             />
             <button
               onClick={sendMessage}
               disabled={sendingMessage || !messageText.trim() || analytics?.messagingEnabled === false}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+              className="px-8 py-3 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2 hover:bg-gray-800"
+              style={{ backgroundColor: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
             >
               {sendingMessage ? (
                 <>
@@ -585,8 +573,8 @@ export default function SecureAthleteProfilePage() {
               )}
             </button>
           </div>
-          <p className="text-xs text-gray-500 mt-2">
-            💡 Press Enter to send, Shift+Enter for new line
+          <p className="text-xs mt-2" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+            Press Enter to send, Shift+Enter for new line
           </p>
         </div>
       </main>
