@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/use-auth'
-import { useEnhancedRole } from '@/hooks/use-role-switcher'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Video, Clock, User, ChevronRight, AlertCircle } from 'lucide-react'
@@ -27,20 +26,13 @@ export default function CoachQueuePage() {
   const isEmbedded = searchParams.get('embedded') === 'true'
   const athleteId = searchParams.get('athleteId')
 
-  // Always call hook (Rules of Hooks), but use result conditionally
-  const roleHookResult = useEnhancedRole()
-
-  // Use role from hook if not embedded, otherwise default to 'coach'
-  const role = isEmbedded ? 'coach' : roleHookResult.role
-  const roleLoading = isEmbedded ? false : roleHookResult.loading
-
   const [submissions, setSubmissions] = useState<VideoSubmission[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const loadSubmissions = async () => {
-      if (!user || authLoading || roleLoading) return
+      if (!user || authLoading) return
 
       try {
         setLoading(true)
@@ -83,10 +75,10 @@ export default function CoachQueuePage() {
     }
 
     loadSubmissions()
-  }, [user, authLoading, roleLoading, athleteId])
+  }, [user, authLoading, athleteId])
 
   // Show loading spinner
-  if (authLoading || roleLoading || loading) {
+  if (authLoading || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="text-center">
@@ -97,8 +89,11 @@ export default function CoachQueuePage() {
     )
   }
 
-  // Check access
-  if (!user || (role !== 'coach' && role !== 'creator' && role !== 'superadmin' && role !== 'admin')) {
+  // Check access using role attached to the authenticated user
+  const appRole = (user as any)?.role as string | undefined
+  const isCoachLikeRole = appRole === 'coach' || appRole === 'creator' || appRole === 'admin' || appRole === 'superadmin'
+
+  if (!user || !isCoachLikeRole) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="text-center border rounded-xl p-8">
