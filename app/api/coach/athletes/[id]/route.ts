@@ -34,7 +34,7 @@ export async function GET(
     }
 
     const userId = decodedToken.uid
-    const athleteId = params.id
+    const identifier = params.id
 
     // Get the user's role to ensure they're a coach
     const userDoc = await adminDb.collection('users').doc(userId).get()
@@ -46,6 +46,14 @@ export async function GET(
         { error: 'Forbidden - coach access required' },
         { status: 403 }
       )
+    }
+
+    // Resolve slug to actual ID if needed
+    let athleteId = identifier
+    const slugDoc = await adminDb.collection('slug_mappings').doc(identifier).get()
+    if (slugDoc.exists) {
+      athleteId = slugDoc.data()?.targetId || identifier
+      console.log(`[Athlete Metrics API] Resolved slug ${identifier} to athlete ID ${athleteId}`)
     }
 
     // Get athlete data
