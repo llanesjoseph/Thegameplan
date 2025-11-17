@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { useUrlEnhancedRole } from '@/hooks/use-url-role-switcher'
 
@@ -18,6 +18,8 @@ export default function StripeConfigAdminPage() {
   const [submitting, setSubmitting] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [statusLoading, setStatusLoading] = useState(true)
+  const [stripeConfigured, setStripeConfigured] = useState<boolean | null>(null)
 
   const isLoading = loading || roleLoading
 
@@ -25,6 +27,30 @@ export default function StripeConfigAdminPage() {
   const userEmail = (user?.email || '').toLowerCase()
   const isSuperadmin = effectiveRole === 'superadmin'
   const isExplicitlyAllowed = allowedEmail && userEmail === allowedEmail
+
+  // Load Stripe status for badge (admins only)
+  useEffect(() => {
+    const loadStatus = async () => {
+      if (!user || (!isSuperadmin && !isExplicitlyAllowed)) {
+        setStatusLoading(false)
+        return
+      }
+      try {
+        const res = await fetch('/api/admin/stripe-status')
+        if (!res.ok) {
+          setStripeConfigured(null)
+        } else {
+          const data = await res.json().catch(() => ({}))
+          setStripeConfigured(!!data?.data?.configured)
+        }
+      } catch {
+        setStripeConfigured(null)
+      } finally {
+        setStatusLoading(false)
+      }
+    }
+    loadStatus()
+  }, [user, isSuperadmin, isExplicitlyAllowed])
 
   if (isLoading) {
     return (
@@ -113,12 +139,30 @@ export default function StripeConfigAdminPage() {
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4">
       <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-        <h1
-          className="text-2xl font-bold mb-2"
-          style={{ fontFamily: '"Open Sans", sans-serif', color: '#000000' }}
-        >
-          Stripe Configuration
-        </h1>
+        <div className="flex items-center justify-between gap-3 mb-2">
+          <h1
+            className="text-2xl font-bold"
+            style={{ fontFamily: '"Open Sans", sans-serif', color: '#000000' }}
+          >
+            Stripe Configuration
+          </h1>
+          {!statusLoading && stripeConfigured !== null && (
+            <span
+              className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
+                stripeConfigured
+                  ? 'bg-green-100 text-green-800'
+                  : 'bg-yellow-100 text-yellow-800'
+              }`}
+            >
+              <span
+                className={`inline-block w-2 h-2 rounded-full mr-2 ${
+                  stripeConfigured ? 'bg-green-500' : 'bg-yellow-500'
+                }`}
+              />
+              {stripeConfigured ? 'Stripe: Configured' : 'Stripe: Not fully configured'}
+            </span>
+          )}
+        </div>
         <p className="text-sm text-gray-600 mb-6" style={{ fontFamily: '"Open Sans", sans-serif' }}>
           Enter your live Stripe keys. These values are sent securely to the server and stored only
           in encrypted environment variables. They will never be shown again after saving.
