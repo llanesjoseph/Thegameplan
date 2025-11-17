@@ -137,11 +137,11 @@ export default function HeroCoachProfile({
         </div>
       )}
 
-      <div className={`max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 ${isInIframe ? 'py-4' : 'py-8'}`}>
-        <div className={`${isInIframe ? 'space-y-3' : 'space-y-4'}`}>
+      <div className={`max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 ${isInIframe ? 'py-2' : 'py-8'}`}>
+        <div className={`${isInIframe ? 'space-y-2' : 'space-y-4'}`}>
           {/* Banner with overlay profile */}
           <div className="relative">
-            <div className="h-36 sm:h-44 md:h-56 rounded-xl overflow-hidden bg-gray-100">
+            <div className={`${isInIframe ? 'h-28 sm:h-32' : 'h-36 sm:h-44 md:h-56'} rounded-xl overflow-hidden bg-gray-100`}>
               {bannerUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={bannerUrl} alt="Coach banner" className="w-full h-full object-cover" />
@@ -266,7 +266,7 @@ export default function HeroCoachProfile({
           </div>
 
           {/* Text content below banner */}
-          <div className={`${isInIframe ? 'pt-3 space-y-3' : 'pt-6 sm:pt-8 space-y-4'}`}>
+          <div className={`${isInIframe ? 'pt-1 space-y-2' : 'pt-6 sm:pt-8 space-y-4'}`}>
             {/* Name and Details */}
             <div>
               <h2

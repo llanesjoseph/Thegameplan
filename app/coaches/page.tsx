@@ -442,42 +442,42 @@ export default function BrowseCoachesPage() {
             </div>
           )}
           </div>
-
-          {/* Social Media Icons */}
-          <div className="flex items-center gap-4 pt-8">
-            <a
-              href="https://instagram.com/athleap"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110"
-              style={{ backgroundColor: '#E4405F' }}
-              title="Instagram"
-            >
-              <Instagram className="w-5 h-5 text-white" />
-            </a>
-            <a
-              href="https://youtube.com/@athleap"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110"
-              style={{ backgroundColor: '#FF0000' }}
-              title="YouTube"
-            >
-              <Youtube className="w-5 h-5 text-white" />
-            </a>
-            <a
-              href="https://linkedin.com/company/athleap"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110"
-              style={{ backgroundColor: '#0A66C2' }}
-              title="LinkedIn"
-            >
-              <Linkedin className="w-5 h-5 text-white" />
-            </a>
-          </div>
         </div>
       </main>
+
+      {/* Social Media Icons - Fixed Bottom Left */}
+      <div className="fixed bottom-6 left-6 flex items-center gap-3 z-40">
+        <a
+          href="https://instagram.com/athleap"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110 shadow-lg"
+          style={{ backgroundColor: '#E4405F' }}
+          title="Instagram"
+        >
+          <Instagram className="w-5 h-5 text-white" />
+        </a>
+        <a
+          href="https://youtube.com/@athleap"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110 shadow-lg"
+          style={{ backgroundColor: '#FF0000' }}
+          title="YouTube"
+        >
+          <Youtube className="w-5 h-5 text-white" />
+        </a>
+        <a
+          href="https://linkedin.com/company/athleap"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110 shadow-lg"
+          style={{ backgroundColor: '#0A66C2' }}
+          title="LinkedIn"
+        >
+          <Linkedin className="w-5 h-5 text-white" />
+        </a>
+      </div>
     </div>
   )
 }

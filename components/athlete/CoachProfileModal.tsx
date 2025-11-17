@@ -84,12 +84,12 @@ export default function CoachProfileModal({ isOpen, onClose, coachId, coachSlug,
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center py-2 px-4"
       style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-2xl w-full max-w-4xl max-h-[85vh] overflow-y-auto relative"
+        className="bg-white rounded-2xl w-full max-w-4xl max-h-[98vh] overflow-y-auto relative"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Content */}
@@ -113,17 +113,15 @@ export default function CoachProfileModal({ isOpen, onClose, coachId, coachSlug,
             </div>
           </div>
         ) : (
-          <div className="pb-4">
-            <HeroCoachProfile
-              coach={coach}
-              totalLessons={totalLessons}
-              totalAthletes={totalAthletes}
-              lessons={lessons}
-              isInIframe={true}
-              onBack={onClose}
-              hideLessons={hideLessons}
-            />
-          </div>
+          <HeroCoachProfile
+            coach={coach}
+            totalLessons={totalLessons}
+            totalAthletes={totalAthletes}
+            lessons={lessons}
+            isInIframe={true}
+            onBack={onClose}
+            hideLessons={hideLessons}
+          />
         )}
       </div>
     </div>
