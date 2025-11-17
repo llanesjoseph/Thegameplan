@@ -26,11 +26,8 @@ export default function UploadManager({ onUploadComplete, className = '' }: Uplo
  const [uploads, setUploads] = useState<UploadState[]>([])
  const [isMinimized, setIsMinimized] = useState(false)
 
- // Don't render in embedded iframes
+ // Detect embedded mode, but DON'T short-circuit hooks
  const isEmbedded = searchParams?.get('embedded') === 'true'
- if (isEmbedded) {
-  return null
- }
 
  useEffect(() => {
   // Load existing uploads
@@ -100,7 +97,8 @@ export default function UploadManager({ onUploadComplete, className = '' }: Uplo
  const completedUploads = uploads.filter(u => u.state === 'completed')
  const failedUploads = uploads.filter(u => u.state === 'error')
 
- if (uploads.length === 0) return null
+ // Don't render UI in embedded iframes or when there are no uploads
+ if (isEmbedded || uploads.length === 0) return null
 
  return (
   <div className={`fixed bottom-4 right-4 bg-white border border-gray-200 rounded-lg shadow-lg max-w-md w-full z-50 ${className}`}>
