@@ -96,7 +96,7 @@ export default function CoachProfileModal({ isOpen, onClose, coachId, coachSlug,
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="sticky top-6 right-6 z-10 ml-auto mr-6 mt-6 p-3 rounded-full bg-black/80 hover:bg-black text-white transition-colors shadow-lg"
+          className="sticky top-6 right-6 z-10 ml-auto mr-6 mt-6 p-3 rounded-lg bg-black/80 hover:bg-black text-white transition-colors shadow-lg"
           aria-label="Close"
         >
           <X className="w-6 h-6" />
