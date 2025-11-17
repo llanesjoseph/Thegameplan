@@ -132,6 +132,13 @@ export default function AthleteDashboard() {
             >
               Browse Coaches
             </Link>
+            <Link
+              href="/dashboard/profile"
+              className="hidden md:block text-sm font-semibold hover:opacity-80 transition-opacity"
+              style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 600 }}
+            >
+              Update Profile
+            </Link>
             <button
               onClick={async () => {
                 if (isSigningOut) return
