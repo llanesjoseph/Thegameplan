@@ -34,19 +34,31 @@ export default function AthleteProgress() {
       }
 
       try {
+        console.log('🔍 Loading athlete progress for user:', user.uid)
+
         // Fetch athlete feed for completion data
         const feedDoc = await getDoc(doc(db, 'athlete_feed', user.uid))
         let completedCount = 0
         let totalLessons = 0
+
         if (feedDoc.exists()) {
           const feedData = feedDoc.data()
           completedCount = feedData?.completedLessons?.length || 0
           // Get total lessons assigned (both completed and not completed)
           totalLessons = feedData?.lessons?.length || 0
+
+          console.log('📊 Feed Data:')
+          console.log('  - Total Lessons:', totalLessons)
+          console.log('  - Completed:', completedCount)
+          console.log('  - Lessons array:', feedData?.lessons)
+          console.log('  - Completed array length:', feedData?.completedLessons?.length)
+        } else {
+          console.log('⚠️ No athlete_feed document found')
         }
 
         // Calculate in-progress trainings (total assigned minus completed)
         const inProgressCount = Math.max(0, totalLessons - completedCount)
+        console.log('  - Calculated in progress:', inProgressCount)
 
         // Fetch upcoming events
         const userDoc = await getDoc(doc(db, 'users', user.uid))
@@ -54,31 +66,40 @@ export default function AthleteProgress() {
 
         let upcomingEventsData: Event[] = []
         if (coachId) {
-          const now = Timestamp.now()
-          const eventsQuery = query(
-            collection(db, 'coach_schedule'),
-            where('coachId', '==', coachId),
-            where('eventDate', '>=', now)
-          )
-          const eventsSnap = await getDocs(eventsQuery)
-          upcomingEventsData = eventsSnap.docs.map(doc => ({
-            id: doc.id,
-            title: doc.data().title || 'Event',
-            description: doc.data().description,
-            date: doc.data().eventDate?.toDate() || new Date(),
-            location: doc.data().location,
-            type: doc.data().type
-          })).sort((a, b) => a.date.getTime() - b.date.getTime())
+          try {
+            console.log('📅 Fetching upcoming events for coach:', coachId)
+            const now = Timestamp.now()
+            const eventsQuery = query(
+              collection(db, 'coach_schedule'),
+              where('coachId', '==', coachId),
+              where('eventDate', '>=', now)
+            )
+            const eventsSnap = await getDocs(eventsQuery)
+            upcomingEventsData = eventsSnap.docs.map(doc => ({
+              id: doc.id,
+              title: doc.data().title || 'Event',
+              description: doc.data().description,
+              date: doc.data().eventDate?.toDate() || new Date(),
+              location: doc.data().location,
+              type: doc.data().type
+            })).sort((a, b) => a.date.getTime() - b.date.getTime())
+            console.log('  - Found', upcomingEventsData.length, 'upcoming events')
+          } catch (eventError) {
+            console.warn('⚠️ Could not fetch upcoming events (may need Firestore index):', eventError)
+            // Continue without events data
+          }
         }
 
         setEvents(upcomingEventsData)
-        setStats({
+        const finalStats = {
           trainingsComplete: completedCount,
           trainingsInProgress: inProgressCount,
           upcomingEvents: upcomingEventsData.length
-        })
+        }
+        console.log('✅ Final stats:', finalStats)
+        setStats(finalStats)
       } catch (error) {
-        console.error('Error loading progress:', error)
+        console.error('❌ Error loading progress:', error)
       } finally {
         setLoading(false)
       }
