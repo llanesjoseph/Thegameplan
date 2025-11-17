@@ -83,6 +83,8 @@ export default function BrowseCoachesPage() {
       const token = await user.getIdToken()
       const isFollowing = followingSet.has(coachId)
 
+      console.log(`🔄 ${isFollowing ? 'Unfollowing' : 'Following'} coach ${coachId}...`)
+
       const response = await fetch('/api/athlete/follow-coach', {
         method: isFollowing ? 'DELETE' : 'POST',
         headers: {
@@ -93,24 +95,31 @@ export default function BrowseCoachesPage() {
       })
 
       const data = await response.json()
+      console.log('Follow response:', data)
 
-      if (data.success) {
+      if (data.success || response.ok) {
         // Update following set
         setFollowingSet(prev => {
           const newSet = new Set(prev)
           if (isFollowing) {
             newSet.delete(coachId)
+            console.log(`✅ Successfully unfollowed coach ${coachId}`)
           } else {
             newSet.add(coachId)
+            console.log(`✅ Successfully followed coach ${coachId}`)
           }
           return newSet
         })
+
+        // Reload the following list to sync
+        await loadFollowingList()
       } else {
+        console.error('Follow failed:', data)
         alert(data.error || 'Failed to update follow status')
       }
     } catch (error) {
       console.error('Error toggling follow:', error)
-      alert('Failed to update follow status')
+      alert('Failed to update follow status. Please try again.')
     } finally {
       // Remove from loading set
       setFollowingLoading(prev => {
