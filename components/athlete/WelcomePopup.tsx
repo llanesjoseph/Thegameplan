@@ -52,16 +52,13 @@ export default function WelcomePopup({ athleteName, coachName, onClose }: Welcom
 
         {/* Content */}
         <div className="px-8 pb-8 pt-4">
-          {/* Logo Banner with Tagline */}
-          <div className="w-full h-40 rounded-lg flex flex-col items-center justify-center mb-8" style={{ backgroundColor: '#440102' }}>
+          {/* Logo Banner (no tagline) */}
+          <div className="w-full h-40 rounded-lg flex items-center justify-center mb-8" style={{ backgroundColor: '#440102' }}>
             <img
               src="/brand/athleap-logo-colored.png"
               alt="ATHLEAP"
-              className="h-24 w-auto mb-2"
+              className="h-24 w-auto"
             />
-            <p className="text-white text-xs tracking-widest" style={{ fontFamily: '"Open Sans", sans-serif', letterSpacing: '0.15em' }}>
-              THE WORK BEFORE THE WIN
-            </p>
           </div>
 
           {/* Welcome Message */}

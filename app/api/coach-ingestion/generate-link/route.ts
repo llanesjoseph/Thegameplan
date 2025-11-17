@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
     await db.collection('coach_ingestion_links').doc(ingestionId).set(ingestionLinkData)
 
     // Generate the full URL
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://playbook.crucibleanalytics.dev'
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://athleap.crucibleanalytics.dev'
     const ingestionUrl = `${baseUrl}/coach-onboard/${ingestionId}`
     const qrCodeUrl = `${baseUrl}/api/coach-ingestion/qr/${ingestionId}`
 

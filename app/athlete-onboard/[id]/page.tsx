@@ -190,26 +190,15 @@ export default function AthleteOnboardingPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="w-full border-b border-gray-200 px-4 py-4">
-        <div className="max-w-3xl mx-auto">
-          <span className="text-2xl font-bold" style={{ color: '#440102', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
-            ATHLEAP
-          </span>
-        </div>
-      </header>
-
       <main className="max-w-3xl mx-auto px-4 py-8">
         <div className="text-center mb-8">
-          {/* ATHLEAP Logo Banner with Tagline */}
-          <div className="w-full h-40 rounded-lg flex flex-col items-center justify-center mb-6" style={{ backgroundColor: '#440102' }}>
+          {/* ATHLEAP Logo Banner - no tagline */}
+          <div className="w-full h-40 rounded-lg flex items-center justify-center mb-6" style={{ backgroundColor: '#440102' }}>
             <img
               src="/brand/athleap-logo-colored.png"
               alt="ATHLEAP"
-              className="h-24 w-auto mb-2"
+              className="h-24 w-auto"
             />
-            <p className="text-white text-xs tracking-widest" style={{ fontFamily: '"Open Sans", sans-serif', letterSpacing: '0.15em' }}>
-              THE WORK BEFORE THE WIN
-            </p>
           </div>
           <h2 className="text-3xl font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
             Join as an Athlete

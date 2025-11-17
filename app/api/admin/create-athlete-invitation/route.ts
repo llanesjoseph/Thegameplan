@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
     expiresAt.setDate(expiresAt.getDate() + (expiresInDays || 14)) // Athletes get 14 days by default
 
     // Create invitation URL
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://playbook.crucibleanalytics.dev'
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://athleap.crucibleanalytics.dev'
     const invitationUrl = `${baseUrl}/athlete-onboard/${invitationCode}`
 
     // Generate QR code URL

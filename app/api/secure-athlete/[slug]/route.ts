@@ -86,6 +86,26 @@ export async function GET(
       )
     }
 
+    // Map profile-style fields so coaches can see what athletes see on their dashboard
+    const mappedLocation =
+      (athleteData?.location as string) ||
+      [athleteData?.city, athleteData?.state].filter(Boolean).join(', ') ||
+      ''
+
+    const mappedBio =
+      (athleteData?.bio as string) ||
+      (athleteData?.about as string) ||
+      ''
+
+    const mappedTrainingGoals =
+      (Array.isArray(athleteData?.trainingGoals)
+        ? athleteData.trainingGoals.join(', ')
+        : (athleteData?.trainingGoals as string)) ||
+      (Array.isArray(athleteData?.goals)
+        ? athleteData.goals.join(', ')
+        : (athleteData?.goals as string)) ||
+      ''
+
     // Return athlete profile data
     const athleteProfile = {
       uid: athleteId,
@@ -99,7 +119,10 @@ export async function GET(
       profileImageUrl: athleteData?.photoURL || athleteData?.profileImageUrl || null,
       isActive: athleteData?.isActive !== false, // Default to true if not specified
       createdAt: athleteData?.createdAt,
-      lastUpdated: athleteData?.updatedAt || athleteData?.createdAt
+      lastUpdated: athleteData?.updatedAt || athleteData?.createdAt,
+      location: mappedLocation,
+      bio: mappedBio,
+      trainingGoals: mappedTrainingGoals
     }
 
     console.log('Returning athlete profile for:', athleteProfile.displayName)

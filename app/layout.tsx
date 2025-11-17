@@ -34,7 +34,7 @@ const openSans = Open_Sans({
 })
 
 export const metadata: Metadata = {
- title: 'AthLeap – The Work Before the Win',
+  title: 'AthLeap',
  description: 'AI-powered sports performance platform for elite athletes and coaches.',
  icons: { icon: '/brand/athleap-logo-colored.png' }
 }

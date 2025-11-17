@@ -41,7 +41,7 @@ async function notifyAdminsOfNewApplication(data: {
     const { Resend } = await import('resend')
     const resend = new Resend(process.env.RESEND_API_KEY)
 
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://playbook.crucibleanalytics.dev'
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://athleap.crucibleanalytics.dev'
     const reviewUrl = `${baseUrl}/dashboard/admin/invitations-approvals?tab=applications`
 
     // Send email to each admin

@@ -204,7 +204,7 @@ export async function sendApplicationStatusEmail({
             `}
 
             <div class="footer">
-              <p><strong>AthLeap</strong> - The Work Before the Win</p>
+              <p><strong>AthLeap</strong></p>
               <p>If you have any questions, please contact the ${organizationName} team.</p>
             </div>
           </div>
@@ -317,23 +317,20 @@ export async function sendAthleteInvitationEmail({
         </head>
         <body>
             <div class="container">
-                <!-- Logo banner -->
-                <header style="background-color:#440102;padding:20px;">
-                  <div style="display:flex;align-items:center;gap:12px;">
-                    <img src="${process.env.NEXT_PUBLIC_APP_URL || 'https://athleap.crucibleanalytics.dev'}/brand/athleap-logo-colored.png" alt="AthLeap" width="112" style="display:block;">
-                    <div style="color:#ffffffb3;letter-spacing:2px;font-size:12px;">THE WORK BEFORE THE WIN</div>
-                  </div>
+                <!-- Wide header image (Cloudinary) -->
+                <header>
+                  <img src="https://res.cloudinary.com/dr0jtjwlh/image/upload/v1763403661/Twitter_Header_Image_zzbred.png"
+                       alt="AthLeap"
+                       style="width:100%;height:auto;display:block;border:0;outline:none;text-decoration:none;">
                 </header>
                 <main style="padding:32px 24px;text-align:left;">
-                    <h1 class="h1">Athlete Invite</h1>
-
                     <p class="p">Hi ${athleteName || 'there'} –</p>
 
                     <p class="p">
                       <strong>${coachName || 'Your Coach'}</strong> has invited you to join ${coachName ? 'their' : 'our'} team on Athleap, a new platform blending the power of AI with the thrill of sports, creating unforgettable fan experiences and coaching next-generation athletes.
                     </p>
 
-                    <div style="margin:20px 0 24px 0;">
+                    <div style="margin:20px 0 24px 0;text-align:center;">
                       <a href="${invitationUrl}" class="btn">Accept Invite</a>
                     </div>
 
@@ -349,7 +346,7 @@ export async function sendAthleteInvitationEmail({
                     </p>
                 </main>
                 <footer style="background-color:#f9fafb;text-align:center;padding:18px;border-top:1px solid #e5e7eb;">
-                  <p style="margin:0;color:#6b7280;font-size:12px;">AthLeap — The Work Before the Win</p>
+                  <p style="margin:0;color:#6b7280;font-size:12px;">AthLeap</p>
                 </footer>
             </div>
         </body>
@@ -465,7 +462,6 @@ function generateInvitationSentEmail(coachName: string, summary: { totalSent: nu
       <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
         <div style="text-align: center; margin-bottom: 30px;">
           <h1 style="font-family: 'Inter', sans-serif; color: #13367A; font-size: 32px; margin: 0; font-weight: 700;">AthLeap</h1>
-          <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">THE WORK BEFORE THE WIN</p>
         </div>
 
         <div style="background: #dcfce7; border: 2px solid #16a34a; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
@@ -499,7 +495,7 @@ function generateInvitationSentEmail(coachName: string, summary: { totalSent: nu
         </div>
 
         <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 14px;">
-          <p><strong>AthLeap</strong> - The Work Before the Win</p>
+          <p><strong>AthLeap</strong></p>
           <p style="font-size: 12px;">This is an automated notification. Please do not reply to this email.</p>
         </div>
       </div>
@@ -521,7 +517,6 @@ function generateInvitationAcceptedEmail(coachName: string, athleteInfo: { name:
       <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
         <div style="text-align: center; margin-bottom: 30px;">
           <h1 style="font-family: 'Inter', sans-serif; color: #13367A; font-size: 32px; margin: 0; font-weight: 700;">AthLeap</h1>
-          <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">THE WORK BEFORE THE WIN</p>
         </div>
 
         <div style="background: #dcfce7; border: 2px solid #16a34a; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
@@ -552,7 +547,7 @@ function generateInvitationAcceptedEmail(coachName: string, athleteInfo: { name:
         </div>
 
         <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 14px;">
-          <p><strong>AthLeap</strong> - The Work Before the Win</p>
+          <p><strong>AthLeap</strong></p>
           <p style="font-size: 12px;">This is an automated notification. Please do not reply to this email.</p>
         </div>
       </div>
@@ -574,7 +569,6 @@ function generateInvitationDeclinedEmail(coachName: string, athleteInfo: { name:
       <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
         <div style="text-align: center; margin-bottom: 30px;">
           <h1 style="font-family: 'Inter', sans-serif; color: #13367A; font-size: 32px; margin: 0; font-weight: 700;">AthLeap</h1>
-          <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">THE WORK BEFORE THE WIN</p>
         </div>
 
         <div style="background: #fef2f2; border: 2px solid #f87171; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
@@ -602,7 +596,7 @@ function generateInvitationDeclinedEmail(coachName: string, athleteInfo: { name:
         </div>
 
         <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 14px;">
-          <p><strong>AthLeap</strong> - The Work Before the Win</p>
+          <p><strong>AthLeap</strong></p>
           <p style="font-size: 12px;">This is an automated notification. Please do not reply to this email.</p>
         </div>
       </div>
@@ -624,7 +618,6 @@ function generateInvitationExpiredEmail(coachName: string, athleteInfo: { name: 
       <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
         <div style="text-align: center; margin-bottom: 30px;">
           <h1 style="font-family: 'Inter', sans-serif; color: #13367A; font-size: 32px; margin: 0; font-weight: 700;">AthLeap</h1>
-          <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">THE WORK BEFORE THE WIN</p>
         </div>
 
         <div style="background: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
@@ -653,7 +646,7 @@ function generateInvitationExpiredEmail(coachName: string, athleteInfo: { name: 
         </div>
 
         <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 14px;">
-          <p><strong>AthLeap</strong> - The Work Before the Win</p>
+          <p><strong>AthLeap</strong></p>
           <p style="font-size: 12px;">This is an automated notification. Please do not reply to this email.</p>
         </div>
       </div>
@@ -675,7 +668,6 @@ function generateAthleteProfileCreatedEmail(coachName: string, athleteInfo: { na
       <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
         <div style="text-align: center; margin-bottom: 30px;">
           <h1 style="font-family: 'Inter', sans-serif; color: #13367A; font-size: 32px; margin: 0; font-weight: 700;">AthLeap</h1>
-          <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">THE WORK BEFORE THE WIN</p>
         </div>
 
         <div style="background: #dcfce7; border: 2px solid #16a34a; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
@@ -707,7 +699,7 @@ function generateAthleteProfileCreatedEmail(coachName: string, athleteInfo: { na
         </div>
 
         <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 14px;">
-          <p><strong>AthLeap</strong> - The Work Before the Win</p>
+          <p><strong>AthLeap</strong></p>
           <p style="font-size: 12px;">This is an automated notification. Please do not reply to this email.</p>
         </div>
       </div>
@@ -774,7 +766,6 @@ export async function sendLiveSessionRequestEmail({
           <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
             <div style="text-align: center; margin-bottom: 30px;">
               <h1 style="font-family: 'Inter', sans-serif; color: #13367A; font-size: 32px; margin: 0; font-weight: 700;">AthLeap</h1>
-              <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">THE WORK BEFORE THE WIN</p>
             </div>
 
             <div style="background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); border: 2px solid #16A34A; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
@@ -821,8 +812,8 @@ export async function sendLiveSessionRequestEmail({
               </ol>
             </div>
 
-            <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 14px;">
-              <p><strong>AthLeap</strong> - The Work Before the Win</p>
+        <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 14px;">
+          <p><strong>AthLeap</strong></p>
               <p style="font-size: 12px;">This is an automated notification. Reply directly to ${athleteEmail} or use the platform.</p>
             </div>
           </div>
@@ -871,7 +862,6 @@ export async function sendAthleteWelcomeEmail({
           <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
             <div style="text-align: center; margin-bottom: 30px;">
               <h1 style="font-family: 'Inter', sans-serif; color: #13367A; font-size: 32px; margin: 0; font-weight: 700;">AthLeap</h1>
-              <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">THE WORK BEFORE THE WIN</p>
             </div>
 
             <div style="background: #dcfce7; border: 2px solid #16a34a; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
@@ -907,8 +897,8 @@ export async function sendAthleteWelcomeEmail({
               </p>
             </div>
 
-            <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 14px;">
-              <p><strong>AthLeap</strong> - The Work Before the Win</p>
+        <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 14px;">
+          <p><strong>AthLeap</strong></p>
               <p style="font-size: 12px;">If you didn't request this account, please ignore this email.</p>
             </div>
           </div>
@@ -980,7 +970,6 @@ export async function sendVideoSubmissionNotification({
           <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
             <div style="text-align: center; margin-bottom: 30px;">
               <h1 style="font-family: 'Inter', sans-serif; color: #13367A; font-size: 32px; margin: 0; font-weight: 700;">AthLeap</h1>
-              <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">THE WORK BEFORE THE WIN</p>
             </div>
 
             <div style="background: #dbeafe; border: 2px solid #3b82f6; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
@@ -1056,7 +1045,6 @@ export async function sendReviewPublishedNotification({
           <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
             <div style="text-align: center; margin-bottom: 30px;">
               <h1 style="font-family: 'Inter', sans-serif; color: #13367A; font-size: 32px; margin: 0; font-weight: 700;">AthLeap</h1>
-              <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">THE WORK BEFORE THE WIN</p>
             </div>
 
             <div style="background: #dcfce7; border: 2px solid #16a34a; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
@@ -1318,7 +1306,6 @@ export async function sendSessionConfirmationEmail({
                 <!-- Header -->
                 <header style="background-color: #000000; padding: 28px 24px; text-align: center;">
                     <h1 style="font-family: 'Open Sans', sans-serif; font-size: 2rem; color: #FFFFFF; margin: 0; font-weight: 700; letter-spacing: 2px;">ATHLEAP</h1>
-                    <p style="color: rgba(255,255,255,0.8); font-size: 11px; margin: 6px 0 0 0; letter-spacing: 1.5px; font-weight: 600;">THE WORK BEFORE THE WIN</p>
                 </header>
 
                 <!-- Main Content -->
@@ -1441,7 +1428,6 @@ export async function sendScheduleEventNotificationEmail({
           <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
             <div style="text-align: center; margin-bottom: 30px;">
               <h1 style="font-family: 'Inter', sans-serif; color: #13367A; font-size: 32px; margin: 0; font-weight: 700;">AthLeap</h1>
-              <p style="color: #64748b; font-size: 14px; margin: 5px 0; letter-spacing: 2px;">THE WORK BEFORE THE WIN</p>
             </div>
 
             <div style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border: 2px solid #16A34A; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
@@ -1486,8 +1472,8 @@ export async function sendScheduleEventNotificationEmail({
               </ul>
             </div>
 
-            <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 14px;">
-              <p><strong>AthLeap</strong> - The Work Before the Win</p>
+        <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 14px;">
+          <p><strong>AthLeap</strong></p>
               <p style="font-size: 12px;">Questions about this event? Contact ${coachName} directly through the platform.</p>
             </div>
           </div>

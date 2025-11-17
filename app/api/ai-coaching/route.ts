@@ -372,7 +372,7 @@ export async function OPTIONS(request: NextRequest) {
     'http://localhost:3000',
     'http://localhost:3001',
     'http://localhost:3002',
-    'https://playbook.crucibleanalytics.dev',
+    'https://athleap.crucibleanalytics.dev',
     process.env.NEXT_PUBLIC_APP_URL || '',
   ].filter(Boolean)
 

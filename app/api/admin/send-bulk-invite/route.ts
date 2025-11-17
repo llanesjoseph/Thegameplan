@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
     expiresAt.setDate(expiresAt.getDate() + 14) // 14 days
 
     // Create invitation URL based on role
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://playbook.crucibleanalytics.dev'
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://athleap.crucibleanalytics.dev'
     const onboardPath = role === 'COACH' ? 'coach-onboard' : 'athlete-onboard'
     const invitationUrl = `${baseUrl}/${onboardPath}/${invitationCode}`
 

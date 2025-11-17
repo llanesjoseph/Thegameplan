@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
     const invitationRef = await adminDb.collection('admin_invitations').add(invitationData)
 
     // Generate invitation URL
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://playbook.crucibleanalytics.dev'
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://athleap.crucibleanalytics.dev'
     const invitationUrl = `${baseUrl}/admin-onboard/${invitationCode}`
 
     // Send email invitation

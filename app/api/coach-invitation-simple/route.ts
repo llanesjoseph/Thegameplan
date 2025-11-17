@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create invitation URL
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://playbook.crucibleanalytics.dev'
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://athleap.crucibleanalytics.dev'
     const invitationUrl = `${baseUrl}/coach-onboard/${invitationId}?sport=${encodeURIComponent(sport)}&email=${encodeURIComponent(coachEmail)}&name=${encodeURIComponent(coachName)}&role=${targetRole}`
 
     // Create invitation data matching admin dashboard structure
