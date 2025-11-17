@@ -239,22 +239,28 @@ export default function AthleteCoaches() {
               <div className="w-full flex flex-col justify-center gap-2">
                 <button
                   onClick={handleScheduleSession}
-                  className="w-full bg-black text-white py-2.5 text-sm font-bold hover:bg-gray-800 transition-colors"
+                  className="w-full bg-black text-white py-2.5 text-sm font-bold transition-colors"
                   style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#FC0105'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#000000'}
                 >
                   Schedule 1-1 Session With a Coach
                 </button>
                 <button
                   onClick={handleSubmitVideo}
-                  className="w-full bg-black text-white py-2.5 text-xs font-bold hover:bg-gray-800 transition-colors leading-tight"
+                  className="w-full bg-black text-white py-2.5 text-xs font-bold transition-colors leading-tight"
                   style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#FC0105'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#000000'}
                 >
                   Submit Training Video for Coach Feedback
                 </button>
                 <button
                   onClick={handleAskQuestion}
-                  className="w-full bg-black text-white py-2.5 text-sm font-bold hover:bg-gray-800 transition-colors"
+                  className="w-full bg-black text-white py-2.5 text-sm font-bold transition-colors"
                   style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#FC0105'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#000000'}
                 >
                   Ask a Question With Your Coach
                 </button>

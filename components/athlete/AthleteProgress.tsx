@@ -93,12 +93,12 @@ export default function AthleteProgress() {
         Your Progress
       </h2>
 
-      {/* Sharp rectangle button row */}
-      <div className="flex flex-wrap gap-3">
+      {/* Sharp rectangle button row - spaced to align with coach photos below */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
         {/* Trainings Complete */}
         <button
           type="button"
-          className="group relative bg-black text-white px-5 py-3 flex items-center justify-center gap-2.5 transition-colors hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black/50 min-w-[190px]"
+          className="group relative bg-black text-white px-5 py-3 flex items-center justify-center gap-2.5 transition-colors hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black/50"
           style={{ fontFamily: '"Open Sans", sans-serif' }}
         >
           <CheckCircle className="w-5 h-5 flex-shrink-0" strokeWidth={2.5} />
@@ -113,7 +113,7 @@ export default function AthleteProgress() {
         {/* Trainings In Progress */}
         <button
           type="button"
-          className="group relative bg-black text-white px-5 py-3 flex items-center justify-center gap-2.5 transition-colors hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black/50 min-w-[210px]"
+          className="group relative bg-black text-white px-5 py-3 flex items-center justify-center gap-2.5 transition-colors hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black/50"
           style={{ fontFamily: '"Open Sans", sans-serif' }}
         >
           <RefreshCw className="w-5 h-5 flex-shrink-0" strokeWidth={2.5} />
@@ -133,7 +133,7 @@ export default function AthleteProgress() {
               setShowEventsModal(true)
             }
           }}
-          className="group relative bg-black text-white px-5 py-3 flex items-center justify-center gap-2.5 transition-colors hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black/50 min-w-[180px]"
+          className="group relative bg-black text-white px-5 py-3 flex items-center justify-center gap-2.5 transition-colors hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black/50"
           style={{ fontFamily: '"Open Sans", sans-serif' }}
         >
           <Calendar className="w-5 h-5 flex-shrink-0" strokeWidth={2.5} />
