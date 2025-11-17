@@ -29,6 +29,7 @@ export default function AthleteEngagementList() {
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [selectedAthleteSlug, setSelectedAthleteSlug] = useState<string | null>(null)
+  const [showVideoQueue, setShowVideoQueue] = useState(false)
 
   useEffect(() => {
     const loadAthletes = async () => {
@@ -272,13 +273,13 @@ export default function AthleteEngagementList() {
                         View Full Profile
                       </button>
                       {metrics.videosAwaiting > 0 && (
-                        <a
-                          href="/dashboard/coach/queue"
+                        <button
+                          onClick={() => setShowVideoQueue(true)}
                           className="text-xs px-3 py-2 rounded border-2 border-black text-black font-bold text-center hover:bg-gray-50 transition-colors"
                           style={{ fontFamily: '"Open Sans", sans-serif' }}
                         >
                           Review Videos
-                        </a>
+                        </button>
                       )}
                     </div>
                   </div>
@@ -316,6 +317,38 @@ export default function AthleteEngagementList() {
               src={`/dashboard/coach/athletes/${selectedAthleteSlug}?embedded=true`}
               className="w-full flex-1 border-0"
               title="Athlete Profile"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Video Queue Modal */}
+      {showVideoQueue && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
+          onClick={() => setShowVideoQueue(false)}
+        >
+          <div
+            className="bg-white rounded-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h2 className="text-2xl font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                Video Review Queue
+              </h2>
+              <button
+                onClick={() => setShowVideoQueue(false)}
+                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                aria-label="Close"
+              >
+                <X className="w-6 h-6" style={{ color: '#000000' }} />
+              </button>
+            </div>
+            <iframe
+              src="/dashboard/coach/queue?embedded=true"
+              className="w-full flex-1 border-0"
+              title="Video Review Queue"
             />
           </div>
         </div>
