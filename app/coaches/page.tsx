@@ -50,20 +50,27 @@ export default function BrowseCoachesPage() {
     if (!user?.uid) return
 
     try {
+      console.log('🔍 Fetching followed coaches...')
       const token = await user.getIdToken()
       const response = await fetch('/api/athlete/following', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       })
+
+      console.log('📡 Following API response status:', response.status)
       const data = await response.json()
+      console.log('📊 Following data:', data)
 
       if (data.success && data.following) {
         const followedCoachIds = new Set<string>(data.following.map((f: any) => f.coachId))
+        console.log(`✅ Found ${followedCoachIds.size} followed coaches:`, Array.from(followedCoachIds))
         setFollowingSet(followedCoachIds)
+      } else {
+        console.log('⚠️ No following data or unsuccessful response')
       }
     } catch (error) {
-      console.error('Error loading following list:', error)
+      console.error('❌ Error loading following list:', error)
     }
   }
 
@@ -252,6 +259,11 @@ export default function BrowseCoachesPage() {
               {coaches.map((coach) => {
                 const isFollowing = followingSet.has(coach.id)
                 const isLoading = followingLoading.has(coach.id)
+
+                if (coaches.indexOf(coach) === 0) {
+                  console.log('🔍 Current followingSet size:', followingSet.size, 'IDs:', Array.from(followingSet))
+                  console.log('🔍 First coach ID:', coach.id, 'isFollowing:', isFollowing)
+                }
 
                 return (
                   <div key={coach.id} className="group block">
