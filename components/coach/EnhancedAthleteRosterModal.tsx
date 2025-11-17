@@ -604,7 +604,7 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose }: Enhanced
                           ) : (
                             <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                               <p className="text-sm leading-relaxed" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
-                                {aiChatSummary}
+                                {typeof aiChatSummary === 'string' ? aiChatSummary : 'No recent conversations'}
                               </p>
                             </div>
                           )}
