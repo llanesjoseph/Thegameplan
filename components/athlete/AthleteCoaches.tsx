@@ -274,7 +274,7 @@ export default function AthleteCoaches() {
                   onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#FC0105'}
                   onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#000000'}
                 >
-                  Ask a Question With Your Coach
+                  Chat With Your Coach's AI
                 </button>
               </div>
             )}
