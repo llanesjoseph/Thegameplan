@@ -90,7 +90,7 @@ export default function CoachProfileModal({ isOpen, onClose, coachId, coachSlug,
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-2xl w-full max-w-5xl max-h-[90vh] overflow-y-auto relative"
+        className="bg-white rounded-2xl w-full max-w-4xl max-h-[85vh] overflow-y-auto relative"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}
@@ -123,7 +123,7 @@ export default function CoachProfileModal({ isOpen, onClose, coachId, coachSlug,
             </div>
           </div>
         ) : (
-          <div className="pb-6">
+          <div className="pb-4">
             <HeroCoachProfile
               coach={coach}
               totalLessons={totalLessons}
