@@ -98,14 +98,14 @@ export default function AthleteProgress() {
         {/* Trainings Complete */}
         <button
           type="button"
-          className="group relative bg-black text-white px-5 py-3 flex items-center gap-2.5 transition-all hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black/50"
+          className="group relative bg-black text-white px-5 py-3 flex items-center justify-center gap-2.5 transition-colors hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black/50 min-w-[190px]"
           style={{ fontFamily: '"Open Sans", sans-serif' }}
         >
-          <CheckCircle className="w-5 h-5" strokeWidth={2.5} />
-          <span className="text-sm font-bold group-hover:hidden">
+          <CheckCircle className="w-5 h-5 flex-shrink-0" strokeWidth={2.5} />
+          <span className="text-sm font-bold group-hover:hidden whitespace-nowrap">
             Training Complete
           </span>
-          <span className="text-sm font-bold hidden group-hover:inline">
+          <span className="text-sm font-bold hidden group-hover:inline whitespace-nowrap">
             {stats.trainingsComplete} Complete
           </span>
         </button>
@@ -113,14 +113,14 @@ export default function AthleteProgress() {
         {/* Trainings In Progress */}
         <button
           type="button"
-          className="group relative bg-black text-white px-5 py-3 flex items-center gap-2.5 transition-all hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black/50"
+          className="group relative bg-black text-white px-5 py-3 flex items-center justify-center gap-2.5 transition-colors hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black/50 min-w-[210px]"
           style={{ fontFamily: '"Open Sans", sans-serif' }}
         >
-          <RefreshCw className="w-5 h-5" strokeWidth={2.5} />
-          <span className="text-sm font-bold group-hover:hidden">
+          <RefreshCw className="w-5 h-5 flex-shrink-0" strokeWidth={2.5} />
+          <span className="text-sm font-bold group-hover:hidden whitespace-nowrap">
             Trainings in Progress
           </span>
-          <span className="text-sm font-bold hidden group-hover:inline">
+          <span className="text-sm font-bold hidden group-hover:inline whitespace-nowrap">
             {stats.trainingsInProgress} In Progress
           </span>
         </button>
@@ -133,14 +133,14 @@ export default function AthleteProgress() {
               setShowEventsModal(true)
             }
           }}
-          className="group relative bg-black text-white px-5 py-3 flex items-center gap-2.5 transition-all hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black/50"
+          className="group relative bg-black text-white px-5 py-3 flex items-center justify-center gap-2.5 transition-colors hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black/50 min-w-[180px]"
           style={{ fontFamily: '"Open Sans", sans-serif' }}
         >
-          <Calendar className="w-5 h-5" strokeWidth={2.5} />
-          <span className="text-sm font-bold group-hover:hidden">
+          <Calendar className="w-5 h-5 flex-shrink-0" strokeWidth={2.5} />
+          <span className="text-sm font-bold group-hover:hidden whitespace-nowrap">
             Upcoming Event
           </span>
-          <span className="text-sm font-bold hidden group-hover:inline">
+          <span className="text-sm font-bold hidden group-hover:inline whitespace-nowrap">
             {stats.upcomingEvents} Upcoming
           </span>
         </button>
