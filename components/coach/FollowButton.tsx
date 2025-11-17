@@ -91,6 +91,11 @@ export default function FollowButton({
       } else {
         console.log(`✅ You have unfollowed ${coachName}`)
       }
+
+      // Trigger refresh in athlete dashboard
+      localStorage.setItem('coachFollowUpdated', Date.now().toString())
+      // Dispatch custom event for same-page updates
+      window.dispatchEvent(new CustomEvent('coachFollowChange', { detail: { coachId, isFollowing: newFollowState } }))
     } catch (error) {
       console.error('Error toggling follow:', error)
       alert('Failed to update follow status. Please try again.')

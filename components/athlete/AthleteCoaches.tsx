@@ -111,6 +111,51 @@ export default function AthleteCoaches() {
     }
 
     loadCoaches()
+
+    // Refresh coaches when page becomes visible or window gains focus
+    const handleVisibilityChange = () => {
+      if (!document.hidden && user?.uid) {
+        console.log('🔄 Page visible - refreshing coaches...')
+        loadCoaches()
+      }
+    }
+
+    const handleFocus = () => {
+      if (user?.uid) {
+        console.log('🔄 Window focused - refreshing coaches...')
+        loadCoaches()
+      }
+    }
+
+    // Also check for localStorage event (custom trigger from browse coaches page)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'coachFollowUpdated' && user?.uid) {
+        console.log('🔄 Coach follow detected - refreshing coaches...')
+        loadCoaches()
+        // Clear the flag
+        localStorage.removeItem('coachFollowUpdated')
+      }
+    }
+
+    // Listen for custom event (immediate same-page updates)
+    const handleCoachFollowChange = () => {
+      if (user?.uid) {
+        console.log('🔄 Coach follow change detected - refreshing coaches...')
+        loadCoaches()
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    window.addEventListener('focus', handleFocus)
+    window.addEventListener('storage', handleStorageChange)
+    window.addEventListener('coachFollowChange', handleCoachFollowChange as EventListener)
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+      window.removeEventListener('focus', handleFocus)
+      window.removeEventListener('storage', handleStorageChange)
+      window.removeEventListener('coachFollowChange', handleCoachFollowChange as EventListener)
+    }
   }, [user])
 
   const handleScheduleSession = () => {
