@@ -331,7 +331,6 @@ export default function AthleteCoaches() {
             </>
           )}
         </div>
-        </div>
         )}
       </div>
 

@@ -181,6 +181,7 @@ export default function CoachProfilePage() {
       lessons={lessons}
       isInIframe={isInIframe}
       onBack={handleBack}
+      hideLessons={true}
     />
   )
 }
