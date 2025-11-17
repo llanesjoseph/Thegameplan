@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { signOut } from 'firebase/auth'
 import { auth } from '@/lib/firebase.client'
 import { useState } from 'react'
+import { Facebook, Instagram, Youtube, Linkedin } from 'lucide-react'
 import CoachOverview from '@/components/coach/CoachOverview'
 import CoachProfile from '@/components/coach/CoachProfile'
 import CoachPhotoShowcase from '@/components/coach/CoachPhotoShowcase'
@@ -54,6 +55,22 @@ export default function CoachDashboard() {
             <CoachPhotoShowcase />
             <CoachLessonLibrary />
             <CoachRecommendedGear />
+
+            {/* Social Media Icons */}
+            <div className="flex items-center gap-4 pt-4">
+              <a href="#" className="text-gray-600 hover:text-black transition-colors" aria-label="Facebook">
+                <Facebook className="w-5 h-5" />
+              </a>
+              <a href="#" className="text-gray-600 hover:text-black transition-colors" aria-label="LinkedIn">
+                <Linkedin className="w-5 h-5" />
+              </a>
+              <a href="#" className="text-gray-600 hover:text-black transition-colors" aria-label="YouTube">
+                <Youtube className="w-5 h-5" />
+              </a>
+              <a href="#" className="text-gray-600 hover:text-black transition-colors" aria-label="Instagram">
+                <Instagram className="w-5 h-5" />
+              </a>
+            </div>
           </div>
         </div>
       </main>

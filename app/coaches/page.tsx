@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { ChevronDown, UserPlus, UserCheck, Instagram, Youtube, Linkedin } from 'lucide-react'
+import { ChevronDown, UserPlus, UserCheck, Instagram, Youtube, Linkedin, Facebook } from 'lucide-react'
 import { SPORTS } from '@/lib/constants/sports'
 
 type Coach = {
@@ -448,14 +448,24 @@ export default function BrowseCoachesPage() {
       {/* Social Media Icons - Fixed Bottom Left */}
       <div className="fixed bottom-6 left-6 flex items-center gap-3 z-40">
         <a
-          href="https://instagram.com/athleap"
+          href="https://facebook.com/athleap"
           target="_blank"
           rel="noopener noreferrer"
           className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110 shadow-lg"
-          style={{ backgroundColor: '#E4405F' }}
-          title="Instagram"
+          style={{ backgroundColor: '#1877F2' }}
+          title="Facebook"
         >
-          <Instagram className="w-5 h-5 text-white" />
+          <Facebook className="w-5 h-5 text-white" />
+        </a>
+        <a
+          href="https://linkedin.com/company/athleap"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110 shadow-lg"
+          style={{ backgroundColor: '#0A66C2' }}
+          title="LinkedIn"
+        >
+          <Linkedin className="w-5 h-5 text-white" />
         </a>
         <a
           href="https://youtube.com/@athleap"
@@ -468,14 +478,14 @@ export default function BrowseCoachesPage() {
           <Youtube className="w-5 h-5 text-white" />
         </a>
         <a
-          href="https://linkedin.com/company/athleap"
+          href="https://instagram.com/athleap"
           target="_blank"
           rel="noopener noreferrer"
           className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110 shadow-lg"
-          style={{ backgroundColor: '#0A66C2' }}
-          title="LinkedIn"
+          style={{ backgroundColor: '#E4405F' }}
+          title="Instagram"
         >
-          <Linkedin className="w-5 h-5 text-white" />
+          <Instagram className="w-5 h-5 text-white" />
         </a>
       </div>
     </div>

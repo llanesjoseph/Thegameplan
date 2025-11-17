@@ -12,6 +12,7 @@ import Link from 'next/link'
 import { useAuth } from '@/hooks/use-auth'
 import { signOut } from 'firebase/auth'
 import { auth } from '@/lib/firebase.client'
+import { Facebook, Instagram, Youtube, Linkedin } from 'lucide-react'
 import AthleteOverview from '@/components/athlete/AthleteOverview'
 import AthleteProfile from '@/components/athlete/AthleteProfile'
 import AthleteProgress from '@/components/athlete/AthleteProgress'
@@ -146,6 +147,22 @@ export default function AthleteDashboard() {
             <AthleteTrainingLibrary />
             {/* Recommended Gear Section */}
             <AthleteRecommendedGear />
+
+            {/* Social Media Icons */}
+            <div className="flex items-center gap-4 pt-4">
+              <a href="#" className="text-gray-600 hover:text-black transition-colors" aria-label="Facebook">
+                <Facebook className="w-5 h-5" />
+              </a>
+              <a href="#" className="text-gray-600 hover:text-black transition-colors" aria-label="LinkedIn">
+                <Linkedin className="w-5 h-5" />
+              </a>
+              <a href="#" className="text-gray-600 hover:text-black transition-colors" aria-label="YouTube">
+                <Youtube className="w-5 h-5" />
+              </a>
+              <a href="#" className="text-gray-600 hover:text-black transition-colors" aria-label="Instagram">
+                <Instagram className="w-5 h-5" />
+              </a>
+            </div>
 
             {/* Floating chat launcher (no inline container) */}
             <AthleteAssistant />
