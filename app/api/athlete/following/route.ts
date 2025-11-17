@@ -24,7 +24,6 @@ export async function GET(request: NextRequest) {
     const followsSnapshot = await adminDb
       .collection('coach_followers')
       .where('athleteId', '==', athleteId)
-      .orderBy('followedAt', 'desc')
       .get()
 
     const following = followsSnapshot.docs.map(doc => ({

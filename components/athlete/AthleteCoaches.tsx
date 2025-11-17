@@ -58,17 +58,24 @@ export default function AthleteCoaches() {
 
         // 2. Get followed coaches
         try {
+          console.log('🔍 Fetching followed coaches...')
           const followingResponse = await fetch('/api/athlete/following', {
             headers: { 'Authorization': `Bearer ${token}` }
           })
 
+          console.log('📡 Following API response status:', followingResponse.status)
+
           if (followingResponse.ok) {
             const followingData = await followingResponse.json()
+            console.log('📊 Following data:', followingData)
+
             if (followingData.success && followingData.following) {
+              console.log(`✅ Found ${followingData.following.length} followed coaches`)
               // Fetch details for each followed coach
               for (const follow of followingData.following) {
                 if (!coachMap.has(follow.coachId)) {
                   try {
+                    console.log(`📥 Fetching data for coach ${follow.coachId}`)
                     const coachDoc = await getDoc(doc(db, 'users', follow.coachId))
                     if (coachDoc.exists()) {
                       const coachData = coachDoc.data()
@@ -80,6 +87,7 @@ export default function AthleteCoaches() {
                         author: coachData.displayName || follow.coachName || 'Coach',
                         isAssigned: false
                       })
+                      console.log(`✅ Added followed coach: ${coachData.displayName}`)
                     }
                   } catch (e) {
                     console.warn(`Could not fetch coach ${follow.coachId}:`, e)
@@ -87,9 +95,12 @@ export default function AthleteCoaches() {
                 }
               }
             }
+          } else {
+            const errorData = await followingResponse.json().catch(() => ({}))
+            console.error('❌ Following API error:', followingResponse.status, errorData)
           }
         } catch (error) {
-          console.warn('Could not fetch followed coaches:', error)
+          console.error('❌ Could not fetch followed coaches:', error)
         }
 
         // Convert map to array
