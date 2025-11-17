@@ -183,11 +183,11 @@ export default function Live1on1RequestModal({
         <div className="p-6 border-b" style={{ borderColor: '#E8E6D8' }}>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br from-green-500 to-emerald-600">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #FC0105 0%, #440102 100%)' }}>
                 <Video className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h3 className="text-2xl font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                <h3 className="text-2xl font-bold" style={{ color: '#440102', fontFamily: '"Open Sans", sans-serif' }}>
                   1-on-1 Sessions
                 </h3>
                 <p className="text-sm" style={{ color: '#000000', opacity: 0.7, fontFamily: '"Open Sans", sans-serif' }}>
@@ -210,10 +210,14 @@ export default function Live1on1RequestModal({
               onClick={() => setActiveTab('request')}
               className={`px-6 py-3 font-bold transition-colors ${
                 activeTab === 'request'
-                  ? 'border-b-4 border-black text-black'
+                  ? 'text-black'
                   : 'text-gray-500 hover:text-black'
               }`}
-              style={{ fontFamily: '"Open Sans", sans-serif', marginBottom: '-2px' }}
+              style={{
+                fontFamily: '"Open Sans", sans-serif',
+                marginBottom: '-2px',
+                borderBottom: activeTab === 'request' ? '4px solid #FC0105' : 'none'
+              }}
             >
               Request Session
             </button>
@@ -221,10 +225,14 @@ export default function Live1on1RequestModal({
               onClick={() => setActiveTab('sessions')}
               className={`px-6 py-3 font-bold transition-colors ${
                 activeTab === 'sessions'
-                  ? 'border-b-4 border-black text-black'
+                  ? 'text-black'
                   : 'text-gray-500 hover:text-black'
               }`}
-              style={{ fontFamily: '"Open Sans", sans-serif', marginBottom: '-2px' }}
+              style={{
+                fontFamily: '"Open Sans", sans-serif',
+                marginBottom: '-2px',
+                borderBottom: activeTab === 'sessions' ? '4px solid #FC0105' : 'none'
+              }}
             >
               My Sessions ({sessions.length})
             </button>
@@ -260,8 +268,10 @@ export default function Live1on1RequestModal({
                   value={formData.preferredDate}
                   onChange={(e) => setFormData({ ...formData, preferredDate: e.target.value })}
                   min={minDate}
-                  className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:border-green-500 transition-colors"
+                  className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-colors"
                   style={{ borderColor: '#E8E6D8', fontFamily: '"Open Sans", sans-serif' }}
+                  onFocus={(e) => e.currentTarget.style.borderColor = '#FC0105'}
+                  onBlur={(e) => e.currentTarget.style.borderColor = '#E8E6D8'}
                   required
                   disabled={isSubmitting}
                 />
@@ -276,8 +286,10 @@ export default function Live1on1RequestModal({
                   type="time"
                   value={formData.preferredTime}
                   onChange={(e) => setFormData({ ...formData, preferredTime: e.target.value })}
-                  className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:border-green-500 transition-colors"
+                  className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-colors"
                   style={{ borderColor: '#E8E6D8', fontFamily: '"Open Sans", sans-serif' }}
+                  onFocus={(e) => e.currentTarget.style.borderColor = '#FC0105'}
+                  onBlur={(e) => e.currentTarget.style.borderColor = '#E8E6D8'}
                   required
                   disabled={isSubmitting}
                 />
@@ -292,8 +304,10 @@ export default function Live1on1RequestModal({
               <select
                 value={formData.duration}
                 onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-                className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:border-green-500 transition-colors"
+                className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-colors"
                 style={{ borderColor: '#E8E6D8', fontFamily: '"Open Sans", sans-serif' }}
+                onFocus={(e) => e.currentTarget.style.borderColor = '#FC0105'}
+                onBlur={(e) => e.currentTarget.style.borderColor = '#E8E6D8'}
                 required
                 disabled={isSubmitting}
               >
@@ -315,8 +329,10 @@ export default function Live1on1RequestModal({
                 value={formData.topic}
                 onChange={(e) => setFormData({ ...formData, topic: e.target.value })}
                 placeholder="e.g., Pitching Form Breakdown, Game Strategy Review"
-                className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:border-green-500 transition-colors"
+                className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-colors"
                 style={{ borderColor: '#E8E6D8', fontFamily: '"Open Sans", sans-serif' }}
+                onFocus={(e) => e.currentTarget.style.borderColor = '#FC0105'}
+                onBlur={(e) => e.currentTarget.style.borderColor = '#E8E6D8'}
                 required
                 disabled={isSubmitting}
               />
@@ -332,8 +348,10 @@ export default function Live1on1RequestModal({
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 placeholder="Describe what you'd like to work on during this session..."
                 rows={4}
-                className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:border-green-500 transition-colors resize-none"
+                className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-colors resize-none"
                 style={{ borderColor: '#E8E6D8', fontFamily: '"Open Sans", sans-serif' }}
+                onFocus={(e) => e.currentTarget.style.borderColor = '#FC0105'}
+                onBlur={(e) => e.currentTarget.style.borderColor = '#E8E6D8'}
                 required
                 disabled={isSubmitting}
               />
@@ -349,15 +367,17 @@ export default function Live1on1RequestModal({
                 onChange={(e) => setFormData({ ...formData, specificGoals: e.target.value })}
                 placeholder="What specific outcomes or improvements are you hoping for?"
                 rows={3}
-                className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:border-green-500 transition-colors resize-none"
+                className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-colors resize-none"
                 style={{ borderColor: '#E8E6D8', fontFamily: '"Open Sans", sans-serif' }}
+                onFocus={(e) => e.currentTarget.style.borderColor = '#FC0105'}
+                onBlur={(e) => e.currentTarget.style.borderColor = '#E8E6D8'}
                 disabled={isSubmitting}
               />
             </div>
 
             {/* Info Box */}
-            <div className="p-4 rounded-lg bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200">
-              <p className="text-sm" style={{ color: '#065F46', fontFamily: '"Open Sans", sans-serif' }}>
+            <div className="p-4 rounded-lg border-2" style={{ backgroundColor: '#FEF2F2', borderColor: '#FCA5A5' }}>
+              <p className="text-sm" style={{ color: '#440102', fontFamily: '"Open Sans", sans-serif' }}>
                 <strong>📅 Note:</strong> Your coach will review your request and confirm the session time.
                 You'll receive an email with the meeting link once approved.
               </p>
@@ -379,7 +399,7 @@ export default function Live1on1RequestModal({
                 disabled={!isValid || isSubmitting}
                 className="flex-1 py-3 px-6 rounded-lg flex items-center justify-center gap-2 transition-all disabled:opacity-50 font-semibold"
                 style={{
-                  backgroundColor: isValid && !isSubmitting ? '#16A34A' : '#9CA3AF',
+                  backgroundColor: isValid && !isSubmitting ? '#FC0105' : '#9CA3AF',
                   color: '#FFFFFF',
                   fontFamily: '"Open Sans", sans-serif'
                 }}
@@ -417,8 +437,8 @@ export default function Live1on1RequestModal({
                 </p>
                 <button
                   onClick={() => setActiveTab('request')}
-                  className="px-6 py-2 rounded-lg bg-black text-white hover:bg-gray-800 transition-colors font-bold"
-                  style={{ fontFamily: '"Open Sans", sans-serif' }}
+                  className="px-6 py-2 rounded-lg text-white hover:opacity-90 transition-opacity font-bold"
+                  style={{ backgroundColor: '#FC0105', fontFamily: '"Open Sans", sans-serif' }}
                 >
                   Request Session
                 </button>
