@@ -21,6 +21,7 @@ import AthleteTrainingLibrary from '@/components/athlete/AthleteTrainingLibrary'
 import AthleteRecommendedGear from '@/components/athlete/AthleteRecommendedGear'
 import AthleteAssistant from '@/components/athlete/AthleteAssistant'
 import ProfileQuickSetupModal from '@/components/athlete/ProfileQuickSetupModal'
+import WelcomePopup from '@/components/athlete/WelcomePopup'
 
 export default function AthleteDashboard() {
   const { user } = useAuth()
@@ -28,6 +29,9 @@ export default function AthleteDashboard() {
   const [isLoading, setIsLoading] = useState(true)
   const [isSigningOut, setIsSigningOut] = useState(false)
   const [showQuickSetup, setShowQuickSetup] = useState(false)
+  const [showWelcome, setShowWelcome] = useState(false)
+  const [athleteName, setAthleteName] = useState<string>('')
+  const [coachName, setCoachName] = useState<string>('')
 
   // Redirect non-athletes
   useEffect(() => {
@@ -67,11 +71,34 @@ export default function AthleteDashboard() {
   }, [user, router])
 
   useEffect(() => {
-    try {
-      const flag = localStorage.getItem('athleap_show_quick_profile_setup')
-      if (flag === '1') setShowQuickSetup(true)
-    } catch {}
-  }, [])
+    const loadWelcomeData = async () => {
+      try {
+        const welcomeFlag = localStorage.getItem('athleap_show_welcome_popup')
+        if (welcomeFlag === '1') {
+          setShowWelcome(true)
+          localStorage.removeItem('athleap_show_welcome_popup')
+          // Get athlete name and coach name from user data
+          if (user) {
+            const token = await user.getIdToken()
+            fetch('/api/user/role', {
+              headers: { 'Authorization': `Bearer ${token}` }
+            }).then(res => res.json()).then(data => {
+              if (data.success && data.data) {
+                setAthleteName(data.data.displayName || '')
+                setCoachName(data.data.coachName || '')
+              }
+            }).catch(() => {})
+          }
+        }
+
+        const quickSetupFlag = localStorage.getItem('athleap_show_quick_profile_setup')
+        if (quickSetupFlag === '1' && !welcomeFlag) {
+          setShowQuickSetup(true)
+        }
+      } catch {}
+    }
+    loadWelcomeData()
+  }, [user])
 
   if (isLoading) {
     return (
@@ -170,9 +197,18 @@ export default function AthleteDashboard() {
         </div>
       </main>
 
+      {/* Welcome popup - shows after first onboarding */}
+      {showWelcome && (
+        <WelcomePopup
+          athleteName={athleteName}
+          coachName={coachName}
+          onClose={() => setShowWelcome(false)}
+        />
+      )}
+
       {/* Optional profile quick-setup modal, stays on this page */}
       <ProfileQuickSetupModal
-        isOpen={showQuickSetup}
+        isOpen={showQuickSetup && !showWelcome}
         onClose={() => setShowQuickSetup(false)}
       />
     </div>

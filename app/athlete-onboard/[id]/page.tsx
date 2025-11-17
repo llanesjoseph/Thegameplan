@@ -2,18 +2,38 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import AppHeader from '@/components/ui/AppHeader'
 import { auth } from '@/lib/firebase.client'
-import { GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth'
+import { GoogleAuthProvider, signInWithPopup, User } from 'firebase/auth'
 
 interface InvitationData {
   id: string
   creatorUid: string
   coachId: string
+  coachName?: string
   athleteEmail: string
   athleteName: string
   sport: string
 }
+
+const GOALS_OPTIONS = [
+  'Support elite athlete as a fan',
+  'Learn new technical skills',
+  'Practice mental agility',
+  'Train for next level of the game'
+]
+
+const SPORTS = [
+  'Soccer',
+  'Basketball',
+  'Football',
+  'Baseball',
+  'Volleyball',
+  'Track & Field',
+  'Swimming',
+  'Tennis',
+  'Golf',
+  'Other'
+]
 
 export default function AthleteOnboardingPage() {
   const { id } = useParams()
@@ -21,7 +41,20 @@ export default function AthleteOnboardingPage() {
   const [invitation, setInvitation] = useState<InvitationData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string>('')
+  const [currentUser, setCurrentUser] = useState<User | null>(null)
+  const [isSigningIn, setIsSigningIn] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const invitationId = id as string
+
+  // Form state
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    primarySport: '',
+    secondarySport: '',
+    goals: [] as string[]
+  })
 
   useEffect(() => {
     const load = async () => {
@@ -31,6 +64,14 @@ export default function AthleteOnboardingPage() {
         const data = await res.json()
         if (res.ok && data.success && data.invitation) {
           setInvitation(data.invitation)
+          // Pre-populate email and sport from invitation
+          setFormData(prev => ({
+            ...prev,
+            email: data.invitation.athleteEmail || '',
+            primarySport: data.invitation.sport || '',
+            firstName: data.invitation.athleteName?.split(' ')[0] || '',
+            lastName: data.invitation.athleteName?.split(' ').slice(1).join(' ') || ''
+          }))
         } else if (data.alreadyUsed && data.shouldRedirect) {
           window.location.replace('/login?mode=signin')
           return
@@ -46,37 +87,84 @@ export default function AthleteOnboardingPage() {
     load()
   }, [invitationId])
 
-  const continueWithGoogle = async () => {
+  const signInWithGoogle = async () => {
     if (!invitation) return
     try {
+      setIsSigningIn(true)
       const provider = new GoogleAuthProvider()
       if (invitation.athleteEmail) {
         provider.setCustomParameters({ login_hint: invitation.athleteEmail, prompt: 'select_account' })
       }
       const result = await signInWithPopup(auth, provider)
-      const email = result.user.email || invitation.athleteEmail
+      setCurrentUser(result.user)
+      // Update email if different from invitation
+      if (result.user.email) {
+        setFormData(prev => ({ ...prev, email: result.user.email! }))
+      }
+    } catch (e: any) {
+      alert(e?.message || 'Google sign-in failed. Please try again.')
+      setIsSigningIn(false)
+    }
+  }
 
-      // Link the invitation to the account
-      await fetch('/api/complete-athlete-profile', {
+  const toggleGoal = (goal: string) => {
+    setFormData(prev => ({
+      ...prev,
+      goals: prev.goals.includes(goal)
+        ? prev.goals.filter(g => g !== goal)
+        : [...prev.goals, goal]
+    }))
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!currentUser || !invitation) return
+
+    setIsSubmitting(true)
+    try {
+      // Complete athlete profile
+      const response = await fetch('/api/complete-athlete-profile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           invitationId,
-          email,
-          coachId: invitation.coachId || invitation.creatorUid
+          email: formData.email,
+          coachId: invitation.coachId || invitation.creatorUid,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          primarySport: formData.primarySport,
+          secondarySport: formData.secondarySport,
+          goals: formData.goals
         })
       })
 
-      // Show quick profile setup on first dashboard view
-      try { localStorage.setItem('athleap_show_quick_profile_setup', '1') } catch {}
+      const result = await response.json()
 
-      // Sign out to ensure clean dashboard load, then hard redirect
-      await signOut(auth)
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || 'Failed to complete profile setup')
+      }
+
+      // Set flag to show welcome popup
+      try {
+        localStorage.setItem('athleap_show_welcome_popup', '1')
+      } catch {}
+
+      // Force token refresh to get new custom claims, then redirect
+      await currentUser.getIdToken(true)
+
+      // Redirect to dashboard (user stays signed in)
       window.location.replace('/dashboard/athlete')
     } catch (e: any) {
-      alert(e?.message || 'Google sign-in failed. Please try again.')
+      alert(e?.message || 'Failed to complete setup. Please try again.')
+      setIsSubmitting(false)
     }
   }
+
+  const isFormValid = formData.firstName.trim() &&
+    formData.lastName.trim() &&
+    formData.email.trim() &&
+    formData.primarySport &&
+    formData.goals.length > 0
 
   if (loading) {
     return (
@@ -89,43 +177,224 @@ export default function AthleteOnboardingPage() {
   if (error || !invitation) {
     return (
       <div className="min-h-screen bg-white">
-        <AppHeader />
         <div className="max-w-xl mx-auto px-4 py-12 text-center">
-          <h1 className="text-2xl font-bold mb-2">Invitation Error</h1>
+          <h1 className="text-2xl font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+            Invitation Error
+          </h1>
           <p className="text-gray-600">{error || 'Invalid invitation link.'}</p>
         </div>
       </div>
     )
   }
 
-  const firstName = (invitation.athleteName || '').split(' ')[0] || 'Athlete'
-
   return (
     <div className="min-h-screen bg-white">
-      <AppHeader />
-      <div className="max-w-3xl mx-auto px-4 py-10">
-        <div className="rounded-md p-8 text-center" style={{ backgroundColor: '#440102' }}>
-          <h1 className="text-white text-3xl font-extrabold mb-4">Welcome to Athleap, {firstName}!</h1>
-          <p className="text-white mb-3">
-            We are so glad you are here. You are now a part of the Athleap community,
-            and we hope to help you with your game. Here’s what to do next:
-          </p>
-          <ol className="text-white text-left list-decimal list-inside max-w-md mx-auto space-y-1">
-            <li>Personalize your profile</li>
-            <li>Find a coach to support your journey</li>
-            <li>Start training</li>
-          </ol>
-          <div className="mt-6">
-            <button
-              onClick={continueWithGoogle}
-              className="px-6 py-3 bg-white text-black rounded-lg font-semibold shadow hover:shadow-md"
-            >
-              Continue with Google
-            </button>
-          </div>
-          <p className="text-white/80 text-xs mt-4">You can complete your profile later; we’ll remind you.</p>
+      {/* Header */}
+      <header className="w-full border-b border-gray-200 px-4 py-4">
+        <div className="max-w-3xl mx-auto">
+          <span className="text-2xl font-bold" style={{ color: '#440102', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
+            ATHLEAP
+          </span>
         </div>
-      </div>
+      </header>
+
+      <main className="max-w-3xl mx-auto px-4 py-8">
+        <div className="text-center mb-8">
+          {/* ATHLEAP Logo Banner with Tagline */}
+          <div className="w-full h-40 rounded-lg flex flex-col items-center justify-center mb-6" style={{ backgroundColor: '#440102' }}>
+            <img
+              src="/brand/athleap-logo-colored.png"
+              alt="ATHLEAP"
+              className="h-24 w-auto mb-2"
+            />
+            <p className="text-white text-xs tracking-widest" style={{ fontFamily: '"Open Sans", sans-serif', letterSpacing: '0.15em' }}>
+              THE WORK BEFORE THE WIN
+            </p>
+          </div>
+          <h2 className="text-3xl font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+            Join as an Athlete
+          </h2>
+          <p className="text-gray-600" style={{ fontFamily: '"Open Sans", sans-serif' }}>
+            Tell Us About Yourself
+          </p>
+        </div>
+
+        {/* Sign in first if not authenticated */}
+        {!currentUser ? (
+          <div className="max-w-md mx-auto">
+            <div className="bg-gray-50 rounded-lg p-8 text-center border border-gray-200">
+              <p className="mb-6 text-gray-700" style={{ fontFamily: '"Open Sans", sans-serif' }}>
+                First, sign in with Google to create your account
+              </p>
+              <button
+                onClick={signInWithGoogle}
+                disabled={isSigningIn}
+                className="w-full px-6 py-3 bg-white border-2 border-gray-300 rounded-lg font-semibold hover:bg-gray-50 transition-colors flex items-center justify-center gap-3 disabled:opacity-50"
+                style={{ fontFamily: '"Open Sans", sans-serif' }}
+              >
+                {isSigningIn ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-gray-300 border-t-gray-900 rounded-full animate-spin" />
+                    Signing in...
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-5 h-5" viewBox="0 0 24 24">
+                      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                    Sign in with Google
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Name Fields */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                  First Name *
+                </label>
+                <input
+                  type="text"
+                  value={formData.firstName}
+                  onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-black"
+                  style={{ fontFamily: '"Open Sans", sans-serif' }}
+                  required
+                  disabled={isSubmitting}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                  Last Name *
+                </label>
+                <input
+                  type="text"
+                  value={formData.lastName}
+                  onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-black"
+                  style={{ fontFamily: '"Open Sans", sans-serif' }}
+                  required
+                  disabled={isSubmitting}
+                />
+              </div>
+            </div>
+
+            {/* Email */}
+            <div>
+              <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                Email *
+              </label>
+              <input
+                type="email"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-black bg-gray-50"
+                style={{ fontFamily: '"Open Sans", sans-serif' }}
+                required
+                disabled={true}
+              />
+              <p className="text-xs text-gray-500 mt-1">From your Google account</p>
+            </div>
+
+            {/* Primary Sport - Locked from Coach */}
+            <div>
+              <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                Primary Sport * {invitation.sport && <span className="text-xs text-gray-500 font-normal">(from your coach)</span>}
+              </label>
+              <select
+                value={formData.primarySport}
+                onChange={(e) => setFormData({ ...formData, primarySport: e.target.value })}
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-black"
+                style={{ fontFamily: '"Open Sans", sans-serif', backgroundColor: invitation.sport ? '#F9FAFB' : 'white' }}
+                required
+                disabled={isSubmitting || !!invitation.sport}
+              >
+                <option value="">Select primary sport</option>
+                {SPORTS.map(sport => (
+                  <option key={sport} value={sport}>{sport}</option>
+                ))}
+              </select>
+              {invitation.sport && (
+                <p className="text-xs text-gray-500 mt-1">Your coach's sport is automatically selected</p>
+              )}
+            </div>
+
+            {/* Secondary Sport */}
+            <div>
+              <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                Secondary Sport (Optional)
+              </label>
+              <select
+                value={formData.secondarySport}
+                onChange={(e) => setFormData({ ...formData, secondarySport: e.target.value })}
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-black"
+                style={{ fontFamily: '"Open Sans", sans-serif' }}
+                disabled={isSubmitting}
+              >
+                <option value="">Select secondary sport</option>
+                {SPORTS.map(sport => (
+                  <option key={sport} value={sport}>{sport}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Goals */}
+            <div>
+              <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                Goals * (Select all that apply)
+              </label>
+              <div className="space-y-2">
+                {GOALS_OPTIONS.map(goal => (
+                  <label
+                    key={goal}
+                    className="flex items-center gap-3 p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
+                    style={{
+                      borderColor: formData.goals.includes(goal) ? '#000000' : '#E5E7EB',
+                      backgroundColor: formData.goals.includes(goal) ? '#F9FAFB' : 'white'
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={formData.goals.includes(goal)}
+                      onChange={() => toggleGoal(goal)}
+                      className="w-5 h-5"
+                      disabled={isSubmitting}
+                    />
+                    <span style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>{goal}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={!isFormValid || isSubmitting}
+              className="w-full py-4 px-6 rounded-lg text-lg font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{
+                backgroundColor: isFormValid && !isSubmitting ? '#000000' : '#9CA3AF',
+                color: '#FFFFFF',
+                fontFamily: '"Open Sans", sans-serif'
+              }}
+            >
+              {isSubmitting ? (
+                <span className="flex items-center justify-center gap-2">
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Submitting Profile...
+                </span>
+              ) : (
+                'Submit Profile'
+              )}
+            </button>
+          </form>
+        )}
+      </main>
     </div>
   )
 }

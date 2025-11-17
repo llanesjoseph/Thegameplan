@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { nanoid } from 'nanoid'
 import { auth, adminDb } from '@/lib/firebase.admin'
-import { sendCoachNotificationEmail, sendAthleteWelcomeEmail } from '@/lib/email-service'
+import { sendCoachNotificationEmail } from '@/lib/email-service'
 import { generateSlug } from '@/lib/slug-utils'
 
 // Force dynamic rendering for API route
@@ -16,7 +16,16 @@ export const runtime = 'nodejs'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { invitationId, email, coachId: requestCoachId } = body
+    const {
+      invitationId,
+      email,
+      coachId: requestCoachId,
+      firstName,
+      lastName,
+      primarySport,
+      secondarySport,
+      goals
+    } = body
 
     if (!invitationId || !email) {
       return NextResponse.json(
@@ -39,13 +48,21 @@ export async function POST(request: NextRequest) {
     }
 
     const invitationData = invitationDoc.data()
-    const athleteProfile = invitationData?.athleteProfile
 
-    if (!athleteProfile) {
-      return NextResponse.json(
-        { error: 'No profile data found. Please complete the onboarding questionnaire first.' },
-        { status: 400 }
-      )
+    // Support both old flow (athleteProfile in invitation) and new simplified flow (fields in request)
+    const athleteProfile = invitationData?.athleteProfile || {
+      email: email,
+      displayName: `${firstName || ''} ${lastName || ''}`.trim(),
+      firstName: firstName || '',
+      lastName: lastName || '',
+      primarySport: primarySport || '',
+      secondarySports: secondarySport ? [secondarySport] : [],
+      trainingGoals: goals || [],
+      skillLevel: '', // Not collected in new flow
+      achievements: '',
+      availability: [],
+      learningStyle: '',
+      specialNotes: ''
     }
 
     // Get the user's Firebase Auth record
@@ -264,6 +281,9 @@ export async function POST(request: NextRequest) {
         } catch (error) {
           console.error('Failed to send coach notification:', error)
         }
+
+        // Note: Athlete welcome email is skipped for Google sign-in flow
+        // Athletes get the welcome popup in the dashboard instead
       }
     }
 

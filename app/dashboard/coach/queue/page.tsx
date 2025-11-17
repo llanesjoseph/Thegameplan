@@ -27,8 +27,12 @@ export default function CoachQueuePage() {
   const isEmbedded = searchParams.get('embedded') === 'true'
   const athleteId = searchParams.get('athleteId')
 
-  // Only use role hook when NOT embedded
-  const { role, loading: roleLoading } = isEmbedded ? { role: 'coach', loading: false } : useEnhancedRole()
+  // Always call hook (Rules of Hooks), but use result conditionally
+  const roleHookResult = useEnhancedRole()
+
+  // Use role from hook if not embedded, otherwise default to 'coach'
+  const role = isEmbedded ? 'coach' : roleHookResult.role
+  const roleLoading = isEmbedded ? false : roleHookResult.loading
 
   const [submissions, setSubmissions] = useState<VideoSubmission[]>([])
   const [loading, setLoading] = useState(true)
