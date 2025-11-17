@@ -45,6 +45,7 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose }: Enhanced
   const [selectedAthleteIndex, setSelectedAthleteIndex] = useState(0)
   const [loading, setLoading] = useState(true)
   const [viewState, setViewState] = useState<ViewState>('list')
+  const [coachSport, setCoachSport] = useState<string>('Soccer')
   const [inviteForm, setInviteForm] = useState<InviteForm>({
     sport: 'Soccer',
     customMessage: '',
@@ -53,6 +54,32 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose }: Enhanced
   const [sendingInvites, setSendingInvites] = useState(false)
   const [aiChatSummary, setAiChatSummary] = useState<string>('')
   const [loadingSummary, setLoadingSummary] = useState(false)
+
+  // Load coach's sport
+  useEffect(() => {
+    const loadCoachSport = async () => {
+      if (!user?.uid) return
+
+      try {
+        const token = await user.getIdToken()
+        const response = await fetch(`/api/coach-profile/get`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+        const data = await response.json()
+
+        if (data.success && data.data?.sport) {
+          setCoachSport(data.data.sport)
+          setInviteForm(prev => ({ ...prev, sport: data.data.sport }))
+        }
+      } catch (error) {
+        console.error('Error loading coach sport:', error)
+      }
+    }
+
+    loadCoachSport()
+  }, [user])
 
   useEffect(() => {
     const loadAthletes = async () => {
@@ -127,8 +154,10 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose }: Enhanced
         })
         const data = await response.json()
 
-        if (data.success) {
-          setAiChatSummary(data.summary || 'No recent conversations')
+        console.log('AI Chat Summary API Response:', data)
+
+        if (data.success && data.summary) {
+          setAiChatSummary(data.summary.verbalSummary || 'No recent conversations')
         } else {
           setAiChatSummary('No recent conversations')
         }
