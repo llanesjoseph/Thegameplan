@@ -25,21 +25,53 @@ export default function AthleteTrainingLibrary() {
       }
 
       try {
-        // Get athlete's coach ID
+        console.log('🔍 Loading training library for athlete:', user.uid)
+
+        // Get athlete's assigned coach ID
         const userDoc = await getDoc(doc(db, 'users', user.uid))
+        const coachIds: string[] = []
+
         if (userDoc.exists()) {
           const userData = userDoc.data()
-          const coachId = userData?.coachId || userData?.assignedCoachId
+          const assignedCoachId = userData?.coachId || userData?.assignedCoachId
 
-          if (coachId) {
-            // Fetch coach's published lessons
+          // Add assigned coach
+          if (assignedCoachId) {
+            coachIds.push(assignedCoachId)
+            console.log('  ✅ Assigned coach:', assignedCoachId)
+          }
+        }
+
+        // Get followed coaches
+        const followersQuery = query(
+          collection(db, 'coach_followers'),
+          where('athleteId', '==', user.uid)
+        )
+        const followersSnap = await getDocs(followersQuery)
+        followersSnap.forEach((doc) => {
+          const followedCoachId = doc.data().coachId
+          if (followedCoachId && !coachIds.includes(followedCoachId)) {
+            coachIds.push(followedCoachId)
+            console.log('  ✅ Followed coach:', followedCoachId)
+          }
+        })
+
+        console.log(`📚 Fetching lessons from ${coachIds.length} coach(es)`)
+
+        if (coachIds.length > 0) {
+          // Fetch lessons from ALL coaches (assigned + followed)
+          const allLessons: any[] = []
+
+          for (const coachId of coachIds) {
             const lessonsQuery = query(
               collection(db, 'content'),
               where('creatorUid', '==', coachId),
               where('status', '==', 'published')
             )
             const lessonsSnap = await getDocs(lessonsQuery)
-            const lessonsData = await Promise.all(
+            console.log(`  📖 Found ${lessonsSnap.size} lessons from coach ${coachId}`)
+
+            const coachLessons = await Promise.all(
               lessonsSnap.docs.map(async (d) => {
                 const data: any = d.data()
                 // Priority: video thumbnail > lesson thumbnail > coach photo > logo
@@ -68,25 +100,28 @@ export default function AthleteTrainingLibrary() {
                 }
               })
             )
-            setLessons(lessonsData) // We keep all, but page through
-            setPage(0)
-
-            // Load completed lessons for this athlete
-            const completedQuery = query(
-              collection(db, 'lessonCompletions'),
-              where('athleteUid', '==', user.uid)
-            )
-            const completedSnap = await getDocs(completedQuery)
-            const completed = new Set<string>()
-            completedSnap.forEach((doc) => {
-              const data = doc.data()
-              if (data.lessonId) {
-                completed.add(data.lessonId)
-              }
-            })
-            setCompletedLessons(completed)
+            allLessons.push(...coachLessons)
           }
+
+          console.log(`✅ Total lessons loaded: ${allLessons.length}`)
+          setLessons(allLessons)
+          setPage(0)
         }
+
+        // Load completed lessons for this athlete
+        const completedQuery = query(
+          collection(db, 'lessonCompletions'),
+          where('athleteUid', '==', user.uid)
+        )
+        const completedSnap = await getDocs(completedQuery)
+        const completed = new Set<string>()
+        completedSnap.forEach((doc) => {
+          const data = doc.data()
+          if (data.lessonId) {
+            completed.add(data.lessonId)
+          }
+        })
+        setCompletedLessons(completed)
       } catch (error) {
         console.error('Error loading training library:', error)
       } finally {
