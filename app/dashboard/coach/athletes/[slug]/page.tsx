@@ -512,6 +512,16 @@ export default function SecureAthleteProfilePage() {
           </div>
         )}
 
+        {/* AI Chat Summary */}
+        <div className="bg-white rounded-xl border-2 border-gray-200 p-8 mb-8">
+          <h3 className="text-xl font-bold mb-4 flex items-center gap-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+            <Sparkles className="w-6 h-6" style={{ color: '#9B59B6' }} />
+            AI Chat Summary
+          </h3>
+          <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+            <p style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', lineHeight: '1.6' }}>{aiChatSummary}</p>
+          </div>
+        </div>
       </main>
     </div>
   )
