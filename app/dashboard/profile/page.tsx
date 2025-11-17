@@ -311,7 +311,8 @@ function ProfilePageContent() {
       title: 'Achievements & Awards',
       description: 'Your accomplishments',
       icon: Trophy,
-      color: '#000000'
+      color: '#000000',
+      coachOnly: true
     },
     {
       id: 'social-links',
