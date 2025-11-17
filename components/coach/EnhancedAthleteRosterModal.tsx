@@ -197,50 +197,137 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose }: Enhanced
                       {/* Carousel Container */}
                       <div className="flex-1 overflow-hidden">
                         <div className="flex items-center justify-center gap-4">
-                          {/* Show 5 athletes: 2 before, current, 2 after */}
-                          {[-2, -1, 0, 1, 2].map((offset) => {
-                            const index = (selectedAthleteIndex + offset + athletes.length) % athletes.length
-                            const athlete = athletes[index]
-                            const isCurrent = offset === 0
+                          {/* Show current athlete centered */}
+                          {athletes.length > 0 && (
+                            <div className="flex items-center justify-center gap-6">
+                              {/* Show 2 athletes before if available */}
+                              {athletes.length > 1 && (
+                                <>
+                                  <button
+                                    onClick={() => setSelectedAthleteIndex((selectedAthleteIndex - 2 + athletes.length) % athletes.length)}
+                                    className="w-16 h-16 opacity-30 hover:opacity-50 transition-all duration-300"
+                                  >
+                                    <div className="w-full h-full rounded-lg overflow-hidden bg-gray-100">
+                                      {athletes[(selectedAthleteIndex - 2 + athletes.length) % athletes.length].profileImageUrl ? (
+                                        // eslint-disable-next-line @next/next/no-img-element
+                                        <img
+                                          src={athletes[(selectedAthleteIndex - 2 + athletes.length) % athletes.length].profileImageUrl}
+                                          alt={athletes[(selectedAthleteIndex - 2 + athletes.length) % athletes.length].displayName}
+                                          className="w-full h-full object-cover"
+                                        />
+                                      ) : (
+                                        <div
+                                          className="w-full h-full flex items-center justify-center text-xl font-bold"
+                                          style={{ backgroundColor: '#8B7D7B', color: '#fff' }}
+                                        >
+                                          {athletes[(selectedAthleteIndex - 2 + athletes.length) % athletes.length].displayName.charAt(0).toUpperCase()}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </button>
+                                  <button
+                                    onClick={() => setSelectedAthleteIndex((selectedAthleteIndex - 1 + athletes.length) % athletes.length)}
+                                    className="w-20 h-20 opacity-50 hover:opacity-75 transition-all duration-300"
+                                  >
+                                    <div className="w-full h-full rounded-lg overflow-hidden bg-gray-100">
+                                      {athletes[(selectedAthleteIndex - 1 + athletes.length) % athletes.length].profileImageUrl ? (
+                                        // eslint-disable-next-line @next/next/no-img-element
+                                        <img
+                                          src={athletes[(selectedAthleteIndex - 1 + athletes.length) % athletes.length].profileImageUrl}
+                                          alt={athletes[(selectedAthleteIndex - 1 + athletes.length) % athletes.length].displayName}
+                                          className="w-full h-full object-cover"
+                                        />
+                                      ) : (
+                                        <div
+                                          className="w-full h-full flex items-center justify-center text-xl font-bold"
+                                          style={{ backgroundColor: '#8B7D7B', color: '#fff' }}
+                                        >
+                                          {athletes[(selectedAthleteIndex - 1 + athletes.length) % athletes.length].displayName.charAt(0).toUpperCase()}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </button>
+                                </>
+                              )}
 
-                            return (
-                              <button
-                                key={athlete.uid}
-                                onClick={() => setSelectedAthleteIndex(index)}
-                                className={`transition-all duration-300 ${
-                                  isCurrent
-                                    ? 'w-32 h-32 opacity-100 ring-4 ring-black'
-                                    : 'w-20 h-20 opacity-50 hover:opacity-75'
-                                }`}
-                              >
-                                <div className="w-full h-full rounded-full overflow-hidden bg-gray-100">
-                                  {athlete.profileImageUrl ? (
+                              {/* Current athlete - centered and highlighted */}
+                              <div className="flex flex-col items-center">
+                                <div className="w-32 h-32 rounded-lg overflow-hidden bg-gray-100 ring-4 ring-black">
+                                  {selectedAthlete.profileImageUrl ? (
                                     // eslint-disable-next-line @next/next/no-img-element
                                     <img
-                                      src={athlete.profileImageUrl}
-                                      alt={athlete.displayName}
+                                      src={selectedAthlete.profileImageUrl}
+                                      alt={selectedAthlete.displayName}
                                       className="w-full h-full object-cover"
                                     />
                                   ) : (
                                     <div
-                                      className="w-full h-full flex items-center justify-center text-2xl font-bold"
+                                      className="w-full h-full flex items-center justify-center text-3xl font-bold"
                                       style={{ backgroundColor: '#8B7D7B', color: '#fff' }}
                                     >
-                                      {athlete.displayName.charAt(0).toUpperCase()}
+                                      {selectedAthlete.displayName.charAt(0).toUpperCase()}
                                     </div>
                                   )}
                                 </div>
-                                {isCurrent && (
-                                  <p
-                                    className="mt-3 text-base font-bold text-center"
-                                    style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}
+                                <p
+                                  className="mt-3 text-base font-bold text-center"
+                                  style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}
+                                >
+                                  {selectedAthlete.displayName}
+                                </p>
+                              </div>
+
+                              {/* Show 2 athletes after if available */}
+                              {athletes.length > 1 && (
+                                <>
+                                  <button
+                                    onClick={() => setSelectedAthleteIndex((selectedAthleteIndex + 1) % athletes.length)}
+                                    className="w-20 h-20 opacity-50 hover:opacity-75 transition-all duration-300"
                                   >
-                                    {athlete.displayName}
-                                  </p>
-                                )}
-                              </button>
-                            )
-                          })}
+                                    <div className="w-full h-full rounded-lg overflow-hidden bg-gray-100">
+                                      {athletes[(selectedAthleteIndex + 1) % athletes.length].profileImageUrl ? (
+                                        // eslint-disable-next-line @next/next/no-img-element
+                                        <img
+                                          src={athletes[(selectedAthleteIndex + 1) % athletes.length].profileImageUrl}
+                                          alt={athletes[(selectedAthleteIndex + 1) % athletes.length].displayName}
+                                          className="w-full h-full object-cover"
+                                        />
+                                      ) : (
+                                        <div
+                                          className="w-full h-full flex items-center justify-center text-xl font-bold"
+                                          style={{ backgroundColor: '#8B7D7B', color: '#fff' }}
+                                        >
+                                          {athletes[(selectedAthleteIndex + 1) % athletes.length].displayName.charAt(0).toUpperCase()}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </button>
+                                  <button
+                                    onClick={() => setSelectedAthleteIndex((selectedAthleteIndex + 2) % athletes.length)}
+                                    className="w-16 h-16 opacity-30 hover:opacity-50 transition-all duration-300"
+                                  >
+                                    <div className="w-full h-full rounded-lg overflow-hidden bg-gray-100">
+                                      {athletes[(selectedAthleteIndex + 2) % athletes.length].profileImageUrl ? (
+                                        // eslint-disable-next-line @next/next/no-img-element
+                                        <img
+                                          src={athletes[(selectedAthleteIndex + 2) % athletes.length].profileImageUrl}
+                                          alt={athletes[(selectedAthleteIndex + 2) % athletes.length].displayName}
+                                          className="w-full h-full object-cover"
+                                        />
+                                      ) : (
+                                        <div
+                                          className="w-full h-full flex items-center justify-center text-xl font-bold"
+                                          style={{ backgroundColor: '#8B7D7B', color: '#fff' }}
+                                        >
+                                          {athletes[(selectedAthleteIndex + 2) % athletes.length].displayName.charAt(0).toUpperCase()}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </button>
+                                </>
+                              )}
+                            </div>
+                          )}
                         </div>
                       </div>
 
@@ -350,7 +437,7 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose }: Enhanced
                       </div>
 
                       {/* Action Panel */}
-                      <div className="bg-gray-50 rounded-xl p-6 border-2 border-gray-200">
+                      <div className="bg-gray-50 rounded-xl p-6 border-2 border-gray-200 mb-8">
                         <h3 className="text-lg font-bold mb-4" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
                           Quick Actions
                         </h3>
@@ -373,6 +460,31 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose }: Enhanced
                               Review Videos ({selectedMetrics.videosAwaiting})
                             </button>
                           )}
+                        </div>
+                      </div>
+
+                      {/* Pending Invitations */}
+                      <div className="bg-white rounded-xl p-6 border-2 border-gray-200">
+                        <h3 className="text-lg font-bold mb-4 flex items-center gap-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                          <svg className="w-6 h-6" style={{ color: '#FC0105' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                          </svg>
+                          Pending Invitations
+                        </h3>
+                        <div className="bg-gray-50 rounded-lg p-4 text-center border border-gray-200">
+                          <p className="text-sm" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+                            No pending invitations at this time
+                          </p>
+                          <button
+                            className="mt-4 px-6 py-3 rounded-lg bg-black text-white font-bold hover:bg-gray-800 transition-colors"
+                            style={{ fontFamily: '"Open Sans", sans-serif' }}
+                            onClick={() => {
+                              // TODO: Add invite athlete functionality
+                              alert('Invite athlete feature coming soon!')
+                            }}
+                          >
+                            Invite New Athlete
+                          </button>
                         </div>
                       </div>
                     </div>
