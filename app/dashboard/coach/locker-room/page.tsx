@@ -184,10 +184,12 @@ export default function CoachLockerRoom() {
                   onClick={() => setActiveModal('event-schedule')}
                   className="text-left w-full"
                 >
-                  <div className="w-full aspect-square rounded-lg overflow-hidden mb-1" style={{ backgroundColor: '#8B7D7B' }}>
-                    <div className="w-full h-full flex items-center justify-center">
-                      <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
-                    </div>
+                  <div className="w-full aspect-square rounded-lg overflow-hidden mb-1">
+                    <img
+                      src="/brand/event-schedule.png"
+                      alt="Event Schedule"
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   <p className="text-sm font-semibold" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
                     Event Schedule
