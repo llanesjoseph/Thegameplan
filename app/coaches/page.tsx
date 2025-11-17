@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { ChevronDown, ArrowLeft, UserPlus, UserCheck } from 'lucide-react'
+import { ChevronDown, ArrowLeft, UserPlus, UserCheck, Instagram, Youtube, Linkedin } from 'lucide-react'
 import { SPORTS } from '@/lib/constants/sports'
 
 type Coach = {
@@ -34,6 +34,8 @@ export default function BrowseCoachesPage() {
   const [offset, setOffset] = useState(0)
   const [followingSet, setFollowingSet] = useState<Set<string>>(new Set())
   const [followingLoading, setFollowingLoading] = useState<Set<string>>(new Set())
+  const [availableSports, setAvailableSports] = useState<string[]>([])
+  const [topAthletes, setTopAthletes] = useState<any[]>([])
 
   const handleSignOut = async () => {
     try {
@@ -137,6 +139,30 @@ export default function BrowseCoachesPage() {
     }
   }
 
+  const loadAvailableSports = async () => {
+    try {
+      const response = await fetch('/api/coaches/available-sports', { cache: 'no-store' })
+      const data = await response.json()
+      if (data.success && data.sports) {
+        setAvailableSports(data.sports)
+      }
+    } catch (error) {
+      console.error('Error loading available sports:', error)
+    }
+  }
+
+  const loadTopAthletes = async () => {
+    try {
+      const response = await fetch('/api/athletes/top?limit=3', { cache: 'no-store' })
+      const data = await response.json()
+      if (data.success && data.athletes) {
+        setTopAthletes(data.athletes)
+      }
+    } catch (error) {
+      console.error('Error loading top athletes:', error)
+    }
+  }
+
   const loadCoaches = async (reset = false) => {
     setLoading(true)
     try {
@@ -169,6 +195,8 @@ export default function BrowseCoachesPage() {
   }, [selectedSport])
 
   useEffect(() => {
+    loadAvailableSports()
+    loadTopAthletes()
     if (user?.uid) {
       loadFollowingList()
     }
@@ -208,34 +236,79 @@ export default function BrowseCoachesPage() {
 
       {/* Main Content */}
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="space-y-6">
-          {/* Page Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="space-y-10">
+          {/* Top Athletes Section */}
+          {topAthletes.length > 0 && (
             <div>
-              <h1 className="text-3xl font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
-                Browse Coaches
-              </h1>
-              <p className="text-sm" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
-                {totalCount} {totalCount === 1 ? 'coach' : 'coaches'} available
+              <h2 className="text-2xl font-bold mb-4" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
+                Top Athletes
+              </h2>
+              <p className="text-sm mb-4" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+                Based on activity and engagement
               </p>
-            </div>
-
-            {/* Sport Filter */}
-            <div className="relative">
-              <select
-                value={selectedSport}
-                onChange={(e) => setSelectedSport(e.target.value)}
-                className="appearance-none px-4 py-2 pr-10 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-black cursor-pointer"
-                style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 600 }}
-              >
-                <option value="all">All Sports</option>
-                {SPORTS.map(sport => (
-                  <option key={sport} value={sport}>{sport}</option>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                {topAthletes.map((athlete) => (
+                  <div key={athlete.id} className="group block">
+                    <div className="space-y-2">
+                      <div className="relative w-full aspect-square rounded-lg overflow-hidden bg-gray-100 ring-2 ring-transparent group-hover:ring-black transition-all">
+                        {athlete.photoURL ? (
+                          <img
+                            src={athlete.photoURL}
+                            alt={athlete.displayName}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#8B7D7B' }}>
+                            <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-bold text-sm line-clamp-1" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                          {athlete.displayName}
+                        </p>
+                        {athlete.sport && (
+                          <p className="text-xs line-clamp-1" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+                            {athlete.sport}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 ))}
-              </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none" />
+              </div>
             </div>
-          </div>
+          )}
+
+          {/* All Coaches by Sport Section */}
+          <div>
+            {/* Section Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+              <div>
+                <h2 className="text-2xl font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
+                  All Coaches by Sport
+                </h2>
+                <p className="text-sm" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+                  {totalCount} {totalCount === 1 ? 'coach' : 'coaches'} available
+                </p>
+              </div>
+
+              {/* Sport Filter */}
+              <div className="relative">
+                <select
+                  value={selectedSport}
+                  onChange={(e) => setSelectedSport(e.target.value)}
+                  className="appearance-none px-4 py-2 pr-10 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-black cursor-pointer"
+                  style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 600 }}
+                >
+                  <option value="all">All Sports</option>
+                  {availableSports.map(sport => (
+                    <option key={sport} value={sport}>{sport}</option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none" />
+              </div>
+            </div>
 
           {/* Coaches Grid */}
           {loading && coaches.length === 0 ? (
@@ -368,6 +441,41 @@ export default function BrowseCoachesPage() {
               <div className="w-8 h-8 border-4 border-black border-t-transparent rounded-full animate-spin" />
             </div>
           )}
+          </div>
+
+          {/* Social Media Icons */}
+          <div className="flex items-center gap-4 pt-8">
+            <a
+              href="https://instagram.com/athleap"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110"
+              style={{ backgroundColor: '#E4405F' }}
+              title="Instagram"
+            >
+              <Instagram className="w-5 h-5 text-white" />
+            </a>
+            <a
+              href="https://youtube.com/@athleap"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110"
+              style={{ backgroundColor: '#FF0000' }}
+              title="YouTube"
+            >
+              <Youtube className="w-5 h-5 text-white" />
+            </a>
+            <a
+              href="https://linkedin.com/company/athleap"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110"
+              style={{ backgroundColor: '#0A66C2' }}
+              title="LinkedIn"
+            >
+              <Linkedin className="w-5 h-5 text-white" />
+            </a>
+          </div>
         </div>
       </main>
     </div>
