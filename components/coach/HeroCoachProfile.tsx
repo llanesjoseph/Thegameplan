@@ -388,13 +388,13 @@ export default function HeroCoachProfile({
                   </h4>
                   <div className={`grid grid-cols-2 ${isInIframe ? 'gap-2' : 'gap-3'}`}>
                     {coach.showcasePhoto1 && (
-                      <div className={`w-full ${isInIframe ? 'aspect-[2/1]' : 'aspect-square'} rounded-lg overflow-hidden bg-gray-100`}>
+                      <div className="w-full aspect-square rounded-lg overflow-hidden bg-gray-100">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={coach.showcasePhoto1} alt="Showcase 1" className="w-full h-full object-cover" />
                       </div>
                     )}
                     {coach.showcasePhoto2 && (
-                      <div className={`w-full ${isInIframe ? 'aspect-[2/1]' : 'aspect-square'} rounded-lg overflow-hidden bg-gray-100`}>
+                      <div className="w-full aspect-square rounded-lg overflow-hidden bg-gray-100">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={coach.showcasePhoto2} alt="Showcase 2" className="w-full h-full object-cover" />
                       </div>
