@@ -7,7 +7,7 @@ import { useEnhancedRole } from '@/hooks/use-role-switcher'
 import { signOut } from 'firebase/auth'
 import { auth } from '@/lib/firebase.client'
 import { Calendar, Video, Users, FileText, Facebook, Instagram, Youtube, Linkedin, X } from 'lucide-react'
-import AthleteEngagementList from '@/components/coach/AthleteEngagementList'
+import EnhancedAthleteRosterModal from '@/components/coach/EnhancedAthleteRosterModal'
 import CoachContentUpload from '@/components/coach/CoachContentUpload'
 
 export default function CoachLockerRoom() {
@@ -242,39 +242,10 @@ export default function CoachLockerRoom() {
       </main>
 
       {/* Modals */}
-      {activeModal === 'athletes' && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
-          onClick={() => setActiveModal(null)}
-        >
-          <div
-            className="bg-white rounded-2xl p-6 max-w-4xl w-full max-h-[85vh] overflow-hidden flex flex-col"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
-              <div>
-                <h2 className="text-2xl font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
-                  Athlete Roster & Invitations
-                </h2>
-                <p className="text-sm mt-1" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
-                  Track athlete status and engagement
-                </p>
-              </div>
-              <button
-                onClick={() => setActiveModal(null)}
-                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                aria-label="Close"
-              >
-                <X className="w-6 h-6" style={{ color: '#000000' }} />
-              </button>
-            </div>
-            <div className="flex-1 overflow-y-auto">
-              <AthleteEngagementList />
-            </div>
-          </div>
-        </div>
-      )}
+      <EnhancedAthleteRosterModal
+        isOpen={activeModal === 'athletes'}
+        onClose={() => setActiveModal(null)}
+      />
 
       {activeModal === 'create-lesson' && (
         <div
