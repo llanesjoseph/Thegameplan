@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 
 interface GearItem {
@@ -17,8 +16,6 @@ export default function AthleteRecommendedGear() {
   const { user } = useAuth()
   const [gear, setGear] = useState<GearItem[]>([])
   const [loading, setLoading] = useState(true)
-  const [page, setPage] = useState(0)
-  const pageSize = 4
 
   useEffect(() => {
     const load = async () => {
@@ -46,20 +43,20 @@ export default function AthleteRecommendedGear() {
     load()
   }, [user])
 
-  const totalPages = Math.max(1, Math.ceil((gear?.length || 0) / pageSize))
-  const canPrev = page > 0
-  const canNext = page < totalPages - 1
-  const visible = gear.slice(page * pageSize, page * pageSize + pageSize)
+  const visible = gear.slice(0, 4)
 
   return (
-    <div>
-      <h2 className="text-xl font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
-        Recommended Gear
-      </h2>
-      
-      <div className="relative">
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-        {(loading ? Array.from({ length: 4 }) : visible).map((item: any, idx: number) => {
+    <section className="w-full bg-[#4B0102]">
+      <div className="max-w-6xl mx-auto px-8 py-12">
+        <h2
+          className="mb-6"
+          style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '25px', color: '#FFFFFF' }}
+        >
+          Your Recommended Gear
+        </h2>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
+          {(loading ? Array.from({ length: 4 }) : visible).map((item: any, idx: number) => {
           const ItemWrapper = item?.link ? 'a' : 'div'
           const wrapperProps = item?.link ? {
             href: item.link,
@@ -72,9 +69,9 @@ export default function AthleteRecommendedGear() {
 
           return (
             <ItemWrapper key={item?.id || idx} {...wrapperProps}>
-              <div className="w-full mb-1 rounded-lg overflow-hidden" style={{ aspectRatio: '1/1' }}>
+              <div className="w-full mb-3 rounded-lg overflow-hidden bg-[#5A0202] bg-opacity-90" style={{ aspectRatio: '1/1' }}>
                 {loading ? (
-                  <div className="w-full h-full bg-gray-200 animate-pulse"></div>
+                  <div className="w-full h-full bg-gray-200 animate-pulse" />
                 ) : item.imageUrl ? (
                   <img
                     src={item.imageUrl}
@@ -88,58 +85,22 @@ export default function AthleteRecommendedGear() {
                 )}
               </div>
               {!loading && (
-                <div className="pt-1">
-                  <p className="font-bold mb-0.5 text-xs" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                <div className="pt-1 text-center">
+                  <p className="font-bold mb-0.5 text-xs" style={{ color: '#FFFFFF', fontFamily: '"Open Sans", sans-serif' }}>
                     {item.name}
                   </p>
-                  {item.description && (
-                    <p className="text-xs mb-0.5" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
-                      {item.description}
-                    </p>
-                  )}
                   {item.price && (
-                    <p className="font-bold text-xs" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                    <p className="font-bold text-xs" style={{ color: '#FC0105', fontFamily: '"Open Sans", sans-serif' }}>
                       {item.price}
                     </p>
                   )}
                 </div>
               )}
             </ItemWrapper>
-          )
-        })}
+          ))}
         </div>
-
-        {/* Arrows */}
-        {!loading && gear.length > pageSize && (
-          <>
-            <button
-              aria-label="Previous gear"
-              disabled={!canPrev}
-              onClick={() => setPage((p) => Math.max(0, p - 1))}
-              className={`absolute left-2 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full border flex items-center justify-center transition ${
-                canPrev
-                  ? 'bg-white text-black border-black/70 hover:bg-black hover:text-white'
-                  : 'bg-white text-gray-400 border-gray-300 cursor-not-allowed opacity-60'
-              }`}
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <button
-              aria-label="Next gear"
-              disabled={!canNext}
-              onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
-              className={`absolute right-2 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full border flex items-center justify-center transition ${
-                canNext
-                  ? 'bg-white text-black border-black/70 hover:bg-black hover:text-white'
-                  : 'bg-white text-gray-400 border-gray-300 cursor-not-allowed opacity-60'
-              }`}
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </>
-        )}
       </div>
-    </div>
+    </section>
   )
 }
 

@@ -1,11 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { useAuth } from '@/hooks/use-auth'
 import { doc, getDoc, collection, query, where, getDocs, setDoc, deleteDoc } from 'firebase/firestore'
 import { db, storage } from '@/lib/firebase.client'
 import { ref, getDownloadURL } from 'firebase/storage'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
 import LessonOverlay from '@/components/LessonOverlay'
 
 export default function AthleteTrainingLibrary() {
@@ -15,7 +15,7 @@ export default function AthleteTrainingLibrary() {
   const [page, setPage] = useState(0)
   const [openLessonId, setOpenLessonId] = useState<string | null>(null)
   const [completedLessons, setCompletedLessons] = useState<Set<string>>(new Set())
-  const pageSize = 4
+  const pageSize = 8
 
   useEffect(() => {
     const loadTrainingLibrary = async () => {
@@ -187,85 +187,80 @@ export default function AthleteTrainingLibrary() {
   const totalPages = Math.max(1, Math.ceil(lessons.length / pageSize))
   const start = page * pageSize
   const visibleLessons = lessons.slice(start, start + pageSize)
-  const canPrev = page > 0
-  const canNext = page < totalPages - 1
 
   return (
     <div>
-      <h2 className="text-xl font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
+      <h2
+        className="mb-6"
+        style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '25px', letterSpacing: '0.05em' }}
+      >
         Your Training Library
       </h2>
-      
+
       {loading ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="w-full">
-              <div className="w-full rounded-lg overflow-hidden bg-gray-200 mb-1 animate-pulse" style={{ aspectRatio: '1/1' }}></div>
-              <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+        <div className="space-y-4">
+          {[1, 2].map((i) => (
+            <div key={i} className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-full bg-gray-200 animate-pulse" />
+              <div className="flex-1 h-4 bg-gray-200 rounded" />
+              <div className="w-16 h-4 bg-gray-200 rounded" />
             </div>
           ))}
         </div>
       ) : lessons.length > 0 ? (
-        <div className="relative">
-          {/* Content row */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-          {visibleLessons.map((lesson) => (
-            <button
-              key={lesson.id}
-              onClick={() => handleViewLesson(lesson.id)}
-              className="text-left group w-full"
-            >
-              <div className="w-full rounded-lg overflow-hidden mb-1" style={{ aspectRatio: '1/1' }}>
-                {lesson.thumbnailUrl ? (
-                  <img
-                    src={lesson.thumbnailUrl}
-                    alt={lesson.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#8B7D7B' }}>
-                    <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
+        <>
+          <div className="border-t border-gray-300">
+            {visibleLessons.map((lesson) => {
+              const isCompleted = completedLessons.has(lesson.id)
+              return (
+                <button
+                  key={lesson.id}
+                  onClick={() => handleViewLesson(lesson.id)}
+                  className="w-full flex items-center gap-6 py-4 border-b border-gray-200 text-left hover:bg-gray-50 transition-colors"
+                >
+                  <div className="w-14 h-14 rounded-full overflow-hidden flex-shrink-0 bg-[#8B0000]">
+                    {lesson.thumbnailUrl ? (
+                      <img
+                        src={lesson.thumbnailUrl}
+                        alt={lesson.title}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <img
+                        src="/brand/athleap-logo-colored.png"
+                        alt="AthLeap"
+                        className="w-full h-full object-cover"
+                      />
+                    )}
                   </div>
-                )}
-              </div>
-              <p className="text-sm font-semibold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
-                {lesson.title}
-              </p>
-              {/* Author hidden to avoid coach reference clutter per design */}
-            </button>
-          ))}
+                  <div className="flex-1 flex items-center justify-between gap-4">
+                    <p
+                      style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '14px', color: '#000000' }}
+                    >
+                      {lesson.title}
+                    </p>
+                    <p
+                      className="text-xs"
+                      style={{ fontFamily: '"Open Sans", sans-serif', color: '#555555' }}
+                    >
+                      {isCompleted ? 'Completed' : 'In Progress'}
+                    </p>
+                  </div>
+                </button>
+              )
+            })}
           </div>
 
-          {/* Overlay arrows positioned over the thumbnails row */}
-          {totalPages > 1 && (
-            <>
-              <button
-                aria-label="Previous lessons"
-                disabled={!canPrev}
-                onClick={() => setPage((p) => Math.max(0, p - 1))}
-                className={`absolute left-2 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full border flex items-center justify-center transition ${
-                  canPrev
-                    ? 'bg-white text-black border-black/70 hover:bg-black hover:text-white'
-                    : 'bg-white text-gray-400 border-gray-300 cursor-not-allowed opacity-60'
-                }`}
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              <button
-                aria-label="Next lessons"
-                disabled={!canNext}
-                onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
-                className={`absolute right-2 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full border flex items-center justify-center transition ${
-                  canNext
-                    ? 'bg-white text-black border-black/70 hover:bg-black hover:text-white'
-                    : 'bg-white text-gray-400 border-gray-300 cursor-not-allowed opacity-60'
-                }`}
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </>
-          )}
-        </div>
+          <div className="mt-8 flex justify-center">
+            <Link
+              href="/dashboard/athlete-lessons"
+              className="rounded-full bg-[#FC0105] px-10 py-3 text-sm font-semibold text-white tracking-[0.08em] uppercase shadow-sm hover:bg-[#d70004] transition-colors"
+              style={{ fontFamily: '"Open Sans", sans-serif' }}
+            >
+              Browse Training
+            </Link>
+          </div>
+        </>
       ) : (
         <p className="text-gray-500 text-sm">No training content available yet</p>
       )}

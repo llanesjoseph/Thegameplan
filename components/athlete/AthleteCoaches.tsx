@@ -193,13 +193,16 @@ export default function AthleteCoaches() {
   return (
     <>
       <div>
-        <h2 className="text-xl font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
-          Your Coaches
+        <h2
+          className="text-center mb-10"
+          style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '25px', letterSpacing: '0.05em' }}
+        >
+          Your Athleap Coaches
         </h2>
 
         {/* No Coaches Message */}
         {!loading && coaches.length === 0 && (
-          <div className="bg-white border-2 border-black rounded-lg p-6 text-center">
+          <div className="bg-white border-2 border-black rounded-lg p-6 text-center max-w-xl mx-auto">
             <p className="text-lg font-semibold mb-3" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
               You don't have any coaches yet!
             </p>
@@ -216,121 +219,75 @@ export default function AthleteCoaches() {
           </div>
         )}
 
-        {/* Coach Grid - only show if there are coaches */}
-        {(loading || coaches.length > 0) && (
-        <div className="relative">
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            {/* Columns 1-3: Coach Images - show 3 at a time, leave empty if no coach */}
-            {loading ? (
-              <>
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="w-full bg-gray-200 rounded-lg animate-pulse" style={{ aspectRatio: '1/1' }}></div>
-                ))}
-              </>
-            ) : (
-              <>
-                {[0, 1, 2].map((index) => {
-                  const coach = coaches[coachPage * coachPageSize + index]
-                  return coach ? (
-                    <button
-                      key={coach.id}
-                      onClick={() => {
-                        setSelectedCoach(coach)
-                        setShowCoachProfileModal(true)
-                      }}
-                      className="text-center w-full group block cursor-pointer"
-                    >
-                      <div className="w-full rounded-lg overflow-hidden bg-gray-100 mb-1 group-hover:ring-2 group-hover:ring-black transition-all" style={{ aspectRatio: '1/1' }}>
-                        {coach.imageUrl ? (
-                          <img
-                            src={coach.imageUrl}
-                            alt={coach.name}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#8B7D7B' }}>
-                            <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
-                          </div>
-                        )}
+        {/* Coach row - show up to 2 primary coaches in circular layout */}
+        {!loading && coaches.length > 0 && (
+          <div className="flex flex-col items-center">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-12 justify-items-center">
+              {coaches.slice(0, 2).map((coach) => (
+                <button
+                  key={coach.id}
+                  onClick={() => {
+                    setSelectedCoach(coach)
+                    setShowCoachProfileModal(true)
+                  }}
+                  className="flex flex-col items-center text-center group cursor-pointer"
+                >
+                  <div className="w-[225px] h-[225px] rounded-full overflow-hidden bg-gray-100 mb-4 group-hover:ring-2 group-hover:ring-black transition-all">
+                    {coach.imageUrl ? (
+                      <img
+                        src={coach.imageUrl}
+                        alt={coach.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#8B7D7B' }}>
+                        <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
                       </div>
-                      <p className="text-sm font-semibold group-hover:text-red-600 transition-colors" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
-                        {coach.title}
-                      </p>
-                      <p className="text-xs" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
-                        {coach.author}
-                      </p>
-                    </button>
-                  ) : (
-                    <div key={`empty-${index}`} className="w-full" style={{ aspectRatio: '1/1' }}></div>
-                  )
-                })}
-              </>
-            )}
+                    )}
+                  </div>
+                  <p
+                    className="mb-1"
+                    style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '27px', color: '#111111' }}
+                  >
+                    {coach.name}
+                  </p>
+                  <p
+                    style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '16px', color: '#000000' }}
+                  >
+                    {coach.title}
+                  </p>
+                </button>
+              ))}
+            </div>
 
-            {/* 4th column - Action Buttons centered vertically */}
-            {!loading && (
-              <div className="w-full flex flex-col justify-center gap-2">
-                <button
-                  onClick={handleScheduleSession}
-                  className="w-full bg-black text-white py-2.5 text-sm font-bold transition-colors"
-                  style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#FC0105'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#000000'}
-                >
-                  Schedule 1-1 Session With a Coach
-                </button>
-                <button
-                  onClick={handleSubmitVideo}
-                  className="w-full bg-black text-white py-2.5 text-xs font-bold transition-colors leading-tight"
-                  style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#FC0105'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#000000'}
-                >
-                  Submit Training Video for Coach Feedback
-                </button>
-                <button
-                  onClick={handleAskQuestion}
-                  className="w-full bg-black text-white py-2.5 text-sm font-bold transition-colors"
-                  style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#FC0105'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#000000'}
-                >
-                  Chat With Your Coach's AI
-                </button>
-              </div>
-            )}
+            {/* Red CTA buttons row */}
+            <div className="mt-10 flex flex-col sm:flex-row justify-center gap-4 w-full max-w-3xl">
+              <button
+                type="button"
+                onClick={handleScheduleSession}
+                className="rounded-full bg-[#FC0105] px-8 py-3 text-sm font-semibold text-white tracking-[0.08em] uppercase shadow-sm hover:bg-[#d70004] transition-colors w-full sm:flex-1 text-center"
+                style={{ fontFamily: '"Open Sans", sans-serif' }}
+              >
+                Request Coaching Session
+              </button>
+              <button
+                type="button"
+                onClick={handleAskQuestion}
+                className="rounded-full bg-[#FC0105] px-8 py-3 text-sm font-semibold text-white tracking-[0.08em] uppercase shadow-sm hover:bg-[#d70004] transition-colors w-full sm:flex-1 text-center"
+                style={{ fontFamily: '"Open Sans", sans-serif' }}
+              >
+                Ask A Question
+              </button>
+              <button
+                type="button"
+                onClick={handleSubmitVideo}
+                className="rounded-full bg-[#FC0105] px-8 py-3 text-sm font-semibold text-white tracking-[0.08em] uppercase shadow-sm hover:bg-[#d70004] transition-colors w-full sm:flex-1 text-center"
+                style={{ fontFamily: '"Open Sans", sans-serif' }}
+              >
+                Submit Training Video
+              </button>
+            </div>
           </div>
-
-          {/* Pagination arrows - only show if MORE than 3 coaches */}
-          {!loading && coaches.length > 3 && (
-            <>
-              <button
-                aria-label="Previous coaches"
-                disabled={coachPage === 0}
-                onClick={() => setCoachPage((p) => Math.max(0, p - 1))}
-                className={`absolute left-2 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full border flex items-center justify-center transition ${
-                  coachPage > 0
-                    ? 'bg-white text-black border-black/70 hover:bg-black hover:text-white'
-                    : 'bg-white text-gray-400 border-gray-300 cursor-not-allowed opacity-60'
-                }`}
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              <button
-                aria-label="Next coaches"
-                disabled={coachPage >= Math.ceil(coaches.length / coachPageSize) - 1}
-                onClick={() => setCoachPage((p) => Math.min(Math.ceil(coaches.length / coachPageSize) - 1, p + 1))}
-                className={`absolute right-2 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full border flex items-center justify-center transition ${
-                  coachPage < Math.ceil(coaches.length / coachPageSize) - 1
-                    ? 'bg-white text-black border-black/70 hover:bg-black hover:text-white'
-                    : 'bg-white text-gray-400 border-gray-300 cursor-not-allowed opacity-60'
-                }`}
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </>
-          )}
-        </div>
         )}
       </div>
 
