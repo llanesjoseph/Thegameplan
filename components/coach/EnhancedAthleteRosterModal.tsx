@@ -690,26 +690,18 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose }: Enhanced
                 <div className="space-y-6">
                   {/* Sport Selection */}
                   <div>
-                    <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                    <label className="block text-sm font-bold mb-1" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
                       Sport
                     </label>
-                    <select
-                      value={inviteForm.sport}
-                      onChange={(e) => setInviteForm(prev => ({ ...prev, sport: e.target.value }))}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-black"
+                    <p
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg bg-gray-50 text-gray-700 text-sm"
                       style={{ fontFamily: '"Open Sans", sans-serif' }}
                     >
-                      <option>Soccer</option>
-                      <option>Basketball</option>
-                      <option>Football</option>
-                      <option>Baseball</option>
-                      <option>Volleyball</option>
-                      <option>Track & Field</option>
-                      <option>Swimming</option>
-                      <option>Tennis</option>
-                      <option>Golf</option>
-                      <option>Other</option>
-                    </select>
+                      {coachSport || 'Not set'}
+                    </p>
+                    <p className="mt-1 text-xs text-gray-500" style={{ fontFamily: '"Open Sans", sans-serif' }}>
+                      Athlete invitations are locked to your primary coaching sport.
+                    </p>
                   </div>
 
                   {/* Custom Message */}
