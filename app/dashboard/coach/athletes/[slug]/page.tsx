@@ -27,6 +27,7 @@ import {
   Sparkles,
   Video
 } from 'lucide-react'
+import AthleteShowcaseCard from '@/components/athlete/AthleteShowcaseCard'
 import AppHeader from '@/components/ui/AppHeader'
 
 interface AnalyticsData {
@@ -367,97 +368,29 @@ export default function SecureAthleteProfilePage() {
           </div>
         </div>
 
-        {/* Athlete Profile Details - mirrors athlete dashboard "Your Profile" section */}
-        <div className="bg-white rounded-xl border-2 border-gray-200 p-8 mb-8">
+        {/* Athlete Profile Details - marketing-style sample card based on client design */}
+        <div className="mb-10">
           <h2
-            className="text-2xl font-bold mb-6"
+            className="text-2xl font-bold mb-4"
             style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}
           >
             Athlete Profile
           </h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-[2fr,1.2fr] gap-8 items-start">
-            {/* Text details */}
-            <div className="space-y-4">
-              {/* Location */}
-              <div>
-                <p
-                  className="text-sm font-bold mb-1"
-                  style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}
-                >
-                  Location
-                </p>
-                <p
-                  className="text-sm"
-                  style={{ color: '#666666', fontFamily: '"Open Sans", sans-serif' }}
-                >
-                  {athlete.location && athlete.location.trim() ? athlete.location : 'Not set'}
-                </p>
-              </div>
-
-              {/* About Me */}
-              <div>
-                <p
-                  className="text-sm font-bold mb-1"
-                  style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}
-                >
-                  About Me
-                </p>
-                <p
-                  className="text-sm leading-relaxed"
-                  style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}
-                >
-                  {athlete.bio && athlete.bio.trim()
-                    ? athlete.bio
-                    : 'This athlete has not added a bio yet.'}
-                </p>
-              </div>
-
-              {/* Training Goals */}
-              <div>
-                <p
-                  className="text-sm font-bold mb-1"
-                  style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}
-                >
-                  Training Goals
-                </p>
-                <p
-                  className="text-sm leading-relaxed"
-                  style={{ color: '#666666', fontFamily: '"Open Sans", sans-serif' }}
-                >
-                  {athlete.trainingGoals && athlete.trainingGoals.trim()
-                    ? athlete.trainingGoals
-                    : 'No training goals set yet.'}
-                </p>
-              </div>
-            </div>
-
-            {/* Profile photo + sport pill (matches athlete dashboard layout, read-only) */}
-            <div className="flex flex-col gap-3 w-full max-w-xs ml-auto">
-              <div className="w-full rounded-lg overflow-hidden bg-gray-100" style={{ aspectRatio: '1 / 1' }}>
-                {athlete.profileImageUrl ? (
-                  <img
-                    src={athlete.profileImageUrl}
-                    alt={athlete.displayName}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#8B7D7B' }}>
-                    <User className="w-1/3 h-1/3 text-white opacity-90" />
-                  </div>
-                )}
-              </div>
-
-              <div className="w-full">
-                <div
-                  className="w-full py-2.5 text-center font-bold text-sm text-white rounded-md"
-                  style={{ backgroundColor: '#000000', fontFamily: '"Open Sans", sans-serif' }}
-                >
-                  {athlete.sport || 'Sport'}
-                </div>
-              </div>
-            </div>
-          </div>
+          <p className="text-sm mb-4" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+            This read-only card mirrors how an athlete’s story, location, sport and goals can be
+            showcased in a clean profile layout. It pulls live Athleap data only – all legacy Wix
+            markup has been replaced with native components.
+          </p>
+          <AthleteShowcaseCard
+            displayName={athlete.displayName}
+            email={athlete.email}
+            sport={athlete.sport}
+            location={athlete.location}
+            level={athlete.level}
+            bio={athlete.bio}
+            trainingGoals={athlete.trainingGoals}
+            profileImageUrl={athlete.profileImageUrl}
+          />
         </div>
 
         {/* Comprehensive Coaching Dashboard */}
