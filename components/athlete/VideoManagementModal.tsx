@@ -312,6 +312,19 @@ export default function VideoManagementModal({
     }
   }
 
+  const getThumbnailBorderColor = (status: string, hasFeedback: boolean) => {
+    if (hasFeedback || status === 'reviewed' || status === 'completed') {
+      // Reviewed / completed: green border
+      return '#22C55E'
+    }
+    if (status === 'awaiting_coach') {
+      // Pending coach review: amber border
+      return '#FACC15'
+    }
+    // Default neutral border
+    return '#E5E7EB'
+  }
+
   const formatDate = (timestamp: any) => {
     if (!timestamp) return 'Recently'
     try {
@@ -671,7 +684,14 @@ export default function VideoManagementModal({
                       onClick={() => setSelectedVideo(sub)}
                       className="text-left w-full group"
                     >
-                      <div className="w-full rounded-lg overflow-hidden mb-2 relative" style={{ aspectRatio: '16/9', backgroundColor: '#000' }}>
+                      <div
+                        className="w-full rounded-lg overflow-hidden mb-2 relative border-2"
+                        style={{
+                          aspectRatio: '16/9',
+                          backgroundColor: '#000',
+                          borderColor: getThumbnailBorderColor(sub.status, !!sub.coachFeedback)
+                        }}
+                      >
                         {sub.thumbnailUrl ? (
                           <img
                             src={sub.thumbnailUrl}
