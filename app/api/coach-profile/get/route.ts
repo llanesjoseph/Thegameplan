@@ -15,27 +15,56 @@ export async function GET(request: NextRequest) {
 
     const { user: authUser } = authResult
 
-    // Get coach profile
-    // FIXED: Coaches use creator_profiles collection, same as creators
-    const coachProfileDoc = await db.collection('creator_profiles').doc(authUser.uid).get()
+    // Get coach profile with robust fallbacks:
+    // 1) creator_profiles (primary source)
+    // 2) creatorPublic
+    // 3) users document
+    const creatorProfileRef = db.collection('creator_profiles').doc(authUser.uid)
+    const creatorProfileSnap = await creatorProfileRef.get()
 
-    if (!coachProfileDoc.exists) {
+    let profileData: any = creatorProfileSnap.exists ? creatorProfileSnap.data() : null
+
+    if (!profileData) {
+      // Fallback to creatorPublic (used by public coach pages)
+      const publicRef = db.collection('creatorPublic').doc(authUser.uid)
+      const publicSnap = await publicRef.get()
+      if (publicSnap.exists) {
+        profileData = publicSnap.data()
+      }
+    }
+
+    if (!profileData) {
+      // Final fallback to users collection
+      const userRef = db.collection('users').doc(authUser.uid)
+      const userSnap = await userRef.get()
+      if (userSnap.exists) {
+        profileData = userSnap.data()
+      }
+    }
+
+    if (!profileData) {
       return NextResponse.json(
         { error: 'Coach profile not found. Only approved coaches can access profile data.' },
         { status: 404 }
       )
     }
 
-    const profileData = coachProfileDoc.data()
+    // Normalize sport from profile data (handles different schemas)
+    const sport =
+      profileData.sport ||
+      profileData.primarySport ||
+      (Array.isArray(profileData.specialties) && profileData.specialties.length > 0
+        ? profileData.specialties[0]
+        : undefined)
 
     // Return profile data (excluding sensitive fields)
     const publicProfile = {
-      uid: profileData?.uid,
-      email: profileData?.email,
+      uid: profileData?.uid || authUser.uid,
+      email: profileData?.email || authUser.email,
       displayName: profileData?.displayName,
       firstName: profileData?.firstName,
       lastName: profileData?.lastName,
-      sport: profileData?.sport,
+      sport,
       tagline: profileData?.tagline,
       credentials: profileData?.credentials,
       bio: profileData?.bio,
