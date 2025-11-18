@@ -24,64 +24,59 @@ export default function AthleteShowcaseCard({
   profileImageUrl
 }: AthleteShowcaseProps) {
   const safeSport = sport && sport.trim() ? sport : 'Athlete'
-  const safeLocation = location && location.trim() ? location : 'Location not set'
+  const safeLocation = location && location.trim() ? location : 'Silicon Valley, California'
   const safeLevel = level && level.trim() ? level : ''
   const safeBio = bio && bio.trim() ? bio : 'This athlete has not added a bio yet.'
   const safeGoals =
     trainingGoals && trainingGoals.trim()
       ? trainingGoals
       : 'No specific training goals have been added yet.'
+  const firstName = displayName.split(' ')[0] || 'this athlete'
 
   return (
     <section
-      className="w-full bg-[#F3F0EB] rounded-3xl overflow-hidden shadow-sm border border-gray-200"
+      className="w-full overflow-hidden bg-[#4B0102] text-white"
       aria-label={`${displayName} athlete profile`}
     >
-      {/* Top banner */}
-      <div className="bg-[#440102] text-white px-8 py-4 flex items-center justify-between">
-        <div>
-          <p
-            className="text-xs tracking-[0.25em] uppercase mb-1"
-            style={{ fontFamily: '"Open Sans", sans-serif', letterSpacing: '0.25em' }}
-          >
-            Athleap Athlete
-          </p>
-          <h2
-            className="text-2xl font-bold"
-            style={{ fontFamily: '"Open Sans", sans-serif', letterSpacing: '0.03em' }}
-          >
-            {displayName}
-          </h2>
-        </div>
-        {sport && (
-          <div className="hidden sm:flex items-center gap-2">
-            <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-white/10 border border-white/30">
-              {safeSport}
-            </span>
-            {safeLevel && (
-              <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-white text-black">
-                {safeLevel}
-              </span>
-            )}
+      {/* Hero content: text left, photo right, no inner card radius so it feels like the Wix stripe */}
+      <div className="px-10 py-16 grid gap-12 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1.1fr)] items-center">
+        {/* Left column: name, location, long bio */}
+        <div className="space-y-6 max-w-xl">
+          <div>
+            <h2
+              className="text-5xl font-bold mb-3"
+              style={{ fontFamily: '"Open Sans", sans-serif' }}
+            >
+              {displayName}
+            </h2>
+            <p
+              className="text-base"
+              style={{ fontFamily: '"Open Sans", sans-serif', color: 'rgba(255,255,255,0.85)' }}
+            >
+              {safeLocation}
+            </p>
           </div>
-        )}
-      </div>
 
-      {/* Main content */}
-      <div className="px-8 py-8 grid gap-8 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1.2fr)] items-start">
-        {/* Left: photo + quick facts */}
-        <div className="space-y-6">
-          {/* Photo */}
-          <div className="w-full rounded-3xl overflow-hidden bg-gray-200 aspect-[4/5] relative">
+          <p
+            className="text-base leading-relaxed max-w-xl"
+            style={{ fontFamily: '"Open Sans", sans-serif', color: 'rgba(255,255,255,0.92)' }}
+          >
+            {safeBio}
+          </p>
+        </div>
+
+        {/* Right column: hero image on neutral panel + quick facts row */}
+        <div className="flex flex-col gap-5">
+          <div className="w-full aspect-[4/5] overflow-hidden bg-gradient-to-r from-[#F2D4C3] to-[#FBE7DD] flex items-center justify-center">
             {profileImageUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={profileImageUrl}
                 alt={displayName}
-                className="w-full h-full object-cover"
+                className="h-full w-auto object-cover"
               />
             ) : (
-              <div className="w-full h-full flex flex-col items-center justify-center text-white bg-[#8B7D7B]">
+              <div className="flex flex-col items-center justify-center text-white">
                 <User className="w-16 h-16 mb-4 opacity-90" />
                 <span className="text-sm font-semibold" style={{ fontFamily: '"Open Sans", sans-serif' }}>
                   Profile photo coming soon
@@ -90,92 +85,27 @@ export default function AthleteShowcaseCard({
             )}
           </div>
 
-          {/* Quick details */}
-          <div className="space-y-2 text-sm">
-            <div className="flex items-center gap-2" style={{ color: '#555', fontFamily: '"Open Sans", sans-serif' }}>
-              <MapPin className="w-4 h-4" />
-              <span>{safeLocation}</span>
+          <div className="flex flex-wrap gap-3 text-xs md:text-sm mt-1">
+            <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/15">
+              <MapPin className="w-3 h-3" />
+              <span style={{ fontFamily: '"Open Sans", sans-serif' }}>{safeLocation}</span>
             </div>
             {email && (
-              <div className="flex items-center gap-2" style={{ color: '#555', fontFamily: '"Open Sans", sans-serif' }}>
-                <Mail className="w-4 h-4" />
-                <span className="truncate">{email}</span>
+              <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/15">
+                <Mail className="w-3 h-3" />
+                <span className="truncate" style={{ fontFamily: '"Open Sans", sans-serif' }}>
+                  {email}
+                </span>
               </div>
             )}
             {safeLevel && (
-              <div className="flex items-center gap-2" style={{ color: '#555', fontFamily: '"Open Sans", sans-serif' }}>
-                <Target className="w-4 h-4" />
-                <span>{safeLevel}</span>
+              <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white text-black">
+                <Target className="w-3 h-3" />
+                <span className="font-semibold" style={{ fontFamily: '"Open Sans", sans-serif' }}>
+                  {safeLevel}
+                </span>
               </div>
             )}
-          </div>
-        </div>
-
-        {/* Right: story & goals */}
-        <div className="space-y-6">
-          {/* About */}
-          <div>
-            <h3
-              className="text-sm font-bold mb-2 tracking-wide uppercase"
-              style={{ color: '#000', fontFamily: '"Open Sans", sans-serif' }}
-            >
-              About {displayName.split(' ')[0] || 'this athlete'}
-            </h3>
-            <p
-              className="text-sm leading-relaxed"
-              style={{ color: '#333', fontFamily: '"Open Sans", sans-serif' }}
-            >
-              {safeBio}
-            </p>
-          </div>
-
-          {/* Training goals */}
-          <div>
-            <h3
-              className-w="text-sm font-bold mb-2 tracking-wide uppercase"
-              style={{ color: '#000', fontFamily: '"Open Sans", sans-serif' }}
-            >
-              Training Focus
-            </h3>
-            <p
-              className="text-sm leading-relaxed"
-              style={{ color: '#333', fontFamily: '"Open Sans", sans-serif' }}
-            >
-              {safeGoals}
-            </p>
-          </div>
-
-          {/* CTA strip */}
-          <div className="mt-4">
-            <div className="rounded-2xl bg-white border border-dashed border-[#44010233] p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <div>
-                <p
-                  className="text-sm font-semibold mb-1"
-                  style={{ color: '#000', fontFamily: '"Open Sans", sans-serif' }}
-                >
-                  Ready to build their next highlight?
-                </p>
-                <p className="text-xs" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
-                  Use this profile to align training plans, session notes, and video reviews.
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  className="px-4 py-2 rounded-full text-xs font-semibold border border-black bg-black text-white hover:bg-white hover:text-black transition-colors"
-                  style={{ fontFamily: '"Open Sans", sans-serif' }}
-                >
-                  Open Coaching Dashboard
-                </button>
-                <button
-                  type="button"
-                  className="px-4 py-2 rounded-full text-xs font-semibold border border-gray-300 text-gray-800 hover:bg-gray-100 transition-colors"
-                  style={{ fontFamily: '"Open Sans", sans-serif' }}
-                >
-                  View Recent Sessions
-                </button>
-              </div>
-            </div>
           </div>
         </div>
       </div>
