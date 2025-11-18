@@ -45,9 +45,9 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose }: Enhanced
   const [selectedAthleteIndex, setSelectedAthleteIndex] = useState(0)
   const [loading, setLoading] = useState(true)
   const [viewState, setViewState] = useState<ViewState>('list')
-  const [coachSport, setCoachSport] = useState<string>('Soccer')
+  const [coachSport, setCoachSport] = useState<string>('')
   const [inviteForm, setInviteForm] = useState<InviteForm>({
-    sport: 'Soccer',
+    sport: '',
     customMessage: '',
     athletes: [{ email: '', name: '' }]
   })
@@ -239,18 +239,19 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose }: Enhanced
         },
         body: JSON.stringify({
           creatorUid: user?.uid,
-          sport: inviteForm.sport,
+          sport: coachSport || inviteForm.sport,
           customMessage: inviteForm.customMessage,
           athletes: validAthletes
         }),
       })
 
       if (response.ok) {
-        setInviteForm({
-          sport: 'Soccer',
+        setInviteForm(prev => ({
+          ...prev,
+          sport: coachSport || '',
           customMessage: '',
           athletes: [{ email: '', name: '' }]
-        })
+        }))
         setViewState('list')
         alert(`Successfully sent ${validAthletes.length} invitation(s)!`)
       } else {
