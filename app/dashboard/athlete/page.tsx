@@ -353,7 +353,7 @@ export default function AthleteDashboard() {
               style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '25px', letterSpacing: '0.05em' }}
             >
               Your Game Plan and Progress
-            </hspace>
+            </h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
               {/* Training Goals */}
               <div className="flex flex-col items-stretch">
@@ -435,7 +435,7 @@ export default function AthleteDashboard() {
 
         {/* Main sections using existing components */}
         <section className="w-full bg-[#F5F5F5]">
-          <div className "max-w-6xl mx-auto px-8 py-12 space-y-8">
+          <div className="max-w-6xl mx-auto px-8 py-12 space-y-8">
             {/* Coaches row & CTAs */}
             <div>
               <h2
