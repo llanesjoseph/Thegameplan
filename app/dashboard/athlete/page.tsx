@@ -11,7 +11,8 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/hooks/use-auth'
 import { signOut } from 'firebase/auth'
-import { auth } from '@/lib/firebase.client'
+import { auth, db } from '@/lib/firebase.client'
+import { doc, getDoc } from 'firebase/firestore'
 import { Facebook, Instagram, Youtube, Linkedin } from 'lucide-react'
 import AthleteOverview from '@/components/athlete/AthleteOverview'
 import AthleteProfile from '@/components/athlete/AthleteProfile'
@@ -22,6 +23,7 @@ import AthleteRecommendedGear from '@/components/athlete/AthleteRecommendedGear'
 import AthleteAssistant from '@/components/athlete/AthleteAssistant'
 import ProfileQuickSetupModal from '@/components/athlete/ProfileQuickSetupModal'
 import WelcomePopup from '@/components/athlete/WelcomePopup'
+import AthleteShowcaseCard from '@/components/athlete/AthleteShowcaseCard'
 
 export default function AthleteDashboard() {
   const { user } = useAuth()
@@ -32,6 +34,32 @@ export default function AthleteDashboard() {
   const [showWelcome, setShowWelcome] = useState(false)
   const [athleteName, setAthleteName] = useState<string>('')
   const [coachName, setCoachName] = useState<string>('')
+  const [heroProfile, setHeroProfile] = useState<{
+    displayName: string
+    location: string
+    bio: string
+    trainingGoals: string
+    profileImageUrl: string
+    sport: string
+  }>({
+    displayName: '',
+    location: '',
+    bio: '',
+    trainingGoals: '',
+    profileImageUrl: '',
+    sport: ''
+  })
+  const [progressSummary, setProgressSummary] = useState<{
+    totalLessons: number
+    completedLessons: number
+    inProgressLessons: number
+    upcomingEvents: number
+  }>({
+    totalLessons: 0,
+    completedLessons: 0,
+    inProgressLessons: 0,
+    upcomingEvents: 0
+  })
 
   // Redirect non-athletes
   useEffect(() => {
@@ -100,6 +128,89 @@ export default function AthleteDashboard() {
     loadWelcomeData()
   }, [user])
 
+  // Load hero profile info for the top band
+  useEffect(() => {
+    const loadHeroProfile = async () => {
+      if (!user?.uid) return
+      try {
+        const snap = await getDoc(doc(db, 'users', user.uid))
+        let data: any = {}
+        if (snap.exists()) data = snap.data()
+
+        const mappedDisplayName =
+          (data.displayName as string) || user.displayName || ''
+        const mappedLocation =
+          (data.location as string) ||
+          [data.city, data.state].filter(Boolean).join(', ') ||
+          ''
+        const mappedBio =
+          (data.bio as string) ||
+          (data.about as string) ||
+          ''
+        const mappedTrainingGoals =
+          (Array.isArray(data.trainingGoals) ? data.trainingGoals.join(', ') : data.trainingGoals) ||
+          (Array.isArray(data.goals) ? data.goals.join(', ') : data.goals) ||
+          ''
+        const mappedImage =
+          (data.profileImageUrl as string) ||
+          (data.photoURL as string) ||
+          user.photoURL ||
+          ''
+
+        let primarySport = ''
+        if (Array.isArray(data?.sports) && data.sports.length > 0) {
+          primarySport = String(data.sports[0])
+        } else if (typeof data?.sport === 'string' && data.sport.trim()) {
+          primarySport = data.sport.trim()
+        } else if (Array.isArray(data?.selectedSports) && data.selectedSports.length > 0) {
+          primarySport = String(data.selectedSports[0])
+        }
+
+        setHeroProfile({
+          displayName: mappedDisplayName,
+          location: mappedLocation,
+          bio: mappedBio,
+          trainingGoals: mappedTrainingGoals,
+          profileImageUrl: mappedImage,
+          sport: primarySport
+        })
+      } catch (error) {
+        console.error('Error loading hero profile:', error)
+      }
+    }
+
+    loadHeroProfile()
+  }, [user])
+
+  // Load high-level progress summary for hero metrics row
+  useEffect(() => {
+    const loadProgressSummary = async () => {
+      if (!user) return
+      try {
+        const token = await user.getIdToken()
+        const res = await fetch('/api/athlete/progress', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
+        const json = await res.json()
+        if (res.ok && json.success && json.progress) {
+          const p = json.progress
+          setProgressSummary({
+            totalLessons: p.totalLessons || 0,
+            completedLessons: p.completedLessons || 0,
+            inProgressLessons: p.inProgressLessons || 0,
+            upcomingEvents: 0
+          })
+        }
+      } catch (error) {
+        console.warn('Error loading progress summary:', error)
+      }
+    }
+
+    loadProgressSummary()
+  }, [user])
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
@@ -113,70 +224,88 @@ export default function AthleteDashboard() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header - Clean and Simple */}
-      <header className="bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          {/* Logo */}
-          <Link href="/" className="flex-shrink-0">
-            <span className="text-2xl font-bold" style={{ color: '#440102', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
-              ATHLEAP
-            </span>
-          </Link>
-
-          {/* Right Navigation */}
-          <nav className="flex items-center gap-4">
-            <button
-              type="button"
-              onClick={() => {
-                try {
-                  // Smooth-scroll to the inline profile section
-                  const el = document.getElementById('athlete-profile-section')
-                  if (el) {
-                    el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                  }
-                  // Broadcast an event so AthleteProfile can enter edit mode
-                  window.dispatchEvent(new CustomEvent('athlete-edit-profile'))
-                } catch {
-                  // Fallback: just fire the event
-                  window.dispatchEvent(new CustomEvent('athlete-edit-profile'))
-                }
-              }}
-              className="hidden md:inline-flex items-center px-4 py-2 rounded-lg border-2 border-black text-sm font-bold hover:bg-gray-100 transition-colors"
-              style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
-            >
-              Edit Profile
-            </button>
-            <Link
-              href="/coaches"
-              className="hidden md:block text-sm font-semibold hover:opacity-80 transition-opacity"
-              style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 600 }}
-            >
-              Browse Coaches
+      {/* Sticky header + red community bar (Wix-style frame) */}
+      <div className="sticky top-0 z-30 bg-white">
+        <header className="bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-4">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            {/* Logo */}
+            <Link href="/" className="flex-shrink-0">
+              <span
+                className="text-2xl font-bold"
+                style={{ color: '#440102', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
+              >
+                ATHLEAP
+              </span>
             </Link>
-            <button
-              onClick={async () => {
-                if (isSigningOut) return
-                setIsSigningOut(true)
-                // brief farewell then sign out
-                setTimeout(async () => {
+
+            {/* Right Navigation */}
+            <nav className="flex items-center gap-4">
+              <button
+                type="button"
+                onClick={() => {
                   try {
-                    await signOut(auth)
-                  } catch (e) {
-                    console.error('Sign out failed:', e)
-                  } finally {
-                    window.location.href = '/'
+                    // Smooth-scroll to the inline profile section
+                    const el = document.getElementById('athlete-profile-section')
+                    if (el) {
+                      el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                    }
+                    // Broadcast an event so AthleteProfile can enter edit mode
+                    window.dispatchEvent(new CustomEvent('athlete-edit-profile'))
+                  } catch {
+                    // Fallback: just fire the event
+                    window.dispatchEvent(new CustomEvent('athlete-edit-profile'))
                   }
-                }, 900)
-              }}
-              className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${isSigningOut ? 'bg-gray-800 text-white' : 'bg-black text-white hover:bg-gray-800'}`}
-              style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
-              aria-live="polite"
+                }}
+                className="hidden md:inline-flex items-center px-4 py-2 rounded-lg border-2 border-black text-sm font-bold hover:bg-gray-100 transition-colors"
+                style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
+              >
+                Edit Profile
+              </button>
+              <Link
+                href="/coaches"
+                className="hidden md:block text-sm font-semibold hover:opacity-80 transition-opacity"
+                style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 600 }}
+              >
+                Browse Coaches
+              </Link>
+              <button
+                onClick={async () => {
+                  if (isSigningOut) return
+                  setIsSigningOut(true)
+                  // brief farewell then sign out
+                  setTimeout(async () => {
+                    try {
+                      await signOut(auth)
+                    } catch (e) {
+                      console.error('Sign out failed:', e)
+                    } finally {
+                      window.location.href = '/'
+                    }
+                  }, 900)
+                }}
+                className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${
+                  isSigningOut ? 'bg-gray-800 text-white' : 'bg-black text-white hover:bg-gray-800'
+                }`}
+                style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
+                aria-live="polite"
+              >
+                {isSigningOut ? 'Goodbye…' : 'Sign Out'}
+              </button>
+            </nav>
+          </div>
+        </header>
+        {/* Red bar under header with Athlete Community text */}
+        <div className="w-full bg-[#FC0105]">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex justify-end">
+            <p
+              className="text-[15px] leading-none font-bold text-white"
+              style={{ fontFamily: '"Open Sans", sans-serif', letterSpacing: '0.01em' }}
             >
-              {isSigningOut ? 'Goodbye…' : 'Sign Out'}
-            </button>
-          </nav>
+              Athlete Community
+            </p>
+          </div>
         </div>
-      </header>
+      </div>
 
       {/* Main Content - Clean and Frameless */}
       <main className="w-full">
