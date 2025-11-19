@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Link from 'next/link'
 import { useAuth } from '@/hooks/use-auth'
 import { doc, getDoc, collection, query, where, getDocs, setDoc, deleteDoc } from 'firebase/firestore'
 import { db, storage } from '@/lib/firebase.client'
@@ -15,6 +14,7 @@ export default function AthleteTrainingLibrary() {
   const [page, setPage] = useState(0)
   const [openLessonId, setOpenLessonId] = useState<string | null>(null)
   const [completedLessons, setCompletedLessons] = useState<Set<string>>(new Set())
+  const [showAllModal, setShowAllModal] = useState(false)
   const pageSize = 8
 
   useEffect(() => {
@@ -252,17 +252,103 @@ export default function AthleteTrainingLibrary() {
           </div>
 
           <div className="mt-8 flex justify-center">
-            <Link
-              href="/dashboard/athlete-lessons"
+            <button
+              type="button"
+              onClick={() => setShowAllModal(true)}
               className="rounded-full bg-[#FC0105] px-10 py-3 text-sm font-semibold text-white tracking-[0.08em] uppercase shadow-sm hover:bg-[#d70004] transition-colors"
               style={{ fontFamily: '"Open Sans", sans-serif' }}
             >
               Browse Training
-            </Link>
+            </button>
           </div>
         </>
       ) : (
         <p className="text-gray-500 text-sm">No training content available yet</p>
+      )}
+
+      {/* Full-screen modal to browse all lessons without leaving the page */}
+      {showAllModal && (
+        <>
+          <div
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+            onClick={() => setShowAllModal(false)}
+          />
+          <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+            <div className="w-full max-w-3xl max-h-[80vh] bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+                <h2
+                  className="text-lg font-semibold"
+                  style={{ fontFamily: '"Open Sans", sans-serif' }}
+                >
+                  Browse Training
+                </h2>
+                <button
+                  type="button"
+                  onClick={() => setShowAllModal(false)}
+                  className="text-gray-500 hover:text-black px-2 py-1 rounded-lg hover:bg-gray-100 transition-colors"
+                  aria-label="Close"
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto px-6 py-4">
+                {lessons.length > 0 ? (
+                  <div className="border-t border-gray-300">
+                    {lessons.map((lesson) => {
+                      const isCompleted = completedLessons.has(lesson.id)
+                      return (
+                        <button
+                          key={lesson.id}
+                          onClick={() => {
+                            setShowAllModal(false)
+                            handleViewLesson(lesson.id)
+                          }}
+                          className="w-full flex items-center gap-6 py-4 border-b border-gray-200 text-left hover:bg-gray-50 transition-colors"
+                        >
+                          <div className="w-14 h-14 rounded-full overflow-hidden flex-shrink-0 bg-[#8B0000]">
+                            {lesson.thumbnailUrl ? (
+                              <img
+                                src={lesson.thumbnailUrl}
+                                alt={lesson.title}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <img
+                                src="/brand/athleap-logo-colored.png"
+                                alt="AthLeap"
+                                className="w-full h-full object-cover"
+                              />
+                            )}
+                          </div>
+                          <div className="flex-1 flex items-center justify-between gap-4">
+                            <p
+                              style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '14px', color: '#000000' }}
+                            >
+                              {lesson.title}
+                            </p>
+                            <p
+                              className="text-xs"
+                              style={{ fontFamily: '"Open Sans", sans-serif', color: '#555555' }}
+                            >
+                              {isCompleted ? 'Completed' : 'In Progress'}
+                            </p>
+                          </div>
+                        </button>
+                      )
+                    })}
+                  </div>
+                ) : (
+                  <p
+                    className="text-sm text-gray-500"
+                    style={{ fontFamily: '"Open Sans", sans-serif' }}
+                  >
+                    No training content available yet.
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        </>
       )}
 
       {/* Lesson Viewer - Shows ONLY the individual lesson */}

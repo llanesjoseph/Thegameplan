@@ -63,10 +63,10 @@ export default function AthleteRecommendedGear() {
                   href: item.link,
                   target: '_blank',
                   rel: 'noopener noreferrer',
-                  className: 'overflow-hidden w-full block group cursor-pointer'
+                  className: 'w-full block group cursor-pointer'
                 }
               : {
-                  className: 'overflow-hidden w-full'
+                  className: 'w-full'
                 }
 
             return (
@@ -87,12 +87,12 @@ export default function AthleteRecommendedGear() {
                   )}
                 </div>
                 {!loading && (
-                  <div className="pt-1 text-center">
-                    <p className="font-bold mb-0.5 text-xs" style={{ color: '#FFFFFF', fontFamily: '"Open Sans", sans-serif' }}>
+                  <div className="pt-2 text-center space-y-1">
+                    <p className="font-semibold text-sm line-clamp-2" style={{ color: '#FFFFFF', fontFamily: '"Open Sans", sans-serif', minHeight: '2.5rem' }}>
                       {item.name}
                     </p>
                     {item.price && (
-                      <p className="font-bold text-xs" style={{ color: '#FC0105', fontFamily: '"Open Sans", sans-serif' }}>
+                      <p className="font-bold text-base" style={{ color: '#FC0105', fontFamily: '"Open Sans", sans-serif' }}>
                         {item.price}
                       </p>
                     )}
