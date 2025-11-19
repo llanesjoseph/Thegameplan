@@ -188,6 +188,8 @@ export default function TestPage() {
     <main className="min-h-screen bg-[#f5f5f5]">
       {/* Block 1: Top Athleap header bar (from Wix) - sticky/frozen at top */}
       <div className="sticky top-0 z-40">
+      {/* Sticky top header + red bar */}
+      <div className="w-full sticky top-0 z-30 bg-white">
         <header className="w-full bg-white">
           <div className="max-w-6xl mx-auto px-8 py-5 flex items-center justify-between">
             {/* Left: logo + ATHLEAP wordmark */}
@@ -256,6 +258,7 @@ export default function TestPage() {
             </p>
           </div>
         </div>
+      </div>
       </div>
 
       {/* Block 2: Merline/athlete hero section (text left, image right) */}

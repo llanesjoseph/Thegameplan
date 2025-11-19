@@ -13,17 +13,42 @@ import { useAuth } from '@/hooks/use-auth'
 import { signOut } from 'firebase/auth'
 import { auth, db } from '@/lib/firebase.client'
 import { doc, getDoc } from 'firebase/firestore'
-import { Facebook, Instagram, Youtube, Linkedin } from 'lucide-react'
 import AthleteOverview from '@/components/athlete/AthleteOverview'
 import AthleteProfile from '@/components/athlete/AthleteProfile'
 import AthleteProgress from '@/components/athlete/AthleteProgress'
 import AthleteCoaches from '@/components/athlete/AthleteCoaches'
 import AthleteTrainingLibrary from '@/components/athlete/AthleteTrainingLibrary'
 import AthleteRecommendedGear from '@/components/athlete/AthleteRecommendedGear'
-import AthleteAssistant from '@/components/athlete/AthleteAssistant'
 import ProfileQuickSetupModal from '@/components/athlete/ProfileQuickSetupModal'
 import WelcomePopup from '@/components/athlete/WelcomePopup'
 import AthleteShowcaseCard from '@/components/athlete/AthleteShowcaseCard'
+
+const socialLinks = [
+  {
+    name: 'LinkedIn',
+    url: 'https://www.linkedin.com/company/wix-com',
+    iconUrl:
+      'https://static.wixstatic.com/media/6ea5b4a88f0b4f91945b40499aa0af00.png/v1/fill/w_24,h_24,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/6ea5b4a88f0b4f91945b40499aa0af00.png'
+  },
+  {
+    name: 'Facebook',
+    url: 'https://www.facebook.com/wix',
+    iconUrl:
+      'https://static.wixstatic.com/media/0fdef751204647a3bbd7eaa2827ed4f9.png/v1/fill/w_24,h_24,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/0fdef751204647a3bbd7eaa2827ed4f9.png'
+  },
+  {
+    name: 'Twitter',
+    url: 'https://www.twitter.com/wix',
+    iconUrl:
+      'https://static.wixstatic.com/media/c7d035ba85f6486680c2facedecdcf4d.png/v1/fill/w_24,h_24,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c7d035ba85f6486680c2facedecdcf4d.png'
+  },
+  {
+    name: 'Instagram',
+    url: 'https://www.instagram.com/wix',
+    iconUrl:
+      'https://static.wixstatic.com/media/01c3aff52f2a4dffa526d7a9843d46ea.png/v1/fill/w_24,h_24,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/01c3aff52f2a4dffa526d7a9843d46ea.png'
+  }
+]
 
 export default function AthleteDashboard() {
   const { user } = useAuth()
@@ -223,81 +248,92 @@ export default function AthleteDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Sticky header + red community bar (Wix-style frame) */}
-      <div className="sticky top-0 z-30 bg-white">
-        <header className="bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-4">
-          <div className="max-w-7xl mx-auto flex items-center justify-between">
-            {/* Logo */}
-            <Link href="/" className="flex-shrink-0">
-              <span
-                className="text-2xl font-bold"
-                style={{ color: '#440102', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
-              >
-                ATHLEAP
-              </span>
-            </Link>
-
-            {/* Right Navigation */}
-            <nav className="flex items-center gap-4">
-              <button
-                type="button"
-                onClick={() => {
-                  try {
-                    const el = document.getElementById('athlete-profile-section')
-                    if (el) {
-                      el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                    }
-                    window.dispatchEvent(new CustomEvent('athlete-edit-profile'))
-                  } catch {
-                    window.dispatchEvent(new CustomEvent('athlete-edit-profile'))
-                  }
-                }}
-                className="hidden md:inline-flex items-center px-4 py-2 rounded-lg border-2 border-black text-sm font-bold hover:bg-gray-100 transition-colors"
-                style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
-              >
-                Edit Profile
-              </button>
-              <Link
-                href="/coaches"
-                className="hidden md:block text-sm font-semibold hover:opacity-80 transition-opacity"
-                style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 600 }}
-              >
-                Browse Coaches
+    <div className="min-h-screen bg-[#f5f5f5]">
+      {/* Sticky header + red community bar (Wix-style frame, identical to /test) */}
+      <div className="sticky top-0 z-40">
+        <div className="w-full sticky top-0 z-30 bg-white">
+          <header className="w-full bg-white">
+            <div className="max-w-6xl mx-auto px-8 py-5 flex items-center justify-between">
+              {/* Left: logo + ATHLEAP wordmark */}
+              <Link href="/" className="flex items-center gap-3 flex-shrink-0">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="https://static.wixstatic.com/media/75fa07_66efa272a9a64facbc09f3da71757528~mv2.png/v1/fill/w_68,h_64,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/75fa07_66efa272a9a64facbc09f3da71757528~mv2.png"
+                  alt="Athleap logo"
+                  className="h-8 w-auto"
+                />
+                <span
+                  className="text-xl font-semibold tracking-[0.02em]"
+                  style={{ fontFamily: '"Open Sans", sans-serif' }}
+                >
+                  ATHLEAP
+                </span>
               </Link>
-              <button
-                onClick={async () => {
-                  if (isSigningOut) return
-                  setIsSigningOut(true)
-                  setTimeout(async () => {
-                    try {
-                      await signOut(auth)
-                    } catch (e) {
-                      console.error('Sign out failed:', e)
-                    } finally {
-                      window.location.href = '/'
+
+              {/* Right: account chip, wired to real user + sign out */}
+              <div className="flex items-center gap-6">
+                <button
+                  type="button"
+                  className="flex items-center gap-2 rounded-full bg-white border border-gray-200 px-3 py-1 text-xs sm:text-sm"
+                  aria-label="Athlete account"
+                  onClick={async () => {
+                    if (isSigningOut) return
+                    setIsSigningOut(true)
+                    setTimeout(async () => {
+                      try {
+                        await signOut(auth)
+                      } catch (e) {
+                        console.error('Sign out failed:', e)
+                      } finally {
+                        window.location.href = '/'
+                      }
+                    }, 300)
+                  }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={
+                      heroProfile.profileImageUrl ||
+                      user?.photoURL ||
+                      'https://static.wixstatic.com/media/75fa07_66efa272a9a64facbc09f3da71757528~mv2.png/v1/fill/w_68,h_64,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/75fa07_66efa272a9a64facbc09f3da71757528~mv2.png'
                     }
-                  }, 900)
-                }}
-                className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${
-                  isSigningOut ? 'bg-gray-800 text-white' : 'bg-black text-white hover:bg-gray-800'
-                }`}
-                style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
-                aria-live="polite"
+                    alt={heroProfile.displayName || user?.displayName || 'Athleap Athlete'}
+                    className="h-6 w-6 rounded-full object-cover"
+                  />
+                  <span
+                    className="text-[11px] uppercase tracking-[0.18em] text-gray-600"
+                    style={{ fontFamily: '"Open Sans", sans-serif' }}
+                  >
+                    Hello
+                  </span>
+                  <span
+                    className="text-sm"
+                    style={{ fontFamily: '"Open Sans", sans-serif' }}
+                  >
+                    {heroProfile.displayName || user?.displayName || 'Athleap Athlete'}
+                  </span>
+                  <span className="text-xs text-gray-400">|</span>
+                  <span
+                    className="text-xs text-gray-700 underline"
+                    style={{ fontFamily: '"Open Sans", sans-serif' }}
+                  >
+                    {isSigningOut ? 'Signing out…' : 'Sign out'}
+                  </span>
+                </button>
+              </div>
+            </div>
+          </header>
+
+          {/* Red bar under header with Athlete Community text (Wix colorUnderlay + rich text) */}
+          <div className="w-full bg-[#FC0105]">
+            <div className="max-w-6xl mx-auto px-8 py-2 flex justify-end">
+              <p
+                className="text-[15px] leading-none font-bold text-white"
+                style={{ fontFamily: '"Open Sans", sans-serif', letterSpacing: '0.01em' }}
               >
-                {isSigningOut ? 'Goodbye…' : 'Sign Out'}
-              </button>
-            </nav>
-          </div>
-        </header>
-        <div className="w-full bg-[#FC0105]">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex justify-end">
-            <p
-              className="text-[15px] leading-none font-bold text-white"
-              style={{ fontFamily: '"Open Sans", sans-serif', letterSpacing: '0.01em' }}
-            >
-              Athlete Community{heroProfile.sport ? ` - ${heroProfile.sport}` : ''}
-            </p>
+                Athlete Community{heroProfile.sport ? ` - ${heroProfile.sport}` : ''}
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -357,7 +393,7 @@ export default function AthleteDashboard() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
               {/* Training Goals */}
               <div className="flex flex-col items-stretch">
-                <div className="flex-1 bg-[#7A0202] bg-opacity-90 px-6 py-6 text-white flex flex-col items-center justify-center">
+                <div className="flex-1 bg-[#7A3B3B] bg-opacity-80 px-6 py-6 text-white flex flex-col items-center justify-center">
                   <div
                     className="leading-none mb-2"
                     style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '100px' }}
@@ -377,7 +413,7 @@ export default function AthleteDashboard() {
               </div>
               {/* Trainings Complete */}
               <div className="flex flex-col items-stretch">
-                <div className="flex-1 bg-[#7A0202] bg-opacity-90 px-6 py-6 text-white flex flex-col items-center justify-center">
+                <div className="flex-1 bg-[#7A3B3B] bg-opacity-80 px-6 py-6 text-white flex flex-col items-center justify-center">
                   <div
                     className="leading-none mb-2"
                     style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '100px' }}
@@ -395,7 +431,7 @@ export default function AthleteDashboard() {
               </div>
               {/* Trainings In Progress */}
               <div className="flex flex-col items-stretch">
-                <div className="flex-1 bg-[#7A0202] bg-opacity-90 px-6 py-6 text-white flex flex-col items-center justify-center">
+                <div className="flex-1 bg-[#7A3B3B] bg-opacity-80 px-6 py-6 text-white flex flex-col items-center justify-center">
                   <div
                     className="leading-none mb-2"
                     style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '100px' }}
@@ -433,8 +469,8 @@ export default function AthleteDashboard() {
           </div>
         </section>
 
-        {/* Main sections using existing components */}
-        <section className="w-full bg-[#F5F5F5]">
+        {/* Main sections using existing components (Wix-style grey band) */}
+        <section className="w-full" style={{ backgroundColor: '#EDEDED' }}>
           <div className="max-w-6xl mx-auto px-8 py-12 space-y-8">
             {/* Coaches row & CTAs */}
             <div>
@@ -459,24 +495,29 @@ export default function AthleteDashboard() {
           </div>
         </section>
 
-        {/* Social + Assistant */}
-        <section className="w-full bg-white">
-          <div className="max-w-6xl mx-auto px-8 py-6 flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <a href="#" className="text-gray-600 hover:text-black transition-colors" aria-label="Facebook">
-                <Facebook className="w-5 h-5" />
-              </a>
-              <a href="#" className="text-gray-600 hover:text-black transition-colors" aria-label="LinkedIn">
-                <Linkedin className="w-5 h-5" />
-              </a>
-              <a href="#" className="text-gray-600 hover:text-black transition-colors" aria-label="YouTube">
-                <Youtube className="w-5 h-5" />
-              </a>
-              <a href="#" className="text-gray-600 hover:text-black transition-colors" aria-label="Instagram">
-                <Instagram className="w-5 h-5" />
-              </a>
-            </div>
-            <AthleteAssistant />
+        {/* Footer social bar (Wix-style) */}
+        <section className="w-full bg-white border-t border-gray-200">
+          <div className="max-w-6xl mx-auto px-8 py-6 flex items-center justify-end">
+            <ul className="flex items-center gap-4" aria-label="Social Bar">
+              {socialLinks.map(link => (
+                <li key={link.name}>
+                  <a
+                    href={link.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={link.name}
+                    className="block"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={link.iconUrl}
+                      alt={link.name}
+                      className="w-6 h-6 object-cover"
+                    />
+                  </a>
+                </li>
+              ))}
+            </ul>
           </div>
         </section>
 
