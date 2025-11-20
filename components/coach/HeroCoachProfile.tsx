@@ -722,7 +722,7 @@ function RecommendedGearSection({
               className="group relative flex items-center justify-center h-12 w-12 rounded-2xl border border-white/40 shadow-[inset_0_3px_6px_rgba(255,255,255,0.28),inset_0_-4px_6px_rgba(0,0,0,0.4),0_6px_14px_rgba(0,0,0,0.35)] text-white focus:outline-none focus:ring-2 focus:ring-white/60 transition-all duration-300 ease-out overflow-hidden"
               style={{ backgroundColor: '#C40000' }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.width = '120px'
+                e.currentTarget.style.width = '150px'
                 e.currentTarget.classList.add('justify-start', 'pl-4')
               }}
               onMouseLeave={(e) => {
@@ -732,10 +732,10 @@ function RecommendedGearSection({
             >
               <span className="text-2xl leading-none transition-all duration-300 group-hover:translate-x-1">+</span>
               <span
-                className="ml-2 whitespace-nowrap text-sm font-semibold uppercase tracking-wide opacity-0 max-w-0 group-hover:opacity-100 group-hover:max-w-[80px] transition-all duration-300 ease-out"
+                className="ml-2 whitespace-nowrap text-sm font-semibold uppercase tracking-wide opacity-0 max-w-0 group-hover:opacity-100 group-hover:max-w-[120px] transition-all duration-300 ease-out"
                 style={{ fontFamily: '"Open Sans", sans-serif' }}
               >
-                Add
+                Add Gear
               </span>
             </button>
           )}
