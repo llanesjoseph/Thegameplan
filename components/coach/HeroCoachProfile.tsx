@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
+import { useAuth } from '@/hooks/use-auth'
 
 interface Lesson {
   id: string
@@ -121,6 +122,7 @@ export default function HeroCoachProfile({
   hideLessons = false,
   initialGearItems
 }: HeroCoachProfileProps) {
+  const { user: authUser } = useAuth()
   const [gearItems, setGearItems] = useState<GearItem[]>(initialGearItems || [])
   const [gearLoading, setGearLoading] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
@@ -215,6 +217,8 @@ export default function HeroCoachProfile({
       isMounted = false
     }
   }, [coach.uid, coach.email])
+
+  const canManageGear = !!authUser && authUser.uid === coach.uid
 
   return (
     <main className="min-h-screen bg-[#f5f5f5]">
@@ -311,7 +315,9 @@ export default function HeroCoachProfile({
 
       {!hideLessons && lessons?.length > 0 && <TrainingLibrarySection coachName={activeCoach.displayName} lessons={lessons} />}
 
-      {!gearLoading && gearItems.length > 0 && <RecommendedGearSection items={gearItems} />}
+      {!gearLoading && (gearItems.length > 0 || canManageGear) && (
+        <RecommendedGearSection items={gearItems} canManage={canManageGear} onGearAdded={(item) => setGearItems((prev) => [item, ...prev])} />
+      )}
 
       <FooterSocialBar socialLinks={socialLinks} />
 
@@ -648,61 +654,204 @@ function TrainingLibrarySection({ lessons, coachName }: { lessons: Lesson[]; coa
   )
 }
 
-function RecommendedGearSection({ items }: { items: GearItem[] }) {
+function RecommendedGearSection({
+  items,
+  canManage,
+  onGearAdded
+}: {
+  items: GearItem[]
+  canManage: boolean
+  onGearAdded: (item: GearItem) => void
+}) {
   const rowRef = useRef<HTMLDivElement>(null)
+  const { user } = useAuth()
+  const [showAdd, setShowAdd] = useState(false)
+  const [gearUrl, setGearUrl] = useState('')
+  const [gearSaving, setGearSaving] = useState(false)
+  const [gearError, setGearError] = useState<string | null>(null)
+  const hasOverflow = items.length > 4
+
+  const canSubmitGear = canManage && !!user
 
   const handlePrev = () => rowRef.current?.scrollBy({ left: -400, behavior: 'smooth' })
   const handleNext = () => rowRef.current?.scrollBy({ left: 400, behavior: 'smooth' })
 
+  const handleAddGear = async () => {
+    if (!gearUrl.trim() || !canSubmitGear) {
+      return
+    }
+    setGearSaving(true)
+    setGearError(null)
+    try {
+      const token = await user!.getIdToken()
+      const res = await fetch('/api/gear/add-from-url', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ url: gearUrl.trim() })
+      })
+      const data = await res.json()
+      if (!res.ok || !data?.success) {
+        throw new Error('Unable to add gear')
+      }
+      const newItem: GearItem = { id: data.id, ...(data.data || {}) }
+      onGearAdded(newItem)
+      setGearUrl('')
+      setShowAdd(false)
+    } catch (error) {
+      console.error('Failed to add gear from URL', error)
+      setGearError('Could not add that product. Please double-check the URL.')
+    } finally {
+      setGearSaving(false)
+    }
+  }
+
   return (
     <section className="w-full" style={{ backgroundColor: '#4B0102' }}>
-      <div className="max-w-6xl mx-auto px-8 py-12">
-        <h1 className="mb-6" style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '25px', color: '#FFFFFF', fontWeight: 700 }}>
-          Your Recommended Gear
-        </h1>
+      <div className="max-w-6xl mx-auto px-8 py-12 space-y-4">
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <h1 style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '25px', color: '#FFFFFF', fontWeight: 700 }}>
+            Your Recommended Gear
+          </h1>
+          {canManage && (
+            <button
+              type="button"
+              onClick={() => setShowAdd(true)}
+              className="group h-10 rounded-full flex items-center justify-center shadow-md overflow-hidden transition-all duration-300 ease-in-out hover:pr-4 border border-white/30"
+              style={{ background: 'linear-gradient(135deg, #FC0105 0%, #8B0000 100%)', color: '#FFFFFF', width: '42px' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.width = 'auto'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.width = '42px'
+              }}
+            >
+              <span className="text-2xl leading-none px-2">+</span>
+              <span
+                className="whitespace-nowrap text-sm font-semibold opacity-0 max-w-0 group-hover:opacity-100 group-hover:max-w-[140px] transition-all duration-300 ease-in-out overflow-hidden"
+                style={{ fontFamily: '"Open Sans", sans-serif' }}
+              >
+                Add item
+              </span>
+            </button>
+          )}
+        </div>
 
         <div className="relative">
-          <button
-            onClick={handlePrev}
-            aria-label="Previous Product"
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white flex items-center justify-center shadow hover:bg-gray-50"
-          >
-            <ArrowRight className="w-5 h-5 rotate-180" />
-          </button>
+          {hasOverflow && (
+            <button
+              onClick={handlePrev}
+              aria-label="Previous Product"
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white flex items-center justify-center shadow hover:bg-gray-50"
+            >
+              <ArrowRight className="w-5 h-5 rotate-180" />
+            </button>
+          )}
 
-          <div ref={rowRef} className="flex gap-5 overflow-x-auto scroll-smooth px-12 py-2">
-            {items.map((item) => (
-              <div key={item.id} className="shrink-0 w-[160px]">
-                <a href={item.link || '#'} target={item.link ? '_blank' : '_self'} rel="noreferrer">
-                  <div className="w-[160px] h-[160px] rounded-lg overflow-hidden bg-[#5A0202] flex items-center justify-center">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    {item.imageUrl ? (
-                      <img src={item.imageUrl} alt={item.name} className="w-[160px] h-[160px] object-cover" />
-                    ) : (
-                      <img src="/brand/athleap-logo-colored.png" alt="Athleap" className="w-16 h-16 opacity-90" />
-                    )}
-                  </div>
-                  <p className="mt-2" style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '14px', color: '#FFFFFF' }}>
-                    {item.name}
-                  </p>
-                  {item.price && (
-                    <p className="text-sm font-semibold" style={{ fontFamily: '"Open Sans", sans-serif', color: '#FF0000' }}>
-                      {item.price}
-                    </p>
-                  )}
-                </a>
+          <div
+            ref={rowRef}
+            className="flex gap-5 overflow-x-auto scroll-smooth px-12 py-2 no-scrollbar"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {items.length === 0 && canManage ? (
+              <div className="text-white/80" style={{ fontFamily: '"Open Sans", sans-serif' }}>
+                No gear added yet. Click “Add item” to paste your first product link.
               </div>
-            ))}
+            ) : (
+              items.map((item) => (
+                <div key={item.id} className="shrink-0 w-[160px]">
+                  <a href={item.link || '#'} target={item.link ? '_blank' : '_self'} rel="noreferrer">
+                    <div className="w-[160px] h-[160px] rounded-lg overflow-hidden bg-[#5A0202] flex items-center justify-center">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      {item.imageUrl ? (
+                        <img src={item.imageUrl} alt={item.name} className="w-[160px] h-[160px] object-cover" />
+                      ) : (
+                        <img src="/brand/athleap-logo-colored.png" alt="Athleap" className="w-16 h-16 opacity-90" />
+                      )}
+                    </div>
+                    <p className="mt-2" style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '14px', color: '#FFFFFF' }}>
+                      {item.name}
+                    </p>
+                    {item.price && (
+                      <p className="text-sm font-semibold" style={{ fontFamily: '"Open Sans", sans-serif', color: '#FF0000' }}>
+                        {item.price}
+                      </p>
+                    )}
+                  </a>
+                </div>
+              ))
+            )}
           </div>
 
-          <button
-            onClick={handleNext}
-            aria-label="Next Product"
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white flex items-center justify-center shadow hover:bg-gray-50"
-          >
-            <ArrowRight className="w-5 h-5" />
-          </button>
+          {hasOverflow && (
+            <button
+              onClick={handleNext}
+              aria-label="Next Product"
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white flex items-center justify-center shadow hover:bg-gray-50"
+            >
+              <ArrowRight className="w-5 h-5" />
+            </button>
+          )}
         </div>
+
+        {canManage && showAdd && (
+          <div
+            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 px-4"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setShowAdd(false)
+            }}
+          >
+            <div className="w-full max-w-xl bg-white rounded-2xl shadow-2xl overflow-hidden">
+              <div className="px-5 py-4" style={{ backgroundColor: '#FC0105' }}>
+                <h3 className="text-white font-semibold" style={{ fontFamily: '"Open Sans", sans-serif' }}>
+                  Add Recommended Gear
+                </h3>
+              </div>
+              <div className="p-5 space-y-4">
+                <label className="block text-sm font-semibold text-gray-700" style={{ fontFamily: '"Open Sans", sans-serif' }}>
+                  Paste a product URL
+                </label>
+                <input
+                  type="url"
+                  value={gearUrl}
+                  onChange={(e) => setGearUrl(e.target.value)}
+                  placeholder="https://example.com/product"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#FC0105]"
+                />
+                {gearError && (
+                  <p className="text-sm text-red-600" style={{ fontFamily: '"Open Sans", sans-serif' }}>
+                    {gearError}
+                  </p>
+                )}
+                <div className="flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowAdd(false)
+                      setGearUrl('')
+                      setGearError(null)
+                    }}
+                    className="px-4 py-2 rounded-full border border-gray-300 text-gray-700 text-sm font-semibold"
+                    style={{ fontFamily: '"Open Sans", sans-serif' }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleAddGear}
+                    disabled={gearSaving || !gearUrl.trim()}
+                    className="px-5 py-2 rounded-full text-sm font-semibold text-white disabled:opacity-50"
+                    style={{ background: 'linear-gradient(135deg, #E60000 0%, #8B0000 100%)', fontFamily: '"Open Sans", sans-serif' }}
+                  >
+                    {gearSaving ? 'Adding…' : 'Add item'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </section>
   )
