@@ -121,26 +121,51 @@ export default function CoachLockerRoom() {
 
       <main className="flex-1 w-full">
         <div className="max-w-5xl mx-auto px-4 sm:px-8 py-10 space-y-16">
-          <section className="bg-white rounded-[28px] shadow-xl px-6 sm:px-12 py-10 text-center relative overflow-hidden">
+          <section
+            className="bg-white rounded-[28px] shadow-xl px-8 sm:px-16 py-12 text-center"
+            style={{ border: '1px solid rgba(0,0,0,0.05)' }}
+          >
             <div className="flex justify-center mb-6">
-              <img src="/brand/athleap-logo-colored.png" alt="Athleap logo" className="w-20 h-20 object-contain" />
+              <img
+                src="/brand/athleap-logo-colored.png"
+                alt="Athleap logo"
+                className="w-[113px] h-[122px] object-cover"
+              />
             </div>
             <h1
-              className="text-3xl md:text-4xl font-bold mb-3"
-              style={{ color: '#C40000', fontFamily: '"Open Sans", sans-serif', letterSpacing: '-0.03em' }}
+              className="font-bold mb-4"
+              style={{
+                fontFamily: '"Open Sans", sans-serif',
+                fontSize: '40px',
+                letterSpacing: '-0.05em',
+                color: '#F62004',
+                lineHeight: 'normal'
+              }}
             >
               Welcome to your locker room.
             </h1>
-            <p className="text-lg md:text-xl text-gray-800" style={{ fontFamily: '"Open Sans", sans-serif' }}>
+            <p
+              style={{
+                fontFamily: '"Open Sans", sans-serif',
+                fontSize: '30px',
+                lineHeight: '1.3em',
+                color: '#000000'
+              }}
+            >
               Manage your athletes, lessons, and sessions.
             </p>
             <div className="mt-8">
               <Link
                 href="/dashboard/coach"
-                className="inline-flex items-center justify-center px-6 py-3 rounded-full text-sm font-semibold text-white shadow-lg"
+                className="inline-flex items-center justify-center gap-3 px-8 py-3 rounded-full text-white text-sm font-semibold shadow-md hover:shadow-lg transition-shadow"
                 style={{ fontFamily: '"Open Sans", sans-serif', backgroundColor: '#C40000' }}
               >
                 View Your Profile
+                <span aria-hidden="true" className="inline-flex">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M5 12h13.17l-4.58 4.59L15 18l6-6-6-6-1.41 1.41L18.17 11H5z" />
+                  </svg>
+                </span>
               </Link>
             </div>
           </section>
