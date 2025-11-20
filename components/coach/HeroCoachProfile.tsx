@@ -1,9 +1,11 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type WheelEvent } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
+import { storage } from '@/lib/firebase.client'
 
 interface Lesson {
   id: string
@@ -128,6 +130,7 @@ export default function HeroCoachProfile({
   const [isEditing, setIsEditing] = useState(false)
   const [displayCoach, setDisplayCoach] = useState(coach)
   const [editableCoach, setEditableCoach] = useState(coach)
+  const [uploadingPhotoField, setUploadingPhotoField] = useState<string | null>(null)
 
   useEffect(() => {
     setDisplayCoach(coach)
@@ -181,6 +184,52 @@ export default function HeroCoachProfile({
   const handleCancelEdits = () => {
     setEditableCoach(displayCoach)
     setIsEditing(false)
+  }
+
+  const uploadPhotoForField = async (
+    file: File,
+    target:
+      | { type: 'field'; field: keyof HeroCoachProfileProps['coach'] }
+      | { type: 'gallery'; index?: number; append?: boolean }
+  ) => {
+    const ownerUid = coach.uid || authUser?.uid
+    if (!ownerUid) {
+      window.alert('You must be signed in as this coach to upload photos.')
+      return
+    }
+
+    const targetKey =
+      target.type === 'field'
+        ? target.field
+        : `gallery-${typeof target.index === 'number' ? target.index : 'new'}`
+
+    setUploadingPhotoField(targetKey as string)
+
+    try {
+      const sanitizedName = file.name.replace(/\s+/g, '-').toLowerCase()
+      const storagePath = `coaches/${ownerUid}/photos/${Date.now()}-${sanitizedName}`
+      const storageRef = ref(storage, storagePath)
+      const snapshot = await uploadBytes(storageRef, file)
+      const downloadURL = await getDownloadURL(snapshot.ref)
+
+      if (target.type === 'field') {
+        handleEditField(target.field, downloadURL)
+      } else if (target.type === 'gallery') {
+        if (target.append || typeof target.index !== 'number') {
+          setEditableCoach((prev) => ({
+            ...prev,
+            galleryPhotos: [...(prev.galleryPhotos || []), downloadURL]
+          }))
+        } else {
+          handleGalleryPhotoChange(target.index, downloadURL)
+        }
+      }
+    } catch (error) {
+      console.error('Failed to upload photo', error)
+      window.alert('Failed to upload image. Please try again.')
+    } finally {
+      setUploadingPhotoField(null)
+    }
   }
 
   const handleGalleryPhotoChange = (index: number, value: string) => {
@@ -337,6 +386,8 @@ export default function HeroCoachProfile({
         onGalleryPhotoChange={handleGalleryPhotoChange}
         onAddGalleryPhoto={handleAddGalleryPhoto}
         onRemoveGalleryPhoto={handleRemoveGalleryPhoto}
+        onPhotoUpload={uploadPhotoForField}
+        uploadingPhotoField={uploadingPhotoField}
         onEditToggle={() => setIsEditing((prev) => !prev)}
         onSave={handleSaveEdits}
         onCancel={handleCancelEdits}
@@ -374,6 +425,8 @@ function HeroSection({
   onGalleryPhotoChange,
   onAddGalleryPhoto,
   onRemoveGalleryPhoto,
+  onPhotoUpload,
+  uploadingPhotoField,
   onEditToggle,
   onSave,
   onCancel,
@@ -386,6 +439,13 @@ function HeroSection({
   onGalleryPhotoChange: (index: number, value: string) => void
   onAddGalleryPhoto: () => void
   onRemoveGalleryPhoto: (index: number) => void
+  onPhotoUpload: (
+    file: File,
+    target:
+      | { type: 'field'; field: keyof HeroCoachProfileProps['coach'] }
+      | { type: 'gallery'; index?: number; append?: boolean }
+  ) => void
+  uploadingPhotoField: string | null
   onEditToggle: () => void
   onSave: () => void
   onCancel: () => void
@@ -542,6 +602,8 @@ function HeroSection({
                 onGalleryPhotoChange={onGalleryPhotoChange}
                 onAddGalleryPhoto={onAddGalleryPhoto}
                 onRemoveGalleryPhoto={onRemoveGalleryPhoto}
+                onPhotoUpload={onPhotoUpload}
+                uploadingPhotoField={uploadingPhotoField}
               />
             )}
           </div>
@@ -556,15 +618,69 @@ function PhotoEditPanel({
   onFieldChange,
   onGalleryPhotoChange,
   onAddGalleryPhoto,
-  onRemoveGalleryPhoto
+  onRemoveGalleryPhoto,
+  onPhotoUpload,
+  uploadingPhotoField
 }: {
   editingCoach: HeroCoachProfileProps['coach']
   onFieldChange: (field: keyof HeroCoachProfileProps['coach'], value: string) => void
   onGalleryPhotoChange: (index: number, value: string) => void
   onAddGalleryPhoto: () => void
   onRemoveGalleryPhoto: (index: number) => void
+  onPhotoUpload: (
+    file: File,
+    target:
+      | { type: 'field'; field: keyof HeroCoachProfileProps['coach'] }
+      | { type: 'gallery'; index?: number; append?: boolean }
+  ) => void
+  uploadingPhotoField: string | null
 }) {
   const galleryPhotos = editingCoach.galleryPhotos || []
+  const uploadInputRefs = useRef<Record<string, HTMLInputElement | null>>({})
+
+  const triggerFileDialog = (key: string) => {
+    uploadInputRefs.current[key]?.click()
+  }
+
+  const handleFileSelected = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    target:
+      | { type: 'field'; field: keyof HeroCoachProfileProps['coach'] }
+      | { type: 'gallery'; index?: number; append?: boolean }
+  ) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      onPhotoUpload(file, target)
+    }
+    event.target.value = ''
+  }
+
+  const renderUploadButton = (key: string, label = 'Upload') => (
+    <div>
+      <input
+        type="file"
+        accept="image/*"
+        className="hidden"
+        ref={(el) => (uploadInputRefs.current[key] = el)}
+        onChange={(e) => {
+          const target =
+            key.startsWith('gallery-')
+              ? key === 'gallery-new'
+                ? { type: 'gallery', append: true }
+                : { type: 'gallery', index: Number(key.replace('gallery-', '')) }
+              : { type: 'field', field: key as keyof HeroCoachProfileProps['coach'] }
+          handleFileSelected(e, target)
+        }}
+      />
+      <button
+        type="button"
+        onClick={() => triggerFileDialog(key)}
+        className="px-3 py-2 rounded-md border border-white/30 text-white text-xs font-semibold"
+      >
+        {uploadingPhotoField === key ? 'Uploading...' : label}
+      </button>
+    </div>
+  )
 
   return (
     <div className="w-full bg-white/5 border border-white/20 rounded-xl p-4 space-y-4 text-left">
@@ -572,47 +688,59 @@ function PhotoEditPanel({
         <label className="block text-xs font-semibold tracking-wide text-white/70" style={{ fontFamily: '"Open Sans", sans-serif' }}>
           Profile Image URL
         </label>
-        <input
-          value={editingCoach.profileImageUrl || ''}
-          onChange={(e) => onFieldChange('profileImageUrl', e.target.value)}
-          className="w-full bg-white/10 border border-white/25 rounded-md px-3 py-2 text-white text-sm"
-          placeholder="https://..."
-        />
+        <div className="flex gap-2">
+          <input
+            value={editingCoach.profileImageUrl || ''}
+            onChange={(e) => onFieldChange('profileImageUrl', e.target.value)}
+            className="flex-1 bg-white/10 border border-white/25 rounded-md px-3 py-2 text-white text-sm"
+            placeholder="https://..."
+          />
+          {renderUploadButton('profileImageUrl')}
+        </div>
       </div>
       <div className="space-y-2">
         <label className="block text-xs font-semibold tracking-wide text-white/70" style={{ fontFamily: '"Open Sans", sans-serif' }}>
           Feature Photo 1
         </label>
-        <input
-          value={editingCoach.showcasePhoto1 || ''}
-          onChange={(e) => onFieldChange('showcasePhoto1', e.target.value)}
-          className="w-full bg-white/10 border border-white/25 rounded-md px-3 py-2 text-white text-sm"
-          placeholder="https://..."
-        />
+        <div className="flex gap-2">
+          <input
+            value={editingCoach.showcasePhoto1 || ''}
+            onChange={(e) => onFieldChange('showcasePhoto1', e.target.value)}
+            className="flex-1 bg-white/10 border border-white/25 rounded-md px-3 py-2 text-white text-sm"
+            placeholder="https://..."
+          />
+          {renderUploadButton('showcasePhoto1')}
+        </div>
       </div>
       <div className="space-y-2">
         <label className="block text-xs font-semibold tracking-wide text-white/70" style={{ fontFamily: '"Open Sans", sans-serif' }}>
           Feature Photo 2
         </label>
-        <input
-          value={editingCoach.showcasePhoto2 || ''}
-          onChange={(e) => onFieldChange('showcasePhoto2', e.target.value)}
-          className="w-full bg-white/10 border border-white/25 rounded-md px-3 py-2 text-white text-sm"
-          placeholder="https://..."
-        />
+        <div className="flex gap-2">
+          <input
+            value={editingCoach.showcasePhoto2 || ''}
+            onChange={(e) => onFieldChange('showcasePhoto2', e.target.value)}
+            className="flex-1 bg-white/10 border border-white/25 rounded-md px-3 py-2 text-white text-sm"
+            placeholder="https://..."
+          />
+          {renderUploadButton('showcasePhoto2')}
+        </div>
       </div>
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <span className="text-xs font-semibold tracking-wide text-white/70" style={{ fontFamily: '"Open Sans", sans-serif' }}>
             Gallery Photos
           </span>
-          <button
-            type="button"
-            onClick={onAddGalleryPhoto}
-            className="px-3 py-1 rounded-md border border-white/30 text-white text-xs font-semibold"
-          >
-            + Add Photo
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={onAddGalleryPhoto}
+              className="px-3 py-1 rounded-md border border-white/30 text-white text-xs font-semibold"
+            >
+              + Add Photo
+            </button>
+            {renderUploadButton('gallery-new', 'Upload New')}
+          </div>
         </div>
         <div className="space-y-2">
           {galleryPhotos.length === 0 && <p className="text-white/60 text-xs">No gallery photos yet.</p>}
@@ -624,13 +752,16 @@ function PhotoEditPanel({
                 className="flex-1 bg-white/10 border border-white/25 rounded-md px-3 py-2 text-white text-sm"
                 placeholder={`Photo ${idx + 1} URL`}
               />
-              <button
-                type="button"
-                onClick={() => onRemoveGalleryPhoto(idx)}
-                className="px-3 py-2 rounded-md border border-white/30 text-white text-xs font-semibold"
-              >
-                Remove
-              </button>
+              <div className="flex items-center gap-2">
+                {renderUploadButton(`gallery-${idx}`)}
+                <button
+                  type="button"
+                  onClick={() => onRemoveGalleryPhoto(idx)}
+                  className="px-3 py-2 rounded-md border border-white/30 text-white text-xs font-semibold"
+                >
+                  Remove
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -726,6 +857,16 @@ function TrainingLibrarySection({ lessons, coachName }: { lessons: Lesson[]; coa
     listRef.current.scrollBy({ top: delta, behavior: 'smooth' })
   }
 
+  const handleWheel = (event: WheelEvent<HTMLDivElement>) => {
+    if (!hasOverflow) {
+      return
+    }
+    event.preventDefault()
+    if (typeof window !== 'undefined') {
+      window.scrollBy({ top: event.deltaY, behavior: 'auto' })
+    }
+  }
+
   return (
     <section className="w-full bg-white">
       <div className="max-w-6xl mx-auto px-8 py-10">
@@ -761,6 +902,7 @@ function TrainingLibrarySection({ lessons, coachName }: { lessons: Lesson[]; coa
         <div
           ref={listRef}
           className={`border-t border-gray-300 ${hasOverflow ? 'max-h-[520px] overflow-y-auto pr-2 scroll-smooth no-scrollbar' : ''}`}
+          onWheel={handleWheel}
           style={hasOverflow ? { scrollbarWidth: 'none', msOverflowStyle: 'none' } : undefined}
         >
           {filteredLessons.map((lesson) => (
