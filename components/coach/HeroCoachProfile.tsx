@@ -719,15 +719,23 @@ function RecommendedGearSection({
             <button
               type="button"
               onClick={() => setShowAdd(true)}
-              className="group relative flex items-center justify-center h-12 w-12 rounded-2xl border border-white/40 shadow-[inset_0_3px_6px_rgba(255,255,255,0.28),inset_0_-4px_6px_rgba(0,0,0,0.4),0_6px_14px_rgba(0,0,0,0.35)] text-white focus:outline-none focus:ring-2 focus:ring-white/60"
+              className="group relative flex items-center justify-center h-12 w-12 rounded-2xl border border-white/40 shadow-[inset_0_3px_6px_rgba(255,255,255,0.28),inset_0_-4px_6px_rgba(0,0,0,0.4),0_6px_14px_rgba(0,0,0,0.35)] text-white focus:outline-none focus:ring-2 focus:ring-white/60 transition-all duration-300 ease-out overflow-hidden"
               style={{ backgroundColor: '#C40000' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.width = '120px'
+                e.currentTarget.classList.add('justify-start', 'pl-4')
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.width = '48px'
+                e.currentTarget.classList.remove('justify-start', 'pl-4')
+              }}
             >
-              <span className="text-2xl leading-none">+</span>
+              <span className="text-2xl leading-none transition-all duration-300 group-hover:translate-x-1">+</span>
               <span
-                className="absolute left-full ml-3 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide border border-white/60 bg-[#4B0102] text-white opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 ease-out shadow-[0_4px_12px_rgba(0,0,0,0.35)]"
+                className="ml-2 whitespace-nowrap text-sm font-semibold uppercase tracking-wide opacity-0 max-w-0 group-hover:opacity-100 group-hover:max-w-[80px] transition-all duration-300 ease-out"
                 style={{ fontFamily: '"Open Sans", sans-serif' }}
               >
-                Add item
+                Add
               </span>
             </button>
           )}
