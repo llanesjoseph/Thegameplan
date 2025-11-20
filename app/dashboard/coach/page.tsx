@@ -1,79 +1,197 @@
 'use client'
 
-import Link from 'next/link'
-import { signOut } from 'firebase/auth'
-import { auth } from '@/lib/firebase.client'
-import { useState } from 'react'
-import { Facebook, Instagram, Youtube, Linkedin } from 'lucide-react'
-import CoachOverview from '@/components/coach/CoachOverview'
-import CoachProfile from '@/components/coach/CoachProfile'
-import CoachPhotoShowcase from '@/components/coach/CoachPhotoShowcase'
-import CoachLessonLibrary from '@/components/coach/CoachLessonLibrary'
-import CoachRecommendedGear from '@/components/coach/CoachRecommendedGear'
+import { useEffect, useState } from 'react'
+import HeroCoachProfile from '@/components/coach/HeroCoachProfile'
+import { useAuth } from '@/hooks/use-auth'
+import { db } from '@/lib/firebase.client'
+import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore'
+
+type Lesson = {
+  id: string
+  title: string
+  status?: string
+  sport?: string
+  thumbnailUrl?: string
+}
+
+type GearItem = {
+  id: string
+  name: string
+  price?: string
+  imageUrl?: string
+  link?: string
+}
+
+const extractGalleryPhotos = (...sources: any[]): string[] => {
+  const flatten = (value: any): string[] => {
+    if (!value) return []
+    if (typeof value === 'string') return [value]
+    if (Array.isArray(value)) return value.flatMap(flatten)
+    if (typeof value === 'object') {
+      const direct = value.url || value.imageUrl || value.src || value.path || value.photoURL || value.downloadURL
+      if (typeof direct === 'string') {
+        return [direct]
+      }
+      return Object.values(value).flatMap(flatten)
+    }
+    return []
+  }
+
+  const urls = sources.flatMap(flatten).map((url) => (typeof url === 'string' ? url.trim() : '')).filter(Boolean)
+  return Array.from(new Set(urls))
+}
 
 export default function CoachDashboard() {
-  const [isSigningOut, setIsSigningOut] = useState(false)
+  const { user } = useAuth()
+  const [coachProfile, setCoachProfile] = useState<Parameters<typeof HeroCoachProfile>[0]['coach'] | null>(null)
+  const [lessons, setLessons] = useState<Lesson[]>([])
+  const [totalLessons, setTotalLessons] = useState(0)
+  const [totalAthletes, setTotalAthletes] = useState(0)
+  const [gearItems, setGearItems] = useState<GearItem[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!user?.uid) return
+
+    let isMounted = true
+    const load = async () => {
+      setLoading(true)
+      setError(null)
+      try {
+        const userSnap = await getDoc(doc(db, 'users', user.uid))
+        const userData = userSnap.exists() ? (userSnap.data() as any) : {}
+
+        let creatorData: any = {}
+        try {
+          const creatorSnap = await getDocs(query(collection(db, 'creator_profiles'), where('uid', '==', user.uid)))
+          if (!creatorSnap.empty) {
+            creatorData = creatorSnap.docs[0].data()
+          }
+        } catch (creatorErr) {
+          console.warn('Unable to load creator profile:', creatorErr)
+        }
+
+        const galleryPhotos = extractGalleryPhotos(
+          creatorData.galleryPhotos,
+          creatorData.actionPhotos,
+          creatorData.mediaGallery,
+          creatorData.heroGallery,
+          creatorData.gallery,
+          userData.galleryPhotos
+        )
+
+        const profileImageUrl =
+          creatorData.headshotUrl ||
+          userData.profileImageUrl ||
+          userData.photoURL ||
+          user.photoURL ||
+          ''
+
+        const sport =
+          creatorData.sport ||
+          userData.sport ||
+          userData.primarySport ||
+          'Coach'
+
+        const coach = {
+          uid: user.uid,
+          email: user.email || userData.email || '',
+          displayName: user.displayName || userData.displayName || 'Coach',
+          bio: creatorData.bio || userData.bio || '',
+          sport,
+          location: creatorData.location || userData.location || '',
+          profileImageUrl,
+          showcasePhoto1: creatorData.showcasePhoto1 || userData.showcasePhoto1 || galleryPhotos[0],
+          showcasePhoto2: creatorData.showcasePhoto2 || userData.showcasePhoto2 || galleryPhotos[1],
+          instagram: creatorData.instagram || userData.instagram || '',
+          youtube: creatorData.youtube || userData.youtube || '',
+          linkedin: creatorData.linkedin || userData.linkedin || '',
+          facebook: creatorData.facebook || userData.facebook || '',
+          socialLinks: {
+            instagram: creatorData.instagram || userData.instagram || '',
+            linkedin: creatorData.linkedin || userData.linkedin || '',
+            twitter: creatorData.twitter || userData.twitter || ''
+          },
+          galleryPhotos
+        }
+
+        if (isMounted) {
+          setCoachProfile(coach)
+        }
+
+        const [statsRes, gearRes] = await Promise.all([
+          fetch(`/api/coach/${user.uid}/stats`),
+          fetch(`/api/gear/coach?uid=${user.uid}`)
+        ])
+
+        if (statsRes.ok) {
+          const stats = await statsRes.json()
+          if (isMounted) {
+            setLessons(stats.lessons || [])
+            setTotalLessons(stats.totalLessons || 0)
+            setTotalAthletes(stats.totalAthletes || 0)
+          }
+        }
+
+        if (gearRes.ok) {
+          const gear = await gearRes.json()
+          if (isMounted) {
+            setGearItems(gear.gearItems || [])
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load coach dashboard:', err)
+        if (isMounted) {
+          setError('Unable to load your profile right now.')
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false)
+        }
+      }
+    }
+
+    load()
+    return () => {
+      isMounted = false
+    }
+  }, [user])
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f5f5f5]">
+        <p className="text-gray-600">Please sign in to view your coach dashboard.</p>
+      </div>
+    )
+  }
+
+  if (loading || !coachProfile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f5f5f5]">
+        <div className="text-center space-y-3">
+          <div className="w-10 h-10 border-4 border-t-transparent border-black rounded-full animate-spin mx-auto" />
+          <p className="text-sm text-gray-600">Loading your dashboard…</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f5f5f5]">
+        <p className="text-red-600 text-sm">{error}</p>
+      </div>
+    )
+  }
+
   return (
-    <div className="min-h-screen bg-white">
-      <header className="bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex-shrink-0">
-            <span className="text-2xl font-bold" style={{ color: '#440102', fontFamily: '\"Open Sans\", sans-serif', fontWeight: 700 }}>
-              ATHLEAP
-            </span>
-          </Link>
-          <nav className="flex items-center gap-4">
-            <button
-              onClick={async () => {
-                if (isSigningOut) return
-                setIsSigningOut(true)
-                setTimeout(async () => {
-                  try {
-                    await signOut(auth)
-                  } catch (e) {
-                    console.error('Sign out failed:', e)
-                  } finally {
-                    window.location.href = '/'
-                  }
-                }, 900)
-              }}
-              className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${isSigningOut ? 'bg-gray-800 text-white' : 'bg-black text-white hover:bg-gray-800'}`}
-              style={{ fontFamily: '\"Open Sans\", sans-serif', fontWeight: 700 }}
-              aria-live="polite"
-            >
-              {isSigningOut ? 'Goodbye…' : 'Sign Out'}
-            </button>
-          </nav>
-        </div>
-      </header>
-
-      <main className="w-full">
-        <div className="px-4 sm:px-6 lg:px-8 py-3">
-          <div className="w-full max-w-6xl mx-auto space-y-5">
-            <CoachOverview />
-            <CoachProfile />
-            <CoachPhotoShowcase />
-            <CoachLessonLibrary />
-            <CoachRecommendedGear />
-
-            {/* Social Media Icons */}
-            <div className="flex items-center gap-4 pt-4">
-              <a href="#" className="text-gray-600 hover:text-black transition-colors" aria-label="Facebook">
-                <Facebook className="w-5 h-5" />
-              </a>
-              <a href="#" className="text-gray-600 hover:text-black transition-colors" aria-label="LinkedIn">
-                <Linkedin className="w-5 h-5" />
-              </a>
-              <a href="#" className="text-gray-600 hover:text-black transition-colors" aria-label="YouTube">
-                <Youtube className="w-5 h-5" />
-              </a>
-              <a href="#" className="text-gray-600 hover:text-black transition-colors" aria-label="Instagram">
-                <Instagram className="w-5 h-5" />
-              </a>
-            </div>
-          </div>
-        </div>
-      </main>
-    </div>
+    <HeroCoachProfile
+      coach={coachProfile}
+      lessons={lessons}
+      totalLessons={totalLessons}
+      totalAthletes={totalAthletes}
+      initialGearItems={gearItems}
+    />
   )
 }
