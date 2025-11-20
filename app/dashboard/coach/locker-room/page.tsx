@@ -12,7 +12,13 @@ import EnhancedAthleteRosterModal from '@/components/coach/EnhancedAthleteRoster
 import CoachContentUpload from '@/components/coach/CoachContentUpload'
 import lockerLogo from '@/Favicon/Wordpress Transparent.png'
 
-const trainingActions = [
+type LockerAction = {
+  key: string
+  title: string
+  description: string
+}
+
+const trainingActions: LockerAction[] = [
   {
     key: 'athletes',
     title: 'Manage Athletes',
@@ -30,7 +36,7 @@ const trainingActions = [
   }
 ]
 
-const calendarActions = [
+const calendarActions: LockerAction[] = [
   {
     key: 'event-schedule',
     title: 'Event Calendar',
@@ -174,102 +180,44 @@ export default function CoachLockerRoom() {
           </div>
 
           <section className="space-y-6">
-            <div className="text-center space-y-2">
-              <p className="text-sm uppercase tracking-[0.3em]" style={{ color: '#FFD6C9', fontFamily: '"Open Sans", sans-serif' }}>
-                Locker Tools
-              </p>
-              <h2 className="text-2xl font-bold" style={{ fontFamily: '"Open Sans", sans-serif' }}>
+            <div className="text-center space-y-3">
+              <h2
+                style={{
+                  fontFamily: '"Open Sans", sans-serif',
+                  fontSize: '25px',
+                  letterSpacing: '0.05em',
+                  fontWeight: 700,
+                  color: '#FFFFFF'
+                }}
+              >
                 Athletes and Training Content
               </h2>
             </div>
-            <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-              {trainingActions.map((action) => {
-                return (
-                  <button
-                    key={action.key}
-                    onClick={() => setActiveModal(action.key)}
-                    className="group text-left rounded-2xl overflow-hidden shadow-[0_25px_60px_rgba(0,0,0,0.35)] hover:-translate-y-1 transition-transform focus:outline-none"
-                    style={{ backgroundColor: '#8B0C01' }}
-                  >
-                    <div className="px-6 py-6" style={{ backgroundColor: '#FFE3D6' }}>
-                      <h3
-                        style={{
-                          fontFamily: '"Open Sans", sans-serif',
-                          fontSize: '40px',
-                          lineHeight: '1em',
-                          fontWeight: 700,
-                          color: '#430B08',
-                          letterSpacing: '-0.01em'
-                        }}
-                      >
-                        {action.title}
-                      </h3>
-                    </div>
-                    <div className="px-6 py-4" style={{ backgroundColor: '#C11202' }}>
-                      <p
-                        style={{
-                          fontFamily: '"Open Sans", sans-serif',
-                          fontSize: '14px',
-                          color: '#FFFFFF',
-                          lineHeight: '1.4em'
-                        }}
-                      >
-                        {action.description}
-                      </p>
-                    </div>
-                  </button>
-                )
-              })}
+            <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+              {trainingActions.map((action) => (
+                <LockerCard key={action.key} action={action} onClick={() => setActiveModal(action.key)} />
+              ))}
             </div>
           </section>
 
-  <section className="space-y-6">
-            <div className="text-center space-y-2">
-              <p className="text-sm uppercase tracking-[0.3em]" style={{ color: '#FFD6C9', fontFamily: '"Open Sans", sans-serif' }}>
-                Planning
-              </p>
-              <h2 className="text-2xl font-bold" style={{ fontFamily: '"Open Sans", sans-serif' }}>
+          <section className="space-y-6">
+            <div className="text-center space-y-3">
+              <h2
+                style={{
+                  fontFamily: '"Open Sans", sans-serif',
+                  fontSize: '25px',
+                  letterSpacing: '0.05em',
+                  fontWeight: 700,
+                  color: '#FFFFFF'
+                }}
+              >
                 Calendar and Events
               </h2>
             </div>
-            <div className="grid gap-6 grid-cols-1 sm:grid-cols-2">
-              {calendarActions.map((action) => {
-                return (
-                  <button
-                    key={action.key}
-                    onClick={() => setActiveModal(action.key)}
-                    className="group text-left rounded-2xl overflow-hidden shadow-[0_25px_60px_rgba(0,0,0,0.35)] hover:-translate-y-1 transition-transform focus:outline-none"
-                    style={{ backgroundColor: '#8B0C01' }}
-                  >
-                    <div className="px-6 py-6" style={{ backgroundColor: '#FFE3D6' }}>
-                      <h3
-                        style={{
-                          fontFamily: '"Open Sans", sans-serif',
-                          fontSize: '40px',
-                          lineHeight: '1em',
-                          fontWeight: 700,
-                          color: '#430B08',
-                          letterSpacing: '-0.01em'
-                        }}
-                      >
-                        {action.title}
-                      </h3>
-                    </div>
-                    <div className="px-6 py-4" style={{ backgroundColor: '#C11202' }}>
-                      <p
-                        style={{
-                          fontFamily: '"Open Sans", sans-serif',
-                          fontSize: '14px',
-                          color: '#FFFFFF',
-                          lineHeight: '1.4em'
-                        }}
-                      >
-                        {action.description}
-                      </p>
-                    </div>
-                  </button>
-                )
-              })}
+            <div className="grid gap-8 grid-cols-1 sm:grid-cols-2">
+              {calendarActions.map((action) => (
+                <LockerCard key={action.key} action={action} onClick={() => setActiveModal(action.key)} />
+              ))}
             </div>
           </section>
         </div>
@@ -420,6 +368,59 @@ export default function CoachLockerRoom() {
         </div>
       )}
     </div>
+  )
+}
+
+function LockerCard({ action, onClick }: { action: LockerAction; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="relative w-full text-left focus:outline-none"
+      style={{ fontFamily: '"Open Sans", sans-serif' }}
+    >
+      <span
+        className="absolute inset-0 rounded-md"
+        style={{
+          transform: 'translate(9px, 9px)',
+          backgroundColor: '#2A0200',
+          borderRadius: '6px'
+        }}
+        aria-hidden="true"
+      />
+      <div
+        className="relative rounded-md px-6 py-8"
+        style={{
+          backgroundColor: '#FF2C13',
+          border: '1px solid #430B08',
+          boxShadow: '0px 18px 35px rgba(0,0,0,0.45)',
+          borderRadius: '6px',
+          minHeight: '200px'
+        }}
+      >
+        <h3
+          style={{
+            fontSize: '40px',
+            lineHeight: '1em',
+            fontWeight: 700,
+            color: '#430B08',
+            letterSpacing: '-0.01em',
+            marginBottom: '10px'
+          }}
+        >
+          {action.title}
+        </h3>
+        <p
+          style={{
+            fontSize: '14px',
+            color: '#FFFFFF',
+            lineHeight: '1.4em'
+          }}
+        >
+          {action.description}
+        </p>
+      </div>
+    </button>
   )
 }
 
