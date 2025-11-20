@@ -183,6 +183,35 @@ export default function HeroCoachProfile({
     setIsEditing(false)
   }
 
+  const handleGalleryPhotoChange = (index: number, value: string) => {
+    setEditableCoach((prev) => {
+      const gallery = [...(prev.galleryPhotos || [])]
+      gallery[index] = value
+      return {
+        ...prev,
+        galleryPhotos: gallery
+      }
+    })
+  }
+
+  const handleAddGalleryPhoto = () => {
+    setEditableCoach((prev) => ({
+      ...prev,
+      galleryPhotos: [...(prev.galleryPhotos || []), '']
+    }))
+  }
+
+  const handleRemoveGalleryPhoto = (index: number) => {
+    setEditableCoach((prev) => {
+      const gallery = [...(prev.galleryPhotos || [])]
+      gallery.splice(index, 1)
+      return {
+        ...prev,
+        galleryPhotos: gallery
+      }
+    })
+  }
+
   useEffect(() => {
     if (!coach.uid && !coach.email) {
       return
@@ -305,6 +334,9 @@ export default function HeroCoachProfile({
         editingCoach={editableCoach}
         isEditing={isEditing}
         onFieldChange={handleEditField}
+        onGalleryPhotoChange={handleGalleryPhotoChange}
+        onAddGalleryPhoto={handleAddGalleryPhoto}
+        onRemoveGalleryPhoto={handleRemoveGalleryPhoto}
         onEditToggle={() => setIsEditing((prev) => !prev)}
         onSave={handleSaveEdits}
         onCancel={handleCancelEdits}
@@ -339,6 +371,9 @@ function HeroSection({
   editingCoach,
   isEditing,
   onFieldChange,
+  onGalleryPhotoChange,
+  onAddGalleryPhoto,
+  onRemoveGalleryPhoto,
   onEditToggle,
   onSave,
   onCancel,
@@ -348,20 +383,23 @@ function HeroSection({
   editingCoach: HeroCoachProfileProps['coach']
   isEditing: boolean
   onFieldChange: (field: keyof HeroCoachProfileProps['coach'], value: string) => void
+  onGalleryPhotoChange: (index: number, value: string) => void
+  onAddGalleryPhoto: () => void
+  onRemoveGalleryPhoto: (index: number) => void
   onEditToggle: () => void
   onSave: () => void
   onCancel: () => void
   theme: SportTheme
 }) {
   const embossClasses =
-    'px-5 py-2 rounded-full text-sm font-semibold uppercase tracking-wide text-white shadow-[0px_4px_12px_rgba(0,0,0,0.35)]'
+    'px-5 py-2 rounded-md text-sm font-semibold uppercase tracking-wide text-white shadow-[0px_6px_16px_rgba(0,0,0,0.4)]'
   const primaryButtonStyles = {
-    background: 'linear-gradient(135deg, #E60000 0%, #8B0000 100%)',
-    border: '1px solid rgba(255,255,255,0.35)'
+    backgroundColor: '#C40000',
+    border: '1px solid rgba(255,255,255,0.25)'
   }
   const secondaryButtonStyles = {
-    background: 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(0,0,0,0.1) 100%)',
-    border: '1px solid rgba(255,255,255,0.4)'
+    backgroundColor: 'rgba(255,255,255,0.12)',
+    border: '1px solid rgba(255,255,255,0.35)'
   }
 
   return (
@@ -459,7 +497,7 @@ function HeroSection({
         </div>
 
         <div className="flex justify-center md:justify-end">
-          <div className="flex flex-col items-center gap-4">
+          <div className="flex flex-col items-center gap-4 w-full max-w-md">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={coach.profileImageUrl || '/brand/athleap-logo-colored.png'}
@@ -497,10 +535,107 @@ function HeroSection({
                 </>
               )}
             </div>
+            {isEditing && (
+              <PhotoEditPanel
+                editingCoach={editingCoach}
+                onFieldChange={onFieldChange}
+                onGalleryPhotoChange={onGalleryPhotoChange}
+                onAddGalleryPhoto={onAddGalleryPhoto}
+                onRemoveGalleryPhoto={onRemoveGalleryPhoto}
+              />
+            )}
           </div>
         </div>
       </div>
     </section>
+  )
+}
+
+function PhotoEditPanel({
+  editingCoach,
+  onFieldChange,
+  onGalleryPhotoChange,
+  onAddGalleryPhoto,
+  onRemoveGalleryPhoto
+}: {
+  editingCoach: HeroCoachProfileProps['coach']
+  onFieldChange: (field: keyof HeroCoachProfileProps['coach'], value: string) => void
+  onGalleryPhotoChange: (index: number, value: string) => void
+  onAddGalleryPhoto: () => void
+  onRemoveGalleryPhoto: (index: number) => void
+}) {
+  const galleryPhotos = editingCoach.galleryPhotos || []
+
+  return (
+    <div className="w-full bg-white/5 border border-white/20 rounded-xl p-4 space-y-4 text-left">
+      <div className="space-y-2">
+        <label className="block text-xs font-semibold tracking-wide text-white/70" style={{ fontFamily: '"Open Sans", sans-serif' }}>
+          Profile Image URL
+        </label>
+        <input
+          value={editingCoach.profileImageUrl || ''}
+          onChange={(e) => onFieldChange('profileImageUrl', e.target.value)}
+          className="w-full bg-white/10 border border-white/25 rounded-md px-3 py-2 text-white text-sm"
+          placeholder="https://..."
+        />
+      </div>
+      <div className="space-y-2">
+        <label className="block text-xs font-semibold tracking-wide text-white/70" style={{ fontFamily: '"Open Sans", sans-serif' }}>
+          Feature Photo 1
+        </label>
+        <input
+          value={editingCoach.showcasePhoto1 || ''}
+          onChange={(e) => onFieldChange('showcasePhoto1', e.target.value)}
+          className="w-full bg-white/10 border border-white/25 rounded-md px-3 py-2 text-white text-sm"
+          placeholder="https://..."
+        />
+      </div>
+      <div className="space-y-2">
+        <label className="block text-xs font-semibold tracking-wide text-white/70" style={{ fontFamily: '"Open Sans", sans-serif' }}>
+          Feature Photo 2
+        </label>
+        <input
+          value={editingCoach.showcasePhoto2 || ''}
+          onChange={(e) => onFieldChange('showcasePhoto2', e.target.value)}
+          className="w-full bg-white/10 border border-white/25 rounded-md px-3 py-2 text-white text-sm"
+          placeholder="https://..."
+        />
+      </div>
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-semibold tracking-wide text-white/70" style={{ fontFamily: '"Open Sans", sans-serif' }}>
+            Gallery Photos
+          </span>
+          <button
+            type="button"
+            onClick={onAddGalleryPhoto}
+            className="px-3 py-1 rounded-md border border-white/30 text-white text-xs font-semibold"
+          >
+            + Add Photo
+          </button>
+        </div>
+        <div className="space-y-2">
+          {galleryPhotos.length === 0 && <p className="text-white/60 text-xs">No gallery photos yet.</p>}
+          {galleryPhotos.map((url, idx) => (
+            <div key={`gallery-edit-${idx}`} className="flex items-center gap-2">
+              <input
+                value={url}
+                onChange={(e) => onGalleryPhotoChange(idx, e.target.value)}
+                className="flex-1 bg-white/10 border border-white/25 rounded-md px-3 py-2 text-white text-sm"
+                placeholder={`Photo ${idx + 1} URL`}
+              />
+              <button
+                type="button"
+                onClick={() => onRemoveGalleryPhoto(idx)}
+                className="px-3 py-2 rounded-md border border-white/30 text-white text-xs font-semibold"
+              >
+                Remove
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
   )
 }
 
@@ -720,7 +855,7 @@ function RecommendedGearSection({
               type="button"
               onClick={() => setShowAdd(true)}
               className="group relative flex items-center justify-center h-12 w-12 rounded-2xl border border-white/40 shadow-[inset_0_3px_6px_rgba(255,255,255,0.28),inset_0_-4px_6px_rgba(0,0,0,0.4),0_6px_14px_rgba(0,0,0,0.35)] text-white focus:outline-none focus:ring-2 focus:ring-white/60 transition-all duration-300 ease-out overflow-hidden"
-              style={{ backgroundColor: '#C40000' }}
+              style={{ backgroundColor: '#C40000', width: '48px' }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.width = '150px'
                 e.currentTarget.classList.add('justify-start', 'pl-4')
