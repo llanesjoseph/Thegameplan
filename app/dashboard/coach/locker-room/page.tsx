@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
 import { useAuth } from '@/hooks/use-auth'
@@ -9,6 +10,7 @@ import { auth } from '@/lib/firebase.client'
 import { Calendar, Video, Users, FileText, Facebook, Instagram, Youtube, Linkedin, X } from 'lucide-react'
 import EnhancedAthleteRosterModal from '@/components/coach/EnhancedAthleteRosterModal'
 import CoachContentUpload from '@/components/coach/CoachContentUpload'
+import lockerLogo from '@/Favicon/Wordpress Transparent.png'
 
 const trainingActions = [
   {
@@ -121,16 +123,9 @@ export default function CoachLockerRoom() {
 
       <main className="flex-1 w-full">
         <div className="max-w-5xl mx-auto px-4 sm:px-8 py-10 space-y-16">
-          <section
-            className="bg-white rounded-[28px] shadow-xl px-8 sm:px-16 py-12 text-center"
-            style={{ border: '1px solid rgba(0,0,0,0.05)' }}
-          >
+          <section className="bg-white px-6 sm:px-12 py-12 text-center border border-[#f0f0f0]" style={{ borderRadius: '0px' }}>
             <div className="flex justify-center mb-6">
-              <img
-                src="/brand/athleap-logo-colored.png"
-                alt="Athleap logo"
-                className="w-[113px] h-[122px] object-cover"
-              />
+              <Image src={lockerLogo} alt="Athleap mark" width={113} height={122} priority className="object-contain" />
             </div>
             <h1
               className="font-bold mb-4"
@@ -149,7 +144,8 @@ export default function CoachLockerRoom() {
                 fontFamily: '"Open Sans", sans-serif',
                 fontSize: '30px',
                 lineHeight: '1.3em',
-                color: '#000000'
+                color: '#000000',
+                marginBottom: '40px'
               }}
             >
               Manage your athletes, lessons, and sessions.
@@ -157,15 +153,20 @@ export default function CoachLockerRoom() {
             <div className="mt-8">
               <Link
                 href="/dashboard/coach"
-                className="inline-flex items-center justify-center gap-3 px-8 py-3 rounded-full text-white text-sm font-semibold shadow-md hover:shadow-lg transition-shadow"
-                style={{ fontFamily: '"Open Sans", sans-serif', backgroundColor: '#C40000' }}
+                className="inline-flex items-center justify-center px-8 py-3 rounded-full text-white text-sm font-semibold shadow-lg hover:shadow-xl transition-shadow"
+                style={{ fontFamily: '"Open Sans", sans-serif', backgroundColor: '#C40000', letterSpacing: '0.08em' }}
               >
-                View Your Profile
-                <span aria-hidden="true" className="inline-flex">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M5 12h13.17l-4.58 4.59L15 18l6-6-6-6-1.41 1.41L18.17 11H5z" />
-                  </svg>
-                </span>
+                <span>View Your Profile</span>
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 60 60"
+                  fill="currentColor"
+                  aria-hidden="true"
+                  className="ml-2"
+                >
+                  <path d="M46.5 28.9L20.6 3c-.6-.6-1.6-.6-2.2 0l-4.8 4.8c-.6.6-.6 1.6 0 2.2l19.8 20-19.9 19.9c-.6.6-.6 1.6 0 2.2l4.8 4.8c.6.6 1.6.6 2.2 0l21-21 4.8-4.8c.8-.6.8-1.6.2-2.2z" />
+                </svg>
               </Link>
             </div>
           </section>
