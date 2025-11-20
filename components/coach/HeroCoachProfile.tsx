@@ -418,14 +418,53 @@ function CoachGallery({ photos }: { photos: string[] }) {
 }
 
 function TrainingLibrarySection({ lessons, coachName }: { lessons: Lesson[]; coachName: string }) {
+  const listRef = useRef<HTMLDivElement>(null)
+  const MAX_VISIBLE = 4
+  const hasOverflow = lessons.length > MAX_VISIBLE
+  const scrollByAmount = 160
+
+  const handleScroll = (direction: 'up' | 'down') => {
+    if (!listRef.current) return
+    const delta = direction === 'up' ? -scrollByAmount : scrollByAmount
+    listRef.current.scrollBy({ top: delta, behavior: 'smooth' })
+  }
+
   return (
     <section className="w-full bg-white">
       <div className="max-w-6xl mx-auto px-8 py-10">
-        <h2 className="mb-6" style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '25px', color: '#000000' }}>
-          {coachName}&apos;s Training Library
-        </h2>
+        <div className="flex items-center justify-between mb-2">
+          <h2 style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '25px', color: '#000000' }}>
+            {coachName}&apos;s Training Library
+          </h2>
+          {hasOverflow && (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => handleScroll('up')}
+                aria-label="Scroll lessons up"
+                className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-50"
+              >
+                <ArrowRight className="w-4 h-4 rotate-90" />
+              </button>
+              <button
+                onClick={() => handleScroll('down')}
+                aria-label="Scroll lessons down"
+                className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-50"
+              >
+                <ArrowRight className="w-4 h-4 -rotate-90" />
+              </button>
+            </div>
+          )}
+        </div>
+        {hasOverflow && (
+          <p className="text-sm text-gray-500 mb-4" style={{ fontFamily: '"Open Sans", sans-serif' }}>
+            Showing 4 lessons at a time. Use the controls to browse the full library.
+          </p>
+        )}
 
-        <div className="border-t border-gray-300">
+        <div
+          ref={listRef}
+          className={`border-t border-gray-300 ${hasOverflow ? 'max-h-[520px] overflow-y-auto pr-2 scroll-smooth' : ''}`}
+        >
           {lessons.map((lesson) => (
             <div key={lesson.id} className="flex items-center gap-6 py-6 border-b border-gray-200 last:border-b-0">
               <div className="w-24 h-24 rounded-full bg-[#5A0202] flex items-center justify-center overflow-hidden flex-shrink-0">
