@@ -373,54 +373,57 @@ export default function CoachLockerRoom() {
 
 function LockerCard({ action, onClick }: { action: LockerAction; onClick: () => void }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="relative w-full text-left focus:outline-none"
-      style={{ fontFamily: '"Open Sans", sans-serif' }}
-    >
-      <span
-        className="absolute inset-0 rounded-md"
+    <div className="flex flex-col items-center text-center gap-4" style={{ fontFamily: '"Open Sans", sans-serif' }}>
+      <button
+        type="button"
+        onClick={onClick}
+        className="relative w-full focus:outline-none"
+        style={{ maxWidth: '280px' }}
+      >
+        <span
+          className="absolute inset-0 rounded-md"
+          style={{
+            transform: 'translate(10px, 12px)',
+            backgroundColor: '#2A0200',
+            borderRadius: '6px'
+          }}
+          aria-hidden="true"
+        />
+        <div
+          className="relative rounded-md flex items-center justify-center text-center"
+          style={{
+            backgroundColor: '#FF2C13',
+            border: '1px solid #430B08',
+            boxShadow: '0px 18px 35px rgba(0,0,0,0.45)',
+            borderRadius: '6px',
+            minHeight: '180px'
+          }}
+        >
+          <span
+            style={{
+              fontSize: '40px',
+              lineHeight: '1.05em',
+              fontWeight: 700,
+              color: '#430B08',
+              letterSpacing: '-0.01em'
+            }}
+          >
+            {action.title}
+          </span>
+        </div>
+      </button>
+
+      <p
         style={{
-          transform: 'translate(9px, 9px)',
-          backgroundColor: '#2A0200',
-          borderRadius: '6px'
-        }}
-        aria-hidden="true"
-      />
-      <div
-        className="relative rounded-md px-6 py-8"
-        style={{
-          backgroundColor: '#FF2C13',
-          border: '1px solid #430B08',
-          boxShadow: '0px 18px 35px rgba(0,0,0,0.45)',
-          borderRadius: '6px',
-          minHeight: '200px'
+          fontSize: '14px',
+          color: '#FFFFFF',
+          lineHeight: '1.4em',
+          maxWidth: '280px'
         }}
       >
-        <h3
-          style={{
-            fontSize: '40px',
-            lineHeight: '1em',
-            fontWeight: 700,
-            color: '#430B08',
-            letterSpacing: '-0.01em',
-            marginBottom: '10px'
-          }}
-        >
-          {action.title}
-        </h3>
-        <p
-          style={{
-            fontSize: '14px',
-            color: '#FFFFFF',
-            lineHeight: '1.4em'
-          }}
-        >
-          {action.description}
-        </p>
-      </div>
-    </button>
+        {action.description}
+      </p>
+    </div>
   )
 }
 
