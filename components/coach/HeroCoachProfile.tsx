@@ -719,7 +719,8 @@ function RecommendedGearSection({
             <button
               type="button"
               onClick={() => setShowAdd(true)}
-              className="group relative flex items-center justify-center h-12 w-12 rounded-2xl border border-white/40 shadow-[inset_0_3px_6px_rgba(255,255,255,0.28),inset_0_-4px_6px_rgba(0,0,0,0.4),0_6px_14px_rgba(0,0,0,0.35)] bg-[#C40000] text-white focus:outline-none focus:ring-2 focus:ring-white/60"
+              className="group relative flex items-center justify-center h-12 w-12 rounded-2xl border border-white/40 shadow-[inset_0_3px_6px_rgba(255,255,255,0.28),inset_0_-4px_6px_rgba(0,0,0,0.4),0_6px_14px_rgba(0,0,0,0.35)] text-white focus:outline-none focus:ring-2 focus:ring-white/60"
+              style={{ backgroundColor: '#C40000' }}
             >
               <span className="text-2xl leading-none">+</span>
               <span
@@ -732,12 +733,12 @@ function RecommendedGearSection({
           )}
         </div>
 
-        <div className="relative">
+        <div className="flex items-center gap-4">
           {hasOverflow && (
             <button
               onClick={handlePrev}
               aria-label="Previous Product"
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white flex items-center justify-center shadow hover:bg-gray-50"
+              className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow hover:bg-gray-50"
             >
               <ArrowRight className="w-5 h-5 rotate-180" />
             </button>
@@ -745,7 +746,7 @@ function RecommendedGearSection({
 
           <div
             ref={rowRef}
-            className="flex gap-5 overflow-x-auto scroll-smooth px-12 py-2 no-scrollbar"
+            className="flex-1 flex gap-5 overflow-x-auto scroll-smooth px-4 py-2 no-scrollbar"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {items.length === 0 && canManage ? (
@@ -754,14 +755,14 @@ function RecommendedGearSection({
               </div>
             ) : (
               items.map((item) => (
-                <div key={item.id} className="shrink-0 w-[160px]">
+                <div key={item.id} className="w-[150px] flex-shrink-0">
                   <a href={item.link || '#'} target={item.link ? '_blank' : '_self'} rel="noreferrer">
-                    <div className="w-[160px] h-[160px] rounded-lg overflow-hidden bg-[#5A0202] flex items-center justify-center">
+                    <div className="w-[150px] h-[150px] rounded-lg overflow-hidden bg-[#5A0202] flex items-center justify-center">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       {item.imageUrl ? (
-                        <img src={item.imageUrl} alt={item.name} className="w-[160px] h-[160px] object-cover" />
+                        <img src={item.imageUrl} alt={item.name} className="w-[150px] h-[150px] object-cover" />
                       ) : (
-                        <img src="/brand/athleap-logo-colored.png" alt="Athleap" className="w-16 h-16 opacity-90" />
+                        <img src="/brand/athleap-logo-colored.png" alt="Athleap" className="w-14 h-14 opacity-90" />
                       )}
                     </div>
                     <p className="mt-2" style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '14px', color: '#FFFFFF' }}>
@@ -782,7 +783,7 @@ function RecommendedGearSection({
             <button
               onClick={handleNext}
               aria-label="Next Product"
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white flex items-center justify-center shadow hover:bg-gray-50"
+              className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow hover:bg-gray-50"
             >
               <ArrowRight className="w-5 h-5" />
             </button>
@@ -836,7 +837,7 @@ function RecommendedGearSection({
                     onClick={handleAddGear}
                     disabled={gearSaving || !gearUrl.trim()}
                     className="px-5 py-2 rounded-full text-sm font-semibold text-white disabled:opacity-50"
-                    style={{ background: 'linear-gradient(135deg, #E60000 0%, #8B0000 100%)', fontFamily: '"Open Sans", sans-serif' }}
+                    style={{ backgroundColor: '#C40000', fontFamily: '"Open Sans", sans-serif' }}
                   >
                     {gearSaving ? 'Adding…' : 'Add item'}
                   </button>
