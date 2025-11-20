@@ -1141,11 +1141,63 @@ function RecommendedGearSection({
 }
 
 function FooterSocialBar({ socialLinks }: { socialLinks: SocialLinks }) {
+  const normalizeSocialUrl = (network: string, value?: string) => {
+    if (!value) return ''
+    const trimmed = value.trim()
+    if (!trimmed) return ''
+    if (/^https?:\/\//i.test(trimmed)) {
+      return trimmed
+    }
+
+    const handle = trimmed.replace(/^@/, '')
+
+    switch (network) {
+      case 'linkedin':
+        return `https://www.linkedin.com/in/${handle}`
+      case 'facebook':
+        return `https://www.facebook.com/${handle}`
+      case 'twitter':
+        return `https://twitter.com/${handle}`
+      case 'instagram':
+        return `https://www.instagram.com/${handle}`
+      case 'youtube':
+        return `https://www.youtube.com/${handle}`
+      default:
+        return trimmed
+    }
+  }
+
   const icons = [
-    { key: 'linkedin', url: socialLinks.linkedin, icon: 'https://static.wixstatic.com/media/6ea5b4a88f0b4f91945b40499aa0af00.png/v1/fill/w_24,h_24,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/6ea5b4a88f0b4f91945b40499aa0af00.png', label: 'LinkedIn' },
-    { key: 'facebook', url: socialLinks.facebook, icon: 'https://static.wixstatic.com/media/0fdef751204647a3bbd7eaa2827ed4f9.png/v1/fill/w_24,h_24,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/0fdef751204647a3bbd7eaa2827ed4f9.png', label: 'Facebook' },
-    { key: 'twitter', url: socialLinks.twitter, icon: 'https://static.wixstatic.com/media/c7d035ba85f6486680c2facedecdcf4d.png/v1/fill/w_24,h_24,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c7d035ba85f6486680c2facedecdcf4d.png', label: 'Twitter' },
-    { key: 'instagram', url: socialLinks.instagram, icon: 'https://static.wixstatic.com/media/01c3aff52f2a4dffa526d7a9843d46ea.png/v1/fill/w_24,h_24,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/01c3aff52f2a4dffa526d7a9843d46ea.png', label: 'Instagram' }
+    {
+      key: 'linkedin',
+      url: normalizeSocialUrl('linkedin', socialLinks.linkedin),
+      icon: 'https://static.wixstatic.com/media/6ea5b4a88f0b4f91945b40499aa0af00.png/v1/fill/w_24,h_24,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/6ea5b4a88f0b4f91945b40499aa0af00.png',
+      label: 'LinkedIn'
+    },
+    {
+      key: 'facebook',
+      url: normalizeSocialUrl('facebook', socialLinks.facebook),
+      icon: 'https://static.wixstatic.com/media/0fdef751204647a3bbd7eaa2827ed4f9.png/v1/fill/w_24,h_24,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/0fdef751204647a3bbd7eaa2827ed4f9.png',
+      label: 'Facebook'
+    },
+    {
+      key: 'twitter',
+      url: normalizeSocialUrl('twitter', socialLinks.twitter),
+      icon: 'https://static.wixstatic.com/media/c7d035ba85f6486680c2facedecdcf4d.png/v1/fill/w_24,h_24,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c7d035ba85f6486680c2facedecdcf4d.png',
+      label: 'Twitter'
+    },
+    {
+      key: 'instagram',
+      url: normalizeSocialUrl('instagram', socialLinks.instagram),
+      icon: 'https://static.wixstatic.com/media/01c3aff52f2a4dffa526d7a9843d46ea.png/v1/fill/w_24,h_24,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/01c3aff52f2a4dffa526d7a9843d46ea.png',
+      label: 'Instagram'
+    },
+    {
+      key: 'youtube',
+      url: normalizeSocialUrl('youtube', socialLinks.youtube),
+      icon: 'https://static.wixstatic.com/media/52a3a9_1b857a6e8f4746379382bbdf0cb70b43~mv2.png/v1/fill/w_24,h_24,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/52a3a9_1b857a6e8f4746379382bbdf0cb70b43~mv2.png',
+      label: 'YouTube'
+    }
   ]
 
   const visibleIcons = icons.filter((icon) => !!icon.url)
