@@ -1,11 +1,14 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState, type WheelEvent } from 'react'
+import { useEffect, useMemo, useRef, useState, type WheelEvent, type ReactNode } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, ArrowRight } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Calendar, Video, Users, FileText, X } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { storage } from '@/lib/firebase.client'
+import EnhancedAthleteRosterModal from '@/components/coach/EnhancedAthleteRosterModal'
+import CoachContentUpload from '@/components/coach/CoachContentUpload'
 
 interface Lesson {
   id: string
@@ -85,6 +88,51 @@ const DEFAULT_GALLERY_IMAGES = [
   'https://static.wixstatic.com/media/8bb438_ac2af14459894a6cbce641b7d8af9dc9~mv2_d_3000_2000_s_2.jpg/v1/fill/w_428,h_570,q_90,enc_avif,quality_auto/8bb438_ac2af14459894a6cbce641b7d8af9dc9~mv2_d_3000_2000_s_2.jpg'
 ]
 
+type CoachActionKey = 'athletes' | 'create-lesson' | 'add-content' | 'event-schedule' | 'schedule-session'
+
+interface CoachActionTile {
+  key: CoachActionKey
+  title: string
+  description: string
+  icon: LucideIcon
+}
+
+const TRAINING_ACTIONS: CoachActionTile[] = [
+  {
+    key: 'athletes',
+    title: 'Manage Athletes',
+    description: 'See and manage athlete lists for your community',
+    icon: Users
+  },
+  {
+    key: 'create-lesson',
+    title: 'Create Lessons',
+    description: 'Build new training lessons without leaving the page',
+    icon: FileText
+  },
+  {
+    key: 'add-content',
+    title: 'Videos & Content',
+    description: 'Upload training videos and resources',
+    icon: Video
+  }
+]
+
+const CALENDAR_ACTIONS: CoachActionTile[] = [
+  {
+    key: 'event-schedule',
+    title: 'Event Calendar',
+    description: 'Add upcoming games and fan engagement events',
+    icon: Calendar
+  },
+  {
+    key: 'schedule-session',
+    title: 'Training Schedule',
+    description: 'Review 1:1 requests and add to your calendar',
+    icon: FileText
+  }
+]
+
 interface HeroCoachProfileProps {
   coach: {
     uid: string
@@ -131,6 +179,8 @@ export default function HeroCoachProfile({
   const [displayCoach, setDisplayCoach] = useState(coach)
   const [editableCoach, setEditableCoach] = useState(coach)
   const [uploadingPhotoField, setUploadingPhotoField] = useState<string | null>(null)
+  const [actionModal, setActionModal] = useState<null | 'athletes' | 'create-lesson' | 'add-content' | 'event-schedule' | 'schedule-session'>(null)
+  const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null)
 
   useEffect(() => {
     setDisplayCoach(coach)
@@ -297,6 +347,7 @@ export default function HeroCoachProfile({
   }, [coach.uid, coach.email])
 
   const canManageGear = !!authUser && authUser.uid === coach.uid
+  const isOwnerView = canManageGear
 
   return (
     <main className="min-h-screen bg-[#f5f5f5]">
@@ -396,13 +447,24 @@ export default function HeroCoachProfile({
 
       {galleryPhotos.length > 0 && <CoachGallery photos={galleryPhotos} />}
 
-      {!hideLessons && lessons?.length > 0 && <TrainingLibrarySection coachName={activeCoach.displayName} lessons={lessons} />}
+      {isOwnerView && <CoachActionDeck onSelect={setActionModal} />}
+
+      {!hideLessons && lessons?.length > 0 && (
+        <TrainingLibrarySection coachName={activeCoach.displayName} lessons={lessons} onSelectLesson={setSelectedLesson} />
+      )}
 
       {!gearLoading && (gearItems.length > 0 || canManageGear) && (
         <RecommendedGearSection items={gearItems} canManage={canManageGear} onGearAdded={(item) => setGearItems((prev) => [item, ...prev])} />
       )}
 
       <FooterSocialBar socialLinks={socialLinks} />
+
+      <ActionModals
+        actionModal={actionModal}
+        onClose={() => setActionModal(null)}
+        selectedLesson={selectedLesson}
+        onDismissLesson={() => setSelectedLesson(null)}
+      />
 
       <style jsx global>{`
         .no-scrollbar::-webkit-scrollbar {
@@ -847,7 +909,15 @@ function CoachGallery({ photos }: { photos: string[] }) {
   )
 }
 
-function TrainingLibrarySection({ lessons, coachName }: { lessons: Lesson[]; coachName: string }) {
+function TrainingLibrarySection({
+  lessons,
+  coachName,
+  onSelectLesson
+}: {
+  lessons: Lesson[]
+  coachName: string
+  onSelectLesson?: (lesson: Lesson) => void
+}) {
   const listRef = useRef<HTMLDivElement>(null)
   const MAX_VISIBLE = 4
   const filteredLessons = lessons.filter((lesson) => !!lesson && !!lesson.title?.trim?.())
@@ -910,7 +980,12 @@ function TrainingLibrarySection({ lessons, coachName }: { lessons: Lesson[]; coa
           style={hasOverflow ? { scrollbarWidth: 'none', msOverflowStyle: 'none' } : undefined}
         >
           {filteredLessons.map((lesson) => (
-            <div key={lesson.id} className="flex items-center gap-6 py-6 border-b border-gray-200 last:border-b-0">
+            <button
+              type="button"
+              key={lesson.id}
+              onClick={() => onSelectLesson?.(lesson)}
+              className="w-full flex items-center gap-6 py-6 border-b border-gray-200 last:border-b-0 text-left hover:bg-gray-50 transition-colors"
+            >
               <div className="w-24 h-24 rounded-full bg-[#5A0202] flex items-center justify-center overflow-hidden flex-shrink-0">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 {lesson.thumbnailUrl ? (
@@ -927,11 +1002,197 @@ function TrainingLibrarySection({ lessons, coachName }: { lessons: Lesson[]; coa
                   {lesson.status || 'Published'}
                 </p>
               </div>
-            </div>
+            </button>
           ))}
         </div>
       </div>
     </section>
+  )
+}
+
+function CoachActionDeck({ onSelect }: { onSelect: (action: CoachActionKey) => void }) {
+  return (
+    <section className="w-full bg-white py-10">
+      <div className="max-w-6xl mx-auto px-6 space-y-8">
+        <div className="text-center space-y-2">
+          <p className="text-xs uppercase tracking-[0.3em]" style={{ color: '#B76C57', fontFamily: '"Open Sans", sans-serif' }}>
+            Locker Tools
+          </p>
+          <h2 className="text-2xl font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+            Athletes and Training Content
+          </h2>
+        </div>
+        <div className="grid gap-6 grid-cols-1 sm:grid-cols-3">
+          {TRAINING_ACTIONS.map((action) => (
+            <ActionCard key={action.key} action={action} onSelect={onSelect} />
+          ))}
+        </div>
+
+        <div className="text-center space-y-2 pt-6">
+          <p className="text-xs uppercase tracking-[0.3em]" style={{ color: '#B76C57', fontFamily: '"Open Sans", sans-serif' }}>
+            Planning
+          </p>
+          <h2 className="text-2xl font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+            Calendar and Events
+          </h2>
+        </div>
+        <div className="grid gap-6 grid-cols-1 sm:grid-cols-2">
+          {CALENDAR_ACTIONS.map((action) => (
+            <ActionCard key={action.key} action={action} onSelect={onSelect} />
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function ActionCard({ action, onSelect }: { action: CoachActionTile; onSelect: (action: CoachActionKey) => void }) {
+  const Icon = action.icon
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect(action.key)}
+      className="group text-left rounded-2xl p-6 shadow-[0_25px_60px_rgba(0,0,0,0.25)] hover:-translate-y-1 transition-transform"
+      style={{ background: 'linear-gradient(135deg, #FF3B1D 0%, #8B0C01 100%)' }}
+    >
+      <div className="w-11 h-11 rounded-xl bg-black/15 flex items-center justify-center mb-4">
+        <Icon className="w-5 h-5 text-white" />
+      </div>
+      <h3 className="text-2xl font-bold mb-2 text-white" style={{ fontFamily: '"Open Sans", sans-serif' }}>
+        {action.title}
+      </h3>
+      <p className="text-sm text-white/90 leading-relaxed" style={{ fontFamily: '"Open Sans", sans-serif' }}>
+        {action.description}
+      </p>
+    </button>
+  )
+}
+
+function ActionModals({
+  actionModal,
+  onClose,
+  selectedLesson,
+  onDismissLesson
+}: {
+  actionModal: CoachActionKey | null
+  onClose: () => void
+  selectedLesson: Lesson | null
+  onDismissLesson: () => void
+}) {
+  return (
+    <>
+      <EnhancedAthleteRosterModal isOpen={actionModal === 'athletes'} onClose={onClose} />
+
+      {actionModal === 'create-lesson' && (
+        <IframeModal title="Create Lesson" src="/dashboard/coach/lessons/create?embedded=true" onClose={onClose} />
+      )}
+
+      {actionModal === 'event-schedule' && (
+        <IframeModal title="Event Calendar" src="/dashboard/coach/events?embedded=true" onClose={onClose} heightClass="h-[65vh]" />
+      )}
+
+      {actionModal === 'schedule-session' && (
+        <IframeModal title="Training Schedule" src="/dashboard/coach/live-sessions?embedded=true" onClose={onClose} heightClass="h-[65vh]" />
+      )}
+
+      {actionModal === 'add-content' && (
+        <ModalShell title="Add Videos & Content" onClose={onClose} widthClass="max-w-2xl">
+          <CoachContentUpload />
+        </ModalShell>
+      )}
+
+      {selectedLesson && <LessonDetailModal lesson={selectedLesson} onClose={onDismissLesson} />}
+    </>
+  )
+}
+
+function IframeModal({
+  title,
+  src,
+  onClose,
+  heightClass = 'h-[70vh]'
+}: {
+  title: string
+  src: string
+  onClose: () => void
+  heightClass?: string
+}) {
+  return (
+    <ModalShell title={title} onClose={onClose} widthClass="max-w-4xl">
+      <iframe src={src} className={`w-full border-0 rounded-xl ${heightClass}`} title={title} />
+    </ModalShell>
+  )
+}
+
+function LessonDetailModal({ lesson, onClose }: { lesson: Lesson; onClose: () => void }) {
+  return (
+    <ModalShell title={lesson.title} onClose={onClose} widthClass="max-w-2xl">
+      <div className="space-y-4" style={{ fontFamily: '"Open Sans", sans-serif' }}>
+        <p className="text-sm text-gray-600">Status: {lesson.status || 'Published'}</p>
+        {lesson.thumbnailUrl && (
+          <div className="w-full h-56 rounded-xl overflow-hidden bg-gray-100">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={lesson.thumbnailUrl} alt={lesson.title} className="w-full h-full object-cover" />
+          </div>
+        )}
+        <p className="text-sm text-gray-700">
+          This modal keeps you in the locker room while you review and edit lesson information. Click “Edit lesson” to jump into the lesson builder.
+        </p>
+        <div className="flex justify-end gap-3">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 rounded-full border border-gray-300 text-gray-700 text-sm font-semibold hover:bg-gray-50"
+          >
+            Close
+          </button>
+          <Link
+            href={`/dashboard/coach/lessons/${lesson.id}?embedded=true`}
+            className="px-4 py-2 rounded-full bg-black text-white text-sm font-semibold hover:bg-gray-900"
+          >
+            Edit Lesson
+          </Link>
+        </div>
+      </div>
+    </ModalShell>
+  )
+}
+
+function ModalShell({
+  title,
+  children,
+  onClose,
+  widthClass = 'max-w-3xl'
+}: {
+  title: string
+  children: ReactNode
+  onClose: () => void
+  widthClass?: string
+}) {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+      onClick={onClose}
+    >
+      <div
+        className={`bg-white rounded-2xl w-full ${widthClass} max-h-[90vh] overflow-hidden`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+          <h2 className="text-2xl font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+            {title}
+          </h2>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+            aria-label="Close modal"
+          >
+            <X className="w-5 h-5 text-gray-600" />
+          </button>
+        </div>
+        <div className="p-6 overflow-y-auto max-h-[80vh]">{children}</div>
+      </div>
+    </div>
   )
 }
 
