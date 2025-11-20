@@ -7,7 +7,7 @@ import { useAuth } from '@/hooks/use-auth'
 import { useEnhancedRole } from '@/hooks/use-role-switcher'
 import { signOut } from 'firebase/auth'
 import { auth } from '@/lib/firebase.client'
-import { Calendar, Video, Users, FileText, Facebook, Instagram, Youtube, Linkedin, X } from 'lucide-react'
+import { Facebook, Instagram, Youtube, Linkedin, X } from 'lucide-react'
 import EnhancedAthleteRosterModal from '@/components/coach/EnhancedAthleteRosterModal'
 import CoachContentUpload from '@/components/coach/CoachContentUpload'
 import lockerLogo from '@/Favicon/Wordpress Transparent.png'
@@ -16,20 +16,17 @@ const trainingActions = [
   {
     key: 'athletes',
     title: 'Manage Athletes',
-    description: 'See and manage athlete lists for your community',
-    icon: Users
+    description: 'See and manage athlete lists for your community'
   },
   {
     key: 'create-lesson',
     title: 'Create Lessons',
-    description: 'Build new training lessons',
-    icon: FileText
+    description: 'Build new training lessons'
   },
   {
     key: 'add-content',
     title: 'Videos & Content',
-    description: 'Upload content to your profile',
-    icon: Video
+    description: 'Upload content to your profile'
   }
 ]
 
@@ -37,14 +34,12 @@ const calendarActions = [
   {
     key: 'event-schedule',
     title: 'Event Calendar',
-    description: 'Add community events and upcoming games',
-    icon: Calendar
+    description: 'Add community events and upcoming games'
   },
   {
     key: 'schedule-session',
     title: 'Training Schedule',
-    description: 'Review requests and add 1:1 coaching sessions',
-    icon: FileText
+    description: 'Review requests and add 1:1 coaching sessions'
   }
 ]
 
@@ -83,43 +78,57 @@ export default function CoachLockerRoom() {
 
   return (
     <div className="min-h-screen bg-[#4B0102] text-white flex flex-col">
-      <header className="px-6 py-4 flex items-center justify-between max-w-6xl mx-auto w-full">
-        <div className="flex items-center gap-2">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="text-2xl font-bold tracking-tight" style={{ fontFamily: '"Open Sans", sans-serif', letterSpacing: '-0.03em' }}>
-              ATHLEAP
-            </span>
-          </Link>
+      <div className="sticky top-0 z-40 shadow-sm">
+        <div className="w-full bg-white">
+          <header className="w-full bg-white">
+            <div className="max-w-6xl mx-auto px-6 lg:px-8 py-4 flex items-center justify-between">
+              <Link href="/" className="flex items-center gap-3">
+                <span className="text-2xl font-bold tracking-tight" style={{ fontFamily: '"Open Sans", sans-serif', letterSpacing: '-0.04em', color: '#181818' }}>
+                  ATHLEAP
+                </span>
+              </Link>
+              <div className="flex items-center gap-3">
+                <Link
+                  href="/dashboard/coach"
+                  className="px-4 py-2 rounded-full border border-black/10 text-sm font-semibold hover:bg-black/5 transition-colors"
+                  style={{ fontFamily: '"Open Sans", sans-serif', color: '#111' }}
+                >
+                  Return to Dashboard
+                </Link>
+                <button
+                  onClick={async () => {
+                    if (isSigningOut) return
+                    setIsSigningOut(true)
+                    setTimeout(async () => {
+                      try {
+                        await signOut(auth)
+                      } catch (e) {
+                        console.error('Sign out failed:', e)
+                      } finally {
+                        window.location.href = '/'
+                      }
+                    }, 900)
+                  }}
+                  className="px-4 py-2 rounded-full bg-black text-white text-sm font-semibold hover:bg-gray-900 transition-colors"
+                  style={{ fontFamily: '"Open Sans", sans-serif' }}
+                >
+                  {isSigningOut ? 'Signing out…' : 'Sign out'}
+                </button>
+              </div>
+            </div>
+          </header>
+          <section aria-label="Coach community banner" className="w-full" style={{ backgroundColor: '#FC0105' }}>
+            <div className="max-w-6xl mx-auto px-6 lg:px-8 py-3">
+              <p
+                className="text-right font-semibold"
+                style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '15px', letterSpacing: '0.01em', color: '#FFFFFF' }}
+              >
+                Coach Community - Locker Room
+              </p>
+            </div>
+          </section>
         </div>
-        <div className="flex items-center gap-3">
-          <Link
-            href="/dashboard/coach"
-            className="px-4 py-2 rounded-full border border-white/40 text-sm font-semibold hover:bg-white/10 transition-colors"
-            style={{ fontFamily: '"Open Sans", sans-serif' }}
-          >
-            Return to Dashboard
-          </Link>
-          <button
-            onClick={async () => {
-              if (isSigningOut) return
-              setIsSigningOut(true)
-              setTimeout(async () => {
-                try {
-                  await signOut(auth)
-                } catch (e) {
-                  console.error('Sign out failed:', e)
-                } finally {
-                  window.location.href = '/'
-                }
-              }, 900)
-            }}
-            className="px-4 py-2 rounded-full bg-white text-[#4B0102] text-sm font-semibold hover:bg-gray-100 transition-colors"
-            style={{ fontFamily: '"Open Sans", sans-serif' }}
-          >
-            {isSigningOut ? 'Signing out…' : 'Sign out'}
-          </button>
-        </div>
-      </header>
+      </div>
 
       <main className="flex-1 w-full">
         <div className="max-w-5xl mx-auto px-4 sm:px-8 py-10 space-y-16">
@@ -150,26 +159,19 @@ export default function CoachLockerRoom() {
             >
               Manage your athletes, lessons, and sessions.
             </p>
-            <div className="mt-8">
-              <Link
-                href="/dashboard/coach"
-                className="inline-flex items-center justify-center px-8 py-3 rounded-full text-white text-sm font-semibold shadow-lg hover:shadow-xl transition-shadow"
-                style={{ fontFamily: '"Open Sans", sans-serif', backgroundColor: '#C40000', letterSpacing: '0.08em' }}
-              >
-                <span>View Your Profile</span>
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 60 60"
-                  fill="currentColor"
-                  aria-hidden="true"
-                  className="ml-2"
-                >
-                  <path d="M46.5 28.9L20.6 3c-.6-.6-1.6-.6-2.2 0l-4.8 4.8c-.6.6-.6 1.6 0 2.2l19.8 20-19.9 19.9c-.6.6-.6 1.6 0 2.2l4.8 4.8c.6.6 1.6.6 2.2 0l21-21 4.8-4.8c.8-.6.8-1.6.2-2.2z" />
-                </svg>
-              </Link>
-            </div>
           </section>
+          <div className="-mt-8 flex justify-center">
+            <Link
+              href="/dashboard/coach"
+              className="inline-flex items-center justify-center px-10 py-3 rounded-full text-white text-sm font-semibold shadow-[0_15px_40px_rgba(0,0,0,0.3)] hover:shadow-[0_20px_50px_rgba(0,0,0,0.35)] transition-all"
+              style={{ fontFamily: '"Open Sans", sans-serif', backgroundColor: '#C40000', letterSpacing: '0.08em' }}
+            >
+              <span>View Your Profile</span>
+              <svg width="20" height="20" viewBox="0 0 60 60" fill="currentColor" aria-hidden="true" className="ml-2">
+                <path d="M46.5 28.9L20.6 3c-.6-.6-1.6-.6-2.2 0l-4.8 4.8c-.6.6-.6 1.6 0 2.2l19.8 20-19.9 19.9c-.6.6-.6 1.6 0 2.2l4.8 4.8c.6.6 1.6.6 2.2 0l21-21 4.8-4.8c.8-.6.8-1.6.2-2.2z" />
+              </svg>
+            </Link>
+          </div>
 
           <section className="space-y-6">
             <div className="text-center space-y-2">
@@ -182,23 +184,39 @@ export default function CoachLockerRoom() {
             </div>
             <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
               {trainingActions.map((action) => {
-                const Icon = action.icon
                 return (
                   <button
                     key={action.key}
                     onClick={() => setActiveModal(action.key)}
-                    className="group text-left rounded-2xl p-6 shadow-[0_20px_60px_rgba(0,0,0,0.25)] hover:-translate-y-1 transition-transform"
-                    style={{ background: 'linear-gradient(135deg, #FF3B1D 0%, #8B0C01 100%)' }}
+                    className="group text-left rounded-2xl overflow-hidden shadow-[0_25px_60px_rgba(0,0,0,0.35)] hover:-translate-y-1 transition-transform focus:outline-none"
+                    style={{ backgroundColor: '#8B0C01' }}
                   >
-                    <div className="w-10 h-10 rounded-xl bg-black/10 flex items-center justify-center mb-4">
-                      <Icon className="w-5 h-5" />
+                    <div className="px-6 py-6" style={{ backgroundColor: '#FFE3D6' }}>
+                      <h3
+                        style={{
+                          fontFamily: '"Open Sans", sans-serif',
+                          fontSize: '40px',
+                          lineHeight: '1em',
+                          fontWeight: 700,
+                          color: '#430B08',
+                          letterSpacing: '-0.01em'
+                        }}
+                      >
+                        {action.title}
+                      </h3>
                     </div>
-                    <h3 className="text-2xl font-bold mb-2" style={{ fontFamily: '"Open Sans", sans-serif' }}>
-                      {action.title}
-                    </h3>
-                    <p className="text-sm leading-relaxed text-white/90" style={{ fontFamily: '"Open Sans", sans-serif' }}>
-                      {action.description}
-                    </p>
+                    <div className="px-6 py-4" style={{ backgroundColor: '#C11202' }}>
+                      <p
+                        style={{
+                          fontFamily: '"Open Sans", sans-serif',
+                          fontSize: '14px',
+                          color: '#FFFFFF',
+                          lineHeight: '1.4em'
+                        }}
+                      >
+                        {action.description}
+                      </p>
+                    </div>
                   </button>
                 )
               })}
@@ -216,23 +234,39 @@ export default function CoachLockerRoom() {
             </div>
             <div className="grid gap-6 grid-cols-1 sm:grid-cols-2">
               {calendarActions.map((action) => {
-                const Icon = action.icon
                 return (
                   <button
                     key={action.key}
                     onClick={() => setActiveModal(action.key)}
-                    className="group text-left rounded-2xl p-6 shadow-[0_20px_60px_rgba(0,0,0,0.25)] hover:-translate-y-1 transition-transform"
-                    style={{ background: 'linear-gradient(135deg, #FF3B1D 0%, #8B0C01 100%)' }}
+                    className="group text-left rounded-2xl overflow-hidden shadow-[0_25px_60px_rgba(0,0,0,0.35)] hover:-translate-y-1 transition-transform focus:outline-none"
+                    style={{ backgroundColor: '#8B0C01' }}
                   >
-                    <div className="w-10 h-10 rounded-xl bg-black/10 flex items-center justify-center mb-4">
-                      <Icon className="w-5 h-5" />
+                    <div className="px-6 py-6" style={{ backgroundColor: '#FFE3D6' }}>
+                      <h3
+                        style={{
+                          fontFamily: '"Open Sans", sans-serif',
+                          fontSize: '40px',
+                          lineHeight: '1em',
+                          fontWeight: 700,
+                          color: '#430B08',
+                          letterSpacing: '-0.01em'
+                        }}
+                      >
+                        {action.title}
+                      </h3>
                     </div>
-                    <h3 className="text-2xl font-bold mb-2" style={{ fontFamily: '"Open Sans", sans-serif' }}>
-                      {action.title}
-                    </h3>
-                    <p className="text-sm leading-relaxed text-white/90" style={{ fontFamily: '"Open Sans", sans-serif' }}>
-                      {action.description}
-                    </p>
+                    <div className="px-6 py-4" style={{ backgroundColor: '#C11202' }}>
+                      <p
+                        style={{
+                          fontFamily: '"Open Sans", sans-serif',
+                          fontSize: '14px',
+                          color: '#FFFFFF',
+                          lineHeight: '1.4em'
+                        }}
+                      >
+                        {action.description}
+                      </p>
+                    </div>
                   </button>
                 )
               })}
