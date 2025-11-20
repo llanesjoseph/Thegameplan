@@ -123,16 +123,26 @@ export default function HeroCoachProfile({
 }: HeroCoachProfileProps) {
   const [gearItems, setGearItems] = useState<GearItem[]>(initialGearItems || [])
   const [gearLoading, setGearLoading] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
+  const [displayCoach, setDisplayCoach] = useState(coach)
+  const [editableCoach, setEditableCoach] = useState(coach)
 
-  const normalizedSport = coach.sport?.trim().toLowerCase() || 'default'
+  useEffect(() => {
+    setDisplayCoach(coach)
+    setEditableCoach(coach)
+  }, [coach])
+
+  const activeCoach = isEditing ? editableCoach : displayCoach
+
+  const normalizedSport = activeCoach.sport?.trim().toLowerCase() || 'default'
   const theme = SPORT_THEMES[normalizedSport] || SPORT_THEMES.default
 
   const galleryPhotos = useMemo(() => {
     const photos: string[] = []
-    if (coach.showcasePhoto1) photos.push(coach.showcasePhoto1)
-    if (coach.showcasePhoto2) photos.push(coach.showcasePhoto2)
-    if (coach.galleryPhotos?.length) {
-      coach.galleryPhotos.forEach((url) => {
+    if (activeCoach.showcasePhoto1) photos.push(activeCoach.showcasePhoto1)
+    if (activeCoach.showcasePhoto2) photos.push(activeCoach.showcasePhoto2)
+    if (activeCoach.galleryPhotos?.length) {
+      activeCoach.galleryPhotos.forEach((url) => {
         if (typeof url === 'string' && url.trim().length > 0) {
           photos.push(url)
         }
@@ -140,18 +150,35 @@ export default function HeroCoachProfile({
     }
     const deduped = Array.from(new Set(photos.filter((url) => typeof url === 'string' && url.trim().length > 0)))
     return deduped.length > 0 ? deduped : DEFAULT_GALLERY_IMAGES
-  }, [coach.showcasePhoto1, coach.showcasePhoto2, coach.galleryPhotos])
+  }, [activeCoach.showcasePhoto1, activeCoach.showcasePhoto2, activeCoach.galleryPhotos])
 
-  const sportLabel = SPORT_LABEL_OVERRIDES[normalizedSport] || coach.sport || 'Coach'
-  const location = coach.location?.trim()
-  const bio = coach.bio?.trim()
+  const sportLabel = SPORT_LABEL_OVERRIDES[normalizedSport] || activeCoach.sport || 'Coach'
+  const location = activeCoach.location?.trim()
+  const bio = activeCoach.bio?.trim()
 
   const socialLinks: SocialLinks = {
-    linkedin: coach.linkedin || coach.socialLinks?.linkedin,
-    facebook: coach.facebook,
-    instagram: coach.instagram || coach.socialLinks?.instagram,
-    youtube: coach.youtube,
-    twitter: coach.socialLinks?.twitter
+    linkedin: activeCoach.linkedin || activeCoach.socialLinks?.linkedin,
+    facebook: activeCoach.facebook,
+    instagram: activeCoach.instagram || activeCoach.socialLinks?.instagram,
+    youtube: activeCoach.youtube,
+    twitter: activeCoach.socialLinks?.twitter
+  }
+
+  const handleEditField = (field: keyof HeroCoachProfileProps['coach'], value: string) => {
+    setEditableCoach((prev) => ({
+      ...prev,
+      [field]: value
+    }))
+  }
+
+  const handleSaveEdits = () => {
+    setDisplayCoach(editableCoach)
+    setIsEditing(false)
+  }
+
+  const handleCancelEdits = () => {
+    setEditableCoach(displayCoach)
+    setIsEditing(false)
   }
 
   useEffect(() => {
@@ -216,8 +243,8 @@ export default function HeroCoachProfile({
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={coach.profileImageUrl || 'https://static.wixstatic.com/media/75fa07_5ce2a239003845288e36fdda83cb0851~mv2.webp/v1/fill/w_225,h_225,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Alana-Beard-Headshot-500x.webp'}
-                      alt={`${coach.displayName} avatar`}
+                      src={activeCoach.profileImageUrl || 'https://static.wixstatic.com/media/75fa07_5ce2a239003845288e36fdda83cb0851~mv2.webp/v1/fill/w_225,h_225,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Alana-Beard-Headshot-500x.webp'}
+                      alt={`${activeCoach.displayName} avatar`}
                       className="h-6 w-6 rounded-full object-cover"
                     />
                     <span
@@ -227,7 +254,7 @@ export default function HeroCoachProfile({
                       Hello
                     </span>
                     <span className="text-sm" style={{ fontFamily: '"Open Sans", sans-serif' }}>
-                      {coach.displayName}
+                      {activeCoach.displayName}
                     </span>
                     <span className="text-xs text-gray-400">|</span>
                     <span className="text-xs text-gray-700 underline" style={{ fontFamily: '"Open Sans", sans-serif' }}>
@@ -269,11 +296,20 @@ export default function HeroCoachProfile({
         </div>
       )}
 
-      <HeroSection coach={coach} bio={bio} location={location} theme={theme} />
+      <HeroSection
+        coach={activeCoach}
+        editingCoach={editableCoach}
+        isEditing={isEditing}
+        onFieldChange={handleEditField}
+        onEditToggle={() => setIsEditing((prev) => !prev)}
+        onSave={handleSaveEdits}
+        onCancel={handleCancelEdits}
+        theme={theme}
+      />
 
       {galleryPhotos.length > 0 && <CoachGallery photos={galleryPhotos} />}
 
-      {!hideLessons && lessons?.length > 0 && <TrainingLibrarySection coachName={coach.displayName} lessons={lessons} />}
+      {!hideLessons && lessons?.length > 0 && <TrainingLibrarySection coachName={activeCoach.displayName} lessons={lessons} />}
 
       {!gearLoading && gearItems.length > 0 && <RecommendedGearSection items={gearItems} />}
 
@@ -284,15 +320,34 @@ export default function HeroCoachProfile({
 
 function HeroSection({
   coach,
-  bio,
-  location,
+  editingCoach,
+  isEditing,
+  onFieldChange,
+  onEditToggle,
+  onSave,
+  onCancel,
   theme
 }: {
   coach: HeroCoachProfileProps['coach']
-  bio?: string
-  location?: string
+  editingCoach: HeroCoachProfileProps['coach']
+  isEditing: boolean
+  onFieldChange: (field: keyof HeroCoachProfileProps['coach'], value: string) => void
+  onEditToggle: () => void
+  onSave: () => void
+  onCancel: () => void
   theme: SportTheme
 }) {
+  const embossClasses =
+    'px-5 py-2 rounded-full text-sm font-semibold uppercase tracking-wide text-white shadow-[0px_4px_12px_rgba(0,0,0,0.35)]'
+  const primaryButtonStyles = {
+    background: 'linear-gradient(135deg, #E60000 0%, #8B0000 100%)',
+    border: '1px solid rgba(255,255,255,0.35)'
+  }
+  const secondaryButtonStyles = {
+    background: 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(0,0,0,0.1) 100%)',
+    border: '1px solid rgba(255,255,255,0.4)'
+  }
+
   return (
     <section className="relative w-full overflow-hidden" style={{ backgroundColor: '#4B0102' }}>
       <div
@@ -312,39 +367,121 @@ function HeroSection({
       )}
 
       <div className="relative max-w-6xl mx-auto px-8 py-16 grid gap-10 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1.1fr)] items-center">
-        <div className="space-y-4">
-          <h2
-            className="font-bold text-white"
-            style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '54px', lineHeight: 'normal', margin: 0, marginBottom: '6px' }}
-          >
-            {coach.displayName}
-          </h2>
-          {location && (
-            <h5 className="text-white" style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '18px', margin: 0, marginTop: '4px' }}>
-              {location}
-            </h5>
-          )}
-          {bio && (
-            <p
-              className="text-white"
-              style={{
-                fontFamily: '"Open Sans", sans-serif',
-                fontSize: '21px',
-                lineHeight: '1.3em'
-              }}
-            >
-              {bio}
-            </p>
-          )}
+        <div className="space-y-6">
+          <div className="space-y-2">
+            {isEditing ? (
+              <input
+                value={editingCoach.displayName || ''}
+                onChange={(e) => onFieldChange('displayName', e.target.value)}
+                className="w-full bg-white/10 border border-white/30 rounded-md px-4 py-2 text-white text-3xl font-bold"
+                style={{ fontFamily: '"Open Sans", sans-serif' }}
+              />
+            ) : (
+              <h2
+                className="font-bold text-white"
+                style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '54px', lineHeight: 'normal', margin: 0, marginBottom: '6px' }}
+              >
+                {coach.displayName}
+              </h2>
+            )}
+            {isEditing ? (
+              <div className="flex flex-col gap-2">
+                <input
+                  value={editingCoach.location || ''}
+                  onChange={(e) => onFieldChange('location', e.target.value)}
+                  placeholder="Location"
+                  className="w-full bg-white/10 border border-white/30 rounded-md px-4 py-2 text-white"
+                  style={{ fontFamily: '"Open Sans", sans-serif' }}
+                />
+                <input
+                  value={editingCoach.sport || ''}
+                  onChange={(e) => onFieldChange('sport', e.target.value)}
+                  placeholder="Primary sport"
+                  className="w-full bg-white/10 border border-white/30 rounded-md px-4 py-2 text-white"
+                  style={{ fontFamily: '"Open Sans", sans-serif' }}
+                />
+              </div>
+            ) : (
+              <>
+                {coach.location && (
+                  <h5 className="text-white" style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '18px', margin: 0, marginTop: '4px' }}>
+                    {coach.location}
+                  </h5>
+                )}
+                {coach.sport && (
+                  <p className="text-white/70" style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '16px' }}>
+                    {coach.sport}
+                  </p>
+                )}
+              </>
+            )}
+          </div>
+
+          <div>
+            {isEditing ? (
+              <textarea
+                value={editingCoach.bio || ''}
+                onChange={(e) => onFieldChange('bio', e.target.value)}
+                className="w-full min-h-[140px] bg-white/10 border border-white/30 rounded-md px-4 py-3 text-white"
+                style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '18px', lineHeight: '1.4em' }}
+              />
+            ) : (
+              coach.bio && (
+                <p
+                  className="text-white"
+                  style={{
+                    fontFamily: '"Open Sans", sans-serif',
+                    fontSize: '21px',
+                    lineHeight: '1.3em'
+                  }}
+                >
+                  {coach.bio}
+                </p>
+              )
+            )}
+          </div>
         </div>
 
         <div className="flex justify-center md:justify-end">
+          <div className="flex flex-col items-center gap-4">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={coach.profileImageUrl || '/brand/athleap-logo-colored.png'}
             alt={coach.displayName}
             className="w-[347px] h-[359px] object-cover rounded-lg bg-white"
           />
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              {!isEditing ? (
+                <button
+                  type="button"
+                  onClick={onEditToggle}
+                  className={embossClasses}
+                  style={primaryButtonStyles}
+                >
+                  Edit Profile
+                </button>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    onClick={onCancel}
+                    className={embossClasses}
+                    style={secondaryButtonStyles}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={onSave}
+                    className={embossClasses}
+                    style={primaryButtonStyles}
+                  >
+                    Save Changes
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </section>
