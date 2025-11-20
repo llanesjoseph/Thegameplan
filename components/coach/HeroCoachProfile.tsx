@@ -574,7 +574,9 @@ function CoachGallery({ photos }: { photos: string[] }) {
 function TrainingLibrarySection({ lessons, coachName }: { lessons: Lesson[]; coachName: string }) {
   const listRef = useRef<HTMLDivElement>(null)
   const MAX_VISIBLE = 4
-  const hasOverflow = lessons.length > MAX_VISIBLE
+  const filteredLessons = lessons.filter((lesson) => !!lesson && !!lesson.title?.trim?.())
+  const totalLessons = filteredLessons.length
+  const hasOverflow = totalLessons > MAX_VISIBLE
   const scrollByAmount = 160
 
   const handleScroll = (direction: 'up' | 'down') => {
@@ -620,7 +622,7 @@ function TrainingLibrarySection({ lessons, coachName }: { lessons: Lesson[]; coa
           className={`border-t border-gray-300 ${hasOverflow ? 'max-h-[520px] overflow-y-auto pr-2 scroll-smooth no-scrollbar' : ''}`}
           style={hasOverflow ? { scrollbarWidth: 'none', msOverflowStyle: 'none' } : undefined}
         >
-          {lessons.map((lesson) => (
+          {filteredLessons.map((lesson) => (
             <div key={lesson.id} className="flex items-center gap-6 py-6 border-b border-gray-200 last:border-b-0">
               <div className="w-24 h-24 rounded-full bg-[#5A0202] flex items-center justify-center overflow-hidden flex-shrink-0">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
