@@ -314,6 +314,16 @@ export default function HeroCoachProfile({
       {!gearLoading && gearItems.length > 0 && <RecommendedGearSection items={gearItems} />}
 
       <FooterSocialBar socialLinks={socialLinks} />
+
+      <style jsx global>{`
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .no-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
     </main>
   )
 }
@@ -607,7 +617,8 @@ function TrainingLibrarySection({ lessons, coachName }: { lessons: Lesson[]; coa
 
         <div
           ref={listRef}
-          className={`border-t border-gray-300 ${hasOverflow ? 'max-h-[520px] overflow-y-auto pr-2 scroll-smooth' : ''}`}
+          className={`border-t border-gray-300 ${hasOverflow ? 'max-h-[520px] overflow-y-auto pr-2 scroll-smooth no-scrollbar' : ''}`}
+          style={hasOverflow ? { scrollbarWidth: 'none', msOverflowStyle: 'none' } : undefined}
         >
           {lessons.map((lesson) => (
             <div key={lesson.id} className="flex items-center gap-6 py-6 border-b border-gray-200 last:border-b-0">
