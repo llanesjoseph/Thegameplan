@@ -5,6 +5,7 @@ import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Inter, Oswald, Permanent_Marker, Open_Sans } from 'next/font/google'
 import BugReportButton from '@/components/ui/BugReportButton'
+import GlobalSocialBar from '@/components/ui/GlobalSocialBar'
 
 const inter = Inter({
  subsets: ['latin'],
@@ -58,6 +59,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <main id="main-content" role="main">
      {children}
     </main>
+    <GlobalSocialBar />
     <Suspense fallback={null}>
      <BugReportButton />
     </Suspense>
