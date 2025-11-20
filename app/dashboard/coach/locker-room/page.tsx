@@ -10,6 +10,42 @@ import { Calendar, Video, Users, FileText, Facebook, Instagram, Youtube, Linkedi
 import EnhancedAthleteRosterModal from '@/components/coach/EnhancedAthleteRosterModal'
 import CoachContentUpload from '@/components/coach/CoachContentUpload'
 
+const trainingActions = [
+  {
+    key: 'athletes',
+    title: 'Manage Athletes',
+    description: 'See and manage athlete lists for your community',
+    icon: Users
+  },
+  {
+    key: 'create-lesson',
+    title: 'Create Lessons',
+    description: 'Build new training lessons',
+    icon: FileText
+  },
+  {
+    key: 'add-content',
+    title: 'Videos & Content',
+    description: 'Upload content to your profile',
+    icon: Video
+  }
+]
+
+const calendarActions = [
+  {
+    key: 'event-schedule',
+    title: 'Event Calendar',
+    description: 'Add community events and upcoming games',
+    icon: Calendar
+  },
+  {
+    key: 'schedule-session',
+    title: 'Training Schedule',
+    description: 'Review requests and add 1:1 coaching sessions',
+    icon: FileText
+  }
+]
+
 export default function CoachLockerRoom() {
   const { user } = useAuth()
   const { role, loading } = useEnhancedRole()
@@ -44,202 +80,157 @@ export default function CoachLockerRoom() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <span className="text-2xl font-bold" style={{ color: '#440102', fontFamily: '\"Open Sans\", sans-serif', fontWeight: 700 }}>
-            ATHLEAP
-          </span>
-          <div className="flex items-center gap-3">
-            <Link
-              href="/coaches"
-              className="px-4 py-2 text-sm font-bold hover:opacity-80 transition-opacity"
-              style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}
-            >
-              Browse Coaches
-            </Link>
-            <button
-              onClick={async () => {
-                if (isSigningOut) return
-                setIsSigningOut(true)
-                setTimeout(async () => {
-                  try {
-                    await signOut(auth)
-                  } catch (e) {
-                    console.error('Sign out failed:', e)
-                  } finally {
-                    window.location.href = '/'
-                  }
-                }, 900)
-              }}
-              className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${isSigningOut ? 'bg-gray-800 text-white' : 'bg-black text-white hover:bg-gray-800'}`}
-              style={{ fontFamily: '\"Open Sans\", sans-serif', fontWeight: 700 }}
-            >
-              {isSigningOut ? 'Goodbye…' : 'Sign Out'}
-            </button>
-          </div>
+    <div className="min-h-screen bg-[#4B0102] text-white flex flex-col">
+      <header className="px-6 py-4 flex items-center justify-between max-w-6xl mx-auto w-full">
+        <div className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2">
+            <span className="text-2xl font-bold tracking-tight" style={{ fontFamily: '"Open Sans", sans-serif', letterSpacing: '-0.03em' }}>
+              ATHLEAP
+            </span>
+          </Link>
+        </div>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/dashboard/coach"
+            className="px-4 py-2 rounded-full border border-white/40 text-sm font-semibold hover:bg-white/10 transition-colors"
+            style={{ fontFamily: '"Open Sans", sans-serif' }}
+          >
+            Return to Dashboard
+          </Link>
+          <button
+            onClick={async () => {
+              if (isSigningOut) return
+              setIsSigningOut(true)
+              setTimeout(async () => {
+                try {
+                  await signOut(auth)
+                } catch (e) {
+                  console.error('Sign out failed:', e)
+                } finally {
+                  window.location.href = '/'
+                }
+              }, 900)
+            }}
+            className="px-4 py-2 rounded-full bg-white text-[#4B0102] text-sm font-semibold hover:bg-gray-100 transition-colors"
+            style={{ fontFamily: '"Open Sans", sans-serif' }}
+          >
+            {isSigningOut ? 'Signing out…' : 'Sign out'}
+          </button>
         </div>
       </header>
 
-      <main className="w-full">
-        <div className="px-4 sm:px-6 lg:px-8 py-3">
-          <div className="w-full max-w-6xl mx-auto space-y-5">
-            {/* Return to Dashboard - Top Right */}
-            <div className="flex justify-end">
+      <main className="flex-1 w-full">
+        <div className="max-w-5xl mx-auto px-4 sm:px-8 py-10 space-y-16">
+          <section className="bg-white rounded-[28px] shadow-xl px-6 sm:px-12 py-10 text-center relative overflow-hidden">
+            <div className="flex justify-center mb-6">
+              <img src="/brand/athleap-logo-colored.png" alt="Athleap logo" className="w-20 h-20 object-contain" />
+            </div>
+            <h1
+              className="text-3xl md:text-4xl font-bold mb-3"
+              style={{ color: '#C40000', fontFamily: '"Open Sans", sans-serif', letterSpacing: '-0.03em' }}
+            >
+              Welcome to your locker room.
+            </h1>
+            <p className="text-lg md:text-xl text-gray-800" style={{ fontFamily: '"Open Sans", sans-serif' }}>
+              Manage your athletes, lessons, and sessions.
+            </p>
+            <div className="mt-8">
               <Link
                 href="/dashboard/coach"
-                className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-bold text-sm inline-block"
-                style={{ fontFamily: '\"Open Sans\", sans-serif', fontWeight: 700 }}
+                className="inline-flex items-center justify-center px-6 py-3 rounded-full text-sm font-semibold text-white shadow-lg"
+                style={{ fontFamily: '"Open Sans", sans-serif', backgroundColor: '#C40000' }}
               >
-                Return to Dashboard
+                View Your Profile
               </Link>
             </div>
-            {/* Welcome Section */}
-            <div>
-              <h1 className="text-2xl font-bold mb-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif', fontWeight: 700 }}>
-                Welcome to your locker room, {user?.displayName || 'Coach'}!
-              </h1>
-              <p className="text-sm" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
-                Empower your athletes with expert training
-              </p>
-            </div>
+          </section>
 
-            {/* Athletes and Training Content */}
-            <div>
-              <h2 className="text-xl font-bold mb-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif', fontWeight: 700 }}>
+          <section className="space-y-6">
+            <div className="text-center space-y-2">
+              <p className="text-sm uppercase tracking-[0.3em]" style={{ color: '#FFD6C9', fontFamily: '"Open Sans", sans-serif' }}>
+                Locker Tools
+              </p>
+              <h2 className="text-2xl font-bold" style={{ fontFamily: '"Open Sans", sans-serif' }}>
                 Athletes and Training Content
               </h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                {/* Manage Athletes */}
-                <button
-                  onClick={() => setActiveModal('athletes')}
-                  className="text-left w-full"
-                >
-                  <div className="w-full aspect-square rounded-lg overflow-hidden mb-1">
-                    <img
-                      src="/brand/manage-athletes.png"
-                      alt="Manage Athletes"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <p className="text-sm font-semibold" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
-                    Manage Athletes
-                  </p>
-                  <p className="text-xs" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
-                    See and Manage Athlete List
-                  </p>
-                </button>
-
-                {/* Create Lesson */}
-                <button
-                  onClick={() => setActiveModal('create-lesson')}
-                  className="text-left w-full"
-                >
-                  <div className="w-full aspect-square rounded-lg overflow-hidden mb-1">
-                    <img
-                      src="/brand/create-lesson.png"
-                      alt="Create Lesson"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <p className="text-sm font-semibold" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
-                    Create Lesson
-                  </p>
-                  <p className="text-xs" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
-                    Build New Training
-                  </p>
-                </button>
-
-                {/* Add Videos and Content */}
-                <button
-                  onClick={() => setActiveModal('add-content')}
-                  className="text-left w-full"
-                >
-                  <div className="w-full aspect-square rounded-lg overflow-hidden mb-1">
-                    <img
-                      src="/brand/add-content.png"
-                      alt="Add Videos and Content"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <p className="text-sm font-semibold" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
-                    Add Videos and Content
-                  </p>
-                  <p className="text-xs" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
-                    Upload Content to Your Profile
-                  </p>
-                </button>
-              </div>
             </div>
+            <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+              {trainingActions.map((action) => {
+                const Icon = action.icon
+                return (
+                  <button
+                    key={action.key}
+                    onClick={() => setActiveModal(action.key)}
+                    className="group text-left rounded-2xl p-6 shadow-[0_20px_60px_rgba(0,0,0,0.25)] hover:-translate-y-1 transition-transform"
+                    style={{ background: 'linear-gradient(135deg, #FF3B1D 0%, #8B0C01 100%)' }}
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-black/10 flex items-center justify-center mb-4">
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <h3 className="text-2xl font-bold mb-2" style={{ fontFamily: '"Open Sans", sans-serif' }}>
+                      {action.title}
+                    </h3>
+                    <p className="text-sm leading-relaxed text-white/90" style={{ fontFamily: '"Open Sans", sans-serif' }}>
+                      {action.description}
+                    </p>
+                  </button>
+                )
+              })}
+            </div>
+          </section>
 
-            {/* Calendar and Events */}
-            <div>
-              <h2 className="text-xl font-bold mb-2" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif', fontWeight: 700 }}>
+  <section className="space-y-6">
+            <div className="text-center space-y-2">
+              <p className="text-sm uppercase tracking-[0.3em]" style={{ color: '#FFD6C9', fontFamily: '"Open Sans", sans-serif' }}>
+                Planning
+              </p>
+              <h2 className="text-2xl font-bold" style={{ fontFamily: '"Open Sans", sans-serif' }}>
                 Calendar and Events
               </h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                {/* Event Schedule */}
-                <button
-                  onClick={() => setActiveModal('event-schedule')}
-                  className="text-left w-full"
-                >
-                  <div className="w-full aspect-square rounded-lg overflow-hidden mb-1">
-                    <img
-                      src="/brand/event-schedule.png"
-                      alt="Event Schedule"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <p className="text-sm font-semibold" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
-                    Event Schedule
-                  </p>
-                  <p className="text-xs" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
-                    Add Community Events for Athletes
-                  </p>
-                </button>
-
-                {/* Schedule Training Session */}
-                <button
-                  onClick={() => setActiveModal('schedule-session')}
-                  className="text-left w-full"
-                >
-                  <div className="w-full aspect-square rounded-lg overflow-hidden mb-1">
-                    <img
-                      src="/brand/schedule-training-session.png"
-                      alt="Schedule Training Session"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <p className="text-sm font-semibold" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
-                    Schedule Training Session
-                  </p>
-                  <p className="text-xs" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
-                    Review Requests and Add to Calendar
-                  </p>
-                </button>
-
-              </div>
             </div>
-
-            {/* Social Media Icons */}
-            <div className="flex items-center gap-4 pt-8">
-              <a href="#" className="text-gray-600 hover:text-black transition-colors" aria-label="Facebook">
-                <Facebook className="w-5 h-5" />
-              </a>
-              <a href="#" className="text-gray-600 hover:text-black transition-colors" aria-label="LinkedIn">
-                <Linkedin className="w-5 h-5" />
-              </a>
-              <a href="#" className="text-gray-600 hover:text-black transition-colors" aria-label="YouTube">
-                <Youtube className="w-5 h-5" />
-              </a>
-              <a href="#" className="text-gray-600 hover:text-black transition-colors" aria-label="Instagram">
-                <Instagram className="w-5 h-5" />
-              </a>
+            <div className="grid gap-6 grid-cols-1 sm:grid-cols-2">
+              {calendarActions.map((action) => {
+                const Icon = action.icon
+                return (
+                  <button
+                    key={action.key}
+                    onClick={() => setActiveModal(action.key)}
+                    className="group text-left rounded-2xl p-6 shadow-[0_20px_60px_rgba(0,0,0,0.25)] hover:-translate-y-1 transition-transform"
+                    style={{ background: 'linear-gradient(135deg, #FF3B1D 0%, #8B0C01 100%)' }}
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-black/10 flex items-center justify-center mb-4">
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <h3 className="text-2xl font-bold mb-2" style={{ fontFamily: '"Open Sans", sans-serif' }}>
+                      {action.title}
+                    </h3>
+                    <p className="text-sm leading-relaxed text-white/90" style={{ fontFamily: '"Open Sans", sans-serif' }}>
+                      {action.description}
+                    </p>
+                  </button>
+                )
+              })}
             </div>
-          </div>
+          </section>
         </div>
       </main>
+
+      <footer className="bg-white py-6 mt-auto">
+        <div className="max-w-5xl mx-auto px-6 flex items-center justify-end gap-5">
+          <a href="https://www.linkedin.com/company/athleap" className="text-gray-500 hover:text-black" aria-label="LinkedIn">
+            <Linkedin className="w-5 h-5" />
+          </a>
+          <a href="https://www.facebook.com" className="text-gray-500 hover:text-black" aria-label="Facebook">
+            <Facebook className="w-5 h-5" />
+          </a>
+          <a href="https://twitter.com" className="text-gray-500 hover:text-black" aria-label="Twitter">
+            <X className="w-5 h-5" />
+          </a>
+          <a href="https://www.instagram.com" className="text-gray-500 hover:text-black" aria-label="Instagram">
+            <Instagram className="w-5 h-5" />
+          </a>
+        </div>
+      </footer>
 
       {/* Modals */}
       <EnhancedAthleteRosterModal
