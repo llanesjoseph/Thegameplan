@@ -667,12 +667,11 @@ function PhotoEditPanel({
         className="hidden"
         ref={setUploadInputRef(key)}
         onChange={(e) => {
-          const target =
-            key.startsWith('gallery-')
-              ? key === 'gallery-new'
-                ? { type: 'gallery', append: true }
-                : { type: 'gallery', index: Number(key.replace('gallery-', '')) }
-              : { type: 'field', field: key as keyof HeroCoachProfileProps['coach'] }
+          const target: Parameters<typeof handleFileSelected>[1] = key.startsWith('gallery-')
+            ? key === 'gallery-new'
+              ? ({ type: 'gallery', append: true } as const)
+              : ({ type: 'gallery', index: Number(key.replace('gallery-', '')) } as const)
+            : ({ type: 'field', field: key as keyof HeroCoachProfileProps['coach'] } as const)
           handleFileSelected(e, target)
         }}
       />
