@@ -353,35 +353,55 @@ function CoachGallery({ photos }: { photos: string[] }) {
 
   return (
     <section className="w-full bg-white">
-      <div className="relative max-w-6xl mx-auto px-8 py-6">
-        <button
-          onClick={handlePrev}
-          aria-label="Previous"
-          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white shadow flex items-center justify-center hover:bg-gray-50"
-        >
-          <ArrowRight className="w-5 h-5 rotate-180" />
-        </button>
+      <div className="max-w-6xl mx-auto px-8 py-8">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={handlePrev}
+            aria-label="Previous"
+            className="hidden sm:flex flex-shrink-0 w-10 h-10 rounded-full bg-white shadow items-center justify-center hover:bg-gray-50"
+          >
+            <ArrowRight className="w-5 h-5 rotate-180" />
+          </button>
 
-        <div
-          ref={rowRef}
-          className="flex gap-2 overflow-x-auto scroll-smooth px-12 py-2"
-          style={{ height: 290 }}
-        >
-          {photos.map((src, idx) => (
-            <div key={`${src}-${idx}`} className="shrink-0 w-[214px] h-[285px] rounded-md overflow-hidden bg-gray-100">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={src} alt={`Gallery image ${idx + 1}`} className="w-full h-full object-cover" loading={idx < 4 ? 'eager' : 'lazy'} />
+          <div className="flex-1 overflow-hidden">
+            <div
+              ref={rowRef}
+              className="flex gap-3 overflow-x-auto overflow-y-hidden scroll-smooth py-2"
+            >
+              {photos.map((src, idx) => (
+                <div key={`${src}-${idx}`} className="shrink-0 w-[214px] h-[260px] md:h-[285px] rounded-md overflow-hidden bg-gray-100">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={src} alt={`Gallery image ${idx + 1}`} className="w-full h-full object-cover" loading={idx < 4 ? 'eager' : 'lazy'} />
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
+
+          <button
+            onClick={handleNext}
+            aria-label="Next"
+            className="hidden sm:flex flex-shrink-0 w-10 h-10 rounded-full bg-white shadow items-center justify-center hover:bg-gray-50"
+          >
+            <ArrowRight className="w-5 h-5" />
+          </button>
         </div>
 
-        <button
-          onClick={handleNext}
-          aria-label="Next"
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white shadow flex items-center justify-center hover:bg-gray-50"
-        >
-          <ArrowRight className="w-5 h-5" />
-        </button>
+        <div className="sm:hidden mt-4 flex items-center justify-center gap-6">
+          <button
+            onClick={handlePrev}
+            aria-label="Previous"
+            className="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center hover:bg-gray-50"
+          >
+            <ArrowRight className="w-5 h-5 rotate-180" />
+          </button>
+          <button
+            onClick={handleNext}
+            aria-label="Next"
+            className="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center hover:bg-gray-50"
+          >
+            <ArrowRight className="w-5 h-5" />
+          </button>
+        </div>
       </div>
     </section>
   )
