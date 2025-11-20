@@ -62,6 +62,13 @@ const SPORT_THEMES: Record<string, SportTheme> = {
   }
 }
 
+const SPORT_LABEL_OVERRIDES: Record<string, string> = {
+  bjj: 'Brazilian Jiu-Jitsu',
+  'brazilian jiu-jitsu': 'Brazilian Jiu-Jitsu',
+  jiujitsu: 'Brazilian Jiu-Jitsu',
+  mma: 'Mixed Martial Arts'
+}
+
 const DEFAULT_GALLERY_IMAGES = [
   'https://static.wixstatic.com/media/8bb438_3ae04589aef4480e89a24d7283c69798~mv2_d_2869_3586_s_4_2.jpg/v1/fill/w_428,h_570,q_90,enc_avif,quality_auto/8bb438_3ae04589aef4480e89a24d7283c69798~mv2_d_2869_3586_s_4_2.jpg',
   'https://static.wixstatic.com/media/8bb438_734b8f436e944886b4185aa6f72b5cad~mv2_d_3000_2000_s_2.jpg/v1/fill/w_428,h_570,q_90,enc_avif,quality_auto/8bb438_734b8f436e944886b4185aa6f72b5cad~mv2_d_3000_2000_s_2.jpg',
@@ -135,7 +142,7 @@ export default function HeroCoachProfile({
     return deduped.length > 0 ? deduped : DEFAULT_GALLERY_IMAGES
   }, [coach.showcasePhoto1, coach.showcasePhoto2, coach.galleryPhotos])
 
-  const sportLabel = coach.sport || 'Coach'
+  const sportLabel = SPORT_LABEL_OVERRIDES[normalizedSport] || coach.sport || 'Coach'
   const location = coach.location?.trim()
   const bio = coach.bio?.trim()
 
