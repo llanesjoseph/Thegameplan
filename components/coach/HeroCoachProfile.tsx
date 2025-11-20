@@ -655,13 +655,17 @@ function PhotoEditPanel({
     event.target.value = ''
   }
 
+  const setUploadInputRef = (key: string) => (el: HTMLInputElement | null) => {
+    uploadInputRefs.current[key] = el
+  }
+
   const renderUploadButton = (key: string, label = 'Upload') => (
     <div>
       <input
         type="file"
         accept="image/*"
         className="hidden"
-        ref={(el) => (uploadInputRefs.current[key] = el)}
+        ref={setUploadInputRef(key)}
         onChange={(e) => {
           const target =
             key.startsWith('gallery-')
