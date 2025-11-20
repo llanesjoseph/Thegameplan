@@ -6,6 +6,25 @@ import { getOriginalIdFromSlug } from '@/lib/slug-utils'
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
+const extractGalleryPhotos = (...sources: any[]): string[] => {
+  const flatten = (value: any): string[] => {
+    if (!value) return []
+    if (typeof value === 'string') return [value]
+    if (Array.isArray(value)) return value.flatMap(flatten)
+    if (typeof value === 'object') {
+      const direct = value.url || value.imageUrl || value.src || value.path || value.photoURL || value.downloadURL
+      if (typeof direct === 'string') {
+        return [direct]
+      }
+      return Object.values(value).flatMap(flatten)
+    }
+    return []
+  }
+
+  const urls = sources.flatMap(flatten).map((url) => (typeof url === 'string' ? url.trim() : '')).filter(Boolean)
+  return Array.from(new Set(urls))
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { slug: string } }
@@ -87,6 +106,15 @@ export async function GET(
                          creatorData.bannerUrl ||
                          ''
 
+    const galleryPhotos = extractGalleryPhotos(
+      creatorData.galleryPhotos,
+      creatorData.actionPhotos,
+      creatorData.mediaGallery,
+      creatorData.heroGallery,
+      creatorData.gallery,
+      userData.galleryPhotos
+    )
+
     // Build coach profile response
     const coachProfile = {
       uid: originalId,
@@ -101,8 +129,9 @@ export async function GET(
       profileImageUrl: profileImageUrl,
       coverImageUrl: coverImageUrl,
       bannerUrl: coverImageUrl, // Also set bannerUrl for compatibility
-      showcasePhoto1: userData.showcasePhoto1 || '',
-      showcasePhoto2: userData.showcasePhoto2 || '',
+      showcasePhoto1: creatorData.showcasePhoto1 || userData.showcasePhoto1 || '',
+      showcasePhoto2: creatorData.showcasePhoto2 || userData.showcasePhoto2 || '',
+      galleryPhotos,
       // Social media links
       instagram: creatorData.instagram || userData.instagram || '',
       youtube: creatorData.youtube || userData.youtube || '',
@@ -115,6 +144,7 @@ export async function GET(
       socialLinks: {
         instagram: creatorData.instagram || userData.instagram || '',
         linkedin: creatorData.linkedin || userData.linkedin || '',
+        twitter: creatorData.twitter || userData.twitter || ''
       },
       verified: creatorData.verified || false,
       featured: creatorData.featured || false,

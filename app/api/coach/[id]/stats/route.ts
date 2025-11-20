@@ -55,6 +55,7 @@ export async function GET(
       description: doc.data().description,
       sport: doc.data().sport,
       level: doc.data().level,
+      status: doc.data().status,
       createdAt: doc.data().createdAt,
       videoUrl: doc.data().videoUrl,
       thumbnailUrl: doc.data().thumbnailUrl

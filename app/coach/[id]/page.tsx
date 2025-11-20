@@ -40,6 +40,14 @@ interface CoachProfile {
   achievements?: string[]
   profileImageUrl?: string
   coverImageUrl?: string
+  showcasePhoto1?: string
+  showcasePhoto2?: string
+  galleryPhotos?: string[]
+  location?: string
+  instagram?: string
+  youtube?: string
+  linkedin?: string
+  facebook?: string
   socialLinks?: {
     twitter?: string
     instagram?: string
@@ -53,6 +61,7 @@ interface Lesson {
   description?: string
   sport?: string
   level?: string
+  status?: string
   createdAt: any
   videoUrl?: string
   thumbnailUrl?: string
@@ -78,6 +87,32 @@ function isProfileMinimal(
 
   // Show placeholder if they have no bio AND no lessons AND no professional credentials
   return hasNoBio && hasNoLessons && hasNoCertifications && hasNoAchievements
+}
+
+const extractGalleryPhotos = (...sources: any[]): string[] => {
+  const flatten = (value: any): string[] => {
+    if (!value) return []
+    if (typeof value === 'string') return [value]
+    if (Array.isArray(value)) return value.flatMap(flatten)
+    if (typeof value === 'object') {
+      const direct =
+        value.url ||
+        value.imageUrl ||
+        value.src ||
+        value.path ||
+        value.photoURL ||
+        value.downloadURL
+
+      if (typeof direct === 'string') {
+        return [direct]
+      }
+      return Object.values(value).flatMap(flatten)
+    }
+    return []
+  }
+
+  const urls = sources.flatMap(flatten).map((url) => (typeof url === 'string' ? url.trim() : '')).filter(Boolean)
+  return Array.from(new Set(urls))
 }
 
 export default function CoachProfilePage() {
@@ -132,6 +167,7 @@ export default function CoachProfilePage() {
       if (isJasmineAikey(userData.email)) {
         // Use Jasmine's comprehensive profile data
         const jasmineProfile = createJasmineCoachProfile(coachId, userData.email)
+        const jasmineGallery = extractGalleryPhotos(jasmineProfile.actionPhotos)
         coachProfile = {
           uid: coachId,
           displayName: jasmineProfile.displayName,
@@ -144,6 +180,14 @@ export default function CoachProfilePage() {
           achievements: jasmineProfile.achievements,
           profileImageUrl: jasmineProfile.headshotUrl,
           coverImageUrl: jasmineProfile.heroImageUrl,
+          showcasePhoto1: jasmineProfile.actionPhotos?.[0] || jasmineProfile.heroImageUrl,
+          showcasePhoto2: jasmineProfile.actionPhotos?.[1] || jasmineProfile.headshotUrl,
+          galleryPhotos: jasmineGallery,
+          location: userData.location || 'Silicon Valley, California',
+          instagram: userData.instagram || '',
+          youtube: userData.youtube || '',
+          linkedin: userData.linkedin || '',
+          facebook: userData.facebook || '',
           socialLinks: {}
         }
       } else {
@@ -163,6 +207,18 @@ export default function CoachProfilePage() {
           console.warn('Could not fetch creator profile:', err)
         }
 
+        const galleryPhotos = extractGalleryPhotos(
+          profileData.galleryPhotos,
+          profileData.actionPhotos,
+          profileData.mediaGallery,
+          profileData.heroGallery,
+          profileData.gallery,
+          userData.galleryPhotos
+        )
+
+        const showcasePhoto1 = profileData.showcasePhoto1 || userData.showcasePhoto1 || ''
+        const showcasePhoto2 = profileData.showcasePhoto2 || userData.showcasePhoto2 || ''
+
         // Combine data for other coaches
         coachProfile = {
           uid: coachId,
@@ -176,7 +232,15 @@ export default function CoachProfilePage() {
           achievements: profileData.achievements || userData.achievements || [],
           profileImageUrl: profileData.profileImageUrl || userData.photoURL || '',
           coverImageUrl: profileData.coverImageUrl || '',
-          socialLinks: profileData.socialLinks || {}
+          showcasePhoto1,
+          showcasePhoto2,
+          galleryPhotos,
+          location: profileData.location || userData.location || '',
+          instagram: profileData.instagram || userData.instagram || '',
+          youtube: profileData.youtube || userData.youtube || '',
+          linkedin: profileData.linkedin || userData.linkedin || '',
+          facebook: profileData.facebook || userData.facebook || '',
+          socialLinks: profileData.socialLinks || userData.socialLinks || {}
         }
       }
 

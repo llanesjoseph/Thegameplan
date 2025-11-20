@@ -25,6 +25,9 @@ interface CoachProfile {
   profileImageUrl?: string
   coverImageUrl?: string
   bannerUrl?: string
+  showcasePhoto1?: string
+  showcasePhoto2?: string
+  galleryPhotos?: string[]
   tagline?: string
   title?: string
   location?: string
@@ -53,6 +56,7 @@ interface Lesson {
   duration?: string
   level?: string
   sport?: string
+  status?: string
   createdAt: any
 }
 
@@ -181,7 +185,6 @@ export default function CoachProfilePage() {
       lessons={lessons}
       isInIframe={isInIframe}
       onBack={handleBack}
-      hideLessons={true}
     />
   )
 }
