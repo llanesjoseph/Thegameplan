@@ -719,18 +719,11 @@ function RecommendedGearSection({
             <button
               type="button"
               onClick={() => setShowAdd(true)}
-              className="group h-10 rounded-full flex items-center justify-center shadow-md overflow-hidden transition-all duration-300 ease-in-out hover:pr-4 border border-white/30"
-              style={{ background: 'linear-gradient(135deg, #FC0105 0%, #8B0000 100%)', color: '#FFFFFF', width: '42px' }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.width = 'auto'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.width = '42px'
-              }}
+              className="group relative flex items-center justify-center h-12 w-12 rounded-2xl border border-white/40 shadow-[inset_0_3px_6px_rgba(255,255,255,0.28),inset_0_-4px_6px_rgba(0,0,0,0.4),0_6px_14px_rgba(0,0,0,0.35)] bg-[#C40000] text-white focus:outline-none focus:ring-2 focus:ring-white/60"
             >
-              <span className="text-2xl leading-none px-2">+</span>
+              <span className="text-2xl leading-none">+</span>
               <span
-                className="whitespace-nowrap text-sm font-semibold opacity-0 max-w-0 group-hover:opacity-100 group-hover:max-w-[140px] transition-all duration-300 ease-in-out overflow-hidden"
+                className="absolute left-full ml-3 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide border border-white/60 bg-[#4B0102] text-white opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 ease-out shadow-[0_4px_12px_rgba(0,0,0,0.35)]"
                 style={{ fontFamily: '"Open Sans", sans-serif' }}
               >
                 Add item
