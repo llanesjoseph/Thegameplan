@@ -867,7 +867,7 @@ function RecommendedGearSection({
             >
               <span className="text-2xl leading-none transition-all duration-300 group-hover:translate-x-1">+</span>
               <span
-                className="ml-2 whitespace-nowrap text-sm font-semibold uppercase tracking-wide opacity-0 max-w-0 group-hover:opacity-100 group-hover:max-w-[120px] transition-all duration-300 ease-out"
+                className="ml-0 group-hover:ml-2 whitespace-nowrap text-sm font-semibold uppercase tracking-wide opacity-0 max-w-0 group-hover:opacity-100 group-hover:max-w-[120px] transition-all duration-300 ease-out"
                 style={{ fontFamily: '"Open Sans", sans-serif' }}
               >
                 Add Gear
