@@ -347,6 +347,7 @@ function HeroSection({
 function CoachGallery({ photos }: { photos: string[] }) {
   const rowRef = useRef<HTMLDivElement>(null)
   const scrollByAmount = 3 * (214 + 10)
+  const hasOverflow = photos.length > 4
 
   const handlePrev = () => rowRef.current?.scrollBy({ left: -scrollByAmount, behavior: 'smooth' })
   const handleNext = () => rowRef.current?.scrollBy({ left: scrollByAmount, behavior: 'smooth' })
@@ -354,22 +355,27 @@ function CoachGallery({ photos }: { photos: string[] }) {
   return (
     <section className="w-full bg-white">
       <div className="max-w-6xl mx-auto px-8 py-8">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={handlePrev}
-            aria-label="Previous"
-            className="hidden sm:flex flex-shrink-0 w-10 h-10 rounded-full bg-white shadow items-center justify-center hover:bg-gray-50"
-          >
-            <ArrowRight className="w-5 h-5 rotate-180" />
-          </button>
+        <div className={`flex items-center ${hasOverflow ? 'gap-4' : ''}`}>
+          {hasOverflow && (
+            <button
+              onClick={handlePrev}
+              aria-label="Previous"
+              className="hidden sm:flex flex-shrink-0 w-10 h-10 rounded-full bg-white shadow items-center justify-center hover:bg-gray-50"
+            >
+              <ArrowRight className="w-5 h-5 rotate-180" />
+            </button>
+          )}
 
-          <div className="flex-1 overflow-hidden">
+          <div className="flex-1">
             <div
               ref={rowRef}
-              className="flex gap-3 overflow-x-auto overflow-y-hidden scroll-smooth py-2"
+              className={`flex gap-3 py-2 ${hasOverflow ? 'w-full overflow-x-auto overflow-y-hidden scroll-smooth' : 'w-full justify-between'}`}
             >
               {photos.map((src, idx) => (
-                <div key={`${src}-${idx}`} className="shrink-0 w-[214px] h-[260px] md:h-[285px] rounded-md overflow-hidden bg-gray-100">
+                <div
+                  key={`${src}-${idx}`}
+                  className={`${hasOverflow ? 'shrink-0 w-[214px]' : 'flex-1 min-w-[180px] max-w-[240px]'} h-[260px] md:h-[285px] rounded-md overflow-hidden bg-gray-100`}
+                >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={src} alt={`Gallery image ${idx + 1}`} className="w-full h-full object-cover" loading={idx < 4 ? 'eager' : 'lazy'} />
                 </div>
@@ -377,31 +383,35 @@ function CoachGallery({ photos }: { photos: string[] }) {
             </div>
           </div>
 
-          <button
-            onClick={handleNext}
-            aria-label="Next"
-            className="hidden sm:flex flex-shrink-0 w-10 h-10 rounded-full bg-white shadow items-center justify-center hover:bg-gray-50"
-          >
-            <ArrowRight className="w-5 h-5" />
-          </button>
+          {hasOverflow && (
+            <button
+              onClick={handleNext}
+              aria-label="Next"
+              className="hidden sm:flex flex-shrink-0 w-10 h-10 rounded-full bg-white shadow items-center justify-center hover:bg-gray-50"
+            >
+              <ArrowRight className="w-5 h-5" />
+            </button>
+          )}
         </div>
 
-        <div className="sm:hidden mt-4 flex items-center justify-center gap-6">
-          <button
-            onClick={handlePrev}
-            aria-label="Previous"
-            className="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center hover:bg-gray-50"
-          >
-            <ArrowRight className="w-5 h-5 rotate-180" />
-          </button>
-          <button
-            onClick={handleNext}
-            aria-label="Next"
-            className="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center hover:bg-gray-50"
-          >
-            <ArrowRight className="w-5 h-5" />
-          </button>
-        </div>
+        {hasOverflow && (
+          <div className="sm:hidden mt-4 flex items-center justify-center gap-6">
+            <button
+              onClick={handlePrev}
+              aria-label="Previous"
+              className="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center hover:bg-gray-50"
+            >
+              <ArrowRight className="w-5 h-5 rotate-180" />
+            </button>
+            <button
+              onClick={handleNext}
+              aria-label="Next"
+              className="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center hover:bg-gray-50"
+            >
+              <ArrowRight className="w-5 h-5" />
+            </button>
+          </div>
+        )}
       </div>
     </section>
   )
