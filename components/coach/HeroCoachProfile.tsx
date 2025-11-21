@@ -246,9 +246,50 @@ export default function HeroCoachProfile({
     }))
   }
 
-  const handleSaveEdits = () => {
-    setDisplayCoach(editableCoach)
-    setIsEditing(false)
+  const handleSaveEdits = async () => {
+    // Persist edits to backend so they survive refresh
+    try {
+      if (authUser) {
+        const token = await authUser.getIdToken()
+        const body = {
+          displayName: editableCoach.displayName,
+          bio: editableCoach.bio,
+          location: editableCoach.location,
+          sport: editableCoach.sport,
+          profileImageUrl: editableCoach.profileImageUrl,
+          showcasePhoto1: editableCoach.showcasePhoto1,
+          showcasePhoto2: editableCoach.showcasePhoto2,
+          galleryPhotos: editableCoach.galleryPhotos || [],
+          instagram: editableCoach.instagram,
+          facebook: editableCoach.facebook,
+          twitter: editableCoach.twitter || editableCoach.socialLinks?.twitter,
+          linkedin: editableCoach.linkedin,
+          youtube: editableCoach.youtube,
+          socialLinks: {
+            twitter: editableCoach.twitter || editableCoach.socialLinks?.twitter,
+            instagram: editableCoach.instagram || editableCoach.socialLinks?.instagram,
+            linkedin: editableCoach.linkedin || editableCoach.socialLinks?.linkedin,
+            facebook: editableCoach.facebook || editableCoach.socialLinks?.facebook,
+            youtube: editableCoach.youtube || editableCoach.socialLinks?.youtube
+          }
+        }
+
+        await fetch('/api/coach-profile/save', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify(body)
+        })
+      }
+    } catch (error) {
+      // Log but still update local state so user sees change immediately
+      console.error('Failed to save coach profile edits:', error)
+    } finally {
+      setDisplayCoach(editableCoach)
+      setIsEditing(false)
+    }
   }
 
   const handleCancelEdits = () => {
@@ -1040,84 +1081,82 @@ function TrainingLibrarySection({
   return (
     <section className="w-full" style={{ backgroundColor: '#EDEDED' }}>
       <div className="max-w-6xl mx-auto px-8 py-12">
-        <div className="bg-white px-6 py-10">
-          <div className="flex items-center justify-between mb-2">
-            <h2 style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '25px', color: '#000000' }}>
-              {coachName}&apos;s Training Library
-            </h2>
-          </div>
-          {filteredLessons.length > pageSize && (
-            <p className="text-sm text-gray-500 mb-4" style={{ fontFamily: '"Open Sans", sans-serif' }}>
-              Showing 4 lessons at a time. Use the controls to browse the full library.
-            </p>
-          )}
-
-          <div className="border-t border-gray-300">
-            {visibleLessons.map((lesson) => (
-              <button
-                type="button"
-                key={lesson.id}
-                onClick={() => onSelectLesson?.(lesson)}
-                className="w-full flex items-center gap-6 py-6 border-b border-gray-200 last:border-b-0 text-left hover:bg-gray-50 transition-colors"
-              >
-                <div className="w-24 h-24 rounded-full bg-[#5A0202] flex items-center justify-center overflow-hidden flex-shrink-0">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  {lesson.thumbnailUrl ? (
-                    <img src={lesson.thumbnailUrl} alt={lesson.title} className="w-full h-full object-cover" />
-                  ) : (
-                    <img src="/brand/athleap-logo-colored.png" alt="Athleap" className="w-12 h-12 opacity-90" />
-                  )}
-                </div>
-                <div className="flex-1 flex items-center justify-between gap-4">
-                  <p style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '18px', color: '#000000' }}>
-                    {lesson.title}
-                  </p>
-                  <p className="text-sm" style={{ fontFamily: '"Open Sans", sans-serif', color: '#555555' }}>
-                    {lesson.status || 'Published'}
-                  </p>
-                </div>
-              </button>
-            ))}
-          </div>
-
-          {/* Pagination arrows - only show when there are more than 4 lessons */}
-          {filteredLessons.length > pageSize && (
-            <div className="mt-6 flex items-center justify-center gap-4">
-              <button
-                type="button"
-                aria-label="Previous lessons"
-                onClick={() => setPage((prev) => Math.max(0, prev - 1))}
-                disabled={page === 0}
-                className={`w-9 h-9 rounded-full border flex items-center justify-center transition-colors ${
-                  page === 0
-                    ? 'border-gray-300 text-gray-400 cursor-not-allowed opacity-60'
-                    : 'border-black text-black hover:bg-black hover:text-white'
-                }`}
-              >
-                <ChevronUp className="w-4 h-4" />
-              </button>
-              <span
-                className="text-xs"
-                style={{ fontFamily: '"Open Sans", sans-serif', color: '#555555' }}
-              >
-                Page {page + 1} of {totalPages}
-              </span>
-              <button
-                type="button"
-                aria-label="Next lessons"
-                onClick={() => setPage((prev) => Math.min(totalPages - 1, prev + 1))}
-                disabled={page >= totalPages - 1}
-                className={`w-9 h-9 rounded-full border flex items-center justify-center transition-colors ${
-                  page >= totalPages - 1
-                    ? 'border-gray-300 text-gray-400 cursor-not-allowed opacity-60'
-                    : 'border-black text-black hover:bg-black hover:text-white'
-                }`}
-              >
-                <ChevronDown className="w-4 h-4" />
-              </button>
-            </div>
-          )}
+        <div className="flex items-center justify-between mb-2">
+          <h2 style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '25px', color: '#000000' }}>
+            {coachName}&apos;s Training Library
+          </h2>
         </div>
+        {filteredLessons.length > pageSize && (
+          <p className="text-sm text-gray-500 mb-4" style={{ fontFamily: '"Open Sans", sans-serif' }}>
+            Showing 4 lessons at a time. Use the controls to browse the full library.
+          </p>
+        )}
+
+        <div className="border-t border-gray-300">
+          {visibleLessons.map((lesson) => (
+            <button
+              type="button"
+              key={lesson.id}
+              onClick={() => onSelectLesson?.(lesson)}
+              className="w-full flex items-center gap-6 py-6 border-b border-gray-200 last:border-b-0 text-left hover:bg-gray-50 transition-colors"
+            >
+              <div className="w-24 h-24 rounded-full bg-[#5A0202] flex items-center justify-center overflow-hidden flex-shrink-0">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                {lesson.thumbnailUrl ? (
+                  <img src={lesson.thumbnailUrl} alt={lesson.title} className="w-full h-full object-cover" />
+                ) : (
+                  <img src="/brand/athleap-logo-colored.png" alt="Athleap" className="w-12 h-12 opacity-90" />
+                )}
+              </div>
+              <div className="flex-1 flex items-center justify-between gap-4">
+                <p style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '18px', color: '#000000' }}>
+                  {lesson.title}
+                </p>
+                <p className="text-sm" style={{ fontFamily: '"Open Sans", sans-serif', color: '#555555' }}>
+                  {lesson.status || 'Published'}
+                </p>
+              </div>
+            </button>
+          ))}
+        </div>
+
+        {/* Pagination arrows - only show when there are more than 4 lessons */}
+        {filteredLessons.length > pageSize && (
+          <div className="mt-6 flex items-center justify-center gap-4">
+            <button
+              type="button"
+              aria-label="Previous lessons"
+              onClick={() => setPage((prev) => Math.max(0, prev - 1))}
+              disabled={page === 0}
+              className={`w-9 h-9 rounded-full border flex items-center justify-center transition-colors ${
+                page === 0
+                  ? 'border-gray-300 text-gray-400 cursor-not-allowed opacity-60'
+                  : 'border-black text-black hover:bg-black hover:text-white'
+              }`}
+            >
+              <ChevronUp className="w-4 h-4" />
+            </button>
+            <span
+              className="text-xs"
+              style={{ fontFamily: '"Open Sans", sans-serif', color: '#555555' }}
+            >
+              Page {page + 1} of {totalPages}
+            </span>
+            <button
+              type="button"
+              aria-label="Next lessons"
+              onClick={() => setPage((prev) => Math.min(totalPages - 1, prev + 1))}
+              disabled={page >= totalPages - 1}
+              className={`w-9 h-9 rounded-full border flex items-center justify-center transition-colors ${
+                page >= totalPages - 1
+                  ? 'border-gray-300 text-gray-400 cursor-not-allowed opacity-60'
+                  : 'border-black text-black hover:bg-black hover:text-white'
+              }`}
+            >
+              <ChevronDown className="w-4 h-4" />
+            </button>
+          </div>
+        )}
       </div>
     </section>
   )

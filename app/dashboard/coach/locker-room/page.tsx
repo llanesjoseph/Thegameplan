@@ -224,7 +224,7 @@ export default function CoachLockerRoom() {
       </div>
 
       <main className="flex-1 w-full">
-        <div className="max-w-6xl mx-auto px-4 sm:px-10 py-10 space-y-16">
+        <div className="max-w-6xl mx-auto px-4 sm:px-10 pt-10 pb-20 space-y-16">
           <section className="bg-white px-6 sm:px-12 py-12 text-center border border-[#f0f0f0]" style={{ borderRadius: '0px' }}>
             <div className="flex justify-center mb-6">
               <Image src={lockerLogo} alt="Athleap mark" width={113} height={122} priority className="object-contain" />
