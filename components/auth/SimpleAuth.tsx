@@ -2,9 +2,10 @@
 
 import { useState } from 'react'
 import { signInWithPopup, GoogleAuthProvider, OAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
-import { auth } from '@/lib/firebase.client'
+import { auth, db } from '@/lib/firebase.client'
 import { useRouter } from 'next/navigation'
 import { trackNewUser, notifyAdminsOfNewUser } from '@/lib/user-tracking-service'
+import { doc, getDoc } from 'firebase/firestore'
 
 export default function SimpleAuth() {
  const [isLoading, setIsLoading] = useState(false)
@@ -41,9 +42,12 @@ export default function SimpleAuth() {
     isNewUser
    }
 
-   // Redirect immediately for better UX
-   if (isNewUser) {
-    router.push('/onboarding')
+   // Unified routing: if user doc has role, go to dashboard.
+   // Otherwise send them to role selection.
+   const snap = await getDoc(doc(db, 'users', user.uid))
+   const data = snap.exists() ? (snap.data() as any) : null
+   if (!data?.role) {
+    router.push('/onboarding/select-role')
    } else {
     router.push('/dashboard')
    }
@@ -89,9 +93,10 @@ export default function SimpleAuth() {
     isNewUser
    }
 
-   // Redirect immediately for better UX
-   if (isNewUser) {
-    router.push('/onboarding')
+   const snap = await getDoc(doc(db, 'users', user.uid))
+   const data = snap.exists() ? (snap.data() as any) : null
+   if (!data?.role) {
+    router.push('/onboarding/select-role')
    } else {
     router.push('/dashboard')
    }
@@ -150,9 +155,10 @@ export default function SimpleAuth() {
     isNewUser
    }
 
-   // Redirect immediately for better UX
-   if (isNewUser) {
-    router.push('/onboarding')
+   const snap = await getDoc(doc(db, 'users', user.uid))
+   const data = snap.exists() ? (snap.data() as any) : null
+   if (!data?.role) {
+    router.push('/onboarding/select-role')
    } else {
     router.push('/dashboard')
    }

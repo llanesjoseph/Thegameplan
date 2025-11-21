@@ -107,7 +107,7 @@ export default function Dashboard() {
     const result = await getRedirectResult(auth)
     if (result) {
      console.log('Successfully signed in via redirect:', result.user.displayName)
-     router.push('/onboarding')
+     router.push('/onboarding/select-role')
     }
    } catch (error) {
     console.error('Redirect sign-in error:', error)

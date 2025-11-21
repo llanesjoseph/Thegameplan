@@ -146,11 +146,14 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose, initialSpo
     loadAthletes()
   }, [user, isOpen])
 
-  // Fetch AI Chat Summary when athlete changes
+  // Fetch AI Chat Summary when athlete changes or modal opens
   useEffect(() => {
     const fetchAiChatSummary = async () => {
       const currentAthlete = athletes[selectedAthleteIndex]
-      if (!currentAthlete || !user) return
+      if (!currentAthlete || !user) {
+        setAiChatSummary('No recent conversations')
+        return
+      }
 
       try {
         setLoadingSummary(true)
@@ -177,8 +180,10 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose, initialSpo
       }
     }
 
-    fetchAiChatSummary()
-  }, [selectedAthleteIndex, athletes, user])
+    if (isOpen) {
+      fetchAiChatSummary()
+    }
+  }, [selectedAthleteIndex, athletes, user, isOpen])
 
   const handlePrevAthlete = () => {
     setSelectedAthleteIndex((prev) => (prev === 0 ? athletes.length - 1 : prev - 1))
@@ -370,13 +375,13 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose, initialSpo
                                     onClick={() => setSelectedAthleteIndex((selectedAthleteIndex - 2 + athletes.length) % athletes.length)}
                                     className="w-16 h-16 opacity-30 hover:opacity-50 transition-all duration-300"
                                   >
-                                    <div className="w-full h-full rounded-lg overflow-hidden bg-gray-100">
+                                    <div className="w-full h-full bg-gray-100 border border-gray-300 overflow-hidden">
                                       {athletes[(selectedAthleteIndex - 2 + athletes.length) % athletes.length].profileImageUrl ? (
                                         // eslint-disable-next-line @next/next/no-img-element
                                         <img
                                           src={athletes[(selectedAthleteIndex - 2 + athletes.length) % athletes.length].profileImageUrl}
                                           alt={athletes[(selectedAthleteIndex - 2 + athletes.length) % athletes.length].displayName}
-                                          className="w-full h-full object-cover"
+                                          className="w-full h-full object-contain"
                                         />
                                       ) : (
                                         <div
@@ -392,13 +397,13 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose, initialSpo
                                     onClick={() => setSelectedAthleteIndex((selectedAthleteIndex - 1 + athletes.length) % athletes.length)}
                                     className="w-20 h-20 opacity-50 hover:opacity-75 transition-all duration-300"
                                   >
-                                    <div className="w-full h-full rounded-lg overflow-hidden bg-gray-100">
+                                    <div className="w-full h-full bg-gray-100 border border-gray-300 overflow-hidden">
                                       {athletes[(selectedAthleteIndex - 1 + athletes.length) % athletes.length].profileImageUrl ? (
                                         // eslint-disable-next-line @next/next/no-img-element
                                         <img
                                           src={athletes[(selectedAthleteIndex - 1 + athletes.length) % athletes.length].profileImageUrl}
                                           alt={athletes[(selectedAthleteIndex - 1 + athletes.length) % athletes.length].displayName}
-                                          className="w-full h-full object-cover"
+                                          className="w-full h-full object-contain"
                                         />
                                       ) : (
                                         <div
@@ -415,13 +420,13 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose, initialSpo
 
                               {/* Current athlete - centered and highlighted */}
                               <div className="flex flex-col items-center">
-                                <div className="w-32 h-32 rounded-lg overflow-hidden bg-gray-100 ring-4 ring-[#FF3B1D]">
+                                <div className="w-32 h-32 bg-gray-100 border border-gray-300 overflow-hidden ring-4 ring-[#FF3B1D]">
                                   {selectedAthlete.profileImageUrl ? (
                                     // eslint-disable-next-line @next/next/no-img-element
                                     <img
                                       src={selectedAthlete.profileImageUrl}
                                       alt={selectedAthlete.displayName}
-                                      className="w-full h-full object-cover"
+                                      className="w-full h-full object-contain"
                                     />
                                   ) : (
                                     <div
@@ -447,13 +452,13 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose, initialSpo
                                     onClick={() => setSelectedAthleteIndex((selectedAthleteIndex + 1) % athletes.length)}
                                     className="w-20 h-20 opacity-50 hover:opacity-75 transition-all duration-300"
                                   >
-                                    <div className="w-full h-full rounded-lg overflow-hidden bg-gray-100">
+                                    <div className="w-full h-full bg-gray-100 border border-gray-300 overflow-hidden">
                                       {athletes[(selectedAthleteIndex + 1) % athletes.length].profileImageUrl ? (
                                         // eslint-disable-next-line @next/next/no-img-element
                                         <img
                                           src={athletes[(selectedAthleteIndex + 1) % athletes.length].profileImageUrl}
                                           alt={athletes[(selectedAthleteIndex + 1) % athletes.length].displayName}
-                                          className="w-full h-full object-cover"
+                                          className="w-full h-full object-contain"
                                         />
                                       ) : (
                                         <div
@@ -469,13 +474,13 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose, initialSpo
                                     onClick={() => setSelectedAthleteIndex((selectedAthleteIndex + 2) % athletes.length)}
                                     className="w-16 h-16 opacity-30 hover:opacity-50 transition-all duration-300"
                                   >
-                                    <div className="w-full h-full rounded-lg overflow-hidden bg-gray-100">
+                                    <div className="w-full h-full bg-gray-100 border border-gray-300 overflow-hidden">
                                       {athletes[(selectedAthleteIndex + 2) % athletes.length].profileImageUrl ? (
                                         // eslint-disable-next-line @next/next/no-img-element
                                         <img
                                           src={athletes[(selectedAthleteIndex + 2) % athletes.length].profileImageUrl}
                                           alt={athletes[(selectedAthleteIndex + 2) % athletes.length].displayName}
-                                          className="w-full h-full object-cover"
+                                          className="w-full h-full object-contain"
                                         />
                                       ) : (
                                         <div
@@ -668,16 +673,32 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose, initialSpo
                           Pending Invitations
                         </h3>
                         <div className="rounded-lg p-4 text-left border border-[#F0C1B4]" style={{ backgroundColor: '#FFF9F6' }}>
-                          <p className="text-sm" style={{ color: '#5C3A36', fontFamily: '"Open Sans", sans-serif' }}>
+                          <p className="text-sm mb-4" style={{ color: '#5C3A36', fontFamily: '"Open Sans", sans-serif' }}>
                             No pending invitations at this time
                           </p>
-                          <button
-                            className="mt-4 px-6 py-3 rounded-lg text-white font-bold shadow-[0_12px_30px_rgba(0,0,0,0.25)] transition-colors"
-                            style={{ fontFamily: '"Open Sans", sans-serif', backgroundColor: '#C40000' }}
-                            onClick={handleInviteAthlete}
-                          >
-                            Invite New Athlete
-                          </button>
+                          <div className="flex flex-wrap gap-3">
+                            <button
+                              className="px-6 py-3 rounded-lg text-white font-bold shadow-[0_12px_30px_rgba(0,0,0,0.25)] transition-colors"
+                              style={{ fontFamily: '"Open Sans", sans-serif', backgroundColor: '#C40000' }}
+                              onClick={handleInviteAthlete}
+                            >
+                              Invite New Athlete
+                            </button>
+                            <button
+                              type="button"
+                              className="px-6 py-3 rounded-lg font-bold border-2 transition-colors"
+                              style={{ fontFamily: '"Open Sans", sans-serif', borderColor: '#C40000', color: '#C40000' }}
+                              onClick={() => {
+                                const subject = encodeURIComponent('Join me on AthLeap as a coach')
+                                const body = encodeURIComponent(
+                                  `Hey Coach,\n\nI'm using AthLeap to manage athletes, lessons, and AI coaching.\nYou can apply as a coach here:\nhttps://athleap.crucibleanalytics.dev\n\nSee you inside!\n`
+                                )
+                                window.location.href = `mailto:?subject=${subject}&body=${body}`
+                              }}
+                            >
+                              Invite Fellow Coach
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>

@@ -2,8 +2,9 @@
 
 import { useState } from 'react'
 import { signInWithPopup, signInWithRedirect, GoogleAuthProvider } from 'firebase/auth'
-import { auth } from '@/lib/firebase.client'
+import { auth, db } from '@/lib/firebase.client'
 import { useRouter } from 'next/navigation'
+import { doc, getDoc } from 'firebase/firestore'
 
 interface GoogleSignInButtonProps {
  className?: string
@@ -79,8 +80,17 @@ export default function GoogleSignInButton({
     // Small delay to ensure Firebase auth state is updated
     await new Promise(resolve => setTimeout(resolve, 500))
 
-    // Redirect to onboarding for new users to complete their profile
-    router.push('/onboarding')
+    // Unified post-auth routing:
+    // If user doc has a role, go to /dashboard and let dashboard route by role.
+    // If no role yet, send them to role/onboarding selection.
+    const userSnap = await getDoc(doc(db, 'users', user.uid))
+    const data = userSnap.exists() ? (userSnap.data() as any) : null
+
+    if (!data?.role) {
+     router.push('/onboarding/select-role')
+    } else {
+     router.push('/dashboard')
+    }
    } catch (popupError: unknown) {
     console.log('⚠️ Popup sign-in failed, attempting redirect fallback...', popupError)
     console.error('Popup error details:', popupError)
