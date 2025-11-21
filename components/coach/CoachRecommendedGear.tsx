@@ -27,6 +27,7 @@ export default function CoachRecommendedGear() {
   const [gearPage, setGearPage] = useState(0)
   const gearPageSize = 4
   const first = user?.displayName?.split(' ')[0] || 'Recommended'
+  const [editMode, setEditMode] = useState(false)
 
   useEffect(() => {
     const load = async () => {
@@ -135,14 +136,48 @@ export default function CoachRecommendedGear() {
         <button
           onClick={() => setShowAdd(true)}
           aria-label="Add gear"
-          className="group h-9 rounded-full flex items-center justify-center shadow-md overflow-hidden transition-all duration-300 ease-in-out hover:pr-3"
+          className="group h-9 rounded-full flex items-center justify-center overflow-hidden transition-all duration-300 ease-in-out hover:pr-3"
           style={{ backgroundColor: '#FC0105', color: '#FFFFFF', width: '36px' }}
-          onMouseEnter={(e) => { e.currentTarget.style.width = 'auto' }}
-          onMouseLeave={(e) => { e.currentTarget.style.width = '36px' }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.width = 'auto'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.width = '36px'
+          }}
         >
           <span className="text-xl leading-none px-2">+</span>
-          <span className="whitespace-nowrap text-sm font-semibold opacity-0 max-w-0 group-hover:opacity-100 group-hover:max-w-[100px] transition-all duration-300 ease-in-out overflow-hidden" style={{ fontFamily: '"Open Sans", sans-serif' }}>
+          <span
+            className="whitespace-nowrap text-sm font-semibold opacity-0 max-w-0 group-hover:opacity-100 group-hover:max-w-[100px] transition-all duration-300 ease-in-out overflow-hidden"
+            style={{ fontFamily: '"Open Sans", sans-serif' }}
+          >
             add gear
+          </span>
+        </button>
+
+        {/* Brand-red - button to toggle edit mode for cards */}
+        <button
+          onClick={() => {
+            setEditMode((prev) => !prev)
+            setFlippedCard(null)
+            setEditingCard(null)
+            setEditUrl('')
+          }}
+          aria-label="Edit or remove gear items"
+          className="group h-9 rounded-full flex items-center justify-center overflow-hidden transition-all duration-300 ease-in-out hover:pr-3"
+          style={{ backgroundColor: '#C40000', color: '#FFFFFF', width: '36px' }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.width = 'auto'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.width = '36px'
+          }}
+        >
+          <span className="text-xl leading-none px-2">−</span>
+          <span
+            className="whitespace-nowrap text-sm font-semibold opacity-0 max-w-0 group-hover:opacity-100 group-hover:max-w-[120px] transition-all duration-300 ease-in-out overflow-hidden"
+            style={{ fontFamily: '"Open Sans", sans-serif' }}
+          >
+            edit gear
           </span>
         </button>
       </div>
@@ -152,12 +187,16 @@ export default function CoachRecommendedGear() {
           {(loading ? Array.from({ length: 4 }) : items.slice(gearPage * gearPageSize, (gearPage + 1) * gearPageSize)).map((g: any, idx: number) => (
             <div key={g?.id || idx} className="w-full perspective-1000">
               <div
-                className={`relative w-full transition-transform duration-500 transform-style-3d ${flippedCard === g?.id ? 'rotate-y-180' : ''}`}
+                className={`relative w-full transition-transform duration-500 transform-style-3d ${
+                  !loading && (editMode || flippedCard === g?.id) ? 'rotate-y-180' : ''
+                }`}
                 style={{ transformStyle: 'preserve-3d' }}
               >
                 {/* Front of card */}
                 <button
-                  onClick={() => !loading && setFlippedCard(flippedCard === g?.id ? null : g?.id)}
+                  onClick={() =>
+                    !loading && !editMode && setFlippedCard(flippedCard === g?.id ? null : g?.id)
+                  }
                   className="w-full backface-hidden group"
                   style={{ backfaceVisibility: 'hidden' }}
                   disabled={loading}
@@ -240,8 +279,8 @@ export default function CoachRecommendedGear() {
                             <Edit2 className="w-4 h-4" />
                             Edit URL
                           </button>
-                            <button
-                              onClick={() => deleteItem(g.id, g.source)}
+                          <button
+                            onClick={() => deleteItem(g.id, g.source)}
                             className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-white font-bold"
                             style={{ backgroundColor: '#FC0105', fontFamily: '"Open Sans", sans-serif' }}
                           >
@@ -249,7 +288,15 @@ export default function CoachRecommendedGear() {
                             Delete
                           </button>
                           <button
-                            onClick={() => setFlippedCard(null)}
+                            onClick={() => {
+                              if (editMode) {
+                                setEditMode(false)
+                                setEditingCard(null)
+                                setEditUrl('')
+                              } else {
+                                setFlippedCard(null)
+                              }
+                            }}
                             className="w-full px-4 py-2 rounded-lg text-black text-sm font-semibold border-2 border-black hover:bg-black hover:text-white transition"
                             style={{ fontFamily: '"Open Sans", sans-serif' }}
                           >
