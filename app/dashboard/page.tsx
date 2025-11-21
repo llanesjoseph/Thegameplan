@@ -154,8 +154,8 @@ export default function Dashboard() {
   console.log('🎯 ROUTING USER:', { email: user.email, role: actualRole })
 
   if (actualRole === 'athlete') {
-   console.log('🏃 ATHLETE DETECTED - Routing to /dashboard/athlete')
-   router.replace('/dashboard/athlete')
+   console.log('🏃 ATHLETE DETECTED - Routing to /dashboard/athlete/welcome')
+   router.replace('/dashboard/athlete/welcome')
   } else if (actualRole === 'superadmin') {
    console.log('👑 SUPERADMIN DETECTED - Routing to /dashboard/admin')
    router.replace('/dashboard/admin')
