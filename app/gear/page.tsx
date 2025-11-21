@@ -82,11 +82,17 @@ export default function GearStore() {
         <div className="w-full bg-white">
           <header className="w-full bg-white">
             <div className="max-w-6xl mx-auto px-6 lg:px-8 py-4 flex items-center justify-between">
-              {/* Left: ATHLEAP wordmark */}
+              {/* Left: logo + ATHLEAP wordmark (matches dashboard header) */}
               <Link href="/" className="flex items-center gap-3 flex-shrink-0">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="https://static.wixstatic.com/media/75fa07_66efa272a9a64facbc09f3da71757528~mv2.png/v1/fill/w_68,h_64,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/75fa07_66efa272a9a64facbc09f3da71757528~mv2.png"
+                  alt="Athleap logo"
+                  className="h-8 w-auto"
+                />
                 <span
-                  className="text-2xl font-bold tracking-tight"
-                  style={{ fontFamily: '"Open Sans", sans-serif', letterSpacing: '-0.04em', color: '#181818' }}
+                  className="text-xl font-semibold tracking-[0.02em]"
+                  style={{ fontFamily: '"Open Sans", sans-serif', color: '#181818' }}
                 >
                   ATHLEAP
                 </span>
@@ -169,23 +175,24 @@ export default function GearStore() {
 
       <main className="flex-1 w-full">
         <div className="max-w-6xl mx-auto px-4 sm:px-10 py-10 space-y-10">
-          {/* Hero banner */}
-          <section className="text-center">
-            <div className="flex justify-center mb-6">
-              {/* Using a plain img here to avoid next.config dependencies */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="https://static.wixstatic.com/media/75fa07_e1e45308b5c74283b5e34188f149ce73~mv2.png/v1/fill/w_825,h_141,al_c,lg_1,q_85,enc_avif,quality_auto/75fa07_e1e45308b5c74283b5e34188f149ce73~mv2.png"
-                alt="Gear Store banner"
-                className="w-full max-w-3xl h-auto object-cover"
-              />
+          {/* Hero banner – white card with Athleap mark (matches new locker room / profile aesthetic) */}
+          <section className="flex justify-center">
+            <div className="bg-white px-10 py-10 text-center border border-[#f0f0f0]" style={{ maxWidth: '720px' }}>
+              <div className="flex justify-center mb-6">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="https://static.wixstatic.com/media/75fa07_8aa2c925b9f54a8285fffbcba2425b0e~mv2.png/v1/fill/w_113,h_122,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/75fa07_8aa2c925b9f54a8285fffbcba2425b0e~mv2.png"
+                  alt="Athleap mark"
+                  className="h-24 w-auto object-contain"
+                />
+              </div>
+              <h1
+                className="text-4xl md:text-5xl font-bold"
+                style={{ fontFamily: '"Open Sans", sans-serif', letterSpacing: '-0.05em', color: '#F62004' }}
+              >
+                Gear Store
+              </h1>
             </div>
-            <h1
-              className="text-4xl md:text-5xl font-bold"
-              style={{ fontFamily: '"Open Sans", sans-serif', letterSpacing: 'normal', color: '#FFFFFF' }}
-            >
-              Gear Store
-            </h1>
           </section>
 
           {/* Filter + grid card */}
