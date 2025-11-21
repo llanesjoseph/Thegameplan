@@ -53,7 +53,7 @@ export default function AthleteRecommendedGear() {
 
   return (
     <section className="w-full bg-[#4B0102]">
-      <div className="max-w-6xl mx-auto px-8 py-12">
+      <div className="max-w-6xl mx-auto px-8 pt-8 pb-24">
         <h2
           className="mb-6"
           style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '25px', color: '#FFFFFF' }}

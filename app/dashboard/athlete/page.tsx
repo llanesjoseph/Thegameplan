@@ -447,18 +447,17 @@ export default function AthleteDashboard() {
           </div>
         </section>
 
-        {/* Main sections framed like the coach profile: shared background band for coaches + library */}
-        <section className="w-full" style={{ backgroundColor: '#EDEDED' }}>
-          <div className="max-w-6xl mx-auto px-8 py-12 space-y-6">
-            {/* Coaches row & CTAs – full-width card on the band */}
-            <div className="bg-white px-6 py-10">
-              <AthleteCoaches />
-            </div>
+        {/* Coaches section – solid white band edge-to-edge */}
+        <section className="w-full bg-white">
+          <div className="max-w-6xl mx-auto px-8 py-12">
+            <AthleteCoaches />
+          </div>
+        </section>
 
-            {/* Training Library – matching full-width card directly beneath */}
-            <div className="bg-white px-6 py-10">
-              <AthleteTrainingLibrary />
-            </div>
+        {/* Training Library – light gray band edge-to-edge */}
+        <section className="w-full" style={{ backgroundColor: '#EDEDED' }}>
+          <div className="max-w-6xl mx-auto px-8 py-10">
+            <AthleteTrainingLibrary />
           </div>
         </section>
 
