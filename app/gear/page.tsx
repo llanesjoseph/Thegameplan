@@ -174,21 +174,21 @@ export default function GearStore() {
       </div>
 
       <main className="flex-1 w-full">
-        <div className="max-w-6xl mx-auto px-4 sm:px-10 py-10 space-y-10">
-          {/* Hero banner – white card with Athleap mark (matches new locker room / profile aesthetic) */}
-          <section className="flex justify-center">
-            <div className="bg-white px-10 py-10 text-center border border-[#f0f0f0]" style={{ maxWidth: '720px' }}>
-              <div className="flex justify-center mb-6">
+        <div className="space-y-10">
+          {/* Hero banner – full-width maroon band with centered logo and title */}
+          <section className="w-full bg-[#4B0102]">
+            <div className="max-w-6xl mx-auto px-4 sm:px-10 py-10 text-center">
+              <div className="flex justify-center mb-4">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/athleap-logo-transparent.png"
                   alt="Athleap mark"
-                  className="h-28 w-auto object-contain"
+                  className="h-32 w-auto object-contain"
                 />
               </div>
               <h1
                 className="text-4xl md:text-5xl font-bold"
-                style={{ fontFamily: '"Open Sans", sans-serif', letterSpacing: '-0.05em', color: '#F62004' }}
+                style={{ fontFamily: '"Open Sans", sans-serif', letterSpacing: '-0.05em', color: '#FFFFFF' }}
               >
                 Gear Store
               </h1>
@@ -196,6 +196,7 @@ export default function GearStore() {
           </section>
 
           {/* Filter + grid card */}
+          <div className="max-w-6xl mx-auto px-4 sm:px-10 pb-10">
           <section className="bg-white rounded-none border border-[#f0f0f0] px-6 sm:px-10 py-8 space-y-6">
             {/* Sport filters */}
             <div className="flex flex-wrap items-center justify-center gap-3">
@@ -295,6 +296,7 @@ export default function GearStore() {
               })}
             </div>
           </section>
+          </div>
         </div>
       </main>
     </div>

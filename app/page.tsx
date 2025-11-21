@@ -341,65 +341,6 @@ export default function LandingPage() {
     </div>
    </section>
 
-   {/* Footer - Social Icons Only */}
-   <footer className="bg-white py-8" role="contentinfo">
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-     <div className="flex items-center justify-center">
-      {/* Social Links - Centered */}
-      <div className="flex items-center gap-6">
-       <a 
-        href="https://www.facebook.com/athleap" 
-        target="_blank" 
-        rel="noopener noreferrer" 
-        className="transition-colors"
-        style={{ color: '#440102' }}
-        onMouseEnter={(e) => e.currentTarget.style.color = '#FC0105'}
-        onMouseLeave={(e) => e.currentTarget.style.color = '#440102'}
-        aria-label="AthLeap on Facebook"
-       >
-        <Facebook className="w-6 h-6" />
-       </a>
-       <a 
-        href="https://www.linkedin.com/company/athleap" 
-        target="_blank" 
-        rel="noopener noreferrer" 
-        className="transition-colors"
-        style={{ color: '#440102' }}
-        onMouseEnter={(e) => e.currentTarget.style.color = '#FC0105'}
-        onMouseLeave={(e) => e.currentTarget.style.color = '#440102'}
-        aria-label="AthLeap on LinkedIn"
-       >
-        <Linkedin className="w-6 h-6" />
-       </a>
-       <a 
-        href="https://www.youtube.com/@athleap" 
-        target="_blank" 
-        rel="noopener noreferrer" 
-        className="transition-colors"
-        style={{ color: '#440102' }}
-        onMouseEnter={(e) => e.currentTarget.style.color = '#FC0105'}
-        onMouseLeave={(e) => e.currentTarget.style.color = '#440102'}
-        aria-label="AthLeap on YouTube"
-       >
-        <Youtube className="w-6 h-6" />
-       </a>
-       <a 
-        href="https://www.instagram.com/athleap" 
-        target="_blank" 
-        rel="noopener noreferrer" 
-        className="transition-colors"
-        style={{ color: '#440102' }}
-        onMouseEnter={(e) => e.currentTarget.style.color = '#FC0105'}
-        onMouseLeave={(e) => e.currentTarget.style.color = '#440102'}
-        aria-label="AthLeap on Instagram"
-       >
-        <Instagram className="w-6 h-6" />
-       </a>
-      </div>
-     </div>
-    </div>
-   </footer>
-
    {/* Redirecting Overlay - Shows immediately when auth succeeds */}
    {isRedirecting && (
     <div 

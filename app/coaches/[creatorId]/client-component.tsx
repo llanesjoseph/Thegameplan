@@ -732,34 +732,6 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
     </div>
    </section>
 
-   {/* Footer */}
-   <footer className="bg-white py-8 border-t">
-    <div className="max-w-7xl mx-auto px-4">
-     <div className="flex items-center justify-center gap-4">
-      {creator.socialLinks.linkedin && (
-       <a href={creator.socialLinks.linkedin} className="text-gray-600 hover:text-gray-900">
-        <Linkedin className="w-5 h-5" />
-       </a>
-      )}
-      {creator.socialLinks.facebook && (
-       <a href={creator.socialLinks.facebook} className="text-gray-600 hover:text-gray-900">
-        <Facebook className="w-5 h-5" />
-       </a>
-      )}
-      {creator.socialLinks.twitter && (
-       <a href={creator.socialLinks.twitter} className="text-gray-600 hover:text-gray-900">
-        <Twitter className="w-5 h-5" />
-       </a>
-      )}
-      {creator.socialLinks.instagram && (
-       <a href={creator.socialLinks.instagram} className="text-gray-600 hover:text-gray-900">
-        <Instagram className="w-5 h-5" />
-       </a>
-      )}
-     </div>
-    </div>
-   </footer>
-
    {/* AI Chat Modal */}
    {showAIChat && (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">

@@ -566,31 +566,7 @@ export default function TestPage() {
         </div>
       </section>
 
-      {/* Block 7: Footer social bar */}
-      <footer className="w-full bg-white border-t border-gray-200">
-        <div className="max-w-6xl mx-auto px-8 py-6 flex items-center justify-end">
-          <ul className="flex items-center gap-4" aria-label="Social Bar">
-            {socialLinks.map(link => (
-              <li key={link.name}>
-                <a
-                  href={link.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label={link.name}
-                  className="block"
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={link.iconUrl}
-                    alt={link.name}
-                    className="w-6 h-6 object-cover"
-                  />
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </footer>
+      {/* Block 7: Footer social bar (deprecated in favor of GlobalSocialBar) */}
     </main>
   )
 }
