@@ -1,11 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
 import { storage, db } from '@/lib/firebase.client'
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
-import { Upload, Video, FileText, X, Check } from 'lucide-react'
+import { Upload, Video, FileText, X, Check, Play, Pause, Camera } from 'lucide-react'
 
 type ContentType = 'video' | 'document'
 
@@ -25,6 +25,89 @@ export default function CoachContentUpload() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(null)
   const [isUploading, setIsUploading] = useState(false)
+
+  // Thumbnail scrubber state (videos only)
+  const videoRef = useRef<HTMLVideoElement | null>(null)
+  const canvasRef = useRef<HTMLCanvasElement | null>(null)
+  const [videoUrl, setVideoUrl] = useState<string>('')
+  const [showThumbnailSelector, setShowThumbnailSelector] = useState(false)
+  const [thumbnailCandidates, setThumbnailCandidates] = useState<string[]>([])
+  const [selectedThumbnail, setSelectedThumbnail] = useState<string>('')
+  const [videoDuration, setVideoDuration] = useState(0)
+  const [currentTime, setCurrentTime] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+
+  const captureFrame = useCallback(() => {
+    if (!videoRef.current || !canvasRef.current) return null
+    const video = videoRef.current
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return null
+
+    canvas.width = video.videoWidth
+    canvas.height = video.videoHeight
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+    return canvas.toDataURL('image/jpeg', 0.8)
+  }, [])
+
+  const generateThumbnails = useCallback(async () => {
+    if (!videoRef.current || !canvasRef.current) return
+
+    const video = videoRef.current
+    const duration = video.duration || 10
+    const candidates: string[] = []
+
+    // Immediate thumbnail
+    const immediate = captureFrame()
+    if (immediate) {
+      candidates.push(immediate)
+      setThumbnailCandidates([...candidates])
+      setSelectedThumbnail(immediate)
+    }
+
+    // Additional thumbnails at 25%, 50%, 75%
+    const timestamps = [duration * 0.25, duration * 0.5, duration * 0.75]
+    for (const timestamp of timestamps) {
+      try {
+        video.currentTime = timestamp
+        await new Promise<void>((resolve) => {
+          const timeout = setTimeout(() => resolve(), 2000)
+          const handleSeeked = () => {
+            clearTimeout(timeout)
+            video.removeEventListener('seeked', handleSeeked)
+            resolve()
+          }
+          video.addEventListener('seeked', handleSeeked)
+        })
+
+        const thumbnail = captureFrame()
+        if (thumbnail && !candidates.includes(thumbnail)) {
+          candidates.push(thumbnail)
+          setThumbnailCandidates([...candidates])
+        }
+      } catch {
+        // ignore seek errors
+      }
+    }
+  }, [captureFrame])
+
+  const handlePlayPause = useCallback(() => {
+    if (!videoRef.current) return
+    if (isPlaying) {
+      videoRef.current.pause()
+    } else {
+      videoRef.current.play()
+    }
+    setIsPlaying((prev) => !prev)
+  }, [isPlaying])
+
+  const handleScrub = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const time = parseFloat(e.target.value)
+    if (videoRef.current) {
+      videoRef.current.currentTime = time
+      setCurrentTime(time)
+    }
+  }, [])
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -54,6 +137,18 @@ export default function CoachContentUpload() {
     }
 
     setSelectedFile(file)
+
+    if (contentType === 'video') {
+      // Clean up previous object URL
+      if (videoUrl) {
+        URL.revokeObjectURL(videoUrl)
+      }
+      const url = URL.createObjectURL(file)
+      setVideoUrl(url)
+      setShowThumbnailSelector(true)
+      setThumbnailCandidates([])
+      setSelectedThumbnail('')
+    }
   }
 
   const handleUpload = async () => {
@@ -109,6 +204,7 @@ export default function CoachContentUpload() {
             fileUrl: downloadURL,
             fileName: selectedFile.name,
             fileSize: selectedFile.size,
+            thumbnail: selectedThumbnail || null,
             uploadedAt: serverTimestamp(),
             isPublic: false, // Default to private
             views: 0
@@ -126,6 +222,13 @@ export default function CoachContentUpload() {
             setTitle('')
             setDescription('')
             setSelectedFile(null)
+            if (videoUrl) {
+              URL.revokeObjectURL(videoUrl)
+            }
+            setVideoUrl('')
+            setShowThumbnailSelector(false)
+            setThumbnailCandidates([])
+            setSelectedThumbnail('')
             setUploadProgress(null)
             setIsUploading(false)
           }, 2000)
@@ -236,6 +339,93 @@ export default function CoachContentUpload() {
             </p>
           </label>
         </div>
+
+        {/* Thumbnail scrubber (video only) */}
+        {contentType === 'video' && selectedFile && showThumbnailSelector && videoUrl && (
+          <div className="mt-6 space-y-4">
+            <label className="block text-sm font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+              Choose Thumbnail
+            </label>
+            <div className="border border-gray-200 rounded-lg p-4 bg-white">
+              <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex-1 space-y-2">
+                  <video
+                    ref={videoRef}
+                    src={videoUrl}
+                    className="w-full rounded-md bg-black"
+                    onLoadedMetadata={(e) => {
+                      const v = e.currentTarget
+                      setVideoDuration(v.duration || 0)
+                    }}
+                    onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
+                    muted
+                  />
+                  {videoDuration > 0 && (
+                    <div className="flex items-center gap-3 mt-2">
+                      <button
+                        type="button"
+                        onClick={handlePlayPause}
+                        className="p-2 rounded-full border border-gray-300 hover:bg-gray-100"
+                      >
+                        {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                      </button>
+                      <input
+                        type="range"
+                        min={0}
+                        max={videoDuration}
+                        step={0.1}
+                        value={currentTime}
+                        onChange={handleScrub}
+                        className="flex-1"
+                      />
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          const frame = captureFrame()
+                          if (frame) {
+                            setSelectedThumbnail(frame)
+                            if (!thumbnailCandidates.includes(frame)) {
+                              setThumbnailCandidates((prev) => [...prev, frame])
+                            }
+                          }
+                        }}
+                        className="inline-flex items-center gap-1 px-3 py-1 rounded-full border border-gray-300 text-xs font-semibold hover:bg-gray-100"
+                      >
+                        <Camera className="w-3 h-3" />
+                        Capture Frame
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                <div className="w-full md:w-48 space-y-2">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-gray-600">
+                    Thumbnail Choices
+                  </p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {thumbnailCandidates.map((thumb, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setSelectedThumbnail(thumb)}
+                        className={`relative border ${selectedThumbnail === thumb ? 'border-black' : 'border-gray-200'} rounded overflow-hidden`}
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={thumb} alt={`Thumbnail ${idx + 1}`} className="w-full h-16 object-cover" />
+                        {selectedThumbnail === thumb && (
+                          <span className="absolute inset-0 border-2 border-black pointer-events-none" />
+                        )}
+                      </button>
+                    ))}
+                    {thumbnailCandidates.length === 0 && (
+                      <p className="text-xs text-gray-500 col-span-2">Generating preview frames…</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Upload Progress */}

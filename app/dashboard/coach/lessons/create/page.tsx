@@ -50,6 +50,7 @@ function CreateLessonPageContent() {
 
   const [saving, setSaving] = useState(false)
   const [generating, setGenerating] = useState(false)
+  const [polishing, setPolishing] = useState(false)
   const [showAIModal, setShowAIModal] = useState(false)
   const [aiPrompt, setAiPrompt] = useState('')
   const [aiTopic, setAiTopic] = useState('')
@@ -1154,12 +1155,49 @@ function CreateLessonPageContent() {
 
             {/* Lesson Content */}
             <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
-              <h2 className="text-xl font-bold mb-4" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
-                Lesson Content
-              </h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                  Lesson Content
+                </h2>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (!lesson.content.trim() || polishing) return
+                    setPolishing(true)
+                    try {
+                      const res = await fetch('/api/ai/polish-text', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          text: lesson.content,
+                          sport: lesson.sport || undefined
+                        })
+                      })
+                      const data = await res.json()
+                      if (res.ok && data?.polishedText) {
+                        setLesson(prev => ({ ...prev, content: data.polishedText }))
+                      } else {
+                        console.error('AI polish failed:', data)
+                        alert('AI polish failed. Please try again in a moment.')
+                      }
+                    } catch (err) {
+                      console.error('AI polish error:', err)
+                      alert('Unable to reach AI polish service right now.')
+                    } finally {
+                      setPolishing(false)
+                    }
+                  }}
+                  disabled={polishing || !lesson.content.trim()}
+                  className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-gray-300 text-xs font-semibold hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Sparkles className="w-3 h-3" />
+                  {polishing ? 'Polishing…' : 'AI Polish'}
+                </button>
+              </div>
 
               <p className="text-sm mb-4" style={{ color: '#000000', opacity: 0.6 }}>
-                Write your lesson content using Markdown formatting. You can include headings, lists, bold/italic text, and more.
+                Write your lesson content using Markdown formatting. You can include headings, lists, bold/italic text, and more. Use
+                {' '}<span className="font-semibold">AI Polish</span> to clean up spelling, grammar, and formatting without changing your ideas.
               </p>
 
               <textarea
