@@ -222,7 +222,7 @@ export default function AthleteDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f5f5]">
+    <div className="min-h-screen bg-[#4B0102]">
       {/* Sticky header + red community bar (Wix-style frame, identical to /test) */}
       <div className="sticky top-0 z-40">
         <div className="w-full sticky top-0 z-30 bg-white">
@@ -443,8 +443,8 @@ export default function AthleteDashboard() {
           </div>
         </section>
 
-        {/* Main sections with full-width deep red background, matching coach profile aesthetic */}
-        <section className="w-full" style={{ backgroundColor: '#4B0102' }}>
+        {/* Main sections framed like the coach profile: deep red canvas with centered white/neutral panels */}
+        <section className="w-full">
           <div className="max-w-6xl mx-auto px-8 py-12 space-y-10">
             {/* Coaches row & CTAs on a soft neutral band */}
             <div className="bg-[#EDEDED] px-6 py-10">
