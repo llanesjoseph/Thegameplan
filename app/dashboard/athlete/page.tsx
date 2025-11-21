@@ -59,6 +59,7 @@ export default function AthleteDashboard() {
     inProgressLessons: 0,
     upcomingEvents: 0
   })
+  const [heroLoading, setHeroLoading] = useState(true)
 
   // Redirect non-athletes
   useEffect(() => {
@@ -132,6 +133,7 @@ export default function AthleteDashboard() {
     const loadHeroProfile = async () => {
       if (!user?.uid) return
       try {
+        setHeroLoading(true)
         const snap = await getDoc(doc(db, 'users', user.uid))
         let data: any = {}
         if (snap.exists()) data = snap.data()
@@ -175,6 +177,8 @@ export default function AthleteDashboard() {
         })
       } catch (error) {
         console.error('Error loading hero profile:', error)
+      } finally {
+        setHeroLoading(false)
       }
     }
 
@@ -210,7 +214,7 @@ export default function AthleteDashboard() {
     loadProgressSummary()
   }, [user])
 
-  if (isLoading) {
+  if (isLoading || heroLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="text-center">
