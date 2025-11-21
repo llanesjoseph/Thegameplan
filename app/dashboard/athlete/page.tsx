@@ -371,7 +371,7 @@ export default function AthleteDashboard() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
               {/* Training Goals */}
               <div className="flex flex-col items-stretch">
-                <div className="flex-1 bg-[#7A3B3B] bg-opacity-80 px-6 py-6 text-white flex flex-col items-center justify-center">
+                <div className="flex-1 bg-[#7A0202] bg-opacity-90 px-6 py-6 text-white flex flex-col items-center justify-center">
                   <div
                     className="leading-none mb-2"
                     style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '100px' }}
@@ -391,7 +391,7 @@ export default function AthleteDashboard() {
               </div>
               {/* Trainings Complete */}
               <div className="flex flex-col items-stretch">
-                <div className="flex-1 bg-[#7A3B3B] bg-opacity-80 px-6 py-6 text-white flex flex-col items-center justify-center">
+                <div className="flex-1 bg-[#7A0202] bg-opacity-90 px-6 py-6 text-white flex flex-col items-center justify-center">
                   <div
                     className="leading-none mb-2"
                     style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '100px' }}
@@ -409,7 +409,7 @@ export default function AthleteDashboard() {
               </div>
               {/* Trainings In Progress */}
               <div className="flex flex-col items-stretch">
-                <div className="flex-1 bg-[#7A3B3B] bg-opacity-80 px-6 py-6 text-white flex flex-col items-center justify-center">
+                <div className="flex-1 bg-[#7A0202] bg-opacity-90 px-6 py-6 text-white flex flex-col items-center justify-center">
                   <div
                     className="leading-none mb-2"
                     style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '100px' }}
