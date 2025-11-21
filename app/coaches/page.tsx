@@ -192,17 +192,13 @@ export default function BrowseCoachesPage() {
 
   useEffect(() => {
     loadCoaches(true)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedSport])
-
-  useEffect(() => {
     loadAvailableSports()
     loadTopAthletes()
     if (user?.uid) {
       loadFollowingList()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user && user.uid])
+  }, [selectedSport, user?.uid])
 
   return (
     <div className="min-h-screen bg-[#EDEDED] flex flex-col">
