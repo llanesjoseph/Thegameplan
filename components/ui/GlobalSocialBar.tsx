@@ -1,29 +1,38 @@
 'use client'
 
-const SOCIAL_LINKS = [
+import { Facebook, Instagram, Linkedin, Twitter, Youtube } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
+
+type SocialLink = {
+  href: string
+  label: string
+  icon: LucideIcon
+}
+
+const SOCIAL_LINKS: SocialLink[] = [
   {
     href: 'https://www.linkedin.com/company/athleap',
-    icon: 'https://static.wixstatic.com/media/6ea5b4a88f0b4f91945b40499aa0af00.png/v1/fill/w_24,h_24,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/6ea5b4a88f0b4f91945b40499aa0af00.png',
+    icon: Linkedin,
     label: 'LinkedIn'
   },
   {
     href: 'https://www.facebook.com/athleap',
-    icon: 'https://static.wixstatic.com/media/0fdef751204647a3bbd7eaa2827ed4f9.png/v1/fill/w_24,h_24,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/0fdef751204647a3bbd7eaa2827ed4f9.png',
+    icon: Facebook,
     label: 'Facebook'
   },
   {
     href: 'https://twitter.com/athleap',
-    icon: 'https://static.wixstatic.com/media/c7d035ba85f6486680c2facedecdcf4d.png/v1/fill/w_24,h_24,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c7d035ba85f6486680c2facedecdcf4d.png',
+    icon: Twitter,
     label: 'Twitter'
   },
   {
     href: 'https://www.instagram.com/athleap',
-    icon: 'https://static.wixstatic.com/media/01c3aff52f2a4dffa526d7a9843d46ea.png/v1/fill/w_24,h_24,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/01c3aff52f2a4dffa526d7a9843d46ea.png',
+    icon: Instagram,
     label: 'Instagram'
   },
   {
     href: 'https://www.youtube.com/@athleap',
-    icon: 'https://static.wixstatic.com/media/52a3a9_1b857a6e8f4746379382bbdf0cb70b43~mv2.png/v1/fill/w_24,h_24,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/52a3a9_1b857a6e8f4746379382bbdf0cb70b43~mv2.png',
+    icon: Youtube,
     label: 'YouTube'
   }
 ]
@@ -32,18 +41,17 @@ export default function GlobalSocialBar() {
   return (
     <footer className="w-full bg-white border-t border-gray-200">
       <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-end gap-5">
-        <ul className="flex items-center gap-4" aria-label="Social Bar">
-          {SOCIAL_LINKS.map((link) => (
-            <li key={link.label}>
+        <ul className="flex items-center gap-4" aria-label="Athleap Social Links">
+          {SOCIAL_LINKS.map(({ href, label, icon: Icon }) => (
+            <li key={label}>
               <a
-                href={link.href}
+                href={href}
                 target="_blank"
                 rel="noreferrer"
-                aria-label={link.label}
-                className="inline-flex"
+                aria-label={label}
+                className="inline-flex items-center justify-center text-gray-600 hover:text-black transition-colors"
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={link.icon} alt={link.label} className="w-6 h-6 object-cover" />
+                <Icon className="w-5 h-5" strokeWidth={1.75} />
               </a>
             </li>
           ))}
@@ -52,4 +60,5 @@ export default function GlobalSocialBar() {
     </footer>
   )
 }
+
 
