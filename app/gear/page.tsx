@@ -196,7 +196,7 @@ export default function GearStore() {
           </section>
 
           {/* Filter + grid card */}
-          <div className="max-w-6xl mx-auto px-4 sm:px-10 pb-10">
+          <div className="max-w-6xl mx-auto px-4 sm:px-10 pb-20">
           <section className="bg-white rounded-none border border-[#f0f0f0] px-6 sm:px-10 py-8 space-y-6">
             {/* Sport filters */}
             <div className="flex flex-wrap items-center justify-center gap-3">

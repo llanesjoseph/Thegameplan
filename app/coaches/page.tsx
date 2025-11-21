@@ -204,35 +204,37 @@ export default function BrowseCoachesPage() {
   }, [user?.uid])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cream via-cream to-sky-blue/10">
-      {/* Header */}
-      <header className="bg-white/80 backdrop-blur-sm border-b border-white/50 px-4 sm:px-6 lg:px-8 py-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex-shrink-0">
-            <span className="text-2xl font-bold" style={{ color: '#440102', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
+    <div className="min-h-screen bg-[#F5F1E5]">
+      {/* Standard app header */}
+      <header className="bg-white border-b border-gray-200">
+        <div className="max-w-6xl mx-auto px-6 lg:px-8 py-4 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-3 flex-shrink-0">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/athleap-logo-transparent.png"
+              alt="Athleap logo"
+              className="h-8 w-auto"
+            />
+            <span
+              className="text-xl font-semibold tracking-[0.02em]"
+              style={{ fontFamily: '"Open Sans", sans-serif', color: '#181818' }}
+            >
               ATHLEAP
             </span>
           </Link>
-          <button
-            onClick={() => router.back()}
-            className="px-4 py-2 rounded-lg text-white font-bold text-sm transition-opacity hover:opacity-90"
-            style={{ backgroundColor: '#000000', fontFamily: '"Open Sans", sans-serif' }}
-          >
-            Back
-          </button>
+        </div>
+        {/* Red community bar */}
+        <div className="w-full bg-[#FC0105]">
+          <div className="max-w-6xl mx-auto px-6 lg:px-8 py-2 flex justify-end">
+            <p
+              className="text-[15px] leading-none font-bold text-white"
+              style={{ fontFamily: '"Open Sans", sans-serif', letterSpacing: '0.01em' }}
+            >
+              Browse Coaches
+            </p>
+          </div>
         </div>
       </header>
-
-      {/* Back Button */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-        <button
-          onClick={() => router.push('/dashboard/athlete')}
-          className="px-6 py-3 bg-black text-white rounded-lg font-bold hover:bg-gray-800 transition-colors"
-          style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}
-        >
-          Back to Dashboard
-        </button>
-      </div>
 
       {/* Main Content */}
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -444,50 +446,6 @@ export default function BrowseCoachesPage() {
           </div>
         </div>
       </main>
-
-      {/* Social Media Icons - Fixed Bottom Left */}
-      <div className="fixed bottom-6 left-6 flex items-center gap-3 z-40">
-        <a
-          href="https://facebook.com/athleap"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110 shadow-lg"
-          style={{ backgroundColor: '#1877F2' }}
-          title="Facebook"
-        >
-          <Facebook className="w-5 h-5 text-white" />
-        </a>
-        <a
-          href="https://linkedin.com/company/athleap"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110 shadow-lg"
-          style={{ backgroundColor: '#0A66C2' }}
-          title="LinkedIn"
-        >
-          <Linkedin className="w-5 h-5 text-white" />
-        </a>
-        <a
-          href="https://youtube.com/@athleap"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110 shadow-lg"
-          style={{ backgroundColor: '#FF0000' }}
-          title="YouTube"
-        >
-          <Youtube className="w-5 h-5 text-white" />
-        </a>
-        <a
-          href="https://instagram.com/athleap"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110 shadow-lg"
-          style={{ backgroundColor: '#E4405F' }}
-          title="Instagram"
-        >
-          <Instagram className="w-5 h-5 text-white" />
-        </a>
-      </div>
     </div>
   )
 }
