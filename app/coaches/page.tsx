@@ -331,7 +331,7 @@ export default function BrowseCoachesPage() {
         </section>
 
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="space-y-10">
+          <div className="space-y-10">
           {/* Top Athletes Section */}
           {topAthletes.length > 0 && (
             <div>
@@ -529,6 +529,7 @@ export default function BrowseCoachesPage() {
           )}
           </div>
         </div>
+      </div>
       </main>
 
       {previewCoach && (

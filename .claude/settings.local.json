@@ -44,7 +44,8 @@
       "Bash(find:*)",
       "Bash(for file in AthleteVideoReviews TodaysOverview TodaysSchedule CoachAthletes)",
       "Bash(do echo '=== Searching for $file usage ===')",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(npx tsc:*)"
     ],
     "deny": [],
     "ask": []
