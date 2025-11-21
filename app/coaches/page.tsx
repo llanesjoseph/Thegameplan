@@ -202,7 +202,7 @@ export default function BrowseCoachesPage() {
       loadFollowingList()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.uid])
+  }, [user && user.uid])
 
   return (
     <div className="min-h-screen bg-[#EDEDED] flex flex-col">
