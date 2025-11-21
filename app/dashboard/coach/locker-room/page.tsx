@@ -337,21 +337,21 @@ function LockerCard({ action, onClick }: { action: LockerAction; onClick: () => 
         className="relative w-full focus:outline-none"
       >
         <span
-          className="absolute inset-0 rounded-md"
+          className="absolute inset-0"
           style={{
             transform: 'translate(10px, 12px)',
             backgroundColor: '#2A0200',
-            borderRadius: '6px'
+            borderRadius: '0px'
           }}
           aria-hidden="true"
         />
         <div
-          className="relative rounded-md flex items-center justify-center text-center"
+          className="relative flex items-center justify-center text-center"
           style={{
             backgroundColor: '#FF2C13',
             border: '1px solid #430B08',
-            boxShadow: '0px 18px 35px rgba(0,0,0,0.45)',
-            borderRadius: '6px',
+            boxShadow: '0px 18px 32px rgba(0,0,0,0.6)',
+            borderRadius: '0px',
             minHeight: '180px'
           }}
         >

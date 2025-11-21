@@ -83,7 +83,7 @@ export interface EnsembleResult {
  * Limits response to ~500 words and adds intelligent follow-up suggestions
  * to maintain engagement without overwhelming users
  */
-function limitResponseWithFollowUps(response: string): string {
+export function limitResponseWithFollowUps(response: string): string {
   const words = response.split(' ')
   const maxWords = 500
   
@@ -124,7 +124,7 @@ function limitResponseWithFollowUps(response: string): string {
 /**
  * Generates intelligent follow-up suggestions based on response content
  */
-function generateFollowUpSuggestions(truncatedResponse: string, fullResponse: string): string {
+export function generateFollowUpSuggestions(truncatedResponse: string, fullResponse: string): string {
   const suggestions: string[] = []
   
   // Analyze the content to suggest relevant follow-ups
@@ -257,7 +257,7 @@ export async function callOpenAI(
   systemPrompt: string,
   userPrompt: string,
   temperature: number,
-  model = 'gpt-4-turbo-preview'
+  model = 'gpt-4o'
 ): Promise<string> {
   const client = getOpenAIClient()
   if (!client) throw new Error('OpenAI not configured')
@@ -297,7 +297,7 @@ export async function callGemini(
   systemPrompt: string,
   userPrompt: string,
   temperature: number,
-  model = 'gemini-2.5-flash'
+  model = 'gemini-1.5-pro'
 ): Promise<string> {
   const client = getGeminiClient()
   if (!client) throw new Error('Gemini not configured')

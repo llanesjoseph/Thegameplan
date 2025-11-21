@@ -539,7 +539,7 @@ Provide detailed, specific coaching advice with actionable steps. Be technical a
 
   try {
     // Use Gemini for fallback generation with higher temperature for more creative responses
-    const response = await callGemini(systemPrompt, userPrompt, 0.6, 'gemini-2.5-flash')
+    const response = await callGemini(systemPrompt, userPrompt, 0.6, 'gemini-1.5-pro')
 
     logger.info('[QA-Agent:Fallback] Generated fallback response', { length: response.length })
 
@@ -552,7 +552,7 @@ Provide detailed, specific coaching advice with actionable steps. Be technical a
 
     try {
       const { callOpenAI } = await import('./ensemble-service')
-      const response = await callOpenAI(systemPrompt, userPrompt, 0.6, 'gpt-4-turbo-preview')
+      const response = await callOpenAI(systemPrompt, userPrompt, 0.6, 'gpt-4o')
 
       logger.info('[QA-Agent:Fallback] Generated fallback response with OpenAI', { length: response.length })
       return { text: limitResponseWithFollowUps(response) }
@@ -691,52 +691,177 @@ async function getCoachProfile(coach_id: string): Promise<{
 
 /**
  * Heuristic fallback when no AI providers are available.
- * Provides structured coaching guidance based on common question patterns.
+ * Provides structured coaching guidance based on sport and question patterns.
+ * Aggressively expanded to cover multiple sports and question types.
  */
 function generateHeuristicFallback(question: string, sport: string): string {
   const q = question.toLowerCase()
+  const sportLower = (sport || 'Sports').toLowerCase()
+  
+  // SPORT DETECTION
+  const isGrappling = /bjj|jiu[-\s]?jitsu|grappling|wrestling|mma|judo/.test(sportLower)
+  const isBasketball = /basketball|hoops|nba/.test(sportLower)
+  const isSoccer = /soccer|football|f\u00fatbol/.test(sportLower) && !/american/.test(sportLower)
+  const isBaseball = /baseball|softball|mlb/.test(sportLower)
+  const isVolleyball = /volleyball/.test(sportLower)
+  
+  // INTENT DETECTION
+  const isRecovery = /rest|recovery|tired|fatigue|sore|overtrain|sleep|pain/.test(q)
+  const isMental = /nervous|confidence|mindset|pressure|anxiety|focus|scared|choke/.test(q)
+  const isStrength = /strength|condition|cardio|speed|power|gym|weight|muscle/.test(q)
+  
   const sections: string[] = []
-
   const addSection = (title: string, bullets: string[]) => {
     sections.push(`**${title}**\n${bullets.map((b) => `- ${b}`).join('\n')}`)
   }
 
-  if (/rest|recovery|tired|fatigue|sore|overtrain/.test(q)) {
-    addSection('Weekly Recovery Check', [
-      'Track average sleep, morning heart-rate, and mood for 3-4 days. If two of those are off, schedule a **48 hour unload** (easy drilling only).',
-      'Drop total volume by ~30% during the unload block, but keep one short “feel-good” round to stay sharp.',
-      'Layer in a recovery circuit (nasal breathing, light hip openers, foam roll) before bed to calm the nervous system.'
+  // --- UNIVERSAL FALLBACKS (Physical/Mental) ---
+  
+  if (isRecovery) {
+    addSection(`${sport} Recovery Protocol`, [
+      '**The 48-Hour Rule:** If your resting heart rate is up >10% or sleep quality is down for 2 nights, cut volume by 50%.',
+      '**Active Recovery:** Do 20 mins of low-intensity movement (walking, light swimming, yoga) to flush lactate without adding stress.',
+      '**Nutrition Check:** Are you hitting protein goals (0.8g/lb) and hydrating with electrolytes post-sweat?'
     ])
-    addSection('Red Flags', [
-      'Persistent irritability or loss of appetite.',
-      'Grip strength drop-off compared with your normal training.',
-      'Sharp joint pain that worsens across the week.'
+    addSection('Red Flags to Watch', [
+      'Persistent joint pain that doesn’t warm up.',
+      'Mood irritability or lack of motivation.',
+      'Grip strength or vertical jump decrease.'
+    ])
+    return sections.join('\n\n')
+  }
+
+  if (isMental) {
+    addSection('Performance Mindset Reset', [
+      '**Focus on Process, Not Outcome:** Don’t think "I need to win." Think "I need to stay low and explode."',
+      '**The Reset Breath:** In through nose (4s), hold (4s), out through mouth (6s). Do this 3x before stepping on court/mat.',
+      '**Visualization:** Spend 5 mins tonight visualizing perfect execution of your core skills, not just the victory.'
+    ])
+    addSection('In-Game/Match Cue', [
+      'Pick one simple word (e.g., "Smooth", "Attack", "Reset") to say to yourself when pressure spikes.',
+      'Focus on your teammate or opponent’s movement to get out of your own head.'
+    ])
+    return sections.join('\n\n')
+  }
+
+  if (isStrength) {
+    addSection(`${sport} Conditioning Basics`, [
+      '**Sport-Specific Stamina:** Match your conditioning intervals to your sport’s work-to-rest ratio.',
+      '**Core is Key:** Every movement radiates from the core. Prioritize anti-rotation (Pallof press) and stability.',
+      '**Explosive Power:** Include plyometrics (box jumps, skaters) 2x/week, fresh at the start of workouts.'
+    ])
+    return sections.join('\n\n')
+  }
+
+  // --- SPORT SPECIFIC TECHNICAL FALLBACKS ---
+
+  if (isGrappling) {
+    if (/(ankle|heel|leg).*(lock|hook)|ashi|50\/50|saddle/.test(q)) {
+      addSection('Leg Lock Control Blueprint', [
+        '**Knee Line:** This is priority #1. If their knee clears your hip line, you have nothing. Pinch tight.',
+        '**Heel Exposure:** Rotate your wrist/forearm blade to catch the heel. No bite = no finish.',
+        '**Breaking Mechanics:** Bridge hips into the side of the knee while rotating the heel. It’s a full-body bridge, not just an arm pull.'
+      ])
+      addSection('Safety Note', ['Tap early during drilling. Rotational force tears ligaments before you feel pain.'])
+    } else if (/(guard|pass|sweep|top|bottom)/.test(q)) {
+      addSection('Guard Retention & Passing', [
+        '**Frames vs. Grips:** Frames keep weight off (forearms, shins). Grips control movement. Know which you need.',
+        '**Angle of Attack:** Don’t attack straight on. create an angle to off-balance (kuzushi) before sweeping.',
+        '**Hips High (Passing):** Keep hips active. If knees touch the mat, you are anchored and slow.'
+      ])
+    } else {
+      // General BJJ
+      addSection('Grappling Fundamentals', [
+        '**Position Before Submission:** Control the hips and shoulders before hunting the tap.',
+        '**Breathe:** If you hold your breath, you gas out in 2 minutes. Exhale on exertion.',
+        '**Elbows Tight:** T-Rex arms. Open elbows give up underhooks and armbars.'
+      ])
+    }
+  } 
+  
+  else if (isBasketball) {
+    if (/shoot|form|three|jumper/.test(q)) {
+      addSection('Shooting Mechanics Checklist', [
+        '**Base:** Feet shoulder-width, knees bent, ready to explode up.',
+        '**Elbow In:** Keep shooting elbow aligned with the rim, not flared out.',
+        '**Follow Through:** Snap the wrist and hold the "goose neck" until the ball hits the rim.',
+        '**Arc:** Higher arc gives the ball a softer landing and bigger target.'
+      ])
+    } else if (/dribble|handle|crossover/.test(q)) {
+      addSection('Ball Handling Drills', [
+        '**Pound Dribble:** Dribble hard at knee height. The ball should spend more time in your hand than air.',
+        '**Eyes Up:** Practice looking at the rim or a wall spot, not the ball.',
+        '**Change of Pace:** The hesitation (hesi) is more deadly than speed alone. Stop-and-go freezes defenders.'
+      ])
+    } else {
+      // General Hoops
+      addSection('Basketball IQ & Fundamentals', [
+        '**Spacing:** Don’t clog the paint. Move to open space when your teammate drives.',
+        '**Defense:** Stay low, wide stance, move feet (don’t reach). See ball and man.',
+        '**Rebounding:** Box out first, then pursue the ball. Contact creates space.'
+      ])
+    }
+  }
+
+  else if (isSoccer) {
+    if (/shoot|strike|finish|goal/.test(q)) {
+      addSection('Striking Technique', [
+        '**Plant Foot:** Point it exactly where you want the ball to go.',
+        '**Lock Ankle:** Keep the kicking foot rigid. Floppy foot = weak shot.',
+        '**Body Over Ball:** Lean forward slightly to keep the shot low and powerful. Leaning back sends it into orbit.'
+      ])
+    } else if (/pass|touch|control/.test(q)) {
+      addSection('First Touch & Passing', [
+        '**Cushion the Ball:** Receive with the inside of the foot, absorbing pace like a pillow.',
+        '**Head Up:** Scan the field *before* the ball arrives at your feet.',
+        '**Weight of Pass:** Pass to the back foot for control, or front foot to lead them into space.'
+      ])
+    } else {
+      // General Soccer
+      addSection('Field General Tips', [
+        '**Communication:** Talk to your teammates ("Man on!", "Time!", "Switch!").',
+        '**Movement off Ball:** Pass and move. Don’t stand still watching your pass.',
+        '**Defensive Shape:** Force attackers outside. Don’t dive in unless you can win the ball.'
+      ])
+    }
+  }
+
+  else if (isBaseball) {
+    if (/swing|hit|bat/.test(q)) {
+      addSection('Hitting Mechanics', [
+        '**Load & Stride:** Rhythmic load back, soft stride forward. Separate hands from front foot.',
+        '**Hip Rotation:** Fire the back hip toward the pitcher. Hips lead, hands follow.',
+        '**Stay Inside:** Keep hands close to body to drive the ball. Don’t cast around it.'
+      ])
+    } else if (/pitch|throw/.test(q)) {
+      addSection('Pitching Mechanics', [
+        '**Balance Point:** Lift leg high, stay tall/balanced before driving home.',
+        '**Arm Action:** Long and loose arm path. Hide the ball from the batter.',
+        '**Finish:** Follow through across your body, fielding position ready.'
+      ])
+    } else {
+      addSection('Diamond Fundamentals', [
+        '**Fielding:** Triangle setup (feet wide, glove out front). Watch ball into glove.',
+        '**Base Running:** Run hard through first base. Round the bag on hits.',
+        '**Mental:** Baseball is a game of failure. Flush the last pitch, focus on the next one.'
+      ])
+    }
+  }
+
+  else if (isVolleyball) {
+    addSection('Volleyball Essentials', [
+      '**Ready Position:** Knees bent, weight forward, arms loose and ready to react.',
+      '**Communication:** Call "Mine!" early and loud to avoid collisions.',
+      '**Serving:** Consistent toss is 90% of the serve. Toss in front of hitting shoulder.'
     ])
   }
 
-  if (/arm ?bar|armbar|triangle|pass|sweep|technique|help with/.test(q)) {
-    addSection('Technical Breakdown', [
-      'Start 80% of reps **without resistance**: clamp knees, win wrist control, pivot hips, and finish with two-second holds.',
-      'Progress to **positional rounds**: partner gives 40-50% resistance while you focus on elbow line control before extension.',
-      'Film the final round; note whether your hips stay tight to the shoulder line—the most common leak for armbar failures.'
-    ])
-    addSection('Drill Stack', [
-      'Warm-up: sit-through hip pivots x 10 each side to groove rotation.',
-      'Main drill: armbar entries from closed guard x 5 each direction, immediately into finish mechanics (thumb rotation, pinch, bridge).',
-      'Cool-down: banded triceps stretch + light pronation strengthening to protect the elbow.'
-    ])
-    addSection('Mistakes to Avoid', [
-      'Trying to finish while lying flat—elevate your hips and keep the head glued to the wrist.',
-      'Loosening the bottom leg; clamp the shoulder line so the partner cannot pull out.',
-      'Skipping kazushi (breaking posture) before opening the guard.'
-    ])
-  }
-
-  if (sections.length === 0) {
-    addSection('General Training Tune-Up', [
-      'Run a **3-day microcycle**: (1) skill focus, (2) pressure/conditioning, (3) live problem-solving with reduced intensity.',
-      'Every session should finish with a two-minute reflection: note the single rep/sequence that felt best and why.',
-      'Share the clips or notes with your coach so they can build a lesson plan tailored to your needs.'
+  // --- GENERIC CATCH-ALL ---
+  else {
+    addSection(`${sport} Training Tune-Up`, [
+      '**Consistency:** Consistency beats intensity. Show up and do the work.',
+      '**Fundamentals First:** Master the boring basics before trying the highlight-reel moves.',
+      '**Listen to Body:** Train hard, but respect pain signals. Recovery is when growth happens.'
     ])
   }
 
