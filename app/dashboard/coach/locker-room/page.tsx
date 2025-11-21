@@ -56,33 +56,6 @@ export default function CoachLockerRoom() {
   const [isSigningOut, setIsSigningOut] = useState(false)
   const [coachSportLabel, setCoachSportLabel] = useState('')
 
-  // Show loading spinner while checking authentication
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-black mb-4"></div>
-          <p style={{ color: '#000000', opacity: 0.7 }}>Loading...</p>
-        </div>
-      </div>
-    )
-  }
-
-  // Show access denied only after loading is complete
-  if (!user || (role !== 'coach' && role !== 'creator' && role !== 'superadmin' && role !== 'admin')) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="text-center border rounded-xl p-8">
-          <h1 className="text-2xl font-bold mb-2">Access restricted</h1>
-          <p className="text-gray-600 mb-4">This area is for coaches.</p>
-          <Link href="/dashboard/coach" className="px-4 py-2 rounded-lg bg-black text-white hover:bg-gray-800">
-            Back to Coach Dashboard
-          </Link>
-        </div>
-      </div>
-    )
-  }
-
   useEffect(() => {
     if (!user) return
     let isMounted = true
@@ -117,6 +90,33 @@ export default function CoachLockerRoom() {
       isMounted = false
     }
   }, [user])
+
+  // Show loading spinner while checking authentication
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-black mb-4"></div>
+          <p style={{ color: '#000000', opacity: 0.7 }}>Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Show access denied only after loading is complete
+  if (!user || (role !== 'coach' && role !== 'creator' && role !== 'superadmin' && role !== 'admin')) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="text-center border rounded-xl p-8">
+          <h1 className="text-2xl font-bold mb-2">Access restricted</h1>
+          <p className="text-gray-600 mb-4">This area is for coaches.</p>
+          <Link href="/dashboard/coach" className="px-4 py-2 rounded-lg bg-black text-white hover:bg-gray-800">
+            Back to Coach Dashboard
+          </Link>
+        </div>
+      </div>
+    )
+  }
 
   const communityLabel = coachSportLabel ? `Coach Community - ${coachSportLabel}` : 'Coach Community - Locker Room'
 
