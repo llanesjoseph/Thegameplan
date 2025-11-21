@@ -154,31 +154,6 @@ export default function CoachRecommendedGear() {
           </span>
         </button>
 
-        {/* Brand-red - button to toggle edit mode for cards */}
-        <button
-          onClick={() => {
-            setEditMode((prev) => !prev)
-            setEditingCard(null)
-            setEditUrl('')
-          }}
-          aria-label="Edit or remove gear items"
-          className="group h-9 rounded-full flex items-center justify-center overflow-hidden transition-all duration-300 ease-in-out hover:pr-3"
-          style={{ backgroundColor: '#C40000', color: '#FFFFFF', width: '36px' }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.width = 'auto'
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.width = '36px'
-          }}
-        >
-          <span className="text-xl leading-none px-2">−</span>
-          <span
-            className="whitespace-nowrap text-sm font-semibold opacity-0 max-w-0 group-hover:opacity-100 group-hover:max-w-[120px] transition-all duration-300 ease-in-out overflow-hidden"
-            style={{ fontFamily: '"Open Sans", sans-serif' }}
-          >
-            edit gear
-          </span>
-        </button>
       </div>
 
       <div className="relative">
@@ -199,15 +174,15 @@ export default function CoachRecommendedGear() {
                     </div>
                   )}
 
-                  {/* Edit / Delete overlay when in edit mode */}
-                  {!loading && editMode && (
-                    <div className="absolute inset-0 bg-black/35 flex items-start justify-end p-2 gap-2">
+                  {/* Edit / Delete overlay - always show on hover */}
+                  {!loading && (
+                    <div className="absolute inset-0 bg-black/0 hover:bg-black/50 flex items-start justify-end p-2 gap-2 opacity-0 hover:opacity-100 transition-all duration-200">
                       <button
                         onClick={() => {
                           setEditingCard(g.id)
                           setEditUrl(g.link || '')
                         }}
-                        className="flex items-center gap-1 px-2 py-1 rounded bg-white text-xs font-semibold"
+                        className="flex items-center gap-1 px-2 py-1 rounded bg-white text-xs font-semibold hover:bg-gray-100 transition-colors"
                         style={{ fontFamily: '"Open Sans", sans-serif' }}
                       >
                         <Edit2 className="w-3 h-3" />
@@ -215,7 +190,7 @@ export default function CoachRecommendedGear() {
                       </button>
                       <button
                         onClick={() => deleteItem(g.id, g.source)}
-                        className="flex items-center gap-1 px-2 py-1 rounded bg-[#C40000] text-white text-xs font-semibold"
+                        className="flex items-center gap-1 px-2 py-1 rounded bg-[#C40000] text-white text-xs font-semibold hover:bg-[#a00000] transition-colors"
                         style={{ fontFamily: '"Open Sans", sans-serif' }}
                       >
                         <Trash2 className="w-3 h-3" />
