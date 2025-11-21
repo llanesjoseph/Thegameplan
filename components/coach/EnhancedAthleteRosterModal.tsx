@@ -28,7 +28,7 @@ interface EnhancedAthleteRosterModalProps {
   initialSport?: string
 }
 
-type ViewState = 'list' | 'profile' | 'videos' | 'invite'
+type ViewState = 'list' | 'profile' | 'videos' | 'invite' | 'inviteCoach'
 
 interface InviteForm {
   sport: string
@@ -55,6 +55,10 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose, initialSpo
   const [sendingInvites, setSendingInvites] = useState(false)
   const [aiChatSummary, setAiChatSummary] = useState<string>('')
   const [loadingSummary, setLoadingSummary] = useState(false)
+  const [coachInviteName, setCoachInviteName] = useState('')
+  const [coachInviteEmail, setCoachInviteEmail] = useState('')
+  const [coachInviteMessage, setCoachInviteMessage] = useState('')
+  const [sendingCoachInvite, setSendingCoachInvite] = useState(false)
 
   useEffect(() => {
     if (initialSport) {
@@ -207,6 +211,13 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose, initialSpo
 
   const handleInviteAthlete = () => {
     setViewState('invite')
+  }
+
+  const handleInviteCoach = () => {
+    setCoachInviteName('')
+    setCoachInviteEmail('')
+    setCoachInviteMessage('')
+    setViewState('inviteCoach')
   }
 
   const addAthleteRow = () => {
@@ -381,7 +392,7 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose, initialSpo
                                         <img
                                           src={athletes[(selectedAthleteIndex - 2 + athletes.length) % athletes.length].profileImageUrl}
                                           alt={athletes[(selectedAthleteIndex - 2 + athletes.length) % athletes.length].displayName}
-                                          className="max-h-full max-w-full object-contain"
+                                          className="max-h-[80%] max-w-[80%] object-contain"
                                         />
                                       ) : (
                                         <div
@@ -403,7 +414,7 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose, initialSpo
                                         <img
                                           src={athletes[(selectedAthleteIndex - 1 + athletes.length) % athletes.length].profileImageUrl}
                                           alt={athletes[(selectedAthleteIndex - 1 + athletes.length) % athletes.length].displayName}
-                                          className="max-h-full max-w-full object-contain"
+                                          className="max-h-[80%] max-w-[80%] object-contain"
                                         />
                                       ) : (
                                         <div
@@ -426,7 +437,7 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose, initialSpo
                                     <img
                                       src={selectedAthlete.profileImageUrl}
                                       alt={selectedAthlete.displayName}
-                                      className="max-h-full max-w-full object-contain"
+                                      className="max-h-[80%] max-w-[80%] object-contain"
                                     />
                                   ) : (
                                     <div
@@ -458,7 +469,7 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose, initialSpo
                                         <img
                                           src={athletes[(selectedAthleteIndex + 1) % athletes.length].profileImageUrl}
                                           alt={athletes[(selectedAthleteIndex + 1) % athletes.length].displayName}
-                                          className="max-h-full max-w-full object-contain"
+                                          className="max-h-[80%] max-w-[80%] object-contain"
                                         />
                                       ) : (
                                         <div
@@ -480,7 +491,7 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose, initialSpo
                                         <img
                                           src={athletes[(selectedAthleteIndex + 2) % athletes.length].profileImageUrl}
                                           alt={athletes[(selectedAthleteIndex + 2) % athletes.length].displayName}
-                                          className="max-h-full max-w-full object-contain"
+                                          className="max-h-[80%] max-w-[80%] object-contain"
                                         />
                                       ) : (
                                         <div
@@ -688,13 +699,7 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose, initialSpo
                               type="button"
                               className="px-6 py-3 rounded-lg font-bold border-2 transition-colors"
                               style={{ fontFamily: '"Open Sans", sans-serif', borderColor: '#C40000', color: '#C40000' }}
-                              onClick={() => {
-                                const subject = encodeURIComponent('Join me on AthLeap as a coach')
-                                const body = encodeURIComponent(
-                                  `Hey Coach,\n\nI'm using AthLeap to manage athletes, lessons, and AI coaching.\nYou can apply as a coach here:\nhttps://athleap.crucibleanalytics.dev\n\nSee you inside!\n`
-                                )
-                                window.location.href = `mailto:?subject=${subject}&body=${body}`
-                              }}
+                              onClick={handleInviteCoach}
                             >
                               Invite Fellow Coach
                             </button>
@@ -838,6 +843,153 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose, initialSpo
                       {sendingInvites ? 'Sending...' : `Send ${inviteForm.athletes.filter(a => a.email && a.name).length} Invitation(s)`}
                     </button>
                     <button
+                      onClick={handleBackToList}
+                      className="px-6 py-4 rounded-lg border-2 font-bold transition-colors"
+                      style={{ color: '#2B0101', fontFamily: '"Open Sans", sans-serif', borderColor: '#E9B0A0' }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {viewState === 'inviteCoach' && (
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-lg font-bold mb-2" style={{ color: '#2B0101', fontFamily: '"Open Sans", sans-serif' }}>
+                      Invite a Fellow Coach
+                    </h3>
+                    <p className="text-sm" style={{ color: '#5C3A36', fontFamily: '"Open Sans", sans-serif' }}>
+                      Send a coach invitation that is locked to their email. The invite will use your account as the inviter.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-bold mb-1" style={{ color: '#2B0101', fontFamily: '"Open Sans", sans-serif' }}>
+                        Coach Name
+                      </label>
+                      <input
+                        type="text"
+                        value={coachInviteName}
+                        onChange={(e) => setCoachInviteName(e.target.value)}
+                        placeholder="Full name"
+                        className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none"
+                        style={{
+                          fontFamily: '"Open Sans", sans-serif',
+                          borderColor: '#E9B0A0',
+                          backgroundColor: '#FFF9F6',
+                          color: '#2B0101'
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold mb-1" style={{ color: '#2B0101', fontFamily: '"Open Sans", sans-serif' }}>
+                        Coach Email
+                      </label>
+                      <input
+                        type="email"
+                        value={coachInviteEmail}
+                        onChange={(e) => setCoachInviteEmail(e.target.value)}
+                        placeholder="coach@email.com"
+                        className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none"
+                        style={{
+                          fontFamily: '"Open Sans", sans-serif',
+                          borderColor: '#E9B0A0',
+                          backgroundColor: '#FFF9F6',
+                          color: '#2B0101'
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold mb-1" style={{ color: '#2B0101', fontFamily: '"Open Sans", sans-serif' }}>
+                      Sport (locked)
+                    </label>
+                    <p
+                      className="w-full px-4 py-3 border-2 rounded-lg text-sm"
+                      style={{ fontFamily: '"Open Sans", sans-serif', borderColor: '#E9B0A0', backgroundColor: '#FFF9F6', color: '#5C3A36' }}
+                    >
+                      {coachSport || 'Not set'}
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold mb-1" style={{ color: '#2B0101', fontFamily: '"Open Sans", sans-serif' }}>
+                      Personal Message (optional)
+                    </label>
+                    <textarea
+                      value={coachInviteMessage}
+                      onChange={(e) => setCoachInviteMessage(e.target.value)}
+                      rows={3}
+                      placeholder="Add a short note for this coach…"
+                      className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none resize-none"
+                      style={{
+                        fontFamily: '"Open Sans", sans-serif',
+                        borderColor: '#E9B0A0',
+                        backgroundColor: '#FFF9F6',
+                        color: '#2B0101'
+                      }}
+                    />
+                  </div>
+
+                  <div className="flex gap-3 pt-4">
+                    <button
+                      type="button"
+                      disabled={sendingCoachInvite || !coachInviteName.trim() || !coachInviteEmail.trim()}
+                      onClick={async () => {
+                        if (!user) {
+                          alert('You must be signed in as a coach to send invitations.')
+                          return
+                        }
+                        if (!coachSport) {
+                          alert('Please set your primary sport on your coach profile before inviting other coaches.')
+                          return
+                        }
+
+                        setSendingCoachInvite(true)
+                        try {
+                          const token = await user.getIdToken()
+                          const response = await fetch('/api/coach-invitation-simple', {
+                            method: 'POST',
+                            headers: {
+                              'Content-Type': 'application/json',
+                              Authorization: `Bearer ${token}`
+                            },
+                            body: JSON.stringify({
+                              coachEmail: coachInviteEmail.trim(),
+                              coachName: coachInviteName.trim(),
+                              sport: coachSport,
+                              personalMessage: coachInviteMessage.trim(),
+                              invitationType: 'coach'
+                            })
+                          })
+
+                          const result = await response.json()
+                          if (!response.ok || !result.success) {
+                            throw new Error(result.error || 'Failed to send coach invitation')
+                          }
+
+                          alert(`Invitation sent to ${coachInviteEmail.trim()}. The email address is locked to that invite.`)
+                          setCoachInviteName('')
+                          setCoachInviteEmail('')
+                          setCoachInviteMessage('')
+                          setViewState('list')
+                        } catch (error: any) {
+                          console.error('Error sending coach invite:', error)
+                          alert(error?.message || 'Failed to send invitation. Please try again.')
+                        } finally {
+                          setSendingCoachInvite(false)
+                        }
+                      }}
+                      className="flex-1 px-6 py-4 rounded-lg text-white font-bold shadow-[0_15px_35px_rgba(0,0,0,0.35)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      style={{ fontFamily: '"Open Sans", sans-serif', backgroundColor: '#C40000' }}
+                    >
+                      {sendingCoachInvite ? 'Sending…' : 'Send Coach Invite'}
+                    </button>
+                    <button
+                      type="button"
                       onClick={handleBackToList}
                       className="px-6 py-4 rounded-lg border-2 font-bold transition-colors"
                       style={{ color: '#2B0101', fontFamily: '"Open Sans", sans-serif', borderColor: '#E9B0A0' }}

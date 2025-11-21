@@ -1237,10 +1237,14 @@ Write detailed explanations, instructions, and guidance for your athletes."
               </div>
               <button
                 onClick={() => {
-                  if (lesson.title || lesson.content) {
-                    if (confirm('Are you sure? Your changes will be lost.')) {
-                      router.back()
-                    }
+                  const hasChanges = !!(lesson.title || lesson.content)
+                  if (hasChanges && !confirm('Are you sure? Your changes will be lost.')) {
+                    return
+                  }
+
+                  if (embedded) {
+                    // When inside locker-room iframe, go back to the lessons library view
+                    router.push('/dashboard/coach/lessons/library?embedded=true')
                   } else {
                     router.back()
                   }

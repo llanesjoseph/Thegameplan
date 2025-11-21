@@ -1,4 +1,159 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { adminDb } from '@/lib/firebase.admin'
+import { requireAuth } from '@/lib/auth-utils'
+
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
+const COLLECTION = 'coach_events'
+
+export async function GET(request: NextRequest) {
+  const authResult = await requireAuth(request, ['creator', 'coach', 'assistant', 'admin', 'superadmin'])
+  if (!authResult.success) {
+    return NextResponse.json({ error: authResult.error }, { status: authResult.status })
+  }
+
+  const coachId = authResult.user.uid
+
+  try {
+    const snapshot = await adminDb
+      .collection(COLLECTION)
+      .where('coachId', '==', coachId)
+      .orderBy('createdAt', 'asc')
+      .get()
+
+    const events = snapshot.docs.map((doc) => {
+      const data = doc.data()
+      return {
+        id: doc.id,
+        title: data.title || '',
+        type: data.type || 'other',
+        date: data.date || '',
+        time: data.time || '',
+        location: data.location || '',
+        description: data.description || '',
+        notifyAthletes: data.notifyAthletes ?? false,
+        createdAt: data.createdAt?.toMillis?.() ?? Date.now()
+      }
+    })
+
+    return NextResponse.json({ events })
+  } catch (error) {
+    console.error('[coach/events] GET error:', error)
+    return NextResponse.json({ error: 'Failed to load events' }, { status: 500 })
+  }
+}
+
+export async function POST(request: NextRequest) {
+  const authResult = await requireAuth(request, ['creator', 'coach', 'assistant', 'admin', 'superadmin'])
+  if (!authResult.success) {
+    return NextResponse.json({ error: authResult.error }, { status: authResult.status })
+  }
+
+  const coachId = authResult.user.uid
+
+  try {
+    const body = await request.json()
+    const { title, type, date, time, location, description, notifyAthletes } = body || {}
+
+    if (!title || !date || !time) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+    }
+
+    const now = new Date()
+
+    const docRef = await adminDb.collection(COLLECTION).add({
+      coachId,
+      title,
+      type: type || 'other',
+      date,
+      time,
+      location: location || '',
+      description: description || '',
+      notifyAthletes: !!notifyAthletes,
+      createdAt: now,
+      updatedAt: now
+    })
+
+    return NextResponse.json({ id: docRef.id }, { status: 201 })
+  } catch (error) {
+    console.error('[coach/events] POST error:', error)
+    return NextResponse.json({ error: 'Failed to create event' }, { status: 500 })
+  }
+}
+
+export async function PUT(request: NextRequest) {
+  const authResult = await requireAuth(request, ['creator', 'coach', 'assistant', 'admin', 'superadmin'])
+  if (!authResult.success) {
+    return NextResponse.json({ error: authResult.error }, { status: authResult.status })
+  }
+
+  const coachId = authResult.user.uid
+
+  try {
+    const body = await request.json()
+    const { id, title, type, date, time, location, description, notifyAthletes } = body || {}
+
+    if (!id || !title || !date || !time) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+    }
+
+    const docRef = adminDb.collection(COLLECTION).doc(id)
+    const snap = await docRef.get()
+    if (!snap.exists || snap.data()?.coachId !== coachId) {
+      return NextResponse.json({ error: 'Event not found' }, { status: 404 })
+    }
+
+    await docRef.update({
+      title,
+      type: type || 'other',
+      date,
+      time,
+      location: location || '',
+      description: description || '',
+      notifyAthletes: !!notifyAthletes,
+      updatedAt: new Date()
+    })
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('[coach/events] PUT error:', error)
+    return NextResponse.json({ error: 'Failed to update event' }, { status: 500 })
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  const authResult = await requireAuth(request, ['creator', 'coach', 'assistant', 'admin', 'superadmin'])
+  if (!authResult.success) {
+    return NextResponse.json({ error: authResult.error }, { status: authResult.status })
+  }
+
+  const coachId = authResult.user.uid
+
+  try {
+    const { searchParams } = new URL(request.url)
+    const id = searchParams.get('id')
+
+    if (!id) {
+      return NextResponse.json({ error: 'Missing event id' }, { status: 400 })
+    }
+
+    const docRef = adminDb.collection(COLLECTION).doc(id)
+    const snap = await docRef.get()
+    if (!snap.exists || snap.data()?.coachId !== coachId) {
+      return NextResponse.json({ error: 'Event not found' }, { status: 404 })
+    }
+
+    await docRef.delete()
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('[coach/events] DELETE error:', error)
+    return NextResponse.json({ error: 'Failed to delete event' }, { status: 500 })
+  }
+}
+
+import { NextRequest, NextResponse } from 'next/server'
 import { auth, adminDb } from '@/lib/firebase.admin'
 import { FieldValue } from 'firebase-admin/firestore'
 
