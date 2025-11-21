@@ -12,6 +12,13 @@ import EnhancedAthleteRosterModal from '@/components/coach/EnhancedAthleteRoster
 import CoachContentUpload from '@/components/coach/CoachContentUpload'
 import lockerLogo from '@/Favicon/Wordpress Transparent.png'
 
+const SPORT_LABEL_OVERRIDES: Record<string, string> = {
+  bjj: 'Brazilian Jiu-Jitsu',
+  'brazilian jiu-jitsu': 'Brazilian Jiu-Jitsu',
+  jiujitsu: 'Brazilian Jiu-Jitsu',
+  'jiu jitsu': 'Brazilian Jiu-Jitsu'
+}
+
 type LockerAction = {
   key: string
   title: string
@@ -118,7 +125,13 @@ export default function CoachLockerRoom() {
     )
   }
 
-  const communityLabel = coachSportLabel ? `Coach Community - ${coachSportLabel}` : 'Coach Community - Locker Room'
+  const normalizedSport = coachSportLabel.trim().toLowerCase()
+  const sportLabel =
+    SPORT_LABEL_OVERRIDES[normalizedSport] || coachSportLabel
+
+  const communityLabel = sportLabel
+    ? `Coach Community - ${sportLabel}`
+    : 'Coach Community - Locker Room'
 
   return (
     <div className="min-h-screen bg-[#4B0102] text-white flex flex-col">
@@ -173,21 +186,21 @@ export default function CoachLockerRoom() {
                     className="h-6 w-6 rounded-full object-cover"
                   />
                   <span
-                    className="text-[11px] uppercase tracking-[0.18em] text-gray-600"
-                    style={{ fontFamily: '"Open Sans", sans-serif' }}
+                    className="text-[11px] uppercase tracking-[0.18em]"
+                    style={{ fontFamily: '"Open Sans", sans-serif', color: '#181818' }}
                   >
                     Hello
                   </span>
                   <span
                     className="text-sm"
-                    style={{ fontFamily: '"Open Sans", sans-serif' }}
+                    style={{ fontFamily: '"Open Sans", sans-serif', color: '#181818' }}
                   >
                     {user?.displayName || user?.email || 'Athleap Coach'}
                   </span>
                   <span className="text-xs text-gray-400">|</span>
                   <span
                     className="text-xs text-gray-700 underline"
-                    style={{ fontFamily: '"Open Sans", sans-serif' }}
+                    style={{ fontFamily: '"Open Sans", sans-serif', color: '#181818' }}
                   >
                     {isSigningOut ? 'Signing out…' : 'Sign out'}
                   </span>
