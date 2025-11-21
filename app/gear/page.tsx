@@ -192,6 +192,27 @@ export default function GearStore() {
               >
                 Gear Store
               </h1>
+              {user && (
+                <div className="mt-6 flex justify-center">
+                  <Link
+                    href="/dashboard"
+                    className="inline-flex items-center justify-center px-10 py-3 rounded-full text-white text-sm font-semibold transition-all"
+                    style={{ fontFamily: '"Open Sans", sans-serif', backgroundColor: '#C40000', letterSpacing: '0.08em' }}
+                  >
+                    <span>View Your Profile</span>
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 60 60"
+                      fill="currentColor"
+                      aria-hidden="true"
+                      className="ml-2"
+                    >
+                      <path d="M46.5 28.9L20.6 3c-.6-.6-1.6-.6-2.2 0l-4.8 4.8c-.6.6-.6 1.6 0 2.2l19.8 20-19.9 19.9c-.6.6-.6 1.6 0 2.2l4.8 4.8c.6.6 1.6.6 2.2 0l21-21 4.8-4.8c.8-.6.8-1.6.2-2.2z" />
+                    </svg>
+                  </Link>
+                </div>
+              )}
             </div>
           </section>
 

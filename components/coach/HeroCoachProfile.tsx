@@ -696,7 +696,7 @@ function HeroSection({
           <img
             src={coach.profileImageUrl || '/brand/athleap-logo-colored.png'}
             alt={coach.displayName}
-            className="w-[260px] h-[260px] object-cover rounded-full bg-white border-4 border-white"
+            className="w-[347px] h-[359px] object-cover rounded-lg bg-white"
           />
             {canEditProfile && (
               <div className="flex flex-wrap items-center justify-center gap-3">

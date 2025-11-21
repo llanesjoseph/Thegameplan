@@ -3,9 +3,9 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { ChevronDown } from 'lucide-react'
 import { SPORTS } from '@/lib/constants/sports'
+import CoachProfileModal from '@/components/athlete/CoachProfileModal'
 
 type Coach = {
   id: string
@@ -25,7 +25,6 @@ type Coach = {
 
 export default function BrowseCoachesPage() {
   const { user } = useAuth()
-  const router = useRouter()
   const [coaches, setCoaches] = useState<Coach[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedSport, setSelectedSport] = useState<string>('all')
@@ -36,6 +35,8 @@ export default function BrowseCoachesPage() {
   const [followingLoading, setFollowingLoading] = useState<Set<string>>(new Set())
   const [availableSports, setAvailableSports] = useState<string[]>([])
   const [topAthletes, setTopAthletes] = useState<any[]>([])
+  const [previewCoach, setPreviewCoach] = useState<Coach | null>(null)
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false)
 
   const handleSignOut = async () => {
     try {
@@ -204,40 +205,136 @@ export default function BrowseCoachesPage() {
   }, [user?.uid])
 
   return (
-    <div className="min-h-screen bg-[#F5F1E5]">
-      {/* Standard app header */}
-      <header className="bg-white border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-6 lg:px-8 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3 flex-shrink-0">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/athleap-logo-transparent.png"
-              alt="Athleap logo"
-              className="h-8 w-auto"
-            />
-            <span
-              className="text-xl font-semibold tracking-[0.02em]"
-              style={{ fontFamily: '"Open Sans", sans-serif', color: '#181818' }}
-            >
-              ATHLEAP
-            </span>
-          </Link>
+    <div className="min-h-screen bg-[#EDEDED] flex flex-col">
+      {/* Sticky app header (match Gear Store) */}
+      <div className="sticky top-0 z-40 shadow-sm">
+        <div className="w-full bg-white">
+          <header className="w-full bg-white">
+            <div className="max-w-6xl mx-auto px-6 lg:px-8 py-4 flex items-center justify-between">
+              {/* Left: logo + ATHLEAP wordmark */}
+              <Link href="/" className="flex items-center gap-3 flex-shrink-0">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/athleap-logo-transparent.png"
+                  alt="Athleap logo"
+                  className="h-8 w-auto"
+                />
+                <span
+                  className="text-xl font-semibold tracking-[0.02em]"
+                  style={{ fontFamily: '"Open Sans", sans-serif', color: '#181818' }}
+                >
+                  ATHLEAP
+                </span>
+              </Link>
+
+              {/* Right: signed-in chip or Sign in link */}
+              <div className="flex items-center gap-6">
+                {user ? (
+                  <button
+                    type="button"
+                    className="flex items-center gap-2 rounded-full bg-white border border-gray-200 px-3 py-1 text-xs sm:text-sm"
+                    aria-label="Account"
+                    onClick={handleSignOut}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={
+                        user.photoURL ||
+                        'https://static.wixstatic.com/media/75fa07_66efa272a9a64facbc09f3da71757528~mv2.png/v1/fill/w_68,h_64,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/75fa07_66efa272a9a64facbc09f3da71757528~mv2.png'
+                      }
+                      alt={user.displayName || user.email || 'Athleap User'}
+                      className="h-6 w-6 rounded-full object-cover"
+                    />
+                    <span
+                      className="text-[11px] uppercase tracking-[0.18em] text-gray-600"
+                      style={{ fontFamily: '"Open Sans", sans-serif' }}
+                    >
+                      Hello
+                    </span>
+                    <span
+                      className="text-sm"
+                      style={{ fontFamily: '"Open Sans", sans-serif' }}
+                    >
+                      {user.displayName || user.email || 'Athleap User'}
+                    </span>
+                    <span className="text-xs text-gray-400">|</span>
+                    <span
+                      className="text-xs text-gray-700 underline"
+                      style={{ fontFamily: '"Open Sans", sans-serif' }}
+                    >
+                      Sign out
+                    </span>
+                  </button>
+                ) : (
+                  <Link
+                    href="/onboarding/auth"
+                    className="text-xs sm:text-sm text-gray-700 underline"
+                    style={{ fontFamily: '"Open Sans", sans-serif' }}
+                  >
+                    Sign in
+                  </Link>
+                )}
+              </div>
+            </div>
+          </header>
+          {/* Red community bar */}
+          <section aria-label="Browse coaches banner" className="w-full" style={{ backgroundColor: '#FC0105' }}>
+            <div className="max-w-6xl mx-auto px-6 lg:px-8 py-3 flex justify-end">
+              <p
+                className="text-[15px] leading-none font-bold text-white"
+                style={{ fontFamily: '"Open Sans", sans-serif', letterSpacing: '0.01em' }}
+              >
+                Browse Coaches
+              </p>
+            </div>
+          </section>
         </div>
-        {/* Red community bar */}
-        <div className="w-full bg-[#FC0105]">
-          <div className="max-w-6xl mx-auto px-6 lg:px-8 py-2 flex justify-end">
-            <p
-              className="text-[15px] leading-none font-bold text-white"
-              style={{ fontFamily: '"Open Sans", sans-serif', letterSpacing: '0.01em' }}
-            >
-              Browse Coaches
-            </p>
-          </div>
-        </div>
-      </header>
+      </div>
 
       {/* Main Content */}
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1 w-full">
+        {/* Hero banner – maroon band with centered logo + title (match Gear Store) */}
+        <section className="w-full bg-[#4B0102]">
+          <div className="max-w-6xl mx-auto px-4 sm:px-10 py-10 text-center">
+            <div className="flex justify-center mb-4">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/athleap-logo-transparent.png"
+                alt="Athleap mark"
+                className="h-32 w-auto object-contain"
+              />
+            </div>
+            <h1
+              className="text-4xl md:text-5xl font-bold"
+              style={{ fontFamily: '"Open Sans", sans-serif', letterSpacing: '-0.05em', color: '#FFFFFF' }}
+            >
+              Browse Coaches
+            </h1>
+            {user && (
+              <div className="mt-6 flex justify-center">
+                <Link
+                  href="/dashboard"
+                  className="inline-flex items-center justify-center px-10 py-3 rounded-full text-white text-sm font-semibold transition-all"
+                  style={{ fontFamily: '"Open Sans", sans-serif', backgroundColor: '#C40000', letterSpacing: '0.08em' }}
+                >
+                  <span>View Your Profile</span>
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 60 60"
+                    fill="currentColor"
+                    aria-hidden="true"
+                    className="ml-2"
+                  >
+                    <path d="M46.5 28.9L20.6 3c-.6-.6-1.6-.6-2.2 0l-4.8 4.8c-.6.6-.6 1.6 0 2.2l19.8 20-19.9 19.9c-.6.6-.6 1.6 0 2.2l4.8 4.8c.6.6 1.6.6 2.2 0l21-21 4.8-4.8c.8-.6.8-1.6.2-2.2z" />
+                  </svg>
+                </Link>
+              </div>
+            )}
+          </div>
+        </section>
+
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-10">
           {/* Top Athletes Section */}
           {topAthletes.length > 0 && (
@@ -353,59 +450,62 @@ export default function BrowseCoachesPage() {
                   ''
 
                 return (
-                  <div key={coach.id} className="group flex flex-col items-center text-center space-y-3">
+                  <div
+                    key={coach.id}
+                    className="group flex flex-col items-center text-center space-y-3 cursor-pointer"
+                    onClick={() => {
+                      setPreviewCoach(coach)
+                      setIsPreviewOpen(true)
+                    }}
+                  >
                     {/* Profile Image - circular avatar */}
-                    <Link href={`/coach-profile/${coach.slug || coach.id}`}>
-                      <div className="relative w-[225px] h-[225px] rounded-full overflow-hidden bg-gray-100 cursor-pointer">
-                        {coach.profileImageUrl ? (
-                          // eslint-disable-next-line @next/next/no-img-element
+                    <div className="relative w-[225px] h-[225px] rounded-full overflow-hidden bg-gray-100">
+                      {coach.profileImageUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={coach.profileImageUrl}
+                          alt={coach.displayName}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div
+                          className="w-full h-full flex items-center justify-center"
+                          style={{ backgroundColor: '#8B7D7B' }}
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
-                            src={coach.profileImageUrl}
-                            alt={coach.displayName}
-                            className="w-full h-full object-cover"
+                            src="/brand/athleap-logo-colored.png"
+                            alt="AthLeap"
+                            className="w-1/2 opacity-90"
                           />
-                        ) : (
-                          <div
-                            className="w-full h-full flex items-center justify-center"
-                            style={{ backgroundColor: '#8B7D7B' }}
-                          >
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                              src="/brand/athleap-logo-colored.png"
-                              alt="AthLeap"
-                              className="w-1/2 opacity-90"
-                            />
-                          </div>
-                        )}
-                      </div>
-                    </Link>
+                        </div>
+                      )}
+                    </div>
 
                     {/* Coach Info */}
-                    <Link href={`/coach-profile/${coach.slug || coach.id}`}>
-                      <div className="cursor-pointer">
+                    <div>
+                      <p
+                        style={{
+                          fontFamily: '"Open Sans", sans-serif',
+                          fontSize: '27px',
+                          lineHeight: 'normal',
+                          color: '#000000'
+                        }}
+                      >
+                        {coach.displayName}
+                      </p>
+                      {subtitle && (
                         <p
                           style={{
                             fontFamily: '"Open Sans", sans-serif',
-                            fontSize: '27px',
-                            lineHeight: 'normal',
+                            fontSize: '16px',
                             color: '#000000'
                           }}
                         >
-                          {coach.displayName}
+                          {subtitle}
                         </p>
-                        {subtitle && (
-                          <p
-                            style={{
-                              fontFamily: '"Open Sans", sans-serif',
-                              fontSize: '16px',
-                              color: '#000000'
-                            }}
-                          >
-                            {subtitle}
-                          </p>
-                        )}
-                      </div>
-                    </Link>
+                      )}
+                    </div>
                   </div>
                 )
               })}
@@ -434,6 +534,16 @@ export default function BrowseCoachesPage() {
           </div>
         </div>
       </main>
+
+      {previewCoach && (
+        <CoachProfileModal
+          isOpen={isPreviewOpen}
+          onClose={() => setIsPreviewOpen(false)}
+          coachId={previewCoach.id}
+          coachSlug={previewCoach.slug}
+          hideLessons={true}
+        />
+      )}
     </div>
   )
 }
