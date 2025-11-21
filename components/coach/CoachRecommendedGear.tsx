@@ -21,7 +21,7 @@ export default function CoachRecommendedGear() {
   const [showAdd, setShowAdd] = useState(false)
   const [url, setUrl] = useState('')
   const [saving, setSaving] = useState(false)
-  const [flippedCard, setFlippedCard] = useState<string | null>(null)
+  const [flippedCard, setFlippedCard] = useState<string | null>(null) // legacy, no longer used for UI flip
   const [editingCard, setEditingCard] = useState<string | null>(null)
   const [editUrl, setEditUrl] = useState('')
   const [gearPage, setGearPage] = useState(0)
@@ -158,7 +158,6 @@ export default function CoachRecommendedGear() {
         <button
           onClick={() => {
             setEditMode((prev) => !prev)
-            setFlippedCard(null)
             setEditingCard(null)
             setEditUrl('')
           }}
@@ -184,132 +183,99 @@ export default function CoachRecommendedGear() {
 
       <div className="relative">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-          {(loading ? Array.from({ length: 4 }) : items.slice(gearPage * gearPageSize, (gearPage + 1) * gearPageSize)).map((g: any, idx: number) => (
-            <div key={g?.id || idx} className="w-full perspective-1000">
-              <div
-                className={`relative w-full transition-transform duration-500 transform-style-3d ${
-                  !loading && (editMode || flippedCard === g?.id) ? 'rotate-y-180' : ''
-                }`}
-                style={{ transformStyle: 'preserve-3d' }}
-              >
-                {/* Front of card */}
-                <button
-                  onClick={() =>
-                    !loading && !editMode && setFlippedCard(flippedCard === g?.id ? null : g?.id)
-                  }
-                  className="w-full backface-hidden group"
-                  style={{ backfaceVisibility: 'hidden' }}
-                  disabled={loading}
-                >
-                  <div className="w-full aspect-square rounded-lg mb-1 overflow-hidden relative">
-                    {loading ? (
-                      <div className="w-full h-full bg-gray-200 animate-pulse" />
-                    ) : g?.imageUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={g.imageUrl} alt={g.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#8B7D7B' }}>
-                        <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
-                      </div>
-                    )}
-                    {!loading && (
-                      <div className="absolute top-2 right-2 bg-black/70 rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                        <RotateCw className="w-4 h-4 text-white" />
-                      </div>
-                    )}
-                  </div>
-                  <p className="font-bold mb-0.5 text-xs text-left" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
-                    {loading ? 'Product' : g?.name}
-                  </p>
-                  {!loading && g?.price !== undefined && g?.price !== null && g?.price !== '' && (
-                    <p className="text-xs mb-0.5 text-left" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
-                      {typeof g.price === 'number' ? `$${g.price.toFixed(2)}` : g.price}
-                    </p>
+          {(loading ? Array.from({ length: 4 }) : items.slice(gearPage * gearPageSize, (gearPage + 1) * gearPageSize)).map(
+            (g: any, idx: number) => (
+              <div key={g?.id || idx} className="w-full">
+                {/* Card content */}
+                <div className="w-full aspect-square rounded-lg mb-1 overflow-hidden relative">
+                  {loading ? (
+                    <div className="w-full h-full bg-gray-200 animate-pulse" />
+                  ) : g?.imageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={g.imageUrl} alt={g.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#8B7D7B' }}>
+                      <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
+                    </div>
                   )}
-                </button>
 
-                {/* Back of card */}
-                {!loading && (
-                  <div
-                    className="absolute inset-0 w-full backface-hidden rotate-y-180"
-                    style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+                  {/* Edit / Delete overlay when in edit mode */}
+                  {!loading && editMode && (
+                    <div className="absolute inset-0 bg-black/35 flex items-start justify-end p-2 gap-2">
+                      <button
+                        onClick={() => {
+                          setEditingCard(g.id)
+                          setEditUrl(g.link || '')
+                        }}
+                        className="flex items-center gap-1 px-2 py-1 rounded bg-white text-xs font-semibold"
+                        style={{ fontFamily: '"Open Sans", sans-serif' }}
+                      >
+                        <Edit2 className="w-3 h-3" />
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => deleteItem(g.id, g.source)}
+                        className="flex items-center gap-1 px-2 py-1 rounded bg-[#C40000] text-white text-xs font-semibold"
+                        style={{ fontFamily: '"Open Sans", sans-serif' }}
+                      >
+                        <Trash2 className="w-3 h-3" />
+                        Remove
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                <p
+                  className="font-bold mb-0.5 text-xs text-left"
+                  style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}
+                >
+                  {loading ? 'Product' : g?.name}
+                </p>
+                {!loading && g?.price !== undefined && g?.price !== null && g?.price !== '' && (
+                  <p
+                    className="text-xs mb-0.5 text-left"
+                    style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}
                   >
-                    <div className="w-full h-full bg-white border-2 border-black rounded-lg p-4 flex flex-col items-center justify-center gap-3">
-                      {editingCard === g?.id ? (
-                        <div className="w-full space-y-2">
-                          <input
-                            type="url"
-                            value={editUrl}
-                            onChange={(e) => setEditUrl(e.target.value)}
-                            placeholder="New product URL"
-                            className="w-full border rounded px-2 py-1 text-xs"
-                            style={{ fontFamily: '"Open Sans", sans-serif' }}
-                          />
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => updateItem(g.id, g.source)}
-                              disabled={saving || !editUrl.trim()}
-                              className="flex-1 px-3 py-2 rounded-lg text-white text-xs font-bold disabled:opacity-50"
-                              style={{ backgroundColor: '#000000', fontFamily: '"Open Sans", sans-serif' }}
-                            >
-                              {saving ? 'Saving...' : 'Save'}
-                            </button>
-                            <button
-                              onClick={() => {
-                                setEditingCard(null)
-                                setEditUrl('')
-                              }}
-                              className="flex-1 px-3 py-2 rounded-lg text-black text-xs font-bold border border-black"
-                              style={{ fontFamily: '"Open Sans", sans-serif' }}
-                            >
-                              Cancel
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <>
-                          <button
-                            onClick={() => {
-                              setEditingCard(g.id)
-                              setEditUrl(g.link || '')
-                            }}
-                            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-white font-bold"
-                            style={{ backgroundColor: '#000000', fontFamily: '"Open Sans", sans-serif' }}
-                          >
-                            <Edit2 className="w-4 h-4" />
-                            Edit URL
-                          </button>
-                          <button
-                            onClick={() => deleteItem(g.id, g.source)}
-                            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-white font-bold"
-                            style={{ backgroundColor: '#FC0105', fontFamily: '"Open Sans", sans-serif' }}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                            Delete
-                          </button>
-                          <button
-                            onClick={() => {
-                              if (editMode) {
-                                setEditMode(false)
-                                setEditingCard(null)
-                                setEditUrl('')
-                              } else {
-                                setFlippedCard(null)
-                              }
-                            }}
-                            className="w-full px-4 py-2 rounded-lg text-black text-sm font-semibold border-2 border-black hover:bg-black hover:text-white transition"
-                            style={{ fontFamily: '"Open Sans", sans-serif' }}
-                          >
-                            Back
-                          </button>
-                        </>
-                      )}
+                    {typeof g.price === 'number' ? `$${g.price.toFixed(2)}` : g.price}
+                  </p>
+                )}
+
+                {/* Inline edit URL form when a card is selected for editing */}
+                {!loading && editingCard === g?.id && (
+                  <div className="mt-2 w-full space-y-2">
+                    <input
+                      type="url"
+                      value={editUrl}
+                      onChange={(e) => setEditUrl(e.target.value)}
+                      placeholder="New product URL"
+                      className="w-full border rounded px-2 py-1 text-xs"
+                      style={{ fontFamily: '"Open Sans", sans-serif' }}
+                    />
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => updateItem(g.id, g.source)}
+                        disabled={saving || !editUrl.trim()}
+                        className="flex-1 px-3 py-2 rounded-lg text-white text-xs font-bold disabled:opacity-50"
+                        style={{ backgroundColor: '#000000', fontFamily: '"Open Sans", sans-serif' }}
+                      >
+                        {saving ? 'Saving...' : 'Save'}
+                      </button>
+                      <button
+                        onClick={() => {
+                          setEditingCard(null)
+                          setEditUrl('')
+                        }}
+                        className="flex-1 px-3 py-2 rounded-lg text-black text-xs font-bold border border-black"
+                        style={{ fontFamily: '"Open Sans", sans-serif' }}
+                      >
+                        Cancel
+                      </button>
                     </div>
                   </div>
                 )}
               </div>
-            </div>
-          ))}
+            )
+          )}
           {!loading && items.length === 0 && (
             <div className="text-sm text-gray-500">No gear items yet.</div>
           )}

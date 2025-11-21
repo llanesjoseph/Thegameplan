@@ -1173,7 +1173,7 @@ function LessonDetailModal({ lesson, onClose }: { lesson: Lesson; onClose: () =>
         </p>
         <div className="w-full h-[70vh] rounded-2xl overflow-hidden border border-gray-200 bg-white">
           <iframe
-            src={`/dashboard/coach/lessons/${lesson.id}?embedded=true`}
+            src={`/dashboard/coach/lessons/${lesson.id}/edit?embedded=true`}
             className="w-full h-full border-0"
             title={`Edit lesson ${lesson.title}`}
           />
