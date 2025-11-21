@@ -375,13 +375,13 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose, initialSpo
                                     onClick={() => setSelectedAthleteIndex((selectedAthleteIndex - 2 + athletes.length) % athletes.length)}
                                     className="w-16 h-16 opacity-30 hover:opacity-50 transition-all duration-300"
                                   >
-                                    <div className="w-full h-full bg-gray-100 border border-gray-300 overflow-hidden">
+                                    <div className="w-full h-full bg-gray-100 border border-gray-300 flex items-center justify-center">
                                       {athletes[(selectedAthleteIndex - 2 + athletes.length) % athletes.length].profileImageUrl ? (
                                         // eslint-disable-next-line @next/next/no-img-element
                                         <img
                                           src={athletes[(selectedAthleteIndex - 2 + athletes.length) % athletes.length].profileImageUrl}
                                           alt={athletes[(selectedAthleteIndex - 2 + athletes.length) % athletes.length].displayName}
-                                          className="w-full h-full object-contain"
+                                          className="max-h-full max-w-full object-contain"
                                         />
                                       ) : (
                                         <div
@@ -397,13 +397,13 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose, initialSpo
                                     onClick={() => setSelectedAthleteIndex((selectedAthleteIndex - 1 + athletes.length) % athletes.length)}
                                     className="w-20 h-20 opacity-50 hover:opacity-75 transition-all duration-300"
                                   >
-                                    <div className="w-full h-full bg-gray-100 border border-gray-300 overflow-hidden">
+                                    <div className="w-full h-full bg-gray-100 border border-gray-300 flex items-center justify-center">
                                       {athletes[(selectedAthleteIndex - 1 + athletes.length) % athletes.length].profileImageUrl ? (
                                         // eslint-disable-next-line @next/next/no-img-element
                                         <img
                                           src={athletes[(selectedAthleteIndex - 1 + athletes.length) % athletes.length].profileImageUrl}
                                           alt={athletes[(selectedAthleteIndex - 1 + athletes.length) % athletes.length].displayName}
-                                          className="w-full h-full object-contain"
+                                          className="max-h-full max-w-full object-contain"
                                         />
                                       ) : (
                                         <div
@@ -420,13 +420,13 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose, initialSpo
 
                               {/* Current athlete - centered and highlighted */}
                               <div className="flex flex-col items-center">
-                                <div className="w-32 h-32 bg-gray-100 border border-gray-300 overflow-hidden ring-4 ring-[#FF3B1D]">
+                                <div className="w-32 h-32 bg-gray-100 border border-gray-300 flex items-center justify-center ring-4 ring-[#FF3B1D]">
                                   {selectedAthlete.profileImageUrl ? (
                                     // eslint-disable-next-line @next/next/no-img-element
                                     <img
                                       src={selectedAthlete.profileImageUrl}
                                       alt={selectedAthlete.displayName}
-                                      className="w-full h-full object-contain"
+                                      className="max-h-full max-w-full object-contain"
                                     />
                                   ) : (
                                     <div
@@ -452,13 +452,13 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose, initialSpo
                                     onClick={() => setSelectedAthleteIndex((selectedAthleteIndex + 1) % athletes.length)}
                                     className="w-20 h-20 opacity-50 hover:opacity-75 transition-all duration-300"
                                   >
-                                    <div className="w-full h-full bg-gray-100 border border-gray-300 overflow-hidden">
+                                    <div className="w-full h-full bg-gray-100 border border-gray-300 flex items-center justify-center">
                                       {athletes[(selectedAthleteIndex + 1) % athletes.length].profileImageUrl ? (
                                         // eslint-disable-next-line @next/next/no-img-element
                                         <img
                                           src={athletes[(selectedAthleteIndex + 1) % athletes.length].profileImageUrl}
                                           alt={athletes[(selectedAthleteIndex + 1) % athletes.length].displayName}
-                                          className="w-full h-full object-contain"
+                                          className="max-h-full max-w-full object-contain"
                                         />
                                       ) : (
                                         <div
@@ -474,13 +474,13 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose, initialSpo
                                     onClick={() => setSelectedAthleteIndex((selectedAthleteIndex + 2) % athletes.length)}
                                     className="w-16 h-16 opacity-30 hover:opacity-50 transition-all duration-300"
                                   >
-                                    <div className="w-full h-full bg-gray-100 border border-gray-300 overflow-hidden">
+                                    <div className="w-full h-full bg-gray-100 border border-gray-300 flex items-center justify-center">
                                       {athletes[(selectedAthleteIndex + 2) % athletes.length].profileImageUrl ? (
                                         // eslint-disable-next-line @next/next/no-img-element
                                         <img
                                           src={athletes[(selectedAthleteIndex + 2) % athletes.length].profileImageUrl}
                                           alt={athletes[(selectedAthleteIndex + 2) % athletes.length].displayName}
-                                          className="w-full h-full object-contain"
+                                          className="max-h-full max-w-full object-contain"
                                         />
                                       ) : (
                                         <div
