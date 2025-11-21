@@ -1167,10 +1167,6 @@ function LessonDetailModal({ lesson, onClose }: { lesson: Lesson; onClose: () =>
         <p className="text-sm text-gray-600">
           Status: {lesson.status || 'Published'}
         </p>
-        <p className="text-sm text-gray-700">
-          You&apos;re editing this lesson inside the locker room. Changes you save here
-          will update the lesson everywhere it appears.
-        </p>
         <div className="w-full h-[70vh] rounded-2xl overflow-hidden border border-gray-200 bg-white">
           <iframe
             src={`/dashboard/coach/lessons/${lesson.id}/edit?embedded=true`}

@@ -316,7 +316,7 @@ export default function CoachLockerRoom() {
       <EnhancedAthleteRosterModal
         isOpen={activeModal === 'athletes'}
         onClose={() => setActiveModal(null)}
-        initialSport={coachSportLabel}
+        initialSport={sportLabel}
       />
 
       <LockerModalShell
