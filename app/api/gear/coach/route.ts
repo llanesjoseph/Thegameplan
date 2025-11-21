@@ -68,11 +68,13 @@ export async function GET(req: NextRequest) {
 
     const gearItems = Array.from(docsMap.values()).map((doc) => {
       const d = doc.data() as any
+      const rawPrice = typeof d.priceUSD !== 'undefined' && d.priceUSD !== null ? d.priceUSD : d.price
+
       return {
         id: doc.id,
         name: d.name || d.product || 'Product',
         description: d.description || '',
-        price: d.price || d.priceUSD || '',
+        price: rawPrice ?? '',
         imageUrl: d.imageUrl || d.photoURL || d.imagePath || '',
         coachId: d.coachId || d.creatorUid || '',
         link: d.link || d.url || '',

@@ -132,13 +132,6 @@ export default function CoachLockerRoom() {
                 </span>
               </Link>
               <div className="flex items-center gap-3">
-                <Link
-                  href="/dashboard/coach"
-                  className="px-4 py-2 rounded-full border border-black/10 text-sm font-semibold hover:bg-black/5 transition-colors"
-                  style={{ fontFamily: '"Open Sans", sans-serif', color: '#111' }}
-                >
-                  Back to Profile
-                </Link>
                 <button
                   onClick={async () => {
                     if (isSigningOut) return

@@ -168,9 +168,9 @@ export default function CoachRecommendedGear() {
                   <p className="font-bold mb-0.5 text-xs text-left" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
                     {loading ? 'Product' : g?.name}
                   </p>
-                  {!loading && g?.price && (
+                  {!loading && g?.price !== undefined && g?.price !== null && g?.price !== '' && (
                     <p className="text-xs mb-0.5 text-left" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
-                      {g.price}
+                      {typeof g.price === 'number' ? `$${g.price.toFixed(2)}` : g.price}
                     </p>
                   )}
                 </button>

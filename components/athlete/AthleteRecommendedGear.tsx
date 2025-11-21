@@ -1,13 +1,14 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 
 interface GearItem {
   id: string
   name: string
   description?: string
-  price?: string
+  price?: string | number
   imageUrl?: string
   link?: string
 }
@@ -16,6 +17,8 @@ export default function AthleteRecommendedGear() {
   const { user } = useAuth()
   const [gear, setGear] = useState<GearItem[]>([])
   const [loading, setLoading] = useState(true)
+  const [page, setPage] = useState(0)
+  const pageSize = 4
 
   useEffect(() => {
     const load = async () => {
@@ -33,6 +36,7 @@ export default function AthleteRecommendedGear() {
             imageUrl: g.imageUrl,
             link: g.link
           })))
+          setPage(0)
         }
       } catch (e) {
         console.warn('Failed to load athlete gear', e)
@@ -43,7 +47,9 @@ export default function AthleteRecommendedGear() {
     load()
   }, [user])
 
-  const visible: GearItem[] = gear.slice(0, 4)
+  const totalPages = Math.max(1, Math.ceil(gear.length / pageSize))
+  const start = page * pageSize
+  const visible: GearItem[] = gear.slice(start, start + pageSize)
 
   return (
     <section className="w-full bg-[#4B0102]">
@@ -55,7 +61,8 @@ export default function AthleteRecommendedGear() {
           Your Recommended Gear
         </h2>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
+        <div className="relative">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
           {(loading ? Array.from({ length: 4 }) : visible).map((item: any, idx: number) => {
             const ItemWrapper: any = item?.link ? 'a' : 'div'
             const wrapperProps = item?.link
@@ -86,14 +93,14 @@ export default function AthleteRecommendedGear() {
                     </div>
                   )}
                 </div>
-                {!loading && (
+                    {!loading && (
                   <div className="pt-2 text-center space-y-1">
                     <p className="font-semibold text-sm line-clamp-2" style={{ color: '#FFFFFF', fontFamily: '"Open Sans", sans-serif', minHeight: '2.5rem' }}>
                       {item.name}
                     </p>
-                    {item.price && (
+                    {item.price !== undefined && item.price !== null && item.price !== '' && (
                       <p className="font-bold text-base" style={{ color: '#FC0105', fontFamily: '"Open Sans", sans-serif' }}>
-                        {item.price}
+                        {typeof item.price === 'number' ? `$${item.price.toFixed(2)}` : item.price}
                       </p>
                     )}
                   </div>
@@ -101,6 +108,39 @@ export default function AthleteRecommendedGear() {
               </ItemWrapper>
             )
           })}
+          </div>
+
+          {/* Pagination arrows - mirror coach view behaviour, only when more than 4 items */}
+          {!loading && gear.length > pageSize && (
+            <>
+              <button
+                type="button"
+                aria-label="Previous gear"
+                disabled={page === 0}
+                onClick={() => setPage((prev) => Math.max(0, prev - 1))}
+                className={`absolute left-[-18px] top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full border flex items-center justify-center transition-colors ${
+                  page === 0
+                    ? 'border-gray-400 text-gray-400 cursor-not-allowed opacity-60 bg-[#4B0102]'
+                    : 'border-white text-white bg-[#4B0102] hover:bg-white hover:text-[#4B0102]'
+                }`}
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                aria-label="Next gear"
+                disabled={page >= totalPages - 1}
+                onClick={() => setPage((prev) => Math.min(totalPages - 1, prev + 1))}
+                className={`absolute right-[-18px] top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full border flex items-center justify-center transition-colors ${
+                  page >= totalPages - 1
+                    ? 'border-gray-400 text-gray-400 cursor-not-allowed opacity-60 bg-[#4B0102]'
+                    : 'border-white text-white bg-[#4B0102] hover:bg-white hover:text-[#4B0102]'
+                }`}
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </>
+          )}
         </div>
       </div>
     </section>

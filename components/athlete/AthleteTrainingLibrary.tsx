@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { ChevronUp, ChevronDown } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { doc, getDoc, collection, query, where, getDocs, setDoc, deleteDoc } from 'firebase/firestore'
 import { db, storage } from '@/lib/firebase.client'
@@ -15,7 +16,7 @@ export default function AthleteTrainingLibrary() {
   const [openLessonId, setOpenLessonId] = useState<string | null>(null)
   const [completedLessons, setCompletedLessons] = useState<Set<string>>(new Set())
   const [showAllModal, setShowAllModal] = useState(false)
-  const pageSize = 8
+  const pageSize = 4
 
   useEffect(() => {
     const loadTrainingLibrary = async () => {
@@ -250,6 +251,44 @@ export default function AthleteTrainingLibrary() {
               )
             })}
           </div>
+
+          {/* Pagination arrows - only show when there are more than 4 lessons */}
+          {lessons.length > pageSize && (
+            <div className="mt-6 flex items-center justify-center gap-4">
+              <button
+                type="button"
+                aria-label="Previous lessons"
+                onClick={() => setPage((prev) => Math.max(0, prev - 1))}
+                disabled={page === 0}
+                className={`w-9 h-9 rounded-full border flex items-center justify-center transition-colors ${
+                  page === 0
+                    ? 'border-gray-300 text-gray-400 cursor-not-allowed opacity-60'
+                    : 'border-black text-black hover:bg-black hover:text-white'
+                }`}
+              >
+                <ChevronUp className="w-4 h-4" />
+              </button>
+              <span
+                className="text-xs"
+                style={{ fontFamily: '"Open Sans", sans-serif', color: '#555555' }}
+              >
+                Page {page + 1} of {totalPages}
+              </span>
+              <button
+                type="button"
+                aria-label="Next lessons"
+                onClick={() => setPage((prev) => Math.min(totalPages - 1, prev + 1))}
+                disabled={page >= totalPages - 1}
+                className={`w-9 h-9 rounded-full border flex items-center justify-center transition-colors ${
+                  page >= totalPages - 1
+                    ? 'border-gray-300 text-gray-400 cursor-not-allowed opacity-60'
+                    : 'border-black text-black hover:bg-black hover:text-white'
+                }`}
+              >
+                <ChevronDown className="w-4 h-4" />
+              </button>
+            </div>
+          )}
 
           <div className="mt-8 flex justify-center">
             <button

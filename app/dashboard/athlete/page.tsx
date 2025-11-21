@@ -443,31 +443,23 @@ export default function AthleteDashboard() {
           </div>
         </section>
 
-        {/* Main sections using existing components (Wix-style grey band) */}
-        <section className="w-full" style={{ backgroundColor: '#EDEDED' }}>
-          <div className="max-w-6xl mx-auto px-8 py-12 space-y-8">
-            {/* Coaches row & CTAs */}
-            <div>
-              <h2
-                className="text-center mb-10"
-                style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '25px', letterSpacing: '0.05em' }}
-              >
-                Your Athleap Coaches
-              </h2>
+        {/* Main sections with full-width deep red background, matching coach profile aesthetic */}
+        <section className="w-full" style={{ backgroundColor: '#4B0102' }}>
+          <div className="max-w-6xl mx-auto px-8 py-12 space-y-10">
+            {/* Coaches row & CTAs on a soft neutral band */}
+            <div className="bg-[#EDEDED] px-6 py-10">
               <AthleteCoaches />
             </div>
 
-            {/* Training Library */}
-            <div className="mt-10">
+            {/* Training Library on a clean white panel */}
+            <div className="bg-white px-6 py-10">
               <AthleteTrainingLibrary />
             </div>
-
-            {/* Recommended Gear */}
-            <section className="mt-12">
-              <AthleteRecommendedGear />
-            </section>
           </div>
         </section>
+
+        {/* Recommended Gear - darker red band stretching edge-to-edge */}
+        <AthleteRecommendedGear />
 
         {/* Welcome popup & quick setup modals */}
         {showWelcome && (
