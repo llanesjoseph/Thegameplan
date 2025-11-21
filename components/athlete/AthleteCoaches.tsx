@@ -118,6 +118,7 @@ export default function AthleteCoaches() {
         }
 
         setCoaches(allCoaches)
+        setCoachPage(0)
         console.log(`✅ Loaded ${allCoaches.length} coaches (${allCoaches.filter(c => c.isAssigned).length} assigned, ${allCoaches.filter(c => !c.isAssigned).length} followed)`)
       } catch (error) {
         console.error('Error loading coaches:', error)
@@ -190,6 +191,10 @@ export default function AthleteCoaches() {
     }
   }
 
+  const totalCoachPages = Math.max(1, Math.ceil(coaches.length / coachPageSize))
+  const coachStart = coachPage * coachPageSize
+  const visibleCoaches = coaches.slice(coachStart, coachStart + coachPageSize)
+
   return (
     <>
       <div>
@@ -219,11 +224,11 @@ export default function AthleteCoaches() {
           </div>
         )}
 
-        {/* Coach row - show up to 3 coaches in circular layout (assigned + followed) */}
+        {/* Coach row - show coaches in pages of 3 (assigned + followed) */}
         {!loading && coaches.length > 0 && (
           <div className="flex flex-col items-center">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-12 justify-items-center">
-              {coaches.slice(0, coachPageSize).map((coach) => (
+              {visibleCoaches.map((coach) => (
                 <button
                   key={coach.id}
                   onClick={() => {
@@ -259,6 +264,44 @@ export default function AthleteCoaches() {
                 </button>
               ))}
             </div>
+
+            {/* Pagination arrows - only when more than 3 coaches */}
+            {coaches.length > coachPageSize && (
+              <div className="mt-6 flex items-center justify-center gap-4">
+                <button
+                  type="button"
+                  aria-label="Previous coaches"
+                  onClick={() => setCoachPage((prev) => Math.max(0, prev - 1))}
+                  disabled={coachPage === 0}
+                  className={`w-9 h-9 rounded-full border flex items-center justify-center transition-colors ${
+                    coachPage === 0
+                      ? 'border-gray-300 text-gray-400 cursor-not-allowed opacity-60'
+                      : 'border-black text-black hover:bg-black hover:text-white'
+                  }`}
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <span
+                  className="text-xs"
+                  style={{ fontFamily: '"Open Sans", sans-serif', color: '#555555' }}
+                >
+                  Page {coachPage + 1} of {totalCoachPages}
+                </span>
+                <button
+                  type="button"
+                  aria-label="Next coaches"
+                  onClick={() => setCoachPage((prev) => Math.min(totalCoachPages - 1, prev + 1))}
+                  disabled={coachPage >= totalCoachPages - 1}
+                  className={`w-9 h-9 rounded-full border flex items-center justify-center transition-colors ${
+                    coachPage >= totalCoachPages - 1
+                      ? 'border-gray-300 text-gray-400 cursor-not-allowed opacity-60'
+                      : 'border-black text-black hover:bg-black hover:text-white'
+                  }`}
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            )}
 
             {/* Red CTA buttons row */}
             <div className="mt-10 flex flex-col sm:flex-row justify-center gap-4 w-full max-w-3xl">
