@@ -309,13 +309,7 @@ export default function BrowseCoachesPage() {
             {user && (
               <div className="mt-6 flex justify-center">
                 <Link
-                  href={
-                    user.role === 'creator' || user.role === 'assistant'
-                      ? '/dashboard/coach'
-                      : user.role === 'athlete'
-                      ? '/dashboard/athlete'
-                      : '/dashboard'
-                  }
+                  href={user.role === 'athlete' ? '/dashboard/athlete' : '/dashboard/coach'}
                   className="inline-flex items-center justify-center px-10 py-3 rounded-full text-white text-sm font-semibold transition-all"
                   style={{ fontFamily: '"Open Sans", sans-serif', backgroundColor: '#C40000', letterSpacing: '0.08em' }}
                 >
