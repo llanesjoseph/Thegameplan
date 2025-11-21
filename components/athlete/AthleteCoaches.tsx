@@ -219,11 +219,11 @@ export default function AthleteCoaches() {
           </div>
         )}
 
-        {/* Coach row - show up to 2 primary coaches in circular layout */}
+        {/* Coach row - show up to 3 coaches in circular layout (assigned + followed) */}
         {!loading && coaches.length > 0 && (
           <div className="flex flex-col items-center">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-12 justify-items-center">
-              {coaches.slice(0, 2).map((coach) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-12 justify-items-center">
+              {coaches.slice(0, coachPageSize).map((coach) => (
                 <button
                   key={coach.id}
                   onClick={() => {

@@ -142,41 +142,49 @@ export default function LessonOverlay({
       {/* Overlay Panel */}
       <div className="fixed inset-y-0 right-0 w-full sm:w-[90%] md:w-[80%] lg:w-[70%] xl:w-[60%] bg-white z-50 shadow-2xl animate-slideInRight overflow-y-auto">
         {/* Header */}
-        <div className="sticky top-0 z-10 bg-white backdrop-blur-sm border-b-2 border-black px-6 py-4">
+        <div
+          className="sticky top-0 z-10 px-6 py-4 border-b-2"
+          style={{ backgroundColor: '#4B0102', borderColor: '#000000' }}
+        >
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+            <h2
+              className="text-xl font-bold"
+              style={{ color: '#FFFFFF', fontFamily: '"Open Sans", sans-serif' }}
+            >
               Lesson Details
             </h2>
             <div className="flex items-center gap-3">
               {onToggleCompletion && (
                 <button
                   onClick={onToggleCompletion}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold transition-all ${
+                  type="button"
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold transition-all ${
                     isCompleted
-                      ? 'bg-black text-white hover:bg-gray-800'
-                      : 'bg-white text-black border-2 border-black hover:bg-gray-50'
+                      ? 'bg-white text-[#4B0102] border-2 border-white hover:bg-gray-100'
+                      : 'bg-[#FC0105] text-white border-2 border-white hover:bg-[#d70004]'
                   }`}
-                  style={{ fontFamily: '"Open Sans", sans-serif' }}
+                  style={{ fontFamily: '"Open Sans", sans-serif', boxShadow: '0 10px 24px rgba(0,0,0,0.25)' }}
                 >
                   {isCompleted ? (
                     <>
                       <CheckCircle2 className="w-5 h-5" />
-                      <span>Completed</span>
+                      <span>Lesson Completed</span>
                     </>
                   ) : (
                     <>
                       <Circle className="w-5 h-5" />
-                      <span>Mark as Complete</span>
+                      <span>Mark Lesson Complete</span>
                     </>
                   )}
                 </button>
               )}
               <button
                 onClick={onClose}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                type="button"
+                className="p-2 rounded-full bg-transparent hover:bg-white/10 transition-colors"
                 title="Close (Esc)"
               >
-                <X className="w-6 h-6" style={{ color: '#000000' }} />
+                <X className="w-6 h-6" style={{ color: '#FFFFFF' }} />
               </button>
             </div>
           </div>
@@ -206,7 +214,10 @@ export default function LessonOverlay({
               {/* Lesson Header */}
               <div className="mb-8">
                 <div className="flex items-center gap-2 mb-4 flex-wrap">
-                  <div className="px-3 py-1 rounded-full text-sm font-medium" style={{ backgroundColor: '#3B82F6', color: 'white' }}>
+                  <div
+                    className="px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide"
+                    style={{ backgroundColor: '#FC0105', color: 'white', fontFamily: '"Open Sans", sans-serif' }}
+                  >
                     {lesson.level}
                   </div>
                   <div className="flex items-center gap-1 text-sm" style={{ color: '#000000', opacity: 0.6 }}>
@@ -255,7 +266,7 @@ export default function LessonOverlay({
               </div>
 
               {/* Lesson Content */}
-              <div className="bg-gradient-to-br from-blue-50/50 to-white rounded-xl border border-blue-200/50 p-6 sm:p-8">
+              <div className="rounded-xl border border-gray-200 p-6 sm:p-8" style={{ backgroundColor: '#FFFFFF' }}>
                 {/* Video Player */}
                 {(lesson.videoUrl || lesson.videoId) && (
                   <div className="mb-6">
@@ -269,15 +280,20 @@ export default function LessonOverlay({
 
                 {/* Text-only lesson indicator */}
                 {!lesson.videoUrl && !lesson.videoId && (
-                  <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-teal-50 rounded-xl border-2 border-blue-200">
+                  <div className="mb-6 p-4 rounded-xl border-2" style={{ backgroundColor: '#FFF3ED', borderColor: '#FC0105' }}>
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#3B82F6' }}>
+                      <div
+                        className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+                        style={{ backgroundColor: '#FC0105' }}
+                      >
                         <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                         </svg>
                       </div>
                       <div>
-                        <h4 className="font-medium" style={{ color: '#000000' }}>Text-Based Lesson</h4>
+                        <h4 className="font-medium" style={{ color: '#000000' }}>
+                          Text-Based Lesson
+                        </h4>
                         <p className="text-sm" style={{ color: '#000000', opacity: 0.6 }}>
                           This lesson focuses on written content and detailed explanations
                         </p>
@@ -346,13 +362,15 @@ export default function LessonOverlay({
                 {/* Tags */}
                 {lesson.tags && lesson.tags.length > 0 && (
                   <div className="mt-8 pt-6 border-t border-blue-200">
-                    <h4 className="text-sm font-medium mb-3" style={{ color: '#000000' }}>Tags</h4>
+                    <h4 className="text-sm font-medium mb-3" style={{ color: '#000000' }}>
+                      Tags
+                    </h4>
                     <div className="flex flex-wrap gap-2">
                       {lesson.tags.map((tag, index) => (
                         <span
                           key={index}
                           className="px-3 py-1 rounded-full text-sm"
-                          style={{ backgroundColor: '#3B82F6', color: 'white' }}
+                          style={{ backgroundColor: '#4B0102', color: 'white' }}
                         >
                           {tag}
                         </span>
