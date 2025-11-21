@@ -501,8 +501,8 @@ export default function AthleteDashboard() {
               )}
             </div>
 
-            {/* Right: hero image + Edit Profile CTA */}
-            <div className="flex flex-col items-center md:items-end gap-4">
+            {/* Right: hero image + Edit Profile CTA (match coach sizing) */}
+            <div className="flex flex-col items-center md:items-end gap-4 w-full max-w-md">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={
@@ -510,14 +510,14 @@ export default function AthleteDashboard() {
                   'https://static.wixstatic.com/media/11062b_0c31e11f36104a17b1637c2774331958~mv2.jpg/v1/crop/x_958,y_0,w_3350,h_3468/fill/w_402,h_416,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/11062b_0c31e11f36104a17b1637c2774331958~mv2.jpg'
                 }
                 alt={heroProfile.displayName || user?.displayName || 'Athleap Athlete'}
-                className="w-[402px] h-[416px] object-cover"
+                className="w-[347px] h-[359px] object-cover"
               />
 
               {!isEditingHero && (
                 <button
                   type="button"
                   onClick={handleStartHeroEdit}
-                  className="flex-1 h-12 rounded-2xl border border-white/40 shadow-[inset_0_3px_6px_rgba(255,255,255,0.28),inset_0_-4px_6px_rgba(0,0,0,0.4),0_6px_14px_rgba(0,0,0,0.35)] text-white text-sm font-semibold uppercase tracking-wide px-6"
+                  className="w-[347px] h-12 rounded-2xl border border-white/40 shadow-[inset_0_3px_6px_rgba(255,255,255,0.28),inset_0_-4px_6px_rgba(0,0,0,0.4),0_6px_14px_rgba(0,0,0,0.35)] text-white text-sm font-semibold uppercase tracking-wide px-6"
                   style={{ backgroundColor: '#C40000', fontFamily: '"Open Sans", sans-serif' }}
                 >
                   Edit Profile

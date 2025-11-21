@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, type WheelEvent, type ReactNode } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, ArrowRight, Facebook, Instagram, Linkedin, Twitter, X, Youtube } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Facebook, Instagram, Linkedin, Twitter, X, Youtube, ChevronUp, ChevronDown } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
@@ -1029,92 +1029,94 @@ function TrainingLibrarySection({
   coachName: string
   onSelectLesson?: (lesson: Lesson) => void
 }) {
-  const listRef = useRef<HTMLDivElement>(null)
-  const MAX_VISIBLE = 4
   const filteredLessons = lessons.filter((lesson) => !!lesson && !!lesson.title?.trim?.())
-  const totalLessons = filteredLessons.length
-  const hasOverflow = totalLessons > MAX_VISIBLE
-  const scrollByAmount = 160
+  const pageSize = 4
+  const [page, setPage] = useState(0)
 
-  const handleScroll = (direction: 'up' | 'down') => {
-    if (!listRef.current) return
-    const delta = direction === 'up' ? -scrollByAmount : scrollByAmount
-    listRef.current.scrollBy({ top: delta, behavior: 'smooth' })
-  }
-
-  const handleWheel = (event: WheelEvent<HTMLDivElement>) => {
-    if (!hasOverflow) {
-      return
-    }
-    event.preventDefault()
-    if (typeof window !== 'undefined') {
-      window.scrollBy({ top: event.deltaY, behavior: 'auto' })
-    }
-  }
+  const totalPages = Math.max(1, Math.ceil(filteredLessons.length / pageSize))
+  const start = page * pageSize
+  const visibleLessons = filteredLessons.slice(start, start + pageSize)
 
   return (
-    <section className="w-full bg-white">
-      <div className="max-w-6xl mx-auto px-8 py-10">
-        <div className="flex items-center justify-between mb-2">
-          <h2 style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '25px', color: '#000000' }}>
-            {coachName}&apos;s Training Library
-          </h2>
-          {hasOverflow && (
-            <div className="flex items-center gap-2">
+    <section className="w-full" style={{ backgroundColor: '#EDEDED' }}>
+      <div className="max-w-6xl mx-auto px-8 py-12">
+        <div className="bg-white px-6 py-10">
+          <div className="flex items-center justify-between mb-2">
+            <h2 style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '25px', color: '#000000' }}>
+              {coachName}&apos;s Training Library
+            </h2>
+          </div>
+          {filteredLessons.length > pageSize && (
+            <p className="text-sm text-gray-500 mb-4" style={{ fontFamily: '"Open Sans", sans-serif' }}>
+              Showing 4 lessons at a time. Use the controls to browse the full library.
+            </p>
+          )}
+
+          <div className="border-t border-gray-300">
+            {visibleLessons.map((lesson) => (
               <button
-                onClick={() => handleScroll('up')}
-                aria-label="Scroll lessons up"
-                className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-50"
+                type="button"
+                key={lesson.id}
+                onClick={() => onSelectLesson?.(lesson)}
+                className="w-full flex items-center gap-6 py-6 border-b border-gray-200 last:border-b-0 text-left hover:bg-gray-50 transition-colors"
               >
-                <ArrowRight className="w-4 h-4 rotate-90" />
+                <div className="w-24 h-24 rounded-full bg-[#5A0202] flex items-center justify-center overflow-hidden flex-shrink-0">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  {lesson.thumbnailUrl ? (
+                    <img src={lesson.thumbnailUrl} alt={lesson.title} className="w-full h-full object-cover" />
+                  ) : (
+                    <img src="/brand/athleap-logo-colored.png" alt="Athleap" className="w-12 h-12 opacity-90" />
+                  )}
+                </div>
+                <div className="flex-1 flex items-center justify-between gap-4">
+                  <p style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '18px', color: '#000000' }}>
+                    {lesson.title}
+                  </p>
+                  <p className="text-sm" style={{ fontFamily: '"Open Sans", sans-serif', color: '#555555' }}>
+                    {lesson.status || 'Published'}
+                  </p>
+                </div>
               </button>
+            ))}
+          </div>
+
+          {/* Pagination arrows - only show when there are more than 4 lessons */}
+          {filteredLessons.length > pageSize && (
+            <div className="mt-6 flex items-center justify-center gap-4">
               <button
-                onClick={() => handleScroll('down')}
-                aria-label="Scroll lessons down"
-                className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-50"
+                type="button"
+                aria-label="Previous lessons"
+                onClick={() => setPage((prev) => Math.max(0, prev - 1))}
+                disabled={page === 0}
+                className={`w-9 h-9 rounded-full border flex items-center justify-center transition-colors ${
+                  page === 0
+                    ? 'border-gray-300 text-gray-400 cursor-not-allowed opacity-60'
+                    : 'border-black text-black hover:bg-black hover:text-white'
+                }`}
               >
-                <ArrowRight className="w-4 h-4 -rotate-90" />
+                <ChevronUp className="w-4 h-4" />
+              </button>
+              <span
+                className="text-xs"
+                style={{ fontFamily: '"Open Sans", sans-serif', color: '#555555' }}
+              >
+                Page {page + 1} of {totalPages}
+              </span>
+              <button
+                type="button"
+                aria-label="Next lessons"
+                onClick={() => setPage((prev) => Math.min(totalPages - 1, prev + 1))}
+                disabled={page >= totalPages - 1}
+                className={`w-9 h-9 rounded-full border flex items-center justify-center transition-colors ${
+                  page >= totalPages - 1
+                    ? 'border-gray-300 text-gray-400 cursor-not-allowed opacity-60'
+                    : 'border-black text-black hover:bg-black hover:text-white'
+                }`}
+              >
+                <ChevronDown className="w-4 h-4" />
               </button>
             </div>
           )}
-        </div>
-        {hasOverflow && (
-          <p className="text-sm text-gray-500 mb-4" style={{ fontFamily: '"Open Sans", sans-serif' }}>
-            Showing 4 lessons at a time. Use the controls to browse the full library.
-          </p>
-        )}
-
-        <div
-          ref={listRef}
-          className={`border-t border-gray-300 ${hasOverflow ? 'max-h-[520px] overflow-y-auto pr-2 scroll-smooth no-scrollbar' : ''}`}
-          onWheel={handleWheel}
-          style={hasOverflow ? { scrollbarWidth: 'none', msOverflowStyle: 'none' } : undefined}
-        >
-          {filteredLessons.map((lesson) => (
-            <button
-              type="button"
-              key={lesson.id}
-              onClick={() => onSelectLesson?.(lesson)}
-              className="w-full flex items-center gap-6 py-6 border-b border-gray-200 last:border-b-0 text-left hover:bg-gray-50 transition-colors"
-            >
-              <div className="w-24 h-24 rounded-full bg-[#5A0202] flex items-center justify-center overflow-hidden flex-shrink-0">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                {lesson.thumbnailUrl ? (
-                  <img src={lesson.thumbnailUrl} alt={lesson.title} className="w-full h-full object-cover" />
-                ) : (
-                  <img src="/brand/athleap-logo-colored.png" alt="Athleap" className="w-12 h-12 opacity-90" />
-                )}
-              </div>
-              <div className="flex-1 flex items-center justify-between gap-4">
-                <p style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '18px', color: '#000000' }}>
-                  {lesson.title}
-                </p>
-                <p className="text-sm" style={{ fontFamily: '"Open Sans", sans-serif', color: '#555555' }}>
-                  {lesson.status || 'Published'}
-                </p>
-              </div>
-            </button>
-          ))}
         </div>
       </div>
     </section>
