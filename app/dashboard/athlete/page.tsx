@@ -158,13 +158,29 @@ export default function AthleteDashboard() {
         const userRef = doc(db, 'users', user.uid)
         const athleteRef = doc(db, 'athletes', user.uid)
 
-        const [userSnap, athleteSnap] = await Promise.all([
+        const [userSnap, directAthleteSnap] = await Promise.all([
           getDoc(userRef),
           getDoc(athleteRef)
         ])
 
         const userData: any = userSnap.exists() ? userSnap.data() : {}
-        const athleteData: any = athleteSnap.exists() ? athleteSnap.data() : {}
+
+        // Athletes created from invite flow may use a random document ID (not uid),
+        // so fall back to any athlete doc where uid == current user.
+        let athleteData: any = directAthleteSnap.exists() ? directAthleteSnap.data() : {}
+        if (!directAthleteSnap.exists()) {
+          try {
+            const { collection, getDocs, query, where } = await import('firebase/firestore')
+            const athletesCol = collection(db, 'athletes')
+            const q = query(athletesCol, where('uid', '==', user.uid))
+            const qs = await getDocs(q)
+            if (!qs.empty) {
+              athleteData = qs.docs[0].data()
+            }
+          } catch (err) {
+            console.warn('Error querying athletes collection for current user:', err)
+          }
+        }
 
         const mappedDisplayName =
           (userData.displayName as string) || user.displayName || ''
@@ -211,6 +227,9 @@ export default function AthleteDashboard() {
           primarySport = userData.sport.trim()
         } else if (Array.isArray(userData?.selectedSports) && userData.selectedSports.length > 0) {
           primarySport = String(userData.selectedSports[0])
+        } else if (typeof athleteData?.athleticProfile?.primarySport === 'string' && athleteData.athleticProfile.primarySport.trim()) {
+          // Fallback to the primary sport collected during athlete onboarding / invite flow
+          primarySport = athleteData.athleticProfile.primarySport.trim()
         }
 
         const nextProfile = {

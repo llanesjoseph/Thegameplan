@@ -191,6 +191,11 @@ export async function POST(request: NextRequest) {
       coachId: coachUid || '', // Use the coach UID we extracted earlier (empty for bulk invites)
       assignedCoachId: coachUid || '', // Use the coach UID we extracted earlier (empty for bulk invites)
       needsCoachAssignment: isBulkInvitation && !coachUid, // Flag for admin to assign coach
+      // Surface core athletic profile fields directly on the user document
+      sport: athleteProfile.primarySport || '',
+      trainingGoals: Array.isArray(athleteProfile.trainingGoals)
+        ? athleteProfile.trainingGoals
+        : [],
       lastLoginAt: now,
       invitationId,
       invitationRole: targetRole,

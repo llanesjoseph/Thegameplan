@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { useAuth } from '@/hooks/use-auth'
+import { signOut } from 'firebase/auth'
+import { auth } from '@/lib/firebase.client'
 
 interface AthleteProfile {
   uid: string
@@ -113,6 +115,7 @@ export default function TestPage() {
     upcomingEvents: 0
   })
   const [progressError, setProgressError] = useState<string | null>(null)
+  const [isSigningOut, setIsSigningOut] = useState(false)
 
   useEffect(() => {
     const fetchAthlete = async () => {
@@ -188,77 +191,93 @@ export default function TestPage() {
     <main className="min-h-screen bg-[#f5f5f5]">
       {/* Block 1: Top Athleap header bar (from Wix) - sticky/frozen at top */}
       <div className="sticky top-0 z-40">
-      {/* Sticky top header + red bar */}
-      <div className="w-full sticky top-0 z-30 bg-white">
-        <header className="w-full bg-white">
-          <div className="max-w-6xl mx-auto px-8 py-5 flex items-center justify-between">
-            {/* Left: logo + ATHLEAP wordmark */}
-            <div className="flex items-center gap-3">
-              {/* Using remote logo from the Wix snippet so it visually matches */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="https://static.wixstatic.com/media/75fa07_66efa272a9a64facbc09f3da71757528~mv2.png/v1/fill/w_68,h_64,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/75fa07_66efa272a9a64facbc09f3da71757528~mv2.png"
-                alt="Athleap logo"
-                className="h-8 w-auto"
-              />
-              <span
-                className="text-xl font-semibold tracking-[0.02em]"
-                style={{ fontFamily: '"Open Sans", sans-serif' }}
-              >
-                ATHLEAP
-              </span>
-            </div>
-
-            {/* Right: account chip only (no extra sign-in button for this version) */}
-            <div className="flex items-center gap-6">
-              {/* Account chip approximating Wix login social bar */}
-              <button
-                type="button"
-                className="flex items-center gap-2 rounded-full bg-white border border-gray-200 px-3 py-1 text-xs sm:text-sm"
-                aria-label="Joseph Llanes account"
-              >
+        {/* Sticky top header + red bar */}
+        <div className="w-full sticky top-0 z-30 bg-white">
+          <header className="w-full bg-white">
+            <div className="max-w-6xl mx-auto px-8 py-5 flex items-center justify-between">
+              {/* Left: logo + ATHLEAP wordmark */}
+              <div className="flex items-center gap-3">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src="https://lh3.googleusercontent.com/a/ACg8ocLmlx_rY5PGAEkjd3oEHy8Q0mJuXgvzaykbja7GpIUOYfxgcA=s96-c"
-                  alt="Joseph Llanes avatar"
-                  className="h-6 w-6 rounded-full object-cover"
+                  src="/athleap-logo-transparent.png"
+                  alt="Athleap logo"
+                  className="h-8 w-auto"
                 />
                 <span
-                  className="text-[11px] uppercase tracking-[0.18em] text-gray-600"
+                  className="text-xl font-semibold tracking-[0.02em]"
                   style={{ fontFamily: '"Open Sans", sans-serif' }}
                 >
-                  Hello
+                  ATHLEAP
                 </span>
-                <span
-                  className="text-sm"
-                  style={{ fontFamily: '"Open Sans", sans-serif' }}
-                >
-                  Joseph Llanes
-                </span>
-                <span className="text-xs text-gray-400">|</span>
-                <span
-                  className="text-xs text-gray-700 underline"
-                  style={{ fontFamily: '"Open Sans", sans-serif' }}
-                >
-                  Sign out
-                </span>
-              </button>
+              </div>
+
+              {/* Right: account chip only when signed in */}
+              <div className="flex items-center gap-6">
+                {user && (
+                  <button
+                    type="button"
+                    className="flex items-center gap-2 rounded-full bg-white border border-gray-200 px-3 py-1 text-xs sm:text-sm"
+                    aria-label="Athlete account"
+                    onClick={async () => {
+                      if (isSigningOut) return
+                      setIsSigningOut(true)
+                      setTimeout(async () => {
+                        try {
+                          await signOut(auth)
+                        } catch (e) {
+                          console.error('Sign out failed:', e)
+                        } finally {
+                          window.location.href = '/'
+                        }
+                      }, 300)
+                    }}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={
+                        (user as any).photoURL ||
+                        '/athleap-logo-transparent.png'
+                      }
+                      alt={(user as any).displayName || (user as any).email || 'Athleap User'}
+                      className="h-6 w-6 rounded-full object-cover"
+                    />
+                    <span
+                      className="text-[11px] uppercase tracking-[0.18em] text-gray-600"
+                      style={{ fontFamily: '"Open Sans", sans-serif' }}
+                    >
+                      Hello
+                    </span>
+                    <span
+                      className="text-sm"
+                      style={{ fontFamily: '"Open Sans", sans-serif' }}
+                    >
+                      {(user as any).displayName || (user as any).email || 'Athleap User'}
+                    </span>
+                    <span className="text-xs text-gray-400">|</span>
+                    <span
+                      className="text-xs text-gray-700 underline"
+                      style={{ fontFamily: '"Open Sans", sans-serif' }}
+                    >
+                      {isSigningOut ? 'Signing out…' : 'Sign out'}
+                    </span>
+                  </button>
+                )}
+              </div>
+            </div>
+          </header>
+
+          {/* Red bar under header with Athlete Community text (Wix colorUnderlay + rich text) */}
+          <div className="w-full bg-[#FC0105]">
+            <div className="max-w-6xl mx-auto px-8 py-2 flex justify-end">
+              <p
+                className="text-[15px] leading-none font-bold text-white"
+                style={{ fontFamily: '"Open Sans", sans-serif', letterSpacing: '0.01em' }}
+              >
+                Athlete Community - Basketball
+              </p>
             </div>
           </div>
-        </header>
-
-        {/* Red bar under header with Athlete Community text (Wix colorUnderlay + rich text) */}
-        <div className="w-full bg-[#FC0105]">
-          <div className="max-w-6xl mx-auto px-8 py-2 flex justify-end">
-            <p
-              className="text-[15px] leading-none font-bold text-white"
-              style={{ fontFamily: '"Open Sans", sans-serif', letterSpacing: '0.01em' }}
-            >
-              Athlete Community - Basketball
-            </p>
-          </div>
         </div>
-      </div>
       </div>
 
       {/* Block 2: Merline/athlete hero section (text left, image right) */}

@@ -5,8 +5,9 @@ import Link from 'next/link'
 import { ArrowLeft, ArrowRight, Facebook, Instagram, Linkedin, Twitter, X, Youtube, ChevronUp, ChevronDown } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
+import { signOut } from 'firebase/auth'
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
-import { storage } from '@/lib/firebase.client'
+import { auth, storage } from '@/lib/firebase.client'
 
 interface Lesson {
   id: string
@@ -192,6 +193,7 @@ export default function HeroCoachProfile({
   forceReadOnly = false
 }: HeroCoachProfileProps) {
   const { user: authUser } = useAuth()
+  const [isSigningOut, setIsSigningOut] = useState(false)
   const [gearItems, setGearItems] = useState<GearItem[]>(initialGearItems || [])
   const [gearLoading, setGearLoading] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
@@ -441,31 +443,53 @@ export default function HeroCoachProfile({
                 </Link>
 
                 <div className="flex items-center gap-6">
-                  <button
-                    type="button"
-                    className="flex items-center gap-2 rounded-full bg-white border border-gray-200 px-3 py-1 text-xs sm:text-sm"
-                    aria-label="Coach account"
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={activeCoach.profileImageUrl || 'https://static.wixstatic.com/media/75fa07_5ce2a239003845288e36fdda83cb0851~mv2.webp/v1/fill/w_225,h_225,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Alana-Beard-Headshot-500x.webp'}
-                      alt={`${activeCoach.displayName} avatar`}
-                      className="h-6 w-6 rounded-full object-cover"
-                    />
-                    <span
-                      className="text-[11px] uppercase tracking-[0.18em] text-gray-600"
-                      style={{ fontFamily: '"Open Sans", sans-serif' }}
+                  {authUser && (
+                    <button
+                      type="button"
+                      className="flex items-center gap-2 rounded-full bg-white border border-gray-200 px-3 py-1 text-xs sm:text-sm"
+                      aria-label="Coach account"
+                      onClick={async () => {
+                        if (isSigningOut) return
+                        setIsSigningOut(true)
+                        setTimeout(async () => {
+                          try {
+                            await signOut(auth)
+                          } catch (e) {
+                            console.error('Sign out failed:', e)
+                          } finally {
+                            window.location.href = '/'
+                          }
+                        }, 300)
+                      }}
                     >
-                      Hello
-                    </span>
-                    <span className="text-sm" style={{ fontFamily: '"Open Sans", sans-serif' }}>
-                      {activeCoach.displayName}
-                    </span>
-                    <span className="text-xs text-gray-400">|</span>
-                    <span className="text-xs text-gray-700 underline" style={{ fontFamily: '"Open Sans", sans-serif' }}>
-                      Sign out
-                    </span>
-                  </button>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={
+                          activeCoach.profileImageUrl ||
+                          (authUser as any)?.photoURL ||
+                          '/athleap-logo-transparent.png'
+                        }
+                        alt={activeCoach.displayName || (authUser as any)?.displayName || 'Athleap Coach'}
+                        className="h-6 w-6 rounded-full object-cover"
+                      />
+                      <span
+                        className="text-[11px] uppercase tracking-[0.18em] text-gray-600"
+                        style={{ fontFamily: '"Open Sans", sans-serif' }}
+                      >
+                        Hello
+                      </span>
+                      <span className="text-sm" style={{ fontFamily: '"Open Sans", sans-serif' }}>
+                        {activeCoach.displayName || (authUser as any)?.displayName || 'Athleap Coach'}
+                      </span>
+                      <span className="text-xs text-gray-400">|</span>
+                      <span
+                        className="text-xs text-gray-700 underline"
+                        style={{ fontFamily: '"Open Sans", sans-serif' }}
+                      >
+                        {isSigningOut ? 'Signing out…' : 'Sign out'}
+                      </span>
+                    </button>
+                  )}
 
                   {onBack && (
                     <button
