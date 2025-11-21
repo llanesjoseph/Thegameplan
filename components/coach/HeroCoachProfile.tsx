@@ -1086,12 +1086,6 @@ function TrainingLibrarySection({
             {coachName}&apos;s Training Library
           </h2>
         </div>
-        {filteredLessons.length > pageSize && (
-          <p className="text-sm text-gray-500 mb-4" style={{ fontFamily: '"Open Sans", sans-serif' }}>
-            Showing 4 lessons at a time. Use the controls to browse the full library.
-          </p>
-        )}
-
         <div className="border-t border-gray-300">
           {visibleLessons.map((lesson) => (
             <button
@@ -1164,31 +1158,33 @@ function TrainingLibrarySection({
 
 function LessonDetailModal({ lesson, onClose }: { lesson: Lesson; onClose: () => void }) {
   return (
-    <ModalShell title={lesson.title} onClose={onClose} widthClass="max-w-2xl">
+    <ModalShell
+      title={`Edit Lesson – ${lesson.title}`}
+      onClose={onClose}
+      widthClass="max-w-5xl"
+    >
       <div className="space-y-4" style={{ fontFamily: '"Open Sans", sans-serif' }}>
-        <p className="text-sm text-gray-600">Status: {lesson.status || 'Published'}</p>
-        {lesson.thumbnailUrl && (
-          <div className="w-full h-56 rounded-xl overflow-hidden bg-gray-100">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={lesson.thumbnailUrl} alt={lesson.title} className="w-full h-full object-cover" />
-          </div>
-        )}
-        <p className="text-sm text-gray-700">
-          This modal keeps you in the locker room while you review and edit lesson information. Click “Edit lesson” to jump into the lesson builder.
+        <p className="text-sm text-gray-600">
+          Status: {lesson.status || 'Published'}
         </p>
-        <div className="flex justify-end gap-3">
+        <p className="text-sm text-gray-700">
+          You&apos;re editing this lesson inside the locker room. Changes you save here
+          will update the lesson everywhere it appears.
+        </p>
+        <div className="w-full h-[70vh] rounded-2xl overflow-hidden border border-gray-200 bg-white">
+          <iframe
+            src={`/dashboard/coach/lessons/${lesson.id}?embedded=true`}
+            className="w-full h-full border-0"
+            title={`Edit lesson ${lesson.title}`}
+          />
+        </div>
+        <div className="flex justify-end">
           <button
             onClick={onClose}
             className="px-4 py-2 rounded-full border border-gray-300 text-gray-700 text-sm font-semibold hover:bg-gray-50"
           >
             Close
           </button>
-          <Link
-            href={`/dashboard/coach/lessons/${lesson.id}?embedded=true`}
-            className="px-4 py-2 rounded-full bg-black text-white text-sm font-semibold hover:bg-gray-900"
-          >
-            Edit Lesson
-          </Link>
         </div>
       </div>
     </ModalShell>

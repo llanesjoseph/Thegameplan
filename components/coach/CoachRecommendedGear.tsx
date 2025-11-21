@@ -4,7 +4,15 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { ChevronLeft, ChevronRight, Edit2, Trash2, RotateCw } from 'lucide-react'
 
-type GearItem = { id: string; name: string; price?: string; description?: string; imageUrl?: string; link?: string }
+type GearItem = {
+  id: string
+  name: string
+  price?: string | number
+  description?: string
+  imageUrl?: string
+  link?: string
+  source?: string // Firestore collection path, e.g. "curatedGear", "recommendedGear", "gear"
+}
 
 export default function CoachRecommendedGear() {
   const { user } = useAuth()
@@ -26,7 +34,7 @@ export default function CoachRecommendedGear() {
       try {
         const res = await fetch(`/api/gear/coach?uid=${user.uid}`, { cache: 'no-store' })
         const data = await res.json()
-        if (data?.success) setItems(data.gearItems || [])
+        if (data?.success) setItems((data.gearItems || []) as GearItem[])
       } catch (e) {
         console.warn('Failed to load coach gear', e)
       } finally {
@@ -48,7 +56,7 @@ export default function CoachRecommendedGear() {
       })
       const data = await res.json()
       if (data?.success) {
-        setItems(prev => [{ id: data.id, ...data.data }, ...prev])
+        setItems(prev => [{ id: data.id, ...(data.data || {}), source: 'curatedGear' } as GearItem, ...prev])
         setShowAdd(false)
         setUrl('')
       }
@@ -59,11 +67,13 @@ export default function CoachRecommendedGear() {
     }
   }
 
-  const deleteItem = async (id: string) => {
+  const deleteItem = async (id: string, source?: string) => {
     if (!user || !confirm('Are you sure you want to delete this gear item?')) return
     try {
       const token = await user.getIdToken()
-      const res = await fetch(`/api/gear/delete?id=${id}`, {
+      const params = new URLSearchParams({ id })
+      if (source) params.set('source', source)
+      const res = await fetch(`/api/gear/delete?${params.toString()}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       })
@@ -80,7 +90,7 @@ export default function CoachRecommendedGear() {
     }
   }
 
-  const updateItem = async (id: string) => {
+  const updateItem = async (id: string, source?: string) => {
     if (!editUrl.trim() || !user) return
     setSaving(true)
     try {
@@ -88,11 +98,15 @@ export default function CoachRecommendedGear() {
       const res = await fetch('/api/gear/update', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ id, url: editUrl })
+        body: JSON.stringify({ id, url: editUrl, source })
       })
       const data = await res.json()
       if (data?.success) {
-        setItems(prev => prev.map(item => item.id === id ? { ...item, ...data.data } : item))
+        setItems(prev =>
+          prev.map(item =>
+            item.id === id ? ({ ...item, ...(data.data || {}) } as GearItem) : item
+          )
+        )
         setEditingCard(null)
         setFlippedCard(null)
         setEditUrl('')
@@ -194,7 +208,7 @@ export default function CoachRecommendedGear() {
                           />
                           <div className="flex gap-2">
                             <button
-                              onClick={() => updateItem(g.id)}
+                              onClick={() => updateItem(g.id, g.source)}
                               disabled={saving || !editUrl.trim()}
                               className="flex-1 px-3 py-2 rounded-lg text-white text-xs font-bold disabled:opacity-50"
                               style={{ backgroundColor: '#000000', fontFamily: '"Open Sans", sans-serif' }}
@@ -226,8 +240,8 @@ export default function CoachRecommendedGear() {
                             <Edit2 className="w-4 h-4" />
                             Edit URL
                           </button>
-                          <button
-                            onClick={() => deleteItem(g.id)}
+                            <button
+                              onClick={() => deleteItem(g.id, g.source)}
                             className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-white font-bold"
                             style={{ backgroundColor: '#FC0105', fontFamily: '"Open Sans", sans-serif' }}
                           >
