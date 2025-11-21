@@ -310,7 +310,7 @@ export default function BrowseCoachesPage() {
               <div className="mt-6 flex justify-center">
                 <Link
                   href={
-                    user.role === 'coach' || user.role === 'assistant_coach'
+                    user.role === 'creator' || user.role === 'assistant'
                       ? '/dashboard/coach'
                       : user.role === 'athlete'
                       ? '/dashboard/athlete'
