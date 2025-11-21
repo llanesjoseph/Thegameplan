@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { ChevronUp, ChevronDown } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
-import { doc, getDoc, collection, query, where, getDocs, setDoc, deleteDoc } from 'firebase/firestore'
+import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore'
 import { db, storage } from '@/lib/firebase.client'
 import { ref, getDownloadURL } from 'firebase/storage'
 import LessonOverlay from '@/components/LessonOverlay'
@@ -158,29 +158,39 @@ export default function AthleteTrainingLibrary() {
     if (!openLessonId || !user?.uid) return
 
     try {
-      const completionId = `${user.uid}_${openLessonId}`
       const isCurrentlyCompleted = completedLessons.has(openLessonId)
 
+      const token = await user.getIdToken()
+      const response = await fetch('/api/athlete/lesson-completion', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          lessonId: openLessonId,
+          completed: !isCurrentlyCompleted
+        })
+      })
+
+      const result = await response.json().catch(() => ({}))
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || 'Failed to update completion status')
+      }
+
+      // Update local state after successful API call
       if (isCurrentlyCompleted) {
-        // Mark as incomplete - remove from Firestore
-        await deleteDoc(doc(db, 'lessonCompletions', completionId))
         setCompletedLessons((prev) => {
           const updated = new Set(prev)
           updated.delete(openLessonId)
           return updated
         })
       } else {
-        // Mark as complete - add to Firestore
-        await setDoc(doc(db, 'lessonCompletions', completionId), {
-          athleteUid: user.uid,
-          lessonId: openLessonId,
-          completedAt: new Date(),
-          lessonTitle: lessons.find((l) => l.id === openLessonId)?.title || ''
-        })
         setCompletedLessons((prev) => new Set(prev).add(openLessonId))
       }
     } catch (error) {
       console.error('Error toggling lesson completion:', error)
+      alert('Unable to update lesson status. Please try again.')
     }
   }
 

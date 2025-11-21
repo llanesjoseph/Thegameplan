@@ -6,13 +6,14 @@
  * No sidebar, no iframe - direct content rendering
  */
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/hooks/use-auth'
 import { signOut } from 'firebase/auth'
-import { auth, db } from '@/lib/firebase.client'
+import { auth, db, storage } from '@/lib/firebase.client'
 import { doc, getDoc, updateDoc } from 'firebase/firestore'
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import AthleteOverview from '@/components/athlete/AthleteOverview'
 import AthleteProfile from '@/components/athlete/AthleteProfile'
 import AthleteProgress from '@/components/athlete/AthleteProgress'
@@ -77,6 +78,8 @@ export default function AthleteDashboard() {
   const [heroLoading, setHeroLoading] = useState(true)
   const [isEditingHero, setIsEditingHero] = useState(false)
   const [isSavingHero, setIsSavingHero] = useState(false)
+  const [isUploadingHeroPhoto, setIsUploadingHeroPhoto] = useState(false)
+  const heroPhotoInputRef = useRef<HTMLInputElement | null>(null)
 
   // Redirect non-athletes
   useEffect(() => {
@@ -151,37 +154,63 @@ export default function AthleteDashboard() {
       if (!user?.uid) return
       try {
         setHeroLoading(true)
-        const snap = await getDoc(doc(db, 'users', user.uid))
-        let data: any = {}
-        if (snap.exists()) data = snap.data()
+
+        const userRef = doc(db, 'users', user.uid)
+        const athleteRef = doc(db, 'athletes', user.uid)
+
+        const [userSnap, athleteSnap] = await Promise.all([
+          getDoc(userRef),
+          getDoc(athleteRef)
+        ])
+
+        const userData: any = userSnap.exists() ? userSnap.data() : {}
+        const athleteData: any = athleteSnap.exists() ? athleteSnap.data() : {}
 
         const mappedDisplayName =
-          (data.displayName as string) || user.displayName || ''
+          (userData.displayName as string) || user.displayName || ''
         const mappedLocation =
-          (data.location as string) ||
-          [data.city, data.state].filter(Boolean).join(', ') ||
+          (userData.location as string) ||
+          [userData.city, userData.state].filter(Boolean).join(', ') ||
           ''
         const mappedBio =
-          (data.bio as string) ||
-          (data.about as string) ||
+          (userData.bio as string) ||
+          (userData.about as string) ||
           ''
-        const mappedTrainingGoals =
-          (Array.isArray(data.trainingGoals) ? data.trainingGoals.join(', ') : data.trainingGoals) ||
-          (Array.isArray(data.goals) ? data.goals.join(', ') : data.goals) ||
+
+        // Prefer structured goals from athlete onboarding (athletes.athleticProfile.trainingGoals)
+        const athleteGoalsArray: string[] =
+          Array.isArray(athleteData?.athleticProfile?.trainingGoals)
+            ? athleteData.athleticProfile.trainingGoals
+            : []
+        const goalsFromAthlete =
+          athleteGoalsArray.length > 0
+            ? athleteGoalsArray.join(', ')
+            : ''
+
+        const goalsFromUser =
+          (Array.isArray(userData.trainingGoals)
+            ? userData.trainingGoals.join(', ')
+            : userData.trainingGoals) ||
+          (Array.isArray(userData.goals)
+            ? userData.goals.join(', ')
+            : userData.goals) ||
           ''
+
+        const mappedTrainingGoals = goalsFromAthlete || goalsFromUser || ''
+
         const mappedImage =
-          (data.profileImageUrl as string) ||
-          (data.photoURL as string) ||
+          (userData.profileImageUrl as string) ||
+          (userData.photoURL as string) ||
           user.photoURL ||
           ''
 
         let primarySport = ''
-        if (Array.isArray(data?.sports) && data.sports.length > 0) {
-          primarySport = String(data.sports[0])
-        } else if (typeof data?.sport === 'string' && data.sport.trim()) {
-          primarySport = data.sport.trim()
-        } else if (Array.isArray(data?.selectedSports) && data.selectedSports.length > 0) {
-          primarySport = String(data.selectedSports[0])
+        if (Array.isArray(userData?.sports) && userData.sports.length > 0) {
+          primarySport = String(userData.sports[0])
+        } else if (typeof userData?.sport === 'string' && userData.sport.trim()) {
+          primarySport = userData.sport.trim()
+        } else if (Array.isArray(userData?.selectedSports) && userData.selectedSports.length > 0) {
+          primarySport = String(userData.selectedSports[0])
         }
 
         const nextProfile = {
@@ -260,12 +289,25 @@ export default function AthleteDashboard() {
 
     setIsSavingHero(true)
     try {
-      await updateDoc(doc(db, 'users', user.uid), {
-        displayName: trimmedName,
-        location: trimmedLocation,
-        bio: trimmedBio,
-        trainingGoals: trimmedGoals
-      })
+      const userRef = doc(db, 'users', user.uid)
+      const athleteRef = doc(db, 'athletes', user.uid)
+
+      const goalsArray = trimmedGoals
+        .split(',')
+        .map((g) => g.trim())
+        .filter(Boolean)
+
+      await Promise.all([
+        updateDoc(userRef, {
+          displayName: trimmedName,
+          location: trimmedLocation,
+          bio: trimmedBio,
+          trainingGoals: trimmedGoals
+        }),
+        updateDoc(athleteRef, {
+          'athleticProfile.trainingGoals': goalsArray
+        }).catch(() => Promise.resolve())
+      ])
 
       const updated = {
         ...heroProfile,
@@ -281,6 +323,53 @@ export default function AthleteDashboard() {
       console.error('Error saving hero profile edits:', error)
     } finally {
       setIsSavingHero(false)
+    }
+  }
+
+  const handleHeroPhotoSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file || !user?.uid) return
+
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file')
+      return
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image must be less than 5MB')
+      return
+    }
+
+    setIsUploadingHeroPhoto(true)
+    try {
+      const sanitizedName = file.name.replace(/\s+/g, '-').toLowerCase()
+      const storagePath = `athletes/${user.uid}/profile-photo/${Date.now()}-${sanitizedName}`
+      const storageRef = ref(storage, storagePath)
+      const snapshot = await uploadBytes(storageRef, file)
+      const downloadURL = await getDownloadURL(snapshot.ref)
+
+      await updateDoc(doc(db, 'users', user.uid), {
+        profileImageUrl: downloadURL,
+        photoURL: downloadURL
+      })
+
+      const updated = {
+        ...heroProfile,
+        profileImageUrl: downloadURL
+      }
+      setHeroProfile(updated)
+      setEditHeroProfile((prev) => ({
+        ...prev,
+        profileImageUrl: downloadURL
+      }))
+    } catch (error) {
+      console.error('Error uploading profile photo:', error)
+      alert('Failed to upload profile photo. Please try again.')
+    } finally {
+      setIsUploadingHeroPhoto(false)
+      // reset input so same file can be re-selected if needed
+      if (e.target) {
+        e.target.value = ''
+      }
     }
   }
 
@@ -469,7 +558,7 @@ export default function AthleteDashboard() {
                         !editHeroProfile.bio.trim() ||
                         !editHeroProfile.trainingGoals.trim()
                       }
-                      className="px-5 py-2 rounded-full border border-white/60 bg-[#FC0105] text-white text-sm font-semibold tracking-wide shadow-[inset_0_3px_6px_rgba(255,255,255,0.28),inset_0_-4px_6px_rgba(0,0,0,0.4),0_6px_14px_rgba(0,0,0,0.35)] hover:bg-[#d70004] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                      className="px-5 py-2 rounded-full border border-white/60 bg-[#FC0105] text-white text-sm font-semibold tracking-wide hover:bg-[#d70004] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                       style={{ fontFamily: '"Open Sans", sans-serif' }}
                     >
                       {isSavingHero ? 'Saving…' : 'Save Changes'}
@@ -502,7 +591,7 @@ export default function AthleteDashboard() {
             </div>
 
             {/* Right: hero image + Edit Profile CTA (match coach sizing) */}
-            <div className="flex flex-col items-center md:items-end gap-4 w-full max-w-md">
+            <div className="flex flex-col items-center md:items-end gap-3 w-full max-w-md">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={
@@ -513,11 +602,32 @@ export default function AthleteDashboard() {
                 className="w-[347px] h-[359px] object-cover"
               />
 
+              {/* Hidden file input for photo upload */}
+              <input
+                ref={heroPhotoInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleHeroPhotoSelected}
+              />
+
+              {isEditingHero && (
+                <button
+                  type="button"
+                  onClick={() => heroPhotoInputRef.current?.click()}
+                  disabled={isUploadingHeroPhoto}
+                  className="w-[347px] h-10 rounded-full border border-white/60 bg-white/10 text-white text-xs font-semibold uppercase tracking-[0.12em] hover:bg-white/20 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                  style={{ fontFamily: '"Open Sans", sans-serif' }}
+                >
+                  {isUploadingHeroPhoto ? 'Uploading Photo…' : 'Change Photo'}
+                </button>
+              )}
+
               {!isEditingHero && (
                 <button
                   type="button"
                   onClick={handleStartHeroEdit}
-                  className="w-[347px] h-12 rounded-2xl border border-white/40 shadow-[inset_0_3px_6px_rgba(255,255,255,0.28),inset_0_-4px_6px_rgba(0,0,0,0.4),0_6px_14px_rgba(0,0,0,0.35)] text-white text-sm font-semibold uppercase tracking-wide px-6"
+                  className="w-[347px] h-12 rounded-2xl border border-white/40 bg-[#C40000] text-white text-sm font-semibold uppercase tracking-wide px-6 hover:bg-[#a80000] transition-colors"
                   style={{ backgroundColor: '#C40000', fontFamily: '"Open Sans", sans-serif' }}
                 >
                   Edit Profile

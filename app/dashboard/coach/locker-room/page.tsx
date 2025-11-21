@@ -256,7 +256,7 @@ export default function CoachLockerRoom() {
           <div className="-mt-8 flex justify-center">
             <Link
               href="/dashboard/coach"
-              className="inline-flex items-center justify-center px-10 py-3 rounded-full text-white text-sm font-semibold shadow-[0_15px_40px_rgba(0,0,0,0.3)] hover:shadow-[0_20px_50px_rgba(0,0,0,0.35)] transition-all"
+              className="inline-flex items-center justify-center px-10 py-3 rounded-full text-white text-sm font-semibold transition-all"
               style={{ fontFamily: '"Open Sans", sans-serif', backgroundColor: '#C40000', letterSpacing: '0.08em' }}
             >
               <span>View Your Profile</span>
@@ -451,7 +451,7 @@ function LockerModalShell({
       onClick={onClose}
     >
       <div
-        className={`w-full ${sizeClass} rounded-[32px] border border-[#3B0000] shadow-[0_35px_90px_rgba(0,0,0,0.65)] overflow-hidden`}
+        className={`w-full ${sizeClass} rounded-[32px] border border-[#3B0000] overflow-hidden`}
         style={{ backgroundColor: '#FFF9F5' }}
         onClick={(e) => e.stopPropagation()}
       >

@@ -12,27 +12,27 @@ type SocialLink = {
 
 const SOCIAL_LINKS: SocialLink[] = [
   {
-    href: 'https://www.linkedin.com/company/athleap',
+    href: 'https://www.linkedin.com',
     icon: Linkedin,
     label: 'LinkedIn'
   },
   {
-    href: 'https://www.facebook.com/athleap',
+    href: 'https://www.facebook.com',
     icon: Facebook,
     label: 'Facebook'
   },
   {
-    href: 'https://twitter.com/athleap',
+    href: 'https://twitter.com',
     icon: Twitter,
     label: 'Twitter'
   },
   {
-    href: 'https://www.instagram.com/athleap',
+    href: 'https://www.instagram.com',
     icon: Instagram,
     label: 'Instagram'
   },
   {
-    href: 'https://www.youtube.com/@athleap',
+    href: 'https://www.youtube.com',
     icon: Youtube,
     label: 'YouTube'
   }

@@ -584,7 +584,7 @@ function HeroSection({
 }) {
   const editingEnabled = canEditProfile && isEditing
   const embossClasses =
-    'px-5 py-2 rounded-md text-sm font-semibold uppercase tracking-wide text-white shadow-[0px_6px_16px_rgba(0,0,0,0.4)]'
+    'px-5 py-2 rounded-md text-sm font-semibold uppercase tracking-wide text-white'
   const primaryButtonStyles = {
     backgroundColor: '#C40000',
     border: '1px solid rgba(255,255,255,0.25)'
@@ -696,7 +696,7 @@ function HeroSection({
           <img
             src={coach.profileImageUrl || '/brand/athleap-logo-colored.png'}
             alt={coach.displayName}
-            className="w-[347px] h-[359px] object-cover rounded-lg bg-white"
+            className="w-[260px] h-[260px] object-cover rounded-full bg-white border-4 border-white"
           />
             {canEditProfile && (
               <div className="flex flex-wrap items-center justify-center gap-3">
@@ -705,14 +705,14 @@ function HeroSection({
                     <button
                       type="button"
                       onClick={onEditToggle}
-                      className="flex-1 h-12 rounded-2xl border border-white/40 shadow-[inset_0_3px_6px_rgba(255,255,255,0.28),inset_0_-4px_6px_rgba(0,0,0,0.4),0_6px_14px_rgba(0,0,0,0.35)] text-white text-sm font-semibold uppercase tracking-wide focus:outline-none focus:ring-2 focus:ring-white/60"
+                      className="flex-1 h-12 rounded-2xl border border-white/40 bg-[#C40000] text-white text-sm font-semibold uppercase tracking-wide focus:outline-none"
                       style={{ backgroundColor: '#C40000', fontFamily: '"Open Sans", sans-serif' }}
                     >
                       Edit Profile
                     </button>
                     <Link
                       href="/dashboard/coach/locker-room"
-                      className="flex-1 h-12 rounded-2xl border border-white/40 shadow-[inset_0_3px_6px_rgba(255,255,255,0.28),inset_0_-4px_6px_rgba(0,0,0,0.4),0_6px_14px_rgba(0,0,0,0.35)] text-white text-sm font-semibold uppercase tracking-wide flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-white/60"
+                      className="flex-1 h-12 rounded-2xl border border-white/40 bg-[#C40000] text-white text-sm font-semibold uppercase tracking-wide flex items-center justify-center focus:outline-none"
                       style={{ backgroundColor: '#C40000', fontFamily: '"Open Sans", sans-serif' }}
                     >
                       Locker Room
@@ -1295,7 +1295,7 @@ function RecommendedGearSection({
             <button
               type="button"
               onClick={() => setShowAdd(true)}
-              className="group relative flex items-center justify-center h-12 w-12 rounded-2xl border border-white/40 shadow-[inset_0_3px_6px_rgba(255,255,255,0.28),inset_0_-4px_6px_rgba(0,0,0,0.4),0_6px_14px_rgba(0,0,0,0.35)] text-white focus:outline-none focus:ring-2 focus:ring-white/60 transition-all duration-300 ease-out overflow-hidden"
+              className="group relative flex items-center justify-center h-12 w-12 rounded-2xl border border-white/40 text-white focus:outline-none transition-all duration-300 ease-out overflow-hidden"
               style={{ backgroundColor: '#C40000', width: '48px' }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.width = '150px'
@@ -1322,7 +1322,7 @@ function RecommendedGearSection({
             <button
               onClick={handlePrev}
               aria-label="Previous Product"
-              className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow hover:bg-gray-50"
+              className="w-12 h-12 rounded-full bg-white flex items-center justify-center hover:bg-gray-50"
             >
               <ArrowRight className="w-5 h-5 rotate-180" />
             </button>

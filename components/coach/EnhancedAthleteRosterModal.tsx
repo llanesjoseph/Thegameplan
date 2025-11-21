@@ -32,7 +32,6 @@ type ViewState = 'list' | 'profile' | 'videos' | 'invite' | 'inviteCoach'
 
 interface InviteForm {
   sport: string
-  customMessage: string
   athletes: Array<{
     email: string
     name: string
@@ -49,7 +48,6 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose, initialSpo
   const [coachSport, setCoachSport] = useState<string>(initialSport || '')
   const [inviteForm, setInviteForm] = useState<InviteForm>({
     sport: initialSport || '',
-    customMessage: '',
     athletes: [{ email: '', name: '' }]
   })
   const [sendingInvites, setSendingInvites] = useState(false)
@@ -264,18 +262,15 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose, initialSpo
         body: JSON.stringify({
           creatorUid: user?.uid,
           sport: coachSport || inviteForm.sport,
-          customMessage: inviteForm.customMessage,
           athletes: validAthletes
         }),
       })
 
       if (response.ok) {
-        setInviteForm(prev => ({
-          ...prev,
+        setInviteForm({
           sport: coachSport || '',
-          customMessage: '',
           athletes: [{ email: '', name: '' }]
-        }))
+        })
         setViewState('list')
         alert(`Successfully sent ${validAthletes.length} invitation(s)!`)
       } else {
@@ -302,7 +297,7 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose, initialSpo
       onClick={onClose}
     >
       <div
-        className="w-full max-w-5xl max-h-[90vh] rounded-[32px] border border-[#3B0000] shadow-[0_35px_90px_rgba(0,0,0,0.65)] overflow-hidden flex flex-col"
+        className="w-full max-w-5xl max-h-[90vh] rounded-[32px] border border-[#3B0000] overflow-hidden flex flex-col"
         style={{ backgroundColor: '#FFF9F5' }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -367,7 +362,7 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose, initialSpo
                       {/* Previous Button */}
                       <button
                         onClick={handlePrevAthlete}
-                        className="flex-shrink-0 w-12 h-12 rounded-full bg-[#C40000] text-white flex items-center justify-center shadow-[0_10px_25px_rgba(0,0,0,0.35)] hover:bg-[#8F0000] transition-colors"
+                        className="flex-shrink-0 w-12 h-12 rounded-full bg-[#C40000] text-white flex items-center justify-center hover:bg-[#8F0000] transition-colors"
                         aria-label="Previous Athlete"
                       >
                         <ChevronLeft className="w-6 h-6" />
@@ -513,7 +508,7 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose, initialSpo
                       {/* Next Button */}
                       <button
                         onClick={handleNextAthlete}
-                        className="flex-shrink-0 w-12 h-12 rounded-full bg-[#C40000] text-white flex items-center justify-center shadow-[0_10px_25px_rgba(0,0,0,0.35)] hover:bg-[#8F0000] transition-colors"
+                        className="flex-shrink-0 w-12 h-12 rounded-full bg-[#C40000] text-white flex items-center justify-center hover:bg-[#8F0000] transition-colors"
                         aria-label="Next Athlete"
                       >
                         <ChevronRight className="w-6 h-6" />
@@ -632,7 +627,7 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose, initialSpo
                         <div className="flex gap-4 mb-6">
                           <button
                             onClick={handleViewProfile}
-                            className="flex-1 px-6 py-4 rounded-lg text-white font-bold text-center shadow-[0_12px_30px_rgba(0,0,0,0.25)] transition-colors"
+                            className="flex-1 px-6 py-4 rounded-lg text-white font-bold text-center transition-colors"
                             style={{ fontFamily: '"Open Sans", sans-serif', backgroundColor: '#C40000' }}
                           >
                             <BookOpen className="w-5 h-5 inline-block mr-2" />
@@ -689,7 +684,7 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose, initialSpo
                           </p>
                           <div className="flex flex-wrap gap-3">
                             <button
-                              className="px-6 py-3 rounded-lg text-white font-bold shadow-[0_12px_30px_rgba(0,0,0,0.25)] transition-colors"
+                              className="px-6 py-3 rounded-lg text-white font-bold transition-colors"
                               style={{ fontFamily: '"Open Sans", sans-serif', backgroundColor: '#C40000' }}
                               onClick={handleInviteAthlete}
                             >
@@ -747,26 +742,6 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose, initialSpo
                     <p className="mt-1 text-xs" style={{ color: '#8B4B41', fontFamily: '"Open Sans", sans-serif' }}>
                       Athlete invitations are locked to your primary coaching sport.
                     </p>
-                  </div>
-
-                  {/* Custom Message */}
-                  <div>
-                    <label className="block text-sm font-bold mb-2" style={{ color: '#2B0101', fontFamily: '"Open Sans", sans-serif' }}>
-                      Custom Message (Optional)
-                    </label>
-                    <textarea
-                      value={inviteForm.customMessage}
-                      onChange={(e) => setInviteForm(prev => ({ ...prev, customMessage: e.target.value }))}
-                      placeholder="Add a personal message to your invitation..."
-                      rows={3}
-                      className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none"
-                      style={{
-                        fontFamily: '"Open Sans", sans-serif',
-                        borderColor: '#E9B0A0',
-                        backgroundColor: '#FFF9F6',
-                        color: '#2B0101'
-                      }}
-                    />
                   </div>
 
                   {/* Athletes List */}
@@ -837,7 +812,7 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose, initialSpo
                     <button
                       onClick={handleSendInvites}
                       disabled={sendingInvites}
-                      className="flex-1 px-6 py-4 rounded-lg text-white font-bold shadow-[0_15px_35px_rgba(0,0,0,0.35)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex-1 px-6 py-4 rounded-lg text-white font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       style={{ fontFamily: '"Open Sans", sans-serif', backgroundColor: '#C40000' }}
                     >
                       {sendingInvites ? 'Sending...' : `Send ${inviteForm.athletes.filter(a => a.email && a.name).length} Invitation(s)`}
@@ -983,7 +958,7 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose, initialSpo
                           setSendingCoachInvite(false)
                         }
                       }}
-                      className="flex-1 px-6 py-4 rounded-lg text-white font-bold shadow-[0_15px_35px_rgba(0,0,0,0.35)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex-1 px-6 py-4 rounded-lg text-white font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       style={{ fontFamily: '"Open Sans", sans-serif', backgroundColor: '#C40000' }}
                     >
                       {sendingCoachInvite ? 'Sending…' : 'Send Coach Invite'}
