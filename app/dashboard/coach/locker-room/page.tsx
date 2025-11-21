@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { useState } from 'react'
+import { ReactNode, useState } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { useEnhancedRole } from '@/hooks/use-role-switcher'
 import { signOut } from 'firebase/auth'
@@ -246,134 +246,64 @@ export default function CoachLockerRoom() {
         onClose={() => setActiveModal(null)}
       />
 
-      {activeModal === 'create-lesson' && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center"
-          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
-          onClick={() => setActiveModal(null)}
-        >
-          <div
-            className="bg-white rounded-2xl p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
-                Create Lesson
-              </h2>
-              <button
-                onClick={() => setActiveModal(null)}
-                className="text-gray-500 hover:text-black text-2xl font-bold"
-              >
-                ✕
-              </button>
-            </div>
-            <iframe
-              src="/dashboard/coach/lessons/create?embedded=true"
-              className="w-full h-[70vh] border-0 rounded-lg"
-              title="Create Lesson"
-            />
-          </div>
-        </div>
-      )}
+      <LockerModalShell
+        isOpen={activeModal === 'create-lesson'}
+        onClose={() => setActiveModal(null)}
+        title="Create Lesson"
+        description="Build new training lessons without leaving the locker room"
+        size="large"
+      >
+        <iframe
+          src="/dashboard/coach/lessons/create?embedded=true"
+          className="w-full h-[70vh] border-0 rounded-2xl"
+          title="Create Lesson"
+        />
+      </LockerModalShell>
 
-      {activeModal === 'add-content' && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
-          onClick={() => setActiveModal(null)}
-        >
-          <div
-            className="bg-white rounded-2xl p-6 max-w-2xl w-full max-h-[85vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
-              <div>
-                <h2 className="text-2xl font-bold" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
-                  Add Videos and Content
-                </h2>
-                <p className="text-sm mt-1" style={{ color: '#666', fontFamily: '\"Open Sans\", sans-serif' }}>
-                  Upload training videos and documents for your athletes
-                </p>
-              </div>
-              <button
-                onClick={() => setActiveModal(null)}
-                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                aria-label="Close"
-              >
-                <X className="w-6 h-6" style={{ color: '#000000' }} />
-              </button>
-            </div>
-            <CoachContentUpload />
-          </div>
-        </div>
-      )}
+      <LockerModalShell
+        isOpen={activeModal === 'add-content'}
+        onClose={() => setActiveModal(null)}
+        title="Add Videos and Content"
+        description="Upload fresh content for your athletes"
+        size="medium"
+      >
+        <CoachContentUpload />
+      </LockerModalShell>
 
-      {activeModal === 'event-schedule' && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center"
-          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
-          onClick={() => setActiveModal(null)}
-        >
-          <div
-            className="bg-white rounded-2xl p-8 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
-                Event Schedule
-              </h2>
-              <button
-                onClick={() => setActiveModal(null)}
-                className="text-gray-500 hover:text-black text-2xl font-bold"
-              >
-                ✕
-              </button>
-            </div>
-            <iframe
-              src="/dashboard/coach/events?embedded=true"
-              className="w-full h-[60vh] border-0 rounded-lg"
-              title="Event Schedule"
-            />
-          </div>
-        </div>
-      )}
+      <LockerModalShell
+        isOpen={activeModal === 'event-schedule'}
+        onClose={() => setActiveModal(null)}
+        title="Event Schedule"
+        description="Add community events and upcoming games"
+        size="medium"
+      >
+        <iframe
+          src="/dashboard/coach/events?embedded=true"
+          className="w-full h-[60vh] border-0 rounded-2xl"
+          title="Event Schedule"
+        />
+      </LockerModalShell>
 
-      {activeModal === 'schedule-session' && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center"
-          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
-          onClick={() => setActiveModal(null)}
-        >
-          <div
-            className="bg-white rounded-2xl p-8 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
-                Schedule Training Session
-              </h2>
-              <button
-                onClick={() => setActiveModal(null)}
-                className="text-gray-500 hover:text-black text-2xl font-bold"
-              >
-                ✕
-              </button>
-            </div>
-            <iframe
-              src="/dashboard/coach/live-sessions?embedded=true"
-              className="w-full h-[60vh] border-0 rounded-lg"
-              title="Schedule Training Session"
-            />
-          </div>
-        </div>
-      )}
+      <LockerModalShell
+        isOpen={activeModal === 'schedule-session'}
+        onClose={() => setActiveModal(null)}
+        title="Schedule Training Session"
+        description="Review 1-1 requests and lock in training times"
+        size="medium"
+      >
+        <iframe
+          src="/dashboard/coach/live-sessions?embedded=true"
+          className="w-full h-[60vh] border-0 rounded-2xl"
+          title="Schedule Training Session"
+        />
+      </LockerModalShell>
     </div>
   )
 }
 
 function LockerCard({ action, onClick }: { action: LockerAction; onClick: () => void }) {
   return (
-    <div className="flex flex-col items-center text-center gap-4" style={{ fontFamily: '"Open Sans", sans-serif' }}>
+    <div className="flex flex-col items-center gap-4" style={{ fontFamily: '"Open Sans", sans-serif' }}>
       <button
         type="button"
         onClick={onClick}
@@ -414,15 +344,77 @@ function LockerCard({ action, onClick }: { action: LockerAction; onClick: () => 
       </button>
 
       <p
+        className="w-full"
         style={{
-          fontSize: '14px',
+          maxWidth: '280px',
+          fontSize: '16px',
           color: '#FFFFFF',
-          lineHeight: '1.4em',
-          maxWidth: '280px'
+          lineHeight: '1.5em',
+          textAlign: 'left'
         }}
       >
         {action.description}
       </p>
+    </div>
+  )
+}
+
+function LockerModalShell({
+  isOpen,
+  onClose,
+  title,
+  description,
+  size = 'large',
+  children
+}: {
+  isOpen: boolean
+  onClose: () => void
+  title: string
+  description?: string
+  children: ReactNode
+  size?: 'medium' | 'large'
+}) {
+  if (!isOpen) return null
+
+  const sizeClass = size === 'large' ? 'max-w-5xl' : 'max-w-3xl'
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ backgroundColor: 'rgba(18, 0, 0, 0.85)' }}
+      onClick={onClose}
+    >
+      <div
+        className={`w-full ${sizeClass} rounded-[32px] border border-[#3B0000] shadow-[0_35px_90px_rgba(0,0,0,0.65)] overflow-hidden`}
+        style={{ backgroundColor: '#FFF9F5' }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div
+          className="flex items-center justify-between px-6 sm:px-10 py-6"
+          style={{ background: 'linear-gradient(100deg, #FF3B1D 0%, #A60000 100%)' }}
+        >
+          <div>
+            <h2 className="text-2xl font-bold" style={{ fontFamily: '"Open Sans", sans-serif', color: '#FFFFFF' }}>
+              {title}
+            </h2>
+            {description && (
+              <p className="text-sm mt-1" style={{ fontFamily: '"Open Sans", sans-serif', color: 'rgba(255,255,255,0.85)' }}>
+                {description}
+              </p>
+            )}
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+            aria-label="Close modal"
+          >
+            <X className="w-6 h-6" style={{ color: '#FFFFFF' }} />
+          </button>
+        </div>
+        <div className="p-6 sm:p-10" style={{ backgroundColor: '#FFF3ED' }}>
+          {children}
+        </div>
+      </div>
     </div>
   )
 }

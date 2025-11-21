@@ -274,33 +274,37 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose }: Enhanced
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+      style={{ backgroundColor: 'rgba(18, 0, 0, 0.85)' }}
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-2xl w-[75vw] max-h-[90vh] overflow-hidden flex flex-col"
+        className="w-full max-w-5xl rounded-[32px] border border-[#3B0000] shadow-[0_35px_90px_rgba(0,0,0,0.65)] overflow-hidden flex flex-col"
+        style={{ backgroundColor: '#FFF9F5' }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-8 py-6 border-b border-gray-200">
+        <div
+          className="flex items-center justify-between px-8 py-6"
+          style={{ background: 'linear-gradient(100deg, #FF3B1D 0%, #A60000 100%)' }}
+        >
           <div className="flex items-center gap-4">
             {viewState !== 'list' && (
               <button
                 onClick={handleBackToList}
-                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
                 aria-label="Back"
               >
-                <ArrowLeft className="w-6 h-6" style={{ color: '#000000' }} />
+                <ArrowLeft className="w-6 h-6" style={{ color: '#FFFFFF' }} />
               </button>
             )}
             <div>
-              <h2 className="text-2xl font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+              <h2 className="text-2xl font-bold" style={{ color: '#FFFFFF', fontFamily: '"Open Sans", sans-serif' }}>
                 {viewState === 'list' && 'Athlete Roster & Invitations'}
                 {viewState === 'profile' && selectedAthlete && `${selectedAthlete.displayName} - Full Profile`}
                 {viewState === 'videos' && selectedAthlete && `${selectedAthlete.displayName} - Video Reviews`}
                 {viewState === 'invite' && 'Invite New Athletes'}
               </h2>
-              <p className="text-sm mt-1" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+              <p className="text-sm mt-1" style={{ color: 'rgba(255,255,255,0.8)', fontFamily: '"Open Sans", sans-serif' }}>
                 {viewState === 'list' && 'Track athlete status and engagement'}
                 {viewState === 'profile' && 'Complete athlete profile and training history'}
                 {viewState === 'videos' && 'Review submitted videos and provide feedback'}
@@ -310,15 +314,15 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose }: Enhanced
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
             aria-label="Close"
           >
-            <X className="w-6 h-6" style={{ color: '#000000' }} />
+            <X className="w-6 h-6" style={{ color: '#FFFFFF' }} />
           </button>
         </div>
 
         {/* Content Area */}
-        <div className="flex-1 overflow-y-auto p-8">
+        <div className="flex-1 overflow-y-auto p-8" style={{ backgroundColor: '#FFF3ED' }}>
           {loading ? (
             <div className="flex items-center justify-center py-20">
               <div className="text-center">
@@ -342,7 +346,7 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose }: Enhanced
                       {/* Previous Button */}
                       <button
                         onClick={handlePrevAthlete}
-                        className="flex-shrink-0 w-12 h-12 rounded-full bg-black text-white flex items-center justify-center hover:bg-gray-800 transition-colors"
+                        className="flex-shrink-0 w-12 h-12 rounded-full bg-[#C40000] text-white flex items-center justify-center shadow-[0_10px_25px_rgba(0,0,0,0.35)] hover:bg-[#8F0000] transition-colors"
                         aria-label="Previous Athlete"
                       >
                         <ChevronLeft className="w-6 h-6" />
@@ -406,7 +410,7 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose }: Enhanced
 
                               {/* Current athlete - centered and highlighted */}
                               <div className="flex flex-col items-center">
-                                <div className="w-32 h-32 rounded-lg overflow-hidden bg-gray-100 ring-4 ring-black">
+                                <div className="w-32 h-32 rounded-lg overflow-hidden bg-gray-100 ring-4 ring-[#FF3B1D]">
                                   {selectedAthlete.profileImageUrl ? (
                                     // eslint-disable-next-line @next/next/no-img-element
                                     <img
@@ -488,7 +492,7 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose }: Enhanced
                       {/* Next Button */}
                       <button
                         onClick={handleNextAthlete}
-                        className="flex-shrink-0 w-12 h-12 rounded-full bg-black text-white flex items-center justify-center hover:bg-gray-800 transition-colors"
+                        className="flex-shrink-0 w-12 h-12 rounded-full bg-[#C40000] text-white flex items-center justify-center shadow-[0_10px_25px_rgba(0,0,0,0.35)] hover:bg-[#8F0000] transition-colors"
                         aria-label="Next Athlete"
                       >
                         <ChevronRight className="w-6 h-6" />
@@ -502,29 +506,32 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose }: Enhanced
                       {/* Metrics Cards */}
                       <div className="grid grid-cols-3 gap-6">
                         {/* Video Submissions */}
-                        <div className="bg-white rounded-xl p-6 border-2 border-gray-200 hover:border-black transition-colors">
+                        <div
+                          className="rounded-2xl p-6 border-2 transition-colors"
+                          style={{ backgroundColor: '#FFE6DD', borderColor: '#F2B6A7' }}
+                        >
                           <div className="flex items-center gap-3 mb-4">
-                            <div className="p-3 rounded-lg" style={{ backgroundColor: '#FEE' }}>
-                              <Video className="w-6 h-6" style={{ color: '#FC0105' }} />
+                            <div className="p-3 rounded-lg" style={{ backgroundColor: '#FFD4C5' }}>
+                              <Video className="w-6 h-6" style={{ color: '#C40000' }} />
                             </div>
-                            <h3 className="text-lg font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                            <h3 className="text-lg font-bold" style={{ color: '#2B0101', fontFamily: '"Open Sans", sans-serif' }}>
                               Video Submissions
                             </h3>
                           </div>
                           <div className="space-y-3">
                             <div className="flex justify-between items-center">
-                              <span className="text-sm" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+                              <span className="text-sm" style={{ color: '#5C3A36', fontFamily: '"Open Sans", sans-serif' }}>
                                 Awaiting Review
                               </span>
-                              <span className="text-3xl font-bold" style={{ color: '#FC0105', fontFamily: '"Open Sans", sans-serif' }}>
+                              <span className="text-3xl font-bold" style={{ color: '#C40000', fontFamily: '"Open Sans", sans-serif' }}>
                                 {selectedMetrics.videosAwaiting}
                               </span>
                             </div>
-                            <div className="flex justify-between items-center pt-3 border-t border-gray-200">
-                              <span className="text-sm" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+                            <div className="flex justify-between items-center pt-3 border-t border-[#F2B6A7]">
+                              <span className="text-sm" style={{ color: '#5C3A36', fontFamily: '"Open Sans", sans-serif' }}>
                                 Total Submissions
                               </span>
-                              <span className="text-2xl font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                              <span className="text-2xl font-bold" style={{ color: '#2B0101', fontFamily: '"Open Sans", sans-serif' }}>
                                 {selectedMetrics.submissions}
                               </span>
                             </div>
@@ -532,29 +539,32 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose }: Enhanced
                         </div>
 
                         {/* Training Progress */}
-                        <div className="bg-white rounded-xl p-6 border-2 border-gray-200 hover:border-black transition-colors">
+                        <div
+                          className="rounded-2xl p-6 border-2 transition-colors"
+                          style={{ backgroundColor: '#FFEFE1', borderColor: '#F5C8A8' }}
+                        >
                           <div className="flex items-center gap-3 mb-4">
-                            <div className="p-3 rounded-lg" style={{ backgroundColor: '#E8F5E9' }}>
-                              <TrendingUp className="w-6 h-6" style={{ color: '#00A651' }} />
+                            <div className="p-3 rounded-lg" style={{ backgroundColor: '#FFE0C7' }}>
+                              <TrendingUp className="w-6 h-6" style={{ color: '#C40000' }} />
                             </div>
-                            <h3 className="text-lg font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                            <h3 className="text-lg font-bold" style={{ color: '#2B0101', fontFamily: '"Open Sans", sans-serif' }}>
                               Training Progress
                             </h3>
                           </div>
                           <div className="space-y-3">
                             <div className="flex justify-between items-center">
-                              <span className="text-sm" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+                              <span className="text-sm" style={{ color: '#5C3A36', fontFamily: '"Open Sans", sans-serif' }}>
                                 Completed
                               </span>
-                              <span className="text-3xl font-bold" style={{ color: '#00A651', fontFamily: '"Open Sans", sans-serif' }}>
+                              <span className="text-3xl font-bold" style={{ color: '#C40000', fontFamily: '"Open Sans", sans-serif' }}>
                                 {selectedMetrics.lessonsCompleted}
                               </span>
                             </div>
-                            <div className="flex justify-between items-center pt-3 border-t border-gray-200">
-                              <span className="text-sm" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+                            <div className="flex justify-between items-center pt-3 border-t border-[#F5C8A8]">
+                              <span className="text-sm" style={{ color: '#5C3A36', fontFamily: '"Open Sans", sans-serif' }}>
                                 In Progress
                               </span>
-                              <span className="text-2xl font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                              <span className="text-2xl font-bold" style={{ color: '#2B0101', fontFamily: '"Open Sans", sans-serif' }}>
                                 {selectedMetrics.lessonsUnfinished}
                               </span>
                             </div>
@@ -562,17 +572,20 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose }: Enhanced
                         </div>
 
                         {/* Last Activity */}
-                        <div className="bg-white rounded-xl p-6 border-2 border-gray-200 hover:border-black transition-colors">
+                        <div
+                          className="rounded-2xl p-6 border-2 transition-colors"
+                          style={{ backgroundColor: '#FFE9E0', borderColor: '#F1B5A6' }}
+                        >
                           <div className="flex items-center gap-3 mb-4">
-                            <div className="p-3 rounded-lg" style={{ backgroundColor: '#F5F5F5' }}>
-                              <Clock className="w-6 h-6" style={{ color: '#666' }} />
+                            <div className="p-3 rounded-lg" style={{ backgroundColor: '#FFDACE' }}>
+                              <Clock className="w-6 h-6" style={{ color: '#C40000' }} />
                             </div>
-                            <h3 className="text-lg font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                            <h3 className="text-lg font-bold" style={{ color: '#2B0101', fontFamily: '"Open Sans", sans-serif' }}>
                               Last Activity
                             </h3>
                           </div>
                           <div className="space-y-3">
-                            <p className="text-xl font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                            <p className="text-xl font-bold" style={{ color: '#2B0101', fontFamily: '"Open Sans", sans-serif' }}>
                               {selectedMetrics.lastActivity
                                 ? new Date(selectedMetrics.lastActivity).toLocaleDateString('en-US', {
                                     month: 'short',
@@ -582,7 +595,7 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose }: Enhanced
                                 : 'No recent activity'}
                             </p>
                             {selectedMetrics.lastActivity && (
-                              <p className="text-sm" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+                              <p className="text-sm" style={{ color: '#5C3A36', fontFamily: '"Open Sans", sans-serif' }}>
                                 {Math.floor((Date.now() - new Date(selectedMetrics.lastActivity).getTime()) / (1000 * 60 * 60 * 24))} days ago
                               </p>
                             )}
@@ -591,15 +604,15 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose }: Enhanced
                       </div>
 
                       {/* Action Panel */}
-                      <div className="bg-gray-50 rounded-xl p-6 border-2 border-gray-200 mb-8">
-                        <h3 className="text-lg font-bold mb-4" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                      <div className="rounded-2xl p-6 border-2 border-[#E9B0A0] mb-8" style={{ backgroundColor: '#FFEFE6' }}>
+                        <h3 className="text-lg font-bold mb-4" style={{ color: '#2B0101', fontFamily: '"Open Sans", sans-serif' }}>
                           Quick Actions
                         </h3>
                         <div className="flex gap-4 mb-6">
                           <button
                             onClick={handleViewProfile}
-                            className="flex-1 px-6 py-4 rounded-lg bg-black text-white font-bold text-center hover:bg-gray-800 transition-colors"
-                            style={{ fontFamily: '"Open Sans", sans-serif' }}
+                            className="flex-1 px-6 py-4 rounded-lg text-white font-bold text-center shadow-[0_12px_30px_rgba(0,0,0,0.25)] transition-colors"
+                            style={{ fontFamily: '"Open Sans", sans-serif', backgroundColor: '#C40000' }}
                           >
                             <BookOpen className="w-5 h-5 inline-block mr-2" />
                             View Full Profile
@@ -607,8 +620,8 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose }: Enhanced
                           {selectedMetrics.videosAwaiting > 0 && (
                             <button
                               onClick={handleViewVideos}
-                              className="flex-1 px-6 py-4 rounded-lg border-2 border-black text-black font-bold text-center hover:bg-gray-50 transition-colors"
-                              style={{ fontFamily: '"Open Sans", sans-serif' }}
+                              className="flex-1 px-6 py-4 rounded-lg border-2 font-bold text-center transition-colors"
+                              style={{ fontFamily: '"Open Sans", sans-serif', borderColor: '#C40000', color: '#C40000' }}
                             >
                               <Video className="w-5 h-5 inline-block mr-2" />
                               Review Videos ({selectedMetrics.videosAwaiting})
@@ -617,23 +630,23 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose }: Enhanced
                         </div>
 
                         {/* AI Chat Summary */}
-                        <div className="bg-white rounded-lg p-5 border border-gray-200">
-                          <h4 className="text-base font-bold mb-3 flex items-center gap-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
-                            <Sparkles className="w-5 h-5" style={{ color: '#9B59B6' }} />
+                        <div className="rounded-lg p-5 border border-[#F0C1B4]" style={{ backgroundColor: '#FFF6F2' }}>
+                          <h4 className="text-base font-bold mb-3 flex items-center gap-2" style={{ color: '#2B0101', fontFamily: '"Open Sans", sans-serif' }}>
+                            <Sparkles className="w-5 h-5" style={{ color: '#C40000' }} />
                             AI Chat Summary
                           </h4>
                           {loadingSummary ? (
-                            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                            <div className="rounded-lg p-4 border border-dashed border-[#F0C1B4]" style={{ backgroundColor: '#FFECE3' }}>
                               <div className="flex items-center gap-2">
-                                <div className="h-4 w-4 rounded-full border-2 border-purple-500 border-t-transparent animate-spin" />
-                                <p className="text-sm" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+                                <div className="h-4 w-4 rounded-full border-2 border-[#C40000] border-t-transparent animate-spin" />
+                                <p className="text-sm" style={{ color: '#5C3A36', fontFamily: '"Open Sans", sans-serif' }}>
                                   Loading summary...
                                 </p>
                               </div>
                             </div>
                           ) : (
-                            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                              <p className="text-sm leading-relaxed" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                            <div className="rounded-lg p-4 border border-[#F0C1B4]" style={{ backgroundColor: '#FFF9F6' }}>
+                              <p className="text-sm leading-relaxed" style={{ color: '#2B0101', fontFamily: '"Open Sans", sans-serif' }}>
                                 {typeof aiChatSummary === 'string' ? aiChatSummary : 'No recent conversations'}
                               </p>
                             </div>
@@ -642,20 +655,20 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose }: Enhanced
                       </div>
 
                       {/* Pending Invitations */}
-                      <div className="bg-white rounded-xl p-6 border-2 border-gray-200">
-                        <h3 className="text-lg font-bold mb-4 flex items-center gap-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
-                          <svg className="w-6 h-6" style={{ color: '#FC0105' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="rounded-2xl p-6 border-2 border-[#E9B0A0]" style={{ backgroundColor: '#FFEFE6' }}>
+                        <h3 className="text-lg font-bold mb-4 flex items-center gap-2" style={{ color: '#2B0101', fontFamily: '"Open Sans", sans-serif' }}>
+                          <svg className="w-6 h-6" style={{ color: '#C40000' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                           </svg>
                           Pending Invitations
                         </h3>
-                        <div className="bg-gray-50 rounded-lg p-4 text-center border border-gray-200">
-                          <p className="text-sm" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+                        <div className="rounded-lg p-4 text-left border border-[#F0C1B4]" style={{ backgroundColor: '#FFF9F6' }}>
+                          <p className="text-sm" style={{ color: '#5C3A36', fontFamily: '"Open Sans", sans-serif' }}>
                             No pending invitations at this time
                           </p>
                           <button
-                            className="mt-4 px-6 py-3 rounded-lg bg-black text-white font-bold hover:bg-gray-800 transition-colors"
-                            style={{ fontFamily: '"Open Sans", sans-serif' }}
+                            className="mt-4 px-6 py-3 rounded-lg text-white font-bold shadow-[0_12px_30px_rgba(0,0,0,0.25)] transition-colors"
+                            style={{ fontFamily: '"Open Sans", sans-serif', backgroundColor: '#C40000' }}
                             onClick={handleInviteAthlete}
                           >
                             Invite New Athlete
@@ -668,20 +681,20 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose }: Enhanced
               )}
 
               {viewState === 'profile' && selectedAthlete && (
-                <div className="h-[calc(90vh-12rem)]">
+                <div className="h-[calc(90vh-12rem)] bg-white rounded-2xl border border-[#E9B0A0]">
                   <iframe
                     src={`/dashboard/coach/athletes/${selectedAthlete.slug || selectedAthlete.uid}?embedded=true`}
-                    className="w-full h-full border-0 rounded-lg"
+                    className="w-full h-full border-0 rounded-2xl"
                     title="Athlete Profile"
                   />
                 </div>
               )}
 
               {viewState === 'videos' && selectedAthlete && (
-                <div className="h-[calc(90vh-12rem)]">
+                <div className="h-[calc(90vh-12rem)] bg-white rounded-2xl border border-[#E9B0A0]">
                   <iframe
                     src={`/dashboard/coach/queue?embedded=true&athleteId=${selectedAthlete.uid}`}
-                    className="w-full h-full border-0 rounded-lg"
+                    className="w-full h-full border-0 rounded-2xl"
                     title="Video Review Queue"
                   />
                 </div>
@@ -691,23 +704,23 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose }: Enhanced
                 <div className="space-y-6">
                   {/* Sport Selection */}
                   <div>
-                    <label className="block text-sm font-bold mb-1" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                    <label className="block text-sm font-bold mb-1" style={{ color: '#2B0101', fontFamily: '"Open Sans", sans-serif' }}>
                       Sport
                     </label>
                     <p
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg bg-gray-50 text-gray-700 text-sm"
-                      style={{ fontFamily: '"Open Sans", sans-serif' }}
+                      className="w-full px-4 py-3 border-2 rounded-lg text-sm"
+                      style={{ fontFamily: '"Open Sans", sans-serif', borderColor: '#E9B0A0', backgroundColor: '#FFF9F6', color: '#5C3A36' }}
                     >
                       {coachSport || 'Not set'}
                     </p>
-                    <p className="mt-1 text-xs text-gray-500" style={{ fontFamily: '"Open Sans", sans-serif' }}>
+                    <p className="mt-1 text-xs" style={{ color: '#8B4B41', fontFamily: '"Open Sans", sans-serif' }}>
                       Athlete invitations are locked to your primary coaching sport.
                     </p>
                   </div>
 
                   {/* Custom Message */}
                   <div>
-                    <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                    <label className="block text-sm font-bold mb-2" style={{ color: '#2B0101', fontFamily: '"Open Sans", sans-serif' }}>
                       Custom Message (Optional)
                     </label>
                     <textarea
@@ -715,21 +728,30 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose }: Enhanced
                       onChange={(e) => setInviteForm(prev => ({ ...prev, customMessage: e.target.value }))}
                       placeholder="Add a personal message to your invitation..."
                       rows={3}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-black"
-                      style={{ fontFamily: '"Open Sans", sans-serif' }}
+                      className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none"
+                      style={{
+                        fontFamily: '"Open Sans", sans-serif',
+                        borderColor: '#E9B0A0',
+                        backgroundColor: '#FFF9F6',
+                        color: '#2B0101'
+                      }}
                     />
                   </div>
 
                   {/* Athletes List */}
                   <div>
                     <div className="flex items-center justify-between mb-3">
-                      <label className="block text-sm font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                      <label className="block text-sm font-bold" style={{ color: '#2B0101', fontFamily: '"Open Sans", sans-serif' }}>
                         Athletes
                       </label>
                       <button
                         onClick={addAthleteRow}
-                        className="flex items-center gap-2 px-3 py-2 text-sm font-bold rounded-lg border-2 border-black hover:bg-gray-50 transition-colors"
-                        style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}
+                        className="flex items-center gap-2 px-3 py-2 text-sm font-bold rounded-lg border-2 transition-colors"
+                        style={{
+                          fontFamily: '"Open Sans", sans-serif',
+                          borderColor: '#C40000',
+                          color: '#C40000'
+                        }}
                       >
                         <Plus className="w-4 h-4" />
                         Add Athlete
@@ -744,23 +766,34 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose }: Enhanced
                             placeholder="Athlete Name"
                             value={athlete.name}
                             onChange={(e) => updateAthlete(index, 'name', e.target.value)}
-                            className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-black"
-                            style={{ fontFamily: '"Open Sans", sans-serif' }}
+                            className="flex-1 px-4 py-3 border-2 rounded-lg focus:outline-none"
+                            style={{
+                              fontFamily: '"Open Sans", sans-serif',
+                              borderColor: '#E9B0A0',
+                              backgroundColor: '#FFF9F6',
+                              color: '#2B0101'
+                            }}
                           />
                           <input
                             type="email"
                             placeholder="athlete@email.com"
                             value={athlete.email}
                             onChange={(e) => updateAthlete(index, 'email', e.target.value)}
-                            className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-black"
-                            style={{ fontFamily: '"Open Sans", sans-serif' }}
+                            className="flex-1 px-4 py-3 border-2 rounded-lg focus:outline-none"
+                            style={{
+                              fontFamily: '"Open Sans", sans-serif',
+                              borderColor: '#E9B0A0',
+                              backgroundColor: '#FFF9F6',
+                              color: '#2B0101'
+                            }}
                           />
                           {inviteForm.athletes.length > 1 && (
                             <button
                               onClick={() => removeAthleteRow(index)}
-                              className="px-4 py-3 rounded-lg border-2 border-gray-200 hover:border-red-500 hover:bg-red-50 transition-colors"
+                              className="px-4 py-3 rounded-lg border-2 transition-colors"
+                              style={{ borderColor: '#F1B5A6', color: '#C40000' }}
                             >
-                              <Trash2 className="w-5 h-5" style={{ color: '#FC0105' }} />
+                              <Trash2 className="w-5 h-5" />
                             </button>
                           )}
                         </div>
@@ -773,15 +806,15 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose }: Enhanced
                     <button
                       onClick={handleSendInvites}
                       disabled={sendingInvites}
-                      className="flex-1 px-6 py-4 rounded-lg bg-black text-white font-bold hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                      style={{ fontFamily: '"Open Sans", sans-serif' }}
+                      className="flex-1 px-6 py-4 rounded-lg text-white font-bold shadow-[0_15px_35px_rgba(0,0,0,0.35)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      style={{ fontFamily: '"Open Sans", sans-serif', backgroundColor: '#C40000' }}
                     >
                       {sendingInvites ? 'Sending...' : `Send ${inviteForm.athletes.filter(a => a.email && a.name).length} Invitation(s)`}
                     </button>
                     <button
                       onClick={handleBackToList}
-                      className="px-6 py-4 rounded-lg border-2 border-gray-200 font-bold hover:bg-gray-50 transition-colors"
-                      style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}
+                      className="px-6 py-4 rounded-lg border-2 font-bold transition-colors"
+                      style={{ color: '#2B0101', fontFamily: '"Open Sans", sans-serif', borderColor: '#E9B0A0' }}
                     >
                       Cancel
                     </button>
@@ -794,4 +827,3 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose }: Enhanced
       </div>
     </div>
   )
-}
