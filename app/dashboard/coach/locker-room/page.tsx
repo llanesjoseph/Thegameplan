@@ -7,7 +7,6 @@ import { useAuth } from '@/hooks/use-auth'
 import { useEnhancedRole } from '@/hooks/use-role-switcher'
 import { signOut } from 'firebase/auth'
 import { auth } from '@/lib/firebase.client'
-import { Facebook, Instagram, Youtube, Linkedin, X } from 'lucide-react'
 import EnhancedAthleteRosterModal from '@/components/coach/EnhancedAthleteRosterModal'
 import CoachContentUpload from '@/components/coach/CoachContentUpload'
 import lockerLogo from '@/Favicon/Wordpress Transparent.png'
@@ -175,7 +174,7 @@ export default function CoachLockerRoom() {
       </div>
 
       <main className="flex-1 w-full">
-        <div className="max-w-5xl mx-auto px-4 sm:px-8 py-10 space-y-16">
+        <div className="max-w-6xl mx-auto px-4 sm:px-10 py-10 space-y-16">
           <section className="bg-white px-6 sm:px-12 py-12 text-center border border-[#f0f0f0]" style={{ borderRadius: '0px' }}>
             <div className="flex justify-center mb-6">
               <Image src={lockerLogo} alt="Athleap mark" width={113} height={122} priority className="object-contain" />
@@ -218,8 +217,9 @@ export default function CoachLockerRoom() {
           </div>
 
           <section className="space-y-6">
-            <div className="text-center space-y-3">
+            <div className="space-y-3">
               <h2
+                className="text-left"
                 style={{
                   fontFamily: '"Open Sans", sans-serif',
                   fontSize: '25px',
@@ -231,16 +231,17 @@ export default function CoachLockerRoom() {
                 Athletes and Training Content
               </h2>
             </div>
-            <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="flex flex-wrap gap-10">
               {trainingActions.map((action) => (
                 <LockerCard key={action.key} action={action} onClick={() => setActiveModal(action.key)} />
               ))}
             </div>
           </section>
 
-          <section className="space-y-6">
-            <div className="text-center space-y-3">
+          <section className="space-y-6 pb-4">
+            <div className="space-y-3">
               <h2
+                className="text-left"
                 style={{
                   fontFamily: '"Open Sans", sans-serif',
                   fontSize: '25px',
@@ -252,7 +253,7 @@ export default function CoachLockerRoom() {
                 Calendar and Events
               </h2>
             </div>
-            <div className="grid gap-8 grid-cols-1 sm:grid-cols-2">
+            <div className="flex flex-wrap gap-10">
               {calendarActions.map((action) => (
                 <LockerCard key={action.key} action={action} onClick={() => setActiveModal(action.key)} />
               ))}
@@ -325,12 +326,14 @@ export default function CoachLockerRoom() {
 
 function LockerCard({ action, onClick }: { action: LockerAction; onClick: () => void }) {
   return (
-    <div className="flex flex-col items-center gap-4" style={{ fontFamily: '"Open Sans", sans-serif' }}>
+    <div
+      className="flex flex-col items-start gap-4"
+      style={{ fontFamily: '"Open Sans", sans-serif', maxWidth: '280px', width: '100%' }}
+    >
       <button
         type="button"
         onClick={onClick}
         className="relative w-full focus:outline-none"
-        style={{ maxWidth: '280px' }}
       >
         <span
           className="absolute inset-0 rounded-md"
@@ -365,16 +368,7 @@ function LockerCard({ action, onClick }: { action: LockerAction; onClick: () => 
         </div>
       </button>
 
-      <p
-        className="w-full"
-        style={{
-          maxWidth: '280px',
-          fontSize: '16px',
-          color: '#FFFFFF',
-          lineHeight: '1.5em',
-          textAlign: 'left'
-        }}
-      >
+      <p className="w-full text-left" style={{ fontSize: '16px', color: '#FFFFFF', lineHeight: '1.5em' }}>
         {action.description}
       </p>
     </div>
