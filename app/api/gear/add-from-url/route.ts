@@ -6,11 +6,47 @@ async function parseUrlMeta(url: string) {
   const res = await fetch(url, { cache: 'no-store' })
   const html = await res.text()
   const get = (re: RegExp) => (html.match(re)?.[1] || '').trim()
-  const ogTitle = get(/<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']+)["']/i) || get(/<title[^>]*>([^<]+)<\/title>/i)
+
+  const ogTitle =
+    get(/<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']+)["']/i) ||
+    get(/<title[^>]*>([^<]+)<\/title>/i)
   const ogImage = get(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i)
-  const ogDesc = get(/<meta[^>]+property=["']og:description["'][^>]+content=["']([^"']+)["']/i) || get(/<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)["']/i)
-  const price = get(/<meta[^>]+property=["']product:price:amount["'][^>]+content=["']([^"']+)["']/i) || get(/"price"\s*:\s*"([^"]+)"/i) || ''
-  return { name: ogTitle || url, imageUrl: ogImage || '', description: ogDesc || '', price, link: url }
+  const ogDesc =
+    get(/<meta[^>]+property=["']og:description["'][^>]+content=["']([^"']+)["']/i) ||
+    get(/<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)["']/i)
+
+  // Try structured/meta prices first
+  let priceText =
+    get(/<meta[^>]+property=["']product:price:amount["'][^>]+content=["']([^"']+)["']/i) ||
+    get(/"price"\s*:\s*"([^"]+)"/i) ||
+    ''
+
+  // Fallback: look for a currency pattern like "$191.99" in the HTML (covers sites like Gold BJJ)
+  if (!priceText) {
+    const currencyMatch = html.match(/\$\s*([\d,]+(?:\.\d{2})?)/)
+    if (currencyMatch) {
+      priceText = `$${currencyMatch[1]}`
+    }
+  }
+
+  // Normalize to a numeric USD price when possible
+  let priceUSD: number | undefined
+  if (priceText) {
+    const numeric = parseFloat(priceText.replace(/[^0-9.]/g, ''))
+    if (!Number.isNaN(numeric)) {
+      priceUSD = numeric
+    }
+  }
+
+  return {
+    name: ogTitle || url,
+    imageUrl: ogImage || '',
+    description: ogDesc || '',
+    // Store both the formatted text and a numeric USD value if we could parse it
+    price: priceText || (priceUSD !== undefined ? priceUSD : ''),
+    priceUSD,
+    link: url
+  }
 }
 
 export async function POST(request: Request) {
