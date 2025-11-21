@@ -77,7 +77,7 @@ export default function BrowseCoachesPage() {
     }
   }
 
-  const handleFollowToggle = async (coachId: string, e: React.MouseEvent) => {
+  const handleFollowToggle = async (coachId: string, e: any) => {
     e.preventDefault()
     e.stopPropagation()
 
@@ -403,9 +403,9 @@ export default function BrowseCoachesPage() {
           </p>
         </div>
 
-        {/* Sport Filter - compact, aligned right */}
-        <div className="flex justify-end mb-10">
-          <div className="relative">
+        {/* Sport Filter - left-aligned under heading */}
+        <div className="mt-4 mb-10 flex justify-start">
+          <div className="relative inline-block">
             <select
               value={selectedSport}
               onChange={(e) => setSelectedSport(e.target.value)}
