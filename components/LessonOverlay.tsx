@@ -41,7 +41,7 @@ interface LessonOverlayProps {
   lessonId: string
   onClose: () => void
   isCompleted?: boolean
-  onToggleCompletion?: () => void
+  onToggleCompletion?: () => void | Promise<void>
 }
 
 export default function LessonOverlay({
@@ -161,10 +161,7 @@ export default function LessonOverlay({
                     if (!onToggleCompletion || isTogglingCompletion) return
                     try {
                       setIsTogglingCompletion(true)
-                      const result = onToggleCompletion()
-                      if (result && typeof (result as any).then === 'function') {
-                        await (result as Promise<void>)
-                      }
+                      await onToggleCompletion()
                     } finally {
                       setIsTogglingCompletion(false)
                     }
