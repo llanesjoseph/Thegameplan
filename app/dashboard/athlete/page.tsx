@@ -23,32 +23,6 @@ import ProfileQuickSetupModal from '@/components/athlete/ProfileQuickSetupModal'
 import WelcomePopup from '@/components/athlete/WelcomePopup'
 import AthleteShowcaseCard from '@/components/athlete/AthleteShowcaseCard'
 
-const socialLinks = [
-  {
-    name: 'LinkedIn',
-    url: 'https://www.linkedin.com/company/wix-com',
-    iconUrl:
-      'https://static.wixstatic.com/media/6ea5b4a88f0b4f91945b40499aa0af00.png/v1/fill/w_24,h_24,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/6ea5b4a88f0b4f91945b40499aa0af00.png'
-  },
-  {
-    name: 'Facebook',
-    url: 'https://www.facebook.com/wix',
-    iconUrl:
-      'https://static.wixstatic.com/media/0fdef751204647a3bbd7eaa2827ed4f9.png/v1/fill/w_24,h_24,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/0fdef751204647a3bbd7eaa2827ed4f9.png'
-  },
-  {
-    name: 'Twitter',
-    url: 'https://www.twitter.com/wix',
-    iconUrl:
-      'https://static.wixstatic.com/media/c7d035ba85f6486680c2facedecdcf4d.png/v1/fill/w_24,h_24,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c7d035ba85f6486680c2facedecdcf4d.png'
-  },
-  {
-    name: 'Instagram',
-    url: 'https://www.instagram.com/wix',
-    iconUrl:
-      'https://static.wixstatic.com/media/01c3aff52f2a4dffa526d7a9843d46ea.png/v1/fill/w_24,h_24,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/01c3aff52f2a4dffa526d7a9843d46ea.png'
-  }
-]
 
 export default function AthleteDashboard() {
   const { user } = useAuth()
@@ -492,32 +466,6 @@ export default function AthleteDashboard() {
             <section className="mt-12">
               <AthleteRecommendedGear />
             </section>
-          </div>
-        </section>
-
-        {/* Footer social bar (Wix-style) */}
-        <section className="w-full bg-white border-t border-gray-200">
-          <div className="max-w-6xl mx-auto px-8 py-6 flex items-center justify-end">
-            <ul className="flex items-center gap-4" aria-label="Social Bar">
-              {socialLinks.map(link => (
-                <li key={link.name}>
-                  <a
-                    href={link.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    aria-label={link.name}
-                    className="block"
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={link.iconUrl}
-                      alt={link.name}
-                      className="w-6 h-6 object-cover"
-                    />
-                  </a>
-                </li>
-              ))}
-            </ul>
           </div>
         </section>
 

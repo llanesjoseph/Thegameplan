@@ -120,7 +120,13 @@ export async function GET(
       uid: originalId,
       displayName: creatorData.displayName || userData.displayName || 'Unknown Coach',
       email: userData.email || '',
-      bio: creatorData.bio || '',
+      bio:
+        creatorData.bio ||
+        creatorData.longBio ||
+        creatorData.description ||
+        userData.bio ||
+        userData.about ||
+        '',
       sport: creatorData.sport || 'General',
       yearsExperience: creatorData.experience || '0',
       specialties: creatorData.specialties || [],

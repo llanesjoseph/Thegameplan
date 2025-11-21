@@ -67,7 +67,12 @@ export async function GET(request: NextRequest) {
       sport,
       tagline: profileData?.tagline,
       credentials: profileData?.credentials,
-      bio: profileData?.bio,
+      bio:
+        profileData?.bio ||
+        profileData?.longBio ||
+        profileData?.description ||
+        profileData?.about ||
+        '',
       headshotUrl: profileData?.headshotUrl,
       heroImageUrl: profileData?.heroImageUrl,
       actionPhotos: profileData?.actionPhotos || [],

@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState, type WheelEvent, type ReactNode } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, ArrowRight, X } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Facebook, Instagram, Linkedin, Twitter, X, Youtube } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { storage } from '@/lib/firebase.client'
@@ -85,6 +86,67 @@ const DEFAULT_GALLERY_IMAGES = [
   'https://static.wixstatic.com/media/8bb438_ac2af14459894a6cbce641b7d8af9dc9~mv2_d_3000_2000_s_2.jpg/v1/fill/w_428,h_570,q_90,enc_avif,quality_auto/8bb438_ac2af14459894a6cbce641b7d8af9dc9~mv2_d_3000_2000_s_2.jpg'
 ]
 
+const ATHLEAP_SOCIAL_LINKS: SocialLinks = {
+  linkedin: 'https://www.linkedin.com/company/athleap',
+  facebook: 'https://www.facebook.com/athleap',
+  instagram: 'https://www.instagram.com/athleap',
+  twitter: 'https://twitter.com/athleap',
+  youtube: 'https://www.youtube.com/@athleap'
+}
+
+type SocialPlatform = keyof SocialLinks
+type CoachSocialField = Extract<keyof HeroCoachProfileProps['coach'], SocialPlatform>
+
+const SOCIAL_FIELD_CONFIG: Array<{
+  key: CoachSocialField
+  label: string
+  placeholder: string
+}> = [
+  { key: 'instagram', label: 'Instagram', placeholder: 'https://instagram.com/athleap' },
+  { key: 'facebook', label: 'Facebook', placeholder: 'https://facebook.com/athleap' },
+  { key: 'twitter', label: 'Twitter / X', placeholder: 'https://twitter.com/athleap' },
+  { key: 'linkedin', label: 'LinkedIn', placeholder: 'https://www.linkedin.com/in/coach' },
+  { key: 'youtube', label: 'YouTube', placeholder: 'https://youtube.com/@coach' }
+]
+
+const SOCIAL_LABELS: Record<SocialPlatform, string> = {
+  instagram: 'Instagram',
+  facebook: 'Facebook',
+  twitter: 'Twitter',
+  linkedin: 'LinkedIn',
+  youtube: 'YouTube'
+}
+
+const SOCIAL_ICON_MAP: Record<SocialPlatform, LucideIcon> = {
+  instagram: Instagram,
+  facebook: Facebook,
+  twitter: Twitter,
+  linkedin: Linkedin,
+  youtube: Youtube
+}
+
+function normalizeSocialUrl(platform: SocialPlatform, value?: string) {
+  if (!value) return ''
+  const trimmed = value.trim()
+  if (!trimmed) return ''
+  if (/^https?:\/\//i.test(trimmed)) return trimmed
+  const handle = trimmed.replace(/^@/, '')
+  switch (platform) {
+    case 'instagram':
+      return `https://www.instagram.com/${handle}`
+    case 'facebook':
+      return `https://www.facebook.com/${handle}`
+    case 'twitter':
+      return `https://twitter.com/${handle}`
+    case 'linkedin':
+      return `https://www.linkedin.com/in/${handle}`
+    case 'youtube':
+      return `https://www.youtube.com/${handle}`
+    default:
+      return trimmed
+  }
+}
+
 interface HeroCoachProfileProps {
   coach: {
     uid: string
@@ -100,10 +162,13 @@ interface HeroCoachProfileProps {
     youtube?: string
     linkedin?: string
     facebook?: string
+    twitter?: string
     socialLinks?: {
       twitter?: string
       instagram?: string
       linkedin?: string
+      facebook?: string
+      youtube?: string
     }
     galleryPhotos?: string[]
   }
@@ -166,11 +231,13 @@ export default function HeroCoachProfile({
 
   const socialLinks: SocialLinks = {
     linkedin: activeCoach.linkedin || activeCoach.socialLinks?.linkedin,
-    facebook: activeCoach.facebook,
+    facebook: activeCoach.facebook || activeCoach.socialLinks?.facebook,
     instagram: activeCoach.instagram || activeCoach.socialLinks?.instagram,
-    youtube: activeCoach.youtube,
-    twitter: activeCoach.socialLinks?.twitter
+    youtube: activeCoach.youtube || activeCoach.socialLinks?.youtube,
+    twitter: activeCoach.twitter || activeCoach.socialLinks?.twitter
   }
+  const isAthleteReadOnlyView = !!forceReadOnly
+  const visibleSocialLinks = isAthleteReadOnlyView ? ATHLEAP_SOCIAL_LINKS : socialLinks
 
   const handleEditField = (field: keyof HeroCoachProfileProps['coach'], value: string) => {
     setEditableCoach((prev) => ({
@@ -407,7 +474,8 @@ export default function HeroCoachProfile({
         onSave={handleSaveEdits}
         onCancel={handleCancelEdits}
         theme={theme}
-        canEditProfile={canEditProfile}
+      canEditProfile={canEditProfile}
+      socialLinks={visibleSocialLinks}
       />
 
       {galleryPhotos.length > 0 && <CoachGallery photos={galleryPhotos} />}
@@ -419,8 +487,6 @@ export default function HeroCoachProfile({
       {!gearLoading && (gearItems.length > 0 || canManageGear) && (
         <RecommendedGearSection items={gearItems} canManage={canManageGear} onGearAdded={(item) => setGearItems((prev) => [item, ...prev])} />
       )}
-
-      {isInIframe && <FooterSocialBar socialLinks={socialLinks} />}
 
       {selectedLesson && <LessonDetailModal lesson={selectedLesson} onClose={() => setSelectedLesson(null)} />}
 
@@ -451,7 +517,8 @@ function HeroSection({
   onSave,
   onCancel,
   theme,
-  canEditProfile
+  canEditProfile,
+  socialLinks
 }: {
   coach: HeroCoachProfileProps['coach']
   editingCoach: HeroCoachProfileProps['coach']
@@ -472,6 +539,7 @@ function HeroSection({
   onCancel: () => void
   theme: SportTheme
   canEditProfile: boolean
+  socialLinks: SocialLinks
 }) {
   const editingEnabled = canEditProfile && isEditing
   const embossClasses =
@@ -577,6 +645,8 @@ function HeroSection({
               )
             )}
           </div>
+
+          {!editingEnabled && <CoachSocialLinkRow socialLinks={socialLinks} />}
         </div>
 
         <div className="flex justify-center md:justify-end">
@@ -640,10 +710,79 @@ function HeroSection({
                 uploadingPhotoField={uploadingPhotoField}
               />
             )}
+            {editingEnabled && (
+              <SocialLinksEditor editingCoach={editingCoach} onFieldChange={onFieldChange} />
+            )}
           </div>
         </div>
       </div>
     </section>
+  )
+}
+
+function CoachSocialLinkRow({ socialLinks }: { socialLinks: SocialLinks }) {
+  const entries = (Object.keys(socialLinks) as SocialPlatform[])
+    .map((platform) => {
+      const url = normalizeSocialUrl(platform, socialLinks[platform])
+      return url ? { platform, url } : null
+    })
+    .filter((entry): entry is { platform: SocialPlatform; url: string } => !!entry)
+
+  if (!entries.length) {
+    return null
+  }
+
+  return (
+    <div className="flex flex-wrap items-center gap-4 pt-2">
+      {entries.map(({ platform, url }) => {
+        const Icon = SOCIAL_ICON_MAP[platform]
+        return (
+          <a
+            key={platform}
+            href={url}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 rounded-full border border-white/30 px-4 py-1 text-white/80 text-sm font-semibold hover:text-white hover:border-white transition-colors"
+          >
+            <Icon className="w-4 h-4" />
+            <span>{SOCIAL_LABELS[platform]}</span>
+          </a>
+        )
+      })}
+    </div>
+  )
+}
+
+function SocialLinksEditor({
+  editingCoach,
+  onFieldChange
+}: {
+  editingCoach: HeroCoachProfileProps['coach']
+  onFieldChange: (field: keyof HeroCoachProfileProps['coach'], value: string) => void
+}) {
+  return (
+    <div className="w-full space-y-4">
+      <h4
+        className="text-sm uppercase tracking-[0.2em] text-white/70"
+        style={{ fontFamily: '"Open Sans", sans-serif' }}
+      >
+        Social Links
+      </h4>
+      <div className="grid gap-4 md:grid-cols-2 w-full">
+        {SOCIAL_FIELD_CONFIG.map(({ key, label, placeholder }) => (
+          <label key={key} className="flex flex-col gap-2 text-white/80 text-xs uppercase tracking-[0.18em]">
+            <span>{label}</span>
+            <input
+              type="text"
+              value={(editingCoach[key] as string) || ''}
+              onChange={(e) => onFieldChange(key, e.target.value)}
+              placeholder={placeholder}
+              className="w-full bg-white/10 border border-white/30 rounded-md px-4 py-2 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-white/60"
+            />
+          </label>
+        ))}
+      </div>
+    </div>
   )
 }
 
@@ -1258,88 +1397,3 @@ function RecommendedGearSection({
     </section>
   )
 }
-
-function FooterSocialBar({ socialLinks }: { socialLinks: SocialLinks }) {
-  const normalizeSocialUrl = (network: string, value?: string) => {
-    if (!value) return ''
-    const trimmed = value.trim()
-    if (!trimmed) return ''
-    if (/^https?:\/\//i.test(trimmed)) {
-      return trimmed
-    }
-
-    const handle = trimmed.replace(/^@/, '')
-
-    switch (network) {
-      case 'linkedin':
-        return `https://www.linkedin.com/in/${handle}`
-      case 'facebook':
-        return `https://www.facebook.com/${handle}`
-      case 'twitter':
-        return `https://twitter.com/${handle}`
-      case 'instagram':
-        return `https://www.instagram.com/${handle}`
-      case 'youtube':
-        return `https://www.youtube.com/${handle}`
-      default:
-        return trimmed
-    }
-  }
-
-  const icons = [
-    {
-      key: 'linkedin',
-      url: normalizeSocialUrl('linkedin', socialLinks.linkedin),
-      icon: 'https://static.wixstatic.com/media/6ea5b4a88f0b4f91945b40499aa0af00.png/v1/fill/w_24,h_24,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/6ea5b4a88f0b4f91945b40499aa0af00.png',
-      label: 'LinkedIn'
-    },
-    {
-      key: 'facebook',
-      url: normalizeSocialUrl('facebook', socialLinks.facebook),
-      icon: 'https://static.wixstatic.com/media/0fdef751204647a3bbd7eaa2827ed4f9.png/v1/fill/w_24,h_24,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/0fdef751204647a3bbd7eaa2827ed4f9.png',
-      label: 'Facebook'
-    },
-    {
-      key: 'twitter',
-      url: normalizeSocialUrl('twitter', socialLinks.twitter),
-      icon: 'https://static.wixstatic.com/media/c7d035ba85f6486680c2facedecdcf4d.png/v1/fill/w_24,h_24,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c7d035ba85f6486680c2facedecdcf4d.png',
-      label: 'Twitter'
-    },
-    {
-      key: 'instagram',
-      url: normalizeSocialUrl('instagram', socialLinks.instagram),
-      icon: 'https://static.wixstatic.com/media/01c3aff52f2a4dffa526d7a9843d46ea.png/v1/fill/w_24,h_24,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/01c3aff52f2a4dffa526d7a9843d46ea.png',
-      label: 'Instagram'
-    },
-    {
-      key: 'youtube',
-      url: normalizeSocialUrl('youtube', socialLinks.youtube),
-      icon: 'https://static.wixstatic.com/media/52a3a9_1b857a6e8f4746379382bbdf0cb70b43~mv2.png/v1/fill/w_24,h_24,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/52a3a9_1b857a6e8f4746379382bbdf0cb70b43~mv2.png',
-      label: 'YouTube'
-    }
-  ]
-
-  const visibleIcons = icons.filter((icon) => !!icon.url)
-  if (visibleIcons.length === 0) {
-    return null
-  }
-
-  return (
-    <footer className="w-full bg-white border-t border-gray-200">
-      <div className="max-w-6xl mx-auto px-8 py-6 flex items-center justify-end">
-        <ul className="flex items-center gap-4" aria-label="Social Bar">
-          {visibleIcons.map((icon) => (
-            <li key={icon.key}>
-              <a href={icon.url as string} target="_blank" rel="noreferrer" aria-label={icon.label} className="block">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={icon.icon} alt={icon.label} className="w-6 h-6 object-cover" />
-              </a>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </footer>
-  )
-}
-
-

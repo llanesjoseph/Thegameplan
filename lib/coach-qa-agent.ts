@@ -561,7 +561,11 @@ Provide detailed, specific coaching advice with actionable steps. Be technical a
         geminiError: geminiError instanceof Error ? geminiError.message : 'Unknown',
         openaiError: openaiError instanceof Error ? openaiError.message : 'Unknown'
       })
-      throw new Error('All AI providers failed')
+
+      // FINAL SAFETY NET: Provide a handcrafted, rule-based response
+      logger.warn('[QA-Agent:Fallback] Using heuristic fallback response')
+      const heuristic = generateHeuristicFallback(question, coachContext.sport)
+      return { text: limitResponseWithFollowUps(heuristic) }
     }
   }
 }
@@ -683,4 +687,62 @@ async function getCoachProfile(coach_id: string): Promise<{
       sport: 'Sports'
     }
   }
+}
+
+/**
+ * Heuristic fallback when no AI providers are available.
+ * Provides structured coaching guidance based on common question patterns.
+ */
+function generateHeuristicFallback(question: string, sport: string): string {
+  const q = question.toLowerCase()
+  const sections: string[] = []
+
+  const addSection = (title: string, bullets: string[]) => {
+    sections.push(`**${title}**\n${bullets.map((b) => `- ${b}`).join('\n')}`)
+  }
+
+  if (/rest|recovery|tired|fatigue|sore|overtrain/.test(q)) {
+    addSection('Weekly Recovery Check', [
+      'Track average sleep, morning heart-rate, and mood for 3-4 days. If two of those are off, schedule a **48 hour unload** (easy drilling only).',
+      'Drop total volume by ~30% during the unload block, but keep one short “feel-good” round to stay sharp.',
+      'Layer in a recovery circuit (nasal breathing, light hip openers, foam roll) before bed to calm the nervous system.'
+    ])
+    addSection('Red Flags', [
+      'Persistent irritability or loss of appetite.',
+      'Grip strength drop-off compared with your normal training.',
+      'Sharp joint pain that worsens across the week.'
+    ])
+  }
+
+  if (/arm ?bar|armbar|triangle|pass|sweep|technique|help with/.test(q)) {
+    addSection('Technical Breakdown', [
+      'Start 80% of reps **without resistance**: clamp knees, win wrist control, pivot hips, and finish with two-second holds.',
+      'Progress to **positional rounds**: partner gives 40-50% resistance while you focus on elbow line control before extension.',
+      'Film the final round; note whether your hips stay tight to the shoulder line—the most common leak for armbar failures.'
+    ])
+    addSection('Drill Stack', [
+      'Warm-up: sit-through hip pivots x 10 each side to groove rotation.',
+      'Main drill: armbar entries from closed guard x 5 each direction, immediately into finish mechanics (thumb rotation, pinch, bridge).',
+      'Cool-down: banded triceps stretch + light pronation strengthening to protect the elbow.'
+    ])
+    addSection('Mistakes to Avoid', [
+      'Trying to finish while lying flat—elevate your hips and keep the head glued to the wrist.',
+      'Loosening the bottom leg; clamp the shoulder line so the partner cannot pull out.',
+      'Skipping kazushi (breaking posture) before opening the guard.'
+    ])
+  }
+
+  if (sections.length === 0) {
+    addSection('General Training Tune-Up', [
+      'Run a **3-day microcycle**: (1) skill focus, (2) pressure/conditioning, (3) live problem-solving with reduced intensity.',
+      'Every session should finish with a two-minute reflection: note the single rep/sequence that felt best and why.',
+      'Share the clips or notes with your coach so they can build a lesson plan tailored to your needs.'
+    ])
+  }
+
+  sections.push(
+    `*Need a deeper dive in ${sport}? Ask your coach to spin up a focused lesson so you can save this conversation and drill it step-by-step.*`
+  )
+
+  return sections.join('\n\n')
 }
