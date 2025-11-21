@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { ChevronDown, UserPlus, UserCheck, Instagram, Youtube, Linkedin, Facebook } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
 import { SPORTS } from '@/lib/constants/sports'
 
 type Coach = {
@@ -282,44 +282,58 @@ export default function BrowseCoachesPage() {
             </div>
           )}
 
-          {/* All Coaches by Sport Section */}
+      {/* All Coaches by Sport Section (Wix-style "Coaches by Sport" block) */}
           <div>
-            {/* Section Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-              <div>
-                <h2 className="text-2xl font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
-                  All Coaches by Sport
-                </h2>
-                <p className="text-sm" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
-                  {totalCount} {totalCount === 1 ? 'coach' : 'coaches'} available
-                </p>
-              </div>
+        {/* Section Header - centered like Wix "Coaches by Sport" */}
+        <div className="mb-8">
+          <h2
+            className="text-center"
+            style={{
+              fontFamily: '"Open Sans", sans-serif',
+              fontSize: '25px',
+              fontWeight: 700,
+              letterSpacing: '0.05em',
+              color: '#000000'
+            }}
+          >
+            Coaches by Sport
+          </h2>
+          <p
+            className="mt-2 text-center text-sm"
+            style={{ fontFamily: '"Open Sans", sans-serif', color: '#666666' }}
+          >
+            {totalCount} {totalCount === 1 ? 'coach available' : 'coaches available'}
+          </p>
+        </div>
 
-              {/* Sport Filter */}
-              <div className="relative">
-                <select
-                  value={selectedSport}
-                  onChange={(e) => setSelectedSport(e.target.value)}
-                  className="appearance-none px-4 py-2 pr-10 rounded-lg border-2 border-black focus:outline-none focus:ring-2 focus:ring-black cursor-pointer"
-                  style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 600 }}
-                >
-                  <option value="all">All Sports</option>
-                  {availableSports.map(sport => (
-                    <option key={sport} value={sport}>{sport}</option>
-                  ))}
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none" />
-              </div>
-            </div>
+        {/* Sport Filter - compact, aligned right */}
+        <div className="flex justify-end mb-10">
+          <div className="relative">
+            <select
+              value={selectedSport}
+              onChange={(e) => setSelectedSport(e.target.value)}
+              className="appearance-none px-4 py-2 pr-10 rounded-lg border border-black focus:outline-none cursor-pointer"
+              style={{ fontFamily: '"Open Sans", sans-serif', fontWeight: 600 }}
+            >
+              <option value="all">All Sports</option>
+              {availableSports.map((sport) => (
+                <option key={sport} value={sport}>
+                  {sport}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none" />
+          </div>
+        </div>
 
-          {/* Coaches Grid */}
+        {/* Coaches Row - circular avatars like Wix */}
           {loading && coaches.length === 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div className="flex flex-wrap justify-center gap-10">
               {[...Array(10)].map((_, i) => (
-                <div key={i} className="space-y-2">
-                  <div className="w-full aspect-square rounded-lg bg-gray-200 animate-pulse" />
-                  <div className="h-4 bg-gray-200 rounded animate-pulse" />
-                  <div className="h-3 bg-gray-200 rounded animate-pulse w-2/3" />
+                <div key={i} className="flex flex-col items-center text-center space-y-3">
+                  <div className="w-[225px] h-[225px] rounded-full bg-gray-200 animate-pulse" />
+                  <div className="h-4 w-32 bg-gray-200 rounded animate-pulse" />
+                  <div className="h-3 w-40 bg-gray-200 rounded animate-pulse" />
                 </div>
               ))}
             </div>
@@ -330,94 +344,68 @@ export default function BrowseCoachesPage() {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div className="flex flex-wrap justify-center gap-10">
               {coaches.map((coach) => {
-                const isFollowing = followingSet.has(coach.id)
-                const isLoading = followingLoading.has(coach.id)
-
-                if (coaches.indexOf(coach) === 0) {
-                  console.log('🔍 Current followingSet size:', followingSet.size, 'IDs:', Array.from(followingSet))
-                  console.log('🔍 First coach ID:', coach.id, 'isFollowing:', isFollowing)
-                }
+                const subtitle =
+                  coach.tagline ||
+                  coach.specialties?.[0] ||
+                  coach.sport ||
+                  ''
 
                 return (
-                  <div key={coach.id} className="group block">
-                    {/* Coach Card */}
-                    <div className="space-y-2">
-                      {/* Profile Image - wrapped in Link */}
-                      <Link href={`/coach-profile/${coach.slug || coach.id}`}>
-                        <div className="relative w-full aspect-square rounded-lg overflow-hidden bg-gray-100 ring-2 ring-transparent group-hover:ring-black transition-all cursor-pointer">
-                          {coach.profileImageUrl ? (
-                            // eslint-disable-next-line @next/next/no-img-element
+                  <div key={coach.id} className="group flex flex-col items-center text-center space-y-3">
+                    {/* Profile Image - circular avatar */}
+                    <Link href={`/coach-profile/${coach.slug || coach.id}`}>
+                      <div className="relative w-[225px] h-[225px] rounded-full overflow-hidden bg-gray-100 cursor-pointer">
+                        {coach.profileImageUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={coach.profileImageUrl}
+                            alt={coach.displayName}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div
+                            className="w-full h-full flex items-center justify-center"
+                            style={{ backgroundColor: '#8B7D7B' }}
+                          >
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
-                              src={coach.profileImageUrl}
-                              alt={coach.displayName}
-                              className="w-full h-full object-cover"
+                              src="/brand/athleap-logo-colored.png"
+                              alt="AthLeap"
+                              className="w-1/2 opacity-90"
                             />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#8B7D7B' }}>
-                              <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
-                            </div>
-                          )}
+                          </div>
+                        )}
+                      </div>
+                    </Link>
 
-                          {/* Featured Badge */}
-                          {coach.featured && (
-                            <div className="absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-bold text-white" style={{ backgroundColor: '#FC0105' }}>
-                              Featured
-                            </div>
-                          )}
-
-                          {/* Follow Button Overlay - shows on hover */}
-                          {user && (
-                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                              <button
-                                onClick={(e) => handleFollowToggle(coach.id, e)}
-                                disabled={isLoading}
-                                className={`px-4 py-2 rounded-lg font-bold text-sm transition-all flex items-center gap-2 ${
-                                  isFollowing
-                                    ? 'bg-white text-black hover:bg-gray-100'
-                                    : 'bg-black text-white hover:bg-gray-800 border-2 border-white'
-                                }`}
-                                style={{ fontFamily: '"Open Sans", sans-serif' }}
-                              >
-                                {isLoading ? (
-                                  <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                                ) : isFollowing ? (
-                                  <>
-                                    <UserCheck className="w-4 h-4" />
-                                    Following
-                                  </>
-                                ) : (
-                                  <>
-                                    <UserPlus className="w-4 h-4" />
-                                    Follow
-                                  </>
-                                )}
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      </Link>
-
-                      {/* Coach Info - wrapped in Link */}
-                      <Link href={`/coach-profile/${coach.slug || coach.id}`}>
-                        <div className="cursor-pointer">
-                          <p className="font-bold text-sm line-clamp-1" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
-                            {coach.displayName}
+                    {/* Coach Info */}
+                    <Link href={`/coach-profile/${coach.slug || coach.id}`}>
+                      <div className="cursor-pointer">
+                        <p
+                          style={{
+                            fontFamily: '"Open Sans", sans-serif',
+                            fontSize: '27px',
+                            lineHeight: 'normal',
+                            color: '#000000'
+                          }}
+                        >
+                          {coach.displayName}
+                        </p>
+                        {subtitle && (
+                          <p
+                            style={{
+                              fontFamily: '"Open Sans", sans-serif',
+                              fontSize: '16px',
+                              color: '#000000'
+                            }}
+                          >
+                            {subtitle}
                           </p>
-                          {(coach.specialties?.[0] || coach.sport) && (
-                            <p className="text-xs line-clamp-1" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
-                              {coach.specialties?.[0] || coach.sport}
-                            </p>
-                          )}
-                          {coach.tagline && (
-                            <p className="text-xs line-clamp-1 italic" style={{ color: '#999', fontFamily: '"Open Sans", sans-serif' }}>
-                              {coach.tagline}
-                            </p>
-                          )}
-                        </div>
-                      </Link>
-                    </div>
+                        )}
+                      </div>
+                    </Link>
                   </div>
                 )
               })}
@@ -430,7 +418,7 @@ export default function BrowseCoachesPage() {
               <button
                 onClick={() => loadCoaches(false)}
                 className="px-6 py-3 rounded-lg text-white font-bold transition-opacity hover:opacity-90"
-                style={{ background: 'linear-gradient(to right, #FC0105, #000000)', fontFamily: '"Open Sans", sans-serif' }}
+                style={{ backgroundColor: '#C40000', fontFamily: '"Open Sans", sans-serif' }}
               >
                 Load More Coaches
               </button>
