@@ -138,25 +138,25 @@ export default function LandingPage() {
     }
    `}</style>
 
-   {/* Header with Navigation */}
-   <header className="relative z-50 bg-white shadow-sm" role="banner">
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-     <div className="flex items-center justify-between h-16">
-      {/* Logo - Clickable */}
-      <div className="flex items-center">
-       <Link href="/" className="flex-shrink-0">
-        <p
-         className="text-2xl tracking-wider uppercase font-bold cursor-pointer transition-opacity hover:opacity-80"
-         style={{
-          fontFamily: '"Open Sans", sans-serif',
-          fontWeight: 700,
-          color: '#440102' // New dark brown color
-         }}
-        >
-         ATHLEAP
-        </p>
-       </Link>
-      </div>
+  {/* Header with Navigation - match dashboard header logo + wordmark */}
+  <header className="relative z-50 bg-white shadow-sm" role="banner">
+   <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="flex items-center justify-between h-16">
+     {/* Logo + ATHLEAP wordmark */}
+     <Link href="/" className="flex items-center gap-3 flex-shrink-0">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+       src="/athleap-logo-transparent.png"
+       alt="Athleap logo"
+       className="h-8 w-auto"
+      />
+      <span
+       className="text-xl font-semibold tracking-[0.02em]"
+       style={{ fontFamily: '"Open Sans", sans-serif' }}
+      >
+       ATHLEAP
+      </span>
+     </Link>
 
       {/* Right side buttons - Text changes on hover */}
       <div className="flex items-center gap-4">
@@ -210,18 +210,18 @@ export default function LandingPage() {
     </div>
    </header>
 
-   {/* Hero Section - Transparent Logo */}
+   {/* Hero Section - centered transparent logo on brand maroon */}
    <section className="relative w-full py-12 md:py-16 flex items-center justify-center" style={{ minHeight: '40vh', backgroundColor: '#440102' }}>
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
      <div className="flex flex-col items-center justify-center">
       
-      {/* Transparent Logo - Centered and Scaled Down */}
+      {/* Transparent Logo - Centered and Scaled */}
       <div className="relative w-full flex items-center justify-center">
        <img 
-        src="/brand/athleap-logo-colored.png" 
+       src="/athleap-logo-transparent.png" 
         alt="AthLeap Logo" 
-        className="h-24 md:h-32 lg:h-40 w-auto mx-auto"
-        style={{ maxWidth: '400px', height: 'auto', objectFit: 'contain' }}
+       className="h-24 md:h-32 lg:h-40 w-auto mx-auto"
+       style={{ maxWidth: '420px', height: 'auto', objectFit: 'contain' }}
        />
       </div>
      </div>

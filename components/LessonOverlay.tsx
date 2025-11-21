@@ -55,6 +55,7 @@ export default function LessonOverlay({
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [viewsIncremented, setViewsIncremented] = useState(false)
+  const [isTogglingCompletion, setIsTogglingCompletion] = useState(false)
 
   useEffect(() => {
     fetchLesson()
@@ -156,16 +157,32 @@ export default function LessonOverlay({
             <div className="flex items-center gap-3">
               {onToggleCompletion && (
                 <button
-                  onClick={onToggleCompletion}
+                  onClick={async () => {
+                    if (!onToggleCompletion || isTogglingCompletion) return
+                    try {
+                      setIsTogglingCompletion(true)
+                      const result = onToggleCompletion()
+                      if (result && typeof (result as any).then === 'function') {
+                        await (result as Promise<void>)
+                      }
+                    } finally {
+                      setIsTogglingCompletion(false)
+                    }
+                  }}
                   type="button"
                   className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold transition-all ${
                     isCompleted
                       ? 'bg-white text-[#4B0102] border-2 border-white hover:bg-gray-100'
                       : 'bg-[#FC0105] text-white border-2 border-white hover:bg-[#d70004]'
-                  }`}
+                  } ${isTogglingCompletion ? 'opacity-70 cursor-wait' : ''}`}
                   style={{ fontFamily: '"Open Sans", sans-serif', boxShadow: '0 10px 24px rgba(0,0,0,0.25)' }}
                 >
-                  {isCompleted ? (
+                  {isTogglingCompletion ? (
+                    <>
+                      <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <span>{isCompleted ? 'Updating…' : 'Marking Complete…'}</span>
+                    </>
+                  ) : isCompleted ? (
                     <>
                       <CheckCircle2 className="w-5 h-5" />
                       <span>Lesson Completed</span>

@@ -12,7 +12,7 @@ import Link from 'next/link'
 import { useAuth } from '@/hooks/use-auth'
 import { signOut } from 'firebase/auth'
 import { auth, db } from '@/lib/firebase.client'
-import { doc, getDoc } from 'firebase/firestore'
+import { doc, getDoc, updateDoc } from 'firebase/firestore'
 import AthleteOverview from '@/components/athlete/AthleteOverview'
 import AthleteProfile from '@/components/athlete/AthleteProfile'
 import AthleteProgress from '@/components/athlete/AthleteProgress'
@@ -48,6 +48,21 @@ export default function AthleteDashboard() {
     profileImageUrl: '',
     sport: ''
   })
+  const [editHeroProfile, setEditHeroProfile] = useState<{
+    displayName: string
+    location: string
+    bio: string
+    trainingGoals: string
+    profileImageUrl: string
+    sport: string
+  }>({
+    displayName: '',
+    location: '',
+    bio: '',
+    trainingGoals: '',
+    profileImageUrl: '',
+    sport: ''
+  })
   const [progressSummary, setProgressSummary] = useState<{
     totalLessons: number
     completedLessons: number
@@ -60,6 +75,8 @@ export default function AthleteDashboard() {
     upcomingEvents: 0
   })
   const [heroLoading, setHeroLoading] = useState(true)
+  const [isEditingHero, setIsEditingHero] = useState(false)
+  const [isSavingHero, setIsSavingHero] = useState(false)
 
   // Redirect non-athletes
   useEffect(() => {
@@ -167,14 +184,20 @@ export default function AthleteDashboard() {
           primarySport = String(data.selectedSports[0])
         }
 
-        setHeroProfile({
+        const nextProfile = {
           displayName: mappedDisplayName,
           location: mappedLocation,
           bio: mappedBio,
           trainingGoals: mappedTrainingGoals,
           profileImageUrl: mappedImage,
           sport: primarySport
-        })
+        }
+
+        setHeroProfile(nextProfile)
+        // Keep edit state in sync when not actively editing
+        if (!isEditingHero) {
+          setEditHeroProfile(nextProfile)
+        }
       } catch (error) {
         console.error('Error loading hero profile:', error)
       } finally {
@@ -183,7 +206,7 @@ export default function AthleteDashboard() {
     }
 
     loadHeroProfile()
-  }, [user])
+  }, [user, isEditingHero])
 
   // Load high-level progress summary for hero metrics row
   useEffect(() => {
@@ -213,6 +236,53 @@ export default function AthleteDashboard() {
 
     loadProgressSummary()
   }, [user])
+
+  const handleStartHeroEdit = () => {
+    setEditHeroProfile(heroProfile)
+    setIsEditingHero(true)
+  }
+
+  const handleCancelHeroEdit = () => {
+    setEditHeroProfile(heroProfile)
+    setIsEditingHero(false)
+  }
+
+  const handleSaveHeroEdit = async () => {
+    if (!user?.uid) return
+    const trimmedName = editHeroProfile.displayName.trim()
+    const trimmedLocation = editHeroProfile.location.trim()
+    const trimmedBio = editHeroProfile.bio.trim()
+    const trimmedGoals = editHeroProfile.trainingGoals.trim()
+
+    if (!trimmedName || !trimmedLocation || !trimmedBio || !trimmedGoals) {
+      return
+    }
+
+    setIsSavingHero(true)
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        displayName: trimmedName,
+        location: trimmedLocation,
+        bio: trimmedBio,
+        trainingGoals: trimmedGoals
+      })
+
+      const updated = {
+        ...heroProfile,
+        displayName: trimmedName,
+        location: trimmedLocation,
+        bio: trimmedBio,
+        trainingGoals: trimmedGoals
+      }
+      setHeroProfile(updated)
+      setEditHeroProfile(updated)
+      setIsEditingHero(false)
+    } catch (error) {
+      console.error('Error saving hero profile edits:', error)
+    } finally {
+      setIsSavingHero(false)
+    }
+  }
 
   if (isLoading || heroLoading) {
     return (
@@ -321,31 +391,118 @@ export default function AthleteDashboard() {
         {/* Hero band */}
         <section className="w-full bg-[#4B0102]">
           <div className="max-w-6xl mx-auto px-8 py-16 grid gap-10 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1.1fr)] items-center">
-            {/* Left: name, location, long bio */}
+            {/* Left: name, location, long bio (inline-editable) */}
             <div className="space-y-4">
-              <h2
-                className="font-bold text-white"
-                style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '54px', lineHeight: 'normal' }}
-              >
-                {heroProfile.displayName || user?.displayName || 'Athleap Athlete'}
-              </h2>
-              <h5
-                className="text-white"
-                style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '18px' }}
-              >
-                {heroProfile.location || 'Your location'}
-              </h5>
-              <p
-                className="text-white"
-                style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '21px', lineHeight: '1.3em' }}
-              >
-                {heroProfile.bio ||
-                  'This is your space to share your story, your background, and what drives you as an athlete.'}
-              </p>
+              {isEditingHero ? (
+                <>
+                  <input
+                    type="text"
+                    value={editHeroProfile.displayName}
+                    onChange={(e) =>
+                      setEditHeroProfile((prev) => ({ ...prev, displayName: e.target.value }))
+                    }
+                    placeholder="Your name"
+                    className="w-full px-3 py-2 rounded-md border border-white/60 bg-white/10 text-white text-3xl font-bold"
+                    style={{ fontFamily: '"Open Sans", sans-serif' }}
+                  />
+                  <input
+                    type="text"
+                    value={editHeroProfile.location}
+                    onChange={(e) =>
+                      setEditHeroProfile((prev) => ({ ...prev, location: e.target.value }))
+                    }
+                    placeholder="City, State or Country"
+                    className="w-full px-3 py-2 rounded-md border border-white/60 bg-white/10 text-white"
+                    style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '18px' }}
+                  />
+                  <textarea
+                    value={editHeroProfile.bio}
+                    onChange={(e) =>
+                      setEditHeroProfile((prev) => ({ ...prev, bio: e.target.value }))
+                    }
+                    placeholder="Tell your story as an athlete..."
+                    className="w-full px-3 py-2 rounded-md border border-white/60 bg-white/10 text-white"
+                    style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '21px', lineHeight: '1.3em' }}
+                    rows={4}
+                  />
+                  <div className="pt-2 space-y-2">
+                    <label
+                      className="block text-sm font-semibold uppercase tracking-[0.12em] text-white/80"
+                      style={{ fontFamily: '"Open Sans", sans-serif' }}
+                    >
+                      Training Goals
+                    </label>
+                    <textarea
+                      value={editHeroProfile.trainingGoals}
+                      onChange={(e) =>
+                        setEditHeroProfile((prev) => ({ ...prev, trainingGoals: e.target.value }))
+                      }
+                      placeholder="List your goals, separated by commas (e.g., Compete at Worlds, Improve guard retention)"
+                      className="w-full px-3 py-2 rounded-md border border-white/60 bg-white/10 text-white"
+                      style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '16px', lineHeight: '1.4em' }}
+                      rows={3}
+                    />
+                    <p
+                      className="text-xs text-white/70"
+                      style={{ fontFamily: '"Open Sans", sans-serif' }}
+                    >
+                      These goals power your <strong>Your Game Plan and Progress</strong> metrics.
+                    </p>
+                  </div>
+                  <div className="flex gap-3 pt-4">
+                    <button
+                      type="button"
+                      onClick={handleCancelHeroEdit}
+                      disabled={isSavingHero}
+                      className="px-4 py-2 rounded-full border border-white/70 bg-transparent text-white text-sm font-semibold hover:bg-white/10 transition-colors disabled:opacity-60"
+                      style={{ fontFamily: '"Open Sans", sans-serif' }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleSaveHeroEdit}
+                      disabled={
+                        isSavingHero ||
+                        !editHeroProfile.displayName.trim() ||
+                        !editHeroProfile.location.trim() ||
+                        !editHeroProfile.bio.trim() ||
+                        !editHeroProfile.trainingGoals.trim()
+                      }
+                      className="px-5 py-2 rounded-full border border-white/60 bg-[#FC0105] text-white text-sm font-semibold tracking-wide shadow-[inset_0_3px_6px_rgba(255,255,255,0.28),inset_0_-4px_6px_rgba(0,0,0,0.4),0_6px_14px_rgba(0,0,0,0.35)] hover:bg-[#d70004] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                      style={{ fontFamily: '"Open Sans", sans-serif' }}
+                    >
+                      {isSavingHero ? 'Saving…' : 'Save Changes'}
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <h2
+                    className="font-bold text-white"
+                    style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '54px', lineHeight: 'normal' }}
+                  >
+                    {heroProfile.displayName || user?.displayName || 'Athleap Athlete'}
+                  </h2>
+                  <h5
+                    className="text-white"
+                    style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '18px' }}
+                  >
+                    {heroProfile.location || 'Your location'}
+                  </h5>
+                  <p
+                    className="text-white"
+                    style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '21px', lineHeight: '1.3em' }}
+                  >
+                    {heroProfile.bio ||
+                      'This is your space to share your story, your background, and what drives you as an athlete.'}
+                  </p>
+                </>
+              )}
             </div>
 
-            {/* Right: hero image */}
-            <div className="flex justify-center md:justify-end">
+            {/* Right: hero image + Edit Profile CTA */}
+            <div className="flex flex-col items-center md:items-end gap-4">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={
@@ -355,6 +512,17 @@ export default function AthleteDashboard() {
                 alt={heroProfile.displayName || user?.displayName || 'Athleap Athlete'}
                 className="w-[402px] h-[416px] object-cover"
               />
+
+              {!isEditingHero && (
+                <button
+                  type="button"
+                  onClick={handleStartHeroEdit}
+                  className="flex-1 h-12 rounded-2xl border border-white/40 shadow-[inset_0_3px_6px_rgba(255,255,255,0.28),inset_0_-4px_6px_rgba(0,0,0,0.4),0_6px_14px_rgba(0,0,0,0.35)] text-white text-sm font-semibold uppercase tracking-wide px-6"
+                  style={{ backgroundColor: '#C40000', fontFamily: '"Open Sans", sans-serif' }}
+                >
+                  Edit Profile
+                </button>
+              )}
             </div>
           </div>
         </section>

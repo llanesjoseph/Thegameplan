@@ -2,6 +2,7 @@
 
 import { Facebook, Instagram, Linkedin, Twitter, Youtube } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
+import { useAuth } from '@/hooks/use-auth'
 
 type SocialLink = {
   href: string
@@ -38,24 +39,32 @@ const SOCIAL_LINKS: SocialLink[] = [
 ]
 
 export default function GlobalSocialBar() {
+  const { user } = useAuth()
+
   return (
     <footer className="fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-gray-200">
       <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between gap-5">
-        {/* Primary footer links */}
-        <nav className="flex items-center gap-4 text-xs sm:text-sm" aria-label="Athleap footer navigation">
-          <a
-            href="/coaches"
-            className="text-gray-700 hover:text-black transition-colors"
-          >
-            Browse Coaches
-          </a>
-          <a
-            href="/gear"
-            className="text-gray-700 hover:text-black transition-colors"
-          >
-            Gear Store
-          </a>
-        </nav>
+        {/* Primary footer links - visible only to authenticated users (any role) */}
+        {user ? (
+          <nav className="flex items-center gap-4 text-xs sm:text-sm" aria-label="Athleap footer navigation">
+            <a
+              href="/coaches"
+              className="text-gray-700 hover:text-black transition-colors"
+            >
+              Browse Coaches
+            </a>
+            <a
+              href="/gear"
+              className="text-gray-700 hover:text-black transition-colors"
+            >
+              Gear Store
+            </a>
+          </nav>
+        ) : (
+          <div className="text-xs sm:text-sm text-gray-500" aria-label="Athleap footer navigation">
+            Sign in to browse coaches and gear
+          </div>
+        )}
 
         {/* Global social icons */}
         <ul className="flex items-center gap-4" aria-label="Athleap Social Links">
