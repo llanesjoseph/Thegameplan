@@ -86,7 +86,7 @@ export default function GearStore() {
               <Link href="/" className="flex items-center gap-3 flex-shrink-0">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src="https://static.wixstatic.com/media/75fa07_66efa272a9a64facbc09f3da71757528~mv2.png/v1/fill/w_68,h_64,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/75fa07_66efa272a9a64facbc09f3da71757528~mv2.png"
+                  src="/athleap-logo-transparent.png"
                   alt="Athleap logo"
                   className="h-8 w-auto"
                 />
@@ -181,9 +181,9 @@ export default function GearStore() {
               <div className="flex justify-center mb-6">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src="https://static.wixstatic.com/media/75fa07_8aa2c925b9f54a8285fffbcba2425b0e~mv2.png/v1/fill/w_113,h_122,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/75fa07_8aa2c925b9f54a8285fffbcba2425b0e~mv2.png"
+                  src="/athleap-logo-transparent.png"
                   alt="Athleap mark"
-                  className="h-24 w-auto object-contain"
+                  className="h-28 w-auto object-contain"
                 />
               </div>
               <h1
