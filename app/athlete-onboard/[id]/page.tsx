@@ -3,7 +3,13 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { auth } from '@/lib/firebase.client'
-import { GoogleAuthProvider, signInWithPopup, User } from 'firebase/auth'
+import {
+  GoogleAuthProvider,
+  signInWithPopup,
+  User,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword
+} from 'firebase/auth'
 
 interface InvitationData {
   id: string
@@ -56,6 +62,14 @@ export default function AthleteOnboardingPage() {
     goals: [] as string[]
   })
 
+  // Email auth state (for athletes without Google)
+  const [showEmailForm, setShowEmailForm] = useState(false)
+  const [isEmailSignUp, setIsEmailSignUp] = useState(false)
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [emailError, setEmailError] = useState<string>('')
+  const [isEmailProcessing, setIsEmailProcessing] = useState(false)
+
   useEffect(() => {
     const load = async () => {
       if (!invitationId) return
@@ -65,13 +79,17 @@ export default function AthleteOnboardingPage() {
         if (res.ok && data.success && data.invitation) {
           setInvitation(data.invitation)
           // Pre-populate email and sport from invitation
+          const inviteEmail = data.invitation.athleteEmail || ''
           setFormData(prev => ({
             ...prev,
-            email: data.invitation.athleteEmail || '',
+            email: inviteEmail,
             primarySport: data.invitation.sport || '',
             firstName: data.invitation.athleteName?.split(' ')[0] || '',
             lastName: data.invitation.athleteName?.split(' ').slice(1).join(' ') || ''
           }))
+          if (inviteEmail) {
+            setEmail(inviteEmail)
+          }
         } else if (data.alreadyUsed && data.shouldRedirect) {
           window.location.replace('/login?mode=signin')
           return
@@ -104,6 +122,35 @@ export default function AthleteOnboardingPage() {
     } catch (e: any) {
       alert(e?.message || 'Google sign-in failed. Please try again.')
       setIsSigningIn(false)
+    }
+  }
+
+  const handleEmailAuth = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!invitationId) return
+    setIsEmailProcessing(true)
+    setEmailError('')
+
+    try {
+      let result
+      if (isEmailSignUp) {
+        result = await createUserWithEmailAndPassword(auth, email, password)
+      } else {
+        result = await signInWithEmailAndPassword(auth, email, password)
+      }
+
+      const user = result.user
+      setCurrentUser(user)
+
+      const finalEmail = user.email || email
+      if (finalEmail) {
+        setFormData(prev => ({ ...prev, email: finalEmail }))
+      }
+    } catch (err: any) {
+      console.error('Email auth error (athlete invite):', err)
+      setEmailError(err?.message || 'Email sign-in failed. Please try again.')
+    } finally {
+      setIsEmailProcessing(false)
     }
   }
 
@@ -211,13 +258,15 @@ export default function AthleteOnboardingPage() {
         {/* Sign in first if not authenticated */}
         {!currentUser ? (
           <div className="max-w-md mx-auto">
-            <div className="bg-gray-50 rounded-lg p-8 text-center border border-gray-200">
-              <p className="mb-6 text-gray-700" style={{ fontFamily: '"Open Sans", sans-serif' }}>
-                First, sign in with Google to create your account
+            <div className="bg-gray-50 rounded-lg p-8 text-center border border-gray-200 space-y-4">
+              <p className="text-gray-700" style={{ fontFamily: '"Open Sans", sans-serif' }}>
+                First, sign in to create your account.
               </p>
+
+              {/* Google Sign-in */}
               <button
                 onClick={signInWithGoogle}
-                disabled={isSigningIn}
+                disabled={isSigningIn || isEmailProcessing}
                 className="w-full px-6 py-3 bg-white border-2 border-gray-300 rounded-lg font-semibold hover:bg-gray-50 transition-colors flex items-center justify-center gap-3 disabled:opacity-50"
                 style={{ fontFamily: '"Open Sans", sans-serif' }}
               >
@@ -238,6 +287,76 @@ export default function AthleteOnboardingPage() {
                   </>
                 )}
               </button>
+
+              {/* Divider */}
+              <div className="flex items-center gap-3">
+                <div className="flex-1 h-px bg-gray-200" />
+                <span className="text-xs text-gray-500" style={{ fontFamily: '"Open Sans", sans-serif' }}>
+                  or
+                </span>
+                <div className="flex-1 h-px bg-gray-200" />
+              </div>
+
+              {/* Email auth toggle + form */}
+              {!showEmailForm ? (
+                <button
+                  type="button"
+                  onClick={() => setShowEmailForm(true)}
+                  className="w-full text-sm font-semibold text-gray-700 underline"
+                  style={{ fontFamily: '"Open Sans", sans-serif' }}
+                >
+                  Use email instead
+                </button>
+              ) : (
+                <form onSubmit={handleEmailAuth} className="space-y-3 text-left">
+                  <div>
+                    <label className="block text-sm font-bold mb-1" style={{ fontFamily: '"Open Sans", sans-serif', color: '#000000' }}>
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-black"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold mb-1" style={{ fontFamily: '"Open Sans", sans-serif', color: '#000000' }}>
+                      Password
+                    </label>
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-black"
+                      required
+                      minLength={6}
+                    />
+                  </div>
+                  {emailError && (
+                    <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                      {emailError}
+                    </div>
+                  )}
+                  <button
+                    type="submit"
+                    disabled={isEmailProcessing || isSigningIn}
+                    className="w-full px-6 py-3 rounded-lg text-white font-semibold disabled:opacity-50"
+                    style={{ fontFamily: '"Open Sans", sans-serif', backgroundColor: '#000000' }}
+                  >
+                    {isEmailProcessing ? 'Processing...' : isEmailSignUp ? 'Create Account' : 'Sign In'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsEmailSignUp(!isEmailSignUp)}
+                    className="w-full text-xs text-gray-600 mt-1"
+                    style={{ fontFamily: '"Open Sans", sans-serif' }}
+                  >
+                    {isEmailSignUp ? 'Already have an account? Sign in' : 'Need an account? Sign up'}
+                  </button>
+                </form>
+              )}
             </div>
           </div>
         ) : (
