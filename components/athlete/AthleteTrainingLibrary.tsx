@@ -290,16 +290,6 @@ export default function AthleteTrainingLibrary() {
             </div>
           )}
 
-          <div className="mt-8 flex justify-center">
-            <button
-              type="button"
-              onClick={() => setShowAllModal(true)}
-              className="rounded-full bg-[#FC0105] px-10 py-3 text-sm font-semibold text-white tracking-[0.08em] uppercase shadow-sm hover:bg-[#d70004] transition-colors"
-              style={{ fontFamily: '"Open Sans", sans-serif' }}
-            >
-              Browse Training
-            </button>
-          </div>
         </>
       ) : (
         <p className="text-gray-500 text-sm">No training content available yet</p>
