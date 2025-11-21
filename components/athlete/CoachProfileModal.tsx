@@ -121,6 +121,7 @@ export default function CoachProfileModal({ isOpen, onClose, coachId, coachSlug,
             isInIframe={true}
             onBack={onClose}
             hideLessons={hideLessons}
+            forceReadOnly={true}
           />
         )}
       </div>

@@ -261,23 +261,6 @@ export default function CoachLockerRoom() {
         </div>
       </main>
 
-      <footer className="bg-white py-6 mt-auto">
-        <div className="max-w-5xl mx-auto px-6 flex items-center justify-end gap-5">
-          <a href="https://www.linkedin.com/company/athleap" className="text-gray-500 hover:text-black" aria-label="LinkedIn">
-            <Linkedin className="w-5 h-5" />
-          </a>
-          <a href="https://www.facebook.com" className="text-gray-500 hover:text-black" aria-label="Facebook">
-            <Facebook className="w-5 h-5" />
-          </a>
-          <a href="https://twitter.com" className="text-gray-500 hover:text-black" aria-label="Twitter">
-            <X className="w-5 h-5" />
-          </a>
-          <a href="https://www.instagram.com" className="text-gray-500 hover:text-black" aria-label="Instagram">
-            <Instagram className="w-5 h-5" />
-          </a>
-        </div>
-      </footer>
-
       {/* Modals */}
       <EnhancedAthleteRosterModal
         isOpen={activeModal === 'athletes'}

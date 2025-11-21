@@ -114,6 +114,7 @@ interface HeroCoachProfileProps {
   onBack?: () => void
   hideLessons?: boolean
   initialGearItems?: GearItem[]
+  forceReadOnly?: boolean
 }
 
 export default function HeroCoachProfile({
@@ -122,7 +123,8 @@ export default function HeroCoachProfile({
   isInIframe = false,
   onBack,
   hideLessons = false,
-  initialGearItems
+  initialGearItems,
+  forceReadOnly = false
 }: HeroCoachProfileProps) {
   const { user: authUser } = useAuth()
   const [gearItems, setGearItems] = useState<GearItem[]>(initialGearItems || [])
@@ -297,7 +299,19 @@ export default function HeroCoachProfile({
     }
   }, [coach.uid, coach.email])
 
-  const canManageGear = !!authUser && authUser.uid === coach.uid
+  const authUserRole = (authUser as unknown as { role?: string })?.role
+  const allowedEditRoles = new Set(['coach', 'creator', 'admin', 'superadmin'])
+  const isOwner = !!authUser && !!coach.uid && authUser.uid === coach.uid
+  const canEditProfile = !forceReadOnly && isOwner && (!!authUserRole && allowedEditRoles.has(authUserRole))
+  const canManageGear = canEditProfile
+  const shouldShowLessons = canEditProfile && !hideLessons && lessons?.length > 0
+
+  useEffect(() => {
+    if (!canEditProfile && isEditing) {
+      setIsEditing(false)
+      setEditableCoach(displayCoach)
+    }
+  }, [canEditProfile, isEditing, displayCoach])
 
   return (
     <main className="min-h-screen bg-[#f5f5f5]">
@@ -393,11 +407,12 @@ export default function HeroCoachProfile({
         onSave={handleSaveEdits}
         onCancel={handleCancelEdits}
         theme={theme}
+        canEditProfile={canEditProfile}
       />
 
       {galleryPhotos.length > 0 && <CoachGallery photos={galleryPhotos} />}
 
-      {!hideLessons && lessons?.length > 0 && (
+      {shouldShowLessons && (
         <TrainingLibrarySection coachName={activeCoach.displayName} lessons={lessons} onSelectLesson={setSelectedLesson} />
       )}
 
@@ -405,7 +420,7 @@ export default function HeroCoachProfile({
         <RecommendedGearSection items={gearItems} canManage={canManageGear} onGearAdded={(item) => setGearItems((prev) => [item, ...prev])} />
       )}
 
-      <FooterSocialBar socialLinks={socialLinks} />
+      {isInIframe && <FooterSocialBar socialLinks={socialLinks} />}
 
       {selectedLesson && <LessonDetailModal lesson={selectedLesson} onClose={() => setSelectedLesson(null)} />}
 
@@ -435,7 +450,8 @@ function HeroSection({
   onEditToggle,
   onSave,
   onCancel,
-  theme
+  theme,
+  canEditProfile
 }: {
   coach: HeroCoachProfileProps['coach']
   editingCoach: HeroCoachProfileProps['coach']
@@ -455,7 +471,9 @@ function HeroSection({
   onSave: () => void
   onCancel: () => void
   theme: SportTheme
+  canEditProfile: boolean
 }) {
+  const editingEnabled = canEditProfile && isEditing
   const embossClasses =
     'px-5 py-2 rounded-md text-sm font-semibold uppercase tracking-wide text-white shadow-[0px_6px_16px_rgba(0,0,0,0.4)]'
   const primaryButtonStyles = {
@@ -488,7 +506,7 @@ function HeroSection({
       <div className="relative max-w-6xl mx-auto px-8 py-16 grid gap-10 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1.1fr)] items-center">
         <div className="space-y-6">
           <div className="space-y-2">
-            {isEditing ? (
+            {editingEnabled ? (
               <input
                 value={editingCoach.displayName || ''}
                 onChange={(e) => onFieldChange('displayName', e.target.value)}
@@ -503,7 +521,7 @@ function HeroSection({
                 {coach.displayName}
               </h2>
             )}
-            {isEditing ? (
+            {editingEnabled ? (
               <div className="flex flex-col gap-2">
                 <input
                   value={editingCoach.location || ''}
@@ -537,7 +555,7 @@ function HeroSection({
           </div>
 
           <div>
-            {isEditing ? (
+            {editingEnabled ? (
               <textarea
                 value={editingCoach.bio || ''}
                 onChange={(e) => onFieldChange('bio', e.target.value)}
@@ -569,47 +587,49 @@ function HeroSection({
             alt={coach.displayName}
             className="w-[347px] h-[359px] object-cover rounded-lg bg-white"
           />
-            <div className="flex flex-wrap items-center justify-center gap-3">
-              {!isEditing ? (
-                <div className="w-[347px] flex items-center gap-4">
-                  <button
-                    type="button"
-                    onClick={onEditToggle}
-                    className="flex-1 h-12 rounded-2xl border border-white/40 shadow-[inset_0_3px_6px_rgba(255,255,255,0.28),inset_0_-4px_6px_rgba(0,0,0,0.4),0_6px_14px_rgba(0,0,0,0.35)] text-white text-sm font-semibold uppercase tracking-wide focus:outline-none focus:ring-2 focus:ring-white/60"
-                    style={{ backgroundColor: '#C40000', fontFamily: '"Open Sans", sans-serif' }}
-                  >
-                    Edit Profile
-                  </button>
-                  <Link
-                    href="/dashboard/coach/locker-room"
-                    className="flex-1 h-12 rounded-2xl border border-white/40 shadow-[inset_0_3px_6px_rgba(255,255,255,0.28),inset_0_-4px_6px_rgba(0,0,0,0.4),0_6px_14px_rgba(0,0,0,0.35)] text-white text-sm font-semibold uppercase tracking-wide flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-white/60"
-                    style={{ backgroundColor: '#C40000', fontFamily: '"Open Sans", sans-serif' }}
-                  >
-                    Locker Room
-                  </Link>
-                </div>
-              ) : (
-                <>
-                  <button
-                    type="button"
-                    onClick={onCancel}
-                    className={embossClasses}
-                    style={secondaryButtonStyles}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    onClick={onSave}
-                    className={embossClasses}
-                    style={primaryButtonStyles}
-                  >
-                    Save Changes
-                  </button>
-                </>
-              )}
-            </div>
-            {isEditing && (
+            {canEditProfile && (
+              <div className="flex flex-wrap items-center justify-center gap-3">
+                {!editingEnabled ? (
+                  <div className="w-[347px] flex items-center gap-4">
+                    <button
+                      type="button"
+                      onClick={onEditToggle}
+                      className="flex-1 h-12 rounded-2xl border border-white/40 shadow-[inset_0_3px_6px_rgba(255,255,255,0.28),inset_0_-4px_6px_rgba(0,0,0,0.4),0_6px_14px_rgba(0,0,0,0.35)] text-white text-sm font-semibold uppercase tracking-wide focus:outline-none focus:ring-2 focus:ring-white/60"
+                      style={{ backgroundColor: '#C40000', fontFamily: '"Open Sans", sans-serif' }}
+                    >
+                      Edit Profile
+                    </button>
+                    <Link
+                      href="/dashboard/coach/locker-room"
+                      className="flex-1 h-12 rounded-2xl border border-white/40 shadow-[inset_0_3px_6px_rgba(255,255,255,0.28),inset_0_-4px_6px_rgba(0,0,0,0.4),0_6px_14px_rgba(0,0,0,0.35)] text-white text-sm font-semibold uppercase tracking-wide flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-white/60"
+                      style={{ backgroundColor: '#C40000', fontFamily: '"Open Sans", sans-serif' }}
+                    >
+                      Locker Room
+                    </Link>
+                  </div>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      onClick={onCancel}
+                      className={embossClasses}
+                      style={secondaryButtonStyles}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={onSave}
+                      className={embossClasses}
+                      style={primaryButtonStyles}
+                    >
+                      Save Changes
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
+            {editingEnabled && (
               <PhotoEditPanel
                 editingCoach={editingCoach}
                 onFieldChange={onFieldChange}
