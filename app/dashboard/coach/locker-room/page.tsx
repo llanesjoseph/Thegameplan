@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { ReactNode, useState } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { useEnhancedRole } from '@/hooks/use-role-switcher'
 import { signOut } from 'firebase/auth'
@@ -54,6 +54,7 @@ export default function CoachLockerRoom() {
   const { role, loading } = useEnhancedRole()
   const [activeModal, setActiveModal] = useState<string | null>(null)
   const [isSigningOut, setIsSigningOut] = useState(false)
+  const [coachSportLabel, setCoachSportLabel] = useState('')
 
   // Show loading spinner while checking authentication
   if (loading) {
@@ -81,6 +82,43 @@ export default function CoachLockerRoom() {
       </div>
     )
   }
+
+  useEffect(() => {
+    if (!user) return
+    let isMounted = true
+
+    const loadCoachSport = async () => {
+      try {
+        const token = await user.getIdToken()
+        const response = await fetch('/api/coach-profile/get', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
+
+        if (!response.ok) {
+          console.warn('Failed to fetch coach profile for locker room header')
+          return
+        }
+
+        const data = await response.json()
+        const sport = data?.data?.sport
+        if (sport && isMounted) {
+          setCoachSportLabel(sport)
+        }
+      } catch (error) {
+        console.warn('Unable to load coach sport for locker room', error)
+      }
+    }
+
+    loadCoachSport()
+
+    return () => {
+      isMounted = false
+    }
+  }, [user])
+
+  const communityLabel = coachSportLabel ? `Coach Community - ${coachSportLabel}` : 'Coach Community - Locker Room'
 
   return (
     <div className="min-h-screen bg-[#4B0102] text-white flex flex-col">
@@ -129,7 +167,7 @@ export default function CoachLockerRoom() {
                 className="text-right font-semibold"
                 style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '15px', letterSpacing: '0.01em', color: '#FFFFFF' }}
               >
-                Coach Community - Locker Room
+                {communityLabel}
               </p>
             </div>
           </section>
@@ -244,6 +282,7 @@ export default function CoachLockerRoom() {
       <EnhancedAthleteRosterModal
         isOpen={activeModal === 'athletes'}
         onClose={() => setActiveModal(null)}
+        initialSport={coachSportLabel}
       />
 
       <LockerModalShell
@@ -389,10 +428,7 @@ function LockerModalShell({
         style={{ backgroundColor: '#FFF9F5' }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div
-          className="flex items-center justify-between px-6 sm:px-10 py-6"
-          style={{ background: 'linear-gradient(100deg, #FF3B1D 0%, #A60000 100%)' }}
-        >
+        <div className="flex items-center justify-between px-6 sm:px-10 py-6" style={{ backgroundColor: '#C40000' }}>
           <div>
             <h2 className="text-2xl font-bold" style={{ fontFamily: '"Open Sans", sans-serif', color: '#FFFFFF' }}>
               {title}

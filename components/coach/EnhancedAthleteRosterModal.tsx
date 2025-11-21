@@ -25,6 +25,7 @@ interface AthleteMetrics {
 interface EnhancedAthleteRosterModalProps {
   isOpen: boolean
   onClose: () => void
+  initialSport?: string
 }
 
 type ViewState = 'list' | 'profile' | 'videos' | 'invite'
@@ -38,16 +39,16 @@ interface InviteForm {
   }>
 }
 
-export default function EnhancedAthleteRosterModal({ isOpen, onClose }: EnhancedAthleteRosterModalProps) {
+export default function EnhancedAthleteRosterModal({ isOpen, onClose, initialSport }: EnhancedAthleteRosterModalProps) {
   const { user } = useAuth()
   const [athletes, setAthletes] = useState<Athlete[]>([])
   const [metricsMap, setMetricsMap] = useState<Record<string, AthleteMetrics>>({})
   const [selectedAthleteIndex, setSelectedAthleteIndex] = useState(0)
   const [loading, setLoading] = useState(true)
   const [viewState, setViewState] = useState<ViewState>('list')
-  const [coachSport, setCoachSport] = useState<string>('')
+  const [coachSport, setCoachSport] = useState<string>(initialSport || '')
   const [inviteForm, setInviteForm] = useState<InviteForm>({
-    sport: '',
+    sport: initialSport || '',
     customMessage: '',
     athletes: [{ email: '', name: '' }]
   })
@@ -55,23 +56,30 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose }: Enhanced
   const [aiChatSummary, setAiChatSummary] = useState<string>('')
   const [loadingSummary, setLoadingSummary] = useState(false)
 
+  useEffect(() => {
+    if (initialSport) {
+      setCoachSport(initialSport)
+      setInviteForm((prev) => ({ ...prev, sport: initialSport }))
+    }
+  }, [initialSport])
+
   // Load coach's sport
   useEffect(() => {
     const loadCoachSport = async () => {
-      if (!user?.uid) return
+      if (!user?.uid || !isOpen || coachSport) return
 
       try {
         const token = await user.getIdToken()
         const response = await fetch(`/api/coach-profile/get`, {
           headers: {
-            'Authorization': `Bearer ${token}`
+            Authorization: `Bearer ${token}`
           }
         })
         const data = await response.json()
 
         if (data.success && data.data?.sport) {
           setCoachSport(data.data.sport)
-          setInviteForm(prev => ({ ...prev, sport: data.data.sport }))
+          setInviteForm((prev) => ({ ...prev, sport: data.data.sport }))
         }
       } catch (error) {
         console.error('Error loading coach sport:', error)
@@ -79,7 +87,7 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose }: Enhanced
     }
 
     loadCoachSport()
-  }, [user])
+  }, [user, isOpen, coachSport])
 
   useEffect(() => {
     const loadAthletes = async () => {
@@ -283,10 +291,7 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose }: Enhanced
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div
-          className="flex items-center justify-between px-8 py-6"
-          style={{ background: 'linear-gradient(100deg, #FF3B1D 0%, #A60000 100%)' }}
-        >
+        <div className="flex items-center justify-between px-8 py-6" style={{ backgroundColor: '#C40000' }}>
           <div className="flex items-center gap-4">
             {viewState !== 'list' && (
               <button
