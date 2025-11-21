@@ -40,7 +40,24 @@ const SOCIAL_LINKS: SocialLink[] = [
 export default function GlobalSocialBar() {
   return (
     <footer className="fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-gray-200">
-      <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-end gap-5">
+      <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between gap-5">
+        {/* Primary footer links */}
+        <nav className="flex items-center gap-4 text-xs sm:text-sm" aria-label="Athleap footer navigation">
+          <a
+            href="/coaches"
+            className="text-gray-700 hover:text-black transition-colors"
+          >
+            Browse Coaches
+          </a>
+          <a
+            href="/gear"
+            className="text-gray-700 hover:text-black transition-colors"
+          >
+            Gear Store
+          </a>
+        </nav>
+
+        {/* Global social icons */}
         <ul className="flex items-center gap-4" aria-label="Athleap Social Links">
           {SOCIAL_LINKS.map(({ href, label, icon: Icon }) => (
             <li key={label}>
