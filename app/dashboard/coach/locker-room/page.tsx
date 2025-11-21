@@ -137,7 +137,7 @@ export default function CoachLockerRoom() {
                   className="px-4 py-2 rounded-full border border-black/10 text-sm font-semibold hover:bg-black/5 transition-colors"
                   style={{ fontFamily: '"Open Sans", sans-serif', color: '#111' }}
                 >
-                  Return to Dashboard
+                  Back to Profile
                 </Link>
                 <button
                   onClick={async () => {
