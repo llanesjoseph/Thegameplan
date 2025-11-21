@@ -64,7 +64,7 @@ export default function AthleteOnboardingPage() {
 
   // Email auth state (for athletes without Google)
   const [showEmailForm, setShowEmailForm] = useState(false)
-  const [isEmailSignUp, setIsEmailSignUp] = useState(false)
+  const [isEmailSignUp, setIsEmailSignUp] = useState(true) // Default to sign-up for onboarding
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [emailError, setEmailError] = useState<string>('')
@@ -148,7 +148,27 @@ export default function AthleteOnboardingPage() {
       }
     } catch (err: any) {
       console.error('Email auth error (athlete invite):', err)
-      setEmailError(err?.message || 'Email sign-in failed. Please try again.')
+
+      // Provide user-friendly error messages based on Firebase error codes
+      const errorCode = err?.code || ''
+
+      if (errorCode === 'auth/invalid-credential' || errorCode === 'auth/user-not-found') {
+        setEmailError("This account doesn't exist yet. Click 'Need an account? Sign up' below to create one.")
+        // Auto-switch to sign-up mode after 2 seconds
+        setTimeout(() => setIsEmailSignUp(true), 2000)
+      } else if (errorCode === 'auth/wrong-password') {
+        setEmailError('Incorrect password. Please try again.')
+      } else if (errorCode === 'auth/email-already-in-use') {
+        setEmailError("This email is already registered. Click 'Already have an account? Sign in' below.")
+        // Auto-switch to sign-in mode after 2 seconds
+        setTimeout(() => setIsEmailSignUp(false), 2000)
+      } else if (errorCode === 'auth/weak-password') {
+        setEmailError('Password is too weak. Please use at least 6 characters.')
+      } else if (errorCode === 'auth/invalid-email') {
+        setEmailError('Invalid email address. Please check and try again.')
+      } else {
+        setEmailError(err?.message || 'Authentication failed. Please try again.')
+      }
     } finally {
       setIsEmailProcessing(false)
     }
@@ -333,9 +353,14 @@ export default function AthleteOnboardingPage() {
                       required
                       minLength={6}
                     />
+                    {isEmailSignUp && (
+                      <p className="text-xs text-gray-500 mt-1" style={{ fontFamily: '"Open Sans", sans-serif' }}>
+                        Minimum 6 characters
+                      </p>
+                    )}
                   </div>
                   {emailError && (
-                    <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                    <div className="text-sm font-semibold text-red-700 bg-red-50 border-2 border-red-300 rounded-lg px-4 py-3" style={{ fontFamily: '"Open Sans", sans-serif' }}>
                       {emailError}
                     </div>
                   )}
