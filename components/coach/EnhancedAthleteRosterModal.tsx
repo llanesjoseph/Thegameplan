@@ -302,7 +302,7 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose, initialSpo
       onClick={onClose}
     >
       <div
-        className="w-full max-w-5xl rounded-[32px] border border-[#3B0000] shadow-[0_35px_90px_rgba(0,0,0,0.65)] overflow-hidden flex flex-col"
+        className="w-full max-w-5xl max-h-[90vh] rounded-[32px] border border-[#3B0000] shadow-[0_35px_90px_rgba(0,0,0,0.65)] overflow-hidden flex flex-col"
         style={{ backgroundColor: '#FFF9F5' }}
         onClick={(e) => e.stopPropagation()}
       >

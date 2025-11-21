@@ -122,17 +122,33 @@ export default function CoachLockerRoom() {
 
   return (
     <div className="min-h-screen bg-[#4B0102] text-white flex flex-col">
+      {/* Standard app header + red community bar (matches athlete/gear headers) */}
       <div className="sticky top-0 z-40 shadow-sm">
         <div className="w-full bg-white">
           <header className="w-full bg-white">
             <div className="max-w-6xl mx-auto px-6 lg:px-8 py-4 flex items-center justify-between">
-              <Link href="/" className="flex items-center gap-3">
-                <span className="text-2xl font-bold tracking-tight" style={{ fontFamily: '"Open Sans", sans-serif', letterSpacing: '-0.04em', color: '#181818' }}>
+              {/* Left: logo + ATHLEAP wordmark */}
+              <Link href="/" className="flex items-center gap-3 flex-shrink-0">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/athleap-logo-transparent.png"
+                  alt="Athleap logo"
+                  className="h-8 w-auto"
+                />
+                <span
+                  className="text-xl font-semibold tracking-[0.02em]"
+                  style={{ fontFamily: '"Open Sans", sans-serif', color: '#181818' }}
+                >
                   ATHLEAP
                 </span>
               </Link>
-              <div className="flex items-center gap-3">
+
+              {/* Right: account chip with sign-out link */}
+              <div className="flex items-center gap-6">
                 <button
+                  type="button"
+                  className="flex items-center gap-2 rounded-full bg-white border border-gray-200 px-3 py-1 text-xs sm:text-sm"
+                  aria-label="Coach account"
                   onClick={async () => {
                     if (isSigningOut) return
                     setIsSigningOut(true)
@@ -144,16 +160,43 @@ export default function CoachLockerRoom() {
                       } finally {
                         window.location.href = '/'
                       }
-                    }, 900)
+                    }, 300)
                   }}
-                  className="px-4 py-2 rounded-full bg-black text-white text-sm font-semibold hover:bg-gray-900 transition-colors"
-                  style={{ fontFamily: '"Open Sans", sans-serif' }}
                 >
-                  {isSigningOut ? 'Signing out…' : 'Sign out'}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={
+                      user?.photoURL ||
+                      'https://static.wixstatic.com/media/75fa07_66efa272a9a64facbc09f3da71757528~mv2.png/v1/fill/w_68,h_64,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/75fa07_66efa272a9a64facbc09f3da71757528~mv2.png'
+                    }
+                    alt={user?.displayName || user?.email || 'Athleap Coach'}
+                    className="h-6 w-6 rounded-full object-cover"
+                  />
+                  <span
+                    className="text-[11px] uppercase tracking-[0.18em] text-gray-600"
+                    style={{ fontFamily: '"Open Sans", sans-serif' }}
+                  >
+                    Hello
+                  </span>
+                  <span
+                    className="text-sm"
+                    style={{ fontFamily: '"Open Sans", sans-serif' }}
+                  >
+                    {user?.displayName || user?.email || 'Athleap Coach'}
+                  </span>
+                  <span className="text-xs text-gray-400">|</span>
+                  <span
+                    className="text-xs text-gray-700 underline"
+                    style={{ fontFamily: '"Open Sans", sans-serif' }}
+                  >
+                    {isSigningOut ? 'Signing out…' : 'Sign out'}
+                  </span>
                 </button>
               </div>
             </div>
           </header>
+
+          {/* Red community bar */}
           <section aria-label="Coach community banner" className="w-full" style={{ backgroundColor: '#FC0105' }}>
             <div className="max-w-6xl mx-auto px-6 lg:px-8 py-3">
               <p
