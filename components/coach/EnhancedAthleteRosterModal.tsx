@@ -880,18 +880,6 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose, initialSpo
 
                   <div>
                     <label className="block text-sm font-bold mb-1" style={{ color: '#2B0101', fontFamily: '"Open Sans", sans-serif' }}>
-                      Sport (locked)
-                    </label>
-                    <p
-                      className="w-full px-4 py-3 border-2 rounded-lg text-sm"
-                      style={{ fontFamily: '"Open Sans", sans-serif', borderColor: '#E9B0A0', backgroundColor: '#FFF9F6', color: '#5C3A36' }}
-                    >
-                      {coachSport || 'Not set'}
-                    </p>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-bold mb-1" style={{ color: '#2B0101', fontFamily: '"Open Sans", sans-serif' }}>
                       Personal Message (optional)
                     </label>
                     <textarea
@@ -918,10 +906,6 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose, initialSpo
                           alert('You must be signed in as a coach to send invitations.')
                           return
                         }
-                        if (!coachSport) {
-                          alert('Please set your primary sport on your coach profile before inviting other coaches.')
-                          return
-                        }
 
                         setSendingCoachInvite(true)
                         try {
@@ -935,7 +919,9 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose, initialSpo
                             body: JSON.stringify({
                               coachEmail: coachInviteEmail.trim(),
                               coachName: coachInviteName.trim(),
-                              sport: coachSport,
+                              // Sport is collected during the invited coach's intake,
+                              // so we pass an empty string here.
+                              sport: '',
                               personalMessage: coachInviteMessage.trim(),
                               invitationType: 'coach'
                             })

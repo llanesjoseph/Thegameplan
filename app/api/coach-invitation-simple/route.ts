@@ -11,9 +11,9 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { coachEmail, coachName, sport, personalMessage, invitationType = 'coach' } = body
 
-    if (!coachEmail || !coachName || !sport) {
+    if (!coachEmail || !coachName) {
       return NextResponse.json(
-        { error: `${invitationType === 'assistant' ? 'Assistant' : 'Coach'} email, name, and sport are required` },
+        { error: `${invitationType === 'assistant' ? 'Assistant' : 'Coach'} email and name are required` },
         { status: 400 }
       )
     }
@@ -60,7 +60,16 @@ export async function POST(request: NextRequest) {
 
     // Create invitation URL
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://athleap.crucibleanalytics.dev'
-    const invitationUrl = `${baseUrl}/coach-onboard/${invitationId}?sport=${encodeURIComponent(sport)}&email=${encodeURIComponent(coachEmail)}&name=${encodeURIComponent(coachName)}&role=${targetRole}`
+    const baseInvitationUrl = `${baseUrl}/coach-onboard/${invitationId}`
+    const urlParams = new URLSearchParams({
+      email: coachEmail,
+      name: coachName,
+      role: targetRole
+    })
+    if (sport) {
+      urlParams.set('sport', sport)
+    }
+    const invitationUrl = `${baseInvitationUrl}?${urlParams.toString()}`
 
     // Create invitation data matching admin dashboard structure
     const invitationData = {
@@ -72,7 +81,7 @@ export async function POST(request: NextRequest) {
       coachEmail: coachEmail.toLowerCase(),
       coachName,
       coachId: inviterId, // Who sent the invitation
-      sport,
+      sport: sport || '',
       personalMessage: personalMessage || 'Join our coaching platform!',
       role: targetRole, // CRITICAL: Store the target role
       invitationType,
@@ -106,7 +115,7 @@ export async function POST(request: NextRequest) {
         to: coachEmail,
         organizationName: invitationType === 'assistant' ? 'Athleap Team Network' : 'Athleap Coaching Network',
         inviterName: 'Athleap Team',
-        sport,
+        sport: sport || '',
         invitationUrl,
         qrCodeUrl: null, // No QR code needed
         customMessage: personalMessage,
