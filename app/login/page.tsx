@@ -59,16 +59,8 @@ function LoginContent() {
               
               console.log('[Login] User role:', role)
               
-              // Route directly to role-specific page
-              let redirectPath = '/dashboard/athlete'
-              if (role === 'athlete') {
-                redirectPath = '/dashboard/athlete'
-              } else if (role === 'superadmin' || role === 'admin') {
-                redirectPath = '/dashboard/admin'
-              } else if (role === 'coach' || role === 'assistant_coach' || role === 'creator') {
-                redirectPath = '/dashboard/coach'
-              }
-              
+              // ALWAYS go through central /dashboard router so welcome pages fire.
+              const redirectPath = '/dashboard'
               console.log('[Login] Redirecting to:', redirectPath)
               window.location.href = redirectPath
             } catch (error) {

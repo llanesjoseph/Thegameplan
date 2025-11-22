@@ -64,17 +64,10 @@ export default function LandingPage() {
       
       console.log('[Landing] User role:', role)
       
-      // Use hard redirect (window.location) for immediate navigation
-      let redirectPath = '/dashboard/athlete'
-      if (role === 'athlete') {
-       redirectPath = '/dashboard/athlete'
-      } else if (role === 'superadmin' || role === 'admin') {
-       redirectPath = '/dashboard/admin'
-      } else if (role === 'coach' || role === 'assistant_coach' || role === 'creator') {
-        redirectPath = '/dashboard/coach'
-      }
-      
-      console.log('[Landing] Redirecting to:', redirectPath)
+      // Always go through the central dashboard router so that the
+      // role-based welcome pages are shown correctly.
+      const redirectPath = '/dashboard'
+      console.log('[Landing] Redirecting to:', redirectPath, 'for role:', role)
       window.location.href = redirectPath
      }
     } catch (error) {
