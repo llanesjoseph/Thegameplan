@@ -55,7 +55,6 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose, initialSpo
   const [loadingSummary, setLoadingSummary] = useState(false)
   const [coachInviteName, setCoachInviteName] = useState('')
   const [coachInviteEmail, setCoachInviteEmail] = useState('')
-  const [coachInviteMessage, setCoachInviteMessage] = useState('')
   const [sendingCoachInvite, setSendingCoachInvite] = useState(false)
 
   useEffect(() => {
@@ -214,7 +213,6 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose, initialSpo
   const handleInviteCoach = () => {
     setCoachInviteName('')
     setCoachInviteEmail('')
-    setCoachInviteMessage('')
     setViewState('inviteCoach')
   }
 
@@ -878,25 +876,6 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose, initialSpo
                     </div>
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-bold mb-1" style={{ color: '#2B0101', fontFamily: '"Open Sans", sans-serif' }}>
-                      Personal Message (optional)
-                    </label>
-                    <textarea
-                      value={coachInviteMessage}
-                      onChange={(e) => setCoachInviteMessage(e.target.value)}
-                      rows={3}
-                      placeholder="Add a short note for this coach…"
-                      className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none resize-none"
-                      style={{
-                        fontFamily: '"Open Sans", sans-serif',
-                        borderColor: '#E9B0A0',
-                        backgroundColor: '#FFF9F6',
-                        color: '#2B0101'
-                      }}
-                    />
-                  </div>
-
                   <div className="flex gap-3 pt-4">
                     <button
                       type="button"
@@ -922,7 +901,6 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose, initialSpo
                               // Sport is collected during the invited coach's intake,
                               // so we pass an empty string here.
                               sport: '',
-                              personalMessage: coachInviteMessage.trim(),
                               invitationType: 'coach'
                             })
                           })
@@ -935,7 +913,6 @@ export default function EnhancedAthleteRosterModal({ isOpen, onClose, initialSpo
                           alert(`Invitation sent to ${coachInviteEmail.trim()}. The email address is locked to that invite.`)
                           setCoachInviteName('')
                           setCoachInviteEmail('')
-                          setCoachInviteMessage('')
                           setViewState('list')
                         } catch (error: any) {
                           console.error('Error sending coach invite:', error)

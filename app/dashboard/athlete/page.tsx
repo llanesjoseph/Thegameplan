@@ -136,19 +136,41 @@ export default function AthleteDashboard() {
         setHeroLoading(true)
 
         const userRef = doc(db, 'users', user.uid)
-        const athleteRef = doc(db, 'athletes', user.uid)
 
-        const [userSnap, directAthleteSnap] = await Promise.all([
-          getDoc(userRef),
-          getDoc(athleteRef)
-        ])
-
+        const userSnap = await getDoc(userRef)
         const userData: any = userSnap.exists() ? userSnap.data() : {}
 
-        // Athletes created from invite flow may use a random document ID (not uid),
-        // so fall back to any athlete doc where uid == current user.
-        let athleteData: any = directAthleteSnap.exists() ? directAthleteSnap.data() : {}
-        if (!directAthleteSnap.exists()) {
+        // Athletes created from invite flow use a random athleteId stored on the user document.
+        // We aggressively try three strategies, in order:
+        // 1) athletes/{athleteId from user document}
+        // 2) athletes/{uid} (legacy)
+        // 3) any athletes doc where uid == current user
+        let athleteData: any = {}
+
+        const athleteIdFromUser = typeof userData.athleteId === 'string' ? userData.athleteId : ''
+        if (athleteIdFromUser) {
+          try {
+            const athleteByIdSnap = await getDoc(doc(db, 'athletes', athleteIdFromUser))
+            if (athleteByIdSnap.exists()) {
+              athleteData = athleteByIdSnap.data()
+            }
+          } catch (err) {
+            console.warn('Error loading athlete by athleteId from user doc:', err)
+          }
+        }
+
+        if (!athleteData || Object.keys(athleteData).length === 0) {
+          try {
+            const directAthleteSnap = await getDoc(doc(db, 'athletes', user.uid))
+            if (directAthleteSnap.exists()) {
+              athleteData = directAthleteSnap.data()
+            }
+          } catch (err) {
+            console.warn('Error loading athlete by uid:', err)
+          }
+        }
+
+        if (!athleteData || Object.keys(athleteData).length === 0) {
           try {
             const { collection, getDocs, query, where } = await import('firebase/firestore')
             const athletesCol = collection(db, 'athletes')
@@ -162,8 +184,15 @@ export default function AthleteDashboard() {
           }
         }
 
+        const athleteDisplayNameFromProfile: string =
+          (athleteData?.displayName as string) ||
+          [athleteData?.firstName, athleteData?.lastName].filter(Boolean).join(' ')
+
         const mappedDisplayName =
-          (userData.displayName as string) || user.displayName || ''
+          (userData.displayName as string) ||
+          athleteDisplayNameFromProfile ||
+          user.displayName ||
+          ''
         const mappedLocation =
           (userData.location as string) ||
           [userData.city, userData.state].filter(Boolean).join(', ') ||
