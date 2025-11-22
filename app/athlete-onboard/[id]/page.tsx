@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { auth } from '@/lib/firebase.client'
 import {
@@ -233,6 +233,13 @@ export default function AthleteOnboardingPage() {
     formData.primarySport &&
     formData.goals.length > 0
 
+  // Ensure the coach's sport from the invitation is always a valid option
+  // in the primary sport dropdown, even if it's not in our static SPORTS list
+  const sportOptions = useMemo(() => {
+    if (!invitation?.sport) return SPORTS
+    return SPORTS.includes(invitation.sport) ? SPORTS : [invitation.sport, ...SPORTS]
+  }, [invitation?.sport])
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
@@ -449,7 +456,7 @@ export default function AthleteOnboardingPage() {
                 disabled={isSubmitting || !!invitation.sport}
               >
                 <option value="">Select primary sport</option>
-                {SPORTS.map(sport => (
+                {sportOptions.map(sport => (
                   <option key={sport} value={sport}>{sport}</option>
                 ))}
               </select>
