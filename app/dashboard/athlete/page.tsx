@@ -21,7 +21,6 @@ import AthleteCoaches from '@/components/athlete/AthleteCoaches'
 import AthleteTrainingLibrary from '@/components/athlete/AthleteTrainingLibrary'
 import AthleteRecommendedGear from '@/components/athlete/AthleteRecommendedGear'
 import ProfileQuickSetupModal from '@/components/athlete/ProfileQuickSetupModal'
-import WelcomePopup from '@/components/athlete/WelcomePopup'
 import AthleteShowcaseCard from '@/components/athlete/AthleteShowcaseCard'
 
 
@@ -31,7 +30,6 @@ export default function AthleteDashboard() {
   const [isLoading, setIsLoading] = useState(true)
   const [isSigningOut, setIsSigningOut] = useState(false)
   const [showQuickSetup, setShowQuickSetup] = useState(false)
-  const [showWelcome, setShowWelcome] = useState(false)
   const [athleteName, setAthleteName] = useState<string>('')
   const [coachName, setCoachName] = useState<string>('')
   const [heroProfile, setHeroProfile] = useState<{
@@ -121,26 +119,8 @@ export default function AthleteDashboard() {
   useEffect(() => {
     const loadWelcomeData = async () => {
       try {
-        const welcomeFlag = localStorage.getItem('athleap_show_welcome_popup')
-        if (welcomeFlag === '1') {
-          setShowWelcome(true)
-          localStorage.removeItem('athleap_show_welcome_popup')
-          // Get athlete name and coach name from user data
-          if (user) {
-            const token = await user.getIdToken()
-            fetch('/api/user/role', {
-              headers: { 'Authorization': `Bearer ${token}` }
-            }).then(res => res.json()).then(data => {
-              if (data.success && data.data) {
-                setAthleteName(data.data.displayName || '')
-                setCoachName(data.data.coachName || '')
-              }
-            }).catch(() => {})
-          }
-        }
-
         const quickSetupFlag = localStorage.getItem('athleap_show_quick_profile_setup')
-        if (quickSetupFlag === '1' && !welcomeFlag) {
+        if (quickSetupFlag === '1') {
           setShowQuickSetup(true)
         }
       } catch {}
@@ -761,16 +741,9 @@ export default function AthleteDashboard() {
         {/* Recommended Gear - darker red band stretching edge-to-edge */}
         <AthleteRecommendedGear />
 
-        {/* Welcome popup & quick setup modals */}
-        {showWelcome && (
-          <WelcomePopup
-            athleteName={athleteName}
-            coachName={coachName}
-            onClose={() => setShowWelcome(false)}
-          />
-        )}
+        {/* Quick setup modal (no welcome popup; welcome is now a full page) */}
         <ProfileQuickSetupModal
-          isOpen={showQuickSetup && !showWelcome}
+          isOpen={showQuickSetup}
           onClose={() => setShowQuickSetup(false)}
         />
       </main>

@@ -163,8 +163,8 @@ export default function Dashboard() {
    console.log('🛡️ ADMIN DETECTED - Routing to /dashboard/admin')
    router.replace('/dashboard/admin')
   } else if (actualRole === 'coach' || actualRole === 'assistant_coach') {
-  console.log('👨‍🏫 COACH DETECTED - Routing to /dashboard/coach')
-  router.replace('/dashboard/coach')
+  console.log('👨‍🏫 COACH DETECTED - Routing to /dashboard/coach/welcome')
+  router.replace('/dashboard/coach/welcome')
   } else {
   console.warn('❓ UNKNOWN ROLE - Defaulting to /dashboard/coach', { role: actualRole })
   router.replace('/dashboard/coach')
