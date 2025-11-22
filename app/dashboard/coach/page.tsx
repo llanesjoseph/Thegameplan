@@ -72,7 +72,7 @@ export default function CoachDashboard() {
           console.warn('Unable to load creator profile:', creatorErr)
         }
 
-        const galleryPhotos = extractGalleryPhotos(
+        const allGalleryPhotos = extractGalleryPhotos(
           creatorData.galleryPhotos,
           creatorData.actionPhotos,
           creatorData.mediaGallery,
@@ -80,6 +80,21 @@ export default function CoachDashboard() {
           creatorData.gallery,
           userData.galleryPhotos
         )
+
+        // Stock dashboard image to use when the coach has not created
+        // a custom gallery yet (ignore ingestion photos in that case).
+        const STOCK_DASHBOARD_IMAGE =
+          'https://static.wixstatic.com/media/8bb438_3ae04589aef4480e89a24d7283c69798~mv2_d_2869_3586_s_4_2.jpg/v1/fill/w_428,h_570,q_90,enc_avif,quality_auto/8bb438_3ae04589aef4480e89a24d7283c69798~mv2_d_2869_3586_s_4_2.jpg'
+
+        // For a brand new page (no explicit gallery set yet), we only show
+        // a single STOCK photo. Once the coach has saved a custom gallery
+        // (creator_profiles.galleryPhotos), we allow up to 10 images.
+        let dashboardGalleryPhotos: string[] = []
+        if (Array.isArray(creatorData.galleryPhotos) && creatorData.galleryPhotos.length > 0) {
+          dashboardGalleryPhotos = allGalleryPhotos.slice(0, 10)
+        } else {
+          dashboardGalleryPhotos = [STOCK_DASHBOARD_IMAGE]
+        }
 
         const profileImageUrl =
           creatorData.headshotUrl ||
@@ -102,8 +117,10 @@ export default function CoachDashboard() {
           sport,
           location: creatorData.location || userData.location || '',
           profileImageUrl,
-          showcasePhoto1: creatorData.showcasePhoto1 || userData.showcasePhoto1 || galleryPhotos[0],
-          showcasePhoto2: creatorData.showcasePhoto2 || userData.showcasePhoto2 || galleryPhotos[1],
+          // Primary hero photos – if a custom gallery exists, use the first two;
+          // otherwise just use the single primary image.
+          showcasePhoto1: creatorData.showcasePhoto1 || userData.showcasePhoto1 || dashboardGalleryPhotos[0],
+          showcasePhoto2: creatorData.showcasePhoto2 || userData.showcasePhoto2 || dashboardGalleryPhotos[1],
           instagram: creatorData.instagram || userData.instagram || '',
           youtube: creatorData.youtube || userData.youtube || '',
           linkedin: creatorData.linkedin || userData.linkedin || '',
@@ -113,7 +130,9 @@ export default function CoachDashboard() {
             linkedin: creatorData.linkedin || userData.linkedin || '',
             twitter: creatorData.twitter || userData.twitter || ''
           },
-          galleryPhotos
+          // Dashboard gallery: one image on first build, up to 10 once the
+          // coach has saved a custom gallery.
+          galleryPhotos: dashboardGalleryPhotos
         }
 
         if (isMounted) {
