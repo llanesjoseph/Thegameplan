@@ -64,9 +64,17 @@ export default function LandingPage() {
       
       console.log('[Landing] User role:', role)
       
-      // Always go through the central dashboard router so that the
-      // role-based welcome pages are shown correctly.
-      const redirectPath = '/dashboard'
+      // Route directly to the correct welcome page so the sequence is:
+      // SIGN IN -> WELCOME -> PROFILE.
+      let redirectPath = '/dashboard/athlete/welcome'
+      if (role === 'athlete') {
+        redirectPath = '/dashboard/athlete/welcome'
+      } else if (role === 'superadmin' || role === 'admin') {
+        redirectPath = '/dashboard/admin'
+      } else if (role === 'coach' || role === 'assistant_coach' || role === 'creator') {
+        redirectPath = '/dashboard/coach/welcome'
+      }
+
       console.log('[Landing] Redirecting to:', redirectPath, 'for role:', role)
       window.location.href = redirectPath
      }

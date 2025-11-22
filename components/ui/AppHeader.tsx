@@ -178,18 +178,17 @@ export default function AppHeader({ className = '', title, subtitle }: AppHeader
     switch (role) {
       case 'superadmin':
       case 'admin':
+        router.push('/dashboard/admin')
+        break
       case 'coach':
       case 'creator':
-        // Always go through the central dashboard router so the welcome
-        // pages fire correctly instead of jumping straight to /dashboard/coach.
-        router.push('/dashboard')
+        router.push('/dashboard/coach/welcome')
         break
       case 'assistant':
         router.push('/dashboard/coaching')
         break
       case 'athlete':
-        // Same for athletes: use central router for welcome flow.
-        router.push('/dashboard')
+        router.push('/dashboard/athlete/welcome')
         break
       case 'user':
         router.push('/dashboard')

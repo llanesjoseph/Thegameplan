@@ -59,8 +59,17 @@ function LoginContent() {
               
               console.log('[Login] User role:', role)
               
-              // ALWAYS go through central /dashboard router so welcome pages fire.
-              const redirectPath = '/dashboard'
+              // Route directly to role-specific welcome/dashboard pages so the
+              // sequence is SIGN IN -> WELCOME -> PROFILE.
+              let redirectPath = '/dashboard/athlete/welcome'
+              if (role === 'athlete') {
+                redirectPath = '/dashboard/athlete/welcome'
+              } else if (role === 'superadmin' || role === 'admin') {
+                redirectPath = '/dashboard/admin'
+              } else if (role === 'coach' || role === 'assistant_coach' || role === 'creator') {
+                redirectPath = '/dashboard/coach/welcome'
+              }
+              
               console.log('[Login] Redirecting to:', redirectPath)
               window.location.href = redirectPath
             } catch (error) {
