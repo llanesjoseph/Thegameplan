@@ -93,18 +93,6 @@ export default function AthleteRecommendedGear() {
                     </div>
                   )}
                 </div>
-                    {!loading && (
-                  <div className="pt-2 text-center space-y-1">
-                    <p className="font-semibold text-sm line-clamp-2" style={{ color: '#FFFFFF', fontFamily: '"Open Sans", sans-serif', minHeight: '2.5rem' }}>
-                      {item.name}
-                    </p>
-                    {item.price !== undefined && item.price !== null && item.price !== '' && (
-                      <p className="font-bold text-base" style={{ color: '#FC0105', fontFamily: '"Open Sans", sans-serif' }}>
-                        {typeof item.price === 'number' ? `$${item.price.toFixed(2)}` : item.price}
-                      </p>
-                    )}
-                  </div>
-                )}
               </ItemWrapper>
             )
           })}

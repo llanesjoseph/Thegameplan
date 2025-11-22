@@ -626,21 +626,11 @@ function HeroSection({
 
   return (
     <section className="relative w-full overflow-hidden" style={{ backgroundColor: '#4B0102' }}>
+      {/* Solid sport-themed overlay, no background images */}
       <div
-        className="absolute inset-0 pointer-events-none opacity-90"
-        style={{ background: theme.overlay }}
+        className="absolute inset-0 pointer-events-none"
+        style={{ backgroundColor: theme.accent || '#4B0102', opacity: 0.85 }}
       />
-      {theme.media && (
-        <div
-          className="absolute inset-0 pointer-events-none opacity-20"
-          style={{
-            backgroundImage: `url(${theme.media})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            filter: 'grayscale(100%)'
-          }}
-        />
-      )}
 
       <div className="relative max-w-6xl mx-auto px-8 py-16 grid gap-10 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1.1fr)] items-center">
         <div className="space-y-6">
