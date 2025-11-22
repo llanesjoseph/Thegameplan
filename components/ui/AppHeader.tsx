@@ -178,39 +178,18 @@ export default function AppHeader({ className = '', title, subtitle }: AppHeader
     switch (role) {
       case 'superadmin':
       case 'admin':
-        // Force reload to reset state if already on coach page
-        if (window.location.pathname === '/dashboard/coach') {
-          window.location.href = '/dashboard/coach'
-        } else {
-          router.push('/dashboard/coach')
-        }
-        break
       case 'coach':
-        // Force reload to reset state if already on coach page
-        if (window.location.pathname === '/dashboard/coach') {
-          window.location.href = '/dashboard/coach'
-        } else {
-          router.push('/dashboard/coach')
-        }
-        break
       case 'creator':
-        // Force reload to reset state if already on coach page
-        if (window.location.pathname === '/dashboard/coach') {
-          window.location.href = '/dashboard/coach'
-        } else {
-          router.push('/dashboard/coach')
-        }
+        // Always go through the central dashboard router so the welcome
+        // pages fire correctly instead of jumping straight to /dashboard/coach.
+        router.push('/dashboard')
         break
       case 'assistant':
         router.push('/dashboard/coaching')
         break
       case 'athlete':
-        // Force reload to reset state if already on athlete page
-        if (window.location.pathname === '/dashboard/athlete') {
-          window.location.href = '/dashboard/athlete'
-        } else {
-          router.push('/dashboard/athlete')
-        }
+        // Same for athletes: use central router for welcome flow.
+        router.push('/dashboard')
         break
       case 'user':
         router.push('/dashboard')
