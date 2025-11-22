@@ -231,12 +231,15 @@ export default function HeroCoachProfile({
   const location = activeCoach.location?.trim()
   const bio = activeCoach.bio?.trim()
 
+  // Only show coach socials that are explicitly set in the editable profile fields.
+  // We intentionally ignore legacy nested `socialLinks` here so that clearing a field
+  // in the editor truly removes the icon from the hero.
   const socialLinks: SocialLinks = {
-    linkedin: activeCoach.linkedin || activeCoach.socialLinks?.linkedin,
-    facebook: activeCoach.facebook || activeCoach.socialLinks?.facebook,
-    instagram: activeCoach.instagram || activeCoach.socialLinks?.instagram,
-    youtube: activeCoach.youtube || activeCoach.socialLinks?.youtube,
-    twitter: activeCoach.twitter || activeCoach.socialLinks?.twitter
+    linkedin: activeCoach.linkedin,
+    facebook: activeCoach.facebook,
+    instagram: activeCoach.instagram,
+    youtube: activeCoach.youtube,
+    twitter: activeCoach.twitter
   }
   const isAthleteReadOnlyView = !!forceReadOnly
   const visibleSocialLinks = isAthleteReadOnlyView ? ATHLEAP_SOCIAL_LINKS : socialLinks
@@ -264,15 +267,18 @@ export default function HeroCoachProfile({
           galleryPhotos: editableCoach.galleryPhotos || [],
           instagram: editableCoach.instagram,
           facebook: editableCoach.facebook,
-          twitter: editableCoach.twitter || editableCoach.socialLinks?.twitter,
+          twitter: editableCoach.twitter,
           linkedin: editableCoach.linkedin,
           youtube: editableCoach.youtube,
+          // Persist a flat `socialLinks` object that mirrors the editable fields.
+          // This keeps older consumers working but ensures "clearing" in the UI
+          // actually removes links from the rendered profile.
           socialLinks: {
-            twitter: editableCoach.twitter || editableCoach.socialLinks?.twitter,
-            instagram: editableCoach.instagram || editableCoach.socialLinks?.instagram,
-            linkedin: editableCoach.linkedin || editableCoach.socialLinks?.linkedin,
-            facebook: editableCoach.facebook || editableCoach.socialLinks?.facebook,
-            youtube: editableCoach.youtube || editableCoach.socialLinks?.youtube
+            twitter: editableCoach.twitter,
+            instagram: editableCoach.instagram,
+            linkedin: editableCoach.linkedin,
+            facebook: editableCoach.facebook,
+            youtube: editableCoach.youtube
           }
         }
 
