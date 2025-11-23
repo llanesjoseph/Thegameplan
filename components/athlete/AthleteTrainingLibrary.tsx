@@ -228,7 +228,7 @@ export default function AthleteTrainingLibrary() {
                   onClick={() => handleViewLesson(lesson.id)}
                   className="w-full flex items-center gap-6 py-4 border-b border-gray-200 text-left hover:bg-gray-50 transition-colors"
                 >
-                  <div className="w-14 h-14 rounded-full overflow-hidden flex-shrink-0 bg-[#8B0000]">
+                  <div className="w-14 h-14 rounded-full overflow-hidden flex-shrink-0 bg-[#440102]">
                     {lesson.thumbnailUrl ? (
                       <img
                         src={lesson.thumbnailUrl}

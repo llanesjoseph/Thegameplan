@@ -47,8 +47,8 @@ const SPORT_THEMES: Record<string, SportTheme> = {
       'https://static.wixstatic.com/media/75fa07_89696d9feff94ff090dc1ba88679a8bf~mv2.jpg/v1/fill/w_1600,h_600,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/75fa07_89696d9feff94ff090dc1ba88679a8bf~mv2.jpg'
   },
   basketball: {
-    accent: '#FC0105',
-    overlay: 'linear-gradient(90deg, rgba(252,1,5,0.12) 0%, rgba(252,1,5,0.06) 100%)',
+    accent: '#440102',
+    overlay: 'linear-gradient(90deg, rgba(68,1,2,0.12) 0%, rgba(68,1,2,0.06) 100%)',
     media: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?q=80&w=1600&auto=format&fit=crop'
   },
   volleyball: {
@@ -510,7 +510,7 @@ export default function HeroCoachProfile({
               </div>
             </header>
 
-            <section aria-label="Coach Community Bar" className="w-full" style={{ backgroundColor: '#FC0105' }}>
+            <section aria-label="Coach Community Bar" className="w-full" style={{ backgroundColor: '#440102' }}>
               <div className="w-full max-w-6xl mx-auto px-8 py-3">
                 <p
                   className="text-right"
@@ -625,12 +625,8 @@ function HeroSection({
   }
 
   return (
-    <section className="relative w-full overflow-hidden" style={{ backgroundColor: '#4B0102' }}>
+    <section className="relative w-full overflow-hidden" style={{ backgroundColor: '#440102' }}>
       {/* Solid sport-themed overlay, no background images */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{ backgroundColor: theme.accent || '#4B0102', opacity: 0.85 }}
-      />
 
       <div className="relative max-w-6xl mx-auto px-8 py-16 grid gap-10 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1.1fr)] items-center">
         <div className="space-y-6">
@@ -1114,7 +1110,7 @@ function TrainingLibrarySection({
               onClick={() => onSelectLesson?.(lesson)}
               className="w-full flex items-center gap-6 py-6 border-b border-gray-200 last:border-b-0 text-left hover:bg-gray-50 transition-colors"
             >
-              <div className="w-24 h-24 rounded-full bg-[#5A0202] flex items-center justify-center overflow-hidden flex-shrink-0">
+              <div className="w-24 h-24 rounded-full bg-[#440102] flex items-center justify-center overflow-hidden flex-shrink-0">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 {lesson.thumbnailUrl ? (
                   <img src={lesson.thumbnailUrl} alt={lesson.title} className="w-full h-full object-cover" />
