@@ -269,29 +269,6 @@ export default function GearStore() {
                         </div>
                       )}
                     </div>
-                    <p
-                      className="font-bold text-sm mt-2"
-                      style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}
-                    >
-                      {loading ? 'Product' : g?.name}
-                    </p>
-                    {!loading && (g?.price || g?.priceUSD) && (
-                      <p
-                        className="text-xs"
-                        style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}
-                      >
-                        {typeof g.price === 'number' ? `$${g.price.toFixed(2)}` : g.price || g.priceUSD}
-                      </p>
-                    )}
-                    {!loading && (g?.coachName || g?.sport) && (
-                      <p
-                        className="mt-1 text-[11px]"
-                        style={{ color: '#8B4B41', fontFamily: '"Open Sans", sans-serif' }}
-                      >
-                        {g.coachName ? `Recommended by ${g.coachName}` : 'Recommended by an Athleap coach'}
-                        {g.sport ? ` · ${g.sport}` : ''}
-                      </p>
-                    )}
                   </>
                 )
 

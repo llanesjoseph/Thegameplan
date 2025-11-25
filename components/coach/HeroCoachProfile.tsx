@@ -510,8 +510,8 @@ export default function HeroCoachProfile({
               </div>
             </header>
 
-            <section aria-label="Coach Community Bar" className="w-full" style={{ backgroundColor: '#440102' }}>
-              <div className="w-full max-w-6xl mx-auto px-8 py-3">
+            <section aria-label="Coach Community Bar" className="w-full" style={{ backgroundColor: '#FC0105' }}>
+              <div className="w-full max-w-6xl mx-auto px-8 py-2">
                 <p
                   className="text-right"
                   style={{
