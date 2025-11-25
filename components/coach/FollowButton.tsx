@@ -125,7 +125,7 @@ export default function FollowButton({
         className={`p-2 rounded-lg transition-all ${
           isFollowing
             ? 'bg-gray-100 hover:bg-red-50 text-gray-700 hover:text-red-600'
-            : 'bg-teal-500 hover:bg-teal-600 text-white'
+            : 'bg-[#FC0105] hover:bg-[#d70004] text-white'
         } ${isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'}`}
         title={isFollowing ? 'Unfollow' : 'Follow'}
       >
@@ -147,7 +147,7 @@ export default function FollowButton({
         className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-1.5 ${
           isFollowing
             ? 'bg-gray-100 hover:bg-red-50 text-gray-700 hover:text-red-600 border border-gray-300'
-            : 'bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white shadow-md hover:shadow-lg'
+            : 'bg-[#FC0105] hover:bg-[#d70004] text-white shadow-md hover:shadow-lg'
         } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
       >
         {isFollowing ? (
@@ -173,7 +173,7 @@ export default function FollowButton({
       className={`px-6 py-3 rounded-lg font-semibold transition-all flex items-center gap-2 ${
         isFollowing
           ? 'bg-white hover:bg-red-50 text-gray-700 hover:text-red-600 border-2 border-gray-300 hover:border-red-300'
-          : 'bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white shadow-lg hover:shadow-xl'
+          : 'bg-[#FC0105] hover:bg-[#d70004] text-white shadow-lg hover:shadow-xl'
       } ${isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'}`}
     >
       {isFollowing ? (

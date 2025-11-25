@@ -207,13 +207,29 @@ export default function AthleteCoaches() {
           </h2>
           <button
             type="button"
-            aria-label="Browse more coaches"
+            aria-label="Add coach / browse coaches"
             onClick={() => {
               window.location.href = '/coaches'
             }}
-            className="flex items-center justify-center w-8 h-8 rounded-full border border-black text-black hover:bg-black hover:text-white transition-colors"
+            className="group relative flex items-center justify-center h-10 rounded-2xl border border-[#C40000] text-white focus:outline-none transition-all duration-300 ease-out overflow-hidden"
+            style={{ backgroundColor: '#C40000', width: '44px', fontFamily: '"Open Sans", sans-serif' }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.width = '160px'
+              e.currentTarget.classList.add('justify-start', 'pl-4')
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.width = '44px'
+              e.currentTarget.classList.remove('justify-start', 'pl-4')
+            }}
           >
-            <Plus className="w-4 h-4" />
+            <span className="text-2xl leading-none transition-all duration-300 group-hover:translate-x-1">
+              +
+            </span>
+            <span
+              className="ml-0 group-hover:ml-2 whitespace-nowrap text-sm font-semibold uppercase tracking-wide opacity-0 max-w-0 group-hover:opacity-100 group-hover:max-w-[120px] transition-all duration-300 ease-out"
+            >
+              Add Coach
+            </span>
           </button>
         </div>
 
