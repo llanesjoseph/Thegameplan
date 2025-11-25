@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { ChevronDown } from 'lucide-react'
 import { SPORTS } from '@/lib/constants/sports'
 import CoachProfileModal from '@/components/athlete/CoachProfileModal'
+import FollowButton from '@/components/coach/FollowButton'
 
 type Coach = {
   id: string
@@ -502,6 +503,23 @@ export default function BrowseCoachesPage() {
                         </p>
                       )}
                     </div>
+
+                    {/* Follow button for signed-in athletes */}
+                    {user?.role === 'athlete' && (
+                      <div
+                        className="mt-2"
+                        onClick={(e) => {
+                          // Prevent opening the preview modal when clicking Follow
+                          e.stopPropagation()
+                        }}
+                      >
+                        <FollowButton
+                          coachId={coach.id}
+                          coachName={coach.displayName}
+                          variant="compact"
+                        />
+                      </div>
+                    )}
                   </div>
                 )
               })}

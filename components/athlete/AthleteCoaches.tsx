@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase.client'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Plus } from 'lucide-react'
 import Live1on1RequestModal from './Live1on1RequestModal'
 import VideoManagementModal from './VideoManagementModal'
 import CoachProfileModal from './CoachProfileModal'
@@ -198,12 +198,24 @@ export default function AthleteCoaches() {
   return (
     <>
       <div>
-        <h2
-          className="text-center mb-10"
-          style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '25px', letterSpacing: '0.05em' }}
-        >
-          Your Athleap Coaches
-        </h2>
+        <div className="flex items-center justify-center mb-10 gap-3">
+          <h2
+            className="text-center"
+            style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '25px', letterSpacing: '0.05em' }}
+          >
+            Your Athleap Coaches
+          </h2>
+          <button
+            type="button"
+            aria-label="Browse more coaches"
+            onClick={() => {
+              window.location.href = '/coaches'
+            }}
+            className="flex items-center justify-center w-8 h-8 rounded-full border border-black text-black hover:bg-black hover:text-white transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+          </button>
+        </div>
 
         {/* No Coaches Message */}
         {!loading && coaches.length === 0 && (
