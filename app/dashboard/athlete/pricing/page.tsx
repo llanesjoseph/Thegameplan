@@ -14,35 +14,19 @@ interface PricingPlan {
   description: string;
 }
 
+// For initial testing we run a single "Athleap Basic" tier that maps to the BASIC Stripe price.
+// The backend still supports "elite", but the UI only offers this one plan for now.
 const PLANS: PricingPlan[] = [
   {
     id: 'basic',
-    name: 'Basic',
-    price: 19.99,
-    description: 'Perfect for athletes starting their journey',
+    name: 'Athleap Basic',
+    price: 0,
+    description: 'Test drive the full athlete experience while we finalize pricing.',
     features: [
-      'Access to all assigned lessons',
-      '2 video submissions per month',
-      'Progress tracking and analytics',
-      'Direct messaging with coach',
-      'Video review feedback',
-      'Training history',
-    ],
-  },
-  {
-    id: 'elite',
-    name: 'Elite',
-    price: 29.99,
-    popular: true,
-    description: 'For serious athletes who want it all',
-    features: [
-      'Everything in Basic',
-      'Unlimited video submissions',
-      'AI-powered Ask Joseph assistant',
-      "Access to coach's feed and content",
-      'Priority review queue',
-      'Advanced analytics',
-      'Early access to new features',
+      'Access to your coach’s published lessons',
+      'Video submissions and feedback (testing mode)',
+      'Progress tracking dashboard',
+      'Access to new AI and training features as we roll them out',
     ],
   },
 ];
@@ -97,10 +81,10 @@ export default function AthletePricingPage() {
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-white mb-4">
-            Choose Your Plan
+            Start Your Athleap Trial
           </h1>
           <p className="text-xl text-gray-400">
-            Start your 7-day free trial. Cancel anytime.
+            One simple test plan for now. We’ll add more tiers after we validate the experience.
           </p>
           <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-lg">
             <Sparkles className="w-4 h-4 text-purple-400" />

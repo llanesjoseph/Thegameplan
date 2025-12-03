@@ -8,7 +8,17 @@ import { db, storage } from '@/lib/firebase.client'
 import { ref, getDownloadURL } from 'firebase/storage'
 import LessonOverlay from '@/components/LessonOverlay'
 
-export default function AthleteTrainingLibrary() {
+interface AthleteSubscriptionSummary {
+  tier?: string
+  status?: string
+  isActive?: boolean
+}
+
+interface AthleteTrainingLibraryProps {
+  subscription?: AthleteSubscriptionSummary | null
+}
+
+export default function AthleteTrainingLibrary({ subscription }: AthleteTrainingLibraryProps = {}) {
   const { user } = useAuth()
   const [lessons, setLessons] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -16,10 +26,11 @@ export default function AthleteTrainingLibrary() {
   const [openLessonId, setOpenLessonId] = useState<string | null>(null)
   const [completedLessons, setCompletedLessons] = useState<Set<string>>(new Set())
   const pageSize = 4
+  const hasActiveSubscription = !!subscription?.isActive
 
   useEffect(() => {
     const loadTrainingLibrary = async () => {
-      if (!user?.uid) {
+      if (!user?.uid || !hasActiveSubscription) {
         setLoading(false)
         return
       }
@@ -148,7 +159,7 @@ export default function AthleteTrainingLibrary() {
     }
 
     loadTrainingLibrary()
-  }, [user])
+  }, [user, hasActiveSubscription])
 
   const handleViewLesson = (lessonId: string) => {
     setOpenLessonId(lessonId)
@@ -207,7 +218,26 @@ export default function AthleteTrainingLibrary() {
         Your Training Library
       </h2>
 
-      {loading ? (
+      {!hasActiveSubscription ? (
+        <div className="border border-dashed border-gray-300 rounded-lg p-6 text-center">
+          <p
+            className="text-sm mb-3"
+            style={{ fontFamily: '"Open Sans", sans-serif', color: '#444444' }}
+          >
+            Start your athlete subscription to unlock full access to your training library and coach lessons.
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              window.location.href = '/dashboard/athlete/pricing'
+            }}
+            className="inline-flex items-center justify-center px-6 py-2 rounded-full text-xs sm:text-sm font-semibold tracking-[0.16em] uppercase shadow-sm transition-colors"
+            style={{ fontFamily: '"Open Sans", sans-serif', backgroundColor: '#FC0105', color: '#FFFFFF' }}
+          >
+            View Plans
+          </button>
+        </div>
+      ) : loading ? (
         <div className="space-y-4">
           {[1, 2].map((i) => (
             <div key={i} className="flex items-center gap-4">

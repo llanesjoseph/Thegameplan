@@ -12,7 +12,17 @@ import dynamic from 'next/dynamic'
 
 const AskCoachAI = dynamic(() => import('./AskCoachAI'), { ssr: false })
 
-export default function AthleteCoaches() {
+interface AthleteSubscriptionSummary {
+  tier?: string
+  status?: string
+  isActive?: boolean
+}
+
+interface AthleteCoachesProps {
+  subscription?: AthleteSubscriptionSummary | null
+}
+
+export default function AthleteCoaches({ subscription }: AthleteCoachesProps = {}) {
   const { user } = useAuth()
   const [coaches, setCoaches] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -24,6 +34,7 @@ export default function AthleteCoaches() {
   const coachPageSize = 3
   const [showCoachProfileModal, setShowCoachProfileModal] = useState(false)
   const [selectedCoach, setSelectedCoach] = useState<any>(null)
+  const hasActiveSubscription = !!subscription?.isActive
 
   useEffect(() => {
     const loadCoaches = async () => {
@@ -331,33 +342,54 @@ export default function AthleteCoaches() {
               </div>
             )}
 
-            {/* Red CTA buttons row */}
-            <div className="mt-10 flex flex-col sm:flex-row justify-center gap-4 w-full max-w-3xl">
-              <button
-                type="button"
-                onClick={handleScheduleSession}
-                className="rounded-full bg-[#FC0105] px-8 py-3 text-sm font-semibold text-white tracking-[0.08em] uppercase shadow-sm hover:bg-[#d70004] transition-colors w-full sm:flex-1 text-center"
-                style={{ fontFamily: '"Open Sans", sans-serif' }}
-              >
-                Request Coaching Session
-              </button>
-              <button
-                type="button"
-                onClick={handleAskQuestion}
-                className="rounded-full bg-[#FC0105] px-8 py-3 text-sm font-semibold text-white tracking-[0.08em] uppercase shadow-sm hover:bg-[#d70004] transition-colors w-full sm:flex-1 text-center"
-                style={{ fontFamily: '"Open Sans", sans-serif' }}
-              >
-                Ask A Question
-              </button>
-              <button
-                type="button"
-                onClick={handleSubmitVideo}
-                className="rounded-full bg-[#FC0105] px-8 py-3 text-sm font-semibold text-white tracking-[0.08em] uppercase shadow-sm hover:bg-[#d70004] transition-colors w-full sm:flex-1 text-center"
-                style={{ fontFamily: '"Open Sans", sans-serif' }}
-              >
-                Submit Training Video
-              </button>
-            </div>
+            {/* Red CTA buttons row (gated by subscription) */}
+            {hasActiveSubscription ? (
+              <div className="mt-10 flex flex-col sm:flex-row justify-center gap-4 w-full max-w-3xl">
+                <button
+                  type="button"
+                  onClick={handleScheduleSession}
+                  className="rounded-full bg-[#FC0105] px-8 py-3 text-sm font-semibold text-white tracking-[0.08em] uppercase shadow-sm hover:bg-[#d70004] transition-colors w-full sm:flex-1 text-center"
+                  style={{ fontFamily: '"Open Sans", sans-serif' }}
+                >
+                  Request Coaching Session
+                </button>
+                <button
+                  type="button"
+                  onClick={handleAskQuestion}
+                  className="rounded-full bg-[#FC0105] px-8 py-3 text-sm font-semibold text-white tracking-[0.08em] uppercase shadow-sm hover:bg-[#d70004] transition-colors w-full sm:flex-1 text-center"
+                  style={{ fontFamily: '"Open Sans", sans-serif' }}
+                >
+                  Ask A Question
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSubmitVideo}
+                  className="rounded-full bg-[#FC0105] px-8 py-3 text-sm font-semibold text-white tracking-[0.08em] uppercase shadow-sm hover:bg-[#d70004] transition-colors w-full sm:flex-1 text-center"
+                  style={{ fontFamily: '"Open Sans", sans-serif' }}
+                >
+                  Submit Training Video
+                </button>
+              </div>
+            ) : (
+              <div className="mt-10 flex flex-col items-center gap-3 w-full max-w-3xl">
+                <p
+                  className="text-sm text-center"
+                  style={{ fontFamily: '"Open Sans", sans-serif', color: '#444444' }}
+                >
+                  Start your athlete subscription to request live sessions, ask your coach questions, and submit training videos.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    window.location.href = '/dashboard/athlete/pricing'
+                  }}
+                  className="rounded-full bg-[#FC0105] px-8 py-3 text-sm font-semibold text-white tracking-[0.08em] uppercase shadow-sm hover:bg-[#d70004] transition-colors w-full sm:w-auto text-center"
+                  style={{ fontFamily: '"Open Sans", sans-serif' }}
+                >
+                  View Plans
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

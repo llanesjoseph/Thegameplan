@@ -78,6 +78,12 @@ export default function AthleteDashboard() {
   const [isSavingHero, setIsSavingHero] = useState(false)
   const [isUploadingHeroPhoto, setIsUploadingHeroPhoto] = useState(false)
   const heroPhotoInputRef = useRef<HTMLInputElement | null>(null)
+  const [subscriptionSummary, setSubscriptionSummary] = useState<{
+    tier: string
+    status: string
+    isActive: boolean
+  } | null>(null)
+  const [subscriptionLoading, setSubscriptionLoading] = useState(false)
 
   // Redirect non-athletes
   useEffect(() => {
@@ -115,6 +121,35 @@ export default function AthleteDashboard() {
 
     checkRole()
   }, [user, router])
+
+  // Load athlete subscription status so we can show a clear CTA into the Stripe pricing / checkout flow.
+  useEffect(() => {
+    const loadSubscription = async () => {
+      if (!user) return
+      try {
+        setSubscriptionLoading(true)
+        const token = await user.getIdToken()
+        const res = await fetch('/api/athlete/subscriptions/status', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
+        if (!res.ok) return
+        const data = await res.json()
+        setSubscriptionSummary({
+          tier: data.tier,
+          status: data.status,
+          isActive: data.isActive
+        })
+      } catch (err) {
+        console.error('Error loading subscription status:', err)
+      } finally {
+        setSubscriptionLoading(false)
+      }
+    }
+
+    loadSubscription()
+  }, [user])
 
   useEffect(() => {
     const loadWelcomeData = async () => {
@@ -505,6 +540,38 @@ export default function AthleteDashboard() {
 
       {/* Hero + metrics + main sections */}
       <main className="w-full">
+        {/* Subscription banner / CTA into Stripe pricing page */}
+        {!subscriptionLoading && subscriptionSummary && !subscriptionSummary.isActive && (
+          <section className="w-full bg-white border-b border-gray-200">
+            <div className="max-w-6xl mx-auto px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div>
+                <p
+                  className="text-sm font-semibold uppercase tracking-[0.14em] text-gray-900"
+                  style={{ fontFamily: '"Open Sans", sans-serif' }}
+                >
+                  Unlock Full Athleap Access
+                </p>
+                <p
+                  className="text-xs text-gray-700 mt-1"
+                  style={{ fontFamily: '"Open Sans", sans-serif' }}
+                >
+                  Start your athlete subscription to access premium coaching tools, training library, and AI features.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  window.location.href = '/dashboard/athlete/pricing'
+                }}
+                className="inline-flex items-center justify-center px-6 py-2 rounded-full text-xs sm:text-sm font-semibold tracking-[0.16em] uppercase shadow-sm transition-colors"
+                style={{ fontFamily: '"Open Sans", sans-serif', backgroundColor: '#FC0105', color: '#FFFFFF' }}
+              >
+                View Plans
+              </button>
+            </div>
+          </section>
+        )}
+
         {/* Hero band */}
         <section className="w-full bg-[#4B0102]">
           <div className="max-w-6xl mx-auto px-8 py-16 grid gap-10 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1.1fr)] items-center">
@@ -756,14 +823,14 @@ export default function AthleteDashboard() {
         {/* Coaches section – solid white band edge-to-edge */}
         <section className="w-full bg-white">
           <div className="max-w-6xl mx-auto px-8 py-12">
-            <AthleteCoaches />
+            <AthleteCoaches subscription={subscriptionSummary} />
           </div>
         </section>
 
         {/* Training Library – light gray band edge-to-edge */}
         <section className="w-full" style={{ backgroundColor: '#EDEDED' }}>
           <div className="max-w-6xl mx-auto px-8 py-10">
-            <AthleteTrainingLibrary />
+            <AthleteTrainingLibrary subscription={subscriptionSummary} />
           </div>
         </section>
 

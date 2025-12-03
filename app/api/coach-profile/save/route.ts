@@ -102,6 +102,44 @@ export async function POST(request: NextRequest) {
 
     await batch.commit()
 
+    // Keep creators_index (Browse Coaches) in sync so headshots and key fields
+    // update everywhere. We only touch it if it already exists – creation is
+    // handled elsewhere (ensureCoachVisibility during onboarding/approval).
+    try {
+      const creatorsIndexRef = db.collection('creators_index').doc(uid)
+      const creatorsDoc = await creatorsIndexRef.get()
+
+      if (creatorsDoc.exists) {
+        const indexUpdates: Record<string, any> = {
+          lastUpdated: now
+        }
+
+        // If a new profile image was set, mirror it into all common image fields
+        // used by public views so the Browse Coaches grid always shows the latest headshot.
+        if (body.profileImageUrl) {
+          indexUpdates.profileImageUrl = body.profileImageUrl
+          indexUpdates.headshotUrl = body.profileImageUrl
+          indexUpdates.photoURL = body.profileImageUrl
+          indexUpdates.bannerUrl = body.profileImageUrl
+          indexUpdates.heroImageUrl = body.profileImageUrl
+          indexUpdates.coverImageUrl = body.profileImageUrl
+        }
+
+        // Keep key identity fields aligned when they are updated.
+        if (body.displayName !== undefined) {
+          indexUpdates.displayName = body.displayName
+        }
+        if (body.sport !== undefined) {
+          indexUpdates.sport = body.sport
+        }
+
+        await creatorsIndexRef.set(indexUpdates, { merge: true })
+      }
+    } catch (visibilityError) {
+      // Do not fail the profile save if the public index sync fails; just log.
+      console.warn('Warning: failed to sync creators_index from coach-profile/save:', visibilityError)
+    }
+
     return NextResponse.json({ success: true })
   } catch (error: any) {
     console.error('Error saving coach profile:', error)
