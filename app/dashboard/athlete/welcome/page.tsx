@@ -1,15 +1,111 @@
 'use client'
 
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { signOut } from 'firebase/auth'
-import { auth } from '@/lib/firebase.client'
+import { auth, db } from '@/lib/firebase.client'
 import { useAuth } from '@/hooks/use-auth'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
 
 export default function AthleteWelcomePage() {
   const { user } = useAuth()
+  const router = useRouter()
   const [isSigningOut, setIsSigningOut] = useState(false)
+  const [checkingGate, setCheckingGate] = useState(true)
   const displayName = user?.displayName || 'Athleap Athlete'
+
+  // Welcome screen gating:
+  // - Only show up to 2 times
+  // - Only within the first 2 days from initial welcome view
+  useEffect(() => {
+    if (!user?.uid) {
+      // If somehow we reach this page without a user, send home.
+      router.replace('/')
+      return
+    }
+
+    const runGateCheck = async () => {
+      try {
+        const userRef = doc(db, 'users', user.uid)
+        const snap = await getDoc(userRef)
+        const data = snap.exists() ? (snap.data() as Record<string, any>) : {}
+
+        const now = Date.now()
+        const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000
+
+        let firstSeenAt: number | null =
+          typeof data.welcomeAthleteFirstSeenAt === 'number'
+            ? data.welcomeAthleteFirstSeenAt
+            : null
+        let viewCount: number =
+          typeof data.welcomeAthleteViewCount === 'number'
+            ? data.welcomeAthleteViewCount
+            : 0
+
+        if (!firstSeenAt) {
+          // First time seeing the welcome screen – record and allow.
+          firstSeenAt = now
+          viewCount = 1
+          if (snap.exists()) {
+            await updateDoc(userRef, {
+              welcomeAthleteFirstSeenAt: firstSeenAt,
+              welcomeAthleteViewCount: viewCount
+            })
+          } else {
+            await setDoc(
+              userRef,
+              {
+                welcomeAthleteFirstSeenAt: firstSeenAt,
+                welcomeAthleteViewCount: viewCount
+              },
+              { merge: true }
+            )
+          }
+          setCheckingGate(false)
+          return
+        }
+
+        const elapsed = now - firstSeenAt
+
+        // If it's been more than 2 days OR we've already shown this 2+ times,
+        // skip the welcome and go straight to the dashboard.
+        if (elapsed > TWO_DAYS_MS || viewCount >= 2) {
+          router.replace('/dashboard/athlete')
+          return
+        }
+
+        // Otherwise increment view count and allow this visit.
+        viewCount += 1
+        await updateDoc(userRef, {
+          welcomeAthleteViewCount: viewCount
+        })
+      } catch (error) {
+        // If anything goes wrong, fail open (show the welcome) so UX is never blocked.
+        console.warn('Failed to evaluate athlete welcome gate:', error)
+      } finally {
+        setCheckingGate(false)
+      }
+    }
+
+    runGateCheck()
+  }, [user?.uid, router])
+
+  if (checkingGate) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#4B0102] text-white">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-white border-t-transparent mb-4" />
+          <p
+            className="font-semibold text-sm"
+            style={{ fontFamily: '"Open Sans", sans-serif' }}
+          >
+            Loading your welcome experience…
+          </p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-[#4B0102] text-white flex flex-col">

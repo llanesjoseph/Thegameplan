@@ -1361,14 +1361,6 @@ function RecommendedGearSection({
                         <img src="/brand/athleap-logo-colored.png" alt="Athleap" className="w-14 h-14 opacity-90" />
                       )}
                     </div>
-                    <p className="mt-2" style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '14px', color: '#FFFFFF' }}>
-                      {item.name}
-                    </p>
-                    {item.price && (
-                      <p className="text-sm font-semibold" style={{ fontFamily: '"Open Sans", sans-serif', color: '#FF0000' }}>
-                        {item.price}
-                      </p>
-                    )}
                   </a>
                 </div>
               ))
