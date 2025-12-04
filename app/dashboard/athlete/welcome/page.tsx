@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react'
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
 
 export default function AthleteWelcomePage() {
-  const { user } = useAuth()
+  const { user, loading } = useAuth()
   const router = useRouter()
   const [isSigningOut, setIsSigningOut] = useState(false)
   const [checkingGate, setCheckingGate] = useState(true)
@@ -19,8 +19,12 @@ export default function AthleteWelcomePage() {
   // - Only show up to 2 times
   // - Only within the first 2 days from initial welcome view
   useEffect(() => {
+    if (loading) {
+      return
+    }
+
     if (!user?.uid) {
-      // If somehow we reach this page without a user, send home.
+      // If somehow we reach this page without a user after loading, send home.
       router.replace('/')
       return
     }
@@ -89,9 +93,9 @@ export default function AthleteWelcomePage() {
     }
 
     runGateCheck()
-  }, [user?.uid, router])
+  }, [user?.uid, loading, router])
 
-  if (checkingGate) {
+  if (loading || checkingGate) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#4B0102] text-white">
         <div className="text-center">
