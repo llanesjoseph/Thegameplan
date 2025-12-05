@@ -165,7 +165,7 @@ export async function POST(request: NextRequest) {
 }
 
 /**
- * Generate HTML email for coach invitation
+ * Generate HTML email for coach invitation - 2025 Brand Design
  */
 function generateCoachInvitationEmail(
   coachName: string,
@@ -174,67 +174,84 @@ function generateCoachInvitationEmail(
   customMessage: string,
   inviterName: string
 ): string {
-  return `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Coach Invitation - AthLeap</title>
-    </head>
-    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-      <div style="background: linear-gradient(135deg, #20B2AA 0%, #91A6EB 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
-        <h1 style="color: white; margin: 0; font-size: 28px;">🏆 AthLeap Coach Invitation</h1>
-      </div>
+  const firstName = coachName?.split(' ')[0] || 'there'
 
-      <div style="background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px;">
-        <h2 style="color: #20B2AA; margin-top: 0;">Hello ${coachName}!</h2>
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>You're Invited to ATHLEAP</title>
+</head>
+<body style="margin:0; padding:0; background-color:#f5f5f5; font-family: 'Open Sans', Arial, sans-serif;">
+  <!-- Full width wrapper -->
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f5f5f5;">
+    <tr>
+      <td align="center" style="padding:16px;">
 
-        <p style="font-size: 16px;">
-          You've been invited to join AthLeap as a <strong>${sport}</strong> coach!
-        </p>
+        <!-- Main container -->
+        <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px; width:100%; background-color:#ffffff; border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.1);">
 
-        ${customMessage ? `
-        <div style="background: white; border-left: 4px solid #20B2AA; padding: 15px; margin: 20px 0; border-radius: 4px;">
-          <p style="margin: 0; font-style: italic; color: #555;">${customMessage}</p>
-        </div>
-        ` : ''}
+          <!-- Logo Banner -->
+          <tr>
+            <td align="center" style="background-color:#440102; padding:40px 20px; border-radius:12px 12px 0 0;">
+              <img src="https://athleap.crucibleanalytics.dev/brand/athleap-logo-colored.png" alt="ATHLEAP" style="height:80px; width:auto; display:block;" />
+            </td>
+          </tr>
 
-        <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border: 2px solid #20B2AA;">
-          <h3 style="color: #20B2AA; margin-top: 0;">What You Can Do as a Coach</h3>
-          <ul style="color: #555; padding-left: 20px;">
-            <li>Invite and manage your athletes</li>
-            <li>Create custom playbooks and training content</li>
-            <li>Track athlete progress and performance</li>
-            <li>Communicate with your team through announcements</li>
-            <li>Access comprehensive analytics and insights</li>
-          </ul>
-        </div>
+          <!-- Content Section -->
+          <tr>
+            <td style="padding:32px 24px;">
+              <p style="color:#000000; font-size:18px; line-height:1.6; margin:0 0 16px 0; font-family: 'Open Sans', Arial, sans-serif;">
+                Hi ${firstName} –
+              </p>
 
-        <div style="text-align: center; margin: 30px 0;">
-          <a href="${invitationUrl}" style="display: inline-block; background: linear-gradient(135deg, #20B2AA 0%, #91A6EB 100%); color: white; padding: 15px 40px; text-decoration: none; border-radius: 50px; font-weight: bold; font-size: 16px;">
-            Accept Invitation & Setup Account
-          </a>
-        </div>
+              <p style="color:#000000; font-size:16px; line-height:1.6; margin:0 0 16px 0; font-family: 'Open Sans', Arial, sans-serif;">
+                We are the founding team at Athleap, a new platform blending the power of AI with the thrill of sports, creating unforgettable fan experiences and coaching next-generation athletes. Our mission is simple: to help unlock athletic potential.
+              </p>
 
-        <div style="background: #fff3cd; border: 1px solid #ffc107; padding: 15px; border-radius: 8px; margin: 20px 0;">
-          <p style="margin: 0; color: #856404; font-size: 14px;">
-            <strong>⏰ Important:</strong> This invitation link will expire in 7 days. Please complete your account setup before then.
-          </p>
-        </div>
+              <p style="color:#000000; font-size:16px; line-height:1.6; margin:0 0 24px 0; font-family: 'Open Sans', Arial, sans-serif;">
+                We are inviting a select group of elite athletes to join our early access community as coaches, shaping the tools that redefine how athletes train and compete.
+              </p>
 
-        <p style="font-size: 14px; color: #666; margin-top: 30px;">
-          Invited by: <strong>${inviterName}</strong>
-        </p>
+              <!-- CTA Button -->
+              <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin:28px auto;">
+                <tr>
+                  <td align="center" style="background-color:#FC0105; border-radius:8px; padding:16px 40px;">
+                    <a href="${invitationUrl}" style="color:#FFFFFF; font-size:16px; font-weight:700; text-decoration:none; display:block; font-family: 'Open Sans', Arial, sans-serif;">Join Our Community</a>
+                  </td>
+                </tr>
+              </table>
 
-        <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
+              <p style="color:#000000; font-size:16px; line-height:1.6; margin:0 0 16px 0; font-family: 'Open Sans', Arial, sans-serif;">
+                You've earned your place at the top – this is your chance to help define what comes next.
+              </p>
 
-        <p style="font-size: 12px; color: #999; text-align: center;">
-          If you didn't expect this invitation or have questions, please contact the AthLeap team.<br>
-          This invitation is personal and should not be shared.
-        </p>
-      </div>
-    </body>
-    </html>
-  `
+              <p style="color:#000000; font-size:16px; line-height:1.6; margin:16px 0 0 0; font-family: 'Open Sans', Arial, sans-serif;">
+                We can't wait to have you on board!
+              </p>
+
+              <p style="color:#000000; font-size:16px; line-height:1.6; margin:16px 0 0 0; font-family: 'Open Sans', Arial, sans-serif;">
+                See you inside,<br/>
+                The Athleap Team
+              </p>
+            </td>
+          </tr>
+
+        </table>
+
+        <!-- Footer -->
+        <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px; width:100%;">
+          <tr>
+            <td align="center" style="padding:20px 0;">
+              <p style="color:#666666; font-size:14px; margin:0; font-family: 'Open Sans', Arial, sans-serif;">© Athleap</p>
+            </td>
+          </tr>
+        </table>
+
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`
 }
