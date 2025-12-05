@@ -25,3 +25,6 @@ serviceAccountKey.json
 # Vercel environment file (upload manually)
 .env.vercel
 service-account.json
+
+# Local Stripe config reference (contains real secrets, never commit)
+stripe.env
