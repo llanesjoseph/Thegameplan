@@ -20,16 +20,21 @@ export async function GET(request: NextRequest) {
     let allCoaches: any[] = []
 
     try {
-      // Query creators_index - get all coaches, not just active/complete ones
-      const collection = adminDb.collection('creators_index')
+      // Query creators_index and only pull coaches that should be publicly visible
+      // Visibility rules match ensure-coach-visibility.ts:
+      // - isActive === true
+      // - profileComplete === true
+      // - status === 'approved' (or unset)
+      let collectionRef = adminDb
+        .collection('creators_index')
+        .where('isActive', '==', true)
 
-      // Optional: Filter by sport
       const snapshot = sport && sport !== 'all'
-        ? await collection.where('specialties', 'array-contains', sport).get()
-        : await collection.get()
+        ? await collectionRef.where('sport', '==', sport).get()
+        : await collectionRef.get()
 
       if (snapshot.docs.length > 0) {
-        allCoaches = snapshot.docs.map(doc => {
+        const rawCoaches = snapshot.docs.map(doc => {
           const data = doc.data()
           // Ensure we have image URLs - check multiple field names
           // Prioritize Firebase Storage URLs over external URLs (Google Photos) for reliability
@@ -48,6 +53,28 @@ export async function GET(request: NextRequest) {
             profileImageUrl: imageUrl || data.profileImageUrl
           }
         })
+
+        // Apply same visibility rules used elsewhere
+        let visibleCoaches = rawCoaches.filter(coach =>
+          coach.profileComplete === true &&
+          (coach.status === 'approved' || !coach.status)
+        )
+
+        // Extra safety: only include users that currently have coach/creator roles
+        // in the main users collection so test/dummy records don't bleed through.
+        try {
+          const usersSnapshot = await adminDb
+            .collection('users')
+            .where('role', 'in', ['coach', 'creator'])
+            .get()
+
+          const allowedIds = new Set(usersSnapshot.docs.map(doc => doc.id))
+          visibleCoaches = visibleCoaches.filter(coach => allowedIds.has(coach.id))
+        } catch (roleCheckError) {
+          console.warn('[API/COACHES/PUBLIC] Role check for creators_index coaches failed:', roleCheckError)
+        }
+
+        allCoaches = visibleCoaches
       }
     } catch (indexError) {
       console.log('[API/COACHES/PUBLIC] creators_index query failed, trying users collection:', indexError)

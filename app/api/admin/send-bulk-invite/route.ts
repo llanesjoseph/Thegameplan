@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth, adminDb } from '@/lib/firebase.admin'
 import { Timestamp } from 'firebase-admin/firestore'
 import { Resend } from 'resend'
+import { normalizeSportName } from '@/lib/constants/sports'
 
 // Force dynamic rendering for API route
 export const dynamic = 'force-dynamic'
@@ -37,12 +38,24 @@ export async function POST(request: NextRequest) {
     }
 
     // Parse request body
-    const { email, name, role, sport } = await request.json()
+    const { email, name, role, sport: rawSport, coachId } = await request.json()
+
+    const normalizedRole = (role || '').toString().toUpperCase()
+    const isAthlete = normalizedRole === 'ATHLETE'
+
+    const sport = normalizeSportName((rawSport || '').toString())
 
     // Validate required fields
     if (!email || !name || !role || !sport) {
       return NextResponse.json(
         { error: 'Missing required fields: email, name, role, sport' },
+        { status: 400 }
+      )
+    }
+
+    if (isAthlete && !coachId) {
+      return NextResponse.json(
+        { error: 'Missing required field: coachId is required when role is ATHLETE' },
         { status: 400 }
       )
     }
@@ -72,14 +85,14 @@ export async function POST(request: NextRequest) {
 
     // Create invitation URL based on role
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://athleap.crucibleanalytics.dev'
-    const onboardPath = role === 'COACH' ? 'coach-onboard' : 'athlete-onboard'
+    const onboardPath = normalizedRole === 'COACH' ? 'coach-onboard' : 'athlete-onboard'
     const invitationUrl = `${baseUrl}/${onboardPath}/${invitationCode}`
 
     // Create invitation document
-    const invitationData = {
+    const invitationData: any = {
       id: invitationCode,
       type: 'bulk_invitation',
-      role: role.toLowerCase(),
+      role: normalizedRole.toLowerCase(),
       email: email.toLowerCase(),
       name,
       sport,
@@ -92,6 +105,14 @@ export async function POST(request: NextRequest) {
       used: false,
       usedAt: null,
       usedBy: null
+    }
+
+    // When inviting athletes, also persist coach assignment fields
+    if (isAthlete && coachId) {
+      invitationData.creatorUid = coachId
+      invitationData.coachId = coachId
+      invitationData.athleteEmail = email.toLowerCase()
+      invitationData.athleteName = name
     }
 
     await adminDb.collection('invitations').doc(invitationCode).set(invitationData)

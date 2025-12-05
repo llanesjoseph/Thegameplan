@@ -1,12 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Trash2, Plus, Send } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
-import { auth } from '@/lib/firebase';
+import { db } from '@/lib/firebase.client';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { SPORTS } from '@/lib/constants/sports';
 
 interface InviteRow {
   id: string;
@@ -14,15 +16,50 @@ interface InviteRow {
   email: string;
   role: 'COACH' | 'ATHLETE';
   sport: string;
+  coachId?: string;
 }
 
 export default function BulkInvitesPage() {
   const { user } = useAuth();
+
+  // Coaches list for assigning athletes
+  const [coaches, setCoaches] = useState<Array<{ id: string; name: string; email: string; sport: string }>>([]);
+  const [coachesLoading, setCoachesLoading] = useState(false);
+
   const [rows, setRows] = useState<InviteRow[]>([
     { id: '1', name: '', email: '', role: 'COACH', sport: '' }
   ]);
   const [selectedPreviewIndex, setSelectedPreviewIndex] = useState(0);
   const [sending, setSending] = useState(false);
+
+  useEffect(() => {
+    const loadCoaches = async () => {
+      try {
+        setCoachesLoading(true);
+        const coachesQuery = query(
+          collection(db, 'users'),
+          where('role', '==', 'coach')
+        );
+        const snapshot = await getDocs(coachesQuery);
+        const data = snapshot.docs.map((doc) => {
+          const d = doc.data() as any;
+          return {
+            id: doc.id,
+            name: d.displayName || d.email || 'Unknown coach',
+            email: d.email || '',
+            sport: d.sport || 'Not specified',
+          };
+        });
+        setCoaches(data);
+      } catch (error) {
+        console.error('Error loading coaches for bulk invites:', error);
+      } finally {
+        setCoachesLoading(false);
+      }
+    };
+
+    loadCoaches();
+  }, []);
 
   const addRow = () => {
     setRows([...rows, {
@@ -50,6 +87,21 @@ export default function BulkInvitesPage() {
   };
 
   const handleSendInvites = async () => {
+    // Basic validation
+    if (rows.length === 0) {
+      alert('Please add at least one invite row');
+      return;
+    }
+
+    const athleteMissingCoach = rows.some(
+      (row) => row.role === 'ATHLETE' && (!row.coachId || !row.sport)
+    );
+
+    if (athleteMissingCoach) {
+      alert('All ATHLETE invites must have a sport and an assigned coach.');
+      return;
+    }
+
     const validRows = rows.filter(row => row.name && row.email && row.sport);
 
     if (validRows.length === 0) {
@@ -84,7 +136,8 @@ export default function BulkInvitesPage() {
               email: row.email,
               name: row.name,
               sport: row.sport,
-              role: row.role
+              role: row.role,
+              coachId: row.role === 'ATHLETE' ? row.coachId || null : null
             }),
           });
 
@@ -240,6 +293,16 @@ export default function BulkInvitesPage() {
                 </div>
 
                 <div className="space-y-2">
+                  <select
+                    value={row.role}
+                    onChange={(e) => updateRow(row.id, 'role', e.target.value)}
+                    onClick={(e) => e.stopPropagation()}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                  >
+                    <option value="COACH">COACH</option>
+                    <option value="ATHLETE">ATHLETE</option>
+                  </select>
+
                   <Input
                     placeholder="Name"
                     value={row.name}
@@ -253,21 +316,44 @@ export default function BulkInvitesPage() {
                     onChange={(e) => updateRow(row.id, 'email', e.target.value)}
                     onClick={(e) => e.stopPropagation()}
                   />
-                  <Input
-                    placeholder="Sport (e.g., Basketball, Soccer)"
+
+                  {/* Sport selection using global SPORTS list */}
+                  <select
                     value={row.sport}
                     onChange={(e) => updateRow(row.id, 'sport', e.target.value)}
                     onClick={(e) => e.stopPropagation()}
-                  />
-                  <select
-                    value={row.role}
-                    onChange={(e) => updateRow(row.id, 'role', e.target.value)}
-                    onClick={(e) => e.stopPropagation()}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 text-sm"
                   >
-                    <option value="COACH">COACH</option>
-                    <option value="ATHLETE">ATHLETE</option>
+                    <option value="">Select sport...</option>
+                    {SPORTS.map((sport) => (
+                      <option key={sport} value={sport}>
+                        {sport}
+                      </option>
+                    ))}
                   </select>
+
+                  {/* Coach assignment only when inviting ATHLETEs */}
+                  {row.role === 'ATHLETE' && (
+                    <select
+                      value={row.coachId || ''}
+                      onChange={(e) => updateRow(row.id, 'coachId', e.target.value)}
+                      onClick={(e) => e.stopPropagation()}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 text-sm"
+                    >
+                      <option value="">
+                        {coachesLoading
+                          ? 'Loading coaches...'
+                          : coaches.length === 0
+                            ? 'No coaches available'
+                            : 'Assign to coach...'}
+                      </option>
+                      {coaches.map((coach) => (
+                        <option key={coach.id} value={coach.id}>
+                          {coach.name} - {coach.sport} ({coach.email})
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </div>
               </div>
             ))}
@@ -278,7 +364,7 @@ export default function BulkInvitesPage() {
         <Card className="p-6">
           <h2 className="text-xl font-semibold mb-4">Live Preview</h2>
           <div className="text-sm text-gray-600 mb-4">
-            Previewing invite for: <strong>{previewRow.name || '(No name)'}</strong> • {previewRow.role}
+            Previewing invite for: <strong>{previewRow.name || '(No name)'}</strong> - {previewRow.role}
           </div>
 
           <div className="border rounded-lg overflow-hidden bg-white" style={{ height: '700px' }}>
