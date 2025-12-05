@@ -525,7 +525,7 @@ export default function CoachOnboardPage() {
                 ? 'Your coach application has been automatically approved! You should receive access shortly.'
                 : 'Your coach application has been submitted successfully. You will receive an email when it has been reviewed.'}
             </p>
-            <Button onClick={() => router.push('/dashboard/coach-unified')} className="w-full">
+            <Button onClick={() => router.push('/dashboard/coach')} className="w-full">
               Go to Coach Dashboard
             </Button>
           </CardContent>

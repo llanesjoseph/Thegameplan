@@ -341,10 +341,9 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
     router.push('/dashboard/overview')
     break
    case 'coach':
-    router.push('/dashboard/coaching')
-    break
    case 'creator':
-    router.push('/dashboard/coach-unified')
+    // All coach-style roles now use the unified coach dashboard
+    router.push('/dashboard/coach')
     break
    case 'user':
    default:

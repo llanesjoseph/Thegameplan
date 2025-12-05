@@ -107,7 +107,12 @@ export default function AthleteDashboard() {
             const userRole = data.data.role
             // Redirect non-athletes to their correct dashboard
             if (userRole && ['coach', 'admin', 'superadmin', 'assistant_coach'].includes(userRole)) {
-              router.push(userRole === 'admin' || userRole === 'superadmin' ? '/dashboard/admin' : '/dashboard/coach-unified')
+              if (userRole === 'admin' || userRole === 'superadmin') {
+                router.push('/dashboard/admin')
+              } else {
+                // Coaches and assistants now go through unified coach dashboard
+                router.push('/dashboard/coach')
+              }
               return
             }
           }

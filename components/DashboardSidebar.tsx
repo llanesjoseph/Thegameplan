@@ -36,14 +36,14 @@ const navigationItems = {
   { title: 'Submit Video', icon: FileVideo, href: '/dashboard/athlete/submit-video', color: 'text-orange-600' },
  ],
  creator: [
-  { title: '🏟️ Coaches Locker Room', icon: LayoutDashboard, href: '/dashboard/coach-unified', color: 'text-blue-600' },
+  { title: '🏟️ Coaches Locker Room', icon: LayoutDashboard, href: '/dashboard/coach', color: 'text-blue-600' },
   { title: 'Video Review Queue', icon: FileVideo, href: '/dashboard/coach/queue', color: 'text-red-600' },
   { title: 'Athletes', icon: Users, href: '/dashboard/coach/athletes', color: 'text-cyan-600' },
   { title: 'Video Analytics', icon: BarChart3, href: '/dashboard/coach/analytics/video-critique', color: 'text-indigo-600' },
-  { title: 'Create Content', icon: Video, href: '/dashboard/coach-unified?section=create', color: 'text-red-600' },
+  { title: 'Create Content', icon: Video, href: '/dashboard/coach?section=create', color: 'text-red-600' },
  ],
  superadmin: [
-  { title: 'Dashboard', icon: LayoutDashboard, href: '/dashboard/coach-unified', color: 'text-blue-600' },
+  { title: 'Dashboard', icon: LayoutDashboard, href: '/dashboard/coach', color: 'text-blue-600' },
   { title: 'System Analytics', icon: BarChart3, href: '/dashboard/admin/analytics', color: 'text-purple-600' },
   { title: '━━━ User Management ━━━', icon: null, href: '', color: 'text-gray-400', disabled: true },
   { title: 'User & Role Management', icon: Crown, href: '/dashboard/admin/users', color: 'text-purple-600' },
@@ -51,7 +51,7 @@ const navigationItems = {
   { title: 'Coach Applications', icon: Award, href: '/dashboard/admin/creator-applications', color: 'text-indigo-600' },
   { title: '━━━ Content Management ━━━', icon: null, href: '', color: 'text-gray-400', disabled: true },
   { title: 'Content Management', icon: Video, href: '/dashboard/admin/content', color: 'text-orange-600' },
-  { title: 'Coaches Locker Room', icon: Video, href: '/dashboard/coach-unified', color: 'text-red-600' },
+  { title: 'Coaches Locker Room', icon: Video, href: '/dashboard/coach', color: 'text-red-600' },
   { title: 'System Settings', icon: Settings, href: '/dashboard/admin/settings', color: 'text-gray-600' },
  ]
 }
