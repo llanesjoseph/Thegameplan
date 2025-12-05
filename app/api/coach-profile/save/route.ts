@@ -80,6 +80,11 @@ export async function POST(request: NextRequest) {
     assignIfDefined(userUpdates, 'location', body.location)
     assignIfDefined(userUpdates, 'sport', body.sport)
     assignIfDefined(userUpdates, 'profileImageUrl', body.profileImageUrl)
+    // Keep legacy photoURL in sync so any older views (e.g. athlete dashboards)
+    // always show the latest headshot.
+    if (body.profileImageUrl) {
+      userUpdates.photoURL = body.profileImageUrl
+    }
     assignIfDefined(userUpdates, 'showcasePhoto1', body.showcasePhoto1)
     assignIfDefined(userUpdates, 'showcasePhoto2', body.showcasePhoto2)
     assignIfDefined(userUpdates, 'galleryPhotos', body.galleryPhotos)

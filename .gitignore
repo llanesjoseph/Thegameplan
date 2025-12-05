@@ -28,3 +28,6 @@ service-account.json
 
 # Local Stripe config reference (contains real secrets, never commit)
 stripe.env
+
+# Stripe CLI binary
+stripe.exe

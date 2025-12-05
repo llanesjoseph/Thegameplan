@@ -58,10 +58,15 @@ export default function AthleteCoaches({ subscription }: AthleteCoachesProps = {
             const coachDoc = await getDoc(doc(db, 'users', assignedCoachId))
             if (coachDoc.exists()) {
               const coachData = coachDoc.data()
+              const imageUrl =
+                coachData.profileImageUrl ||
+                coachData.photoURL ||
+                '/athleap-logo-transparent.png'
+
               coachMap.set(assignedCoachId, {
                 id: assignedCoachId,
                 name: coachData.displayName || 'Coach',
-                imageUrl: coachData.photoURL || '',
+                imageUrl,
                 title: coachData.sport || 'Coach',
                 author: coachData.displayName || 'Coach',
                 slug: coachData.slug,
@@ -94,10 +99,15 @@ export default function AthleteCoaches({ subscription }: AthleteCoachesProps = {
                     const coachDoc = await getDoc(doc(db, 'users', follow.coachId))
                     if (coachDoc.exists()) {
                       const coachData = coachDoc.data()
+                      const imageUrl =
+                        coachData.profileImageUrl ||
+                        coachData.photoURL ||
+                        '/athleap-logo-transparent.png'
+
                       coachMap.set(follow.coachId, {
                         id: follow.coachId,
                         name: coachData.displayName || follow.coachName || 'Coach',
-                        imageUrl: coachData.photoURL || '',
+                        imageUrl,
                         title: coachData.sport || 'Coach',
                         author: coachData.displayName || follow.coachName || 'Coach',
                         slug: coachData.slug,
