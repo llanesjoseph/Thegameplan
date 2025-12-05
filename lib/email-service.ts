@@ -269,86 +269,85 @@ export async function sendAthleteInvitationEmail({
 }: AthleteInvitationEmailProps) {
   try {
     const expiryDate = new Date(expiresAt).toLocaleDateString() // kept for compatibility; not displayed directly
+    const firstName = athleteName?.split(' ')[0] || 'there'
 
     const { data, error } = await resend.emails.send({
       from: 'AthLeap <noreply@mail.crucibleanalytics.dev>',
       to: [to],
-      subject: `AthLeap Athlete Invite`,
+      subject: `You're Invited to ATHLEAP`,
       html: `
         <!DOCTYPE html>
         <html lang="en">
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>AthLeap Invitation</title>
-            <style>
-              .btn{
-                background:#FC0105;
-                color:#fff;
-                font-weight:700;
-                padding:12px 28px;
-                border-radius:8px;
-                text-decoration:none;
-                display:inline-block
-              }
-              .container{
-                max-width:600px;
-                margin:0 auto;
-                background:#ffffff;
-                border-radius:12px;
-                box-shadow:0 20px 40px rgba(0,0,0,0.08);
-                overflow:hidden
-              }
-              .h1{
-                font-family:Arial,Helvetica,sans-serif;
-                font-size:28px;
-                font-weight:800;
-                color:#000;
-                margin:0 0 12px 0
-              }
-              .p{
-                font-family:Arial,Helvetica,sans-serif;
-                font-size:15px;
-                line-height:1.6;
-                color:#374151;
-                margin:0 0 16px 0
-              }
-            </style>
+            <title>You're Invited to ATHLEAP</title>
         </head>
-        <body>
-            <div class="container">
-                <!-- Wide header image (Cloudinary) -->
-                <header>
-                  <img src="https://res.cloudinary.com/dr0jtjwlh/image/upload/v1763403661/Twitter_Header_Image_zzbred.png"
-                       alt="AthLeap"
-                       style="width:100%;height:auto;display:block;border:0;outline:none;text-decoration:none;">
-                </header>
-                <main style="padding:32px 24px;text-align:left;">
-                    <p class="p">Hi ${athleteName || 'there'} –</p>
+        <body style="margin:0; padding:0; background-color:#f5f5f5; font-family: 'Open Sans', Arial, sans-serif;">
+          <!-- Full width wrapper -->
+          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f5f5f5;">
+            <tr>
+              <td align="center" style="padding:16px;">
 
-                    <p class="p">
-                      <strong>${coachName || 'Your Coach'}</strong> has invited you to join ${coachName ? 'their' : 'our'} team on Athleap, a new platform blending the power of AI with the thrill of sports, creating unforgettable fan experiences and coaching next-generation athletes.
-                    </p>
+                <!-- Main container -->
+                <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px; width:100%; background-color:#ffffff; border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.1);">
 
-                    <div style="margin:20px 0 24px 0;text-align:center;">
-                      <a href="${invitationUrl}" class="btn">Accept Invite</a>
-                    </div>
+                  <!-- Logo Banner -->
+                  <tr>
+                    <td align="center" style="background-color:#440102; padding:40px 20px; border-radius:12px 12px 0 0;">
+                      <img src="https://athleap.crucibleanalytics.dev/brand/athleap-logo-colored.png" alt="ATHLEAP" style="height:80px; width:auto; display:block;" />
+                    </td>
+                  </tr>
 
-                    <p class="p">
-                      Join now and be a part of a company changing the future of sports. Once you are in, you can begin to train with ${coachName || 'your coach'}${sport ? ` in ${sport}` : ''} and follow other elite coaches.
-                    </p>
+                  <!-- Content Section -->
+                  <tr>
+                    <td style="padding:32px 24px;">
+                      <p style="color:#000000; font-size:18px; line-height:1.6; margin:0 0 16px 0; font-family: 'Open Sans', Arial, sans-serif;">
+                        Hi ${firstName} –
+                      </p>
 
-                    <p class="p">We can’t wait to have you on board!</p>
+                      <p style="color:#000000; font-size:16px; line-height:1.6; margin:0 0 16px 0; font-family: 'Open Sans', Arial, sans-serif;">
+                        <strong>${coachName || 'Your Coach'}</strong> has invited you to join their team on Athleap, a new platform blending the power of AI with the thrill of sports, creating unforgettable fan experiences and coaching next-generation athletes.
+                      </p>
 
-                    <p class="p" style="margin-top:20px;">
-                      See you inside,<br/>
-                      <strong>The Athleap Team</strong>
-                    </p>
-                </main>
-                <footer style="background-color:#f9fafb;text-align:center;padding:18px;border-top:1px solid #e5e7eb;">
-                  <p style="margin:0;color:#6b7280;font-size:12px;">AthLeap</p>
-                </footer>
-            </div>
+                      <!-- CTA Button -->
+                      <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin:28px auto;">
+                        <tr>
+                          <td align="center" style="background-color:#FC0105; border-radius:8px; padding:16px 40px;">
+                            <a href="${invitationUrl}" style="color:#FFFFFF; font-size:16px; font-weight:700; text-decoration:none; display:block; font-family: 'Open Sans', Arial, sans-serif;">Accept Invite</a>
+                          </td>
+                        </tr>
+                      </table>
+
+                      <p style="color:#000000; font-size:16px; line-height:1.6; margin:0 0 16px 0; font-family: 'Open Sans', Arial, sans-serif;">
+                        Join now and be a part of a company changing the future of sports. Once you are in, you can begin to train with ${coachName?.split(' ')[0] || 'your coach'} and follow other elite coaches.
+                      </p>
+
+                      <p style="color:#000000; font-size:16px; line-height:1.6; margin:16px 0 0 0; font-family: 'Open Sans', Arial, sans-serif;">
+                        We can't wait to have you on board!
+                      </p>
+
+                      <p style="color:#000000; font-size:16px; line-height:1.6; margin:16px 0 0 0; font-family: 'Open Sans', Arial, sans-serif;">
+                        See you inside,<br/>
+                        The Athleap Team
+                      </p>
+                    </td>
+                  </tr>
+
+                </table>
+
+                <!-- Footer -->
+                <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px; width:100%;">
+                  <tr>
+                    <td align="center" style="padding:20px 0;">
+                      <p style="color:#666666; font-size:14px; margin:0; font-family: 'Open Sans', Arial, sans-serif;">© Athleap</p>
+                    </td>
+                  </tr>
+                </table>
+
+              </td>
+            </tr>
+          </table>
         </body>
         </html>
       `
