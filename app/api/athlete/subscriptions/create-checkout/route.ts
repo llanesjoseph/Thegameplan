@@ -57,9 +57,10 @@ export async function POST(request: NextRequest) {
     }
 
     // 4. Create or retrieve Stripe customer
-    let stripeCustomerId = athleteData.subscription?.stripeCustomerId;
+    let stripeCustomerId = athleteData.subscription?.stripeCustomerId as string | undefined;
 
-    if (!stripeCustomerId) {
+    // Helper to create a fresh customer and persist it
+    const createFreshCustomer = async () => {
       const customer = await stripe.customers.create({
         email: athleteData.email,
         name: athleteData.displayName || athleteData.name,
@@ -69,12 +70,29 @@ export async function POST(request: NextRequest) {
           platform: 'athleap',
         },
       });
-      stripeCustomerId = customer.id;
 
-      // Update Firestore with customer ID
       await adminDb.collection('users').doc(athleteUid).update({
-        'subscription.stripeCustomerId': stripeCustomerId,
+        'subscription.stripeCustomerId': customer.id,
       });
+
+      return customer.id;
+    };
+
+    if (stripeCustomerId) {
+      // Validate that the stored customerId actually exists in the current Stripe account.
+      // This protects us when switching Stripe accounts/keys so old IDs don't break checkout.
+      try {
+        await stripe.customers.retrieve(stripeCustomerId);
+      } catch (err: any) {
+        if (err?.code === 'resource_missing') {
+          // Customer doesn't exist in this Stripe account – create a new one for this athlete.
+          stripeCustomerId = await createFreshCustomer();
+        } else {
+          throw err;
+        }
+      }
+    } else {
+      stripeCustomerId = await createFreshCustomer();
     }
 
     // 5. Check if they already have an active subscription
