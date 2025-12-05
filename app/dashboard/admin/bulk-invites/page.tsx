@@ -116,115 +116,70 @@ export default function BulkInvitesPage() {
 
   const previewRow = rows[selectedPreviewIndex] || rows[0];
 
-  // Generate the personalized HTML preview
+  // Generate the personalized HTML preview - Updated 2025 Brand Design
   const getPreviewHTML = () => {
-    const greeting = previewRow.name ? `Hi ${previewRow.name}` : 'Hi there';
-    const roleText = previewRow.role === 'COACH' ? 'Coach' : 'Athlete';
+    const greeting = previewRow.name ? `Hi ${previewRow.name.split(' ')[0]}` : 'Hi there';
+    const isCoach = previewRow.role === 'COACH';
+    const ctaText = isCoach ? 'Join Our Community' : 'Accept Invite';
+    const messageContent = isCoach
+      ? `We are the founding team at Athleap, a new platform blending the power of AI with the thrill of sports, creating unforgettable fan experiences and coaching next-generation athletes. Our mission is simple: to help unlock athletic potential.</p>
+        <p style="margin: 0 0 24px 0; color: #000000; font-size: 16px; line-height: 1.6; font-family: 'Open Sans', sans-serif;">We are inviting a select group of elite athletes to join our early access community as coaches, shaping the tools that redefine how athletes train and compete.`
+      : `<strong>The Athleap Team</strong> has invited you to join their team on Athleap, a new platform blending the power of AI with the thrill of sports, creating unforgettable fan experiences and coaching next-generation athletes.`;
+    const closingMessage = isCoach
+      ? `You've earned your place at the top – this is your chance to help define what comes next.`
+      : `Join now and be a part of a company changing the future of sports. Once you are in, you can begin to train and follow other elite coaches.`;
 
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Athleap Invite — Coordinated Montage</title>
-<style>
-  :root {
-    --bg: #0e0f12; --fg:#fff; --muted:#c7c8cc; --card:#14151a; --stroke:#272833;
-  }
-  * { box-sizing: border-box; }
-  html,body { margin:0; padding:0; background:var(--bg); color:var(--fg); font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
-  a { color: inherit; text-decoration: none; }
-
-  .hero { position:relative; min-height:76vh; display:flex; align-items:center; justify-content:center; overflow:hidden; background:#1a1b22; }
-  .hero-bg { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
-  .overlay { position:absolute; inset:0; background: linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,0.4) 60%, rgba(0,0,0,0.6)); }
-  .content { position:relative; z-index:2; text-align:center; padding:18px; }
-
-  .headline {
-    font-size: clamp(34px, 7vw, 74px);
-    line-height: 1.02;
-    margin: 6px 0 8px;
-    letter-spacing: 0.5px;
-    background: linear-gradient(180deg, #ffffff, #e4e4e6 60%, #cfcfd6);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    text-shadow:
-      0 2px 18px rgba(0,0,0,.45),
-      0 1px 0 rgba(0,0,0,.35);
-    position: relative;
-    display: inline-block;
-    padding: 0 10px;
-  }
-  .headline::after {
-    content:'';
-    position:absolute;
-    left: 8px; right: 8px; bottom: -8px;
-    height: 4px;
-    border-radius: 3px;
-    background: linear-gradient(90deg, #ff3d3d, #ff7a7a);
-    box-shadow: 0 0 18px rgba(255,61,61,.6);
-  }
-  p.sub { color:#e8e8ea; font-size: clamp(18px, 3vw, 24px); margin:10px 0 16px; font-weight: 500; letter-spacing: 0.3px; }
-  .cta { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
-  .btn { background:#fff; color:#111; padding:12px 18px; border-radius:12px; font-weight:800; }
-  .btn.secondary { background:transparent; color:#fff; border:1px solid rgba(255,255,255,.35); }
-
-  .container { width:min(1100px,92vw); margin:0 auto; }
-  .card { background:var(--card); border:1px solid var(--stroke); border-radius:16px; padding: clamp(16px, 3vw, 28px); margin: 28px auto; }
-  .card h3 { margin-top:0; font-size: clamp(20px, 3.4vw, 28px); }
-  .steps ol { padding-left:18px; }
-  .muted { color:var(--muted); }
-
-  .inline { display:flex; gap:10px; flex-wrap:wrap; margin-top:8px; }
-  .inline input { flex:1; min-width:260px; padding:12px 14px; border-radius:12px; border:1px solid #2b2c35; background:#1a1b22; color:#fff; }
-  .inline button { padding:12px 16px; border-radius:12px; border:1px solid #30313a; background:#fff; color:#111; font-weight:800; cursor:pointer; }
-
-  footer { text-align:center; color:var(--muted); padding:34px 0 48px; font-size:14px; }
-</style>
+<title>You're Invited to ATHLEAP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
-<body>
-  <header class="hero">
-    <img src="https://res.cloudinary.com/dr0jtjwlh/image/upload/v1761863549/ezgif.com-animated-gif-maker_1_jttvsl.gif" alt="Athleap Athletes" class="hero-bg" />
-    <div class="overlay"></div>
-    <div class="content">
-      <h1 class="headline">Athleap Early Access</h1>
-      <p class="sub">Train smarter. Play harder. Grow together.</p>
-      <div class="cta">
-        <a id="cta" class="btn" href="#" target="_blank" rel="noopener">Accept Your Invitation</a>
-      </div>
+<body style="font-family: 'Open Sans', sans-serif; background-color: #f5f5f5; margin: 0; padding: 16px;">
+  <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden;">
+    <!-- Logo Banner -->
+    <div style="width: 100%; height: 160px; background-color: #440102; display: flex; align-items: center; justify-content: center;">
+      <img src="https://athleap.crucibleanalytics.dev/brand/athleap-logo-colored.png" alt="ATHLEAP" style="height: 100px; width: auto;" />
     </div>
-  </header>
 
-  <main class="container" id="details">
-    <section class="card">
-      <h3>${greeting} –</h3>
-      <p>We are excited to get you involved in the early testing of Athleap!</p>
-      <p>
-        We hope to get your perspective on the Athleap concept – an AI driven platform for fan engagement and the future of sports.
-        Through the platform, elite athletes can engage in coaching, gear recommendations, and training the next generation.
+    <!-- Content -->
+    <div style="padding: 32px 24px;">
+      <p style="margin: 0 0 16px 0; color: #000000; font-size: 18px; line-height: 1.6; font-family: 'Open Sans', sans-serif;">
+        ${greeting} –
       </p>
-      <p style="color: var(--muted); font-size: 14px;">
-        <strong>Your role:</strong> ${roleText}
-        ${previewRow.email ? `<br/><strong>Email:</strong> ${previewRow.email}` : ''}
+      <p style="margin: 0 0 16px 0; color: #000000; font-size: 16px; line-height: 1.6; font-family: 'Open Sans', sans-serif;">
+        ${messageContent}
       </p>
 
-      <div class="steps">
-        <h3>What we ask</h3>
-        <ol>
-          <li>Set up a profile.</li>
-          <li>Complete a lesson.</li>
-          <li>Submit a video.</li>
-          <li>Schedule a meeting.</li>
-          <li>Visit the site store.</li>
-        </ol>
-        <p class="muted">Use the bug icon at the bottom of any page to report issues. The research remains open for 2 weeks; we'll follow up for feedback. Thank you!</p>
-        <p>Best,<br/>Athleap Team</p>
+      <!-- CTA Button -->
+      <div style="margin: 28px 0; text-align: center;">
+        <a href="#" style="background-color: #FC0105; color: #FFFFFF; font-weight: 700; padding: 16px 40px; border-radius: 8px; text-decoration: none; font-size: 16px; display: inline-block; font-family: 'Open Sans', sans-serif;">
+          ${ctaText}
+        </a>
       </div>
-    </section>
-  </main>
 
-  <footer>© Athleap</footer>
+      <p style="margin: 0 0 16px 0; color: #000000; font-size: 16px; line-height: 1.6; font-family: 'Open Sans', sans-serif;">
+        ${closingMessage}
+      </p>
+
+      <p style="margin: 16px 0 0 0; color: #000000; font-size: 16px; line-height: 1.6; font-family: 'Open Sans', sans-serif;">
+        We can't wait to have you on board!
+      </p>
+
+      <p style="margin: 16px 0 0 0; color: #000000; font-size: 16px; line-height: 1.6; font-family: 'Open Sans', sans-serif;">
+        See you inside,<br/>
+        The Athleap Team
+      </p>
+    </div>
+  </div>
+
+  <div style="text-align: center; padding: 20px 0; color: #666; font-size: 14px;">
+    © Athleap
+  </div>
 </body>
 </html>`;
   };
