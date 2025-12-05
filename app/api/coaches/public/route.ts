@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
         : await collectionRef.get()
 
       if (snapshot.docs.length > 0) {
-        const rawCoaches = snapshot.docs.map(doc => {
+        const rawCoaches: any[] = snapshot.docs.map(doc => {
           const data = doc.data()
           // Ensure we have image URLs - check multiple field names
           // Prioritize Firebase Storage URLs over external URLs (Google Photos) for reliability
@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
         })
 
         // Apply same visibility rules used elsewhere
-        let visibleCoaches = rawCoaches.filter(coach =>
+        let visibleCoaches = rawCoaches.filter((coach: any) =>
           coach.profileComplete === true &&
           (coach.status === 'approved' || !coach.status)
         )

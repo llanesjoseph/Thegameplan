@@ -29,6 +29,8 @@ export async function setStripeConfigViaVercelEnv(config: StripeConfigPayload, u
   const envUrl = `https://api.vercel.com/v10/projects/${projectId}/env`
 
   const priceIdValue = Array.isArray(config.priceIds) ? config.priceIds.join(',') : (config.priceIds || '').toString()
+  const firstPriceId = Array.isArray(config.priceIds) ? (config.priceIds[0] || '') : (config.priceIds || '').toString()
+  const secondPriceId = Array.isArray(config.priceIds) ? (config.priceIds[1] || config.priceIds[0] || '') : (config.priceIds || '').toString()
 
   const envEntries: { key: string; value: string }[] = [
     { key: 'STRIPE_SECRET_KEY', value: config.secretKey },
@@ -37,6 +39,15 @@ export async function setStripeConfigViaVercelEnv(config: StripeConfigPayload, u
     { key: 'STRIPE_PRICE_IDS', value: priceIdValue },
     { key: 'STRIPE_PORTAL_RETURN_URL', value: config.portalReturnUrl }
   ]
+
+  // If price IDs are provided, also map them to our tier-specific env vars
+  // so the subscription APIs and webhooks work without extra manual setup.
+  if (firstPriceId) {
+    envEntries.push({ key: 'STRIPE_ATHLETE_BASIC_PRICE_ID', value: firstPriceId })
+  }
+  if (secondPriceId) {
+    envEntries.push({ key: 'STRIPE_ATHLETE_ELITE_PRICE_ID', value: secondPriceId })
+  }
 
   for (const entry of envEntries) {
     // Do not log the value – only the key name
