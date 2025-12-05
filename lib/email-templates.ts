@@ -28,6 +28,7 @@ export function getAthLeapCoachInvitationTemplate({
   recipientName
 }: EmailTemplateProps): string {
   const expiryDate = new Date(expiresAt).toLocaleDateString()
+  const firstName = recipientName?.split(' ')[0] || 'there'
 
   return `
 <!DOCTYPE html>
@@ -36,133 +37,76 @@ export function getAthLeapCoachInvitationTemplate({
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>You're Invited to ATHLEAP</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: "Open Sans", sans-serif;
-            background-color: #f5f5f5;
-            margin: 0;
-            padding: 0;
-        }
-
-        /* Brand Colors */
-        .brand-black { color: #000000; }
-        .bg-brand-black { background-color: #000000; }
-        .brand-red { color: #FC0105; }
-        .bg-brand-red { background-color: #FC0105; }
-        .border-brand-red { border-color: #FC0105; }
-
-        .cta-button {
-            background-color: #000000;
-            color: white;
-            font-weight: 700;
-            padding: 16px 40px;
-            border-radius: 8px;
-            text-decoration: none;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-size: 16px;
-            display: inline-block;
-            transition: all 0.3s ease;
-        }
-
-        .cta-button:hover {
-            background-color: #333333;
-            transform: translateY(-2px);
-        }
-
-        .invitation-card {
-            background: #ffffff;
-            border-left: 4px solid #FC0105;
-            padding: 24px;
-            margin: 24px 0;
-            border-radius: 0 8px 8px 0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .qr-section {
-            background: #f9f9f9;
-            border: 2px dashed #000000;
-            border-radius: 12px;
-            padding: 24px;
-            margin: 24px 0;
-            text-align: center;
-        }
-
-        .expiry-notice {
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            border: 2px solid #FC0105;
-            color: #92400e;
-            padding: 16px;
-            border-radius: 8px;
-            margin: 24px 0;
-            text-align: center;
-            font-weight: 600;
-        }
-
-        .info-section {
-            margin: 32px 0;
-            padding: 24px;
-            background: #f9f9f9;
-            border-radius: 8px;
-            border: 2px solid #000000;
-        }
-
-        @media (max-width: 640px) {
-            .cta-button {
-                padding: 12px 24px;
-                font-size: 14px;
-            }
-            h1 {
-                font-size: 2rem !important;
-            }
-            h2 {
-                font-size: 1.5rem !important;
-            }
-        }
-    </style>
 </head>
-<body style="font-family: 'Open Sans', sans-serif; background-color: #f5f5f5; margin: 0; padding: 16px;">
+<body style="margin:0; padding:0; background-color:#f5f5f5; font-family: 'Open Sans', Arial, sans-serif;">
+  <!-- Full width wrapper -->
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f5f5f5;">
+    <tr>
+      <td align="center" style="padding:16px;">
 
-    <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden;">
+        <!-- Main container -->
+        <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px; width:100%; background-color:#ffffff; border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.1);">
 
-        <!-- Wide header image with logo -->
-        <header>
-            <img src="https://res.cloudinary.com/dr0jtjwlh/image/upload/v1763403661/Twitter_Header_Image_zzbred.png"
-                 alt="AthLeap"
-                 style="width: 100%; height: auto; display: block; border: 0; outline: none; text-decoration: none;">
-        </header>
+          <!-- Logo Banner -->
+          <tr>
+            <td align="center" style="background-color:#440102; padding:40px 20px; border-radius:12px 12px 0 0;">
+              <img src="https://athleap.crucibleanalytics.dev/brand/athleap-logo-colored.png" alt="ATHLEAP" style="height:80px; width:auto; display:block;" />
+            </td>
+          </tr>
 
-        <main>
-            <div style="padding: 32px 24px;">
-                <p style="margin: 0 0 16px 0; color: #000000; font-size: 16px; line-height: 1.6; font-family: 'Open Sans', sans-serif;">
-                    Hi ${recipientName || 'there'} –
-                </p>
-                <p style="margin: 0 0 16px 0; color: #000000; font-size: 16px; line-height: 1.6; font-family: 'Open Sans', sans-serif;">
-                    We are the founding team at Athleap, a new platform blending the power of AI with the thrill of sports, creating unforgettable fan experiences and coaching next-generation athletes. Our mission is simple: to help unlock athletic potential.
-                </p>
-                <p style="margin: 0 0 24px 0; color: #000000; font-size: 16px; line-height: 1.6; font-family: 'Open Sans', sans-serif;">
-                    We are inviting a select group of elite athletes to join our early access community as coaches, shaping the tools that redefine how athletes train and compete.
-                </p>
-                <div style="margin: 28px 0; text-align: center;">
-                    <a href="${invitationUrl}" style="background-color: #FC0105; color: #FFFFFF; font-weight: 700; padding: 14px 32px; border-radius: 8px; text-decoration: none; text-transform: uppercase; letter-spacing: 1px; font-size: 14px; display: inline-block; font-family: 'Open Sans', sans-serif;">
-                        Join Our Community
-                    </a>
-                </div>
-                <p style="margin: 0 0 16px 0; color: #000000; font-size: 16px; line-height: 1.6; font-family: 'Open Sans', sans-serif;">
-                    You’ve earned your place at the top – this is your chance to help define what comes next.
-                </p>
-                <p style="margin: 0; color: #000000; font-size: 16px; line-height: 1.6; font-family: 'Open Sans', sans-serif;">
-                    See you inside,<br/>
-                    The Athleap Team
-                </p>
-            </div>
-        </main>
+          <!-- Content Section -->
+          <tr>
+            <td style="padding:32px 24px;">
+              <p style="color:#000000; font-size:18px; line-height:1.6; margin:0 0 16px 0; font-family: 'Open Sans', Arial, sans-serif;">
+                Hi ${firstName} –
+              </p>
 
-    </div>
+              <p style="color:#000000; font-size:16px; line-height:1.6; margin:0 0 16px 0; font-family: 'Open Sans', Arial, sans-serif;">
+                We are the founding team at Athleap, a new platform blending the power of AI with the thrill of sports, creating unforgettable fan experiences and coaching next-generation athletes. Our mission is simple: to help unlock athletic potential.
+              </p>
 
+              <p style="color:#000000; font-size:16px; line-height:1.6; margin:0 0 24px 0; font-family: 'Open Sans', Arial, sans-serif;">
+                We are inviting a select group of elite athletes to join our early access community as coaches, shaping the tools that redefine how athletes train and compete.
+              </p>
+
+              <!-- CTA Button -->
+              <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin:28px auto;">
+                <tr>
+                  <td align="center" style="background-color:#FC0105; border-radius:8px; padding:16px 40px;">
+                    <a href="${invitationUrl}" style="color:#FFFFFF; font-size:16px; font-weight:700; text-decoration:none; display:block; font-family: 'Open Sans', Arial, sans-serif;">Join Our Community</a>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="color:#000000; font-size:16px; line-height:1.6; margin:0 0 16px 0; font-family: 'Open Sans', Arial, sans-serif;">
+                You've earned your place at the top – this is your chance to help define what comes next.
+              </p>
+
+              <p style="color:#000000; font-size:16px; line-height:1.6; margin:16px 0 0 0; font-family: 'Open Sans', Arial, sans-serif;">
+                We can't wait to have you on board!
+              </p>
+
+              <p style="color:#000000; font-size:16px; line-height:1.6; margin:16px 0 0 0; font-family: 'Open Sans', Arial, sans-serif;">
+                See you inside,<br/>
+                The Athleap Team
+              </p>
+            </td>
+          </tr>
+
+        </table>
+
+        <!-- Footer -->
+        <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px; width:100%;">
+          <tr>
+            <td align="center" style="padding:20px 0;">
+              <p style="color:#666666; font-size:14px; margin:0; font-family: 'Open Sans', Arial, sans-serif;">© Athleap</p>
+            </td>
+          </tr>
+        </table>
+
+      </td>
+    </tr>
+  </table>
 </body>
 </html>
   `

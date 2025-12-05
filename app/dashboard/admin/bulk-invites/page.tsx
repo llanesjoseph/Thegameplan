@@ -191,7 +191,7 @@ export default function BulkInvitesPage() {
         <Button
           onClick={handleSendInvites}
           disabled={sending}
-          className="bg-purple-600 hover:bg-purple-700"
+          className="bg-red-600 hover:bg-red-700"
         >
           <Send className="w-4 h-4 mr-2" />
           {sending ? 'Sending...' : 'Send All Invites'}
@@ -215,8 +215,8 @@ export default function BulkInvitesPage() {
                 key={row.id}
                 className={`border rounded-lg p-4 space-y-3 cursor-pointer transition-colors ${
                   selectedPreviewIndex === index
-                    ? 'border-purple-500 bg-purple-50'
-                    : 'border-gray-200 hover:border-purple-300'
+                    ? 'border-red-500 bg-red-50'
+                    : 'border-gray-200 hover:border-red-300'
                 }`}
                 onClick={() => setSelectedPreviewIndex(index)}
               >
@@ -263,7 +263,7 @@ export default function BulkInvitesPage() {
                     value={row.role}
                     onChange={(e) => updateRow(row.id, 'role', e.target.value)}
                     onClick={(e) => e.stopPropagation()}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
                   >
                     <option value="COACH">COACH</option>
                     <option value="ATHLETE">ATHLETE</option>
