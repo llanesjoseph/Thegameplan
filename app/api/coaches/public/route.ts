@@ -37,10 +37,10 @@ export async function GET(request: NextRequest) {
         const rawCoaches: any[] = snapshot.docs.map(doc => {
           const data = doc.data()
           // Ensure we have image URLs - check multiple field names
-          // Prioritize Firebase Storage URLs over external URLs (Google Photos) for reliability
-          const imageUrl = data.headshotUrl ||
+          // PRIORITY: profileImageUrl first (coach's chosen profile photo), then fallbacks
+          const imageUrl = data.profileImageUrl ||
+                          data.headshotUrl ||
                           data.photoURL ||
-                          data.profileImageUrl ||
                           data.profileImage ||
                           data.bannerUrl ||
                           data.heroImageUrl ||
@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
             id: doc.id,
             ...data,
             // Ensure profileImageUrl is always set if any image exists
-            profileImageUrl: imageUrl || data.profileImageUrl
+            profileImageUrl: imageUrl
           }
         })
 
@@ -62,14 +62,33 @@ export async function GET(request: NextRequest) {
 
         // Extra safety: only include users that currently have coach/creator roles
         // in the main users collection so test/dummy records don't bleed through.
+        // Also sync the latest profileImageUrl from users collection to ensure consistency.
         try {
           const usersSnapshot = await adminDb
             .collection('users')
             .where('role', 'in', ['coach', 'creator'])
             .get()
 
-          const allowedIds = new Set(usersSnapshot.docs.map(doc => doc.id))
-          visibleCoaches = visibleCoaches.filter(coach => allowedIds.has(coach.id))
+          const userDataMap = new Map<string, any>()
+          usersSnapshot.docs.forEach(doc => {
+            userDataMap.set(doc.id, doc.data())
+          })
+
+          visibleCoaches = visibleCoaches
+            .filter(coach => userDataMap.has(coach.id))
+            .map(coach => {
+              const userData = userDataMap.get(coach.id)
+              // Always use the latest profileImageUrl from users collection
+              // This ensures coach profile photo changes are reflected globally
+              const latestImageUrl = userData?.profileImageUrl ||
+                                    userData?.headshotUrl ||
+                                    userData?.photoURL ||
+                                    coach.profileImageUrl
+              return {
+                ...coach,
+                profileImageUrl: latestImageUrl
+              }
+            })
         } catch (roleCheckError) {
           console.warn('[API/COACHES/PUBLIC] Role check for creators_index coaches failed:', roleCheckError)
         }
@@ -91,10 +110,10 @@ export async function GET(request: NextRequest) {
         allCoaches = usersSnapshot.docs.map(doc => {
           const data = doc.data()
           // Ensure we have image URLs - check multiple field names
-          // Prioritize Firebase Storage URLs over external URLs (Google Photos) for reliability
-          const imageUrl = data.headshotUrl ||
+          // PRIORITY: profileImageUrl first (coach's chosen profile photo), then fallbacks
+          const imageUrl = data.profileImageUrl ||
+                          data.headshotUrl ||
                           data.photoURL ||
-                          data.profileImageUrl ||
                           data.profileImage ||
                           data.bannerUrl ||
                           data.heroImageUrl ||
@@ -104,7 +123,7 @@ export async function GET(request: NextRequest) {
             id: doc.id,
             ...data,
             // Ensure profileImageUrl is always set if any image exists
-            profileImageUrl: imageUrl || data.profileImageUrl
+            profileImageUrl: imageUrl
           }
         })
       } catch (usersError) {
