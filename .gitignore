@@ -31,3 +31,4 @@ stripe.env
 
 # Stripe CLI binary
 stripe.exe
+vercel-firebase-key.txt

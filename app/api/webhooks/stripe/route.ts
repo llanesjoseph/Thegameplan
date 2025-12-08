@@ -120,12 +120,44 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 }
 
 async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
-  const firebaseUID = subscription.metadata?.firebaseUID;
-  const tier = subscription.metadata?.tier as 'basic' | 'elite';
+  let firebaseUID = subscription.metadata?.firebaseUID;
+  let tier = subscription.metadata?.tier as 'basic' | 'elite' | undefined;
 
-  if (!firebaseUID || !tier) {
-    console.error('Missing metadata in subscription:', subscription.id);
+  // If metadata missing, try to find user by stripeCustomerId
+  if (!firebaseUID && subscription.customer) {
+    const customerId = typeof subscription.customer === 'string' 
+      ? subscription.customer 
+      : subscription.customer.id;
+    
+    console.log(`Looking up user by stripeCustomerId: ${customerId}`);
+    
+    const usersQuery = await adminDb.collection('users')
+      .where('subscription.stripeCustomerId', '==', customerId)
+      .limit(1)
+      .get();
+    
+    if (!usersQuery.empty) {
+      firebaseUID = usersQuery.docs[0].id;
+      console.log(`Found user ${firebaseUID} by stripeCustomerId`);
+    }
+  }
+
+  if (!firebaseUID) {
+    console.error('Could not find firebaseUID for subscription:', subscription.id);
     return;
+  }
+
+  // Determine tier from price ID if not in metadata
+  if (!tier) {
+    const priceId = subscription.items.data[0]?.price.id;
+    if (priceId === process.env.STRIPE_ATHLETE_BASIC_PRICE_ID) {
+      tier = 'basic';
+    } else if (priceId === process.env.STRIPE_ATHLETE_ELITE_PRICE_ID) {
+      tier = 'elite';
+    } else {
+      tier = 'basic'; // Default to basic
+    }
+    console.log(`Determined tier from price ID: ${tier}`);
   }
 
   const access = TIER_ACCESS[tier];
@@ -143,15 +175,34 @@ async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
     updatedAt: new Date(),
   });
 
-  console.log(`Subscription created for user ${firebaseUID}: ${tier} tier`);
+  console.log(`✅ Subscription created for user ${firebaseUID}: ${tier} tier, status: ${subscription.status}`);
 }
 
 async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
-  const firebaseUID = subscription.metadata?.firebaseUID;
-  let tier = subscription.metadata?.tier as 'basic' | 'elite';
+  let firebaseUID = subscription.metadata?.firebaseUID;
+  let tier = subscription.metadata?.tier as 'basic' | 'elite' | undefined;
+
+  // If metadata missing, try to find user by stripeCustomerId
+  if (!firebaseUID && subscription.customer) {
+    const customerId = typeof subscription.customer === 'string' 
+      ? subscription.customer 
+      : subscription.customer.id;
+    
+    console.log(`[UPDATE] Looking up user by stripeCustomerId: ${customerId}`);
+    
+    const usersQuery = await adminDb.collection('users')
+      .where('subscription.stripeCustomerId', '==', customerId)
+      .limit(1)
+      .get();
+    
+    if (!usersQuery.empty) {
+      firebaseUID = usersQuery.docs[0].id;
+      console.log(`[UPDATE] Found user ${firebaseUID} by stripeCustomerId`);
+    }
+  }
 
   if (!firebaseUID) {
-    console.error('Missing firebaseUID in subscription metadata:', subscription.id);
+    console.error('Could not find firebaseUID for subscription update:', subscription.id);
     return;
   }
 
@@ -162,12 +213,9 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
       tier = 'basic';
     } else if (priceId === process.env.STRIPE_ATHLETE_ELITE_PRICE_ID) {
       tier = 'elite';
+    } else {
+      tier = 'basic'; // Default to basic
     }
-  }
-
-  if (!tier) {
-    console.error('Could not determine tier for subscription:', subscription.id);
-    return;
   }
 
   const access = TIER_ACCESS[tier];
@@ -184,14 +232,33 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
     updatedAt: new Date(),
   });
 
-  console.log(`Subscription updated for user ${firebaseUID}: ${tier} tier, status: ${subscription.status}`);
+  console.log(`✅ Subscription updated for user ${firebaseUID}: ${tier} tier, status: ${subscription.status}`);
 }
 
 async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
-  const firebaseUID = subscription.metadata?.firebaseUID;
+  let firebaseUID = subscription.metadata?.firebaseUID;
+
+  // If metadata missing, try to find user by stripeCustomerId
+  if (!firebaseUID && subscription.customer) {
+    const customerId = typeof subscription.customer === 'string' 
+      ? subscription.customer 
+      : subscription.customer.id;
+    
+    console.log(`[DELETE] Looking up user by stripeCustomerId: ${customerId}`);
+    
+    const usersQuery = await adminDb.collection('users')
+      .where('subscription.stripeCustomerId', '==', customerId)
+      .limit(1)
+      .get();
+    
+    if (!usersQuery.empty) {
+      firebaseUID = usersQuery.docs[0].id;
+      console.log(`[DELETE] Found user ${firebaseUID} by stripeCustomerId`);
+    }
+  }
 
   if (!firebaseUID) {
-    console.error('Missing firebaseUID in subscription metadata:', subscription.id);
+    console.error('Could not find firebaseUID for subscription deletion:', subscription.id);
     return;
   }
 
@@ -208,7 +275,7 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
     updatedAt: new Date(),
   });
 
-  console.log(`Subscription canceled for user ${firebaseUID}`);
+  console.log(`✅ Subscription canceled for user ${firebaseUID}`);
 }
 
 async function handlePaymentFailed(invoice: Stripe.Invoice) {
