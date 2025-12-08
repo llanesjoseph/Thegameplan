@@ -173,21 +173,41 @@ export async function getSubscriptionSummary(athleteUid: string): Promise<{
     const userDoc = await adminDb.collection('users').doc(athleteUid).get();
 
     if (!userDoc.exists) {
-      throw new Error('User not found');
+      // Return default "no subscription" state for missing users
+      return {
+        tier: 'none',
+        status: 'canceled',
+        isActive: false,
+        videoSubmissions: { used: 0, limit: 0, remaining: 0 },
+        features: { hasAIAssistant: false, hasCoachFeed: false, hasPriorityQueue: false },
+      };
     }
 
     const userData = userDoc.data();
-    const subscription = userData?.subscription as SubscriptionData;
-    const access = userData?.access as AccessData;
+    
+    // Handle missing subscription/access objects gracefully
+    const subscription: SubscriptionData = userData?.subscription || {
+      tier: 'none',
+      status: 'canceled',
+    };
+    
+    const access: AccessData = userData?.access || {
+      maxVideoSubmissions: 0,
+      hasAIAssistant: false,
+      hasCoachFeed: false,
+      hasPriorityQueue: false,
+    };
 
     const monthlyCount = await getMonthlyVideoCount(athleteUid);
-    const limit = access.maxVideoSubmissions;
+    const limit = access.maxVideoSubmissions ?? 0;
     const remaining = limit === -1 ? -1 : Math.max(0, limit - monthlyCount);
+
+    const isActive = subscription.status === 'active' || subscription.status === 'trialing';
 
     return {
       tier: subscription.tier || 'none',
       status: subscription.status || 'canceled',
-      isActive: hasActiveSubscription(subscription),
+      isActive,
       videoSubmissions: {
         used: monthlyCount,
         limit,
@@ -205,7 +225,14 @@ export async function getSubscriptionSummary(athleteUid: string): Promise<{
     };
   } catch (error) {
     console.error('Error getting subscription summary:', error);
-    throw error;
+    // Return safe default instead of throwing
+    return {
+      tier: 'none',
+      status: 'canceled',
+      isActive: false,
+      videoSubmissions: { used: 0, limit: 0, remaining: 0 },
+      features: { hasAIAssistant: false, hasCoachFeed: false, hasPriorityQueue: false },
+    };
   }
 }
 
