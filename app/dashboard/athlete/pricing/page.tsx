@@ -14,19 +14,32 @@ interface PricingPlan {
   description: string;
 }
 
-// For initial testing we run a single "Athleap Basic" tier that maps to the BASIC Stripe price.
-// The backend still supports "elite", but the UI only offers this one plan for now.
 const PLANS: PricingPlan[] = [
   {
     id: 'basic',
     name: 'Athleap Basic',
-    price: 0,
-    description: 'Test drive the full athlete experience while we finalize pricing.',
+    price: 9.99,
+    description: 'Essential tools to start your training journey with coach guidance.',
     features: [
-      'Access to your coach’s published lessons',
-      'Video submissions and feedback (testing mode)',
+      'Access to your coach lessons',
+      '2 video submissions per month',
       'Progress tracking dashboard',
-      'Access to new AI and training features as we roll them out',
+      'Mobile app access',
+    ],
+  },
+  {
+    id: 'elite',
+    name: 'Athleap Elite',
+    price: 19.99,
+    popular: true,
+    description: 'Unlock the full athlete experience with unlimited access and AI coaching.',
+    features: [
+      'Everything in Basic',
+      'Unlimited video submissions',
+      'AI coaching assistant',
+      'Coach feed access',
+      'Priority queue for reviews',
+      'Advanced analytics',
     ],
   },
 ];
@@ -84,14 +97,14 @@ export default function AthletePricingPage() {
             className="text-4xl font-bold tracking-tight mb-3"
             style={{ fontFamily: '"Open Sans", sans-serif' }}
           >
-            Athleap Athlete Subscription
+            Choose Your Plan
           </h1>
           <p
             className="text-base max-w-2xl mx-auto"
             style={{ fontFamily: '"Open Sans", sans-serif', color: '#F4D7CE' }}
           >
-            One simple plan while we finalize pricing. Start your trial to unlock coaching tools,
-            training content, and the full athlete dashboard experience.
+            Start your 7-day free trial today. Unlock coaching tools, training content,
+            and the full athlete dashboard experience.
           </p>
         </div>
 
@@ -103,17 +116,28 @@ export default function AthletePricingPage() {
           </div>
         )}
 
-        {/* Single Plan Card */}
-        <div className="max-w-xl mx-auto">
+        {/* Plans Grid */}
+        <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
           {PLANS.map((plan) => (
             <div
               key={plan.id}
-              className="relative rounded-none bg-white text-black px-8 py-10 shadow-lg"
+              className={`relative rounded-lg bg-white text-black px-8 py-10 shadow-lg ${
+                plan.popular ? 'ring-2 ring-[#C40000] scale-105' : ''
+              }`}
             >
+              {/* Popular Badge */}
+              {plan.popular && (
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                  <span className="bg-[#C40000] text-white text-xs font-bold px-4 py-1 rounded-full uppercase tracking-wide">
+                    Most Popular
+                  </span>
+                </div>
+              )}
+
               {/* Plan Header */}
               <div className="mb-6">
                 <h3
-                  className="text-3xl font-bold mb-1 tracking-tight"
+                  className="text-2xl font-bold mb-1 tracking-tight"
                   style={{ fontFamily: '"Open Sans", sans-serif', color: '#F62004' }}
                 >
                   {plan.name}
@@ -128,9 +152,9 @@ export default function AthletePricingPage() {
 
               {/* Price */}
               <div className="mb-6">
-                <div className="flex items-baseline gap-2">
+                <div className="flex items-baseline gap-1">
                   <span
-                    className="text-5xl font-bold"
+                    className="text-4xl font-bold"
                     style={{ fontFamily: '"Open Sans", sans-serif', color: '#000000' }}
                   >
                     ${plan.price}
@@ -141,7 +165,7 @@ export default function AthletePricingPage() {
                   className="text-sm mt-2"
                   style={{ fontFamily: '"Open Sans", sans-serif', color: '#555555' }}
                 >
-                  First 7 days free, then ${plan.price}/month (test pricing)
+                  7-day free trial, then ${plan.price}/month
                 </p>
               </div>
 
@@ -149,11 +173,10 @@ export default function AthletePricingPage() {
               <button
                 onClick={() => handleSubscribe(plan.id)}
                 disabled={loading !== null}
-                className="w-full py-3 px-6 rounded-full font-semibold flex items-center justify-center gap-2 transition-all text-white disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{
-                  fontFamily: '"Open Sans", sans-serif',
-                  backgroundColor: '#C40000',
-                }}
+                className={`w-full py-3 px-6 rounded-full font-semibold flex items-center justify-center gap-2 transition-all text-white disabled:opacity-50 disabled:cursor-not-allowed ${
+                  plan.popular ? 'bg-[#C40000] hover:bg-[#a00000]' : 'bg-gray-800 hover:bg-gray-700'
+                }`}
+                style={{ fontFamily: '"Open Sans", sans-serif' }}
               >
                 {loading === plan.id ? (
                   <span>Loading...</span>

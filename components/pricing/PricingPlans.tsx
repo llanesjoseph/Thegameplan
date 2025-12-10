@@ -3,70 +3,50 @@ import CheckoutButton from '@/components/subscription/CheckoutButton'
 import { Check, Star, Crown, Shield, Zap } from 'lucide-react'
 
 const plans = [
- { 
-  name: 'Basic', 
-  price: 'Free',
-  period: '',
-  priceId: process.env.NEXT_PUBLIC_PRICE_BASIC || 'price_basic', 
+ {
+  name: 'Basic',
+  price: '$9.99',
+  period: '/month',
+  priceId: 'basic',
   blurb: 'Perfect for getting started',
-  description: 'Access to essential training content and community features.',
+  description: 'Essential tools to start your training journey with coach guidance.',
   icon: Shield,
   gradient: 'from-blue-500 to-cyan-500',
   features: [
-   'Access to free lessons',
-   'Basic skill tutorials', 
-   'Community access',
+   'Access to coach lessons',
+   '2 video submissions per month',
+   'Progress tracking dashboard',
    'Mobile app access',
-   'Progress tracking'
+   '7-day free trial'
   ],
   popular: false
  },
- { 
-  name: 'Pro', 
-  price: '$19',
+ {
+  name: 'Elite',
+  price: '$19.99',
   period: '/month',
-  priceId: process.env.NEXT_PUBLIC_PRICE_PRO || 'price_pro', 
+  priceId: 'elite',
   blurb: 'Most popular choice',
-  description: 'Premium content and AI-powered coaching assistance included in subscription.',
-  icon: Star,
+  description: 'Unlock the full athlete experience with unlimited access and AI coaching.',
+  icon: Crown,
   gradient: 'from-purple-500 to-pink-500',
   features: [
    'Everything in Basic',
-   'Premium lesson library',
+   'Unlimited video submissions',
    'AI coaching assistant',
-   'Advanced progress tracking',
-   'Priority support',
-   'Offline content download',
-   'Coaching sessions included'
+   'Coach feed access',
+   'Priority queue for reviews',
+   'Advanced analytics',
+   '7-day free trial'
   ],
   popular: true
- },
- { 
-  name: 'Elite', 
-  price: '$49',
-  period: '/month',
-  priceId: process.env.NEXT_PUBLIC_PRICE_ELITE || 'price_elite', 
-  blurb: 'For serious athletes',
-  description: 'Complete training experience with unlimited coaching and exclusive content.',
-  icon: Crown,
-  gradient: 'from-purple-600 to-pink-600',
-  features: [
-   'Everything in Pro',
-   'Unlimited live coaching sessions',
-   'Unlimited 1-on-1 mentorship calls',
-   'Exclusive masterclasses',
-   'Advanced analytics dashboard',
-   'Early access to new content',
-   'Custom training plans'
-  ],
-  popular: false
  }
 ]
 
 export default function PricingPlans() {
  return (
-  <div className="max-w-6xl mx-auto">
-   <div className="grid lg:grid-cols-3 gap-8">
+  <div className="max-w-4xl mx-auto">
+   <div className="grid md:grid-cols-2 gap-8">
     {plans.map((plan, index) => {
      const IconComponent = plan.icon
      return (
@@ -105,9 +85,7 @@ export default function PricingPlans() {
           <span className="text-4xl text-gray-800">{plan.price}</span>
           {plan.period && <span className="text-gray-600 ml-1">{plan.period}</span>}
          </div>
-         {plan.price !== 'Free' && (
-          <p className="text-xs text-gray-500 mt-1">Billed monthly, cancel anytime</p>
-         )}
+         <p className="text-xs text-gray-500 mt-1">Billed monthly, cancel anytime</p>
         </div>
 
         <p className="text-gray-600 text-sm leading-relaxed">{plan.description}</p>
@@ -132,24 +110,20 @@ export default function PricingPlans() {
         <CheckoutButton
          priceId={plan.priceId}
          tier={plan.name.toLowerCase()}
-         className={`w-full py-3 px-6 rounded-xl  transition-all duration-200 ${
+         className={`w-full py-3 px-6 rounded-xl transition-all duration-200 ${
           plan.popular
            ? 'bg-cardinal hover:bg-cardinal-dark text-white shadow-lg shadow-cardinal/25 transform hover:scale-105'
-           : plan.price === 'Free'
-            ? 'bg-gray-100 hover:bg-gray-200 text-gray-800 border border-gray-300'
-            : 'bg-gray-800 hover:bg-gray-700 text-white'
+           : 'bg-gray-800 hover:bg-gray-700 text-white'
          }`}
         />
        </div>
 
-       {/* Bottom Badge for Free Plan */}
-       {plan.price === 'Free' && (
-        <div className="text-center mt-4">
-         <span className="inline-block px-3 py-1 text-xs  text-green-600 bg-green-50 border border-green-200 rounded-full">
-          No Credit Card Required
-         </span>
-        </div>
-       )}
+       {/* Trial Badge */}
+       <div className="text-center mt-4">
+        <span className="inline-block px-3 py-1 text-xs text-green-600 bg-green-50 border border-green-200 rounded-full">
+         7-Day Free Trial
+        </span>
+       </div>
       </div>
      )
     })}
