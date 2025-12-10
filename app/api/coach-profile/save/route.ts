@@ -112,6 +112,13 @@ export async function POST(request: NextRequest) {
     }
 
     await batch.commit()
+    
+    // Log successful save for debugging
+    console.log(`[COACH-PROFILE/SAVE] Successfully saved profile for ${uid}`, {
+      displayName: body.displayName,
+      hasProfileUpdates: Object.keys(profileUpdates).length > 0,
+      hasUserUpdates: Object.keys(userUpdates).length > 0
+    })
 
     // Keep creators_index (Browse Coaches) in sync so headshots and key fields
     // update everywhere. We only touch it if it already exists – creation is
@@ -139,6 +146,7 @@ export async function POST(request: NextRequest) {
         // Keep key identity fields aligned when they are updated.
         if (body.displayName !== undefined) {
           indexUpdates.displayName = body.displayName
+          indexUpdates.name = body.displayName // Also update 'name' field for consistency
         }
         if (body.sport !== undefined) {
           indexUpdates.sport = body.sport

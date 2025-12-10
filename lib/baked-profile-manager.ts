@@ -123,7 +123,11 @@ export async function findBakedProfileForUser(
     
     if (!emailQuery.empty) {
       const doc = emailQuery.docs[0]
-      return { id: doc.id, ...doc.data() } as BakedProfile
+      const data = doc.data()
+      return { 
+        bakedProfileId: doc.id,
+        ...data 
+      } as BakedProfile
     }
     
     // If UID provided, also check by UID
@@ -136,7 +140,11 @@ export async function findBakedProfileForUser(
       
       if (!uidQuery.empty) {
         const doc = uidQuery.docs[0]
-        return { id: doc.id, ...doc.data() } as BakedProfile
+        const data = doc.data()
+        return { 
+          bakedProfileId: doc.id,
+          ...data 
+        } as BakedProfile
       }
     }
     

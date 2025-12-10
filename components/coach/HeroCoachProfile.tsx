@@ -292,8 +292,9 @@ export default function HeroCoachProfile({
         setDisplayCoach(editableCoach)
         setIsEditing(false)
         
-        // Show success feedback (optional - you can add a toast notification here)
-        console.log('Profile saved successfully')
+        // Reload the page to ensure all data is fresh from the database
+        // This ensures the name change is reflected everywhere
+        window.location.reload()
       }
     } catch (error) {
       // Show error to user and keep edit mode open so they can retry
