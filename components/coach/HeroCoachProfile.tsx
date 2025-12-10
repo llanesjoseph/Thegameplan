@@ -236,15 +236,23 @@ export default function HeroCoachProfile({
   const visibleSocialLinks = isAthleteReadOnlyView ? ATHLEAP_SOCIAL_LINKS : socialLinks
 
   const handleEditField = (field: keyof HeroCoachProfileProps['coach'], value: string) => {
-    setEditableCoach((prev) => ({
-      ...prev,
-      [field]: value
-    }))
+    console.log(`[HERO-COACH-PROFILE] Field changed: ${field} = "${value}"`)
+    setEditableCoach((prev) => {
+      const updated = {
+        ...prev,
+        [field]: value
+      }
+      console.log(`[HERO-COACH-PROFILE] Updated editableCoach.${field}:`, updated[field])
+      return updated
+    })
   }
 
   const handleSaveEdits = async () => {
     // Persist edits to backend so they survive refresh
     try {
+      console.log('[HERO-COACH-PROFILE] Save clicked, current editableCoach:', editableCoach)
+      console.log('[HERO-COACH-PROFILE] displayName value:', editableCoach.displayName)
+      
       if (authUser) {
         const token = await authUser.getIdToken()
         const body = {
