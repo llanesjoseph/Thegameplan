@@ -293,10 +293,13 @@ export async function getAllBakedProfiles(): Promise<BakedProfile[]> {
       .orderBy('createdAt', 'desc')
       .get()
     
-    return snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    } as BakedProfile))
+    return snapshot.docs.map(doc => {
+      const data = doc.data()
+      return {
+        bakedProfileId: doc.id,
+        ...data
+      } as BakedProfile
+    })
   } catch (error) {
     console.error('❌ Failed to get baked profiles:', error)
     return []
