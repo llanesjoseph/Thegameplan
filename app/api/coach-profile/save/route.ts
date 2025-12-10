@@ -58,7 +58,13 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    assignIfDefined(profileUpdates, 'displayName', body.displayName)
+    // CRITICAL: Always save displayName if provided (even if empty string)
+    // This ensures name changes are always persisted
+    if (body.displayName !== undefined) {
+      profileUpdates.displayName = body.displayName
+      userUpdates.displayName = body.displayName
+      console.log(`[COACH-PROFILE/SAVE] Saving displayName: "${body.displayName}"`)
+    }
     assignIfDefined(profileUpdates, 'bio', body.bio)
     assignIfDefined(profileUpdates, 'location', body.location)
     assignIfDefined(profileUpdates, 'sport', body.sport)
