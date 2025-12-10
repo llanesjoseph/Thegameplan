@@ -248,7 +248,7 @@ export default function HeroCoachProfile({
       if (authUser) {
         const token = await authUser.getIdToken()
         const body = {
-          displayName: editableCoach.displayName,
+          displayName: editableCoach.displayName || '', // Ensure it's always a string, never undefined
           bio: editableCoach.bio,
           location: editableCoach.location,
           sport: editableCoach.sport,
@@ -272,6 +272,9 @@ export default function HeroCoachProfile({
             youtube: editableCoach.youtube
           }
         }
+        
+        // Debug logging to verify name is being sent
+        console.log('[HERO-COACH-PROFILE] Saving profile with displayName:', body.displayName)
 
         const response = await fetch('/api/coach-profile/save', {
           method: 'POST',
