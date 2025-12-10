@@ -292,15 +292,19 @@ export default function HeroCoachProfile({
         }
 
         console.log('[HERO-COACH-PROFILE] Save successful, response:', result)
+        console.log('[HERO-COACH-PROFILE] Saved displayName:', body.displayName)
 
         // Only update local state and close edit mode after successful save
         setDisplayCoach(editableCoach)
         setIsEditing(false)
         
-        // Wait a brief moment to ensure database writes are fully committed
+        // CRITICAL: Wait longer to ensure all database writes (including creators_index) are fully committed
+        // Firestore writes are eventually consistent, so we need to wait for propagation
         // Then reload the page to ensure all data is fresh from the database
         // This ensures the name change is reflected everywhere
-        await new Promise(resolve => setTimeout(resolve, 500))
+        console.log('[HERO-COACH-PROFILE] Waiting for database writes to complete...')
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        console.log('[HERO-COACH-PROFILE] Reloading page to show updated name')
         window.location.reload()
       }
     } catch (error) {
