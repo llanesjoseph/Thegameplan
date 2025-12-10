@@ -291,12 +291,16 @@ export default function HeroCoachProfile({
           throw new Error(result.error || 'Failed to save profile')
         }
 
+        console.log('[HERO-COACH-PROFILE] Save successful, response:', result)
+
         // Only update local state and close edit mode after successful save
         setDisplayCoach(editableCoach)
         setIsEditing(false)
         
-        // Reload the page to ensure all data is fresh from the database
+        // Wait a brief moment to ensure database writes are fully committed
+        // Then reload the page to ensure all data is fresh from the database
         // This ensures the name change is reflected everywhere
+        await new Promise(resolve => setTimeout(resolve, 500))
         window.location.reload()
       }
     } catch (error) {

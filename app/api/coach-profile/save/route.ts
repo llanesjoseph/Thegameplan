@@ -60,9 +60,10 @@ export async function POST(request: NextRequest) {
 
     // CRITICAL: Always save displayName - it's always sent as a string (never undefined)
     // This ensures name changes are always persisted
-    profileUpdates.displayName = body.displayName || ''
-    userUpdates.displayName = body.displayName || ''
-    console.log(`[COACH-PROFILE/SAVE] Saving displayName: "${body.displayName}" to collections`)
+    const displayNameToSave = (body.displayName || '').trim()
+    profileUpdates.displayName = displayNameToSave
+    userUpdates.displayName = displayNameToSave
+    console.log(`[COACH-PROFILE/SAVE] Saving displayName: "${displayNameToSave}" to collections`)
     assignIfDefined(profileUpdates, 'bio', body.bio)
     assignIfDefined(profileUpdates, 'location', body.location)
     assignIfDefined(profileUpdates, 'sport', body.sport)
@@ -115,13 +116,17 @@ export async function POST(request: NextRequest) {
       batch.set(userRef, userUpdates, { merge: true })
     }
 
+    // Commit the batch write - this ensures all updates are atomic
     await batch.commit()
+    console.log(`[COACH-PROFILE/SAVE] Batch committed for ${uid}`)
     
     // Log successful save for debugging
     console.log(`[COACH-PROFILE/SAVE] Successfully saved profile for ${uid}`, {
       displayName: body.displayName,
       hasProfileUpdates: Object.keys(profileUpdates).length > 0,
-      hasUserUpdates: Object.keys(userUpdates).length > 0
+      hasUserUpdates: Object.keys(userUpdates).length > 0,
+      profileUpdates: profileUpdates,
+      userUpdates: userUpdates
     })
 
     // Keep creators_index (Browse Coaches) in sync so headshots and key fields
@@ -147,20 +152,24 @@ export async function POST(request: NextRequest) {
           indexUpdates.coverImageUrl = body.profileImageUrl
         }
 
-        // Keep key identity fields aligned when they are updated.
-        if (body.displayName !== undefined) {
-          indexUpdates.displayName = body.displayName
-          indexUpdates.name = body.displayName // Also update 'name' field for consistency
-        }
+        // CRITICAL: Always update displayName in creators_index (it's always sent)
+        // This ensures the name change is visible on the public profile page
+        const displayNameToSave = (body.displayName || '').trim()
+        indexUpdates.displayName = displayNameToSave
+        indexUpdates.name = displayNameToSave // Also update 'name' field for consistency
+        console.log(`[COACH-PROFILE/SAVE] Updating creators_index displayName: "${displayNameToSave}"`)
         if (body.sport !== undefined) {
           indexUpdates.sport = body.sport
         }
 
         await creatorsIndexRef.set(indexUpdates, { merge: true })
+        console.log(`[COACH-PROFILE/SAVE] Updated creators_index for ${uid}`, indexUpdates)
+      } else {
+        console.warn(`[COACH-PROFILE/SAVE] creators_index document does not exist for ${uid}`)
       }
     } catch (visibilityError) {
       // Do not fail the profile save if the public index sync fails; just log.
-      console.warn('Warning: failed to sync creators_index from coach-profile/save:', visibilityError)
+      console.error('ERROR: failed to sync creators_index from coach-profile/save:', visibilityError)
     }
 
     return NextResponse.json({ success: true })
