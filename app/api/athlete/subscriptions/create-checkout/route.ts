@@ -7,6 +7,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 });
 
 const PRICE_IDS = {
+  free: process.env.STRIPE_ATHLETE_FREE_PRICE_ID!,
   basic: process.env.STRIPE_ATHLETE_BASIC_PRICE_ID!,
   elite: process.env.STRIPE_ATHLETE_ELITE_PRICE_ID!,
 };
@@ -29,9 +30,9 @@ export async function POST(request: NextRequest) {
     // 2. Get request body
     const { tier } = await request.json();
 
-    if (!tier || (tier !== 'basic' && tier !== 'elite')) {
+    if (!tier || (tier !== 'free' && tier !== 'basic' && tier !== 'elite')) {
       return NextResponse.json(
-        { error: 'Invalid tier. Must be "basic" or "elite".' },
+        { error: 'Invalid tier. Must be "free", "basic", or "elite".' },
         { status: 400 }
       );
     }

@@ -10,23 +10,33 @@ const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
 // Access limits per tier
 const TIER_ACCESS = {
+  free: {
+    maxVideoSubmissions: 0,
+    hasAIAssistant: false,
+    hasCoachFeed: false,
+    hasPriorityQueue: false,
+    maxCoaches: 1,
+  },
   basic: {
     maxVideoSubmissions: 2,
     hasAIAssistant: false,
     hasCoachFeed: false,
     hasPriorityQueue: false,
+    maxCoaches: 3,
   },
   elite: {
     maxVideoSubmissions: -1, // -1 means unlimited
     hasAIAssistant: true,
     hasCoachFeed: true,
     hasPriorityQueue: true,
+    maxCoaches: -1, // unlimited
   },
   none: {
     maxVideoSubmissions: 0,
     hasAIAssistant: false,
     hasCoachFeed: false,
     hasPriorityQueue: false,
+    maxCoaches: 0,
   },
 };
 
@@ -189,12 +199,14 @@ async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
   // Determine tier from price ID if not in metadata
   if (!tier) {
     const priceId = subscription.items.data[0]?.price.id;
-    if (priceId === process.env.STRIPE_ATHLETE_BASIC_PRICE_ID) {
+    if (priceId === process.env.STRIPE_ATHLETE_FREE_PRICE_ID) {
+      tier = 'free';
+    } else if (priceId === process.env.STRIPE_ATHLETE_BASIC_PRICE_ID) {
       tier = 'basic';
     } else if (priceId === process.env.STRIPE_ATHLETE_ELITE_PRICE_ID) {
       tier = 'elite';
     } else {
-      tier = 'basic'; // Default to basic
+      tier = 'free'; // Default to free
     }
     console.log(`[WEBHOOK] Determined tier from price ID: ${tier}`);
   }
@@ -254,12 +266,14 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   // If tier is not in metadata, try to determine from price ID
   if (!tier) {
     const priceId = subscription.items.data[0]?.price.id;
-    if (priceId === process.env.STRIPE_ATHLETE_BASIC_PRICE_ID) {
+    if (priceId === process.env.STRIPE_ATHLETE_FREE_PRICE_ID) {
+      tier = 'free';
+    } else if (priceId === process.env.STRIPE_ATHLETE_BASIC_PRICE_ID) {
       tier = 'basic';
     } else if (priceId === process.env.STRIPE_ATHLETE_ELITE_PRICE_ID) {
       tier = 'elite';
     } else {
-      tier = 'basic'; // Default to basic
+      tier = 'free'; // Default to free
     }
   }
 
