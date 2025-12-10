@@ -1,47 +1,43 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Check, ArrowRight, AlertCircle } from 'lucide-react';
+import { Check, ArrowRight, AlertCircle, X } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
 
-interface PricingPlan {
-  id: 'basic' | 'elite';
-  name: string;
-  price: number;
-  popular?: boolean;
-  features: string[];
-  description: string;
-}
+// Feature categories with tier availability
+const FEATURE_CATEGORIES = [
+  {
+    category: 'Coach Experience',
+    features: [
+      { name: 'Access to 1 coach', tier1: true, tier2: false, tier3: false },
+      { name: 'Access to 3 coaches', tier1: false, tier2: true, tier3: false },
+      { name: 'Unlimited coach access', tier1: false, tier2: false, tier3: true },
+    ],
+  },
+  {
+    category: 'Training Experience',
+    features: [
+      { name: 'Training library access', tier1: true, tier2: true, tier3: true },
+      { name: 'Video training feedback', tier1: false, tier2: true, tier3: true },
+      { name: 'Ask Me Anything Access', tier1: false, tier2: true, tier3: true },
+      { name: '1:1 training sessions', tier1: false, tier2: false, tier3: true },
+      { name: 'Exclusive athlete content', tier1: false, tier2: false, tier3: true },
+    ],
+  },
+  {
+    category: 'Gear Experience',
+    features: [
+      { name: 'Gear store access', tier1: true, tier2: false, tier3: false },
+      { name: 'Exclusive gear recommendations', tier1: false, tier2: true, tier3: true },
+    ],
+  },
+];
 
-const PLANS: PricingPlan[] = [
-  {
-    id: 'basic',
-    name: 'Athleap Basic',
-    price: 9.99,
-    description: 'Essential tools to start your training journey with coach guidance.',
-    features: [
-      'Access to your coach lessons',
-      '2 video submissions per month',
-      'Progress tracking dashboard',
-      'Mobile app access',
-    ],
-  },
-  {
-    id: 'elite',
-    name: 'Athleap Elite',
-    price: 19.99,
-    popular: true,
-    description: 'Unlock the full athlete experience with unlimited access and AI coaching.',
-    features: [
-      'Everything in Basic',
-      'Unlimited video submissions',
-      'AI coaching assistant',
-      'Coach feed access',
-      'Priority queue for reviews',
-      'Advanced analytics',
-    ],
-  },
+const TIERS = [
+  { id: 'free', name: 'Tier 1', price: 'Free', priceNum: 0, subtitle: 'Get Started' },
+  { id: 'basic', name: 'Tier 2', price: '$9.99', priceNum: 9.99, subtitle: 'per month' },
+  { id: 'elite', name: 'Tier 3', price: '$19.99', priceNum: 19.99, subtitle: 'per month', popular: true },
 ];
 
 export default function AthletePricingPage() {
@@ -50,12 +46,19 @@ export default function AthletePricingPage() {
   const [loading, setLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSubscribe = async (tier: 'basic' | 'elite') => {
+  const handleSubscribe = async (tierId: string) => {
+    if (tierId === 'free') {
+      // Free tier - just redirect to dashboard
+      router.push('/dashboard/athlete');
+      return;
+    }
+
     if (!user) {
       router.push('/login');
       return;
     }
 
+    const tier = tierId as 'basic' | 'elite';
     setLoading(tier);
     setError(null);
 
@@ -77,7 +80,6 @@ export default function AthletePricingPage() {
         throw new Error(data.error || 'Failed to create checkout session');
       }
 
-      // Redirect to Stripe Checkout
       if (data.url) {
         window.location.href = data.url;
       }
@@ -88,9 +90,17 @@ export default function AthletePricingPage() {
     }
   };
 
+  const FeatureCheck = ({ available }: { available: boolean }) => (
+    available ? (
+      <Check className="w-5 h-5 text-green-500" />
+    ) : (
+      <X className="w-5 h-5 text-gray-300" />
+    )
+  );
+
   return (
     <div className="min-h-screen bg-[#4B0102] py-10 px-4 text-white">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="text-center mb-10">
           <h1
@@ -103,8 +113,8 @@ export default function AthletePricingPage() {
             className="text-base max-w-2xl mx-auto"
             style={{ fontFamily: '"Open Sans", sans-serif', color: '#F4D7CE' }}
           >
-            Start your 7-day free trial today. Unlock coaching tools, training content,
-            and the full athlete dashboard experience.
+            Unlock your full potential with the right training experience.
+            Start free or upgrade for premium features.
           </p>
         </div>
 
@@ -116,94 +126,145 @@ export default function AthletePricingPage() {
           </div>
         )}
 
-        {/* Plans Grid */}
-        <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-          {PLANS.map((plan) => (
-            <div
-              key={plan.id}
-              className={`relative rounded-lg bg-white text-black px-8 py-10 shadow-lg ${
-                plan.popular ? 'ring-2 ring-[#C40000] scale-105' : ''
-              }`}
-            >
-              {/* Popular Badge */}
-              {plan.popular && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                  <span className="bg-[#C40000] text-white text-xs font-bold px-4 py-1 rounded-full uppercase tracking-wide">
+        {/* Pricing Table */}
+        <div className="bg-white rounded-lg shadow-2xl overflow-hidden">
+          {/* Tier Headers */}
+          <div className="grid grid-cols-4 border-b border-gray-200">
+            <div className="p-6 bg-gray-50"></div>
+            {TIERS.map((tier) => (
+              <div
+                key={tier.id}
+                className={`p-6 text-center ${
+                  tier.popular ? 'bg-[#4B0102] text-white' : 'bg-gray-50'
+                }`}
+              >
+                {tier.popular && (
+                  <span className="inline-block bg-[#C40000] text-white text-xs font-bold px-3 py-1 rounded-full mb-2 uppercase">
                     Most Popular
                   </span>
-                </div>
-              )}
-
-              {/* Plan Header */}
-              <div className="mb-6">
-                <h3
-                  className="text-2xl font-bold mb-1 tracking-tight"
-                  style={{ fontFamily: '"Open Sans", sans-serif', color: '#F62004' }}
-                >
-                  {plan.name}
-                </h3>
-                <p
-                  className="text-sm"
-                  style={{ fontFamily: '"Open Sans", sans-serif', color: '#181818' }}
-                >
-                  {plan.description}
-                </p>
-              </div>
-
-              {/* Price */}
-              <div className="mb-6">
-                <div className="flex items-baseline gap-1">
-                  <span
-                    className="text-4xl font-bold"
-                    style={{ fontFamily: '"Open Sans", sans-serif', color: '#000000' }}
-                  >
-                    ${plan.price}
-                  </span>
-                  <span className="text-gray-500">/month</span>
-                </div>
-                <p
-                  className="text-sm mt-2"
-                  style={{ fontFamily: '"Open Sans", sans-serif', color: '#555555' }}
-                >
-                  7-day free trial, then ${plan.price}/month
-                </p>
-              </div>
-
-              {/* Subscribe Button */}
-              <button
-                onClick={() => handleSubscribe(plan.id)}
-                disabled={loading !== null}
-                className={`w-full py-3 px-6 rounded-full font-semibold flex items-center justify-center gap-2 transition-all text-white disabled:opacity-50 disabled:cursor-not-allowed ${
-                  plan.popular ? 'bg-[#C40000] hover:bg-[#a00000]' : 'bg-gray-800 hover:bg-gray-700'
-                }`}
-                style={{ fontFamily: '"Open Sans", sans-serif' }}
-              >
-                {loading === plan.id ? (
-                  <span>Loading...</span>
-                ) : (
-                  <>
-                    <span>Start Free Trial</span>
-                    <ArrowRight className="w-5 h-5" />
-                  </>
                 )}
-              </button>
+                <h3
+                  className={`text-lg font-bold ${tier.popular ? 'text-white' : 'text-gray-800'}`}
+                  style={{ fontFamily: '"Open Sans", sans-serif' }}
+                >
+                  {tier.name}
+                </h3>
+                <div className="mt-2">
+                  <span
+                    className={`text-3xl font-bold ${tier.popular ? 'text-white' : 'text-[#C40000]'}`}
+                    style={{ fontFamily: '"Open Sans", sans-serif' }}
+                  >
+                    {tier.price}
+                  </span>
+                  {tier.subtitle !== 'Get Started' && (
+                    <span className={`text-sm ml-1 ${tier.popular ? 'text-gray-300' : 'text-gray-500'}`}>
+                      {tier.subtitle}
+                    </span>
+                  )}
+                </div>
+                <button
+                  onClick={() => handleSubscribe(tier.id)}
+                  disabled={loading !== null}
+                  className={`mt-4 w-full py-2 px-4 rounded-full font-semibold text-sm transition-all disabled:opacity-50 ${
+                    tier.popular
+                      ? 'bg-white text-[#4B0102] hover:bg-gray-100'
+                      : tier.id === 'free'
+                      ? 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                      : 'bg-[#C40000] text-white hover:bg-[#a00000]'
+                  }`}
+                  style={{ fontFamily: '"Open Sans", sans-serif' }}
+                >
+                  {loading === tier.id ? 'Loading...' : tier.id === 'free' ? 'Get Started' : 'Start Free Trial'}
+                </button>
+              </div>
+            ))}
+          </div>
 
-              {/* Features List */}
-              <div className="mt-8 space-y-3">
-                {plan.features.map((feature, index) => (
-                  <div key={index} className="flex items-start gap-3">
-                    <Check className="w-5 h-5 text-[#FC0105] flex-shrink-0 mt-0.5" />
+          {/* Feature Categories */}
+          {FEATURE_CATEGORIES.map((category, catIndex) => (
+            <div key={catIndex}>
+              {/* Category Header */}
+              <div className="grid grid-cols-4 bg-[#FFF5F5] border-b border-gray-200">
+                <div className="p-4">
+                  <h4
+                    className="font-bold text-[#4B0102]"
+                    style={{ fontFamily: '"Open Sans", sans-serif' }}
+                  >
+                    {category.category}
+                  </h4>
+                </div>
+                <div className="p-4"></div>
+                <div className="p-4"></div>
+                <div className="p-4"></div>
+              </div>
+
+              {/* Features */}
+              {category.features.map((feature, featIndex) => (
+                <div
+                  key={featIndex}
+                  className="grid grid-cols-4 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                >
+                  <div className="p-4">
                     <span
-                      className="text-sm"
-                      style={{ fontFamily: '"Open Sans", sans-serif', color: '#181818' }}
+                      className="text-sm text-gray-700"
+                      style={{ fontFamily: '"Open Sans", sans-serif' }}
                     >
-                      {feature}
+                      {feature.name}
                     </span>
                   </div>
-                ))}
-              </div>
+                  <div className="p-4 flex justify-center items-center">
+                    <FeatureCheck available={feature.tier1} />
+                  </div>
+                  <div className="p-4 flex justify-center items-center">
+                    <FeatureCheck available={feature.tier2} />
+                  </div>
+                  <div className="p-4 flex justify-center items-center bg-[#FFF9F9]">
+                    <FeatureCheck available={feature.tier3} />
+                  </div>
+                </div>
+              ))}
             </div>
           ))}
+
+          {/* Bottom CTA Row */}
+          <div className="grid grid-cols-4 bg-gray-50 border-t border-gray-200">
+            <div className="p-6"></div>
+            {TIERS.map((tier) => (
+              <div key={tier.id} className="p-6 text-center">
+                <button
+                  onClick={() => handleSubscribe(tier.id)}
+                  disabled={loading !== null}
+                  className={`w-full py-3 px-4 rounded-full font-semibold flex items-center justify-center gap-2 transition-all disabled:opacity-50 ${
+                    tier.popular
+                      ? 'bg-[#C40000] text-white hover:bg-[#a00000]'
+                      : tier.id === 'free'
+                      ? 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                      : 'bg-[#4B0102] text-white hover:bg-[#3a0102]'
+                  }`}
+                  style={{ fontFamily: '"Open Sans", sans-serif' }}
+                >
+                  {loading === tier.id ? (
+                    'Loading...'
+                  ) : (
+                    <>
+                      {tier.id === 'free' ? 'Get Started' : 'Choose Plan'}
+                      <ArrowRight className="w-4 h-4" />
+                    </>
+                  )}
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Footer Note */}
+        <div className="text-center mt-8">
+          <p
+            className="text-sm"
+            style={{ fontFamily: '"Open Sans", sans-serif', color: '#F4D7CE' }}
+          >
+            All paid plans include a 7-day free trial. Cancel anytime.
+          </p>
         </div>
       </div>
     </div>
