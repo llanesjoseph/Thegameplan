@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
     profileUpdates.updatedAt = now
 
     // Mirror key profile fields into users document for backward compatibility
-    assignIfDefined(userUpdates, 'displayName', body.displayName)
+    // displayName already handled above - don't duplicate
     assignIfDefined(userUpdates, 'bio', body.bio)
     assignIfDefined(userUpdates, 'location', body.location)
     assignIfDefined(userUpdates, 'sport', body.sport)
