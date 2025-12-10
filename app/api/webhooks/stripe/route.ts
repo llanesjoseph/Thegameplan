@@ -116,7 +116,7 @@ export async function POST(request: NextRequest) {
 
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   const firebaseUID = session.metadata?.firebaseUID;
-  const tier = session.metadata?.tier as 'basic' | 'elite';
+  const tier = session.metadata?.tier as 'free' | 'basic' | 'elite';
 
   console.log(`[WEBHOOK] Processing checkout.session.completed: ${session.id}`);
   console.log(`[WEBHOOK] Session metadata:`, session.metadata);
@@ -160,7 +160,7 @@ async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
   console.log(`[WEBHOOK] Subscription metadata:`, subscription.metadata);
   
   let firebaseUID = subscription.metadata?.firebaseUID;
-  let tier = subscription.metadata?.tier as 'basic' | 'elite' | undefined;
+  let tier = subscription.metadata?.tier as 'free' | 'basic' | 'elite' | undefined;
 
   const customerId = typeof subscription.customer === 'string' 
     ? subscription.customer 
@@ -237,7 +237,7 @@ async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
 
 async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   let firebaseUID = subscription.metadata?.firebaseUID;
-  let tier = subscription.metadata?.tier as 'basic' | 'elite' | undefined;
+  let tier = subscription.metadata?.tier as 'free' | 'basic' | 'elite' | undefined;
 
   // If metadata missing, try to find user by stripeCustomerId
   if (!firebaseUID && subscription.customer) {
