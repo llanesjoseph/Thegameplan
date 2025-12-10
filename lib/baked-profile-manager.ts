@@ -11,7 +11,7 @@ export interface BakedProfile {
   // Profile identification
   bakedProfileId: string // Unique ID for the baked profile
   targetEmail: string // Email of the user who will take ownership
-  targetUid?: string // UID if user already exists, null if waiting for sign-up
+  targetUid?: string | null // UID if user already exists, null if waiting for sign-up
   
   // Profile data (same structure as creator_profiles)
   displayName: string
@@ -72,7 +72,7 @@ export async function createBakedProfile(
       createdBy: adminUid,
       createdAt: new Date(),
       status: 'pending',
-      targetUid: profileData.targetUid || null
+      targetUid: profileData.targetUid ?? null
     }
     
     // Save to baked_profiles collection
