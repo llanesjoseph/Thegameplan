@@ -108,42 +108,81 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   const firebaseUID = session.metadata?.firebaseUID;
   const tier = session.metadata?.tier as 'basic' | 'elite';
 
-  if (!firebaseUID || !tier) {
-    console.error('Missing metadata in checkout session:', session.id);
+  console.log(`[WEBHOOK] Processing checkout.session.completed: ${session.id}`);
+  console.log(`[WEBHOOK] Session metadata:`, session.metadata);
+
+  if (!firebaseUID) {
+    console.error(`[WEBHOOK] ❌ Missing firebaseUID in checkout session: ${session.id}`);
     return;
   }
 
-  console.log(`Checkout completed for user ${firebaseUID}, tier: ${tier}`);
+  const customerId = typeof session.customer === 'string' 
+    ? session.customer 
+    : (session.customer as any)?.id;
 
-  // Update will happen in subscription.created event
-  // This just logs the checkout completion
+  console.log(`[WEBHOOK] Checkout completed for user ${firebaseUID}, tier: ${tier || 'unknown'}, customer: ${customerId}`);
+
+  // Pre-emptively update the user with stripeCustomerId so webhook can find them
+  // This helps the subscription.created event find the user if metadata is missing
+  try {
+    const updateData: any = {
+      'subscription.stripeCustomerId': customerId,
+      updatedAt: new Date(),
+    };
+
+    // If we have tier info, set it as pending so UI can show appropriate state
+    if (tier) {
+      updateData['subscription.pendingTier'] = tier;
+    }
+
+    await adminDb.collection('users').doc(firebaseUID).update(updateData);
+    console.log(`[WEBHOOK] ✅ Pre-updated user ${firebaseUID} with stripeCustomerId: ${customerId}`);
+  } catch (error) {
+    console.error(`[WEBHOOK] ⚠️ Could not pre-update user ${firebaseUID}:`, error);
+    // Non-fatal - the subscription.created event will still work via metadata
+  }
+
+  // Main subscription update will happen in subscription.created event
 }
 
 async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
+  console.log(`[WEBHOOK] Processing subscription.created: ${subscription.id}`);
+  console.log(`[WEBHOOK] Subscription metadata:`, subscription.metadata);
+  
   let firebaseUID = subscription.metadata?.firebaseUID;
   let tier = subscription.metadata?.tier as 'basic' | 'elite' | undefined;
 
+  const customerId = typeof subscription.customer === 'string' 
+    ? subscription.customer 
+    : subscription.customer.id;
+
   // If metadata missing, try to find user by stripeCustomerId
-  if (!firebaseUID && subscription.customer) {
-    const customerId = typeof subscription.customer === 'string' 
-      ? subscription.customer 
-      : subscription.customer.id;
+  if (!firebaseUID && customerId) {
+    console.log(`[WEBHOOK] No firebaseUID in metadata, looking up by stripeCustomerId: ${customerId}`);
     
-    console.log(`Looking up user by stripeCustomerId: ${customerId}`);
-    
-    const usersQuery = await adminDb.collection('users')
+    // Try multiple query patterns to find the user
+    let usersQuery = await adminDb.collection('users')
       .where('subscription.stripeCustomerId', '==', customerId)
       .limit(1)
       .get();
     
+    if (usersQuery.empty) {
+      // Also try the legacy field location
+      usersQuery = await adminDb.collection('users')
+        .where('stripeCustomerId', '==', customerId)
+        .limit(1)
+        .get();
+    }
+    
     if (!usersQuery.empty) {
       firebaseUID = usersQuery.docs[0].id;
-      console.log(`Found user ${firebaseUID} by stripeCustomerId`);
+      console.log(`[WEBHOOK] Found user ${firebaseUID} by stripeCustomerId`);
     }
   }
 
   if (!firebaseUID) {
-    console.error('Could not find firebaseUID for subscription:', subscription.id);
+    console.error(`[WEBHOOK] ❌ Could not find firebaseUID for subscription: ${subscription.id}, customer: ${customerId}`);
+    console.error(`[WEBHOOK] This subscription will need manual processing or will be picked up by verify-session endpoint`);
     return;
   }
 
@@ -157,25 +196,31 @@ async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
     } else {
       tier = 'basic'; // Default to basic
     }
-    console.log(`Determined tier from price ID: ${tier}`);
+    console.log(`[WEBHOOK] Determined tier from price ID: ${tier}`);
   }
 
   const access = TIER_ACCESS[tier];
 
-  await adminDb.collection('users').doc(firebaseUID).update({
-    'subscription.tier': tier,
-    'subscription.stripeSubscriptionId': subscription.id,
-    'subscription.status': subscription.status,
-    'subscription.currentPeriodEnd': new Date(subscription.current_period_end * 1000),
-    'subscription.cancelAtPeriodEnd': subscription.cancel_at_period_end,
-    'access.maxVideoSubmissions': access.maxVideoSubmissions,
-    'access.hasAIAssistant': access.hasAIAssistant,
-    'access.hasCoachFeed': access.hasCoachFeed,
-    'access.hasPriorityQueue': access.hasPriorityQueue,
-    updatedAt: new Date(),
-  });
+  try {
+    await adminDb.collection('users').doc(firebaseUID).update({
+      'subscription.tier': tier,
+      'subscription.stripeSubscriptionId': subscription.id,
+      'subscription.stripeCustomerId': customerId,
+      'subscription.status': subscription.status,
+      'subscription.currentPeriodEnd': new Date(subscription.current_period_end * 1000),
+      'subscription.cancelAtPeriodEnd': subscription.cancel_at_period_end,
+      'access.maxVideoSubmissions': access.maxVideoSubmissions,
+      'access.hasAIAssistant': access.hasAIAssistant,
+      'access.hasCoachFeed': access.hasCoachFeed,
+      'access.hasPriorityQueue': access.hasPriorityQueue,
+      updatedAt: new Date(),
+    });
 
-  console.log(`✅ Subscription created for user ${firebaseUID}: ${tier} tier, status: ${subscription.status}`);
+    console.log(`[WEBHOOK] ✅ Subscription created for user ${firebaseUID}: ${tier} tier, status: ${subscription.status}`);
+  } catch (updateError) {
+    console.error(`[WEBHOOK] ❌ Failed to update user ${firebaseUID}:`, updateError);
+    throw updateError;
+  }
 }
 
 async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {

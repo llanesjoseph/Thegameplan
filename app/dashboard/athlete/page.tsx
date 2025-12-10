@@ -6,8 +6,8 @@
  * No sidebar, no iframe - direct content rendering
  */
 
-import { useEffect, useState, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { useEffect, useState, useRef, useCallback } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/hooks/use-auth'
 import { signOut } from 'firebase/auth'
@@ -27,9 +27,12 @@ import AthleteShowcaseCard from '@/components/athlete/AthleteShowcaseCard'
 export default function AthleteDashboard() {
   const { user } = useAuth()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [isLoading, setIsLoading] = useState(true)
   const [isSigningOut, setIsSigningOut] = useState(false)
   const [showQuickSetup, setShowQuickSetup] = useState(false)
+  const [subscriptionVerifying, setSubscriptionVerifying] = useState(false)
+  const [subscriptionVerified, setSubscriptionVerified] = useState(false)
   const [athleteName, setAthleteName] = useState<string>('')
   const [coachName, setCoachName] = useState<string>('')
   const [heroProfile, setHeroProfile] = useState<{
@@ -127,12 +130,81 @@ export default function AthleteDashboard() {
     checkRole()
   }, [user, router])
 
+  // Verify subscription after Stripe checkout redirect
+  // This handles the race condition where webhook may not have processed yet
+  const verifySubscription = useCallback(async (retries = 3): Promise<boolean> => {
+    if (!user) return false
+    
+    try {
+      const token = await user.getIdToken()
+      const res = await fetch('/api/athlete/subscriptions/verify-session', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({})
+      })
+      
+      if (!res.ok) return false
+      
+      const data = await res.json()
+      
+      if (data.isActive || data.alreadyActive) {
+        setSubscriptionSummary({
+          tier: data.tier,
+          status: data.status,
+          isActive: true
+        })
+        return true
+      }
+      
+      // If not active and we have retries left, wait and try again
+      if (retries > 0) {
+        console.log(`[SUBSCRIPTION] Not active yet, retrying in 2s... (${retries} retries left)`)
+        await new Promise(resolve => setTimeout(resolve, 2000))
+        return verifySubscription(retries - 1)
+      }
+      
+      return false
+    } catch (err) {
+      console.error('Error verifying subscription:', err)
+      return false
+    }
+  }, [user])
+
   // Load athlete subscription status so we can show a clear CTA into the Stripe pricing / checkout flow.
   useEffect(() => {
     const loadSubscription = async () => {
       if (!user) return
+      
+      const isSuccessRedirect = searchParams?.get('subscription') === 'success'
+      
       try {
         setSubscriptionLoading(true)
+        
+        // If this is a success redirect, use verification with polling
+        if (isSuccessRedirect && !subscriptionVerified) {
+          setSubscriptionVerifying(true)
+          console.log('[SUBSCRIPTION] Detected success redirect, verifying with Stripe...')
+          
+          const verified = await verifySubscription(5) // Try up to 5 times (10 seconds total)
+          
+          if (verified) {
+            setSubscriptionVerified(true)
+            console.log('[SUBSCRIPTION] ✅ Subscription verified successfully!')
+            // Clean up URL
+            router.replace('/dashboard/athlete', { scroll: false })
+          } else {
+            console.warn('[SUBSCRIPTION] ⚠️ Could not verify subscription after retries')
+          }
+          
+          setSubscriptionVerifying(false)
+          setSubscriptionLoading(false)
+          return
+        }
+        
+        // Normal subscription status check
         const token = await user.getIdToken()
         const res = await fetch('/api/athlete/subscriptions/status', {
           headers: {
@@ -154,7 +226,7 @@ export default function AthleteDashboard() {
     }
 
     loadSubscription()
-  }, [user])
+  }, [user, searchParams, subscriptionVerified, verifySubscription, router])
 
   useEffect(() => {
     const loadWelcomeData = async () => {
@@ -835,7 +907,10 @@ export default function AthleteDashboard() {
         {/* Training Library – light gray band edge-to-edge */}
         <section className="w-full" style={{ backgroundColor: '#EDEDED' }}>
           <div className="max-w-6xl mx-auto px-8 py-10">
-            <AthleteTrainingLibrary subscription={subscriptionSummary} />
+            <AthleteTrainingLibrary 
+              subscription={subscriptionSummary} 
+              isVerifying={subscriptionVerifying}
+            />
           </div>
         </section>
 

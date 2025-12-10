@@ -99,6 +99,7 @@ function ProfilePageContent() {
   })
 
   // Load profile data from database on component mount
+  // FIX: Load from BOTH coach_profiles AND creator_profiles to ensure we get all data
   useEffect(() => {
     const loadProfile = async () => {
       if (user?.uid && role) {
@@ -110,14 +111,46 @@ function ProfilePageContent() {
         }))
 
         try {
-          const collection = (role === 'creator' || role === 'coach') ? 'creator_profiles' : 'users'
-          const docRef = doc(db, collection, user.uid)
-          const docSnap = await getDoc(docRef)
+          let savedProfile: any = null
+          
+          // For coaches, load from BOTH collections and merge
+          if (role === 'creator' || role === 'coach') {
+            // First try coach_profiles (newer collection)
+            const coachProfileRef = doc(db, 'coach_profiles', user.uid)
+            const coachProfileSnap = await getDoc(coachProfileRef)
+            
+            // Then try creator_profiles (legacy collection)
+            const creatorProfileRef = doc(db, 'creator_profiles', user.uid)
+            const creatorProfileSnap = await getDoc(creatorProfileRef)
+            
+            // Merge data from both collections, preferring coach_profiles for newer data
+            const coachData = coachProfileSnap.exists() ? coachProfileSnap.data() : {}
+            const creatorData = creatorProfileSnap.exists() ? creatorProfileSnap.data() : {}
+            
+            // Merge: creator_profiles as base, coach_profiles overrides
+            savedProfile = { ...creatorData, ...coachData }
+            
+            // Special handling for arrays - merge them instead of replacing
+            if (creatorData.actionPhotos || coachData.actionPhotos) {
+              const allPhotos = [
+                ...(creatorData.actionPhotos || []),
+                ...(coachData.actionPhotos || [])
+              ]
+              // Remove duplicates
+              savedProfile.actionPhotos = [...new Set(allPhotos)]
+            }
+            
+            console.log('Loaded merged profile from coach_profiles + creator_profiles:', savedProfile)
+          } else {
+            // For non-coaches, just load from users
+            const docRef = doc(db, 'users', user.uid)
+            const docSnap = await getDoc(docRef)
+            if (docSnap.exists()) {
+              savedProfile = docSnap.data()
+            }
+          }
 
-          if (docSnap.exists()) {
-            const savedProfile = docSnap.data()
-            console.log('Loaded profile from Firestore:', savedProfile)
-
+          if (savedProfile && Object.keys(savedProfile).length > 0) {
             // Intelligently detect voice capture completeness
             let completeness: 'none' | 'quick' | 'detailed' = 'none'
             if (savedProfile.voiceCaptureCompleteness) {
@@ -237,8 +270,22 @@ function ProfilePageContent() {
       }, { merge: true })
 
       if (role === 'creator' || role === 'coach') {
+        // FIX: Save to BOTH coach_profiles AND creator_profiles for consistency
         const creatorProfileRef = doc(db, 'creator_profiles', user.uid)
         await setDoc(creatorProfileRef, profileWithMetadata, { merge: true })
+
+        // Also save to coach_profiles to ensure CoachImageManager can find it
+        const coachProfileRef = doc(db, 'coach_profiles', user.uid)
+        await setDoc(coachProfileRef, {
+          ...profileWithMetadata,
+          // Ensure key fields are synced
+          displayName: profileData.displayName,
+          firstName: profileData.displayName?.split(' ')[0] || '',
+          lastName: profileData.displayName?.split(' ').slice(1).join(' ') || '',
+          headshotUrl: profileData.profileImageUrl,
+          heroImageUrl: profileData.heroImageUrl,
+          actionPhotos: profileData.actionPhotos,
+        }, { merge: true })
 
         const creatorsIndexRef = doc(db, 'creators_index', user.uid)
         await setDoc(creatorsIndexRef, {

@@ -24,6 +24,7 @@ export async function DELETE(request: NextRequest) {
     const token = authHeader.split('Bearer ')[1]
     const decoded = await adminAuth.verifyIdToken(token)
     const uid = decoded.uid
+    const userEmail = decoded.email || ''
 
     // Load user role
     const userDoc = await adminDb.collection('users').doc(uid).get()
@@ -31,13 +32,15 @@ export async function DELETE(request: NextRequest) {
     const userRole = userData.role || userData.roles?.[0] || 'user'
     const isAdmin = ['admin', 'superadmin'].includes(userRole)
 
-    // Helper to check ownership and delete from a specific collection
+    // Helper to check ownership/association and delete from a specific collection
     const tryDeleteFromCollection = async (collection: string): Promise<boolean> => {
       const ref = adminDb.collection(collection).doc(id)
       const snap = await ref.get()
       if (!snap.exists) return false
 
       const data = snap.data() as any
+      
+      // Check if user is the owner (created the item)
       const ownerId =
         data.coachId ||
         data.creatorUid ||
@@ -49,12 +52,26 @@ export async function DELETE(request: NextRequest) {
         data.userId ||
         ''
 
-      if (!isAdmin && ownerId && ownerId !== uid) {
-        // Not owner
+      // FIX: Also check if the gear is ASSOCIATED with this coach (even if not created by them)
+      // This allows coaches to remove gear recommendations from their profile
+      const associatedCoachId = data.coachId || data.coachUID || data.assignedCoachId || ''
+      const associatedEmail = data.coachEmail || data.creatorEmail || data.ownerEmail || data.email || ''
+      
+      const isOwner = ownerId === uid
+      const isAssociatedCoach = associatedCoachId === uid || (userEmail && associatedEmail === userEmail)
+      
+      // Allow deletion if:
+      // 1. User is an admin
+      // 2. User is the owner (created the item)
+      // 3. User is a coach and the gear is associated with their profile
+      // 4. No owner is set (orphaned item)
+      if (!isAdmin && !isOwner && !isAssociatedCoach && ownerId) {
+        console.log(`[GEAR/DELETE] Denied: uid=${uid}, ownerId=${ownerId}, associatedCoachId=${associatedCoachId}`)
         return false
       }
 
       await ref.delete()
+      console.log(`[GEAR/DELETE] Deleted gear ${id} from ${collection} by user ${uid}`)
       return true
     }
 
@@ -72,7 +89,7 @@ export async function DELETE(request: NextRequest) {
 
     if (!deleted) {
       return NextResponse.json(
-        { success: false, error: 'Gear item not found or not owned by this coach' },
+        { success: false, error: 'Gear item not found or you do not have permission to delete it' },
         { status: 404 }
       )
     }

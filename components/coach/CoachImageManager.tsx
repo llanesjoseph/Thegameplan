@@ -63,23 +63,49 @@ export default function CoachImageManager({ onProfileUpdate, className = '' }: C
     try {
       setLoading(true)
 
-      // Try coach_profiles collection first
+      // FIX: Load from BOTH collections and merge data to ensure we see all images
       const coachProfileDoc = await getDoc(doc(db, 'coach_profiles', user.uid))
+      const creatorProfileDoc = await getDoc(doc(db, 'creator_profiles', user.uid))
 
+      const coachData = coachProfileDoc.exists() ? coachProfileDoc.data() : {}
+      const creatorData = creatorProfileDoc.exists() ? creatorProfileDoc.data() : {}
+
+      // Merge data: creator_profiles as base, coach_profiles overrides non-array fields
       let profileData: any = null
-      if (coachProfileDoc.exists()) {
-        profileData = { uid: user.uid, ...coachProfileDoc.data() }
-      } else {
-        // Fall back to creator_profiles if coach_profiles doesn't exist
-        const creatorProfileDoc = await getDoc(doc(db, 'creator_profiles', user.uid))
-        if (creatorProfileDoc.exists()) {
-          profileData = { uid: user.uid, ...creatorProfileDoc.data() }
+      if (Object.keys(coachData).length > 0 || Object.keys(creatorData).length > 0) {
+        profileData = { 
+          uid: user.uid, 
+          ...creatorData, 
+          ...coachData,
         }
+        
+        // Special handling for actionPhotos - merge from both collections
+        const allActionPhotos = [
+          ...(creatorData.actionPhotos || []),
+          ...(coachData.actionPhotos || [])
+        ]
+        // Remove duplicates and empty values
+        profileData.actionPhotos = [...new Set(allActionPhotos)].filter(Boolean)
+        
+        // Also check for alternative image field names that might have been used during ingestion
+        const alternativePhotos = [
+          ...(creatorData.galleryPhotos || []),
+          ...(coachData.galleryPhotos || []),
+          ...(creatorData.mediaGallery || []),
+          ...(coachData.mediaGallery || []),
+        ].filter(Boolean)
+        
+        // Merge alternative photos into actionPhotos
+        if (alternativePhotos.length > 0) {
+          profileData.actionPhotos = [...new Set([...profileData.actionPhotos, ...alternativePhotos])].filter(Boolean)
+        }
+        
+        console.log('Loaded merged profile with actionPhotos:', profileData.actionPhotos)
       }
 
       if (profileData) {
         setProfile(profileData as CoachProfile)
-        setHeadshotUrl(profileData.headshotUrl || '')
+        setHeadshotUrl(profileData.headshotUrl || profileData.photoURL || '')
         setHeroImageUrl(profileData.heroImageUrl || '')
         setActionPhotos(profileData.actionPhotos || [])
         setHighlightVideo(profileData.highlightVideo || '')
@@ -130,16 +156,23 @@ export default function CoachImageManager({ onProfileUpdate, className = '' }: C
         updatedAt: Timestamp.now()
       }
 
-      // Try coach_profiles first, then fall back to creator_profiles
+      // FIX: Save to BOTH collections to ensure data consistency
       const coachProfileRef = doc(db, 'coach_profiles', user.uid)
-      const coachProfileDoc = await getDoc(coachProfileRef)
+      const creatorProfileRef = doc(db, 'creator_profiles', user.uid)
 
-      if (coachProfileDoc.exists()) {
-        await setDoc(coachProfileRef, updateData, { merge: true })
-      } else {
-        // Fall back to creator_profiles
-        const creatorProfileRef = doc(db, 'creator_profiles', user.uid)
-        await setDoc(creatorProfileRef, updateData, { merge: true })
+      // Save to both collections
+      await Promise.all([
+        setDoc(coachProfileRef, updateData, { merge: true }),
+        setDoc(creatorProfileRef, updateData, { merge: true })
+      ])
+
+      // Also update the users collection with photoURL for profile image
+      if (headshotUrl) {
+        const usersRef = doc(db, 'users', user.uid)
+        await setDoc(usersRef, { 
+          photoURL: headshotUrl,
+          updatedAt: Timestamp.now()
+        }, { merge: true })
       }
 
       setSuccess('Profile images updated successfully!')

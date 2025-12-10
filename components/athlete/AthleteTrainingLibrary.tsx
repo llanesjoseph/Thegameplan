@@ -16,9 +16,10 @@ interface AthleteSubscriptionSummary {
 
 interface AthleteTrainingLibraryProps {
   subscription?: AthleteSubscriptionSummary | null
+  isVerifying?: boolean
 }
 
-export default function AthleteTrainingLibrary({ subscription }: AthleteTrainingLibraryProps = {}) {
+export default function AthleteTrainingLibrary({ subscription, isVerifying = false }: AthleteTrainingLibraryProps = {}) {
   const { user } = useAuth()
   const [lessons, setLessons] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -218,7 +219,25 @@ export default function AthleteTrainingLibrary({ subscription }: AthleteTraining
         Your Training Library
       </h2>
 
-      {!hasActiveSubscription ? (
+      {isVerifying ? (
+        <div className="border border-dashed border-green-300 rounded-lg p-6 text-center bg-green-50">
+          <div className="flex items-center justify-center gap-3 mb-3">
+            <div className="w-5 h-5 border-2 border-green-600 border-t-transparent rounded-full animate-spin" />
+            <p
+              className="text-sm font-medium"
+              style={{ fontFamily: '"Open Sans", sans-serif', color: '#166534' }}
+            >
+              Verifying your subscription...
+            </p>
+          </div>
+          <p
+            className="text-xs"
+            style={{ fontFamily: '"Open Sans", sans-serif', color: '#15803d' }}
+          >
+            Please wait while we confirm your payment. This usually takes just a few seconds.
+          </p>
+        </div>
+      ) : !hasActiveSubscription ? (
         <div className="border border-dashed border-gray-300 rounded-lg p-6 text-center">
           <p
             className="text-sm mb-3"
