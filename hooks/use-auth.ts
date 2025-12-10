@@ -57,6 +57,22 @@ export function useAuth() {
 
             // Mark this user as initialized to prevent repeated calls
             initializedUsersRef.current.add(user.uid)
+            
+            // Check for baked profile transfer (server-side only, non-blocking)
+            try {
+              const token = await user.getIdToken()
+              fetch('/api/user/check-baked-profile', {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${token}`
+                }
+              }).catch(err => {
+                console.warn('Baked profile check failed (non-critical):', err)
+              })
+            } catch (error) {
+              // Silently fail - baked profile check is not critical
+              console.warn('Could not check baked profile:', error)
+            }
           } catch (error) {
             console.warn('Failed to initialize user document:', error)
             // Continue anyway - user can still use the app with limited functionality
