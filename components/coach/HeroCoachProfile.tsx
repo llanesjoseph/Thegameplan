@@ -193,6 +193,7 @@ export default function HeroCoachProfile({
   const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null)
 
   useEffect(() => {
+    console.log('[HERO-COACH-PROFILE] Coach prop changed, updating state:', coach.displayName)
     setDisplayCoach(coach)
     setEditableCoach(coach)
   }, [coach])
