@@ -97,9 +97,15 @@ export async function POST(request: NextRequest) {
 
     const batch = db.batch()
 
+    // Save to creator_profiles (primary collection)
     const creatorRef = db.collection('creator_profiles').doc(uid)
     batch.set(creatorRef, profileUpdates, { merge: true })
 
+    // Also save to coach_profiles for consistency (some components load from both)
+    const coachRef = db.collection('coach_profiles').doc(uid)
+    batch.set(coachRef, profileUpdates, { merge: true })
+
+    // Mirror key fields to users collection for backward compatibility
     const userRef = db.collection('users').doc(uid)
     if (Object.keys(userUpdates).length > 0) {
       batch.set(userRef, userUpdates, { merge: true })

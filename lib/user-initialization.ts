@@ -2,6 +2,7 @@ import { doc, getDoc, setDoc, serverTimestamp, Timestamp, collection, query, whe
 import { db } from './firebase.client'
 import { FirebaseUser, UserRole } from '../types'
 import { isJasmineAikey, handleJasmineProvisioning } from './jasmine-client'
+import { checkAndTransferBakedProfile } from './baked-profile-manager'
 import { isKnownCoach, getKnownCoachRole } from './coach-role-mapping'
 
 // Superadmin emails - these users should never have their role auto-corrected
@@ -155,6 +156,19 @@ export async function initializeUserDocument(user: FirebaseUser | null, defaultR
 
       console.log(`✅ User ${user.email} role '${userData.role}' preserved - no client-side auto-corrections`)
 
+      // Check for baked profile transfer (for existing users who haven't received their profile yet)
+      if (user.email && !userData.profileProvisioned) {
+        const bakedResult = await checkAndTransferBakedProfile(user.uid, user.email)
+        if (bakedResult.transferred) {
+          console.log(`✅ Baked profile transferred to ${user.email}: ${bakedResult.bakedProfileId}`)
+          // Reload user data to get the transferred profile
+          const updatedDoc = await getDoc(userDocRef)
+          if (updatedDoc.exists()) {
+            return updatedDoc.data() as UserProfile
+          }
+        }
+      }
+
       // Handle Jasmine onboarding if needed
       if (user.email) {
         const jasmineResult = await handleJasmineProvisioning(user.uid, user.email)
@@ -207,6 +221,19 @@ export async function initializeUserDocument(user: FirebaseUser | null, defaultR
 
       await setDoc(userDocRef, newUserData)
       console.log('New user document created:', user.uid, 'with role:', initialRole)
+
+      // Check for baked profile transfer (for new users)
+      if (user.email) {
+        const bakedResult = await checkAndTransferBakedProfile(user.uid, user.email)
+        if (bakedResult.transferred) {
+          console.log(`✅ Baked profile transferred to new user ${user.email}: ${bakedResult.bakedProfileId}`)
+          // Reload user data to get the transferred profile
+          const updatedDoc = await getDoc(userDocRef)
+          if (updatedDoc.exists()) {
+            return updatedDoc.data() as UserProfile
+          }
+        }
+      }
 
       // Handle Jasmine onboarding for new user
       if (user.email) {

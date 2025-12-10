@@ -69,17 +69,10 @@ export async function GET(
     console.log(`[Coach Profile API] Action photos type:`, typeof coachProfile.actionPhotos)
     console.log(`[Coach Profile API] Action photos is array:`, Array.isArray(coachProfile.actionPhotos))
 
-    // Ensure action photos array has at least 3 photos for display
+    // STRICT: Only return photos that the coach has actually uploaded - no placeholder padding
     const actionPhotos = coachProfile.actionPhotos && Array.isArray(coachProfile.actionPhotos) && coachProfile.actionPhotos.length > 0
-      ? coachProfile.actionPhotos
+      ? coachProfile.actionPhotos.filter((url: string) => url && typeof url === 'string' && url.trim().length > 0 && !url.includes('placeholder'))
       : []
-
-    // Pad with placeholders if needed to ensure 3 photos minimum
-    const paddedActionPhotos = [
-      actionPhotos[0] || '/api/placeholder/800/600',
-      actionPhotos[1] || '/api/placeholder/800/600',
-      actionPhotos[2] || '/api/placeholder/800/600'
-    ]
 
     // Transform coach profile to creator format
     const creatorData = {
@@ -91,9 +84,10 @@ export async function GET(
       tagline: coachProfile.tagline || 'Professional coach and athlete',
       credentials: coachProfile.credentials || 'Certified Coach',
       description: coachProfile.bio || 'I can help you with training, technique, and mental preparation.',
-      heroImageUrl: coachProfile.heroImageUrl || '/api/placeholder/800/400',
-      headshotUrl: coachProfile.headshotUrl || '/api/placeholder/200/200',
-      actionPhotos: paddedActionPhotos,
+      // STRICT: Only return actual coach-uploaded images - no placeholder fallbacks
+      heroImageUrl: coachProfile.heroImageUrl && !coachProfile.heroImageUrl.includes('placeholder') ? coachProfile.heroImageUrl : undefined,
+      headshotUrl: coachProfile.headshotUrl && !coachProfile.headshotUrl.includes('placeholder') ? coachProfile.headshotUrl : undefined,
+      actionPhotos: actionPhotos,
       highlightVideo: coachProfile.highlightVideo || undefined,
       socialLinks: {
         facebook: undefined,
@@ -101,14 +95,7 @@ export async function GET(
         instagram: undefined,
         linkedin: undefined
       },
-      trainingLibrary: [
-        {
-          id: '1',
-          title: `${coachProfile.sport} Training Fundamentals`,
-          status: 'Available',
-          thumbnail: '/api/placeholder/120/80'
-        }
-      ],
+      trainingLibrary: [], // STRICT: Only return actual lessons, no placeholder content
       profileCompleteness: coachProfile.profileCompleteness || 0,
       specialties: coachProfile.specialties || [],
       achievements: coachProfile.achievements || []

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, type WheelEvent, type ReactNode } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, ArrowRight, Facebook, Instagram, Linkedin, Twitter, X, Youtube, ChevronUp, ChevronDown } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Facebook, Instagram, Linkedin, Twitter, X, Youtube, ChevronUp, ChevronDown, Trash2, Minus } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { signOut } from 'firebase/auth'
@@ -74,18 +74,8 @@ const SPORT_LABEL_OVERRIDES: Record<string, string> = {
   mma: 'Mixed Martial Arts'
 }
 
-const DEFAULT_GALLERY_IMAGES = [
-  'https://static.wixstatic.com/media/8bb438_3ae04589aef4480e89a24d7283c69798~mv2_d_2869_3586_s_4_2.jpg/v1/fill/w_428,h_570,q_90,enc_avif,quality_auto/8bb438_3ae04589aef4480e89a24d7283c69798~mv2_d_2869_3586_s_4_2.jpg',
-  'https://static.wixstatic.com/media/8bb438_734b8f436e944886b4185aa6f72b5cad~mv2_d_3000_2000_s_2.jpg/v1/fill/w_428,h_570,q_90,enc_avif,quality_auto/8bb438_734b8f436e944886b4185aa6f72b5cad~mv2_d_3000_2000_s_2.jpg',
-  'https://static.wixstatic.com/media/8bb438_b596f0cc1c134605b59843a052cd8f37~mv2_d_3000_2930_s_4_2.jpg/v1/fill/w_428,h_570,q_90,enc_avif,quality_auto/8bb438_b596f0cc1c134605b59843a052cd8f37~mv2_d_3000_2930_s_4_2.jpg',
-  'https://static.wixstatic.com/media/8bb438_288176fe374c49949c53917e808c1410~mv2_d_8192_7754_s_4_2.jpg/v1/fill/w_428,h_570,q_90,enc_avif,quality_auto/8bb438_288176fe374c49949c53917e808c1410~mv2_d_8192_7754_s_4_2.jpg',
-  'https://static.wixstatic.com/media/8bb438_ec9a72099f9648dfb08d9412804a464a~mv2_d_3000_2000_s_2.jpg/v1/fill/w_428,h_570,q_90,enc_avif,quality_auto/8bb438_ec9a72099f9648dfb08d9412804a464a~mv2_d_3000_2000_s_2.jpg',
-  'https://static.wixstatic.com/media/8bb438_cb8e4681180a4bf39d73b69a7d51f086~mv2_d_3000_1688_s_2.jpg/v1/fill/w_428,h_570,q_90,enc_avif,quality_auto/8bb438_cb8e4681180a4bf39d73b69a7d51f086~mv2_d_3000_1688_s_2.jpg',
-  'https://static.wixstatic.com/media/8bb438_852a4859469e429895c88eecaac7f466~mv2_d_3000_1995_s_2.jpg/v1/fill/w_428,h_570,q_90,enc_avif,quality_auto/8bb438_852a4859469e429895c88eecaac7f466~mv2_d_3000_1995_s_2.jpg',
-  'https://static.wixstatic.com/media/8bb438_1821368fde7d4eb1afed09b1fdb53532~mv2_d_3000_1946_s_2.jpg/v1/fill/w_428,h_570,q_90,enc_avif,quality_auto/8bb438_1821368fde7d4eb1afed09b1fdb53532~mv2_d_3000_1946_s_2.jpg',
-  'https://static.wixstatic.com/media/8bb438_5ae585140ab442d49138ef3ccbf8fdb8~mv2_d_3000_3000_s_4_2.jpg/v1/fill/w_428,h_570,q_90,enc_avif,quality_auto/8bb438_5ae585140ab442d49138ef3ccbf8fdb8~mv2_d_3000_3000_s_4_2.jpg',
-  'https://static.wixstatic.com/media/8bb438_ac2af14459894a6cbce641b7d8af9dc9~mv2_d_3000_2000_s_2.jpg/v1/fill/w_428,h_570,q_90,enc_avif,quality_auto/8bb438_ac2af14459894a6cbce641b7d8af9dc9~mv2_d_3000_2000_s_2.jpg'
-]
+// REMOVED: DEFAULT_GALLERY_IMAGES - coaches should only see photos they upload themselves
+// No hardcoded fallback images to ensure strict control over displayed photos
 
 const ATHLEAP_SOCIAL_LINKS: SocialLinks = {
   linkedin: 'https://www.linkedin.com/company/athleap',
@@ -223,8 +213,9 @@ export default function HeroCoachProfile({
         }
       })
     }
+    // STRICT: Only return photos that the coach has actually uploaded - no hardcoded fallbacks
     const deduped = Array.from(new Set(photos.filter((url) => typeof url === 'string' && url.trim().length > 0)))
-    return deduped.length > 0 ? deduped : DEFAULT_GALLERY_IMAGES
+    return deduped
   }, [activeCoach.showcasePhoto1, activeCoach.showcasePhoto2, activeCoach.galleryPhotos])
 
   const sportLabel = SPORT_LABEL_OVERRIDES[normalizedSport] || activeCoach.sport || 'Coach'
@@ -282,7 +273,7 @@ export default function HeroCoachProfile({
           }
         }
 
-        await fetch('/api/coach-profile/save', {
+        const response = await fetch('/api/coach-profile/save', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -290,13 +281,25 @@ export default function HeroCoachProfile({
           },
           body: JSON.stringify(body)
         })
+
+        const result = await response.json()
+
+        if (!response.ok || !result.success) {
+          throw new Error(result.error || 'Failed to save profile')
+        }
+
+        // Only update local state and close edit mode after successful save
+        setDisplayCoach(editableCoach)
+        setIsEditing(false)
+        
+        // Show success feedback (optional - you can add a toast notification here)
+        console.log('Profile saved successfully')
       }
     } catch (error) {
-      // Log but still update local state so user sees change immediately
+      // Show error to user and keep edit mode open so they can retry
       console.error('Failed to save coach profile edits:', error)
-    } finally {
-      setDisplayCoach(editableCoach)
-      setIsEditing(false)
+      alert(`Failed to save profile: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`)
+      // Don't close edit mode on error - let user retry
     }
   }
 
@@ -633,9 +636,11 @@ function HeroSection({
           <div className="space-y-2">
             {editingEnabled ? (
               <input
+                type="text"
                 value={editingCoach.displayName || ''}
                 onChange={(e) => onFieldChange('displayName', e.target.value)}
-                className="w-full bg-white/10 border border-white/30 rounded-md px-4 py-2 text-white text-3xl font-bold"
+                placeholder="Enter your name"
+                className="w-full bg-white/20 border-2 border-white/50 rounded-md px-4 py-3 text-white text-3xl font-bold focus:outline-none focus:ring-2 focus:ring-white/80 focus:bg-white/30"
                 style={{ fontFamily: '"Open Sans", sans-serif' }}
               />
             ) : (
@@ -1257,9 +1262,16 @@ function RecommendedGearSection({
   const [gearUrl, setGearUrl] = useState('')
   const [gearSaving, setGearSaving] = useState(false)
   const [gearError, setGearError] = useState<string | null>(null)
-  const hasOverflow = items.length > 4
+  const [gearItems, setGearItems] = useState<GearItem[]>(items)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+  const hasOverflow = gearItems.length > 4
 
   const canSubmitGear = canManage && !!user
+
+  // Update local state when items prop changes
+  useEffect(() => {
+    setGearItems(items)
+  }, [items])
 
   const handlePrev = () => rowRef.current?.scrollBy({ left: -400, behavior: 'smooth' })
   const handleNext = () => rowRef.current?.scrollBy({ left: 400, behavior: 'smooth' })
@@ -1285,6 +1297,7 @@ function RecommendedGearSection({
         throw new Error('Unable to add gear')
       }
       const newItem: GearItem = { id: data.id, ...(data.data || {}) }
+      setGearItems(prev => [newItem, ...prev])
       onGearAdded(newItem)
       setGearUrl('')
       setShowAdd(false)
@@ -1293,6 +1306,38 @@ function RecommendedGearSection({
       setGearError('Could not add that product. Please double-check the URL.')
     } finally {
       setGearSaving(false)
+    }
+  }
+
+  const handleRemoveGear = async (itemId: string, itemSource?: string) => {
+    if (!canManage || !user || !confirm('Are you sure you want to remove this gear item?')) {
+      return
+    }
+    
+    setDeletingId(itemId)
+    try {
+      const token = await user.getIdToken()
+      const params = new URLSearchParams({ id: itemId })
+      if (itemSource) params.set('source', itemSource)
+      
+      const res = await fetch(`/api/gear/delete?${params.toString()}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+      
+      const data = await res.json()
+      if (data?.success) {
+        setGearItems(prev => prev.filter(item => item.id !== itemId))
+      } else {
+        alert('Failed to remove gear item. Please try again.')
+      }
+    } catch (error) {
+      console.error('Failed to remove gear item:', error)
+      alert('Failed to remove gear item. Please try again.')
+    } finally {
+      setDeletingId(null)
     }
   }
 
@@ -1345,13 +1390,13 @@ function RecommendedGearSection({
             className="flex-1 flex gap-5 overflow-x-auto scroll-smooth px-4 py-2 no-scrollbar"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
-            {items.length === 0 && canManage ? (
+            {gearItems.length === 0 && canManage ? (
               <div className="text-white/80" style={{ fontFamily: '"Open Sans", sans-serif' }}>
-                No gear added yet. Click “Add item” to paste your first product link.
+                No gear added yet. Click "Add item" to paste your first product link.
               </div>
             ) : (
-              items.map((item) => (
-                <div key={item.id} className="w-[150px] flex-shrink-0">
+              gearItems.map((item) => (
+                <div key={item.id} className="w-[150px] flex-shrink-0 relative group">
                   <a href={item.link || '#'} target={item.link ? '_blank' : '_self'} rel="noreferrer">
                     <div className="w-[150px] h-[150px] rounded-lg overflow-hidden bg-[#5A0202] flex items-center justify-center">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -1362,6 +1407,25 @@ function RecommendedGearSection({
                       )}
                     </div>
                   </a>
+                  {canManage && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        handleRemoveGear(item.id, (item as any).source)
+                      }}
+                      disabled={deletingId === item.id}
+                      className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-[#C40000] text-white flex items-center justify-center hover:bg-[#a00000] transition-colors disabled:opacity-50 shadow-lg z-10"
+                      aria-label="Remove gear item"
+                    >
+                      {deletingId === item.id ? (
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <Minus className="w-4 h-4" />
+                      )}
+                    </button>
+                  )}
                 </div>
               ))
             )}

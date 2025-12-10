@@ -84,8 +84,10 @@ export default function CoachImageManager({ onProfileUpdate, className = '' }: C
           ...(creatorData.actionPhotos || []),
           ...(coachData.actionPhotos || [])
         ]
-        // Remove duplicates and empty values
-        profileData.actionPhotos = [...new Set(allActionPhotos)].filter(Boolean)
+        // STRICT: Remove duplicates, empty values, and placeholder images
+        profileData.actionPhotos = [...new Set(allActionPhotos)]
+          .filter(Boolean)
+          .filter((url: string) => typeof url === 'string' && url.trim().length > 0 && !url.includes('placeholder'))
         
         // Also check for alternative image field names that might have been used during ingestion
         const alternativePhotos = [
@@ -93,11 +95,14 @@ export default function CoachImageManager({ onProfileUpdate, className = '' }: C
           ...(coachData.galleryPhotos || []),
           ...(creatorData.mediaGallery || []),
           ...(coachData.mediaGallery || []),
-        ].filter(Boolean)
+        ]
+          .filter(Boolean)
+          .filter((url: string) => typeof url === 'string' && url.trim().length > 0 && !url.includes('placeholder'))
         
-        // Merge alternative photos into actionPhotos
+        // Merge alternative photos into actionPhotos (only real coach-uploaded photos)
         if (alternativePhotos.length > 0) {
-          profileData.actionPhotos = [...new Set([...profileData.actionPhotos, ...alternativePhotos])].filter(Boolean)
+          profileData.actionPhotos = [...new Set([...profileData.actionPhotos, ...alternativePhotos])]
+            .filter((url: string) => typeof url === 'string' && url.trim().length > 0 && !url.includes('placeholder'))
         }
         
         console.log('Loaded merged profile with actionPhotos:', profileData.actionPhotos)
@@ -105,10 +110,14 @@ export default function CoachImageManager({ onProfileUpdate, className = '' }: C
 
       if (profileData) {
         setProfile(profileData as CoachProfile)
-        setHeadshotUrl(profileData.headshotUrl || profileData.photoURL || '')
-        setHeroImageUrl(profileData.heroImageUrl || '')
+        // STRICT: Only set image URLs if they exist and are not placeholders
+        const headshot = profileData.headshotUrl || profileData.photoURL || ''
+        setHeadshotUrl(headshot && !headshot.includes('placeholder') ? headshot : '')
+        const hero = profileData.heroImageUrl || ''
+        setHeroImageUrl(hero && !hero.includes('placeholder') ? hero : '')
         setActionPhotos(profileData.actionPhotos || [])
-        setHighlightVideo(profileData.highlightVideo || '')
+        const video = profileData.highlightVideo || ''
+        setHighlightVideo(video && !video.includes('placeholder') ? video : '')
       } else {
         // Create default profile if none exists
         const defaultProfile = {
