@@ -109,10 +109,15 @@ export default function CoachDashboard() {
           userData.primarySport ||
           'Coach'
 
+        // CRITICAL: Read displayName from Firestore FIRST (where we save it)
+        // Firebase Auth user.displayName is not updated by our save route
+        // Priority: creator_profiles > users collection > Firebase Auth > fallback
+        const displayName = creatorData.displayName || userData.displayName || user.displayName || 'Coach'
+        
         const coach = {
           uid: user.uid,
           email: user.email || userData.email || '',
-          displayName: user.displayName || userData.displayName || 'Coach',
+          displayName, // Use the prioritized displayName
           bio: creatorData.bio || userData.bio || '',
           sport,
           location: creatorData.location || userData.location || '',
