@@ -204,9 +204,7 @@ export default function HeroCoachProfile({
   const theme = SPORT_THEMES[normalizedSport] || SPORT_THEMES.default
 
   const galleryPhotos = useMemo(() => {
-    const photos: string[]
-  showcasePhoto1?: string
-  showcasePhoto2?: string = []
+    const photos: string[] = []
     if (activeCoach.showcasePhoto1) photos.push(activeCoach.showcasePhoto1)
     if (activeCoach.showcasePhoto2) photos.push(activeCoach.showcasePhoto2)
     if (activeCoach.galleryPhotos?.length) {
