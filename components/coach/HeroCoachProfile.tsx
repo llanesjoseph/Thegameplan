@@ -1088,7 +1088,7 @@ function CoachGallery({
       
       if (isShowcasePhoto1 || isShowcasePhoto2) {
         // Delete showcase photo by clearing the field
-        const updateData = {}
+        const updateData: { showcasePhoto1?: string; showcasePhoto2?: string } = {}
         if (isShowcasePhoto1) updateData.showcasePhoto1 = ''
         if (isShowcasePhoto2) updateData.showcasePhoto2 = ''
         
