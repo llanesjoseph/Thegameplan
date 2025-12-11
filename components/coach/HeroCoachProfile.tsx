@@ -1082,13 +1082,69 @@ function CoachGallery({
     if (!user || !confirm('Are you sure you want to delete this photo?')) return
 
     setDeletingPhotoUrl(photoUrl)
+    
+    // Aggressive token refresh with retry logic
+    const getValidToken = async (retries = 3): Promise<string | null> => {
+      for (let i = 0; i < retries; i++) {
+        try {
+          // Force token refresh every time
+          const token = await user.getIdToken(true)
+          if (token && token.length > 0) {
+            return token
+          }
+        } catch (error) {
+          console.error(`Token refresh attempt ${i + 1} failed:`, error)
+          if (i < retries - 1) {
+            // Wait a bit before retrying
+            await new Promise(resolve => setTimeout(resolve, 500))
+          }
+        }
+      }
+      return null
+    }
+
     try {
-      // Force token refresh to ensure we have a valid token
-      const token = await user.getIdToken(true)
+      // Get a fresh token with retry logic
+      let token = await getValidToken()
+      
+      if (!token) {
+        alert('Unable to get a valid authentication token. Please sign out and sign back in, then try again.')
+        setDeletingPhotoUrl(null)
+        return
+      }
       
       // Check if it's a showcase photo
       const isShowcasePhoto1 = showcasePhoto1 === photoUrl
       const isShowcasePhoto2 = showcasePhoto2 === photoUrl
+      
+      // Helper function to make API calls with automatic token refresh on 401
+      const makeApiCall = async (url: string, options: RequestInit, retries = 2): Promise<Response> => {
+        for (let i = 0; i <= retries; i++) {
+          // Refresh token before each attempt
+          token = await getValidToken()
+          if (!token) {
+            throw new Error('Unable to get valid token')
+          }
+          
+          const response = await fetch(url, {
+            ...options,
+            headers: {
+              ...options.headers,
+              Authorization: `Bearer ${token}`
+            }
+          })
+          
+          // If we get 401, try refreshing token and retry
+          if (response.status === 401 && i < retries) {
+            console.log('Got 401, refreshing token and retrying...')
+            await new Promise(resolve => setTimeout(resolve, 300))
+            continue
+          }
+          
+          return response
+        }
+        throw new Error('Max retries exceeded')
+      }
       
       if (isShowcasePhoto1 || isShowcasePhoto2) {
         // Delete showcase photo by clearing the field
@@ -1096,11 +1152,10 @@ function CoachGallery({
         if (isShowcasePhoto1) updateData.showcasePhoto1 = ''
         if (isShowcasePhoto2) updateData.showcasePhoto2 = ''
         
-        const res = await fetch('/api/coach-profile/save', {
+        const res = await makeApiCall('/api/coach-profile/save', {
           method: 'POST',
           headers: { 
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify(updateData)
         })
@@ -1116,7 +1171,12 @@ function CoachGallery({
         } else {
           const errorMsg = data?.error || 'Unknown error'
           console.error('Failed to delete showcase photo:', errorMsg, data)
-          alert(`Failed to delete photo: ${errorMsg}`)
+          if (errorMsg.includes('token') || errorMsg.includes('Unauthorized')) {
+            alert('Authentication error. Please refresh the page and try again.')
+            window.location.reload()
+          } else {
+            alert(`Failed to delete photo: ${errorMsg}`)
+          }
           setDeletingPhotoUrl(null)
           return
         }
@@ -1124,9 +1184,8 @@ function CoachGallery({
       
       // If not a showcase photo, delete from gallery photos
       const params = new URLSearchParams({ photoUrl })
-      const res = await fetch(`/api/coach-profile/delete-gallery-photo?${params.toString()}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` }
+      const res = await makeApiCall(`/api/coach-profile/delete-gallery-photo?${params.toString()}`, {
+        method: 'DELETE'
       })
 
       const data = await res.json()
@@ -1140,12 +1199,22 @@ function CoachGallery({
       } else {
         const errorMsg = data?.error || 'Unknown error'
         console.error('Failed to delete photo:', errorMsg, data)
-        alert(`Failed to delete photo: ${errorMsg}`)
+        if (errorMsg.includes('token') || errorMsg.includes('Invalid token') || errorMsg.includes('Unauthorized')) {
+          alert('Authentication error. Refreshing page...')
+          window.location.reload()
+        } else {
+          alert(`Failed to delete photo: ${errorMsg}`)
+        }
       }
     } catch (error: any) {
       console.error('Failed to delete photo:', error)
-      const errorMsg = error?.message || 'Please try again. If the problem persists, try refreshing the page.'
-      alert(`Failed to delete photo: ${errorMsg}`)
+      const errorMsg = error?.message || 'Unknown error'
+      if (errorMsg.includes('token') || errorMsg.includes('auth')) {
+        alert('Authentication error. Please refresh the page and try again.')
+        window.location.reload()
+      } else {
+        alert(`Failed to delete photo: ${errorMsg}. Please try refreshing the page.`)
+      }
     } finally {
       setDeletingPhotoUrl(null)
     }
