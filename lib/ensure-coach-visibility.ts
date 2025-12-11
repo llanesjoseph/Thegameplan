@@ -105,8 +105,8 @@ export async function ensureCoachVisibility(coachData: CoachData): Promise<{
           uid: coachData.uid,
           displayName: coachData.displayName,
           sport: coachData.sport,
-          isActive: creatorsIndexData.isActive,
-          profileComplete: creatorsIndexData.profileComplete,
+          isActive: profileData.isActive ?? true,
+          profileComplete: profileData.profileComplete ?? true,
           verified: verification.details
         }
       }
