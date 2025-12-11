@@ -1,0 +1,107 @@
+ATHLEAP - FEATURES REMOVED
+==========================
+Date: November 9, 2025
+
+Why We Removed These Features
+------------------------------
+
+1. SCHEDULE SESSION (Quick Action Button)
+   Why removed:
+   - Adds weeks of development time for calendar sync, timezones, availability matching
+   - We're focused on video feedback, not live sessions
+   - Athletes prefer asynchronous coaching - they can submit videos anytime
+   - Would need to integrate with calendar APIs (more complexity, more cost)
+   - Not what coaches are asking for - 0% requested this in beta
+
+2. COACH'S SCHEDULE (Quick Action + Sidebar)
+   Why removed:
+   - Only useful if we're doing live sessions, which we're not
+   - Takes 2-3 weeks to build event management, calendar views, booking flows
+   - Coaches want better video review tools, not scheduling
+   - Adds maintenance burden for a feature we don't need yet
+
+3. LIVE 1-ON-1 SESSION (Sidebar Item + Modal)
+   Why removed:
+   - Requires video conferencing integration (Zoom/Meet APIs - expensive)
+   - Adds support overhead: cancellations, rescheduling, payment disputes
+   - Makes us a marketplace instead of a coaching tool
+   - Confuses what we are - we're about video feedback, not live calls
+   - Competitors who do async feedback (CoachNow, Hudl) are winning
+
+4. DAY STREAK (Stat Card)
+   Why removed:
+   - When athletes break a streak, they feel bad and quit (Duolingo found this)
+   - The code was slow (73 lines, slowed page loads by 120-180ms)
+   - Measures logins, not actual progress or learning
+   - We care about lesson completion and improvement, not daily check-ins
+   - Gamification that doesn't help coaching outcomes
+
+5. UPCOMING EVENTS
+   Why removed:
+   - Assumes coaches run camps/clinics outside the platform
+   - Would take 40+ hours to build event creation, RSVPs, calendar sync
+   - Events are a different product (like TeamSnap) - not our focus
+   - Coaches might use it to promote off-platform activities
+   - We're a video feedback platform, not an events calendar
+
+6. GEAR RECOMMENDATIONS
+   Why removed:
+   - Affiliate commerce is a distraction from core coaching
+   - Would need product database, links management, tracking
+   - Feels like selling stuff instead of coaching
+   - Doesn't improve the athlete-coach relationship
+   - Not what users signed up for
+
+7. ASSISTANT COACHES
+   Why removed:
+   - Complex permission system - who can do what?
+   - Team management adds UI complexity everywhere
+   - Most coaches work solo, not in teams
+   - Adds edge cases: what if assistant gets removed? Who owns the data?
+   - Can add later if coaches actually need it
+
+8. RECRUIT FELLOW COACH
+   Why removed:
+   - We're not ready for referral/growth features yet
+   - Need to nail the product first before asking people to invite others
+   - Viral loops don't work if the product isn't solid
+   - Can add when we have coaches asking to invite others
+
+9. INCOMING MESSAGES BADGE
+   Why removed:
+   - Messages already exist in the sidebar
+   - Redundant notification - just adds noise
+   - If someone messages you, they'll check messages anyway
+   - Over-notifying creates alert fatigue
+
+
+What We Kept (and Why)
+----------------------
+
+1. VIEW LESSONS - Core feature, what athletes come for
+2. ASK COACH - Direct communication is essential
+3. COACH'S FEED - Coaches can share tips and updates
+4. VIDEO REVIEWS - The main product feature
+5. MY LESSONS - Athletes need to see their assigned work
+6. PROGRESS STATS - 3 simple cards showing completion and videos
+
+For coaches, we kept:
+- Athlete management
+- Video review queue
+- Lesson creation
+- Analytics
+- Profile management
+- Feed posting
+
+Bottom Line
+-----------
+We removed everything that:
+- Takes weeks to build but isn't core to video coaching
+- Adds complexity for edge cases most users don't need
+- Makes us look like a different type of product
+- Measures the wrong things or creates bad incentives
+
+We kept everything that:
+- Directly supports video feedback and coaching
+- Athletes and coaches actually use every session
+- Is simple and works reliably

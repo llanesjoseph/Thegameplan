@@ -1,0 +1,535 @@
+'use client'
+
+import React, { useState, useEffect } from 'react'
+import { Mail, Clock, User, MessageSquare, CheckCircle, Reply, Trash2, Archive, X } from 'lucide-react'
+import { useAuth } from '@/hooks/use-auth'
+
+interface Message {
+  id: string
+  athleteId: string
+  athleteName: string
+  athleteEmail: string
+  coachId: string
+  coachName: string
+  subject: string
+  message: string
+  status: 'unread' | 'read' | 'replied'
+  createdAt: Date | string | any
+  readAt?: Date | string | any
+  repliedAt?: Date | string | any
+}
+
+interface CoachMessagesProps {
+  className?: string
+}
+
+export default function CoachMessages({ className = '' }: CoachMessagesProps) {
+  const { user } = useAuth()
+  const [messages, setMessages] = useState<Message[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [selectedMessage, setSelectedMessage] = useState<Message | null>(null)
+  const [replyText, setReplyText] = useState('')
+  const [sendingReply, setSendingReply] = useState(false)
+
+  useEffect(() => {
+    if (user?.uid) {
+      fetchMessages()
+    }
+  }, [user?.uid])
+
+  const fetchMessages = async () => {
+    try {
+      setLoading(true)
+      console.log('Fetching messages for user:', user?.uid, user?.email)
+      const token = await user?.getIdToken()
+      const response = await fetch(`/api/coach/messages?coachId=${user?.uid}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      })
+      const data = await response.json()
+
+      if (data.success) {
+        setMessages(data.messages)
+        console.log('Successfully fetched messages:', data.messages.length)
+      } else {
+        console.error('Failed to fetch messages:', data.error)
+        setError(data.error || 'Failed to fetch messages')
+      }
+    } catch (err) {
+      console.error('Error fetching messages:', err)
+      setError('Failed to fetch messages')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const markAsRead = async (messageId: string) => {
+    try {
+      const token = await user?.getIdToken()
+      const response = await fetch('/api/coach/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          messageId,
+          action: 'mark_read'
+        })
+      })
+
+      if (response.ok) {
+        // Update local state
+        setMessages(prev => prev.map(msg => 
+          msg.id === messageId 
+            ? { ...msg, status: 'read' as const, readAt: new Date() }
+            : msg
+        ))
+      }
+    } catch (err) {
+      console.error('Error marking message as read:', err)
+    }
+  }
+
+  const markAsReplied = async (messageId: string) => {
+    try {
+      const token = await user?.getIdToken()
+      const response = await fetch('/api/coach/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          messageId,
+          action: 'mark_replied'
+        })
+      })
+
+      if (response.ok) {
+        // Update local state
+        setMessages(prev => prev.map(msg => 
+          msg.id === messageId 
+            ? { ...msg, status: 'replied' as const, repliedAt: new Date() }
+            : msg
+        ))
+      }
+    } catch (err) {
+      console.error('Error marking message as replied:', err)
+    }
+  }
+
+  const sendReply = async (messageId: string, replyText: string) => {
+    if (!user?.uid || !replyText.trim()) return
+
+    setSendingReply(true)
+    try {
+      const token = await user.getIdToken()
+      const response = await fetch('/api/coach/reply-message', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          messageId,
+          replyText: replyText.trim(),
+          coachId: user.uid
+        })
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        // Update local state
+        setMessages(prev => prev.map(msg => 
+          msg.id === messageId 
+            ? { ...msg, status: 'replied' as const, repliedAt: new Date() }
+            : msg
+        ))
+        
+        // Clear reply text and close modal
+        setReplyText('')
+        setSelectedMessage(null)
+        
+        console.log('Reply sent successfully')
+      } else {
+        console.error('Failed to send reply:', data.error)
+        alert('Failed to send reply: ' + (data.error || 'Unknown error'))
+      }
+    } catch (err) {
+      console.error('Error sending reply:', err)
+      alert('Failed to send reply. Please try again.')
+    } finally {
+      setSendingReply(false)
+    }
+  }
+
+  const dismissMessage = async (messageId: string) => {
+    try {
+      const token = await user?.getIdToken()
+      const response = await fetch('/api/coach/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          messageId,
+          action: 'dismiss'
+        })
+      })
+
+      if (response.ok) {
+        // Remove message from local state
+        setMessages(prev => prev.filter(msg => msg.id !== messageId))
+        console.log('Message dismissed successfully')
+      } else {
+        console.error('Failed to dismiss message')
+        alert('Failed to dismiss message. Please try again.')
+      }
+    } catch (err) {
+      console.error('Error dismissing message:', err)
+      alert('Failed to dismiss message. Please try again.')
+    }
+  }
+
+  const deleteMessage = async (messageId: string) => {
+    if (!confirm('Are you sure you want to delete this message? This action cannot be undone.')) {
+      return
+    }
+
+    try {
+      const token = await user?.getIdToken()
+      const response = await fetch('/api/coach/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          messageId,
+          action: 'delete'
+        })
+      })
+
+      if (response.ok) {
+        // Remove message from local state
+        setMessages(prev => prev.filter(msg => msg.id !== messageId))
+        console.log('Message deleted successfully')
+      } else {
+        console.error('Failed to delete message')
+        alert('Failed to delete message. Please try again.')
+      }
+    } catch (err) {
+      console.error('Error deleting message:', err)
+      alert('Failed to delete message. Please try again.')
+    }
+  }
+
+  const formatDate = (date: any) => {
+    // Ensure we have a proper Date object
+    let dateObj: Date
+    if (date instanceof Date) {
+      dateObj = date
+    } else if (date && typeof date === 'object' && date.toDate) {
+      // Firestore Timestamp
+      dateObj = date.toDate()
+    } else if (date && typeof date === 'string') {
+      // ISO string
+      dateObj = new Date(date)
+    } else if (date && typeof date === 'number') {
+      // Timestamp
+      dateObj = new Date(date)
+    } else {
+      // Fallback
+      dateObj = new Date()
+    }
+
+    // Check if the date is valid
+    if (isNaN(dateObj.getTime())) {
+      return 'Unknown date'
+    }
+
+    const now = new Date()
+    const diffInHours = Math.floor((now.getTime() - dateObj.getTime()) / (1000 * 60 * 60))
+    
+    if (diffInHours < 1) {
+      return 'Just now'
+    } else if (diffInHours < 24) {
+      return `${diffInHours}h ago`
+    } else {
+      return dateObj.toLocaleDateString()
+    }
+  }
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'unread':
+        return <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+      case 'read':
+        return <CheckCircle className="w-4 h-4 text-green-500" />
+      case 'replied':
+        return <Reply className="w-4 h-4 text-blue-500" />
+      default:
+        return null
+    }
+  }
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'unread':
+        return 'border-l-blue-500 bg-blue-50'
+      case 'read':
+        return 'border-l-green-500 bg-green-50'
+      case 'replied':
+        return 'border-l-blue-500 bg-blue-50'
+      default:
+        return 'border-l-gray-300 bg-gray-50'
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className={`bg-white rounded-lg shadow-md p-6 ${className}`}>
+        <div className="flex items-center gap-3 mb-4">
+          <Mail className="w-6 h-6 text-teal-600" />
+          <h3 className="text-lg font-semibold text-gray-900">Incoming Messages</h3>
+        </div>
+        <div className="flex items-center justify-center py-8">
+          <div className="w-6 h-6 border-2 border-teal-600 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className={`bg-white rounded-lg shadow-md p-6 ${className}`}>
+        <div className="flex items-center gap-3 mb-4">
+          <Mail className="w-6 h-6 text-teal-600" />
+          <h3 className="text-lg font-semibold text-gray-900">Incoming Messages</h3>
+        </div>
+        <div className="text-center py-8">
+          <p className="text-red-600">{error}</p>
+          <button 
+            onClick={fetchMessages}
+            className="mt-2 text-teal-600 hover:text-teal-700 text-sm"
+          >
+            Try again
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className={`bg-white rounded-lg shadow-md ${className}`}>
+      <div className="p-6 border-b border-gray-200">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Mail className="w-6 h-6 text-teal-600" />
+            <h3 className="text-lg font-semibold text-gray-900">Incoming Messages</h3>
+            {messages.length > 0 && (
+              <span className="bg-teal-100 text-teal-800 text-xs font-medium px-2 py-1 rounded-full">
+                {messages.filter(m => m.status === 'unread').length} new
+              </span>
+            )}
+          </div>
+          <button 
+            onClick={fetchMessages}
+            className="text-teal-600 hover:text-teal-700 text-sm"
+          >
+            Refresh
+          </button>
+        </div>
+      </div>
+
+      <div className="max-h-96 overflow-y-auto">
+        {messages.length === 0 ? (
+          <div className="p-6 text-center">
+            <MessageSquare className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+            <p className="text-gray-500">No messages yet</p>
+            <p className="text-sm text-gray-400 mt-1">
+              Messages from athletes will appear here
+            </p>
+          </div>
+        ) : (
+          <div className="divide-y divide-gray-200">
+            {messages.map((message) => (
+              <div
+                key={message.id}
+                className={`p-4 border-l-4 hover:bg-gray-50 transition-colors ${getStatusColor(message.status)}`}
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <User className="w-4 h-4 text-gray-500" />
+                      <span className="font-medium text-gray-900 truncate">
+                        {message.athleteName}
+                      </span>
+                      {getStatusIcon(message.status)}
+                    </div>
+                    <h4 className="font-medium text-gray-900 mb-1 truncate">
+                      {message.subject}
+                    </h4>
+                    <p className="text-sm text-gray-600 line-clamp-2">
+                      {message.message}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 ml-3">
+                    <Clock className="w-4 h-4 text-gray-400" />
+                    <span className="text-xs text-gray-500">
+                      {formatDate(message.createdAt)}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex items-center gap-2 pt-2 border-t border-gray-200">
+                  <button
+                    onClick={() => {
+                      setSelectedMessage(message)
+                      if (message.status === 'unread') {
+                        markAsRead(message.id)
+                      }
+                    }}
+                    className="flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 text-sm"
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                    View & Reply
+                  </button>
+                  <button
+                    onClick={() => dismissMessage(message.id)}
+                    className="px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 text-sm"
+                    title="Dismiss message"
+                  >
+                    <X className="w-4 h-4" />
+                    Dismiss
+                  </button>
+                  <button
+                    onClick={() => deleteMessage(message.id)}
+                    className="px-3 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors flex items-center justify-center gap-2 text-sm"
+                    title="Delete message"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Message Detail Modal */}
+      {selectedMessage && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900">Message Details</h3>
+                <button
+                  onClick={() => {
+                    setSelectedMessage(null)
+                    setReplyText('')
+                  }}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            
+            <div className="p-6">
+              <div className="mb-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <User className="w-5 h-5 text-gray-500" />
+                  <span className="font-medium text-gray-900">{selectedMessage.athleteName}</span>
+                  <span className="text-sm text-gray-500">({selectedMessage.athleteEmail})</span>
+                </div>
+                <div className="flex items-center gap-2 mb-3">
+                  <Clock className="w-4 h-4 text-gray-400" />
+                  <span className="text-sm text-gray-500">
+                    {selectedMessage.createdAt.toLocaleString()}
+                  </span>
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <h4 className="font-medium text-gray-900 mb-2">Subject</h4>
+                <p className="text-gray-700">{selectedMessage.subject}</p>
+              </div>
+
+              <div className="mb-6">
+                <h4 className="font-medium text-gray-900 mb-2">Message</h4>
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <p className="text-gray-700 whitespace-pre-wrap">{selectedMessage.message}</p>
+                </div>
+              </div>
+
+              {/* Reply Form */}
+              {selectedMessage.status !== 'replied' && (
+                <div className="mb-6 border-t pt-6">
+                  <h4 className="font-medium text-gray-900 mb-3">Reply to {selectedMessage.athleteName}</h4>
+                  <textarea
+                    value={replyText}
+                    onChange={(e) => setReplyText(e.target.value)}
+                    placeholder="Type your reply here..."
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none"
+                    rows={4}
+                    maxLength={2000}
+                  />
+                  <div className="flex justify-between items-center mt-2">
+                    <span className="text-sm text-gray-500">
+                      {replyText.length}/2000 characters
+                    </span>
+                    <button
+                      onClick={() => sendReply(selectedMessage.id, replyText)}
+                      disabled={!replyText.trim() || sendingReply}
+                      className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {sendingReply ? 'Sending...' : 'Send Reply'}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {selectedMessage.status === 'replied' && (
+                <div className="mb-6 border-t pt-6">
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <div className="flex items-center">
+                      <svg className="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span className="text-green-800 font-medium">Replied</span>
+                    </div>
+                    <p className="text-green-700 text-sm mt-1">
+                      You replied to this message on {formatDate(selectedMessage.repliedAt)}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setSelectedMessage(null)
+                    setReplyText('')
+                  }}
+                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}

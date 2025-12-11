@@ -1,0 +1,17 @@
+{
+  "timestamp": "2025-10-24T16:22:24.767Z",
+  "totalDocuments": 62,
+  "collections": [
+    "users",
+    "messages",
+    "submissions",
+    "reviews",
+    "invitations",
+    "athlete_feed",
+    "content",
+    "notifications",
+    "message_replies"
+  ],
+  "version": "1.0.0",
+  "description": "Pre-fix database backup"
+}

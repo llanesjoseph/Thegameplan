@@ -1,0 +1,280 @@
+{
+  "title": "Expert-Level Coaching Prompts and AI Flows",
+  "version": "2.0",
+  "generated_at": "2025-01-27T00:00:00.000Z",
+  "sections": {
+    "Universal": [
+      "Help me design a weekly training plan focused on decision speed and first touch under pressure.",
+      "Break down my last match: what 3 focus areas should I prioritize this week?",
+      "Suggest a recovery protocol for back-to-back training days (sleep, nutrition, mobility).",
+      "How can I improve my scanning and awareness during matches?",
+      "What are the key tactical principles I should focus on as a midfielder?"
+    ]
+  },
+  "sports": {
+    "Brazilian Jiu Jitsu": {
+      "title": "Expert Coaching Prompts and AI Flow: Brazilian Jiu Jitsu",
+      "sport": "Brazilian Jiu Jitsu",
+      "version": "1.0",
+      "deep_dive_prompts": {
+        "mental_psychology": [
+          "Act as a high-performance BJJ coach and sports psychologist. Audit an athlete's competition mindset. Identify triggers for hesitation, panic, or defensive turtling and prescribe a between-exchange reset routine using breath control, cue words, and narrow focus.",
+          "Map an athlete's confidence cycle across a 6-minute match. Identify spikes and dips and propose pre-match and mid-match interventions to stabilize arousal and decision-making under fatigue.",
+          "Design a visualization script for stressful scenarios such as conceding a takedown, being stuck in closed guard, or facing a heavy pressure passer. Include entry cues, micro-goals, and exit conditions.",
+          "Build a post-loss reflection protocol that converts disappointment into data. Produce three questions for mechanics, three for strategy, and three for mindset that must be answered before the next session.",
+          "Create a self-talk library for defense-first positions like mount bottom and back control against seatbelt. Include phrasing that reduces panic, prioritizes frames and survival, and transitions to escape sequences."
+        ],
+        "tactical_strategy": [
+          "Profile the athlete's A-game tree by position. Define preferred takedown entries, top passing families, guard families, finishing funnels, and stall breakers for points deficits.",
+          "Given an opponent archetype such as lanky guard player, compact wrestler, judo top player, or leg lock specialist, generate match plans for neutral, winning by points, and winning by submission.",
+          "Convert scoring rules into time management tactics for IBJJF-style matches. Detail when to bank advantages, when to pursue near passes, and when to accept guard pulls or concede sweeps strategically.",
+          "Build a contingency map. If Plan A pass fails at stage X, list Plan B and C with connection rules that keep initiative without exposing neck or legs.",
+          "Design a cornering script. What should a coach call during each common transition? Keep calls short, specific, and timed to the athlete's breathing."
+        ],
+        "technical_physical": [
+          "Audit fundamentals for posture, base, frames, wedges, and connection. Identify one leak in each and propose micro-drills to repair them.",
+          "Create a positional development ladder for guard passing that progresses from knee cut to body lock to over-under to leg weave. For each family, define grips, head position, weight distribution, typical counters, and recounters.",
+          "For guard players, build a hub-and-spoke system around two primary guards. Example: De La Riva hub feeding to back takes, single-leg X, and leg drag recovers. Include forced reps and live constraint rounds.",
+          "Outline an endurance and strength plan for BJJ. Include neck stability, grip endurance, hip extension, rotational core, and cardiac power intervals aligned to typical round lengths.",
+          "Engineer clean finishing mechanics for rear naked choke, armbar from mount, triangle from guard, and straight ankle lock. Provide common failure points and tactile cues to fix them."
+        ],
+        "recovery_resilience_leadership": [
+          "Create a weekly recovery stack that fits five training days. Include sleep targets, breathwork cooldowns, soft tissue work, mobility for spine and hips, and glycogen replenishment windows.",
+          "Build a comp-week taper. Reduce volume while preserving speed and sharpness. Provide a final two-day checklist for weight, nutrition, and mental priming.",
+          "Write a training partner leadership guide. How to run focused rounds, give actionable feedback, and maintain psychological safety while pushing intensity.",
+          "Design an injury prevention circuit for fingers, elbows, shoulders, neck, and knees. Include frequency and progression rules.",
+          "Develop a red-flag system to catch overtraining early using morning HR, mood check, grip dynamometer, and session RPE trends."
+        ]
+      },
+      "ai_coaching_flow": [
+        {
+          "step": "Profiling and goals",
+          "coach_prompt": "Describe your rule set, preferred positions, and recent competition outcomes. Name three strengths and three liabilities. Set a 12-week goal and a 4-week milestone.",
+          "athlete_outputs": [
+            "Rule set",
+            "A-game map",
+            "Top three weaknesses",
+            "SMART goals"
+          ]
+        },
+        {
+          "step": "Mindset scaffolding",
+          "coach_prompt": "Walk through a high-stress match you remember. Identify thought pattern, breathing pattern, and decision speed in each exchange. Install a between-exchange reset using inhale 4, hold 2, exhale 6, one cue word, and a first action checklist.",
+          "protocols": [
+            "Breath cadence: 4-2-6",
+            "Cue word examples: steady, clear, clamp",
+            "First action list: frame, head, hide elbows"
+          ]
+        },
+        {
+          "step": "Strategy tree build",
+          "coach_prompt": "Define Plan A on top and bottom. For each, write Plan B and Plan C transitions when you lose grips or frames. Tie each branch to a time and score condition.",
+          "artifacts": [
+            "Flowchart nodes",
+            "If-then triggers",
+            "Corner calls library"
+          ]
+        },
+        {
+          "step": "Technical priorities",
+          "coach_prompt": "Select two finish funnels and two escape funnels for this cycle. Decompose into three micro-skills each. Create daily ten-minute micro-drill blocks and two constraint-based sparring rounds per session.",
+          "templates": [
+            "Micro-drill recipe: reps x tempo x cue",
+            "Constraint round rules: allowed grips, targets, end condition"
+          ]
+        },
+        {
+          "step": "Physical plan",
+          "coach_prompt": "Schedule two strength sessions and two energy system sessions weekly aligned to hard rolls. Map lifts to movement patterns and intervals to round demands.",
+          "guidelines": [
+            "Pull hinge push squat carry rotate",
+            "Intervals: 90 to 120 seconds hard with equal rest to mimic scrambles"
+          ]
+        },
+        {
+          "step": "Recovery and taper",
+          "coach_prompt": "Assemble a weekly recovery stack and a comp-week taper. Set minimum sleep hours and carbs per kg for 48 hours pre-event. Add breathwork and brief visualization the night before.",
+          "checklist": [
+            "Sleep: 8+ hours",
+            "Protein: 1.6 to 2.2 g per kg",
+            "Carbs: 5 to 7 g per kg pre-event window"
+          ]
+        },
+        {
+          "step": "Metrics and review",
+          "coach_prompt": "Track key metrics each week and run a 20-minute review. Decide one keep doing, one start, and one stop item.",
+          "metrics": [
+            "Rounds at RPE 8-9",
+            "Dominant position time percentage",
+            "Submission attempts per round",
+            "Escape latency (seconds)",
+            "Grip strength trend",
+            "Morning HR trend"
+          ]
+        }
+      ],
+      "practice_blocks": {
+        "micro_drills": [
+          {
+            "name": "Knee cut entry line",
+            "duration_min": 5,
+            "focus": "Shin angle to mat, underhook clamp",
+            "success_criteria": "No head height change, smooth hip slide"
+          },
+          {
+            "name": "Back escape hip drag",
+            "duration_min": 5,
+            "focus": "Two-on-one hand fight, shoulder walk to mat, hip drag to side",
+            "success_criteria": "Chest-to-mat contact, regained frames"
+          },
+          {
+            "name": "Rear naked choke finish",
+            "duration_min": 5,
+            "focus": "Chin line, forearm blade, shoulder squeeze, head to hand",
+            "success_criteria": "Tap within five seconds without cranking"
+          },
+          {
+            "name": "Triangle lock series",
+            "duration_min": 5,
+            "focus": "Angle change, foot under knee, hamstring curl, head pull",
+            "success_criteria": "Lock achieved from three entries"
+          },
+          {
+            "name": "Grip endurance ladders",
+            "duration_min": 5,
+            "focus": "Gi and no-gi hangs, towel grips, farmer carry",
+            "success_criteria": "Steady time to fatigue increase week to week"
+          }
+        ],
+        "constraint_rounds": [
+          {
+            "rule": "Start in side control bottom. No sweeps allowed until frames and hip escape created twice.",
+            "goal": "Build survival and frame discipline"
+          },
+          {
+            "rule": "Guard passing only from body lock. If head pops off center reset.",
+            "goal": "Head position awareness and pressure path"
+          },
+          {
+            "rule": "Leg entanglement defense only. Must clear secondary knee line before counter.",
+            "goal": "Patience and sequence fidelity"
+          }
+        ]
+      },
+      "weight_classes_note": "Adjust energy and strength work based on division and absolute event plan. Heavier athletes should focus on maximal strength. Lighter athletes should focus on repeat sprint ability.",
+      "safety_notes": [
+        "Tap early during new heel hook or neck crank exposures.",
+        "Prioritize neck and spine positioning in scrambles.",
+        "Use a progressive exposure ladder for inside heel hook defense."
+      ]
+    },
+    "Soccer": {
+      "title": "Expert Coaching Prompts and AI Flow: Soccer",
+      "sport": "Soccer",
+      "version": "1.0",
+      "deep_dive_prompts": {
+        "mental_psychology": [
+          "Act as an elite soccer performance coach. Help me develop pre-match routines that optimize focus and reduce anxiety before kickoff.",
+          "Design a between-play reset routine for midfielders to maintain composure after losing possession or making mistakes.",
+          "Create a visualization script for high-pressure moments: penalty situations, last-minute defending, and crucial passing decisions.",
+          "Build a confidence-building protocol for players struggling with first touch and decision-making under pressure.",
+          "Develop self-talk strategies for maintaining energy and focus during the final 20 minutes of matches."
+        ],
+        "tactical_strategy": [
+          "Analyze midfield positioning: when to drop deep, when to push forward, and how to create numerical advantages in different game phases.",
+          "Design pressing triggers and defensive shape patterns for winning the ball back in the middle third.",
+          "Create set piece routines for corner kicks and free kicks, focusing on movement patterns and timing.",
+          "Develop counter-attacking principles: when to transition quickly vs when to build possession.",
+          "Build game situation management: leading by one goal, trailing by one, and managing key moments."
+        ],
+        "technical_physical": [
+          "Master first touch techniques for receiving under pressure from different angles and at various speeds.",
+          "Develop scanning patterns: how often, when, and what to look for before and after receiving the ball.",
+          "Perfect passing accuracy and weight under pressure, including short passes, switches of play, and through balls.",
+          "Create finishing techniques from midfield positions: arriving late in the box, set pieces, and long-range shots.",
+          "Build 1v1 skills: when to take players on, when to play simple, and how to create space for teammates."
+        ],
+        "recovery_resilience_leadership": [
+          "Design weekly recovery protocols for soccer players: sleep, nutrition, hydration, and active recovery.",
+          "Create injury prevention routines focusing on ankles, knees, groin, and hamstring health.",
+          "Develop leadership skills for organizing defensive shape, communicating with teammates, and managing game tempo.",
+          "Build match preparation routines: warm-up sequences, mental preparation, and equipment checks.",
+          "Design post-match recovery: cool-down, refueling, and performance reflection."
+        ]
+      },
+      "ai_coaching_flow": [
+        {
+          "step": "Player assessment and goals",
+          "coach_prompt": "Describe your position, playing style, and recent performance. What are your top 3 strengths and 3 areas for improvement? Set specific goals for the next month.",
+          "athlete_outputs": [
+            "Position and role",
+            "Playing style", 
+            "Strengths and weaknesses",
+            "Performance goals"
+          ]
+        },
+        {
+          "step": "Tactical understanding",
+          "coach_prompt": "Explain your team's tactical system and your role within it. How do you contribute in possession, out of possession, and during transitions?",
+          "protocols": [
+            "Formation understanding",
+            "Role responsibilities", 
+            "Transition principles"
+          ]
+        },
+        {
+          "step": "Technical development plan",
+          "coach_prompt": "Focus on 2-3 technical skills that will have the biggest impact on your game. Create specific drills and practice routines.",
+          "artifacts": [
+            "Skill development priorities",
+            "Practice drills",
+            "Progress measurements"
+          ]
+        },
+        {
+          "step": "Physical preparation", 
+          "coach_prompt": "Design training that improves your speed, agility, endurance, and strength specific to your position and playing demands.",
+          "guidelines": [
+            "Position-specific fitness",
+            "Injury prevention focus",
+            "Recovery protocols"
+          ]
+        }
+      ],
+      "practice_blocks": {
+        "technical_drills": [
+          {
+            "name": "Scanning and first touch",
+            "duration_min": 10,
+            "focus": "Look over both shoulders before receiving, clean first touch away from pressure",
+            "success_criteria": "90% successful first touches under pressure"
+          },
+          {
+            "name": "Passing under pressure", 
+            "duration_min": 15,
+            "focus": "Quick decision making, accurate passing with both feet",
+            "success_criteria": "8/10 passes finding target under defensive pressure"
+          },
+          {
+            "name": "Shooting from midfield",
+            "duration_min": 10,
+            "focus": "Arriving late in box, long-range shots, set piece finishing", 
+            "success_criteria": "Consistent ball contact and accuracy from various positions"
+          }
+        ],
+        "tactical_exercises": [
+          {
+            "rule": "Small-sided games with specific objectives: maintain possession for 6 passes before attacking",
+            "goal": "Develop patience and game management"
+          },
+          {
+            "rule": "Transition games: immediate pressure after losing possession, quick attacks after winning ball",
+            "goal": "Improve reaction speed and decision making in transitions"
+          }
+        ]
+      }
+    }
+  }
+}
+
+

@@ -1,0 +1,1142 @@
+rules_version = '2';
+
+// AthLeap Platform - Production Security Rules
+// Comprehensive role-based access control with medical safety and audit logging
+
+// ╔═══════════════════════════════════════════════════════════════════════════╗
+// ║                    ⚠️  CRITICAL DATA MODEL REFERENCE  ⚠️                  ║
+// ║                                                                            ║
+// ║  BEFORE EDITING THESE RULES, READ THIS CAREFULLY TO AVOID BREAKING ACCESS ║
+// ╚═══════════════════════════════════════════════════════════════════════════╝
+//
+// 🎯 KEY FACTS ABOUT THE DATA MODEL:
+//
+// 1. ALL USERS ARE IN THE 'users' COLLECTION
+//    - Athletes: users with role: 'athlete'
+//    - Coaches: users with role: 'coach' (also legacy 'creator')
+//    - There is NO separate 'athletes' collection!
+//
+// 2. ATHLETE-COACH RELATIONSHIP
+//    - Athletes have a 'coachId' or 'assignedCoachId' field
+//    - This field contains the coach's UID from the 'users' collection
+//    - Both athlete and coach are in the SAME 'users' collection
+//
+// 3. COACH EXTENDED PROFILES
+//    - Primary data: users collection (users.photoURL, users.sport, etc.)
+//    - Extended data: creator_profiles collection (legacy name, should be coach_profiles)
+//
+// 4. COMMON MISTAKES TO AVOID:
+//    ❌ exists(/databases/$(database)/documents/athletes/...)
+//       → There is NO 'athletes' collection!
+//
+//    ❌ Checking role without loading from users collection
+//       → All role checks MUST reference users collection
+//
+//    ✅ exists(/databases/$(database)/documents/users/$(uid))
+//    ✅ get(/databases/$(database)/documents/users/$(uid)).data.role == 'athlete'
+//    ✅ get(/databases/$(database)/documents/users/$(uid)).data.coachId == coachUid
+//
+// 5. ATHLETE ACCESS PATTERN:
+//    Athletes can read their coach's data if:
+//    - User exists in 'users' collection with role: 'athlete'
+//    - User has coachId or assignedCoachId matching the coach's UID
+//    - Coach also exists in 'users' collection with role: 'coach'
+//
+// 📚 See /docs/DATA_MODEL.md for full documentation
+// 🔧 See /lib/data-model-helpers.ts for type-safe helper functions
+//
+// ═════════════════════════════════════════════════════════════════════════════
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===== HELPER FUNCTIONS =====
+    
+    // Check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Check if user is the owner of the resource
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Check if user has admin privileges
+    function isAdmin() {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'superadmin'];
+    }
+    
+    // Check if user is superadmin
+    function isSuperAdmin() {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'superadmin';
+    }
+    
+    // Check if user is a coach (primary coach function)
+    function isCoach() {
+      return isAuthenticated() &&
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'coach';
+    }
+
+    // Legacy creator check - kept for backwards compatibility during migration
+    function isCreator() {
+      return isCoach();
+    }
+
+    // Check if user has coach role or higher (includes legacy 'creator' role)
+    function isCreatorOrHigher() {
+      return isAuthenticated() &&
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['creator', 'coach', 'assistant_coach', 'admin', 'superadmin'];
+    }
+    
+    // Validate user data structure for CREATE (requires all required fields)
+    // NOTE: This allows additional fields beyond email/role for onboarding, profiles, etc.
+    function isValidUserData() {
+      return request.resource.data.keys().hasAll(['email', 'role']) &&
+             request.resource.data.email is string &&
+             request.resource.data.role in ['creator', 'athlete', 'coach', 'assistant_coach', 'admin', 'superadmin'] &&
+             request.resource.data.email.matches('.*@.*\\..*');
+    }
+
+    // Validate user data structure for UPDATE (allows partial updates)
+    // Only validates fields that ARE present - allows updating photoURL, displayName, bio, etc.
+    function isValidUserUpdate() {
+      return (!('email' in request.resource.data) || (request.resource.data.email is string && request.resource.data.email.matches('.*@.*\\..*'))) &&
+             (!('role' in request.resource.data) || request.resource.data.role in ['creator', 'athlete', 'coach', 'assistant_coach', 'admin', 'superadmin']);
+    }
+    
+    // Validate content data structure
+    function isValidContentData() {
+      return request.resource.data.keys().hasAll(['title', 'creatorUid', 'status']) &&
+             request.resource.data.title is string &&
+             request.resource.data.creatorUid is string &&
+             request.resource.data.status in ['draft', 'published', 'archived'] &&
+             request.resource.data.title.size() <= 200 &&
+             request.resource.data.title.size() >= 1 &&
+             (!('sport' in request.resource.data) || request.resource.data.sport is string);
+    }
+    
+    // ===== CORE COLLECTIONS =====
+
+    // ╔═══════════════════════════════════════════════════════════════════════╗
+    // ║  Users Collection - THE PRIMARY USER COLLECTION                       ║
+    // ║                                                                        ║
+    // ║  ⚠️  CRITICAL: ALL users are here (athletes, coaches, admins)         ║
+    // ║  ⚠️  Athletes have role: 'athlete' and coachId field                  ║
+    // ║  ⚠️  Coaches have role: 'coach'/'creator'                             ║
+    // ║  ⚠️  There is NO separate 'athletes' collection!                      ║
+    // ╚═══════════════════════════════════════════════════════════════════════╝
+    match /users/{userId} {
+      // CRITICAL: Users MUST be able to read their own document without role checks
+      // to prevent circular dependency (isAdmin requires reading this same document)
+      allow read: if isOwner(userId);
+
+      // Admins can read all user documents
+      allow read: if isAuthenticated() &&
+                     exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+                     get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'superadmin'];
+
+      // PUBLIC: Anyone can read coach user documents for public coach profiles
+      // This allows /coach/[id] pages to work without authentication
+      allow read: if exists(/databases/$(database)/documents/users/$(userId)) &&
+                     get(/databases/$(database)/documents/users/$(userId)).data.role in ['coach', 'creator', 'assistant_coach'];
+
+      // Athletes can read their coach's user document (check users.coachId field)
+      allow read: if isAuthenticated() &&
+                     exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+                     (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.coachId == userId ||
+                      get(/databases/$(database)/documents/users/$(request.auth.uid)).data.assignedCoachId == userId);
+
+      // Coaches can read their athletes' user documents (check athlete's coachId/assignedCoachId fields)
+      allow read: if isAuthenticated() &&
+                     exists(/databases/$(database)/documents/users/$(userId)) &&
+                     (get(/databases/$(database)/documents/users/$(userId)).data.coachId == request.auth.uid ||
+                      get(/databases/$(database)/documents/users/$(userId)).data.assignedCoachId == request.auth.uid ||
+                      get(/databases/$(database)/documents/users/$(userId)).data.creatorUid == request.auth.uid);
+
+      allow create: if isAuthenticated() &&
+                       request.auth.uid == userId &&
+                       isValidUserData();
+      // Allow users to update their own profile (except role changes)
+      // Users can always update lastLoginAt and stats.loginCount for login tracking
+      // Only admins can change roles
+      allow update: if (isOwner(userId) &&
+                       (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['role']) ||
+                        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['lastLoginAt', 'stats'])) &&
+                       isValidUserUpdate()) ||
+                       (isAuthenticated() &&
+                        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+                        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'superadmin'] &&
+                        isValidUserUpdate());
+      allow delete: if isAuthenticated() &&
+                       exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+                       get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'superadmin';
+    }
+    
+    // Profiles collection - Extended user profiles
+    match /profiles/{userId} {
+      allow read: if isOwner(userId) || 
+                     isAdmin() || 
+                     (resource.data.isPublic == true);
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isOwner(userId) || isAdmin();
+    }
+    
+    // Content collection - Lessons, courses, educational content
+    match /content/{contentId} {
+      // RESTRICTED: Only authenticated users can read lesson content
+      // Non-authenticated users must use the preview API endpoint
+      // Athletes can read published content from any coach
+      // Coaches/creators can read their own content (any status)
+      // Admins can read all content
+      allow get: if isAuthenticated() && (
+                    (resource.data.status == 'published') ||
+                    isOwner(resource.data.creatorUid) ||
+                    isAdmin())
+
+      // Allow listing content (queries)
+      // Public can query all content (will be filtered to published by app)
+      // Creators can query their own content, admins can query all
+      // Athletes can query content from their coach
+      allow list: if true;
+
+      allow create: if isCreatorOrHigher() &&
+                       isValidContentData() &&
+                       request.resource.data.creatorUid == request.auth.uid;
+      allow update: if (isOwner(resource.data.creatorUid) || isAdmin()) &&
+                       isValidContentData() &&
+                       resource.data.creatorUid == request.resource.data.creatorUid;
+      allow delete: if isOwner(resource.data.creatorUid) || isAdmin();
+    }
+    
+    // Coaches collection - Public coach discovery
+    match /coaches/{coachId} {
+      allow read: if true; // Public coach profiles
+      allow create: if isAuthenticated() && request.auth.uid == coachId;
+      allow update: if isOwner(coachId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Creator public profiles - Public creator discovery (LEGACY)
+    match /creatorPublic/{creatorSlug} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Creator private profiles - Creator business data (LEGACY + CURRENT: Now used by coaches too)
+    match /creator_profiles/{userId} {
+      // PUBLIC: Anyone can read creator profiles for public coach discovery
+      allow read: if true;
+      // Coaches and creators can write to their own profiles, admins can write to any
+      allow create: if isOwner(userId) && (isCoach() || isCreator());
+      allow update: if isOwner(userId) && (isCoach() || isCreator()) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Coach profiles - Coach business data
+    match /coach_profiles/{userId} {
+      // Coaches can read their own profile, admins can read all
+      // Athletes can read their coach's profile if they have a matching coachId
+      allow read: if isOwner(userId) ||
+                     isCoach() ||
+                     isAdmin() ||
+                     (isAuthenticated() &&
+                      exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+                      (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.coachId == userId ||
+                       get(/databases/$(database)/documents/users/$(request.auth.uid)).data.assignedCoachId == userId));
+      allow create: if isOwner(userId) && (isCoach() || isCreator());
+      allow update: if isOwner(userId) && (isCoach() || isCreator()) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Coach ingestion links - Coach invitation management
+    match /coach_ingestion_links/{linkId} {
+      allow read: if isCreatorOrHigher();
+      allow create: if isCreatorOrHigher();
+      allow update: if isCreatorOrHigher();
+      allow delete: if isAdmin();
+    }
+    
+    // Coaching requests - User-to-creator interactions
+    match /coaching_requests/{requestId} {
+      allow read: if isOwner(resource.data.userId) || 
+                     isOwner(resource.data.creatorId) || 
+                     isAdmin();
+      allow create: if isAuthenticated() &&
+                       request.resource.data.userId == request.auth.uid &&
+                       request.resource.data.keys().hasAll(['userId', 'creatorId', 'message']) &&
+                       request.resource.data.message is string &&
+                       request.resource.data.message.size() <= 2000;
+      allow update: if isOwner(resource.data.creatorId) || isAdmin();
+    }
+    
+    // Contributor applications - Creator application process
+    match /contributorApplications/{applicationId} {
+      allow read: if isOwner(resource.data.userId) || isAdmin();
+      allow create: if isAuthenticated() &&
+                       request.resource.data.userId == request.auth.uid &&
+                       request.resource.data.keys().hasAll(['firstName', 'lastName', 'email', 'primarySport']) &&
+                       request.resource.data.email == request.auth.token.email;
+      allow update: if isAdmin();
+    }
+    
+    // Events - Scheduled coaching sessions
+    match /events/{eventId} {
+      allow read: if isOwner(resource.data.creatorUid) || 
+                     isAdmin() ||
+                     (resource.data.participants != null && 
+                      request.auth.uid in resource.data.participants);
+      allow create: if isCreatorOrHigher() &&
+                       request.resource.data.creatorUid == request.auth.uid;
+      allow update: if isOwner(resource.data.creatorUid) || isAdmin();
+      allow delete: if isOwner(resource.data.creatorUid) || isAdmin();
+    }
+    
+    // Notifications - User notification system (subcollections)
+    match /notifications/{userId}/messages/{messageId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isAdmin();
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isOwner(userId) || isAdmin();
+    }
+    
+    // AI interaction logs - AI coaching session logs (admin only)
+    match /ai_interaction_logs/{logId} {
+      allow read, write: if isAdmin();
+    }
+    
+    // AI sessions - AI session management
+    match /ai_sessions/{sessionId} {
+      // Users can read and create their own sessions, admins can access all
+      allow read: if isAuthenticated() &&
+                     (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() &&
+                       request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+    
+    // AI content flags - Content moderation flags (admin only)
+    match /ai_content_flags/{flagId} {
+      allow read, write: if isAdmin();
+    }
+    
+    // Disclaimer acceptances - Legal compliance tracking
+    match /disclaimer_acceptances/{userId} {
+      allow read, write: if isOwner(userId) || isAdmin();
+    }
+
+    // Chat conversations - AI assistant chat history
+    match /chatConversations/{conversationId} {
+      // Users can read/write their own conversations
+      allow read, write: if isAuthenticated() &&
+                            (resource == null ||
+                             (resource.data.keys().hasAny(['userId']) && resource.data.userId == request.auth.uid) ||
+                             (request.resource.data.keys().hasAny(['userId']) && request.resource.data.userId == request.auth.uid));
+
+      // Chat messages subcollection
+      match /messages/{messageId} {
+        // Allow authenticated users to access messages
+        // For reads: allow if parent conversation exists and user owns it, OR if parent doesn't exist yet (empty history)
+        allow read: if isAuthenticated() &&
+                       (!exists(/databases/$(database)/documents/chatConversations/$(conversationId)) ||
+                        get(/databases/$(database)/documents/chatConversations/$(conversationId)).data.userId == request.auth.uid);
+
+        // For writes: check userId in the message data being written
+        allow create, update: if isAuthenticated() &&
+                                 request.resource.data.userId == request.auth.uid;
+
+        allow delete: if isAuthenticated() &&
+                         resource.data.userId == request.auth.uid;
+      }
+    }
+    
+    // Gear - Equipment and gear management
+    match /gear/{gearId} {
+      allow read: if isAuthenticated();
+      allow write: if isCreatorOrHigher();
+    }
+    
+    // Progress - User learning progress (subcollections)
+    match /progress/{userId}/items/{itemId} {
+      allow read, write: if isOwner(userId) || isAdmin();
+    }
+
+    // Saved responses - User saved AI coaching responses
+    match /savedResponses/{responseId} {
+      allow read, write: if isAuthenticated() &&
+                            resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated() &&
+                       request.resource.data.userId == request.auth.uid &&
+                       request.resource.data.keys().hasAll(['messageId', 'content', 'question', 'creatorId', 'userId']) &&
+                       request.resource.data.messageId is string &&
+                       request.resource.data.content is string &&
+                       request.resource.data.question is string &&
+                       request.resource.data.creatorId is string &&
+                       request.resource.data.userId is string;
+    }
+    
+    // Availability - Creator availability schedules
+    match /availability/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner(userId) || isAdmin();
+    }
+    
+    // Sessions - Coaching session management
+    match /sessions/{sessionId} {
+      allow read: if isOwner(resource.data.userUid) ||
+                     isOwner(resource.data.creatorUid) ||
+                     isAdmin();
+      allow write: if isCreatorOrHigher();
+    }
+
+    // User sessions subcollection - User-specific session data
+    match /users/{userId}/sessions/{sessionId} {
+      allow read, write: if isOwner(userId) || isAdmin();
+    }
+    
+    // Requests - General user requests
+    match /requests/{requestId} {
+      allow read: if isOwner(resource.data.uid) || isAdmin();
+      allow create: if isAuthenticated() &&
+                       request.resource.data.uid == request.auth.uid;
+      allow update: if isAdmin();
+    }
+    
+    // Admin settings - Platform configuration (superadmin only)
+    match /admin/{document} {
+      allow read, write: if isSuperAdmin();
+    }
+
+    // Audit logs - System audit trail (admin read, system write)
+    match /auditLogs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isAuthenticated(); // Allow system to write audit logs
+      allow update, delete: if false; // Audit logs are immutable
+    }
+    
+    // Analytics collections - Performance metrics (creators can access their own)
+    match /creatorAnalytics/{creatorId} {
+      allow read, write: if isOwner(creatorId) || isAdmin();
+    }
+
+    match /lessonAnalytics/{lessonId} {
+      allow read, write: if isAdmin() ||
+                            (isCreatorOrHigher() &&
+                             exists(/databases/$(database)/documents/content/$(lessonId)) &&
+                             get(/databases/$(database)/documents/content/$(lessonId)).data.creatorUid == request.auth.uid);
+    }
+
+    match /userAnalytics/{userId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /systemAnalytics/{date} {
+      allow read, write: if isAdmin();
+    }
+
+    // Invitations - Athlete and coach invitation system
+    match /invitations/{invitationId} {
+      // Anyone can read valid invitations to validate them
+      allow read: if true;
+      // Only creators/coaches/admins can create invitations
+      allow create: if isCreatorOrHigher() &&
+                       request.resource.data.keys().hasAll(['coachId', 'role', 'status']) &&
+                       request.resource.data.coachId == request.auth.uid;
+      // Only the creator or admin can update their invitations
+      allow update: if (isCreatorOrHigher() && resource.data.coachId == request.auth.uid) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ╔═══════════════════════════════════════════════════════════════════════╗
+    // ║  ⚠️  IMPORTANT: This 'athletes' collection is OPTIONAL/LEGACY        ║
+    // ║                                                                        ║
+    // ║  PRIMARY ATHLETE DATA is in the 'users' collection!                  ║
+    // ║  This collection only exists for extended athlete-specific data.     ║
+    // ║                                                                        ║
+    // ║  When writing security rules for athlete access:                     ║
+    // ║  - Check 'users' collection, NOT 'athletes' collection               ║
+    // ║  - Use users.role == 'athlete' to identify athletes                  ║
+    // ║  - Use users.coachId to link athletes to coaches                     ║
+    // ╚═══════════════════════════════════════════════════════════════════════╝
+    match /athletes/{athleteId} {
+      // Athletes can read their own profile, coaches can read their athletes, admins can read all
+      allow read: if isAuthenticated() &&
+                     (resource.data.uid == request.auth.uid ||
+                      resource.data.coachId == request.auth.uid ||
+                      isAdmin());
+      // Server-side creates athlete profiles via admin SDK
+      allow create: if false; // Only via server-side admin SDK
+      // Athletes and their coaches can update athlete profiles
+      allow update: if isAuthenticated() &&
+                       (resource.data.uid == request.auth.uid ||
+                        resource.data.coachId == request.auth.uid ||
+                        isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    // Coach applications - Coach application and approval process
+    match /coach_applications/{applicationId} {
+      // Admins can read all, applicants can read their own if they have userId set
+      allow read: if isAdmin() ||
+                     (isAuthenticated() &&
+                      resource.data.userId != null &&
+                      resource.data.userId == request.auth.uid);
+      // Anyone can create applications (for simple invitation flow)
+      allow create: if true;
+      // Only admins can update or delete applications
+      allow update, delete: if isAdmin();
+    }
+
+    // Messages - Athlete-coach direct messaging with immutability
+    match /messages/{messageId} {
+      // Users can read messages where they are sender or recipient
+      allow read: if isAuthenticated() &&
+                     (resource.data.senderId == request.auth.uid ||
+                      resource.data.recipientId == request.auth.uid ||
+                      isAdmin());
+      // Users can create messages where they are the sender
+      allow create: if isAuthenticated() &&
+                       request.resource.data.senderId == request.auth.uid &&
+                       request.resource.data.keys().hasAll(['senderId', 'recipientId', 'content', 'participants']) &&
+                       request.resource.data.participants.hasAll([request.auth.uid, request.resource.data.recipientId]) &&
+                       request.resource.data.content is string &&
+                       request.resource.data.content.size() > 0 &&
+                       request.resource.data.content.size() <= 2000;
+      // Users can ONLY update read status - messages are immutable
+      allow update: if isAuthenticated() &&
+                       resource.data.recipientId == request.auth.uid &&
+                       request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read', 'readAt']);
+      // Messages CANNOT be deleted - permanent audit trail for safety
+      allow delete: if false;
+    }
+
+    // Message Audit Logs - Immutable audit trail
+    match /message_audit_logs/{logId} {
+      // Only admins can read audit logs
+      allow read: if isAdmin();
+      // Audit logs created by system only
+      allow create: if false;
+      // Audit logs are immutable
+      allow update, delete: if false;
+    }
+
+    // Moderation Alerts - Safety monitoring
+    match /moderation_alerts/{alertId} {
+      // Only admins can read moderation alerts
+      allow read: if isAdmin();
+      // System creates alerts
+      allow create: if false;
+      // Admins can update status
+      allow update: if isAdmin();
+      // Cannot delete alerts
+      allow delete: if false;
+    }
+
+    // Message Reports - User-generated reports
+    match /message_reports/{reportId} {
+      // Users can read their own reports, admins can read all
+      allow read: if isAuthenticated() &&
+                     (resource.data.reportedBy == request.auth.uid || isAdmin());
+      // Users can create reports
+      allow create: if isAuthenticated() &&
+                       request.resource.data.reportedBy == request.auth.uid;
+      // Only admins can update reports
+      allow update: if isAdmin();
+      // Cannot delete reports
+      allow delete: if false;
+    }
+
+    // Feature Flags - Platform feature toggles
+    match /feature_flags/{flagId} {
+      // All authenticated users can read feature flags
+      allow read: if isAuthenticated();
+      // Only admins can write feature flags
+      allow write: if isAdmin();
+    }
+
+    // Admin Invitations - Platform admin invitation system
+    match /admin_invitations/{invitationId} {
+      // Only admins can read and create admin invitations
+      allow read, create: if isAdmin();
+      // Only admins can update invitation status
+      allow update: if isAdmin();
+      // Cannot delete invitations (audit trail)
+      allow delete: if false;
+    }
+
+    // User Signups - Recent user signup tracking for admin dashboard
+    match /userSignups/{signupId} {
+      // Only admins can read user signups
+      allow read: if isAdmin();
+      // System creates signup records
+      allow create: if isAuthenticated();
+      // Cannot update or delete signup records (audit trail)
+      allow update, delete: if false;
+    }
+
+    // Admin Notifications - Admin notification system
+    match /adminNotifications/{notificationId} {
+      // Only admins can read notifications
+      allow read: if isAdmin();
+      // System creates notifications
+      allow create: if isAuthenticated();
+      // Admins can update notifications (mark as read)
+      allow update: if isAdmin();
+      // Cannot delete notifications
+      allow delete: if false;
+    }
+
+    // Curated Gear - Recommended equipment and gear
+    match /curatedGear/{gearId} {
+      // Anyone can read curated gear
+      allow read: if true;
+      // Only admins can create/update/delete gear
+      allow write: if isAdmin();
+    }
+
+    // Videos - Video content management
+    match /videos/{videoId} {
+      // Anyone authenticated can read published videos
+      allow read: if isAuthenticated() &&
+                     (resource.data.status == 'published' ||
+                      resource.data.creatorUid == request.auth.uid ||
+                      isAdmin());
+      // Creators and coaches can create videos
+      allow create: if isCreatorOrHigher() &&
+                       request.resource.data.creatorUid == request.auth.uid;
+      // Creators can update their own videos, admins can update any
+      allow update: if (isCreatorOrHigher() && resource.data.creatorUid == request.auth.uid) || isAdmin();
+      // Coaches can delete their own videos, admins can delete any
+      allow delete: if (isCreatorOrHigher() && resource.data.creatorUid == request.auth.uid) || isAdmin();
+    }
+
+    // Creators Index - Creator discovery index
+    match /creators_index/{creatorId} {
+      // Anyone can read the creators index
+      allow read: if true;
+      // Only admins and the creator themselves can write
+      allow write: if isOwner(creatorId) || isAdmin();
+    }
+
+    // Platform Stats - Platform-wide statistics and metrics
+    match /platformStats/{statsId} {
+      // Admins can read platform stats
+      allow read: if isAdmin();
+      // Authenticated users can create/update stats (for tracking)
+      allow create, update: if isAuthenticated();
+      // Only admins can delete stats
+      allow delete: if isAdmin();
+    }
+
+    // ============================================================================
+    // COACH-ATHLETE DATA FLOW COLLECTIONS
+    // See: /docs/COACH_ATHLETE_DATA_FLOW_SOLUTION.md
+    // ============================================================================
+
+    // Coach Rosters - Maps coaches to their assigned athletes
+    match /coach_rosters/{coachId} {
+      // Coaches can read their own roster
+      allow read: if isOwner(coachId) || isAdmin();
+
+      // Only Cloud Functions can write (via Admin SDK)
+      // This ensures data integrity - roster updates happen automatically
+      allow write: if false;
+    }
+
+    // Athlete Feed - Personalized content feed for each athlete
+    match /athlete_feed/{athleteId} {
+      // Athletes can ONLY read their own feed
+      allow read: if isOwner(athleteId) || isAdmin();
+
+      // Athletes can update their own feed (mark lessons complete)
+      allow update: if isOwner(athleteId) &&
+                       request.resource.data.diff(resource.data).affectedKeys().hasOnly(['completedLessons', 'completionRate', 'lastActivity']);
+
+      // Only Cloud Functions can create/delete feeds (via Admin SDK)
+      allow create, delete: if false;
+    }
+
+    // ============================================================================
+    // LIVE SESSION REQUESTS - Coach-athlete live video session scheduling
+    // ============================================================================
+
+    // Live Session Requests - Athletes request live 1-on-1 coaching sessions
+    match /liveSessionRequests/{requestId} {
+      // Coaches can read requests assigned to them
+      allow read: if isAuthenticated() &&
+                     (resource.data.coachId == request.auth.uid || isAdmin());
+
+      // Athletes can read their own requests
+      allow read: if isAuthenticated() &&
+                     resource.data.athleteId == request.auth.uid;
+
+      // Athletes can create session requests
+      allow create: if isAuthenticated() &&
+                       request.resource.data.athleteId == request.auth.uid &&
+                       request.resource.data.keys().hasAll(['athleteId', 'athleteEmail', 'preferredDate', 'preferredTime', 'duration', 'topic', 'description', 'status']) &&
+                       request.resource.data.status == 'pending' &&
+                       request.resource.data.duration in [15, 30, 45, 60];
+
+      // Coaches can update requests assigned to them (to respond, confirm, decline)
+      allow update: if isAuthenticated() &&
+                       resource.data.coachId == request.auth.uid &&
+                       request.resource.data.status in ['pending', 'confirmed', 'completed', 'cancelled'];
+
+      // Admins can update any request
+      allow update: if isAdmin();
+
+      // Only admins can delete session requests (for data integrity)
+      allow delete: if isAdmin();
+    }
+
+    // ============================================================================
+    // ROLE ENFORCEMENT SYSTEM - Critical security infrastructure
+    // ============================================================================
+
+    // Role Enforcement Audit - Audit trail of all role corrections
+    match /role_enforcement_audit/{auditId} {
+      // Only admins can read audit logs
+      allow read: if isAdmin();
+      // Only Cloud Functions can create audit logs
+      allow create: if false;
+      // Audit logs are immutable
+      allow update, delete: if false;
+    }
+
+    // Role Enforcement Reports - Summary reports from scheduled checks
+    match /role_enforcement_reports/{reportId} {
+      // Only admins can read reports
+      allow read: if isAdmin();
+      // Only Cloud Functions can create reports
+      allow create: if false;
+      // Reports are immutable
+      allow update, delete: if false;
+    }
+
+    // ============================================================================
+    // AI CHAT MESSAGES - Athlete-coach AI chat persistence
+    // ============================================================================
+
+    // Chat Messages - AI coaching conversation history
+    match /chat_messages/{messageId} {
+      // Athletes can read their own chat messages
+      allow read: if isAuthenticated() &&
+                     resource.data.userId == request.auth.uid;
+
+      // Coaches can read messages from their athletes (for accountability and oversight)
+      allow read: if isAuthenticated() &&
+                     resource.data.coachId == request.auth.uid;
+
+      // Admins can read all messages (for safety and moderation)
+      allow read: if isAdmin();
+
+      // Athletes can create their own messages
+      allow create: if isAuthenticated() &&
+                       request.resource.data.userId == request.auth.uid &&
+                       request.resource.data.keys().hasAll(['userId', 'coachId', 'role', 'content', 'timestamp']) &&
+                       request.resource.data.role in ['user', 'assistant'] &&
+                       request.resource.data.content is string &&
+                       request.resource.data.content.size() > 0 &&
+                       request.resource.data.content.size() <= 10000;
+
+      // Athletes can delete their own messages (for clear chat functionality)
+      allow delete: if isAuthenticated() &&
+                       resource.data.userId == request.auth.uid;
+
+      // Messages cannot be updated (immutable for audit trail)
+      allow update: if false;
+    }
+
+    // ============================================================================
+    // COACH POST REACTIONS - Athlete engagement with coach feed posts
+    // ============================================================================
+
+    // Post Reactions - Athletes react to coach feed posts with emojis
+    match /post_reactions/{reactionId} {
+      // All authenticated users can read reactions (to see counts)
+      allow read: if isAuthenticated();
+
+      // Athletes can create their own reactions
+      // Document ID format: {postId}_{userId}
+      allow create: if isAuthenticated() &&
+                       request.resource.data.userId == request.auth.uid &&
+                       request.resource.data.keys().hasAll(['postId', 'userId', 'emoji']) &&
+                       request.resource.data.emoji is string &&
+                       request.resource.data.emoji.size() > 0 &&
+                       request.resource.data.emoji.size() <= 10;
+
+      // Users can update their own reactions (change emoji)
+      allow update: if isAuthenticated() &&
+                       resource.data.userId == request.auth.uid &&
+                       request.resource.data.userId == resource.data.userId;
+
+      // Users can delete their own reactions
+      allow delete: if isAuthenticated() &&
+                       resource.data.userId == request.auth.uid;
+
+      // Admins can manage all reactions
+      allow read, write: if isAdmin();
+    }
+
+    // Coach Posts - Feed posts from coaches to their athletes
+    match /coach_posts/{postId} {
+      // All authenticated users can read posts
+      allow read: if isAuthenticated();
+
+      // Coaches can create posts
+      allow create: if isCreatorOrHigher() &&
+                       request.resource.data.coachId == request.auth.uid;
+
+      // Coaches can update their own posts
+      allow update: if isCreatorOrHigher() &&
+                       resource.data.coachId == request.auth.uid;
+
+      // Coaches can delete their own posts
+      allow delete: if isCreatorOrHigher() &&
+                       resource.data.coachId == request.auth.uid;
+
+      // Admins can manage all posts
+      allow read, write: if isAdmin();
+    }
+
+    // ============================================================================
+    // VIDEO CRITIQUE SYSTEM - Athlete video submission and coach review workflow
+    // ============================================================================
+
+    // Video Submissions - Athletes submit videos for coach review
+    match /submissions/{submissionId} {
+      // Athletes can read their own submissions (both get and list/query)
+      allow get: if isAuthenticated() &&
+                    resource.data.athleteUid == request.auth.uid;
+
+      // Athletes can list/query their own submissions
+      allow list: if isAuthenticated();
+
+      // Coaches can read submissions from their athletes
+      allow get: if isAuthenticated() &&
+                    resource.data.coachId == request.auth.uid;
+
+      // Coaches can list/query submissions
+      allow list: if isAuthenticated() && isCreatorOrHigher();
+
+      // Admins can read all submissions
+      allow read: if isAdmin();
+
+      // Athletes can create submissions (relaxed field requirements for initial creation)
+      allow create: if isAuthenticated() &&
+                       request.resource.data.athleteUid == request.auth.uid;
+
+      // Athletes can update their own submissions
+      allow update: if isAuthenticated() &&
+                       (resource.data.athleteUid == request.auth.uid ||
+                        request.resource.data.athleteUid == request.auth.uid);
+
+      // Coaches can update submissions assigned to them (claim, review, complete)
+      allow update: if isAuthenticated() &&
+                       (resource.data.coachId == request.auth.uid ||
+                        request.resource.data.coachId == request.auth.uid);
+
+      // Admins can update any submission
+      allow update: if isAdmin();
+
+      // Only admins can delete submissions
+      allow delete: if isAdmin();
+    }
+
+    // Video Reviews - Coach feedback and analysis for video submissions
+    match /reviews/{reviewId} {
+      // Athletes can read reviews of their submissions
+      allow read: if isAuthenticated() &&
+                     resource.data.athleteId == request.auth.uid;
+
+      // Coaches can read their own reviews
+      allow read: if isAuthenticated() &&
+                     resource.data.coachId == request.auth.uid;
+
+      // Admins can read all reviews
+      allow read: if isAdmin();
+
+      // Only coaches can create reviews
+      allow create: if isCreatorOrHigher() &&
+                       request.resource.data.coachId == request.auth.uid &&
+                       request.resource.data.keys().hasAll(['submissionId', 'coachId', 'athleteId', 'createdAt']);
+
+      // Coaches can update their own reviews
+      allow update: if isCreatorOrHigher() &&
+                       resource.data.coachId == request.auth.uid;
+
+      // Only admins can delete reviews
+      allow delete: if isAdmin();
+    }
+
+    // Review Comments - Discussion threads on video reviews
+    match /comments/{commentId} {
+      // Athletes and coaches involved can read comments
+      allow read: if isAuthenticated() &&
+                     (resource.data.authorId == request.auth.uid ||
+                      resource.data.athleteId == request.auth.uid ||
+                      resource.data.coachId == request.auth.uid);
+
+      // Admins can read all comments
+      allow read: if isAdmin();
+
+      // Athletes and coaches can create comments
+      allow create: if isAuthenticated() &&
+                       request.resource.data.authorId == request.auth.uid &&
+                       request.resource.data.keys().hasAll(['reviewId', 'authorId', 'content', 'createdAt']);
+
+      // Users can update their own comments
+      allow update: if isAuthenticated() &&
+                       resource.data.authorId == request.auth.uid;
+
+      // Users can delete their own comments
+      allow delete: if isAuthenticated() &&
+                       resource.data.authorId == request.auth.uid;
+
+      // Admins can manage all comments
+      allow read, write: if isAdmin();
+    }
+
+    // Skills - Drill and skill catalog for video critique
+    match /skills/{skillId} {
+      // All authenticated users can read skills
+      allow read: if isAuthenticated();
+
+      // Coaches and admins can create skills
+      allow create: if isCreatorOrHigher();
+
+      // Coaches can update skills they created
+      allow update: if isCreatorOrHigher() &&
+                       resource.data.createdBy == request.auth.uid;
+
+      // Admins can update any skill
+      allow update: if isAdmin();
+
+      // Only admins can delete skills
+      allow delete: if isAdmin();
+    }
+
+    // Drills - Practice drills library
+    match /drills/{drillId} {
+      // All authenticated users can read drills
+      allow read: if isAuthenticated();
+
+      // Coaches and admins can create drills
+      allow create: if isCreatorOrHigher();
+
+      // Coaches can update drills they created
+      allow update: if isCreatorOrHigher() &&
+                       resource.data.createdBy == request.auth.uid;
+
+      // Admins can update any drill
+      allow update: if isAdmin();
+
+      // Only admins can delete drills
+      allow delete: if isAdmin();
+    }
+
+    // Rubrics - Scoring rubrics for video critique
+    match /rubrics/{rubricId} {
+      // All authenticated users can read rubrics
+      allow read: if isAuthenticated();
+
+      // Coaches and admins can create rubrics
+      allow create: if isCreatorOrHigher();
+
+      // Coaches can update rubrics they created
+      allow update: if isCreatorOrHigher() &&
+                       resource.data.createdBy == request.auth.uid;
+
+      // Admins can update any rubric
+      allow update: if isAdmin();
+
+      // Only admins can delete rubrics
+      allow delete: if isAdmin();
+    }
+
+    // Teams - Team management for video critique
+    match /teams/{teamId} {
+      // Coaches can read their own teams
+      allow read: if isAuthenticated() &&
+                     resource.data.coachId == request.auth.uid;
+
+      // Athletes can read teams they belong to
+      allow read: if isAuthenticated() &&
+                     request.auth.uid in resource.data.athleteIds;
+
+      // Admins can read all teams
+      allow read: if isAdmin();
+
+      // Coaches can create teams
+      allow create: if isCreatorOrHigher() &&
+                       request.resource.data.coachId == request.auth.uid;
+
+      // Coaches can update their own teams
+      allow update: if isCreatorOrHigher() &&
+                       resource.data.coachId == request.auth.uid;
+
+      // Only admins can delete teams
+      allow delete: if isAdmin();
+    }
+
+    // Video Critique Notifications - Submission status notifications
+    match /video_notifications/{notificationId} {
+      // Users can read their own notifications
+      allow read: if isAuthenticated() &&
+                     resource.data.userId == request.auth.uid;
+
+      // Admins can read all notifications
+      allow read: if isAdmin();
+
+      // System creates notifications
+      allow create: if isAuthenticated();
+
+      // Users can update their own notifications (mark as read)
+      allow update: if isAuthenticated() &&
+                       resource.data.userId == request.auth.uid;
+
+      // Users can delete their own notifications
+      allow delete: if isAuthenticated() &&
+                       resource.data.userId == request.auth.uid;
+    }
+
+    // ============================================================================
+    // FEEDBACK REQUESTS - Get Feedback system for athlete video submissions
+    // ============================================================================
+
+    // Feedback Requests - Athletes submit videos for personalized feedback
+    match /feedback_requests/{requestId} {
+      // Athletes can read their own feedback requests
+      allow read: if isAuthenticated() &&
+                     resource.data.athleteId == request.auth.uid;
+
+      // Coaches can read feedback requests from their athletes
+      allow read: if isAuthenticated() &&
+                     exists(/databases/$(database)/documents/users/$(resource.data.athleteId)) &&
+                     (get(/databases/$(database)/documents/users/$(resource.data.athleteId)).data.coachId == request.auth.uid ||
+                      get(/databases/$(database)/documents/users/$(resource.data.athleteId)).data.assignedCoachId == request.auth.uid);
+
+      // Admins can read all feedback requests
+      allow read: if isAdmin();
+
+      // Athletes can create their own feedback requests
+      allow create: if isAuthenticated() &&
+                       request.resource.data.athleteId == request.auth.uid;
+
+      // Athletes can update their own feedback requests
+      allow update: if isAuthenticated() &&
+                       resource.data.athleteId == request.auth.uid;
+
+      // Coaches can update feedback requests from their athletes (to provide feedback)
+      allow update: if isAuthenticated() &&
+                       exists(/databases/$(database)/documents/users/$(resource.data.athleteId)) &&
+                       (get(/databases/$(database)/documents/users/$(resource.data.athleteId)).data.coachId == request.auth.uid ||
+                        get(/databases/$(database)/documents/users/$(resource.data.athleteId)).data.assignedCoachId == request.auth.uid);
+
+      // Only admins can delete feedback requests
+      allow delete: if isAdmin();
+    }
+
+    // ============================================================================
+    // ANALYTICS SYSTEM - Comprehensive app and user behavior tracking
+    // ============================================================================
+
+    // Analytics Events - Raw event data
+    match /analytics_events/{eventId} {
+      // Allow authenticated users to create analytics events
+      allow create: if isAuthenticated();
+
+      // Only admins can read analytics (for dashboard)
+      allow read: if isAdmin();
+
+      // Analytics events are immutable (audit trail)
+      allow update, delete: if false;
+    }
+
+    // Analytics Aggregations - Pre-computed metrics for dashboards
+    match /analytics_aggregations/{aggId} {
+      // Only Cloud Functions can write aggregations
+      allow create, update: if false;
+
+      // Only admins can read aggregations
+      allow read: if isAdmin();
+
+      // Aggregations can be deleted by Cloud Functions for cleanup
+      allow delete: if false;
+    }
+
+    // ============================================================================
+    // TRAINING SESSIONS - 1:1 coach-athlete training session scheduling
+    // ============================================================================
+
+    // Training Sessions - Scheduled 1:1 training sessions between coaches and athletes
+    match /training_sessions/{sessionId} {
+      // Coaches can read their own sessions
+      allow read: if isAuthenticated() &&
+                     (resource.data.coachId == request.auth.uid || isAdmin());
+
+      // Athletes can read sessions assigned to them
+      allow read: if isAuthenticated() &&
+                     resource.data.athleteId == request.auth.uid;
+
+      // Coaches can create sessions
+      allow create: if isCreatorOrHigher() &&
+                       request.resource.data.coachId == request.auth.uid &&
+                       request.resource.data.keys().hasAll(['coachId', 'athleteId', 'date', 'time', 'status']);
+
+      // Coaches can update their own sessions
+      allow update: if isCreatorOrHigher() &&
+                       resource.data.coachId == request.auth.uid;
+
+      // Admins can update any session
+      allow update: if isAdmin();
+
+      // Only coaches and admins can delete sessions
+      allow delete: if (isCreatorOrHigher() && resource.data.coachId == request.auth.uid) || isAdmin();
+    }
+
+    // ============================================================================
+    // COACH EVENTS - Coach event scheduling (games, tournaments, training events)
+    // ============================================================================
+
+    // Coach Events - Scheduled events shared with athletes
+    match /coach_events/{eventId} {
+      // Coaches can read their own events
+      allow read: if isAuthenticated() &&
+                     (resource.data.coachId == request.auth.uid || isAdmin());
+
+      // Athletes can read events from their coach
+      allow read: if isAuthenticated() &&
+                     exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+                     (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.coachId == resource.data.coachId ||
+                      get(/databases/$(database)/documents/users/$(request.auth.uid)).data.assignedCoachId == resource.data.coachId);
+
+      // Coaches can create events
+      allow create: if isCreatorOrHigher() &&
+                       request.resource.data.coachId == request.auth.uid &&
+                       request.resource.data.keys().hasAll(['coachId', 'title', 'type', 'date', 'time']);
+
+      // Coaches can update their own events
+      allow update: if isCreatorOrHigher() &&
+                       resource.data.coachId == request.auth.uid;
+
+      // Admins can update any event
+      allow update: if isAdmin();
+
+      // Only coaches and admins can delete events
+      allow delete: if (isCreatorOrHigher() && resource.data.coachId == request.auth.uid) || isAdmin();
+    }
+
+    // ===== DEFAULT DENY =====
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

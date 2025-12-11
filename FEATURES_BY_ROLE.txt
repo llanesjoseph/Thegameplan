@@ -1,0 +1,48 @@
+ATHLEAP - FEATURES BY ROLE
+==========================
+
+ATHLETE DASHBOARD
+-----------------
+
+✅ KEPT:
+- View Lessons (quick action)
+- Ask Coach (quick action)
+- Coach's Feed (quick action)
+- Video Reviews (sidebar)
+- My Lessons (sidebar)
+- Progress Stats (3 cards: Lessons Completed, Total Lessons, Upcoming Events)
+
+❌ REMOVED:
+- Schedule Session (quick action)
+- Coach's Schedule (quick action + sidebar)
+- Live 1-on-1 Session (sidebar)
+- Day Streak (stat card)
+
+
+COACH DASHBOARD
+----------------
+
+✅ KEPT:
+- Athletes (manage athletes)
+- Queue (video review queue)
+- Lessons (create/manage lessons)
+- Analytics (coach analytics)
+- Profile (coach profile management)
+- Feed (post updates to athletes)
+- Videos (manage coach videos)
+- Messages (athlete communication)
+
+❌ REMOVED:
+- Live Sessions (scheduling live calls)
+- Recruit Fellow Coach (referral/invite)
+- Assistant Coaches (team management)
+- Gear Recommendations (affiliate sales)
+
+
+SUMMARY
+-------
+Athlete: Kept 6 features, Removed 4 features
+Coach: Kept 8 features, Removed 4 features
+
+Focus: Video feedback, lessons, and direct communication
+Cut: Live sessions, scheduling, gamification, commerce

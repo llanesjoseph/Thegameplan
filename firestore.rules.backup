@@ -1,0 +1,167 @@
+rules_version = '2';
+
+// Firestore Security Rules for Game Plan
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    function hasRole(role) {
+      return request.auth != null &&
+             request.auth.token.role == role;
+    }
+
+    function isCreatorOrAdmin() {
+      return request.auth != null &&
+             (request.auth.token.role == 'creator' ||
+              request.auth.token.role == 'admin' ||
+              request.auth.token.role == 'superadmin');
+    }
+
+    function isAdmin() {
+      return request.auth != null &&
+             (request.auth.token.role == 'admin' ||
+              request.auth.token.role == 'superadmin');
+    }
+
+    function isSuperAdmin() {
+      return request.auth != null &&
+             request.auth.token.role == 'superadmin';
+    }
+
+    // Check if user data is being properly structured
+    function isValidUserData() {
+      return request.resource.data.keys().hasAll(['email', 'role']) &&
+             request.resource.data.role in ['user', 'creator', 'admin', 'superadmin'];
+    }
+
+    // Check if profile data is valid
+    function isValidProfile() {
+      return request.resource.data.keys().hasAll(['firstName', 'lastName', 'email']);
+    }
+
+    // Users collection - enhanced security
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow write: if isOwner(userId) && isValidUserData();
+      allow create: if isAuthenticated() && isValidUserData() &&
+                       request.auth.uid == userId;
+      // Superadmin can write any user data for setup purposes
+      allow write: if isSuperAdmin() && isValidUserData();
+    }
+
+    // Public user profiles - enhanced validation
+    match /profiles/{userId} {
+      allow read: if true;
+      allow write: if (isOwner(userId) || isAdmin()) && isValidProfile();
+      allow create: if isAuthenticated() && isValidProfile() &&
+                       request.auth.uid == userId;
+      // Superadmin can create profiles for setup
+      allow write: if isSuperAdmin() && isValidProfile();
+    }
+
+    // Contributors/Creators - readable by all, writable by creator/admin
+    match /contributors/{contributorId} {
+      allow read: if true;
+      allow write: if isOwner(contributorId) || isAdmin();
+    }
+
+    // Gear collection - readable by all, writable by creators/admins
+    match /gear/{gearId} {
+      allow read: if true;
+      allow write: if isCreatorOrAdmin();
+      allow create: if isCreatorOrAdmin() &&
+                       request.auth.uid == request.resource.data.createdBy;
+    }
+
+    // Lessons - readable by authenticated users, writable by creators/admins
+    match /lessons/{lessonId} {
+      allow read: if isAuthenticated();
+      allow write: if isCreatorOrAdmin();
+      allow create: if isCreatorOrAdmin() &&
+                       request.auth.uid == request.resource.data.instructor;
+    }
+
+    // User progress tracking
+    match /progress/{userId} {
+      allow read, write: if isOwner(userId);
+      allow read: if isAdmin();
+    }
+
+    // User preferences and settings
+    match /preferences/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // Creator requests and applications
+    match /creator-requests/{requestId} {
+      allow read: if isAdmin() || isOwner(resource.data.userId);
+      allow create: if isAuthenticated() &&
+                       request.auth.uid == request.resource.data.userId;
+      allow update: if isAdmin();
+    }
+
+    // Contributor applications - enhanced for superadmin setup
+    match /contributorApplications/{applicationId} {
+      allow read: if isAdmin() || isOwner(resource.data.userId);
+      allow create: if isAuthenticated() &&
+                       request.auth.uid == request.resource.data.userId;
+      allow update: if isAdmin();
+      // Allow superadmin to create applications for setup
+      allow create: if isSuperAdmin();
+    }
+
+    // Analytics data - admin only
+    match /analytics/{document=**} {
+      allow read, write: if isAdmin();
+    }
+
+    // System configuration - admin only
+    match /config/{document=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // AI coaching sessions - user can access their own
+    match /coaching-sessions/{sessionId} {
+      allow read, write: if isAuthenticated() &&
+                            request.auth.uid == resource.data.userId;
+      allow create: if isAuthenticated() &&
+                       request.auth.uid == request.resource.data.userId;
+    }
+
+    // Subscriptions and payments
+    match /subscriptions/{userId} {
+      allow read, write: if isOwner(userId);
+      allow read: if isAdmin();
+    }
+
+    // System operations - superadmin only for emergency access
+    match /system/{document=**} {
+      allow read, write: if isSuperAdmin();
+    }
+
+    // Backup collections - allow read for all authenticated, write for admins
+    match /users_backup/{document=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    match /profiles_backup/{document=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // Default deny all other documents
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

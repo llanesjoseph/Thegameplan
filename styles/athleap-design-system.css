@@ -1,0 +1,356 @@
+/* Athleap UNIFIED DESIGN SYSTEM CSS */
+/* Single source of truth for all styling */
+
+/* Import Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;500;600;700&display=swap');
+
+/* Sports World Font - Athleap Brand Font */
+@font-face {
+  font-family: 'Sports World';
+  src: url('/fonts/sports-world-regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* CSS Custom Properties */
+:root {
+  /* Athleap Brand Colors */
+  --playbookd-cream: #E8E6D8;
+  --playbookd-sky-blue: #91A6EB;
+  --playbookd-orange: #892F1A;
+  --playbookd-green: #BDAF62;
+  --playbookd-dark: #624A41;
+
+  /* Primary Scale (Sky Blue) */
+  --playbookd-primary-50: #f0f4ff;
+  --playbookd-primary-100: #e0e9ff;
+  --playbookd-primary-200: #c7d8ff;
+  --playbookd-primary-300: #a5c0ff;
+  --playbookd-primary-400: #91A6EB;
+  --playbookd-primary-500: #7b93e3;
+  --playbookd-primary-600: #6882db;
+  --playbookd-primary-700: #5570c7;
+  --playbookd-primary-800: #475fa0;
+  --playbookd-primary-900: #3d507f;
+
+  /* Secondary Scale (Orange) */
+  --playbookd-secondary-50: #fdf6f3;
+  --playbookd-secondary-100: #fbeae4;
+  --playbookd-secondary-200: #f6d0c4;
+  --playbookd-secondary-300: #efac95;
+  --playbookd-secondary-400: #e67e5e;
+  --playbookd-secondary-500: #df5a37;
+  --playbookd-secondary-600: #892F1A;
+  --playbookd-secondary-700: #7a2717;
+  --playbookd-secondary-800: #662115;
+  --playbookd-secondary-900: #541e15;
+
+  /* Neutral Scale (Dark) */
+  --playbookd-neutral-50: #f6f3f1;
+  --playbookd-neutral-100: #ebe5e0;
+  --playbookd-neutral-200: #d6c9be;
+  --playbookd-neutral-300: #bfa595;
+  --playbookd-neutral-400: #a48169;
+  --playbookd-neutral-500: #8d6b50;
+  --playbookd-neutral-600: #624A41;
+  --playbookd-neutral-700: #533d35;
+  --playbookd-neutral-800: #46342e;
+  --playbookd-neutral-900: #3d2e28;
+
+  /* Semantic Colors */
+  --playbookd-background: #E8E6D8;
+  --playbookd-surface: #FFFFFF;
+  --playbookd-text-primary: #624A41;
+  --playbookd-text-secondary: #333333;
+  --playbookd-text-muted: #666666;
+  --playbookd-text-inverse: #FFFFFF;
+
+  /* Legacy CSS Variables Mapping */
+  --primary-blue: var(--playbookd-sky-blue);
+  --accent-indigo: var(--playbookd-orange);
+  --deep-black: var(--playbookd-dark);
+  --mid-gray: var(--playbookd-text-muted);
+  --light-gray: var(--playbookd-neutral-200);
+
+  /* Borders */
+  --playbookd-border-light: #E5E7EB;
+  --playbookd-border-medium: #D1D5DB;
+  --playbookd-border-dark: #9CA3AF;
+
+  /* Status Colors */
+  --playbookd-success: #16A34A;
+  --playbookd-warning: #EAB308;
+  --playbookd-error: #DC2626;
+  --playbookd-info: #0EA5E9;
+
+  /* Spacing */
+  --playbookd-spacing-0: 0px;
+  --playbookd-spacing-1: 8px;
+  --playbookd-spacing-2: 16px;
+  --playbookd-spacing-3: 24px;
+  --playbookd-spacing-4: 32px;
+  --playbookd-spacing-5: 40px;
+  --playbookd-spacing-6: 48px;
+  --playbookd-spacing-8: 64px;
+  --playbookd-spacing-10: 80px;
+  --playbookd-spacing-12: 96px;
+  --playbookd-spacing-16: 128px;
+
+  /* Typography */
+  --playbookd-font-brand: 'Sports World', 'Impact', 'Arial Black', sans-serif;
+  --playbookd-font-heading: 'Oswald', 'Impact', 'Arial Black', sans-serif;
+  --playbookd-font-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --playbookd-font-display: 'Sports World', 'Oswald', 'Impact', 'Arial Black', sans-serif;
+
+  /* Shadows */
+  --playbookd-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.06);
+  --playbookd-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --playbookd-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --playbookd-shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.16);
+
+  /* Border Radius */
+  --playbookd-radius-sm: 6px;
+  --playbookd-radius-md: 8px;
+  --playbookd-radius-lg: 12px;
+  --playbookd-radius-xl: 16px;
+
+  /* Transitions */
+  --playbookd-transition-fast: 150ms ease-out;
+  --playbookd-transition-base: 300ms ease-out;
+  --playbookd-transition-slow: 500ms ease-out;
+}
+
+/* Base Styles */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--playbookd-font-body);
+  line-height: 1.5;
+  color: var(--playbookd-text-primary);
+  background-color: var(--playbookd-background);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Athleap Typography Classes */
+.font-brand {
+  font-family: var(--playbookd-font-brand);
+}
+
+.font-heading {
+  font-family: var(--playbookd-font-heading);
+}
+
+.font-body {
+  font-family: var(--playbookd-font-body);
+}
+
+.font-display {
+  font-family: var(--playbookd-font-display);
+}
+
+/* Brand Typography Sizes */
+.text-brand-hero {
+  font-size: 4.5rem;
+  line-height: 1;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  font-family: var(--playbookd-font-brand);
+}
+
+.text-brand-large {
+  font-size: 3rem;
+  line-height: 1.1;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  font-family: var(--playbookd-font-brand);
+}
+
+.text-brand-medium {
+  font-size: 2.25rem;
+  line-height: 1.1;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  font-family: var(--playbookd-font-brand);
+}
+
+.text-brand-small {
+  font-size: 1.875rem;
+  line-height: 1.2;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  font-family: var(--playbookd-font-brand);
+}
+
+/* Athleap Color Classes */
+.bg-playbookd-cream { background-color: var(--playbookd-cream); }
+.bg-playbookd-sky-blue { background-color: var(--playbookd-sky-blue); }
+.bg-playbookd-orange { background-color: var(--playbookd-orange); }
+.bg-playbookd-green { background-color: var(--playbookd-green); }
+.bg-playbookd-dark { background-color: var(--playbookd-dark); }
+.bg-playbookd-surface { background-color: var(--playbookd-surface); }
+
+.text-playbookd-cream { color: var(--playbookd-cream); }
+.text-playbookd-sky-blue { color: var(--playbookd-sky-blue); }
+.text-playbookd-orange { color: var(--playbookd-orange); }
+.text-playbookd-green { color: var(--playbookd-green); }
+.text-playbookd-dark { color: var(--playbookd-dark); }
+.text-playbookd-primary { color: var(--playbookd-text-primary); }
+.text-playbookd-secondary { color: var(--playbookd-text-secondary); }
+.text-playbookd-muted { color: var(--playbookd-text-muted); }
+.text-playbookd-inverse { color: var(--playbookd-text-inverse); }
+
+/* Border Colors */
+.border-playbookd-light { border-color: var(--playbookd-border-light); }
+.border-playbookd-medium { border-color: var(--playbookd-border-medium); }
+.border-playbookd-dark { border-color: var(--playbookd-border-dark); }
+.border-playbookd-sky-blue { border-color: var(--playbookd-sky-blue); }
+
+/* Athleap Component Styles */
+.playbookd-button-primary {
+  background: linear-gradient(135deg, var(--playbookd-sky-blue) 0%, var(--playbookd-orange) 100%);
+  color: var(--playbookd-text-inverse);
+  border: none;
+  border-radius: var(--playbookd-radius-lg);
+  padding: 12px 24px;
+  font-family: var(--playbookd-font-body);
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: var(--playbookd-transition-base);
+  box-shadow: var(--playbookd-shadow-md);
+}
+
+.playbookd-button-primary:hover {
+  background: linear-gradient(135deg, var(--playbookd-primary-500) 0%, var(--playbookd-secondary-700) 100%);
+  transform: translateY(-1px);
+  box-shadow: var(--playbookd-shadow-lg);
+}
+
+.playbookd-button-secondary {
+  background: transparent;
+  color: var(--playbookd-sky-blue);
+  border: 1px solid var(--playbookd-sky-blue);
+  border-radius: var(--playbookd-radius-lg);
+  padding: 12px 24px;
+  font-family: var(--playbookd-font-body);
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: var(--playbookd-transition-base);
+}
+
+.playbookd-button-secondary:hover {
+  background-color: color-mix(in srgb, var(--playbookd-sky-blue) 10%, transparent);
+  border-color: var(--playbookd-primary-600);
+}
+
+.playbookd-card {
+  background-color: var(--playbookd-surface);
+  border: 1px solid var(--playbookd-border-light);
+  border-radius: var(--playbookd-radius-lg);
+  box-shadow: var(--playbookd-shadow-sm);
+  padding: var(--playbookd-spacing-4);
+}
+
+.playbookd-input {
+  background-color: var(--playbookd-surface);
+  border: 1px solid var(--playbookd-border-medium);
+  border-radius: var(--playbookd-radius-md);
+  color: var(--playbookd-text-primary);
+  padding: 12px 16px;
+  font-family: var(--playbookd-font-body);
+  font-size: 1rem;
+  transition: var(--playbookd-transition-base);
+  outline: none;
+}
+
+.playbookd-input:focus {
+  border-color: var(--playbookd-sky-blue);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--playbookd-sky-blue) 20%, transparent);
+}
+
+/* Header Brand Style */
+.playbookd-header-brand {
+  font-family: var(--playbookd-font-brand);
+  font-weight: 400;
+  font-size: 1.5rem;
+  color: var(--playbookd-dark);
+  text-decoration: none;
+  letter-spacing: 0.05em;
+  transition: var(--playbookd-transition-base);
+}
+
+.playbookd-header-brand:hover {
+  opacity: 0.8;
+}
+
+/* Utility Classes */
+.playbookd-shadow-sm { box-shadow: var(--playbookd-shadow-sm); }
+.playbookd-shadow-md { box-shadow: var(--playbookd-shadow-md); }
+.playbookd-shadow-lg { box-shadow: var(--playbookd-shadow-lg); }
+.playbookd-shadow-xl { box-shadow: var(--playbookd-shadow-xl); }
+
+.playbookd-transition { transition: var(--playbookd-transition-base); }
+.playbookd-transition-fast { transition: var(--playbookd-transition-fast); }
+.playbookd-transition-slow { transition: var(--playbookd-transition-slow); }
+
+/* Responsive Typography */
+@media (max-width: 768px) {
+  .text-brand-hero {
+    font-size: 2.5rem;
+  }
+
+  .text-brand-large {
+    font-size: 2rem;
+  }
+
+  .text-brand-medium {
+    font-size: 1.75rem;
+  }
+
+  .text-brand-small {
+    font-size: 1.5rem;
+  }
+}
+
+/* Dark Mode Support (future) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --playbookd-background: var(--playbookd-neutral-900);
+    --playbookd-surface: var(--playbookd-neutral-800);
+    --playbookd-text-primary: var(--playbookd-neutral-100);
+    --playbookd-text-secondary: var(--playbookd-neutral-200);
+    --playbookd-text-muted: var(--playbookd-neutral-400);
+    --playbookd-border-light: var(--playbookd-neutral-700);
+    --playbookd-border-medium: var(--playbookd-neutral-600);
+    --playbookd-border-dark: var(--playbookd-neutral-500);
+  }
+}
+
+/* Animation Helpers */
+@keyframes playbookd-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes playbookd-scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.playbookd-fade-in {
+  animation: playbookd-fade-in 0.3s ease-out;
+}
+
+.playbookd-scale-in {
+  animation: playbookd-scale-in 0.2s ease-out;
+}

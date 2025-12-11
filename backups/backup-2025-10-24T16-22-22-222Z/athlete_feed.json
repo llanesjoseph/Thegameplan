@@ -1,0 +1,177 @@
+[
+  {
+    "id": "6dLxRQtGVZN37TYg1RGa1xmK0vq1",
+    "completedLessons": [],
+    "athleteId": "6dLxRQtGVZN37TYg1RGa1xmK0vq1",
+    "availableLessons": [
+      "APZmMOnoHtwFHMk0EPvy",
+      "EFipOkolaGGMd67tT6kf",
+      "HlHR2I89KHF4bunGQIMq",
+      "QniB1GS3EadqWOJoRtFt",
+      "RmuNkcdvvQUg6b1nBs1k",
+      "S27lX9PaPMnurn92ZMYm",
+      "SnJ7EJMVJ4MjTZG4cOx8",
+      "UWPmzwjpgK8UE7PjcKOY",
+      "YK0CdslPEy1kPRTA6YmC",
+      "fioSrq1ms0b5kqtWR5Ue",
+      "iCIojrh2q4vWbRtYxR2Q",
+      "mLy98CPMuywKJv9ykgGQ",
+      "n7OXCdrKnWrccveIpLNr",
+      "pLIIrs2XkfF644bwKg8s",
+      "qSgjjaTJ21ttIJFNvFTk",
+      "wgDZwMn1fxP0YFpwx8Ig",
+      "xJQ3bDDHCXARWubLxuoM"
+    ],
+    "completionRate": 0,
+    "coachId": "OQuvoho6w3NC9QTBLFSoIK7A2RQ2",
+    "totalLessons": 17,
+    "updatedAt": "2025-10-22T08:13:16.000Z"
+  },
+  {
+    "id": "9fLwgLYUOpPN6FLL3aac8CE3Tzy2",
+    "athleteId": "9fLwgLYUOpPN6FLL3aac8CE3Tzy2",
+    "availableLessons": [
+      "Jj0GHazX2hPDgLVWVANq"
+    ],
+    "completionRate": 0,
+    "coachId": "YwqLeg1qMcS3bUhf61FIBsBUAGx1",
+    "totalLessons": 1,
+    "updatedAt": "2025-10-13T21:54:25.000Z",
+    "completedLessons": [
+      "Jj0GHazX2hPDgLVWVANq"
+    ],
+    "lastActivity": "2025-10-13T21:54:33.000Z"
+  },
+  {
+    "id": "A7gHpwxqLgeMtoayVeK6dpZ5fLf1",
+    "athleteId": "A7gHpwxqLgeMtoayVeK6dpZ5fLf1",
+    "availableLessons": [
+      "EFipOkolaGGMd67tT6kf",
+      "HlHR2I89KHF4bunGQIMq",
+      "QniB1GS3EadqWOJoRtFt",
+      "S27lX9PaPMnurn92ZMYm",
+      "UWPmzwjpgK8UE7PjcKOY",
+      "YK0CdslPEy1kPRTA6YmC",
+      "iCIojrh2q4vWbRtYxR2Q",
+      "irDq33zURHu2h9aUBCXL",
+      "mLy98CPMuywKJv9ykgGQ",
+      "n7OXCdrKnWrccveIpLNr",
+      "pLIIrs2XkfF644bwKg8s",
+      "qSgjjaTJ21ttIJFNvFTk",
+      "wgDZwMn1fxP0YFpwx8Ig",
+      "xJQ3bDDHCXARWubLxuoM"
+    ],
+    "completionRate": 0,
+    "coachId": "OQuvoho6w3NC9QTBLFSoIK7A2RQ2",
+    "totalLessons": 14,
+    "updatedAt": "2025-10-16T17:53:45.000Z",
+    "completedLessons": [
+      "YK0CdslPEy1kPRTA6YmC"
+    ],
+    "lastActivity": "2025-10-16T17:59:23.000Z"
+  },
+  {
+    "id": "I71NQnRVuxW2jAzhFiQdSjckpPz2",
+    "completedLessons": [],
+    "athleteId": "I71NQnRVuxW2jAzhFiQdSjckpPz2",
+    "availableLessons": [
+      "EFipOkolaGGMd67tT6kf",
+      "HlHR2I89KHF4bunGQIMq",
+      "QniB1GS3EadqWOJoRtFt",
+      "RmuNkcdvvQUg6b1nBs1k",
+      "S27lX9PaPMnurn92ZMYm",
+      "SnJ7EJMVJ4MjTZG4cOx8",
+      "UWPmzwjpgK8UE7PjcKOY",
+      "YK0CdslPEy1kPRTA6YmC",
+      "fioSrq1ms0b5kqtWR5Ue",
+      "iCIojrh2q4vWbRtYxR2Q",
+      "mLy98CPMuywKJv9ykgGQ",
+      "n7OXCdrKnWrccveIpLNr",
+      "pLIIrs2XkfF644bwKg8s",
+      "qSgjjaTJ21ttIJFNvFTk",
+      "wgDZwMn1fxP0YFpwx8Ig",
+      "xJQ3bDDHCXARWubLxuoM"
+    ],
+    "completionRate": 0,
+    "coachId": "OQuvoho6w3NC9QTBLFSoIK7A2RQ2",
+    "totalLessons": 16,
+    "updatedAt": "2025-10-21T20:34:57.000Z"
+  },
+  {
+    "id": "JYn0KnJmpmPlK6dH7W9C5Yy0Ioi1",
+    "athleteId": "JYn0KnJmpmPlK6dH7W9C5Yy0Ioi1",
+    "coachId": "OQuvoho6w3NC9QTBLFSoIK7A2RQ2",
+    "assignedLessons": [],
+    "unreadAnnouncements": 0,
+    "createdAt": "2025-10-11T00:54:30.000Z",
+    "availableLessons": [
+      "APZmMOnoHtwFHMk0EPvy",
+      "EFipOkolaGGMd67tT6kf",
+      "EMpb62YS2Ra3hH6VYMYX",
+      "HlHR2I89KHF4bunGQIMq",
+      "QniB1GS3EadqWOJoRtFt",
+      "RmuNkcdvvQUg6b1nBs1k",
+      "S27lX9PaPMnurn92ZMYm",
+      "SnJ7EJMVJ4MjTZG4cOx8",
+      "UWPmzwjpgK8UE7PjcKOY",
+      "YK0CdslPEy1kPRTA6YmC",
+      "fioSrq1ms0b5kqtWR5Ue",
+      "iCIojrh2q4vWbRtYxR2Q",
+      "mLy98CPMuywKJv9ykgGQ",
+      "n7OXCdrKnWrccveIpLNr",
+      "pLIIrs2XkfF644bwKg8s",
+      "qSgjjaTJ21ttIJFNvFTk",
+      "wgDZwMn1fxP0YFpwx8Ig",
+      "xJQ3bDDHCXARWubLxuoM"
+    ],
+    "completionRate": 89,
+    "totalLessons": 18,
+    "updatedAt": "2025-10-23T17:07:17.000Z",
+    "completedLessons": [
+      "mLy98CPMuywKJv9ykgGQ",
+      "n7OXCdrKnWrccveIpLNr",
+      "qSgjjaTJ21ttIJFNvFTk",
+      "pLIIrs2XkfF644bwKg8s",
+      "iCIojrh2q4vWbRtYxR2Q",
+      "QniB1GS3EadqWOJoRtFt",
+      "wgDZwMn1fxP0YFpwx8Ig",
+      "HlHR2I89KHF4bunGQIMq",
+      "EFipOkolaGGMd67tT6kf",
+      "fioSrq1ms0b5kqtWR5Ue",
+      "SnJ7EJMVJ4MjTZG4cOx8",
+      "RmuNkcdvvQUg6b1nBs1k",
+      "UWPmzwjpgK8UE7PjcKOY",
+      "YK0CdslPEy1kPRTA6YmC",
+      "xJQ3bDDHCXARWubLxuoM",
+      "S27lX9PaPMnurn92ZMYm",
+      "APZmMOnoHtwFHMk0EPvy",
+      "EMpb62YS2Ra3hH6VYMYX"
+    ],
+    "lastActivity": "2025-10-23T22:50:19.000Z"
+  },
+  {
+    "id": "NRYaArtP8CRAVBmgQFhOl9ixIto2",
+    "completedLessons": [],
+    "athleteId": "NRYaArtP8CRAVBmgQFhOl9ixIto2",
+    "availableLessons": [],
+    "completionRate": 0,
+    "coachId": "vfEzchS1EVbsu73U1u8XRXwKBSW2",
+    "totalLessons": 0,
+    "updatedAt": "2025-10-15T21:59:22.000Z"
+  },
+  {
+    "id": "skA8MrAshhh6FUh1d2lZSFJWeDg2",
+    "athleteId": "skA8MrAshhh6FUh1d2lZSFJWeDg2",
+    "availableLessons": [
+      "5uvex6NizIfQMpOgBYDR"
+    ],
+    "coachId": "xpXL0YsVg8U12roUXqTK7rUS6fs1",
+    "totalLessons": 1,
+    "completedLessons": [
+      "5uvex6NizIfQMpOgBYDR"
+    ],
+    "lastActivity": "2025-10-23T17:03:56.000Z",
+    "completionRate": 100,
+    "updatedAt": "2025-10-23T17:04:04.000Z"
+  }
+]

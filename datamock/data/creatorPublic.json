@@ -1,0 +1,794 @@
+[
+  {
+    "slug": "cameron-johnson-soccer",
+    "name": "Cameron Johnson",
+    "firstName": "Cameron",
+    "sport": "soccer",
+    "tagline": "Soccer insights, daily",
+    "heroImageUrl": "https://picsum.photos/seed/cameron-johnson-soccer-hero/1200/500",
+    "headshotUrl": "https://picsum.photos/seed/cameron-johnson-soccer-headshot/300/300",
+    "badges": [
+      "Verified",
+      "Top Coach"
+    ],
+    "specialties": [
+      "fundamentals",
+      "strategy"
+    ],
+    "experience": "college",
+    "verified": true,
+    "featured": true,
+    "lessonCount": 2,
+    "profileUrl": "/creators/cameron-johnson-soccer"
+  },
+  {
+    "slug": "taylor-davis-soccer",
+    "name": "Taylor Davis",
+    "firstName": "Taylor",
+    "sport": "soccer",
+    "tagline": "Soccer insights, daily",
+    "heroImageUrl": "https://picsum.photos/seed/taylor-davis-soccer-hero/1200/500",
+    "headshotUrl": "https://picsum.photos/seed/taylor-davis-soccer-headshot/300/300",
+    "badges": [
+      "Verified",
+      "Top Coach"
+    ],
+    "specialties": [
+      "fundamentals",
+      "strategy"
+    ],
+    "experience": "olympic",
+    "verified": true,
+    "featured": false,
+    "lessonCount": 2,
+    "profileUrl": "/creators/taylor-davis-soccer"
+  },
+  {
+    "slug": "taylor-johnson-soccer",
+    "name": "Taylor Johnson",
+    "firstName": "Taylor",
+    "sport": "soccer",
+    "tagline": "Soccer insights, daily",
+    "heroImageUrl": "https://picsum.photos/seed/taylor-johnson-soccer-hero/1200/500",
+    "headshotUrl": "https://picsum.photos/seed/taylor-johnson-soccer-headshot/300/300",
+    "badges": [
+      "Verified",
+      "Top Coach"
+    ],
+    "specialties": [
+      "fundamentals",
+      "strategy"
+    ],
+    "experience": "olympic",
+    "verified": true,
+    "featured": false,
+    "lessonCount": 4,
+    "profileUrl": "/creators/taylor-johnson-soccer"
+  },
+  {
+    "slug": "cameron-patel-basketball",
+    "name": "Cameron Patel",
+    "firstName": "Cameron",
+    "sport": "basketball",
+    "tagline": "Basketball insights, daily",
+    "heroImageUrl": "https://picsum.photos/seed/cameron-patel-basketball-hero/1200/500",
+    "headshotUrl": "https://picsum.photos/seed/cameron-patel-basketball-headshot/300/300",
+    "badges": [
+      "Verified",
+      "Top Coach"
+    ],
+    "specialties": [
+      "fundamentals",
+      "strategy"
+    ],
+    "experience": "pro",
+    "verified": true,
+    "featured": true,
+    "lessonCount": 2,
+    "profileUrl": "/creators/cameron-patel-basketball"
+  },
+  {
+    "slug": "parker-cruz-basketball",
+    "name": "Parker Cruz",
+    "firstName": "Parker",
+    "sport": "basketball",
+    "tagline": "Basketball insights, daily",
+    "heroImageUrl": "https://picsum.photos/seed/parker-cruz-basketball-hero/1200/500",
+    "headshotUrl": "https://picsum.photos/seed/parker-cruz-basketball-headshot/300/300",
+    "badges": [
+      "Verified",
+      "Top Coach"
+    ],
+    "specialties": [
+      "fundamentals",
+      "strategy"
+    ],
+    "experience": "pro",
+    "verified": true,
+    "featured": false,
+    "lessonCount": 2,
+    "profileUrl": "/creators/parker-cruz-basketball"
+  },
+  {
+    "slug": "taylor-lee-basketball",
+    "name": "Taylor Lee",
+    "firstName": "Taylor",
+    "sport": "basketball",
+    "tagline": "Basketball insights, daily",
+    "heroImageUrl": "https://picsum.photos/seed/taylor-lee-basketball-hero/1200/500",
+    "headshotUrl": "https://picsum.photos/seed/taylor-lee-basketball-headshot/300/300",
+    "badges": [
+      "Verified",
+      "Top Coach"
+    ],
+    "specialties": [
+      "fundamentals",
+      "strategy"
+    ],
+    "experience": "pro",
+    "verified": true,
+    "featured": false,
+    "lessonCount": 4,
+    "profileUrl": "/creators/taylor-lee-basketball"
+  },
+  {
+    "slug": "sydney-cruz-baseball",
+    "name": "Sydney Cruz",
+    "firstName": "Sydney",
+    "sport": "baseball",
+    "tagline": "Baseball insights, daily",
+    "heroImageUrl": "https://picsum.photos/seed/sydney-cruz-baseball-hero/1200/500",
+    "headshotUrl": "https://picsum.photos/seed/sydney-cruz-baseball-headshot/300/300",
+    "badges": [
+      "Verified",
+      "Top Coach"
+    ],
+    "specialties": [
+      "fundamentals",
+      "strategy"
+    ],
+    "experience": "college",
+    "verified": true,
+    "featured": true,
+    "lessonCount": 2,
+    "profileUrl": "/creators/sydney-cruz-baseball"
+  },
+  {
+    "slug": "morgan-cruz-baseball",
+    "name": "Morgan Cruz",
+    "firstName": "Morgan",
+    "sport": "baseball",
+    "tagline": "Baseball insights, daily",
+    "heroImageUrl": "https://picsum.photos/seed/morgan-cruz-baseball-hero/1200/500",
+    "headshotUrl": "https://picsum.photos/seed/morgan-cruz-baseball-headshot/300/300",
+    "badges": [
+      "Verified",
+      "Top Coach"
+    ],
+    "specialties": [
+      "fundamentals",
+      "strategy"
+    ],
+    "experience": "olympic",
+    "verified": true,
+    "featured": false,
+    "lessonCount": 4,
+    "profileUrl": "/creators/morgan-cruz-baseball"
+  },
+  {
+    "slug": "riley-smith-baseball",
+    "name": "Riley Smith",
+    "firstName": "Riley",
+    "sport": "baseball",
+    "tagline": "Baseball insights, daily",
+    "heroImageUrl": "https://picsum.photos/seed/riley-smith-baseball-hero/1200/500",
+    "headshotUrl": "https://picsum.photos/seed/riley-smith-baseball-headshot/300/300",
+    "badges": [
+      "Verified",
+      "Top Coach"
+    ],
+    "specialties": [
+      "fundamentals",
+      "strategy"
+    ],
+    "experience": "pro",
+    "verified": true,
+    "featured": false,
+    "lessonCount": 2,
+    "profileUrl": "/creators/riley-smith-baseball"
+  },
+  {
+    "slug": "parker-lee-tennis",
+    "name": "Parker Lee",
+    "firstName": "Parker",
+    "sport": "tennis",
+    "tagline": "Tennis insights, daily",
+    "heroImageUrl": "https://picsum.photos/seed/parker-lee-tennis-hero/1200/500",
+    "headshotUrl": "https://picsum.photos/seed/parker-lee-tennis-headshot/300/300",
+    "badges": [
+      "Verified",
+      "Top Coach"
+    ],
+    "specialties": [
+      "fundamentals",
+      "strategy"
+    ],
+    "experience": "pro",
+    "verified": true,
+    "featured": true,
+    "lessonCount": 1,
+    "profileUrl": "/creators/parker-lee-tennis"
+  },
+  {
+    "slug": "avery-brown-tennis",
+    "name": "Avery Brown",
+    "firstName": "Avery",
+    "sport": "tennis",
+    "tagline": "Tennis insights, daily",
+    "heroImageUrl": "https://picsum.photos/seed/avery-brown-tennis-hero/1200/500",
+    "headshotUrl": "https://picsum.photos/seed/avery-brown-tennis-headshot/300/300",
+    "badges": [
+      "Verified",
+      "Top Coach"
+    ],
+    "specialties": [
+      "fundamentals",
+      "strategy"
+    ],
+    "experience": "pro",
+    "verified": true,
+    "featured": false,
+    "lessonCount": 4,
+    "profileUrl": "/creators/avery-brown-tennis"
+  },
+  {
+    "slug": "avery-brown-tennis",
+    "name": "Avery Brown",
+    "firstName": "Avery",
+    "sport": "tennis",
+    "tagline": "Tennis insights, daily",
+    "heroImageUrl": "https://picsum.photos/seed/avery-brown-tennis-hero/1200/500",
+    "headshotUrl": "https://picsum.photos/seed/avery-brown-tennis-headshot/300/300",
+    "badges": [
+      "Verified",
+      "Top Coach"
+    ],
+    "specialties": [
+      "fundamentals",
+      "strategy"
+    ],
+    "experience": "pro",
+    "verified": true,
+    "featured": false,
+    "lessonCount": 4,
+    "profileUrl": "/creators/avery-brown-tennis"
+  },
+  {
+    "slug": "cameron-davis-bjj",
+    "name": "Cameron Davis",
+    "firstName": "Cameron",
+    "sport": "bjj",
+    "tagline": "Brazilian Jiu-Jitsu insights, daily",
+    "heroImageUrl": "https://picsum.photos/seed/cameron-davis-bjj-hero/1200/500",
+    "headshotUrl": "https://picsum.photos/seed/cameron-davis-bjj-headshot/300/300",
+    "badges": [
+      "Verified",
+      "Top Coach"
+    ],
+    "specialties": [
+      "fundamentals",
+      "strategy"
+    ],
+    "experience": "olympic",
+    "verified": true,
+    "featured": true,
+    "lessonCount": 4,
+    "profileUrl": "/creators/cameron-davis-bjj"
+  },
+  {
+    "slug": "quinn-patel-bjj",
+    "name": "Quinn Patel",
+    "firstName": "Quinn",
+    "sport": "bjj",
+    "tagline": "Brazilian Jiu-Jitsu insights, daily",
+    "heroImageUrl": "https://picsum.photos/seed/quinn-patel-bjj-hero/1200/500",
+    "headshotUrl": "https://picsum.photos/seed/quinn-patel-bjj-headshot/300/300",
+    "badges": [
+      "Verified",
+      "Top Coach"
+    ],
+    "specialties": [
+      "fundamentals",
+      "strategy"
+    ],
+    "experience": "college",
+    "verified": true,
+    "featured": false,
+    "lessonCount": 1,
+    "profileUrl": "/creators/quinn-patel-bjj"
+  },
+  {
+    "slug": "jordan-cruz-bjj",
+    "name": "Jordan Cruz",
+    "firstName": "Jordan",
+    "sport": "bjj",
+    "tagline": "Brazilian Jiu-Jitsu insights, daily",
+    "heroImageUrl": "https://picsum.photos/seed/jordan-cruz-bjj-hero/1200/500",
+    "headshotUrl": "https://picsum.photos/seed/jordan-cruz-bjj-headshot/300/300",
+    "badges": [
+      "Verified",
+      "Top Coach"
+    ],
+    "specialties": [
+      "fundamentals",
+      "strategy"
+    ],
+    "experience": "college",
+    "verified": true,
+    "featured": false,
+    "lessonCount": 3,
+    "profileUrl": "/creators/jordan-cruz-bjj"
+  },
+  {
+    "slug": "alex-cruz-running",
+    "name": "Alex Cruz",
+    "firstName": "Alex",
+    "sport": "running",
+    "tagline": "Running insights, daily",
+    "heroImageUrl": "https://picsum.photos/seed/alex-cruz-running-hero/1200/500",
+    "headshotUrl": "https://picsum.photos/seed/alex-cruz-running-headshot/300/300",
+    "badges": [
+      "Verified",
+      "Top Coach"
+    ],
+    "specialties": [
+      "fundamentals",
+      "strategy"
+    ],
+    "experience": "college",
+    "verified": true,
+    "featured": true,
+    "lessonCount": 4,
+    "profileUrl": "/creators/alex-cruz-running"
+  },
+  {
+    "slug": "sydney-smith-running",
+    "name": "Sydney Smith",
+    "firstName": "Sydney",
+    "sport": "running",
+    "tagline": "Running insights, daily",
+    "heroImageUrl": "https://picsum.photos/seed/sydney-smith-running-hero/1200/500",
+    "headshotUrl": "https://picsum.photos/seed/sydney-smith-running-headshot/300/300",
+    "badges": [
+      "Verified",
+      "Top Coach"
+    ],
+    "specialties": [
+      "fundamentals",
+      "strategy"
+    ],
+    "experience": "college",
+    "verified": true,
+    "featured": false,
+    "lessonCount": 1,
+    "profileUrl": "/creators/sydney-smith-running"
+  },
+  {
+    "slug": "rowan-lopez-running",
+    "name": "Rowan Lopez",
+    "firstName": "Rowan",
+    "sport": "running",
+    "tagline": "Running insights, daily",
+    "heroImageUrl": "https://picsum.photos/seed/rowan-lopez-running-hero/1200/500",
+    "headshotUrl": "https://picsum.photos/seed/rowan-lopez-running-headshot/300/300",
+    "badges": [
+      "Verified",
+      "Top Coach"
+    ],
+    "specialties": [
+      "fundamentals",
+      "strategy"
+    ],
+    "experience": "pro",
+    "verified": true,
+    "featured": false,
+    "lessonCount": 3,
+    "profileUrl": "/creators/rowan-lopez-running"
+  },
+  {
+    "slug": "avery-smith-volleyball",
+    "name": "Avery Smith",
+    "firstName": "Avery",
+    "sport": "volleyball",
+    "tagline": "Volleyball insights, daily",
+    "heroImageUrl": "https://picsum.photos/seed/avery-smith-volleyball-hero/1200/500",
+    "headshotUrl": "https://picsum.photos/seed/avery-smith-volleyball-headshot/300/300",
+    "badges": [
+      "Verified",
+      "Top Coach"
+    ],
+    "specialties": [
+      "fundamentals",
+      "strategy"
+    ],
+    "experience": "olympic",
+    "verified": true,
+    "featured": true,
+    "lessonCount": 1,
+    "profileUrl": "/creators/avery-smith-volleyball"
+  },
+  {
+    "slug": "riley-smith-volleyball",
+    "name": "Riley Smith",
+    "firstName": "Riley",
+    "sport": "volleyball",
+    "tagline": "Volleyball insights, daily",
+    "heroImageUrl": "https://picsum.photos/seed/riley-smith-volleyball-hero/1200/500",
+    "headshotUrl": "https://picsum.photos/seed/riley-smith-volleyball-headshot/300/300",
+    "badges": [
+      "Verified",
+      "Top Coach"
+    ],
+    "specialties": [
+      "fundamentals",
+      "strategy"
+    ],
+    "experience": "olympic",
+    "verified": true,
+    "featured": false,
+    "lessonCount": 4,
+    "profileUrl": "/creators/riley-smith-volleyball"
+  },
+  {
+    "slug": "morgan-lopez-volleyball",
+    "name": "Morgan Lopez",
+    "firstName": "Morgan",
+    "sport": "volleyball",
+    "tagline": "Volleyball insights, daily",
+    "heroImageUrl": "https://picsum.photos/seed/morgan-lopez-volleyball-hero/1200/500",
+    "headshotUrl": "https://picsum.photos/seed/morgan-lopez-volleyball-headshot/300/300",
+    "badges": [
+      "Verified",
+      "Top Coach"
+    ],
+    "specialties": [
+      "fundamentals",
+      "strategy"
+    ],
+    "experience": "olympic",
+    "verified": true,
+    "featured": false,
+    "lessonCount": 3,
+    "profileUrl": "/creators/morgan-lopez-volleyball"
+  },
+  {
+    "slug": "morgan-lee-swimming",
+    "name": "Morgan Lee",
+    "firstName": "Morgan",
+    "sport": "swimming",
+    "tagline": "Swimming insights, daily",
+    "heroImageUrl": "https://picsum.photos/seed/morgan-lee-swimming-hero/1200/500",
+    "headshotUrl": "https://picsum.photos/seed/morgan-lee-swimming-headshot/300/300",
+    "badges": [
+      "Verified",
+      "Top Coach"
+    ],
+    "specialties": [
+      "fundamentals",
+      "strategy"
+    ],
+    "experience": "college",
+    "verified": true,
+    "featured": true,
+    "lessonCount": 2,
+    "profileUrl": "/creators/morgan-lee-swimming"
+  },
+  {
+    "slug": "casey-garcia-swimming",
+    "name": "Casey Garcia",
+    "firstName": "Casey",
+    "sport": "swimming",
+    "tagline": "Swimming insights, daily",
+    "heroImageUrl": "https://picsum.photos/seed/casey-garcia-swimming-hero/1200/500",
+    "headshotUrl": "https://picsum.photos/seed/casey-garcia-swimming-headshot/300/300",
+    "badges": [
+      "Verified",
+      "Top Coach"
+    ],
+    "specialties": [
+      "fundamentals",
+      "strategy"
+    ],
+    "experience": "college",
+    "verified": true,
+    "featured": false,
+    "lessonCount": 2,
+    "profileUrl": "/creators/casey-garcia-swimming"
+  },
+  {
+    "slug": "rowan-brown-swimming",
+    "name": "Rowan Brown",
+    "firstName": "Rowan",
+    "sport": "swimming",
+    "tagline": "Swimming insights, daily",
+    "heroImageUrl": "https://picsum.photos/seed/rowan-brown-swimming-hero/1200/500",
+    "headshotUrl": "https://picsum.photos/seed/rowan-brown-swimming-headshot/300/300",
+    "badges": [
+      "Verified",
+      "Top Coach"
+    ],
+    "specialties": [
+      "fundamentals",
+      "strategy"
+    ],
+    "experience": "olympic",
+    "verified": true,
+    "featured": false,
+    "lessonCount": 4,
+    "profileUrl": "/creators/rowan-brown-swimming"
+  },
+  {
+    "slug": "morgan-lee-football",
+    "name": "Morgan Lee",
+    "firstName": "Morgan",
+    "sport": "football",
+    "tagline": "American Football insights, daily",
+    "heroImageUrl": "https://picsum.photos/seed/morgan-lee-football-hero/1200/500",
+    "headshotUrl": "https://picsum.photos/seed/morgan-lee-football-headshot/300/300",
+    "badges": [
+      "Verified",
+      "Top Coach"
+    ],
+    "specialties": [
+      "fundamentals",
+      "strategy"
+    ],
+    "experience": "pro",
+    "verified": true,
+    "featured": true,
+    "lessonCount": 5,
+    "profileUrl": "/creators/morgan-lee-football"
+  },
+  {
+    "slug": "cameron-martinez-football",
+    "name": "Cameron Martinez",
+    "firstName": "Cameron",
+    "sport": "football",
+    "tagline": "American Football insights, daily",
+    "heroImageUrl": "https://picsum.photos/seed/cameron-martinez-football-hero/1200/500",
+    "headshotUrl": "https://picsum.photos/seed/cameron-martinez-football-headshot/300/300",
+    "badges": [
+      "Verified",
+      "Top Coach"
+    ],
+    "specialties": [
+      "fundamentals",
+      "strategy"
+    ],
+    "experience": "pro",
+    "verified": true,
+    "featured": false,
+    "lessonCount": 3,
+    "profileUrl": "/creators/cameron-martinez-football"
+  },
+  {
+    "slug": "quinn-lee-football",
+    "name": "Quinn Lee",
+    "firstName": "Quinn",
+    "sport": "football",
+    "tagline": "American Football insights, daily",
+    "heroImageUrl": "https://picsum.photos/seed/quinn-lee-football-hero/1200/500",
+    "headshotUrl": "https://picsum.photos/seed/quinn-lee-football-headshot/300/300",
+    "badges": [
+      "Verified",
+      "Top Coach"
+    ],
+    "specialties": [
+      "fundamentals",
+      "strategy"
+    ],
+    "experience": "pro",
+    "verified": true,
+    "featured": false,
+    "lessonCount": 0,
+    "profileUrl": "/creators/quinn-lee-football"
+  },
+  {
+    "slug": "alex-lee-golf",
+    "name": "Alex Lee",
+    "firstName": "Alex",
+    "sport": "golf",
+    "tagline": "Golf insights, daily",
+    "heroImageUrl": "https://picsum.photos/seed/alex-lee-golf-hero/1200/500",
+    "headshotUrl": "https://picsum.photos/seed/alex-lee-golf-headshot/300/300",
+    "badges": [
+      "Verified",
+      "Top Coach"
+    ],
+    "specialties": [
+      "fundamentals",
+      "strategy"
+    ],
+    "experience": "olympic",
+    "verified": true,
+    "featured": true,
+    "lessonCount": 5,
+    "profileUrl": "/creators/alex-lee-golf"
+  },
+  {
+    "slug": "taylor-johnson-golf",
+    "name": "Taylor Johnson",
+    "firstName": "Taylor",
+    "sport": "golf",
+    "tagline": "Golf insights, daily",
+    "heroImageUrl": "https://picsum.photos/seed/taylor-johnson-golf-hero/1200/500",
+    "headshotUrl": "https://picsum.photos/seed/taylor-johnson-golf-headshot/300/300",
+    "badges": [
+      "Verified",
+      "Top Coach"
+    ],
+    "specialties": [
+      "fundamentals",
+      "strategy"
+    ],
+    "experience": "olympic",
+    "verified": true,
+    "featured": false,
+    "lessonCount": 0,
+    "profileUrl": "/creators/taylor-johnson-golf"
+  },
+  {
+    "slug": "rowan-brown-golf",
+    "name": "Rowan Brown",
+    "firstName": "Rowan",
+    "sport": "golf",
+    "tagline": "Golf insights, daily",
+    "heroImageUrl": "https://picsum.photos/seed/rowan-brown-golf-hero/1200/500",
+    "headshotUrl": "https://picsum.photos/seed/rowan-brown-golf-headshot/300/300",
+    "badges": [
+      "Verified",
+      "Top Coach"
+    ],
+    "specialties": [
+      "fundamentals",
+      "strategy"
+    ],
+    "experience": "olympic",
+    "verified": true,
+    "featured": false,
+    "lessonCount": 3,
+    "profileUrl": "/creators/rowan-brown-golf"
+  },
+  {
+    "slug": "cameron-johnson-boxing",
+    "name": "Cameron Johnson",
+    "firstName": "Cameron",
+    "sport": "boxing",
+    "tagline": "Boxing insights, daily",
+    "heroImageUrl": "https://picsum.photos/seed/cameron-johnson-boxing-hero/1200/500",
+    "headshotUrl": "https://picsum.photos/seed/cameron-johnson-boxing-headshot/300/300",
+    "badges": [
+      "Verified",
+      "Top Coach"
+    ],
+    "specialties": [
+      "fundamentals",
+      "strategy"
+    ],
+    "experience": "olympic",
+    "verified": true,
+    "featured": true,
+    "lessonCount": 3,
+    "profileUrl": "/creators/cameron-johnson-boxing"
+  },
+  {
+    "slug": "jordan-lopez-boxing",
+    "name": "Jordan Lopez",
+    "firstName": "Jordan",
+    "sport": "boxing",
+    "tagline": "Boxing insights, daily",
+    "heroImageUrl": "https://picsum.photos/seed/jordan-lopez-boxing-hero/1200/500",
+    "headshotUrl": "https://picsum.photos/seed/jordan-lopez-boxing-headshot/300/300",
+    "badges": [
+      "Verified",
+      "Top Coach"
+    ],
+    "specialties": [
+      "fundamentals",
+      "strategy"
+    ],
+    "experience": "olympic",
+    "verified": true,
+    "featured": false,
+    "lessonCount": 2,
+    "profileUrl": "/creators/jordan-lopez-boxing"
+  },
+  {
+    "slug": "cameron-cruz-boxing",
+    "name": "Cameron Cruz",
+    "firstName": "Cameron",
+    "sport": "boxing",
+    "tagline": "Boxing insights, daily",
+    "heroImageUrl": "https://picsum.photos/seed/cameron-cruz-boxing-hero/1200/500",
+    "headshotUrl": "https://picsum.photos/seed/cameron-cruz-boxing-headshot/300/300",
+    "badges": [
+      "Verified",
+      "Top Coach"
+    ],
+    "specialties": [
+      "fundamentals",
+      "strategy"
+    ],
+    "experience": "college",
+    "verified": true,
+    "featured": false,
+    "lessonCount": 3,
+    "profileUrl": "/creators/cameron-cruz-boxing"
+  },
+  {
+    "slug": "quinn-smith-track",
+    "name": "Quinn Smith",
+    "firstName": "Quinn",
+    "sport": "track",
+    "tagline": "Track & Field insights, daily",
+    "heroImageUrl": "https://picsum.photos/seed/quinn-smith-track-hero/1200/500",
+    "headshotUrl": "https://picsum.photos/seed/quinn-smith-track-headshot/300/300",
+    "badges": [
+      "Verified",
+      "Top Coach"
+    ],
+    "specialties": [
+      "fundamentals",
+      "strategy"
+    ],
+    "experience": "college",
+    "verified": true,
+    "featured": true,
+    "lessonCount": 3,
+    "profileUrl": "/creators/quinn-smith-track"
+  },
+  {
+    "slug": "jordan-davis-track",
+    "name": "Jordan Davis",
+    "firstName": "Jordan",
+    "sport": "track",
+    "tagline": "Track & Field insights, daily",
+    "heroImageUrl": "https://picsum.photos/seed/jordan-davis-track-hero/1200/500",
+    "headshotUrl": "https://picsum.photos/seed/jordan-davis-track-headshot/300/300",
+    "badges": [
+      "Verified",
+      "Top Coach"
+    ],
+    "specialties": [
+      "fundamentals",
+      "strategy"
+    ],
+    "experience": "pro",
+    "verified": true,
+    "featured": false,
+    "lessonCount": 3,
+    "profileUrl": "/creators/jordan-davis-track"
+  },
+  {
+    "slug": "casey-smith-track",
+    "name": "Casey Smith",
+    "firstName": "Casey",
+    "sport": "track",
+    "tagline": "Track & Field insights, daily",
+    "heroImageUrl": "https://picsum.photos/seed/casey-smith-track-hero/1200/500",
+    "headshotUrl": "https://picsum.photos/seed/casey-smith-track-headshot/300/300",
+    "badges": [
+      "Verified",
+      "Top Coach"
+    ],
+    "specialties": [
+      "fundamentals",
+      "strategy"
+    ],
+    "experience": "pro",
+    "verified": true,
+    "featured": false,
+    "lessonCount": 2,
+    "profileUrl": "/creators/casey-smith-track"
+  }
+]

@@ -1,0 +1,168 @@
+STRIPE SETUP REQUIREMENTS
+==========================
+
+This document lists everything you need to get from Stripe to set up the subscription system.
+
+1. API KEYS (REQUIRED)
+----------------------
+Location: Stripe Dashboard → Developers → API keys
+
+a) Publishable Key (STRIPE_PUBLIC_KEY)
+   - Format: pk_test_... (test mode) or pk_live_... (live mode)
+   - Used for: Client-side Stripe checkout
+   - Note: Safe to expose in frontend code
+
+b) Secret Key (STRIPE_SECRET_KEY)
+   - Format: sk_test_... (test mode) or sk_live_... (live mode)
+   - Used for: Server-side API calls
+   - ⚠️  WARNING: Keep this secret! Never expose in frontend code
+
+2. PRODUCT PRICE IDs (REQUIRED)
+--------------------------------
+Location: Stripe Dashboard → Products → Create products
+
+a) Basic Tier (STRIPE_ATHLETE_BASIC_PRICE_ID)
+   - Product Name: "Athleap Basic"
+   - Description: Perfect for athletes starting their journey
+   - Price: $19.99 USD
+   - Billing: Monthly (recurring)
+   - Format: price_...
+   - Features: 2 video submissions, basic features
+
+b) Elite Tier (STRIPE_ATHLETE_ELITE_PRICE_ID)
+   - Product Name: "Athleap Elite"
+   - Description: For serious athletes
+   - Price: $29.99 USD
+   - Billing: Monthly (recurring)
+   - Format: price_...
+   - Features: Unlimited videos, AI assistant, coach feed, priority queue
+
+3. WEBHOOK SECRET (REQUIRED FOR PRODUCTION)
+-------------------------------------------
+Location: Stripe Dashboard → Developers → Webhooks
+
+Setup Steps:
+1. Click "Add endpoint"
+2. Enter webhook URL: https://yourdomain.com/api/webhooks/stripe
+3. Select these events:
+   - checkout.session.completed
+   - customer.subscription.created
+   - customer.subscription.updated
+   - customer.subscription.deleted
+   - invoice.payment_failed
+4. Click "Add endpoint"
+5. Copy the Signing secret (whsec_...)
+
+Format: whsec_...
+Used for: Verifying webhook requests are from Stripe
+
+4. ENVIRONMENT VARIABLES
+------------------------
+Add these to your .env.local (development) and production environment:
+
+STRIPE_PUBLIC_KEY=pk_test_...
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_ATHLETE_BASIC_PRICE_ID=price_...
+STRIPE_ATHLETE_ELITE_PRICE_ID=price_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+NEXT_PUBLIC_BASE_URL=http://localhost:3000
+
+For production, use:
+- pk_live_... (instead of pk_test_...)
+- sk_live_... (instead of sk_test_...)
+- https://yourdomain.com (instead of localhost)
+
+5. QUICK SETUP CHECKLIST
+-------------------------
+[ ] Create Stripe account at https://dashboard.stripe.com
+[ ] Get API keys from Developers → API keys
+[ ] Create "Athleap Basic" product ($19.99/month)
+[ ] Create "Athleap Elite" product ($29.99/month)
+[ ] Copy both Price IDs
+[ ] Set up webhook endpoint
+[ ] Select required webhook events
+[ ] Copy webhook signing secret
+[ ] Add all environment variables to .env.local
+[ ] Test with test card: 4242 4242 4242 4242
+[ ] Enable Customer Portal (Settings → Billing → Customer portal)
+[ ] For production: Switch to live mode and repeat steps with live keys
+
+6. TESTING
+----------
+Test Card Numbers:
+- Success: 4242 4242 4242 4242
+- Decline: 4000 0000 0000 0002
+- 3D Secure: 4000 0025 0000 3155
+
+For all test cards:
+- Expiry: Any future date (e.g., 12/34)
+- CVC: Any 3 digits (e.g., 123)
+- ZIP: Any 5 digits (e.g., 12345)
+
+Local Webhook Testing:
+1. Install Stripe CLI
+2. Run: stripe login
+3. Run: stripe listen --forward-to localhost:3000/api/webhooks/stripe
+4. Copy the webhook secret from CLI output
+5. Add to .env.local as STRIPE_WEBHOOK_SECRET
+
+7. CUSTOMER PORTAL (RECOMMENDED)
+---------------------------------
+Location: Stripe Dashboard → Settings → Billing → Customer portal
+
+Enable Customer Portal to allow users to:
+- Update subscriptions (upgrade/downgrade)
+- Cancel subscriptions
+- Update payment methods
+- View invoices
+
+Configuration:
+- Cancellation behavior: End subscription at end of billing period
+- Proration: Enable prorate plan changes
+
+8. PRICING TIERS
+----------------
+Basic Tier: $19.99/month
+- 2 video submissions per month
+- Basic features
+- 7-day free trial
+
+Elite Tier: $29.99/month
+- Unlimited video submissions
+- AI assistant access
+- Coach feed access
+- Priority review queue
+- 7-day free trial
+
+9. WHERE TO FIND EACH ITEM IN STRIPE DASHBOARD
+-----------------------------------------------
+API Keys:
+  Dashboard → Developers → API keys
+
+Products/Price IDs:
+  Dashboard → Products → [Create or view products] → Copy Price ID
+
+Webhook Secret:
+  Dashboard → Developers → Webhooks → [Your endpoint] → Signing secret
+
+Customer Portal:
+  Dashboard → Settings → Billing → Customer portal
+
+10. SUPPORT RESOURCES
+---------------------
+- Stripe Documentation: https://stripe.com/docs
+- Stripe API Reference: https://stripe.com/docs/api
+- Stripe Testing Guide: https://stripe.com/docs/testing
+- Stripe Webhooks Guide: https://stripe.com/docs/webhooks
+
+11. NOTES
+---------
+- Start in Test Mode to test everything safely
+- Switch to Live Mode only after testing is complete
+- You'll need to create products again in Live Mode (separate from test mode)
+- Keep your secret key secure - never commit it to git
+- Webhook secret is different for test vs live mode
+- Price IDs are different for test vs live mode
+
+For detailed setup instructions, see: STRIPE_SETUP_GUIDE.md
+

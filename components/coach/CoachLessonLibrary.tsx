@@ -1,0 +1,160 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useAuth } from '@/hooks/use-auth'
+import { collection, getDocs, query, where, orderBy } from 'firebase/firestore'
+import { db, storage } from '@/lib/firebase.client'
+import { getDownloadURL, ref } from 'firebase/storage'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+
+type Lesson = { id: string; title: string; thumbnailUrl?: string }
+
+export default function CoachLessonLibrary() {
+  const router = useRouter()
+  const { user } = useAuth()
+  const [lessons, setLessons] = useState<Lesson[]>([])
+  const [openLessonId, setOpenLessonId] = useState<string | null>(null)
+  const [lessonPage, setLessonPage] = useState(0)
+  const lessonPageSize = 4
+  const first = user?.displayName?.split(' ')[0] || 'Your'
+
+  useEffect(() => {
+    const load = async () => {
+      if (!user?.uid) return
+      try {
+        const q = query(
+          collection(db, 'content'),
+          where('creatorUid', '==', user.uid),
+          where('status', '==', 'published'),
+          orderBy('createdAt', 'desc')
+        )
+        const snap = await getDocs(q)
+        let items: Lesson[] = snap.docs.map(d => {
+          const data = d.data() as any
+          return {
+            id: d.id,
+            title: data.title || 'Title',
+            thumbnailUrl: data.thumbnailUrl || data.imageUrl || data.coverUrl || ''
+          }
+        })
+        // Resolve storage paths for thumbnails
+        items = await Promise.all(
+          items.map(async (it) => {
+            const isHttp = /^https?:\/\//i.test(it.thumbnailUrl || '')
+            if (it.thumbnailUrl && !isHttp) {
+              try {
+                const url = await getDownloadURL(ref(storage, it.thumbnailUrl))
+                return { ...it, thumbnailUrl: url }
+              } catch {
+                return it
+              }
+            }
+            return it
+          })
+        )
+        setLessons(items)
+      } catch (e) {
+        console.warn('Failed to load lessons:', e)
+      }
+    }
+    load()
+  }, [user])
+
+  return (
+    <div>
+      <h2
+        className="text-xl font-bold mb-2"
+        style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif', fontWeight: 700 }}
+      >
+        {first}'s Lesson Library
+      </h2>
+
+      <div className="relative">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          {lessons.slice(lessonPage * lessonPageSize, (lessonPage + 1) * lessonPageSize).map((l) => (
+            <button
+              key={l.id}
+              onClick={() => setOpenLessonId(l.id)}
+              className="text-left w-full"
+            >
+              <div className="w-full aspect-square rounded-lg overflow-hidden mb-1">
+                {l.thumbnailUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={l.thumbnailUrl} alt={l.title} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#8B7D7B' }}>
+                    <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
+                  </div>
+                )}
+              </div>
+              <p className="text-sm font-semibold" style={{ color: '#000000', fontFamily: '\"Open Sans\", sans-serif' }}>
+                {l.title}
+              </p>
+            </button>
+          ))}
+          {lessons.length === 0 && (
+            <div className="text-sm text-gray-500">No published lessons yet.</div>
+          )}
+        </div>
+
+        {/* Pagination arrows - only show if MORE than 4 lessons */}
+        {lessons.length > 4 && (
+          <>
+            <button
+              aria-label="Previous lessons"
+              disabled={lessonPage === 0}
+              onClick={() => setLessonPage((p) => Math.max(0, p - 1))}
+              className={`absolute left-2 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full border flex items-center justify-center transition ${
+                lessonPage > 0
+                  ? 'bg-white text-black border-black/70 hover:bg-black hover:text-white'
+                  : 'bg-white text-gray-400 border-gray-300 cursor-not-allowed opacity-60'
+              }`}
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              aria-label="Next lessons"
+              disabled={lessonPage >= Math.ceil(lessons.length / lessonPageSize) - 1}
+              onClick={() => setLessonPage((p) => Math.min(Math.ceil(lessons.length / lessonPageSize) - 1, p + 1))}
+              className={`absolute right-2 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full border flex items-center justify-center transition ${
+                lessonPage < Math.ceil(lessons.length / lessonPageSize) - 1
+                  ? 'bg-white text-black border-black/70 hover:bg-black hover:text-white'
+                  : 'bg-white text-gray-400 border-gray-300 cursor-not-allowed opacity-60'
+              }`}
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </>
+        )}
+      </div>
+
+      {/* Inline editor drawer */}
+      {openLessonId && (
+        <div
+          className="fixed inset-0 z-50"
+          style={{ backgroundColor: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(2px)' }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setOpenLessonId(null)
+          }}
+        >
+          <div className="fixed right-4 bottom-4 sm:right-6 sm:bottom-6 w-[94vw] sm:w-[840px] max-w-[880px] rounded-2xl shadow-2xl overflow-hidden bg-white">
+            <div className="flex items-center justify-between px-4 py-3 border-b" style={{ background: '#FC0105' }}>
+              <h3 className="text-white font-bold" style={{ fontFamily: '\"Open Sans\", sans-serif' }}>Edit Lesson</h3>
+              <button onClick={() => setOpenLessonId(null)} className="text-white/90 hover:text-white px-2 py-1 rounded-lg hover:bg-white/10">✕</button>
+            </div>
+            <div className="h-[70vh]">
+              <iframe
+                src={`/dashboard/coach/lessons/${openLessonId}/edit?embedded=true`}
+                title="Edit Lesson"
+                className="w-full h-full border-0"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+

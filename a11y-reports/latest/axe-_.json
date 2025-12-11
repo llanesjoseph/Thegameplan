@@ -1,0 +1,56 @@
+{
+  "violations": [
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "tags": [
+        "cat.color",
+        "wcag2aa",
+        "wcag143",
+        "TTv5",
+        "TT13.c",
+        "EN-301-549",
+        "EN-9.1.4.3",
+        "ACT"
+      ],
+      "description": "Ensures the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.8/color-contrast?application=axeAPI",
+      "nodes": [
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#ffffff",
+                "bgColor": "#ffffff",
+                "contrastRatio": 1.69,
+                "fontSize": "24.0pt (32px)",
+                "fontWeight": "bold",
+                "messageKey": "fgOnShadowColor",
+                "expectedContrastRatio": "3:1",
+                "shadowColor": "#c7c7c7"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has insufficient color contrast of 1.69 between the foreground and shadow color (foreground color: #ffffff, text-shadow color: #c7c7c7, font size: 24.0pt (32px), font weight: bold). Expected contrast ratio of 3:1"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<h1 style=\"font-family:Sports World, Impact, Arial Black, sans-serif;color:white;text-shadow:3px 3px 6px rgba(0,0,0,0.7);line-height:0.9\" class=\"jsx-c76c231e54586b21 text-6xl sm:text-7xl md:text-8xl lg:text-9xl tracking-wider mb-6\">PLAYBOOKD</h1>",
+          "target": [
+            "h1"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.69 between the foreground and shadow color (foreground color: #ffffff, text-shadow color: #c7c7c7, font size: 24.0pt (32px), font weight: bold). Expected contrast ratio of 3:1"
+        }
+      ]
+    }
+  ],
+  "incomplete": [],
+  "passes": 20,
+  "inapplicable": 40,
+  "timestamp": "2025-10-14T21:02:03.928Z",
+  "url": "http://localhost:3000/"
+}

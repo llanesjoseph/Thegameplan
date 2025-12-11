@@ -1,0 +1,34 @@
+
+.env.local
+.env
+.next
+node_modules
+coverage
+*.log
+
+# Service account keys
+firebase-admin-key.json
+*-key.json
+firebase-service-account-key.txt
+
+# Build outputs
+out/
+.next/
+dist/
+
+# Local setup instructions (contains sensitive data)
+GITHUB_SECRETS_SETUP.txt
+
+.vercel
+serviceAccountKey.json
+
+# Vercel environment file (upload manually)
+.env.vercel
+service-account.json
+
+# Local Stripe config reference (contains real secrets, never commit)
+stripe.env
+
+# Stripe CLI binary
+stripe.exe
+vercel-firebase-key.txt

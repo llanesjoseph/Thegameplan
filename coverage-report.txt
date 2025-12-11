@@ -1,0 +1,505 @@
+
+> playbookd@1.0.0 test:coverage
+> vitest run --coverage
+
+
+[1m[46m RUN [49m[22m [36mv3.2.4 [39m[90mC:/Users/bigpe/OneDrive/Desktop/Crucible/GAMEPLAN-SOURCE-ONLY[39m
+      [2mCoverage enabled with [22m[33mv8[39m
+
+ [32m✓[39m tests/unit/role-routing.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m tests/integration/api-validation.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m tests/unit/phone-detection.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m tests/unit/athlete-profile-data.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m tests/integration/message-safety.test.ts [2m([22m[2m63 tests[22m[2m)[22m[32m 27[2mms[22m[39m
+ [32m✓[39m tests/integration/ai-coaching-safety.test.ts [2m([22m[2m27 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m6 passed[39m[22m[90m (6)[39m
+[2m      Tests [22m [1m[32m158 passed[39m[22m[90m (158)[39m
+[2m   Start at [22m 14:22:35
+[2m   Duration [22m 4.64s[2m (transform 254ms, setup 2.90s, collect 378ms, tests 85ms, environment 6.98s, prepare 1.56s)[22m
+
+[34m % [39m[2mCoverage report from [22m[33mv8[39m
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------|---------|----------|---------|---------|-------------------
+All files          |    0.29 |    64.39 |   63.04 |    0.29 |                   
+ ...AN-SOURCE-ONLY |       0 |     9.09 |    9.09 |       0 |                   
+  ...nt.config.mjs |       0 |        0 |       0 |       0 | 1-33              
+  ...h-role-now.js |       0 |        0 |       0 |       0 | 1-105             
+  ...superadmin.js |       0 |        0 |       0 |       0 | 1-44              
+  ...obal-setup.js |       0 |        0 |       0 |       0 | 1-4               
+  jest.setup.js    |       0 |        0 |       0 |       0 | 1                 
+  next-env.d.ts    |       0 |        0 |       0 |       0 |                   
+  next.config.mjs  |       0 |        0 |       0 |       0 | 1-39              
+  ...superadmin.js |       0 |        0 |       0 |       0 | 1-79              
+  ...ifications.js |       0 |        0 |       0 |       0 | 1-251             
+  ...base-admin.js |       0 |        0 |       0 |       0 | 1-31              
+  ...ctionality.js |       0 |        0 |       0 |       0 | 1-114             
+ ...OURCE-ONLY/app |       0 |       60 |      60 |       0 |                   
+  error.tsx        |       0 |      100 |     100 |       0 | 3-73              
+  global-error.tsx |       0 |      100 |     100 |       0 | 3-31              
+  layout.tsx       |       0 |        0 |       0 |       0 | 1-38              
+  not-found.tsx    |       0 |        0 |       0 |       0 | 1-21              
+  page.tsx         |       0 |      100 |     100 |       0 | 4-192             
+ ...onboard/[code] |       0 |        0 |       0 |       0 |                   
+  page.tsx         |       0 |        0 |       0 |       0 | 1-335             
+ ...n/contributors |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 2-165             
+ ...ix-joseph-role |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-141             
+ ...dmin/provision |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 2-118             
+ ...app/admin/seed |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 2-160             
+ .../seed-complete |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 2-634             
+ ...in/seed-direct |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 2-295             
+ ...e-simple-coach |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-198             
+ ...ete-onboarding |       0 |      100 |     100 |       0 |                   
+  route.ts         |       0 |      100 |     100 |       0 | 5-111             
+ ...min-invitation |       0 |      100 |     100 |       0 |                   
+  route.ts         |       0 |      100 |     100 |       0 | 6-237             
+ .../feature-flags |       0 |      100 |     100 |       0 |                   
+  route.ts         |       0 |      100 |     100 |       0 | 6-91              
+ ...x-coach-sports |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-125             
+ ...hes-visibility |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-54              
+ .../fix-user-role |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-95              
+ ...agged-messages |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-27              
+ ...eration-alerts |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-30              
+ ...ches-to-public |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-128             
+ ...itation/[code] |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-71              
+ ...pi/ai-coaching |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-376             
+ ...api/bug-report |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-176             
+ ...cation/approve |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-181             
+ ...cation/confirm |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-147             
+ ...ations/approve |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-55              
+ ...lications/list |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-43              
+ .../generate-link |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-152             
+ ...estion/qr/[id] |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-62              
+ ...ion/send-email |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-80              
+ ...gestion/submit |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-171             
+ ...stion/validate |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-80              
+ ...itation-simple |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-121             
+ ...ch-profile/get |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-66              
+ .../update-images |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-152             
+ ...coach/athletes |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-148             
+ ...nvite-athletes |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-190             
+ ...rs/[creatorId] |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-140             
+ ...ed-invitations |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-133             
+ .../feature-flags |       0 |      100 |     100 |       0 |                   
+  route.ts         |       0 |      100 |     100 |       0 | 6-40              
+ ...enerate-lesson |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-229             
+ ...lesson-content |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-281             
+ ...-lesson-simple |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-251             
+ ...itation-status |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-191             
+ ...ine-voice-data |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-41              
+ ...essages/report |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-50              
+ .../messages/send |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-111             
+ ...email-template |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-44              
+ ...vision-jasmine |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-98              
+ ...ion-superadmin |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-73              
+ ...pi/seed-client |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-116             
+ .../seed-database |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-252             
+ .../set-user-role |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-68              
+ ...submit-athlete |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-256             
+ ...t-simple-coach |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-246             
+ ...ate-invitation |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-77              
+ ...ple-invitation |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 1-96              
+ ...video/playback |       0 |      100 |     100 |       0 |                   
+  route.ts         |       0 |      100 |     100 |       0 | 6-220             
+ ...pload/complete |       0 |      100 |     100 |       0 |                   
+  route.ts         |       0 |      100 |     100 |       0 | 6-191             
+ ...eo/upload/init |       0 |      100 |     100 |       0 |                   
+  route.ts         |       0 |      100 |     100 |       0 | 6-170             
+ .../video/webhook |       0 |      100 |     100 |       0 |                   
+  route.ts         |       0 |      100 |     100 |       0 | 6-194             
+ ...e-onboard/[id] |       0 |        0 |       0 |       0 |                   
+  page.tsx         |       0 |        0 |       0 |       0 | 1-646             
+ ...h-onboard/[id] |       0 |        0 |       0 |       0 |                   
+  page.tsx         |       0 |        0 |       0 |       0 | 1-780             
+ ...p/contributors |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-516             
+ ...rs/[creatorId] |       0 |        0 |       0 |       0 |                   
+  ...component.tsx |       0 |        0 |       0 |       0 | 1-1011            
+  page.tsx         |       0 |        0 |       0 |       0 | 1-8               
+ ...ributors/apply |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 2-655             
+ .../app/dashboard |       0 |      100 |     100 |       0 |                   
+  error.tsx        |       0 |      100 |     100 |       0 | 3-67              
+  layout.tsx       |       0 |      100 |     100 |       0 | 4-60              
+  page.tsx         |       0 |      100 |     100 |       0 | 3-102             
+ ...ashboard/admin |       0 |      100 |     100 |       0 |                   
+  layout.tsx       |       0 |      100 |     100 |       0 | 4-12              
+  page.tsx         |       0 |      100 |     100 |       0 | 2-82              
+ .../admin-invites |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-46              
+ ...dmin/analytics |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-442             
+ ...h-applications |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-487             
+ ...n/coach-intake |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-642             
+ .../admin/content |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-504             
+ ...r-applications |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-511             
+ .../feature-flags |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-297             
+ ...in/invitations |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-396             
+ ...age-monitoring |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-357             
+ ...admin/requests |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-498             
+ ...rd/admin/roles |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-309             
+ ...admin/settings |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-523             
+ ...n/sync-coaches |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-375             
+ ...rd/admin/users |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-584             
+ ...rd/apply-coach |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-486             
+ ...oach/submitted |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-187             
+ ...oard/assistant |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-257             
+ ...tant/analytics |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-338             
+ ...stant/athletes |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-339             
+ ...istant/content |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-393             
+ ...stant/requests |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-271             
+ ...stant/schedule |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-320             
+ ...ashboard/coach |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-26              
+ ...coach/athletes |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-443             
+ .../coach/profile |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-203             
+ ...h/social-media |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-331             
+ ...board/coaching |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-667             
+ ...hboard/creator |       0 |    66.66 |   66.66 |       0 |                   
+  ...n-function.js |       0 |        0 |       0 |       0 | 1-132             
+  layout.tsx       |       0 |      100 |     100 |       0 | 2-13              
+  page.tsx         |       0 |      100 |     100 |       0 | 3-3135            
+ ...creator-simple |       0 |      100 |     100 |       0 |                   
+  layout.tsx       |       0 |      100 |     100 |       0 | 4-12              
+  page.tsx         |       0 |      100 |     100 |       0 | 3-327             
+ ...ator/analytics |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-375             
+ ...tor/assistants |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-340             
+ ...eator/athletes |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-517             
+ ...eator/overview |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-412             
+ ...eator/requests |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 2-665             
+ ...eator/schedule |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-577             
+ ...creator/videos |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-443             
+ ...board/overview |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-28              
+ ...hboard/profile |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-1463            
+ ...board/progress |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-343             
+ ...board/requests |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-397             
+ ...board/schedule |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 2-373             
+ ...ard/superadmin |       0 |      100 |     100 |       0 |                   
+  layout.tsx       |       0 |      100 |     100 |       0 | 4-12              
+  page.tsx         |       0 |      100 |     100 |       0 | 2-174             
+ ...dmin/analytics |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-505             
+ .../emergency-fix |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-110             
+ ...-ONLY/app/gear |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-580             
+ ...pp/lesson/[id] |       0 |        0 |       0 |       0 |                   
+  ...onContent.tsx |       0 |        0 |       0 |       0 | 1-269             
+  page.tsx         |       0 |        0 |       0 |       0 | 1-34              
+ ...LY/app/lessons |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-460             
+ ...app/onboarding |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-446             
+ ...LY/app/privacy |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-190             
+ ...Y/app/settings |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-307             
+ .../app/subscribe |       0 |        0 |       0 |       0 |                   
+  page.tsx         |       0 |        0 |       0 |       0 | 1-113             
+ ...ONLY/app/terms |       0 |      100 |     100 |       0 |                   
+  page.tsx         |       0 |      100 |     100 |       0 | 3-196             
+ ...NLY/components |       0 |      100 |     100 |       0 |                   
+  AIAssistant.tsx  |       0 |      100 |     100 |       0 | 3-511             
+  AIFeatures.tsx   |       0 |      100 |     100 |       0 | 3-261             
+  ...isclaimer.tsx |       0 |      100 |     100 |       0 | 3-200             
+  ...ackground.tsx |       0 |      100 |     100 |       0 | 5-13              
+  ...achButton.tsx |       0 |      100 |     100 |       0 | 3-39              
+  ...chManager.tsx |       0 |      100 |     100 |       0 | 3-386             
+  CTA.tsx          |       0 |      100 |     100 |       0 | 4-116             
+  ...orsClient.tsx |       0 |      100 |     100 |       0 | 3-172             
+  ...ccessGate.tsx |       0 |      100 |     100 |       0 | 8-230             
+  ...readcrumb.tsx |       0 |      100 |     100 |       0 | 3-73              
+  ...rdSidebar.tsx |       0 |      100 |     100 |       0 | 3-230             
+  ...rBoundary.tsx |       0 |      100 |     100 |       0 | 3-90              
+  ...oUploader.tsx |       0 |      100 |     100 |       0 | 8-382             
+  ...Assistant.tsx |       0 |      100 |     100 |       0 | 3-59              
+  ...eUploader.tsx |       0 |      100 |     100 |       0 | 3-205             
+  ...ompressor.tsx |       0 |      100 |     100 |       0 | 3-393             
+  ...ningPaths.tsx |       0 |      100 |     100 |       0 | 4-100             
+  ...deoPlayer.tsx |       0 |      100 |     100 |       0 | 3-175             
+  Navigation.tsx   |       0 |      100 |     100 |       0 | 3-60              
+  SimpleHero.tsx   |       0 |      100 |     100 |       0 | 4-42              
+  ...ssStories.tsx |       0 |      100 |     100 |       0 | 3-179             
+  ...adManager.tsx |       0 |      100 |     100 |       0 | 3-255             
+  ...ionHelper.tsx |       0 |      100 |     100 |       0 | 3-187             
+  ...ubePlayer.tsx |       0 |      100 |     100 |       0 | 3-84              
+  ...tion-menu.tsx |       0 |      100 |     100 |       0 | 3-27              
+  ...-identity.tsx |       0 |      100 |     100 |       0 | 3-26              
+ ...mponents/admin |       0 |      100 |     100 |       0 |                   
+  ...onManager.tsx |       0 |      100 |     100 |       0 | 3-344             
+  ...onManager.tsx |       0 |      100 |     100 |       0 | 3-592             
+  ...upTracker.tsx |       0 |      100 |     100 |       0 | 3-266             
+ ...onents/athlete |       0 |      100 |     100 |       0 |                   
+  AskCoachAI.tsx   |       0 |      100 |     100 |       0 | 3-211             
+  ...Messaging.tsx |       0 |      100 |     100 |       0 | 3-261             
+  ...omingSoon.tsx |       0 |      100 |     100 |       0 | 3-99              
+ ...omponents/auth |       0 |      100 |     100 |       0 |                   
+  ...nInButton.tsx |       0 |      100 |     100 |       0 | 3-124             
+  AuthGate.tsx     |       0 |      100 |     100 |       0 | 3-130             
+  AuthProvider.tsx |       0 |      100 |     100 |       0 | 3-161             
+  ...nInButton.tsx |       0 |      100 |     100 |       0 | 3-235             
+  ...nInButton.tsx |       0 |      100 |     100 |       0 | 3-176             
+  ...uthButton.tsx |       0 |      100 |     100 |       0 | 3-195             
+  SimpleAuth.tsx   |       0 |      100 |     100 |       0 | 3-212             
+ ...mponents/coach |       0 |      100 |     100 |       0 |                   
+  ...ofileCard.tsx |       0 |      100 |     100 |       0 | 3-243             
+  ...geManager.tsx |       0 |      100 |     100 |       0 | 3-469             
+  ...ceCapture.tsx |       0 |      100 |     100 |       0 | 3-453             
+  ...ureIntake.tsx |       0 |      100 |     100 |       0 | 3-897             
+ ...omponents/gear |       0 |      100 |     100 |       0 |                   
+  ...arManager.tsx |       0 |      100 |     100 |       0 | 3-355             
+ ...mponents/icons |       0 |      100 |     100 |       0 |                   
+  ...tballIcon.tsx |       0 |      100 |     100 |       0 | 8-40              
+  DiscordIcon.tsx  |       0 |      100 |     100 |       0 | 8-21              
+  FootballIcon.tsx |       0 |      100 |     100 |       0 | 8-52              
+  ...lovesIcon.tsx |       0 |      100 |     100 |       0 | 8-43              
+  MedalIcon.tsx    |       0 |      100 |     100 |       0 | 8-33              
+  PlayIcon.tsx     |       0 |      100 |     100 |       0 | 8-27              
+  SoccerIcon.tsx   |       0 |      100 |     100 |       0 | 8-42              
+  ...watchIcon.tsx |       0 |      100 |     100 |       0 | 8-39              
+  TeachingIcon.tsx |       0 |      100 |     100 |       0 | 8-40              
+  TikTokIcon.tsx   |       0 |      100 |     100 |       0 | 8-21              
+  WhistleIcon.tsx  |       0 |      100 |     100 |       0 | 8-33              
+ ...onents/pricing |       0 |      100 |     100 |       0 |                   
+  PricingPlans.tsx |       0 |      100 |     100 |       0 | 2-167             
+ ...onents/profile |       0 |      100 |     100 |       0 |                   
+  ...edProfile.tsx |       0 |      100 |     100 |       0 | 2-154             
+ ...s/subscription |       0 |      100 |     100 |       0 |                   
+  ...outButton.tsx |       0 |      100 |     100 |       0 | 2-45              
+ .../components/ui |       0 |       72 |      72 |       0 |                   
+  AdminTabs.tsx    |       0 |      100 |     100 |       0 | 4-182             
+  AppHeader.tsx    |       0 |      100 |     100 |       0 | 3-392             
+  ...ortButton.tsx |       0 |      100 |     100 |       0 | 3-267             
+  ...ularBadge.tsx |       0 |      100 |     100 |       0 | 12-73             
+  ...ityButton.tsx |       0 |      100 |     100 |       0 | 4-62              
+  ClarityCard.tsx  |       0 |      100 |     100 |       0 | 4-47              
+  ClarityInput.tsx |       0 |      100 |     100 |       0 | 2-116             
+  NexusButton.tsx  |       0 |      100 |     100 |       0 | 2-71              
+  NexusCard.tsx    |       0 |      100 |     100 |       0 | 2-56              
+  ...ionBanner.tsx |       0 |      100 |     100 |       0 | 3-211             
+  RoleSwitcher.tsx |       0 |      100 |     100 |       0 | 3-205             
+  ...tcherDemo.tsx |       0 |      100 |     100 |       0 | 3-82              
+  ...AdminTabs.tsx |       0 |      100 |     100 |       0 | 4-182             
+  UserAvatar.tsx   |       0 |      100 |     100 |       0 | 3-95              
+  ...eDropdown.tsx |       0 |      100 |     100 |       0 | 3-321             
+  badge.tsx        |       0 |      100 |     100 |       0 | 2-27              
+  button.tsx       |       0 |        0 |       0 |       0 | 1-44              
+  card.tsx         |       0 |        0 |       0 |       0 | 1-129             
+  input.tsx        |       0 |        0 |       0 |       0 | 1-22              
+  label.tsx        |       0 |      100 |     100 |       0 | 3-19              
+  progress.tsx     |       0 |        0 |       0 |       0 | 1-30              
+  select.tsx       |       0 |        0 |       0 |       0 | 1-81              
+  switch.tsx       |       0 |      100 |     100 |       0 | 3-41              
+  tabs.tsx         |       0 |        0 |       0 |       0 | 1-106             
+  textarea.tsx     |       0 |        0 |       0 |       0 | 1-21              
+ ...Y/datamock/src |       0 |      100 |     100 |       0 |                   
+  seed.ts          |       0 |      100 |     100 |       0 | 6-136             
+  sports.ts        |       0 |      100 |     100 |       0 | 5-18              
+ ...ONLY/functions |       0 |        0 |       0 |       0 |                   
+  index-clean.js   |       0 |        0 |       0 |       0 | 1-35              
+  index.js         |       0 |        0 |       0 |       0 | 1-122             
+  server.js        |       0 |        0 |       0 |       0 | 1-107             
+ ...RCE-ONLY/hooks |       0 |    44.44 |   44.44 |       0 |                   
+  use-analytics.ts |       0 |        0 |       0 |       0 | 1-36              
+  use-auth.ts      |       0 |        0 |       0 |       0 | 1-91              
+  ...tor-status.ts |       0 |      100 |     100 |       0 | 5-181             
+  ...e-switcher.ts |       0 |      100 |     100 |       0 | 5                 
+  use-role.ts      |       0 |        0 |       0 |       0 | 1-70              
+  ...e-switcher.ts |       0 |      100 |     100 |       0 | 3-230             
+  ...e-switcher.ts |       0 |      100 |     100 |       0 | 3-155             
+  ...r-creation.ts |       0 |        0 |       0 |       0 | 1-156             
+  ...serProfile.ts |       0 |        0 |       0 |       0 | 1-38              
+ ...OURCE-ONLY/lib |     1.4 |    75.49 |    75.4 |     1.4 |                   
+  ai-logging.ts    |       0 |        0 |       0 |       0 | 1-424             
+  ai-service.ts    |       0 |        0 |       0 |       0 | 1-2695            
+  analytics.ts     |       0 |        0 |       0 |       0 | 1-324             
+  ...validation.ts |       0 |      100 |     100 |       0 | 8-504             
+  ...ch-service.ts |       0 |      100 |     100 |       0 | 6-326             
+  audit-logger.ts  |       0 |      100 |     100 |       0 | 6-214             
+  auth-utils.ts    |       0 |      100 |     100 |       0 | 6-251             
+  ...dmin-setup.ts |       0 |        0 |       0 |       0 | 1-130             
+  ...population.ts |       0 |        0 |       0 |       0 | 1-299             
+  ...le-mapping.ts |       0 |      100 |     100 |       0 | 6-37              
+  ...on-service.ts |       0 |      100 |     100 |       0 | 6-1451            
+  contributors.ts  |       0 |      100 |     100 |       0 | 17-35             
+  cors.ts          |       0 |      100 |     100 |       0 | 6-39              
+  ...onsistency.ts |       0 |      100 |     100 |       0 | 8-473             
+  ...nce-policy.ts |       0 |      100 |     100 |       0 | 6-443             
+  design-tokens.ts |       0 |      100 |     100 |       0 | 8-182             
+  ...r-tracking.ts |       0 |      100 |     100 |       0 | 3-109             
+  ...ch-context.ts |       0 |      100 |     100 |       0 | 8-286             
+  email-service.ts |       0 |        0 |       0 |       0 | 1-671             
+  ...-templates.ts |       0 |      100 |     100 |       0 | 18-245            
+  ...on-prompts.ts |       0 |      100 |     100 |       0 | 14-590            
+  ...-formatter.ts |       0 |      100 |     100 |       0 | 12-628            
+  ...validation.ts |       0 |      100 |     100 |       0 | 2-217             
+  ...r-handling.ts |       0 |      100 |     100 |       0 | 2-271             
+  feature-flags.ts |       0 |      100 |     100 |       0 | 7-95              
+  firebase-env.ts  |       0 |      100 |     100 |       0 | 7-59              
+  ...base.admin.ts |       0 |        0 |       0 |       0 | 1-49              
+  ...ase.client.ts |       0 |        0 |       0 |       0 | 1-54              
+  firebase.ts      |       0 |      100 |     100 |       0 | 2                 
+  gcs-upload.ts    |       0 |      100 |     100 |       0 | 6-475             
+  ...on-service.ts |       0 |      100 |     100 |       0 | 2-709             
+  ...middleware.ts |       0 |      100 |     100 |       0 | 6-297             
+  ...ine-client.ts |       0 |      100 |     100 |       0 | 8-126             
+  ...ovisioning.ts |       0 |      100 |     100 |       0 | 8-435             
+  ...on-service.ts |       0 |      100 |     100 |       0 | 78-565            
+  ...-formatter.ts |       0 |      100 |     100 |       0 | 3-349             
+  llm-service.ts   |       0 |        0 |       0 |       0 | 1-142             
+  logger.ts        |       0 |      100 |     100 |       0 | 8-39              
+  ...cal-safety.ts |   88.64 |    75.55 |      75 |   88.64 | ...96-298,314-315 
+  ...dit-logger.ts |       0 |      100 |     100 |       0 | 8-432             
+  monitoring.ts    |       0 |      100 |     100 |       0 | 41-421            
+  ...d-coaching.ts |       0 |      100 |     100 |       0 | 52-383            
+  ...ign-system.ts |       0 |      100 |     100 |       0 | 7-264             
+  ...iter-redis.ts |       0 |      100 |     100 |       0 | 6-97              
+  rate-limiter.ts  |       0 |      100 |     100 |       0 | 12-362            
+  ...management.ts |       0 |      100 |     100 |       0 | 7-310             
+  ...re-storage.ts |       0 |      100 |     100 |       0 | 6-442             
+  ...ledge-base.ts |       0 |      100 |     100 |       0 | 27-683            
+  store.ts         |       0 |        0 |       0 |       0 | 1-21              
+  ...ng-service.ts |       0 |        0 |       0 |       0 | 1-213             
+  types.ts         |       0 |        0 |       0 |       0 |                   
+  ...ad-service.ts |       0 |      100 |     100 |       0 | 6-404             
+  ...ialization.ts |       0 |        0 |       0 |       0 | 1-246             
+  ...ng-service.ts |       0 |        0 |       0 |       0 | 1-242             
+  utils.ts         |       0 |        0 |       0 |       0 | 1-6               
+  ...ompression.ts |       0 |      100 |     100 |       0 | 23-340            
+  ...re-service.ts |       0 |      100 |     100 |       0 | 109-315           
+  ...-synthesis.ts |       0 |      100 |     100 |       0 | 27-86             
+ .../lib/__tests__ |       0 |      100 |     100 |       0 |                   
+  ...ation.test.ts |       0 |      100 |     100 |       0 | 6-36              
+  ...utils.test.ts |       0 |      100 |     100 |       0 | 6-30              
+ ...NLY/out/server |       0 |        0 |       0 |       0 |                   
+  ...e-manifest.js |       0 |        0 |       0 |       0 | 1                 
+  ...d-manifest.js |       0 |        0 |       0 |       0 | 1-18              
+  ...e-manifest.js |       0 |        0 |       0 |       0 | 1                 
+  ...t-manifest.js |       0 |        0 |       0 |       0 | 1                 
+  ...e-manifest.js |       0 |        0 |       0 |       0 | 1                 
+ .../static/chunks |       0 |        0 |       0 |       0 |                   
+  polyfills.js     |       0 |        0 |       0 |       0 | 1                 
+ ...ic/development |       0 |        0 |       0 |       0 |                   
+  ...ldManifest.js |       0 |        0 |       0 |       0 | 1                 
+  _ssgManifest.js  |       0 |        0 |       0 |       0 | 1                 
+ ...E-ONLY/scripts |       0 |    13.04 |   13.04 |       0 |                   
+  ...sole-setup.js |       0 |        0 |       0 |       0 | 1-119             
+  ...d-all-data.js |       0 |        0 |       0 |       0 | 1-395             
+  ...uperadmins.js |       0 |        0 |       0 |       0 | 1-205             
+  ...oy-indexes.js |       0 |        0 |       0 |       0 | 1-64              
+  ...s-firebase.js |       0 |        0 |       0 |       0 | 1-38              
+  ...production.js |       0 |        0 |       0 |       0 | 1-92              
+  ...o-firebase.js |       0 |        0 |       0 |       0 | 1-77              
+  ...ach-sports.ts |       0 |      100 |     100 |       0 | 4-69              
+  ...deployment.js |       0 |        0 |       0 |       0 | 1-103             
+  ...oseph-role.js |       0 |        0 |       0 |       0 | 1-57              
+  fix-user-role.ts |       0 |      100 |     100 |       0 | 11-73             
+  ...h-platform.js |       0 |        0 |       0 |       0 | 1-132             
+  ...coach-role.js |       0 |        0 |       0 |       0 | 1-117             
+  set-role.ts      |       0 |      100 |     100 |       0 | 12-83             
+  ...seph-admin.js |       0 |        0 |       0 |       0 | 1-103             
+  ...uperadmins.js |       0 |        0 |       0 |       0 | 1-136             
+  ...owser-seed.js |       0 |        0 |       0 |       0 | 1-87              
+  ...-endpoints.js |       0 |        0 |       0 |       0 | 1-89              
+  ...alth-fixed.js |       0 |        0 |       0 |       0 | 1-200             
+  ...ent-health.js |       0 |        0 |       0 |       0 | 1-178             
+  ...rity-rules.js |       0 |        0 |       0 |       0 | 1-96              
+  ...sson-video.js |       0 |        0 |       0 |       0 | 1-32              
+  ...-user-role.js |       0 |        0 |       0 |       0 | 1-39              
+ ...URCE-ONLY/seed |       0 |        0 |       0 |       0 |                   
+  ...ample-data.ts |       0 |        0 |       0 |       0 | 1-493             
+  ...ample-data.ts |       0 |        0 |       0 |       0 | 1-649             
+  master-seed.ts   |       0 |        0 |       0 |       0 | 1-60              
+  seed.ts          |       0 |        0 |       0 |       0 | 1-523             
+ ...RCE-ONLY/types |       0 |      100 |     100 |       0 |                   
+  coaching.ts      |       0 |        0 |       0 |       0 |                   
+  ...nvitations.ts |       0 |        0 |       0 |       0 |                   
+  index.ts         |       0 |      100 |     100 |       0 | 278               
+  user.ts          |       0 |      100 |     100 |       0 | 9-16              
+-------------------|---------|----------|---------|---------|-------------------

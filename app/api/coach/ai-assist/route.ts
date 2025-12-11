@@ -1,0 +1,196 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { auth } from '@/lib/firebase.admin'
+
+// Force dynamic rendering for API route
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
+interface TimecodeNote {
+  timestamp: number
+  type: string
+  comment: string
+}
+
+interface AIAssistRequest {
+  text?: string
+  action: 'transform' | 'polish' | 'compile'
+  context: string // 'summary' | 'nextSteps' | 'strength' | 'improvement'
+  timecodes?: TimecodeNote[]
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    // Get auth token from request
+    const authHeader = request.headers.get('authorization')
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return NextResponse.json(
+        { error: 'Unauthorized - no token provided' },
+        { status: 401 }
+      )
+    }
+
+    const token = authHeader.split('Bearer ')[1]
+
+    // Verify the token
+    let decodedToken
+    try {
+      decodedToken = await auth.verifyIdToken(token)
+    } catch (error) {
+      console.error('Token verification failed:', error)
+      return NextResponse.json(
+        { error: 'Unauthorized - invalid token' },
+        { status: 401 }
+      )
+    }
+
+    const body: AIAssistRequest = await request.json()
+    const { text, action, context, timecodes } = body
+
+    if (!action || !context) {
+      return NextResponse.json(
+        { error: 'Missing required fields' },
+        { status: 400 }
+      )
+    }
+
+    // Validate based on action type
+    if (action === 'compile' && (!timecodes || timecodes.length === 0)) {
+      return NextResponse.json(
+        { error: 'Timecodes required for compile action' },
+        { status: 400 }
+      )
+    }
+
+    if ((action === 'transform' || action === 'polish') && !text) {
+      return NextResponse.json(
+        { error: 'Text required for transform/polish actions' },
+        { status: 400 }
+      )
+    }
+
+    // Get OpenAI API key from environment
+    const openaiApiKey = process.env.OPENAI_API_KEY
+    if (!openaiApiKey) {
+      return NextResponse.json(
+        { error: 'AI service not configured' },
+        { status: 500 }
+      )
+    }
+
+    // Build prompt based on action and context
+    let systemPrompt = ''
+    let userPrompt = ''
+
+    if (action === 'compile') {
+      // Compile timestamped notes into coherent feedback
+      const formatTimestamp = (seconds: number) => {
+        const mins = Math.floor(seconds / 60)
+        const secs = Math.floor(seconds % 60)
+        return `${mins}:${secs.toString().padStart(2, '0')}`
+      }
+
+      const notesText = timecodes!
+        .map(tc => `[${formatTimestamp(tc.timestamp)}] (${tc.type}) ${tc.comment}`)
+        .join('\n')
+
+      if (context === 'summary') {
+        systemPrompt = 'You are a professional athletic coach assistant helping synthesize timestamped video review notes into comprehensive, encouraging summary feedback for athletes.'
+        userPrompt = `I've reviewed an athlete's video submission and made the following timestamped notes. Please compile these notes into a cohesive, well-structured summary feedback. The feedback should be encouraging, specific, and actionable. Group related observations together and maintain a supportive coaching tone:\n\n${notesText}\n\nProvide only the compiled summary feedback without any preamble or explanation.`
+      } else if (context === 'nextSteps') {
+        systemPrompt = 'You are a professional athletic coach assistant helping create actionable next steps from timestamped video review notes.'
+        userPrompt = `Based on these timestamped notes from a video review, create clear, specific next steps for the athlete to focus on. Prioritize the most important areas for improvement:\n\n${notesText}\n\nProvide only the next steps without any preamble or explanation.`
+      }
+    } else if (action === 'transform') {
+      // Transform rough notes into polished responses
+      if (context === 'summary') {
+        systemPrompt = 'You are a professional athletic coach assistant helping transform rough notes into clear, constructive feedback for athletes. Your tone should be encouraging, specific, and actionable.'
+        userPrompt = `Transform these rough coaching notes into a well-structured summary feedback for an athlete. Keep the original meaning and key points, but make it more professional, clear, and encouraging:\n\n${text}\n\nProvide only the transformed feedback without any preamble or explanation.`
+      } else if (context === 'nextSteps') {
+        systemPrompt = 'You are a professional athletic coach assistant helping create clear action plans for athletes.'
+        userPrompt = `Transform these rough notes into clear, specific next steps for an athlete. Make them actionable and encouraging:\n\n${text}\n\nProvide only the next steps without any preamble or explanation.`
+      } else if (context === 'strength') {
+        systemPrompt = 'You are a professional athletic coach assistant helping identify and articulate athlete strengths.'
+        userPrompt = `Transform these rough notes into a clear strength statement for an athlete. Be specific and encouraging:\n\n${text}\n\nProvide only the strength statement (one concise sentence) without any preamble.`
+      } else if (context === 'improvement') {
+        systemPrompt = 'You are a professional athletic coach assistant helping identify areas for improvement constructively.'
+        userPrompt = `Transform these rough notes into a constructive area for improvement. Be specific but encouraging:\n\n${text}\n\nProvide only the improvement area (one concise sentence) without any preamble.`
+      }
+    } else if (action === 'polish') {
+      // Polish existing text
+      if (context === 'summary') {
+        systemPrompt = 'You are a professional athletic coach assistant helping polish feedback to be more clear, professional, and impactful while maintaining the original message.'
+        userPrompt = `Polish this coaching feedback to make it more clear, professional, and impactful. Keep the same meaning and key points:\n\n${text}\n\nProvide only the polished version without any preamble or explanation.`
+      } else if (context === 'nextSteps') {
+        systemPrompt = 'You are a professional athletic coach assistant helping polish action plans to be more clear and actionable.'
+        userPrompt = `Polish these next steps to make them more clear, specific, and actionable:\n\n${text}\n\nProvide only the polished version without any preamble or explanation.`
+      } else if (context === 'strength') {
+        systemPrompt = 'You are a professional athletic coach assistant helping polish strength statements.'
+        userPrompt = `Polish this strength statement to be more impactful and specific:\n\n${text}\n\nProvide only the polished version (one concise sentence) without any preamble.`
+      } else if (context === 'improvement') {
+        systemPrompt = 'You are a professional athletic coach assistant helping polish improvement areas constructively.'
+        userPrompt = `Polish this area for improvement to be more constructive and specific:\n\n${text}\n\nProvide only the polished version (one concise sentence) without any preamble.`
+      }
+    }
+
+    // Validate prompts were set
+    if (!systemPrompt || !userPrompt) {
+      console.error('Prompts not set for action:', action, 'context:', context)
+      return NextResponse.json(
+        { error: `Invalid context '${context}' for action '${action}'` },
+        { status: 400 }
+      )
+    }
+
+    console.log('[AI-ASSIST] Calling OpenAI API:', { action, context, hasTimecodes: !!timecodes })
+
+    // Call OpenAI API
+    const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${openaiApiKey}`
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o',
+        max_tokens: 1024,
+        temperature: 0.7,
+        messages: [
+          {
+            role: 'system',
+            content: systemPrompt
+          },
+          {
+            role: 'user',
+            content: userPrompt
+          }
+        ]
+      })
+    })
+
+    if (!openaiResponse.ok) {
+      const errorData = await openaiResponse.json().catch(() => ({}))
+      console.error('[AI-ASSIST] OpenAI API error:', openaiResponse.status, errorData)
+      return NextResponse.json(
+        { error: `AI service error: ${errorData.error?.message || 'Unknown error'}` },
+        { status: 500 }
+      )
+    }
+
+    const openaiData = await openaiResponse.json()
+    const generatedText = openaiData.choices[0].message.content
+
+    console.log('[AI-ASSIST] Success:', { action, context, textLength: generatedText.length })
+
+    return NextResponse.json({
+      success: true,
+      text: generatedText
+    })
+
+  } catch (error: any) {
+    console.error('[AI-ASSIST] Error:', error)
+    return NextResponse.json(
+      { error: error.message || 'Failed to process AI request' },
+      { status: 500 }
+    )
+  }
+}

@@ -1,0 +1,16 @@
+[
+  {
+    "id": "9rS1c34dlNU3q5MmOSur",
+    "userId": "OQuvoho6w3NC9QTBLFSoIK7A2RQ2",
+    "type": "new_message",
+    "title": "New Message from Athlete",
+    "message": "joseph llanes sent you a message: \"sign up\"",
+    "data": {
+      "messageId": "msg_1761257364337_omaii1wjb",
+      "athleteId": "JYn0KnJmpmPlK6dH7W9C5Yy0Ioi1",
+      "athleteName": "joseph llanes"
+    },
+    "read": false,
+    "createdAt": "2025-10-23T22:09:24.000Z"
+  }
+]

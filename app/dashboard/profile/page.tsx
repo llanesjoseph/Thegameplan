@@ -1,0 +1,1118 @@
+'use client'
+
+import { useAuth } from '@/hooks/use-auth'
+import { auth, db } from '@/lib/firebase.client'
+import { doc, setDoc, getDoc } from 'firebase/firestore'
+import { useEnhancedRole } from "@/hooks/use-role-switcher"
+import { useState, useEffect, Suspense } from 'react'
+import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
+import {
+  User,
+  Camera,
+  Save,
+  ArrowLeft,
+  Upload,
+  Video,
+  Star,
+  MapPin,
+  Calendar,
+  Award,
+  Trophy,
+  Settings as SettingsIcon,
+  ExternalLink,
+  CheckCircle,
+  AlertCircle,
+  Instagram,
+  Twitter,
+  Linkedin,
+  Youtube,
+  Globe,
+  MessageSquare,
+  Music,
+  Mic,
+  X,
+  FileText,
+  Briefcase,
+  Users
+} from 'lucide-react'
+import { DiscordIcon } from '@/components/icons/DiscordIcon'
+import { TikTokIcon } from '@/components/icons/TikTokIcon'
+import AssistantCoachManager from '@/components/AssistantCoachManager'
+import ImageUploader from '@/components/ImageUploader'
+import AppHeader from '@/components/ui/AppHeader'
+import StreamlinedVoiceCapture from '@/components/coach/StreamlinedVoiceCapture'
+import VoiceCaptureIntake from '@/components/coach/VoiceCaptureIntake'
+import { SPORTS } from '@/lib/constants/sports'
+
+function ProfilePageContent() {
+  const { user } = useAuth()
+  const { role, loading } = useEnhancedRole()
+  const searchParams = useSearchParams()
+  const embedded = searchParams.get('embedded') === 'true'
+  const [activeSection, setActiveSection] = useState<string | null>(null)
+  const [saveStatus, setSaveStatus] = useState<string | null>(null)
+  const [showVoiceCapture, setShowVoiceCapture] = useState(false)
+  const [voiceCaptureMode, setVoiceCaptureMode] = useState<'quick' | 'detailed' | null>(null)
+  const [profileData, setProfileData] = useState({
+    displayName: '',
+    bio: '',
+    location: '',
+    email: '',
+    profileImageUrl: '',
+    heroImageUrl: '',
+    actionPhotos: [] as string[],
+    specialties: [] as string[],
+    experience: '',
+    availability: '',
+    languages: [] as string[],
+    coachingPhilosophy: '',
+    achievements: [] as string[],
+    certifications: [] as string[],
+    gearRecommendations: [] as Array<{name: string; category: string; link: string; description: string}>,
+    createdAt: new Date().toISOString(),
+    socialLinks: {
+      instagram: '',
+      twitter: '',
+      linkedin: '',
+      youtube: '',
+      website: '',
+      tiktok: '',
+      discord: ''
+    },
+    coachingCredentials: '',
+    tagline: '',
+    philosophy: {
+      title: '',
+      description: '',
+      points: [] as Array<{title: string; description: string}>
+    },
+    assistantCoaches: [] as string[],
+    lessonCount: 0,
+    studentsHelped: 0,
+    averageRating: 0,
+    verified: false,
+    featured: false,
+    badges: [] as string[],
+    voiceCaptureData: null as any,
+    voiceCaptureCompleteness: 'none' as 'none' | 'quick' | 'detailed'
+  })
+
+  // Load profile data from database on component mount
+  // FIX: Load from BOTH coach_profiles AND creator_profiles to ensure we get all data
+  useEffect(() => {
+    const loadProfile = async () => {
+      if (user?.uid && role) {
+        setProfileData(prev => ({
+          ...prev,
+          displayName: user.displayName || prev.displayName,
+          email: user.email || prev.email,
+          profileImageUrl: user.photoURL || prev.profileImageUrl
+        }))
+
+        try {
+          let savedProfile: any = null
+          
+          // For coaches, load from BOTH collections and merge
+          if (role === 'creator' || role === 'coach') {
+            // First try coach_profiles (newer collection)
+            const coachProfileRef = doc(db, 'coach_profiles', user.uid)
+            const coachProfileSnap = await getDoc(coachProfileRef)
+            
+            // Then try creator_profiles (legacy collection)
+            const creatorProfileRef = doc(db, 'creator_profiles', user.uid)
+            const creatorProfileSnap = await getDoc(creatorProfileRef)
+            
+            // Merge data from both collections, preferring coach_profiles for newer data
+            const coachData = coachProfileSnap.exists() ? coachProfileSnap.data() : {}
+            const creatorData = creatorProfileSnap.exists() ? creatorProfileSnap.data() : {}
+            
+            // Merge: creator_profiles as base, coach_profiles overrides
+            savedProfile = { ...creatorData, ...coachData }
+            
+            // Special handling for arrays - merge them instead of replacing
+            if (creatorData.actionPhotos || coachData.actionPhotos) {
+              const allPhotos = [
+                ...(creatorData.actionPhotos || []),
+                ...(coachData.actionPhotos || [])
+              ]
+              // Remove duplicates
+              savedProfile.actionPhotos = [...new Set(allPhotos)]
+            }
+            
+            console.log('Loaded merged profile from coach_profiles + creator_profiles:', savedProfile)
+          } else {
+            // For non-coaches, just load from users
+            const docRef = doc(db, 'users', user.uid)
+            const docSnap = await getDoc(docRef)
+            if (docSnap.exists()) {
+              savedProfile = docSnap.data()
+            }
+          }
+
+          if (savedProfile && Object.keys(savedProfile).length > 0) {
+            // Intelligently detect voice capture completeness
+            let completeness: 'none' | 'quick' | 'detailed' = 'none'
+            if (savedProfile.voiceCaptureCompleteness) {
+              completeness = savedProfile.voiceCaptureCompleteness
+            } else if (savedProfile.voiceCaptureData) {
+              // Check if there's a captureMode field in the voice data
+              if (savedProfile.voiceCaptureData.captureMode) {
+                completeness = savedProfile.voiceCaptureData.captureMode
+              } else {
+                // Old voice capture data without captureMode - assume detailed
+                completeness = 'detailed'
+              }
+            }
+
+            setProfileData(prev => ({
+              ...prev,
+              ...savedProfile,
+              displayName: savedProfile.displayName || user.displayName || prev.displayName,
+              email: user.email || savedProfile.email || prev.email,
+              // Map photoURL to profileImageUrl for consistency
+              profileImageUrl: savedProfile.photoURL || savedProfile.profileImageUrl || prev.profileImageUrl,
+              voiceCaptureCompleteness: completeness
+            }))
+            return
+          }
+        } catch (error) {
+          console.warn('Firestore access failed:', error)
+        }
+      }
+    }
+
+    loadProfile()
+  }, [user?.uid, role, user?.displayName, user?.email])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: embedded ? 'transparent' : '#E8E6D8' }}>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
+          <p style={{ color: '#000000', opacity: 0.7 }}>Loading profile...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: embedded ? 'transparent' : '#E8E6D8' }}>
+        <div className="text-center">
+          <h1 className="text-2xl mb-4" style={{ color: '#000000' }}>Sign In Required</h1>
+          <p className="mb-6" style={{ color: '#000000', opacity: 0.7 }}>Please sign in to access your profile.</p>
+          <Link href="/dashboard" className="px-6 py-3 bg-black text-white rounded-xl hover:bg-gray-800 transition-colors">
+            Back to Dashboard
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
+  const handleVoiceCaptureComplete = async (voiceData: any) => {
+    const completeness = voiceData.captureMode || 'detailed'
+    setProfileData(prev => ({
+      ...prev,
+      voiceCaptureData: voiceData,
+      voiceCaptureCompleteness: completeness
+    }))
+    setShowVoiceCapture(false)
+    setVoiceCaptureMode(null)
+
+    setSaveStatus('saving')
+    try {
+      const profileWithVoice = {
+        ...profileData,
+        voiceCaptureData: voiceData,
+        voiceCaptureCompleteness: completeness,
+        userId: user?.uid,
+        updatedAt: new Date().toISOString()
+      }
+
+      const collection = (role === 'creator' || role === 'coach') ? 'creator_profiles' : 'users'
+      const docRef = doc(db, collection, user.uid)
+      await setDoc(docRef, profileWithVoice, { merge: true })
+
+      setSaveStatus('success')
+      setTimeout(() => setSaveStatus(null), 3000)
+    } catch (error) {
+      console.error('Error saving voice data:', error)
+      setSaveStatus('error')
+      setTimeout(() => setSaveStatus(null), 5000)
+    }
+  }
+
+  const handleSave = async () => {
+    if (!user?.uid) return
+    setSaveStatus('saving')
+
+    try {
+      const profileWithMetadata = {
+        ...profileData,
+        userId: user.uid,
+        uid: user.uid,
+        updatedAt: new Date().toISOString(),
+        createdAt: profileData.createdAt || new Date().toISOString(),
+      }
+
+      const usersRef = doc(db, 'users', user.uid)
+      await setDoc(usersRef, {
+        displayName: profileData.displayName,
+        bio: profileData.bio,
+        email: profileData.email,
+        photoURL: profileData.profileImageUrl,
+        location: profileData.location,
+        experience: profileData.experience,
+        sport: profileData.specialties[0] || '',
+        specialties: profileData.specialties,
+        updatedAt: new Date().toISOString()
+      }, { merge: true })
+
+      if (role === 'creator' || role === 'coach') {
+        // FIX: Save to BOTH coach_profiles AND creator_profiles for consistency
+        const creatorProfileRef = doc(db, 'creator_profiles', user.uid)
+        await setDoc(creatorProfileRef, profileWithMetadata, { merge: true })
+
+        // Also save to coach_profiles to ensure CoachImageManager can find it
+        const coachProfileRef = doc(db, 'coach_profiles', user.uid)
+        await setDoc(coachProfileRef, {
+          ...profileWithMetadata,
+          // Ensure key fields are synced
+          displayName: profileData.displayName,
+          firstName: profileData.displayName?.split(' ')[0] || '',
+          lastName: profileData.displayName?.split(' ').slice(1).join(' ') || '',
+          headshotUrl: profileData.profileImageUrl,
+          heroImageUrl: profileData.heroImageUrl,
+          actionPhotos: profileData.actionPhotos,
+        }, { merge: true })
+
+        const creatorsIndexRef = doc(db, 'creators_index', user.uid)
+        await setDoc(creatorsIndexRef, {
+          displayName: profileData.displayName,
+          bio: profileData.bio,
+          location: profileData.location,
+          specialties: profileData.specialties,
+          experience: profileData.experience,
+          // Add profile images for browse coaches page
+          headshotUrl: profileData.profileImageUrl,
+          photoURL: profileData.profileImageUrl,
+          heroImageUrl: profileData.heroImageUrl,
+          actionPhotos: profileData.actionPhotos,
+          tagline: profileData.tagline,
+          coachingCredentials: profileData.coachingCredentials,
+          verified: profileData.verified,
+          featured: profileData.featured,
+          lastUpdated: new Date().toISOString(),
+          profileUrl: `/coaches/${user.uid}`,
+          isActive: true
+        }, { merge: true })
+      }
+
+      setSaveStatus('success')
+      setTimeout(() => {
+        setSaveStatus(null)
+        setActiveSection(null)
+      }, 2000)
+
+    } catch (error) {
+      console.error('Error saving profile:', error)
+      setSaveStatus('error')
+      setTimeout(() => setSaveStatus(null), 5000)
+    }
+  }
+
+  const profileCards = [
+    {
+      id: 'basic-info',
+      title: 'Basic Information',
+      description: 'Name, bio, location, and contact',
+      icon: User,
+      color: '#91A6EB'
+    },
+    {
+      id: 'profile-images',
+      title: 'Profile Images',
+      description: 'Hero image and action photos',
+      icon: Camera,
+      color: '#FF6B35',
+      coachOnly: true
+    },
+    {
+      id: 'specialties',
+      title: (role === 'creator' || role === 'coach') ? 'Sports Specialties' : 'Sports Interests',
+      description: 'Your sport focus areas',
+      icon: Star,
+      color: '#20B2AA'
+    },
+    {
+      id: 'certifications',
+      title: 'Certifications',
+      description: 'Professional credentials',
+      icon: Award,
+      color: '#FF6B35',
+      coachOnly: true
+    },
+    {
+      id: 'achievements',
+      title: 'Achievements & Awards',
+      description: 'Your accomplishments',
+      icon: Trophy,
+      color: '#000000',
+      coachOnly: true
+    },
+    {
+      id: 'social-links',
+      title: 'Social Media',
+      description: 'Connect your profiles',
+      icon: Globe,
+      color: '#91A6EB',
+      coachOnly: true
+    },
+    {
+      id: 'philosophy',
+      title: 'Coaching Philosophy',
+      description: 'Your approach and values',
+      icon: Briefcase,
+      color: '#20B2AA',
+      coachOnly: true
+    },
+    {
+      id: 'voice-capture',
+      title: 'AI Voice Capture',
+      description: 'Train your coaching AI',
+      icon: Mic,
+      color: '#FF6B35',
+      coachOnly: true
+    },
+    {
+      id: 'coaching-details',
+      title: 'Coaching Details',
+      description: 'Availability and languages',
+      icon: Calendar,
+      color: '#000000',
+      coachOnly: true
+    }
+  ]
+
+  const filteredCards = profileCards.filter(card =>
+    (role === 'creator' || role === 'coach') ? true : !card.coachOnly
+  )
+
+  const renderSectionContent = () => {
+    if (!activeSection) return null
+
+    switch (activeSection) {
+      case 'basic-info':
+        return (
+          <div className="p-8 space-y-6">
+            <div className="flex items-start gap-8 mb-8">
+              <div className="relative">
+                {profileData.profileImageUrl ? (
+                  <div className="w-32 h-32 rounded-2xl overflow-hidden shadow-lg">
+                    <img src={profileData.profileImageUrl} alt={profileData.displayName || 'Profile'} className="w-full h-full object-cover" />
+                  </div>
+                ) : (
+                  <div className="w-32 h-32 bg-gradient-to-br from-black to-sky-blue rounded-2xl flex items-center justify-center text-white text-4xl shadow-lg">
+                    {profileData.displayName?.charAt(0) || user?.displayName?.charAt(0) || 'U'}
+                  </div>
+                )}
+                <ImageUploader
+                  onUploadComplete={(url) => setProfileData(prev => ({ ...prev, profileImageUrl: url }))}
+                  onUploadError={(error) => console.error('Profile image upload failed:', error)}
+                  currentImageUrl={profileData.profileImageUrl}
+                  uploadPath={`users/${user?.uid}/profile/avatar_${Date.now()}`}
+                />
+              </div>
+              <div className="flex-1 space-y-4">
+                <input
+                  type="text"
+                  value={profileData.displayName}
+                  onChange={(e) => setProfileData(prev => ({ ...prev, displayName: e.target.value }))}
+                  className="text-2xl w-full border-2 rounded-xl p-4 focus:border-sky-blue focus:ring-4 focus:ring-sky-blue/20 transition-all"
+                  style={{ borderColor: 'rgba(145, 166, 235, 0.2)', backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
+                  placeholder="Your Name"
+                />
+                <input
+                  type="email"
+                  value={profileData.email}
+                  onChange={(e) => setProfileData(prev => ({ ...prev, email: e.target.value }))}
+                  className="w-full border-2 rounded-xl p-3 focus:border-sky-blue focus:ring-4 focus:ring-sky-blue/20 transition-all"
+                  style={{ borderColor: 'rgba(145, 166, 235, 0.2)', backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
+                  placeholder="Email address"
+                />
+              </div>
+            </div>
+
+            <textarea
+              value={profileData.bio}
+              onChange={(e) => setProfileData(prev => ({ ...prev, bio: e.target.value }))}
+              className="w-full border-2 rounded-xl p-4 resize-none focus:border-sky-blue focus:ring-4 focus:ring-sky-blue/20 transition-all"
+              style={{ borderColor: 'rgba(145, 166, 235, 0.2)', backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
+              rows={4}
+              placeholder="Tell us about your athletic background and coaching expertise..."
+            />
+
+            <div className="grid grid-cols-2 gap-4">
+              <input
+                type="text"
+                value={profileData.location}
+                onChange={(e) => setProfileData(prev => ({ ...prev, location: e.target.value }))}
+                className="border-2 rounded-xl p-3 focus:border-sky-blue focus:ring-4 focus:ring-sky-blue/20 transition-all"
+                style={{ borderColor: 'rgba(145, 166, 235, 0.2)', backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
+                placeholder="Location (e.g., Los Angeles, CA)"
+              />
+              <input
+                type="text"
+                value={profileData.experience}
+                onChange={(e) => setProfileData(prev => ({ ...prev, experience: e.target.value }))}
+                className="border-2 rounded-xl p-3 focus:border-sky-blue focus:ring-4 focus:ring-sky-blue/20 transition-all"
+                style={{ borderColor: 'rgba(145, 166, 235, 0.2)', backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
+                placeholder="Experience (e.g., 12 years)"
+              />
+            </div>
+          </div>
+        )
+
+      case 'profile-images':
+        return (
+          <div className="p-8 space-y-6">
+            <h3 className="text-xl mb-4" style={{ color: '#000000' }}>Profile Images</h3>
+            <p className="text-sm mb-6" style={{ color: '#000000', opacity: 0.7 }}>
+              Upload high-quality images for your public coach profile page
+            </p>
+
+            {/* Hero Image */}
+            <div>
+              <label className="block text-sm mb-3" style={{ color: '#000000', fontWeight: '600' }}>
+                Hero Image (Banner)
+              </label>
+              <p className="text-xs mb-3" style={{ color: '#000000', opacity: 0.6 }}>
+                Wide banner image shown at the top of your profile (recommended: 1920x600px)
+              </p>
+              <div className="space-y-3">
+                {profileData.heroImageUrl && (
+                  <div className="relative w-full aspect-[16/5] rounded-xl overflow-hidden shadow-lg">
+                    <img
+                      src={profileData.heroImageUrl}
+                      alt="Hero"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+                <ImageUploader
+                  onUploadComplete={(url) => setProfileData(prev => ({ ...prev, heroImageUrl: url }))}
+                  onUploadError={(error) => console.error('Hero image upload failed:', error)}
+                  currentImageUrl={profileData.heroImageUrl}
+                  uploadPath={`users/${user?.uid}/profile/hero_${Date.now()}`}
+                />
+              </div>
+            </div>
+
+            {/* Action Photos */}
+            <div>
+              <label className="block text-sm mb-3" style={{ color: '#000000', fontWeight: '600' }}>
+                Action Photos
+              </label>
+              <p className="text-xs mb-3" style={{ color: '#000000', opacity: 0.6 }}>
+                Upload 2-4 action photos showing you in your sport (recommended: 800x800px each)
+              </p>
+
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                {profileData.actionPhotos.map((photo, index) => (
+                  <div key={index} className="relative aspect-square rounded-xl overflow-hidden shadow-lg group">
+                    <img
+                      src={photo}
+                      alt={`Action ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                    <button
+                      onClick={() => {
+                        const newPhotos = profileData.actionPhotos.filter((_, i) => i !== index)
+                        setProfileData(prev => ({ ...prev, actionPhotos: newPhotos }))
+                      }}
+                      className="absolute top-2 right-2 p-2 bg-red-600 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              {profileData.actionPhotos.length < 4 && (
+                <div className="border-2 border-dashed rounded-xl p-4" style={{ borderColor: 'rgba(145, 166, 235, 0.3)' }}>
+                  <ImageUploader
+                    onUploadComplete={(url) => setProfileData(prev => ({
+                      ...prev,
+                      actionPhotos: [...prev.actionPhotos, url]
+                    }))}
+                    onUploadError={(error) => console.error('Action photo upload failed:', error)}
+                    currentImageUrl=""
+                    uploadPath={`users/${user?.uid}/profile/action_${Date.now()}`}
+                  />
+                </div>
+              )}
+            </div>
+
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+              <p className="text-sm" style={{ color: '#1e40af' }}>
+                <strong>💡 Tip:</strong> High-quality images make your profile stand out! Use clear, well-lit photos that showcase your expertise and personality.
+              </p>
+            </div>
+          </div>
+        )
+
+      case 'specialties':
+        return (
+          <div className="p-8 space-y-6">
+            <h3 className="text-xl mb-4" style={{ color: '#000000' }}>
+              {(role === 'creator' || role === 'coach') ? 'Sports Specialties' : 'Sports Interests'}
+            </h3>
+
+            <div className="space-y-4">
+              {profileData.specialties.map((specialty, index) => (
+                <div key={index} className="flex items-center gap-3">
+                  <input
+                    type="text"
+                    value={specialty}
+                    onChange={(e) => {
+                      const newSpecialties = [...profileData.specialties]
+                      newSpecialties[index] = e.target.value
+                      setProfileData(prev => ({ ...prev, specialties: newSpecialties }))
+                    }}
+                    className="flex-1 border-2 rounded-xl p-3 focus:border-sky-blue focus:ring-4 focus:ring-sky-blue/20 transition-all"
+                    style={{ borderColor: 'rgba(145, 166, 235, 0.2)', backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
+                    placeholder="Sport name"
+                  />
+                  <button
+                    onClick={() => {
+                      const newSpecialties = profileData.specialties.filter((_, i) => i !== index)
+                      setProfileData(prev => ({ ...prev, specialties: newSpecialties }))
+                    }}
+                    className="p-3 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-colors"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+
+              <button
+                onClick={() => setProfileData(prev => ({ ...prev, specialties: [...prev.specialties, ''] }))}
+                className="w-full p-4 border-2 border-dashed rounded-xl hover:bg-sky-blue/5 transition-colors flex items-center justify-center gap-2"
+                style={{ borderColor: 'rgba(145, 166, 235, 0.3)', color: '#91A6EB' }}
+              >
+                <Upload className="w-5 h-5" />
+                Add Sport
+              </button>
+            </div>
+          </div>
+        )
+
+      case 'certifications':
+        return (
+          <div className="p-8 space-y-6">
+            <h3 className="text-xl mb-4" style={{ color: '#000000' }}>Certifications</h3>
+
+            {profileData.certifications.map((cert, index) => (
+              <div key={index} className="flex items-center gap-3">
+                <Award className="w-5 h-5" style={{ color: '#FF6B35' }} />
+                <input
+                  type="text"
+                  value={cert}
+                  onChange={(e) => {
+                    const newCerts = [...profileData.certifications]
+                    newCerts[index] = e.target.value
+                    setProfileData(prev => ({ ...prev, certifications: newCerts }))
+                  }}
+                  className="flex-1 border-2 rounded-xl p-3 focus:border-sky-blue focus:ring-4 focus:ring-sky-blue/20 transition-all"
+                  style={{ borderColor: 'rgba(145, 166, 235, 0.2)', backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
+                  placeholder="Certification name"
+                />
+                <button
+                  onClick={() => {
+                    const newCerts = profileData.certifications.filter((_, i) => i !== index)
+                    setProfileData(prev => ({ ...prev, certifications: newCerts }))
+                  }}
+                  className="p-3 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-colors"
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+
+            <button
+              onClick={() => setProfileData(prev => ({ ...prev, certifications: [...prev.certifications, ''] }))}
+              className="w-full p-4 border-2 border-dashed rounded-xl hover:bg-sky-blue/5 transition-colors flex items-center justify-center gap-2"
+              style={{ borderColor: 'rgba(145, 166, 235, 0.3)', color: '#91A6EB' }}
+            >
+              <Upload className="w-5 h-5" />
+              Add Certification
+            </button>
+          </div>
+        )
+
+      case 'achievements':
+        return (
+          <div className="p-8 space-y-6">
+            <h3 className="text-xl mb-4" style={{ color: '#000000' }}>Achievements & Awards</h3>
+
+            {profileData.achievements.map((achievement, index) => (
+              <div key={index} className="flex items-center gap-3">
+                <Trophy className="w-5 h-5" style={{ color: '#FFD700' }} />
+                <input
+                  type="text"
+                  value={achievement}
+                  onChange={(e) => {
+                    const newAchievements = [...profileData.achievements]
+                    newAchievements[index] = e.target.value
+                    setProfileData(prev => ({ ...prev, achievements: newAchievements }))
+                  }}
+                  className="flex-1 border-2 rounded-xl p-3 focus:border-sky-blue focus:ring-4 focus:ring-sky-blue/20 transition-all"
+                  style={{ borderColor: 'rgba(145, 166, 235, 0.2)', backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
+                  placeholder="Achievement description"
+                />
+                <button
+                  onClick={() => {
+                    const newAchievements = profileData.achievements.filter((_, i) => i !== index)
+                    setProfileData(prev => ({ ...prev, achievements: newAchievements }))
+                  }}
+                  className="p-3 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-colors"
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+
+            <button
+              onClick={() => setProfileData(prev => ({ ...prev, achievements: [...prev.achievements, ''] }))}
+              className="w-full p-4 border-2 border-dashed rounded-xl hover:bg-sky-blue/5 transition-colors flex items-center justify-center gap-2"
+              style={{ borderColor: 'rgba(145, 166, 235, 0.3)', color: '#91A6EB' }}
+            >
+              <Upload className="w-5 h-5" />
+              Add Achievement
+            </button>
+          </div>
+        )
+
+      case 'social-links':
+        return (
+          <div className="p-8 space-y-4">
+            <h3 className="text-xl mb-4" style={{ color: '#000000' }}>Social Media Links</h3>
+
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-pink-500 to-orange-500 rounded-lg flex items-center justify-center">
+                <Instagram className="w-5 h-5 text-white" />
+              </div>
+              <input
+                type="text"
+                value={profileData.socialLinks.instagram}
+                onChange={(e) => setProfileData(prev => ({ ...prev, socialLinks: { ...prev.socialLinks, instagram: e.target.value } }))}
+                className="flex-1 border-2 rounded-xl p-3 focus:border-sky-blue focus:ring-4 focus:ring-sky-blue/20 transition-all"
+                style={{ borderColor: 'rgba(145, 166, 235, 0.2)', backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
+                placeholder="Instagram username or URL"
+              />
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                <Twitter className="w-5 h-5 text-white" />
+              </div>
+              <input
+                type="text"
+                value={profileData.socialLinks.twitter}
+                onChange={(e) => setProfileData(prev => ({ ...prev, socialLinks: { ...prev.socialLinks, twitter: e.target.value } }))}
+                className="flex-1 border-2 rounded-xl p-3 focus:border-sky-blue focus:ring-4 focus:ring-sky-blue/20 transition-all"
+                style={{ borderColor: 'rgba(145, 166, 235, 0.2)', backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
+                placeholder="Twitter/X username or URL"
+              />
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-blue-700 rounded-lg flex items-center justify-center">
+                <Linkedin className="w-5 h-5 text-white" />
+              </div>
+              <input
+                type="text"
+                value={profileData.socialLinks.linkedin}
+                onChange={(e) => setProfileData(prev => ({ ...prev, socialLinks: { ...prev.socialLinks, linkedin: e.target.value } }))}
+                className="flex-1 border-2 rounded-xl p-3 focus:border-sky-blue focus:ring-4 focus:ring-sky-blue/20 transition-all"
+                style={{ borderColor: 'rgba(145, 166, 235, 0.2)', backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
+                placeholder="LinkedIn profile URL"
+              />
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center">
+                <Youtube className="w-5 h-5 text-white" />
+              </div>
+              <input
+                type="text"
+                value={profileData.socialLinks.youtube}
+                onChange={(e) => setProfileData(prev => ({ ...prev, socialLinks: { ...prev.socialLinks, youtube: e.target.value } }))}
+                className="flex-1 border-2 rounded-xl p-3 focus:border-sky-blue focus:ring-4 focus:ring-sky-blue/20 transition-all"
+                style={{ borderColor: 'rgba(145, 166, 235, 0.2)', backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
+                placeholder="YouTube channel URL"
+              />
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-black rounded-lg flex items-center justify-center">
+                <TikTokIcon size={20} className="text-white" />
+              </div>
+              <input
+                type="text"
+                value={profileData.socialLinks.tiktok}
+                onChange={(e) => setProfileData(prev => ({ ...prev, socialLinks: { ...prev.socialLinks, tiktok: e.target.value } }))}
+                className="flex-1 border-2 rounded-xl p-3 focus:border-sky-blue focus:ring-4 focus:ring-sky-blue/20 transition-all"
+                style={{ borderColor: 'rgba(145, 166, 235, 0.2)', backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
+                placeholder="TikTok username or URL"
+              />
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
+                <Globe className="w-5 h-5 text-white" />
+              </div>
+              <input
+                type="text"
+                value={profileData.socialLinks.website}
+                onChange={(e) => setProfileData(prev => ({ ...prev, socialLinks: { ...prev.socialLinks, website: e.target.value } }))}
+                className="flex-1 border-2 rounded-xl p-3 focus:border-sky-blue focus:ring-4 focus:ring-sky-blue/20 transition-all"
+                style={{ borderColor: 'rgba(145, 166, 235, 0.2)', backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
+                placeholder="Website URL"
+              />
+            </div>
+          </div>
+        )
+
+      case 'philosophy':
+        return (
+          <div className="p-8 space-y-6">
+            <h3 className="text-xl mb-4" style={{ color: '#000000' }}>Coaching Philosophy</h3>
+
+            <div>
+              <label className="block text-sm mb-2" style={{ color: '#000000', opacity: 0.7 }}>Philosophy Title</label>
+              <input
+                type="text"
+                value={profileData.philosophy.title}
+                onChange={(e) => setProfileData(prev => ({ ...prev, philosophy: { ...prev.philosophy, title: e.target.value } }))}
+                className="w-full border-2 rounded-xl p-3 focus:border-sky-blue focus:ring-4 focus:ring-sky-blue/20 transition-all"
+                style={{ borderColor: 'rgba(145, 166, 235, 0.2)', backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
+                placeholder="e.g., Excellence Through Mental Mastery"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm mb-2" style={{ color: '#000000', opacity: 0.7 }}>Philosophy Description</label>
+              <textarea
+                value={profileData.philosophy.description}
+                onChange={(e) => setProfileData(prev => ({ ...prev, philosophy: { ...prev.philosophy, description: e.target.value } }))}
+                className="w-full border-2 rounded-xl p-4 resize-none focus:border-sky-blue focus:ring-4 focus:ring-sky-blue/20 transition-all"
+                style={{ borderColor: 'rgba(145, 166, 235, 0.2)', backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
+                rows={4}
+                placeholder="Describe your coaching philosophy and approach..."
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm mb-2" style={{ color: '#000000', opacity: 0.7 }}>Coaching Tagline</label>
+              <input
+                type="text"
+                value={profileData.tagline}
+                onChange={(e) => setProfileData(prev => ({ ...prev, tagline: e.target.value }))}
+                className="w-full border-2 rounded-xl p-3 focus:border-sky-blue focus:ring-4 focus:ring-sky-blue/20 transition-all"
+                style={{ borderColor: 'rgba(145, 166, 235, 0.2)', backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
+                placeholder="e.g., Elevating mental game through tactical intelligence"
+                maxLength={120}
+              />
+              <p className="text-xs mt-2" style={{ color: '#000000', opacity: 0.5 }}>
+                💡 Add your certifications in the dedicated "Certifications" tab above
+              </p>
+            </div>
+          </div>
+        )
+
+      case 'coaching-details':
+        return (
+          <div className="p-8 space-y-6">
+            <h3 className="text-xl mb-4" style={{ color: '#000000' }}>Coaching Details</h3>
+
+            <div>
+              <label className="block text-sm mb-2" style={{ color: '#000000', opacity: 0.7 }}>Availability</label>
+              <input
+                type="text"
+                value={profileData.availability}
+                onChange={(e) => setProfileData(prev => ({ ...prev, availability: e.target.value }))}
+                className="w-full border-2 rounded-xl p-3 focus:border-sky-blue focus:ring-4 focus:ring-sky-blue/20 transition-all"
+                style={{ borderColor: 'rgba(145, 166, 235, 0.2)', backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
+                placeholder="e.g., Weekends and Evenings"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm mb-2" style={{ color: '#000000', opacity: 0.7 }}>Languages (comma separated)</label>
+              <input
+                type="text"
+                value={profileData.languages.join(', ')}
+                onChange={(e) => setProfileData(prev => ({ ...prev, languages: e.target.value.split(', ').filter(lang => lang.trim()) }))}
+                className="w-full border-2 rounded-xl p-3 focus:border-sky-blue focus:ring-4 focus:ring-sky-blue/20 transition-all"
+                style={{ borderColor: 'rgba(145, 166, 235, 0.2)', backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
+                placeholder="e.g., English, Spanish"
+              />
+            </div>
+          </div>
+        )
+
+      case 'voice-capture':
+        return (
+          <div className="p-8">
+            <h3 className="text-xl mb-4" style={{ color: '#000000' }}>AI Voice Capture</h3>
+            <p className="mb-6" style={{ color: '#000000', opacity: 0.7 }}>
+              Enhance your AI coaching with personalized voice capture. Help our AI understand your unique coaching style.
+            </p>
+
+            <div className="flex flex-col gap-3">
+              {/* Quick Voice Capture */}
+              <button
+                onClick={() => {
+                  setVoiceCaptureMode('quick')
+                  setShowVoiceCapture(true)
+                }}
+                className={`flex items-center justify-between px-6 py-4 rounded-xl transition-all shadow-lg ${
+                  profileData.voiceCaptureCompleteness === 'quick'
+                    ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white cursor-default'
+                    : profileData.voiceCaptureCompleteness === 'detailed'
+                    ? 'border-2 border-blue-200 text-blue-600 opacity-50 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800'
+                }`}
+                disabled={profileData.voiceCaptureCompleteness === 'detailed'}
+              >
+                <div className="flex items-center gap-2">
+                  {profileData.voiceCaptureCompleteness === 'quick' ? (
+                    <CheckCircle className="w-5 h-5" />
+                  ) : (
+                    <Mic className="w-5 h-5" />
+                  )}
+                  <span>⚡ Quick Voice Capture (5-7 min)</span>
+                </div>
+                {profileData.voiceCaptureCompleteness === 'quick' && (
+                  <span className="text-sm opacity-90">Completed ✓</span>
+                )}
+              </button>
+
+              {/* Detailed Voice Capture */}
+              <button
+                onClick={() => {
+                  setVoiceCaptureMode('detailed')
+                  setShowVoiceCapture(true)
+                }}
+                className={`flex items-center justify-between px-6 py-4 rounded-xl transition-all ${
+                  profileData.voiceCaptureCompleteness === 'detailed'
+                    ? 'border-2 border-purple-600 bg-purple-50 text-purple-600'
+                    : profileData.voiceCaptureCompleteness === 'quick'
+                    ? 'border-2 border-purple-300 text-purple-600 hover:bg-purple-50'
+                    : 'border-2 border-purple-600 text-purple-600 hover:bg-purple-50'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  {profileData.voiceCaptureCompleteness === 'detailed' ? (
+                    <CheckCircle className="w-5 h-5" />
+                  ) : (
+                    <MessageSquare className="w-5 h-5" />
+                  )}
+                  <span>📚 Detailed Voice Capture (12-15 min)</span>
+                </div>
+                {profileData.voiceCaptureCompleteness === 'detailed' ? (
+                  <span className="text-sm opacity-90">Completed ✓ (Click to edit)</span>
+                ) : profileData.voiceCaptureCompleteness === 'quick' ? (
+                  <span className="text-sm opacity-70">Enhance your capture</span>
+                ) : null}
+              </button>
+            </div>
+
+            {profileData.voiceCaptureCompleteness !== 'none' && (
+              <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-xl">
+                <p className="text-sm text-green-800">
+                  ✓ Your voice capture is complete! The AI will use your {profileData.voiceCaptureCompleteness} profile to personalize responses.
+                  {profileData.voiceCaptureCompleteness === 'quick' && ' You can still complete the detailed capture for even better personalization.'}
+                </p>
+              </div>
+            )}
+          </div>
+        )
+
+      default:
+        return null
+    }
+  }
+
+  return (
+    <main style={{ backgroundColor: embedded ? 'transparent' : '#E8E6D8' }} className={embedded ? 'p-4' : 'min-h-screen'}>
+      {!embedded && <AppHeader />}
+
+      <div className={`w-full ${embedded ? '' : 'max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6'}`}>
+        {/* Header */}
+        {embedded && (
+          <div className="mb-6">
+            <div className="flex items-center gap-3 mb-2">
+              <User className="w-8 h-8" style={{ color: '#91A6EB' }} />
+              <h1 className="text-3xl" style={{ color: '#000000' }}>My Profile</h1>
+            </div>
+            <p style={{ color: '#000000', opacity: 0.7 }}>
+              Manage your profile information and settings
+            </p>
+          </div>
+        )}
+
+        {!embedded && (
+          <div className="flex items-center gap-4 mb-8">
+            <Link href="/dashboard" className="p-3 bg-white/80 hover:bg-white rounded-xl transition-colors shadow-sm border border-white/20">
+              <ArrowLeft className="w-5 h-5" style={{ color: '#000000' }} />
+            </Link>
+            <div>
+              <h1 className="text-4xl" style={{ color: '#000000' }}>
+                {(role === 'creator' || role === 'coach') ? 'Coach Profile' : 'Athlete Profile'}
+              </h1>
+              <p style={{ color: '#000000', opacity: 0.6 }}>Manage your profile information and settings</p>
+            </div>
+          </div>
+        )}
+
+        {/* Unified Profile Card with Tabs */}
+        <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-2xl border border-white/50 relative overflow-hidden">
+          {/* Tab Navigation */}
+          <div className="border-b" style={{ borderColor: 'rgba(0, 0, 0, 0.1)' }}>
+            <div className="flex overflow-x-auto scrollbar-hide">
+              {filteredCards.map((card, index) => {
+                const Icon = card.icon
+                const isActive = activeSection === card.id
+
+                return (
+                  <button
+                    key={index}
+                    onClick={() => setActiveSection(card.id)}
+                    className={`flex items-center gap-2 px-4 sm:px-6 py-4 border-b-2 transition-all whitespace-nowrap ${
+                      isActive
+                        ? 'border-black'
+                        : 'border-transparent hover:border-gray-300'
+                    }`}
+                    style={{
+                      color: isActive ? '#000000' : 'rgba(0, 0, 0, 0.5)',
+                      backgroundColor: isActive ? 'rgba(0, 0, 0, 0.02)' : 'transparent'
+                    }}
+                  >
+                    <div
+                      className={`w-5 h-5 rounded-md flex items-center justify-center transition-all ${
+                        isActive ? 'shadow-md' : ''
+                      }`}
+                      style={{ backgroundColor: isActive ? card.color : 'rgba(0, 0, 0, 0.1)' }}
+                    >
+                      <Icon className="w-3 h-3 text-white" />
+                    </div>
+                    <span className="text-sm font-medium">{card.title}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Save Button Bar */}
+          {activeSection && (
+            <div className="flex items-center justify-end gap-2 p-4 border-b bg-gray-50/50" style={{ borderColor: 'rgba(0, 0, 0, 0.05)' }}>
+              {saveStatus && (
+                <div className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm ${
+                  saveStatus === 'saving' ? 'bg-blue-100 text-blue-600' :
+                  saveStatus === 'success' ? 'bg-green-100 text-green-600' :
+                  'bg-red-100 text-red-600'
+                }`}>
+                  {saveStatus === 'saving' && <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>}
+                  {saveStatus === 'success' && <CheckCircle className="w-4 h-4" />}
+                  {saveStatus === 'error' && <AlertCircle className="w-4 h-4" />}
+                  {saveStatus === 'saving' ? 'Saving...' : saveStatus === 'success' ? 'Saved!' : 'Error'}
+                </div>
+              )}
+              <button
+                onClick={handleSave}
+                disabled={saveStatus === 'saving'}
+                className="px-6 py-2 bg-gradient-to-r from-black to-black/90 text-white rounded-xl hover:from-black/90 hover:to-black transition-all flex items-center gap-2 disabled:opacity-50 shadow-lg"
+              >
+                <Save className="w-4 h-4" />
+                Save Changes
+              </button>
+            </div>
+          )}
+
+          {/* Section Content */}
+          <div className="min-h-[400px]">
+            {activeSection ? (
+              renderSectionContent()
+            ) : (
+              <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+                <User className="w-16 h-16 mb-4" style={{ color: '#91A6EB', opacity: 0.5 }} />
+                <h3 className="text-xl mb-2" style={{ color: '#000000' }}>Welcome to Your Profile</h3>
+                <p style={{ color: '#000000', opacity: 0.6 }}>
+                  Select a tab above to view and edit your profile information
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Voice Capture Modal */}
+      {showVoiceCapture && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-auto">
+            <div className="sticky top-0 bg-white/95 backdrop-blur-sm border-b p-4 flex items-center justify-between">
+              <h2 className="text-xl" style={{ color: '#000000' }}>AI Voice Capture</h2>
+              <button
+                onClick={() => {
+                  setShowVoiceCapture(false)
+                  setVoiceCaptureMode(null)
+                }}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6">
+              {voiceCaptureMode === 'quick' ? (
+                <StreamlinedVoiceCapture
+                  onComplete={handleVoiceCaptureComplete}
+                  onProgress={(progress) => console.log('Voice capture progress:', progress)}
+                  existingProfile={{
+                    sport: profileData.specialties[0] || '',
+                    experience: profileData.experience,
+                    bio: profileData.bio,
+                    tagline: profileData.tagline
+                  }}
+                />
+              ) : (
+                <VoiceCaptureIntake
+                  onComplete={handleVoiceCaptureComplete}
+                  onProgress={(progress) => console.log('Voice capture progress:', progress)}
+                  prePopulatedData={undefined}
+                />
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </main>
+  )
+}
+
+export default function ProfilePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#E8E6D8' }}>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
+          <p style={{ color: '#000000' }}>Loading profile...</p>
+        </div>
+      </div>
+    }>
+      <ProfilePageContent />
+    </Suspense>
+  )
+}

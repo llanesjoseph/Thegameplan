@@ -1,0 +1,504 @@
+═══════════════════════════════════════════════════════════════
+       EMAIL DELIVERY TESTING GUIDE - SIMPLIFIED
+                    AthLeap Platform
+═══════════════════════════════════════════════════════════════
+
+Email Service: Resend
+Sender: noreply@mail.crucibleanalytics.dev
+API Key Status: ✅ CONFIGURED in .env.local
+
+═══════════════════════════════════════════════════════════════
+PRE-TESTING CHECKLIST
+═══════════════════════════════════════════════════════════════
+
+Before you begin testing, ensure:
+
+☑ Development server is running:
+  npm run dev
+
+☑ You have access to an email account for testing:
+  Suggested: Use your own email or joseph@crucibleanalytics.dev
+
+☑ You can access Resend Dashboard (optional):
+  https://resend.com/emails
+  (To verify emails were actually sent by the API)
+
+☑ You have Firebase Console access:
+  https://console.firebase.google.com
+  (To verify user creation and data)
+
+═══════════════════════════════════════════════════════════════
+TEST 1: ATHLETE INVITATION EMAIL ⭐ (Most Important)
+═══════════════════════════════════════════════════════════════
+
+This is the core email that coaches send to athletes.
+
+STEP-BY-STEP INSTRUCTIONS:
+───────────────────────────────────────────────────────────────
+
+1. Sign in as a Coach
+   - Navigate to: http://localhost:3000
+   - Sign in with coach credentials
+   - OR use superadmin: joseph@crucibleanalytics.dev
+
+2. Navigate to "Invite Athletes"
+   - From Coach Dashboard, click "My Athletes" or "Invite Athletes"
+   - Or go directly to: http://localhost:3000/dashboard/coach/invite
+
+3. Send Test Invitation
+   - Click "Invite Athletes" button
+   - Fill in the form:
+
+     Athlete Name: Test Athlete Alpha
+     Athlete Email: [YOUR_TEST_EMAIL]
+     Sport: Soccer (or any sport)
+     Custom Message: Testing athlete invitation email delivery
+
+   - Click "Send Invitation(s)"
+
+4. Check for Success Message
+   - You should see: "✅ Successfully sent 1 invitation(s)!"
+   - Check browser console for: "✅ Athlete invitation sent to..."
+
+5. Verify Email Received
+   - Open your email inbox
+   - Look for email from: AthLeap <noreply@mail.crucibleanalytics.dev>
+   - Subject: "🏆 You're Invited to Train with [Coach Name] - AthLeap"
+
+6. Verify Email Content
+   ✓ Athlete name appears correctly
+   ✓ Sport is displayed (Soccer)
+   ✓ Custom message shows
+   ✓ "Join Training Program" button is present
+   ✓ QR code renders (optional scan test)
+   ✓ Expiration date shows (14 days from now)
+
+7. Test the Invitation Link
+   - Click "Join Training Program" button in email
+   - Should redirect to: http://localhost:3000/athlete-onboard/[INVITATION_ID]
+   - You should see athlete onboarding form
+
+8. Verify in Firestore (Optional)
+   - Open Firebase Console → Firestore
+   - Navigate to: invitations collection
+   - Find your invitation document
+   - Check fields:
+     ✓ athleteEmail: matches what you entered
+     ✓ status: "pending"
+     ✓ emailSent: true (if field exists)
+     ✓ createdAt: recent timestamp
+
+EXPECTED RESULT:
+───────────────────────────────────────────────────────────────
+✅ Email delivered within 5-30 seconds
+✅ All content renders correctly
+✅ Invitation link is functional
+✅ Invitation stored in Firestore
+
+TROUBLESHOOTING:
+───────────────────────────────────────────────────────────────
+❌ No email received?
+   → Check spam/junk folder
+   → Verify RESEND_API_KEY in .env.local
+   → Check Resend dashboard: https://resend.com/emails
+   → Look for errors in terminal running npm run dev
+
+❌ Email went to spam?
+   → This is normal for development
+   → Mark as "Not Spam" to train your filter
+   → Production emails from verified domains won't go to spam
+
+❌ Link doesn't work?
+   → Verify server is still running
+   → Check invitation hasn't expired
+   → Check invitationId exists in Firestore
+
+═══════════════════════════════════════════════════════════════
+TEST 2: COACH NOTIFICATION EMAIL (Invitation Sent)
+═══════════════════════════════════════════════════════════════
+
+When you send athlete invitations, you (the coach) should also
+receive a confirmation email.
+
+STEP-BY-STEP INSTRUCTIONS:
+───────────────────────────────────────────────────────────────
+
+1. This email is automatically sent when you complete TEST 1
+
+2. Check YOUR coach email inbox (the email you're signed in with)
+
+3. Look for email from: AthLeap <noreply@mail.crucibleanalytics.dev>
+
+4. Subject: "✅ [X] Athlete Invitation(s) Sent Successfully - AthLeap"
+
+5. Verify Email Content:
+   ✓ Shows count of invitations sent
+   ✓ Lists athlete names
+   ✓ Shows sport (Soccer)
+   ✓ "What happens next?" section appears
+   ✓ "View Your Athletes" button works
+
+EXPECTED RESULT:
+───────────────────────────────────────────────────────────────
+✅ Coach receives confirmation email
+✅ Email lists all invited athletes
+✅ "View Your Athletes" button redirects correctly
+
+NOTE: If you don't receive this email, it may be because:
+- Your coach account doesn't have an email address in Firestore
+- The notification sending failed (check terminal logs)
+
+═══════════════════════════════════════════════════════════════
+TEST 3: PASSWORD RESET EMAIL (Welcome Email for Athletes)
+═══════════════════════════════════════════════════════════════
+
+When an athlete accepts an invitation, they receive a welcome
+email with a password setup link.
+
+STEP-BY-STEP INSTRUCTIONS:
+───────────────────────────────────────────────────────────────
+
+**IMPORTANT:** This email is NOT the regular Firebase password
+reset. It's a custom welcome email sent after onboarding.
+
+Method 1: Test via Athlete Onboarding Flow
+────────────────────────────────────────────
+1. Complete TEST 1 to send yourself an invitation
+
+2. Click the invitation link in the email
+
+3. Fill out athlete onboarding form:
+   - Name: Test Athlete Alpha
+   - Sport: Soccer
+   - Skill Level: Intermediate
+   - Submit form
+
+4. Check your email for welcome email:
+   - From: AthLeap <noreply@mail.crucibleanalytics.dev>
+   - Subject: "🏆 Welcome to AthLeap - Set Your Password"
+
+5. Verify Email Content:
+   ✓ Athlete name appears
+   ✓ Coach name appears
+   ✓ Sport is mentioned
+   ✓ "Set Your Password" button exists
+   ✓ Expiration warning (1 hour)
+
+6. Click "Set Your Password"
+   - Should redirect to Firebase Auth password reset page
+   - Set a password
+   - Sign in to athlete dashboard
+
+Method 2: Test Firebase Password Reset
+────────────────────────────────────────
+This is the standard Firebase password reset email.
+
+1. Go to sign-in page: http://localhost:3000
+
+2. Click "Forgot Password?" link
+
+3. Enter your email address
+
+4. Check email for:
+   - From: noreply@athleap-xxxxx.firebaseapp.com
+   - Subject: "Reset your password for AthLeap"
+   - This email is handled by Firebase Auth, not your custom code
+
+EXPECTED RESULT:
+───────────────────────────────────────────────────────────────
+✅ Welcome email received after onboarding
+✅ Password reset link works
+✅ Can successfully set password and sign in
+
+TROUBLESHOOTING:
+───────────────────────────────────────────────────────────────
+❌ No welcome email after onboarding?
+   → Check if sendAthleteWelcomeEmail() is called in onboarding API
+   → Check terminal logs for errors
+   → Verify athlete account was created in Firebase Auth
+
+❌ Password reset link expired?
+   → Links expire after 1 hour
+   → Request a new password reset from sign-in page
+
+═══════════════════════════════════════════════════════════════
+TEST 4: ANNOUNCEMENT EMAIL ✅ FULLY IMPLEMENTED
+═══════════════════════════════════════════════════════════════
+
+Coaches can send announcements to their athletes via email.
+Supports urgent vs normal announcements with different styling.
+
+STEP-BY-STEP INSTRUCTIONS:
+───────────────────────────────────────────────────────────────
+
+Prerequisites:
+1. Must have at least one athlete associated with your coach account
+2. Athlete must have a valid email address in their profile
+
+Testing Steps:
+────────────────────────────────────────────
+
+1. Sign in as a Coach
+   - Navigate to: http://localhost:3000
+   - Sign in with coach credentials
+
+2. Navigate to Announcements Page
+   - From Coach Dashboard, click "Announcements"
+   - Or go directly to: http://localhost:3000/dashboard/coach/announcements
+
+3. Create Test Announcement (Normal)
+   - Click "Create Announcement" button
+   - Fill in the form:
+     Title: Practice Schedule Update
+     Message: Team practice has been moved to 4:00 PM tomorrow.
+     Audience: All Athletes (or select specific sport)
+     Urgent: Leave unchecked
+   - Click "Send Announcement"
+
+4. Check for Success Message
+   - You should see: "✅ Announcement created and emails sent successfully"
+   - Check terminal logs for email sending confirmation
+
+5. Verify Email Received (Normal Announcement)
+   - Open athlete's email inbox
+   - Look for email from: AthLeap <noreply@mail.crucibleanalytics.dev>
+   - Subject: "📢 Practice Schedule Update - [Coach Name]"
+
+6. Verify Email Content (Normal)
+   ✓ Blue gradient banner at top
+   ✓ "📢 New Announcement" header
+   ✓ Athlete name personalized
+   ✓ Coach name appears
+   ✓ Announcement title displayed
+   ✓ Message content formatted correctly
+   ✓ "View Dashboard" button present
+
+7. Create Test Announcement (Urgent)
+   - Create another announcement
+   - Fill in:
+     Title: Game Cancelled
+     Message: Tomorrow's game has been cancelled due to weather.
+     Audience: All Athletes
+     Urgent: Check this box ✓
+   - Click "Send Announcement"
+
+8. Verify Email Received (Urgent Announcement)
+   - Open athlete's email inbox
+   - Look for email from: AthLeap <noreply@mail.crucibleanalytics.dev>
+   - Subject: "🚨 URGENT: Game Cancelled - [Coach Name]"
+
+9. Verify Email Content (Urgent)
+   ✓ Red gradient banner at top (different from normal)
+   ✓ "🚨 URGENT ANNOUNCEMENT" header
+   ✓ All content displays correctly
+   ✓ Visual styling indicates urgency
+
+10. Test Sport-Specific Announcements
+    - Create announcement
+    - Select Audience: Specific Sport
+    - Choose Sport: Soccer (or your sport)
+    - Send announcement
+    - VERIFY: Only athletes in that sport receive email
+
+11. Check Firestore (Optional)
+    - Open Firebase Console → Firestore
+    - Navigate to: announcements collection
+    - Find your announcement document
+    - Check fields:
+      ✓ emailsSent: count of successful sends
+      ✓ emailsFailed: count of failed sends
+      ✓ totalRecipients: total athletes targeted
+      ✓ athleteIds: array of UIDs who received email
+
+EXPECTED RESULT:
+───────────────────────────────────────────────────────────────
+✅ Announcement emails delivered within 5-30 seconds
+✅ Normal announcements have blue styling
+✅ Urgent announcements have red styling
+✅ All content renders correctly
+✅ "View Dashboard" button works
+✅ Sport filtering works correctly
+
+TROUBLESHOOTING:
+───────────────────────────────────────────────────────────────
+❌ No email received?
+   → Check if coach has athletes in roster
+   → Verify athlete has email address in Firestore
+   → Check spam/junk folder
+   → Verify RESEND_API_KEY in .env.local
+   → Check Resend dashboard: https://resend.com/emails
+   → Look for errors in terminal running npm run dev
+
+❌ Email went to spam?
+   → This is normal for development
+   → Mark as "Not Spam" to train your filter
+   → Production emails from verified domains won't go to spam
+
+❌ Only some athletes received email?
+   → Check Firestore announcement document for emailsSent vs emailsFailed
+   → Verify all athletes have valid email addresses
+   → Check terminal logs for specific error messages
+
+❌ Sport filter not working?
+   → Verify athletes have sport field in their user profile
+   → Check that sport names match exactly (case-insensitive)
+
+═══════════════════════════════════════════════════════════════
+ADDITIONAL EMAIL TESTS (Bonus)
+═══════════════════════════════════════════════════════════════
+
+Test 5: Invitation Accepted Notification (Coach receives)
+──────────────────────────────────────────────────────────
+When an athlete accepts invitation, coach gets notified.
+
+1. Complete athlete onboarding (TEST 3)
+2. Coach should receive email:
+   - Subject: "🎉 [Athlete Name] Accepted Your Invitation"
+   - Shows athlete details
+   - "View Your Athletes" button
+
+Test 6: Resend Invitation Email
+──────────────────────────────────────────────────────────
+1. Go to Coach Dashboard → My Athletes
+2. Find a pending invitation
+3. Click "Resend" button (mail icon)
+4. Verify email is sent again
+5. Check Firestore for resendCount increment
+
+═══════════════════════════════════════════════════════════════
+TESTING SUMMARY CHECKLIST
+═══════════════════════════════════════════════════════════════
+
+After completing all tests, mark off:
+
+☐ TEST 1: Athlete Invitation Email
+  ☐ Email received in inbox
+  ☐ Content displays correctly
+  ☐ Invitation link works
+  ☐ QR code renders
+
+☐ TEST 2: Coach Notification Email
+  ☐ Confirmation email received
+  ☐ Lists all invited athletes
+  ☐ "View Athletes" button works
+
+☐ TEST 3: Password Reset / Welcome Email
+  ☐ Welcome email received after onboarding
+  ☐ Password setup link works
+  ☐ Can sign in after setting password
+
+☐ TEST 4: Announcement Email
+  ☐ Normal announcement email received
+  ☐ Urgent announcement email received
+  ☐ Different styling for urgent vs normal
+  ☐ Sport filtering works correctly
+  ☐ Email stats tracked in Firestore
+
+═══════════════════════════════════════════════════════════════
+VERIFYING EMAILS WERE ACTUALLY SENT
+═══════════════════════════════════════════════════════════════
+
+If you want to confirm emails were sent by the server
+(even if you didn't receive them in your inbox):
+
+1. Open Resend Dashboard:
+   https://resend.com/emails
+
+2. Sign in with Resend account
+
+3. Check "Emails" tab for recent sends
+
+4. You should see:
+   - Timestamp of send
+   - Recipient email
+   - Status: "Delivered" or "Sent"
+   - Email subject
+
+This confirms the email was successfully sent from your server.
+
+═══════════════════════════════════════════════════════════════
+COMMON ISSUES & SOLUTIONS
+═══════════════════════════════════════════════════════════════
+
+Issue: All emails go to spam
+Solution:
+  - This is normal for development
+  - Production domain (athleap.crucibleanalytics.dev) is verified
+  - Emails won't go to spam in production
+
+Issue: No emails received at all
+Solution:
+  1. Check .env.local has RESEND_API_KEY
+  2. Restart dev server: npm run dev
+  3. Check terminal for errors
+  4. Verify email address is correct
+  5. Check Resend dashboard
+
+Issue: Email links don't work
+Solution:
+  - Verify NEXT_PUBLIC_APP_URL in .env.local
+  - Check server is still running
+  - Links use localhost:3000 in development
+
+Issue: QR code doesn't load
+Solution:
+  - QR codes use external API: qrserver.com
+  - May be blocked by ad blockers
+  - Not critical for functionality
+
+═══════════════════════════════════════════════════════════════
+SUCCESS CRITERIA
+═══════════════════════════════════════════════════════════════
+
+Your email system is working correctly if:
+
+✅ Athlete invitation emails arrive within 30 seconds
+✅ Email content displays properly (no broken HTML)
+✅ Invitation links redirect to correct onboarding page
+✅ Coach receives confirmation emails
+✅ Password reset links work for new athletes
+
+═══════════════════════════════════════════════════════════════
+NOTES FOR PRODUCTION DEPLOYMENT
+═══════════════════════════════════════════════════════════════
+
+Before deploying to production (Vercel):
+
+☑ Verify RESEND_API_KEY is set in Vercel environment variables
+☑ Confirm sender domain is verified in Resend
+☑ Test with real email addresses (not just joseph@crucibleanalytics.dev)
+☑ Check spam score: https://www.mail-tester.com
+☑ Monitor Resend dashboard for delivery rates
+
+═══════════════════════════════════════════════════════════════
+NEED HELP?
+═══════════════════════════════════════════════════════════════
+
+If you encounter issues:
+
+1. Check terminal output where npm run dev is running
+2. Look for errors like:
+   - "Failed to send invitation email"
+   - "Resend API error"
+   - 401 Unauthorized
+
+2. Check Firestore Console
+   - Verify invitation documents exist
+   - Check if emailSent field is true
+
+3. Check Resend Dashboard
+   - See if emails were actually sent
+   - Check delivery status
+
+4. Review email service code:
+   - lib/email-service.ts (all email functions)
+   - app/api/coach/invite-athletes/route.ts (invitation API)
+
+═══════════════════════════════════════════════════════════════
+END OF EMAIL TESTING GUIDE
+═══════════════════════════════════════════════════════════════
+
+Good luck with your testing! 🚀
+
+Remember: Focus on TEST 1 (Athlete Invitations) first, as this
+is the most critical email for your MVP.
