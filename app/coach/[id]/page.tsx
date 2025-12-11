@@ -207,14 +207,11 @@ export default function CoachProfilePage() {
           console.warn('Could not fetch creator profile:', err)
         }
 
-        const galleryPhotos = extractGalleryPhotos(
-          profileData.galleryPhotos,
-          profileData.actionPhotos,
-          profileData.mediaGallery,
-          profileData.heroGallery,
-          profileData.gallery,
-          userData.galleryPhotos
-        )
+        // STRICT: Only use galleryPhotos from creator_profiles - these are photos uploaded by the coach
+        // Do NOT merge from other sources (actionPhotos, mediaGallery, etc.) to prevent hard-coded images
+        const galleryPhotos = Array.isArray(profileData.galleryPhotos) 
+          ? profileData.galleryPhotos.filter((url: any) => typeof url === 'string' && url.trim().length > 0)
+          : []
 
         const showcasePhoto1 = profileData.showcasePhoto1 || userData.showcasePhoto1 || ''
         const showcasePhoto2 = profileData.showcasePhoto2 || userData.showcasePhoto2 || ''

@@ -106,14 +106,11 @@ export async function GET(
                          creatorData.bannerUrl ||
                          ''
 
-    const galleryPhotos = extractGalleryPhotos(
-      creatorData.galleryPhotos,
-      creatorData.actionPhotos,
-      creatorData.mediaGallery,
-      creatorData.heroGallery,
-      creatorData.gallery,
-      userData.galleryPhotos
-    )
+    // STRICT: Only use galleryPhotos from creator_profiles - these are photos uploaded by the coach
+    // Do NOT merge from other sources (actionPhotos, mediaGallery, etc.) to prevent hard-coded images
+    const galleryPhotos = Array.isArray(creatorData.galleryPhotos) 
+      ? creatorData.galleryPhotos.filter((url: any) => typeof url === 'string' && url.trim().length > 0)
+      : []
 
     // Build coach profile response
     const coachProfile = {

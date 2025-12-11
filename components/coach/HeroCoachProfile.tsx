@@ -573,7 +573,16 @@ export default function HeroCoachProfile({
       socialLinks={visibleSocialLinks}
       />
 
-      {galleryPhotos.length > 0 && <CoachGallery photos={galleryPhotos} />}
+      {galleryPhotos.length > 0 && (
+        <CoachGallery 
+          photos={galleryPhotos} 
+          galleryPhotosOnly={activeCoach.galleryPhotos || []}
+          onPhotoDeleted={() => {
+            // Reload the page to refresh the coach data
+            window.location.reload()
+          }}
+        />
+      )}
 
       {shouldShowLessons && (
         <TrainingLibrarySection coachName={activeCoach.displayName} lessons={lessons} onSelectLesson={setSelectedLesson} />
@@ -1030,13 +1039,78 @@ function PhotoEditPanel({
   )
 }
 
-function CoachGallery({ photos }: { photos: string[] }) {
+function CoachGallery({ 
+  photos, 
+  galleryPhotosOnly = [],
+  onPhotoDeleted 
+}: { 
+  photos: string[]
+  galleryPhotosOnly?: string[]
+  onPhotoDeleted?: () => void
+}) {
+  const { user } = useAuth()
   const rowRef = useRef<HTMLDivElement>(null)
-  const scrollByAmount = 3 * (214 + 10)
-  const hasOverflow = photos.length > 4
+  const photoWidth = 214
+  const photoGap = 12
+  const maxVisiblePhotos = 4
+  const scrollByAmount = photoWidth + photoGap
+  const hasOverflow = photos.length > maxVisiblePhotos
+  const [deletingPhotoUrl, setDeletingPhotoUrl] = useState<string | null>(null)
 
-  const handlePrev = () => rowRef.current?.scrollBy({ left: -scrollByAmount, behavior: 'smooth' })
-  const handleNext = () => rowRef.current?.scrollBy({ left: scrollByAmount, behavior: 'smooth' })
+  const handlePrev = () => {
+    if (rowRef.current) {
+      rowRef.current.scrollBy({ left: -scrollByAmount, behavior: 'smooth' })
+    }
+  }
+
+  const handleNext = () => {
+    if (rowRef.current) {
+      rowRef.current.scrollBy({ left: scrollByAmount, behavior: 'smooth' })
+    }
+  }
+
+  const handleDeletePhoto = async (photoUrl: string) => {
+    if (!user || !confirm('Are you sure you want to delete this photo?')) return
+
+    // Only allow deletion of photos that are in galleryPhotos (not showcase photos)
+    if (!galleryPhotosOnly.includes(photoUrl)) {
+      alert('This photo cannot be deleted from here. Please use the profile editor to remove showcase photos.')
+      return
+    }
+
+    setDeletingPhotoUrl(photoUrl)
+    try {
+      const token = await user.getIdToken()
+      const params = new URLSearchParams({ photoUrl })
+      const res = await fetch(`/api/coach-profile/delete-gallery-photo?${params.toString()}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+      })
+
+      const data = await res.json()
+      if (data?.success) {
+        // Refresh the page to show updated photos
+        if (onPhotoDeleted) {
+          onPhotoDeleted()
+        } else {
+          window.location.reload()
+        }
+      } else {
+        alert('Failed to delete photo: ' + (data?.error || 'Unknown error'))
+      }
+    } catch (error) {
+      console.error('Failed to delete photo:', error)
+      alert('Failed to delete photo. Please try again.')
+    } finally {
+      setDeletingPhotoUrl(null)
+    }
+  }
+
+  // Calculate max width to show exactly 4 photos
+  const maxContainerWidth = maxVisiblePhotos * photoWidth + (maxVisiblePhotos - 1) * photoGap
+
+  // Check if user can delete (must be logged in and photo must be in galleryPhotos)
+  const canDelete = !!user
 
   return (
     <section className="w-full bg-white">
@@ -1046,26 +1120,54 @@ function CoachGallery({ photos }: { photos: string[] }) {
             <button
               onClick={handlePrev}
               aria-label="Previous"
-              className="hidden sm:flex flex-shrink-0 w-10 h-10 rounded-full bg-white shadow items-center justify-center hover:bg-gray-50"
+              className="hidden sm:flex flex-shrink-0 w-10 h-10 rounded-full bg-white shadow items-center justify-center hover:bg-gray-50 z-10"
             >
               <ArrowRight className="w-5 h-5 rotate-180" />
             </button>
           )}
 
-          <div className="flex-1">
+          <div className="flex-1" style={hasOverflow ? { maxWidth: `${maxContainerWidth}px` } : undefined}>
             <div
               ref={rowRef}
-              className={`flex gap-3 py-2 ${hasOverflow ? 'w-full overflow-x-auto overflow-y-hidden scroll-smooth' : 'w-full justify-between'}`}
+              className={`flex gap-3 py-2 ${
+                hasOverflow
+                  ? 'overflow-x-auto overflow-y-hidden scroll-smooth no-scrollbar'
+                  : 'w-full justify-between'
+              }`}
             >
-              {photos.map((src, idx) => (
-                <div
-                  key={`${src}-${idx}`}
-                  className={`${hasOverflow ? 'shrink-0 w-[214px]' : 'flex-1 min-w-[180px] max-w-[240px]'} h-[260px] md:h-[285px] rounded-md overflow-hidden bg-gray-100`}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={src} alt={`Gallery image ${idx + 1}`} className="w-full h-full object-cover" loading={idx < 4 ? 'eager' : 'lazy'} />
-                </div>
-              ))}
+              {photos.map((src, idx) => {
+                const isGalleryPhoto = galleryPhotosOnly.includes(src)
+                const isDeleting = deletingPhotoUrl === src
+                
+                return (
+                  <div
+                    key={`${src}-${idx}`}
+                    className={`relative ${
+                      hasOverflow ? 'shrink-0' : 'flex-1 min-w-[180px] max-w-[240px]'
+                    } h-[260px] md:h-[285px] rounded-md overflow-hidden bg-gray-100 group`}
+                    style={hasOverflow ? { width: `${photoWidth}px` } : undefined}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={src} alt={`Gallery image ${idx + 1}`} className="w-full h-full object-cover" loading={idx < 4 ? 'eager' : 'lazy'} />
+                    
+                    {/* Delete button - only show for gallery photos (not showcase photos) */}
+                    {canDelete && isGalleryPhoto && (
+                      <button
+                        onClick={() => handleDeletePhoto(src)}
+                        disabled={isDeleting}
+                        className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-[#C40000] text-white flex items-center justify-center hover:bg-[#a00000] transition-colors disabled:opacity-50 shadow-lg z-10 opacity-0 group-hover:opacity-100"
+                        aria-label="Delete photo"
+                      >
+                        {isDeleting ? (
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          <Minus className="w-4 h-4" />
+                        )}
+                      </button>
+                    )}
+                  </div>
+                )
+              })}
             </div>
           </div>
 
@@ -1073,7 +1175,7 @@ function CoachGallery({ photos }: { photos: string[] }) {
             <button
               onClick={handleNext}
               aria-label="Next"
-              className="hidden sm:flex flex-shrink-0 w-10 h-10 rounded-full bg-white shadow items-center justify-center hover:bg-gray-50"
+              className="hidden sm:flex flex-shrink-0 w-10 h-10 rounded-full bg-white shadow items-center justify-center hover:bg-gray-50 z-10"
             >
               <ArrowRight className="w-5 h-5" />
             </button>
