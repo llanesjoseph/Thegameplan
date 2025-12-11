@@ -92,6 +92,40 @@ export async function POST(request: NextRequest) {
     // Update coach profile in Firestore
     await db.collection('creator_profiles').doc(authUser.uid).update(updateData)
 
+    // CRITICAL: Sync to creators_index so changes appear in Browse Coaches immediately
+    try {
+      const creatorsIndexRef = db.collection('creators_index').doc(authUser.uid)
+      const indexUpdates: Record<string, any> = {
+        lastUpdated: new Date(),
+        uid: authUser.uid
+      }
+      
+      // Sync all image fields to creators_index
+      if (headshotUrl) {
+        indexUpdates.profileImageUrl = headshotUrl
+        indexUpdates.headshotUrl = headshotUrl
+        indexUpdates.photoURL = headshotUrl
+      }
+      if (heroImageUrl) {
+        indexUpdates.heroImageUrl = heroImageUrl
+        indexUpdates.bannerUrl = heroImageUrl
+        indexUpdates.coverImageUrl = heroImageUrl
+      }
+      if (actionPhotos) {
+        indexUpdates.actionPhotos = actionPhotos
+        indexUpdates.galleryPhotos = actionPhotos // Also sync to galleryPhotos for compatibility
+      }
+      if (highlightVideo) {
+        indexUpdates.highlightVideo = highlightVideo
+      }
+      
+      await creatorsIndexRef.set(indexUpdates, { merge: true })
+      console.log(`[COACH-PROFILE/UPDATE-IMAGES] Synced image updates to creators_index for ${authUser.uid}`)
+    } catch (indexError) {
+      console.error('CRITICAL ERROR: failed to sync creators_index from update-images:', indexError)
+      // Don't throw - allow the update to succeed even if index update fails
+    }
+
     // Also update the creator data if it exists (for backwards compatibility)
     const creatorQuery = await db.collection('creators').where('email', '==', authUser.email).get()
     if (!creatorQuery.empty) {

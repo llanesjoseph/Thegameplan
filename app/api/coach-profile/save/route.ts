@@ -141,26 +141,36 @@ export async function POST(request: NextRequest) {
       userUpdates: userUpdates
     })
 
-    // CRITICAL: Update creators_index synchronously - this is where the profile page reads from
-    // The profile page API route reads from creators_index first, so this MUST be updated
+    // CRITICAL: Update creators_index synchronously - this is where Browse Coaches reads from
+    // MUST sync ALL profile fields to ensure edits appear immediately in Browse Coaches
     try {
       const creatorsIndexRef = db.collection('creators_index').doc(uid)
       const creatorsDoc = await creatorsIndexRef.get()
 
       const displayNameToSave = (body.displayName || '').trim()
       const indexUpdates: Record<string, any> = {
-        lastUpdated: now
+        lastUpdated: now,
+        uid: uid // Ensure uid is always set
       }
 
-      // CRITICAL: Always update displayName in creators_index (it's always sent)
-      // This ensures the name change is visible on the public profile page
-      indexUpdates.displayName = displayNameToSave
-      indexUpdates.name = displayNameToSave // Also update 'name' field for consistency
-      console.log(`[COACH-PROFILE/SAVE] Updating creators_index displayName: "${displayNameToSave}"`)
-
-      // If a new profile image was set, mirror it into all common image fields
-      // used by public views so the Browse Coaches grid always shows the latest headshot.
-      if (body.profileImageUrl) {
+      // CRITICAL: Sync ALL profile fields to creators_index for Browse Coaches
+      // This ensures any edit immediately appears in the Browse Coaches view
+      if (body.displayName !== undefined) {
+        indexUpdates.displayName = displayNameToSave
+        indexUpdates.name = displayNameToSave // Also update 'name' field for consistency
+      }
+      if (body.bio !== undefined) {
+        indexUpdates.bio = body.bio
+        indexUpdates.description = body.bio // Also update description for compatibility
+      }
+      if (body.location !== undefined) {
+        indexUpdates.location = body.location
+      }
+      if (body.sport !== undefined) {
+        indexUpdates.sport = body.sport
+      }
+      if (body.profileImageUrl !== undefined) {
+        // Mirror profile image to all common image fields for maximum compatibility
         indexUpdates.profileImageUrl = body.profileImageUrl
         indexUpdates.headshotUrl = body.profileImageUrl
         indexUpdates.photoURL = body.profileImageUrl
@@ -168,11 +178,35 @@ export async function POST(request: NextRequest) {
         indexUpdates.heroImageUrl = body.profileImageUrl
         indexUpdates.coverImageUrl = body.profileImageUrl
       }
-
-      // Also update sport if provided
-      if (body.sport !== undefined) {
-        indexUpdates.sport = body.sport
+      if (body.showcasePhoto1 !== undefined) {
+        indexUpdates.showcasePhoto1 = body.showcasePhoto1
       }
+      if (body.showcasePhoto2 !== undefined) {
+        indexUpdates.showcasePhoto2 = body.showcasePhoto2
+      }
+      if (body.galleryPhotos !== undefined) {
+        indexUpdates.galleryPhotos = body.galleryPhotos
+      }
+      if (body.instagram !== undefined) {
+        indexUpdates.instagram = body.instagram
+      }
+      if (body.facebook !== undefined) {
+        indexUpdates.facebook = body.facebook
+      }
+      if (body.twitter !== undefined) {
+        indexUpdates.twitter = body.twitter
+      }
+      if (body.linkedin !== undefined) {
+        indexUpdates.linkedin = body.linkedin
+      }
+      if (body.youtube !== undefined) {
+        indexUpdates.youtube = body.youtube
+      }
+      if (body.socialLinks !== undefined) {
+        indexUpdates.socialLinks = body.socialLinks
+      }
+
+      console.log(`[COACH-PROFILE/SAVE] Syncing ALL profile fields to creators_index for ${uid}`)
 
       // Always update or create the document - don't skip if it doesn't exist
       if (creatorsDoc.exists) {
@@ -188,10 +222,12 @@ export async function POST(request: NextRequest) {
         console.log(`[COACH-PROFILE/SAVE] Created creators_index for ${uid}`, indexUpdates)
       }
     } catch (visibilityError) {
-      // CRITICAL: This is important for name visibility - log as error
+      // CRITICAL: This is important for Browse Coaches visibility - log as error
       console.error('CRITICAL ERROR: failed to sync creators_index from coach-profile/save:', visibilityError)
+      console.error('This means profile edits may not appear in Browse Coaches immediately!')
       // Don't throw - allow the save to succeed even if index update fails
       // But log it prominently so we know about the issue
+      // TODO: Consider adding retry logic or queue for failed syncs
     }
 
     return NextResponse.json({ success: true })
