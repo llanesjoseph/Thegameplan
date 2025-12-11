@@ -1083,7 +1083,8 @@ function CoachGallery({
 
     setDeletingPhotoUrl(photoUrl)
     try {
-      const token = await user.getIdToken()
+      // Force token refresh to ensure we have a valid token
+      const token = await user.getIdToken(true)
       
       // Check if it's a showcase photo
       const isShowcasePhoto1 = showcasePhoto1 === photoUrl
@@ -1113,7 +1114,9 @@ function CoachGallery({
           }
           return
         } else {
-          alert('Failed to delete photo: ' + (data?.error || 'Unknown error'))
+          const errorMsg = data?.error || 'Unknown error'
+          console.error('Failed to delete showcase photo:', errorMsg, data)
+          alert(`Failed to delete photo: ${errorMsg}`)
           setDeletingPhotoUrl(null)
           return
         }
@@ -1135,11 +1138,14 @@ function CoachGallery({
           window.location.reload()
         }
       } else {
-        alert('Failed to delete photo: ' + (data?.error || 'Unknown error'))
+        const errorMsg = data?.error || 'Unknown error'
+        console.error('Failed to delete photo:', errorMsg, data)
+        alert(`Failed to delete photo: ${errorMsg}`)
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to delete photo:', error)
-      alert('Failed to delete photo. Please try again.')
+      const errorMsg = error?.message || 'Please try again. If the problem persists, try refreshing the page.'
+      alert(`Failed to delete photo: ${errorMsg}`)
     } finally {
       setDeletingPhotoUrl(null)
     }
