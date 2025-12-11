@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAuth } from '@/lib/auth-utils'
 import { adminDb as db } from '@/lib/firebase.admin'
+import { syncCoachToBrowseCoaches } from '@/lib/sync-coach-to-browse'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -225,15 +226,27 @@ export async function POST(request: NextRequest) {
       
       // Remove old baked profile entry from creators_index if it exists
       transaction.delete(oldBakedIndexRef)
-      
-      console.log(`✅ [BAKED-PROFILE-ADOPTION] Successfully adopted baked profile ${bakedProfileId} for user ${userUid}`)
-      
-      return NextResponse.json({
-        success: true,
-        adopted: true,
-        bakedProfileId,
-        message: 'Baked profile adopted successfully'
-      })
+    })
+    
+    // AIRTIGHT: After transaction completes, sync to Browse Coaches using centralized function
+    // This ensures all fields are properly synced and consistent
+    const syncResult = await syncCoachToBrowseCoaches(userUid, profileData)
+    
+    if (!syncResult.success) {
+      console.error(`[BAKED-PROFILE-ADOPTION] Failed to sync to Browse Coaches: ${syncResult.error}`)
+      // Don't fail the adoption, but log the error
+    } else {
+      console.log(`✅ [BAKED-PROFILE-ADOPTION] Synced adopted profile to Browse Coaches`)
+    }
+    
+    console.log(`✅ [BAKED-PROFILE-ADOPTION] Successfully adopted baked profile ${bakedProfileId} for user ${userUid}`)
+    
+    return NextResponse.json({
+      success: true,
+      adopted: true,
+      bakedProfileId,
+      syncedToBrowse: syncResult.success,
+      message: 'Baked profile adopted successfully'
     })
     
   } catch (error: any) {

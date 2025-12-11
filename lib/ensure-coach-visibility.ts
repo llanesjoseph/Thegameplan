@@ -1,5 +1,6 @@
 import { adminDb } from '@/lib/firebase.admin'
 import { createSlugMapping } from '@/lib/slug-utils'
+import { syncCoachToBrowseCoaches } from '@/lib/sync-coach-to-browse'
 
 export interface CoachData {
   uid: string
@@ -43,33 +44,35 @@ export async function ensureCoachVisibility(coachData: CoachData): Promise<{
       throw new Error('Missing required fields: uid, email, or displayName')
     }
 
-    // Prepare creators_index data with all required fields
-    const creatorsIndexData = {
+    // AIRTIGHT: Use centralized sync function to ensure consistency
+    // Get full profile data from creator_profiles if it exists
+    const creatorRef = adminDb.collection('creator_profiles').doc(coachData.uid)
+    const creatorDoc = await creatorRef.get()
+    let fullProfileData: any = {}
+    
+    if (creatorDoc.exists) {
+      fullProfileData = creatorDoc.data() || {}
+    }
+    
+    // Merge with provided coachData (coachData takes precedence)
+    const profileData = {
+      ...fullProfileData,
+      ...coachData,
       uid: coachData.uid,
       email: coachData.email.toLowerCase(),
-      displayName: coachData.displayName,
-      firstName: coachData.firstName || '',
-      lastName: coachData.lastName || '',
-      sport: coachData.sport || '',
-      tagline: coachData.tagline || '',
-      bio: coachData.bio || '',
-      philosophy: coachData.philosophy || '',
-      experience: coachData.experience || '',
-      credentials: coachData.credentials || '',
-      specialties: coachData.specialties || [],
-      achievements: coachData.achievements || [],
       isActive: coachData.isActive ?? true,
       profileComplete: coachData.profileComplete ?? true,
-      status: coachData.status || 'approved',
-      verified: coachData.verified ?? true,
-      featured: coachData.featured ?? false,
-      createdAt: new Date(),
-      lastUpdated: new Date()
+      status: coachData.status || 'approved'
     }
-
-    // Write to creators_index (this is what Browse Coaches queries)
-    await adminDb.collection('creators_index').doc(coachData.uid).set(creatorsIndexData)
-    console.log(`✅ [ENSURE-COACH-VISIBILITY] Added ${coachData.displayName} to creators_index`)
+    
+    // Use centralized sync function
+    const syncResult = await syncCoachToBrowseCoaches(coachData.uid, profileData)
+    
+    if (!syncResult.success) {
+      throw new Error(`Failed to sync to Browse Coaches: ${syncResult.error}`)
+    }
+    
+    console.log(`✅ [ENSURE-COACH-VISIBILITY] Synced ${coachData.displayName} to creators_index via syncCoachToBrowseCoaches`)
 
     // IRONCLAD: Create slug mapping for secure profile URLs (REQUIRED)
     const slugResult = await createSlugMapping(coachData.uid, coachData.displayName)

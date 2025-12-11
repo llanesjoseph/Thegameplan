@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAuth } from '@/lib/auth-utils'
 import { adminDb as db } from '@/lib/firebase.admin'
+import { syncCoachToBrowseCoaches } from '@/lib/sync-coach-to-browse'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -75,7 +76,8 @@ export async function PUT(request: NextRequest) {
     }
     
     // AIRTIGHT: Use transaction to ensure atomic update
-    await db.runTransaction(async (transaction) => {
+    let updatedData: any = {}
+    await db.runTransaction(async (transaction: FirebaseFirestore.Transaction) => {
       // Re-read to ensure status hasn't changed
       const latestDoc = await transaction.get(bakedProfileRef)
       if (!latestDoc.exists) {
@@ -93,17 +95,66 @@ export async function PUT(request: NextRequest) {
         throw new Error('Cannot update baked profile that has been transferred')
       }
       
+      // Merge update data with existing data
+      updatedData = {
+        ...latestData,
+        ...updateData,
+        updatedAt: new Date()
+      }
+      
       transaction.update(bakedProfileRef, {
         ...updateData,
         updatedAt: new Date()
       })
     })
     
+    // AIRTIGHT: If visible in Browse Coaches, sync to creators_index immediately
+    if (updatedData.visibleInBrowseCoaches) {
+      // Use bakedProfileId as temporary UID until transferred
+      const syncResult = await syncCoachToBrowseCoaches(bakedProfileId, {
+        uid: bakedProfileId,
+        displayName: updatedData.displayName || '',
+        firstName: updatedData.firstName || '',
+        lastName: updatedData.lastName || '',
+        email: updatedData.email || updatedData.targetEmail || '',
+        sport: updatedData.sport || '',
+        location: updatedData.location || '',
+        bio: updatedData.bio || '',
+        tagline: updatedData.tagline || '',
+        credentials: updatedData.credentials || '',
+        philosophy: updatedData.philosophy || '',
+        profileImageUrl: updatedData.profileImageUrl || updatedData.headshotUrl || '',
+        headshotUrl: updatedData.headshotUrl || updatedData.profileImageUrl || '',
+        heroImageUrl: updatedData.heroImageUrl || '',
+        showcasePhoto1: updatedData.showcasePhoto1 || '',
+        showcasePhoto2: updatedData.showcasePhoto2 || '',
+        galleryPhotos: updatedData.galleryPhotos || [],
+        instagram: updatedData.instagram || updatedData.socialLinks?.instagram || '',
+        facebook: updatedData.facebook || updatedData.socialLinks?.facebook || '',
+        twitter: updatedData.twitter || updatedData.socialLinks?.twitter || '',
+        linkedin: updatedData.linkedin || updatedData.socialLinks?.linkedin || '',
+        youtube: updatedData.youtube || updatedData.socialLinks?.youtube || '',
+        socialLinks: updatedData.socialLinks || {},
+        isActive: true,
+        profileComplete: true,
+        status: 'approved',
+        isBakedProfile: true,
+        bakedProfileId: bakedProfileId
+      })
+      
+      if (!syncResult.success) {
+        console.error(`[UPDATE-BAKED-PROFILE] Failed to sync to Browse Coaches: ${syncResult.error}`)
+      } else {
+        console.log(`✅ [UPDATE-BAKED-PROFILE] Synced baked profile ${bakedProfileId} to Browse Coaches`)
+      }
+    }
+    
     console.log(`✅ Baked profile updated: ${bakedProfileId}`)
     
     return NextResponse.json({
       success: true,
-      message: 'Baked profile updated successfully'
+      message: 'Baked profile updated successfully',
+      syncedToBrowse: updatedData.visibleInBrowseCoaches || false
     })
     
   } catch (error) {
