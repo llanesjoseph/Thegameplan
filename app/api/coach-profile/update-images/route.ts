@@ -53,6 +53,13 @@ export async function POST(request: NextRequest) {
     }
 
     const currentProfile = coachProfileDoc.data()
+    
+    // SECURITY: Verify the profile belongs to the authenticated user
+    const profileUid = currentProfile?.uid || coachProfileDoc.id
+    if (profileUid !== authUser.uid) {
+      console.error(`[SECURITY] Unauthorized update attempt: user ${authUser.uid} tried to update images for profile ${profileUid}`)
+      return NextResponse.json({ error: 'Unauthorized: You can only update your own profile images' }, { status: 403 })
+    }
 
     // Prepare update data
     const updateData: any = {

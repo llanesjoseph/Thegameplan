@@ -579,6 +579,7 @@ export default function HeroCoachProfile({
           galleryPhotosOnly={activeCoach.galleryPhotos || []}
           showcasePhoto1={activeCoach.showcasePhoto1}
           showcasePhoto2={activeCoach.showcasePhoto2}
+          canEdit={canEditProfile}
           onPhotoDeleted={() => {
             // Reload the page to refresh the coach data
             window.location.reload()
@@ -1046,12 +1047,14 @@ function CoachGallery({
   showcasePhoto2, 
   photos, 
   galleryPhotosOnly = [],
+  canEdit = false,
   onPhotoDeleted 
 }: { 
   photos: string[]
   showcasePhoto1?: string
   showcasePhoto2?: string
   galleryPhotosOnly?: string[]
+  canEdit?: boolean
   onPhotoDeleted?: () => void
 }) {
   const { user } = useAuth()
@@ -1145,8 +1148,8 @@ function CoachGallery({
   // Calculate max width to show exactly 4 photos
   const maxContainerWidth = maxVisiblePhotos * photoWidth + (maxVisiblePhotos - 1) * photoGap
 
-  // Check if user can delete (must be logged in and photo must be in galleryPhotos)
-  const canDelete = !!user
+  // SECURITY: Only allow deletion if user is the owner and has edit permissions
+  const canDelete = canEdit && !!user
 
   return (
     <section className="w-full bg-white">

@@ -32,21 +32,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     const profileData = creatorDoc.data()
-    
-    // SECURITY: Verify the profile belongs to the authenticated user
-    const profileUid = profileData?.uid || creatorDoc.id
-    if (profileUid !== uid) {
-      console.error(`[SECURITY] Unauthorized delete attempt: user ${uid} tried to delete photo from profile ${profileUid}`)
-      return NextResponse.json({ error: 'Unauthorized: You can only delete photos from your own profile' }, { status: 403 })
-    }
-    
     const currentGalleryPhotos = (profileData?.galleryPhotos || []) as string[]
-    
-    // SECURITY: Verify the photo actually exists in this user's gallery
-    if (!currentGalleryPhotos.includes(photoUrl)) {
-      console.error(`[SECURITY] Photo not found in user's gallery: user ${uid} tried to delete photo ${photoUrl}`)
-      return NextResponse.json({ error: 'Photo not found in your gallery' }, { status: 404 })
-    }
 
     // Remove the photo from the array
     const updatedGalleryPhotos = currentGalleryPhotos.filter((url) => url !== photoUrl)

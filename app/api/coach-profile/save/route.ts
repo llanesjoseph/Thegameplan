@@ -100,10 +100,22 @@ export async function POST(request: NextRequest) {
     assignIfDefined(userUpdates, 'youtube', body.youtube)
     assignIfDefined(userUpdates, 'socialLinks', body.socialLinks)
 
+    // SECURITY: Verify the profile belongs to the authenticated user before updating
+    const creatorRef = db.collection('creator_profiles').doc(uid)
+    const creatorDoc = await creatorRef.get()
+    
+    if (creatorDoc.exists) {
+      const profileData = creatorDoc.data()
+      const profileUid = profileData?.uid || creatorDoc.id
+      if (profileUid !== uid) {
+        console.error(`[SECURITY] Unauthorized update attempt: user ${uid} tried to update profile ${profileUid}`)
+        return NextResponse.json({ error: 'Unauthorized: You can only update your own profile' }, { status: 403 })
+      }
+    }
+
     const batch = db.batch()
 
     // Save to creator_profiles (primary collection)
-    const creatorRef = db.collection('creator_profiles').doc(uid)
     batch.set(creatorRef, profileUpdates, { merge: true })
 
     // Also save to coach_profiles for consistency (some components load from both)
