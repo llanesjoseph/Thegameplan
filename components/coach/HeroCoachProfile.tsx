@@ -204,7 +204,9 @@ export default function HeroCoachProfile({
   const theme = SPORT_THEMES[normalizedSport] || SPORT_THEMES.default
 
   const galleryPhotos = useMemo(() => {
-    const photos: string[] = []
+    const photos: string[]
+  showcasePhoto1?: string
+  showcasePhoto2?: string = []
     if (activeCoach.showcasePhoto1) photos.push(activeCoach.showcasePhoto1)
     if (activeCoach.showcasePhoto2) photos.push(activeCoach.showcasePhoto2)
     if (activeCoach.galleryPhotos?.length) {
@@ -577,6 +579,8 @@ export default function HeroCoachProfile({
         <CoachGallery 
           photos={galleryPhotos} 
           galleryPhotosOnly={activeCoach.galleryPhotos || []}
+          showcasePhoto1={activeCoach.showcasePhoto1}
+          showcasePhoto2={activeCoach.showcasePhoto2}
           onPhotoDeleted={() => {
             // Reload the page to refresh the coach data
             window.location.reload()
@@ -1039,12 +1043,16 @@ function PhotoEditPanel({
   )
 }
 
-function CoachGallery({ 
+function CoachGallery({
+  showcasePhoto1,
+  showcasePhoto2, 
   photos, 
   galleryPhotosOnly = [],
   onPhotoDeleted 
 }: { 
   photos: string[]
+  showcasePhoto1?: string
+  showcasePhoto2?: string
   galleryPhotosOnly?: string[]
   onPhotoDeleted?: () => void
 }) {
@@ -1072,15 +1080,45 @@ function CoachGallery({
   const handleDeletePhoto = async (photoUrl: string) => {
     if (!user || !confirm('Are you sure you want to delete this photo?')) return
 
-    // Only allow deletion of photos that are in galleryPhotos (not showcase photos)
-    if (!galleryPhotosOnly.includes(photoUrl)) {
-      alert('This photo cannot be deleted from here. Please use the profile editor to remove showcase photos.')
-      return
-    }
-
     setDeletingPhotoUrl(photoUrl)
     try {
       const token = await user.getIdToken()
+      
+      // Check if it's a showcase photo
+      const isShowcasePhoto1 = showcasePhoto1 === photoUrl
+      const isShowcasePhoto2 = showcasePhoto2 === photoUrl
+      
+      if (isShowcasePhoto1 || isShowcasePhoto2) {
+        // Delete showcase photo by clearing the field
+        const updateData = {}
+        if (isShowcasePhoto1) updateData.showcasePhoto1 = ''
+        if (isShowcasePhoto2) updateData.showcasePhoto2 = ''
+        
+        const res = await fetch('/api/coach-profile/save', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify(updateData)
+        })
+        
+        const data = await res.json()
+        if (data?.success || res.ok) {
+          if (onPhotoDeleted) {
+            onPhotoDeleted()
+          } else {
+            window.location.reload()
+          }
+          return
+        } else {
+          alert('Failed to delete photo: ' + (data?.error || 'Unknown error'))
+          setDeletingPhotoUrl(null)
+          return
+        }
+      }
+      
+      // If not a showcase photo, delete from gallery photos
       const params = new URLSearchParams({ photoUrl })
       const res = await fetch(`/api/coach-profile/delete-gallery-photo?${params.toString()}`, {
         method: 'DELETE',
@@ -1136,7 +1174,6 @@ function CoachGallery({
               }`}
             >
               {photos.map((src, idx) => {
-                const isGalleryPhoto = galleryPhotosOnly.includes(src)
                 const isDeleting = deletingPhotoUrl === src
                 
                 return (
@@ -1150,8 +1187,8 @@ function CoachGallery({
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={src} alt={`Gallery image ${idx + 1}`} className="w-full h-full object-cover" loading={idx < 4 ? 'eager' : 'lazy'} />
                     
-                    {/* Delete button - only show for gallery photos (not showcase photos) */}
-                    {canDelete && isGalleryPhoto && (
+                    {/* Delete button - show for all photos */}
+                    {canDelete && (
                       <button
                         onClick={() => handleDeletePhoto(src)}
                         disabled={isDeleting}
