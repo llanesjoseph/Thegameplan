@@ -384,8 +384,8 @@ function BakedProfileForm({ profile, onClose, onSave }: { profile: BakedProfile 
       // Parse gallery photos from newline-separated string
       const galleryPhotosArray = formData.galleryPhotos
         .split('\n')
-        .map(url => url.trim())
-        .filter(url => url.length > 0)
+        .map((url: string) => url.trim())
+        .filter((url: string) => url.length > 0)
 
       const payload: any = {
         ...formData,
