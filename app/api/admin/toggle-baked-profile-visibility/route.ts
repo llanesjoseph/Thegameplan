@@ -57,6 +57,10 @@ export async function POST(request: NextRequest) {
       
       const latestData = latestDoc.data()
       
+      if (!latestData) {
+        throw new Error('Baked profile data is missing')
+      }
+      
       if (visible) {
         // Add to creators_index for Browse Coaches
         const creatorsIndexRef = db.collection('creators_index').doc(bakedProfileId)
