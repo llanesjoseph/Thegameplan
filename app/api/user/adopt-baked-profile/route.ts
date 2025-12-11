@@ -37,8 +37,12 @@ export async function POST(request: NextRequest) {
     
     console.log(`[BAKED-PROFILE-ADOPTION] Checking for baked profile for user ${userUid} (${userEmail})`)
     
+    // Prepare variables outside transaction for use after
+    let profileData: any = null
+    let adoptedBakedProfileId: string | null = null
+    
     // Use transaction to prevent race conditions
-    return await db.runTransaction(async (transaction) => {
+    const transactionResult = await db.runTransaction(async (transaction) => {
       // Find baked profile by email (case-insensitive, trimmed)
       const emailQuery = await db.collection('baked_profiles')
         .where('targetEmail', '==', userEmail)
@@ -72,31 +76,20 @@ export async function POST(request: NextRequest) {
       
       if (!bakedProfile) {
         console.log(`[BAKED-PROFILE-ADOPTION] No baked profile found for ${userEmail}`)
-        return NextResponse.json({
-          success: true,
-          adopted: false,
-          message: 'No baked profile found'
-        })
+        return { adopted: false, reason: 'not_found' }
       }
       
       // SECURITY: Verify email matches (case-insensitive)
       const profileEmail = bakedProfile.targetEmail?.toLowerCase().trim()
       if (profileEmail !== userEmail) {
         console.error(`[BAKED-PROFILE-ADOPTION] Email mismatch: profile=${profileEmail}, user=${userEmail}`)
-        return NextResponse.json({
-          success: false,
-          error: 'Email mismatch'
-        }, { status: 400 })
+        return { adopted: false, reason: 'email_mismatch' }
       }
       
       // Check if already transferred
       if (bakedProfile.status === 'transferred') {
         console.log(`[BAKED-PROFILE-ADOPTION] Baked profile ${bakedProfileId} already transferred`)
-        return NextResponse.json({
-          success: true,
-          adopted: false,
-          message: 'Baked profile already transferred'
-        })
+        return { adopted: false, reason: 'already_transferred' }
       }
       
       // Check if user already has a profile (prevent overwriting)
@@ -108,17 +101,13 @@ export async function POST(request: NextRequest) {
         // If user already has a profile that wasn't from a baked profile, don't overwrite
         if (!existingData?.transferredFromBakedProfile) {
           console.log(`[BAKED-PROFILE-ADOPTION] User ${userUid} already has a profile, skipping adoption`)
-          return NextResponse.json({
-            success: true,
-            adopted: false,
-            message: 'User already has a profile'
-          })
+          return { adopted: false, reason: 'already_has_profile' }
         }
       }
       
       // Prepare profile data with ALL fields
       const now = new Date()
-      const profileData: any = {
+      profileData = {
         uid: userUid,
         displayName: bakedProfile.displayName || '',
         firstName: bakedProfile.firstName || '',
@@ -226,10 +215,41 @@ export async function POST(request: NextRequest) {
       
       // Remove old baked profile entry from creators_index if it exists
       transaction.delete(oldBakedIndexRef)
+      
+      // Store for use after transaction
+      adoptedBakedProfileId = bakedProfileId
+      
+      return { adopted: true }
     })
+    
+    // Handle early exit cases
+    if (!transactionResult.adopted) {
+      const reason = transactionResult.reason || 'unknown'
+      const messages: Record<string, string> = {
+        not_found: 'No baked profile found',
+        email_mismatch: 'Email mismatch',
+        already_transferred: 'Baked profile already transferred',
+        already_has_profile: 'User already has a profile'
+      }
+      
+      return NextResponse.json({
+        success: true,
+        adopted: false,
+        message: messages[reason] || 'Adoption skipped'
+      })
+    }
     
     // AIRTIGHT: After transaction completes, sync to Browse Coaches using centralized function
     // This ensures all fields are properly synced and consistent
+    if (!profileData) {
+      console.error(`[BAKED-PROFILE-ADOPTION] Profile data missing after transaction`)
+      return NextResponse.json({
+        success: false,
+        error: 'Profile data missing',
+        adopted: false
+      }, { status: 500 })
+    }
+    
     const syncResult = await syncCoachToBrowseCoaches(userUid, profileData)
     
     if (!syncResult.success) {
@@ -239,12 +259,12 @@ export async function POST(request: NextRequest) {
       console.log(`✅ [BAKED-PROFILE-ADOPTION] Synced adopted profile to Browse Coaches`)
     }
     
-    console.log(`✅ [BAKED-PROFILE-ADOPTION] Successfully adopted baked profile ${bakedProfileId} for user ${userUid}`)
+    console.log(`✅ [BAKED-PROFILE-ADOPTION] Successfully adopted baked profile ${adoptedBakedProfileId} for user ${userUid}`)
     
     return NextResponse.json({
       success: true,
       adopted: true,
-      bakedProfileId,
+      bakedProfileId: adoptedBakedProfileId,
       syncedToBrowse: syncResult.success,
       message: 'Baked profile adopted successfully'
     })
