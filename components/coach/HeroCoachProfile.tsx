@@ -1050,7 +1050,7 @@ function CoachGallery({
 }) {
   const { user } = useAuth()
   const rowRef = useRef<HTMLDivElement>(null)
-  const photoWidth = 214
+  const photoWidth = 250
   const photoGap = 12
   const maxVisiblePhotos = 4
   const scrollByAmount = photoWidth + photoGap
@@ -1129,7 +1129,7 @@ function CoachGallery({
           <div className="flex-1" style={hasOverflow ? { maxWidth: `${maxContainerWidth}px` } : undefined}>
             <div
               ref={rowRef}
-              className={`flex gap-3 py-2 ${
+              className={`flex gap-3 ${
                 hasOverflow
                   ? 'overflow-x-auto overflow-y-hidden scroll-smooth no-scrollbar'
                   : 'w-full justify-between'
@@ -1155,13 +1155,13 @@ function CoachGallery({
                       <button
                         onClick={() => handleDeletePhoto(src)}
                         disabled={isDeleting}
-                        className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-[#C40000] text-white flex items-center justify-center hover:bg-[#a00000] transition-colors disabled:opacity-50 shadow-lg z-10 opacity-0 group-hover:opacity-100"
+                        className="absolute top-2 right-2 w-10 h-10 rounded-full bg-[#C40000] text-white flex items-center justify-center hover:bg-[#a00000] transition-all disabled:opacity-50 shadow-2xl z-20 border-2 border-white"
                         aria-label="Delete photo"
                       >
                         {isDeleting ? (
                           <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                         ) : (
-                          <Minus className="w-4 h-4" />
+                          <Minus className="w-5 h-5 stroke-[3]" />
                         )}
                       </button>
                     )}
@@ -1545,7 +1545,7 @@ function RecommendedGearSection({
                       {deletingId === item.id ? (
                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                       ) : (
-                        <Minus className="w-4 h-4" />
+                        <Minus className="w-5 h-5 stroke-[3]" />
                       )}
                     </button>
                   )}
