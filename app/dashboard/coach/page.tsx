@@ -207,25 +207,3 @@ export default function CoachDashboard() {
     />
   )
 }
-
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#f5f5f5]">
-        <p className="text-red-600 text-sm">{error}</p>
-      </div>
-    )
-  }
-
-  return (
-    <HeroCoachProfile
-      coach={coachProfile}
-      lessons={lessons}
-      totalLessons={totalLessons}
-      totalAthletes={totalAthletes}
-      initialGearItems={gearItems}
-    />
-  )
-}
