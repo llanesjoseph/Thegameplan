@@ -72,23 +72,41 @@ export async function hasRole(
     // If userRole not provided, fetch from database using SERVER-SIDE Firebase Admin
     let resolvedUserRole: string = userRole || 'user'
     if (!userRole) {
-      const userDoc = await adminDb.collection('users').doc(userId).get()
-      resolvedUserRole = userDoc.data()?.role || 'user'
-      console.log(`[AUTH-UTILS] Fetched role for ${userId}: ${resolvedUserRole}`)
+      try {
+        const userDoc = await adminDb.collection('users').doc(userId).get()
+        if (!userDoc.exists) {
+          console.error(`[AUTH-UTILS] User document does not exist for ${userId}`)
+          resolvedUserRole = 'user'
+        } else {
+          const userData = userDoc.data()
+          resolvedUserRole = userData?.role || 'user'
+          console.log(`[AUTH-UTILS] Fetched role for ${userId}: ${resolvedUserRole} (from document)`)
+        }
+      } catch (error) {
+        console.error(`[AUTH-UTILS] Error fetching role for ${userId}:`, error)
+        resolvedUserRole = 'user'
+      }
+    } else {
+      console.log(`[AUTH-UTILS] Using provided role for ${userId}: ${resolvedUserRole}`)
     }
 
-    const hasAccess = roles.includes(resolvedUserRole)
+    // Normalize role names to lowercase for comparison
+    const normalizedUserRole = resolvedUserRole.toLowerCase().trim()
+    const normalizedRequiredRoles = roles.map(r => r.toLowerCase().trim())
+    const hasAccess = normalizedRequiredRoles.includes(normalizedUserRole)
 
     if (!hasAccess) {
-      console.error(`[AUTH-UTILS] Role check failed: user ${userId} has role '${resolvedUserRole}', required: ${roles.join(', ')}`)
+      console.error(`[AUTH-UTILS] Role check failed: user ${userId} has role '${resolvedUserRole}' (normalized: '${normalizedUserRole}'), required: ${roles.join(', ')} (normalized: ${normalizedRequiredRoles.join(', ')})`)
       await auditLog('role_check_failed', {
         userId,
         userRole: resolvedUserRole,
+        normalizedUserRole,
         requiredRoles: roles,
+        normalizedRequiredRoles,
         timestamp: new Date().toISOString()
       }, { userId, severity: 'medium' })
     } else {
-      console.log(`[AUTH-UTILS] Role check passed: user ${userId} has role '${resolvedUserRole}', required: ${roles.join(', ')}`)
+      console.log(`[AUTH-UTILS] Role check passed: user ${userId} has role '${resolvedUserRole}' (normalized: '${normalizedUserRole}'), required: ${roles.join(', ')}`)
     }
 
     return hasAccess
