@@ -847,7 +847,7 @@ function HeroSection({
                 style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '18px', lineHeight: '1.4em' }}
               />
             ) : (
-              (coach.bio?.trim() || '') && (
+              coach.bio && coach.bio.trim() && (
                 <p
                   className="text-white"
                   style={{
