@@ -112,22 +112,9 @@ export async function POST(request: NextRequest) {
     }, { merge: true })
     console.log('✅ Updated coach_profiles collection')
     
-    // Step 6: Sync to creators_index (for admin panel and Browse Coaches)
-    console.log('📝 Step 6: Syncing to creators_index...')
-    const syncResult = await syncCoachToBrowseCoaches(JOSEPH_UID, fullProfile)
-    
-    if (!syncResult.success) {
-      console.error('❌ Failed to sync to creators_index:', syncResult.error)
-      return NextResponse.json(
-        { error: `Failed to sync to creators_index: ${syncResult.error}` },
-        { status: 500 }
-      )
-    }
-    console.log('✅ Synced to creators_index')
-    
-    // Step 7: Create/update slug mapping (for coach profile API)
-    console.log('📝 Step 7: Creating slug mapping...')
-    let slug: string | undefined = undefined
+    // Step 6: Create/update slug mapping FIRST (before sync, so slug is available)
+    console.log('📝 Step 6: Creating slug mapping...')
+    let slug: string = ''
     
     try {
       const slugResult = await createSlugMapping(JOSEPH_UID, fullProfile.displayName)
@@ -159,6 +146,24 @@ export async function POST(request: NextRequest) {
       slug = `${cleanName}-${JOSEPH_UID.slice(-6)}`
       console.log(`⚠️ Using fallback slug after error: ${slug}`)
     }
+    
+    // Add slug to fullProfile so it gets synced to creators_index
+    if (slug) {
+      fullProfile.slug = slug
+    }
+    
+    // Step 7: Sync to creators_index (for admin panel and Browse Coaches)
+    console.log('📝 Step 7: Syncing to creators_index...')
+    const syncResult = await syncCoachToBrowseCoaches(JOSEPH_UID, fullProfile)
+    
+    if (!syncResult.success) {
+      console.error('❌ Failed to sync to creators_index:', syncResult.error)
+      return NextResponse.json(
+        { error: `Failed to sync to creators_index: ${syncResult.error}` },
+        { status: 500 }
+      )
+    }
+    console.log('✅ Synced to creators_index')
     
     // Step 8: Verify everything is in place
     console.log('🔍 Step 8: Verifying all collections...')
