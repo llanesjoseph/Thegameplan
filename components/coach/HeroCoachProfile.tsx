@@ -1355,17 +1355,28 @@ function CoachGallery({
     }
   }
 
+  // Filter out any empty or invalid photo URLs before rendering
+  const validPhotos = photos.filter((src) => src && typeof src === 'string' && src.trim().length > 0)
+  
+  // Recalculate overflow based on valid photos only
+  const actualHasOverflow = validPhotos.length > maxVisiblePhotos
+  
   // Calculate max width to show exactly 4 photos
   const maxContainerWidth = maxVisiblePhotos * photoWidth + (maxVisiblePhotos - 1) * photoGap
 
   // SECURITY: Only allow deletion if user is the owner and has edit permissions
   const canDelete = canEdit && !!user
 
+  // Don't render gallery if no valid photos
+  if (validPhotos.length === 0) {
+    return null
+  }
+
   return (
     <section className="w-full bg-white">
       <div className="max-w-6xl mx-auto px-8 py-8">
-        <div className={`flex items-center ${hasOverflow ? 'gap-4' : ''}`}>
-          {hasOverflow && (
+        <div className={`flex items-center ${actualHasOverflow ? 'gap-4' : ''}`}>
+          {actualHasOverflow && (
             <button
               onClick={handlePrev}
               aria-label="Previous"
@@ -1375,16 +1386,16 @@ function CoachGallery({
             </button>
           )}
 
-          <div className="flex-1" style={hasOverflow ? { maxWidth: `${maxContainerWidth}px` } : undefined}>
+          <div className="flex-1" style={actualHasOverflow ? { maxWidth: `${maxContainerWidth}px` } : undefined}>
             <div
               ref={rowRef}
               className={`flex gap-3 ${
-                hasOverflow
+                actualHasOverflow
                   ? 'overflow-x-auto overflow-y-hidden scroll-smooth no-scrollbar'
                   : 'w-full justify-between'
               }`}
             >
-              {photos.map((src, idx) => {
+              {validPhotos.map((src, idx) => {
                 const isDeleting = deletingPhotoUrl === src
                 
                 return (
@@ -1419,7 +1430,7 @@ function CoachGallery({
             </div>
           </div>
 
-          {hasOverflow && (
+          {actualHasOverflow && (
             <button
               onClick={handleNext}
               aria-label="Next"
@@ -1430,7 +1441,7 @@ function CoachGallery({
           )}
         </div>
 
-        {hasOverflow && (
+        {actualHasOverflow && (
           <div className="sm:hidden mt-4 flex items-center justify-center gap-6">
             <button
               onClick={handlePrev}
