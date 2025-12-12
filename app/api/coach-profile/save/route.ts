@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { requireAuth } from '@/lib/auth-utils'
-import { adminDb as db } from '@/lib/firebase.admin'
+import { auth, adminDb as db } from '@/lib/firebase.admin'
 import { syncCoachToBrowseCoaches } from '@/lib/sync-coach-to-browse'
 
 export const dynamic = 'force-dynamic'
@@ -32,17 +31,41 @@ type CoachProfileUpdateBody = {
 export async function POST(request: NextRequest) {
   try {
     console.log('[COACH-PROFILE/SAVE] Received save request')
-    const authResult = await requireAuth(request, ['coach', 'creator', 'admin', 'superadmin'])
-
-    if (!authResult.success) {
-      console.error(`[COACH-PROFILE/SAVE] Authentication failed: ${authResult.error} (status: ${authResult.status})`)
-      return NextResponse.json({ error: authResult.error }, { status: authResult.status })
+    
+    // SIMPLE AUTH: Use the same pattern that works in other endpoints
+    const authHeader = request.headers.get('authorization')
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.error('[COACH-PROFILE/SAVE] No authorization header')
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    console.log(`[COACH-PROFILE/SAVE] Authentication successful for user ${authResult.user.uid}`)
+    const token = authHeader.split('Bearer ')[1]
+    let decodedToken
+    try {
+      decodedToken = await auth.verifyIdToken(token)
+    } catch (error: any) {
+      console.error('[COACH-PROFILE/SAVE] Token verification failed:', error.message)
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
+    }
 
-    const { user } = authResult
-    const uid = user.uid
+    const uid = decodedToken.uid
+    
+    // Check user role
+    const userDoc = await db.collection('users').doc(uid).get()
+    if (!userDoc.exists) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+    }
+    
+    const userData = userDoc.data()
+    const userRole = userData?.role || 'user'
+    const validRoles = ['coach', 'creator', 'admin', 'superadmin']
+    
+    if (!validRoles.includes(userRole)) {
+      console.error(`[COACH-PROFILE/SAVE] Invalid role: ${userRole}`)
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 })
+    }
+
+    console.log(`[COACH-PROFILE/SAVE] Authentication successful for user ${uid} (role: ${userRole})`)
 
     const body = (await request.json()) as CoachProfileUpdateBody
 
