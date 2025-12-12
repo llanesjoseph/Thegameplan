@@ -338,136 +338,51 @@ export default function AppHeader({ className = '', title, subtitle, hideNavigat
 
             {/* User Greeting - Match /coaches page design */}
             {user ? (
-              <div className="relative" style={{ zIndex: 1000 }}>
+              <div className="flex items-center gap-2 rounded-full bg-white border border-gray-200 px-3 py-1 text-xs sm:text-sm">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={
+                    profileImageUrl ||
+                    user.photoURL ||
+                    'https://static.wixstatic.com/media/75fa07_66efa272a9a64facbc09f3da71757528~mv2.png/v1/fill/w_68,h_64,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/75fa07_66efa272a9a64facbc09f3da71757528~mv2.png'
+                  }
+                  alt={getUserName()}
+                  className="h-6 w-6 rounded-full object-cover"
+                />
+                <span
+                  className="text-[11px] uppercase tracking-[0.18em] text-gray-600"
+                  style={{ fontFamily: '"Open Sans", sans-serif' }}
+                >
+                  Hello
+                </span>
+                <span
+                  className="text-sm"
+                  style={{ fontFamily: '"Open Sans", sans-serif' }}
+                >
+                  {getUserName()}
+                </span>
+                <span className="text-xs text-gray-400">|</span>
+                <Link
+                  href="/settings"
+                  className="text-xs text-gray-700 underline hover:text-gray-900 transition-colors"
+                  style={{ fontFamily: '"Open Sans", sans-serif' }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  Settings
+                </Link>
+                <span className="text-xs text-gray-400">|</span>
                 <button
                   type="button"
-                  className="flex items-center gap-2 rounded-full bg-white border border-gray-200 px-3 py-1 text-xs sm:text-sm hover:bg-gray-50 transition-colors cursor-pointer"
-                  aria-label="Account menu - Click to view settings and profile"
-                  title="Click to view account menu (Settings, Profile, Sign Out)"
                   onClick={(e) => {
                     e.preventDefault()
                     e.stopPropagation()
-                    const newState = !isDropdownOpen
-                    console.log('[AppHeader] Button clicked, toggling dropdown from', isDropdownOpen, 'to', newState)
-                    setIsDropdownOpen(newState)
+                    handleSignOut()
                   }}
-                  onMouseDown={(e) => {
-                    // Prevent any other handlers from interfering
-                    e.stopPropagation()
-                  }}
-                  ref={buttonRef}
+                  className="text-xs text-gray-700 underline hover:text-gray-900 transition-colors cursor-pointer"
+                  style={{ fontFamily: '"Open Sans", sans-serif' }}
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={
-                      profileImageUrl ||
-                      user.photoURL ||
-                      'https://static.wixstatic.com/media/75fa07_66efa272a9a64facbc09f3da71757528~mv2.png/v1/fill/w_68,h_64,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/75fa07_66efa272a9a64facbc09f3da71757528~mv2.png'
-                    }
-                    alt={getUserName()}
-                    className="h-6 w-6 rounded-full object-cover"
-                  />
-                  <span
-                    className="text-[11px] uppercase tracking-[0.18em] text-gray-600"
-                    style={{ fontFamily: '"Open Sans", sans-serif' }}
-                  >
-                    Hello
-                  </span>
-                  <span
-                    className="text-sm"
-                    style={{ fontFamily: '"Open Sans", sans-serif' }}
-                  >
-                    {getUserName()}
-                  </span>
-                  <svg
-                    className={`w-4 h-4 text-gray-500 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
+                  Sign out
                 </button>
-
-                {/* Dropdown Menu (for additional options) */}
-                {isDropdownOpen && (
-                  <div 
-                    className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-1"
-                    style={{ zIndex: 1001 }}
-                    ref={dropdownRef}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                    }}
-                    onMouseDown={(e) => {
-                      e.stopPropagation()
-                    }}
-                  >
-                    {/* User Info - Name and Email */}
-                    <div className="px-4 py-3 border-b border-gray-200">
-                      <p className="text-sm font-medium text-gray-900 truncate">
-                        {user.displayName || 'User'}
-                      </p>
-                      <p className="text-xs text-gray-600 truncate mt-0.5">
-                        {user.email}
-                      </p>
-                    </div>
-
-                    {/* Navigation Links */}
-                    <div className="py-1">
-                      <Link
-                        href="/dashboard/profile"
-                        className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setIsDropdownOpen(false)
-                        }}
-                      >
-                        <UserIcon className="w-4 h-4 text-gray-500" />
-                        View Profile
-                      </Link>
-                      <Link
-                        href="/settings"
-                        className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setIsDropdownOpen(false)
-                        }}
-                      >
-                        <Settings className="w-4 h-4 text-gray-500" />
-                        Settings
-                      </Link>
-                    </div>
-
-                    {/* Role Switcher - For superadmins only */}
-                    {canSwitchRoles && (
-                      <div className="px-3 py-2 border-t border-gray-200 bg-red-50">
-                        <div className="text-xs font-medium text-red-700 mb-2 flex items-center gap-1">
-                          <div className="w-1.5 h-1.5 bg-red-600 rounded-full"></div>
-                          Admin Tools
-                        </div>
-                        <CompactRoleSwitcher />
-                      </div>
-                    )}
-
-                    {/* Sign Out */}
-                    <div className="py-1 border-t border-gray-200">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setIsDropdownOpen(false)
-                          handleSignOut()
-                        }}
-                        className="flex items-center gap-2 px-4 py-2 w-full text-left text-sm text-red-600 hover:bg-red-50 transition-colors"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                        </svg>
-                        Sign Out
-                      </button>
-                    </div>
-                  </div>
-                )}
               </div>
             ) : (
               <Link 
