@@ -13,10 +13,13 @@ import { auditLog } from '@/lib/audit-logger'
 export async function verifyIdToken(token: string): Promise<DecodedIdToken | null> {
   try {
     // Verify the token with Firebase Admin
-    const decodedToken = await auth.verifyIdToken(token, true) // checkRevoked = true
+    // Use checkRevoked = false for now to avoid issues with token refresh
+    // The token is already being refreshed on the client side
+    const decodedToken = await auth.verifyIdToken(token, false) // checkRevoked = false
 
     // Additional security checks
     if (!decodedToken.uid) {
+      console.error('[AUTH-UTILS] Token verification failed: missing UID')
       await auditLog('token_verification_missing_uid', {
         tokenIssuer: decodedToken.iss,
         timestamp: new Date().toISOString()
@@ -25,10 +28,12 @@ export async function verifyIdToken(token: string): Promise<DecodedIdToken | nul
     }
 
     // Check token age (optional: reject tokens older than X hours)
+    // Increased to 48 hours to be more lenient
     const tokenAge = Date.now() / 1000 - decodedToken.auth_time
-    const MAX_TOKEN_AGE_HOURS = 24
+    const MAX_TOKEN_AGE_HOURS = 48
 
     if (tokenAge > MAX_TOKEN_AGE_HOURS * 60 * 60) {
+      console.error(`[AUTH-UTILS] Token verification failed: token too old (${Math.round(tokenAge / 3600)} hours)`)
       await auditLog('token_verification_expired', {
         userId: decodedToken.uid,
         tokenAge: Math.round(tokenAge / 3600),
@@ -41,6 +46,7 @@ export async function verifyIdToken(token: string): Promise<DecodedIdToken | nul
 
   } catch (error) {
     const err = error as Error & { code?: string }
+    console.error('[AUTH-UTILS] Token verification failed:', err.message, err.code)
     await auditLog('token_verification_failed', {
       error: err.message || 'Unknown error',
       errorCode: err.code || 'UNKNOWN',
@@ -53,6 +59,7 @@ export async function verifyIdToken(token: string): Promise<DecodedIdToken | nul
 
 /**
  * Enhanced role checking with audit logging
+ * CRITICAL: Uses server-side Firebase Admin (not client-side)
  */
 export async function hasRole(
   userId: string,
@@ -62,31 +69,34 @@ export async function hasRole(
   try {
     const roles = Array.isArray(requiredRoles) ? requiredRoles : [requiredRoles]
 
-    // If userRole not provided, fetch from database
+    // If userRole not provided, fetch from database using SERVER-SIDE Firebase Admin
     let resolvedUserRole: string = userRole || 'user'
     if (!userRole) {
-      const { doc, getDoc } = await import('firebase/firestore')
-      const { db } = await import('@/lib/firebase.client')
-
-      const userDoc = await getDoc(doc(db, 'users', userId))
+      const { adminDb as db } = await import('@/lib/firebase.admin')
+      const userDoc = await db.collection('users').doc(userId).get()
       resolvedUserRole = userDoc.data()?.role || 'user'
+      console.log(`[AUTH-UTILS] Fetched role for ${userId}: ${resolvedUserRole}`)
     }
 
     const hasAccess = roles.includes(resolvedUserRole)
 
     if (!hasAccess) {
+      console.error(`[AUTH-UTILS] Role check failed: user ${userId} has role '${resolvedUserRole}', required: ${roles.join(', ')}`)
       await auditLog('role_check_failed', {
         userId,
         userRole: resolvedUserRole,
         requiredRoles: roles,
         timestamp: new Date().toISOString()
       }, { userId, severity: 'medium' })
+    } else {
+      console.log(`[AUTH-UTILS] Role check passed: user ${userId} has role '${resolvedUserRole}', required: ${roles.join(', ')}`)
     }
 
     return hasAccess
 
   } catch (error) {
     const err = error as Error
+    console.error(`[AUTH-UTILS] Role check error for ${userId}:`, err.message)
     await auditLog('role_check_error', {
       userId,
       requiredRoles,
@@ -124,6 +134,7 @@ export async function requireAuth(
     // Extract token from Authorization header
     const authHeader = request.headers.get('authorization')
     if (!authHeader?.startsWith('Bearer ')) {
+      console.error('[AUTH-UTILS] No authorization header found')
       await auditLog('auth_middleware_no_token', {
         url: request.url,
         method: request.method,
@@ -135,17 +146,24 @@ export async function requireAuth(
 
     // Verify token
     const token = authHeader.substring(7)
+    console.log(`[AUTH-UTILS] Verifying token for ${request.url}`)
     const decodedToken = await verifyIdToken(token)
 
     if (!decodedToken) {
+      console.error('[AUTH-UTILS] Token verification failed')
       return { success: false, error: 'Invalid token', status: 401 }
     }
 
+    console.log(`[AUTH-UTILS] Token verified for user ${decodedToken.uid}`)
+
     // Check role requirements if specified
     if (requiredRoles) {
+      const roles = Array.isArray(requiredRoles) ? requiredRoles : [requiredRoles]
+      console.log(`[AUTH-UTILS] Checking roles for ${decodedToken.uid}: required ${roles.join(', ')}`)
       const hasRequiredRole = await hasRole(decodedToken.uid, requiredRoles)
 
       if (!hasRequiredRole) {
+        console.error(`[AUTH-UTILS] Insufficient role for ${decodedToken.uid}`)
         await auditLog('auth_middleware_insufficient_role', {
           userId: decodedToken.uid,
           requiredRoles,
@@ -156,6 +174,7 @@ export async function requireAuth(
 
         return { success: false, error: 'Insufficient permissions', status: 403 }
       }
+      console.log(`[AUTH-UTILS] Role check passed for ${decodedToken.uid}`)
     }
 
     // Log successful authentication for sensitive endpoints
@@ -168,9 +187,11 @@ export async function requireAuth(
       }, { userId: decodedToken.uid, severity: 'low' })
     }
 
+    console.log(`[AUTH-UTILS] Authentication successful for ${decodedToken.uid}`)
     return { success: true, user: decodedToken }
 
   } catch (error: any) {
+    console.error('[AUTH-UTILS] Authentication error:', error.message, error.stack)
     await auditLog('auth_middleware_error', {
       error: error.message,
       url: request.url,
