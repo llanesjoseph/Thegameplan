@@ -135,19 +135,24 @@ export async function GET(
       showcasePhoto1: creatorData.showcasePhoto1 || userData.showcasePhoto1 || '',
       showcasePhoto2: creatorData.showcasePhoto2 || userData.showcasePhoto2 || '',
       galleryPhotos,
-      // Social media links
+      // Social media links - CRITICAL: Must match what coach sees in editable profile
       instagram: creatorData.instagram || userData.instagram || '',
       youtube: creatorData.youtube || userData.youtube || '',
       linkedin: creatorData.linkedin || userData.linkedin || '',
       facebook: creatorData.facebook || userData.facebook || '',
+      twitter: creatorData.twitter || userData.twitter || '',
       website: creatorData.website || userData.website || '',
       websiteUrl: creatorData.websiteUrl || userData.websiteUrl || '',
       location: creatorData.location || userData.location || '',
       title: creatorData.title || '',
+      // CRITICAL: socialLinks object must include ALL social platforms for consistency
+      // This ensures the Browse Coaches modal shows the same links as the coach's editable profile
       socialLinks: {
         instagram: creatorData.instagram || userData.instagram || '',
         linkedin: creatorData.linkedin || userData.linkedin || '',
-        twitter: creatorData.twitter || userData.twitter || ''
+        twitter: creatorData.twitter || userData.twitter || '',
+        facebook: creatorData.facebook || userData.facebook || '',
+        youtube: creatorData.youtube || userData.youtube || ''
       },
       verified: creatorData.verified || false,
       featured: creatorData.featured || false,
