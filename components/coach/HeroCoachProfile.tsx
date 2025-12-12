@@ -738,6 +738,7 @@ function HeroSection({
   isSaving?: boolean
 }) {
   const editingEnabled = canEditProfile && isEditing
+  const saving = isSaving || false
   const embossClasses =
     'px-5 py-2 rounded-md text-sm font-semibold uppercase tracking-wide text-white'
   const primaryButtonStyles = {
@@ -874,15 +875,15 @@ function HeroSection({
                     <button
                       type="button"
                       onClick={onSave}
-                      disabled={isSaving}
+                      disabled={saving}
                       className={embossClasses}
                       style={{
                         ...primaryButtonStyles,
-                        opacity: isSaving ? 0.6 : 1,
-                        cursor: isSaving ? 'not-allowed' : 'pointer'
+                        opacity: saving ? 0.6 : 1,
+                        cursor: saving ? 'not-allowed' : 'pointer'
                       }}
                     >
-                      {isSaving ? (
+                      {saving ? (
                         <>
                           <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
                           Saving...
