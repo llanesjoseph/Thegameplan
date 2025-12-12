@@ -167,38 +167,4 @@ export async function POST(request: NextRequest) {
   }
 }
 
-      console.log(`[COACH-PROFILE/SAVE] Syncing ALL profile fields to creators_index for ${uid}`)
-
-      // Always update or create the document - don't skip if it doesn't exist
-      if (creatorsDoc.exists) {
-        await creatorsIndexRef.set(indexUpdates, { merge: true })
-        console.log(`[COACH-PROFILE/SAVE] Updated existing creators_index for ${uid}`, indexUpdates)
-      } else {
-        // Create the document if it doesn't exist (shouldn't happen, but handle it)
-        console.warn(`[COACH-PROFILE/SAVE] creators_index document does not exist for ${uid}, creating it`)
-        await creatorsIndexRef.set({
-          uid: uid,
-          ...indexUpdates
-        }, { merge: true })
-        console.log(`[COACH-PROFILE/SAVE] Created creators_index for ${uid}`, indexUpdates)
-      }
-    } catch (visibilityError) {
-      // CRITICAL: This is important for Browse Coaches visibility - log as error
-      console.error('CRITICAL ERROR: failed to sync creators_index from coach-profile/save:', visibilityError)
-      console.error('This means profile edits may not appear in Browse Coaches immediately!')
-      // Don't throw - allow the save to succeed even if index update fails
-      // But log it prominently so we know about the issue
-      // TODO: Consider adding retry logic or queue for failed syncs
-    }
-
-    return NextResponse.json({ success: true })
-  } catch (error: any) {
-    console.error('Error saving coach profile:', error)
-    return NextResponse.json(
-      { error: error.message || 'Failed to save profile' },
-      { status: 500 }
-    )
-  }
-}
-
 
