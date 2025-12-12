@@ -1417,7 +1417,7 @@ function CoachGallery({
               className={`flex gap-3 ${
                 actualHasOverflow
                   ? 'overflow-x-auto overflow-y-hidden scroll-smooth no-scrollbar'
-                  : 'w-full justify-between'
+                  : 'w-full justify-start'
               }`}
             >
               {validPhotos.map((src, idx) => {
