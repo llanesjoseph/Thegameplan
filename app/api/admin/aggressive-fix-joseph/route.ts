@@ -171,14 +171,14 @@ export async function POST(request: NextRequest) {
       db.collection('users').doc(JOSEPH_UID).get(),
       db.collection('creator_profiles').doc(JOSEPH_UID).get(),
       db.collection('creators_index').doc(JOSEPH_UID).get(),
-      db.collection('slug_mappings').doc(slug).get()
+      slug ? db.collection('slug_mappings').doc(slug).get() : Promise.resolve({ exists: false, data: () => null })
     ])
     
     const verification = {
       users: verifyUser.exists,
       creator_profiles: verifyCreator.exists,
       creators_index: verifyIndex.exists,
-      slug_mapping: verifySlug.exists,
+      slug_mapping: slug ? verifySlug.exists : false,
       creators_index_data: verifyIndex.exists ? verifyIndex.data() : null
     }
     
