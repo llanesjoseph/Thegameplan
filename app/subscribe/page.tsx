@@ -1,9 +1,14 @@
+'use client'
+
 import PricingPlans from '@/components/pricing/PricingPlans'
 import { Sparkles, Target, Crown, Shield } from 'lucide-react'
+import AppHeader from '@/components/ui/AppHeader'
 
 export default function Subscribe() {
  return (
-  <main className="min-h-screen bg-gray-50 pt-24">
+  <div className="min-h-screen bg-gray-50">
+   <AppHeader title="Choose Your Training Pathway" subtitle="Unlock premium lessons, AI-powered coaching, and exclusive live sessions" />
+   <main className="pt-8">
    {/* Hero Section */}
    <div className="relative overflow-hidden">
     {/* Background Pattern */}
@@ -108,6 +113,7 @@ export default function Subscribe() {
      </div>
     </div>
    </div>
-  </main>
+   </main>
+  </div>
  )
 }

@@ -120,7 +120,7 @@ export default function AthletePricingPage() {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
-      <AppHeader title="Choose Your Plan" subtitle="Unlock your full potential with the right training experience" />
+      <AppHeader title="Choose Your Athleap Plan" subtitle="Unlock your full potential with the right training experience. Start free or upgrade for premium features. Cancel anytime." />
       
       <main className="max-w-7xl mx-auto px-6 py-12">
         {/* Error Message */}
