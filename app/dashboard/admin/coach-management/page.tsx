@@ -348,6 +348,47 @@ export default function CoachManagementPage() {
             <div className="flex justify-end gap-3">
               <button
                 onClick={async () => {
+                  try {
+                    const response = await fetch('/api/admin/verify-joseph', {
+                      method: 'GET',
+                      headers: { 'Content-Type': 'application/json' }
+                    })
+                    const result = await response.json()
+                    if (result.success) {
+                      const { status, summary } = result
+                      const message = `
+🔍 JOSEPH PROFILE VERIFICATION
+
+Collections:
+  ✅ users: ${status.collections.users.exists ? 'EXISTS' : '❌ MISSING'}
+  ✅ creator_profiles: ${status.collections.creator_profiles.exists ? 'EXISTS' : '❌ MISSING'}
+  ✅ coach_profiles: ${status.collections.coach_profiles.exists ? 'EXISTS' : '❌ MISSING'}
+  ✅ creators_index: ${status.collections.creators_index.exists ? 'EXISTS' : '❌ MISSING'}
+
+Visibility:
+  ${summary.visibleInBrowseCoaches ? '✅ VISIBLE in Browse Coaches' : '❌ NOT VISIBLE in Browse Coaches'}
+
+Summary:
+  User exists: ${summary.userExists ? '✅ YES' : '❌ NO'}
+  Profile exists: ${summary.profileExists ? '✅ YES' : '❌ NO'}
+  Needs fix: ${summary.needsFix ? '⚠️ YES' : '✅ NO'}
+                      `.trim()
+                      alert(message)
+                    } else {
+                      alert('❌ Failed to verify: ' + (result.error || 'Unknown error'))
+                    }
+                  } catch (error) {
+                    alert('❌ Error: ' + (error instanceof Error ? error.message : 'Unknown error'))
+                  }
+                }}
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                title="Verify if Joseph's profile exists in database"
+              >
+                <Eye className="w-4 h-4 mr-2" />
+                Verify Joseph
+              </button>
+              <button
+                onClick={async () => {
                   if (confirm('This will aggressively fix Joseph\'s profile visibility. Continue?')) {
                     try {
                       const response = await fetch('/api/admin/aggressive-fix-joseph', {
