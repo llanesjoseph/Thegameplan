@@ -279,11 +279,12 @@ export default function AppHeader({ className = '', title, subtitle }: AppHeader
 
         {/* Right Side Navigation */}
         <nav className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto justify-between sm:justify-end" aria-label="Primary">
-          {/* Browse Coaches Link - Hidden on mobile, shown on tablet+ */}
+          {/* Browse Coaches Link - Links to /coaches page (Browse Coaches listing) */}
           <Link
             href="/coaches"
             className="hidden md:block text-black hover:text-blue-600 touch-manipulation"
             style={{ minHeight: '44px', display: 'flex', alignItems: 'center' }}
+            aria-label="Browse Coaches - View all available coaches"
           >
             Browse Coaches
           </Link>
