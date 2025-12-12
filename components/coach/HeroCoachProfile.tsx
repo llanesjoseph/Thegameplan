@@ -656,8 +656,9 @@ export default function HeroCoachProfile({
         onSave={handleSaveEdits}
         onCancel={handleCancelEdits}
         theme={theme}
-      canEditProfile={canEditProfile}
-      socialLinks={visibleSocialLinks}
+        canEditProfile={canEditProfile}
+        socialLinks={visibleSocialLinks}
+        isSaving={isSaving}
       />
 
       {galleryPhotos.length > 0 && (
