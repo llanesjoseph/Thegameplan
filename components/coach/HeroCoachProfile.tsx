@@ -248,11 +248,21 @@ export default function HeroCoachProfile({
     })
   }
 
+  const [isSaving, setIsSaving] = useState(false)
+
   const handleSaveEdits = async () => {
     // Persist edits to backend so they survive refresh
+    if (isSaving) {
+      console.log('[HERO-COACH-PROFILE] Save already in progress, ignoring duplicate click')
+      return
+    }
+
+    setIsSaving(true)
     try {
+      console.log('[HERO-COACH-PROFILE] ========== SAVE STARTED ==========')
       console.log('[HERO-COACH-PROFILE] Save clicked, current editableCoach:', editableCoach)
       console.log('[HERO-COACH-PROFILE] displayName value:', editableCoach.displayName)
+      console.log('[HERO-COACH-PROFILE] twitter value:', editableCoach.twitter)
       
       if (!authUser) {
         throw new Error('You must be signed in to save changes')
@@ -381,9 +391,23 @@ export default function HeroCoachProfile({
       window.location.reload()
     } catch (error) {
       // Show error to user and keep edit mode open so they can retry
-      console.error('Failed to save coach profile edits:', error)
-      alert(`Failed to save profile: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`)
+      console.error('[HERO-COACH-PROFILE] ========== SAVE FAILED ==========')
+      console.error('[HERO-COACH-PROFILE] Error details:', error)
+      console.error('[HERO-COACH-PROFILE] Error type:', error instanceof Error ? error.constructor.name : typeof error)
+      console.error('[HERO-COACH-PROFILE] Error message:', error instanceof Error ? error.message : String(error))
+      console.error('[HERO-COACH-PROFILE] Error stack:', error instanceof Error ? error.stack : 'No stack trace')
+      
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : typeof error === 'string' 
+          ? error 
+          : 'Unknown error occurred. Please check the console for details.'
+      
+      alert(`❌ Failed to save profile changes!\n\n${errorMessage}\n\nPlease check your connection and try again. If the problem persists, try refreshing the page.`)
       // Don't close edit mode on error - let user retry
+    } finally {
+      setIsSaving(false)
+      console.log('[HERO-COACH-PROFILE] ========== SAVE COMPLETE ==========')
     }
   }
 
@@ -710,6 +734,7 @@ function HeroSection({
   theme: SportTheme
   canEditProfile: boolean
   socialLinks: SocialLinks
+  isSaving?: boolean
 }) {
   const editingEnabled = canEditProfile && isEditing
   const embossClasses =
@@ -848,10 +873,22 @@ function HeroSection({
                     <button
                       type="button"
                       onClick={onSave}
+                      disabled={isSaving}
                       className={embossClasses}
-                      style={primaryButtonStyles}
+                      style={{
+                        ...primaryButtonStyles,
+                        opacity: isSaving ? 0.6 : 1,
+                        cursor: isSaving ? 'not-allowed' : 'pointer'
+                      }}
                     >
-                      Save Changes
+                      {isSaving ? (
+                        <>
+                          <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
+                          Saving...
+                        </>
+                      ) : (
+                        'Save Changes'
+                      )}
                     </button>
                   </>
                 )}
