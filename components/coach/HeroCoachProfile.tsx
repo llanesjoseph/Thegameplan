@@ -289,31 +289,34 @@ export default function HeroCoachProfile({
         throw new Error('Unable to get a valid authentication token. Please sign out and sign back in.')
       }
 
+      // Build body with explicit handling of empty strings and undefined values
       const body = {
         displayName: editableCoach.displayName || '', // Ensure it's always a string, never undefined
-        bio: editableCoach.bio,
-        location: editableCoach.location,
-        sport: editableCoach.sport,
-        profileImageUrl: editableCoach.profileImageUrl,
-        showcasePhoto1: editableCoach.showcasePhoto1,
-        showcasePhoto2: editableCoach.showcasePhoto2,
+        bio: editableCoach.bio || '',
+        location: editableCoach.location || '',
+        sport: editableCoach.sport || '',
+        profileImageUrl: editableCoach.profileImageUrl || '',
+        showcasePhoto1: editableCoach.showcasePhoto1 || '',
+        showcasePhoto2: editableCoach.showcasePhoto2 || '',
         galleryPhotos: editableCoach.galleryPhotos || [],
-        instagram: editableCoach.instagram,
-        facebook: editableCoach.facebook,
-        twitter: editableCoach.twitter,
-        linkedin: editableCoach.linkedin,
-        youtube: editableCoach.youtube,
+        instagram: editableCoach.instagram || '',
+        facebook: editableCoach.facebook || '',
+        twitter: editableCoach.twitter || '',
+        linkedin: editableCoach.linkedin || '',
+        youtube: editableCoach.youtube || '',
         // Persist a flat `socialLinks` object that mirrors the editable fields.
         // This keeps older consumers working but ensures "clearing" in the UI
         // actually removes links from the rendered profile.
         socialLinks: {
-          twitter: editableCoach.twitter,
-          instagram: editableCoach.instagram,
-          linkedin: editableCoach.linkedin,
-          facebook: editableCoach.facebook,
-          youtube: editableCoach.youtube
+          twitter: editableCoach.twitter || '',
+          instagram: editableCoach.instagram || '',
+          linkedin: editableCoach.linkedin || '',
+          facebook: editableCoach.facebook || '',
+          youtube: editableCoach.youtube || ''
         }
       }
+      
+      console.log('[HERO-COACH-PROFILE] Body being sent to API:', JSON.stringify(body, null, 2))
       
       // Debug logging to verify name is being sent
       console.log('[HERO-COACH-PROFILE] Saving profile with displayName:', body.displayName)
@@ -875,7 +878,17 @@ function HeroSection({
                     </button>
                     <button
                       type="button"
-                      onClick={onSave}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        console.log('[HERO-COACH-PROFILE] Save button clicked!')
+                        try {
+                          onSave()
+                        } catch (error) {
+                          console.error('[HERO-COACH-PROFILE] Error in save button onClick:', error)
+                          alert(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`)
+                        }
+                      }}
                       disabled={saving}
                       className={embossClasses}
                       style={{

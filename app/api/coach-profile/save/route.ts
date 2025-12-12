@@ -58,8 +58,10 @@ export async function POST(request: NextRequest) {
     const userUpdates: Record<string, any> = {}
 
     const assignIfDefined = (target: Record<string, any>, key: string, value: any) => {
+      // Allow empty strings, null, and defined values - only skip undefined
       if (value !== undefined) {
-        target[key] = value
+        // Convert null to empty string for consistency
+        target[key] = value === null ? '' : value
       }
     }
 
