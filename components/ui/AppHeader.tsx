@@ -113,6 +113,7 @@ export default function AppHeader({ className = '', title, subtitle }: AppHeader
   const [profileImageUrl, setProfileImageUrl] = useState<string>('')
   const [profileDisplayName, setProfileDisplayName] = useState<string>('')
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const buttonRef = useRef<HTMLButtonElement>(null)
 
   // Get role directly from user to avoid circular dependency
   const canSwitchRoles = user?.role === 'superadmin'
@@ -150,7 +151,12 @@ export default function AppHeader({ className = '', title, subtitle }: AppHeader
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current && 
+        !dropdownRef.current.contains(event.target as Node) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target as Node)
+      ) {
         setIsDropdownOpen(false)
       }
     }
@@ -326,7 +332,7 @@ export default function AppHeader({ className = '', title, subtitle }: AppHeader
                 className="flex items-center gap-2 rounded-full bg-white border border-gray-200 px-3 py-1 text-xs sm:text-sm hover:bg-gray-50 transition-colors"
                 aria-label="Account"
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                ref={dropdownRef}
+                ref={buttonRef}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
