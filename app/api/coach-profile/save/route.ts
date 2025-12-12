@@ -146,12 +146,33 @@ export async function POST(request: NextRequest) {
       userUpdates: userUpdates
     })
 
+    // CRITICAL: Ensure visibility fields are set for Browse Coaches
+    // Default to visible if not explicitly set to false
+    const visibilityData = {
+      uid,
+      ...profileUpdates,
+      // Ensure these fields are set for visibility (default to true/approved if not explicitly false)
+      isActive: profileUpdates.isActive !== false ? true : false,
+      profileComplete: profileUpdates.profileComplete !== false ? true : false,
+      status: profileUpdates.status || 'approved'
+    }
+    
+    // Also update creator_profiles with visibility fields
+    await creatorRef.set({
+      isActive: visibilityData.isActive,
+      profileComplete: visibilityData.profileComplete,
+      status: visibilityData.status
+    }, { merge: true })
+    
+    console.log(`[COACH-PROFILE/SAVE] Set visibility fields:`, {
+      isActive: visibilityData.isActive,
+      profileComplete: visibilityData.profileComplete,
+      status: visibilityData.status
+    })
+    
     // AGGRESSIVE FIX: Use centralized sync function that reads FULL profile
     // This ensures ALL fields are synced, not just what was updated
-    const syncResult = await syncCoachToBrowseCoaches(uid, {
-      uid,
-      ...profileUpdates
-    })
+    const syncResult = await syncCoachToBrowseCoaches(uid, visibilityData)
     
     if (!syncResult.success) {
       console.error(`❌ [COACH-PROFILE/SAVE] CRITICAL: Failed to sync to Browse Coaches: ${syncResult.error}`)
