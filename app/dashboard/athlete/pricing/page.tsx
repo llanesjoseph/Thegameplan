@@ -1,14 +1,16 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Check, ArrowRight, AlertCircle } from 'lucide-react';
+import { Check, ArrowRight, AlertCircle, Sparkles, Users, BookOpen, ShoppingBag } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
+import AppHeader from '@/components/ui/AppHeader';
 
 // Feature categories with tier availability
 const FEATURE_CATEGORIES = [
   {
     category: 'Coach Experience',
+    icon: Users,
     features: [
       { name: 'Access to 1 coach', tier1: true, tier2: false, tier3: false },
       { name: 'Access to 3 coaches', tier1: false, tier2: true, tier3: false },
@@ -17,6 +19,7 @@ const FEATURE_CATEGORIES = [
   },
   {
     category: 'Training Experience',
+    icon: BookOpen,
     features: [
       { name: 'Training library access', tier1: true, tier2: true, tier3: true },
       { name: 'Video training feedback', tier1: false, tier2: true, tier3: true },
@@ -27,6 +30,7 @@ const FEATURE_CATEGORIES = [
   },
   {
     category: 'Gear Experience',
+    icon: ShoppingBag,
     features: [
       { name: 'Gear store access', tier1: true, tier2: true, tier3: true },
       { name: 'Exclusive gear recommendations', tier1: false, tier2: true, tier3: true },
@@ -35,9 +39,34 @@ const FEATURE_CATEGORIES = [
 ];
 
 const TIERS = [
-  { id: 'free', name: 'Tier 1', price: 'Free', priceNum: 0, subtitle: '' },
-  { id: 'basic', name: 'Tier 2', price: '$9.99', priceNum: 9.99, subtitle: 'per month' },
-  { id: 'elite', name: 'Tier 3', price: '$19.99', priceNum: 19.99, subtitle: 'per month', popular: true },
+  { 
+    id: 'free', 
+    name: 'Tier 1', 
+    price: 'Free', 
+    priceNum: 0, 
+    subtitle: 'Perfect for getting started',
+    color: '#624A41',
+    bgColor: '#F6F3F1'
+  },
+  { 
+    id: 'basic', 
+    name: 'Tier 2', 
+    price: '$9.99', 
+    priceNum: 9.99, 
+    subtitle: 'per month',
+    color: '#91A6EB',
+    bgColor: '#F0F4FF'
+  },
+  { 
+    id: 'elite', 
+    name: 'Tier 3', 
+    price: '$19.99', 
+    priceNum: 19.99, 
+    subtitle: 'per month',
+    popular: true,
+    color: '#892F1A',
+    bgColor: '#FDF6F3'
+  },
 ];
 
 export default function AthletePricingPage() {
@@ -90,162 +119,153 @@ export default function AthletePricingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#4B0102] py-10 px-4 text-white">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-10">
-          <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-3">
-            Choose Your Plan
-          </h1>
-          <p className="text-base max-w-2xl mx-auto text-[#F4D7CE]">
-            Unlock your full potential with the right training experience.
-            Start free or upgrade for premium features.
-          </p>
-        </div>
-
+    <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
+      <AppHeader title="Choose Your Plan" subtitle="Unlock your full potential with the right training experience" />
+      
+      <main className="max-w-7xl mx-auto px-6 py-12">
         {/* Error Message */}
         {error && (
-          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-lg flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
-            <p className="text-red-300">{error}</p>
+          <div className="mb-6 max-w-4xl mx-auto p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+            <p className="text-red-800">{error}</p>
           </div>
         )}
 
-        {/* Pricing Table */}
-        <div className="bg-white rounded-lg shadow-2xl overflow-x-auto">
-          <table className="w-full min-w-[600px]">
-            {/* Tier Headers */}
-            <thead>
-              <tr className="border-b-2 border-gray-200">
-                <th className="p-4 bg-gray-50 text-left w-1/4"></th>
-                {TIERS.map((tier) => (
-                  <th
-                    key={tier.id}
-                    className={`p-4 text-center w-1/4 ${
-                      tier.popular ? 'bg-[#4B0102]' : 'bg-gray-50'
-                    }`}
-                  >
-                    {tier.popular && (
-                      <span className="inline-block bg-[#C40000] text-white text-xs font-bold px-3 py-1 rounded-full mb-2 uppercase">
+        {/* Pricing Cards Grid */}
+        <div className="max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-8 mb-12">
+            {TIERS.map((tier) => {
+              const isPopular = tier.popular;
+              return (
+                <div
+                  key={tier.id}
+                  className={`relative bg-white rounded-xl shadow-lg border-2 transition-all hover:shadow-xl ${
+                    isPopular 
+                      ? 'border-[#892F1A] scale-105' 
+                      : 'border-gray-200'
+                  }`}
+                  style={{
+                    backgroundColor: isPopular ? tier.bgColor : '#FFFFFF'
+                  }}
+                >
+                  {/* Popular Badge */}
+                  {isPopular && (
+                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                      <span className="bg-[#892F1A] text-white text-xs font-bold px-4 py-1 rounded-full flex items-center gap-1">
+                        <Sparkles className="w-3 h-3" />
                         Most Popular
                       </span>
-                    )}
-                    <div className={`text-lg font-bold ${tier.popular ? 'text-white' : 'text-gray-800'}`}>
-                      {tier.name}
                     </div>
-                    <div className="mt-1">
-                      <span className={`text-2xl font-bold ${tier.popular ? 'text-white' : 'text-[#C40000]'}`}>
+                  )}
+
+                  {/* Card Header */}
+                  <div className="p-6 border-b border-gray-200">
+                    <h3 
+                      className="text-2xl font-bold mb-2"
+                      style={{ color: tier.color }}
+                    >
+                      {tier.name}
+                    </h3>
+                    <div className="flex items-baseline gap-1 mb-2">
+                      <span 
+                        className="text-4xl font-bold"
+                        style={{ color: tier.color }}
+                      >
                         {tier.price}
                       </span>
-                      {tier.subtitle && (
-                        <span className={`text-xs ml-1 ${tier.popular ? 'text-gray-300' : 'text-gray-500'}`}>
+                      {tier.subtitle && tier.priceNum > 0 && (
+                        <span className="text-sm" style={{ color: '#666666' }}>
                           {tier.subtitle}
                         </span>
                       )}
                     </div>
+                    {tier.priceNum === 0 && (
+                      <p className="text-sm" style={{ color: '#666666' }}>
+                        {tier.subtitle}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Features List */}
+                  <div className="p-6 space-y-4">
+                    {FEATURE_CATEGORIES.map((category, catIndex) => {
+                      const CategoryIcon = category.icon;
+                      return (
+                        <div key={catIndex} className="mb-6 last:mb-0">
+                          <div className="flex items-center gap-2 mb-3">
+                            <CategoryIcon className="w-4 h-4" style={{ color: '#624A41' }} />
+                            <h4 className="text-sm font-semibold uppercase tracking-wide" style={{ color: '#624A41' }}>
+                              {category.category}
+                            </h4>
+                          </div>
+                          <ul className="space-y-2">
+                            {category.features.map((feature, featIndex) => {
+                              const hasFeature = 
+                                (tier.id === 'free' && feature.tier1) ||
+                                (tier.id === 'basic' && feature.tier2) ||
+                                (tier.id === 'elite' && feature.tier3);
+                              
+                              return (
+                                <li key={featIndex} className="flex items-start gap-2">
+                                  {hasFeature ? (
+                                    <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                                  ) : (
+                                    <span className="w-5 h-5 flex-shrink-0 text-gray-300">—</span>
+                                  )}
+                                  <span 
+                                    className={`text-sm ${hasFeature ? '' : 'text-gray-400'}`}
+                                    style={hasFeature ? { color: '#624A41' } : {}}
+                                  >
+                                    {feature.name}
+                                  </span>
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* CTA Button */}
+                  <div className="p-6 pt-0">
                     <button
                       onClick={() => handleSubscribe(tier.id)}
                       disabled={loading !== null}
-                      className={`mt-3 w-full py-2 px-3 rounded-full font-semibold text-sm transition-all disabled:opacity-50 ${
-                        tier.popular
-                          ? 'bg-white text-[#4B0102] hover:bg-gray-100'
+                      className={`w-full py-3 px-6 rounded-lg font-semibold text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${
+                        isPopular
+                          ? 'bg-[#892F1A] text-white hover:bg-[#7a2717] shadow-md'
                           : tier.id === 'free'
                           ? 'bg-gray-200 text-gray-800 hover:bg-gray-300'
-                          : 'bg-[#C40000] text-white hover:bg-[#a00000]'
+                          : 'bg-[#91A6EB] text-white hover:bg-[#7b93e3] shadow-md'
                       }`}
                     >
-                      {loading === tier.id ? 'Loading...' : tier.id === 'free' ? 'Get Started' : 'Start Free Trial'}
-                    </button>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-
-            <tbody>
-              {/* Feature Categories */}
-              {FEATURE_CATEGORIES.map((category, catIndex) => (
-                <React.Fragment key={catIndex}>
-                  {/* Category Header */}
-                  <tr className="bg-[#FDF2F2]">
-                    <td colSpan={4} className="p-3">
-                      <span className="font-bold text-[#4B0102] text-sm">
-                        {category.category}
-                      </span>
-                    </td>
-                  </tr>
-
-                  {/* Features */}
-                  {category.features.map((feature, featIndex) => (
-                    <tr
-                      key={featIndex}
-                      className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
-                    >
-                      <td className="p-3 text-sm text-gray-700">
-                        {feature.name}
-                      </td>
-                      <td className="p-3 text-center">
-                        {feature.tier1 ? (
-                          <Check className="w-5 h-5 text-green-600 mx-auto" />
-                        ) : (
-                          <span className="text-gray-300">—</span>
-                        )}
-                      </td>
-                      <td className="p-3 text-center">
-                        {feature.tier2 ? (
-                          <Check className="w-5 h-5 text-green-600 mx-auto" />
-                        ) : (
-                          <span className="text-gray-300">—</span>
-                        )}
-                      </td>
-                      <td className="p-3 text-center bg-[#FFFAFA]">
-                        {feature.tier3 ? (
-                          <Check className="w-5 h-5 text-green-600 mx-auto" />
-                        ) : (
-                          <span className="text-gray-300">—</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </React.Fragment>
-              ))}
-
-              {/* Bottom CTA Row */}
-              <tr className="bg-gray-50 border-t-2 border-gray-200">
-                <td className="p-4"></td>
-                {TIERS.map((tier) => (
-                  <td key={tier.id} className="p-4 text-center">
-                    <button
-                      onClick={() => handleSubscribe(tier.id)}
-                      disabled={loading !== null}
-                      className={`w-full py-2 px-3 rounded-full font-semibold text-sm flex items-center justify-center gap-1 transition-all disabled:opacity-50 ${
-                        tier.popular
-                          ? 'bg-[#C40000] text-white hover:bg-[#a00000]'
-                          : tier.id === 'free'
-                          ? 'bg-gray-300 text-gray-800 hover:bg-gray-400'
-                          : 'bg-[#4B0102] text-white hover:bg-[#3a0102]'
-                      }`}
-                    >
-                      {loading === tier.id ? 'Loading...' : (
+                      {loading === tier.id ? (
                         <>
-                          {tier.id === 'free' ? 'Get Started' : 'Choose Plan'}
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          Loading...
+                        </>
+                      ) : (
+                        <>
+                          {tier.id === 'free' ? 'Get Started' : 'Start Free Trial'}
                           <ArrowRight className="w-4 h-4" />
                         </>
                       )}
                     </button>
-                  </td>
-                ))}
-              </tr>
-            </tbody>
-          </table>
-        </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
 
-        {/* Footer Note */}
-        <div className="text-center mt-8">
-          <p className="text-sm text-[#F4D7CE]">
-            All paid plans include a 7-day free trial. Cancel anytime.
-          </p>
+          {/* Footer Note */}
+          <div className="text-center mt-8">
+            <p className="text-sm" style={{ color: '#666666' }}>
+              All paid plans include a 7-day free trial. Cancel anytime.
+            </p>
+          </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
