@@ -147,14 +147,15 @@ export async function POST(request: NextRequest) {
       console.log(`⚠️ Using fallback slug after error: ${slug}`)
     }
     
-    // Add slug to fullProfile so it gets synced to creators_index
-    if (slug) {
-      fullProfile.slug = slug
+    // Step 7: Sync to creators_index (for admin panel and Browse Coaches)
+    // Create profile with slug included
+    const profileWithSlug = {
+      ...fullProfile,
+      ...(slug ? { slug } : {})
     }
     
-    // Step 7: Sync to creators_index (for admin panel and Browse Coaches)
     console.log('📝 Step 7: Syncing to creators_index...')
-    const syncResult = await syncCoachToBrowseCoaches(JOSEPH_UID, fullProfile)
+    const syncResult = await syncCoachToBrowseCoaches(JOSEPH_UID, profileWithSlug)
     
     if (!syncResult.success) {
       console.error('❌ Failed to sync to creators_index:', syncResult.error)
