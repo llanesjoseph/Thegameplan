@@ -190,10 +190,12 @@ export async function syncCoachToBrowseCoaches(
       isVerified: fullProfileData.isVerified ?? false,
       isPlatformCoach: fullProfileData.isPlatformCoach ?? false,
       verified: fullProfileData.verified ?? fullProfileData.isVerified ?? false,
-      featured: fullProfileData.featured ?? false,
-      
-      // Preserve slug if it exists
-      slug: fullProfileData.slug || undefined
+      featured: fullProfileData.featured ?? false
+    }
+    
+    // Only add slug if it exists (Firestore doesn't allow undefined)
+    if (fullProfileData.slug && typeof fullProfileData.slug === 'string' && fullProfileData.slug.trim().length > 0) {
+      indexData.slug = fullProfileData.slug
     }
     
     // AGGRESSIVE: Sync to creators_index atomically - use set with merge to ensure all fields are updated

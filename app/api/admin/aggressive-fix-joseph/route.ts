@@ -127,18 +127,38 @@ export async function POST(request: NextRequest) {
     
     // Step 7: Create/update slug mapping (for coach profile API)
     console.log('📝 Step 7: Creating slug mapping...')
-    const slugResult = await createSlugMapping(JOSEPH_UID, fullProfile.displayName)
+    let slug: string | undefined = undefined
     
-    if (!slugResult.success) {
-      console.error('❌ Failed to create slug mapping:', slugResult.error)
-      return NextResponse.json(
-        { error: `Failed to create slug mapping: ${slugResult.error}` },
-        { status: 500 }
-      )
+    try {
+      const slugResult = await createSlugMapping(JOSEPH_UID, fullProfile.displayName)
+      
+      if (slugResult.success && slugResult.slug) {
+        slug = slugResult.slug
+        console.log(`✅ Created/updated slug mapping: ${slug}`)
+      } else {
+        console.warn('⚠️ Slug mapping failed, but continuing:', slugResult.error)
+        // Generate a fallback slug
+        const cleanName = fullProfile.displayName
+          .toLowerCase()
+          .trim()
+          .replace(/[^a-z0-9\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .replace(/-+/g, '-')
+        slug = `${cleanName}-${JOSEPH_UID.slice(-6)}`
+        console.log(`⚠️ Using fallback slug: ${slug}`)
+      }
+    } catch (slugError) {
+      console.error('❌ Error creating slug mapping:', slugError)
+      // Generate a fallback slug
+      const cleanName = fullProfile.displayName
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+      slug = `${cleanName}-${JOSEPH_UID.slice(-6)}`
+      console.log(`⚠️ Using fallback slug after error: ${slug}`)
     }
-    
-    const slug = slugResult.slug
-    console.log(`✅ Created/updated slug mapping: ${slug}`)
     
     // Step 8: Verify everything is in place
     console.log('🔍 Step 8: Verifying all collections...')
