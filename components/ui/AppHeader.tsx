@@ -336,9 +336,15 @@ export default function AppHeader({ className = '', title, subtitle, hideNavigat
               <div className="relative">
                 <button
                   type="button"
-                  className="flex items-center gap-2 rounded-full bg-white border border-gray-200 px-3 py-1 text-xs sm:text-sm hover:bg-gray-50 transition-colors"
-                  aria-label="Account"
-                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  className="flex items-center gap-2 rounded-full bg-white border border-gray-200 px-3 py-1 text-xs sm:text-sm hover:bg-gray-50 transition-colors cursor-pointer"
+                  aria-label="Account menu - Click to view settings and profile"
+                  title="Click to view account menu (Settings, Profile, Sign Out)"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    console.log('[AppHeader] Button clicked, current state:', isDropdownOpen)
+                    setIsDropdownOpen(!isDropdownOpen)
+                  }}
                   ref={buttonRef}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -368,6 +374,7 @@ export default function AppHeader({ className = '', title, subtitle, hideNavigat
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
+                    aria-hidden="true"
                   >
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
@@ -376,8 +383,9 @@ export default function AppHeader({ className = '', title, subtitle, hideNavigat
                 {/* Dropdown Menu (for additional options) */}
                 {isDropdownOpen && (
                   <div 
-                    className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50"
+                    className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-[100]"
                     ref={dropdownRef}
+                    onClick={(e) => e.stopPropagation()}
                   >
                     {/* User Info - Name and Email */}
                     <div className="px-4 py-3 border-b border-gray-200">
