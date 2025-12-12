@@ -372,6 +372,79 @@ export default function AppHeader({ className = '', title, subtitle, hideNavigat
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
+
+                {/* Dropdown Menu (for additional options) */}
+                {isDropdownOpen && (
+                  <div 
+                    className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50"
+                    ref={dropdownRef}
+                  >
+                    {/* User Info - Name and Email */}
+                    <div className="px-4 py-3 border-b border-gray-200">
+                      <p className="text-sm font-medium text-gray-900 truncate">
+                        {user.displayName || 'User'}
+                      </p>
+                      <p className="text-xs text-gray-600 truncate mt-0.5">
+                        {user.email}
+                      </p>
+                    </div>
+
+                    {/* Navigation Links */}
+                    <div className="py-1">
+                      <Link
+                        href="/dashboard/profile"
+                        className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setIsDropdownOpen(false)
+                        }}
+                      >
+                        <UserIcon className="w-4 h-4 text-gray-500" />
+                        View Profile
+                      </Link>
+                      <Link
+                        href="/settings"
+                        className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setIsDropdownOpen(false)
+                        }}
+                      >
+                        <Settings className="w-4 h-4 text-gray-500" />
+                        Settings
+                      </Link>
+                    </div>
+
+                    {/* Role Switcher - For superadmins only */}
+                    {canSwitchRoles && (
+                      <div className="px-3 py-2 border-t border-gray-200 bg-red-50">
+                        <div className="text-xs font-medium text-red-700 mb-2 flex items-center gap-1">
+                          <div className="w-1.5 h-1.5 bg-red-600 rounded-full"></div>
+                          Admin Tools
+                        </div>
+                        <CompactRoleSwitcher />
+                      </div>
+                    )}
+
+                    {/* Sign Out */}
+                    <div className="py-1 border-t border-gray-200">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setIsDropdownOpen(false)
+                          handleSignOut()
+                        }}
+                        className="flex items-center gap-2 px-4 py-2 w-full text-left text-sm text-red-600 hover:bg-red-50 transition-colors"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        Sign Out
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             ) : (
               <Link 
                 href="/onboarding/auth"
