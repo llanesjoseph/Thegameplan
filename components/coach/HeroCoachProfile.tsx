@@ -713,7 +713,8 @@ function HeroSection({
   onCancel,
   theme,
   canEditProfile,
-  socialLinks
+  socialLinks,
+  isSaving
 }: {
   coach: HeroCoachProfileProps['coach']
   editingCoach: HeroCoachProfileProps['coach']
