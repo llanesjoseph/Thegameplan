@@ -36,7 +36,7 @@ const TIER_ACCESS = {
     hasAIAssistant: false,
     hasCoachFeed: false,
     hasPriorityQueue: false,
-    maxCoaches: 0,
+    maxCoaches: 1, // FREE TIER: Allows 1 coach access
   },
 };
 

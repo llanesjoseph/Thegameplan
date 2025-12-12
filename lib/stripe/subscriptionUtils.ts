@@ -255,6 +255,7 @@ export async function initializeAthleteSubscription(athleteUid: string): Promise
         hasAIAssistant: false,
         hasCoachFeed: false,
         hasPriorityQueue: false,
+        // FREE TIER: maxCoaches is 1 (handled by frontend logic, not stored in access object)
       },
       updatedAt: new Date(),
     });
