@@ -34,7 +34,11 @@ export default function AthleteCoaches({ subscription }: AthleteCoachesProps = {
   const coachPageSize = 3
   const [showCoachProfileModal, setShowCoachProfileModal] = useState(false)
   const [selectedCoach, setSelectedCoach] = useState<any>(null)
+  // FREE TIER: Allow 1 coach access even without active subscription
+  // Premium features (live sessions, video submissions) require active subscription
   const hasActiveSubscription = !!subscription?.isActive
+  const isFreeTier = !subscription || subscription.tier === 'none' || !subscription.isActive
+  const canViewCoaches = true // All users (including free tier) can view their assigned coach
 
   useEffect(() => {
     const loadCoaches = async () => {

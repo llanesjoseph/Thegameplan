@@ -626,13 +626,13 @@ export default function AthleteDashboard() {
                   className="text-sm font-semibold uppercase tracking-[0.14em] text-gray-900"
                   style={{ fontFamily: '"Open Sans", sans-serif' }}
                 >
-                  Unlock Full Athleap Access
+                  Upgrade to Premium Features
                 </p>
                 <p
                   className="text-xs text-gray-700 mt-1"
                   style={{ fontFamily: '"Open Sans", sans-serif' }}
                 >
-                  Start your athlete subscription to access premium coaching tools, training library, and AI features.
+                  You're on the free plan with access to 1 coach. Upgrade to unlock live sessions, video submissions, AI coaching, and unlimited coaches.
                 </p>
               </div>
               <button
