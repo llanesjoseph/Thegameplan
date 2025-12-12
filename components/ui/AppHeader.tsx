@@ -338,7 +338,7 @@ export default function AppHeader({ className = '', title, subtitle, hideNavigat
 
             {/* User Greeting - Match /coaches page design */}
             {user ? (
-              <div className="relative">
+              <div className="relative" style={{ zIndex: 1000 }}>
                 <button
                   type="button"
                   className="flex items-center gap-2 rounded-full bg-white border border-gray-200 px-3 py-1 text-xs sm:text-sm hover:bg-gray-50 transition-colors cursor-pointer"
@@ -347,8 +347,13 @@ export default function AppHeader({ className = '', title, subtitle, hideNavigat
                   onClick={(e) => {
                     e.preventDefault()
                     e.stopPropagation()
-                    console.log('[AppHeader] Button clicked, current state:', isDropdownOpen)
-                    setIsDropdownOpen(!isDropdownOpen)
+                    const newState = !isDropdownOpen
+                    console.log('[AppHeader] Button clicked, toggling dropdown from', isDropdownOpen, 'to', newState)
+                    setIsDropdownOpen(newState)
+                  }}
+                  onMouseDown={(e) => {
+                    // Prevent any other handlers from interfering
+                    e.stopPropagation()
                   }}
                   ref={buttonRef}
                 >
@@ -388,9 +393,15 @@ export default function AppHeader({ className = '', title, subtitle, hideNavigat
                 {/* Dropdown Menu (for additional options) */}
                 {isDropdownOpen && (
                   <div 
-                    className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-[100]"
+                    className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-1"
+                    style={{ zIndex: 1001 }}
                     ref={dropdownRef}
-                    onClick={(e) => e.stopPropagation()}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                    }}
+                    onMouseDown={(e) => {
+                      e.stopPropagation()
+                    }}
                   >
                     {/* User Info - Name and Email */}
                     <div className="px-4 py-3 border-b border-gray-200">
