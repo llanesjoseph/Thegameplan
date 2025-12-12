@@ -3,7 +3,7 @@
  * Secure token verification and role management
  */
 
-import { auth } from '@/lib/firebase.admin'
+import { auth, adminDb } from '@/lib/firebase.admin'
 import { DecodedIdToken } from 'firebase-admin/auth'
 import { auditLog } from '@/lib/audit-logger'
 
@@ -72,8 +72,7 @@ export async function hasRole(
     // If userRole not provided, fetch from database using SERVER-SIDE Firebase Admin
     let resolvedUserRole: string = userRole || 'user'
     if (!userRole) {
-      const { adminDb as db } = await import('@/lib/firebase.admin')
-      const userDoc = await db.collection('users').doc(userId).get()
+      const userDoc = await adminDb.collection('users').doc(userId).get()
       resolvedUserRole = userDoc.data()?.role || 'user'
       console.log(`[AUTH-UTILS] Fetched role for ${userId}: ${resolvedUserRole}`)
     }
