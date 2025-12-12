@@ -879,11 +879,22 @@ function HeroSection({
                     <button
                       type="button"
                       onClick={(e) => {
+                        console.log('[HERO-COACH-PROFILE] ========== BUTTON CLICKED ==========')
+                        console.log('[HERO-COACH-PROFILE] Event:', e)
+                        console.log('[HERO-COACH-PROFILE] Button disabled?', saving)
+                        console.log('[HERO-COACH-PROFILE] onSave function:', typeof onSave, onSave)
+                        
                         e.preventDefault()
                         e.stopPropagation()
-                        console.log('[HERO-COACH-PROFILE] Save button clicked!')
+                        
+                        console.log('[HERO-COACH-PROFILE] Save button clicked! Calling onSave...')
                         try {
-                          onSave()
+                          if (typeof onSave === 'function') {
+                            onSave()
+                          } else {
+                            console.error('[HERO-COACH-PROFILE] onSave is not a function!', onSave)
+                            alert('Error: Save function is not available. Please refresh the page.')
+                          }
                         } catch (error) {
                           console.error('[HERO-COACH-PROFILE] Error in save button onClick:', error)
                           alert(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`)
@@ -894,7 +905,15 @@ function HeroSection({
                       style={{
                         ...primaryButtonStyles,
                         opacity: saving ? 0.6 : 1,
-                        cursor: saving ? 'not-allowed' : 'pointer'
+                        cursor: saving ? 'not-allowed' : 'pointer',
+                        position: 'relative',
+                        zIndex: 10
+                      }}
+                      onMouseDown={(e) => {
+                        console.log('[HERO-COACH-PROFILE] Save button mouse down')
+                      }}
+                      onMouseUp={(e) => {
+                        console.log('[HERO-COACH-PROFILE] Save button mouse up')
                       }}
                     >
                       {saving ? (
