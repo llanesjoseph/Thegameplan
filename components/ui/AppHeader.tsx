@@ -25,6 +25,8 @@ interface AppHeaderProps {
   className?: string
   title?: string
   subtitle?: string
+  hideNavigation?: boolean
+  hideRoleBadge?: boolean
 }
 
 // Ultra-compact role switcher
@@ -105,7 +107,7 @@ function CompactRoleSwitcher() {
   )
 }
 
-export default function AppHeader({ className = '', title, subtitle }: AppHeaderProps) {
+export default function AppHeader({ className = '', title, subtitle, hideNavigation = false, hideRoleBadge = false }: AppHeaderProps) {
   const { user } = useAuth()
   const { role } = useEnhancedRole()
   const router = useRouter()
@@ -299,27 +301,31 @@ export default function AppHeader({ className = '', title, subtitle }: AppHeader
           {/* Right: Navigation Links + Role Badge + User */}
           <div className="flex items-center gap-6">
             {/* Browse Coaches Link */}
-            <Link
-              href="/coaches"
-              className="hidden md:block text-black hover:text-blue-600 transition-colors"
-              style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '14px' }}
-              aria-label="Browse Coaches - View all available coaches"
-            >
-              Browse Coaches
-            </Link>
+            {!hideNavigation && (
+              <Link
+                href="/coaches"
+                className="hidden md:block text-black hover:text-blue-600 transition-colors"
+                style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '14px' }}
+                aria-label="Browse Coaches - View all available coaches"
+              >
+                Browse Coaches
+              </Link>
+            )}
 
             {/* Gear Store Link */}
-            <Link
-              href="/gear"
-              className="hidden md:block text-black hover:text-blue-600 transition-colors"
-              style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '14px' }}
-              aria-label="Gear Store - Browse recommended gear"
-            >
-              Gear Store
-            </Link>
+            {!hideNavigation && (
+              <Link
+                href="/gear"
+                className="hidden md:block text-black hover:text-blue-600 transition-colors"
+                style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '14px' }}
+                aria-label="Gear Store - Browse recommended gear"
+              >
+                Gear Store
+              </Link>
+            )}
 
             {/* Role Badge */}
-            {user && (
+            {user && !hideRoleBadge && (
               <div className={`px-3 py-1.5 text-white rounded-lg text-xs font-semibold ${getRoleDisplay().color}`}>
                 {getRoleDisplay().label}
               </div>

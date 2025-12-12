@@ -45,8 +45,8 @@ const TIERS = [
     price: 'Free', 
     priceNum: 0, 
     subtitle: 'Perfect for getting started',
-    color: '#624A41',
-    bgColor: '#F6F3F1'
+    color: '#892F1A',
+    bgColor: '#FDF6F3'
   },
   { 
     id: 'basic', 
@@ -54,8 +54,8 @@ const TIERS = [
     price: '$9.99', 
     priceNum: 9.99, 
     subtitle: 'per month',
-    color: '#91A6EB',
-    bgColor: '#F0F4FF'
+    color: '#892F1A',
+    bgColor: '#FDF6F3'
   },
   { 
     id: 'elite', 
@@ -123,7 +123,7 @@ export default function AthletePricingPage() {
       {/* Header with AppHeader */}
       <div className="sticky top-0 z-40 shadow-sm">
         <div className="w-full bg-white">
-          <AppHeader />
+          <AppHeader hideNavigation={true} hideRoleBadge={true} />
         </div>
         {/* Red bar section - matching Browse Coaches */}
         <section aria-label="Pricing banner" className="w-full" style={{ backgroundColor: '#FC0105' }}>
