@@ -194,16 +194,16 @@ export default function AthletePricingPage() {
                 >
                   {/* Popular Badge */}
                   {isPopular && (
-                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                      <span className="bg-[#892F1A] text-white text-xs font-bold px-4 py-1 rounded-full flex items-center gap-1">
-                        <Sparkles className="w-3 h-3" />
+                    <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 z-10">
+                      <span className="bg-[#892F1A] text-white text-xs font-bold px-5 py-2 rounded-full flex items-center gap-1.5 shadow-lg">
+                        <Sparkles className="w-3.5 h-3.5" />
                         Most Popular
                       </span>
                     </div>
                   )}
 
                   {/* Card Header */}
-                  <div className="p-6 border-b border-gray-200">
+                  <div className={`p-6 border-b border-gray-200 ${isPopular ? 'pt-8' : ''}`}>
                     <h3 
                       className="text-2xl font-bold mb-2"
                       style={{ color: tier.color }}
