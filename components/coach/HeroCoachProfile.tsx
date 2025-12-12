@@ -205,17 +205,42 @@ export default function HeroCoachProfile({
 
   const galleryPhotos = useMemo(() => {
     const photos: string[] = []
-    if (activeCoach.showcasePhoto1) photos.push(activeCoach.showcasePhoto1)
-    if (activeCoach.showcasePhoto2) photos.push(activeCoach.showcasePhoto2)
-    if (activeCoach.galleryPhotos?.length) {
+    
+    // Add showcase photos if they exist and are valid URLs
+    if (activeCoach.showcasePhoto1 && 
+        typeof activeCoach.showcasePhoto1 === 'string' && 
+        activeCoach.showcasePhoto1.trim().length > 0 &&
+        (activeCoach.showcasePhoto1.startsWith('http://') || activeCoach.showcasePhoto1.startsWith('https://'))) {
+      photos.push(activeCoach.showcasePhoto1)
+    }
+    if (activeCoach.showcasePhoto2 && 
+        typeof activeCoach.showcasePhoto2 === 'string' && 
+        activeCoach.showcasePhoto2.trim().length > 0 &&
+        (activeCoach.showcasePhoto2.startsWith('http://') || activeCoach.showcasePhoto2.startsWith('https://'))) {
+      photos.push(activeCoach.showcasePhoto2)
+    }
+    
+    // Add gallery photos if they exist and are valid URLs
+    if (activeCoach.galleryPhotos && Array.isArray(activeCoach.galleryPhotos)) {
       activeCoach.galleryPhotos.forEach((url) => {
-        if (typeof url === 'string' && url.trim().length > 0) {
+        if (typeof url === 'string' && 
+            url.trim().length > 0 && 
+            !url.includes('placeholder') &&
+            (url.startsWith('http://') || url.startsWith('https://'))) {
           photos.push(url)
         }
       })
     }
+    
     // STRICT: Only return photos that the coach has actually uploaded - no hardcoded fallbacks
-    const deduped = Array.from(new Set(photos.filter((url) => typeof url === 'string' && url.trim().length > 0)))
+    // Remove duplicates and filter out any invalid URLs
+    const deduped = Array.from(new Set(photos.filter((url) => {
+      return typeof url === 'string' && 
+             url.trim().length > 0 && 
+             !url.includes('placeholder') &&
+             (url.startsWith('http://') || url.startsWith('https://'))
+    })))
+    
     return deduped
   }, [activeCoach.showcasePhoto1, activeCoach.showcasePhoto2, activeCoach.galleryPhotos])
 
