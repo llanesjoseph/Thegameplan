@@ -90,10 +90,11 @@ export async function GET(
       actionPhotos: actionPhotos,
       highlightVideo: coachProfile.highlightVideo || undefined,
       socialLinks: {
-        facebook: undefined,
-        twitter: undefined,
-        instagram: undefined,
-        linkedin: undefined
+        facebook: coachProfile.facebook || undefined,
+        twitter: coachProfile.twitter || undefined,
+        instagram: coachProfile.instagram || undefined,
+        linkedin: coachProfile.linkedin || undefined,
+        youtube: coachProfile.youtube || undefined
       },
       trainingLibrary: [], // STRICT: Only return actual lessons, no placeholder content
       profileCompleteness: coachProfile.profileCompleteness || 0,
