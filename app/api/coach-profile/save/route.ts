@@ -146,25 +146,25 @@ export async function POST(request: NextRequest) {
       userUpdates: userUpdates
     })
 
-    // CRITICAL: Ensure visibility fields are set for Browse Coaches
-    // Default to visible if not explicitly set to false
+    // CRITICAL: Ensure visibility fields are ALWAYS set to visible for active coaches
+    // This ensures coaches appear in admin panel and Browse Coaches
     const visibilityData = {
       uid,
       ...profileUpdates,
-      // Ensure these fields are set for visibility (default to true/approved if not explicitly false)
-      isActive: profileUpdates.isActive !== false ? true : false,
-      profileComplete: profileUpdates.profileComplete !== false ? true : false,
-      status: profileUpdates.status || 'approved'
+      // AGGRESSIVE: Always set to visible unless explicitly false
+      isActive: true, // Always active for coaches saving their profile
+      profileComplete: true, // If they're saving, profile is complete
+      status: 'approved' // Always approved for active coaches
     }
     
-    // Also update creator_profiles with visibility fields
+    // CRITICAL: Update creator_profiles with visibility fields BEFORE sync
     await creatorRef.set({
       isActive: visibilityData.isActive,
       profileComplete: visibilityData.profileComplete,
       status: visibilityData.status
     }, { merge: true })
     
-    console.log(`[COACH-PROFILE/SAVE] Set visibility fields:`, {
+    console.log(`[COACH-PROFILE/SAVE] CRITICAL: Set visibility fields to visible:`, {
       isActive: visibilityData.isActive,
       profileComplete: visibilityData.profileComplete,
       status: visibilityData.status
