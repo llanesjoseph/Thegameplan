@@ -119,20 +119,64 @@ export default function AthletePricingPage() {
   };
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#E8E6D8' }}>
-      <AppHeader title="Choose Your Athleap Plan" subtitle="Unlock your full potential with the right training experience. Start free or upgrade for premium features. Cancel anytime." />
-      
-      <main className="max-w-7xl mx-auto px-6 py-12">
-        {/* Error Message */}
-        {error && (
-          <div className="mb-6 max-w-4xl mx-auto p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-            <p className="text-red-800">{error}</p>
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#EDEDED' }}>
+      {/* Header with AppHeader */}
+      <div className="sticky top-0 z-40 shadow-sm">
+        <div className="w-full bg-white">
+          <AppHeader />
+        </div>
+        {/* Red bar section - matching Browse Coaches */}
+        <section aria-label="Pricing banner" className="w-full" style={{ backgroundColor: '#FC0105' }}>
+          <div className="max-w-6xl mx-auto px-6 lg:px-8 py-3 flex justify-end">
+            <p
+              className="text-[15px] leading-none font-bold text-white"
+              style={{ fontFamily: '"Open Sans", sans-serif', letterSpacing: '0.01em' }}
+            >
+              Choose Your Plan
+            </p>
           </div>
-        )}
+        </section>
+      </div>
 
-        {/* Pricing Cards Grid */}
-        <div className="max-w-6xl mx-auto">
+      {/* Hero banner – dark red section with centered logo + title (matching Browse Coaches) */}
+      <section className="w-full bg-[#4B0102]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-10 py-10 text-center">
+          <div className="flex justify-center mb-4">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/athleap-logo-transparent.png"
+              alt="Athleap mark"
+              className="h-32 w-auto object-contain"
+            />
+          </div>
+          <h1
+            className="text-4xl md:text-5xl font-bold mb-4"
+            style={{ fontFamily: '"Open Sans", sans-serif', letterSpacing: '-0.05em', color: '#FFFFFF' }}
+          >
+            Choose Your Athleap Plan
+          </h1>
+          <p
+            className="text-lg text-white/90 max-w-2xl mx-auto"
+            style={{ fontFamily: '"Open Sans", sans-serif' }}
+          >
+            Unlock your full potential with the right training experience. Start free or upgrade for premium features. Cancel anytime.
+          </p>
+        </div>
+      </section>
+
+      {/* Main Content - Pricing Cards */}
+      <main className="flex-1 w-full">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 max-w-4xl mx-auto p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+              <p className="text-red-800">{error}</p>
+            </div>
+          )}
+
+          {/* Pricing Cards Grid */}
+          <div>
           <div className="grid md:grid-cols-3 gap-8 mb-12">
             {TIERS.map((tier) => {
               const isPopular = tier.popular;
@@ -258,11 +302,12 @@ export default function AthletePricingPage() {
             })}
           </div>
 
-          {/* Footer Note */}
-          <div className="text-center mt-8">
-            <p className="text-sm" style={{ color: '#666666' }}>
-              All paid plans include a 7-day free trial. Cancel anytime.
-            </p>
+            {/* Footer Note */}
+            <div className="text-center mt-8">
+              <p className="text-sm" style={{ color: '#666666', fontFamily: '"Open Sans", sans-serif' }}>
+                All paid plans include a 7-day free trial. Cancel anytime.
+              </p>
+            </div>
           </div>
         </div>
       </main>
