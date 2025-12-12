@@ -19,6 +19,7 @@ export interface BakedProfile {
   lastName: string
   email: string
   sport: string
+  location?: string
   tagline?: string
   credentials?: string
   bio?: string
@@ -27,13 +28,22 @@ export interface BakedProfile {
   achievements?: string[]
   experience?: string
   
-  // Images
+  // Images - all profile image fields
+  profileImageUrl?: string
   headshotUrl?: string
   heroImageUrl?: string
+  showcasePhoto1?: string
+  showcasePhoto2?: string
+  galleryPhotos?: string[]
   actionPhotos?: string[]
   highlightVideo?: string
   
   // Social links
+  instagram?: string
+  facebook?: string
+  twitter?: string
+  linkedin?: string
+  youtube?: string
   socialLinks?: {
     instagram?: string
     facebook?: string
@@ -45,9 +55,12 @@ export interface BakedProfile {
   // Metadata
   createdBy: string // Admin UID who created this
   createdAt: Date
+  readyForProvisioning?: boolean // Admin marked as ready
+  readyAt?: Date // When admin marked as ready
+  visibleInBrowseCoaches?: boolean // Show in Browse Coaches even before adoption
   transferredAt?: Date
   transferredTo?: string // UID of user who took ownership
-  status: 'pending' | 'transferred' | 'cancelled'
+  status: 'pending' | 'ready' | 'transferred' | 'cancelled' // 'ready' = admin finished, waiting for user
   
   // Additional profile fields
   profileCompleteness?: number
@@ -114,10 +127,10 @@ export async function findBakedProfileForUser(
   try {
     const normalizedEmail = email.toLowerCase().trim()
     
-    // First, try to find by email
+    // First, try to find by email (check both 'pending' and 'ready' status)
     const emailQuery = await db.collection('baked_profiles')
       .where('targetEmail', '==', normalizedEmail)
-      .where('status', '==', 'pending')
+      .where('status', 'in', ['pending', 'ready'])
       .limit(1)
       .get()
     
@@ -134,7 +147,7 @@ export async function findBakedProfileForUser(
     if (uid) {
       const uidQuery = await db.collection('baked_profiles')
         .where('targetUid', '==', uid)
-        .where('status', '==', 'pending')
+        .where('status', 'in', ['pending', 'ready'])
         .limit(1)
         .get()
       
@@ -191,11 +204,29 @@ export async function transferBakedProfileToUser(
       specialties: bakedProfile.specialties || [],
       achievements: bakedProfile.achievements || [],
       experience: bakedProfile.experience || '',
-      headshotUrl: bakedProfile.headshotUrl || '',
+      location: bakedProfile.location || '',
+      // All image fields
+      profileImageUrl: bakedProfile.profileImageUrl || bakedProfile.headshotUrl || '',
+      headshotUrl: bakedProfile.headshotUrl || bakedProfile.profileImageUrl || '',
       heroImageUrl: bakedProfile.heroImageUrl || '',
+      showcasePhoto1: bakedProfile.showcasePhoto1 || '',
+      showcasePhoto2: bakedProfile.showcasePhoto2 || '',
+      galleryPhotos: bakedProfile.galleryPhotos || [],
       actionPhotos: bakedProfile.actionPhotos || [],
       highlightVideo: bakedProfile.highlightVideo || '',
-      socialLinks: bakedProfile.socialLinks || {},
+      // Social links - individual fields
+      instagram: bakedProfile.instagram || bakedProfile.socialLinks?.instagram || '',
+      facebook: bakedProfile.facebook || bakedProfile.socialLinks?.facebook || '',
+      twitter: bakedProfile.twitter || bakedProfile.socialLinks?.twitter || '',
+      linkedin: bakedProfile.linkedin || bakedProfile.socialLinks?.linkedin || '',
+      youtube: bakedProfile.youtube || bakedProfile.socialLinks?.youtube || '',
+      socialLinks: bakedProfile.socialLinks || {
+        instagram: bakedProfile.instagram || '',
+        facebook: bakedProfile.facebook || '',
+        twitter: bakedProfile.twitter || '',
+        linkedin: bakedProfile.linkedin || '',
+        youtube: bakedProfile.youtube || ''
+      },
       profileCompleteness: bakedProfile.profileCompleteness || 100,
       isVerified: bakedProfile.isVerified ?? true,
       isPlatformCoach: bakedProfile.isPlatformCoach ?? true,
@@ -228,6 +259,38 @@ export async function transferBakedProfileToUser(
       profileProvisioned: true,
       updatedAt: new Date()
     }, { merge: true })
+    
+    // Update creators_index with real UID (replace bakedProfileId with userUid)
+    const creatorsIndexRef = db.collection('creators_index').doc(userUid)
+    const indexData: any = {
+      uid: userUid,
+      displayName: profileData.displayName,
+      name: profileData.displayName,
+      email: profileData.email,
+      sport: profileData.sport,
+      location: profileData.location || '',
+      bio: profileData.bio || '',
+      profileImageUrl: profileData.profileImageUrl || profileData.headshotUrl || '',
+      headshotUrl: profileData.profileImageUrl || profileData.headshotUrl || '',
+      photoURL: profileData.profileImageUrl || profileData.headshotUrl || '',
+      showcasePhoto1: profileData.showcasePhoto1 || '',
+      showcasePhoto2: profileData.showcasePhoto2 || '',
+      galleryPhotos: profileData.galleryPhotos || [],
+      instagram: profileData.instagram || '',
+      facebook: profileData.facebook || '',
+      twitter: profileData.twitter || '',
+      linkedin: profileData.linkedin || '',
+      youtube: profileData.youtube || '',
+      isActive: true,
+      profileComplete: true,
+      status: 'approved',
+      lastUpdated: new Date()
+    }
+    batch.set(creatorsIndexRef, indexData, { merge: true })
+    
+    // Remove old baked profile entry from creators_index if it exists
+    const oldBakedIndexRef = db.collection('creators_index').doc(bakedProfileId)
+    batch.delete(oldBakedIndexRef)
     
     // Mark baked profile as transferred
     const bakedRef = db.collection('baked_profiles').doc(bakedProfileId)
