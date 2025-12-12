@@ -259,7 +259,7 @@ export default function AppHeader({ className = '', title, subtitle, hideNavigat
 
   return (
     <>
-      <header className={`bg-white px-4 py-3 sm:py-4 shadow-sm ${className} sticky top-0 z-40`} role="banner">
+      <header className={`bg-white px-4 py-3 sm:py-4 shadow-sm ${className} sticky top-0 z-40`} role="banner" style={{ overflow: 'visible' }}>
         <div className="max-w-6xl mx-auto px-6 lg:px-8 flex items-center justify-between">
           {/* Left: Logo + ATHLEAP wordmark + Title */}
           <div className="flex items-center gap-6 flex-1">
