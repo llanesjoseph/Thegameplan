@@ -178,23 +178,3 @@ function calculateProfileCompleteness(profile: any): number {
 
   return Math.round((completedFields / fields.length) * 100)
 }
-    profile.experience,
-    profile.bio,
-    profile.tagline,
-    profile.philosophy,
-    profile.credentials,
-    profile.headshotUrl, // Include headshot
-    profile.heroImageUrl, // Include hero image
-    profile.specialties?.length > 0,
-    profile.achievements?.length > 0,
-    profile.sampleQuestions?.length > 0,
-    profile.actionPhotos?.length > 0, // Include action photos
-    profile.highlightVideo // Include highlight video
-  ]
-
-  const completedFields = fields.filter(field =>
-    field !== undefined && field !== null && field !== ''
-  ).length
-
-  return Math.round((completedFields / fields.length) * 100)
-}

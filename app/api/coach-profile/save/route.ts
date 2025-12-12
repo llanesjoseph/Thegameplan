@@ -167,53 +167,6 @@ export async function POST(request: NextRequest) {
   }
 }
 
-
-.bio
-        indexUpdates.description = body.bio // Also update description for compatibility
-      }
-      if (body.location !== undefined) {
-        indexUpdates.location = body.location
-      }
-      if (body.sport !== undefined) {
-        indexUpdates.sport = body.sport
-      }
-      if (body.profileImageUrl !== undefined) {
-        // Mirror profile image to all common image fields for maximum compatibility
-        indexUpdates.profileImageUrl = body.profileImageUrl
-        indexUpdates.headshotUrl = body.profileImageUrl
-        indexUpdates.photoURL = body.profileImageUrl
-        indexUpdates.bannerUrl = body.profileImageUrl
-        indexUpdates.heroImageUrl = body.profileImageUrl
-        indexUpdates.coverImageUrl = body.profileImageUrl
-      }
-      if (body.showcasePhoto1 !== undefined) {
-        indexUpdates.showcasePhoto1 = body.showcasePhoto1
-      }
-      if (body.showcasePhoto2 !== undefined) {
-        indexUpdates.showcasePhoto2 = body.showcasePhoto2
-      }
-      if (body.galleryPhotos !== undefined) {
-        indexUpdates.galleryPhotos = body.galleryPhotos
-      }
-      if (body.instagram !== undefined) {
-        indexUpdates.instagram = body.instagram
-      }
-      if (body.facebook !== undefined) {
-        indexUpdates.facebook = body.facebook
-      }
-      if (body.twitter !== undefined) {
-        indexUpdates.twitter = body.twitter
-      }
-      if (body.linkedin !== undefined) {
-        indexUpdates.linkedin = body.linkedin
-      }
-      if (body.youtube !== undefined) {
-        indexUpdates.youtube = body.youtube
-      }
-      if (body.socialLinks !== undefined) {
-        indexUpdates.socialLinks = body.socialLinks
-      }
-
       console.log(`[COACH-PROFILE/SAVE] Syncing ALL profile fields to creators_index for ${uid}`)
 
       // Always update or create the document - don't skip if it doesn't exist

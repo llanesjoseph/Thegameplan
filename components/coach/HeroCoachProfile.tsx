@@ -346,22 +346,21 @@ export default function HeroCoachProfile({
         throw new Error(errorMsg)
       }
 
-        console.log('[HERO-COACH-PROFILE] Save successful, response:', result)
-        console.log('[HERO-COACH-PROFILE] Saved displayName:', body.displayName)
+      console.log('[HERO-COACH-PROFILE] Save successful, response:', result)
+      console.log('[HERO-COACH-PROFILE] Saved displayName:', body.displayName)
 
-        // Only update local state and close edit mode after successful save
-        setDisplayCoach(editableCoach)
-        setIsEditing(false)
-        
-        // CRITICAL: Wait longer to ensure all database writes (including creators_index) are fully committed
-        // Firestore writes are eventually consistent, so we need to wait for propagation
-        // Then reload the page to ensure all data is fresh from the database
-        // This ensures the name change is reflected everywhere
-        console.log('[HERO-COACH-PROFILE] Waiting for database writes to complete...')
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        console.log('[HERO-COACH-PROFILE] Reloading page to show updated name')
-        window.location.reload()
-      }
+      // Only update local state and close edit mode after successful save
+      setDisplayCoach(editableCoach)
+      setIsEditing(false)
+      
+      // CRITICAL: Wait longer to ensure all database writes (including creators_index) are fully committed
+      // Firestore writes are eventually consistent, so we need to wait for propagation
+      // Then reload the page to ensure all data is fresh from the database
+      // This ensures the name change is reflected everywhere
+      console.log('[HERO-COACH-PROFILE] Waiting for database writes to complete...')
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      console.log('[HERO-COACH-PROFILE] Reloading page to show updated name')
+      window.location.reload()
     } catch (error) {
       // Show error to user and keep edit mode open so they can retry
       console.error('Failed to save coach profile edits:', error)
