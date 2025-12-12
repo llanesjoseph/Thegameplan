@@ -31,11 +31,15 @@ type CoachProfileUpdateBody = {
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('[COACH-PROFILE/SAVE] Received save request')
     const authResult = await requireAuth(request, ['coach', 'creator', 'admin', 'superadmin'])
 
     if (!authResult.success) {
+      console.error(`[COACH-PROFILE/SAVE] Authentication failed: ${authResult.error} (status: ${authResult.status})`)
       return NextResponse.json({ error: authResult.error }, { status: authResult.status })
     }
+
+    console.log(`[COACH-PROFILE/SAVE] Authentication successful for user ${authResult.user.uid}`)
 
     const { user } = authResult
     const uid = user.uid

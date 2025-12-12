@@ -336,13 +336,31 @@ export default function HeroCoachProfile({
       }
 
       const response = await makeApiCall()
+      
+      // Log response details for debugging
+      console.log('[HERO-COACH-PROFILE] API response status:', response.status)
+      console.log('[HERO-COACH-PROFILE] API response ok:', response.ok)
+      
       const result = await response.json()
+      console.log('[HERO-COACH-PROFILE] API response body:', result)
 
       if (!response.ok || !result.success) {
         const errorMsg = result.error || 'Failed to save profile'
-        if (errorMsg.includes('token') || errorMsg.includes('Invalid token') || errorMsg.includes('Unauthorized')) {
-          throw new Error('Authentication error. Please refresh the page and try again.')
+        console.error('[HERO-COACH-PROFILE] Save failed:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorMsg,
+          result
+        })
+        
+        if (response.status === 401 || errorMsg.includes('token') || errorMsg.includes('Invalid token') || errorMsg.includes('Unauthorized')) {
+          throw new Error('Authentication error. Please sign out and sign back in, then try again.')
         }
+        
+        if (response.status === 403) {
+          throw new Error('Permission denied. You may not have permission to edit this profile.')
+        }
+        
         throw new Error(errorMsg)
       }
 
