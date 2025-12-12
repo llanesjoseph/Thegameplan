@@ -12,11 +12,19 @@ import { auditLog } from '@/lib/audit-logger'
  */
 export async function verifyIdToken(token: string): Promise<DecodedIdToken | null> {
   try {
+    // Validate token format first
+    if (!token || typeof token !== 'string' || token.trim().length === 0) {
+      console.error('[AUTH-UTILS] Token verification failed: empty or invalid token format')
+      return null
+    }
+
     // Verify the token with Firebase Admin
     // Use checkRevoked = false for now to avoid issues with token refresh
     // The token is already being refreshed on the client side
     // Firebase Admin SDK automatically checks token expiration (exp claim)
+    console.log(`[AUTH-UTILS] Calling Firebase Admin verifyIdToken (checkRevoked=false)`)
     const decodedToken = await auth.verifyIdToken(token, false) // checkRevoked = false
+    console.log(`[AUTH-UTILS] Firebase Admin verifyIdToken succeeded`)
 
     // Additional security checks
     if (!decodedToken.uid) {
@@ -28,6 +36,9 @@ export async function verifyIdToken(token: string): Promise<DecodedIdToken | nul
       return null
     }
 
+    console.log(`[AUTH-UTILS] Token verified - UID: ${decodedToken.uid}, email: ${decodedToken.email || 'N/A'}`)
+    console.log(`[AUTH-UTILS] Token issued at: ${new Date(decodedToken.iat * 1000).toISOString()}, expires at: ${new Date(decodedToken.exp * 1000).toISOString()}`)
+
     // CRITICAL FIX: Don't check auth_time - that's when the user first logged in, not when token was issued
     // Firebase Admin SDK already validates token expiration (exp claim) automatically
     // If verifyIdToken succeeds, the token is valid and not expired
@@ -37,13 +48,17 @@ export async function verifyIdToken(token: string): Promise<DecodedIdToken | nul
 
   } catch (error) {
     const err = error as Error & { code?: string }
-    console.error('[AUTH-UTILS] Token verification failed:', err.message, err.code)
+    console.error('[AUTH-UTILS] Token verification exception:', err.message)
+    console.error('[AUTH-UTILS] Error code:', err.code)
+    console.error('[AUTH-UTILS] Error stack:', err.stack)
     
     // Log more details for debugging
     if (err.code === 'auth/id-token-expired') {
       console.error('[AUTH-UTILS] Token has expired - user needs to refresh')
     } else if (err.code === 'auth/argument-error') {
-      console.error('[AUTH-UTILS] Invalid token format')
+      console.error('[AUTH-UTILS] Invalid token format or argument')
+    } else if (err.code === 'auth/invalid-id-token') {
+      console.error('[AUTH-UTILS] Token is invalid or malformed')
     }
     
     await auditLog('token_verification_failed', {
@@ -149,8 +164,13 @@ export async function requireAuth(
   try {
     // Extract token from Authorization header
     const authHeader = request.headers.get('authorization')
+    console.log(`[AUTH-UTILS] Checking authorization header for ${request.url}`)
+    console.log(`[AUTH-UTILS] Authorization header present: ${!!authHeader}`)
+    console.log(`[AUTH-UTILS] Authorization header starts with Bearer: ${authHeader?.startsWith('Bearer ')}`)
+    
     if (!authHeader?.startsWith('Bearer ')) {
-      console.error('[AUTH-UTILS] No authorization header found')
+      console.error('[AUTH-UTILS] No authorization header found or invalid format')
+      console.error(`[AUTH-UTILS] Header value: ${authHeader ? authHeader.substring(0, 50) + '...' : 'null'}`)
       await auditLog('auth_middleware_no_token', {
         url: request.url,
         method: request.method,
@@ -163,12 +183,17 @@ export async function requireAuth(
     // Verify token
     const token = authHeader.substring(7)
     console.log(`[AUTH-UTILS] Verifying token for ${request.url}`)
+    console.log(`[AUTH-UTILS] Token length: ${token.length}, starts with: ${token.substring(0, 20)}...`)
+    
     const decodedToken = await verifyIdToken(token)
 
     if (!decodedToken) {
-      console.error('[AUTH-UTILS] Token verification failed')
+      console.error('[AUTH-UTILS] Token verification failed - verifyIdToken returned null')
+      console.error('[AUTH-UTILS] This could mean: token expired, invalid format, or Firebase verification failed')
       return { success: false, error: 'Invalid token', status: 401 }
     }
+    
+    console.log(`[AUTH-UTILS] Token verified successfully for user ${decodedToken.uid}`)
 
     console.log(`[AUTH-UTILS] Token verified for user ${decodedToken.uid}`)
 
