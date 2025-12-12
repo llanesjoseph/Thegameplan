@@ -113,17 +113,28 @@ export async function GET(
       : []
 
     // Build coach profile response
-    const coachProfile = {
-      uid: originalId,
-      displayName: creatorData.displayName || userData.displayName || 'Unknown Coach',
-      email: userData.email || '',
-      bio:
-        creatorData.bio ||
+    const bioValue = creatorData.bio ||
         creatorData.longBio ||
         creatorData.description ||
         userData.bio ||
         userData.about ||
-        '',
+        ''
+    
+    // DEBUG: Log bio sources for troubleshooting
+    console.log(`[Coach Profile API] Bio sources for ${originalId}:`, {
+      'creatorData.bio': creatorData.bio || 'MISSING',
+      'creatorData.longBio': creatorData.longBio || 'MISSING',
+      'creatorData.description': creatorData.description || 'MISSING',
+      'userData.bio': userData.bio || 'MISSING',
+      'userData.about': userData.about || 'MISSING',
+      'finalBio': bioValue || 'EMPTY'
+    })
+    
+    const coachProfile = {
+      uid: originalId,
+      displayName: creatorData.displayName || userData.displayName || 'Unknown Coach',
+      email: userData.email || '',
+      bio: bioValue,
       sport: creatorData.sport || 'General',
       yearsExperience: creatorData.experience || '0',
       specialties: creatorData.specialties || [],
