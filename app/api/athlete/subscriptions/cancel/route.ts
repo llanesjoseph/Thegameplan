@@ -56,21 +56,23 @@ export async function POST(request: NextRequest) {
       cancel_at_period_end: true,
     });
 
-    // 5. Update Firestore
+    // 5. Get period end date
+    const periodEnd = new Date(subscription.current_period_end * 1000);
+
+    // 6. Update Firestore
     await adminDb.collection('users').doc(athleteUid).update({
       'subscription.cancelAtPeriodEnd': true,
-      'subscription.status': 'canceling',
+      'subscription.currentPeriodEnd': periodEnd,
       'subscription.updatedAt': new Date(),
     });
-
-    // 6. Get period end date
-    const periodEnd = new Date(subscription.current_period_end * 1000);
 
     return NextResponse.json({
       success: true,
       message: 'Subscription will be canceled at the end of the current billing period',
-      cancelAtPeriodEnd: true,
-      periodEnd: periodEnd.toISOString(),
+      billing: {
+        cancelAtPeriodEnd: true,
+        currentPeriodEnd: periodEnd.toISOString(),
+      },
       subscription: {
         id: subscription.id,
         status: subscription.status,
