@@ -6,7 +6,7 @@ import { useEnhancedRole } from '@/hooks/use-role-switcher'
 import { db } from '@/lib/firebase'
 import { doc, getDoc, setDoc } from 'firebase/firestore'
 import AppHeader from '@/components/ui/AppHeader'
-import { Bell, Shield, User, Palette, Database, Save } from 'lucide-react'
+import { Bell, Shield, User, Palette, Database, Save, CreditCard, AlertTriangle, XCircle } from 'lucide-react'
 
 interface UserSettings {
   notifications: {
@@ -48,10 +48,16 @@ export default function SettingsPage() {
   })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [subscriptionStatus, setSubscriptionStatus] = useState<any>(null)
+  const [loadingSubscription, setLoadingSubscription] = useState(true)
+  const [canceling, setCanceling] = useState(false)
 
   useEffect(() => {
     loadUserSettings()
-  }, [user])
+    if (user && role === 'athlete') {
+      loadSubscriptionStatus()
+    }
+  }, [user, role])
 
   const loadUserSettings = async () => {
     if (!user?.uid) return
@@ -114,6 +120,65 @@ export default function SettingsPage() {
         [key]: value
       }
     }))
+  }
+
+  const loadSubscriptionStatus = async () => {
+    if (!user?.uid) return
+
+    try {
+      setLoadingSubscription(true)
+      const token = await user.getIdToken()
+      const response = await fetch('/api/athlete/subscriptions/status', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setSubscriptionStatus(data)
+      }
+    } catch (error) {
+      console.error('Error loading subscription status:', error)
+    } finally {
+      setLoadingSubscription(false)
+    }
+  }
+
+  const handleCancelSubscription = async () => {
+    if (!user?.uid) return
+
+    const confirmed = window.confirm(
+      'Are you sure you want to cancel your subscription? You will continue to have access until the end of your current billing period.'
+    )
+
+    if (!confirmed) return
+
+    setCanceling(true)
+    try {
+      const token = await user.getIdToken()
+      const response = await fetch('/api/athlete/subscriptions/cancel', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      const data = await response.json()
+
+      if (response.ok && data.success) {
+        alert('Your subscription has been scheduled for cancellation. You will continue to have access until the end of your current billing period.')
+        await loadSubscriptionStatus()
+      } else {
+        alert(data.error || 'Failed to cancel subscription. Please try again.')
+      }
+    } catch (error) {
+      console.error('Error canceling subscription:', error)
+      alert('Failed to cancel subscription. Please try again.')
+    } finally {
+      setCanceling(false)
+    }
   }
 
   if (loading) {
@@ -270,6 +335,89 @@ export default function SettingsPage() {
               </div>
             </div>
           </div>
+
+          {/* Subscription Management Section - For Athletes */}
+          {role === 'athlete' && (
+            <div className="bg-white rounded-lg p-6 shadow-sm">
+              <div className="flex items-center gap-3 mb-4">
+                <CreditCard className="w-5 h-5 text-sky-blue" />
+                <h2 className="text-xl text-dark">Subscription</h2>
+              </div>
+
+              {loadingSubscription ? (
+                <div className="flex items-center justify-center py-4">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-sky-blue"></div>
+                </div>
+              ) : subscriptionStatus?.tier && subscriptionStatus.tier !== 'free' ? (
+                <div className="space-y-4">
+                  <div className="p-4 bg-gray-50 rounded-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-gray-700 font-medium">Current Plan</span>
+                      <span className="px-3 py-1 bg-sky-blue text-white rounded-full text-sm font-semibold">
+                        {subscriptionStatus.tier === 'basic' ? 'Tier 2' : subscriptionStatus.tier === 'elite' ? 'Tier 3' : subscriptionStatus.tier}
+                      </span>
+                    </div>
+                    {subscriptionStatus.status === 'active' && !subscriptionStatus.cancelAtPeriodEnd && (
+                      <p className="text-sm text-gray-600 mt-2">
+                        Your subscription is active and will renew automatically.
+                      </p>
+                    )}
+                    {subscriptionStatus.cancelAtPeriodEnd && (
+                      <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <div className="flex items-start gap-2">
+                          <AlertTriangle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                          <div>
+                            <p className="text-sm font-medium text-yellow-800">
+                              Subscription scheduled for cancellation
+                            </p>
+                            <p className="text-xs text-yellow-700 mt-1">
+                              Your subscription will end on {subscriptionStatus.periodEnd ? new Date(subscriptionStatus.periodEnd).toLocaleDateString() : 'the end of your billing period'}. You will continue to have access until then.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {!subscriptionStatus.cancelAtPeriodEnd && (
+                    <div className="pt-4 border-t border-gray-200">
+                      <button
+                        onClick={handleCancelSubscription}
+                        disabled={canceling}
+                        className={`flex items-center gap-2 px-4 py-2 text-red-600 border border-red-300 rounded-lg transition-colors ${
+                          canceling
+                            ? 'opacity-50 cursor-not-allowed'
+                            : 'hover:bg-red-50 hover:border-red-400'
+                        }`}
+                      >
+                        <XCircle className="w-4 h-4" />
+                        {canceling ? 'Canceling...' : 'Cancel Subscription'}
+                      </button>
+                      <p className="text-xs text-gray-500 mt-2">
+                        Your subscription will remain active until the end of your current billing period.
+                      </p>
+                    </div>
+                  )}
+
+                  {subscriptionStatus.periodEnd && (
+                    <div className="text-xs text-gray-500">
+                      Next billing date: {new Date(subscriptionStatus.periodEnd).toLocaleDateString()}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="p-4 bg-gray-50 rounded-lg">
+                  <p className="text-gray-700 mb-4">You are currently on the free plan.</p>
+                  <a
+                    href="/dashboard/athlete/pricing"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-sky-blue text-white rounded-lg hover:opacity-90 transition-colors"
+                  >
+                    View Pricing Plans
+                  </a>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Role-Specific Settings */}
           {(role === 'admin' || role === 'superadmin') && (
