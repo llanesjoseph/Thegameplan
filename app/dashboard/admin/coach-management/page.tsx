@@ -344,8 +344,34 @@ export default function CoachManagementPage() {
               </select>
             </div>
 
-            {/* Refresh Button */}
-            <div className="flex justify-end">
+            {/* Action Buttons */}
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={async () => {
+                  if (confirm('This will aggressively fix Joseph\'s profile visibility. Continue?')) {
+                    try {
+                      const response = await fetch('/api/admin/aggressive-fix-joseph', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                      })
+                      const result = await response.json()
+                      if (result.success) {
+                        alert('✅ ' + result.message)
+                        loadCoaches()
+                      } else {
+                        alert('❌ Failed: ' + (result.error || 'Unknown error'))
+                      }
+                    } catch (error) {
+                      alert('❌ Error: ' + (error instanceof Error ? error.message : 'Unknown error'))
+                    }
+                  }
+                }}
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                title="Fix Joseph's profile visibility"
+              >
+                <AlertCircle className="w-4 h-4 mr-2" />
+                Fix Joseph
+              </button>
               <button
                 onClick={loadCoaches}
                 className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
