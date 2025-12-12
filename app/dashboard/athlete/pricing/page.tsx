@@ -276,13 +276,7 @@ export default function AthletePricingPage() {
                     <button
                       onClick={() => handleSubscribe(tier.id)}
                       disabled={loading !== null}
-                      className={`w-full py-3 px-6 rounded-lg font-semibold text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${
-                        isPopular
-                          ? 'bg-[#892F1A] text-white hover:bg-[#7a2717] shadow-md'
-                          : tier.id === 'free'
-                          ? 'bg-gray-200 text-gray-800 hover:bg-gray-300'
-                          : 'bg-[#91A6EB] text-white hover:bg-[#7b93e3] shadow-md'
-                      }`}
+                      className="w-full py-3 px-6 rounded-lg font-semibold text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 bg-[#892F1A] text-white hover:bg-[#7a2717] shadow-md"
                     >
                       {loading === tier.id ? (
                         <>
