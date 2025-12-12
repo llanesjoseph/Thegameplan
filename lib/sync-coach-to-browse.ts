@@ -84,13 +84,26 @@ export async function syncCoachToBrowseCoaches(
       fullProfileData.uid = uid
     }
     
-    // Only sync if profile is active and complete
-    const isActive = fullProfileData.isActive !== false
-    const isComplete = fullProfileData.profileComplete !== false
+    // CRITICAL: Check visibility fields - be more lenient
+    // If isActive/profileComplete/status are explicitly set to false/null, remove from index
+    // Otherwise, default to visible (true/approved)
+    const isActive = fullProfileData.isActive !== false && fullProfileData.isActive !== null
+    const isComplete = fullProfileData.profileComplete !== false && fullProfileData.profileComplete !== null
     const status = fullProfileData.status || 'approved'
     
-    // If profile is not active/complete, remove from creators_index
-    if (!isActive || !isComplete || status !== 'approved') {
+    console.log(`🔍 [SYNC-BROWSE] Visibility check for ${uid}:`, {
+      isActive,
+      isComplete,
+      status,
+      rawIsActive: fullProfileData.isActive,
+      rawProfileComplete: fullProfileData.profileComplete,
+      rawStatus: fullProfileData.status
+    })
+    
+    // If profile is explicitly marked as inactive/incomplete, remove from creators_index
+    if (fullProfileData.isActive === false || 
+        fullProfileData.profileComplete === false ||
+        (fullProfileData.status && fullProfileData.status !== 'approved')) {
       const creatorsIndexRef = db.collection('creators_index').doc(uid)
       await creatorsIndexRef.delete()
       console.log(`🗑️ [SYNC-BROWSE] Removed inactive/incomplete profile ${uid} from creators_index`)

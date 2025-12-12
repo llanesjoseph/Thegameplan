@@ -71,8 +71,26 @@ export async function POST(request: NextRequest) {
       featured: false
     }
     
+    // CRITICAL: Ensure visibility fields are set BEFORE sync
+    // The sync function checks these fields, so they must be in the profile data
+    const profileWithVisibility = {
+      ...fullProfile,
+      isActive: true,
+      profileComplete: true,
+      status: 'approved'
+    }
+    
+    // Also update creator_profiles directly to ensure it's set there too
+    await adminDb.collection('creator_profiles').doc(uid).set({
+      isActive: true,
+      profileComplete: true,
+      status: 'approved'
+    }, { merge: true })
+    
+    console.log('✅ Set visibility fields in creator_profiles')
+    
     // Use centralized sync function
-    const syncResult = await syncCoachToBrowseCoaches(uid, fullProfile)
+    const syncResult = await syncCoachToBrowseCoaches(uid, profileWithVisibility)
     
     if (!syncResult.success) {
       return NextResponse.json(
@@ -81,7 +99,9 @@ export async function POST(request: NextRequest) {
       )
     }
     
-    // Verify it's visible
+    // Verify it's visible - wait a moment for Firestore to propagate
+    await new Promise(resolve => setTimeout(resolve, 500))
+    
     const creatorsIndexRef = adminDb.collection('creators_index').doc(uid)
     const verifyDoc = await creatorsIndexRef.get()
     
@@ -96,6 +116,13 @@ export async function POST(request: NextRequest) {
     const isVisible = verifyData?.isActive === true && 
                      verifyData?.profileComplete === true && 
                      (verifyData?.status === 'approved' || !verifyData?.status)
+    
+    console.log('🔍 Verification:', {
+      isActive: verifyData?.isActive,
+      profileComplete: verifyData?.profileComplete,
+      status: verifyData?.status,
+      isVisible
+    })
     
     return NextResponse.json({
       success: true,
