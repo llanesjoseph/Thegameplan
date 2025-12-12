@@ -246,152 +246,180 @@ export default function AppHeader({ className = '', title, subtitle }: AppHeader
 
   return (
     <>
+      <header className={`bg-white px-4 py-3 sm:py-4 shadow-sm ${className} sticky top-0 z-40`} role="banner">
+        <div className="max-w-6xl mx-auto px-6 lg:px-8 flex items-center justify-between">
+          {/* Left: Logo + ATHLEAP wordmark + Title */}
+          <div className="flex items-center gap-6 flex-1">
+            <button
+              onClick={handleLogoClick}
+              className="flex items-center gap-3 flex-shrink-0 hover:opacity-80 transition-opacity"
+              aria-label="Go to home"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/athleap-logo-transparent.png"
+                alt="Athleap logo"
+                className="h-8 w-auto"
+              />
+              <span
+                className="text-xl font-semibold tracking-[0.02em]"
+                style={{ fontFamily: '"Open Sans", sans-serif', color: '#181818' }}
+              >
+                ATHLEAP
+              </span>
+            </button>
 
-      <header className={`bg-white px-4 py-3 sm:py-4 shadow-sm ${className} relative`} role="banner">
-      {/* AthLeap Logo - Locked to Top Left Corner */}
-      <button
-        onClick={handleLogoClick}
-        className="absolute top-2 left-2 hover:opacity-80 transition-opacity touch-manipulation z-50"
-        style={{ minHeight: '44px' }}
-        aria-label="Go to home"
-      >
-        <span className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent">
-          AthLeap
-        </span>
-      </button>
+            {/* Title and Subtitle */}
+            {title && (
+              <div className="hidden md:block flex-1">
+                <h1 
+                  className="text-xl sm:text-2xl font-bold mb-1"
+                  style={{ fontFamily: '"Open Sans", sans-serif', color: '#181818' }}
+                >
+                  {title}
+                </h1>
+                {subtitle && (
+                  <p 
+                    className="text-sm text-gray-600"
+                    style={{ fontFamily: '"Open Sans", sans-serif' }}
+                  >
+                    {subtitle}
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
 
-      <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 pl-24 sm:pl-32">
-        {/* Left Side - Title section */}
-        <div className="flex items-center gap-3 sm:gap-6 w-full sm:w-auto">
-          {title && (
-            <div className="flex-1 sm:flex-none">
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent">
-                {title}
-              </h1>
-              {subtitle && (
-                <p className="text-sm sm:text-base text-gray-600 hidden sm:block font-medium">
-                  {subtitle}
-                </p>
-              )}
-            </div>
-          )}
+          {/* Right: Navigation Links + Role Badge + User */}
+          <div className="flex items-center gap-6">
+            {/* Browse Coaches Link */}
+            <Link
+              href="/coaches"
+              className="hidden md:block text-black hover:text-blue-600 transition-colors"
+              style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '14px' }}
+              aria-label="Browse Coaches - View all available coaches"
+            >
+              Browse Coaches
+            </Link>
+
+            {/* Gear Store Link */}
+            <Link
+              href="/gear"
+              className="hidden md:block text-black hover:text-blue-600 transition-colors"
+              style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '14px' }}
+              aria-label="Gear Store - Browse recommended gear"
+            >
+              Gear Store
+            </Link>
+
+            {/* Role Badge */}
+            {user && (
+              <div className={`px-3 py-1.5 text-white rounded-lg text-xs font-semibold ${getRoleDisplay().color}`}>
+                {getRoleDisplay().label}
+              </div>
+            )}
+
+            {/* User Greeting - Match /coaches page design */}
+            {user ? (
+              <button
+                type="button"
+                className="flex items-center gap-2 rounded-full bg-white border border-gray-200 px-3 py-1 text-xs sm:text-sm hover:bg-gray-50 transition-colors"
+                aria-label="Account"
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                ref={dropdownRef}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={
+                    profileImageUrl ||
+                    user.photoURL ||
+                    'https://static.wixstatic.com/media/75fa07_66efa272a9a64facbc09f3da71757528~mv2.png/v1/fill/w_68,h_64,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/75fa07_66efa272a9a64facbc09f3da71757528~mv2.png'
+                  }
+                  alt={getUserName()}
+                  className="h-6 w-6 rounded-full object-cover"
+                />
+                <span
+                  className="text-[11px] uppercase tracking-[0.18em] text-gray-600"
+                  style={{ fontFamily: '"Open Sans", sans-serif' }}
+                >
+                  Hello
+                </span>
+                <span
+                  className="text-sm"
+                  style={{ fontFamily: '"Open Sans", sans-serif' }}
+                >
+                  {getUserName()}
+                </span>
+                <span className="text-xs text-gray-400">|</span>
+                <span
+                  className="text-xs text-gray-700 underline"
+                  style={{ fontFamily: '"Open Sans", sans-serif' }}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleSignOut()
+                  }}
+                >
+                  Sign out
+                </span>
+              </button>
+            ) : (
+              <Link 
+                href="/onboarding/auth"
+                className="text-xs sm:text-sm text-gray-700 underline"
+                style={{ fontFamily: '"Open Sans", sans-serif' }}
+              >
+                Sign in
+              </Link>
+            )}
+          </div>
         </div>
 
-        {/* Right Side Navigation */}
-        <nav className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto justify-between sm:justify-end" aria-label="Primary">
-          {/* Browse Coaches Link - Links to /coaches page (Browse Coaches listing) */}
-          <Link
-            href="/coaches"
-            className="hidden md:block text-black hover:text-blue-600 touch-manipulation"
-            style={{ minHeight: '44px', display: 'flex', alignItems: 'center' }}
-            aria-label="Browse Coaches - View all available coaches"
-          >
-            Browse Coaches
-          </Link>
-
-          {/* Role Badge - Compact on mobile */}
-          {user && (
-            <div className={`px-2 sm:px-4 py-1 sm:py-2 text-white rounded-lg text-xs sm:text-sm ${getRoleDisplay().color}`}>
-              {getRoleDisplay().label}
+        {/* Dropdown Menu (for additional options) */}
+        {user && isDropdownOpen && (
+          <div className="absolute right-6 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+            {/* User Info - Name and Email */}
+            <div className="px-4 py-3 border-b border-gray-200">
+              <p className="text-sm font-medium text-gray-900 truncate">
+                {user.displayName || 'User'}
+              </p>
+              <p className="text-xs text-gray-600 truncate mt-0.5">
+                {user.email}
+              </p>
             </div>
-          )}
 
-          {/* User Dropdown */}
-          {user ? (
-            <div className="relative" ref={dropdownRef}>
-              <button
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center gap-1 sm:gap-2 hover:bg-gray-50 rounded-lg p-1 transition-colors touch-manipulation"
-                style={{ minHeight: '44px' }}
+            {/* Navigation Links */}
+            <div className="py-1">
+              <Link
+                href="/dashboard/profile"
+                className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                onClick={() => setIsDropdownOpen(false)}
               >
-                {profileImageUrl ? (
-                  <img
-                    src={profileImageUrl}
-                    alt={getUserName()}
-                    className="w-9 h-9 sm:w-8 sm:h-8 rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="w-9 h-9 sm:w-8 sm:h-8 bg-blue-500 rounded-full flex items-center justify-center text-white">
-                    {getUserInitials()}
-                  </div>
-                )}
-                <span className="text-black hidden sm:inline">{getUserName()}</span>
-                <svg
-                  className={`w-4 h-4 text-gray-500 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-
-              {isDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
-                  {/* User Info - Name and Email */}
-                  <div className="px-4 py-3 border-b border-gray-200">
-                    <p className="text-sm font-medium text-gray-900 truncate">
-                      {user.displayName || 'User'}
-                    </p>
-                    <p className="text-xs text-gray-600 truncate mt-0.5">
-                      {user.email}
-                    </p>
-                  </div>
-
-                  {/* Navigation Links */}
-                  <div className="py-1">
-                    <Link
-                      href="/dashboard/profile"
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                      onClick={() => setIsDropdownOpen(false)}
-                    >
-                      <UserIcon className="w-4 h-4 text-gray-500" />
-                      View Profile
-                    </Link>
-                    <Link
-                      href="/settings"
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                      onClick={() => setIsDropdownOpen(false)}
-                    >
-                      <Settings className="w-4 h-4 text-gray-500" />
-                      Settings
-                    </Link>
-                  </div>
-
-                  {/* Role Switcher - For superadmins only */}
-                  {canSwitchRoles && (
-                    <div className="px-3 py-2 border-t border-gray-200 bg-red-50">
-                      <div className="text-xs font-medium text-red-700 mb-2 flex items-center gap-1">
-                        <div className="w-1.5 h-1.5 bg-red-600 rounded-full"></div>
-                        Admin Tools
-                      </div>
-                      <CompactRoleSwitcher />
-                    </div>
-                  )}
-
-                  {/* Sign Out */}
-                  <div className="py-1 border-t border-gray-200">
-                    <button
-                      onClick={handleSignOut}
-                      className="flex items-center gap-2 px-4 py-2 w-full text-left text-sm text-red-600 hover:bg-red-50"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                      </svg>
-                      Sign Out
-                    </button>
-                  </div>
-                </div>
-              )}
+                <UserIcon className="w-4 h-4 text-gray-500" />
+                View Profile
+              </Link>
+              <Link
+                href="/settings"
+                className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                onClick={() => setIsDropdownOpen(false)}
+              >
+                <Settings className="w-4 h-4 text-gray-500" />
+                Settings
+              </Link>
             </div>
-          ) : (
-            <Link href="/" className="bg-cardinal text-white px-4 py-2 rounded text-sm hover:bg-cardinal-dark transition-colors" aria-label="Sign in">
-              SIGN IN
-            </Link>
-          )}
-        </nav>
-      </div>
-    </header>
+
+            {/* Role Switcher - For superadmins only */}
+            {canSwitchRoles && (
+              <div className="px-3 py-2 border-t border-gray-200 bg-red-50">
+                <div className="text-xs font-medium text-red-700 mb-2 flex items-center gap-1">
+                  <div className="w-1.5 h-1.5 bg-red-600 rounded-full"></div>
+                  Admin Tools
+                </div>
+                <CompactRoleSwitcher />
+              </div>
+            )}
+          </div>
+        )}
+      </header>
     </>
   )
 }
