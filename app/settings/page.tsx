@@ -348,7 +348,7 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-center py-4">
                   <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-sky-blue"></div>
                 </div>
-              ) : subscriptionStatus?.tier && subscriptionStatus.tier !== 'free' ? (
+              ) : subscriptionStatus?.tier && subscriptionStatus.tier !== 'none' ? (
                 <div className="space-y-4">
                   <div className="p-4 bg-gray-50 rounded-lg">
                     <div className="flex items-center justify-between mb-2">
@@ -357,12 +357,12 @@ export default function SettingsPage() {
                         {subscriptionStatus.tier === 'basic' ? 'Tier 2' : subscriptionStatus.tier === 'elite' ? 'Tier 3' : subscriptionStatus.tier}
                       </span>
                     </div>
-                    {subscriptionStatus.status === 'active' && !subscriptionStatus.cancelAtPeriodEnd && (
+                    {subscriptionStatus.isActive && !subscriptionStatus.billing?.cancelAtPeriodEnd && (
                       <p className="text-sm text-gray-600 mt-2">
                         Your subscription is active and will renew automatically.
                       </p>
                     )}
-                    {subscriptionStatus.cancelAtPeriodEnd && (
+                    {subscriptionStatus.billing?.cancelAtPeriodEnd && (
                       <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                         <div className="flex items-start gap-2">
                           <AlertTriangle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
@@ -371,7 +371,7 @@ export default function SettingsPage() {
                               Subscription scheduled for cancellation
                             </p>
                             <p className="text-xs text-yellow-700 mt-1">
-                              Your subscription will end on {subscriptionStatus.periodEnd ? new Date(subscriptionStatus.periodEnd).toLocaleDateString() : 'the end of your billing period'}. You will continue to have access until then.
+                              Your subscription will end on {subscriptionStatus.billing?.currentPeriodEnd ? new Date(subscriptionStatus.billing.currentPeriodEnd).toLocaleDateString() : 'the end of your billing period'}. You will continue to have access until then.
                             </p>
                           </div>
                         </div>
@@ -379,7 +379,7 @@ export default function SettingsPage() {
                     )}
                   </div>
 
-                  {!subscriptionStatus.cancelAtPeriodEnd && (
+                  {!subscriptionStatus.billing?.cancelAtPeriodEnd && (
                     <div className="pt-4 border-t border-gray-200">
                       <button
                         onClick={handleCancelSubscription}
@@ -399,9 +399,9 @@ export default function SettingsPage() {
                     </div>
                   )}
 
-                  {subscriptionStatus.periodEnd && (
+                  {subscriptionStatus.billing?.currentPeriodEnd && (
                     <div className="text-xs text-gray-500">
-                      Next billing date: {new Date(subscriptionStatus.periodEnd).toLocaleDateString()}
+                      Next billing date: {new Date(subscriptionStatus.billing.currentPeriodEnd).toLocaleDateString()}
                     </div>
                   )}
                 </div>
