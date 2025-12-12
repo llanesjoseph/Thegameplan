@@ -15,6 +15,7 @@ export async function verifyIdToken(token: string): Promise<DecodedIdToken | nul
     // Verify the token with Firebase Admin
     // Use checkRevoked = false for now to avoid issues with token refresh
     // The token is already being refreshed on the client side
+    // Firebase Admin SDK automatically checks token expiration (exp claim)
     const decodedToken = await auth.verifyIdToken(token, false) // checkRevoked = false
 
     // Additional security checks
@@ -27,26 +28,24 @@ export async function verifyIdToken(token: string): Promise<DecodedIdToken | nul
       return null
     }
 
-    // Check token age (optional: reject tokens older than X hours)
-    // Increased to 48 hours to be more lenient
-    const tokenAge = Date.now() / 1000 - decodedToken.auth_time
-    const MAX_TOKEN_AGE_HOURS = 48
-
-    if (tokenAge > MAX_TOKEN_AGE_HOURS * 60 * 60) {
-      console.error(`[AUTH-UTILS] Token verification failed: token too old (${Math.round(tokenAge / 3600)} hours)`)
-      await auditLog('token_verification_expired', {
-        userId: decodedToken.uid,
-        tokenAge: Math.round(tokenAge / 3600),
-        timestamp: new Date().toISOString()
-      }, { userId: decodedToken.uid, severity: 'medium' })
-      return null
-    }
+    // CRITICAL FIX: Don't check auth_time - that's when the user first logged in, not when token was issued
+    // Firebase Admin SDK already validates token expiration (exp claim) automatically
+    // If verifyIdToken succeeds, the token is valid and not expired
+    // Checking auth_time was causing valid refreshed tokens to be rejected
 
     return decodedToken
 
   } catch (error) {
     const err = error as Error & { code?: string }
     console.error('[AUTH-UTILS] Token verification failed:', err.message, err.code)
+    
+    // Log more details for debugging
+    if (err.code === 'auth/id-token-expired') {
+      console.error('[AUTH-UTILS] Token has expired - user needs to refresh')
+    } else if (err.code === 'auth/argument-error') {
+      console.error('[AUTH-UTILS] Invalid token format')
+    }
+    
     await auditLog('token_verification_failed', {
       error: err.message || 'Unknown error',
       errorCode: err.code || 'UNKNOWN',
