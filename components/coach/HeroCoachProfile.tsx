@@ -248,7 +248,8 @@ export default function HeroCoachProfile({
   const location = activeCoach.location?.trim()
   const bio = activeCoach.bio?.trim()
 
-  // Only show coach socials that are explicitly set in the editable profile fields.
+  // CRITICAL: Always use coach's actual social links, not AthLeap company links
+  // This ensures consistency across coach profile, athlete view, and Browse Coaches modal
   // We intentionally ignore legacy nested `socialLinks` here so that clearing a field
   // in the editor truly removes the icon from the hero.
   const socialLinks: SocialLinks = {
@@ -258,8 +259,9 @@ export default function HeroCoachProfile({
     youtube: activeCoach.youtube,
     twitter: activeCoach.twitter
   }
-  const isAthleteReadOnlyView = !!forceReadOnly
-  const visibleSocialLinks = isAthleteReadOnlyView ? ATHLEAP_SOCIAL_LINKS : socialLinks
+  // CRITICAL FIX: Always show coach's social links, even in read-only view (Browse Coaches modal)
+  // This ensures athletes can click through to the coach's actual social media profiles
+  const visibleSocialLinks = socialLinks
 
   const handleEditField = (field: keyof HeroCoachProfileProps['coach'], value: string) => {
     console.log(`[HERO-COACH-PROFILE] Field changed: ${field} = "${value}"`)
