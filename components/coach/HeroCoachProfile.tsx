@@ -254,51 +254,97 @@ export default function HeroCoachProfile({
       console.log('[HERO-COACH-PROFILE] Save clicked, current editableCoach:', editableCoach)
       console.log('[HERO-COACH-PROFILE] displayName value:', editableCoach.displayName)
       
-      if (authUser) {
-        const token = await authUser.getIdToken()
-        const body = {
-          displayName: editableCoach.displayName || '', // Ensure it's always a string, never undefined
-          bio: editableCoach.bio,
-          location: editableCoach.location,
-          sport: editableCoach.sport,
-          profileImageUrl: editableCoach.profileImageUrl,
-          showcasePhoto1: editableCoach.showcasePhoto1,
-          showcasePhoto2: editableCoach.showcasePhoto2,
-          galleryPhotos: editableCoach.galleryPhotos || [],
-          instagram: editableCoach.instagram,
-          facebook: editableCoach.facebook,
-          twitter: editableCoach.twitter,
-          linkedin: editableCoach.linkedin,
-          youtube: editableCoach.youtube,
-          // Persist a flat `socialLinks` object that mirrors the editable fields.
-          // This keeps older consumers working but ensures "clearing" in the UI
-          // actually removes links from the rendered profile.
-          socialLinks: {
-            twitter: editableCoach.twitter,
-            instagram: editableCoach.instagram,
-            linkedin: editableCoach.linkedin,
-            facebook: editableCoach.facebook,
-            youtube: editableCoach.youtube
+      if (!authUser) {
+        throw new Error('You must be signed in to save changes')
+      }
+
+      // Helper function to get a fresh token with retry logic
+      const getValidToken = async (retries = 3): Promise<string> => {
+        for (let i = 0; i < retries; i++) {
+          try {
+            // Force token refresh every time to ensure it's valid
+            const token = await authUser.getIdToken(true)
+            if (token && token.length > 0) {
+              console.log(`[HERO-COACH-PROFILE] Got valid token (attempt ${i + 1})`)
+              return token
+            }
+          } catch (error) {
+            console.error(`[HERO-COACH-PROFILE] Token refresh attempt ${i + 1} failed:`, error)
+            if (i < retries - 1) {
+              // Wait a bit before retrying
+              await new Promise(resolve => setTimeout(resolve, 500))
+            }
           }
         }
-        
-        // Debug logging to verify name is being sent
-        console.log('[HERO-COACH-PROFILE] Saving profile with displayName:', body.displayName)
+        throw new Error('Unable to get a valid authentication token. Please sign out and sign back in.')
+      }
 
-        const response = await fetch('/api/coach-profile/save', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-          },
-          body: JSON.stringify(body)
-        })
-
-        const result = await response.json()
-
-        if (!response.ok || !result.success) {
-          throw new Error(result.error || 'Failed to save profile')
+      const body = {
+        displayName: editableCoach.displayName || '', // Ensure it's always a string, never undefined
+        bio: editableCoach.bio,
+        location: editableCoach.location,
+        sport: editableCoach.sport,
+        profileImageUrl: editableCoach.profileImageUrl,
+        showcasePhoto1: editableCoach.showcasePhoto1,
+        showcasePhoto2: editableCoach.showcasePhoto2,
+        galleryPhotos: editableCoach.galleryPhotos || [],
+        instagram: editableCoach.instagram,
+        facebook: editableCoach.facebook,
+        twitter: editableCoach.twitter,
+        linkedin: editableCoach.linkedin,
+        youtube: editableCoach.youtube,
+        // Persist a flat `socialLinks` object that mirrors the editable fields.
+        // This keeps older consumers working but ensures "clearing" in the UI
+        // actually removes links from the rendered profile.
+        socialLinks: {
+          twitter: editableCoach.twitter,
+          instagram: editableCoach.instagram,
+          linkedin: editableCoach.linkedin,
+          facebook: editableCoach.facebook,
+          youtube: editableCoach.youtube
         }
+      }
+      
+      // Debug logging to verify name is being sent
+      console.log('[HERO-COACH-PROFILE] Saving profile with displayName:', body.displayName)
+
+      // Helper function to make API call with automatic token refresh on 401
+      const makeApiCall = async (retries = 2): Promise<Response> => {
+        for (let i = 0; i <= retries; i++) {
+          // Get a fresh token before each attempt
+          const token = await getValidToken()
+          
+          const response = await fetch('/api/coach-profile/save', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify(body)
+          })
+
+          // If we get 401, try refreshing token and retry
+          if (response.status === 401 && i < retries) {
+            console.log('[HERO-COACH-PROFILE] Got 401, refreshing token and retrying...')
+            await new Promise(resolve => setTimeout(resolve, 300))
+            continue
+          }
+
+          return response
+        }
+        throw new Error('Max retries exceeded')
+      }
+
+      const response = await makeApiCall()
+      const result = await response.json()
+
+      if (!response.ok || !result.success) {
+        const errorMsg = result.error || 'Failed to save profile'
+        if (errorMsg.includes('token') || errorMsg.includes('Invalid token') || errorMsg.includes('Unauthorized')) {
+          throw new Error('Authentication error. Please refresh the page and try again.')
+        }
+        throw new Error(errorMsg)
+      }
 
         console.log('[HERO-COACH-PROFILE] Save successful, response:', result)
         console.log('[HERO-COACH-PROFILE] Saved displayName:', body.displayName)
