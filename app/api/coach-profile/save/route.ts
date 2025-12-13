@@ -195,8 +195,19 @@ export async function POST(request: NextRequest) {
       status: visibilityData.status
     })
     
+    // IRONCLAD: Log social links being synced for verification
+    console.log(`[COACH-PROFILE/SAVE] IRONCLAD SYNC: Social links being synced:`, {
+      instagram: profileUpdates.instagram || 'EMPTY',
+      facebook: profileUpdates.facebook || 'EMPTY',
+      twitter: profileUpdates.twitter || 'EMPTY',
+      linkedin: profileUpdates.linkedin || 'EMPTY',
+      youtube: profileUpdates.youtube || 'EMPTY',
+      socialLinks: profileUpdates.socialLinks || 'EMPTY'
+    })
+    
     // AGGRESSIVE FIX: Use centralized sync function that reads FULL profile
     // This ensures ALL fields are synced, not just what was updated
+    // Pass ALL profile updates including social links to ensure immediate sync
     const syncResult = await syncCoachToBrowseCoaches(uid, visibilityData)
     
     if (!syncResult.success) {

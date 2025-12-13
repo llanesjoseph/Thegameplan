@@ -165,18 +165,22 @@ export async function syncCoachToBrowseCoaches(
         : [],
       highlightVideo: fullProfileData.highlightVideo || '',
       
-      // Social links - support both individual fields and socialLinks object
+      // IRONCLAD: Social links - MUST match exactly what coach enters
+      // Support both individual fields and socialLinks object, with individual fields taking precedence
+      // This ensures Browse Coaches shows EXACTLY what the coach set in their profile
       instagram: fullProfileData.instagram || fullProfileData.socialLinks?.instagram || '',
       facebook: fullProfileData.facebook || fullProfileData.socialLinks?.facebook || '',
       twitter: fullProfileData.twitter || fullProfileData.socialLinks?.twitter || '',
       linkedin: fullProfileData.linkedin || fullProfileData.socialLinks?.linkedin || '',
       youtube: fullProfileData.youtube || fullProfileData.socialLinks?.youtube || '',
-      socialLinks: fullProfileData.socialLinks || {
-        instagram: fullProfileData.instagram || '',
-        facebook: fullProfileData.facebook || '',
-        twitter: fullProfileData.twitter || '',
-        linkedin: fullProfileData.linkedin || '',
-        youtube: fullProfileData.youtube || ''
+      // CRITICAL: socialLinks object must mirror individual fields for consistency
+      // This ensures both formats work in Browse Coaches modal
+      socialLinks: {
+        instagram: fullProfileData.instagram || fullProfileData.socialLinks?.instagram || '',
+        facebook: fullProfileData.facebook || fullProfileData.socialLinks?.facebook || '',
+        twitter: fullProfileData.twitter || fullProfileData.socialLinks?.twitter || '',
+        linkedin: fullProfileData.linkedin || fullProfileData.socialLinks?.linkedin || '',
+        youtube: fullProfileData.youtube || fullProfileData.socialLinks?.youtube || ''
       },
       
       // Metadata
@@ -202,11 +206,18 @@ export async function syncCoachToBrowseCoaches(
     const creatorsIndexRef = db.collection('creators_index').doc(uid)
     await creatorsIndexRef.set(indexData, { merge: true })
     
-    console.log(`✅ [SYNC-BROWSE] AGGRESSIVE SYNC COMPLETE: Synced ALL fields for coach ${uid} to creators_index`)
+    console.log(`✅ [SYNC-BROWSE] IRONCLAD SYNC COMPLETE: Synced ALL fields for coach ${uid} to creators_index`)
     console.log(`   - displayName: ${indexData.displayName}`)
     console.log(`   - sport: ${indexData.sport}`)
     console.log(`   - profileImageUrl: ${indexData.profileImageUrl ? 'SET' : 'MISSING'}`)
     console.log(`   - bio: ${indexData.bio ? 'SET' : 'MISSING'}`)
+    console.log(`   - IRONCLAD SOCIAL LINKS SYNC:`)
+    console.log(`     * instagram: ${indexData.instagram || 'EMPTY'}`)
+    console.log(`     * facebook: ${indexData.facebook || 'EMPTY'}`)
+    console.log(`     * twitter: ${indexData.twitter || 'EMPTY'}`)
+    console.log(`     * linkedin: ${indexData.linkedin || 'EMPTY'}`)
+    console.log(`     * youtube: ${indexData.youtube || 'EMPTY'}`)
+    console.log(`     * socialLinks object:`, JSON.stringify(indexData.socialLinks, null, 2))
     
     return { success: true }
   } catch (error: any) {
