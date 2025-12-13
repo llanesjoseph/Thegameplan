@@ -375,30 +375,65 @@ export default function HeroCoachProfile({
         throw new Error('Max retries exceeded')
       }
 
-      const response = await makeApiCall()
+      // EXTRA PRECISION: Make API call with enhanced error handling
+      let response: Response
+      try {
+        response = await makeApiCall()
+      } catch (apiError: any) {
+        console.error('[HERO-COACH-PROFILE] ❌ API call failed:', apiError.message)
+        throw new Error(`Network error: ${apiError.message}. Please check your connection and try again.`)
+      }
       
-      // Log response details for debugging
+      // EXTRA PRECISION: Log response details for debugging
       console.log('[HERO-COACH-PROFILE] API response status:', response.status)
       console.log('[HERO-COACH-PROFILE] API response ok:', response.ok)
       
-      const result = await response.json()
-      console.log('[HERO-COACH-PROFILE] API response body:', result)
+      // EXTRA PRECISION: Parse response with error handling
+      let result: any
+      try {
+        const responseText = await response.text()
+        if (!responseText || responseText.trim().length === 0) {
+          throw new Error('Empty response from server')
+        }
+        result = JSON.parse(responseText)
+        console.log('[HERO-COACH-PROFILE] API response body:', result)
+      } catch (parseError: any) {
+        console.error('[HERO-COACH-PROFILE] ❌ Failed to parse response:', parseError.message)
+        throw new Error(`Server response error: ${parseError.message}. Please try again.`)
+      }
 
+      // EXTRA PRECISION: Validate response structure
       if (!response.ok || !result.success) {
-        const errorMsg = result.error || 'Failed to save profile'
-        console.error('[HERO-COACH-PROFILE] Save failed:', {
+        const errorMsg = result.error || result.message || 'Failed to save profile'
+        const errorCode = result.code || 'UNKNOWN_ERROR'
+        
+        console.error('[HERO-COACH-PROFILE] ❌ Save failed:', {
           status: response.status,
           statusText: response.statusText,
           error: errorMsg,
+          code: errorCode,
           result
         })
         
-        if (response.status === 401 || errorMsg.includes('token') || errorMsg.includes('Invalid token') || errorMsg.includes('Unauthorized')) {
+        // EXTRA PRECISION: Handle specific error codes
+        if (response.status === 401 || errorCode === 'TOKEN_VERIFICATION_FAILED' || errorMsg.includes('token') || errorMsg.includes('Invalid token') || errorMsg.includes('Unauthorized')) {
           throw new Error('Authentication error. Please sign out and sign back in, then try again.')
         }
         
-        if (response.status === 403) {
+        if (response.status === 403 || errorCode === 'INSUFFICIENT_PERMISSIONS') {
           throw new Error('Permission denied. You may not have permission to edit this profile.')
+        }
+        
+        if (response.status === 400 || errorCode === 'VALIDATION_ERROR') {
+          throw new Error(`Validation error: ${errorMsg}`)
+        }
+        
+        if (response.status === 404) {
+          throw new Error('Profile not found. Please refresh the page and try again.')
+        }
+        
+        if (response.status >= 500) {
+          throw new Error(`Server error: ${errorMsg}. Please try again in a moment.`)
         }
         
         throw new Error(errorMsg)
