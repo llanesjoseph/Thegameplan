@@ -55,62 +55,96 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script
           dangerouslySetInnerHTML={{
             __html: `
-              // AGGRESSIVE: Suppress ALL browser extension errors (password managers, form fillers, etc.)
-              if (typeof window !== 'undefined') {
+              // GLOBAL BULLETPROOF: Suppress ALL browser extension errors (password managers, form fillers, etc.)
+              // This runs FIRST before any other scripts to catch all errors
+              (function() {
+                if (typeof window === 'undefined') return;
+                
+                // Helper function to check if error is from browser extension
+                function isExtensionError(message) {
+                  if (!message || typeof message !== 'string') return false;
+                  const lowerMessage = message.toLowerCase();
+                  return (
+                    lowerMessage.includes('content_script.js') ||
+                    lowerMessage.includes('cannot read properties of undefined') ||
+                    lowerMessage.includes('reading \'control\'') ||
+                    lowerMessage.includes('reading "control"') ||
+                    lowerMessage.includes('chrome-extension://') ||
+                    lowerMessage.includes('moz-extension://') ||
+                    lowerMessage.includes('safari-extension://') ||
+                    lowerMessage.includes('edge-extension://') ||
+                    (lowerMessage.includes('typeerror') && lowerMessage.includes('control')) ||
+                    (lowerMessage.includes('undefined') && lowerMessage.includes('control'))
+                  );
+                }
+                
+                // Store original functions
                 const originalError = console.error;
                 const originalWarn = console.warn;
+                const originalLog = console.log;
                 
-                // Also catch unhandled promise rejections from extensions
+                // GLOBAL: Catch all window errors
+                window.onerror = function(message, source, lineno, colno, error) {
+                  const errorMessage = message?.toString() || '';
+                  if (isExtensionError(errorMessage) || isExtensionError(source || '')) {
+                    return true; // Suppress the error
+                  }
+                  return false; // Let other errors through
+                };
+                
+                // GLOBAL: Catch unhandled promise rejections from extensions
                 window.addEventListener('unhandledrejection', function(event) {
                   const reason = event.reason?.toString() || '';
-                  if (
-                    reason.includes('content_script.js') ||
-                    reason.includes('Cannot read properties of undefined') ||
-                    reason.includes('reading \'control\'') ||
-                    reason.includes('chrome-extension://') ||
-                    reason.includes('moz-extension://') ||
-                    reason.includes('safari-extension://')
-                  ) {
+                  const errorMessage = event.reason?.message || '';
+                  if (isExtensionError(reason) || isExtensionError(errorMessage)) {
                     event.preventDefault(); // Suppress the error
+                    event.stopPropagation(); // Stop propagation
                     return;
                   }
-                });
+                }, true); // Use capture phase to catch early
                 
+                // Override console.error
                 console.error = function(...args) {
-                  const message = args.join(' ');
-                  // AGGRESSIVE: Filter out ALL known browser extension errors
-                  if (
-                    message.includes('content_script.js') ||
-                    message.includes('Cannot read properties of undefined') ||
-                    message.includes('reading \'control\'') ||
-                    message.includes('chrome-extension://') ||
-                    message.includes('moz-extension://') ||
-                    message.includes('safari-extension://') ||
-                    (message.includes('TypeError') && message.includes('control'))
-                  ) {
-                    // Silently ignore extension errors
-                    return;
+                  const message = args.map(arg => 
+                    typeof arg === 'string' ? arg : 
+                    arg?.toString() || 
+                    JSON.stringify(arg)
+                  ).join(' ');
+                  
+                  if (isExtensionError(message)) {
+                    return; // Silently ignore extension errors
                   }
                   originalError.apply(console, args);
                 };
                 
+                // Override console.warn
                 console.warn = function(...args) {
-                  const message = args.join(' ');
-                  // AGGRESSIVE: Filter out ALL known browser extension warnings
-                  if (
-                    message.includes('content_script.js') ||
-                    message.includes('Cannot read properties of undefined') ||
-                    message.includes('reading \'control\'') ||
-                    message.includes('chrome-extension://') ||
-                    message.includes('moz-extension://') ||
-                    message.includes('safari-extension://')
-                  ) {
-                    // Silently ignore extension warnings
-                    return;
+                  const message = args.map(arg => 
+                    typeof arg === 'string' ? arg : 
+                    arg?.toString() || 
+                    JSON.stringify(arg)
+                  ).join(' ');
+                  
+                  if (isExtensionError(message)) {
+                    return; // Silently ignore extension warnings
                   }
                   originalWarn.apply(console, args);
                 };
-              }
+                
+                // Also filter console.log for extension errors (some extensions use log)
+                console.log = function(...args) {
+                  const message = args.map(arg => 
+                    typeof arg === 'string' ? arg : 
+                    arg?.toString() || 
+                    JSON.stringify(arg)
+                  ).join(' ');
+                  
+                  if (isExtensionError(message)) {
+                    return; // Silently ignore extension logs
+                  }
+                  originalLog.apply(console, args);
+                };
+              })();
             `,
           }}
         />
