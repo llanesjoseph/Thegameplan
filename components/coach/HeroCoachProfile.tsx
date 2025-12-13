@@ -945,7 +945,7 @@ function HeroSection({
                         console.log('[HERO-COACH-PROFILE] Event:', e)
                         console.log('[HERO-COACH-PROFILE] Button disabled?', saving)
                         console.log('[HERO-COACH-PROFILE] onSave function:', typeof onSave, onSave)
-                        console.log('[HERO-COACH-PROFILE] Current editableCoach:', editableCoach)
+                        console.log('[HERO-COACH-PROFILE] Current editingCoach:', editingCoach)
                         
                         // EXTRA PRECISION: Prevent default and stop propagation to avoid conflicts
                         e.preventDefault()
