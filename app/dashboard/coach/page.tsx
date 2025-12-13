@@ -97,36 +97,54 @@ export default function CoachDashboard() {
           userData.primarySport ||
           'Coach'
 
-        // CRITICAL: Read displayName from Firestore FIRST (where we save it)
-        // Firebase Auth user.displayName is not updated by our save route
+        // CRITICAL: Read ALL fields from Firestore FIRST (where we save them)
         // Priority: creator_profiles > users collection > Firebase Auth > fallback
+        // This ensures we read the LATEST saved data, not stale cached data
         const displayName = creatorData.displayName || userData.displayName || user.displayName || 'Coach'
+        const bio = creatorData.bio || userData.bio || ''
+        const location = creatorData.location || userData.location || ''
+        const twitter = creatorData.twitter || userData.twitter || creatorData.socialLinks?.twitter || userData.socialLinks?.twitter || ''
+        const instagram = creatorData.instagram || userData.instagram || creatorData.socialLinks?.instagram || userData.socialLinks?.instagram || ''
+        const facebook = creatorData.facebook || userData.facebook || creatorData.socialLinks?.facebook || userData.socialLinks?.facebook || ''
+        const linkedin = creatorData.linkedin || userData.linkedin || creatorData.socialLinks?.linkedin || userData.socialLinks?.linkedin || ''
+        const youtube = creatorData.youtube || userData.youtube || creatorData.socialLinks?.youtube || userData.socialLinks?.youtube || ''
         
         const coach = {
           uid: user.uid,
           email: user.email || userData.email || '',
           displayName, // Use the prioritized displayName
-          bio: creatorData.bio || userData.bio || '',
+          bio, // Use the prioritized bio
           sport,
-          location: creatorData.location || userData.location || '',
+          location, // Use the prioritized location
           profileImageUrl,
           // Primary hero photos – only use explicitly set showcase photos or gallery photos
           // Do NOT fall back to stock images
           showcasePhoto1: creatorData.showcasePhoto1 || userData.showcasePhoto1 || dashboardGalleryPhotos[0] || '',
           showcasePhoto2: creatorData.showcasePhoto2 || userData.showcasePhoto2 || dashboardGalleryPhotos[1] || '',
-          instagram: creatorData.instagram || userData.instagram || '',
-          youtube: creatorData.youtube || userData.youtube || '',
-          linkedin: creatorData.linkedin || userData.linkedin || '',
-          facebook: creatorData.facebook || userData.facebook || '',
+          instagram, // Use the prioritized instagram
+          youtube, // Use the prioritized youtube
+          linkedin, // Use the prioritized linkedin
+          facebook, // Use the prioritized facebook
+          twitter, // Use the prioritized twitter
           socialLinks: {
-            instagram: creatorData.instagram || userData.instagram || '',
-            linkedin: creatorData.linkedin || userData.linkedin || '',
-            twitter: creatorData.twitter || userData.twitter || ''
+            instagram,
+            linkedin,
+            twitter,
+            facebook,
+            youtube
           },
           // Dashboard gallery: one image on first build, up to 10 once the
           // coach has saved a custom gallery.
           galleryPhotos: dashboardGalleryPhotos
         }
+        
+        console.log('[COACH-DASHBOARD] Loaded profile data:', {
+          displayName: coach.displayName,
+          bio: coach.bio?.substring(0, 50) + '...',
+          twitter: coach.twitter,
+          instagram: coach.instagram,
+          source: creatorData.displayName ? 'creator_profiles' : userData.displayName ? 'users' : 'fallback'
+        })
 
         if (isMounted) {
           setCoachProfile(coach)

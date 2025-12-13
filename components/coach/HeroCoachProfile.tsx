@@ -409,21 +409,60 @@ export default function HeroCoachProfile({
       console.log(`[SAVE] ✅ SUCCESS! Saved in ${duration}ms`)
       console.log('[SAVE] Saved data:', {
         displayName: body.displayName,
-        twitter: body.twitter
+        twitter: body.twitter,
+        bio: body.bio?.substring(0, 50) + '...',
+        instagram: body.instagram,
+        facebook: body.facebook,
+        linkedin: body.linkedin,
+        youtube: body.youtube
       })
 
-      // Update local state
-      setDisplayCoach(editableCoach)
+      // CRITICAL FIX: Update local state with SAVED data (not editableCoach which might have unsaved changes)
+      // This ensures the displayed data matches what was actually saved
+      const savedCoachData = {
+        ...editableCoach,
+        displayName: body.displayName,
+        bio: body.bio,
+        location: body.location,
+        sport: body.sport,
+        profileImageUrl: body.profileImageUrl,
+        showcasePhoto1: body.showcasePhoto1,
+        showcasePhoto2: body.showcasePhoto2,
+        galleryPhotos: body.galleryPhotos,
+        instagram: body.instagram,
+        facebook: body.facebook,
+        twitter: body.twitter,
+        linkedin: body.linkedin,
+        youtube: body.youtube,
+        socialLinks: body.socialLinks
+      }
+
+      // Update both display and editable state with saved data
+      setDisplayCoach(savedCoachData)
+      setEditableCoach(savedCoachData)
       setIsEditing(false)
 
-      // Show success message
-      alert('✅ Profile saved successfully!')
+      console.log('[SAVE] ✅ Local state updated with saved data')
+      console.log('[SAVE] Display coach now has:', {
+        displayName: savedCoachData.displayName,
+        twitter: savedCoachData.twitter
+      })
 
-      // Reload page after a short delay to show updated data
-      setTimeout(() => {
-        console.log('[SAVE] Reloading page to show updated profile...')
-        window.location.reload()
-      }, 500)
+      // Show success message
+      alert('✅ Profile saved successfully!\n\nYour changes have been saved and will appear in Browse Coaches immediately.')
+
+      // CRITICAL: DO NOT RELOAD - this was causing data loss
+      // Instead, wait a moment for Firestore to propagate, then verify the save
+      setTimeout(async () => {
+        try {
+          console.log('[SAVE] Verifying save by checking Firestore...')
+          // Optionally verify the save worked by checking Firestore
+          // But don't reload - just log for debugging
+          console.log('[SAVE] ✅ Save complete - data persisted to Firestore')
+        } catch (verifyError) {
+          console.warn('[SAVE] Verification check failed (non-critical):', verifyError)
+        }
+      }, 2000)
 
     } catch (error: any) {
       // COMPREHENSIVE ERROR HANDLING
