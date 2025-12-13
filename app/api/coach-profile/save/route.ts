@@ -30,47 +30,101 @@ type CoachProfileUpdateBody = {
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('[COACH-PROFILE/SAVE] Received save request')
+    console.log('[COACH-PROFILE/SAVE] ========== SAVE REQUEST RECEIVED ==========')
     
-    // SIMPLE AUTH: Use the same pattern that works in other endpoints
+    // EXTRA PRECISION: Validate request method
+    if (request.method !== 'POST') {
+      console.error('[COACH-PROFILE/SAVE] Invalid method:', request.method)
+      return NextResponse.json({ error: 'Method not allowed' }, { status: 405 })
+    }
+    
+    // EXTRA PRECISION: SIMPLE AUTH with detailed logging
     const authHeader = request.headers.get('authorization')
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      console.error('[COACH-PROFILE/SAVE] No authorization header')
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      console.error('[COACH-PROFILE/SAVE] ❌ No authorization header')
+      return NextResponse.json({ error: 'Unauthorized: Missing authentication token' }, { status: 401 })
     }
 
     const token = authHeader.split('Bearer ')[1]
+    if (!token || token.trim().length === 0) {
+      console.error('[COACH-PROFILE/SAVE] ❌ Empty token')
+      return NextResponse.json({ error: 'Unauthorized: Invalid token format' }, { status: 401 })
+    }
+
     let decodedToken
     try {
       decodedToken = await auth.verifyIdToken(token)
+      console.log(`[COACH-PROFILE/SAVE] ✅ Token verified for user: ${decodedToken.uid}`)
     } catch (error: any) {
-      console.error('[COACH-PROFILE/SAVE] Token verification failed:', error.message)
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
+      console.error('[COACH-PROFILE/SAVE] ❌ Token verification failed:', {
+        error: error.message,
+        code: error.code,
+        uid: decodedToken?.uid || 'UNKNOWN'
+      })
+      return NextResponse.json({ 
+        error: 'Invalid token. Please sign out and sign back in.',
+        code: error.code || 'TOKEN_VERIFICATION_FAILED'
+      }, { status: 401 })
     }
 
     const uid = decodedToken.uid
+    if (!uid || uid.trim().length === 0) {
+      console.error('[COACH-PROFILE/SAVE] ❌ Invalid UID from token')
+      return NextResponse.json({ error: 'Invalid user ID' }, { status: 401 })
+    }
     
-    // Check user role
-    const userDoc = await db.collection('users').doc(uid).get()
+    // EXTRA PRECISION: Check user exists and get role
+    let userDoc
+    try {
+      userDoc = await db.collection('users').doc(uid).get()
+    } catch (error: any) {
+      console.error('[COACH-PROFILE/SAVE] ❌ Error fetching user document:', error.message)
+      return NextResponse.json({ error: 'Database error: Failed to fetch user' }, { status: 500 })
+    }
+
     if (!userDoc.exists) {
+      console.error(`[COACH-PROFILE/SAVE] ❌ User document not found: ${uid}`)
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
     
     const userData = userDoc.data()
+    if (!userData) {
+      console.error(`[COACH-PROFILE/SAVE] ❌ User document exists but has no data: ${uid}`)
+      return NextResponse.json({ error: 'User data not found' }, { status: 404 })
+    }
+
     const userRole = userData?.role || 'user'
     const validRoles = ['coach', 'creator', 'admin', 'superadmin']
     
     if (!validRoles.includes(userRole)) {
-      console.error(`[COACH-PROFILE/SAVE] Invalid role: ${userRole}`)
-      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 })
+      console.error(`[COACH-PROFILE/SAVE] ❌ Invalid role: ${userRole} for user ${uid}`)
+      return NextResponse.json({ 
+        error: 'Insufficient permissions. Only coaches can save profiles.',
+        role: userRole
+      }, { status: 403 })
     }
 
-    console.log(`[COACH-PROFILE/SAVE] Authentication successful for user ${uid} (role: ${userRole})`)
+    console.log(`[COACH-PROFILE/SAVE] ✅ Authentication successful for user ${uid} (role: ${userRole})`)
 
-    const body = (await request.json()) as CoachProfileUpdateBody
+    // EXTRA PRECISION: Parse and validate request body
+    let body: CoachProfileUpdateBody
+    try {
+      body = await request.json() as CoachProfileUpdateBody
+      console.log(`[COACH-PROFILE/SAVE] ✅ Request body parsed successfully`)
+    } catch (error: any) {
+      console.error('[COACH-PROFILE/SAVE] ❌ Failed to parse request body:', error.message)
+      return NextResponse.json({ error: 'Invalid request body. Please check your data.' }, { status: 400 })
+    }
+
+    // EXTRA PRECISION: Validate body structure
+    if (!body || typeof body !== 'object') {
+      console.error('[COACH-PROFILE/SAVE] ❌ Invalid body type:', typeof body)
+      return NextResponse.json({ error: 'Invalid request body format' }, { status: 400 })
+    }
 
     // Basic guard – nothing to update
-    if (!body || Object.keys(body).length === 0) {
+    if (Object.keys(body).length === 0) {
+      console.error('[COACH-PROFILE/SAVE] ❌ Empty body - no fields to update')
       return NextResponse.json({ error: 'No fields provided to update' }, { status: 400 })
     }
 
@@ -143,24 +197,43 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const batch = db.batch()
-
-    // Save to creator_profiles (primary collection)
-    batch.set(creatorRef, profileUpdates, { merge: true })
-
-    // Also save to coach_profiles for consistency (some components load from both)
-    const coachRef = db.collection('coach_profiles').doc(uid)
-    batch.set(coachRef, profileUpdates, { merge: true })
-
-    // Mirror key fields to users collection for backward compatibility
-    const userRef = db.collection('users').doc(uid)
-    if (Object.keys(userUpdates).length > 0) {
-      batch.set(userRef, userUpdates, { merge: true })
+    // EXTRA PRECISION: Validate we have updates before creating batch
+    if (Object.keys(profileUpdates).length === 0 && Object.keys(userUpdates).length === 0) {
+      console.error('[COACH-PROFILE/SAVE] ❌ No updates to save after processing body')
+      return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 })
     }
 
-    // Commit the batch write - this ensures all updates are atomic
-    await batch.commit()
-    console.log(`[COACH-PROFILE/SAVE] Batch committed for ${uid}`)
+    // EXTRA PRECISION: Create batch with error handling
+    const batch = db.batch()
+
+    try {
+      // Save to creator_profiles (primary collection)
+      batch.set(creatorRef, profileUpdates, { merge: true })
+      console.log(`[COACH-PROFILE/SAVE] ✅ Added creator_profiles update to batch (${Object.keys(profileUpdates).length} fields)`)
+
+      // Also save to coach_profiles for consistency (some components load from both)
+      const coachRef = db.collection('coach_profiles').doc(uid)
+      batch.set(coachRef, profileUpdates, { merge: true })
+      console.log(`[COACH-PROFILE/SAVE] ✅ Added coach_profiles update to batch`)
+
+      // Mirror key fields to users collection for backward compatibility
+      const userRef = db.collection('users').doc(uid)
+      if (Object.keys(userUpdates).length > 0) {
+        batch.set(userRef, userUpdates, { merge: true })
+        console.log(`[COACH-PROFILE/SAVE] ✅ Added users update to batch (${Object.keys(userUpdates).length} fields)`)
+      }
+
+      // EXTRA PRECISION: Commit the batch write with error handling
+      await batch.commit()
+      console.log(`[COACH-PROFILE/SAVE] ✅ Batch committed successfully for ${uid}`)
+    } catch (batchError: any) {
+      console.error(`[COACH-PROFILE/SAVE] ❌ Batch write failed:`, {
+        error: batchError.message,
+        code: batchError.code,
+        uid: uid
+      })
+      throw new Error(`Failed to save profile: ${batchError.message}`)
+    }
     
     // Log successful save for debugging
     console.log(`[COACH-PROFILE/SAVE] Successfully saved profile for ${uid}`, {
@@ -182,18 +255,23 @@ export async function POST(request: NextRequest) {
       status: 'approved' // Always approved for active coaches
     }
     
-    // CRITICAL: Update creator_profiles with visibility fields BEFORE sync
-    await creatorRef.set({
-      isActive: visibilityData.isActive,
-      profileComplete: visibilityData.profileComplete,
-      status: visibilityData.status
-    }, { merge: true })
-    
-    console.log(`[COACH-PROFILE/SAVE] CRITICAL: Set visibility fields to visible:`, {
-      isActive: visibilityData.isActive,
-      profileComplete: visibilityData.profileComplete,
-      status: visibilityData.status
-    })
+    // EXTRA PRECISION: Update creator_profiles with visibility fields BEFORE sync
+    try {
+      await creatorRef.set({
+        isActive: visibilityData.isActive,
+        profileComplete: visibilityData.profileComplete,
+        status: visibilityData.status
+      }, { merge: true })
+      
+      console.log(`[COACH-PROFILE/SAVE] ✅ Set visibility fields to visible:`, {
+        isActive: visibilityData.isActive,
+        profileComplete: visibilityData.profileComplete,
+        status: visibilityData.status
+      })
+    } catch (visibilityError: any) {
+      console.error(`[COACH-PROFILE/SAVE] ❌ Failed to set visibility fields:`, visibilityError.message)
+      // Don't fail the request, but log prominently
+    }
     
     // IRONCLAD: Log ALL critical fields being synced for verification
     console.log(`[COACH-PROFILE/SAVE] IRONCLAD SYNC: All critical fields being synced:`, {
@@ -210,25 +288,45 @@ export async function POST(request: NextRequest) {
       youtube: profileUpdates.youtube || 'EMPTY'
     })
     
-    // AGGRESSIVE FIX: Use centralized sync function that reads FULL profile
-    // This ensures ALL fields are synced, not just what was updated
-    // Pass ALL profile updates including social links to ensure immediate sync
-    const syncResult = await syncCoachToBrowseCoaches(uid, visibilityData)
-    
-    if (!syncResult.success) {
-      console.error(`❌ [COACH-PROFILE/SAVE] CRITICAL: Failed to sync to Browse Coaches: ${syncResult.error}`)
-      console.error(`   This means profile edits may not appear in Browse Coaches immediately!`)
-      // Don't fail the request, but log prominently
-    } else {
-      console.log(`✅ [COACH-PROFILE/SAVE] Successfully synced ALL profile fields to Browse Coaches for ${uid}`)
+    // EXTRA PRECISION: Sync to Browse Coaches with error handling
+    try {
+      const syncResult = await syncCoachToBrowseCoaches(uid, visibilityData)
+      
+      if (!syncResult.success) {
+        console.error(`❌ [COACH-PROFILE/SAVE] CRITICAL: Failed to sync to Browse Coaches: ${syncResult.error}`)
+        console.error(`   This means profile edits may not appear in Browse Coaches immediately!`)
+        // Don't fail the request, but log prominently
+      } else {
+        console.log(`✅ [COACH-PROFILE/SAVE] Successfully synced ALL profile fields to Browse Coaches for ${uid}`)
+      }
+    } catch (syncError: any) {
+      console.error(`❌ [COACH-PROFILE/SAVE] Sync error (non-fatal):`, syncError.message)
+      // Don't fail the request - profile is saved, sync can retry later
     }
 
-    return NextResponse.json({ success: true })
+    console.log(`[COACH-PROFILE/SAVE] ========== SAVE SUCCESSFUL ==========`)
+    return NextResponse.json({ 
+      success: true,
+      message: 'Profile saved successfully',
+      uid: uid
+    })
   } catch (error: any) {
-    console.error('Error saving coach profile:', error)
+    console.error('[COACH-PROFILE/SAVE] ========== SAVE FAILED ==========')
+    console.error('Error details:', {
+      message: error.message,
+      code: error.code,
+      stack: error.stack,
+      name: error.name
+    })
+    
+    // EXTRA PRECISION: Return detailed error information
     return NextResponse.json(
-      { error: error.message || 'Failed to save profile' },
-      { status: 500 }
+      { 
+        error: error.message || 'Failed to save profile',
+        code: error.code || 'UNKNOWN_ERROR',
+        success: false
+      },
+      { status: error.status || 500 }
     )
   }
 }
