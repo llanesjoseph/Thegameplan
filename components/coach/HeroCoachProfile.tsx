@@ -277,202 +277,173 @@ export default function HeroCoachProfile({
 
   const [isSaving, setIsSaving] = useState(false)
 
+  // COMPLETE REWRITE: Bulletproof save function with clear error handling
   const handleSaveEdits = async () => {
-    // Persist edits to backend so they survive refresh
+    // Prevent duplicate saves
     if (isSaving) {
-      console.log('[HERO-COACH-PROFILE] Save already in progress, ignoring duplicate click')
+      console.warn('[SAVE] Already saving, ignoring duplicate click')
+      return
+    }
+
+    // Validate user is authenticated
+    if (!authUser) {
+      alert('❌ Error: You must be signed in to save changes. Please refresh the page and sign in again.')
       return
     }
 
     setIsSaving(true)
+    const startTime = Date.now()
+    
     try {
-      console.log('[HERO-COACH-PROFILE] ========== SAVE STARTED ==========')
-      console.log('[HERO-COACH-PROFILE] Save clicked, current editableCoach:', editableCoach)
-      console.log('[HERO-COACH-PROFILE] displayName value:', editableCoach.displayName)
-      console.log('[HERO-COACH-PROFILE] twitter value:', editableCoach.twitter)
-      
-      if (!authUser) {
-        throw new Error('You must be signed in to save changes')
-      }
+      console.log('[SAVE] ========== STARTING SAVE ==========')
+      console.log('[SAVE] User:', authUser.uid)
+      console.log('[SAVE] Data to save:', {
+        displayName: editableCoach.displayName,
+        bio: editableCoach.bio?.substring(0, 50) + '...',
+        twitter: editableCoach.twitter,
+        instagram: editableCoach.instagram
+      })
 
-      // Helper function to get a fresh token with retry logic
-      const getValidToken = async (retries = 3): Promise<string> => {
-        for (let i = 0; i < retries; i++) {
-          try {
-            // Force token refresh every time to ensure it's valid
-            const token = await authUser.getIdToken(true)
-            if (token && token.length > 0) {
-              console.log(`[HERO-COACH-PROFILE] Got valid token (attempt ${i + 1})`)
-              return token
-            }
-          } catch (error) {
-            console.error(`[HERO-COACH-PROFILE] Token refresh attempt ${i + 1} failed:`, error)
-            if (i < retries - 1) {
-              // Wait a bit before retrying
-              await new Promise(resolve => setTimeout(resolve, 500))
-            }
-          }
+      // Step 1: Get authentication token
+      let token: string
+      try {
+        token = await authUser.getIdToken(true)
+        if (!token || token.length === 0) {
+          throw new Error('Token is empty')
         }
-        throw new Error('Unable to get a valid authentication token. Please sign out and sign back in.')
+        console.log('[SAVE] ✅ Got authentication token')
+      } catch (tokenError: any) {
+        console.error('[SAVE] ❌ Token error:', tokenError)
+        throw new Error('Authentication failed. Please sign out and sign back in.')
       }
 
-      // Build body with explicit handling of empty strings and undefined values
+      // Step 2: Build request body
       const body = {
-        displayName: editableCoach.displayName || '', // Ensure it's always a string, never undefined
-        bio: editableCoach.bio || '',
-        location: editableCoach.location || '',
-        sport: editableCoach.sport || '',
-        profileImageUrl: editableCoach.profileImageUrl || '',
-        showcasePhoto1: editableCoach.showcasePhoto1 || '',
-        showcasePhoto2: editableCoach.showcasePhoto2 || '',
-        galleryPhotos: editableCoach.galleryPhotos || [],
-        instagram: editableCoach.instagram || '',
-        facebook: editableCoach.facebook || '',
-        twitter: editableCoach.twitter || '',
-        linkedin: editableCoach.linkedin || '',
-        youtube: editableCoach.youtube || '',
-        // Persist a flat `socialLinks` object that mirrors the editable fields.
-        // This keeps older consumers working but ensures "clearing" in the UI
-        // actually removes links from the rendered profile.
+        displayName: String(editableCoach.displayName || '').trim(),
+        bio: String(editableCoach.bio || '').trim(),
+        location: String(editableCoach.location || '').trim(),
+        sport: String(editableCoach.sport || '').trim(),
+        profileImageUrl: String(editableCoach.profileImageUrl || '').trim(),
+        showcasePhoto1: String(editableCoach.showcasePhoto1 || '').trim(),
+        showcasePhoto2: String(editableCoach.showcasePhoto2 || '').trim(),
+        galleryPhotos: Array.isArray(editableCoach.galleryPhotos) ? editableCoach.galleryPhotos : [],
+        instagram: String(editableCoach.instagram || '').trim(),
+        facebook: String(editableCoach.facebook || '').trim(),
+        twitter: String(editableCoach.twitter || '').trim(),
+        linkedin: String(editableCoach.linkedin || '').trim(),
+        youtube: String(editableCoach.youtube || '').trim(),
         socialLinks: {
-          twitter: editableCoach.twitter || '',
-          instagram: editableCoach.instagram || '',
-          linkedin: editableCoach.linkedin || '',
-          facebook: editableCoach.facebook || '',
-          youtube: editableCoach.youtube || ''
+          twitter: String(editableCoach.twitter || '').trim(),
+          instagram: String(editableCoach.instagram || '').trim(),
+          linkedin: String(editableCoach.linkedin || '').trim(),
+          facebook: String(editableCoach.facebook || '').trim(),
+          youtube: String(editableCoach.youtube || '').trim()
         }
       }
-      
-      console.log('[HERO-COACH-PROFILE] Body being sent to API:', JSON.stringify(body, null, 2))
-      
-      // Debug logging to verify name is being sent
-      console.log('[HERO-COACH-PROFILE] Saving profile with displayName:', body.displayName)
+      console.log('[SAVE] ✅ Request body prepared')
 
-      // Helper function to make API call with automatic token refresh on 401
-      const makeApiCall = async (retries = 2): Promise<Response> => {
-        for (let i = 0; i <= retries; i++) {
-          // Get a fresh token before each attempt
-          const token = await getValidToken()
-          
-          const response = await fetch('/api/coach-profile/save', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`
-            },
-            body: JSON.stringify(body)
-          })
-
-          // If we get 401, try refreshing token and retry
-          if (response.status === 401 && i < retries) {
-            console.log('[HERO-COACH-PROFILE] Got 401, refreshing token and retrying...')
-            await new Promise(resolve => setTimeout(resolve, 300))
-            continue
-          }
-
-          return response
-        }
-        throw new Error('Max retries exceeded')
-      }
-
-      // EXTRA PRECISION: Make API call with enhanced error handling
+      // Step 3: Make API call
       let response: Response
       try {
-        response = await makeApiCall()
-      } catch (apiError: any) {
-        console.error('[HERO-COACH-PROFILE] ❌ API call failed:', apiError.message)
-        throw new Error(`Network error: ${apiError.message}. Please check your connection and try again.`)
+        console.log('[SAVE] Sending request to /api/coach-profile/save...')
+        response = await fetch('/api/coach-profile/save', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(body)
+        })
+        console.log('[SAVE] ✅ Received response, status:', response.status)
+      } catch (fetchError: any) {
+        console.error('[SAVE] ❌ Network error:', fetchError)
+        throw new Error(`Network error: ${fetchError.message}. Please check your internet connection.`)
       }
-      
-      // EXTRA PRECISION: Log response details for debugging
-      console.log('[HERO-COACH-PROFILE] API response status:', response.status)
-      console.log('[HERO-COACH-PROFILE] API response ok:', response.ok)
-      
-      // EXTRA PRECISION: Parse response with error handling
+
+      // Step 4: Parse response
       let result: any
       try {
         const responseText = await response.text()
-        if (!responseText || responseText.trim().length === 0) {
-          throw new Error('Empty response from server')
+        if (!responseText) {
+          throw new Error('Server returned empty response')
         }
         result = JSON.parse(responseText)
-        console.log('[HERO-COACH-PROFILE] API response body:', result)
+        console.log('[SAVE] ✅ Response parsed:', result)
       } catch (parseError: any) {
-        console.error('[HERO-COACH-PROFILE] ❌ Failed to parse response:', parseError.message)
-        throw new Error(`Server response error: ${parseError.message}. Please try again.`)
+        console.error('[SAVE] ❌ Parse error:', parseError)
+        throw new Error(`Server response error: ${parseError.message}`)
       }
 
-      // EXTRA PRECISION: Validate response structure
-      if (!response.ok || !result.success) {
-        const errorMsg = result.error || result.message || 'Failed to save profile'
-        const errorCode = result.code || 'UNKNOWN_ERROR'
-        
-        console.error('[HERO-COACH-PROFILE] ❌ Save failed:', {
+      // Step 5: Check for errors
+      if (!response.ok) {
+        const errorMsg = result?.error || result?.message || `Server error (${response.status})`
+        console.error('[SAVE] ❌ Server error:', {
           status: response.status,
-          statusText: response.statusText,
           error: errorMsg,
-          code: errorCode,
           result
         })
         
-        // EXTRA PRECISION: Handle specific error codes
-        if (response.status === 401 || errorCode === 'TOKEN_VERIFICATION_FAILED' || errorMsg.includes('token') || errorMsg.includes('Invalid token') || errorMsg.includes('Unauthorized')) {
-          throw new Error('Authentication error. Please sign out and sign back in, then try again.')
-        }
-        
-        if (response.status === 403 || errorCode === 'INSUFFICIENT_PERMISSIONS') {
+        // Provide specific error messages
+        if (response.status === 401) {
+          throw new Error('Authentication expired. Please sign out and sign back in.')
+        } else if (response.status === 403) {
           throw new Error('Permission denied. You may not have permission to edit this profile.')
-        }
-        
-        if (response.status === 400 || errorCode === 'VALIDATION_ERROR') {
-          throw new Error(`Validation error: ${errorMsg}`)
-        }
-        
-        if (response.status === 404) {
-          throw new Error('Profile not found. Please refresh the page and try again.')
-        }
-        
-        if (response.status >= 500) {
+        } else if (response.status === 400) {
+          throw new Error(`Invalid data: ${errorMsg}`)
+        } else if (response.status >= 500) {
           throw new Error(`Server error: ${errorMsg}. Please try again in a moment.`)
+        } else {
+          throw new Error(errorMsg)
         }
-        
+      }
+
+      // Step 6: Verify success
+      if (!result.success) {
+        const errorMsg = result?.error || 'Save failed for unknown reason'
+        console.error('[SAVE] ❌ Save not successful:', errorMsg)
         throw new Error(errorMsg)
       }
 
-      console.log('[HERO-COACH-PROFILE] Save successful, response:', result)
-      console.log('[HERO-COACH-PROFILE] Saved displayName:', body.displayName)
+      // Step 7: Success!
+      const duration = Date.now() - startTime
+      console.log(`[SAVE] ✅ SUCCESS! Saved in ${duration}ms`)
+      console.log('[SAVE] Saved data:', {
+        displayName: body.displayName,
+        twitter: body.twitter
+      })
 
-      // Only update local state and close edit mode after successful save
+      // Update local state
       setDisplayCoach(editableCoach)
       setIsEditing(false)
+
+      // Show success message
+      alert('✅ Profile saved successfully!')
+
+      // Reload page after a short delay to show updated data
+      setTimeout(() => {
+        console.log('[SAVE] Reloading page to show updated profile...')
+        window.location.reload()
+      }, 500)
+
+    } catch (error: any) {
+      // COMPREHENSIVE ERROR HANDLING
+      const duration = Date.now() - startTime
+      console.error('[SAVE] ========== SAVE FAILED ==========')
+      console.error('[SAVE] Duration:', duration + 'ms')
+      console.error('[SAVE] Error:', error)
+      console.error('[SAVE] Error type:', error?.constructor?.name || typeof error)
+      console.error('[SAVE] Error message:', error?.message || String(error))
+      console.error('[SAVE] Error stack:', error?.stack || 'No stack')
+
+      // Show clear error message to user
+      const errorMessage = error?.message || String(error) || 'Unknown error occurred'
+      alert(`❌ SAVE FAILED\n\n${errorMessage}\n\nPlease try again. If the problem persists, refresh the page.`)
       
-      // CRITICAL: Wait longer to ensure all database writes (including creators_index) are fully committed
-      // Firestore writes are eventually consistent, so we need to wait for propagation
-      // Then reload the page to ensure all data is fresh from the database
-      // This ensures the name change is reflected everywhere
-      console.log('[HERO-COACH-PROFILE] Waiting for database writes to complete...')
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      console.log('[HERO-COACH-PROFILE] Reloading page to show updated name')
-      window.location.reload()
-    } catch (error) {
-      // Show error to user and keep edit mode open so they can retry
-      console.error('[HERO-COACH-PROFILE] ========== SAVE FAILED ==========')
-      console.error('[HERO-COACH-PROFILE] Error details:', error)
-      console.error('[HERO-COACH-PROFILE] Error type:', error instanceof Error ? error.constructor.name : typeof error)
-      console.error('[HERO-COACH-PROFILE] Error message:', error instanceof Error ? error.message : String(error))
-      console.error('[HERO-COACH-PROFILE] Error stack:', error instanceof Error ? error.stack : 'No stack trace')
-      
-      const errorMessage = error instanceof Error 
-        ? error.message 
-        : typeof error === 'string' 
-          ? error 
-          : 'Unknown error occurred. Please check the console for details.'
-      
-      alert(`❌ Failed to save profile changes!\n\n${errorMessage}\n\nPlease check your connection and try again. If the problem persists, try refreshing the page.`)
-      // Don't close edit mode on error - let user retry
+      // Keep edit mode open so user can retry
+      // Don't close edit mode on error
     } finally {
       setIsSaving(false)
-      console.log('[HERO-COACH-PROFILE] ========== SAVE COMPLETE ==========')
+      console.log('[SAVE] ========== SAVE COMPLETE ==========')
     }
   }
 
