@@ -945,20 +945,28 @@ function HeroSection({
                         console.log('[HERO-COACH-PROFILE] Event:', e)
                         console.log('[HERO-COACH-PROFILE] Button disabled?', saving)
                         console.log('[HERO-COACH-PROFILE] onSave function:', typeof onSave, onSave)
+                        console.log('[HERO-COACH-PROFILE] Current editableCoach:', editableCoach)
                         
+                        // EXTRA PRECISION: Prevent default and stop propagation to avoid conflicts
                         e.preventDefault()
                         e.stopPropagation()
+                        
+                        // EXTRA PRECISION: Don't allow multiple clicks while saving
+                        if (saving) {
+                          console.log('[HERO-COACH-PROFILE] Save already in progress, ignoring click')
+                          return
+                        }
                         
                         console.log('[HERO-COACH-PROFILE] Save button clicked! Calling onSave...')
                         try {
                           if (typeof onSave === 'function') {
                             onSave()
                           } else {
-                            console.error('[HERO-COACH-PROFILE] onSave is not a function!', onSave)
+                            console.error('[HERO-COACH-PROFILE] ❌ onSave is not a function!', onSave)
                             alert('Error: Save function is not available. Please refresh the page.')
                           }
                         } catch (error) {
-                          console.error('[HERO-COACH-PROFILE] Error in save button onClick:', error)
+                          console.error('[HERO-COACH-PROFILE] ❌ Error in save button onClick:', error)
                           alert(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`)
                         }
                       }}
@@ -969,7 +977,8 @@ function HeroSection({
                         opacity: saving ? 0.6 : 1,
                         cursor: saving ? 'not-allowed' : 'pointer',
                         position: 'relative',
-                        zIndex: 10
+                        zIndex: 1000, // EXTRA PRECISION: High z-index to ensure button is always clickable
+                        pointerEvents: saving ? 'none' : 'auto' // EXTRA PRECISION: Disable pointer events when saving
                       }}
                       onMouseDown={(e) => {
                         console.log('[HERO-COACH-PROFILE] Save button mouse down')
