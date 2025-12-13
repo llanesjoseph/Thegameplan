@@ -112,27 +112,50 @@ export async function GET(
       ? creatorData.galleryPhotos.filter((url: any) => typeof url === 'string' && url.trim().length > 0)
       : []
 
-    // Build coach profile response
+    // IRONCLAD MIRROR: Read from creators_index FIRST (most up-to-date, synced immediately after coach saves)
+    // This ensures Browse Coaches shows EXACTLY what coach entered in their profile
     const bioValue = creatorData.bio ||
-        creatorData.longBio ||
         creatorData.description ||
+        creatorData.longBio ||
         userData.bio ||
         userData.about ||
         ''
     
-    // DEBUG: Log bio sources for troubleshooting
-    console.log(`[Coach Profile API] Bio sources for ${originalId}:`, {
-      'creatorData.bio': creatorData.bio || 'MISSING',
-      'creatorData.longBio': creatorData.longBio || 'MISSING',
-      'creatorData.description': creatorData.description || 'MISSING',
-      'userData.bio': userData.bio || 'MISSING',
-      'userData.about': userData.about || 'MISSING',
-      'finalBio': bioValue || 'EMPTY'
+    // IRONCLAD MIRROR: Name from creators_index first (synced immediately)
+    const displayNameValue = creatorData.displayName || 
+                            creatorData.name || 
+                            userData.displayName || 
+                            'Unknown Coach'
+    
+    // IRONCLAD MIRROR: Photos from creators_index first (synced immediately)
+    const profileImageUrlValue = creatorData.profileImageUrl ||
+                                creatorData.headshotUrl ||
+                                creatorData.photoURL ||
+                                userData.photoURL ||
+                                userData.profileImage ||
+                                ''
+    
+    const showcasePhoto1Value = creatorData.showcasePhoto1 || userData.showcasePhoto1 || ''
+    const showcasePhoto2Value = creatorData.showcasePhoto2 || userData.showcasePhoto2 || ''
+    
+    // IRONCLAD MIRROR: Gallery photos from creators_index (synced immediately, filtered to valid URLs only)
+    const galleryPhotosValue = Array.isArray(creatorData.galleryPhotos) 
+      ? creatorData.galleryPhotos.filter((url: any) => typeof url === 'string' && url.trim().length > 0)
+      : []
+    
+    // DEBUG: Log to verify we're reading from creators_index (the mirror)
+    console.log(`[Coach Profile API] IRONCLAD MIRROR - Reading from creators_index for ${originalId}:`, {
+      'displayName': displayNameValue,
+      'bio': bioValue ? `${bioValue.substring(0, 50)}...` : 'EMPTY',
+      'profileImageUrl': profileImageUrlValue ? 'SET' : 'MISSING',
+      'showcasePhoto1': showcasePhoto1Value ? 'SET' : 'MISSING',
+      'showcasePhoto2': showcasePhoto2Value ? 'SET' : 'MISSING',
+      'galleryPhotos': `${galleryPhotosValue.length} photos`
     })
     
     const coachProfile = {
       uid: originalId,
-      displayName: creatorData.displayName || userData.displayName || 'Unknown Coach',
+      displayName: displayNameValue,
       email: userData.email || '',
       bio: bioValue,
       sport: creatorData.sport || 'General',
@@ -140,12 +163,12 @@ export async function GET(
       specialties: creatorData.specialties || [],
       certifications: creatorData.credentials ? [creatorData.credentials] : [], // Legacy field, now called "milestones" in UI
       achievements: creatorData.achievements || [],
-      profileImageUrl: profileImageUrl,
+      profileImageUrl: profileImageUrlValue,
       coverImageUrl: coverImageUrl,
       bannerUrl: coverImageUrl, // Also set bannerUrl for compatibility
-      showcasePhoto1: creatorData.showcasePhoto1 || userData.showcasePhoto1 || '',
-      showcasePhoto2: creatorData.showcasePhoto2 || userData.showcasePhoto2 || '',
-      galleryPhotos,
+      showcasePhoto1: showcasePhoto1Value,
+      showcasePhoto2: showcasePhoto2Value,
+      galleryPhotos: galleryPhotosValue,
       // IRONCLAD: Social media links - MUST match EXACTLY what coach enters in their profile
       // Read from creators_index first (most up-to-date), then fallback to userData
       instagram: creatorData.instagram || creatorData.socialLinks?.instagram || userData.instagram || '',

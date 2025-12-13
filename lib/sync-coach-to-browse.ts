@@ -207,17 +207,21 @@ export async function syncCoachToBrowseCoaches(
     await creatorsIndexRef.set(indexData, { merge: true })
     
     console.log(`✅ [SYNC-BROWSE] IRONCLAD SYNC COMPLETE: Synced ALL fields for coach ${uid} to creators_index`)
-    console.log(`   - displayName: ${indexData.displayName}`)
-    console.log(`   - sport: ${indexData.sport}`)
-    console.log(`   - profileImageUrl: ${indexData.profileImageUrl ? 'SET' : 'MISSING'}`)
-    console.log(`   - bio: ${indexData.bio ? 'SET' : 'MISSING'}`)
-    console.log(`   - IRONCLAD SOCIAL LINKS SYNC:`)
+    console.log(`   - MIRROR NAME: displayName="${indexData.displayName}"`)
+    console.log(`   - MIRROR BIO: ${indexData.bio ? `"${indexData.bio.substring(0, 100)}..."` : 'EMPTY'}`)
+    console.log(`   - MIRROR PHOTOS:`)
+    console.log(`     * profileImageUrl: ${indexData.profileImageUrl ? 'SET' : 'MISSING'}`)
+    console.log(`     * showcasePhoto1: ${indexData.showcasePhoto1 ? 'SET' : 'MISSING'}`)
+    console.log(`     * showcasePhoto2: ${indexData.showcasePhoto2 ? 'SET' : 'MISSING'}`)
+    console.log(`     * galleryPhotos: ${Array.isArray(indexData.galleryPhotos) ? `${indexData.galleryPhotos.length} photos` : 'MISSING'}`)
+    console.log(`   - MIRROR SOCIAL LINKS:`)
     console.log(`     * instagram: ${indexData.instagram || 'EMPTY'}`)
     console.log(`     * facebook: ${indexData.facebook || 'EMPTY'}`)
     console.log(`     * twitter: ${indexData.twitter || 'EMPTY'}`)
     console.log(`     * linkedin: ${indexData.linkedin || 'EMPTY'}`)
     console.log(`     * youtube: ${indexData.youtube || 'EMPTY'}`)
-    console.log(`     * socialLinks object:`, JSON.stringify(indexData.socialLinks, null, 2))
+    console.log(`   - sport: ${indexData.sport}`)
+    console.log(`   - location: ${indexData.location || 'EMPTY'}`)
     
     return { success: true }
   } catch (error: any) {

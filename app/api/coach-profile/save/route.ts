@@ -195,14 +195,19 @@ export async function POST(request: NextRequest) {
       status: visibilityData.status
     })
     
-    // IRONCLAD: Log social links being synced for verification
-    console.log(`[COACH-PROFILE/SAVE] IRONCLAD SYNC: Social links being synced:`, {
+    // IRONCLAD: Log ALL critical fields being synced for verification
+    console.log(`[COACH-PROFILE/SAVE] IRONCLAD SYNC: All critical fields being synced:`, {
+      displayName: profileUpdates.displayName || 'EMPTY',
+      bio: profileUpdates.bio ? `${profileUpdates.bio.substring(0, 50)}...` : 'EMPTY',
+      profileImageUrl: profileUpdates.profileImageUrl ? 'SET' : 'EMPTY',
+      showcasePhoto1: profileUpdates.showcasePhoto1 ? 'SET' : 'EMPTY',
+      showcasePhoto2: profileUpdates.showcasePhoto2 ? 'SET' : 'EMPTY',
+      galleryPhotos: Array.isArray(profileUpdates.galleryPhotos) ? `${profileUpdates.galleryPhotos.length} photos` : 'EMPTY',
       instagram: profileUpdates.instagram || 'EMPTY',
       facebook: profileUpdates.facebook || 'EMPTY',
       twitter: profileUpdates.twitter || 'EMPTY',
       linkedin: profileUpdates.linkedin || 'EMPTY',
-      youtube: profileUpdates.youtube || 'EMPTY',
-      socialLinks: profileUpdates.socialLinks || 'EMPTY'
+      youtube: profileUpdates.youtube || 'EMPTY'
     })
     
     // AGGRESSIVE FIX: Use centralized sync function that reads FULL profile
