@@ -192,11 +192,23 @@ export default function HeroCoachProfile({
   const [uploadingPhotoField, setUploadingPhotoField] = useState<string | null>(null)
   const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null)
 
+  // Track if we just saved to prevent overwriting saved data
+  const [justSaved, setJustSaved] = useState(false)
+
   useEffect(() => {
+    // CRITICAL: If we just saved, don't overwrite with prop changes
+    // This prevents race conditions where the parent refetches before Firestore propagates
+    if (justSaved) {
+      console.log('[HERO-COACH-PROFILE] Just saved - skipping prop update to preserve saved data')
+      // Reset the flag after a delay to allow normal updates again
+      setTimeout(() => setJustSaved(false), 3000)
+      return
+    }
+
     console.log('[HERO-COACH-PROFILE] Coach prop changed, updating state:', coach.displayName)
     setDisplayCoach(coach)
     setEditableCoach(coach)
-  }, [coach])
+  }, [coach, justSaved])
 
   const activeCoach = isEditing ? editableCoach : displayCoach
 
@@ -441,6 +453,7 @@ export default function HeroCoachProfile({
       setDisplayCoach(savedCoachData)
       setEditableCoach(savedCoachData)
       setIsEditing(false)
+      setJustSaved(true) // CRITICAL: Set flag to prevent prop updates from overwriting saved data
 
       console.log('[SAVE] ✅ Local state updated with saved data')
       console.log('[SAVE] Display coach now has:', {
