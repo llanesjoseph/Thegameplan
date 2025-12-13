@@ -52,6 +52,48 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
  return (
   <html lang="en">
    <body className={`bg-white text-gray-800 ${inter.variable} ${oswald.variable} ${permanentMarker.variable} ${openSans.variable}`}>
+    <script
+      dangerouslySetInnerHTML={{
+        __html: `
+          // Suppress browser extension errors (password managers, form fillers, etc.)
+          if (typeof window !== 'undefined') {
+            const originalError = console.error;
+            const originalWarn = console.warn;
+            
+            console.error = function(...args) {
+              const message = args.join(' ');
+              // Filter out known browser extension errors
+              if (
+                message.includes('content_script.js') ||
+                message.includes('Cannot read properties of undefined') ||
+                message.includes('chrome-extension://') ||
+                message.includes('moz-extension://') ||
+                message.includes('safari-extension://')
+              ) {
+                // Silently ignore extension errors
+                return;
+              }
+              originalError.apply(console, args);
+            };
+            
+            console.warn = function(...args) {
+              const message = args.join(' ');
+              // Filter out known browser extension warnings
+              if (
+                message.includes('content_script.js') ||
+                message.includes('chrome-extension://') ||
+                message.includes('moz-extension://') ||
+                message.includes('safari-extension://')
+              ) {
+                // Silently ignore extension warnings
+                return;
+              }
+              originalWarn.apply(console, args);
+            };
+          }
+        `,
+      }}
+    />
     {/* Skip to content for keyboard users */}
     <a href="#main-content" className="sr-only focus:not-sr-only focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-black absolute top-2 left-2 bg-white text-black px-3 py-2 rounded">
      Skip to main content
