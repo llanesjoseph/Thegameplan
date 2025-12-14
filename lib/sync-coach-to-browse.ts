@@ -61,13 +61,41 @@ export async function syncCoachToBrowseCoaches(
     const creatorRef = db.collection('creator_profiles').doc(uid)
     const creatorDoc = await creatorRef.get()
     
+    // ALSO read from users collection to get the absolute latest data
+    const userRef = db.collection('users').doc(uid)
+    const userDoc = await userRef.get()
+    
     let fullProfileData: any = {}
     
     if (creatorDoc.exists) {
       fullProfileData = creatorDoc.data() || {}
       console.log(`✅ [SYNC-BROWSE] Read full profile from creator_profiles for ${uid}`)
     } else {
-      console.warn(`⚠️ [SYNC-BROWSE] No creator_profiles document found for ${uid}, using partial data only`)
+      console.warn(`⚠️ [SYNC-BROWSE] No creator_profiles document found for ${uid}, trying users collection`)
+    }
+    
+    // CRITICAL: Merge with users collection data to get absolute latest
+    // This ensures we get the most recent profileImageUrl, displayName, etc.
+    if (userDoc.exists) {
+      const userData = userDoc.data() || {}
+      // Merge user data, giving priority to creator_profiles but using user data as fallback
+      fullProfileData = {
+        ...fullProfileData,
+        // Always use latest from users collection for critical fields
+        displayName: userData.displayName || fullProfileData.displayName,
+        profileImageUrl: userData.profileImageUrl || userData.photoURL || fullProfileData.profileImageUrl,
+        bio: userData.bio || fullProfileData.bio,
+        location: userData.location || fullProfileData.location,
+        sport: userData.sport || fullProfileData.sport,
+        // Social links from users collection
+        instagram: userData.instagram || fullProfileData.instagram,
+        facebook: userData.facebook || fullProfileData.facebook,
+        twitter: userData.twitter || fullProfileData.twitter,
+        linkedin: userData.linkedin || fullProfileData.linkedin,
+        youtube: userData.youtube || fullProfileData.youtube,
+        socialLinks: userData.socialLinks || fullProfileData.socialLinks,
+      }
+      console.log(`✅ [SYNC-BROWSE] Merged with users collection data for ${uid}`)
     }
     
     // Merge with provided partialProfileData (provided data takes precedence for updates)

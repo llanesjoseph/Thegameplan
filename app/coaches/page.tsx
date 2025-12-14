@@ -171,7 +171,15 @@ export default function BrowseCoachesPage() {
       const currentOffset = reset ? 0 : offset
       const url = `/api/coaches/public?sport=${selectedSport}&limit=50&offset=${currentOffset}`
 
-      const response = await fetch(url, { cache: 'no-store' })
+      // AGGRESSIVE FIX: Force no cache and add timestamp to prevent stale data
+      const response = await fetch(`${url}&_t=${Date.now()}`, { 
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      })
       const data = await response.json()
 
       if (data.success) {

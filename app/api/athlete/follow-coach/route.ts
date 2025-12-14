@@ -60,6 +60,58 @@ export async function POST(request: NextRequest) {
       })
     }
 
+    // CRITICAL: Check maxCoaches limit based on subscription tier
+    const subscription = athleteData?.subscription || {}
+    const access = athleteData?.access || {}
+    const tier = subscription.tier || 'none'
+    const isActive = subscription.isActive !== false && (subscription.status === 'active' || subscription.status === 'trialing')
+    
+    // Determine maxCoaches based on tier
+    let maxCoaches = 1 // Default to free tier (1 coach)
+    if (tier === 'basic' && isActive) {
+      maxCoaches = 3
+    } else if (tier === 'elite' && isActive) {
+      maxCoaches = -1 // Unlimited
+    } else {
+      // Use access.maxCoaches if set, otherwise default to 1
+      maxCoaches = access.maxCoaches ?? 1
+    }
+
+    // Count current coaches (assigned + followed)
+    const assignedCoachId = athleteData?.coachId || athleteData?.assignedCoachId
+    const followingSnapshot = await adminDb
+      .collection('coach_followers')
+      .where('athleteId', '==', athleteId)
+      .get()
+    
+    const followedCoachIds = new Set(followingSnapshot.docs.map(doc => doc.data().coachId))
+    
+    // Count unique coaches (assigned coach counts as 1, followed coaches count separately)
+    let currentCoachCount = 0
+    if (assignedCoachId) {
+      currentCoachCount++ // Assigned coach counts as 1
+    }
+    // Count followed coaches (excluding assigned coach if they're also followed)
+    followedCoachIds.forEach(followedId => {
+      if (followedId !== assignedCoachId) {
+        currentCoachCount++
+      }
+    })
+
+    // Check if adding this coach would exceed the limit
+    const wouldExceedLimit = maxCoaches !== -1 && currentCoachCount >= maxCoaches
+    
+    if (wouldExceedLimit) {
+      const tierName = tier === 'none' ? 'Free' : tier.charAt(0).toUpperCase() + tier.slice(1)
+      return NextResponse.json({
+        success: false,
+        error: `You've reached your ${tierName} tier limit of ${maxCoaches} coach${maxCoaches === 1 ? '' : 'es'}. Upgrade your plan to follow more coaches.`,
+        limitReached: true,
+        currentCount: currentCoachCount,
+        maxCoaches: maxCoaches
+      }, { status: 403 })
+    }
+
     // Create follow relationship
     await adminDb.collection('coach_followers').doc(followId).set({
       athleteId,

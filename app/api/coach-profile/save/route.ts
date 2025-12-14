@@ -289,13 +289,25 @@ export async function POST(request: NextRequest) {
     })
     
     // EXTRA PRECISION: Sync to Browse Coaches with error handling
+    // AGGRESSIVE FIX: Always sync immediately after save, and retry once if it fails
     try {
       const syncResult = await syncCoachToBrowseCoaches(uid, visibilityData)
       
       if (!syncResult.success) {
         console.error(`❌ [COACH-PROFILE/SAVE] CRITICAL: Failed to sync to Browse Coaches: ${syncResult.error}`)
-        console.error(`   This means profile edits may not appear in Browse Coaches immediately!`)
-        // Don't fail the request, but log prominently
+        console.error(`   Retrying sync in 500ms...`)
+        
+        // RETRY: Wait a moment and try again (in case of race condition)
+        await new Promise(resolve => setTimeout(resolve, 500))
+        const retryResult = await syncCoachToBrowseCoaches(uid, visibilityData)
+        
+        if (!retryResult.success) {
+          console.error(`❌ [COACH-PROFILE/SAVE] CRITICAL: Retry also failed: ${retryResult.error}`)
+          console.error(`   This means profile edits may not appear in Browse Coaches immediately!`)
+          // Don't fail the request, but log prominently
+        } else {
+          console.log(`✅ [COACH-PROFILE/SAVE] Successfully synced ALL profile fields to Browse Coaches for ${uid} (after retry)`)
+        }
       } else {
         console.log(`✅ [COACH-PROFILE/SAVE] Successfully synced ALL profile fields to Browse Coaches for ${uid}`)
       }

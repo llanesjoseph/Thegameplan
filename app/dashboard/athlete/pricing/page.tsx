@@ -77,7 +77,39 @@ export default function AthletePricingPage() {
 
   const handleSubscribe = async (tierId: string) => {
     if (tierId === 'free') {
-      router.push('/dashboard/athlete');
+      // Set up free tier subscription
+      if (!user) {
+        router.push('/login');
+        return;
+      }
+
+      setLoading('free');
+      setError(null);
+
+      try {
+        const token = await user.getIdToken();
+
+        const response = await fetch('/api/athlete/subscriptions/setup-free', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to set up free tier');
+        }
+
+        // Success - redirect to dashboard
+        router.push('/dashboard/athlete?subscription=free-activated');
+      } catch (err: any) {
+        console.error('Error setting up free tier:', err);
+        setError(err.message || 'Something went wrong. Please try again.');
+        setLoading(null);
+      }
       return;
     }
 

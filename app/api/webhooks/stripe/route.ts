@@ -221,10 +221,12 @@ async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
       'subscription.status': subscription.status,
       'subscription.currentPeriodEnd': new Date(subscription.current_period_end * 1000),
       'subscription.cancelAtPeriodEnd': subscription.cancel_at_period_end,
+      'subscription.isActive': subscription.status === 'active' || subscription.status === 'trialing',
       'access.maxVideoSubmissions': access.maxVideoSubmissions,
       'access.hasAIAssistant': access.hasAIAssistant,
       'access.hasCoachFeed': access.hasCoachFeed,
       'access.hasPriorityQueue': access.hasPriorityQueue,
+      'access.maxCoaches': access.maxCoaches, // CRITICAL: Set maxCoaches access
       updatedAt: new Date(),
     });
 
@@ -282,12 +284,14 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   await adminDb.collection('users').doc(firebaseUID).update({
     'subscription.tier': tier,
     'subscription.status': subscription.status,
+    'subscription.isActive': subscription.status === 'active' || subscription.status === 'trialing',
     'subscription.currentPeriodEnd': new Date(subscription.current_period_end * 1000),
     'subscription.cancelAtPeriodEnd': subscription.cancel_at_period_end,
     'access.maxVideoSubmissions': access.maxVideoSubmissions,
     'access.hasAIAssistant': access.hasAIAssistant,
     'access.hasCoachFeed': access.hasCoachFeed,
     'access.hasPriorityQueue': access.hasPriorityQueue,
+    'access.maxCoaches': access.maxCoaches, // CRITICAL: Set maxCoaches access
     updatedAt: new Date(),
   });
 
@@ -326,11 +330,13 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   await adminDb.collection('users').doc(firebaseUID).update({
     'subscription.tier': 'none',
     'subscription.status': 'canceled',
+    'subscription.isActive': false,
     'subscription.cancelAtPeriodEnd': false,
     'access.maxVideoSubmissions': access.maxVideoSubmissions,
     'access.hasAIAssistant': access.hasAIAssistant,
     'access.hasCoachFeed': access.hasCoachFeed,
     'access.hasPriorityQueue': access.hasPriorityQueue,
+    'access.maxCoaches': access.maxCoaches, // CRITICAL: Set maxCoaches access (1 for free tier)
     updatedAt: new Date(),
   });
 
