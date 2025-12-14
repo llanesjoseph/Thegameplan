@@ -287,26 +287,48 @@ function ProfilePageContent() {
           actionPhotos: profileData.actionPhotos,
         }, { merge: true })
 
-        const creatorsIndexRef = doc(db, 'creators_index', user.uid)
-        await setDoc(creatorsIndexRef, {
-          displayName: profileData.displayName,
-          bio: profileData.bio,
-          location: profileData.location,
-          specialties: profileData.specialties,
-          experience: profileData.experience,
-          // Add profile images for browse coaches page
-          headshotUrl: profileData.profileImageUrl,
-          photoURL: profileData.profileImageUrl,
-          heroImageUrl: profileData.heroImageUrl,
-          actionPhotos: profileData.actionPhotos,
-          tagline: profileData.tagline,
-          coachingCredentials: profileData.coachingCredentials,
-          verified: profileData.verified,
-          featured: profileData.featured,
-          lastUpdated: new Date().toISOString(),
-          profileUrl: `/coaches/${user.uid}`,
-          isActive: true
-        }, { merge: true })
+        // CRITICAL: Use API endpoint to ensure proper sync to Browse Coaches
+        // This ensures all fields are synced correctly using the centralized sync function
+        try {
+          const token = await user.getIdToken()
+          await fetch('/api/coach-profile/save', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              displayName: profileData.displayName || '',
+              bio: profileData.bio || '',
+              location: profileData.location || '',
+              sport: profileData.specialties?.[0] || '',
+              profileImageUrl: profileData.profileImageUrl || ''
+            })
+          })
+          console.log('✅ Profile synced to Browse Coaches via API')
+        } catch (syncError) {
+          console.warn('⚠️ Failed to sync to Browse Coaches (non-critical):', syncError)
+          // Fallback: Manual update to creators_index (legacy)
+          const creatorsIndexRef = doc(db, 'creators_index', user.uid)
+          await setDoc(creatorsIndexRef, {
+            displayName: profileData.displayName,
+            bio: profileData.bio,
+            location: profileData.location,
+            specialties: profileData.specialties,
+            experience: profileData.experience,
+            headshotUrl: profileData.profileImageUrl,
+            photoURL: profileData.profileImageUrl,
+            heroImageUrl: profileData.heroImageUrl,
+            actionPhotos: profileData.actionPhotos,
+            tagline: profileData.tagline,
+            coachingCredentials: profileData.coachingCredentials,
+            verified: profileData.verified,
+            featured: profileData.featured,
+            lastUpdated: new Date().toISOString(),
+            profileUrl: `/coaches/${user.uid}`,
+            isActive: true
+          }, { merge: true })
+        }
       }
 
       setSaveStatus('success')

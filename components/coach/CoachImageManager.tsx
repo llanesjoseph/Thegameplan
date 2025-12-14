@@ -156,35 +156,29 @@ export default function CoachImageManager({ onProfileUpdate, className = '' }: C
       setSaving(true)
       setError(null)
 
-      // Update profile with new image URLs
-      const updateData = {
-        headshotUrl: headshotUrl || null,
-        heroImageUrl: heroImageUrl || null,
-        actionPhotos: actionPhotos.length > 0 ? actionPhotos : [],
-        highlightVideo: highlightVideo || null,
-        updatedAt: Timestamp.now()
+      // CRITICAL: Use API endpoint to ensure sync to Browse Coaches
+      const token = await user.getIdToken()
+      const response = await fetch('/api/coach-profile/update-images', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          headshotUrl: headshotUrl || undefined,
+          heroImageUrl: heroImageUrl || undefined,
+          actionPhotos: actionPhotos.length > 0 ? actionPhotos : undefined,
+          highlightVideo: highlightVideo || undefined
+        })
+      })
+
+      const result = await response.json()
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || 'Failed to update profile images')
       }
 
-      // FIX: Save to BOTH collections to ensure data consistency
-      const coachProfileRef = doc(db, 'coach_profiles', user.uid)
-      const creatorProfileRef = doc(db, 'creator_profiles', user.uid)
-
-      // Save to both collections
-      await Promise.all([
-        setDoc(coachProfileRef, updateData, { merge: true }),
-        setDoc(creatorProfileRef, updateData, { merge: true })
-      ])
-
-      // Also update the users collection with photoURL for profile image
-      if (headshotUrl) {
-        const usersRef = doc(db, 'users', user.uid)
-        await setDoc(usersRef, { 
-          photoURL: headshotUrl,
-          updatedAt: Timestamp.now()
-        }, { merge: true })
-      }
-
-      setSuccess('Profile images updated successfully!')
+      setSuccess('✅ Profile images updated successfully! Your changes will appear in Browse Coaches immediately.')
 
       // Reload profile to get updated data
       await loadCoachProfile()

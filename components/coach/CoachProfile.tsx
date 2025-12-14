@@ -224,14 +224,36 @@ export default function CoachProfile() {
 
     setIsSaving(true)
     try {
+      // CRITICAL: Use API endpoint to ensure sync to Browse Coaches
+      const token = await user.getIdToken()
+      const response = await fetch('/api/coach-profile/save', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          displayName: user.displayName || '', // Keep existing name
+          bio: editBio,
+          location: editLocation,
+          instagram: editInstagram,
+          youtube: editYoutube,
+          linkedin: editLinkedin,
+          facebook: editFacebook,
+          // Note: achievements, tagline, yearsExperience, websiteUrl, certifications
+          // are not currently supported by the API, but we update users collection for backward compatibility
+        })
+      })
+
+      const result = await response.json()
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || 'Failed to save profile')
+      }
+
+      // Also update users collection directly for fields not in API (backward compatibility)
       await updateDoc(doc(db, 'users', user.uid), {
-        bio: editBio,
-        location: editLocation,
         achievements: editAchievements,
-        instagram: editInstagram,
-        youtube: editYoutube,
-        linkedin: editLinkedin,
-        facebook: editFacebook,
         tagline: editTagline,
         yearsExperience: editYearsExperience,
         websiteUrl: editWebsiteUrl,
@@ -252,10 +274,10 @@ export default function CoachProfile() {
       setCertifications(editCertifications)
 
       setIsEditingProfile(false)
-      alert('Profile updated successfully!')
+      alert('✅ Profile updated successfully! Your changes will appear in Browse Coaches immediately.')
     } catch (error) {
       console.error('Error saving profile:', error)
-      alert('Failed to save profile. Please try again.')
+      alert(`Failed to save profile: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`)
     } finally {
       setIsSaving(false)
     }
