@@ -13,13 +13,24 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const limit = parseInt(searchParams.get('limit') || '3')
 
-    // Get athletes sorted by last activity
-    const athletesSnapshot = await adminDb
-      .collection('users')
-      .where('role', '==', 'athlete')
-      .orderBy('lastLoginAt', 'desc')
-      .limit(limit)
-      .get()
+    // Get athletes - try to order by lastLoginAt, but fallback if field doesn't exist
+    let athletesSnapshot
+    try {
+      athletesSnapshot = await adminDb
+        .collection('users')
+        .where('role', '==', 'athlete')
+        .orderBy('lastLoginAt', 'desc')
+        .limit(limit)
+        .get()
+    } catch (orderError) {
+      // If ordering fails (e.g., missing index), just get athletes without ordering
+      console.warn('Could not order by lastLoginAt, fetching without order:', orderError)
+      athletesSnapshot = await adminDb
+        .collection('users')
+        .where('role', '==', 'athlete')
+        .limit(limit)
+        .get()
+    }
 
     const athletes = athletesSnapshot.docs.map(doc => {
       const data = doc.data()
