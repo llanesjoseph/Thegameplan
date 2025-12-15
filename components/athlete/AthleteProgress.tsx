@@ -37,6 +37,7 @@ export default function AthleteProgress() {
         console.log('🔍 Loading athlete progress for user:', user.uid)
 
         // Use aggregated API endpoint for accurate metrics from all coaches
+        let useDirectCalculation = false
         try {
           const token = await user.getIdToken()
           const response = await fetch('/api/athlete/progress/aggregate', {
@@ -49,20 +50,55 @@ export default function AthleteProgress() {
             const data = await response.json()
             if (data.success && data.progress) {
               const progress = data.progress
+              console.log('✅ Loaded aggregated progress:', progress)
+              
+              // Load events separately
+              let upcomingEventsData: Event[] = []
+              const userDoc = await getDoc(doc(db, 'users', user.uid))
+              const assignedCoachId = userDoc.data()?.coachId || userDoc.data()?.assignedCoachId
+              
+              if (assignedCoachId) {
+                try {
+                  const eventsQuery = query(
+                    collection(db, 'coach_schedule'),
+                    where('coachId', '==', assignedCoachId)
+                  )
+                  const eventsSnap = await getDocs(eventsQuery)
+                  const now = new Date()
+                  
+                  upcomingEventsData = eventsSnap.docs
+                    .map(doc => ({
+                      id: doc.id,
+                      title: doc.data().title || 'Event',
+                      description: doc.data().description,
+                      date: doc.data().eventDate?.toDate() || new Date(),
+                      location: doc.data().location,
+                      type: doc.data().type
+                    }))
+                    .filter(event => event.date >= now)
+                    .sort((a, b) => a.date.getTime() - b.date.getTime())
+                } catch (eventError) {
+                  console.warn('⚠️ Could not fetch upcoming events:', eventError)
+                }
+              }
+              
+              setEvents(upcomingEventsData)
               setStats({
                 trainingsComplete: progress.completedLessons || 0,
                 trainingsInProgress: progress.inProgressLessons || 0,
-                upcomingEvents: 0 // Will be loaded separately below
+                upcomingEvents: upcomingEventsData.length
               })
-              console.log('✅ Loaded aggregated progress:', progress)
-              
-              // Continue to load events (below)
+              return // Success - exit early
             }
           }
+          useDirectCalculation = true
         } catch (apiError) {
           console.warn('⚠️ Could not use aggregated API, falling back to direct calculation:', apiError)
-          // Fall through to direct calculation below
+          useDirectCalculation = true
         }
+
+        // Fallback: Direct calculation if API fails
+        if (useDirectCalculation) {
 
         // CRITICAL: Aggregate lessons from ALL followed coaches, not just one
         // 1. Get all followed coaches

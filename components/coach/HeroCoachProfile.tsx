@@ -1629,7 +1629,23 @@ function TrainingLibrarySection({
               <div className="w-24 h-24 rounded-full bg-[#440102] flex items-center justify-center overflow-hidden flex-shrink-0">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 {lesson.thumbnailUrl ? (
-                  <img src={lesson.thumbnailUrl} alt={lesson.title} className="w-full h-full object-cover" />
+                  <img 
+                    src={lesson.thumbnailUrl.includes('firebasestorage.googleapis.com') 
+                      ? `/api/image-proxy?url=${encodeURIComponent(lesson.thumbnailUrl)}`
+                      : lesson.thumbnailUrl
+                    } 
+                    alt={lesson.title} 
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                    onError={(e) => {
+                      // Fallback to logo if image fails to load (CORS or other errors)
+                      const target = e.target as HTMLImageElement
+                      if (!target.src.includes('athleap-logo')) {
+                        target.src = '/brand/athleap-logo-colored.png'
+                        target.onerror = null // Prevent infinite loop
+                      }
+                    }}
+                  />
                 ) : (
                   <img src="/brand/athleap-logo-colored.png" alt="Athleap" className="w-12 h-12 opacity-90" />
                 )}

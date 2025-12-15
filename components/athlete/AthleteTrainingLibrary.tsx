@@ -111,13 +111,23 @@ export default function AthleteTrainingLibrary({ subscription, isVerifying = fal
                   data.imageUrl ||
                   data.coachPhoto ||
                   data.uploadedImage
+                
+                // If it's a storage path (not a full URL), get download URL
                 if (thumbnailUrl && !/^https?:\/\//i.test(thumbnailUrl)) {
                   try {
                     thumbnailUrl = await getDownloadURL(ref(storage, thumbnailUrl))
-                  } catch {
-                    // keep as-is; placeholder will show
+                  } catch (storageError) {
+                    console.warn(`⚠️ Could not get download URL for lesson ${d.id}:`, storageError)
+                    thumbnailUrl = undefined // Will use fallback
                   }
                 }
+                
+                // If it's a Firebase Storage URL, use proxy to bypass CORS
+                if (thumbnailUrl && thumbnailUrl.includes('firebasestorage.googleapis.com')) {
+                  // Use proxy endpoint to bypass CORS issues
+                  thumbnailUrl = `/api/image-proxy?url=${encodeURIComponent(thumbnailUrl)}`
+                }
+                
                 return {
                   id: d.id,
                   ...data,
@@ -313,6 +323,15 @@ export default function AthleteTrainingLibrary({ subscription, isVerifying = fal
                         src={lesson.thumbnailUrl}
                         alt={lesson.title}
                         className="w-full h-full object-cover"
+                        loading="lazy"
+                        onError={(e) => {
+                          // Fallback to logo if image fails to load (CORS or other errors)
+                          const target = e.target as HTMLImageElement
+                          if (!target.src.includes('athleap-logo')) {
+                            target.src = '/brand/athleap-logo-colored.png'
+                            target.onerror = null // Prevent infinite loop
+                          }
+                        }}
                       />
                     ) : (
                       <img
@@ -394,4 +413,5 @@ export default function AthleteTrainingLibrary({ subscription, isVerifying = fal
     </div>
   )
 }
+
 
