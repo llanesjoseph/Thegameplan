@@ -40,6 +40,9 @@ interface LessonForm {
   videoFile?: File | null // Uploaded video file
   thumbnailFile?: File | null // Uploaded thumbnail image
   thumbnailUrl?: string // URL to thumbnail image
+  contentType: 'standard' | 'link' // Type of lesson content
+  externalLinkUrl?: string // URL for link-type lessons
+  externalLinkDescription?: string // Brief description for link lessons
 }
 
 function CreateLessonPageContent() {
@@ -73,7 +76,10 @@ function CreateLessonPageContent() {
     videoUrl: '',
     videoFile: null,
     thumbnailFile: null,
-    thumbnailUrl: ''
+    thumbnailUrl: '',
+    contentType: 'standard',
+    externalLinkUrl: '',
+    externalLinkDescription: ''
   })
 
   const [videoFileName, setVideoFileName] = useState('')
@@ -791,6 +797,196 @@ function CreateLessonPageContent() {
               <ChevronRight className="w-5 h-5 ml-auto" />
             </button>
 
+            {/* Content Type Selector */}
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+              <h2 className="text-xl font-bold mb-4" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                Lesson Type
+              </h2>
+              <p className="text-sm mb-4" style={{ color: '#000000', opacity: 0.6, fontFamily: '"Open Sans", sans-serif' }}>
+                Choose what type of lesson you want to create
+              </p>
+              <div className="grid grid-cols-2 gap-4">
+                <button
+                  type="button"
+                  onClick={() => setLesson(prev => ({ ...prev, contentType: 'standard' }))}
+                  className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${
+                    lesson.contentType === 'standard'
+                      ? 'border-black bg-black text-white'
+                      : 'border-gray-200 hover:border-gray-400 bg-white'
+                  }`}
+                >
+                  <BookOpen className={`w-8 h-8 ${lesson.contentType === 'standard' ? 'text-white' : 'text-gray-600'}`} />
+                  <span className="font-bold" style={{ fontFamily: '"Open Sans", sans-serif' }}>Standard Lesson</span>
+                  <span className={`text-xs text-center ${lesson.contentType === 'standard' ? 'text-white/80' : 'text-gray-500'}`}>
+                    Create with video, content, and objectives
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLesson(prev => ({ ...prev, contentType: 'link' }))}
+                  className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${
+                    lesson.contentType === 'link'
+                      ? 'border-black bg-black text-white'
+                      : 'border-gray-200 hover:border-gray-400 bg-white'
+                  }`}
+                >
+                  <Link2 className={`w-8 h-8 ${lesson.contentType === 'link' ? 'text-white' : 'text-gray-600'}`} />
+                  <span className="font-bold" style={{ fontFamily: '"Open Sans", sans-serif' }}>External Link</span>
+                  <span className={`text-xs text-center ${lesson.contentType === 'link' ? 'text-white/80' : 'text-gray-500'}`}>
+                    Link to YouTube, article, or external resource
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            {/* External Link Form - Only show when contentType is 'link' */}
+            {lesson.contentType === 'link' && (
+              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
+                <h2 className="text-xl font-bold mb-4 flex items-center gap-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                  <Link2 className="w-6 h-6" style={{ color: '#FC0105' }} />
+                  External Link Details
+                </h2>
+
+                <div className="space-y-4">
+                  {/* Title */}
+                  <div>
+                    <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                      Lesson Title <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={lesson.title}
+                      onChange={(e) => setLesson(prev => ({ ...prev, title: e.target.value }))}
+                      placeholder="e.g., Great Video on Guard Passing"
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                      style={{ fontFamily: '"Open Sans", sans-serif' }}
+                    />
+                  </div>
+
+                  {/* External Link URL */}
+                  <div>
+                    <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                      Link URL <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="url"
+                      value={lesson.externalLinkUrl}
+                      onChange={(e) => setLesson(prev => ({ ...prev, externalLinkUrl: e.target.value }))}
+                      placeholder="https://www.youtube.com/watch?v=... or https://example.com/article"
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                      style={{ fontFamily: '"Open Sans", sans-serif' }}
+                    />
+                    <p className="text-xs mt-1" style={{ color: '#000000', opacity: 0.5, fontFamily: '"Open Sans", sans-serif' }}>
+                      YouTube, Vimeo, articles, or any external resource
+                    </p>
+                  </div>
+
+                  {/* Sport and Level */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
+                        Sport <span className="text-red-500">*</span>
+                      </label>
+                      <select
+                        value={lesson.sport}
+                        onChange={(e) => setLesson(prev => ({ ...prev, sport: e.target.value }))}
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                      >
+                        <option value="">Select sport...</option>
+                        <option value="baseball">Baseball</option>
+                        <option value="basketball">Basketball</option>
+                        <option value="bjj">Brazilian Jiu-Jitsu (BJJ)</option>
+                        <option value="football">Football</option>
+                        <option value="soccer">Soccer</option>
+                        <option value="softball">Softball</option>
+                        <option value="volleyball">Volleyball</option>
+                        <option value="wrestling">Wrestling</option>
+                        <option value="mma">MMA</option>
+                        <option value="other">Other</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
+                        Skill Level <span className="text-red-500">*</span>
+                      </label>
+                      <select
+                        value={lesson.level}
+                        onChange={(e) => setLesson(prev => ({ ...prev, level: e.target.value as any }))}
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                      >
+                        <option value="">Select level...</option>
+                        <option value="beginner">Beginner</option>
+                        <option value="intermediate">Intermediate</option>
+                        <option value="advanced">Advanced</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  <div>
+                    <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                      Description (Optional)
+                    </label>
+                    <textarea
+                      value={lesson.externalLinkDescription}
+                      onChange={(e) => setLesson(prev => ({ ...prev, externalLinkDescription: e.target.value }))}
+                      placeholder="Brief description of what athletes will learn from this resource..."
+                      rows={3}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                      style={{ fontFamily: '"Open Sans", sans-serif' }}
+                    />
+                  </div>
+
+                  {/* Visibility */}
+                  <div>
+                    <label className="block text-sm font-medium mb-2" style={{ color: '#000000' }}>
+                      Visibility
+                    </label>
+                    <select
+                      value={lesson.visibility}
+                      onChange={(e) => setLesson(prev => ({ ...prev, visibility: e.target.value as any }))}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                    >
+                      <option value="athletes_only">My Athletes Only</option>
+                      <option value="specific_athletes">Specific Athletes</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Save Button for Link Type */}
+                <div className="mt-6 flex gap-4">
+                  <button
+                    onClick={handleSave}
+                    disabled={saving || !lesson.title || !lesson.externalLinkUrl || !lesson.sport || !lesson.level}
+                    className="flex-1 px-8 py-4 bg-black text-white rounded-xl hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-medium text-lg shadow-lg"
+                  >
+                    <Save className="w-6 h-6" />
+                    {saving ? 'Saving...' : 'Save Lesson'}
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (lesson.title || lesson.externalLinkUrl) {
+                        if (!confirm('Are you sure? Your changes will be lost.')) return
+                      }
+                      if (embedded) {
+                        router.push('/dashboard/coach/lessons/library?embedded=true')
+                      } else {
+                        router.back()
+                      }
+                    }}
+                    disabled={saving}
+                    className="px-8 py-4 bg-white border-2 border-gray-300 text-black rounded-xl hover:bg-gray-50 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Standard Lesson Form - Only show when contentType is 'standard' */}
+            {lesson.contentType === 'standard' && (
+            <>
             {/* Basic Information */}
             <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-6">
               <h2 className="text-xl font-bold mb-4" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
@@ -1255,6 +1451,8 @@ Write detailed explanations, instructions, and guidance for your athletes."
                 Cancel
               </button>
             </div>
+            </>
+            )}
           </div>
 
           {/* RIGHT COLUMN: LIVE PREVIEW */}

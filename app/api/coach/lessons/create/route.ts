@@ -108,7 +108,10 @@ export async function POST(request: NextRequest) {
       visibility,
       content,
       videoUrl,
-      thumbnailUrl
+      thumbnailUrl,
+      contentType,
+      externalLinkUrl,
+      externalLinkDescription
     } = body
 
     // 4. SERVER-SIDE VALIDATION - CRITICAL
@@ -231,6 +234,7 @@ export async function POST(request: NextRequest) {
       level,
       duration: duration || 60,
       type: 'lesson', // Add type field for content categorization
+      contentType: contentType || 'standard', // 'standard' or 'link'
 
       // Content
       objectives: objectives || [],
@@ -269,6 +273,15 @@ export async function POST(request: NextRequest) {
 
     if (thumbnailUrl !== undefined && thumbnailUrl !== null && thumbnailUrl !== '') {
       lessonData.thumbnailUrl = thumbnailUrl
+    }
+
+    // External link fields for 'link' content type
+    if (externalLinkUrl !== undefined && externalLinkUrl !== null && externalLinkUrl !== '') {
+      lessonData.externalLinkUrl = externalLinkUrl
+    }
+
+    if (externalLinkDescription !== undefined && externalLinkDescription !== null && externalLinkDescription !== '') {
+      lessonData.externalLinkDescription = externalLinkDescription
     }
 
     // 6. ATOMIC TRANSACTION - Save lesson and update coach count
