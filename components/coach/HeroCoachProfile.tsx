@@ -15,6 +15,10 @@ interface Lesson {
   status?: string
   sport?: string
   thumbnailUrl?: string
+  createdAt?: any
+  publishedAt?: any
+  contentType?: 'standard' | 'link'
+  externalLinkUrl?: string
 }
 
 interface GearItem {
@@ -1632,7 +1636,40 @@ function TrainingLibrarySection({
   coachName: string
   onSelectLesson?: (lesson: Lesson) => void
 }) {
-  const filteredLessons = lessons.filter((lesson) => !!lesson && !!lesson.title?.trim?.())
+  // Helper to parse Firestore timestamps
+  const getTimestamp = (lesson: Lesson): number => {
+    const ts = lesson.publishedAt || lesson.createdAt
+    if (!ts) return 0
+    // Handle Firestore timestamp formats
+    if (ts._seconds) return ts._seconds * 1000
+    if (ts.seconds) return ts.seconds * 1000
+    // Handle ISO string or Date
+    const date = new Date(ts)
+    return isNaN(date.getTime()) ? 0 : date.getTime()
+  }
+
+  // Format date for display
+  const formatDate = (lesson: Lesson): string => {
+    const ts = lesson.publishedAt || lesson.createdAt
+    if (!ts) return ''
+    const date = ts._seconds
+      ? new Date(ts._seconds * 1000)
+      : ts.seconds
+        ? new Date(ts.seconds * 1000)
+        : new Date(ts)
+    if (isNaN(date.getTime())) return ''
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    })
+  }
+
+  // Filter and SORT by date (newest first)
+  const filteredLessons = lessons
+    .filter((lesson) => !!lesson && !!lesson.title?.trim?.())
+    .sort((a, b) => getTimestamp(b) - getTimestamp(a))
+
   const pageSize = 4
   const [page, setPage] = useState(0)
 
@@ -1684,9 +1721,11 @@ function TrainingLibrarySection({
                 <p style={{ fontFamily: '"Open Sans", sans-serif', fontSize: '18px', color: '#000000' }}>
                   {lesson.title}
                 </p>
-                <p className="text-sm" style={{ fontFamily: '"Open Sans", sans-serif', color: '#555555' }}>
-                  {lesson.status || 'Published'}
-                </p>
+                <div className="text-right flex-shrink-0">
+                  <p className="text-sm" style={{ fontFamily: '"Open Sans", sans-serif', color: '#555555' }}>
+                    {formatDate(lesson) || 'published'}
+                  </p>
+                </div>
               </div>
             </button>
           ))}

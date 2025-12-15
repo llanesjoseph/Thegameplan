@@ -57,8 +57,11 @@ export async function GET(
       level: doc.data().level,
       status: doc.data().status,
       createdAt: doc.data().createdAt,
+      publishedAt: doc.data().publishedAt || doc.data().createdAt,
       videoUrl: doc.data().videoUrl,
-      thumbnailUrl: doc.data().thumbnailUrl
+      thumbnailUrl: doc.data().thumbnailUrl,
+      contentType: doc.data().contentType || 'standard',
+      externalLinkUrl: doc.data().externalLinkUrl
     }))
 
     // VITAL: Calculate real-time lesson completion stats from athlete feeds

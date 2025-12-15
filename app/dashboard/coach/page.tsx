@@ -12,6 +12,10 @@ type Lesson = {
   status?: string
   sport?: string
   thumbnailUrl?: string
+  createdAt?: any
+  publishedAt?: any
+  contentType?: 'standard' | 'link'
+  externalLinkUrl?: string
 }
 
 type GearItem = {
