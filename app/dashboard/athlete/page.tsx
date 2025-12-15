@@ -590,6 +590,14 @@ export default function AthleteDashboard() {
                     {heroProfile.displayName || user?.displayName || 'Athleap Athlete'}
                   </span>
                   <span className="text-xs text-gray-400">|</span>
+                  <Link
+                    href="/settings"
+                    className="text-xs text-gray-700 underline hover:text-gray-900 transition-colors"
+                    style={{ fontFamily: '"Open Sans", sans-serif' }}
+                  >
+                    Settings
+                  </Link>
+                  <span className="text-xs text-gray-400">|</span>
                   <span
                     className="text-xs text-gray-700 underline"
                     style={{ fontFamily: '"Open Sans", sans-serif' }}

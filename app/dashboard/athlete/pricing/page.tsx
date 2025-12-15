@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Check, ArrowRight, AlertCircle, Sparkles, Users, BookOpen, ShoppingBag } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
@@ -74,6 +74,13 @@ export default function AthletePricingPage() {
   const router = useRouter();
   const [loading, setLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [subscriptionStatus, setSubscriptionStatus] = useState<{
+    tier?: 'free' | 'basic' | 'elite' | 'none';
+    isActive?: boolean;
+    cancelAtPeriodEnd?: boolean;
+  } | null>(null);
+  const [loadingSubscription, setLoadingSubscription] = useState(true);
+  const [canceling, setCanceling] = useState(false);
 
   const handleSubscribe = async (tierId: string) => {
     if (tierId === 'free') {
@@ -304,24 +311,81 @@ export default function AthletePricingPage() {
                   </div>
 
                   {/* CTA Button */}
-                  <div className="p-6 pt-0">
-                    <button
-                      onClick={() => handleSubscribe(tier.id)}
-                      disabled={loading !== null}
-                      className="w-full py-3 px-6 rounded-lg font-semibold text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 bg-[#892F1A] text-white hover:bg-[#7a2717] shadow-md"
-                    >
-                      {loading === tier.id ? (
-                        <>
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                          Loading...
-                        </>
-                      ) : (
-                        <>
-                          {tier.id === 'free' ? 'Get Started' : 'Start Free Trial'}
-                          <ArrowRight className="w-4 h-4" />
-                        </>
-                      )}
-                    </button>
+                  <div className="p-6 pt-0 space-y-3">
+                    {(() => {
+                      const currentTier = subscriptionStatus?.tier || 'none';
+                      const isCurrentTier = currentTier === tier.id;
+                      const tierOrder = { free: 0, basic: 1, elite: 2 };
+                      const isHigherTier = tierOrder[tier.id as keyof typeof tierOrder] > tierOrder[currentTier as keyof typeof tierOrder];
+                      const isLowerTier = tierOrder[tier.id as keyof typeof tierOrder] < tierOrder[currentTier as keyof typeof tierOrder];
+
+                      if (loadingSubscription) {
+                        return (
+                          <button
+                            disabled
+                            className="w-full py-3 px-6 rounded-lg font-semibold text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 bg-gray-300 text-gray-600 shadow-md"
+                          >
+                            <div className="w-4 h-4 border-2 border-gray-600 border-t-transparent rounded-full animate-spin"></div>
+                            Loading...
+                          </button>
+                        );
+                      }
+
+                      if (isCurrentTier) {
+                        return (
+                          <button
+                            disabled
+                            className="w-full py-3 px-6 rounded-lg font-semibold text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 bg-green-600 text-white shadow-md"
+                          >
+                            <Check className="w-4 h-4" />
+                            Current Plan
+                          </button>
+                        );
+                      }
+
+                      if (isHigherTier) {
+                        return (
+                          <button
+                            onClick={() => handleSubscribe(tier.id)}
+                            disabled={loading !== null}
+                            className="w-full py-3 px-6 rounded-lg font-semibold text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 bg-[#892F1A] text-white hover:bg-[#7a2717] shadow-md"
+                          >
+                            {loading === tier.id ? (
+                              <>
+                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                Loading...
+                              </>
+                            ) : (
+                              <>
+                                Upgrade to {tier.name}
+                                <ArrowRight className="w-4 h-4" />
+                              </>
+                            )}
+                          </button>
+                        );
+                      }
+
+                      // Default: Start/Subscribe button
+                      return (
+                        <button
+                          onClick={() => handleSubscribe(tier.id)}
+                          disabled={loading !== null}
+                          className="w-full py-3 px-6 rounded-lg font-semibold text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 bg-[#892F1A] text-white hover:bg-[#7a2717] shadow-md"
+                        >
+                          {loading === tier.id ? (
+                            <>
+                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                              Loading...
+                            </>
+                          ) : (
+                            <>
+                              {tier.id === 'free' ? 'Get Started' : 'Start Free Trial'}
+                              <ArrowRight className="w-4 h-4" />
+                            </>
+                          )}
+                        </button>
+                      );
+                    })()}
                   </div>
                 </div>
               );
@@ -329,10 +393,39 @@ export default function AthletePricingPage() {
           </div>
 
             {/* Footer Note */}
-            <div className="text-center mt-8">
+            <div className="text-center mt-8 space-y-4">
               <p className="text-sm" style={{ color: '#666666', fontFamily: '"Open Sans", sans-serif' }}>
                 All paid plans include a 7-day free trial. Cancel anytime.
               </p>
+              
+              {/* Cancel Subscription Button - Show if user has active subscription */}
+              {subscriptionStatus?.isActive && 
+               subscriptionStatus.tier !== 'free' && 
+               subscriptionStatus.tier !== 'none' && 
+               !subscriptionStatus.cancelAtPeriodEnd && (
+                <div className="pt-4 border-t border-gray-200 max-w-md mx-auto">
+                  <button
+                    onClick={handleCancelSubscription}
+                    disabled={canceling}
+                    className="w-full py-2 px-4 rounded-lg font-semibold text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 bg-red-50 text-red-600 border border-red-300 hover:bg-red-100"
+                  >
+                    {canceling ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+                        Canceling...
+                      </>
+                    ) : (
+                      <>
+                        <AlertCircle className="w-4 h-4" />
+                        Cancel Subscription
+                      </>
+                    )}
+                  </button>
+                  <p className="text-xs text-gray-500 mt-2">
+                    Your subscription will remain active until the end of your current billing period.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
