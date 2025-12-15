@@ -12,6 +12,11 @@ export const runtime = 'nodejs'
  * Follow a coach
  */
 export async function POST(request: NextRequest) {
+  // Declare variables at function scope for catch block access
+  let athleteId: string | undefined
+  let coachId: string | undefined
+  let currentCoachCount = 0
+  
   try {
     const authHeader = request.headers.get('Authorization')
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -20,11 +25,11 @@ export async function POST(request: NextRequest) {
 
     const token = authHeader.split('Bearer ')[1]
     const decodedToken = await adminAuth.verifyIdToken(token)
-    const athleteId = decodedToken.uid
+    athleteId = decodedToken.uid
 
     // Parse request body
     const body = await request.json()
-    const { coachId } = body
+    coachId = body.coachId
 
     if (!coachId) {
       return NextResponse.json({ error: 'Coach ID is required' }, { status: 400 })
@@ -74,7 +79,7 @@ export async function POST(request: NextRequest) {
     const followedCoachIds = new Set(followingSnapshot.docs.map(doc => doc.data().coachId))
     
     // Count unique coaches (assigned coach counts as 1, followed coaches count separately)
-    let currentCoachCount = 0
+    currentCoachCount = 0
     if (assignedCoachId) {
       currentCoachCount++ // Assigned coach counts as 1
     }
@@ -210,11 +215,11 @@ export async function POST(request: NextRequest) {
     console.error('Error following coach:', error)
     
     // Check if it's a limit error from transaction
-    if (error.message && error.message.includes('LIMIT_REACHED')) {
+    if (error.message && error.message.includes('LIMIT_REACHED') && athleteId) {
       const { checkCoachLimit } = await import('@/lib/subscription-checker')
       const limitCheck = await checkCoachLimit(athleteId, currentCoachCount)
       
-      console.log(`🚫 BLOCKED: Athlete ${athleteId} attempted to follow coach ${coachId} but reached limit (${currentCoachCount}/${limitCheck.maxCoaches})`)
+      console.log(`🚫 BLOCKED: Athlete ${athleteId} attempted to follow coach ${coachId || 'unknown'} but reached limit (${currentCoachCount}/${limitCheck.maxCoaches})`)
       return NextResponse.json({
         success: false,
         error: limitCheck.error || `You've reached your coach limit. Upgrade to follow more coaches.`,
