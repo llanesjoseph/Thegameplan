@@ -54,8 +54,8 @@ export default function AthleteProgress() {
               
               // Load events separately
               let upcomingEventsData: Event[] = []
-              const userDoc = await getDoc(doc(db, 'users', user.uid))
-              const assignedCoachId = userDoc.data()?.coachId || userDoc.data()?.assignedCoachId
+              const userDocForEvents = await getDoc(doc(db, 'users', user.uid))
+              const assignedCoachId = userDocForEvents.data()?.coachId || userDocForEvents.data()?.assignedCoachId
               
               if (assignedCoachId) {
                 try {
