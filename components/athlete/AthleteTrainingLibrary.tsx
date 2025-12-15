@@ -85,6 +85,23 @@ export default function AthleteTrainingLibrary({ subscription, isVerifying = fal
 
         console.log(`📚 Fetching lessons from ${coachIds.length} coach(es)`)
 
+        // CRITICAL: Trigger sync to ensure athlete_feed has ALL lessons from ALL coaches
+        // This ensures the metrics and library are always in sync
+        try {
+          console.log('🔄 Triggering sync to ensure all lessons are aggregated...')
+          const syncResponse = await fetch('/api/athlete/progress/sync-all', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` }
+          })
+          if (syncResponse.ok) {
+            const syncData = await syncResponse.json()
+            console.log(`✅ Sync complete: ${syncData.progress?.totalLessons || 0} lessons from ${syncData.progress?.totalCoaches || 0} coaches`)
+          }
+        } catch (syncError) {
+          console.warn('⚠️ Could not trigger sync (non-critical):', syncError)
+          // Continue loading even if sync fails
+        }
+
         if (coachIds.length > 0) {
           // Fetch lessons from ALL coaches (assigned + followed)
           const allLessons: any[] = []
