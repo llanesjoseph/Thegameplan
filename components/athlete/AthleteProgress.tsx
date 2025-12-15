@@ -36,33 +36,103 @@ export default function AthleteProgress() {
       try {
         console.log('🔍 Loading athlete progress for user:', user.uid)
 
-        // Fetch athlete feed for completion data
-        const feedDoc = await getDoc(doc(db, 'athlete_feed', user.uid))
-        let completedCount = 0
-        let totalLessons = 0
-        let inProgressCount = 0
+        // Use aggregated API endpoint for accurate metrics from all coaches
+        try {
+          const token = await user.getIdToken()
+          const response = await fetch('/api/athlete/progress/aggregate', {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          })
 
-        if (feedDoc.exists()) {
-          const feedData = feedDoc.data()
-          const completedLessons = feedData?.completedLessons || []
-          const startedLessons = feedData?.startedLessons || []
-          const availableLessons = feedData?.availableLessons || feedData?.lessons || []
-          
-          completedCount = completedLessons.length
-          totalLessons = Array.isArray(availableLessons) ? availableLessons.length : (feedData?.totalLessons || 0)
-          
-          // CRITICAL FIX: In progress = lessons that are started but NOT completed
-          const startedButNotCompleted = startedLessons.filter((lessonId: string) => !completedLessons.includes(lessonId))
-          inProgressCount = startedButNotCompleted.length
-
-          console.log('📊 Feed Data:')
-          console.log('  - Total Lessons:', totalLessons)
-          console.log('  - Started:', startedLessons.length)
-          console.log('  - Completed:', completedCount)
-          console.log('  - In Progress (started but not completed):', inProgressCount)
-        } else {
-          console.log('⚠️ No athlete_feed document found')
+          if (response.ok) {
+            const data = await response.json()
+            if (data.success && data.progress) {
+              const progress = data.progress
+              setStats({
+                trainingsComplete: progress.completedLessons || 0,
+                trainingsInProgress: progress.inProgressLessons || 0,
+                upcomingEvents: 0 // Will be loaded separately below
+              })
+              console.log('✅ Loaded aggregated progress:', progress)
+              
+              // Continue to load events (below)
+            }
+          }
+        } catch (apiError) {
+          console.warn('⚠️ Could not use aggregated API, falling back to direct calculation:', apiError)
+          // Fall through to direct calculation below
         }
+
+        // CRITICAL: Aggregate lessons from ALL followed coaches, not just one
+        // 1. Get all followed coaches
+        const followsQuery = query(
+          collection(db, 'coach_followers'),
+          where('athleteId', '==', user.uid)
+        )
+        const followsSnapshot = await getDocs(followsQuery)
+        const followedCoachIds = followsSnapshot.docs.map(doc => doc.data().coachId)
+        
+        // 2. Get assigned coach if exists
+        const userDoc = await getDoc(doc(db, 'users', user.uid))
+        const userData = userDoc.data()
+        const assignedCoachId = userData?.coachId || userData?.assignedCoachId
+        
+        // Combine all coach IDs (assigned + followed, no duplicates)
+        const allCoachIds = new Set<string>()
+        if (assignedCoachId) {
+          allCoachIds.add(assignedCoachId)
+        }
+        followedCoachIds.forEach(coachId => allCoachIds.add(coachId))
+        
+        console.log('📊 Coaches:', Array.from(allCoachIds))
+
+        // 3. Fetch athlete feed for completion tracking
+        const feedDoc = await getDoc(doc(db, 'athlete_feed', user.uid))
+        const feedData = feedDoc.exists() ? feedDoc.data() : {}
+        const completedLessons = new Set<string>(feedData?.completedLessons || [])
+        const startedLessons = new Set<string>(feedData?.startedLessons || [])
+        
+        // 4. Aggregate ALL lessons from ALL coaches
+        const allAvailableLessons = new Set<string>()
+        
+        // Get lessons from athlete_feed (already aggregated from all coaches)
+        const feedAvailableLessons = feedData?.availableLessons || feedData?.lessons || []
+        feedAvailableLessons.forEach((lessonId: string) => allAvailableLessons.add(lessonId))
+        
+        // Also fetch directly from all coaches to ensure we have everything
+        for (const coachId of allCoachIds) {
+          try {
+            const lessonsQuery = query(
+              collection(db, 'content'),
+              where('creatorUid', '==', coachId),
+              where('status', '==', 'published')
+            )
+            const lessonsSnapshot = await getDocs(lessonsQuery)
+            lessonsSnapshot.docs.forEach(doc => {
+              allAvailableLessons.add(doc.id)
+            })
+          } catch (error) {
+            console.warn(`⚠️ Could not fetch lessons for coach ${coachId}:`, error)
+          }
+        }
+        
+        // Calculate metrics from aggregated data
+        const totalLessons = allAvailableLessons.size
+        const completedCount = Array.from(completedLessons).filter(id => allAvailableLessons.has(id)).length
+        
+        // CRITICAL FIX: In progress = lessons that are started but NOT completed
+        const startedButNotCompleted = Array.from(startedLessons).filter(
+          (lessonId: string) => allAvailableLessons.has(lessonId) && !completedLessons.has(lessonId)
+        )
+        const inProgressCount = startedButNotCompleted.length
+
+        console.log('📊 Aggregated Progress Data:')
+        console.log('  - Total Coaches:', allCoachIds.size)
+        console.log('  - Total Lessons (all coaches):', totalLessons)
+        console.log('  - Started:', startedLessons.size)
+        console.log('  - Completed:', completedCount)
+        console.log('  - In Progress (started but not completed):', inProgressCount)
 
         // Fetch upcoming events
         const userDoc = await getDoc(doc(db, 'users', user.uid))
