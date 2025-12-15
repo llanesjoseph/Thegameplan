@@ -80,7 +80,7 @@ export async function GET(
       for (const athleteId of athleteIds) {
         try {
           const feedDoc = await adminDb.collection('athlete_feed').doc(athleteId).get()
-          if (feedDoc.exists()) {
+          if (feedDoc.exists) {
             const feedData = feedDoc.data()
             const completedLessons = feedData?.completedLessons || []
             totalLessonsCompleted += completedLessons.length
