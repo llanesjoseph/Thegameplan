@@ -16,7 +16,9 @@ import {
   Clock,
   Star,
   Plus,
-  AlertCircle
+  AlertCircle,
+  Calendar,
+  Link as LinkIcon
 } from 'lucide-react'
 
 interface Lesson {
@@ -29,11 +31,14 @@ interface Lesson {
   tags: string[]
   visibility: string
   status: string
-  createdAt: string
-  updatedAt: string
+  createdAt: any // Firestore timestamp or string
+  updatedAt: any
+  publishedAt?: any
   viewCount: number
   completionCount: number
   averageRating: number
+  contentType?: 'standard' | 'link'
+  externalLinkUrl?: string
 }
 
 function LessonLibraryPageContent() {
@@ -207,6 +212,24 @@ function LessonLibraryPageContent() {
       'other': '#666666'
     }
     return colors[sport] || '#000000'
+  }
+
+  const formatDate = (timestamp: any) => {
+    if (!timestamp) return ''
+    // Handle Firestore timestamp
+    const date = timestamp._seconds
+      ? new Date(timestamp._seconds * 1000)
+      : timestamp.seconds
+        ? new Date(timestamp.seconds * 1000)
+        : new Date(timestamp)
+
+    if (isNaN(date.getTime())) return ''
+
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    })
   }
 
   // Show loading state while checking auth
@@ -411,9 +434,14 @@ function LessonLibraryPageContent() {
                 <div className="p-5">
                   {/* Title and badges */}
                   <div className="mb-3">
-                    <h3 className="text-lg mb-2 line-clamp-2" style={{ color: '#000000' }}>
-                      {lesson.title}
-                    </h3>
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <h3 className="text-lg line-clamp-2 flex-1" style={{ color: '#000000' }}>
+                        {lesson.contentType === 'link' && (
+                          <LinkIcon className="w-4 h-4 inline mr-1.5 text-blue-500" />
+                        )}
+                        {lesson.title}
+                      </h3>
+                    </div>
                     <div className="flex flex-wrap gap-2">
                       <span className="text-xs px-2 py-1 bg-gray-100 rounded capitalize">
                         {lesson.sport}
@@ -421,12 +449,22 @@ function LessonLibraryPageContent() {
                       <span className={`text-xs px-2 py-1 rounded capitalize ${getLevelBadgeColor(lesson.level)}`}>
                         {lesson.level}
                       </span>
-                      <span className="text-xs px-2 py-1 bg-gray-100 rounded flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        {lesson.duration} min
-                      </span>
+                      {lesson.contentType !== 'link' && (
+                        <span className="text-xs px-2 py-1 bg-gray-100 rounded flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {lesson.duration} min
+                        </span>
+                      )}
                     </div>
                   </div>
+
+                  {/* Date Published */}
+                  {(lesson.publishedAt || lesson.createdAt) && (
+                    <div className="mb-3 flex items-center gap-1 text-xs" style={{ color: '#666' }}>
+                      <Calendar className="w-3 h-3" />
+                      <span>Published {formatDate(lesson.publishedAt || lesson.createdAt)}</span>
+                    </div>
+                  )}
 
                   {/* Tags */}
                   {lesson.tags.length > 0 && (

@@ -54,7 +54,9 @@
       "Bash(move stripe_clistripe.exe C:UsersbigpeAppDataLocalMicrosoftWindowsAppsstripe.exe)",
       "Bash(del:*)",
       "Bash(\"C:\\Users\\bigpe\\OneDrive\\Desktop\\Crucible\\GAMEPLAN-SOURCE-ONLY\\stripe.exe\" --version)",
-      "Bash(timeout 120 npm run build:*)"
+      "Bash(timeout 120 npm run build:*)",
+      "Bash(vercel link:*)",
+      "Bash(vercel projects:*)"
     ],
     "deny": [],
     "ask": []

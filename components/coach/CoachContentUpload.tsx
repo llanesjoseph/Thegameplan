@@ -459,123 +459,147 @@ export default function CoachContentUpload() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Content Type Selection */}
-      <div>
-        <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
-          Content Type
-        </label>
-        <div className="grid grid-cols-3 gap-3">
-          <button
-            onClick={() => {
-              setContentType('video')
-              setLinkUrl('')
-              setSelectedFile(null)
-            }}
-            className={`py-3 px-4 rounded-lg border-2 transition-all ${
-              contentType === 'video'
-                ? 'border-black bg-black text-white'
-                : 'border-gray-200 bg-white text-black hover:border-black'
-            }`}
-          >
-            <Video className="w-5 h-5 mx-auto mb-1" />
-            <span className="text-sm font-bold" style={{ fontFamily: '"Open Sans", sans-serif' }}>
-              Video
-            </span>
-          </button>
-          <button
-            onClick={() => {
-              setContentType('document')
-              setLinkUrl('')
-              setSelectedFile(null)
-            }}
-            className={`py-3 px-4 rounded-lg border-2 transition-all ${
-              contentType === 'document'
-                ? 'border-black bg-black text-white'
-                : 'border-gray-200 bg-white text-black hover:border-black'
-            }`}
-          >
-            <FileText className="w-5 h-5 mx-auto mb-1" />
-            <span className="text-sm font-bold" style={{ fontFamily: '"Open Sans", sans-serif' }}>
-              Document
-            </span>
-          </button>
-          <button
-            onClick={() => {
-              setContentType('link')
-              setSelectedFile(null)
-              if (videoUrl) {
-                URL.revokeObjectURL(videoUrl)
-              }
-              setVideoUrl('')
-              setShowThumbnailSelector(false)
-            }}
-            className={`py-3 px-4 rounded-lg border-2 transition-all ${
-              contentType === 'link'
-                ? 'border-black bg-black text-white'
-                : 'border-gray-200 bg-white text-black hover:border-black'
-            }`}
-          >
-            <LinkIcon className="w-5 h-5 mx-auto mb-1" />
-            <span className="text-sm font-bold" style={{ fontFamily: '"Open Sans", sans-serif' }}>
-              Link
-            </span>
-          </button>
-        </div>
+    <div className="space-y-5">
+      {/* Content Type Selection - Compact tabs */}
+      <div className="flex gap-2 p-1 bg-gray-100 rounded-lg">
+        <button
+          onClick={() => {
+            setContentType('video')
+            setLinkUrl('')
+            setSelectedFile(null)
+          }}
+          className={`flex-1 py-2 px-3 rounded-md transition-all flex items-center justify-center gap-2 ${
+            contentType === 'video'
+              ? 'bg-black text-white shadow-sm'
+              : 'text-gray-600 hover:text-black'
+          }`}
+        >
+          <Video className="w-4 h-4" />
+          <span className="text-sm font-semibold">Video</span>
+        </button>
+        <button
+          onClick={() => {
+            setContentType('document')
+            setLinkUrl('')
+            setSelectedFile(null)
+          }}
+          className={`flex-1 py-2 px-3 rounded-md transition-all flex items-center justify-center gap-2 ${
+            contentType === 'document'
+              ? 'bg-black text-white shadow-sm'
+              : 'text-gray-600 hover:text-black'
+          }`}
+        >
+          <FileText className="w-4 h-4" />
+          <span className="text-sm font-semibold">Document</span>
+        </button>
+        <button
+          onClick={() => {
+            setContentType('link')
+            setSelectedFile(null)
+            if (videoUrl) {
+              URL.revokeObjectURL(videoUrl)
+            }
+            setVideoUrl('')
+            setShowThumbnailSelector(false)
+          }}
+          className={`flex-1 py-2 px-3 rounded-md transition-all flex items-center justify-center gap-2 ${
+            contentType === 'link'
+              ? 'bg-black text-white shadow-sm'
+              : 'text-gray-600 hover:text-black'
+          }`}
+        >
+          <LinkIcon className="w-4 h-4" />
+          <span className="text-sm font-semibold">Link</span>
+        </button>
       </div>
 
-      {/* Title Input */}
-      <div>
-        <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
-          Title <span style={{ color: '#FC0105' }}>*</span>
-        </label>
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Enter a title for this content"
-          className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-black focus:outline-none bg-white"
-          style={{ fontFamily: '"Open Sans", sans-serif', color: '#000000' }}
-          disabled={isUploading}
-        />
-      </div>
-
-      {/* Description Input */}
-      <div>
-        <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
-          Description
-        </label>
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Add a description (optional)"
-          rows={3}
-          className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-black focus:outline-none resize-none bg-white"
-          style={{ fontFamily: '"Open Sans", sans-serif', color: '#000000' }}
-          disabled={isUploading}
-        />
-      </div>
-
-      {/* File Upload or URL Input */}
+      {/* LINK MODE - Clean, focused form */}
       {contentType === 'link' ? (
-        <div>
-          <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
-            URL Link <span style={{ color: '#FC0105' }}>*</span>
-          </label>
-          <input
-            type="url"
-            value={linkUrl}
-            onChange={(e) => setLinkUrl(e.target.value)}
-            placeholder="https://example.com/article"
-            className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-black focus:outline-none bg-white"
-            style={{ fontFamily: '"Open Sans", sans-serif', color: '#000000' }}
-            disabled={isUploading}
-          />
-          <p className="text-xs mt-1" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
-            Enter a valid URL (e.g., https://example.com)
-          </p>
+        <div className="space-y-4">
+          {/* URL Input - Primary field for links */}
+          <div>
+            <label className="block text-sm font-semibold mb-1.5 text-gray-700">
+              URL <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="url"
+              value={linkUrl}
+              onChange={(e) => setLinkUrl(e.target.value)}
+              placeholder="https://youtube.com/watch?v=..."
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-black focus:ring-1 focus:ring-black focus:outline-none bg-white text-base"
+              disabled={isUploading}
+            />
+          </div>
+
+          {/* Title Input */}
+          <div>
+            <label className="block text-sm font-semibold mb-1.5 text-gray-700">
+              Title <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Give this link a title"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-black focus:ring-1 focus:ring-black focus:outline-none bg-white text-base"
+              disabled={isUploading}
+            />
+          </div>
+
+          {/* Description - Optional */}
+          <div>
+            <label className="block text-sm font-semibold mb-1.5 text-gray-500">
+              Description <span className="text-gray-400 font-normal">(optional)</span>
+            </label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Brief description of this resource..."
+              rows={2}
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:border-black focus:ring-1 focus:ring-black focus:outline-none resize-none bg-white text-sm"
+              disabled={isUploading}
+            />
+          </div>
         </div>
       ) : (
+        /* VIDEO/DOCUMENT MODE - Original form structure */
+        <>
+          {/* Title Input */}
+          <div>
+            <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+              Title <span style={{ color: '#FC0105' }}>*</span>
+            </label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Enter a title for this content"
+              className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-black focus:outline-none bg-white"
+              style={{ fontFamily: '"Open Sans", sans-serif', color: '#000000' }}
+              disabled={isUploading}
+            />
+          </div>
+
+          {/* Description Input */}
+          <div>
+            <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+              Description
+            </label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Add a description (optional)"
+              rows={3}
+              className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-black focus:outline-none resize-none bg-white"
+              style={{ fontFamily: '"Open Sans", sans-serif', color: '#000000' }}
+              disabled={isUploading}
+            />
+          </div>
+        </>
+      )}
+
+      {/* File Upload (Video/Document only) */}
+      {contentType !== 'link' && (
         <div>
           <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
             {contentType === 'video' ? 'Video File' : 'Document File'} <span style={{ color: '#FC0105' }}>*</span>
@@ -747,12 +771,13 @@ export default function CoachContentUpload() {
         }
       </button>
 
-      {/* Info Note */}
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-        <p className="text-xs" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
-          <strong>Note:</strong> Uploaded content will be saved to your profile and can be shared with your athletes or made public.
-        </p>
-      </div>
+      {/* Info Note - Contextual based on content type */}
+      <p className="text-xs text-center text-gray-500">
+        {contentType === 'link'
+          ? 'Links are saved to your Training Library and shared with your athletes.'
+          : 'Content is saved to your profile and can be shared with athletes.'
+        }
+      </p>
     </div>
   )
 }
