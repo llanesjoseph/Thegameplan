@@ -214,6 +214,7 @@ export default function AthleteProgress() {
         }
         console.log('✅ Final stats:', finalStats)
         setStats(finalStats)
+        } // Close if (useDirectCalculation) block
       } catch (error) {
         console.error('❌ Error loading progress:', error)
       } finally {
