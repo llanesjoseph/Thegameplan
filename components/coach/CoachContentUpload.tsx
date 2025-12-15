@@ -456,96 +456,95 @@ export default function CoachContentUpload() {
               </p>
             </label>
           </div>
-        </div>
-      )}
 
-        {/* Thumbnail scrubber (video only) */}
-        {contentType === 'video' && selectedFile && showThumbnailSelector && videoUrl && (
-          <div className="mt-6 space-y-4">
-            <label className="block text-sm font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
-              Choose Thumbnail
-            </label>
-            <div className="border border-gray-200 rounded-lg p-4 bg-white">
-              <div className="flex flex-col md:flex-row gap-4">
-                <div className="flex-1 space-y-2">
-                  <video
-                    ref={videoRef}
-                    src={videoUrl}
-                    className="w-full rounded-md bg-black"
-                    onLoadedMetadata={(e) => {
-                      const v = e.currentTarget
-                      setVideoDuration(v.duration || 0)
-                    }}
-                    onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
-                    muted
-                  />
-                  {videoDuration > 0 && (
-                    <div className="flex items-center gap-3 mt-2">
-                      <button
-                        type="button"
-                        onClick={handlePlayPause}
-                        className="p-2 rounded-full border border-gray-300 hover:bg-gray-100"
-                      >
-                        {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-                      </button>
-                      <input
-                        type="range"
-                        min={0}
-                        max={videoDuration}
-                        step={0.1}
-                        value={currentTime}
-                        onChange={handleScrub}
-                        className="flex-1"
-                      />
-                      <button
-                        type="button"
-                        onClick={async () => {
-                          const frame = captureFrame()
-                          if (frame) {
-                            setSelectedThumbnail(frame)
-                            if (!thumbnailCandidates.includes(frame)) {
-                              setThumbnailCandidates((prev) => [...prev, frame])
+          {/* Thumbnail scrubber (video only) */}
+          {contentType === 'video' && selectedFile && showThumbnailSelector && videoUrl && (
+            <div className="mt-6 space-y-4">
+              <label className="block text-sm font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                Choose Thumbnail
+              </label>
+              <div className="border border-gray-200 rounded-lg p-4 bg-white">
+                <div className="flex flex-col md:flex-row gap-4">
+                  <div className="flex-1 space-y-2">
+                    <video
+                      ref={videoRef}
+                      src={videoUrl}
+                      className="w-full rounded-md bg-black"
+                      onLoadedMetadata={(e) => {
+                        const v = e.currentTarget
+                        setVideoDuration(v.duration || 0)
+                      }}
+                      onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
+                      muted
+                    />
+                    {videoDuration > 0 && (
+                      <div className="flex items-center gap-3 mt-2">
+                        <button
+                          type="button"
+                          onClick={handlePlayPause}
+                          className="p-2 rounded-full border border-gray-300 hover:bg-gray-100"
+                        >
+                          {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                        </button>
+                        <input
+                          type="range"
+                          min={0}
+                          max={videoDuration}
+                          step={0.1}
+                          value={currentTime}
+                          onChange={handleScrub}
+                          className="flex-1"
+                        />
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            const frame = captureFrame()
+                            if (frame) {
+                              setSelectedThumbnail(frame)
+                              if (!thumbnailCandidates.includes(frame)) {
+                                setThumbnailCandidates((prev) => [...prev, frame])
+                              }
                             }
-                          }
-                        }}
-                        className="inline-flex items-center gap-1 px-3 py-1 rounded-full border border-gray-300 text-xs font-semibold hover:bg-gray-100"
-                      >
-                        <Camera className="w-3 h-3" />
-                        Capture Frame
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                <div className="w-full md:w-48 space-y-2">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-gray-600">
-                    Thumbnail Choices
-                  </p>
-                  <div className="grid grid-cols-2 gap-2">
-                    {thumbnailCandidates.map((thumb, idx) => (
-                      <button
-                        key={idx}
-                        type="button"
-                        onClick={() => setSelectedThumbnail(thumb)}
-                        className={`relative border ${selectedThumbnail === thumb ? 'border-black' : 'border-gray-200'} rounded overflow-hidden`}
-                      >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={thumb} alt={`Thumbnail ${idx + 1}`} className="w-full h-16 object-cover" />
-                        {selectedThumbnail === thumb && (
-                          <span className="absolute inset-0 border-2 border-black pointer-events-none" />
-                        )}
-                      </button>
-                    ))}
-                    {thumbnailCandidates.length === 0 && (
-                      <p className="text-xs text-gray-500 col-span-2">Generating preview frames…</p>
+                          }}
+                          className="inline-flex items-center gap-1 px-3 py-1 rounded-full border border-gray-300 text-xs font-semibold hover:bg-gray-100"
+                        >
+                          <Camera className="w-3 h-3" />
+                          Capture Frame
+                        </button>
+                      </div>
                     )}
+                  </div>
+
+                  <div className="w-full md:w-48 space-y-2">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-gray-600">
+                      Thumbnail Choices
+                    </p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {thumbnailCandidates.map((thumb, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => setSelectedThumbnail(thumb)}
+                          className={`relative border ${selectedThumbnail === thumb ? 'border-black' : 'border-gray-200'} rounded overflow-hidden`}
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={thumb} alt={`Thumbnail ${idx + 1}`} className="w-full h-16 object-cover" />
+                          {selectedThumbnail === thumb && (
+                            <span className="absolute inset-0 border-2 border-black pointer-events-none" />
+                          )}
+                        </button>
+                      ))}
+                      {thumbnailCandidates.length === 0 && (
+                        <p className="text-xs text-gray-500 col-span-2">Generating preview frames…</p>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
 
       {/* Upload Progress */}
       {uploadProgress && (
