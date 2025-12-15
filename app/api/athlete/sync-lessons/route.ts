@@ -76,22 +76,25 @@ export async function POST(request: NextRequest) {
 
     console.log(`📚 Found ${availableLessons.length} published lessons for coach`)
 
-    // 4. Get existing athlete feed to preserve completion data
+    // 4. Get existing athlete feed to preserve ALL progress data
     const feedDoc = await adminDb.collection('athlete_feed').doc(userId).get()
-    const existingCompletedLessons = feedDoc.exists ? (feedDoc.data()?.completedLessons || []) : []
-
-    // 5. Update athlete feed with all lessons
-    await adminDb.collection('athlete_feed').doc(userId).set({
-      athleteId: userId,
-      coachId,
+    const feedData = feedDoc.exists ? feedDoc.data() : {}
+    
+    // CRITICAL: Preserve ALL progress arrays - never overwrite them
+    const existingCompletedLessons = feedData?.completedLessons || []
+    const existingStartedLessons = feedData?.startedLessons || []
+    
+    // 5. Update athlete feed with all lessons - ONLY update availableLessons, preserve progress
+    await adminDb.collection('athlete_feed').doc(userId).update({
       availableLessons,
-      completedLessons: existingCompletedLessons,
       totalLessons: availableLessons.length,
       completionRate: availableLessons.length > 0
         ? Math.round((existingCompletedLessons.length / availableLessons.length) * 100)
         : 0,
       updatedAt: FieldValue.serverTimestamp()
-    }, { merge: true })
+      // CRITICAL: Do NOT touch completedLessons or startedLessons - they are preserved automatically
+      // by using update() instead of set() - existing arrays remain untouched
+    })
 
     console.log(`✅ Synced ${availableLessons.length} lessons for athlete ${userId}`)
 

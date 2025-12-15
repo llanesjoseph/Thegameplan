@@ -85,44 +85,53 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    // HARD LIMIT: Check if adding this coach would exceed the limit
-    // This is a BULLETPROOF check that cannot be bypassed
-    const limitCheck = await checkCoachLimit(athleteId, currentCoachCount)
-    
-    if (!limitCheck.allowed) {
-      console.log(`🚫 BLOCKED: Athlete ${athleteId} attempted to follow coach ${coachId} but reached limit (${currentCoachCount}/${limitCheck.maxCoaches})`)
-      return NextResponse.json({
-        success: false,
-        error: limitCheck.error || `You've reached your coach limit. Upgrade to follow more coaches.`,
-        limitReached: true,
-        currentCount: currentCoachCount,
-        maxCoaches: limitCheck.maxCoaches,
-        upgradeUrl: limitCheck.upgradeUrl || '/dashboard/athlete/pricing'
-      }, { status: 403 })
-    }
-    
-    // DOUBLE CHECK: Verify count is still valid (race condition protection)
-    if (limitCheck.maxCoaches !== -1 && currentCoachCount >= limitCheck.maxCoaches) {
-      console.log(`🚫 BLOCKED (double-check): Athlete ${athleteId} reached limit during follow attempt`)
-      return NextResponse.json({
-        success: false,
-        error: limitCheck.error || `You've reached your coach limit. Upgrade to follow more coaches.`,
-        limitReached: true,
-        currentCount: currentCoachCount,
-        maxCoaches: limitCheck.maxCoaches,
-        upgradeUrl: limitCheck.upgradeUrl || '/dashboard/athlete/pricing'
-      }, { status: 403 })
-    }
-
-    // Create follow relationship
-    await adminDb.collection('coach_followers').doc(followId).set({
-      athleteId,
-      coachId,
-      athleteName,
-      coachName,
-      followedAt: FieldValue.serverTimestamp(),
-      notificationsEnabled: true
+    // CRITICAL: Use TRANSACTION to prevent race conditions and enforce hard limits
+    // This ensures the limit check and follow creation are atomic
+    await adminDb.runTransaction(async (transaction) => {
+      // Re-count coaches in transaction to prevent race conditions
+      const followingSnapshot = await transaction.get(
+        adminDb.collection('coach_followers')
+          .where('athleteId', '==', athleteId)
+      )
+      
+      const followedCoachIds = new Set(followingSnapshot.docs.map(doc => doc.data().coachId))
+      
+      // Re-count in transaction
+      let transactionCoachCount = 0
+      if (assignedCoachId) {
+        transactionCoachCount++
+      }
+      followedCoachIds.forEach(followedId => {
+        if (followedId !== assignedCoachId) {
+          transactionCoachCount++
+        }
+      })
+      
+      // HARD LIMIT CHECK in transaction (bulletproof)
+      const limitCheck = await checkCoachLimit(athleteId, transactionCoachCount)
+      
+      if (!limitCheck.allowed) {
+        throw new Error(`LIMIT_REACHED: ${limitCheck.error || 'Coach limit reached'}`)
+      }
+      
+      // DOUBLE CHECK in transaction
+      if (limitCheck.maxCoaches !== -1 && transactionCoachCount >= limitCheck.maxCoaches) {
+        throw new Error(`LIMIT_REACHED: ${limitCheck.error || 'Coach limit reached'}`)
+      }
+      
+      // Create follow relationship in transaction
+      const followRef = adminDb.collection('coach_followers').doc(followId)
+      transaction.set(followRef, {
+        athleteId,
+        coachId,
+        athleteName,
+        coachName,
+        followedAt: FieldValue.serverTimestamp(),
+        notificationsEnabled: true
+      })
     })
+
+    console.log(`✅ Athlete ${athleteId} followed coach ${coachId} (transaction committed)`)
 
     // CRITICAL: Sync coach's lessons to athlete_feed
     // Get all published lessons from this coach
@@ -197,8 +206,25 @@ export async function POST(request: NextRequest) {
       message: `You are now following ${coachName}`,
       alreadyFollowing: false
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error following coach:', error)
+    
+    // Check if it's a limit error from transaction
+    if (error.message && error.message.includes('LIMIT_REACHED')) {
+      const { checkCoachLimit } = await import('@/lib/subscription-checker')
+      const limitCheck = await checkCoachLimit(athleteId, currentCoachCount)
+      
+      console.log(`🚫 BLOCKED: Athlete ${athleteId} attempted to follow coach ${coachId} but reached limit (${currentCoachCount}/${limitCheck.maxCoaches})`)
+      return NextResponse.json({
+        success: false,
+        error: limitCheck.error || `You've reached your coach limit. Upgrade to follow more coaches.`,
+        limitReached: true,
+        currentCount: currentCoachCount,
+        maxCoaches: limitCheck.maxCoaches,
+        upgradeUrl: limitCheck.upgradeUrl || '/dashboard/athlete/pricing'
+      }, { status: 403 })
+    }
+    
     return NextResponse.json(
       { error: 'Failed to follow coach', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }

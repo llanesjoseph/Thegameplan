@@ -94,27 +94,48 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 6. Update completion status
+    // 6. Update completion status using TRANSACTION for atomicity
     const feedRef = adminDb.collection('athlete_feed').doc(athleteId)
+    
+    // Use transaction to ensure completion status persists and cannot be lost
+    await adminDb.runTransaction(async (transaction) => {
+      // Re-read feed document in transaction to get latest state
+      const currentFeedDoc = await transaction.get(feedRef)
+      if (!currentFeedDoc.exists) {
+        throw new Error('Athlete feed not found')
+      }
+      
+      const currentFeedData = currentFeedDoc.data()
+      const currentCompletedLessons = currentFeedData?.completedLessons || []
+      const currentStartedLessons = currentFeedData?.startedLessons || []
+      
+      if (action === 'complete') {
+        // CRITICAL: Use arrayUnion to add - this is idempotent and safe
+        // If already completed, this won't duplicate it
+        const updateData: any = {
+          completedLessons: FieldValue.arrayUnion(lessonId),
+          [`completionDates.${lessonId}`]: FieldValue.serverTimestamp(),
+          lastActivity: FieldValue.serverTimestamp()
+        }
+        
+        // Add to startedLessons if not already there (idempotent)
+        if (!currentStartedLessons.includes(lessonId)) {
+          updateData.startedLessons = FieldValue.arrayUnion(lessonId)
+        }
+        
+        transaction.update(feedRef, updateData)
+      } else if (action === 'uncomplete') {
+        // Only allow uncomplete if explicitly requested
+        transaction.update(feedRef, {
+          completedLessons: FieldValue.arrayRemove(lessonId),
+          [`completionDates.${lessonId}`]: FieldValue.delete(),
+          lastActivity: FieldValue.serverTimestamp()
+        })
+      }
+    })
 
     if (action === 'complete') {
-      // CRITICAL: Ensure lesson is marked as started if not already
-      const feedData = feedDoc.data()
-      const startedLessons = feedData?.startedLessons || []
-      const updateData: any = {
-        completedLessons: FieldValue.arrayUnion(lessonId),
-        [`completionDates.${lessonId}`]: FieldValue.serverTimestamp(),
-        lastActivity: FieldValue.serverTimestamp()
-      }
-      
-      // Add to startedLessons if not already there
-      if (!startedLessons.includes(lessonId)) {
-        updateData.startedLessons = FieldValue.arrayUnion(lessonId)
-      }
-      
-      await feedRef.update(updateData)
-
-      console.log(`✅ Athlete ${athleteId} marked lesson ${lessonId} as complete`)
+      console.log(`✅ Athlete ${athleteId} marked lesson ${lessonId} as complete (transaction committed)`)
 
       return NextResponse.json({
         success: true,
@@ -124,13 +145,7 @@ export async function POST(request: NextRequest) {
       })
 
     } else if (action === 'uncomplete') {
-      // Remove from completedLessons array AND remove completion timestamp
-      await feedRef.update({
-        completedLessons: FieldValue.arrayRemove(lessonId),
-        [`completionDates.${lessonId}`]: FieldValue.delete(),
-        lastActivity: FieldValue.serverTimestamp()
-      })
-
+      // Already handled in transaction above
       console.log(`✅ Athlete ${athleteId} unmarked lesson ${lessonId}`)
 
       return NextResponse.json({

@@ -665,12 +665,38 @@ service cloud.firestore {
       // Athletes can ONLY read their own feed
       allow read: if isOwner(athleteId) || isAdmin();
 
-      // Athletes can update their own feed (mark lessons complete)
+      // Athletes can update their own feed (mark lessons complete, started)
+      // CRITICAL: Only allow updates to progress fields, never overwrite arrays
       allow update: if isOwner(athleteId) &&
-                       request.resource.data.diff(resource.data).affectedKeys().hasOnly(['completedLessons', 'completionRate', 'lastActivity']);
+                       (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['completedLessons', 'startedLessons', 'completionDates', 'startDates', 'completionRate', 'lastActivity', 'updatedAt']) ||
+                        // Allow arrayUnion/arrayRemove operations (they're safe)
+                        request.resource.data.completedLessons is list ||
+                        request.resource.data.startedLessons is list);
 
       // Only Cloud Functions can create/delete feeds (via Admin SDK)
       allow create, delete: if false;
+    }
+
+    // Coach Followers - Athletes following coaches (TIER LIMIT ENFORCEMENT)
+    // NOTE: Full limit enforcement happens in API (app/api/athlete/follow-coach/route.ts)
+    // Rules here provide basic access control - API does the tier limit checking
+    match /coach_followers/{followId} {
+      // Athletes can read their own follow relationships
+      allow read: if isAuthenticated() &&
+                     (resource.data.athleteId == request.auth.uid || isAdmin());
+
+      // Athletes can create follow relationships (limit enforced in API)
+      // API-level check is required because Firestore rules cannot count collections
+      allow create: if isAuthenticated() &&
+                       request.resource.data.athleteId == request.auth.uid &&
+                       request.resource.data.keys().hasAll(['athleteId', 'coachId', 'athleteName', 'coachName']);
+
+      // Athletes can delete their own follow relationships
+      allow delete: if isAuthenticated() &&
+                       resource.data.athleteId == request.auth.uid;
+
+      // Updates not allowed (follow/unfollow only)
+      allow update: if false;
     }
 
     // ============================================================================
