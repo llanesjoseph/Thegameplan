@@ -196,17 +196,22 @@ export default function CoachContentUpload() {
         })
 
         // Save link to Firestore
-        await addDoc(collection(db, 'coach_content'), {
-          coachId: user.uid,
-          coachName: user.displayName || 'Unknown Coach',
-          contentType: 'link',
-          title: title.trim(),
-          description: description.trim(),
-          linkUrl: linkUrl.trim(),
-          uploadedAt: serverTimestamp(),
-          isPublic: false, // Default to private
-          views: 0
-        })
+        try {
+          await addDoc(collection(db, 'coach_content'), {
+            coachId: user.uid,
+            coachName: user.displayName || 'Unknown Coach',
+            contentType: 'link',
+            title: title.trim(),
+            description: description.trim(),
+            linkUrl: linkUrl.trim(),
+            uploadedAt: serverTimestamp(),
+            isPublic: false, // Default to private
+            views: 0
+          })
+        } catch (firestoreError: any) {
+          console.error('Firestore error:', firestoreError)
+          throw new Error(firestoreError.message || 'Failed to save link. Please check your permissions.')
+        }
 
         setUploadProgress({
           fileName: 'Link',
@@ -574,8 +579,8 @@ export default function CoachContentUpload() {
             </p>
           )}
           {uploadProgress.status === 'error' && (
-            <p className="text-sm mt-2" style={{ color: '#FC0105', fontFamily: '"Open Sans", sans-serif' }}>
-              {uploadProgress.error}
+            <p className="text-sm mt-2 font-bold" style={{ color: '#FC0105', fontFamily: '"Open Sans", sans-serif' }}>
+              {uploadProgress.error || 'Upload failed. Please try again.'}
             </p>
           )}
         </div>

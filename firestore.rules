@@ -1170,6 +1170,37 @@ service cloud.firestore {
       allow delete: if (isCreatorOrHigher() && resource.data.coachId == request.auth.uid) || isAdmin();
     }
 
+    // Coach Content - Coach-uploaded content (videos, documents, links)
+    match /coach_content/{contentId} {
+      // Coaches can read their own content
+      allow read: if isAuthenticated() &&
+                     (resource.data.coachId == request.auth.uid || isAdmin());
+      
+      // Athletes can read content from their coaches
+      allow read: if isAuthenticated() &&
+                     exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+                     (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.coachId == resource.data.coachId ||
+                      get(/databases/$(database)/documents/users/$(request.auth.uid)).data.assignedCoachId == resource.data.coachId);
+      
+      // Coaches can create their own content
+      allow create: if isAuthenticated() &&
+                       (isCoach() || isCreator()) &&
+                       request.resource.data.coachId == request.auth.uid &&
+                       request.resource.data.keys().hasAll(['coachId', 'contentType', 'title']);
+      
+      // Coaches can update their own content
+      allow update: if isAuthenticated() &&
+                       (isCoach() || isCreator()) &&
+                       resource.data.coachId == request.auth.uid &&
+                       request.resource.data.coachId == request.auth.uid;
+      
+      // Coaches can delete their own content, admins can delete any
+      allow delete: if (isAuthenticated() &&
+                          (isCoach() || isCreator()) &&
+                          resource.data.coachId == request.auth.uid) ||
+                       isAdmin();
+    }
+
     // ===== DEFAULT DENY =====
     match /{document=**} {
       allow read, write: if false;

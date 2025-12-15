@@ -154,16 +154,21 @@ export default function BrowseCoachesPage() {
       
       if (wouldExceedLimit) {
         let errorMessage = ''
+        let upgradeMessage = ''
         if (subscriptionStatus?.tier === 'none' || subscriptionStatus?.tier === 'free') {
-          errorMessage = `You've reached your Free tier limit of 1 coach. Upgrade to Tier 2 ($9.99/month) to follow up to 3 coaches, or Tier 3 ($19.99/month) for unlimited coaches.`
+          errorMessage = `You've reached your Free tier limit of 1 coach.`
+          upgradeMessage = `Upgrade to Tier 2 ($9.99/month) to follow up to 3 coaches, or Tier 3 ($19.99/month) for unlimited coaches.`
         } else if (subscriptionStatus?.tier === 'basic') {
-          errorMessage = `You've reached your Tier 2 limit of 3 coaches. Upgrade to Tier 3 ($19.99/month) to follow unlimited coaches and unlock 1:1 coaching sessions.`
+          errorMessage = `You've reached your Tier 2 limit of 3 coaches.`
+          upgradeMessage = `Upgrade to Tier 3 ($19.99/month) to follow unlimited coaches and unlock 1:1 coaching sessions.`
         } else {
-          errorMessage = `You've reached your coach limit. Please upgrade to follow more coaches.`
+          errorMessage = `You've reached your coach limit.`
+          upgradeMessage = `Please upgrade to follow more coaches.`
         }
         
+        // Show user-friendly popup with upgrade option
         const shouldUpgrade = window.confirm(
-          `${errorMessage}\n\nWould you like to view pricing plans and upgrade?`
+          `🚫 ${errorMessage}\n\n${upgradeMessage}\n\nWould you like to view pricing plans and upgrade?`
         )
         if (shouldUpgrade) {
           window.location.href = '/dashboard/athlete/pricing'
@@ -213,8 +218,13 @@ export default function BrowseCoachesPage() {
         
         // Handle coach limit reached - show upgrade prompt
         if (data.limitReached || response.status === 403) {
+          const errorMsg = data.error || 'You have reached your coach limit.'
+          const upgradeMsg = data.maxCoaches 
+            ? `You can follow up to ${data.maxCoaches} coach${data.maxCoaches > 1 ? 'es' : ''} on your current plan.`
+            : 'Please upgrade to follow more coaches.'
+          
           const shouldUpgrade = window.confirm(
-            `${data.error || 'You have reached your coach limit.'}\n\nWould you like to view pricing plans and upgrade?`
+            `🚫 ${errorMsg}\n\n${upgradeMsg}\n\nWould you like to view pricing plans and upgrade?`
           )
           if (shouldUpgrade) {
             window.location.href = data.upgradeUrl || '/dashboard/athlete/pricing'
