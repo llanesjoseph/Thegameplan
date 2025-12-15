@@ -215,31 +215,45 @@ export default function HeroCoachProfile({
   const normalizedSport = activeCoach.sport?.trim().toLowerCase() || 'default'
   const theme = SPORT_THEMES[normalizedSport] || SPORT_THEMES.default
 
+  // CRITICAL: Helper function to proxy Firebase Storage URLs through our image proxy
+  // This fixes CORS issues that cause "Image unavailable" errors
+  const getProxiedImageUrl = (url: string | undefined | null): string | undefined => {
+    if (!url || typeof url !== 'string' || url.trim().length === 0) return undefined
+    
+    const trimmedUrl = url.trim()
+    
+    // If it's a Firebase Storage URL, use the proxy to bypass CORS
+    if (trimmedUrl.includes('firebasestorage.googleapis.com') || trimmedUrl.includes('storage.googleapis.com')) {
+      return `/api/image-proxy?url=${encodeURIComponent(trimmedUrl)}`
+    }
+    
+    // If it's already a full HTTP/HTTPS URL, use it directly
+    if (trimmedUrl.startsWith('http://') || trimmedUrl.startsWith('https://')) {
+      return trimmedUrl
+    }
+    
+    return undefined
+  }
+
   const galleryPhotos = useMemo(() => {
     const photos: string[] = []
     
-    // Add showcase photos if they exist and are valid URLs
-    if (activeCoach.showcasePhoto1 && 
-        typeof activeCoach.showcasePhoto1 === 'string' && 
-        activeCoach.showcasePhoto1.trim().length > 0 &&
-        (activeCoach.showcasePhoto1.startsWith('http://') || activeCoach.showcasePhoto1.startsWith('https://'))) {
-      photos.push(activeCoach.showcasePhoto1)
+    // Add showcase photos if they exist and are valid URLs (use proxy for Firebase Storage)
+    const showcase1 = getProxiedImageUrl(activeCoach.showcasePhoto1)
+    if (showcase1) {
+      photos.push(showcase1)
     }
-    if (activeCoach.showcasePhoto2 && 
-        typeof activeCoach.showcasePhoto2 === 'string' && 
-        activeCoach.showcasePhoto2.trim().length > 0 &&
-        (activeCoach.showcasePhoto2.startsWith('http://') || activeCoach.showcasePhoto2.startsWith('https://'))) {
-      photos.push(activeCoach.showcasePhoto2)
+    const showcase2 = getProxiedImageUrl(activeCoach.showcasePhoto2)
+    if (showcase2) {
+      photos.push(showcase2)
     }
     
-    // Add gallery photos if they exist and are valid URLs
+    // Add gallery photos if they exist and are valid URLs (use proxy for Firebase Storage)
     if (activeCoach.galleryPhotos && Array.isArray(activeCoach.galleryPhotos)) {
       activeCoach.galleryPhotos.forEach((url) => {
-        if (typeof url === 'string' && 
-            url.trim().length > 0 && 
-            !url.includes('placeholder') &&
-            (url.startsWith('http://') || url.startsWith('https://'))) {
-          photos.push(url)
+        const proxiedUrl = getProxiedImageUrl(url)
+        if (proxiedUrl && !proxiedUrl.includes('placeholder')) {
+          photos.push(proxiedUrl)
         }
       })
     }
@@ -939,9 +953,17 @@ function HeroSection({
           <div className="flex flex-col items-center gap-4 w-full max-w-md">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={coach.profileImageUrl || '/brand/athleap-logo-colored.png'}
+            src={getProxiedImageUrl(coach.profileImageUrl) || '/brand/athleap-logo-colored.png'}
             alt={coach.displayName}
             className="w-[347px] h-[359px] object-cover rounded-lg bg-white"
+            onError={(e) => {
+              // Fallback to logo if image fails to load
+              const target = e.target as HTMLImageElement
+              if (!target.src.includes('athleap-logo')) {
+                target.src = '/brand/athleap-logo-colored.png'
+                target.onerror = null // Prevent infinite loop
+              }
+            }}
           />
             {canEditProfile && (
               <div className="flex flex-wrap items-center justify-center gap-3">
@@ -1522,13 +1544,12 @@ function CoachGallery({
                         className="w-full h-full object-cover" 
                         loading={idx < 4 ? 'eager' : 'lazy'}
                         onError={(e) => {
-                          console.warn(`[COACH-GALLERY] Failed to load image ${idx + 1} (CORS or network error):`, src)
+                          console.warn(`[COACH-GALLERY] Failed to load image ${idx + 1}:`, src)
                           // Track this image as failed
                           setFailedImages(prev => new Set(prev).add(src))
                           // Hide broken image
                           e.currentTarget.style.display = 'none'
                         }}
-                        crossOrigin="anonymous"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-gray-200">
