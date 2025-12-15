@@ -1294,6 +1294,7 @@ function CoachGallery({
   const scrollByAmount = photoWidth + photoGap
   const hasOverflow = photos.length > maxVisiblePhotos
   const [deletingPhotoUrl, setDeletingPhotoUrl] = useState<string | null>(null)
+  const [failedImages, setFailedImages] = useState<Set<string>>(new Set())
 
   const handlePrev = () => {
     if (rowRef.current) {
@@ -1491,6 +1492,7 @@ function CoachGallery({
             >
               {validPhotos.map((src, idx) => {
                 const isDeleting = deletingPhotoUrl === src
+                const hasFailed = failedImages.has(src)
                 
                 return (
                   <div
@@ -1500,8 +1502,29 @@ function CoachGallery({
                     } h-[260px] md:h-[285px] rounded-md overflow-hidden bg-gray-100 group`}
                     style={hasOverflow ? { width: `${photoWidth}px` } : undefined}
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={src} alt={`Gallery image ${idx + 1}`} className="w-full h-full object-cover" loading={idx < 4 ? 'eager' : 'lazy'} />
+                    {!hasFailed ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img 
+                        src={src} 
+                        alt={`Gallery image ${idx + 1}`} 
+                        className="w-full h-full object-cover" 
+                        loading={idx < 4 ? 'eager' : 'lazy'}
+                        onError={(e) => {
+                          console.warn(`[COACH-GALLERY] Failed to load image ${idx + 1} (CORS or network error):`, src)
+                          // Track this image as failed
+                          setFailedImages(prev => new Set(prev).add(src))
+                          // Hide broken image
+                          e.currentTarget.style.display = 'none'
+                        }}
+                        crossOrigin="anonymous"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gray-200">
+                        <div className="text-center p-4">
+                          <p className="text-xs text-gray-500">Image unavailable</p>
+                        </div>
+                      </div>
+                    )}
                     
                     {/* Delete button - show for all photos */}
                     {canDelete && (

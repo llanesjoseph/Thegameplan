@@ -1,0 +1,9 @@
+[
+  {
+    "origin": ["https://athleap.ai", "https://www.athleap.ai", "http://localhost:3000"],
+    "method": ["GET", "HEAD"],
+    "responseHeader": ["Content-Type", "Access-Control-Allow-Origin"],
+    "maxAgeSeconds": 3600
+  }
+]
+
