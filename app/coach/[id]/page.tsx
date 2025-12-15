@@ -237,7 +237,7 @@ export default function CoachProfilePage() {
         ...coachActionPhotos,
         ...indexActionPhotos
       ])]
-      const galleryPhotos = allGalleryPhotos.filter((url: string) => 
+      let galleryPhotos = allGalleryPhotos.filter((url: string) => 
         url && typeof url === 'string' && url.trim().length > 0 && !url.includes('placeholder')
       )
 
@@ -257,7 +257,7 @@ export default function CoachProfilePage() {
       if (isJasmine && galleryPhotos.length === 0) {
         const jasmineProfile = createJasmineCoachProfile(coachId, userData.email)
         const jasmineGallery = extractGalleryPhotos(jasmineProfile.actionPhotos)
-        galleryPhotos.push(...jasmineGallery)
+        galleryPhotos = [...galleryPhotos, ...jasmineGallery]
         if (!showcasePhoto1) showcasePhoto1 = jasmineProfile.actionPhotos?.[0] || jasmineProfile.heroImageUrl
         if (!showcasePhoto2) showcasePhoto2 = jasmineProfile.actionPhotos?.[1] || jasmineProfile.headshotUrl
       }
