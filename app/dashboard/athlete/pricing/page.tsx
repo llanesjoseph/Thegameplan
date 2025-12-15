@@ -82,6 +82,38 @@ export default function AthletePricingPage() {
   const [loadingSubscription, setLoadingSubscription] = useState(true);
   const [canceling, setCanceling] = useState(false);
 
+  // Helper function to redirect to Stripe Customer Portal for upgrades
+  const redirectToCustomerPortal = async () => {
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+
+    try {
+      const token = await user.getIdToken();
+      const response = await fetch('/api/athlete/subscriptions/customer-portal', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to open subscription management');
+      }
+
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch (err: any) {
+      console.error('Error opening customer portal:', err);
+      throw err;
+    }
+  };
+
   const handleSubscribe = async (tierId: string) => {
     if (tierId === 'free') {
       // Set up free tier subscription
@@ -132,6 +164,12 @@ export default function AthletePricingPage() {
     try {
       const token = await user.getIdToken();
 
+      // If user already has an active subscription, redirect to customer portal to upgrade
+      if (subscriptionStatus?.isActive && subscriptionStatus?.tier !== 'none') {
+        await redirectToCustomerPortal();
+        return;
+      }
+
       const response = await fetch('/api/athlete/subscriptions/create-checkout', {
         method: 'POST',
         headers: {
@@ -144,6 +182,11 @@ export default function AthletePricingPage() {
       const data = await response.json();
 
       if (!response.ok) {
+        // If they have an active subscription, redirect to portal instead of showing error
+        if (data.error?.includes('active subscription')) {
+          await redirectToCustomerPortal();
+          return;
+        }
         throw new Error(data.error || 'Failed to create checkout session');
       }
 
@@ -298,6 +341,19 @@ export default function AthletePricingPage() {
             <div className="mb-6 max-w-4xl mx-auto p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
               <p className="text-red-800">{error}</p>
+            </div>
+          )}
+
+          {/* Active Subscription Info Banner */}
+          {subscriptionStatus?.isActive && subscriptionStatus?.tier !== 'none' && subscriptionStatus?.tier !== 'free' && (
+            <div className="mb-6 max-w-4xl mx-auto p-4 bg-blue-50 border border-blue-200 rounded-lg flex items-start gap-3">
+              <Sparkles className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-blue-800 font-semibold">You have an active subscription</p>
+                <p className="text-blue-700 text-sm mt-1">
+                  Click &quot;Upgrade&quot; on any plan to go directly to your subscription management page where you can change your plan.
+                </p>
+              </div>
             </div>
           )}
 
