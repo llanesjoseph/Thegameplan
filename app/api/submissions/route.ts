@@ -23,6 +23,51 @@ export async function POST(request: NextRequest) {
     const userData = userDoc.data();
     const coachId = userData?.coachId || userData?.assignedCoachId;
 
+    // STRICT TIER CHECK: Video submission requires Tier 2+ (Basic or Elite) subscription
+    const subscription = userData?.subscription || {};
+    const subscriptionTier = subscription.tier || 'none';
+    const isActive = subscription.status === 'active' || subscription.status === 'trialing';
+    
+    if (!isActive || (subscriptionTier !== 'basic' && subscriptionTier !== 'elite')) {
+      return NextResponse.json(
+        { 
+          error: 'Video submissions require Tier 2+ subscription. Please upgrade to unlock video training feedback.',
+          requiredTier: 'basic',
+          currentTier: subscriptionTier
+        },
+        { status: 403 }
+      );
+    }
+
+    // Check monthly video submission limit for Basic tier
+    if (subscriptionTier === 'basic') {
+      const access = userData?.access || {};
+      const maxSubmissions = access.maxVideoSubmissions || 2;
+      
+      if (maxSubmissions > 0) {
+        // Count submissions this month
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        
+        const submissionsThisMonth = await adminDb
+          .collection('submissions')
+          .where('athleteUid', '==', userId)
+          .where('submittedAt', '>=', startOfMonth)
+          .get();
+        
+        if (submissionsThisMonth.size >= maxSubmissions) {
+          return NextResponse.json(
+            { 
+              error: `You've reached your monthly limit of ${maxSubmissions} video submissions. Upgrade to Elite for unlimited submissions.`,
+              limit: maxSubmissions,
+              used: submissionsThisMonth.size
+            },
+            { status: 403 }
+          );
+        }
+      }
+    }
+
     // Coach is optional - video can be submitted without one
     if (coachId) {
       // Verify coach exists and is active

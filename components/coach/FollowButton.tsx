@@ -76,6 +76,23 @@ export default function FollowButton({
       if (!response.ok) throw new Error('Failed to toggle follow status')
 
       const data = await response.json()
+
+      // Check if limit was reached
+      if (!response.ok && data.limitReached) {
+        // Show upgrade prompt with redirect option
+        const shouldUpgrade = window.confirm(
+          `${data.error}\n\nWould you like to view pricing plans and upgrade?`
+        )
+        if (shouldUpgrade) {
+          window.location.href = data.upgradeUrl || '/dashboard/athlete/pricing'
+        }
+        return
+      }
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to toggle follow status')
+      }
+
       const newFollowState = !isFollowing
 
       setIsFollowing(newFollowState)

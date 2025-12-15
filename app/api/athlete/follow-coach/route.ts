@@ -102,13 +102,28 @@ export async function POST(request: NextRequest) {
     const wouldExceedLimit = maxCoaches !== -1 && currentCoachCount >= maxCoaches
     
     if (wouldExceedLimit) {
-      const tierName = tier === 'none' ? 'Free' : tier.charAt(0).toUpperCase() + tier.slice(1)
+      const tierName = tier === 'none' ? 'Free (Tier 1)' : tier === 'basic' ? 'Tier 2' : 'Tier 3'
+      
+      // Determine upgrade message based on current tier
+      let upgradeMessage = ''
+      let requiredTier = ''
+      if (tier === 'none' || !isActive) {
+        upgradeMessage = 'Upgrade to Tier 2 ($9.99/month) to follow up to 3 coaches, or Tier 3 ($19.99/month) for unlimited coaches.'
+        requiredTier = 'basic'
+      } else if (tier === 'basic') {
+        upgradeMessage = 'Upgrade to Tier 3 ($19.99/month) to follow unlimited coaches and unlock 1:1 coaching sessions.'
+        requiredTier = 'elite'
+      }
+      
       return NextResponse.json({
         success: false,
-        error: `You've reached your ${tierName} tier limit of ${maxCoaches} coach${maxCoaches === 1 ? '' : 'es'}. Upgrade your plan to follow more coaches.`,
+        error: `You've reached your ${tierName} limit of ${maxCoaches} coach${maxCoaches === 1 ? '' : 'es'}. ${upgradeMessage}`,
         limitReached: true,
         currentCount: currentCoachCount,
-        maxCoaches: maxCoaches
+        maxCoaches: maxCoaches,
+        currentTier: tier,
+        requiredTier: requiredTier,
+        upgradeUrl: '/dashboard/athlete/pricing'
       }, { status: 403 })
     }
 

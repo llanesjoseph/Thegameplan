@@ -125,7 +125,18 @@ export default function BrowseCoachesPage() {
         await loadFollowingList()
       } else {
         console.error('Follow failed:', data)
-        alert(data.error || 'Failed to update follow status')
+        
+        // Handle coach limit reached - show upgrade prompt
+        if (data.limitReached) {
+          const shouldUpgrade = window.confirm(
+            `${data.error}\n\nWould you like to view pricing plans and upgrade?`
+          )
+          if (shouldUpgrade) {
+            window.location.href = data.upgradeUrl || '/dashboard/athlete/pricing'
+          }
+        } else {
+          alert(data.error || 'Failed to update follow status')
+        }
       }
     } catch (error) {
       console.error('Error toggling follow:', error)

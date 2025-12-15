@@ -11,6 +11,7 @@ import { requireAuth } from '@/lib/auth-utils'
 import { auditExternalAPI } from '@/lib/audit-logger'
 import { logger } from '@/lib/logger'
 import { analyzeMentalHealthSafety, logMentalHealthEvent } from '@/lib/mental-health-safety'
+import { adminDb } from '@/lib/firebase.admin'
 import type { AIProvider } from '@/types'
 
 // Force dynamic rendering for this API route
@@ -127,6 +128,36 @@ export async function POST(request: NextRequest) {
 
     // Use authenticated user ID if not provided
     const requestUserId = userId || authenticatedUserId || 'anonymous'
+
+    // STRICT TIER CHECK: Ask Question requires Tier 2+ (Basic or Elite) subscription
+    if (isAuthenticated && authenticatedUserId) {
+      try {
+        const userDoc = await adminDb.collection('users').doc(authenticatedUserId).get()
+        if (userDoc.exists) {
+          const userData = userDoc.data()
+          const subscription = userData?.subscription || {}
+          const subscriptionTier = subscription.tier || 'none'
+          const isActive = subscription.status === 'active' || subscription.status === 'trialing'
+          
+          // Only check for athletes (coaches/admins can always use AI)
+          const userRole = userData?.role || ''
+          if (userRole === 'athlete' && (!isActive || (subscriptionTier !== 'basic' && subscriptionTier !== 'elite'))) {
+            return NextResponse.json(
+              { 
+                success: false,
+                error: 'Ask A Question requires Tier 2+ subscription. Please upgrade to unlock coach communication.',
+                requiredTier: 'basic',
+                currentTier: subscriptionTier
+              },
+              { status: 403 }
+            )
+          }
+        }
+      } catch (tierCheckError) {
+        // Log but don't block - allow request to proceed if tier check fails
+        logger.warn('[API] Tier check failed, allowing request', { error: tierCheckError })
+      }
+    }
 
     if (!question || typeof question !== 'string') {
       return NextResponse.json(

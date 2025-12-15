@@ -4,11 +4,18 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase.client'
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Plus, Lock } from 'lucide-react'
 import Live1on1RequestModal from './Live1on1RequestModal'
 import VideoManagementModal from './VideoManagementModal'
 import CoachProfileModal from './CoachProfileModal'
 import dynamic from 'next/dynamic'
+import {
+  canRequestCoachingSession,
+  canAskQuestion,
+  canSubmitVideo,
+  getUpgradeMessage,
+  type SubscriptionStatus
+} from '@/lib/subscription-access'
 
 const AskCoachAI = dynamic(() => import('./AskCoachAI'), { ssr: false })
 
@@ -34,10 +41,19 @@ export default function AthleteCoaches({ subscription }: AthleteCoachesProps = {
   const coachPageSize = 3
   const [showCoachProfileModal, setShowCoachProfileModal] = useState(false)
   const [selectedCoach, setSelectedCoach] = useState<any>(null)
-  // FREE TIER: Allow 1 coach access even without active subscription
-  // Premium features (live sessions, video submissions) require active subscription
-  const hasActiveSubscription = !!subscription?.isActive
-  const isFreeTier = !subscription || subscription.tier === 'none' || !subscription.isActive
+  
+  // STRICT TIER-BASED ACCESS CONTROL
+  const subscriptionStatus: SubscriptionStatus = {
+    tier: (subscription?.tier as any) || 'none',
+    status: subscription?.status,
+    isActive: subscription?.isActive
+  }
+  
+  const canRequestSession = canRequestCoachingSession(subscriptionStatus)
+  const canAsk = canAskQuestion(subscriptionStatus)
+  const canSubmit = canSubmitVideo(subscriptionStatus)
+  const hasAnyPremiumFeature = canRequestSession || canAsk || canSubmit
+  
   const canViewCoaches = true // All users (including free tier) can view their assigned coach
 
   useEffect(() => {
@@ -201,16 +217,31 @@ export default function AthleteCoaches({ subscription }: AthleteCoachesProps = {
   }, [user])
 
   const handleScheduleSession = () => {
+    if (!canRequestSession) {
+      alert(getUpgradeMessage('coachingSession'))
+      window.location.href = '/dashboard/athlete/pricing'
+      return
+    }
     if (coachId) {
       setShowScheduleModal(true)
     }
   }
 
   const handleSubmitVideo = () => {
+    if (!canSubmit) {
+      alert(getUpgradeMessage('submitVideo'))
+      window.location.href = '/dashboard/athlete/pricing'
+      return
+    }
     setShowSubmitVideoModal(true)
   }
 
   const handleAskQuestion = () => {
+    if (!canAsk) {
+      alert(getUpgradeMessage('askQuestion'))
+      window.location.href = '/dashboard/athlete/pricing'
+      return
+    }
     if (coachId) {
       setShowAskModal(true)
     }
@@ -356,41 +387,74 @@ export default function AthleteCoaches({ subscription }: AthleteCoachesProps = {
               </div>
             )}
 
-            {/* Red CTA buttons row (gated by subscription) */}
-            {hasActiveSubscription ? (
-              <div className="mt-10 flex flex-col sm:flex-row justify-center gap-4 w-full max-w-3xl">
-                <button
-                  type="button"
-                  onClick={handleScheduleSession}
-                  className="rounded-full bg-[#FC0105] px-8 py-3 text-sm font-semibold text-white tracking-[0.08em] uppercase shadow-sm hover:bg-[#d70004] transition-colors w-full sm:flex-1 text-center"
-                  style={{ fontFamily: '"Open Sans", sans-serif' }}
-                >
-                  Request Coaching Session
-                </button>
-                <button
-                  type="button"
-                  onClick={handleAskQuestion}
-                  className="rounded-full bg-[#FC0105] px-8 py-3 text-sm font-semibold text-white tracking-[0.08em] uppercase shadow-sm hover:bg-[#d70004] transition-colors w-full sm:flex-1 text-center"
-                  style={{ fontFamily: '"Open Sans", sans-serif' }}
-                >
-                  Ask A Question
-                </button>
-                <button
-                  type="button"
-                  onClick={handleSubmitVideo}
-                  className="rounded-full bg-[#FC0105] px-8 py-3 text-sm font-semibold text-white tracking-[0.08em] uppercase shadow-sm hover:bg-[#d70004] transition-colors w-full sm:flex-1 text-center"
-                  style={{ fontFamily: '"Open Sans", sans-serif' }}
-                >
-                  Submit Training Video
-                </button>
-              </div>
-            ) : (
-              <div className="mt-10 flex flex-col items-center gap-3 w-full max-w-3xl">
+            {/* Red CTA buttons row (STRICT TIER-BASED ACCESS) */}
+            <div className="mt-10 flex flex-col sm:flex-row justify-center gap-4 w-full max-w-3xl">
+              {/* Request Coaching Session - Tier 3 (Elite) only */}
+              <button
+                type="button"
+                onClick={handleScheduleSession}
+                disabled={!canRequestSession}
+                className={`rounded-full px-8 py-3 text-sm font-semibold text-white tracking-[0.08em] uppercase shadow-sm transition-all w-full sm:flex-1 text-center relative ${
+                  canRequestSession
+                    ? 'bg-[#FC0105] hover:bg-[#d70004] cursor-pointer'
+                    : 'bg-gray-400 opacity-60 cursor-not-allowed'
+                }`}
+                style={{ fontFamily: '"Open Sans", sans-serif' }}
+                title={!canRequestSession ? getUpgradeMessage('coachingSession') : ''}
+              >
+                {!canRequestSession && (
+                  <Lock className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" />
+                )}
+                Request Coaching Session
+              </button>
+
+              {/* Ask A Question - Tier 2+ (Basic or Elite) */}
+              <button
+                type="button"
+                onClick={handleAskQuestion}
+                disabled={!canAsk}
+                className={`rounded-full px-8 py-3 text-sm font-semibold text-white tracking-[0.08em] uppercase shadow-sm transition-all w-full sm:flex-1 text-center relative ${
+                  canAsk
+                    ? 'bg-[#FC0105] hover:bg-[#d70004] cursor-pointer'
+                    : 'bg-gray-400 opacity-60 cursor-not-allowed'
+                }`}
+                style={{ fontFamily: '"Open Sans", sans-serif' }}
+                title={!canAsk ? getUpgradeMessage('askQuestion') : ''}
+              >
+                {!canAsk && (
+                  <Lock className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" />
+                )}
+                Ask A Question
+              </button>
+
+              {/* Submit Training Video - Tier 2+ (Basic or Elite) */}
+              <button
+                type="button"
+                onClick={handleSubmitVideo}
+                disabled={!canSubmit}
+                className={`rounded-full px-8 py-3 text-sm font-semibold text-white tracking-[0.08em] uppercase shadow-sm transition-all w-full sm:flex-1 text-center relative ${
+                  canSubmit
+                    ? 'bg-[#FC0105] hover:bg-[#d70004] cursor-pointer'
+                    : 'bg-gray-400 opacity-60 cursor-not-allowed'
+                }`}
+                style={{ fontFamily: '"Open Sans", sans-serif' }}
+                title={!canSubmit ? getUpgradeMessage('submitVideo') : ''}
+              >
+                {!canSubmit && (
+                  <Lock className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" />
+                )}
+                Submit Training Video
+              </button>
+            </div>
+
+            {/* Upgrade prompt for free tier users */}
+            {!hasAnyPremiumFeature && (
+              <div className="mt-6 flex flex-col items-center gap-3 w-full max-w-3xl">
                 <p
                   className="text-sm text-center"
                   style={{ fontFamily: '"Open Sans", sans-serif', color: '#444444' }}
                 >
-                  Start your athlete subscription to request live sessions, ask your coach questions, and submit training videos.
+                  Upgrade to Tier 2+ to unlock video submissions and coach communication. Tier 3 unlocks 1:1 coaching sessions.
                 </p>
                 <button
                   type="button"
@@ -400,7 +464,7 @@ export default function AthleteCoaches({ subscription }: AthleteCoachesProps = {
                   className="rounded-full bg-[#FC0105] px-8 py-3 text-sm font-semibold text-white tracking-[0.08em] uppercase shadow-sm hover:bg-[#d70004] transition-colors w-full sm:w-auto text-center"
                   style={{ fontFamily: '"Open Sans", sans-serif' }}
                 >
-                  View Plans
+                  View Plans & Upgrade
                 </button>
               </div>
             )}
