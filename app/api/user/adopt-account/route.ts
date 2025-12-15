@@ -113,43 +113,44 @@ export async function POST(request: NextRequest) {
 
     // 6. Update all references to the old UID across collections
     const collectionsToUpdate = [
-      'coach_followers',
-      'athlete_feed',
-      'coach_content',
-      'content',
-      'sessions',
-      'training_sessions',
-      'coach_events',
-      'submissions',
-      'coaching_requests',
-      'creator_profiles',
-      'coach_profiles',
-      'profiles',
-      'creatorPublic',
-      'coaches',
-      'invitations',
-      'admin_invitations'
+      { name: 'coach_followers', fields: ['coachId', 'athleteId'] },
+      { name: 'athlete_feed', fields: ['athleteId', 'coachId'] },
+      { name: 'coach_content', fields: ['coachId'] },
+      { name: 'content', fields: ['creatorUid', 'coachId'] },
+      { name: 'sessions', fields: ['coachId', 'athleteId', 'userId'] },
+      { name: 'training_sessions', fields: ['coachId', 'athleteId'] },
+      { name: 'coach_events', fields: ['coachId'] },
+      { name: 'submissions', fields: ['athleteId', 'coachId'] },
+      { name: 'coaching_requests', fields: ['coachId', 'athleteId'] },
+      { name: 'creator_profiles', fields: ['uid', 'userId'] },
+      { name: 'coach_profiles', fields: ['uid', 'userId'] },
+      { name: 'profiles', fields: ['uid', 'userId'] },
+      { name: 'creatorPublic', fields: ['uid'] },
+      { name: 'coaches', fields: ['uid', 'coachId'] },
+      { name: 'invitations', fields: ['coachEmail', 'athleteEmail', 'createdBy'] },
+      { name: 'admin_invitations', fields: ['createdBy', 'inviterUserId'] }
     ]
 
-    const updatePromises = collectionsToUpdate.map(async (collectionName) => {
+    const updatePromises = collectionsToUpdate.map(async (coll) => {
       try {
-        // Find all documents where oldUid is referenced
-        const collections = [
-          { name: collectionName, fields: ['coachId', 'athleteId', 'userId', 'creatorUid', 'uid', 'createdBy', 'assignedCoachId'] }
-        ]
+        // Try each field that might reference the old UID
+        for (const field of coll.fields) {
+          const query = await adminDb.collection(coll.name)
+            .where(field, '==', oldUid)
+            .get()
 
-        for (const coll of collections) {
-          // Try each field that might reference the old UID
-          for (const field of coll.fields) {
-            const query = await adminDb.collection(coll.name)
-              .where(field, '==', oldUid)
-              .get()
-
-            if (!query.empty) {
-              console.log(`  📝 Updating ${coll.name}: ${query.size} documents with ${field}=${oldUid}`)
-              
+          if (!query.empty) {
+            console.log(`  📝 Updating ${coll.name}: ${query.size} documents with ${field}=${oldUid}`)
+            
+            // Process in batches of 500 (Firestore limit)
+            const batchSize = 500
+            const docs = query.docs
+            
+            for (let i = 0; i < docs.length; i += batchSize) {
               const batch = adminDb.batch()
-              query.docs.forEach((doc) => {
+              const batchDocs = docs.slice(i, i + batchSize)
+              
+              batchDocs.forEach((doc) => {
                 batch.update(doc.ref, {
                   [field]: newUid,
                   [`${field}_migrated_from`]: oldUid,
@@ -162,7 +163,7 @@ export async function POST(request: NextRequest) {
           }
         }
       } catch (error) {
-        console.error(`⚠️ Error updating ${collectionName}:`, error)
+        console.error(`⚠️ Error updating ${coll.name}:`, error)
         // Continue with other collections even if one fails
       }
     })
