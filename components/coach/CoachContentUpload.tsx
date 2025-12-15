@@ -195,23 +195,74 @@ export default function CoachContentUpload() {
           status: 'uploading'
         })
 
-        // Save link to Firestore
+        // Save link to Firestore with robust error handling
         try {
-          await addDoc(collection(db, 'coach_content'), {
-            coachId: user.uid,
-            coachName: user.displayName || 'Unknown Coach',
-            contentType: 'link',
-            title: title.trim(),
-            description: description.trim(),
-            linkUrl: linkUrl.trim(),
-            uploadedAt: serverTimestamp(),
-            isPublic: false, // Default to private
-            views: 0
-          })
+          // Validate URL format before saving
+          const trimmedUrl = linkUrl.trim()
+          if (!trimmedUrl) {
+            throw new Error('URL is required')
+          }
+
+          // Basic URL validation
+          try {
+            new URL(trimmedUrl)
+          } catch (urlError) {
+            throw new Error('Please enter a valid URL (e.g., https://example.com)')
+          }
+
+          // Validate title
+          const trimmedTitle = title.trim()
+          if (!trimmedTitle) {
+            throw new Error('Title is required')
+          }
+
+          // Save to Firestore with retry logic
+          let retries = 3
+          let lastError: any = null
+
+          while (retries > 0) {
+            try {
+              await addDoc(collection(db, 'coach_content'), {
+                coachId: user.uid,
+                coachName: user.displayName || 'Unknown Coach',
+                contentType: 'link',
+                title: trimmedTitle,
+                description: description.trim(),
+                linkUrl: trimmedUrl,
+                uploadedAt: serverTimestamp(),
+                isPublic: false, // Default to private
+                views: 0
+              })
+              // Success - break out of retry loop
+              break
+            } catch (firestoreError: any) {
+              lastError = firestoreError
+              retries--
+              
+              // If it's a permission error, don't retry
+              const errorMsg = firestoreError.message || firestoreError.code || ''
+              if (errorMsg.includes('permission') || errorMsg.includes('Permission') || errorMsg.includes('permission-denied')) {
+                throw new Error('Permission denied. Please check your account permissions or contact support.')
+              }
+              
+              // If last retry, throw the error
+              if (retries === 0) {
+                throw firestoreError
+              }
+              
+              // Wait before retrying (exponential backoff)
+              await new Promise(resolve => setTimeout(resolve, 1000 * (4 - retries)))
+            }
+          }
+
+          // Verify the document was created
+          if (lastError && retries === 0) {
+            throw lastError
+          }
         } catch (firestoreError: any) {
           console.error('Firestore error:', firestoreError)
           const errorMsg = firestoreError.message || firestoreError.code || 'Failed to save link'
-          if (errorMsg.includes('permission') || errorMsg.includes('Permission')) {
+          if (errorMsg.includes('permission') || errorMsg.includes('Permission') || errorMsg.includes('permission-denied')) {
             throw new Error('Permission denied. Please check your account permissions or contact support.')
           }
           throw new Error(errorMsg)
