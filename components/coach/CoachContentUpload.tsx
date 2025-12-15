@@ -600,7 +600,8 @@ export default function CoachContentUpload() {
       >
         {isUploading 
           ? (contentType === 'link' ? 'Saving...' : 'Uploading...') 
-          : (contentType === 'link' ? 'Save Link' : 'Upload Content')}
+          : (contentType === 'link' ? 'Save Link' : 'Upload Content')
+        }
       </button>
 
       {/* Info Note */}
