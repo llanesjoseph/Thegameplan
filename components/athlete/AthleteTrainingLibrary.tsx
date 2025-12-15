@@ -256,7 +256,44 @@ export default function AthleteTrainingLibrary({ subscription, isVerifying = fal
     }
   }, [user, hasActiveSubscription])
 
-  const handleViewLesson = (lessonId: string) => {
+  const handleViewLesson = async (lessonId: string) => {
+    if (!user?.uid) return
+    
+    // CRITICAL: Mark lesson as started immediately when clicked
+    // This ensures "Start" changes to "In Progress" instantly
+    const isCurrentlyStarted = startedLessons.has(lessonId)
+    if (!isCurrentlyStarted) {
+      try {
+        console.log(`🔄 Marking lesson ${lessonId} as started...`)
+        const token = await user.getIdToken()
+        
+        const startResponse = await fetch('/api/athlete/progress/start', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ lessonId })
+        })
+
+        if (startResponse.ok) {
+          const startResult = await startResponse.json()
+          if (startResult.success) {
+            console.log(`✅ Lesson ${lessonId} marked as started`)
+            // Update local state immediately for instant UI feedback
+            setStartedLessons((prev) => new Set(prev).add(lessonId))
+            // Real-time listener will also update, but this provides instant feedback
+          }
+        } else {
+          console.warn('⚠️ Could not mark lesson as started:', await startResponse.json().catch(() => ({})))
+        }
+      } catch (startError) {
+        console.error('❌ Error marking lesson as started:', startError)
+        // Continue to open lesson even if marking as started fails
+      }
+    }
+    
+    // Open the lesson overlay
     setOpenLessonId(lessonId)
   }
 
