@@ -1176,11 +1176,13 @@ service cloud.firestore {
       allow read: if isAuthenticated() &&
                      (resource.data.coachId == request.auth.uid || isAdmin());
       
-      // Athletes can read content from their coaches
+      // Athletes can read content from their assigned or followed coaches
       allow read: if isAuthenticated() &&
                      exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
                      (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.coachId == resource.data.coachId ||
-                      get(/databases/$(database)/documents/users/$(request.auth.uid)).data.assignedCoachId == resource.data.coachId);
+                      get(/databases/$(database)/documents/users/$(request.auth.uid)).data.assignedCoachId == resource.data.coachId ||
+                      // Allow if athlete follows this coach (check coach_followers collection)
+                      exists(/databases/$(database)/documents/coach_followers/$(request.auth.uid + '_' + resource.data.coachId)));
       
       // Coaches can create their own content
       allow create: if isAuthenticated() &&
