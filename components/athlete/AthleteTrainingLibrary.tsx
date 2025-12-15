@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { ChevronUp, ChevronDown } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
-import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore'
+import { doc, getDoc, collection, query, where, getDocs, onSnapshot } from 'firebase/firestore'
 import { db, storage } from '@/lib/firebase.client'
 import { ref, getDownloadURL } from 'firebase/storage'
 import LessonOverlay from '@/components/LessonOverlay'
@@ -145,35 +145,53 @@ export default function AthleteTrainingLibrary({ subscription, isVerifying = fal
           setPage(0)
         }
 
-        // Load lesson status from athlete_feed (started and completed)
+        // CRITICAL: Load lesson status from aggregated API to ensure accuracy
+        // This uses the same source as the progress metrics
         try {
-          const feedDoc = await getDoc(doc(db, 'athlete_feed', user.uid))
-          if (feedDoc.exists()) {
-            const feedData = feedDoc.data()
-            const completed = new Set<string>(feedData?.completedLessons || [])
-            const started = new Set<string>(feedData?.startedLessons || [])
-            setCompletedLessons(completed)
-            setStartedLessons(started)
-          }
-        } catch (feedError) {
-          console.warn('⚠️ Could not load lesson status from athlete_feed:', feedError)
-          // Fallback to old method if feed doesn't exist
-          try {
-            const completedQuery = query(
-              collection(db, 'lessonCompletions'),
-              where('athleteUid', '==', user.uid)
-            )
-            const completedSnap = await getDocs(completedQuery)
-            const completed = new Set<string>()
-            completedSnap.forEach((doc) => {
-              const data = doc.data()
-              if (data.lessonId) {
-                completed.add(data.lessonId)
+          console.log('🔍 Loading lesson status from aggregated API...')
+          const statusResponse = await fetch('/api/athlete/progress/aggregate', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          })
+
+          if (statusResponse.ok) {
+            const statusData = await statusResponse.json()
+            if (statusData.success && statusData.progress) {
+              // Get all completed lessons from athlete_feed (API aggregates but we need the list)
+              const feedDoc = await getDoc(doc(db, 'athlete_feed', user.uid))
+              if (feedDoc.exists()) {
+                const feedData = feedDoc.data()
+                const completed = new Set<string>(feedData?.completedLessons || [])
+                const started = new Set<string>(feedData?.startedLessons || [])
+                console.log(`  ✅ Loaded ${completed.size} completed, ${started.size} started lessons`)
+                setCompletedLessons(completed)
+                setStartedLessons(started)
+              } else {
+                console.warn('⚠️ athlete_feed not found, using empty sets')
+                setCompletedLessons(new Set())
+                setStartedLessons(new Set())
               }
-            })
-            setCompletedLessons(completed)
-          } catch (completedError) {
-            console.warn('⚠️ Could not load completed lessons (training library):', completedError)
+            } else {
+              throw new Error('API returned unsuccessful response')
+            }
+          } else {
+            throw new Error(`API returned ${statusResponse.status}`)
+          }
+        } catch (apiError) {
+          console.warn('⚠️ Could not load lesson status from API, falling back to direct Firestore:', apiError)
+          // Fallback: Load directly from athlete_feed
+          try {
+            const feedDoc = await getDoc(doc(db, 'athlete_feed', user.uid))
+            if (feedDoc.exists()) {
+              const feedData = feedDoc.data()
+              const completed = new Set<string>(feedData?.completedLessons || [])
+              const started = new Set<string>(feedData?.startedLessons || [])
+              setCompletedLessons(completed)
+              setStartedLessons(started)
+            }
+          } catch (feedError) {
+            console.warn('⚠️ Could not load lesson status from athlete_feed:', feedError)
+            setCompletedLessons(new Set())
+            setStartedLessons(new Set())
           }
         }
       } catch (error) {
@@ -186,6 +204,41 @@ export default function AthleteTrainingLibrary({ subscription, isVerifying = fal
     loadTrainingLibrary()
   }, [user, hasActiveSubscription])
 
+  // CRITICAL: Real-time listener for athlete_feed updates
+  // This ensures completion status updates instantly when lessons are completed
+  useEffect(() => {
+    if (!user?.uid || !hasActiveSubscription) return
+
+    console.log('🔥 Setting up real-time listener for athlete_feed (Training Library)')
+
+    const feedDocRef = doc(db, 'athlete_feed', user.uid)
+
+    const unsubscribe = onSnapshot(
+      feedDocRef,
+      (snapshot) => {
+        if (snapshot.exists() && !snapshot.metadata.hasPendingWrites) {
+          console.log('🔄 Real-time update: athlete_feed changed (Training Library)')
+          const feedData = snapshot.data()
+          const completed = new Set<string>(feedData?.completedLessons || [])
+          const started = new Set<string>(feedData?.startedLessons || [])
+          console.log(`  ✅ Updated: ${completed.size} completed, ${started.size} started`)
+          setCompletedLessons(completed)
+          setStartedLessons(started)
+        }
+      },
+      (error) => {
+        if (error.code !== 'permission-denied') {
+          console.error('❌ Error listening to athlete feed (Training Library):', error)
+        }
+      }
+    )
+
+    return () => {
+      console.log('🔥 Cleaning up real-time listener (Training Library)')
+      unsubscribe()
+    }
+  }, [user, hasActiveSubscription])
+
   const handleViewLesson = (lessonId: string) => {
     setOpenLessonId(lessonId)
   }
@@ -195,9 +248,14 @@ export default function AthleteTrainingLibrary({ subscription, isVerifying = fal
 
     try {
       const isCurrentlyCompleted = completedLessons.has(openLessonId)
+      const action = isCurrentlyCompleted ? 'uncomplete' : 'complete'
+
+      console.log(`🔄 Toggling lesson ${openLessonId}: ${action}`)
 
       const token = await user.getIdToken()
-      const response = await fetch('/api/athlete/lesson-completion', {
+      
+      // Use the correct API endpoint that uses transactions
+      const response = await fetch('/api/athlete/progress', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -205,7 +263,7 @@ export default function AthleteTrainingLibrary({ subscription, isVerifying = fal
         },
         body: JSON.stringify({
           lessonId: openLessonId,
-          completed: !isCurrentlyCompleted
+          action: action
         })
       })
 
@@ -214,19 +272,30 @@ export default function AthleteTrainingLibrary({ subscription, isVerifying = fal
         throw new Error(result.error || 'Failed to update completion status')
       }
 
-      // Update local state after successful API call
+      console.log(`✅ Lesson ${openLessonId} marked as ${action}`)
+
+      // Update local state immediately for instant UI feedback
+      // The real-time listener will also update this, but this provides instant feedback
       if (isCurrentlyCompleted) {
         setCompletedLessons((prev) => {
           const updated = new Set(prev)
           updated.delete(openLessonId)
           return updated
         })
+        // Also remove from started if uncompleting
+        setStartedLessons((prev) => {
+          const updated = new Set(prev)
+          updated.delete(openLessonId)
+          return updated
+        })
       } else {
         setCompletedLessons((prev) => new Set(prev).add(openLessonId))
+        // Ensure it's also in started lessons
+        setStartedLessons((prev) => new Set(prev).add(openLessonId))
       }
-    } catch (error) {
-      console.error('Error toggling lesson completion:', error)
-      alert('Unable to update lesson status. Please try again.')
+    } catch (error: any) {
+      console.error('❌ Error toggling lesson completion:', error)
+      alert(`Unable to update lesson status: ${error.message || 'Please try again.'}`)
     }
   }
 
