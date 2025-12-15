@@ -696,12 +696,19 @@ export default function HeroCoachProfile({
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={
-                          activeCoach.profileImageUrl ||
+                          getProxiedImageUrl(activeCoach.profileImageUrl) ||
                           (authUser as any)?.photoURL ||
                           '/athleap-logo-transparent.png'
                         }
                         alt={activeCoach.displayName || (authUser as any)?.displayName || 'Athleap Coach'}
                         className="h-6 w-6 rounded-full object-cover"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement
+                          if (!target.src.includes('athleap-logo')) {
+                            target.src = '/athleap-logo-transparent.png'
+                            target.onerror = null
+                          }
+                        }}
                       />
                       <span
                         className="text-[11px] uppercase tracking-[0.18em] text-gray-600"
