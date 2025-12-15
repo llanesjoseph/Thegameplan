@@ -244,7 +244,6 @@ export default function HeroCoachProfile({
       })
     }
     
-    // STRICT: Only return photos that the coach has actually uploaded - no hardcoded fallbacks
     // Remove duplicates and filter out any invalid URLs
     const deduped = Array.from(new Set(photos.filter((url) => {
       return typeof url === 'string' && 
@@ -252,6 +251,19 @@ export default function HeroCoachProfile({
              !url.includes('placeholder') &&
              (url.startsWith('http://') || url.startsWith('https://'))
     })))
+    
+    // Debug logging
+    console.log('[HERO-COACH-PROFILE] Gallery photos processed:', {
+      input: {
+        showcasePhoto1: activeCoach.showcasePhoto1 ? 'SET' : 'MISSING',
+        showcasePhoto2: activeCoach.showcasePhoto2 ? 'SET' : 'MISSING',
+        galleryPhotosCount: activeCoach.galleryPhotos?.length || 0
+      },
+      output: {
+        totalPhotos: deduped.length,
+        photoUrls: deduped.slice(0, 5)
+      }
+    })
     
     return deduped
   }, [activeCoach.showcasePhoto1, activeCoach.showcasePhoto2, activeCoach.galleryPhotos])

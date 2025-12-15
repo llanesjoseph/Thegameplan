@@ -344,6 +344,15 @@ export default function CoachProfilePage() {
       }
 
       setCoach(coachProfile)
+      
+      // Force log to verify photos are loaded
+      console.log('[COACH-PROFILE-PAGE] Final coach profile set:', {
+        displayName: coachProfile.displayName,
+        galleryPhotosCount: coachProfile.galleryPhotos?.length || 0,
+        showcasePhoto1: coachProfile.showcasePhoto1 ? 'SET' : 'MISSING',
+        showcasePhoto2: coachProfile.showcasePhoto2 ? 'SET' : 'MISSING',
+        allPhotos: coachProfile.galleryPhotos || []
+      })
 
       // Get statistics
       await fetchCoachStats()
