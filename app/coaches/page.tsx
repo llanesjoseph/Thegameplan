@@ -37,6 +37,9 @@ export default function BrowseCoachesPage() {
   const [availableSports, setAvailableSports] = useState<string[]>([])
   const [previewCoach, setPreviewCoach] = useState<Coach | null>(null)
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
+  const [subscriptionStatus, setSubscriptionStatus] = useState<{ tier: string; isActive: boolean } | null>(null)
+  const [currentCoachCount, setCurrentCoachCount] = useState(0)
+  const [maxCoaches, setMaxCoaches] = useState(1)
 
   const handleSignOut = async () => {
     try {
@@ -69,11 +72,67 @@ export default function BrowseCoachesPage() {
         const followedCoachIds = new Set<string>(data.following.map((f: any) => f.coachId))
         console.log(`✅ Found ${followedCoachIds.size} followed coaches:`, Array.from(followedCoachIds))
         setFollowingSet(followedCoachIds)
+        
+        // CRITICAL: Calculate current coach count for limit checking
+        // Get user document to check for assigned coach
+        const { doc, getDoc } = await import('firebase/firestore')
+        const { db } = await import('@/lib/firebase.client')
+        try {
+          const userDoc = await getDoc(doc(db, 'users', user.uid))
+          const userData = userDoc.data()
+          const assignedCoachId = userData?.coachId || userData?.assignedCoachId
+          
+          let count = 0
+          if (assignedCoachId) count++
+          followedCoachIds.forEach(id => {
+            if (id !== assignedCoachId) count++
+          })
+          
+          setCurrentCoachCount(count)
+          console.log(`📊 Current coach count: ${count} (assigned: ${assignedCoachId ? 1 : 0}, followed: ${followedCoachIds.size})`)
+        } catch (error) {
+          console.warn('Could not calculate coach count:', error)
+          // Fallback: just count followed coaches
+          setCurrentCoachCount(followedCoachIds.size)
+        }
       } else {
         console.log('⚠️ No following data or unsuccessful response')
+        setCurrentCoachCount(0)
       }
     } catch (error) {
       console.error('❌ Error loading following list:', error)
+    }
+  }
+
+  const loadSubscriptionStatus = async () => {
+    if (!user?.uid) return
+
+    try {
+      const token = await user.getIdToken()
+      const response = await fetch('/api/athlete/subscriptions/status', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setSubscriptionStatus({
+          tier: data.tier || 'none',
+          isActive: data.isActive || false
+        })
+        
+        // Set max coaches based on tier
+        const maxCoachesMap: Record<string, number> = {
+          'none': 1,
+          'free': 1,
+          'basic': 3,
+          'elite': -1 // unlimited
+        }
+        setMaxCoaches(maxCoachesMap[data.tier || 'none'] || 1)
+      }
+    } catch (error) {
+      console.error('Error loading subscription status:', error)
     }
   }
 
@@ -86,12 +145,38 @@ export default function BrowseCoachesPage() {
       return
     }
 
+    const isFollowing = followingSet.has(coachId)
+    
+    // CRITICAL: Pre-check limit before attempting to follow
+    if (!isFollowing) {
+      // Check if adding this coach would exceed the limit
+      const wouldExceedLimit = maxCoaches !== -1 && currentCoachCount >= maxCoaches
+      
+      if (wouldExceedLimit) {
+        let errorMessage = ''
+        if (subscriptionStatus?.tier === 'none' || subscriptionStatus?.tier === 'free') {
+          errorMessage = `You've reached your Free tier limit of 1 coach. Upgrade to Tier 2 ($9.99/month) to follow up to 3 coaches, or Tier 3 ($19.99/month) for unlimited coaches.`
+        } else if (subscriptionStatus?.tier === 'basic') {
+          errorMessage = `You've reached your Tier 2 limit of 3 coaches. Upgrade to Tier 3 ($19.99/month) to follow unlimited coaches and unlock 1:1 coaching sessions.`
+        } else {
+          errorMessage = `You've reached your coach limit. Please upgrade to follow more coaches.`
+        }
+        
+        const shouldUpgrade = window.confirm(
+          `${errorMessage}\n\nWould you like to view pricing plans and upgrade?`
+        )
+        if (shouldUpgrade) {
+          window.location.href = '/dashboard/athlete/pricing'
+        }
+        return // STOP - don't make API call
+      }
+    }
+
     // Add to loading set
     setFollowingLoading(prev => new Set(prev).add(coachId))
 
     try {
       const token = await user.getIdToken()
-      const isFollowing = followingSet.has(coachId)
 
       console.log(`🔄 ${isFollowing ? 'Unfollowing' : 'Following'} coach ${coachId}...`)
 
@@ -121,15 +206,15 @@ export default function BrowseCoachesPage() {
           return newSet
         })
 
-        // Reload the following list to sync
+        // Reload the following list to sync (updates coach count)
         await loadFollowingList()
       } else {
         console.error('Follow failed:', data)
         
         // Handle coach limit reached - show upgrade prompt
-        if (data.limitReached) {
+        if (data.limitReached || response.status === 403) {
           const shouldUpgrade = window.confirm(
-            `${data.error}\n\nWould you like to view pricing plans and upgrade?`
+            `${data.error || 'You have reached your coach limit.'}\n\nWould you like to view pricing plans and upgrade?`
           )
           if (shouldUpgrade) {
             window.location.href = data.upgradeUrl || '/dashboard/athlete/pricing'
@@ -202,6 +287,7 @@ export default function BrowseCoachesPage() {
     loadAvailableSports()
     if (user?.uid) {
       loadFollowingList()
+      loadSubscriptionStatus()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedSport, user?.uid])

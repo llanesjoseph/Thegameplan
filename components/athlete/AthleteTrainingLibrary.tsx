@@ -26,6 +26,7 @@ export default function AthleteTrainingLibrary({ subscription, isVerifying = fal
   const [page, setPage] = useState(0)
   const [openLessonId, setOpenLessonId] = useState<string | null>(null)
   const [completedLessons, setCompletedLessons] = useState<Set<string>>(new Set())
+  const [startedLessons, setStartedLessons] = useState<Set<string>>(new Set())
   const pageSize = 4
   const hasActiveSubscription = !!subscription?.isActive
 
@@ -134,23 +135,36 @@ export default function AthleteTrainingLibrary({ subscription, isVerifying = fal
           setPage(0)
         }
 
-        // Load completed lessons for this athlete (best-effort; failures should not hide lessons)
+        // Load lesson status from athlete_feed (started and completed)
         try {
-          const completedQuery = query(
-            collection(db, 'lessonCompletions'),
-            where('athleteUid', '==', user.uid)
-          )
-          const completedSnap = await getDocs(completedQuery)
-          const completed = new Set<string>()
-          completedSnap.forEach((doc) => {
-            const data = doc.data()
-            if (data.lessonId) {
-              completed.add(data.lessonId)
-            }
-          })
-          setCompletedLessons(completed)
-        } catch (completedError) {
-          console.warn('⚠️ Could not load completed lessons (training library):', completedError)
+          const feedDoc = await getDoc(doc(db, 'athlete_feed', user.uid))
+          if (feedDoc.exists()) {
+            const feedData = feedDoc.data()
+            const completed = new Set<string>(feedData?.completedLessons || [])
+            const started = new Set<string>(feedData?.startedLessons || [])
+            setCompletedLessons(completed)
+            setStartedLessons(started)
+          }
+        } catch (feedError) {
+          console.warn('⚠️ Could not load lesson status from athlete_feed:', feedError)
+          // Fallback to old method if feed doesn't exist
+          try {
+            const completedQuery = query(
+              collection(db, 'lessonCompletions'),
+              where('athleteUid', '==', user.uid)
+            )
+            const completedSnap = await getDocs(completedQuery)
+            const completed = new Set<string>()
+            completedSnap.forEach((doc) => {
+              const data = doc.data()
+              if (data.lessonId) {
+                completed.add(data.lessonId)
+              }
+            })
+            setCompletedLessons(completed)
+          } catch (completedError) {
+            console.warn('⚠️ Could not load completed lessons (training library):', completedError)
+          }
         }
       } catch (error) {
         console.error('Error loading training library:', error)
@@ -271,6 +285,22 @@ export default function AthleteTrainingLibrary({ subscription, isVerifying = fal
           <div className="border-t border-gray-300">
             {visibleLessons.map((lesson) => {
               const isCompleted = completedLessons.has(lesson.id)
+              const isStarted = startedLessons.has(lesson.id)
+              
+              // CRITICAL: Show correct status
+              // START = not started yet
+              // IN PROGRESS = started but not completed
+              // COMPLETED = completed
+              let statusText = 'Start'
+              let statusColor = '#555555'
+              if (isCompleted) {
+                statusText = 'Completed'
+                statusColor = '#16a34a' // green
+              } else if (isStarted) {
+                statusText = 'In Progress'
+                statusColor = '#3b82f6' // blue
+              }
+              
               return (
                 <button
                   key={lesson.id}
@@ -299,10 +329,10 @@ export default function AthleteTrainingLibrary({ subscription, isVerifying = fal
                       {lesson.title}
                     </p>
                     <p
-                      className="text-xs"
-                      style={{ fontFamily: '"Open Sans", sans-serif', color: '#555555' }}
+                      className="text-xs font-medium"
+                      style={{ fontFamily: '"Open Sans", sans-serif', color: statusColor }}
                     >
-                      {isCompleted ? 'Completed' : 'In Progress'}
+                      {statusText}
                     </p>
                   </div>
                 </button>

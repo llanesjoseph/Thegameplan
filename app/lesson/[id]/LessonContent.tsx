@@ -2,7 +2,7 @@
 
 import { useEffect, useState, Suspense } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { doc, getDoc, updateDoc, increment } from 'firebase/firestore'
+import { doc, getDoc, updateDoc, increment, writeBatch } from 'firebase/firestore'
 import { db } from '@/lib/firebase.client'
 import Link from 'next/link'
 import { ArrowLeft, Play, Clock, Eye, User, Calendar, ExternalLink } from 'lucide-react'
@@ -102,12 +102,31 @@ export default function LessonContent() {
     }
    }
    
-   // Increment view count (only once per session)
+   // Increment view count and mark lesson as started (only once per session)
    if (!viewsIncremented) {
     try {
+     // Increment view count
      await updateDoc(doc(db, 'content', lessonId), {
       views: increment(1)
      })
+     
+     // Mark lesson as started for this athlete (if authenticated)
+     if (user?.uid) {
+      try {
+       const token = await user.getIdToken()
+       await fetch('/api/athlete/progress/start', {
+        method: 'POST',
+        headers: {
+         'Authorization': `Bearer ${token}`,
+         'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ lessonId })
+       })
+      } catch (startError) {
+       console.warn('Could not mark lesson as started:', startError)
+      }
+     }
+     
      setViewsIncremented(true)
     } catch (viewError) {
      console.warn('Could not increment view count:', viewError)

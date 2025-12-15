@@ -40,25 +40,29 @@ export default function AthleteProgress() {
         const feedDoc = await getDoc(doc(db, 'athlete_feed', user.uid))
         let completedCount = 0
         let totalLessons = 0
+        let inProgressCount = 0
 
         if (feedDoc.exists()) {
           const feedData = feedDoc.data()
-          completedCount = feedData?.completedLessons?.length || 0
-          // Get total lessons assigned (both completed and not completed)
-          totalLessons = feedData?.lessons?.length || 0
+          const completedLessons = feedData?.completedLessons || []
+          const startedLessons = feedData?.startedLessons || []
+          const availableLessons = feedData?.availableLessons || feedData?.lessons || []
+          
+          completedCount = completedLessons.length
+          totalLessons = Array.isArray(availableLessons) ? availableLessons.length : (feedData?.totalLessons || 0)
+          
+          // CRITICAL FIX: In progress = lessons that are started but NOT completed
+          const startedButNotCompleted = startedLessons.filter((lessonId: string) => !completedLessons.includes(lessonId))
+          inProgressCount = startedButNotCompleted.length
 
           console.log('📊 Feed Data:')
           console.log('  - Total Lessons:', totalLessons)
+          console.log('  - Started:', startedLessons.length)
           console.log('  - Completed:', completedCount)
-          console.log('  - Lessons array:', feedData?.lessons)
-          console.log('  - Completed array length:', feedData?.completedLessons?.length)
+          console.log('  - In Progress (started but not completed):', inProgressCount)
         } else {
           console.log('⚠️ No athlete_feed document found')
         }
-
-        // Calculate in-progress trainings (total assigned minus completed)
-        const inProgressCount = Math.max(0, totalLessons - completedCount)
-        console.log('  - Calculated in progress:', inProgressCount)
 
         // Fetch upcoming events
         const userDoc = await getDoc(doc(db, 'users', user.uid))

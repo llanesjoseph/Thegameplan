@@ -73,23 +73,20 @@ export default function FollowButton({
         body: JSON.stringify({ coachId })
       })
 
-      if (!response.ok) throw new Error('Failed to toggle follow status')
-
       const data = await response.json()
 
-      // Check if limit was reached
-      if (!response.ok && data.limitReached) {
-        // Show upgrade prompt with redirect option
-        const shouldUpgrade = window.confirm(
-          `${data.error}\n\nWould you like to view pricing plans and upgrade?`
-        )
-        if (shouldUpgrade) {
-          window.location.href = data.upgradeUrl || '/dashboard/athlete/pricing'
-        }
-        return
-      }
-
+      // Check if limit was reached (backend hard limit)
       if (!response.ok) {
+        if (data.limitReached || response.status === 403) {
+          // Show upgrade prompt with redirect option
+          const shouldUpgrade = window.confirm(
+            `${data.error || 'You have reached your coach limit.'}\n\nWould you like to view pricing plans and upgrade?`
+          )
+          if (shouldUpgrade) {
+            window.location.href = data.upgradeUrl || '/dashboard/athlete/pricing'
+          }
+          return
+        }
         throw new Error(data.error || 'Failed to toggle follow status')
       }
 

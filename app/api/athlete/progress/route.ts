@@ -98,13 +98,21 @@ export async function POST(request: NextRequest) {
     const feedRef = adminDb.collection('athlete_feed').doc(athleteId)
 
     if (action === 'complete') {
-      // Add to completedLessons array AND store completion timestamp
-      // completionDates format: { [lessonId]: timestamp }
-      await feedRef.update({
+      // CRITICAL: Ensure lesson is marked as started if not already
+      const feedData = feedDoc.data()
+      const startedLessons = feedData?.startedLessons || []
+      const updateData: any = {
         completedLessons: FieldValue.arrayUnion(lessonId),
         [`completionDates.${lessonId}`]: FieldValue.serverTimestamp(),
         lastActivity: FieldValue.serverTimestamp()
-      })
+      }
+      
+      // Add to startedLessons if not already there
+      if (!startedLessons.includes(lessonId)) {
+        updateData.startedLessons = FieldValue.arrayUnion(lessonId)
+      }
+      
+      await feedRef.update(updateData)
 
       console.log(`✅ Athlete ${athleteId} marked lesson ${lessonId} as complete`)
 
@@ -222,10 +230,17 @@ export async function GET(request: NextRequest) {
     // Use actual lessons array length instead of stored totalLessons to ensure accuracy
     const availableLessons = feedData?.availableLessons || feedData?.lessons || []
     const totalLessons = Array.isArray(availableLessons) ? availableLessons.length : (feedData?.totalLessons || 0)
-    const completedCount = (feedData?.completedLessons || []).length
+    const completedLessons = feedData?.completedLessons || []
+    const startedLessons = feedData?.startedLessons || []
+    const completedCount = completedLessons.length
+    
+    // CRITICAL FIX: In progress = lessons that are started but NOT completed
+    // Only count lessons that have actually been opened/started
+    const startedButNotCompleted = startedLessons.filter((lessonId: string) => !completedLessons.includes(lessonId))
+    const inProgressLessons = startedButNotCompleted.length
+    
     // Calculate completion rate based on actual total
     const completionRate = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0
-    const inProgressLessons = Math.max(0, totalLessons - completedCount)
 
     return NextResponse.json({
       success: true,

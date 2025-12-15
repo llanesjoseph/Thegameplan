@@ -70,16 +70,17 @@ export async function POST(request: NextRequest) {
     const athleteName = athleteData?.displayName || athleteData?.email || 'Unknown Athlete'
 
     // STRICT TIER CHECK: Request Coaching Session requires Tier 3 (Elite) subscription
-    const subscription = athleteData?.subscription || {}
-    const subscriptionTier = subscription.tier || 'none'
-    const isActive = subscription.status === 'active' || subscription.status === 'trialing'
+    // Use centralized subscription checker for 100% consistency
+    const { checkFeatureAccess } = await import('@/lib/subscription-checker')
+    const accessCheck = await checkFeatureAccess(athleteId, 'elite', 'Request Coaching Session')
     
-    if (!isActive || subscriptionTier !== 'elite') {
+    if (!accessCheck.isValid) {
       return NextResponse.json(
         { 
-          error: 'This feature requires Tier 3 (Elite) subscription. Please upgrade to unlock 1:1 coaching sessions.',
+          error: accessCheck.error || 'This feature requires Tier 3 (Elite) subscription. Please upgrade to unlock 1:1 coaching sessions.',
           requiredTier: 'elite',
-          currentTier: subscriptionTier
+          currentTier: accessCheck.tier,
+          upgradeUrl: accessCheck.upgradeUrl || '/dashboard/athlete/pricing'
         },
         { status: 403 }
       )

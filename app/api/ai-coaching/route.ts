@@ -130,32 +130,44 @@ export async function POST(request: NextRequest) {
     const requestUserId = userId || authenticatedUserId || 'anonymous'
 
     // STRICT TIER CHECK: Ask Question requires Tier 2+ (Basic or Elite) subscription
+    // Only check for athletes (coaches/admins can always use AI)
     if (isAuthenticated && authenticatedUserId) {
       try {
         const userDoc = await adminDb.collection('users').doc(authenticatedUserId).get()
         if (userDoc.exists) {
           const userData = userDoc.data()
-          const subscription = userData?.subscription || {}
-          const subscriptionTier = subscription.tier || 'none'
-          const isActive = subscription.status === 'active' || subscription.status === 'trialing'
-          
-          // Only check for athletes (coaches/admins can always use AI)
           const userRole = userData?.role || ''
-          if (userRole === 'athlete' && (!isActive || (subscriptionTier !== 'basic' && subscriptionTier !== 'elite'))) {
-            return NextResponse.json(
-              { 
-                success: false,
-                error: 'Ask A Question requires Tier 2+ subscription. Please upgrade to unlock coach communication.',
-                requiredTier: 'basic',
-                currentTier: subscriptionTier
-              },
-              { status: 403 }
-            )
+          
+          // Only check tier for athletes
+          if (userRole === 'athlete') {
+            const { checkFeatureAccess } = await import('@/lib/subscription-checker')
+            const accessCheck = await checkFeatureAccess(authenticatedUserId, 'basic', 'Ask A Question')
+            
+            if (!accessCheck.isValid) {
+              return NextResponse.json(
+                { 
+                  success: false,
+                  error: accessCheck.error || 'Ask A Question requires Tier 2+ subscription. Please upgrade to unlock coach communication.',
+                  requiredTier: 'basic',
+                  currentTier: accessCheck.tier,
+                  upgradeUrl: accessCheck.upgradeUrl || '/dashboard/athlete/pricing'
+                },
+                { status: 403 }
+              )
+            }
           }
         }
       } catch (tierCheckError) {
-        // Log but don't block - allow request to proceed if tier check fails
-        logger.warn('[API] Tier check failed, allowing request', { error: tierCheckError })
+        // CRITICAL: Fail closed - deny access if tier check fails
+        logger.error('[API] Tier check failed, denying access', { error: tierCheckError })
+        return NextResponse.json(
+          { 
+            success: false,
+            error: 'Unable to verify subscription status. Please try again or contact support.',
+            errorCode: 'TIER_CHECK_FAILED'
+          },
+          { status: 403 }
+        )
       }
     }
 

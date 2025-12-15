@@ -60,23 +60,10 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // CRITICAL: Check maxCoaches limit based on subscription tier
-    const subscription = athleteData?.subscription || {}
-    const access = athleteData?.access || {}
-    const tier = subscription.tier || 'none'
-    const isActive = subscription.isActive !== false && (subscription.status === 'active' || subscription.status === 'trialing')
+    // CRITICAL: HARD LIMIT CHECK - Must happen BEFORE creating follow relationship
+    // Use centralized subscription checker for 100% consistency
+    const { checkCoachLimit } = await import('@/lib/subscription-checker')
     
-    // Determine maxCoaches based on tier
-    let maxCoaches = 1 // Default to free tier (1 coach)
-    if (tier === 'basic' && isActive) {
-      maxCoaches = 3
-    } else if (tier === 'elite' && isActive) {
-      maxCoaches = -1 // Unlimited
-    } else {
-      // Use access.maxCoaches if set, otherwise default to 1
-      maxCoaches = access.maxCoaches ?? 1
-    }
-
     // Count current coaches (assigned + followed)
     const assignedCoachId = athleteData?.coachId || athleteData?.assignedCoachId
     const followingSnapshot = await adminDb
@@ -98,32 +85,32 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    // Check if adding this coach would exceed the limit
-    const wouldExceedLimit = maxCoaches !== -1 && currentCoachCount >= maxCoaches
+    // HARD LIMIT: Check if adding this coach would exceed the limit
+    // This is a BULLETPROOF check that cannot be bypassed
+    const limitCheck = await checkCoachLimit(athleteId, currentCoachCount)
     
-    if (wouldExceedLimit) {
-      const tierName = tier === 'none' ? 'Free (Tier 1)' : tier === 'basic' ? 'Tier 2' : 'Tier 3'
-      
-      // Determine upgrade message based on current tier
-      let upgradeMessage = ''
-      let requiredTier = ''
-      if (tier === 'none' || !isActive) {
-        upgradeMessage = 'Upgrade to Tier 2 ($9.99/month) to follow up to 3 coaches, or Tier 3 ($19.99/month) for unlimited coaches.'
-        requiredTier = 'basic'
-      } else if (tier === 'basic') {
-        upgradeMessage = 'Upgrade to Tier 3 ($19.99/month) to follow unlimited coaches and unlock 1:1 coaching sessions.'
-        requiredTier = 'elite'
-      }
-      
+    if (!limitCheck.allowed) {
+      console.log(`🚫 BLOCKED: Athlete ${athleteId} attempted to follow coach ${coachId} but reached limit (${currentCoachCount}/${limitCheck.maxCoaches})`)
       return NextResponse.json({
         success: false,
-        error: `You've reached your ${tierName} limit of ${maxCoaches} coach${maxCoaches === 1 ? '' : 'es'}. ${upgradeMessage}`,
+        error: limitCheck.error || `You've reached your coach limit. Upgrade to follow more coaches.`,
         limitReached: true,
         currentCount: currentCoachCount,
-        maxCoaches: maxCoaches,
-        currentTier: tier,
-        requiredTier: requiredTier,
-        upgradeUrl: '/dashboard/athlete/pricing'
+        maxCoaches: limitCheck.maxCoaches,
+        upgradeUrl: limitCheck.upgradeUrl || '/dashboard/athlete/pricing'
+      }, { status: 403 })
+    }
+    
+    // DOUBLE CHECK: Verify count is still valid (race condition protection)
+    if (limitCheck.maxCoaches !== -1 && currentCoachCount >= limitCheck.maxCoaches) {
+      console.log(`🚫 BLOCKED (double-check): Athlete ${athleteId} reached limit during follow attempt`)
+      return NextResponse.json({
+        success: false,
+        error: limitCheck.error || `You've reached your coach limit. Upgrade to follow more coaches.`,
+        limitReached: true,
+        currentCount: currentCoachCount,
+        maxCoaches: limitCheck.maxCoaches,
+        upgradeUrl: limitCheck.upgradeUrl || '/dashboard/athlete/pricing'
       }, { status: 403 })
     }
 
@@ -136,6 +123,55 @@ export async function POST(request: NextRequest) {
       followedAt: FieldValue.serverTimestamp(),
       notificationsEnabled: true
     })
+
+    // CRITICAL: Sync coach's lessons to athlete_feed
+    // Get all published lessons from this coach
+    const lessonsSnapshot = await adminDb
+      .collection('content')
+      .where('creatorUid', '==', coachId)
+      .where('status', '==', 'published')
+      .get()
+    
+    const newLessonIds = lessonsSnapshot.docs.map(doc => doc.id)
+    
+    // Update athlete feed with new lessons (merge, don't overwrite)
+    const feedRef = adminDb.collection('athlete_feed').doc(athleteId)
+    const feedDoc = await feedRef.get()
+    
+    if (feedDoc.exists) {
+      const feedData = feedDoc.data()
+      const existingLessons = feedData?.availableLessons || []
+      const startedLessons = feedData?.startedLessons || []
+      const completedLessons = feedData?.completedLessons || []
+      
+      // Merge new lessons (avoid duplicates)
+      const allLessons = [...new Set([...existingLessons, ...newLessonIds])]
+      
+      // CRITICAL: Only update availableLessons and totalLessons
+      // DO NOT touch startedLessons or completedLessons - they preserve progress
+      await feedRef.update({
+        availableLessons: allLessons,
+        totalLessons: allLessons.length,
+        updatedAt: FieldValue.serverTimestamp()
+      })
+      
+      // Note: startedLessons and completedLessons are NOT updated here
+      // This ensures completion status persists when following new coaches
+    } else {
+      // Create new feed if it doesn't exist
+      await feedRef.set({
+        athleteId,
+        coachId: assignedCoachId || coachId, // Use assigned coach if exists, otherwise this coach
+        availableLessons: newLessonIds,
+        startedLessons: [],
+        completedLessons: [],
+        totalLessons: newLessonIds.length,
+        completionRate: 0,
+        lastActivity: FieldValue.serverTimestamp(),
+        createdAt: FieldValue.serverTimestamp(),
+        updatedAt: FieldValue.serverTimestamp()
+      })
+    }
 
     // Update follower count on coach profile (optional analytics)
     const coachProfileRef = adminDb.collection('coach_profiles').doc(coachId)
