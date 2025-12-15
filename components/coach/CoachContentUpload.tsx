@@ -210,7 +210,11 @@ export default function CoachContentUpload() {
           })
         } catch (firestoreError: any) {
           console.error('Firestore error:', firestoreError)
-          throw new Error(firestoreError.message || 'Failed to save link. Please check your permissions.')
+          const errorMsg = firestoreError.message || firestoreError.code || 'Failed to save link'
+          if (errorMsg.includes('permission') || errorMsg.includes('Permission')) {
+            throw new Error('Permission denied. Please check your account permissions or contact support.')
+          }
+          throw new Error(errorMsg)
         }
 
         setUploadProgress({
