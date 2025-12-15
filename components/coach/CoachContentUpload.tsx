@@ -219,10 +219,11 @@ export default function CoachContentUpload() {
           // Save to Firestore with retry logic
           let retries = 3
           let lastError: any = null
+          let docId: string | null = null
 
           while (retries > 0) {
             try {
-              await addDoc(collection(db, 'coach_content'), {
+              const docRef = await addDoc(collection(db, 'coach_content'), {
                 coachId: user.uid,
                 coachName: user.displayName || 'Unknown Coach',
                 contentType: 'link',
@@ -231,10 +232,12 @@ export default function CoachContentUpload() {
                 linkUrl: trimmedUrl,
                 uploadedAt: serverTimestamp(),
                 isPublic: false, // Default to private
-                views: 0
+                views: 0,
+                status: 'published' // Mark as published so it appears in feeds
               })
-              // Success - break out of retry loop
-              break
+              docId = docRef.id
+              console.log(`✅ Link content saved to Firestore: ${docId}`)
+              break // Success - exit retry loop
             } catch (firestoreError: any) {
               lastError = firestoreError
               retries--
@@ -251,13 +254,14 @@ export default function CoachContentUpload() {
               }
               
               // Wait before retrying (exponential backoff)
+              console.warn(`⚠️ Firestore save failed, retrying... (${retries} attempts left)`)
               await new Promise(resolve => setTimeout(resolve, 1000 * (4 - retries)))
             }
           }
 
           // Verify the document was created
-          if (lastError && retries === 0) {
-            throw lastError
+          if (!docId) {
+            throw new Error('Failed to save link to Firestore after retries')
           }
         } catch (firestoreError: any) {
           console.error('Firestore error:', firestoreError)
@@ -319,47 +323,93 @@ export default function CoachContentUpload() {
             setIsUploading(false)
           },
           async () => {
-            // Upload complete - get download URL
-            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref)
+            try {
+              // Upload complete - get download URL
+              const downloadURL = await getDownloadURL(uploadTask.snapshot.ref)
 
-            // Save metadata to Firestore
-            await addDoc(collection(db, 'coach_content'), {
-              coachId: user.uid,
-              coachName: user.displayName || 'Unknown Coach',
-              contentType,
-              title: title.trim(),
-              description: description.trim(),
-              fileUrl: downloadURL,
-              fileName: selectedFile.name,
-              fileSize: selectedFile.size,
-              thumbnail: selectedThumbnail || null,
-              uploadedAt: serverTimestamp(),
-              isPublic: false, // Default to private
-              views: 0
-            })
+              // CRITICAL: Save metadata to Firestore with retry logic
+              let retries = 3
+              let lastError: any = null
+              let docId: string | null = null
 
-            setUploadProgress({
-              fileName: selectedFile.name,
-              progress: 100,
-              status: 'complete',
-              url: downloadURL
-            })
-
-            // Reset form after 2 seconds
-            setTimeout(() => {
-              setTitle('')
-              setDescription('')
-              setSelectedFile(null)
-              if (videoUrl) {
-                URL.revokeObjectURL(videoUrl)
+              while (retries > 0) {
+                try {
+                  const docRef = await addDoc(collection(db, 'coach_content'), {
+                    coachId: user.uid,
+                    coachName: user.displayName || 'Unknown Coach',
+                    contentType,
+                    title: title.trim(),
+                    description: description.trim(),
+                    fileUrl: downloadURL,
+                    fileName: selectedFile.name,
+                    fileSize: selectedFile.size,
+                    thumbnail: selectedThumbnail || null,
+                    uploadedAt: serverTimestamp(),
+                    isPublic: false, // Default to private
+                    views: 0,
+                    status: 'published' // Mark as published so it appears in feeds
+                  })
+                  docId = docRef.id
+                  console.log(`✅ Content saved to Firestore: ${docId}`)
+                  break // Success - exit retry loop
+                } catch (firestoreError: any) {
+                  lastError = firestoreError
+                  retries--
+                  
+                  // If it's a permission error, don't retry
+                  const errorMsg = firestoreError.message || firestoreError.code || ''
+                  if (errorMsg.includes('permission') || errorMsg.includes('Permission') || errorMsg.includes('permission-denied')) {
+                    throw new Error('Permission denied. Please check your account permissions or contact support.')
+                  }
+                  
+                  // If last retry, throw the error
+                  if (retries === 0) {
+                    throw firestoreError
+                  }
+                  
+                  // Wait before retrying (exponential backoff)
+                  console.warn(`⚠️ Firestore save failed, retrying... (${retries} attempts left)`)
+                  await new Promise(resolve => setTimeout(resolve, 1000 * (4 - retries)))
+                }
               }
-              setVideoUrl('')
-              setShowThumbnailSelector(false)
-              setThumbnailCandidates([])
-              setSelectedThumbnail('')
-              setUploadProgress(null)
+
+              // Verify the document was created
+              if (!docId) {
+                throw new Error('Failed to save content to Firestore after retries')
+              }
+
+              setUploadProgress({
+                fileName: selectedFile.name,
+                progress: 100,
+                status: 'complete',
+                url: downloadURL
+              })
+
+              // Reset form after 2 seconds
+              setTimeout(() => {
+                setTitle('')
+                setDescription('')
+                setSelectedFile(null)
+                if (videoUrl) {
+                  URL.revokeObjectURL(videoUrl)
+                }
+                setVideoUrl('')
+                setShowThumbnailSelector(false)
+                setThumbnailCandidates([])
+                setSelectedThumbnail('')
+                setUploadProgress(null)
+                setIsUploading(false)
+              }, 2000)
+            } catch (error: any) {
+              console.error('❌ Error saving content to Firestore:', error)
+              setUploadProgress({
+                fileName: selectedFile.name,
+                progress: 0,
+                status: 'error',
+                error: error.message || 'Failed to save content. Please try again.'
+              })
               setIsUploading(false)
-            }, 2000)
+            }
           }
         )
       }
