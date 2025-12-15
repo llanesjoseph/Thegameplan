@@ -111,8 +111,8 @@ export default function AthleteProgress() {
         const followedCoachIds = followsSnapshot.docs.map(doc => doc.data().coachId)
         
         // 2. Get assigned coach if exists
-        const userDoc = await getDoc(doc(db, 'users', user.uid))
-        const userData = userDoc.data()
+        const userDocForCoach = await getDoc(doc(db, 'users', user.uid))
+        const userData = userDocForCoach.data()
         const assignedCoachId = userData?.coachId || userData?.assignedCoachId
         
         // Combine all coach IDs (assigned + followed, no duplicates)
@@ -171,9 +171,8 @@ export default function AthleteProgress() {
         console.log('  - Completed:', completedCount)
         console.log('  - In Progress (started but not completed):', inProgressCount)
 
-        // Fetch upcoming events
-        const userDoc = await getDoc(doc(db, 'users', user.uid))
-        const coachId = userDoc.data()?.coachId || userDoc.data()?.assignedCoachId
+        // Fetch upcoming events (reuse userData from above)
+        const coachId = userData?.coachId || userData?.assignedCoachId
 
         let upcomingEventsData: Event[] = []
         if (coachId) {
