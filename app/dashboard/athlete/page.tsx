@@ -547,26 +547,9 @@ export default function AthleteDashboard() {
                 </span>
               </Link>
 
-              {/* Right: account chip, wired to real user + sign out */}
+              {/* Right: account chip with Settings and Sign out */}
               <div className="flex items-center gap-6">
-                <button
-                  type="button"
-                  className="flex items-center gap-2 rounded-full bg-white border border-gray-200 px-3 py-1 text-xs sm:text-sm"
-                  aria-label="Athlete account"
-                  onClick={async () => {
-                    if (isSigningOut) return
-                    setIsSigningOut(true)
-                    setTimeout(async () => {
-                      try {
-                        await signOut(auth)
-                      } catch (e) {
-                        console.error('Sign out failed:', e)
-                      } finally {
-                        window.location.href = '/'
-                      }
-                    }, 300)
-                  }}
-                >
+                <div className="flex items-center gap-2 rounded-full bg-white border border-gray-200 px-3 py-1 text-xs sm:text-sm">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={
@@ -598,13 +581,27 @@ export default function AthleteDashboard() {
                     Settings
                   </Link>
                   <span className="text-xs text-gray-400">|</span>
-                  <span
-                    className="text-xs text-gray-700 underline"
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      if (isSigningOut) return
+                      setIsSigningOut(true)
+                      setTimeout(async () => {
+                        try {
+                          await signOut(auth)
+                        } catch (e) {
+                          console.error('Sign out failed:', e)
+                        } finally {
+                          window.location.href = '/'
+                        }
+                      }, 300)
+                    }}
+                    className="text-xs text-gray-700 underline hover:text-gray-900 transition-colors"
                     style={{ fontFamily: '"Open Sans", sans-serif' }}
                   >
                     {isSigningOut ? 'Signing out…' : 'Sign out'}
-                  </span>
-                </button>
+                  </button>
+                </div>
               </div>
             </div>
           </header>
