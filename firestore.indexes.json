@@ -388,6 +388,22 @@
         { "fieldPath": "athleteUid", "order": "ASCENDING" },
         { "fieldPath": "createdAt", "order": "DESCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "coach_followers",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "athleteId", "order": "ASCENDING" },
+        { "fieldPath": "followedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "coach_followers",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "coachId", "order": "ASCENDING" },
+        { "fieldPath": "followedAt", "order": "DESCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

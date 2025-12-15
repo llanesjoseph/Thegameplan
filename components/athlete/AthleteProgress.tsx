@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { CheckCircle, RefreshCw, Calendar, MapPin, Clock, X } from 'lucide-react'
-import { doc, getDoc, collection, query, where, getDocs, Timestamp } from 'firebase/firestore'
+import { doc, getDoc, collection, query, where, getDocs, Timestamp, onSnapshot } from 'firebase/firestore'
 import { db } from '@/lib/firebase.client'
 
 interface Event {
@@ -25,6 +25,7 @@ export default function AthleteProgress() {
   const [loading, setLoading] = useState(true)
   const [showEventsModal, setShowEventsModal] = useState(false)
   const [events, setEvents] = useState<Event[]>([])
+  const [syncing, setSyncing] = useState(false)
 
   useEffect(() => {
     const loadProgress = async () => {
@@ -225,11 +226,138 @@ export default function AthleteProgress() {
     loadProgress()
   }, [user])
 
+  // CRITICAL: Real-time listener for athlete_feed updates
+  // This ensures metrics update instantly when lessons are completed/started
+  useEffect(() => {
+    if (!user?.uid) return
+
+    console.log('🔥 Setting up real-time listener for athlete_feed')
+
+    const feedDocRef = doc(db, 'athlete_feed', user.uid)
+
+    const unsubscribe = onSnapshot(
+      feedDocRef,
+      async (snapshot) => {
+        // Only update if document exists and is not a pending write
+        if (snapshot.exists() && !snapshot.metadata.hasPendingWrites) {
+          console.log('🔄 Real-time update: athlete_feed changed, refreshing metrics...')
+          
+          try {
+            // Fetch updated aggregated progress
+            const token = await user.getIdToken()
+            const response = await fetch('/api/athlete/progress/aggregate', {
+              headers: {
+                Authorization: `Bearer ${token}`
+              }
+            })
+
+            if (response.ok) {
+              const data = await response.json()
+              if (data.success && data.progress) {
+                const progress = data.progress
+                console.log('✅ Real-time metrics updated:', progress)
+                
+                // Update stats with real-time data
+                setStats({
+                  trainingsComplete: progress.completedLessons || 0,
+                  trainingsInProgress: progress.inProgressLessons || 0,
+                  upcomingEvents: stats.upcomingEvents // Keep existing events count
+                })
+              }
+            } else {
+              // Fallback: calculate from snapshot data
+              const feedData = snapshot.data()
+              const availableLessons = feedData?.availableLessons || []
+              const completedLessons = feedData?.completedLessons || []
+              const startedLessons = feedData?.startedLessons || []
+              
+              const totalLessons = availableLessons.length
+              const completedCount = completedLessons.length
+              const inProgressCount = startedLessons.filter(
+                (lessonId: string) => !completedLessons.includes(lessonId)
+              ).length
+              
+              setStats({
+                trainingsComplete: completedCount,
+                trainingsInProgress: inProgressCount,
+                upcomingEvents: stats.upcomingEvents
+              })
+            }
+          } catch (error) {
+            console.error('❌ Error in real-time update:', error)
+            // Silently fail - don't break the UI
+          }
+        }
+      },
+      (error) => {
+        // Silently handle permission errors for non-existent documents
+        if (error.code !== 'permission-denied') {
+          console.error('❌ Error listening to athlete feed:', error)
+        }
+      }
+    )
+
+    // Cleanup listener on unmount
+    return () => {
+      console.log('🔥 Cleaning up real-time listener')
+      unsubscribe()
+    }
+  }, [user, stats.upcomingEvents]) // Include stats.upcomingEvents to avoid stale closure
+
+  const handleSyncAll = async () => {
+    if (!user?.uid || syncing) return
+    
+    setSyncing(true)
+    try {
+      const token = await user.getIdToken()
+      const response = await fetch('/api/athlete/progress/sync-all', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success && data.progress) {
+          const progress = data.progress
+          setStats({
+            trainingsComplete: progress.completedLessons || 0,
+            trainingsInProgress: progress.inProgressLessons || 0,
+            upcomingEvents: stats.upcomingEvents
+          })
+          console.log('✅ Sync complete:', progress)
+          alert(`Successfully synced ${progress.totalLessons} lessons from ${progress.totalCoaches} coaches!`)
+        }
+      } else {
+        const error = await response.json()
+        throw new Error(error.error || 'Sync failed')
+      }
+    } catch (error: any) {
+      console.error('❌ Error syncing:', error)
+      alert(`Sync failed: ${error.message || 'Unknown error'}`)
+    } finally {
+      setSyncing(false)
+    }
+  }
+
   return (
     <div>
-      <h2 className="text-xl font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
-        Your Progress
-      </h2>
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="text-xl font-bold" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
+          Your Progress
+        </h2>
+        <button
+          onClick={handleSyncAll}
+          disabled={syncing || loading}
+          className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold bg-gray-100 hover:bg-gray-200 text-gray-700 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          style={{ fontFamily: '"Open Sans", sans-serif' }}
+          title="Sync all lessons from all coaches"
+        >
+          <RefreshCw className={`w-3.5 h-3.5 ${syncing ? 'animate-spin' : ''}`} />
+          {syncing ? 'Syncing...' : 'Sync All'}
+        </button>
+      </div>
 
       {/* Sharp rectangle button row - spaced to align with coach photos below */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">

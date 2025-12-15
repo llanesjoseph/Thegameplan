@@ -46,21 +46,21 @@ export async function GET(request: NextRequest) {
     followedCoachIds.forEach(coachId => allCoachIds.add(coachId))
 
     console.log(`📊 Aggregating progress for athlete ${athleteId} from ${allCoachIds.size} coaches`)
+    console.log(`  👥 Coach IDs:`, Array.from(allCoachIds))
 
-    // 4. Fetch athlete feed for completion tracking
+    // 4. Fetch athlete feed for completion tracking (after sync)
     const feedDoc = await adminDb.collection('athlete_feed').doc(athleteId).get()
     const feedData = feedDoc.exists ? feedDoc.data() : {}
     const completedLessons = new Set<string>(feedData?.completedLessons || [])
     const startedLessons = new Set<string>(feedData?.startedLessons || [])
+    
+    console.log(`  ✅ Feed data: ${completedLessons.size} completed, ${startedLessons.size} started`)
 
-    // 5. Aggregate ALL lessons from ALL coaches
+    // 5. Aggregate ALL lessons from ALL coaches - CRITICAL: Fetch directly from each coach
     const allAvailableLessons = new Set<string>()
+    const lessonsByCoach: Record<string, string[]> = {}
 
-    // Get lessons from athlete_feed (already aggregated from all coaches)
-    const feedAvailableLessons = feedData?.availableLessons || feedData?.lessons || []
-    feedAvailableLessons.forEach((lessonId: string) => allAvailableLessons.add(lessonId))
-
-    // Also fetch directly from all coaches to ensure we have everything
+    // Fetch directly from ALL coaches to ensure we have EVERYTHING
     for (const coachId of allCoachIds) {
       try {
         const lessonsSnapshot = await adminDb
@@ -69,23 +69,73 @@ export async function GET(request: NextRequest) {
           .where('status', '==', 'published')
           .get()
 
-        lessonsSnapshot.docs.forEach(doc => {
-          allAvailableLessons.add(doc.id)
-        })
-      } catch (error) {
-        console.warn(`⚠️ Could not fetch lessons for coach ${coachId}:`, error)
+        const coachLessonIds = lessonsSnapshot.docs.map(doc => doc.id)
+        lessonsByCoach[coachId] = coachLessonIds
+        coachLessonIds.forEach(lessonId => allAvailableLessons.add(lessonId))
+        
+        console.log(`  📚 Coach ${coachId}: ${coachLessonIds.length} lessons`)
+      } catch (error: any) {
+        console.error(`❌ Error fetching lessons for coach ${coachId}:`, error.message)
+        // Continue with other coaches even if one fails
       }
     }
 
-    // 6. Update athlete_feed with ALL lessons from ALL coaches (if needed)
+    // Also check athlete_feed for any lessons that might have been added manually
+    const feedAvailableLessons = feedData?.availableLessons || feedData?.lessons || []
+    feedAvailableLessons.forEach((lessonId: string) => allAvailableLessons.add(lessonId))
+
+    // 6. CRITICAL: Update athlete_feed with ALL lessons from ALL coaches
+    // This ensures the feed is always in sync with all followed coaches
     const allLessonsArray = Array.from(allAvailableLessons)
-    if (feedAvailableLessons.length !== allLessonsArray.length) {
-      console.log(`🔄 Syncing athlete_feed: ${feedAvailableLessons.length} -> ${allLessonsArray.length} lessons`)
-      await adminDb.collection('athlete_feed').doc(athleteId).update({
-        availableLessons: allLessonsArray,
-        totalLessons: allLessonsArray.length,
-        updatedAt: FieldValue.serverTimestamp()
+    const currentFeedLessons = Array.from(new Set(feedAvailableLessons))
+    
+    // Check if sync is needed (different length or missing lessons)
+    const needsSync = currentFeedLessons.length !== allLessonsArray.length ||
+      !allLessonsArray.every(lessonId => currentFeedLessons.includes(lessonId))
+    
+    if (needsSync || allCoachIds.size > 0) {
+      console.log(`🔄 Syncing athlete_feed: ${currentFeedLessons.length} -> ${allLessonsArray.length} lessons from ${allCoachIds.size} coaches`)
+      
+      // Use transaction to ensure atomic update
+      await adminDb.runTransaction(async (transaction) => {
+        const feedRef = adminDb.collection('athlete_feed').doc(athleteId)
+        const currentFeedDoc = await transaction.get(feedRef)
+        
+        if (currentFeedDoc.exists) {
+          // Preserve existing progress arrays
+          const existingData = currentFeedDoc.data()
+          const existingCompletedLessons = existingData?.completedLessons || []
+          const existingStartedLessons = existingData?.startedLessons || []
+          const existingCompletionDates = existingData?.completionDates || {}
+          
+          // Update only availableLessons and totalLessons, preserve progress
+          transaction.update(feedRef, {
+            availableLessons: allLessonsArray,
+            totalLessons: allLessonsArray.length,
+            completionRate: allLessonsArray.length > 0
+              ? Math.round((existingCompletedLessons.length / allLessonsArray.length) * 100)
+              : 0,
+            updatedAt: FieldValue.serverTimestamp()
+            // Note: completedLessons, startedLessons, and completionDates are preserved automatically
+          })
+        } else {
+          // Create new feed if it doesn't exist
+          transaction.set(feedRef, {
+            athleteId,
+            availableLessons: allLessonsArray,
+            completedLessons: [],
+            startedLessons: [],
+            completionDates: {},
+            totalLessons: allLessonsArray.length,
+            completionRate: 0,
+            lastActivity: FieldValue.serverTimestamp(),
+            createdAt: FieldValue.serverTimestamp(),
+            updatedAt: FieldValue.serverTimestamp()
+          })
+        }
       })
+      
+      console.log(`✅ Synced ${allLessonsArray.length} lessons to athlete_feed`)
     }
 
     // 7. Calculate metrics from aggregated data
@@ -102,6 +152,8 @@ export async function GET(request: NextRequest) {
     const completionRate = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0
 
     console.log(`✅ Aggregated progress: ${completedCount}/${totalLessons} complete, ${inProgressCount} in progress`)
+    console.log(`  📈 Completion rate: ${completionRate}%`)
+    console.log(`  📋 Breakdown: ${completedCount} complete, ${inProgressCount} in progress, ${totalLessons - completedCount - inProgressCount} not started`)
 
     return NextResponse.json({
       success: true,
@@ -112,7 +164,8 @@ export async function GET(request: NextRequest) {
         completionRate,
         totalCoaches: allCoachIds.size,
         coachIds: Array.from(allCoachIds),
-        lastActivity: feedData?.lastActivity?.toDate?.()?.toISOString() || null
+        lastActivity: feedData?.lastActivity?.toDate?.()?.toISOString() || null,
+        syncedAt: new Date().toISOString()
       }
     })
 

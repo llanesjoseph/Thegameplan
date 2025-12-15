@@ -94,45 +94,86 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 6. Update completion status using TRANSACTION for atomicity
+    // 6. Update completion status using TRANSACTION with RETRY logic for air-tight persistence
     const feedRef = adminDb.collection('athlete_feed').doc(athleteId)
     
-    // Use transaction to ensure completion status persists and cannot be lost
-    await adminDb.runTransaction(async (transaction) => {
-      // Re-read feed document in transaction to get latest state
-      const currentFeedDoc = await transaction.get(feedRef)
-      if (!currentFeedDoc.exists) {
-        throw new Error('Athlete feed not found')
-      }
-      
-      const currentFeedData = currentFeedDoc.data()
-      const currentCompletedLessons = currentFeedData?.completedLessons || []
-      const currentStartedLessons = currentFeedData?.startedLessons || []
-      
-      if (action === 'complete') {
-        // CRITICAL: Use arrayUnion to add - this is idempotent and safe
-        // If already completed, this won't duplicate it
-        const updateData: any = {
-          completedLessons: FieldValue.arrayUnion(lessonId),
-          [`completionDates.${lessonId}`]: FieldValue.serverTimestamp(),
-          lastActivity: FieldValue.serverTimestamp()
-        }
-        
-        // Add to startedLessons if not already there (idempotent)
-        if (!currentStartedLessons.includes(lessonId)) {
-          updateData.startedLessons = FieldValue.arrayUnion(lessonId)
-        }
-        
-        transaction.update(feedRef, updateData)
-      } else if (action === 'uncomplete') {
-        // Only allow uncomplete if explicitly requested
-        transaction.update(feedRef, {
-          completedLessons: FieldValue.arrayRemove(lessonId),
-          [`completionDates.${lessonId}`]: FieldValue.delete(),
-          lastActivity: FieldValue.serverTimestamp()
+    const MAX_RETRIES = 3
+    let retryCount = 0
+    let success = false
+    
+    while (retryCount < MAX_RETRIES && !success) {
+      try {
+        // Use transaction to ensure completion status persists and cannot be lost
+        await adminDb.runTransaction(async (transaction) => {
+          // Re-read feed document in transaction to get latest state
+          const currentFeedDoc = await transaction.get(feedRef)
+          if (!currentFeedDoc.exists) {
+            throw new Error('Athlete feed not found')
+          }
+          
+          const currentFeedData = currentFeedDoc.data()
+          const currentCompletedLessons = currentFeedData?.completedLessons || []
+          const currentStartedLessons = currentFeedData?.startedLessons || []
+          
+          if (action === 'complete') {
+            // CRITICAL: Use arrayUnion to add - this is idempotent and safe
+            // If already completed, this won't duplicate it
+            const updateData: any = {
+              completedLessons: FieldValue.arrayUnion(lessonId),
+              [`completionDates.${lessonId}`]: FieldValue.serverTimestamp(),
+              lastActivity: FieldValue.serverTimestamp()
+            }
+            
+            // Add to startedLessons if not already there (idempotent)
+            if (!currentStartedLessons.includes(lessonId)) {
+              updateData.startedLessons = FieldValue.arrayUnion(lessonId)
+            }
+            
+            // Recalculate completion rate
+            const availableLessons = currentFeedData?.availableLessons || []
+            const newCompletedCount = currentCompletedLessons.includes(lessonId)
+              ? currentCompletedLessons.length
+              : currentCompletedLessons.length + 1
+            updateData.completionRate = availableLessons.length > 0
+              ? Math.round((newCompletedCount / availableLessons.length) * 100)
+              : 0
+            
+            transaction.update(feedRef, updateData)
+          } else if (action === 'uncomplete') {
+            // Only allow uncomplete if explicitly requested
+            const updateData: any = {
+              completedLessons: FieldValue.arrayRemove(lessonId),
+              [`completionDates.${lessonId}`]: FieldValue.delete(),
+              lastActivity: FieldValue.serverTimestamp()
+            }
+            
+            // Recalculate completion rate
+            const availableLessons = currentFeedData?.availableLessons || []
+            const newCompletedCount = Math.max(0, currentCompletedLessons.length - 1)
+            updateData.completionRate = availableLessons.length > 0
+              ? Math.round((newCompletedCount / availableLessons.length) * 100)
+              : 0
+            
+            transaction.update(feedRef, updateData)
+          }
         })
+        
+        success = true
+        console.log(`✅ Completion update successful (attempt ${retryCount + 1})`)
+      } catch (error: any) {
+        retryCount++
+        if (retryCount >= MAX_RETRIES) {
+          throw error // Re-throw on final retry
+        }
+        console.warn(`⚠️ Transaction failed (attempt ${retryCount}/${MAX_RETRIES}), retrying...`, error.message)
+        // Exponential backoff
+        await new Promise(resolve => setTimeout(resolve, Math.pow(2, retryCount) * 100))
       }
-    })
+    }
+    
+    if (!success) {
+      throw new Error('Failed to update completion status after retries')
+    }
 
     if (action === 'complete') {
       console.log(`✅ Athlete ${athleteId} marked lesson ${lessonId} as complete (transaction committed)`)
