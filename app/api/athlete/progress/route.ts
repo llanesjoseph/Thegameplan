@@ -219,10 +219,13 @@ export async function GET(request: NextRequest) {
     }
 
     const feedData = feedDoc.data()
-    const totalLessons = feedData?.totalLessons || 0
+    // Use actual lessons array length instead of stored totalLessons to ensure accuracy
+    const availableLessons = feedData?.availableLessons || feedData?.lessons || []
+    const totalLessons = Array.isArray(availableLessons) ? availableLessons.length : (feedData?.totalLessons || 0)
     const completedCount = (feedData?.completedLessons || []).length
-    const completionRate = feedData?.completionRate || 0
-    const inProgressLessons = totalLessons - completedCount
+    // Calculate completion rate based on actual total
+    const completionRate = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0
+    const inProgressLessons = Math.max(0, totalLessons - completedCount)
 
     return NextResponse.json({
       success: true,

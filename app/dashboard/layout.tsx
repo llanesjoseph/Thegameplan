@@ -17,7 +17,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
  // Pages that handle their own auth and layout (no sidebar)
  const isMainDashboard = pathname === '/dashboard'
- const isOverviewPage = pathname === '/dashboard/overview'
+ const isOverviewPage = false // Overview page removed
  const isProgressPage = pathname === '/dashboard/progress'
  const isCreatorPage = false // Legacy creator page removed
  const isProfilePage = pathname === '/dashboard/profile'

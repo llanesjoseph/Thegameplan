@@ -1,1 +1,0 @@
-gcloud functions call aiCoaching --region=us-central1 --project=gameplan-787a2 --data="{\"question\":\"How do I improve my game performance?\"}"

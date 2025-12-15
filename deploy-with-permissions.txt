@@ -1,3 +1,0 @@
-gcloud functions delete aiCoaching --region=us-central1 --project gameplan-787a2 --quiet
-
-gcloud functions deploy aiCoaching --runtime nodejs18 --trigger-http --allow-unauthenticated --project gameplan-787a2 --region us-central1

@@ -338,7 +338,7 @@ export default function CreatorPageClient({ creatorId }: CreatorPageClientProps)
   switch (role) {
    case 'superadmin':
    case 'admin':
-    router.push('/dashboard/overview')
+    router.push('/dashboard/coach')
     break
    case 'coach':
    case 'creator':

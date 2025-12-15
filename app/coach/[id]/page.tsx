@@ -161,83 +161,185 @@ export default function CoachProfilePage() {
         return
       }
 
-      // Check if this is Jasmine Aikey and use her comprehensive profile
+      // For ALL coaches (including Jasmine), check database first, then use fallback data
       let coachProfile: CoachProfile
+      const isJasmine = isJasmineAikey(userData.email)
       
-      if (isJasmineAikey(userData.email)) {
-        // Use Jasmine's comprehensive profile data
+      // Try to get extended profile from creator_profiles, coach_profiles, AND creators_index
+      // This ensures we get all photos that the coach has uploaded from all sources
+      let profileData: any = {}
+      let coachProfileData: any = {}
+      let creatorsIndexData: any = {}
+      
+      try {
+        // Check creator_profiles collection
+        const profileQuery = query(
+          collection(db, 'creator_profiles'),
+          where('uid', '==', coachId)
+        )
+        const profileSnap = await getDocs(profileQuery)
+        if (!profileSnap.empty) {
+          profileData = profileSnap.docs[0].data()
+        }
+      } catch (err) {
+        console.warn('Could not fetch creator profile:', err)
+      }
+
+      try {
+        // Also check coach_profiles collection
+        const coachProfileDoc = await getDoc(doc(db, 'coach_profiles', coachId))
+        if (coachProfileDoc.exists()) {
+          coachProfileData = coachProfileDoc.data()
+        }
+      } catch (err) {
+        console.warn('Could not fetch coach profile:', err)
+      }
+
+      try {
+        // Also check creators_index (synced collection - most up-to-date)
+        const creatorsIndexDoc = await getDoc(doc(db, 'creators_index', coachId))
+        if (creatorsIndexDoc.exists()) {
+          creatorsIndexData = creatorsIndexDoc.data()
+        }
+      } catch (err) {
+        console.warn('Could not fetch creators_index:', err)
+      }
+
+      // Merge gallery photos from all collections (remove duplicates)
+      // Include galleryPhotos, actionPhotos, and mediaGallery from all sources
+      const creatorGalleryPhotos = Array.isArray(profileData.galleryPhotos) 
+        ? profileData.galleryPhotos.filter((url: any) => typeof url === 'string' && url.trim().length > 0)
+        : []
+      const coachGalleryPhotos = Array.isArray(coachProfileData.galleryPhotos) 
+        ? coachProfileData.galleryPhotos.filter((url: any) => typeof url === 'string' && url.trim().length > 0)
+        : []
+      const indexGalleryPhotos = Array.isArray(creatorsIndexData.galleryPhotos) 
+        ? creatorsIndexData.galleryPhotos.filter((url: any) => typeof url === 'string' && url.trim().length > 0)
+        : []
+      
+      // Also include actionPhotos (legacy field name that might have photos)
+      const creatorActionPhotos = Array.isArray(profileData.actionPhotos) 
+        ? profileData.actionPhotos.filter((url: any) => typeof url === 'string' && url.trim().length > 0)
+        : []
+      const coachActionPhotos = Array.isArray(coachProfileData.actionPhotos) 
+        ? coachProfileData.actionPhotos.filter((url: any) => typeof url === 'string' && url.trim().length > 0)
+        : []
+      const indexActionPhotos = Array.isArray(creatorsIndexData.actionPhotos) 
+        ? creatorsIndexData.actionPhotos.filter((url: any) => typeof url === 'string' && url.trim().length > 0)
+        : []
+      
+      // Combine all photo sources and deduplicate
+      const allGalleryPhotos = [...new Set([
+        ...creatorGalleryPhotos, 
+        ...coachGalleryPhotos, 
+        ...indexGalleryPhotos,
+        ...creatorActionPhotos,
+        ...coachActionPhotos,
+        ...indexActionPhotos
+      ])]
+      const galleryPhotos = allGalleryPhotos.filter((url: string) => 
+        url && typeof url === 'string' && url.trim().length > 0 && !url.includes('placeholder')
+      )
+
+      // Get showcase photos from all collections (prefer creators_index, then creator_profiles)
+      let showcasePhoto1 = creatorsIndexData.showcasePhoto1 || profileData.showcasePhoto1 || coachProfileData.showcasePhoto1 || userData.showcasePhoto1 || ''
+      let showcasePhoto2 = creatorsIndexData.showcasePhoto2 || profileData.showcasePhoto2 || coachProfileData.showcasePhoto2 || userData.showcasePhoto2 || ''
+      
+      // If no showcase photos but we have gallery photos, use first two from gallery
+      if (!showcasePhoto1 && galleryPhotos.length > 0) {
+        showcasePhoto1 = galleryPhotos[0]
+      }
+      if (!showcasePhoto2 && galleryPhotos.length > 1) {
+        showcasePhoto2 = galleryPhotos[1]
+      }
+      
+      // For Jasmine: If database has no photos, use hardcoded fallback
+      if (isJasmine && galleryPhotos.length === 0) {
         const jasmineProfile = createJasmineCoachProfile(coachId, userData.email)
         const jasmineGallery = extractGalleryPhotos(jasmineProfile.actionPhotos)
-        coachProfile = {
-          uid: coachId,
-          displayName: jasmineProfile.displayName,
-          email: userData.email || '',
-          bio: jasmineProfile.bio,
-          sport: jasmineProfile.sport,
-          yearsExperience: 4, // From her profile
-          specialties: jasmineProfile.specialties,
-          certifications: jasmineProfile.credentials ? [jasmineProfile.credentials] : [],
-          achievements: jasmineProfile.achievements,
-          profileImageUrl: jasmineProfile.headshotUrl,
-          coverImageUrl: jasmineProfile.heroImageUrl,
-          showcasePhoto1: jasmineProfile.actionPhotos?.[0] || jasmineProfile.heroImageUrl,
-          showcasePhoto2: jasmineProfile.actionPhotos?.[1] || jasmineProfile.headshotUrl,
-          galleryPhotos: jasmineGallery,
-          location: userData.location || 'Silicon Valley, California',
-          instagram: userData.instagram || '',
-          youtube: userData.youtube || '',
-          linkedin: userData.linkedin || '',
-          facebook: userData.facebook || '',
-          socialLinks: {}
-        }
-      } else {
-        // Try to get extended profile from creator_profiles for other coaches
-        let profileData: any = {}
-        try {
-          const profileQuery = query(
-            collection(db, 'creator_profiles'),
-            where('uid', '==', coachId)
-          )
-          const profileSnap = await getDocs(profileQuery)
-
-          if (!profileSnap.empty) {
-            profileData = profileSnap.docs[0].data()
+        galleryPhotos.push(...jasmineGallery)
+        if (!showcasePhoto1) showcasePhoto1 = jasmineProfile.actionPhotos?.[0] || jasmineProfile.heroImageUrl
+        if (!showcasePhoto2) showcasePhoto2 = jasmineProfile.actionPhotos?.[1] || jasmineProfile.headshotUrl
+      }
+      
+      // Debug logging to help identify photo loading issues
+      console.log('[COACH-PROFILE] Photo loading summary:', {
+        coachId,
+        isJasmine,
+        sources: {
+          creator_profiles: {
+            galleryPhotos: creatorGalleryPhotos.length,
+            actionPhotos: creatorActionPhotos.length,
+            hasData: Object.keys(profileData).length > 0
+          },
+          coach_profiles: {
+            galleryPhotos: coachGalleryPhotos.length,
+            actionPhotos: coachActionPhotos.length,
+            hasData: Object.keys(coachProfileData).length > 0
+          },
+          creators_index: {
+            galleryPhotos: indexGalleryPhotos.length,
+            actionPhotos: indexActionPhotos.length,
+            hasData: Object.keys(creatorsIndexData).length > 0
           }
-        } catch (err) {
-          console.warn('Could not fetch creator profile:', err)
+        },
+        merged: {
+          totalPhotos: galleryPhotos.length,
+          showcasePhoto1: showcasePhoto1 ? 'SET' : 'MISSING',
+          showcasePhoto2: showcasePhoto2 ? 'SET' : 'MISSING',
+          photoUrls: galleryPhotos.slice(0, 10) // Show first 10 for debugging
         }
+      })
 
-        // STRICT: Only use galleryPhotos from creator_profiles - these are photos uploaded by the coach
-        // Do NOT merge from other sources (actionPhotos, mediaGallery, etc.) to prevent hard-coded images
-        const galleryPhotos = Array.isArray(profileData.galleryPhotos) 
-          ? profileData.galleryPhotos.filter((url: any) => typeof url === 'string' && url.trim().length > 0)
-          : []
-
-        const showcasePhoto1 = profileData.showcasePhoto1 || userData.showcasePhoto1 || ''
-        const showcasePhoto2 = profileData.showcasePhoto2 || userData.showcasePhoto2 || ''
-
-        // Combine data for other coaches
+      // Combine data for all coaches - merge from all collections (prefer creators_index, then creator_profiles)
+      // For Jasmine, merge database data with hardcoded fallback
+      if (isJasmine) {
+        const jasmineProfile = createJasmineCoachProfile(coachId, userData.email)
         coachProfile = {
           uid: coachId,
-          displayName: userData.displayName || profileData.displayName || userData.email || 'Coach',
+          displayName: creatorsIndexData.displayName || profileData.displayName || coachProfileData.displayName || jasmineProfile.displayName || userData.displayName || userData.email || 'Coach',
           email: userData.email || '',
-          bio: profileData.bio || userData.bio || '',
-          sport: profileData.sport || userData.sport || 'General Athletics',
-          yearsExperience: profileData.yearsExperience || userData.yearsExperience || 0,
-          specialties: profileData.specialties || userData.specialties || [],
-          certifications: profileData.certifications || userData.certifications || [],
-          achievements: profileData.achievements || userData.achievements || [],
-          profileImageUrl: profileData.profileImageUrl || userData.photoURL || '',
-          coverImageUrl: profileData.coverImageUrl || '',
+          bio: creatorsIndexData.bio || profileData.bio || coachProfileData.bio || jasmineProfile.bio || userData.bio || '',
+          sport: creatorsIndexData.sport || profileData.sport || coachProfileData.sport || jasmineProfile.sport || userData.sport || 'General Athletics',
+          yearsExperience: creatorsIndexData.yearsExperience || profileData.yearsExperience || coachProfileData.yearsExperience || 4,
+          specialties: creatorsIndexData.specialties || profileData.specialties || coachProfileData.specialties || jasmineProfile.specialties || userData.specialties || [],
+          certifications: creatorsIndexData.certifications || profileData.certifications || coachProfileData.certifications || (jasmineProfile.credentials ? [jasmineProfile.credentials] : []) || userData.certifications || [],
+          achievements: creatorsIndexData.achievements || profileData.achievements || coachProfileData.achievements || jasmineProfile.achievements || userData.achievements || [],
+          profileImageUrl: creatorsIndexData.profileImageUrl || profileData.profileImageUrl || coachProfileData.profileImageUrl || jasmineProfile.headshotUrl || userData.photoURL || '',
+          coverImageUrl: creatorsIndexData.coverImageUrl || profileData.coverImageUrl || coachProfileData.coverImageUrl || jasmineProfile.heroImageUrl || '',
           showcasePhoto1,
           showcasePhoto2,
           galleryPhotos,
-          location: profileData.location || userData.location || '',
-          instagram: profileData.instagram || userData.instagram || '',
-          youtube: profileData.youtube || userData.youtube || '',
-          linkedin: profileData.linkedin || userData.linkedin || '',
-          facebook: profileData.facebook || userData.facebook || '',
-          socialLinks: profileData.socialLinks || userData.socialLinks || {}
+          location: creatorsIndexData.location || profileData.location || coachProfileData.location || userData.location || 'Silicon Valley, California',
+          instagram: creatorsIndexData.instagram || profileData.instagram || coachProfileData.instagram || userData.instagram || '',
+          youtube: creatorsIndexData.youtube || profileData.youtube || coachProfileData.youtube || userData.youtube || '',
+          linkedin: creatorsIndexData.linkedin || profileData.linkedin || coachProfileData.linkedin || userData.linkedin || '',
+          facebook: creatorsIndexData.facebook || profileData.facebook || coachProfileData.facebook || userData.facebook || '',
+          socialLinks: creatorsIndexData.socialLinks || profileData.socialLinks || coachProfileData.socialLinks || userData.socialLinks || {}
+        }
+      } else {
+        // For non-Jasmine coaches, use database data only (already fetched above)
+        coachProfile = {
+          uid: coachId,
+          displayName: creatorsIndexData.displayName || profileData.displayName || coachProfileData.displayName || userData.displayName || userData.email || 'Coach',
+          email: userData.email || '',
+          bio: creatorsIndexData.bio || profileData.bio || coachProfileData.bio || userData.bio || '',
+          sport: creatorsIndexData.sport || profileData.sport || coachProfileData.sport || userData.sport || 'General Athletics',
+          yearsExperience: creatorsIndexData.yearsExperience || profileData.yearsExperience || coachProfileData.yearsExperience || userData.yearsExperience || 0,
+          specialties: creatorsIndexData.specialties || profileData.specialties || coachProfileData.specialties || userData.specialties || [],
+          certifications: creatorsIndexData.certifications || profileData.certifications || coachProfileData.certifications || userData.certifications || [],
+          achievements: creatorsIndexData.achievements || profileData.achievements || coachProfileData.achievements || userData.achievements || [],
+          profileImageUrl: creatorsIndexData.profileImageUrl || profileData.profileImageUrl || coachProfileData.profileImageUrl || userData.photoURL || '',
+          coverImageUrl: creatorsIndexData.coverImageUrl || profileData.coverImageUrl || coachProfileData.coverImageUrl || '',
+          showcasePhoto1,
+          showcasePhoto2,
+          galleryPhotos,
+          location: creatorsIndexData.location || profileData.location || coachProfileData.location || userData.location || '',
+          instagram: creatorsIndexData.instagram || profileData.instagram || coachProfileData.instagram || userData.instagram || '',
+          youtube: creatorsIndexData.youtube || profileData.youtube || coachProfileData.youtube || userData.youtube || '',
+          linkedin: creatorsIndexData.linkedin || profileData.linkedin || coachProfileData.linkedin || userData.linkedin || '',
+          facebook: creatorsIndexData.facebook || profileData.facebook || coachProfileData.facebook || userData.facebook || '',
+          socialLinks: creatorsIndexData.socialLinks || profileData.socialLinks || coachProfileData.socialLinks || userData.socialLinks || {}
         }
       }
 

@@ -6,7 +6,6 @@ import { ChevronRight } from 'lucide-react'
 
 const pathMappings: Record<string, string> = {
  '/dashboard': 'Dashboard',
- '/dashboard/overview': 'Overview',
  '/dashboard/coach-unified': 'Coach Dashboard',
  '/dashboard/admin': 'Admin Panel',
  '/dashboard/admin/users': 'User Management',
@@ -25,9 +24,6 @@ export function DashboardBreadcrumb() {
  const pathname = usePathname()
  
  // Skip breadcrumbs for the overview page to keep it clean
- if (pathname === '/dashboard/overview') {
-  return null
- }
 
  if (!pathname) {
   return null

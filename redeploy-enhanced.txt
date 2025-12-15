@@ -1,1 +1,0 @@
-gcloud functions deploy aiCoaching --runtime nodejs18 --trigger-http --allow-unauthenticated --project gameplan-787a2 --region us-central1

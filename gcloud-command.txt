@@ -1,8 +1,0 @@
-Step 1: Create a service account for Firebase Admin SDK
-gcloud iam service-accounts create firebase-admin-sdk --display-name="Firebase Admin SDK" --project=gameplan-787a2
-
-Step 2: Grant necessary roles to the service account
-gcloud projects add-iam-policy-binding gameplan-787a2 --member="serviceAccount:firebase-admin-sdk@gameplan-787a2.iam.gserviceaccount.com" --role="roles/firebase.admin"
-
-Step 3: Create and download the service account key
-gcloud iam service-accounts keys create firebase-admin-key.json --iam-account=firebase-admin-sdk@gameplan-787a2.iam.gserviceaccount.com

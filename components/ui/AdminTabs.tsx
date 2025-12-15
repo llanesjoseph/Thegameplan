@@ -35,7 +35,7 @@ const TAB_ROLES: TabRole[] = [
   borderColor: 'border-blue-500',
   bgColor: 'bg-blue-50',
   description: 'Athlete training experience',
-  defaultPath: '/dashboard/overview'
+  defaultPath: '/dashboard/admin'
  },
  {
   id: 'creator',

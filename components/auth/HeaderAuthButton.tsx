@@ -26,7 +26,7 @@ export default function HeaderAuthButton() {
    const result = await signInWithPopup(auth, provider)
    console.log('Google sign-in successful:', result.user.email)
    setShowModal(false)
-   router.push('/dashboard/overview')
+   router.push('/dashboard')
   } catch (error: any) {
    console.error('Google sign-in error:', error)
    setError('Sign-in failed. Please try again.')
@@ -49,7 +49,7 @@ export default function HeaderAuthButton() {
     console.log('Email sign-in successful:', result.user.email)
    }
    setShowModal(false)
-   router.push('/dashboard/overview')
+   router.push('/dashboard')
   } catch (error: any) {
    console.error('Email auth error:', error)
    if (error.code === 'auth/user-not-found') {
