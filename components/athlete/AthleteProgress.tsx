@@ -88,6 +88,7 @@ export default function AthleteProgress() {
                 trainingsInProgress: progress.inProgressLessons || 0,
                 upcomingEvents: upcomingEventsData.length
               })
+              setLoading(false)
               return // Success - exit early
             }
           }
