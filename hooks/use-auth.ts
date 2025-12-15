@@ -58,6 +58,39 @@ export function useAuth() {
             // Mark this user as initialized to prevent repeated calls
             initializedUsersRef.current.add(user.uid)
             
+            // Check for account adoption (jasmineathleap@gmail.com -> lv255@cornell.edu)
+            try {
+              const token = await user.getIdToken()
+              const email = user.email?.toLowerCase() || ''
+              
+              // Check if this email needs account adoption
+              if (email === 'jasmineathleap@gmail.com') {
+                console.log('🔄 Checking for account adoption...')
+                fetch('/api/user/adopt-account', {
+                  method: 'POST',
+                  headers: {
+                    'Authorization': `Bearer ${token}`
+                  }
+                }).then(async (response) => {
+                  if (response.ok) {
+                    const data = await response.json()
+                    if (data.success && !data.alreadyAdopted) {
+                      console.log('✅ Account adoption completed:', data.message)
+                      // Reload the page to reflect the new account data
+                      window.location.reload()
+                    } else if (data.alreadyAdopted) {
+                      console.log('ℹ️ Account already adopted')
+                    }
+                  }
+                }).catch(err => {
+                  console.warn('Account adoption check failed (non-critical):', err)
+                })
+              }
+            } catch (error) {
+              // Silently fail - account adoption check is not critical
+              console.warn('Could not check account adoption:', error)
+            }
+
             // Check for baked profile transfer (server-side only, non-blocking)
             try {
               const token = await user.getIdToken()
