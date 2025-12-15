@@ -400,8 +400,8 @@ export default function CoachContentUpload() {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Enter a title for this content"
-          className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-black focus:outline-none"
-          style={{ fontFamily: '"Open Sans", sans-serif' }}
+          className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-black focus:outline-none bg-white"
+          style={{ fontFamily: '"Open Sans", sans-serif', color: '#000000' }}
           disabled={isUploading}
         />
       </div>
@@ -416,8 +416,8 @@ export default function CoachContentUpload() {
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Add a description (optional)"
           rows={3}
-          className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-black focus:outline-none resize-none"
-          style={{ fontFamily: '"Open Sans", sans-serif' }}
+          className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-black focus:outline-none resize-none bg-white"
+          style={{ fontFamily: '"Open Sans", sans-serif', color: '#000000' }}
           disabled={isUploading}
         />
       </div>
@@ -433,8 +433,8 @@ export default function CoachContentUpload() {
             value={linkUrl}
             onChange={(e) => setLinkUrl(e.target.value)}
             placeholder="https://example.com/article"
-            className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-black focus:outline-none"
-            style={{ fontFamily: '"Open Sans", sans-serif' }}
+            className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-black focus:outline-none bg-white"
+            style={{ fontFamily: '"Open Sans", sans-serif', color: '#000000' }}
             disabled={isUploading}
           />
           <p className="text-xs mt-1" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>

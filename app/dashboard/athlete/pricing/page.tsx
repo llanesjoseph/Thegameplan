@@ -157,6 +157,93 @@ export default function AthletePricingPage() {
     }
   };
 
+  // Load current subscription status
+  useEffect(() => {
+    const loadSubscriptionStatus = async () => {
+      if (!user) {
+        setLoadingSubscription(false);
+        return;
+      }
+
+      try {
+        const token = await user.getIdToken();
+        const response = await fetch('/api/athlete/subscriptions/status', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setSubscriptionStatus({
+            tier: data.tier || 'none',
+            isActive: data.isActive || false,
+            cancelAtPeriodEnd: data.billing?.cancelAtPeriodEnd || false,
+          });
+        }
+      } catch (err) {
+        console.error('Error loading subscription status:', err);
+      } finally {
+        setLoadingSubscription(false);
+      }
+    };
+
+    loadSubscriptionStatus();
+  }, [user]);
+
+  const handleCancelSubscription = async () => {
+    if (!user) return;
+
+    const confirmed = window.confirm(
+      'Are you sure you want to cancel your subscription? You will continue to have access until the end of your current billing period.'
+    );
+
+    if (!confirmed) return;
+
+    setCanceling(true);
+    setError(null);
+
+    try {
+      const token = await user.getIdToken();
+      const response = await fetch('/api/athlete/subscriptions/cancel', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to cancel subscription');
+      }
+
+      // Reload subscription status
+      const statusResponse = await fetch('/api/athlete/subscriptions/status', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (statusResponse.ok) {
+        const statusData = await statusResponse.json();
+        setSubscriptionStatus({
+          tier: statusData.tier || 'none',
+          isActive: statusData.isActive || false,
+          cancelAtPeriodEnd: statusData.billing?.cancelAtPeriodEnd || false,
+        });
+      }
+
+      alert('Your subscription has been scheduled for cancellation. You will continue to have access until the end of your billing period.');
+    } catch (err: any) {
+      console.error('Error canceling subscription:', err);
+      setError(err.message || 'Failed to cancel subscription');
+    } finally {
+      setCanceling(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#EDEDED' }}>
       {/* Header with AppHeader */}
