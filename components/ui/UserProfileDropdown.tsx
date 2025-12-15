@@ -257,7 +257,7 @@ export default function UserProfileDropdown() {
        </Link>
        
        <Link 
-        href="/dashboard/settings" 
+        href="/settings" 
         className="flex items-center gap-2 px-3 py-2 text-clarity-text-primary hover:bg-clarity-accent/5 hover:text-clarity-accent transition-colors group"
         onClick={() => setIsOpen(false)}
        >
