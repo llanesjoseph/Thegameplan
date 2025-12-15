@@ -5,7 +5,19 @@ import { Resend } from 'resend'
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+// Lazy initialization of Resend to avoid build-time errors when API key is missing
+let resendInstance: Resend | null = null
+function getResend(): Resend | null {
+  if (!resendInstance) {
+    const apiKey = process.env.RESEND_API_KEY
+    if (!apiKey) {
+      console.warn('⚠️ RESEND_API_KEY not set - email notifications will be disabled')
+      return null
+    }
+    resendInstance = new Resend(apiKey)
+  }
+  return resendInstance
+}
 
 interface BugReportRequest {
   description: string
@@ -145,6 +157,11 @@ export async function POST(request: NextRequest) {
     `
 
     // Send email using Resend
+    const resend = getResend()
+    if (!resend) {
+      return NextResponse.json({ success: false, error: 'Email service not configured' }, { status: 500 })
+    }
+
     const { data, error } = await resend.emails.send({
       from: 'Athleap Bug Reports <noreply@mail.crucibleanalytics.dev>',
       to: ['joseph@crucibleanalytics.dev'], // Your email

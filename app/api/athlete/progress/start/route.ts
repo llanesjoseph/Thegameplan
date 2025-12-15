@@ -103,17 +103,20 @@ export async function POST(request: NextRequest) {
 
     const feedData = feedDoc.data()
     const startedLessons = feedData?.startedLessons || []
-    
+
     // Only add if not already started (idempotent)
     if (!startedLessons.includes(lessonId)) {
+      // CRITICAL FIX: Also add to availableLessons to ensure it's counted in aggregation
+      // This fixes the issue where "in progress" count shows 0 even when lessons are started
       await feedRef.update({
         startedLessons: FieldValue.arrayUnion(lessonId),
+        availableLessons: FieldValue.arrayUnion(lessonId), // Ensure lesson is in available list
         [`startDates.${lessonId}`]: FieldValue.serverTimestamp(),
         lastActivity: FieldValue.serverTimestamp(),
         updatedAt: FieldValue.serverTimestamp()
       })
-      
-      console.log(`✅ Athlete ${athleteId} started lesson ${lessonId}`)
+
+      console.log(`✅ Athlete ${athleteId} started lesson ${lessonId} (also added to availableLessons)`)
     }
 
     return NextResponse.json({

@@ -13,7 +13,19 @@ import { getAdminEmails, sendAdminNotificationEmail } from '@/lib/email-service'
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+// Lazy initialization of Resend to avoid build-time errors when API key is missing
+let resendInstance: Resend | null = null
+function getResend(): Resend | null {
+  if (!resendInstance) {
+    const apiKey = process.env.RESEND_API_KEY
+    if (!apiKey) {
+      console.warn('⚠️ RESEND_API_KEY not set - email notifications will be disabled')
+      return null
+    }
+    resendInstance = new Resend(apiKey)
+  }
+  return resendInstance
+}
 
 /**
  * POST - Create athlete invitation with coach assignment
@@ -130,6 +142,11 @@ export async function POST(request: NextRequest) {
     let emailError = null
 
     try {
+      const resend = getResend()
+      if (!resend) {
+        throw new Error('RESEND_API_KEY environment variable is not configured')
+      }
+
       const emailResult = await resend.emails.send({
         from: 'Athleap Team <noreply@mail.crucibleanalytics.dev>',
         to: athleteEmail,
@@ -162,13 +179,16 @@ export async function POST(request: NextRequest) {
     // Send notification to coach
     if (coachEmail) {
       try {
-        await resend.emails.send({
-          from: 'Athleap Team <noreply@mail.crucibleanalytics.dev>',
-          to: coachEmail,
-          subject: `New Athlete Invitation Sent - ${athleteName}`,
-          html: generateCoachNotificationEmail(coachName, athleteName, sport, userData.displayName || userData.email)
-        })
-        console.log(`📧 Coach notification sent to ${coachEmail}`)
+        const resend = getResend()
+        if (resend) {
+          await resend.emails.send({
+            from: 'Athleap Team <noreply@mail.crucibleanalytics.dev>',
+            to: coachEmail,
+            subject: `New Athlete Invitation Sent - ${athleteName}`,
+            html: generateCoachNotificationEmail(coachName, athleteName, sport, userData.displayName || userData.email)
+          })
+          console.log(`📧 Coach notification sent to ${coachEmail}`)
+        }
       } catch (error) {
         console.error('Failed to send coach notification:', error)
         // Don't fail the request if notification fails

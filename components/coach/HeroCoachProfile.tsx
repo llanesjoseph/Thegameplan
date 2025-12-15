@@ -77,6 +77,27 @@ const SPORT_LABEL_OVERRIDES: Record<string, string> = {
 // REMOVED: DEFAULT_GALLERY_IMAGES - coaches should only see photos they upload themselves
 // No hardcoded fallback images to ensure strict control over displayed photos
 
+// CRITICAL: Helper function to proxy Firebase Storage URLs through our image proxy
+// This fixes CORS issues that cause "Image unavailable" errors
+// Must be defined outside components so it's accessible to all functions
+function getProxiedImageUrl(url: string | undefined | null): string | undefined {
+  if (!url || typeof url !== 'string' || url.trim().length === 0) return undefined
+  
+  const trimmedUrl = url.trim()
+  
+  // If it's a Firebase Storage URL, use the proxy to bypass CORS
+  if (trimmedUrl.includes('firebasestorage.googleapis.com') || trimmedUrl.includes('storage.googleapis.com')) {
+    return `/api/image-proxy?url=${encodeURIComponent(trimmedUrl)}`
+  }
+  
+  // If it's already a full HTTP/HTTPS URL, use it directly
+  if (trimmedUrl.startsWith('http://') || trimmedUrl.startsWith('https://')) {
+    return trimmedUrl
+  }
+  
+  return undefined
+}
+
 const ATHLEAP_SOCIAL_LINKS: SocialLinks = {
   linkedin: 'https://www.linkedin.com/company/athleap',
   facebook: 'https://www.facebook.com/athleap',
@@ -215,26 +236,6 @@ export default function HeroCoachProfile({
   const normalizedSport = activeCoach.sport?.trim().toLowerCase() || 'default'
   const theme = SPORT_THEMES[normalizedSport] || SPORT_THEMES.default
 
-  // CRITICAL: Helper function to proxy Firebase Storage URLs through our image proxy
-  // This fixes CORS issues that cause "Image unavailable" errors
-  const getProxiedImageUrl = (url: string | undefined | null): string | undefined => {
-    if (!url || typeof url !== 'string' || url.trim().length === 0) return undefined
-    
-    const trimmedUrl = url.trim()
-    
-    // If it's a Firebase Storage URL, use the proxy to bypass CORS
-    if (trimmedUrl.includes('firebasestorage.googleapis.com') || trimmedUrl.includes('storage.googleapis.com')) {
-      return `/api/image-proxy?url=${encodeURIComponent(trimmedUrl)}`
-    }
-    
-    // If it's already a full HTTP/HTTPS URL, use it directly
-    if (trimmedUrl.startsWith('http://') || trimmedUrl.startsWith('https://')) {
-      return trimmedUrl
-    }
-    
-    return undefined
-  }
-
   const galleryPhotos = useMemo(() => {
     const photos: string[] = []
     
@@ -259,11 +260,12 @@ export default function HeroCoachProfile({
     }
     
     // Remove duplicates and filter out any invalid URLs
+    // IMPORTANT: Also allow relative URLs like /api/image-proxy which are used to bypass CORS
     const deduped = Array.from(new Set(photos.filter((url) => {
-      return typeof url === 'string' && 
-             url.trim().length > 0 && 
+      return typeof url === 'string' &&
+             url.trim().length > 0 &&
              !url.includes('placeholder') &&
-             (url.startsWith('http://') || url.startsWith('https://'))
+             (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('/api/'))
     })))
     
     // Debug logging

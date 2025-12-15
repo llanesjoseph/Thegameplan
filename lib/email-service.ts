@@ -2,7 +2,20 @@ import { Resend } from 'resend'
 import { getEmailTemplate } from './email-templates'
 import { adminDb } from './firebase.admin'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+// Lazy initialization of Resend to avoid build-time errors when API key is missing
+let resendInstance: Resend | null = null
+function getResend(): Resend | null {
+  if (!resendInstance) {
+    const apiKey = process.env.RESEND_API_KEY
+    if (!apiKey) {
+      console.warn('⚠️ RESEND_API_KEY not set - email notifications will be disabled')
+      return null
+    }
+    resendInstance = new Resend(apiKey)
+  }
+  return resendInstance
+}
+
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://athleap.crucibleanalytics.dev'
 
 interface CoachInvitationEmailProps {
@@ -43,6 +56,12 @@ export async function sendCoachInvitationEmail({
       recipientName
     })
 
+    const resend = getResend()
+    if (!resend) {
+      console.warn('⚠️ Resend not configured, skipping email send')
+      return { success: false, error: 'Email service not configured' }
+    }
+
     const { data, error } = await resend.emails.send({
       from: 'AthLeap <noreply@mail.crucibleanalytics.dev>', // Use verified mail subdomain
       to: [to],
@@ -81,6 +100,12 @@ export async function sendApplicationStatusEmail({
   loginUrl = 'https://athleap.com/dashboard'
 }: ApplicationStatusEmailProps) {
   try {
+    const resend = getResend()
+    if (!resend) {
+      console.warn('⚠️ Resend not configured, skipping email send')
+      return { success: false, error: 'Email service not configured' }
+    }
+
     const isApproved = status === 'approved'
 
     const { data, error } = await resend.emails.send({
@@ -268,6 +293,12 @@ export async function sendAthleteInvitationEmail({
   expiresAt
 }: AthleteInvitationEmailProps) {
   try {
+    const resend = getResend()
+    if (!resend) {
+      console.warn('⚠️ Resend not configured, skipping email send')
+      return { success: false, error: 'Email service not configured' }
+    }
+
     const expiryDate = new Date(expiresAt).toLocaleDateString() // kept for compatibility; not displayed directly
     const firstName = athleteName?.split(' ')[0] || 'there'
 
@@ -419,6 +450,12 @@ export async function sendCoachNotificationEmail({
 
       default:
         throw new Error(`Unknown notification type: ${type}`)
+    }
+
+    const resend = getResend()
+    if (!resend) {
+      console.warn('⚠️ Resend not configured, skipping email send')
+      return { success: false, error: 'Email service not configured' }
     }
 
     const { data, error } = await resend.emails.send({
@@ -745,6 +782,12 @@ export async function sendLiveSessionRequestEmail({
   sessionUrl
 }: LiveSessionRequestEmailProps) {
   try {
+    const resend = getResend()
+    if (!resend) {
+      console.warn('⚠️ Resend not configured, skipping email send')
+      return { success: false, error: 'Email service not configured' }
+    }
+
     // Format date for display
     const dateObj = new Date(preferredDate)
     const formattedDate = dateObj.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
@@ -845,6 +888,12 @@ export async function sendAthleteWelcomeEmail({
   passwordResetLink
 }: AthleteWelcomeEmailProps) {
   try {
+    const resend = getResend()
+    if (!resend) {
+      console.warn('⚠️ Resend not configured, skipping email send')
+      return { success: false, error: 'Email service not configured' }
+    }
+
     const { data, error } = await resend.emails.send({
       from: 'AthLeap <noreply@mail.crucibleanalytics.dev>',
       to: [to],
@@ -953,6 +1002,12 @@ export async function sendVideoSubmissionNotification({
   context
 }: VideoSubmissionNotificationProps) {
   try {
+    const resend = getResend()
+    if (!resend) {
+      console.warn('⚠️ Resend not configured, skipping email send')
+      return { success: false, error: 'Email service not configured' }
+    }
+
     const { data, error } = await resend.emails.send({
       from: 'AthLeap <noreply@mail.crucibleanalytics.dev>',
       to: [to],
@@ -1028,6 +1083,12 @@ export async function sendReviewPublishedNotification({
   reviewUrl
 }: ReviewPublishedNotificationProps) {
   try {
+    const resend = getResend()
+    if (!resend) {
+      console.warn('⚠️ Resend not configured, skipping email send')
+      return { success: false, error: 'Email service not configured' }
+    }
+
     const { data, error } = await resend.emails.send({
       from: 'AthLeap <noreply@mail.crucibleanalytics.dev>',
       to: [to],
@@ -1139,6 +1200,12 @@ export async function sendAdminNotificationEmail({
   customMessage
 }: AdminNotificationEmailProps) {
   try {
+    const resend = getResend()
+    if (!resend) {
+      console.warn('⚠️ Resend not configured, skipping email send')
+      return { success: false, error: 'Email service not configured' }
+    }
+
     const invitationTypeLabel = invitationType === 'coach' ? 'Coach' : invitationType === 'athlete' ? 'Athlete' : 'Admin'
     const subject = `🔔 New ${invitationTypeLabel} Invitation Sent - AthLeap`
 
@@ -1263,6 +1330,12 @@ export async function sendSessionConfirmationEmail({
   dashboardUrl = `${APP_URL}/dashboard/athlete`
 }: SessionConfirmationEmailProps) {
   try {
+    const resend = getResend()
+    if (!resend) {
+      console.warn('⚠️ Resend not configured, skipping email send')
+      return { success: false, error: 'Email service not configured' }
+    }
+
     // Format dates for display
     const confirmedDateObj = new Date(confirmedDate)
     const formattedConfirmedDate = confirmedDateObj.toLocaleDateString('en-US', {
@@ -1397,6 +1470,12 @@ export async function sendScheduleEventNotificationEmail({
   dashboardUrl = `${APP_URL}/dashboard/athlete`
 }: ScheduleEventNotificationEmailProps) {
   try {
+    const resend = getResend()
+    if (!resend) {
+      console.warn('⚠️ Resend not configured, skipping email send')
+      return { success: false, error: 'Email service not configured' }
+    }
+
     // Format the date for display
     const dateObj = new Date(`${eventDate}T${eventTime}`)
     const formattedDate = dateObj.toLocaleDateString('en-US', {

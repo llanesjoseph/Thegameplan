@@ -6,14 +6,26 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth, adminDb } from '@/lib/firebase.admin'
 import { Timestamp } from 'firebase-admin/firestore'
-import { Resend } from 'resend'
 import { getAdminEmails, sendAdminNotificationEmail } from '@/lib/email-service'
+import { Resend } from 'resend'
+
+// Lazy initialization of Resend to avoid build-time errors when API key is missing
+let resendInstance: Resend | null = null
+function getResend(): Resend | null {
+  if (!resendInstance) {
+    const apiKey = process.env.RESEND_API_KEY
+    if (!apiKey) {
+      console.warn('⚠️ RESEND_API_KEY not set - email notifications will be disabled')
+      return null
+    }
+    resendInstance = new Resend(apiKey)
+  }
+  return resendInstance
+}
 
 // Force dynamic rendering for API route
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
-
-const resend = new Resend(process.env.RESEND_API_KEY)
 
 /**
  * POST - Create coach invitation
@@ -102,6 +114,11 @@ export async function POST(request: NextRequest) {
     let emailError = null
 
     try {
+      const resend = getResend()
+      if (!resend) {
+        throw new Error('RESEND_API_KEY environment variable is not configured')
+      }
+
       const emailResult = await resend.emails.send({
         from: 'AthLeap Team <noreply@mail.crucibleanalytics.dev>',
         to: coachEmail,

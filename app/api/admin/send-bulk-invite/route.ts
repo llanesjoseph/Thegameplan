@@ -13,7 +13,19 @@ import { normalizeSportName } from '@/lib/constants/sports'
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+// Lazy initialization of Resend to avoid build-time errors when API key is missing
+let resendInstance: Resend | null = null
+function getResend(): Resend | null {
+  if (!resendInstance) {
+    const apiKey = process.env.RESEND_API_KEY
+    if (!apiKey) {
+      console.warn('⚠️ RESEND_API_KEY not set - email notifications will be disabled')
+      return null
+    }
+    resendInstance = new Resend(apiKey)
+  }
+  return resendInstance
+}
 
 /**
  * POST - Send bulk invitation with Athleap Early Access template
@@ -122,6 +134,11 @@ export async function POST(request: NextRequest) {
     let emailError = null
 
     try {
+      const resend = getResend()
+      if (!resend) {
+        throw new Error('RESEND_API_KEY environment variable is not configured')
+      }
+
       const emailResult = await resend.emails.send({
         from: 'Athleap Team <noreply@mail.crucibleanalytics.dev>',
         to: email,
