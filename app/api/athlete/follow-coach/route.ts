@@ -93,6 +93,11 @@ export async function POST(request: NextRequest) {
     // CRITICAL: Use TRANSACTION to prevent race conditions and enforce hard limits
     // This ensures the limit check and follow creation are atomic
     await adminDb.runTransaction(async (transaction) => {
+      // Ensure athleteId is defined (should always be at this point, but TypeScript needs this)
+      if (!athleteId) {
+        throw new Error('Athlete ID is required')
+      }
+      
       // Re-count coaches in transaction to prevent race conditions
       const followingSnapshot = await transaction.get(
         adminDb.collection('coach_followers')
