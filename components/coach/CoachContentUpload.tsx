@@ -5,9 +5,9 @@ import { useAuth } from '@/hooks/use-auth'
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
 import { storage, db } from '@/lib/firebase.client'
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
-import { Upload, Video, FileText, X, Check, Play, Pause, Camera } from 'lucide-react'
+import { Upload, Video, FileText, X, Check, Play, Pause, Camera, Link as LinkIcon } from 'lucide-react'
 
-type ContentType = 'video' | 'document'
+type ContentType = 'video' | 'document' | 'link'
 
 interface UploadProgress {
   fileName: string
@@ -23,6 +23,7 @@ export default function CoachContentUpload() {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [linkUrl, setLinkUrl] = useState('')
   const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(null)
   const [isUploading, setIsUploading] = useState(false)
 
@@ -151,93 +152,161 @@ export default function CoachContentUpload() {
     }
   }
 
+  const validateUrl = (url: string): boolean => {
+    try {
+      const urlObj = new URL(url)
+      return urlObj.protocol === 'http:' || urlObj.protocol === 'https:'
+    } catch {
+      return false
+    }
+  }
+
   const handleUpload = async () => {
-    if (!user?.uid || !selectedFile || !title.trim()) {
-      alert('Please fill in all required fields and select a file')
+    // Validate based on content type
+    if (!user?.uid || !title.trim()) {
+      alert('Please fill in all required fields')
       return
     }
 
+    if (contentType === 'link') {
+      if (!linkUrl.trim()) {
+        alert('Please enter a URL link')
+        return
+      }
+      if (!validateUrl(linkUrl.trim())) {
+        alert('Please enter a valid URL (must start with http:// or https://)')
+        return
+      }
+    } else {
+      if (!selectedFile) {
+        alert('Please select a file to upload')
+        return
+      }
+    }
+
     setIsUploading(true)
-    setUploadProgress({
-      fileName: selectedFile.name,
-      progress: 0,
-      status: 'uploading'
-    })
 
     try {
-      // Create storage reference
-      const timestamp = Date.now()
-      const fileExt = selectedFile.name.split('.').pop()
-      const storagePath = `coaches/${user.uid}/content/${contentType}s/${timestamp}.${fileExt}`
-      const storageRef = ref(storage, storagePath)
+      if (contentType === 'link') {
+        // Handle link content - no file upload needed
+        setUploadProgress({
+          fileName: 'Link',
+          progress: 0,
+          status: 'uploading'
+        })
 
-      // Upload file with progress tracking
-      const uploadTask = uploadBytesResumable(storageRef, selectedFile)
+        // Save link to Firestore
+        await addDoc(collection(db, 'coach_content'), {
+          coachId: user.uid,
+          coachName: user.displayName || 'Unknown Coach',
+          contentType: 'link',
+          title: title.trim(),
+          description: description.trim(),
+          linkUrl: linkUrl.trim(),
+          uploadedAt: serverTimestamp(),
+          isPublic: false, // Default to private
+          views: 0
+        })
 
-      uploadTask.on(
-        'state_changed',
-        (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-          setUploadProgress(prev => prev ? { ...prev, progress } : null)
-        },
-        (error) => {
-          console.error('Upload error:', error)
-          setUploadProgress({
-            fileName: selectedFile.name,
-            progress: 0,
-            status: 'error',
-            error: error.message
-          })
+        setUploadProgress({
+          fileName: 'Link',
+          progress: 100,
+          status: 'complete',
+          url: linkUrl.trim()
+        })
+
+        // Reset form after 2 seconds
+        setTimeout(() => {
+          setTitle('')
+          setDescription('')
+          setLinkUrl('')
+          setUploadProgress(null)
           setIsUploading(false)
-        },
-        async () => {
-          // Upload complete - get download URL
-          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref)
+        }, 2000)
+      } else {
+        // Handle file upload (video or document)
+        if (!selectedFile) return
 
-          // Save metadata to Firestore
-          await addDoc(collection(db, 'coach_content'), {
-            coachId: user.uid,
-            coachName: user.displayName || 'Unknown Coach',
-            contentType,
-            title: title.trim(),
-            description: description.trim(),
-            fileUrl: downloadURL,
-            fileName: selectedFile.name,
-            fileSize: selectedFile.size,
-            thumbnail: selectedThumbnail || null,
-            uploadedAt: serverTimestamp(),
-            isPublic: false, // Default to private
-            views: 0
-          })
+        setUploadProgress({
+          fileName: selectedFile.name,
+          progress: 0,
+          status: 'uploading'
+        })
 
-          setUploadProgress({
-            fileName: selectedFile.name,
-            progress: 100,
-            status: 'complete',
-            url: downloadURL
-          })
+        // Create storage reference
+        const timestamp = Date.now()
+        const fileExt = selectedFile.name.split('.').pop()
+        const storagePath = `coaches/${user.uid}/content/${contentType}s/${timestamp}.${fileExt}`
+        const storageRef = ref(storage, storagePath)
 
-          // Reset form after 2 seconds
-          setTimeout(() => {
-            setTitle('')
-            setDescription('')
-            setSelectedFile(null)
-            if (videoUrl) {
-              URL.revokeObjectURL(videoUrl)
-            }
-            setVideoUrl('')
-            setShowThumbnailSelector(false)
-            setThumbnailCandidates([])
-            setSelectedThumbnail('')
-            setUploadProgress(null)
+        // Upload file with progress tracking
+        const uploadTask = uploadBytesResumable(storageRef, selectedFile)
+
+        uploadTask.on(
+          'state_changed',
+          (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+            setUploadProgress(prev => prev ? { ...prev, progress } : null)
+          },
+          (error) => {
+            console.error('Upload error:', error)
+            setUploadProgress({
+              fileName: selectedFile.name,
+              progress: 0,
+              status: 'error',
+              error: error.message
+            })
             setIsUploading(false)
-          }, 2000)
-        }
-      )
+          },
+          async () => {
+            // Upload complete - get download URL
+            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref)
+
+            // Save metadata to Firestore
+            await addDoc(collection(db, 'coach_content'), {
+              coachId: user.uid,
+              coachName: user.displayName || 'Unknown Coach',
+              contentType,
+              title: title.trim(),
+              description: description.trim(),
+              fileUrl: downloadURL,
+              fileName: selectedFile.name,
+              fileSize: selectedFile.size,
+              thumbnail: selectedThumbnail || null,
+              uploadedAt: serverTimestamp(),
+              isPublic: false, // Default to private
+              views: 0
+            })
+
+            setUploadProgress({
+              fileName: selectedFile.name,
+              progress: 100,
+              status: 'complete',
+              url: downloadURL
+            })
+
+            // Reset form after 2 seconds
+            setTimeout(() => {
+              setTitle('')
+              setDescription('')
+              setSelectedFile(null)
+              if (videoUrl) {
+                URL.revokeObjectURL(videoUrl)
+              }
+              setVideoUrl('')
+              setShowThumbnailSelector(false)
+              setThumbnailCandidates([])
+              setSelectedThumbnail('')
+              setUploadProgress(null)
+              setIsUploading(false)
+            }, 2000)
+          }
+        )
+      }
     } catch (error) {
       console.error('Upload failed:', error)
       setUploadProgress({
-        fileName: selectedFile.name,
+        fileName: contentType === 'link' ? 'Link' : (selectedFile?.name || 'File'),
         progress: 0,
         status: 'error',
         error: 'Upload failed. Please try again.'
@@ -253,10 +322,14 @@ export default function CoachContentUpload() {
         <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
           Content Type
         </label>
-        <div className="flex gap-3">
+        <div className="grid grid-cols-3 gap-3">
           <button
-            onClick={() => setContentType('video')}
-            className={`flex-1 py-3 px-4 rounded-lg border-2 transition-all ${
+            onClick={() => {
+              setContentType('video')
+              setLinkUrl('')
+              setSelectedFile(null)
+            }}
+            className={`py-3 px-4 rounded-lg border-2 transition-all ${
               contentType === 'video'
                 ? 'border-black bg-black text-white'
                 : 'border-gray-200 bg-white text-black hover:border-black'
@@ -268,8 +341,12 @@ export default function CoachContentUpload() {
             </span>
           </button>
           <button
-            onClick={() => setContentType('document')}
-            className={`flex-1 py-3 px-4 rounded-lg border-2 transition-all ${
+            onClick={() => {
+              setContentType('document')
+              setLinkUrl('')
+              setSelectedFile(null)
+            }}
+            className={`py-3 px-4 rounded-lg border-2 transition-all ${
               contentType === 'document'
                 ? 'border-black bg-black text-white'
                 : 'border-gray-200 bg-white text-black hover:border-black'
@@ -278,6 +355,27 @@ export default function CoachContentUpload() {
             <FileText className="w-5 h-5 mx-auto mb-1" />
             <span className="text-sm font-bold" style={{ fontFamily: '"Open Sans", sans-serif' }}>
               Document
+            </span>
+          </button>
+          <button
+            onClick={() => {
+              setContentType('link')
+              setSelectedFile(null)
+              if (videoUrl) {
+                URL.revokeObjectURL(videoUrl)
+              }
+              setVideoUrl('')
+              setShowThumbnailSelector(false)
+            }}
+            className={`py-3 px-4 rounded-lg border-2 transition-all ${
+              contentType === 'link'
+                ? 'border-black bg-black text-white'
+                : 'border-gray-200 bg-white text-black hover:border-black'
+            }`}
+          >
+            <LinkIcon className="w-5 h-5 mx-auto mb-1" />
+            <span className="text-sm font-bold" style={{ fontFamily: '"Open Sans", sans-serif' }}>
+              Link
             </span>
           </button>
         </div>
@@ -315,30 +413,51 @@ export default function CoachContentUpload() {
         />
       </div>
 
-      {/* File Upload */}
-      <div>
-        <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
-          {contentType === 'video' ? 'Video File' : 'Document File'} <span style={{ color: '#FC0105' }}>*</span>
-        </label>
-        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-black transition-colors">
+      {/* File Upload or URL Input */}
+      {contentType === 'link' ? (
+        <div>
+          <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+            URL Link <span style={{ color: '#FC0105' }}>*</span>
+          </label>
           <input
-            type="file"
-            onChange={handleFileSelect}
-            accept={contentType === 'video' ? 'video/*' : '.pdf,.doc,.docx'}
-            className="hidden"
-            id="file-upload"
+            type="url"
+            value={linkUrl}
+            onChange={(e) => setLinkUrl(e.target.value)}
+            placeholder="https://example.com/article"
+            className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-black focus:outline-none"
+            style={{ fontFamily: '"Open Sans", sans-serif' }}
             disabled={isUploading}
           />
-          <label htmlFor="file-upload" className="cursor-pointer">
-            <Upload className="w-12 h-12 mx-auto mb-2" style={{ color: '#666' }} />
-            <p className="text-sm font-bold mb-1" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
-              {selectedFile ? selectedFile.name : 'Click to upload file'}
-            </p>
-            <p className="text-xs" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
-              {contentType === 'video' ? 'Max size: 500MB' : 'Max size: 50MB'}
-            </p>
-          </label>
+          <p className="text-xs mt-1" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+            Enter a valid URL (e.g., https://example.com)
+          </p>
         </div>
+      ) : (
+        <div>
+          <label className="block text-sm font-bold mb-2" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+            {contentType === 'video' ? 'Video File' : 'Document File'} <span style={{ color: '#FC0105' }}>*</span>
+          </label>
+          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-black transition-colors">
+            <input
+              type="file"
+              onChange={handleFileSelect}
+              accept={contentType === 'video' ? 'video/*' : '.pdf,.doc,.docx'}
+              className="hidden"
+              id="file-upload"
+              disabled={isUploading}
+            />
+            <label htmlFor="file-upload" className="cursor-pointer">
+              <Upload className="w-12 h-12 mx-auto mb-2" style={{ color: '#666' }} />
+              <p className="text-sm font-bold mb-1" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
+                {selectedFile ? selectedFile.name : 'Click to upload file'}
+              </p>
+              <p className="text-xs" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
+                {contentType === 'video' ? 'Max size: 500MB' : 'Max size: 50MB'}
+              </p>
+            </label>
+          </div>
+        </div>
+      )}
 
         {/* Thumbnail scrubber (video only) */}
         {contentType === 'video' && selectedFile && showThumbnailSelector && videoUrl && (
@@ -466,15 +585,23 @@ export default function CoachContentUpload() {
       {/* Upload Button */}
       <button
         onClick={handleUpload}
-        disabled={!title.trim() || !selectedFile || isUploading}
+        disabled={
+          !title.trim() || 
+          isUploading || 
+          (contentType === 'link' ? !linkUrl.trim() : !selectedFile)
+        }
         className={`w-full py-3 px-6 rounded-lg font-bold text-white transition-colors ${
-          !title.trim() || !selectedFile || isUploading
+          !title.trim() || 
+          isUploading || 
+          (contentType === 'link' ? !linkUrl.trim() : !selectedFile)
             ? 'bg-gray-300 cursor-not-allowed'
             : 'bg-black hover:bg-gray-800'
         }`}
         style={{ fontFamily: '"Open Sans", sans-serif' }}
       >
-        {isUploading ? 'Uploading...' : 'Upload Content'}
+        {isUploading 
+          ? (contentType === 'link' ? 'Saving...' : 'Uploading...') 
+          : (contentType === 'link' ? 'Save Link' : 'Upload Content')}
       </button>
 
       {/* Info Note */}
