@@ -12,6 +12,9 @@ interface UpdateImagesRequest {
   headshotUrl?: string
   heroImageUrl?: string
   actionPhotos?: string[]
+  galleryPhotos?: string[]
+  showcasePhoto1?: string
+  showcasePhoto2?: string
   highlightVideo?: string
 }
 
@@ -31,11 +34,14 @@ export async function POST(request: NextRequest) {
       headshotUrl,
       heroImageUrl,
       actionPhotos,
+      galleryPhotos,
+      showcasePhoto1,
+      showcasePhoto2,
       highlightVideo
     } = body
 
     // Validate at least one field is provided
-    if (!headshotUrl && !heroImageUrl && !actionPhotos && !highlightVideo) {
+    if (!headshotUrl && !heroImageUrl && !actionPhotos && !galleryPhotos && !showcasePhoto1 && !showcasePhoto2 && !highlightVideo) {
       return NextResponse.json(
         { error: 'At least one image or video field must be provided' },
         { status: 400 }
@@ -83,29 +89,98 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         )
       }
-      updateData.actionPhotos = actionPhotos
+      // IRONCLAD: Save actionPhotos and also sync to galleryPhotos for consistency
+      updateData.actionPhotos = actionPhotos.filter((url: any) => typeof url === 'string' && url.trim().length > 0)
+      // If galleryPhotos not provided, use actionPhotos as galleryPhotos
+      if (!galleryPhotos) {
+        updateData.galleryPhotos = updateData.actionPhotos
+      }
+    }
+
+    if (galleryPhotos) {
+      // Validate gallery photos array
+      if (!Array.isArray(galleryPhotos)) {
+        return NextResponse.json(
+          { error: 'galleryPhotos must be an array of URLs' },
+          { status: 400 }
+        )
+      }
+      // IRONCLAD: Save galleryPhotos - this is the primary field for gallery display
+      updateData.galleryPhotos = galleryPhotos.filter((url: any) => typeof url === 'string' && url.trim().length > 0)
+    }
+
+    if (showcasePhoto1) {
+      updateData.showcasePhoto1 = showcasePhoto1.trim()
+    }
+
+    if (showcasePhoto2) {
+      updateData.showcasePhoto2 = showcasePhoto2.trim()
     }
 
     if (highlightVideo) {
       updateData.highlightVideo = highlightVideo
     }
 
-    // Update coach profile in Firestore
-    await db.collection('creator_profiles').doc(authUser.uid).update(updateData)
+    // IRONCLAD: Save to ALL collections to ensure photos are always visible
+    const batch = db.batch()
+    
+    // 1. Save to creator_profiles (primary collection)
+    const creatorRef = db.collection('creator_profiles').doc(authUser.uid)
+    batch.set(creatorRef, updateData, { merge: true })
+    
+    // 2. Save to coach_profiles (for components that check this collection)
+    const coachRef = db.collection('coach_profiles').doc(authUser.uid)
+    batch.set(coachRef, updateData, { merge: true })
+    
+    // 3. Save to users collection (for backward compatibility)
+    const userRef = db.collection('users').doc(authUser.uid)
+    const userUpdateData: any = {
+      updatedAt: updateData.updatedAt
+    }
+    if (headshotUrl) userUpdateData.profileImageUrl = headshotUrl
+    if (headshotUrl) userUpdateData.photoURL = headshotUrl // Legacy field
+    if (showcasePhoto1) userUpdateData.showcasePhoto1 = showcasePhoto1
+    if (showcasePhoto2) userUpdateData.showcasePhoto2 = showcasePhoto2
+    if (galleryPhotos || actionPhotos) {
+      userUpdateData.galleryPhotos = updateData.galleryPhotos || updateData.actionPhotos || []
+    }
+    batch.set(userRef, userUpdateData, { merge: true })
+    
+    // Commit all writes atomically
+    await batch.commit()
+    console.log(`✅ [COACH-PROFILE/UPDATE-IMAGES] IRONCLAD: Saved photos to creator_profiles, coach_profiles, and users for ${authUser.uid}`)
 
-    // AGGRESSIVE FIX: Use centralized sync function that reads FULL profile
-    // This ensures ALL fields are synced, including the new images
-    const syncResult = await syncCoachToBrowseCoaches(authUser.uid, {
+    // IRONCLAD: Sync to creators_index with retry logic to ensure it ALWAYS happens
+    let syncResult = await syncCoachToBrowseCoaches(authUser.uid, {
       uid: authUser.uid,
       ...updateData
     })
     
+    // Retry sync if it fails (up to 2 retries)
     if (!syncResult.success) {
-      console.error(`❌ [COACH-PROFILE/UPDATE-IMAGES] CRITICAL: Failed to sync to Browse Coaches: ${syncResult.error}`)
-      console.error(`   This means image updates may not appear in Browse Coaches immediately!`)
-      // Don't throw - allow the update to succeed even if index update fails
+      console.warn(`⚠️ [COACH-PROFILE/UPDATE-IMAGES] First sync attempt failed, retrying...`)
+      await new Promise(resolve => setTimeout(resolve, 500)) // Wait 500ms
+      syncResult = await syncCoachToBrowseCoaches(authUser.uid, {
+        uid: authUser.uid,
+        ...updateData
+      })
+      
+      if (!syncResult.success) {
+        console.warn(`⚠️ [COACH-PROFILE/UPDATE-IMAGES] Second sync attempt failed, final retry...`)
+        await new Promise(resolve => setTimeout(resolve, 1000)) // Wait 1s
+        syncResult = await syncCoachToBrowseCoaches(authUser.uid, {
+          uid: authUser.uid,
+          ...updateData
+        })
+      }
+    }
+    
+    if (!syncResult.success) {
+      console.error(`❌ [COACH-PROFILE/UPDATE-IMAGES] CRITICAL: Failed to sync to Browse Coaches after 3 attempts: ${syncResult.error}`)
+      console.error(`   Photos are saved but may not appear in Browse Coaches immediately.`)
+      // Don't throw - photos are saved, sync can be retried later
     } else {
-      console.log(`✅ [COACH-PROFILE/UPDATE-IMAGES] Successfully synced image updates to Browse Coaches for ${authUser.uid}`)
+      console.log(`✅ [COACH-PROFILE/UPDATE-IMAGES] IRONCLAD: Successfully synced image updates to creators_index for ${authUser.uid}`)
     }
 
     // Also update the creator data if it exists (for backwards compatibility)

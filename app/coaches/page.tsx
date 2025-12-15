@@ -35,7 +35,6 @@ export default function BrowseCoachesPage() {
   const [followingSet, setFollowingSet] = useState<Set<string>>(new Set())
   const [followingLoading, setFollowingLoading] = useState<Set<string>>(new Set())
   const [availableSports, setAvailableSports] = useState<string[]>([])
-  const [topAthletes, setTopAthletes] = useState<any[]>([])
   const [previewCoach, setPreviewCoach] = useState<Coach | null>(null)
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
 
@@ -153,18 +152,6 @@ export default function BrowseCoachesPage() {
     }
   }
 
-  const loadTopAthletes = async () => {
-    try {
-      const response = await fetch('/api/athletes/top?limit=3', { cache: 'no-store' })
-      const data = await response.json()
-      if (data.success && data.athletes) {
-        setTopAthletes(data.athletes)
-      }
-    } catch (error) {
-      console.error('Error loading top athletes:', error)
-    }
-  }
-
   const loadCoaches = async (reset = false) => {
     setLoading(true)
     try {
@@ -202,7 +189,6 @@ export default function BrowseCoachesPage() {
   useEffect(() => {
     loadCoaches(true)
     loadAvailableSports()
-    loadTopAthletes()
     if (user?.uid) {
       loadFollowingList()
     }
@@ -341,50 +327,7 @@ export default function BrowseCoachesPage() {
 
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="space-y-10">
-          {/* Top Athletes Section */}
-          {topAthletes.length > 0 && (
-            <div>
-              <h2 className="text-2xl font-bold mb-4" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif', fontWeight: 700 }}>
-                Top Athletes
-              </h2>
-              <p className="text-sm mb-4" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
-                Based on activity and engagement
-              </p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                {topAthletes.map((athlete) => (
-                  <div key={athlete.id} className="group block">
-                    <div className="space-y-2">
-                      <div className="relative w-full aspect-square rounded-lg overflow-hidden bg-gray-100 ring-2 ring-transparent group-hover:ring-black transition-all">
-                        {athlete.photoURL ? (
-                          <img
-                            src={athlete.photoURL}
-                            alt={athlete.displayName}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#8B7D7B' }}>
-                            <img src="/brand/athleap-logo-colored.png" alt="AthLeap" className="w-1/2 opacity-90" />
-                          </div>
-                        )}
-                      </div>
-                      <div>
-                        <p className="font-bold text-sm line-clamp-1" style={{ color: '#000000', fontFamily: '"Open Sans", sans-serif' }}>
-                          {athlete.displayName}
-                        </p>
-                        {athlete.sport && (
-                          <p className="text-xs line-clamp-1" style={{ color: '#666', fontFamily: '"Open Sans", sans-serif' }}>
-                            {athlete.sport}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-      {/* All Coaches by Sport Section (Wix-style "Coaches by Sport" block) */}
+          {/* All Coaches by Sport Section (Wix-style "Coaches by Sport" block) */}
           <div>
         {/* Section Header - centered like Wix "Coaches by Sport" */}
         <div className="mb-8">

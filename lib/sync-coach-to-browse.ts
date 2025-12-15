@@ -138,6 +138,13 @@ export async function syncCoachToBrowseCoaches(
       return { success: true }
     }
     
+    // IRONCLAD: Calculate all gallery photos before building indexData
+    // Merge from all sources to ensure no photos are lost
+    const allGalleryPhotos = [
+      ...(Array.isArray(fullProfileData.galleryPhotos) ? fullProfileData.galleryPhotos : []),
+      ...(Array.isArray(fullProfileData.actionPhotos) ? fullProfileData.actionPhotos : [])
+    ].filter((url: any) => typeof url === 'string' && url.trim().length > 0 && !url.includes('placeholder'))
+    
     // AGGRESSIVE: Prepare COMPLETE data for creators_index with ALL fields
     // This is what Browse Coaches reads from
     const indexData: any = {
@@ -180,14 +187,13 @@ export async function syncCoachToBrowseCoaches(
       heroImageUrl: fullProfileData.heroImageUrl || '',
       coverImageUrl: fullProfileData.coverImageUrl || fullProfileData.heroImageUrl || '',
       
-      // Showcase and gallery photos
-      showcasePhoto1: fullProfileData.showcasePhoto1 || '',
-      showcasePhoto2: fullProfileData.showcasePhoto2 || '',
-      galleryPhotos: Array.isArray(fullProfileData.galleryPhotos) 
-        ? fullProfileData.galleryPhotos.filter((url: any) => typeof url === 'string' && url.trim().length > 0)
-        : Array.isArray(fullProfileData.actionPhotos)
-        ? fullProfileData.actionPhotos.filter((url: any) => typeof url === 'string' && url.trim().length > 0)
-        : [],
+      // IRONCLAD: Showcase and gallery photos - merge from all sources
+      // Prioritize explicit showcase photos, fallback to first gallery photos
+      showcasePhoto1: fullProfileData.showcasePhoto1 || (allGalleryPhotos.length > 0 ? allGalleryPhotos[0] : ''),
+      showcasePhoto2: fullProfileData.showcasePhoto2 || (allGalleryPhotos.length > 1 ? allGalleryPhotos[1] : ''),
+      // IRONCLAD: Always save galleryPhotos - this is the primary field for gallery display
+      galleryPhotos: Array.from(new Set(allGalleryPhotos)), // Remove duplicates
+      // Also keep actionPhotos for backward compatibility
       actionPhotos: Array.isArray(fullProfileData.actionPhotos) 
         ? fullProfileData.actionPhotos.filter((url: any) => typeof url === 'string' && url.trim().length > 0)
         : [],
