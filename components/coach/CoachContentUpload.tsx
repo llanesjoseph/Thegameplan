@@ -263,6 +263,39 @@ export default function CoachContentUpload() {
           if (!docId) {
             throw new Error('Failed to save link to Firestore after retries')
           }
+
+          // ALSO create as a lesson so it appears in Training Library and flows to athletes
+          try {
+            const token = await user.getIdToken()
+            const lessonResponse = await fetch('/api/coach/lessons/create', {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                title: trimmedTitle,
+                sport: 'other', // Default sport for quick links
+                level: 'beginner', // Default level
+                duration: 15, // Default duration for link content
+                contentType: 'link',
+                externalLinkUrl: trimmedUrl,
+                externalLinkDescription: description.trim(),
+                visibility: 'athletes_only',
+                objectives: [],
+                tags: ['external-link']
+              })
+            })
+
+            if (lessonResponse.ok) {
+              console.log('✅ Link also saved as lesson for Training Library')
+            } else {
+              console.warn('⚠️ Link saved to locker room but failed to create lesson')
+            }
+          } catch (lessonError) {
+            console.warn('⚠️ Link saved to locker room but failed to create lesson:', lessonError)
+            // Don't throw - the link was saved successfully to coach_content
+          }
         } catch (firestoreError: any) {
           console.error('Firestore error:', firestoreError)
           const errorMsg = firestoreError.message || firestoreError.code || 'Failed to save link'
