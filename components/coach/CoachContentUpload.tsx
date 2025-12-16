@@ -526,7 +526,7 @@ export default function CoachContentUpload() {
               value={linkUrl}
               onChange={(e) => setLinkUrl(e.target.value)}
               placeholder="https://youtube.com/watch?v=..."
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-black focus:ring-1 focus:ring-black focus:outline-none bg-white text-base"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-black focus:ring-1 focus:ring-black focus:outline-none bg-white text-black text-base placeholder:text-gray-400"
               disabled={isUploading}
             />
           </div>
@@ -541,7 +541,7 @@ export default function CoachContentUpload() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Give this link a title"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-black focus:ring-1 focus:ring-black focus:outline-none bg-white text-base"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-black focus:ring-1 focus:ring-black focus:outline-none bg-white text-black text-base placeholder:text-gray-400"
               disabled={isUploading}
             />
           </div>
@@ -556,7 +556,7 @@ export default function CoachContentUpload() {
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Brief description of this resource..."
               rows={2}
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:border-black focus:ring-1 focus:ring-black focus:outline-none resize-none bg-white text-sm"
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:border-black focus:ring-1 focus:ring-black focus:outline-none resize-none bg-white text-black text-sm placeholder:text-gray-400"
               disabled={isUploading}
             />
           </div>
