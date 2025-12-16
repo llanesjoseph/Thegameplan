@@ -19,6 +19,7 @@ import {
   writeBatch,
   onSnapshot,
   Unsubscribe,
+  runTransaction,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase.client';
 import {
@@ -288,6 +289,8 @@ export async function updateSubmission(
 
 /**
  * Coach claims a submission
+ * CRITICAL: Uses transaction to prevent race conditions where two coaches
+ * could claim the same submission simultaneously
  */
 export async function claimSubmission(
   submissionId: string,
@@ -296,26 +299,30 @@ export async function claimSubmission(
 ): Promise<void> {
   try {
     const submissionRef = doc(db, 'submissions', submissionId);
-    const submissionDoc = await getDoc(submissionRef);
 
-    if (!submissionDoc.exists()) {
-      throw new Error('Submission not found');
-    }
+    // Use transaction to ensure atomic read-check-write
+    await runTransaction(db, async (transaction) => {
+      const submissionDoc = await transaction.get(submissionRef);
 
-    const submission = submissionDoc.data() as Submission;
+      if (!submissionDoc.exists()) {
+        throw new Error('Submission not found');
+      }
 
-    // Check if already claimed
-    if (submission.claimedBy && submission.claimedBy !== coachUid) {
-      throw new Error('Submission already claimed by another coach');
-    }
+      const submission = submissionDoc.data() as Submission;
 
-    // Update submission
-    await updateDoc(submissionRef, {
-      claimedBy: coachUid,
-      claimedByName: coachName,
-      claimedAt: serverTimestamp(),
-      status: 'claimed',
-      updatedAt: serverTimestamp(),
+      // Check if already claimed by someone else
+      if (submission.claimedBy && submission.claimedBy !== coachUid) {
+        throw new Error('Submission already claimed by another coach');
+      }
+
+      // Atomically update submission within the transaction
+      transaction.update(submissionRef, {
+        claimedBy: coachUid,
+        claimedByName: coachName,
+        claimedAt: serverTimestamp(),
+        status: 'claimed',
+        updatedAt: serverTimestamp(),
+      });
     });
   } catch (error) {
     console.error('Error claiming submission:', error);

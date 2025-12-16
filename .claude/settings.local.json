@@ -56,7 +56,8 @@
       "Bash(\"C:\\Users\\bigpe\\OneDrive\\Desktop\\Crucible\\GAMEPLAN-SOURCE-ONLY\\stripe.exe\" --version)",
       "Bash(timeout 120 npm run build:*)",
       "Bash(vercel link:*)",
-      "Bash(vercel projects:*)"
+      "Bash(vercel projects:*)",
+      "Bash(grep:*)"
     ],
     "deny": [],
     "ask": []

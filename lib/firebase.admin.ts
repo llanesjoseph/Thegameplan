@@ -53,14 +53,14 @@ function initializeFirebaseAdmin(): App {
     }
   }
 
-  // Method 3: Development only - no credentials (will fail on authenticated operations)
-  if (process.env.NODE_ENV === 'development') {
-    console.warn('⚠️  Firebase Admin initialized WITHOUT credentials - auth operations will fail!')
-    return initializeApp({ projectId: PROJECT_ID })
-  }
+  // No credentials found - fail loudly in all environments
+  // Previously we allowed dev mode without credentials but this caused confusing errors later
+  const errorMsg = process.env.NODE_ENV === 'development'
+    ? 'Firebase Admin credentials missing. Set FIREBASE_SERVICE_ACCOUNT_KEY in .env.local for development.'
+    : 'FIREBASE_SERVICE_ACCOUNT_KEY or FIREBASE_PRIVATE_KEY+FIREBASE_CLIENT_EMAIL required in production'
 
-  // Production without credentials = fatal error
-  throw new Error('FIREBASE_SERVICE_ACCOUNT_KEY or FIREBASE_PRIVATE_KEY+FIREBASE_CLIENT_EMAIL required in production')
+  console.error('❌ Firebase Admin initialization failed:', errorMsg)
+  throw new Error(errorMsg)
 }
 
 const app = initializeFirebaseAdmin()

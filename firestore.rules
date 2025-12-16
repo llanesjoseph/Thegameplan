@@ -201,11 +201,11 @@ service cloud.firestore {
                     isOwner(resource.data.creatorUid) ||
                     isAdmin())
 
-      // Allow listing content (queries)
-      // Public can query all content (will be filtered to published by app)
+      // Allow listing content (queries) - Requires authentication
+      // Non-authenticated requests should use the public API endpoint for security
       // Creators can query their own content, admins can query all
-      // Athletes can query content from their coach
-      allow list: if true;
+      // Athletes can query published content from their coach
+      allow list: if isAuthenticated();
 
       allow create: if isCreatorOrHigher() &&
                        isValidContentData() &&
@@ -498,8 +498,11 @@ service cloud.firestore {
                      (isAuthenticated() &&
                       resource.data.userId != null &&
                       resource.data.userId == request.auth.uid);
-      // Anyone can create applications (for simple invitation flow)
-      allow create: if true;
+      // Create requires valid email and name fields (prevents spam bots)
+      // Unauthenticated users can apply but must provide valid data
+      allow create: if request.resource.data.keys().hasAny(['email', 'recipientEmail']) &&
+                       request.resource.data.keys().hasAny(['name', 'coachName']) &&
+                       (request.resource.data.email is string || request.resource.data.recipientEmail is string);
       // Only admins can update or delete applications
       allow update, delete: if isAdmin();
     }

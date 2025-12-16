@@ -5,13 +5,20 @@ import { isJasmineAikey, handleJasmineProvisioning } from './jasmine-client'
 // Baked profile check moved to API route to avoid importing firebase-admin in client code
 import { isKnownCoach, getKnownCoachRole } from './coach-role-mapping'
 
-// Superadmin emails - these users should never have their role auto-corrected
-const SUPERADMIN_EMAILS = [
-  'joseph@crucibleanalytics.dev'
-]
+// Superadmin emails - loaded from environment variable for security
+// Format: comma-separated list of emails in NEXT_PUBLIC_SUPERADMIN_EMAILS
+function getSuperadminEmails(): string[] {
+  const envEmails = process.env.NEXT_PUBLIC_SUPERADMIN_EMAILS || ''
+  return envEmails
+    .split(',')
+    .map(email => email.trim().toLowerCase())
+    .filter(email => email.length > 0)
+}
 
 function isSuperadmin(email: string | null): boolean {
-  return email ? SUPERADMIN_EMAILS.includes(email.toLowerCase()) : false
+  if (!email) return false
+  const superadminEmails = getSuperadminEmails()
+  return superadminEmails.includes(email.toLowerCase())
 }
 
 /**

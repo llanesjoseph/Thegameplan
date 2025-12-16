@@ -2,11 +2,31 @@ import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { adminDb } from '@/lib/firebase.admin';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2023-10-16',
-});
+// Validate required environment variables at startup
+const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
+const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
 
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+// Lazy initialization with validation
+let stripeInstance: Stripe | null = null;
+
+function getStripe(): Stripe {
+  if (!STRIPE_SECRET_KEY) {
+    throw new Error('STRIPE_SECRET_KEY environment variable is not configured');
+  }
+  if (!stripeInstance) {
+    stripeInstance = new Stripe(STRIPE_SECRET_KEY, {
+      apiVersion: '2023-10-16',
+    });
+  }
+  return stripeInstance;
+}
+
+function getWebhookSecret(): string {
+  if (!STRIPE_WEBHOOK_SECRET) {
+    throw new Error('STRIPE_WEBHOOK_SECRET environment variable is not configured');
+  }
+  return STRIPE_WEBHOOK_SECRET;
+}
 
 // Access limits per tier
 const TIER_ACCESS = {
@@ -52,14 +72,18 @@ export async function POST(request: NextRequest) {
   }
 
   let event: Stripe.Event;
+  let stripe: Stripe;
 
   try {
+    // Get validated Stripe instance and webhook secret
+    stripe = getStripe();
+    const webhookSecret = getWebhookSecret();
     event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
   } catch (err: any) {
-    console.error('Webhook signature verification failed:', err.message);
+    console.error('Webhook error:', err.message);
     return NextResponse.json(
       { error: `Webhook Error: ${err.message}` },
-      { status: 400 }
+      { status: err.message.includes('environment variable') ? 500 : 400 }
     );
   }
 
@@ -351,6 +375,7 @@ async function handlePaymentFailed(invoice: Stripe.Invoice) {
     return;
   }
 
+  const stripe = getStripe();
   const subscription = await stripe.subscriptions.retrieve(subscriptionId);
   const firebaseUID = subscription.metadata?.firebaseUID;
 
