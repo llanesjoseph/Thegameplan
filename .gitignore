@@ -29,6 +29,9 @@ service-account.json
 # Local Stripe config reference (contains real secrets, never commit)
 stripe.env
 
+# Vercel environment variables reference (contains real secrets, never commit)
+NEEDED_FOR_VERCEL.env
+
 # Stripe CLI binary
 stripe.exe
 vercel-firebase-key.txt
